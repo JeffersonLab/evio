@@ -42,9 +42,9 @@
 
 
 /* macros */
-#define MAXXMLBUF  50000
-#define MAXCDATA   50000
-#define MAXEVIOBUF 100000
+#define MAXXMLBUF  500000
+#define MAXCDATA   500000
+#define MAXEVIOBUF 500000
 #define MAXDEPTH   100
 #define MAXDICT    5000
 #define min(a, b)  ((a) > (b) ? (b) : (a))
@@ -69,6 +69,7 @@ static int eviohandle;
 static char xmlbuf[MAXXMLBUF];
 static char cdata[MAXCDATA];
 static char *pcdata=cdata;
+static int cdatalen       = 0;
 static unsigned long eviobuf[MAXEVIOBUF];
 static int eviolen        = 0;
 
@@ -354,6 +355,7 @@ void startDataElement(void *userData, const char *name, const char **atts) {
     push_stack(&s);
     cdata[0]='\0';
     pcdata=cdata;
+    cdatalen=0;
   }
   
   return;
@@ -398,6 +400,7 @@ void endDataElement(void *userData, const char *name) {
     }
     cdata[0]='\0';
     pcdata=cdata;
+    cdatalen=0;
   }
   
 
@@ -536,6 +539,11 @@ void dataHandler(void *userData, const XML_Char *s, int len) {
 
   if(skipit)return;
 /*    if(len<1)return; */
+  cdatalen+=len;
+  if(cdatalen>=MAXCDATA) {
+    printf("\n?cdata too large\n\n");
+    exit(EXIT_FAILURE);
+  }
   pcdata=strncat(pcdata,s,len);
   return;
 }
