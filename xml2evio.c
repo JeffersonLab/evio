@@ -623,10 +623,9 @@ void decode_cdata(int content, int *nword, int noexpand) {
   case 0x3:
     p=cdata+strspn(cdata,"\n");
     i=strlen(p);    
-    while((i>0)&&((p[i-1]==' ')||(p[i-1]=='\n')||(p[i-1]=='\t')))p[(i--)-1]='\0';
-    strcpy(p+i,"\n");
+    while((i>0)&&((p[i-1]==' ')||(p[i-1]=='\n')))p[(i--)-1]='\0';
     strcpy((char*)(&eviobuf[eviolen]),p);
-    nw=(i+1+3)/4;
+    nw=(i+3)/4;
     break;
 
   case 0x4:
