@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.11  2003/12/24 15:18:37  abbottd
+ *     fix for vxWorks(PPC) support
+ *
  *   Revision 1.10  2003/12/01 19:24:34  wolin
  *   Fix comments
  *
@@ -255,6 +258,10 @@ int evOpen(char *fname,char *flags,int *handle)
   case '\0': 
   case 'r': 
   case 'R': 
+#ifdef VXWORKS
+    a->file = fopen(filename,"r");
+    a->rw = EV_READ;
+#else   /* No pipe or zip/unzip support in vxWorks */
     a->rw = EV_READ;
     if(strcmp(filename,"-")==0) {
       a->file = stdin;
@@ -282,6 +289,7 @@ int evOpen(char *fname,char *flags,int *handle)
 	}
       }
     }
+#endif
     if (a->file) {
       fread(header,sizeof(header),1,a->file); /* update: check nbytes return */
       if (header[EV_HD_MAGIC] != EV_MAGIC) {
@@ -326,6 +334,10 @@ int evOpen(char *fname,char *flags,int *handle)
     
   case 'w': 
   case 'W':
+#ifdef VXWORKS
+    a->file = fopen(filename,"w");
+    a->rw = EV_WRITE;
+#else
     a->rw = EV_WRITE;
     if(strcmp(filename,"-")==0) {
       a->file = stdout;
@@ -335,6 +347,7 @@ int evOpen(char *fname,char *flags,int *handle)
     } else {
       a->file = fopen(filename,"w");
     }
+#endif
     if (a->file) {
       a->buf = (int *) malloc(EVBLOCKSIZE*4);
       if (!(a->buf)) {
@@ -679,11 +692,17 @@ int evClose(int handle)
   if (a->magic != EV_MAGIC) return(S_EVFILE_BADHANDLE);
   if(a->rw == EV_WRITE || a->rw==EV_PIPEWRITE)
     status = evFlush(a);
+
+#ifdef VXWORKS
+  status2 = fclose(a->file);
+#else
   if(a->rw == EV_PIPE) {
     status2 = pclose(a->file);
   } else {
     status2 = fclose(a->file);
   }
+#endif
+
 #ifdef BIT64
   handle_list[handle-1] = 0;
 #endif
