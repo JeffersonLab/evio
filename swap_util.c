@@ -18,6 +18,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.6  2003/12/01 18:48:11  wolin
+ *   Minor, but now replaced by evioswap
+ *
  *   Revision 1.5  2001/09/13 18:53:25  wolin
  *   Added tagsegment support, fixed bugs, removed VAX stuff
  *
@@ -268,7 +271,7 @@ void onmemory_swap(int* buffer)
 
 /********************************************************
  * void swapped_intcpy(void *des,void *source, int size)*
- * copy source with size size to des, but with byte     *
+ * copy source with size size to dest, but with byte     *
  * order swapped in the unit of byte                    *
  *******************************************************/
 void swapped_intcpy(int *des,char *source,int size)
@@ -540,10 +543,23 @@ void swapped_memcpy(char *buffer,char *source,int size)
 
       switch(current_type){
 
-      case 0x0:   /* unknown data type   */
+      /* no swap */
+      case 0x0:  /* unknown data type */
+      case 0x3:  /* char string   */
+      case 0x6:  /* signed byte   */
+      case 0x7:  /* unsigned byte */
+      case 0x36:
+      case 0x37:
+	memcpy(&(buffer[i*2]),&(source[i*2]),(lk.head_pos - i)*2);
+	i = lk.head_pos;		
+	break;
+
+
+      /* 4-byte swap */
       case 0x1:   /* unsigned integer    */
       case 0x2:   /* IEEE floating point */
       case 0xb:   /* signed integer      */
+      case 0xF:  /* repeating structure, treat as 4-byte for now */
 	for(j = i; j < lk.head_pos; j=j+2){
 	  swapped_intcpy (&temp,&(source[j*2]),int_len);
 	  memcpy (&(buffer[j*2]), (void *)&temp,int_len);
@@ -551,6 +567,8 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	i = lk.head_pos;
 	break;
 
+
+      /* 2-byte swap */
       case 0x4:   /* short          */
       case 0x5:   /* unsigned short */
       case 0x30:  
@@ -563,16 +581,8 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	i = lk.head_pos;	
 	break;
 
-      case 0x3:  /* char string   */
-      case 0x6:  /* signed byte   */
-      case 0x7:  /* unsigned byte */
-      case 0x36:
-      case 0x37:
-	memcpy(&(buffer[i*2]),&(source[i*2]),(lk.head_pos - i)*2);
-	i = lk.head_pos;		
-	break;
 
-
+      /* 8-byte swap */
       case 0x8:  /* double        */
       case 0x9:  /* signed long   */
       case 0xA:  /* unsigned long */
@@ -583,21 +593,16 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	i = lk.head_pos;		
 	break;
 
-      case 0xF:  /* repeating structure, for now */
-	for(j = i; j < lk.head_pos; j=j+2){
-	  swapped_intcpy(&temp,&(source[j*2]),int_len);
-	  memcpy(&(buffer[j*2]), (void *)&temp,int_len);
-	}
-	i = lk.head_pos;
-	break;
 
       default:
-	fprintf(stderr,"Wrong datatype 0x%x\n",current_type);
+	fprintf(stderr,"Unknown datatype 0x%x\n",current_type);
 	break;
       }
     }
   }
+
   evStack_free (head);
+
 }
 
 
