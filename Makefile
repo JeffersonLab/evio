@@ -16,6 +16,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.3  1998/09/21 15:06:08  abbottd
+#    Makefile for vxWorks build of libcoda.a
+#
 #    Revision 1.2  1997/05/12 14:19:16  heyes
 #    remove evfile_msg.h
 #
@@ -24,25 +27,62 @@
 #
 #
 #
+
+ifndef ARCH
+  ARCH := $(subst -,_,$(shell uname))
+endif
+
+ifeq ($(ARCH),VXWORKS68K51)
+CC = cc68k
+AR = ar68k
+RANLIB = ranlib68k
+DEFS = -DCPU=MC68040 -DVXWORKS -DVXWORKS68K51
+VXINC = $(WIND_BASE)/target/h
+INCS = -w -Wall -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
+CFLAGS = -O $(DEFS) $(INCS)
+endif
+
+ifeq ($(ARCH),VXWORKSPPC)
+CC = ccppc
+AR = arppc
+RANLIB = ranlibppc
+DEFS = -mcpu=604 -DCPU=PPC604 -DVXWORKS -D_GNU_TOOL -DVXWORKSPPC
+VXINC = $(WIND_BASE)/target/h
+INCS = -w -Wall -fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
+endif
+
+ifeq ($(ARCH),SunOS)
 CC = cc
-CFLAGS = -O -DSYSV -DSVR4
+AR = ar
+RANLIB = ranlib
+DEFS = -DSYSV -DSVR4
+INCS = -I.
+endif
 
+CFLAGS = -O $(DEFS) $(INCS)
 OBJS = evio.o swap_util.o
-CODALIB = $(CODA_LIB)/libcoda.a
+CODALIB = libcoda.a
 
-all: evio.o swap_util.o
+all: libcoda.a
 
-install: $(OBJS)
-	ar ruv $(CODALIB) $(OBJS)
-	ranlib $(CODALIB)
+install:
+	cp $(CODALIB) $(CODA)/$(ARCH)/lib/
 
 .c.o:
 	rm -f $@
 	$(CC) $(CFLAGS) -c $< -o $@
+
+libcoda.a: evio.o swap_util.o
+	$(AR) ruv $(CODALIB) $(OBJS)
+	$(RANLIB) $(CODALIB)
 
 evio.o:	evio.c 
 	rm -f $@
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) *.o 
+	$(RM) *.o libcoda.a
+
+evtest2: evtest2.c
+	rm -f $@ 
+	$(CC) $(CFLAGS) -L$(CODA_LIB) $< -o $@ -lcoda
