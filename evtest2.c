@@ -46,11 +46,11 @@ main (argc, argv)
   nevents=0;
   while ((status=evRead(handle,buf,MAXBUFLEN))==0) {
     nevents++;
-    printf("  event %d len %d\n",nevents,buf[0]);
+    printf("  event %d len %d type %d\n",nevents,buf[0],(buf[1]&0xffff0000)>>16);
     if((nevents >= maxev) && (maxev != 0)) break;
   }
 
-  printf("last read status %x\n",status);
+  printf("last read status 0x%x\n",status);
   evClose(handle);
   
   exit(0);
