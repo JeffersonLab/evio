@@ -16,20 +16,23 @@
 # 
 #  Revision History:
 #    $Log$
-#    Revision 1.1  1996/09/19 18:25:21  chen
-#    Initial revision
+#    Revision 1.2  1997/05/12 14:19:16  heyes
+#    remove evfile_msg.h
+#
+#    Revision 1.1.1.1  1996/09/19 18:25:21  chen
+#    original port to solaris
 #
 #
 #
 CC = cc
-CFLAGS = -g -DSYSV -DSVR4
+CFLAGS = -O -DSYSV -DSVR4
 
 OBJS = evio.o swap_util.o
 CODALIB = $(CODA_LIB)/libcoda.a
 
 all: evio.o swap_util.o
 
-install:
+install: $(OBJS)
 	ar ruv $(CODALIB) $(OBJS)
 	ranlib $(CODALIB)
 
@@ -37,15 +40,9 @@ install:
 	rm -f $@
 	$(CC) $(CFLAGS) -c $< -o $@
 
-evio.o:	evio.c evfile_msg.h
+evio.o:	evio.c 
 	rm -f $@
 	$(CC) $(CFLAGS) -c $< -o $@
 
-evtest:	evtest.o  $(CODALIB)
-	$(CC) $(CFLAGS) -o $@ evtest.o $(CODALIB)
-
-evfile_msg.h:	evfile.msg 
-	makeMsgTbl
-
 clean:
-	$(RM) *.o evfile_msg.h ceMsgTbl.c evtest *.dat
+	$(RM) *.o 
