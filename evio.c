@@ -25,8 +25,8 @@
  *
  * Revision History:
  *   $Log$
- *   Revision 1.5  2001/06/21 18:23:05  wolin
- *   SAW version of evio.c, bug fixes in swap_util.c
+ *   Revision 1.6  2001/09/13 16:01:41  wolin
+ *   Fixed evIoctl
  *
  *   Revision 1.3  1999/11/04 20:30:48  saw
  *   Add code to write coda output to stdout or pipes
@@ -73,7 +73,7 @@
  * --------
  *
  *	evOpen(char *filename,char *flags,int *descriptor)
- *	evWrite(int descriptor,int *data,int datalen)
+ *	evWrite(int descriptor,int *data)
  *	evRead(int descriptor,int *data,int *datalen)
  *	evClose(int descriptor)
  *	evIoctl(int descriptor,char *request, void *argp)
@@ -82,6 +82,7 @@
  * Modifications
  * -------------
  *  17-dec-91 cw started coding streams version with local buffers
+ *  21-jun-01 ejw version 2 supports tagsegments, long long, no more VAX types, etc.
  *
  */
 
@@ -90,7 +91,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include "evio.h"
+#include <evio.h>
 
 typedef struct evfilestruct {
   FILE *file;
@@ -118,7 +119,7 @@ typedef struct evBinarySearch{
 #define EV_WRITE 1
 #define EV_PIPE 2 
 #define EV_PIPEWRITE 3 
-#define EV_VERSION 1
+#define EV_VERSION 2
 #define EV_MAGIC 0xc0da0100
 #define EV_HDSIZ 8
 
@@ -224,7 +225,7 @@ int evOpen(char *fname,char *flags,int *handle)
     return(S_EVFILE_ALLOCFAIL);
   }
   while (*filename==' ') filename++; /* remove leading spaces */
- /* But don't fuck with any other spaces except for the trailing ones */
+ /* But don't muck with any other spaces except for the trailing ones */
 #if 0
   for (cp=filename;*cp!=NULL;cp++) {
     if ((*cp==' ') || !(isprint(*cp))) *cp='\0';
@@ -590,6 +591,7 @@ int evIoctl(int handle,char *request,void *argp)
 #endif
   if (a->magic != EV_MAGIC) return(S_EVFILE_BADHANDLE);
   switch (*request) {
+
   case 'b': case 'B':
     if (a->rw != EV_WRITE && a->rw != EV_PIPEWRITE) return(S_EVFILE_BADSIZEREQ);
     if (a->blknum != 0) return(S_EVFILE_BADSIZEREQ);
@@ -600,10 +602,11 @@ int evIoctl(int handle,char *request,void *argp)
     a->buf = (int *) malloc(a->blksiz*4);
     if (!(a->buf)) {
       a->magic = 0;
-      free(a);		/* if can't allocate buffer, give up */
+      free(a);        /* if can't allocate buffer, give up */
       return(S_EVFILE_ALLOCFAIL);
     }
-    a->buf[EV_HD_BLKSIZ] = EVBLOCKSIZE;
+    a->next = a->buf + EV_HDSIZ;
+    a->buf[EV_HD_BLKSIZ] = a->blksiz;
     a->buf[EV_HD_BLKNUM] = 0;
     a->buf[EV_HD_HDSIZ] = EV_HDSIZ;
     a->buf[EV_HD_START] = 0;
@@ -612,9 +615,13 @@ int evIoctl(int handle,char *request,void *argp)
     a->buf[EV_HD_RESVD] = 0;
     a->buf[EV_HD_MAGIC] = EV_MAGIC;
     break;
+
+
+
   default:
     return(S_EVFILE_UNKOPTION);
   }
+
   return(S_SUCCESS);
 }
 
@@ -1232,7 +1239,7 @@ static int evGetEventType(EVFILE *a)
   }
   else
     fread(&temp, sizeof(int), 1, a->file);
-  ev_type = (temp >> 16)&(0x0000ffff);
+  ev_type = (temp >> 16)&(0xffff);
 
   if(a->left == 1)
     fseek(a->file, (-1)*(EV_HDSIZ + 1)*4, SEEK_CUR);
