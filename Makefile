@@ -16,6 +16,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.7  2001/06/21 18:30:43  wolin
+#    added evio2xml.c
+#
 #    Revision 1.6  1999/01/22 15:43:57  rwm
 #    make install depend on libcoda.a.
 #
@@ -77,10 +80,11 @@ CFLAGS = -O $(DEFS) $(INCS)
 OBJS = evio.o swap_util.o
 CODALIB = libcoda.a
 
-all: libcoda.a
+all: libcoda.a evio2xml
 
 install: libcoda.a
 	cp $(CODALIB) $(CODA)/$(ARCH)/lib/
+	cp evio2xml $(CODA)/$(ARCH)/bin/
 
 .c.o:
 	rm -f $@
@@ -94,8 +98,11 @@ evio.o:	evio.c
 	rm -f $@
 	$(CC) $(CFLAGS) -c $< -o $@
 
+evio2xml: evio2xml.o
+	$(CC) $(CFLAGS) $< -o $@ -L. -lcoda
+
 clean:
-	$(RM) *.o libcoda.a
+	$(RM) *.o libcoda.a evio2xml
 
 evtest2: evtest2.c
 	rm -f $@ 
