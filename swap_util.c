@@ -16,8 +16,11 @@
  *
  * Revision History:
  *   $Log$
- *   Revision 1.1  1996/09/19 18:25:20  chen
- *   Initial revision
+ *   Revision 1.2  1998/09/21 15:07:22  abbottd
+ *   Changes for compile on vxWorks
+ *
+ *   Revision 1.1.1.1  1996/09/19 18:25:20  chen
+ *   original port to solaris
  *
 *	  Revision 1.1  95/01/20  14:00:33  14:00:33  abbottd (David Abbott)
 *	  Initial revision
@@ -45,9 +48,16 @@
  *	  
  */
 
+#ifdef VXWORKS
+#include <vxWorks.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#else
 #include <stdio.h>
 #include <memory.h>
 #include <errno.h>
+#endif
 
 typedef struct _stack
 {
