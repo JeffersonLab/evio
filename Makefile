@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.13  2003/10/30 21:05:24  wolin
+#    Make install now makes everything
+#
 #    Revision 1.12  2003/08/26 13:46:41  wolin
 #    Default EXPAT_HOME = /apps/expat
 #
@@ -111,7 +114,7 @@ PROGS = evio2xml xml2evio eviocopy
 all: $(LIBS) $(PROGS)
 
 
-install: libcoda.a
+install: $(LIBS) $(PROGS)
 	cp $(LIBS)  $(CODA)/$(ARCH)/lib/
 	cp $(PROGS) $(CODA)/$(ARCH)/bin/
 
