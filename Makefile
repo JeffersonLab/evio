@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.18  2004/08/03 13:14:12  gurjyan
+#    *** empty log message ***
+#
 #    Revision 1.17  2004/05/06 20:04:58  wolin
 #    Using gzopen, etc.
 #
@@ -152,7 +155,7 @@ libcoda.a: $(OBJS)
 	$(RANLIB) $(LIBS)
 
 evio2xml: evio2xml.o
-	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda -lz
+	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda -lz 
 
 xml2evio: xml2evio.o
 	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda -lz
