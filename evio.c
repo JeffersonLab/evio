@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.9  2003/12/01 19:18:21  wolin
+ *   Typo
+ *
  *   Revision 1.8  2003/12/01 18:47:44  wolin
  *   Now using evioswap
  *
@@ -479,7 +482,7 @@ int evGetNewBuffer(a)
   a->buf[EV_HD_MAGIC] = 0;
   nread = fread(a->buf,4,a->blksiz,a->file);
   if (a->byte_swapped) {
-    swap_long((unsigned long*)&(a->buf),EV_HDSIZ,NULL);
+    swap_long((unsigned long*)a->buf,EV_HDSIZ,NULL);
   }
   if (feof(a->file)) return(EOF);
   if (ferror(a->file)) return(ferror(a->file));
