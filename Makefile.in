@@ -16,7 +16,7 @@
 # 
 #  Revision History:
 #    $Log$
-#    Revision 1.1  1998/10/08 18:34:52  timmer
+#    Revision 1.2  1998/10/08 18:46:11  timmer
 #    start using Makefile.in
 #
 #    Revision 1.3  1998/09/21 15:06:08  abbottd
@@ -30,8 +30,6 @@
 #
 #
 #
-
-ARCH = @OSTYPE@
 
 CC         = @CC@
 AR         = @AR@
