@@ -5,6 +5,8 @@
  *
  *   NOTE:  does NOT handle VAX float or double, packets, or repeating structures
  *
+ *   Use -gz to write output file using gzip
+ *
  *   Author: Elliott Wolin, JLab, 6-sep-2001
 */
 
@@ -17,10 +19,11 @@
 
 /*  misc macros, etc. */
 #define MAXEVIOBUF   100000
-#define MAXXMLSTRING 100000
+#define MAXXMLSTRING 500000
 
 
 /* include files */
+#include <stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +32,8 @@
 /*  misc variables */
 static char *filename;
 static char *dictfilename = NULL;
+static char *outfilename  = NULL;
+static int gzip           = 0;
 static char *main_tag     = (char*)"evio-data";
 static int nevent         = 0;
 static int skip_event     = 0;
@@ -53,6 +58,7 @@ void decode_command_line(int argc, char **argv);
 void evio_xmldump_init(char *dictfilename);
 void evio_xmldump(unsigned long *buf, int evnum, char *string, int len);
 void evio_xmldump_done(char *string, int len);
+void writeit(FILE *f, char *s, int len);
 int user_event_select(unsigned long *buf);
 int user_frag_select(int tag);
 int evOpen(const char *filename, const char *mode, int *handle);
@@ -67,6 +73,7 @@ int main (int argc, char **argv) {
 
   int handle,status;
   unsigned long buf[MAXEVIOBUF];
+  FILE *out = NULL;
   char s[256];
   
 
@@ -81,10 +88,22 @@ int main (int argc, char **argv) {
   }
 
 
+  /* open output file, gzip format if requested */
+  if(outfilename!=NULL) {
+    if(gzip==0) {
+      out=fopen(outfilename,"w");
+    } else {
+      out=gzopen(outfilename,"wb");
+    }  
+  }
+
+
   /* init xmldump */
   evio_xmldump_init(dictfilename);
-  printf("<!-- xml boilerplate needs to go here -->\n\n",main_tag);
-  printf("<%s>\n\n",main_tag);
+  sprintf(s,"<!-- xml boilerplate needs to go here -->\n\n",main_tag);
+  writeit(out,s,strlen(s));
+  sprintf(s,"<%s>\n\n",main_tag);
+  writeit(out,s,strlen(s));
 
 
   /* loop over events, perhaps skip some, dump up to max_event events */
@@ -94,7 +113,7 @@ int main (int argc, char **argv) {
     if(skip_event>=nevent)continue;
     if(user_event_select(buf)==0)continue;
     evio_xmldump(buf,nevent,xml,MAXXMLSTRING);
-    printf("%s",xml);
+    writeit(out,xml,strlen(xml));
 
 
     if(pause!=0) {
@@ -110,10 +129,28 @@ int main (int argc, char **argv) {
 
   /* done */
   evio_xmldump_done(xml,MAXXMLSTRING);
-  printf("%s",xml);
-  printf("</%%s>\n\n",main_tag);
+  writeit(out,xml,strlen(xml));
+  sprintf(s,"</%s>\n\n",main_tag);
+  writeit(out,s,strlen(s));
   evClose(handle);
+  if((out!=NULL)&&(gzip!=0))gzclose(out);
   exit(EXIT_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------- */
+
+
+void writeit(FILE *f, char *s, int len) {
+
+  if(f==NULL) {
+    printf("%s",s);
+  } else if (gzip==0) {
+    fprintf(f,s,len);
+  } else {
+    gzwrite(f,s,len);
+  }
+
 }
 
 
@@ -174,7 +211,8 @@ void decode_command_line(int argc, char**argv) {
     "           [-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]\n"
     "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
     "           [-verbose] [-xtod] [-m main_tag] [-e event_tag]\n"
-    "           [-indent indent_size] [-no_typename] [-debug] filename\n";
+    "           [-indent indent_size] [-no_typename] [-debug]\n"
+    "           [-out outfilenema] [-gz] filename\n";
   int i;
     
     
@@ -195,8 +233,16 @@ void decode_command_line(int argc, char**argv) {
       pause=1;
       i=i+1;
 
+    } else if (strncasecmp(argv[i],"-out",4)==0) {
+      outfilename=strdup(argv[i+1]);
+      i=i+2;
+
     } else if (strncasecmp(argv[i],"-debug",6)==0) {
       debug=1;
+      i=i+1;
+
+    } else if (strncasecmp(argv[i],"-gz",3)==0) {
+      gzip=1;
       i=i+1;
 
     } else if (strncasecmp(argv[i],"-verbose",8)==0) {

@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.17  2004/05/06 20:04:58  wolin
+#    Using gzopen, etc.
+#
 #    Revision 1.16  2004/04/07 17:29:06  wolin
 #    Split evio2xml into main plus library xml_util.c
 #
@@ -86,8 +89,8 @@ DEFS = -DCPU=MC68040 -DVXWORKS -DVXWORKS68K51
 VXINC = $(WIND_BASE)/target/h
 INCS = -w -Wall -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = evio.o swap_util.o evioswap.o xml_util.o
-LIBS = libcoda.a
+OBJS = 
+LIBS = 
 PROGS =
 endif
 
@@ -99,8 +102,8 @@ DEFS = -mcpu=604 -DCPU=PPC604 -DVXWORKS -D_GNU_TOOL -DVXWORKSPPC
 VXINC = $(WIND_BASE)/target/h
 INCS = -w -Wall -fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -mlongcall -I. -I$(VXINC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = evio.o swap_util.o evioswap.o xml_util.o
-LIBS = libcoda.a
+OBJS = 
+LIBS = 
 PROGS =
 endif
 
@@ -149,10 +152,10 @@ libcoda.a: $(OBJS)
 	$(RANLIB) $(LIBS)
 
 evio2xml: evio2xml.o
-	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda
+	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda -lz
 
 xml2evio: xml2evio.o
-	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda
+	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda -lz
 
 eviocopy: eviocopy.o
 	$(CC) $(CFLAGS) $< -o $@ -L. -lcoda
