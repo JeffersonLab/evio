@@ -1,12 +1,18 @@
 /*
  *  evioswap.c
  *
- *   swaps in place one evio version 2 event
+ *   swaps one evio version 2 event
+ *       - in place if dest is NULL
+ *       - copy to dest if not NULL
+ *   thread safe
  *
  *   usage:  
- *        void evioswap(unsigned long* buffer, int tolocal)
+ *        void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest)
  *
  *   Author: Elliott Wolin, JLab, 20-jun-2002
+ *
+ *  To do:
+ *     finish copy version
 */
 
 
@@ -30,19 +36,22 @@ enum {
 
 
 /* prototypes */
-static void swap_fragment(unsigned long *buf, int fragment_type, int tolocal);
-static void swap_data(unsigned long *data, int type, int length, int tolocal);
-static void swap_long(unsigned long *data, int length);
-static void swap_longlong(unsigned long long *data, int length);
-static void swap_short (unsigned short *data, int length);
+static void swap_fragment(unsigned long *buf, int fragment_type, 
+			  int tolocal, unsigned long *dest);
+static void swap_data(unsigned long *data, int type, int length, 
+		      int tolocal, unsigned long *dest);
+static unsigned long *swap_long(unsigned long *data, int length, unsigned long *dest);
+static void swap_longlong(unsigned long long *data, int length, 
+			  unsigned long long *dest);
+static void swap_short(unsigned short *data, int length, unsigned short *dest);
 
 
 /*--------------------------------------------------------------------------*/
 
 
-void evioswap(unsigned long *buf, int tolocal) {
+static void evioswap(unsigned long *buf, int tolocal, unsigned long *dest) {
 
-  swap_fragment(buf,BANK,tolocal);
+  swap_fragment(buf,BANK,tolocal,dest);
 
   return;
 }
@@ -51,32 +60,34 @@ void evioswap(unsigned long *buf, int tolocal) {
 /*---------------------------------------------------------------- */
 
 
-void swap_fragment(unsigned long *buf, int fragment_type, int tolocal) {
+static void swap_fragment(unsigned long *buf, int fragment_type, 
+		   int tolocal, unsigned long *dest) {
 
   int length,type;
+  unsigned long *p=buf;
 
 
-  /* swap header words, then get length and contained type */
+  /* swap header word(s), then get length and contained type */
   switch(fragment_type) {
   case BANK:
-    if(tolocal)swap_long(&buf[0],2);
-    length  	= buf[0]+1;
-    type    	= (buf[1]>>8)&0xff;
-    if(!tolocal)swap_long(&buf[0],2);
+    if(tolocal)p = swap_long(buf,2,dest);
+    length  	 = p[0]+1;
+    type    	 = (p[1]>>8)&0xff;
+    if(!tolocal)swap_long(buf,2,dest);
     break;
 
   case SEGMENT:
-    if(tolocal)swap_long(&buf[0],1);
-    length  	= (buf[0]&0xffff)+1;
-    type    	= (buf[0]>>16)&0xff;
-    if(!tolocal)swap_long(&buf[0],1);
+    if(tolocal)p = swap_long(buf,1,dest);
+    length  	 = (p[0]&0xffff)+1;
+    type    	 = (p[0]>>16)&0xff;
+    if(!tolocal)swap_long(buf,1,dest);
     break;
     
   case TAGSEGMENT:
-    if(tolocal)swap_long(&buf[0],1);
-    length  	= (buf[0]&0xffff)+1;
-    type    	= (buf[0]>>16)&0xf;
-    if(!tolocal)swap_long(&buf[0],1);
+    if(tolocal)p = swap_long(buf,1,dest);
+    length  	 = (p[0]&0xffff)+1;
+    type    	 = (p[0]>>16)&0xf;
+    if(!tolocal)swap_long(buf,1,dest);
     break;
 
   default:
@@ -86,8 +97,9 @@ void swap_fragment(unsigned long *buf, int fragment_type, int tolocal) {
   }
 
 
-  swap_data(&buf[fragment_offset[fragment_type]],type,
-	    length-fragment_offset[fragment_type],tolocal);
+  swap_data(&buf[fragment_offset[fragment_type]], type,
+	    length-fragment_offset[fragment_type], tolocal,
+	    (dest==NULL)?NULL:&dest[fragment_offset[fragment_type]]);
   
   return;
 }
@@ -96,10 +108,12 @@ void swap_fragment(unsigned long *buf, int fragment_type, int tolocal) {
 /*---------------------------------------------------------------- */
 
 
-void swap_data(unsigned long *data, int type, int length, int tolocal) {
+static void swap_data(unsigned long *data, int type, int length, 
+	       int tolocal, unsigned long *dest) {
 
   int fraglen;
-  int p=0;
+  int l=0;
+  unsigned long *p=data;
 
 
   /* swap the data or call swap_fragment */
@@ -111,7 +125,7 @@ void swap_data(unsigned long *data, int type, int length, int tolocal) {
   case 0x1:
   case 0x2:
   case 0xb:
-    swap_long(data,length);
+    swap_long(data,length,dest);
     break;
 
 
@@ -125,7 +139,7 @@ void swap_data(unsigned long *data, int type, int length, int tolocal) {
     /* short */
   case 0x4:
   case 0x5:
-    swap_short((unsigned short*)data,length*2);
+    swap_short((unsigned short*)data,length*2,(unsigned short*)dest);
     break;
 
 
@@ -133,7 +147,7 @@ void swap_data(unsigned long *data, int type, int length, int tolocal) {
   case 0x8:
   case 0x9:
   case 0xa:
-    swap_longlong((unsigned long long*)data,length/2);
+    swap_longlong((unsigned long long*)data,length/2,(unsigned long long*)dest);
     break;
 
 
@@ -141,11 +155,11 @@ void swap_data(unsigned long *data, int type, int length, int tolocal) {
     /* bank */
   case 0xe:
   case 0x10:
-    while(p<length) {
-      if(tolocal)swap_fragment(&data[p],BANK,tolocal);
-      fraglen=data[p];
-      if(!tolocal)swap_fragment(&data[p],BANK,tolocal);
-      p+=fraglen+1;
+    while(l<length) {
+      if(tolocal)swap_fragment(&data[l],BANK,tolocal,(dest==NULL)?NULL:&dest[l]);
+      fraglen=data[l];
+      if(!tolocal)swap_fragment(&data[l],BANK,tolocal,(dest==NULL)?NULL:&dest[l]);
+      l+=fraglen+1;
     }
     break;
 
@@ -153,11 +167,11 @@ void swap_data(unsigned long *data, int type, int length, int tolocal) {
     /* segment */
   case 0xd:
   case 0x20:
-    while(p<length) {
-      if(tolocal)swap_fragment(&data[p],SEGMENT,tolocal);
-      fraglen=data[p]&0xffff;
-      if(!tolocal)swap_fragment(&data[p],SEGMENT,tolocal);
-      p+=fraglen+1;
+    while(l<length) {
+      if(tolocal)swap_fragment(&data[l],SEGMENT,tolocal,(dest==NULL)?NULL:&dest[l]);
+      fraglen=data[l]&0xffff;
+      if(!tolocal)swap_fragment(&data[l],SEGMENT,tolocal,(dest==NULL)?NULL:&dest[l]);
+      l+=fraglen+1;
     }
     break;
 
@@ -165,18 +179,18 @@ void swap_data(unsigned long *data, int type, int length, int tolocal) {
     /* tagsegment */
   case 0xc:
   case 0x40:
-    while(p<length) {
-      if(tolocal)swap_fragment(&data[p],TAGSEGMENT,tolocal);
-      fraglen=data[p]&0xffff;
-      if(!tolocal)swap_fragment(&data[p],TAGSEGMENT,tolocal);
-      p+=fraglen+1;
+    while(l<length) {
+      if(tolocal)swap_fragment(&data[l],TAGSEGMENT,tolocal,(dest==NULL)?NULL:&dest[l]);
+      fraglen=data[l]&0xffff;
+      if(!tolocal)swap_fragment(&data[l],TAGSEGMENT,tolocal,(dest==NULL)?NULL:&dest[l]);
+      l+=fraglen+1;
     }
     break;
 
 
     /* unknown, treat as unsigned long */
   default:
-    swap_long(data,length);
+    swap_long(data,length,dest);
     break;
   }
 
@@ -187,38 +201,52 @@ void swap_data(unsigned long *data, int type, int length, int tolocal) {
 /*---------------------------------------------------------------- */
 
 
-void swap_long(unsigned long *data, int length) {
+static unsigned long *swap_long(unsigned long *data, int length, unsigned long *dest) {
 
   int i,j,temp;
-  char *d,*t;
+  char *d,*t, *des, *dat;
 
-  t=(char*)&temp;
-  for(i=0; i<length; i++) {
-    temp=data[i];
-    d=(char*)&(data[i]);
-    for(j=0; j<sizeof(long); j++)d[j]=t[sizeof(long)-j-1];
+  if(dest==NULL) {
+    t=(char*)&temp;
+    for(i=0; i<length; i++) {
+      temp=data[i];
+      d=(char*)&(data[i]);
+      for(j=0; j<sizeof(long); j++)d[j]=t[sizeof(long)-j-1];
+    }
+    return(data);
+
+  } else {
+    t=(char*)&temp;
+    for(i=0; i<length; i++) {
+      temp=data[i];
+      d=(char*)&(dest[i]);
+      for(j=0; j<sizeof(long); j++)d[j]=t[sizeof(long)-j-1];
+    }
+    return(dest);
   }
-
-  return;
 }
 
 
 /*---------------------------------------------------------------- */
 
 
-void swap_longlong(unsigned long long *data, int length) {
+static void swap_longlong(unsigned long long *data, int length, unsigned long long *dest) {
 
   int i,j;
   long long temp;
   char *d,*t;
 
-  t=(char*)&temp;
-  for(i=0; i<length; i++) {
-    temp=data[i];
-    d=(char*)&(data[i]);
-    for(j=0; j<sizeof(long long); j++)d[j]=t[sizeof(long long)-j-1];
-  }
+  if(dest==NULL) {
+    t=(char*)&temp;
+    for(i=0; i<length; i++) {
+      temp=data[i];
+      d=(char*)&(data[i]);
+      for(j=0; j<sizeof(long long); j++)d[j]=t[sizeof(long long)-j-1];
+    }
 
+  } else {
+  }
+  
   return;
 }
 
@@ -226,23 +254,25 @@ void swap_longlong(unsigned long long *data, int length) {
 /*---------------------------------------------------------------- */
 
 
-void swap_short(unsigned short *data, int length) {
+static void swap_short(unsigned short *data, int length, unsigned short *dest) {
 
   int i,j;
   short temp;
   char *d,*t;
 
-  t=(char*)&temp;
-  for(i=0; i<length; i++) {
-    temp=data[i];
-    d=(char*)&(data[i]);
-    for(j=0; j<sizeof(short); j++)d[j]=t[sizeof(short)-j-1];
-  }
+  if(dest==NULL) {
+    t=(char*)&temp;
+    for(i=0; i<length; i++) {
+      temp=data[i];
+      d=(char*)&(data[i]);
+      for(j=0; j<sizeof(short); j++)d[j]=t[sizeof(short)-j-1];
+    }
 
+  } else {
+  }
+  
   return;
 }
 
 
 /*---------------------------------------------------------------- */
-
-

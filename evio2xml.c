@@ -48,7 +48,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <xmlparse.h>
+#include <expat.h>
 
 
 /* xml tag dictionary */

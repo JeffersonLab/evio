@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.11  2003/08/26 13:32:58  wolin
+#    New expat
+#
 #    Revision 1.10  2002/06/21 14:26:51  wolin
 #    Added evioswap to libcoda
 #
@@ -52,8 +55,8 @@ ifndef ARCH
   ARCH := $(subst -,_,$(shell uname))
 endif
 
-EXPAT_INC = $(EXPAT_HOME)/xmlparse
-EXPAT_LIB = $(EXPAT_HOME)/xmlparse
+EXPAT_INC = $(EXPAT_HOME)/include
+EXPAT_LIB = $(EXPAT_HOME)/lib
 
 
 ifeq ($(ARCH),VXWORKS68K51)
