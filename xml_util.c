@@ -101,31 +101,28 @@ static int xmllen;
 
 
 /* prototypes */
-void create_dictionary(char *dictfilename);
-void startDictElement(void *userData, const char *name, const char **atts);
-void xmldump(unsigned long *buf, int evnum, char *xml, int len);
-int user_frag_select(int tag);
-void dump_fragment(unsigned long *buf, int fragment_type);
-void dump_bank(unsigned long *buf);
-void dump_segment(unsigned long *buf);
-void dump_tagsegment(unsigned long *buf);
-void dump_data(unsigned long *data, int type, int length, int noexpand);
-int get_ndata(int type, int nwords);
-const char *get_typename(int type);
-const char *get_tagname();
-int isContainer(int type);
-void indent(void);
-int get_int_att(const char **atts, const int natt, const char *tag, int *val);
-const char *get_char_att(const char **atts, const int natt, const char *tag);
+static void create_dictionary(char *dictfilename);
+static void startDictElement(void *userData, const char *name, const char **atts);
+static void dump_fragment(unsigned long *buf, int fragment_type);
+static void dump_bank(unsigned long *buf);
+static void dump_segment(unsigned long *buf);
+static void dump_tagsegment(unsigned long *buf);
+static void dump_data(unsigned long *data, int type, int length, int noexpand);
+static int get_ndata(int type, int nwords);
+static const char *get_typename(int type);
+static const char *get_tagname();
+static int isContainer(int type);
+static void indent(void);
+static int get_int_att(const char **atts, const int natt, const char *tag, int *val);
+static const char *get_char_att(const char **atts, const int natt, const char *tag);
 
 
 /*--------------------------------------------------------------------------*/
 
 
-void xmldump_init(char *dictfilename) {
+void evio_xmldump_init(char *dictfilename) {
 
   create_dictionary(dictfilename);
-
 
   return;
 }
@@ -134,7 +131,7 @@ void xmldump_init(char *dictfilename) {
 /*---------------------------------------------------------------- */
 
 
-void create_dictionary(char *dictfilename) {
+static void create_dictionary(char *dictfilename) {
 
   FILE *dictfile;
   int len;
@@ -171,7 +168,7 @@ void create_dictionary(char *dictfilename) {
 /*---------------------------------------------------------------- */
 
 
-void startDictElement(void *userData, const char *name, const char **atts) {
+static void startDictElement(void *userData, const char *name, const char **atts) {
 
   int natt=XML_GetSpecifiedAttributeCount(dictParser);
   char *tagtext,*p;
@@ -215,7 +212,7 @@ void startDictElement(void *userData, const char *name, const char **atts) {
 /*---------------------------------------------------------------- */
 
 
-void xmldump(unsigned long *buf, int evnum, char *string, int len) {
+void evio_xmldump(unsigned long *buf, int evnum, char *string, int len) {
 
   nevent=evnum;
   xml=string;
@@ -236,7 +233,7 @@ void xmldump(unsigned long *buf, int evnum, char *string, int len) {
 /*---------------------------------------------------------------- */
 
 
-void dump_fragment(unsigned long *buf, int fragment_type) {
+static void dump_fragment(unsigned long *buf, int fragment_type) {
 
   int length,tag,type,num,is_container,noexpand;
   char *myname;
@@ -354,7 +351,7 @@ void dump_fragment(unsigned long *buf, int fragment_type) {
 /*---------------------------------------------------------------- */
 
 
-void dump_data(unsigned long *data, int type, int length, int noexpand) {
+static void dump_data(unsigned long *data, int type, int length, int noexpand) {
 
   int i,j,len;
   int p=0;
@@ -553,7 +550,7 @@ void dump_data(unsigned long *data, int type, int length, int noexpand) {
 /*---------------------------------------------------------------- */
 
 
-int get_ndata(int type, int length) {
+static int get_ndata(int type, int length) {
 
   switch (type) {
 
@@ -601,7 +598,7 @@ int get_ndata(int type, int length) {
 /*---------------------------------------------------------------- */
 
 
-const char *get_typename(int type) {
+static const char *get_typename(int type) {
 
   switch (type) {
 
@@ -682,7 +679,7 @@ const char *get_typename(int type) {
 /*---------------------------------------------------------------- */
 
 
-void indent() {
+static void indent() {
 
   int i;
 
@@ -694,7 +691,7 @@ void indent() {
 /*---------------------------------------------------------------- */
 
 
-int isContainer(int type) {
+static int isContainer(int type) {
 
   switch (type) {
 
@@ -715,7 +712,7 @@ int isContainer(int type) {
 /*---------------------------------------------------------------- */
 
 
-int get_int_att(const char **atts, const int natt, const char *name, int *val) {
+static int get_int_att(const char **atts, const int natt, const char *name, int *val) {
 
   int i;
 
@@ -739,7 +736,7 @@ int get_int_att(const char **atts, const int natt, const char *name, int *val) {
 /*---------------------------------------------------------------- */
 
 
-const char *get_char_att(const char **atts, const int natt, const char *name) {
+static const char *get_char_att(const char **atts, const int natt, const char *name) {
 
   int i;
 
@@ -754,7 +751,7 @@ const char *get_char_att(const char **atts, const int natt, const char *name) {
 /*---------------------------------------------------------------- */
 
 
-const char *get_tagname() {
+static const char *get_tagname() {
 
   int i,j,ntd,nt;
   int match;
@@ -783,7 +780,7 @@ const char *get_tagname() {
 /*---------------------------------------------------------------- */
 
 
-void xmldump_done(char *string, int len) {
+void evio_xmldump_done(char *string, int len) {
 
   sprintf(string,"");
   return;

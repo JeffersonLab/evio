@@ -50,9 +50,9 @@ static char xml[MAXXMLSTRING];
 
 /* prototypes */
 void decode_command_line(int argc, char **argv);
-void xmldump_init(char *dictfilename);
-void xmldump(unsigned long *buf, int evnum, char *string, int len);
-void xmldump_done(char *string, int len);
+void evio_xmldump_init(char *dictfilename);
+void evio_xmldump(unsigned long *buf, int evnum, char *string, int len);
+void evio_xmldump_done(char *string, int len);
 int user_event_select(unsigned long *buf);
 int user_frag_select(int tag);
 int evOpen(const char *filename, const char *mode, int *handle);
@@ -82,7 +82,7 @@ int main (int argc, char **argv) {
 
 
   /* init xmldump */
-  xmldump_init(dictfilename);
+  evio_xmldump_init(dictfilename);
   printf("<!-- xml boilerplate needs to go here -->\n\n",main_tag);
   printf("<%s>\n\n",main_tag);
 
@@ -93,7 +93,7 @@ int main (int argc, char **argv) {
     nevent++;
     if(skip_event>=nevent)continue;
     if(user_event_select(buf)==0)continue;
-    xmldump(buf,nevent,xml,MAXXMLSTRING);
+    evio_xmldump(buf,nevent,xml,MAXXMLSTRING);
     printf("%s",xml);
 
 
@@ -109,7 +109,7 @@ int main (int argc, char **argv) {
 
 
   /* done */
-  xmldump_done(xml,MAXXMLSTRING);
+  evio_xmldump_done(xml,MAXXMLSTRING);
   printf("%s",xml);
   printf("</%%s>\n\n",main_tag);
   evClose(handle);
