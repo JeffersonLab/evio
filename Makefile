@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.12  2003/08/26 13:46:41  wolin
+#    Default EXPAT_HOME = /apps/expat
+#
 #    Revision 1.11  2003/08/26 13:32:58  wolin
 #    New expat
 #
@@ -55,6 +58,10 @@ ifndef ARCH
   ARCH := $(subst -,_,$(shell uname))
 endif
 
+
+ifndef EXPAT_HOME
+  EXPAT_HOME = /apps/expat
+endif
 EXPAT_INC = $(EXPAT_HOME)/include
 EXPAT_LIB = $(EXPAT_HOME)/lib
 
@@ -103,9 +110,11 @@ PROGS = evio2xml xml2evio eviocopy
 
 all: $(LIBS) $(PROGS)
 
+
 install: libcoda.a
 	cp $(LIBS)  $(CODA)/$(ARCH)/lib/
 	cp $(PROGS) $(CODA)/$(ARCH)/bin/
+
 
 .c.o:
 	rm -f $@
