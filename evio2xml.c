@@ -179,7 +179,7 @@ int main (int argc, char **argv) {
 
 
   /* closing xml boilerplate */
-  printf("</%s>\n\n",main_tag);
+  if(done==0)printf("</%s>\n\n",main_tag);
 
 
   /* done */
