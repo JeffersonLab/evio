@@ -16,6 +16,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.3  1998/11/05 21:05:11  timmer
+#    Linux port
+#
 #    Revision 1.2  1998/10/08 18:46:11  timmer
 #    start using Makefile.in
 #
@@ -46,7 +49,7 @@ CODA_LIB   = @exec_prefix@/lib
 
 all: libcoda.a
 
-install:
+install: all
 	cp $(CODALIB) $(CODA_LIB)
 
 .c.o:
