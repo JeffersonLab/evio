@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.10  2003/12/01 19:24:34  wolin
+ *   Fix comments
+ *
  *   Revision 1.9  2003/12/01 19:18:21  wolin
  *   Typo
  *
@@ -93,6 +96,7 @@
  *  17-dec-91 cw started coding streams version with local buffers
  *  21-jun-01 ejw version 2 supports tagsegments, long long, no more VAX types, etc.
  *  24-nov-03 ejw using evioswap instead of old swap_util
+ *   1-dec-03 ejw conversion to evioswap tested and complete
  *
  */
 
@@ -154,6 +158,8 @@ static  int  evGetEventType(EVFILE *);
 static  int  isRealEventsInsideBlock(EVFILE *, int, int);
 static  int  physicsEventsInsideBlock(EVFILE *);
 
+
+/*  these replace routines from swap_util.c, ejw, 1-dec-03 */
 extern void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest);
 extern int swap_long_value(int val);
 extern unsigned long *swap_long(unsigned long *data, unsigned long length,unsigned long *dest);
@@ -461,7 +467,6 @@ int evRead(int handle,int *buffer,int buflen)
     a->left -= ncopy;
   }
   if (a->byte_swapped) {
-/*      swapped_memcpy((char *)buffer,(char *)temp_ptr,buflen*sizeof(int));   */
     evioswap((unsigned long*)temp_ptr,1,(unsigned long*)buffer);
     free(temp_ptr);
   }
@@ -1186,7 +1191,6 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
   }
   
   if(a->byte_swapped) {
-/*      swapped_memcpy((char *)buffer, (char *)temp_ptr, buflen*sizeof(int)); */
     evioswap((unsigned long*)temp_ptr,1,(unsigned long*)buffer);
     free(temp_ptr);
   }
