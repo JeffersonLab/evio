@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.15  2004/02/19 16:14:06  wolin
+#    Added Evioswap.java
+#
 #    Revision 1.14  2003/12/24 15:18:16  abbottd
 #      changes for vxWorks compiles
 #
@@ -107,7 +110,7 @@ INCS = -I. -I$(EXPAT_INC)
 CFLAGS = -O $(DEFS) $(INCS)
 OBJS = evio.o swap_util.o evioswap.o
 LIBS = libcoda.a
-PROGS = evio2xml xml2evio eviocopy
+PROGS = evio2xml xml2evio eviocopy Evioswap.class
 endif
 
 ifeq ($(ARCH),Linux)
@@ -119,7 +122,7 @@ INCS = -I. -I$(EXPAT_INC)
 CFLAGS = -O $(DEFS) $(INCS)
 OBJS = evio.o swap_util.o evioswap.o
 LIBS = libcoda.a
-PROGS = evio2xml xml2evio eviocopy
+PROGS = evio2xml xml2evio eviocopy Evioswap.class
 endif
 
 
@@ -150,6 +153,9 @@ xml2evio: xml2evio.o
 
 eviocopy: eviocopy.o
 	$(CC) $(CFLAGS) $< -o $@ -L. -lcoda
+
+Evioswap.class: Evioswap.java
+	javac $<
 
 clean:
 	$(RM) *.o $(LIBS) $(PROGS)
