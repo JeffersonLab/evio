@@ -5,7 +5,7 @@
  *       - in place if dest is NULL
  *       - copy to dest if not NULL
  *
- *   swap_int_val() swaps one int, call by val
+ *   swap_long_val() swaps one long, call by val
  *   swap_long() swaps an array of unsigned longs
  *
  *   thread safe
@@ -128,7 +128,6 @@ static void swap_data(unsigned long *data, unsigned long type, unsigned long len
 
   unsigned long fraglen;
   unsigned long l=0;
-  unsigned long *p=data;
 
 
   /* swap the data or call swap_fragment */
@@ -375,7 +374,7 @@ static void swap_short(unsigned short *data, unsigned long length, unsigned shor
  
 static void copy_data(unsigned long *data, unsigned long length, unsigned long *dest) {
    
-  unsigned long i;
+  int i;
   
   if(dest==NULL)return;
   for(i=0; i<length; i++)dest[i]=data[i];
