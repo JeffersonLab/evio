@@ -93,7 +93,7 @@ int main (int argc, char **argv) {
     if(gzip==0) {
       out=fopen(outfilename,"w");
     } else {
-      out=gzopen(outfilename,"wb");
+      out=(FILE*)gzopen(outfilename,"wb");
     }  
   }
 
