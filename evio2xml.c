@@ -84,7 +84,9 @@ static int nnofrag        = 0;
 static int nofrag[100];
 static int no_typename    = 0;
 static int verbose        = 0;
+static int pause          = 0;
 static int debug          = 0;
+static int done           = 0;
 static int nindent        = 0;
 static int indent_size    = 3;
 static char temp[2048];
@@ -172,7 +174,7 @@ int main (int argc, char **argv) {
     if(skip_event>=nevent)continue;
     if(user_event_select(buf)==0)continue;
     evio2xml(buf);
-    if((nevent>=max_event+skip_event)&&(max_event!=0))break;
+    if((done!=0)||((nevent>=max_event+skip_event)&&(max_event!=0)))break;
   }
 
 
@@ -318,12 +320,20 @@ int user_frag_select(int tag) {
 
 void evio2xml(unsigned long *buf) {
 
+  char s[256];
+
   printf("\n\n<!-- ===================== Event %d contains %d words (%d bytes) "
 	 "===================== -->\n\n",nevent,buf[0]+1,4*(buf[0]+1));
   
   /* event is always a bank */
   depth=0;
   dump_fragment(buf,BANK);
+
+  if(pause!=0) {
+    printf("\n\nHit return to continue, q to quit: ");
+    fgets(s,sizeof(s),stdin);
+    if(tolower(s[strspn(s," \t")])=='q')done=1;
+  }
 
   return;
 }
@@ -881,7 +891,7 @@ const char *get_tagname() {
 void decode_command_line(int argc, char**argv) {
   
   const char *help = 
-    "\nusage:\n\n  evio2xml [-max max_event] [-skip skip_event] [-dict dictfilename] \n"
+    "\nusage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event] [-dict dictfilename]\n"
     "           [-ev evtag] [-noev evtag] [-frag frag] [-nofrag frag] [-max_depth max_depth]\n"
     "           [-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]\n"
     "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
@@ -902,6 +912,10 @@ void decode_command_line(int argc, char**argv) {
     if (strncasecmp(argv[i],"-h",2)==0) {
       printf("%s\n",help);
       exit(EXIT_SUCCESS);
+
+    } else if (strncasecmp(argv[i],"-pause",6)==0) {
+      pause=1;
+      i=i+1;
 
     } else if (strncasecmp(argv[i],"-debug",6)==0) {
       debug=1;
