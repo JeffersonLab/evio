@@ -11,11 +11,16 @@
 #  
 #  Description:
 # 	Makefile for event file I/O library, line mode dump utility
+#       Must define EXPAT_INC and EXPAT_LIB for xml...E.Wolin, 13-sep-01
+# 	
 # 	
 #  Author:  Chip Watson, CEBAF Data Acquisition Group
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.8  2001/09/13 19:25:09  wolin
+#    Added xml2evio, eviocopy
+#
 #    Revision 1.7  2001/06/21 18:30:43  wolin
 #    added evio2xml.c
 #
@@ -47,7 +52,7 @@ AR = ar68k
 RANLIB = ranlib68k
 DEFS = -DCPU=MC68040 -DVXWORKS -DVXWORKS68K51
 VXINC = $(WIND_BASE)/target/h
-INCS = -w -Wall -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
+INCS = -w -Wall -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC) -I$(EXPAT_INC)
 CFLAGS = -O $(DEFS) $(INCS)
 endif
 
@@ -57,7 +62,7 @@ AR = arppc
 RANLIB = ranlibppc
 DEFS = -mcpu=604 -DCPU=PPC604 -DVXWORKS -D_GNU_TOOL -DVXWORKSPPC
 VXINC = $(WIND_BASE)/target/h
-INCS = -w -Wall -fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
+INCS = -w -Wall -fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC) -I$(EXPAT_INC)
 endif
 
 ifeq ($(ARCH),SunOS)
@@ -65,7 +70,7 @@ CC = cc
 AR = ar
 RANLIB = touch
 DEFS = -DSYSV -DSVR4
-INCS = -I.
+INCS = -I. -I$(EXPAT_INC)
 endif
 
 ifeq ($(ARCH),Linux)
@@ -73,37 +78,38 @@ CC = gcc
 AR = ar
 RANLIB = ranlib
 DEFS = -DSYSV -DSVR4
-INCS = -I.
+INCS = -I. -I$(EXPAT_INC)
 endif
+
 
 CFLAGS = -O $(DEFS) $(INCS)
 OBJS = evio.o swap_util.o
-CODALIB = libcoda.a
+LIBS = libcoda.a
+PROGS = evio2xml xml2evio eviocopy
 
-all: libcoda.a evio2xml
+
+all: $(LIBS) $(PROGS)
 
 install: libcoda.a
-	cp $(CODALIB) $(CODA)/$(ARCH)/lib/
-	cp evio2xml $(CODA)/$(ARCH)/bin/
+	cp $(LIBS)  $(CODA)/$(ARCH)/lib/
+	cp $(PROGS) $(CODA)/$(ARCH)/bin/
 
 .c.o:
 	rm -f $@
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -c $(CFLAGS) $<
 
-libcoda.a: evio.o swap_util.o
-	$(AR) ruv $(CODALIB) $(OBJS)
-	$(RANLIB) $(CODALIB)
-
-evio.o:	evio.c 
-	rm -f $@
-	$(CC) $(CFLAGS) -c $< -o $@
+libcoda.a: $(OBJS)
+	$(AR) ruv $(LIBS) $(OBJS)
+	$(RANLIB) $(LIBS)
 
 evio2xml: evio2xml.o
+	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda
+
+xml2evio: xml2evio.o
+	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda
+
+eviocopy: eviocopy.o
 	$(CC) $(CFLAGS) $< -o $@ -L. -lcoda
 
 clean:
-	$(RM) *.o libcoda.a evio2xml
-
-evtest2: evtest2.c
-	rm -f $@ 
-	$(CC) $(CFLAGS) -L$(CODA_LIB) $< -o $@ -lcoda
+	$(RM) *.o $(LIBS) $(PROGS)
