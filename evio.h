@@ -1,37 +1,27 @@
-#ifndef EVIO_H
-#define EVIO_H
+/*  evio.h
+ *
+ * based on evfile_msg.h from SAW
+ *
+ *  E.Wolin, 19-jun-2001
+ */
 
-#ifdef	__cplusplus
-extern "C" {
+
+
+#ifndef EVIO
+
+#ifndef S_SUCCESS
+#define S_SUCCESS 0
+#define S_FAILURE -1
 #endif
 
-typedef struct evfilestruct {
-  FILE *file;
-  int *buf;
-  int *next;
-  int left;
-  int blksiz;
-  int blknum;
-  int rw;
-  int magic;
-  int evnum;         /* last events with evnum so far */
-  int byte_swapped;
-} EVFILE;
-
-
-int evOpen(char *filename, char *flags, int *handle);
-int evRead(int handle, int *buffer, int buflen);
-int evGetNewBuffer(EVFILE *a);
-int evWrite(int handle,int *buffer);
-int evFlush(EVFILE *a);
-int evIoctl(int handle,char *request,void *argp);
-int evClose(int handle);
-int evOpenSearch(int handle, int *b_handle);
-int evSearch(int handle, int b_handle, int evn, int *buffer, int buflen, int *size);
-int evCloseSearch(int b_handle);
-
-#ifdef	__cplusplus
-}
-#endif
+#define S_EVFILE    		0x00730000	/* evfile.msg Event File I/O */
+#define S_EVFILE_TRUNC		0x40730001	/* Event truncated on read */
+#define S_EVFILE_BADBLOCK	0x40730002	/* Bad block number encountered */
+#define S_EVFILE_BADHANDLE	0x80730001	/* Bad handle (file/stream not open) */
+#define S_EVFILE_ALLOCFAIL	0x80730002	/* Failed to allocate event I/O structure */
+#define S_EVFILE_BADFILE	0x80730003	/* File format error */
+#define S_EVFILE_UNKOPTION	0x80730004	/* Unknown option specified */
+#define S_EVFILE_UNXPTDEOF	0x80730005	/* Unexpected end of file while reading event */
+#define S_EVFILE_BADSIZEREQ	0x80730006	/* Invalid buffer size request to evIoct */
 
 #endif

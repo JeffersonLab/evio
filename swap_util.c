@@ -14,8 +14,13 @@
  *	
  * Author:  Jie Chen, CEBAF Data Acquisition Group
  *
+ * Modifications:  EJW, 19-jun-2001 bug fixes
+ *
  * Revision History:
  *   $Log$
+ *   Revision 1.4  2001/06/21 18:23:06  wolin
+ *   SAW version of evio.c, bug fixes in swap_util.c
+ *
  *   Revision 1.3  1999/10/14 18:04:56  rwm
  *   Now compiles with CC for Bob Micheals. Other cleanups.
  *
@@ -25,9 +30,9 @@
  *   Revision 1.1.1.1  1996/09/19 18:25:20  chen
  *   original port to solaris
  *
-*	  Revision 1.1  95/01/20  14:00:33  14:00:33  abbottd (David Abbott)
-*	  Initial revision
-*	  
+ *	  Revision 1.1  95/01/20  14:00:33  14:00:33  abbottd (David Abbott)
+ *	  Initial revision
+ *	  
  *	  Revision 1.4  1994/08/12  17:15:18  chen
  *	  handle char string data type correctly
  *
@@ -40,16 +45,17 @@
  *	  Revision 1.1  1994/04/11  13:09:18  chen
  *	  Initial revision
  *
-*	  Revision 1.2  1993/11/05  16:54:50  chen
-*	  change comment
-*
-*	  Revision 1.1  1993/10/27  09:39:44  heyes
-*	  Initial revision
-*
+ *	  Revision 1.2  1993/11/05  16:54:50  chen
+ *	  change comment
+ *
+ *	  Revision 1.1  1993/10/27  09:39:44  heyes
+ *	  Initial revision
+ *
  *	  Revision 1.1  93/08/30  19:13:49  19:13:49  chen (Jie chen)
  *	  Initial revision
  *	  
  */
+
 
 #ifdef VXWORKS
 # include <vxWorks.h>
@@ -63,6 +69,7 @@
 # include <errno.h>
 #endif
 
+
 typedef struct _stack
 {
   int length;      /* inclusive size */
@@ -73,11 +80,16 @@ typedef struct _stack
   struct _stack *next;
 }evStack;
 
+
 typedef struct _lk
 {
   int head_pos;
   int type;
 }LK_AHEAD;         /* find out header */
+
+
+/*---------------------------------------------------------------------------*/
+
 
 /**********************************************************
  *   evStack *init_evStack()                              *
@@ -101,6 +113,10 @@ static evStack *init_evStack()
   return evhead;
 }
 
+
+/*---------------------------------------------------------------------------*/
+
+
 /*********************************************************
  *    evStack *evStack_top(evStack *head)                *
  *  return the top of the evStack pointed by head        *
@@ -115,6 +131,10 @@ static evStack *evStack_top(evStack *head)
   else
     return (p->next);
 }
+
+
+/*---------------------------------------------------------------------------*/
+
 
 /********************************************************
  *    void evStack_popoff(evStack *head)                *
@@ -133,6 +153,10 @@ static void evStack_popoff(evStack *head)
   q->next = p->next;
   free (p);
 }
+
+
+/*---------------------------------------------------------------------------*/
+
 
 /*******************************************************
  *     void evStack_pushon()                           *
@@ -162,6 +186,10 @@ static void evStack_pushon(int size,
   q->next = p;
 }
 
+
+/*---------------------------------------------------------------------------*/
+
+
 /******************************************************
  *       void evStack_free()                          *
  * Description:                                       *
@@ -179,8 +207,12 @@ static void evStack_free(evStack *head)
   }
 }
 
+
+/*---------------------------------------------------------------------------*/
+
+
 /*********************************************************
- *             int int_swap_byte(int input)              *
+ * int int_swap_byte(int input)                          *
  * get integer 32 bit input and output swapped byte      *
  * integer. input is not changed                         *
  ********************************************************/
@@ -199,6 +231,10 @@ int int_swap_byte (int input)
 
   return temp;
 }
+
+
+/*---------------------------------------------------------------------------*/
+
 
 /********************************************************
  * void onmemory_swap(int *buffer)                      *
@@ -220,6 +256,10 @@ void onmemory_swap(int* buffer)
 
   memcpy((void *)buffer,(void *)&des_temp,int_len);
 }
+
+
+/*---------------------------------------------------------------------------*/
+
 
 /********************************************************
  * void swapped_intcpy(void *des,void *source, int size)*
@@ -246,6 +286,10 @@ void swapped_intcpy(int *des,char *source,int size)
   }
 }
 
+
+/*---------------------------------------------------------------------------*/
+
+
 /*******************************************************
  * void swapped_shortcpy(char *des, char *source, size)*
  * copy short integer or packet with swapped byte order*
@@ -269,6 +313,10 @@ void swapped_shortcpy (short *des,char *source,int size)
     i += short_len;
   }
 }
+
+
+/*---------------------------------------------------------------------------*/
+
 
 /*******************************************************
  * void swapped_longcpy(char *des, char *source, size) *
@@ -294,6 +342,10 @@ void swapped_longcpy(double *des,char *source,int size)
   }
 }
 
+
+/*---------------------------------------------------------------------------*/
+
+
 /*************************************************************
  *   int swapped_fread(void *ptr, int size, int n_itmes,file)*
  *   fread from a file stream, but return swapped result     *
@@ -312,6 +364,10 @@ int swapped_fread(int *ptr,int size,int n_items,FILE *stream)
   return(nbytes);
 }
 	   
+
+/*---------------------------------------------------------------------------*/
+
+
 /***********************************************************
  *    void swapped_memcpy(char *buffer,char *source,size)  *
  * swapped memory copy from source to buffer accroding     *
@@ -412,7 +468,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	sg_size = sg_size + 1;
 	sg_tag  = (header2 >> 24) & (0x000000ff);
 	sg_type = (header2 >> 16) & (0x000000ff);
-	if(sg_type >= 0x20){  /* contains children */
+	if(sg_type >= 0x10){  /* contains children */
 	  evStack_pushon((sg_size)*2,i,sg_type,sg_tag,NULL,head);
 	  lk.head_pos = i + 2;
 	  head->length += 1;
@@ -477,7 +533,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
       case 0x8:  /* 64 bit */
       case 0xA:  /* 64 bit VAX floating point */
 	for(j = i; j < lk.head_pos; j=j+4){
-	  swapped_shortcpy ((short *)&temp8,&(source[j*2]),long_len);
+	  swapped_longcpy ((double*)&temp8,&(source[j*2]),long_len);
 	  memcpy (&(buffer[j*2]), (void *)&temp8,long_len);
 	}
 	i = lk.head_pos;		
@@ -499,3 +555,4 @@ void swapped_memcpy(char *buffer,char *source,int size)
 }
 
 
+/*---------------------------------------------------------------------------*/
