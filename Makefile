@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.10  2002/06/21 14:26:51  wolin
+#    Added evioswap to libcoda
+#
 #    Revision 1.9  2001/09/13 19:59:08  wolin
 #    Added EXPAT_HOME
 #
@@ -90,7 +93,7 @@ endif
 
 
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = evio.o swap_util.o
+OBJS = evio.o swap_util.o evioswap.o
 LIBS = libcoda.a
 PROGS = evio2xml xml2evio eviocopy
 
