@@ -27,7 +27,6 @@
 /* still to do
  * -----------
  *  check string length, use snprintf
- *  xml boilerplate and xml-schema specification
  *
 */
 
@@ -88,10 +87,8 @@ static int w64          = 28;
 
 
 /*  misc variables */
-static int first_time     = 1;
+static int nevent;
 static char *event_tag    = (char*)"event";
-static char *main_tag     = (char*)"evio-data";
-static int nevent         = 0;
 static int max_depth      = -1;
 static int depth          = 0;
 static int tagstack[MAXDEPTH];
@@ -106,7 +103,7 @@ static int xmllen;
 /* prototypes */
 void create_dictionary(char *dictfilename);
 void startDictElement(void *userData, const char *name, const char **atts);
-void xmldump(unsigned long *buf, char *xml, int len);
+void xmldump(unsigned long *buf, int evnum, char *xml, int len);
 int user_frag_select(int tag);
 void dump_fragment(unsigned long *buf, int fragment_type);
 void dump_bank(unsigned long *buf);
@@ -218,18 +215,11 @@ void startDictElement(void *userData, const char *name, const char **atts) {
 /*---------------------------------------------------------------- */
 
 
-void xmldump(unsigned long *buf, char *string, int len) {
+void xmldump(unsigned long *buf, int evnum, char *string, int len) {
 
+  nevent=evnum;
   xml=string;
   xmllen=len;
-
-
-  if(first_time==1) {
-    first_time=0;
-    xml+=sprintf(xml,"<!-- xml boilerplate needs to go here -->\n\n",main_tag);
-    xml+=sprintf(xml,"<%s>\n\n",main_tag);
-  }
-
 
   xml+=sprintf(xml,"\n\n<!-- ===================== Event %d contains %d words (%d bytes) "
 	       "===================== -->\n\n",nevent,buf[0]+1,4*(buf[0]+1));
@@ -237,6 +227,7 @@ void xmldump(unsigned long *buf, char *string, int len) {
   /* event is always a bank */
   depth=0;
   dump_fragment(buf,BANK);
+
 
   return;
 }
@@ -342,6 +333,7 @@ void dump_fragment(unsigned long *buf, int fragment_type) {
   indent();
   if((fragment_type==BANK)&&(depth==1)) {
     xml+=sprintf(xml,"</%s>\n\n",event_tag);
+    xml+=sprintf(xml,"<!-- end event %d -->\n\n",nevent);
   } else if(myname!=NULL) {
     xml+=sprintf(xml,"</%s>\n",myname);
   } else if(is_container||no_typename) {
@@ -793,7 +785,7 @@ const char *get_tagname() {
 
 void xmldump_done(char *string, int len) {
 
-  sprintf(string,"</%s>\n\n",main_tag);
+  sprintf(string,"");
   return;
 }
 
@@ -806,16 +798,6 @@ void xmldump_done(char *string, int len) {
 int set_event_tag(char *tag) {
 
   event_tag=tag;
-
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-int set_main_tag(char *tag) {
-
-  main_tag=tag;
 
 }
 

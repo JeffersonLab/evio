@@ -29,6 +29,7 @@
 /*  misc variables */
 static char *filename;
 static char *dictfilename = NULL;
+static char *main_tag     = (char*)"evio-data";
 static int nevent         = 0;
 static int skip_event     = 0;
 static int max_event      = 0;
@@ -44,13 +45,13 @@ static int verbose        = 0;
 static int pause          = 0;
 static int debug          = 0;
 static int done           = 0;
-static char *xml[MAXXMLSTRING];
+static char xml[MAXXMLSTRING];
 
 
 /* prototypes */
 void decode_command_line(int argc, char **argv);
 void xmldump_init(char *dictfilename);
-void xmldump(unsigned long *buf, char *string, int len);
+void xmldump(unsigned long *buf, int evnum, char *string, int len);
 void xmldump_done(char *string, int len);
 int user_event_select(unsigned long *buf);
 int user_frag_select(int tag);
@@ -82,6 +83,8 @@ int main (int argc, char **argv) {
 
   /* init xmldump */
   xmldump_init(dictfilename);
+  printf("<!-- xml boilerplate needs to go here -->\n\n",main_tag);
+  printf("<%s>\n\n",main_tag);
 
 
   /* loop over events, perhaps skip some, dump up to max_event events */
@@ -90,7 +93,7 @@ int main (int argc, char **argv) {
     nevent++;
     if(skip_event>=nevent)continue;
     if(user_event_select(buf)==0)continue;
-    xmldump(buf,xml,MAXXMLSTRING);
+    xmldump(buf,nevent,xml,MAXXMLSTRING);
     printf("%s",xml);
 
 
@@ -108,6 +111,7 @@ int main (int argc, char **argv) {
   /* done */
   xmldump_done(xml,MAXXMLSTRING);
   printf("%s",xml);
+  printf("</%%s>\n\n",main_tag);
   evClose(handle);
   exit(EXIT_SUCCESS);
 }
@@ -292,7 +296,7 @@ void decode_command_line(int argc, char**argv) {
       i=i+2;
 
     } else if (strncasecmp(argv[i],"-m",2)==0) {
-      set_main_tag(strdup(argv[i+1]));
+      main_tag=argv[i+1];
       i=i+2;
 
     } else if (strncasecmp(argv[i],"-e",2)==0) {
