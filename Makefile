@@ -16,6 +16,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.6  1999/01/22 15:43:57  rwm
+#    make install depend on libcoda.a.
+#
 #    Revision 1.5  1998/11/13 16:20:41  timmer
 #    get rid of Makefile.in
 #
@@ -57,7 +60,7 @@ endif
 ifeq ($(ARCH),SunOS)
 CC = cc
 AR = ar
-RANLIB = ranlib
+RANLIB = touch
 DEFS = -DSYSV -DSVR4
 INCS = -I.
 endif
@@ -76,7 +79,7 @@ CODALIB = libcoda.a
 
 all: libcoda.a
 
-install:
+install: libcoda.a
 	cp $(CODALIB) $(CODA)/$(ARCH)/lib/
 
 .c.o:
