@@ -55,6 +55,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <expat.h>
+#include <zlib.h>
 
 
 /* file variables */
@@ -182,7 +183,7 @@ int main (int argc, char **argv) {
 
   /* read event fragments from file and pass to parser */
   while (!done) {
-    len=fread(xmlbuf,1,MAXXMLBUF,xmlfile);
+    len=(int)gzread(xmlfile,xmlbuf,MAXXMLBUF);
     XML_Parse(xmlParser,xmlbuf,len,len<MAXXMLBUF/4);
     done=done||(len<MAXXMLBUF/4);
   }
@@ -288,19 +289,7 @@ FILE *open_xml_file(char *xmlfilename) {
     return(popen(xmlfilename+i+1,"r"));
 
   } else {
-
-    /* check for gzip file */
-    if((f=fopen(xmlfilename+i,"r"))==NULL)return(NULL);
-    fread(fbytes,1,2,f);
-    fclose(f);
-
-    if((fbytes[0]=='\037')&&((fbytes[1]=='\213')||(fbytes[1]=='\235'))) {
-      gz=malloc(strlen(xmlfilename+i)+32);
-      sprintf(gz,"gunzip<%s",xmlfilename+i);
-      return(popen(gz,"r"));
-    } else {
-      return(fopen(xmlfilename+i,"r"));
-    }
+    return(gzopen(xmlfilename+i,"r"));
   }
 
 }
