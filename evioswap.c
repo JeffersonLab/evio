@@ -1,14 +1,14 @@
 /*
  *  evioswap.c
  *
- *   swaps one evio version 2 event
+ *   evioswap() swaps one evio version 2 event
  *       - in place if dest is NULL
  *       - copy to dest if not NULL
+ *
+ *   swap_int_val() swaps one int, call by val
+ *   swap_long() swaps an array of unsigned longs
+ *
  *   thread safe
- *
- *
- *   usage:  
- *        void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest)
  *
  *
  *   Author: Elliott Wolin, JLab, 21-nov-2003
@@ -28,14 +28,18 @@
 #include <stdlib.h>
 
 
-/* prototypes */
+/* entry points */
+void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest);
+int swap_long_value(int val);
+unsigned long *swap_long(unsigned long *data, unsigned long length,unsigned long *dest);
+
+
+/* internal prototypes */
 static void swap_bank(unsigned long *buf, int tolocal, unsigned long *dest);
 static void swap_segment(unsigned long *buf, int tolocal, unsigned long *dest);
 static void swap_tagsegment(unsigned long *buf, int tolocal, unsigned long *dest);
 static void swap_data(unsigned long *data, unsigned long type, unsigned long length,
 		      int tolocal,  unsigned long *dest);
-static unsigned long *swap_long(unsigned long *data, unsigned long length, 
-				unsigned long *dest);
 static void swap_longlong(unsigned long long *data, unsigned long length,
 			  unsigned long long *dest);
 static void swap_short(unsigned short *data, unsigned long length, unsigned short *dest);
@@ -230,7 +234,25 @@ static void swap_data(unsigned long *data, unsigned long type, unsigned long len
 /*---------------------------------------------------------------- */
 
 
-static unsigned long *swap_long(unsigned long *data, unsigned long length, unsigned long *dest) {
+int swap_long_value(int val) {
+
+  int temp;
+  char *t = (char*)&temp+4;
+  char *v = (char*)&val;
+  
+  *--t=*(v++);
+  *--t=*(v++);
+  *--t=*(v++);
+  *--t=*(v++);
+
+  return(temp);
+}
+
+
+/*---------------------------------------------------------------- */
+
+
+unsigned long *swap_long(unsigned long *data, unsigned long length, unsigned long *dest) {
 
   unsigned long i,j;
   unsigned long temp;
