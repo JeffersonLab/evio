@@ -16,11 +16,8 @@
 # 
 #  Revision History:
 #    $Log$
-#    Revision 1.3  1998/11/05 21:05:11  timmer
-#    Linux port
-#
-#    Revision 1.2  1998/10/08 18:46:11  timmer
-#    start using Makefile.in
+#    Revision 1.5  1998/11/13 16:20:41  timmer
+#    get rid of Makefile.in
 #
 #    Revision 1.3  1998/09/21 15:06:08  abbottd
 #    Makefile for vxWorks build of libcoda.a
@@ -34,23 +31,53 @@
 #
 #
 
-CC         = @CC@
-AR         = @AR@
-RANLIB     = @RANLIB@
-VXINC      = @VXWORKS_INC@
-VX_FLAGS   = @VX_FLAGS@
-EVIO_FLAGS = @EVIO_FLAGS@
+ifndef ARCH
+  ARCH := $(subst -,_,$(shell uname))
+endif
 
-INCS       = -I. $(VXINC) $(VX_FLAGS)
-CFLAGS     = -O $(EVIO_FLAGS) $(INCS)
-OBJS       = evio.o swap_util.o
-CODALIB    = libcoda.a
-CODA_LIB   = @exec_prefix@/lib
+ifeq ($(ARCH),VXWORKS68K51)
+CC = cc68k
+AR = ar68k
+RANLIB = ranlib68k
+DEFS = -DCPU=MC68040 -DVXWORKS -DVXWORKS68K51
+VXINC = $(WIND_BASE)/target/h
+INCS = -w -Wall -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
+CFLAGS = -O $(DEFS) $(INCS)
+endif
+
+ifeq ($(ARCH),VXWORKSPPC)
+CC = ccppc
+AR = arppc
+RANLIB = ranlibppc
+DEFS = -mcpu=604 -DCPU=PPC604 -DVXWORKS -D_GNU_TOOL -DVXWORKSPPC
+VXINC = $(WIND_BASE)/target/h
+INCS = -w -Wall -fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
+endif
+
+ifeq ($(ARCH),SunOS)
+CC = cc
+AR = ar
+RANLIB = ranlib
+DEFS = -DSYSV -DSVR4
+INCS = -I.
+endif
+
+ifeq ($(ARCH),Linux)
+CC = gcc
+AR = ar
+RANLIB = ranlib
+DEFS = -DSYSV -DSVR4
+INCS = -I.
+endif
+
+CFLAGS = -O $(DEFS) $(INCS)
+OBJS = evio.o swap_util.o
+CODALIB = libcoda.a
 
 all: libcoda.a
 
-install: all
-	cp $(CODALIB) $(CODA_LIB)
+install:
+	cp $(CODALIB) $(CODA)/$(ARCH)/lib/
 
 .c.o:
 	rm -f $@
@@ -65,7 +92,7 @@ evio.o:	evio.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o libcoda.a
+	$(RM) *.o libcoda.a
 
 evtest2: evtest2.c
 	rm -f $@ 
