@@ -41,7 +41,7 @@
 #define MAXXMLBUF  10000
 #define MAXDICT    5000
 #define MAXDEPTH   512
-#define min(a, b)  ((a) > (b) ? (b) : (a))
+#define min(a, b)  ( ( (a) > (b) ) ? (b) : (a) )
 
 
 /* include files */
@@ -87,8 +87,9 @@ static int w64          = 28;
 
 
 /*  misc variables */
-static int nevent;
+static int nbuf;
 static char *event_tag    = (char*)"event";
+static char *bank2_tag    = (char*)"bank";
 static int max_depth      = -1;
 static int depth          = 0;
 static int tagstack[MAXDEPTH];
@@ -212,16 +213,15 @@ static void startDictElement(void *userData, const char *name, const char **atts
 /*---------------------------------------------------------------- */
 
 
-void evio_xmldump(unsigned long *buf, int evnum, char *string, int len) {
+void evio_xmldump(unsigned long *buf, int bufnum, char *string, int len) {
 
-  nevent=evnum;
+  nbuf=bufnum;
   xml=string;
   xmllen=len;
 
-  xml+=sprintf(xml,"\n\n<!-- ===================== Event %d contains %d words (%d bytes) "
-	       "===================== -->\n\n",nevent,buf[0]+1,4*(buf[0]+1));
+  xml+=sprintf(xml,"\n\n<!-- ===================== Buffer %d contains %d words (%d bytes) "
+	       "===================== -->\n\n",nbuf,buf[0]+1,4*(buf[0]+1));
   
-  /* event is always a bank */
   depth=0;
   dump_fragment(buf,BANK);
 
@@ -299,10 +299,13 @@ static void dump_fragment(unsigned long *buf, int fragment_type) {
   /* fragment opening xml tag */
   indent();
   if((fragment_type==BANK)&&(depth==1)) {
-    xml+=sprintf(xml,"<%s format=\"evio\" count=\"%d\"",event_tag,nevent);
+    xml+=sprintf(xml,"<%s format=\"evio\" count=\"%d\"",event_tag,nbuf);
     xml+=sprintf(xml," content=\"%s\"",get_typename(type));
   } else if(myname!=NULL) {
     xml+=sprintf(xml,"<%s",myname);
+    xml+=sprintf(xml," content=\"%s\"",get_typename(type));
+  } else if((fragment_type==BANK)&&(depth==2)) {
+    xml+=sprintf(xml,"<%s",bank2_tag);
     xml+=sprintf(xml," content=\"%s\"",get_typename(type));
   } else if(is_container||no_typename) {
     xml+=sprintf(xml,"<%s",fragment_name[fragment_type]);
@@ -330,9 +333,11 @@ static void dump_fragment(unsigned long *buf, int fragment_type) {
   indent();
   if((fragment_type==BANK)&&(depth==1)) {
     xml+=sprintf(xml,"</%s>\n\n",event_tag);
-    xml+=sprintf(xml,"<!-- end event %d -->\n\n",nevent);
+    xml+=sprintf(xml,"<!-- end buffer %d -->\n\n",nbuf);
   } else if(myname!=NULL) {
     xml+=sprintf(xml,"</%s>\n",myname);
+  } else if((fragment_type==BANK)&&(depth==2)) {
+    xml+=sprintf(xml,"</%s>\n",bank2_tag);
   } else if(is_container||no_typename) {
     xml+=sprintf(xml,"</%s>\n",fragment_name[fragment_type]);
   } else {
@@ -795,6 +800,16 @@ void evio_xmldump_done(char *string, int len) {
 int set_event_tag(char *tag) {
 
   event_tag=tag;
+
+}
+
+
+/*---------------------------------------------------------------- */
+
+
+int set_bank2_tag(char *tag) {
+
+  bank2_tag=tag;
 
 }
 
