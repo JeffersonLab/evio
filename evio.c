@@ -16,6 +16,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.3  1998/09/21 15:06:39  abbottd
+ *   Changes for compile for vxWorks
+ *
  *   Revision 1.2  1997/05/12 14:19:17  heyes
  *   remove evfile_msg.h
  *
@@ -72,6 +75,10 @@
  *  17-dec-91 cw started coding streams version with local buffers
  */
 
+#ifdef VXWORKS
+#include <vxWorks.h>
+#include <stdlib.h>
+#endif
 #include <stdio.h>
 #include <errno.h>
 #define PMODE 0644
@@ -148,6 +155,7 @@ extern  int  swapped_fread (int *ptr,int size,int n_items,FILE *stream);
 extern  void swapped_intcpy(int* des, char* source, int nbytes);
 extern  void swapped_memcpy(char *buffer,char *source,int size);
 
+#ifndef VXWORKS
 int evopen_(char *filename,char *flags,int *handle,int fnlen,int flen)
 {
   char *fn, *fl;
@@ -163,6 +171,7 @@ int evopen_(char *filename,char *flags,int *handle,int fnlen,int flen)
   free(fl);
   return(status);
 }
+#endif
 
 int evOpen(char *filename,char *flags,int *handle)
 {
@@ -264,10 +273,12 @@ int evOpen(char *filename,char *flags,int *handle)
   }
 }
 
+#ifndef VXWORKS
 int evread_(int *handle,int *buffer,int *buflen)
 {
   return(evRead(*handle,buffer,*buflen));
 }
+#endif
 
 int evRead(int handle,int *buffer,int buflen)
 {
@@ -354,10 +365,12 @@ int evGetNewBuffer(a)
     return(status);
 }
 
+#ifndef VXWORKS
 int evwrite_(int *handle,int *buffer)
 {
   return(evWrite(*handle,buffer));
 }
+#endif
 
 int evWrite(int handle,int *buffer)
 {
@@ -407,6 +420,7 @@ int evFlush(a)
   return(S_SUCCESS);
 }
 
+#ifndef VXWORKS
 int evioctl_(int *handle,char *request,void *argp,int reqlen)
 {
   char *req;
@@ -418,6 +432,7 @@ int evioctl_(int *handle,char *request,void *argp,int reqlen)
   free(req);
   return(status);
 }
+#endif
 
 int evIoctl(int handle,char *request,void *argp)
 {
@@ -453,10 +468,12 @@ int evIoctl(int handle,char *request,void *argp)
   return(S_SUCCESS);
 }
 
+#ifndef VXWORKS
 int evclose_(int *handle)
 {
   return(evClose(*handle));
 }
+#endif
 
 int evClose(int handle)
 {
