@@ -11,13 +11,16 @@
 #  
 #  Description:
 # 	Makefile for event file I/O library, line mode dump utility
-#       Must define EXPAT_INC and EXPAT_LIB for xml...E.Wolin, 13-sep-01
+#       Must define EXPAT_HOME for xml...E.Wolin, 13-sep-01
 # 	
 # 	
 #  Author:  Chip Watson, CEBAF Data Acquisition Group
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.9  2001/09/13 19:59:08  wolin
+#    Added EXPAT_HOME
+#
 #    Revision 1.8  2001/09/13 19:25:09  wolin
 #    Added xml2evio, eviocopy
 #
@@ -45,6 +48,10 @@
 ifndef ARCH
   ARCH := $(subst -,_,$(shell uname))
 endif
+
+EXPAT_INC = $(EXPAT_HOME)/xmlparse
+EXPAT_LIB = $(EXPAT_HOME)/xmlparse
+
 
 ifeq ($(ARCH),VXWORKS68K51)
 CC = cc68k
