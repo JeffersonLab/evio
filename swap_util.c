@@ -16,6 +16,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.3  1999/10/14 18:04:56  rwm
+ *   Now compiles with CC for Bob Micheals. Other cleanups.
+ *
  *   Revision 1.2  1998/09/21 15:07:22  abbottd
  *   Changes for compile on vxWorks
  *
@@ -49,14 +52,15 @@
  */
 
 #ifdef VXWORKS
-#include <vxWorks.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
+# include <vxWorks.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <errno.h>
 #else
-#include <stdio.h>
-#include <memory.h>
-#include <errno.h>
+# include <stdio.h>
+# include <stdlib.h>
+/* # include <memory.h> */
+# include <errno.h>
 #endif
 
 typedef struct _stack
@@ -75,10 +79,105 @@ typedef struct _lk
   int type;
 }LK_AHEAD;         /* find out header */
 
-static evStack *init_evStack(),*evStack_top();
-static void    evStack_popoff();
-static void    evStack_pushon();
-static void    evStack_free();
+/**********************************************************
+ *   evStack *init_evStack()                              *
+ *   set up the head for event stack                      *
+ *********************************************************/
+static evStack *init_evStack()
+{
+  evStack *evhead;
+  
+  evhead = (evStack *)malloc(1*sizeof(evStack));
+  if(evhead == NULL){
+    fprintf(stderr,"Cannot allocate memory for evStack\n");
+    exit (1);
+  }
+  evhead->length = 0;
+  evhead->posi = 0;
+  evhead->type = 0x0;
+  evhead->tag = 0x0;
+  evhead->num = 0x0;
+  evhead->next = NULL;
+  return evhead;
+}
+
+/*********************************************************
+ *    evStack *evStack_top(evStack *head)                *
+ *  return the top of the evStack pointed by head        *
+ ********************************************************/
+static evStack *evStack_top(evStack *head)
+{
+  evStack *p;
+
+  p = head;
+  if (p->next == NULL)
+    return (NULL);
+  else
+    return (p->next);
+}
+
+/********************************************************
+ *    void evStack_popoff(evStack *head)                *
+ * pop off the top of the stack item                    *
+ *******************************************************/
+static void evStack_popoff(evStack *head)
+{
+  evStack *p,*q;
+
+  q = head;
+  if(q->next == NULL){
+    fprintf(stderr,"Empty stack\n");
+    return;
+  }
+  p = q->next;
+  q->next = p->next;
+  free (p);
+}
+
+/*******************************************************
+ *     void evStack_pushon()                           *
+ * push an item on to the stack                        *
+ ******************************************************/
+static void evStack_pushon(int size,
+			   int posi,
+			   int type,
+			   int tag,
+			   int num,
+			   evStack *head)
+{
+  evStack *p, *q;
+
+  p = (evStack *)malloc(1*sizeof(evStack));
+  if (p == NULL){
+    fprintf(stderr,"Not enough memory for stack item\n");
+    exit(1);
+  }
+  q = head;
+  p->length = size;
+  p->posi = posi;
+  p->type = type;
+  p->tag = tag;
+  p->num = num;
+  p->next = q->next;
+  q->next = p;
+}
+
+/******************************************************
+ *       void evStack_free()                          *
+ * Description:                                       *
+ *    Free all memory allocated for the stack         *
+ *****************************************************/
+static void evStack_free(evStack *head)
+{
+  evStack *p, *q;
+
+  p = head;
+  while (p != NULL){
+    q = p->next;
+    free (p);
+    p = q;
+  }
+}
 
 /*********************************************************
  *             int int_swap_byte(int input)              *
@@ -223,11 +322,11 @@ void swapped_memcpy(char *buffer,char *source,int size)
   evStack  *head, *p;
   LK_AHEAD lk;
   int      int_len, short_len, long_len;
-  int      i, j, depth, current_type;
+  int      i, j, depth, current_type = 0;
   int      header1, header2;
   int      ev_size, ev_tag, ev_num, ev_type;
   int      bk_size, bk_tag, bk_num, bk_type;
-  int      sg_size, sg_tag, sg_num, sg_type;
+  int      sg_size, sg_tag,         sg_type;
   short    pk_size, pk_tag, pack;
   int      temp;
   short    temp2;
@@ -400,102 +499,3 @@ void swapped_memcpy(char *buffer,char *source,int size)
 }
 
 
-/**********************************************************
- *   evStack *init_evStack()                              *
- *   set up the head for event stack                      *
- *********************************************************/
-static evStack *init_evStack()
-{
-  evStack *evhead;
-  
-  evhead = (evStack *)malloc(1*sizeof(evStack));
-  if(evhead == NULL){
-    fprintf(stderr,"Cannot allocate memory for evStack\n");
-    exit (1);
-  }
-  evhead->length = 0;
-  evhead->posi = 0;
-  evhead->type = 0x0;
-  evhead->tag = 0x0;
-  evhead->num = 0x0;
-  evhead->next = NULL;
-  return evhead;
-}
-
-/*********************************************************
- *    evStack *evStack_top(evStack *head)                *
- *  return the top of the evStack pointed by head        *
- ********************************************************/
-static evStack *evStack_top(evStack *head)
-{
-  evStack *p;
-
-  p = head;
-  if (p->next == NULL)
-    return (NULL);
-  else
-    return (p->next);
-}
-
-/********************************************************
- *    void evStack_popoff(evStack *head)                *
- * pop off the top of the stack item                    *
- *******************************************************/
-static void evStack_popoff(evStack *head)
-{
-  evStack *p,*q;
-
-  q = head;
-  if(q->next == NULL){
-    fprintf(stderr,"Empty stack\n");
-    return;
-  }
-  p = q->next;
-  q->next = p->next;
-  free (p);
-}
-
-/*******************************************************
- *     void evStack_pushon()                           *
- * push an item on to the stack                        *
- ******************************************************/
-static void evStack_pushon(int size,
-			   int posi,
-			   int type,
-			   int tag,
-			   int num,
-			   evStack *head)
-{
-  evStack *p, *q;
-
-  p = (evStack *)malloc(1*sizeof(evStack));
-  if (p == NULL){
-    fprintf(stderr,"Not enough memory for stack item\n");
-    exit(1);
-  }
-  q = head;
-  p->length = size;
-  p->posi = posi;
-  p->type = type;
-  p->tag = tag;
-  p->num = num;
-  p->next = q->next;
-  q->next = p;
-}
-
-/******************************************************
- *       void evStack_free()                          *
- * Description:                                       *
- *    Free all memory allocated for the stack         *
- *****************************************************/
-static void evStack_free(evStack *head)
-{
-  evStack *p, *q;
-
-  p = head;
-  while (p != NULL){
-    q = p->next;
-    free (p);
-    p = q;
-  }
-}
