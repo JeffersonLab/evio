@@ -8,7 +8,7 @@
 
 /* still to do
  * -----------
- *
+ *    confusion over container and data types in nh,lh
 */
 
 
@@ -17,8 +17,6 @@
 #include <stdlib.h>
 
 
-/* fragment info */
-static int fragment_offset[] = {2,1,1};
 enum {
   BANK = 0,
   SEGMENT,
@@ -26,22 +24,20 @@ enum {
 };
 
 
+typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth);
+typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, int num, int depth);
+
+
 /* prototypes */
-static void parse_bank(unsigned long *buf, int fragment_type, int depth,
-                       void (*nh)(int length, int tag, int type, int num, int depth), 
-                       void (*lh)(void *data, int length, int tag, int type, int num, int depth));
-static void loop_over_banks(unsigned long *data, int length, int type, int depth,
-                            void (*nh)(int length, int tag, int type, int num, int depth), 
-                            void (*lh)(void *data, int length, int tag, int type, int num, int depth));
+static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh);
+static void loop_over_banks(unsigned long *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh);
 
 
 
 /*---------------------------------------------------------------- */
 
 
-void evio_parse(unsigned long *buf, 
-                void (*nh)(int length, int tag, int type, int num, int depth), 
-                void (*lh)(void *data, int length, int tag, int type, int num, int depth)) {
+void evio_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh) {
 
   int depth=0;
   parse_bank(buf,BANK,depth,nh,lh);
@@ -53,20 +49,19 @@ void evio_parse(unsigned long *buf,
 /*---------------------------------------------------------------- */
 
 
-static void parse_bank(unsigned long *buf, int fragment_type, int depth, 
-                       void (*nh)(int length, int tag, int type, int num, int depth), 
-                       void (*lh)(void *data, int length, int tag, int type, int num, int depth)) {
+static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh) {
 
   int length,tag,type,num,dataOffset;
 
 
   /* get type-dependent info */
-  switch(fragment_type) {
+  switch(ftype) {
   case 0:
     length  	= buf[0]+1;
     tag     	= buf[1]>>16;
     type   	= (buf[1]>>8)&0xff;
     num     	= buf[1]&0xff;
+    dataOffset  = 2;
     break;
 
   case 1:
@@ -74,6 +69,7 @@ static void parse_bank(unsigned long *buf, int fragment_type, int depth,
     type    	= (buf[0]>>16)&0xff;
     tag     	= (buf[0]>>24)&0xff;
     num     	= 0;
+    dataOffset  = 1;
     break;
     
   case 2:
@@ -81,14 +77,14 @@ static void parse_bank(unsigned long *buf, int fragment_type, int depth,
     type    	= (buf[0]>>16)&0xf;
     tag     	= (buf[0]>>20)&0xfff;
     num     	= 0;
+    dataOffset  = 1;
     break;
 
   default:
-    printf("?illegal fragment_type in parse_bank: %d",fragment_type);
+    printf("?illegal fragment type in parse_bank: %d",ftype);
     exit(EXIT_FAILURE);
     break;
   }
-  dataOffset=fragment_offset[fragment_type];
 
 
   /* 
@@ -101,24 +97,24 @@ static void parse_bank(unsigned long *buf, int fragment_type, int depth,
   case 0x1:
   case 0x2:
   case 0xb:
-    if(lh!=NULL)lh(&buf[dataOffset],length-dataOffset,tag,type,num,depth);
+    if(lh!=NULL)lh(&buf[dataOffset],length-dataOffset,ftype,tag,type,num,depth);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
-    if(lh!=NULL)lh((char*)(&buf[dataOffset]),(length-dataOffset)*4,tag,type,num,depth);
+    if(lh!=NULL)lh((char*)(&buf[dataOffset]),(length-dataOffset)*4,ftype,tag,type,num,depth);
     break;
 
   case 0x4:
   case 0x5:
-    if(lh!=NULL)lh((short*)(&buf[dataOffset]),(length-dataOffset)*2,tag,type,num,depth);
+    if(lh!=NULL)lh((short*)(&buf[dataOffset]),(length-dataOffset)*2,ftype,tag,type,num,depth);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
-    if(lh!=NULL)lh((long long*)(&buf[dataOffset]),(length-dataOffset)/2,tag,type,num,depth);
+    if(lh!=NULL)lh((long long*)(&buf[dataOffset]),(length-dataOffset)/2,ftype,tag,type,num,depth);
     break;
 
   case 0xe:
@@ -127,7 +123,7 @@ static void parse_bank(unsigned long *buf, int fragment_type, int depth,
   case 0x20:
   case 0xc:
   case 0x40:
-    if(nh!=NULL)nh(length,tag,type,num,depth);
+    if(nh!=NULL)nh(length,ftype,tag,type,num,depth);
     depth++;
     loop_over_banks(&buf[dataOffset],length-dataOffset,type,depth,nh,lh);
     depth--;
@@ -141,9 +137,7 @@ static void parse_bank(unsigned long *buf, int fragment_type, int depth,
 /*---------------------------------------------------------------- */
 
 
-static void loop_over_banks(unsigned long *data, int length, int type, int depth, 
-                            void (*nh)(int length, int tag, int type, int num, int depth), 
-                            void (*lh)(void *data, int length, int tag, int type, int num, int depth)) {
+static void loop_over_banks(unsigned long *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh) {
 
   int p=0;
 
