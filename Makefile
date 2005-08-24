@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.19  2005/08/24 19:49:14  wolin
+#    Added evio_util.o
+#
 #    Revision 1.18  2004/08/03 13:14:12  gurjyan
 #    *** empty log message ***
 #
@@ -117,7 +120,7 @@ RANLIB = touch
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = evio.o swap_util.o evioswap.o xml_util.o
+OBJS = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
 LIBS = libcoda.a
 PROGS = evio2xml xml2evio eviocopy Evioswap.class
 endif
@@ -129,7 +132,7 @@ RANLIB = ranlib
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = evio.o swap_util.o evioswap.o xml_util.o
+OBJS = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
 LIBS = libcoda.a
 PROGS = evio2xml xml2evio eviocopy Evioswap.class
 endif
