@@ -15,17 +15,7 @@
 /* include files */
 #include <stdio.h>
 #include <stdlib.h>
-
-
-enum {
-  BANK = 0,
-  SEGMENT,
-  TAGSEGMENT,
-};
-
-
-typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth);
-typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, int num, int depth);
+#include <evio_util.h>
 
 
 /* prototypes */
