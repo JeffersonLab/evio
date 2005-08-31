@@ -6,6 +6,8 @@
  *   Author:  Elliott Wolin, JLab, 31-aug-2005
 */
 
+
+
 /* still to do
  * -----------
  *    confusion over container and data types in nh,lh
@@ -156,6 +158,67 @@ void evioStreamParser::loopOverBanks(const unsigned long *data, int length, int 
 
 
   return;
+}
+
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+
+
+evioException::evioException() {
+  type=0;
+  text="";
+}
+
+
+//--------------------------------------------------------------
+
+
+evioException::evioException(int t, string &s) {
+  type=t;
+  text=s;
+}
+
+
+//--------------------------------------------------------------
+
+
+void evioException::setType(int t) {
+  type=t;
+}
+
+
+//--------------------------------------------------------------
+
+
+int evioException::getType(void) const {
+  return(type);
+}
+
+
+//--------------------------------------------------------------
+
+
+void evioException::setText(string &t) {
+  text=t;
+}
+
+
+//--------------------------------------------------------------
+
+
+string evioException::getText(void) const {
+  return(text);
+}
+
+
+//--------------------------------------------------------------
+
+
+string evioException::toString(void) const {
+  ostringstream s;
+  s << type;
+  return(string("Type: ") + s.str() + string(", text: ") + text);
 }
 
 

@@ -6,6 +6,9 @@
  *   Author:  Elliott Wolin, JLab, 25-aug-2005
 */
 
+#ifndef _evio_util_h
+#define _evio_util_h
+
 #include <evio.h>
 
 
@@ -24,3 +27,6 @@ typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, in
 
 /* prototypes */
 void evio_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
+
+
+#endif
