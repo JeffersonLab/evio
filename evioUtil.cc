@@ -20,7 +20,7 @@
 //--------------------------------------------------------------
 
 
-void evioParser::parse(unsigned long *buf, evioHandler &handler) {
+void evioStreamParser::parse(const unsigned long *buf, evioStreamHandler &handler) {
   
   depth=0;
   parseBank(buf,BANK,depth,handler);
@@ -32,7 +32,8 @@ void evioParser::parse(unsigned long *buf, evioHandler &handler) {
 //--------------------------------------------------------------
 
 
-void evioParser::parseBank(unsigned long *buf, int ftype, int depth, evioHandler &handler) {
+void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth, 
+                                 evioStreamHandler &handler) {
 
   int length,tag,type,num,dataOffset;
 
@@ -120,7 +121,8 @@ void evioParser::parseBank(unsigned long *buf, int ftype, int depth, evioHandler
 //--------------------------------------------------------------
 
 
-void evioParser::loopOverBanks(unsigned long *data, int length, int type, int depth, evioHandler &handler) {
+void evioStreamParser::loopOverBanks(const unsigned long *data, int length, int type, int depth, 
+                                     evioStreamHandler &handler) {
 
   int p=0;
 
