@@ -6,6 +6,8 @@
  *   Author:  Elliott Wolin, JLab, 25-aug-2005
 */
 
+#include <evio.h>
+
 
 /* container types */
 enum {

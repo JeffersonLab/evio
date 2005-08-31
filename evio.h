@@ -24,4 +24,20 @@
 #define S_EVFILE_UNXPTDEOF	0x80730005	/* Unexpected end of file while reading event */
 #define S_EVFILE_BADSIZEREQ	0x80730006	/* Invalid buffer size request to evIoct */
 
+
+
+/* prototypes */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int evOpen(char *fileName, char *mode, int *handle);
+int evRead(int handle, unsigned long *buffer, int size);
+int evWrite(int handle, unsigned long *buffer);
+int evClose(int handle);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
