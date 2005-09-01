@@ -14,7 +14,6 @@
 */
 
 
-#include <iostream>
 #include <evioUtil.hxx>
 
 
@@ -22,10 +21,11 @@
 //--------------------------------------------------------------
 
 
-void evioStreamParser::parse(const unsigned long *buf, evioStreamHandler &handler) {
+void evioStreamParser::parse(const unsigned long *buf, 
+                             evioStreamHandler &handler, void *userArg) throw(evioException*) {
   
   depth=0;
-  parseBank(buf,BANK,depth,handler);
+  parseBank(buf,BANK,depth,handler,userArg);
   return;
   
 }
@@ -35,9 +35,12 @@ void evioStreamParser::parse(const unsigned long *buf, evioStreamHandler &handle
 
 
 void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth, 
-                                 evioStreamHandler &handler) {
+                                 evioStreamHandler &handler, void *userArg) throw(evioException*) {
 
-  int length,tag,type,num,dataOffset;
+  int length,tag,type,num,dataOffset,p,bankLen;
+  void *newUserArg;
+  const unsigned long *data;
+
 
 
   /* get type-dependent info */
@@ -67,9 +70,9 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
     break;
 
   default:
-    cerr << "?illegal fragment type in parseBank: " << ftype << endl;
-    exit(EXIT_FAILURE);
-    break;
+    ostringstream ss;
+    ss << ftype;
+    throw(new evioException(1,"?parseBank...illegal fragment type: " + ss.str()));
   }
 
 
@@ -83,24 +86,24 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
   case 0x1:
   case 0x2:
   case 0xb:
-    handler.leafHandler(&buf[dataOffset],length-dataOffset,ftype,tag,type,num,depth);
+    handler.leafHandler(&buf[dataOffset],length-dataOffset,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
-    handler.leafHandler((char*)(&buf[dataOffset]),(length-dataOffset)*4,ftype,tag,type,num,depth);
+    handler.leafHandler((char*)(&buf[dataOffset]),(length-dataOffset)*4,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0x4:
   case 0x5:
-    handler.leafHandler((short*)(&buf[dataOffset]),(length-dataOffset)*2,ftype,tag,type,num,depth);
+    handler.leafHandler((short*)(&buf[dataOffset]),(length-dataOffset)*2,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
-    handler.leafHandler((long long*)(&buf[dataOffset]),(length-dataOffset)/2,ftype,tag,type,num,depth);
+    handler.leafHandler((long long*)(&buf[dataOffset]),(length-dataOffset)/2,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0xe:
@@ -109,9 +112,44 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
   case 0x20:
   case 0xc:
   case 0x40:
-    handler.nodeHandler(length,ftype,tag,type,num,depth);
+    // handle this node and get new userArg
+    newUserArg=handler.nodeHandler(length,ftype,tag,type,num,depth,userArg);
+
+
+    // loop over contained nodes
     depth++;
-    loopOverBanks(&buf[dataOffset],length-dataOffset,type,depth,handler);
+    p       = 0;
+    bankLen = length-dataOffset;
+    data    = &buf[dataOffset];
+
+    switch (type) {
+
+    case 0xe:
+    case 0x10:
+      while(p<bankLen) {
+        parseBank(&data[p],BANK,depth,handler,newUserArg);
+        p+=data[p]+1;
+      }
+      break;
+
+    case 0xd:
+    case 0x20:
+      while(p<bankLen) {
+        parseBank(&data[p],SEGMENT,depth,handler,newUserArg);
+        p+=(data[p]&0xffff)+1;
+      }
+      break;
+
+    case 0xc:
+    case 0x40:
+      while(p<bankLen) {
+        parseBank(&data[p],TAGSEGMENT,depth,handler,newUserArg);
+        p+=(data[p]&0xffff)+1;
+      }
+      break;
+
+    }
+
     depth--;
     break;
   }
@@ -123,8 +161,9 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
 //--------------------------------------------------------------
 
 
+//    loopOverBanks(&buf[dataOffset],length-dataOffset,type,depth,handler,newUserArg);
 void evioStreamParser::loopOverBanks(const unsigned long *data, int length, int type, int depth, 
-                                     evioStreamHandler &handler) {
+                                     evioStreamHandler &handler, void *userArg) throw(evioException*) {
 
   int p=0;
 
@@ -133,7 +172,7 @@ void evioStreamParser::loopOverBanks(const unsigned long *data, int length, int 
   case 0xe:
   case 0x10:
     while(p<length) {
-      parseBank(&data[p],BANK,depth,handler);
+      parseBank(&data[p],BANK,depth,handler,userArg);
       p+=data[p]+1;
     }
     break;
@@ -141,7 +180,7 @@ void evioStreamParser::loopOverBanks(const unsigned long *data, int length, int 
   case 0xd:
   case 0x20:
     while(p<length) {
-      parseBank(&data[p],SEGMENT,depth,handler);
+      parseBank(&data[p],SEGMENT,depth,handler,userArg);
       p+=(data[p]&0xffff)+1;
     }
     break;
@@ -149,7 +188,7 @@ void evioStreamParser::loopOverBanks(const unsigned long *data, int length, int 
   case 0xc:
   case 0x40:
     while(p<length) {
-      parseBank(&data[p],TAGSEGMENT,depth,handler);
+      parseBank(&data[p],TAGSEGMENT,depth,handler,userArg);
       p+=(data[p]&0xffff)+1;
     }
     break;
@@ -174,7 +213,7 @@ evioException::evioException() {
 //--------------------------------------------------------------
 
 
-evioException::evioException(int t, string &s) {
+evioException::evioException(int t, string s) {
   type=t;
   text=s;
 }
@@ -199,7 +238,7 @@ int evioException::getType(void) const {
 //--------------------------------------------------------------
 
 
-void evioException::setText(string &t) {
+void evioException::setText(string t) {
   text=t;
 }
 
