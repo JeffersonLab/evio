@@ -44,9 +44,10 @@ protected:
 class evioStreamHandler {
 
 public:
-  virtual void *nodeHandler(int length, int ftype, int tag, int type, int num, int depth, void *userArg) = 0;
-  virtual void leafHandler(const void *data, int length, int ftype, int tag, int type, int num, 
-                           int depth, void *userArg) = 0;
+  virtual void *nodeHandler(int length, int nodeType, int tag, int contentType, int num, 
+                            int depth, void *userArg) = 0;
+  virtual void leafHandler(int length, int nodeType, int tag, int contentType, int num, 
+                           int depth, const void *data, void *userArg) = 0;
   
 };
 
@@ -61,7 +62,7 @@ public:
   void *parse(const unsigned long *buf, evioStreamHandler &handler, void *userArg) throw(evioException*);
 
 private:
-  void *parseBank(const unsigned long *buf, int ftype, int depth, 
+  void *parseBank(const unsigned long *buf, int nodeType, int depth, 
                  evioStreamHandler &handler, void *userArg) throw(evioException*);
   
 };

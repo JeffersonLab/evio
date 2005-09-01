@@ -26,28 +26,28 @@ void *evioStreamParser::parse(const unsigned long *buf,
 //--------------------------------------------------------------
 
 
-void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth, 
+void *evioStreamParser::parseBank(const unsigned long *buf, int nodeType, int depth, 
                                  evioStreamHandler &handler, void *userArg) throw(evioException*) {
 
-  int length,tag,type,num,dataOffset,p,bankLen;
+  int length,tag,contentType,num,dataOffset,p,bankLen;
   void *newUserArg = userArg;
   const unsigned long *data;
 
 
 
   /* get type-dependent info */
-  switch(ftype) {
+  switch(nodeType) {
   case 0:
     length  	= buf[0]+1;
     tag     	= buf[1]>>16;
-    type   	= (buf[1]>>8)&0xff;
+    contentType	= (buf[1]>>8)&0xff;
     num     	= buf[1]&0xff;
     dataOffset  = 2;
     break;
 
   case 1:
     length  	= (buf[0]&0xffff)+1;
-    type    	= (buf[0]>>16)&0xff;
+    contentType = (buf[0]>>16)&0xff;
     tag     	= (buf[0]>>24)&0xff;
     num     	= 0;
     dataOffset  = 1;
@@ -55,7 +55,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
     
   case 2:
     length  	= (buf[0]&0xffff)+1;
-    type    	= (buf[0]>>16)&0xf;
+    contentType	= (buf[0]>>16)&0xf;
     tag     	= (buf[0]>>20)&0xfff;
     num     	= 0;
     dataOffset  = 1;
@@ -63,8 +63,8 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
 
   default:
     ostringstream ss;
-    ss << ftype;
-    throw(new evioException(1,"?parseBank...illegal fragment type: " + ss.str()));
+    ss << nodeType;
+    throw(new evioException(1,"?parseBank...illegal node type: " + ss.str()));
   }
 
 
@@ -72,30 +72,34 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
    * if a leaf node, call leaf handler.
    * if container node, call node handler and then parse contained banks.
    */
-  switch (type) {
+  switch (contentType) {
 
   case 0x0:
   case 0x1:
   case 0x2:
   case 0xb:
-    handler.leafHandler(&buf[dataOffset],length-dataOffset,ftype,tag,type,num,depth,userArg);
+    handler.leafHandler(length-dataOffset,nodeType,tag,contentType,num,depth,
+                        &buf[dataOffset],userArg);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
-    handler.leafHandler((char*)(&buf[dataOffset]),(length-dataOffset)*4,ftype,tag,type,num,depth,userArg);
+    handler.leafHandler((length-dataOffset)*4,nodeType,tag,contentType,num,depth,
+                        (char*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x4:
   case 0x5:
-    handler.leafHandler((short*)(&buf[dataOffset]),(length-dataOffset)*2,ftype,tag,type,num,depth,userArg);
+    handler.leafHandler((length-dataOffset)*2,nodeType,tag,contentType,num,depth,
+                        (short*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
-    handler.leafHandler((long long*)(&buf[dataOffset]),(length-dataOffset)/2,ftype,tag,type,num,depth,userArg);
+    handler.leafHandler((length-dataOffset)/2,nodeType,tag,contentType,num,
+                        depth,(long long*)(&buf[dataOffset]),userArg);
     break;
 
   case 0xe:
@@ -105,7 +109,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
   case 0xc:
   case 0x40:
     // call node handler and get new userArg
-    newUserArg=handler.nodeHandler(length,ftype,tag,type,num,depth,userArg);
+    newUserArg=handler.nodeHandler(length,nodeType,tag,contentType,num,depth,userArg);
 
 
     // parse contained banks
@@ -114,7 +118,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
     bankLen = length-dataOffset;
     data    = &buf[dataOffset];
 
-    switch (type) {
+    switch (contentType) {
 
     case 0xe:
     case 0x10:
