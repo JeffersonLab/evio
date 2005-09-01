@@ -57,18 +57,12 @@ public:
 
 class evioStreamParser {
 
-private:
-  int depth;
-
-
 public:
-  void parse(const unsigned long *buf, evioStreamHandler &handler, void *userArg) throw(evioException*);
+  void *parse(const unsigned long *buf, evioStreamHandler &handler, void *userArg) throw(evioException*);
 
-protected:
-  void parseBank(const unsigned long *buf, int ftype, int depth, 
+private:
+  void *parseBank(const unsigned long *buf, int ftype, int depth, 
                  evioStreamHandler &handler, void *userArg) throw(evioException*);
-  void loopOverBanks(const unsigned long *data, int length, int type, int depth, 
-                     evioStreamHandler &handler, void *userArg) throw(evioException*);
   
 };
 

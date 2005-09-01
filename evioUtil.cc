@@ -7,13 +7,6 @@
 */
 
 
-
-/* still to do
- * -----------
- *    confusion over container and data types in nh,lh
-*/
-
-
 #include <evioUtil.hxx>
 
 
@@ -21,12 +14,11 @@
 //--------------------------------------------------------------
 
 
-void evioStreamParser::parse(const unsigned long *buf, 
+void *evioStreamParser::parse(const unsigned long *buf, 
                              evioStreamHandler &handler, void *userArg) throw(evioException*) {
   
-  depth=0;
-  parseBank(buf,BANK,depth,handler,userArg);
-  return;
+  void *newUserArg = parseBank(buf,BANK,0,handler,userArg);
+  return(newUserArg);
   
 }
 
@@ -34,11 +26,11 @@ void evioStreamParser::parse(const unsigned long *buf,
 //--------------------------------------------------------------
 
 
-void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth, 
+void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth, 
                                  evioStreamHandler &handler, void *userArg) throw(evioException*) {
 
   int length,tag,type,num,dataOffset,p,bankLen;
-  void *newUserArg;
+  void *newUserArg = userArg;
   const unsigned long *data;
 
 
@@ -77,8 +69,8 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
 
 
   /* 
-   * if a leaf or data node, call leaf handler.
-   * if an intermediate node, call node handler and then loop over contained banks.
+   * if a leaf node, call leaf handler.
+   * if container node, call node handler and then parse contained banks.
    */
   switch (type) {
 
@@ -112,11 +104,11 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
   case 0x20:
   case 0xc:
   case 0x40:
-    // handle this node and get new userArg
+    // call node handler and get new userArg
     newUserArg=handler.nodeHandler(length,ftype,tag,type,num,depth,userArg);
 
 
-    // loop over contained nodes
+    // parse contained banks
     depth++;
     p       = 0;
     bankLen = length-dataOffset;
@@ -127,7 +119,7 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
     case 0xe:
     case 0x10:
       while(p<bankLen) {
-        parseBank(&data[p],BANK,depth,handler,newUserArg);
+        newUserArg=parseBank(&data[p],BANK,depth,handler,newUserArg);
         p+=data[p]+1;
       }
       break;
@@ -135,7 +127,7 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
     case 0xd:
     case 0x20:
       while(p<bankLen) {
-        parseBank(&data[p],SEGMENT,depth,handler,newUserArg);
+        newUserArg=parseBank(&data[p],SEGMENT,depth,handler,newUserArg);
         p+=(data[p]&0xffff)+1;
       }
       break;
@@ -143,7 +135,7 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
     case 0xc:
     case 0x40:
       while(p<bankLen) {
-        parseBank(&data[p],TAGSEGMENT,depth,handler,newUserArg);
+        newUserArg=parseBank(&data[p],TAGSEGMENT,depth,handler,newUserArg);
         p+=(data[p]&0xffff)+1;
       }
       break;
@@ -154,49 +146,7 @@ void evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth,
     break;
   }
 
-  return;
-}
-
-
-//--------------------------------------------------------------
-
-
-//    loopOverBanks(&buf[dataOffset],length-dataOffset,type,depth,handler,newUserArg);
-void evioStreamParser::loopOverBanks(const unsigned long *data, int length, int type, int depth, 
-                                     evioStreamHandler &handler, void *userArg) throw(evioException*) {
-
-  int p=0;
-
-  switch (type) {
-
-  case 0xe:
-  case 0x10:
-    while(p<length) {
-      parseBank(&data[p],BANK,depth,handler,userArg);
-      p+=data[p]+1;
-    }
-    break;
-
-  case 0xd:
-  case 0x20:
-    while(p<length) {
-      parseBank(&data[p],SEGMENT,depth,handler,userArg);
-      p+=(data[p]&0xffff)+1;
-    }
-    break;
-
-  case 0xc:
-  case 0x40:
-    while(p<length) {
-      parseBank(&data[p],TAGSEGMENT,depth,handler,userArg);
-      p+=(data[p]&0xffff)+1;
-    }
-    break;
-
-  }
-
-
-  return;
+  return(newUserArg);
 }
 
 
