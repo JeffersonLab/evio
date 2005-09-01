@@ -119,7 +119,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
     case 0xe:
     case 0x10:
       while(p<bankLen) {
-        newUserArg=parseBank(&data[p],BANK,depth,handler,newUserArg);
+        parseBank(&data[p],BANK,depth,handler,newUserArg);
         p+=data[p]+1;
       }
       break;
@@ -127,7 +127,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
     case 0xd:
     case 0x20:
       while(p<bankLen) {
-        newUserArg=parseBank(&data[p],SEGMENT,depth,handler,newUserArg);
+        parseBank(&data[p],SEGMENT,depth,handler,newUserArg);
         p+=(data[p]&0xffff)+1;
       }
       break;
@@ -135,7 +135,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int ftype, int depth
     case 0xc:
     case 0x40:
       while(p<bankLen) {
-        newUserArg=parseBank(&data[p],TAGSEGMENT,depth,handler,newUserArg);
+        parseBank(&data[p],TAGSEGMENT,depth,handler,newUserArg);
         p+=(data[p]&0xffff)+1;
       }
       break;
