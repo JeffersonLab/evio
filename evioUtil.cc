@@ -18,6 +18,27 @@ static bool debug = true;
 //--------------------------------------------------------------
 
 
+// misc functions
+string getIndent(int depth) {
+  string s;
+  for(int i=0; i<depth; i++) s+="   ";
+  return(s);
+}
+
+
+//--------------------------------------------------------------
+
+
+template <typename T> void dropIt(T *t) {
+  delete(t);
+}
+
+
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+
+
 evioException::evioException() {
   type=0;
   text="";
@@ -223,19 +244,19 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int nodeType, int de
 //--------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(evioDOMNode *r) throw (evioException*) {
-
+evioDOMTree::evioDOMTree(evioDOMNode *r, const string &n) throw(evioException*) {
   if(r==NULL)throw(new evioException(0,"?evioDOMTree constructor...null evioDOMNode"));
-  root = r;
+  name=n;
+  root=r;
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const unsigned long *buf) throw (evioException*) {
-
+evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioException*) {
   if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer"));
+  name=n;
   root=parse(buf);
 }
 
@@ -366,11 +387,29 @@ void evioDOMTree::leafHandler(int length, int containerType, int tag, int type, 
 //-----------------------------------------------------------------------------
 
 
-string evioDOMTree::toString() const throw(evioException*) {
+string evioDOMTree::getName(void) const {
+  return(name);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void evioDOMTree::setName(const string &newName) {
+  name=newName;
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+string evioDOMTree::toString(void) const throw(evioException*) {
 
   if(root==NULL)return("");
 
   ostringstream os;
+  os << endl << endl << "<!-- Dump of tree: " << getName() << " -->" << endl << endl;
   toOstream(os,root,0);
   os << endl << endl;
   return(os.str());
@@ -385,9 +424,6 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
   
   if(pNode==NULL)return;
 
-  string indent;
-  for(int i=0; i<depth; i++) indent +="    ";
-
 
   // dump node opening information into ostream
   pNode->toString(os,depth);
@@ -397,13 +433,13 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
     list<evioDOMNode*>::const_iterator iter;
-    for (iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       toOstream(os,*iter,depth+1);
     }
   }
 
   // node closing information
-  os << indent << "</" << get_typename(pNode->contentType) << ">" << endl;
+  os << getIndent(depth) << "</" << get_typename(pNode->contentType) << ">" << endl;
 }
 
 
@@ -438,12 +474,9 @@ string evioDOMContainerNode::toString(void) const {
 
                                    
 void evioDOMContainerNode::toString(ostream &os, int depth) const {
-
-  string indent;
-  for(int i=0; i<depth; i++) indent +="    ";
-
-  os << indent
-     <<  "<" << get_typename(contentType) << " tag=\'"  << tag << "\' contentType=\'" << contentType << "\' num=\'" << num << "\">" << endl;
+  os << getIndent(depth)
+     <<  "<" << get_typename(contentType) << " tag=\'"  << tag << "\' contentType=\'" 
+     << contentType << "\' num=\'" << num << "\">" << endl;
 }
 
 
@@ -451,12 +484,8 @@ void evioDOMContainerNode::toString(ostream &os, int depth) const {
 
                                    
 evioDOMContainerNode::~evioDOMContainerNode(void) {
-  if(debug)cout << "deleting node" << endl;
-  list<evioDOMNode*>::const_iterator iter;
-  for (iter=childList.begin(); iter!=childList.end(); iter++) {
-    if(debug)cout << "deleting child" << endl;
-    delete(*iter);
-  }
+  if(debug)cout << "deleting container node" << endl;
+  for_each(childList.begin(),childList.end(),dropIt<evioDOMNode>);
 }
 
 
@@ -494,9 +523,8 @@ template <class T> string evioDOMLeafNode<T>::toString(void) const {
                                    
 template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) const {
 
-  string indent,indent2;
-  for(int i=0; i<depth; i++) indent +="    ";
-  indent2 = indent + "    ";
+  string indent = getIndent(depth);
+  string indent2 = indent + "    ";
 
   int wid;
   switch (contentType) {
@@ -533,10 +561,10 @@ template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) con
   T i;
   int *j;
   typename vector<T>::const_iterator iter;
-  for (iter=data.begin(); iter!=data.end();) {
+  for(iter=data.begin(); iter!=data.end();) {
 
     if(contentType!=0x3)os << indent2;
-    for (int j=0; (j<wid)&&(iter!=data.end()); j++) {
+    for(int j=0; (j<wid)&&(iter!=data.end()); j++) {
       switch (contentType) {
       case 0x0:
       case 0x1:
@@ -574,6 +602,14 @@ template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) con
   return;
 }
 
+
+//-----------------------------------------------------------------------------
+
+
+template <class T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
+  if(debug)cout << "deleting leaf node" << endl;
+}
+  
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

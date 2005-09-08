@@ -4,17 +4,19 @@
 
 
 // still to do
+//   toEVIOBuffer()
+
+//   stl algrorithms?
 //   get private, protected, public straight
 //   get const straight
-//   copy constructors?
-//   allow user handler in parse?
-//   add,drop sub-trees
-//   traverse functions
+//   signed byte in toString()
+//   toString() compatible with evio2xml
+
 //   AIDA interface?
-//   toEVIOBuffer()
+//   traverse functions
+//   add,drop sub-trees
+//   copy constructors?
 //   query functions, node lists, etc.
-//   toString agrees with evio2xml
-//   signed byte in toString()?
 
 
 #ifndef _evioUtil_hxx
@@ -29,6 +31,7 @@ using namespace std;
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 
 class evioDOMNode;
@@ -82,7 +85,8 @@ public:
 class evioStreamParser {
 
 public:
-  void *parse(const unsigned long *buf, evioStreamParserHandler &handler, void *userArg) throw(evioException*);
+  void *parse(const unsigned long *buf, evioStreamParserHandler &handler, void *userArg)
+    throw(evioException*);
 
 private:
   void *parseBank(const unsigned long *buf, int nodeType, int depth, 
@@ -99,12 +103,14 @@ private:
 class evioDOMTree:public evioStreamParserHandler {
 
 public:
-  evioDOMTree(const unsigned long *buf) throw(evioException*);
-  evioDOMTree(evioDOMNode *root) throw(evioException*);
+  evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
+  evioDOMTree(evioDOMNode *root, const string &name = "root") throw(evioException*);
   ~evioDOMTree(void);
 
-  string toString(void) const throw(evioException*);
   //  void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
+  string getName(void) const;
+  void setName(const string &newName);
+  string toString(void) const throw(evioException*);
 
 
 private:
@@ -116,6 +122,7 @@ private:
                    int depth, const void *data, void *userArg);
 
   evioDOMNode *root;
+  string name;
 };
 
 
@@ -124,7 +131,7 @@ private:
 //-----------------------------------------------------------------------------
 
 
-// represents an evio node in memory
+// represents an evio node in memory, pure virtual
 class evioDOMNode {
 
 public:
@@ -169,6 +176,8 @@ template <class T> class evioDOMLeafNode:public evioDOMNode {
 
 public:
   evioDOMLeafNode(int containerType, int tag, int contentType, int num, T *p, int ndata) throw(evioException*);
+  virtual ~evioDOMLeafNode(void);
+
   string toString(void) const;
   void toString(ostream &os, int depth) const;
 
