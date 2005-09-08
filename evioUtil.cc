@@ -80,7 +80,7 @@ string evioException::toString(void) const {
 
 
 void *evioStreamParser::parse(const unsigned long *buf, 
-                              evioStreamHandler &handler, void *userArg) throw(evioException*) {
+                              evioStreamParserHandler &handler, void *userArg) throw(evioException*) {
   
   if(buf==NULL)throw(new evioException(0,"?evioStreamParser::parse...null buffer"));
 
@@ -93,7 +93,7 @@ void *evioStreamParser::parse(const unsigned long *buf,
 
 
 void *evioStreamParser::parseBank(const unsigned long *buf, int nodeType, int depth, 
-                                 evioStreamHandler &handler, void *userArg) throw(evioException*) {
+                                 evioStreamParserHandler &handler, void *userArg) throw(evioException*) {
 
   int length,tag,contentType,num,dataOffset,p,bankLen;
   void *newUserArg = userArg;
@@ -236,8 +236,7 @@ evioDOMTree::evioDOMTree(evioDOMNode *r) throw (evioException*) {
 evioDOMTree::evioDOMTree(const unsigned long *buf) throw (evioException*) {
 
   if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer"));
-  evioDOMParser p;
-  root = p.parse(buf);
+  root=parse(buf);
 }
 
 
@@ -247,6 +246,120 @@ evioDOMTree::evioDOMTree(const unsigned long *buf) throw (evioException*) {
 evioDOMTree::~evioDOMTree(void) {
   delete(root);
   if(debug)cout << "tree deleted" << endl;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode *evioDOMTree::parse(const unsigned long *buf) throw(evioException*) {
+  evioStreamParser p;
+  return((evioDOMNode*)p.parse(buf,*this,NULL));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void *evioDOMTree::nodeHandler(int length, int containerType, int tag, int type, int num, int depth, 
+                               void *userArg) {
+    
+  if(debug) printf("node   depth %2d  containerType %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
+                   depth,containerType,type,tag,num,length);
+    
+    
+  // get parent pointer
+  evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
+    
+
+  // create new node
+  evioDOMContainerNode *newNode = new evioDOMContainerNode(containerType,tag,type,num);
+
+
+  // add new node to parent's list
+  if(parent!=NULL)parent->childList.push_back(newNode);
+
+
+  // return new userArg that points to the new node
+  return((void*)newNode);
+}
+  
+  
+//-----------------------------------------------------------------------------
+
+
+void evioDOMTree::leafHandler(int length, int containerType, int tag, int type, int num, int depth, 
+                              const void *data, void *userArg) {
+
+  if(debug) printf("leaf   depth %2d  containerType %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
+                   depth,containerType,type,tag,num,length);
+
+
+  // get parent pointer
+  evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
+
+
+  // create and fill new leaf
+  evioDOMNode *newLeaf;
+  string s;
+  ostringstream os;
+  switch (type) {
+
+  case 0x0:
+    newLeaf = new evioDOMLeafNode<unsigned long>(containerType,tag,type,num,(unsigned long *)data,length);
+    break;
+      
+  case 0x1:
+    newLeaf = new evioDOMLeafNode<unsigned long>(containerType,tag,type,num,(unsigned long*)data,length);
+    break;
+      
+  case 0x2:
+    newLeaf = new evioDOMLeafNode<float>(containerType,tag,type,num,(float*)data,length);
+    break;
+      
+  case 0x3:
+    for(int i=0; i<length; i++) os << ((char *)data)[i];
+    os << ends;
+    s=os.str();
+    newLeaf = new evioDOMLeafNode<string>(containerType,tag,type,num,&s,1);
+    break;
+
+  case 0x4:
+    newLeaf = new evioDOMLeafNode<short>(containerType,tag,type,num,(short*)data,length);
+    break;
+
+  case 0x5:
+    newLeaf = new evioDOMLeafNode<unsigned short>(containerType,tag,type,num,(unsigned short*)data,length);
+    break;
+
+  case 0x6:
+    newLeaf = new evioDOMLeafNode<char>(containerType,tag,type,num,(char*)data,length);
+    break;
+
+  case 0x7:
+    newLeaf = new evioDOMLeafNode<unsigned char>(containerType,tag,type,num,(unsigned char*)data,length);
+    break;
+
+  case 0x8:
+    newLeaf = new evioDOMLeafNode<double>(containerType,tag,type,num,(double*)data,length);
+    break;
+
+  case 0x9:
+    newLeaf = new evioDOMLeafNode<long long>(containerType,tag,type,num,(long long*)data,length);
+    break;
+
+  case 0xa:
+    newLeaf = new evioDOMLeafNode<unsigned long long>(containerType,tag,type,num,(unsigned long long*)data,length);
+    break;
+
+  case 0xb:
+    newLeaf = new evioDOMLeafNode<long>(containerType,tag,type,num,(long*)data,length);
+    break;
+  }
+
+
+  // add new leaf to parent list
+  if(parent!=NULL)parent->childList.push_back(newLeaf);
 }
 
 
@@ -291,129 +404,6 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
 
   // node closing information
   os << indent << "</" << get_typename(pNode->contentType) << ">" << endl;
-}
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class DOMHandler:public evioStreamHandler {
-
-
-  void *nodeHandler(int length, int containerType, int tag, int type, int num, int depth, 
-                    void *userArg) {
-    
-    if(debug) printf("node   depth %2d  containerType %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
-                     depth,containerType,type,tag,num,length);
-    
-    
-    // get parent pointer
-    evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
-    
-
-    // create new node
-    evioDOMContainerNode *newNode = new evioDOMContainerNode(containerType,tag,type,num);
-
-
-    // add new node to parent's list
-    if(parent!=NULL)parent->childList.push_back(newNode);
-
-
-    // return new userArg that points to the new node
-    return((void*)newNode);
-  }
-  
-  
-//-----------------------------------------------------------------------------
-
-
-  void leafHandler(int length, int containerType, int tag, int type, int num, int depth, 
-                   const void *data, void *userArg) {
-
-    if(debug) printf("leaf   depth %2d  containerType %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
-                     depth,containerType,type,tag,num,length);
-
-
-    // get parent pointer
-    evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
-
-
-    // create and fill new leaf
-    evioDOMNode *newLeaf;
-    string s;
-    ostringstream os;
-    switch (type) {
-
-    case 0x0:
-      newLeaf = new evioDOMLeafNode<unsigned long>(containerType,tag,type,num,(unsigned long *)data,length);
-      break;
-      
-    case 0x1:
-      newLeaf = new evioDOMLeafNode<unsigned long>(containerType,tag,type,num,(unsigned long*)data,length);
-      break;
-      
-    case 0x2:
-      newLeaf = new evioDOMLeafNode<float>(containerType,tag,type,num,(float*)data,length);
-      break;
-      
-    case 0x3:
-      for(int i=0; i<length; i++) os << ((char *)data)[i];
-      os << ends;
-      s=os.str();
-      newLeaf = new evioDOMLeafNode<string>(containerType,tag,type,num,&s,1);
-      break;
-
-    case 0x4:
-      newLeaf = new evioDOMLeafNode<short>(containerType,tag,type,num,(short*)data,length);
-      break;
-
-    case 0x5:
-      newLeaf = new evioDOMLeafNode<unsigned short>(containerType,tag,type,num,(unsigned short*)data,length);
-      break;
-
-    case 0x6:
-      newLeaf = new evioDOMLeafNode<char>(containerType,tag,type,num,(char*)data,length);
-      break;
-
-    case 0x7:
-      newLeaf = new evioDOMLeafNode<unsigned char>(containerType,tag,type,num,(unsigned char*)data,length);
-      break;
-
-    case 0x8:
-      newLeaf = new evioDOMLeafNode<double>(containerType,tag,type,num,(double*)data,length);
-      break;
-
-    case 0x9:
-      newLeaf = new evioDOMLeafNode<long long>(containerType,tag,type,num,(long long*)data,length);
-      break;
-
-    case 0xa:
-      newLeaf = new evioDOMLeafNode<unsigned long long>(containerType,tag,type,num,(unsigned long long*)data,length);
-      break;
-
-    case 0xb:
-      newLeaf = new evioDOMLeafNode<long>(containerType,tag,type,num,(long*)data,length);
-      break;
-    }
-
-
-    // add new leaf to parent list
-    if(parent!=NULL)parent->childList.push_back(newLeaf);
-  }
-
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-evioDOMNode *evioDOMParser::parse(const unsigned long *buf) throw(evioException*) {
-  evioStreamParser p;
-  DOMHandler dh;
-  return((evioDOMNode*)p.parse(buf,dh,NULL));
-  //  return((evioDOMNode*)p.parse(buf,NULL));
 }
 
 
