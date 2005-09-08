@@ -15,6 +15,7 @@
 //   toEVIOBuffer()
 //   query functions, node lists, etc.
 //   toString agrees with evio2xml
+//   signed byte in toString()?
 
 
 #ifndef _evioUtil_hxx

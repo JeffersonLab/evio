@@ -541,10 +541,11 @@ template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) con
 
   // dump data (odd what has to be done for type 0x7 or unsigned char...)
   T i;
+  int *j;
   typename vector<T>::const_iterator iter;
   for (iter=data.begin(); iter!=data.end();) {
 
-    os << indent2;
+    if(contentType!=0x3)os << indent2;
     for (int j=0; (j<wid)&&(iter!=data.end()); j++) {
       switch (contentType) {
       case 0x0:
@@ -553,7 +554,10 @@ template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) con
       case 0xa:
         os << "0x" << hex << *iter << "  ";
         break;
-      case 0x6: //??? signed byte ???
+      case 0x3:
+        os << "<!CDATA[" << endl << *iter << endl << "]]>";
+        break;
+      case 0x6:  // ??? not sure what to do for signed byte
         i=*iter;
         os << ((*(int*)&i)&0xff) << "  ";
         break;
@@ -561,8 +565,11 @@ template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) con
         i=*iter;
         os << "0x" << hex << ((*(int*)&i)&0xff) << "  ";
         break;
-      case 0x3:
-        os << "<!CDATA[" << endl << indent2 << *iter << endl << indent2 << "]]>";
+      case 0x2:
+        os << setprecision(6) << fixed << *iter << "  ";
+        break;
+      case 0x8:
+        os << setw(28) << setprecision(20) << scientific << *iter << "  ";
         break;
       default:
         os << *iter << "  ";
