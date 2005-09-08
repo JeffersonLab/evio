@@ -45,6 +45,7 @@
 
 
 /* include files */
+#include <evio_util.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,11 +68,6 @@ static int ndict          = 0;
 /* fragment info */
 char *fragment_name[] = {"bank","segment","tagsegment"};
 int fragment_offset[] = {2,1,1};
-enum {
-  BANK = 0,
-  SEGMENT,
-  TAGSEGMENT,
-};
 
 
 /* formatting info */
@@ -110,7 +106,6 @@ static void dump_segment(unsigned long *buf);
 static void dump_tagsegment(unsigned long *buf);
 static void dump_data(unsigned long *data, int type, int length, int noexpand);
 static int get_ndata(int type, int nwords);
-static const char *get_typename(int type);
 static const char *get_tagname();
 static int isContainer(int type);
 static void indent(void);
@@ -595,87 +590,6 @@ static int get_ndata(int type, int length) {
   case 0x40:
   default:
     return(length);
-    break;
-  }
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-static const char *get_typename(int type) {
-
-  switch (type) {
-
-  case 0x0:
-    return("unknown32");
-    break;
-
-  case 0x1:
-    return("uint32");
-    break;
-
-  case 0x2:
-    return("float32");
-    break;
-
-  case 0x3:
-    return("string");
-    break;
-
-  case 0x4:
-    return("int16");
-    break;
-
-  case 0x5:
-    return("uint16");
-    break;
-
-  case 0x6:
-    return("byte");
-    break;
-
-  case 0x7:
-    return("ubyte");
-    break;
-
-  case 0x8:
-    return("float64");
-    break;
-
-  case 0x9:
-    return("int64");
-    break;
-
-  case 0xa:
-    return("uint64");
-    break;
-
-  case 0xb:
-    return("int32");
-    break;
-
-  case 0xf:
-    return("repeating");
-    break;
-
-  case 0xe:
-  case 0x10:
-    return("bank");
-    break;
-
-  case 0xd:
-  case 0x20:
-    return("segment");
-    break;
-
-  case 0xc:
-  case 0x40:
-    return("tagsegment");
-    break;
-
-  default:
-    return("unknown");
     break;
   }
 }

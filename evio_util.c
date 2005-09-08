@@ -165,3 +165,84 @@ static void loop_over_banks(unsigned long *data, int length, int type, int depth
 
 
 /*---------------------------------------------------------------- */
+
+
+const char *get_typename(int type) {
+
+  switch (type) {
+
+  case 0x0:
+    return("unknown32");
+    break;
+
+  case 0x1:
+    return("uint32");
+    break;
+
+  case 0x2:
+    return("float32");
+    break;
+
+  case 0x3:
+    return("string");
+    break;
+
+  case 0x4:
+    return("int16");
+    break;
+
+  case 0x5:
+    return("uint16");
+    break;
+
+  case 0x6:
+    return("byte");
+    break;
+
+  case 0x7:
+    return("ubyte");
+    break;
+
+  case 0x8:
+    return("float64");
+    break;
+
+  case 0x9:
+    return("int64");
+    break;
+
+  case 0xa:
+    return("uint64");
+    break;
+
+  case 0xb:
+    return("int32");
+    break;
+
+  case 0xf:
+    return("repeating");
+    break;
+
+  case 0xe:
+  case 0x10:
+    return("bank");
+    break;
+
+  case 0xd:
+  case 0x20:
+    return("segment");
+    break;
+
+  case 0xc:
+  case 0x40:
+    return("tagsegment");
+    break;
+
+  default:
+    return("unknown");
+    break;
+  }
+}
+
+
+/*---------------------------------------------------------------- */

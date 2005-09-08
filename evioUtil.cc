@@ -18,12 +18,74 @@ static bool debug = true;
 //--------------------------------------------------------------
 
 
+evioException::evioException() {
+  type=0;
+  text="";
+}
+
+
+//--------------------------------------------------------------
+
+
+evioException::evioException(int t, string s) {
+  type=t;
+  text=s;
+}
+
+
+//--------------------------------------------------------------
+
+
+void evioException::setType(int t) {
+  type=t;
+}
+
+
+//--------------------------------------------------------------
+
+
+int evioException::getType(void) const {
+  return(type);
+}
+
+
+//--------------------------------------------------------------
+
+
+void evioException::setText(string t) {
+  text=t;
+}
+
+
+//--------------------------------------------------------------
+
+
+string evioException::getText(void) const {
+  return(text);
+}
+
+
+//--------------------------------------------------------------
+
+
+string evioException::toString(void) const {
+  ostringstream s;
+  s << type;
+  return(string("evioException type=") + s.str() + string(",  text:  ") + text);
+}
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
 void *evioStreamParser::parse(const unsigned long *buf, 
-                             evioStreamHandler &handler, void *userArg) throw(evioException*) {
+                              evioStreamHandler &handler, void *userArg) throw(evioException*) {
   
+  if(buf==NULL)throw(new evioException(0,"?evioStreamParser::parse...null buffer"));
+
   void *newUserArg = parseBank(buf,BANK,0,handler,userArg);
   return(newUserArg);
-  
 }
 
 
@@ -36,7 +98,6 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int nodeType, int de
   int length,tag,contentType,num,dataOffset,p,bankLen;
   void *newUserArg = userArg;
   const unsigned long *data;
-
 
 
   /* get type-dependent info */
@@ -162,60 +223,74 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int nodeType, int de
 //--------------------------------------------------------------
 
 
-evioException::evioException() {
-  type=0;
-  text="";
+evioDOMTree::evioDOMTree(evioDOMNode *r) throw (evioException*) {
+
+  if(r==NULL)throw(new evioException(0,"?evioDOMTree constructor...null evioDOMNode"));
+  root = r;
 }
 
 
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
-evioException::evioException(int t, string s) {
-  type=t;
-  text=s;
+evioDOMTree::evioDOMTree(const unsigned long *buf) throw (evioException*) {
+
+  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer"));
+  evioDOMParser p;
+  root = p.parse(buf);
 }
 
 
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
-void evioException::setType(int t) {
-  type=t;
+evioDOMTree::~evioDOMTree(void) {
+  delete(root);
+  if(debug)cout << "tree deleted" << endl;
 }
 
 
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
-int evioException::getType(void) const {
-  return(type);
+string evioDOMTree::toString() const throw(evioException*) {
+
+  if(root==NULL)return("");
+
+  ostringstream os;
+  toOstream(os,root,0);
+  os << endl << endl;
+  return(os.str());
 }
 
 
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
-void evioException::setText(string t) {
-  text=t;
-}
+void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) const throw(evioException*) {
+
+  
+  if(pNode==NULL)return;
+
+  string indent;
+  for(int i=0; i<depth; i++) indent +="    ";
 
 
-//--------------------------------------------------------------
+  // dump node opening information into ostream
+  pNode->toString(os,depth);
 
 
-string evioException::getText(void) const {
-  return(text);
-}
+  // dump contained banks if node is a container
+  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+  if(c!=NULL) {
+    list<evioDOMNode*>::const_iterator iter;
+    for (iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+      toOstream(os,*iter,depth+1);
+    }
+  }
 
-
-//--------------------------------------------------------------
-
-
-string evioException::toString(void) const {
-  ostringstream s;
-  s << type;
-  return(string("Type: ") + s.str() + string(", text: ") + text);
+  // node closing information
+  os << indent << "</" << get_typename(pNode->contentType) << ">" << endl;
 }
 
 
@@ -226,11 +301,11 @@ string evioException::toString(void) const {
 class DOMHandler:public evioStreamHandler {
 
 
-  void *nodeHandler(int length, int ftype, int tag, int type, int num, int depth, 
+  void *nodeHandler(int length, int containerType, int tag, int type, int num, int depth, 
                     void *userArg) {
     
-    if(debug) printf("node   depth %2d  ftype %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
-                     depth,ftype,type,tag,num,length);
+    if(debug) printf("node   depth %2d  containerType %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
+                     depth,containerType,type,tag,num,length);
     
     
     // get parent pointer
@@ -238,7 +313,7 @@ class DOMHandler:public evioStreamHandler {
     
 
     // create new node
-    evioDOMContainerNode *newNode = new evioDOMContainerNode(ftype,tag,type,num);
+    evioDOMContainerNode *newNode = new evioDOMContainerNode(containerType,tag,type,num);
 
 
     // add new node to parent's list
@@ -253,11 +328,11 @@ class DOMHandler:public evioStreamHandler {
 //-----------------------------------------------------------------------------
 
 
-  void leafHandler(int length, int ftype, int tag, int type, int num, int depth, 
+  void leafHandler(int length, int containerType, int tag, int type, int num, int depth, 
                    const void *data, void *userArg) {
 
-    if(debug) printf("leaf   depth %2d  ftype %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
-                     depth,ftype,type,tag,num,length);
+    if(debug) printf("leaf   depth %2d  containerType %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
+                     depth,containerType,type,tag,num,length);
 
 
     // get parent pointer
@@ -271,54 +346,54 @@ class DOMHandler:public evioStreamHandler {
     switch (type) {
 
     case 0x0:
-      newLeaf = new evioDOMLeafNode<unsigned long>(ftype,tag,type,num,(unsigned long *)data,length);
+      newLeaf = new evioDOMLeafNode<unsigned long>(containerType,tag,type,num,(unsigned long *)data,length);
       break;
       
     case 0x1:
-      newLeaf = new evioDOMLeafNode<unsigned long>(ftype,tag,type,num,(unsigned long*)data,length);
+      newLeaf = new evioDOMLeafNode<unsigned long>(containerType,tag,type,num,(unsigned long*)data,length);
       break;
       
     case 0x2:
-      newLeaf = new evioDOMLeafNode<float>(ftype,tag,type,num,(float*)data,length);
+      newLeaf = new evioDOMLeafNode<float>(containerType,tag,type,num,(float*)data,length);
       break;
       
     case 0x3:
       for(int i=0; i<length; i++) os << ((char *)data)[i];
       os << ends;
       s=os.str();
-      newLeaf = new evioDOMLeafNode<string>(ftype,tag,type,num,&s,1);
+      newLeaf = new evioDOMLeafNode<string>(containerType,tag,type,num,&s,1);
       break;
 
     case 0x4:
-      newLeaf = new evioDOMLeafNode<short>(ftype,tag,type,num,(short*)data,length);
+      newLeaf = new evioDOMLeafNode<short>(containerType,tag,type,num,(short*)data,length);
       break;
 
     case 0x5:
-      newLeaf = new evioDOMLeafNode<unsigned short>(ftype,tag,type,num,(unsigned short*)data,length);
+      newLeaf = new evioDOMLeafNode<unsigned short>(containerType,tag,type,num,(unsigned short*)data,length);
       break;
 
     case 0x6:
-      newLeaf = new evioDOMLeafNode<char>(ftype,tag,type,num,(char*)data,length);
+      newLeaf = new evioDOMLeafNode<char>(containerType,tag,type,num,(char*)data,length);
       break;
 
     case 0x7:
-      newLeaf = new evioDOMLeafNode<unsigned char>(ftype,tag,type,num,(unsigned char*)data,length);
+      newLeaf = new evioDOMLeafNode<unsigned char>(containerType,tag,type,num,(unsigned char*)data,length);
       break;
 
     case 0x8:
-      newLeaf = new evioDOMLeafNode<double>(ftype,tag,type,num,(double*)data,length);
+      newLeaf = new evioDOMLeafNode<double>(containerType,tag,type,num,(double*)data,length);
       break;
 
     case 0x9:
-      newLeaf = new evioDOMLeafNode<long long>(ftype,tag,type,num,(long long*)data,length);
+      newLeaf = new evioDOMLeafNode<long long>(containerType,tag,type,num,(long long*)data,length);
       break;
 
     case 0xa:
-      newLeaf = new evioDOMLeafNode<unsigned long long>(ftype,tag,type,num,(unsigned long long*)data,length);
+      newLeaf = new evioDOMLeafNode<unsigned long long>(containerType,tag,type,num,(unsigned long long*)data,length);
       break;
 
     case 0xb:
-      newLeaf = new evioDOMLeafNode<long>(ftype,tag,type,num,(long*)data,length);
+      newLeaf = new evioDOMLeafNode<long>(containerType,tag,type,num,(long*)data,length);
       break;
     }
 
@@ -338,6 +413,7 @@ evioDOMNode *evioDOMParser::parse(const unsigned long *buf) throw(evioException*
   evioStreamParser p;
   DOMHandler dh;
   return((evioDOMNode*)p.parse(buf,dh,NULL));
+  //  return((evioDOMNode*)p.parse(buf,NULL));
 }
 
 
@@ -363,9 +439,7 @@ string evioDOMContainerNode::toString(void) const {
 
   // just dump header
   ostringstream os;
-  os <<  "Bank:  containerType " << setw(3) << containerType << "    tag " << setw(6) << tag 
-     << "    contentType " << setw(6) << contentType 
-     << "    num " << setw(6) << num;
+  toString(os,0);
   return(os.str());
 }
 
@@ -378,7 +452,8 @@ void evioDOMContainerNode::toString(ostream &os, int depth) const {
   string indent;
   for(int i=0; i<depth; i++) indent +="    ";
 
-  os << "(" <<  depth << ")   " << indent << toString() << endl;
+  os << indent
+     <<  "<" << get_typename(contentType) << " tag=\'"  << tag << "\' contentType=\'" << contentType << "\' num=\'" << num << "\">" << endl;
 }
 
 
@@ -419,36 +494,7 @@ template <class T> evioDOMLeafNode<T>::evioDOMLeafNode(int container, int tg, in
 template <class T> string evioDOMLeafNode<T>::toString(void) const {
 
   ostringstream os;
-
-
-  // dump header
-  os <<  "Leaf:  containerType " << setw(3) << containerType << "    tag " << setw(6) << tag 
-     << "    contentType " << setw(6) << contentType 
-     << "    num " << setw(6) << num << "     data: ";
-
-
-  // dump data (odd what has to be done for type 0x7 or unsigned char...)
-  T i;
-  typename vector<T>::const_iterator iter;
-  for (iter=data.begin(); iter!=data.end(); iter++) {
-    switch (contentType) {
-    case 0x0:
-    case 0x1:
-    case 0x5:
-    case 0xa:
-      os << "0x" << hex << *iter << "  ";
-      break;
-    case 0x7:
-      i=*iter;
-      os << "0x" << hex << ((*(int*)&i)&0xff) << "  ";
-      break;
-    default:
-      os << *iter << "  ";
-      break;
-    }
-  }
-
-
+  toString(os,0);
   return(os.str());
 }
 
@@ -458,73 +504,77 @@ template <class T> string evioDOMLeafNode<T>::toString(void) const {
                                    
 template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) const {
 
-  string indent;
+  string indent,indent2;
   for(int i=0; i<depth; i++) indent +="    ";
+  indent2 = indent + "    ";
 
-  os << "(" <<  depth << ")   " << indent << toString() << endl;
-}
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-evioDOMTree::evioDOMTree(evioDOMNode *r) throw (evioException*) {
-  root = r;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMTree::evioDOMTree(const unsigned long *buf) throw (evioException*) {
-  evioDOMParser p;
-  root = p.parse(buf);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMTree::~evioDOMTree(void) {
-  delete(root);
-  if(debug)cout << "tree deleted" << endl;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-string evioDOMTree::toString() const throw(evioException*) {
-  ostringstream os;
-  toOstream(os,root,0);
-  os << endl << endl;
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) const throw(evioException*) {
-
-  
-  if(pNode==NULL)return;
-
-
-  // dump this node into ostream
-  pNode->toString(os,depth);
-
-
-  // if node is container then dump contained banks
-  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
-  if(c!=NULL) {
-    list<evioDOMNode*>::const_iterator iter;
-    for (iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-      toOstream(os,*iter,depth+1);
-    }
+  int wid;
+  switch (contentType) {
+  case 0x0:
+  case 0x1:
+  case 0x2:
+  case 0xb:
+    wid=5;
+    break;
+  case 0x4:
+  case 0x5:
+  case 0x6:
+  case 0x7:
+    wid=8;
+    break;
+  case 0x8:
+  case 0x9:
+  case 0xa:
+    wid=2;
+    break;
+  default:
+    wid=1;
+    break;
   }
 
+
+  // dump header
+  os << indent
+     <<  "<" << get_typename(contentType) <<  " tag=\'" << tag << "\' contentType=\'" << contentType 
+     << "\' num=\'" << num << "\'>" << endl;
+
+
+  // dump data (odd what has to be done for type 0x7 or unsigned char...)
+  T i;
+  typename vector<T>::const_iterator iter;
+  for (iter=data.begin(); iter!=data.end();) {
+
+    os << indent2;
+    for (int j=0; (j<wid)&&(iter!=data.end()); j++) {
+      switch (contentType) {
+      case 0x0:
+      case 0x1:
+      case 0x5:
+      case 0xa:
+        os << "0x" << hex << *iter << "  ";
+        break;
+      case 0x6: //??? signed byte ???
+        i=*iter;
+        os << ((*(int*)&i)&0xff) << "  ";
+        break;
+      case 0x7:
+        i=*iter;
+        os << "0x" << hex << ((*(int*)&i)&0xff) << "  ";
+        break;
+      case 0x3:
+        os << "<!CDATA[" << endl << indent2 << *iter << endl << indent2 << "]]>";
+        break;
+      default:
+        os << *iter << "  ";
+        break;
+      }
+      iter++;
+    }
+    os << dec << endl;
+
+  }
+
+  return;
 }
 
 

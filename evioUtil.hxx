@@ -3,8 +3,23 @@
 //  Author:  Elliott Wolin, JLab, 31-aug-2005
 
 
+// still to do
+//   get private, protected, public straight
+//   get const straight
+//   copy constructors?
+//   allow user handler in parse?
+//   indent data better
+//   add,drop sub-trees
+//   traverse functions
+//   AIDA interface?
+//   toEVIOBuffer()
+//   query functions, node lists, etc.
+//   toString agrees with evio2xml
+
+
 #ifndef _evioUtil_hxx
 #define _evioUtil_hxx
+
 
 using namespace std;
 #include <evio_util.h>
@@ -16,7 +31,6 @@ using namespace std;
 #include <sstream>
 
 
-class evioDOMTree;
 class evioDOMNode;
 
 
@@ -24,6 +38,7 @@ class evioDOMNode;
 //--------------------------------------------------------------
 
 
+// simple exception contains int and text field
 class evioException {
 
 public:
@@ -48,6 +63,7 @@ protected:
 //-----------------------------------------------------------------------------
 
 
+//  node and leaf handlers for stream parsing of evio event
 class evioStreamHandler {
 
 public:
@@ -55,7 +71,6 @@ public:
                             int depth, void *userArg) = 0;
   virtual void leafHandler(int length, int nodeType, int tag, int contentType, int num, 
                            int depth, const void *data, void *userArg) = 0;
-  
 };
 
 
@@ -63,6 +78,7 @@ public:
 //--------------------------------------------------------------
 
 
+//  evio event stream parser dispatches to handlers when node or leaf reached
 class evioStreamParser {
 
 public:
@@ -71,20 +87,6 @@ public:
 private:
   void *parseBank(const unsigned long *buf, int nodeType, int depth, 
                  evioStreamHandler &handler, void *userArg) throw(evioException*);
-  
-};
-
-
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-
-
-class evioDOMHandler {
-
-public:
-  virtual void *nodeHandler(int length, int ftype, int tag, int type, int num, int depth, void *userArg) = 0;
-  virtual void leafHandler(int length, int ftype, int tag, int type, int num, int depth,
-                           const void *data, void *userArg) = 0;
 
 };
 
@@ -93,24 +95,13 @@ public:
 //--------------------------------------------------------------
 
 
-class evioDOMParser {
-
-public:
-  evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
-  
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
+//  contains object-based in-memory tree representation of evio event
 class evioDOMTree {
 
 public:
   evioDOMTree(const unsigned long *buf) throw(evioException*);
   evioDOMTree(evioDOMNode *root) throw(evioException*);
-  virtual ~evioDOMTree(void);
+  ~evioDOMTree(void);
 
   string toString(void) const throw(evioException*);
   //  void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
@@ -127,6 +118,7 @@ private:
 //-----------------------------------------------------------------------------
 
 
+// represents an evio node in memory
 class evioDOMNode {
 
 public:
@@ -148,6 +140,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
+//  represents an evio container node in memory
 class evioDOMContainerNode:public evioDOMNode {
 
 public:
@@ -165,6 +158,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
+//  represents the many types of evio leaf nodes in memory
 template <class T> class evioDOMLeafNode:public evioDOMNode {
 
 public:
@@ -173,6 +167,42 @@ public:
   void toString(ostream &os, int depth) const;
 
   vector<T> data;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+//  node and leaf handlers for DOM parsing of evio event
+class evioDOMHandler {
+
+public:
+  virtual void *nodeHandler(int length, int ftype, int tag, int type, int num, int depth, void *userArg) = 0;
+  virtual void leafHandler(int length, int ftype, int tag, int type, int num, int depth,
+                           const void *data, void *userArg) = 0;
+
+};
+
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+
+
+//  evio event DOM parser returns tree representation of event in buffer
+//class evioDOMParser:public evioStreamHandler {
+class evioDOMParser {
+
+public:
+  evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
+  
+
+// private:
+//   void *nodeHandler(int length, int nodeType, int tag, int contentType, int num, int depth, 
+//                     void *userArg);
+//   void  leafHandler(int length, int nodeType, int tag, int contentType, int num, int depth, 
+//                    const void *data, void *userArg);
+
 };
 
 

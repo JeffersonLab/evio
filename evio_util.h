@@ -26,7 +26,13 @@ typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, in
 
 
 /* prototypes */
+#ifdef __cplusplus
+extern "C" {
+#endif  
 void evio_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
-
+const char *get_typename(int type);
+#ifdef __cplusplus
+}
+#endif
 
 #endif
