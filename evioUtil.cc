@@ -9,6 +9,11 @@
 
 #include <evioUtil.hxx>
 
+#define BANK 0xe
+
+// debug ???
+unsigned long *bufp;
+
 
 //--------------------------------------------------------------
 //-------------------- local variables -------------------------
@@ -107,7 +112,7 @@ void *evioStreamParser::parse(const unsigned long *buf,
   
   if(buf==NULL)throw(new evioException(0,"?evioStreamParser::parse...null buffer"));
 
-  void *newUserArg = parseBank(buf,0xe,0,handler,userArg);
+  void *newUserArg = parseBank(buf,BANK,0,handler,userArg);
   return(newUserArg);
 }
 
@@ -239,7 +244,6 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 
 
   default:
-    cout << "error content type is " << hex << contentType << endl;
     ostringstream ss;
     ss << hex << "0x" << contentType << ends;
     throw(new evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str()));
@@ -404,6 +408,7 @@ void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int
 
 
 void evioDOMTree::toEVIOBuffer(unsigned long *buf) const throw(evioException*) {
+  bufp=buf;
   toEVIOBuffer(buf,root);
 }
 
@@ -413,29 +418,33 @@ void evioDOMTree::toEVIOBuffer(unsigned long *buf) const throw(evioException*) {
 
 int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*) {
 
-  int len=0;
-  int bankType;
+  int bankLen,bankType,dataOffset;
+
 
   if(pNode->parent==NULL) {
-    bankType=0xe;
+    bankType=BANK;
   } else {
     bankType=pNode->parent->contentType;
   }
 
 
-  // add bank boilerplate
+  // add bank header word(s)
   switch (bankType) {
   case 0xe:
   case 0x10:
+    buf[0]=0;
     buf[1] = (pNode->tag<<16) | (pNode->contentType<<8) | pNode->num;
+    dataOffset=2;
     break;
   case 0xd:
   case 0x20:
     buf[0] = (pNode->tag<<24) | ( pNode->contentType<<16);
+    dataOffset=1;
     break;
   case 0xc:
   case 0x40:
     buf[0] = (pNode->tag<<20) | ( pNode->contentType<<16);
+    dataOffset=1;
     break;
   default:
     ostringstream ss;
@@ -445,12 +454,16 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
   }
 
 
+  // set starting length
+  bankLen=dataOffset;
+
+
   // if container node loop over contained nodes
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
     list<evioDOMNode*>::const_iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-      len+=toEVIOBuffer(&buf[len],*iter);
+      bankLen+=toEVIOBuffer(&buf[bankLen],*iter);
     }
 
 
@@ -468,7 +481,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
         const evioDOMLeafNode<unsigned long*> *leaf = static_cast<const evioDOMLeafNode<unsigned long*>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata;
-        for(i=0; i<ndata; i++) buf[i]=(unsigned long)(leaf->data[i]);
+        for(i=0; i<ndata; i++) buf[dataOffset+i]=(unsigned long)(leaf->data[i]);
       }
       break;
       
@@ -478,7 +491,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
         string s = leaf->data[0];
         ndata - s.size();
         nword = (ndata+3)/4;
-        unsigned char *c = (unsigned char*)&buf[0];
+        unsigned char *c = (unsigned char*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=(s.c_str())[i];
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
       }
@@ -490,7 +503,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
         const evioDOMLeafNode<unsigned short> *leaf = static_cast<const evioDOMLeafNode<unsigned short>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+1)/2;
-        unsigned short *s = (unsigned short *)&buf[0];
+        unsigned short *s = (unsigned short *)&buf[dataOffset];
         for(i=0; i<ndata; i++) s[i]=static_cast<unsigned short>(leaf->data[i]);
         if((ndata%2)!=0)buf[ndata]=0;
       }
@@ -502,7 +515,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
         const evioDOMLeafNode<unsigned char> *leaf = static_cast<const evioDOMLeafNode<unsigned char>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+3)/4;
-        unsigned char *c = (unsigned char*)&buf[0];
+        unsigned char *c = (unsigned char*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=static_cast<unsigned char>(leaf->data[i]);
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
       }
@@ -515,7 +528,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
         const evioDOMLeafNode<unsigned long long> *leaf = static_cast<const evioDOMLeafNode<unsigned long long>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata*2;
-        unsigned long long *ll = (unsigned long long*)&buf[0];
+        unsigned long long *ll = (unsigned long long*)&buf[dataOffset];
         for(i=0; i<ndata; i++) ll[i]=static_cast<unsigned long long>(leaf->data[i]);
       }
       break;
@@ -527,7 +540,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
     }
 
     // increment data count
-    len+=nword;
+    bankLen+=nword;
   }
 
 
@@ -535,14 +548,14 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
   switch (bankType) {
   case 0xe:
   case 0x10:
-    buf[0]=len;
+    buf[0]=bankLen-1;
     break;
   case 0xd:
   case 0x20:
   case 0xc:
   case 0x40:
-    if(len>0xffff)throw(new evioException(0,"?evioDOMTree::toEVIOVuffer...length too long for segment type"));
-    buf[0]|=len&0xffff;
+    if((bankLen-1)>0xffff)throw(new evioException(0,"?evioDOMTree::toEVIOVuffer...length too long for segment type"));
+    buf[0]|=bankLen-1;
     break;
   default: 
     ostringstream ss;
@@ -553,7 +566,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
 
 
   // return length of this bank
-  return(len);
+  return(bankLen);
 }
 
 
@@ -621,7 +634,7 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
 
   // closing tags different for container or leaf
   if(c!=NULL) {
-    os << getIndent(depth) << "</" << get_typename(pNode->parent==NULL?0xe:pNode->parent->contentType) << ">" << endl;
+    os << getIndent(depth) << "</" << get_typename(pNode->parent==NULL?BANK:pNode->parent->contentType) << ">" << endl;
   } else {
     os << getIndent(depth) << "</" << get_typename(pNode->contentType) << ">" << endl;
   }
@@ -659,7 +672,7 @@ string evioDOMContainerNode::toString(void) const {
                                    
 void evioDOMContainerNode::toString(ostream &os, int depth) const {
   os << getIndent(depth)
-     <<  "<" << get_typename(parent==NULL?0xe:parent->contentType) << " tag=\'"  << tag << "\' data_type=\'" 
+     <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " tag=\'"  << tag << "\' data_type=\'" 
      << hex << "0x" << contentType << dec << "\' num=\'" << num << "\">" << endl;
 }
 

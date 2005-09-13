@@ -23,6 +23,14 @@ static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_
 static void loop_over_banks(unsigned long *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh);
 
 
+/* container types used locally */
+enum {
+  BANK = 0,
+  SEGMENT,
+  TAGSEGMENT,
+};
+
+
 
 /*---------------------------------------------------------------- */
 
