@@ -23,6 +23,7 @@ extern "C" {
 #endif  
 void evio_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
 const char *get_typename(int type);
+int isContainer(int type);
 #ifdef __cplusplus
 }
 #endif

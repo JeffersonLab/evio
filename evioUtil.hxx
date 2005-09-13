@@ -4,19 +4,18 @@
 
 
 // still to do
-//   stl algorithms?
+//   use more stl algorithms...for_each instead of iterators
+
 //   get private, protected, public straight...should all node data be private?
 //   get const straight
 //   signed byte in toString()
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct
+//   copy constructors?
 
 //   AIDA interface?
-//   is tree node map needed?
-//   traverse functions
 //   add,drop sub-trees
-//   copy constructors?
-//   query functions, node lists, etc.
+
 
 
 #ifndef _evioUtil_hxx

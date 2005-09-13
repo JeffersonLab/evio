@@ -254,3 +254,26 @@ const char *get_typename(int type) {
 
 
 /*---------------------------------------------------------------- */
+
+
+int isContainer(int type) {
+
+  switch (type) {
+    
+  case (0xc):
+  case (0xd):
+  case (0xe):
+  case (0x10):
+  case (0x20):
+  case (0x40):
+    return(1);
+
+  default:
+    return(0);
+  }
+}
+
+
+/*---------------------------------------------------------------- */
+
+

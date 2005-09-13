@@ -31,6 +31,14 @@
 */
 
 
+/* container types used locally */
+enum {
+  BANK = 0,
+  SEGMENT,
+  TAGSEGMENT,
+};
+
+
 
 /* for posix */
 #define _POSIX_SOURCE_ 1
@@ -107,7 +115,6 @@ static void dump_tagsegment(unsigned long *buf);
 static void dump_data(unsigned long *data, int type, int length, int noexpand);
 static int get_ndata(int type, int nwords);
 static const char *get_tagname();
-static int isContainer(int type);
 static void indent(void);
 static int get_int_att(const char **atts, const int natt, const char *tag, int *val);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
@@ -604,27 +611,6 @@ static void indent() {
 
   for(i=0; i<nindent; i++)xml+=sprintf(xml," ");
   return;
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-static int isContainer(int type) {
-
-  switch (type) {
-
-  case (0xc):
-  case (0xd):
-  case (0xe):
-  case (0x10):
-  case (0x20):
-  case (0x40):
-    return(1);
-
-  default:
-    return(0);
-  }
 }
 
 

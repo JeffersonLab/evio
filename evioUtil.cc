@@ -598,19 +598,13 @@ list<evioDOMNode*> *evioDOMTree::getNodeList(evioDOMNode *pNode, list<evioDOMNod
   
   
   // add children to list
-  switch(pNode->contentType) {
-  case 0xe:
-  case 0x10:
-  case 0xd:
-  case 0x20:
-  case 0xc:
-  case 0x40:
-    const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+  if(c!=NULL) {
+    //   ???  for_each(c->begin(), c->end(), getNodeList???);
     list<evioDOMNode*>::const_iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       getNodeList(*iter,pList);
     }
-    break;
   }
 
 
