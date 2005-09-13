@@ -5,7 +5,7 @@
 
 // still to do
 //   stl algorithms?
-//   get private, protected, public straight
+//   get private, protected, public straight...should all node data be private?
 //   get const straight
 //   signed byte in toString()
 //   toString() compatible with evio2xml
@@ -57,7 +57,7 @@ public:
   virtual string toString(void) const;
 
 
-protected:
+private:
   int type;
   string text;
 
@@ -111,6 +111,7 @@ public:
 
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
+  list<evioDOMNode*> *getNodeList(void) const throw(evioException*);
   string getName(void) const;
   void setName(const string &newName);
   string toString(void) const;
@@ -119,6 +120,7 @@ public:
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
   int toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*);
+  list<evioDOMNode*> *getNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
   void *nodeHandler(int length, int tag, int contentType, int num, 
                     int depth, void *userArg);
@@ -127,12 +129,9 @@ private:
   void createNodeMap(void);
 
 
-protected:
+private:
   evioDOMNode *root;
   string name;
-
-
-private:
   map<string, evioDOMNode*> nodeMap;
 };
 

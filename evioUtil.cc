@@ -580,6 +580,48 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 //-----------------------------------------------------------------------------
 
 
+list<evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioException*) {
+  return(getNodeList(root,new list<evioDOMNode*>));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+list<evioDOMNode*> *evioDOMTree::getNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*) {
+
+  if(pNode==NULL)return(pList);
+
+
+  // add this node to list
+  pList->push_back(pNode);
+  
+  
+  // add children to list
+  switch(pNode->contentType) {
+  case 0xe:
+  case 0x10:
+  case 0xd:
+  case 0x20:
+  case 0xc:
+  case 0x40:
+    const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+    list<evioDOMNode*>::const_iterator iter;
+    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+      getNodeList(*iter,pList);
+    }
+    break;
+  }
+
+
+  // return the list
+  return(pList);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 string evioDOMTree::getName(void) const {
   return(name);
 }
