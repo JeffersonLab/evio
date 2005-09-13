@@ -4,15 +4,15 @@
 
 
 // still to do
-//   toEVIOBuffer()
-
-//   stl algrorithms?
+//   stl algorithms?
 //   get private, protected, public straight
 //   get const straight
 //   signed byte in toString()
 //   toString() compatible with evio2xml
+//   more exceptions, get types correct
 
 //   AIDA interface?
+//   is tree node map needed?
 //   traverse functions
 //   add,drop sub-trees
 //   copy constructors?
@@ -27,6 +27,7 @@ using namespace std;
 #include <evio_util.h>
 #include <string>
 #include <list>
+#include <map>
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -35,6 +36,7 @@ using namespace std;
 
 
 class evioDOMNode;
+class evioDOMContainerNode;
 
 
 //--------------------------------------------------------------
@@ -46,11 +48,11 @@ class evioException {
 
 public:
   evioException(void);
-  evioException(int t, string s);
+  evioException(int t, const string &s);
 
   virtual void setType(int type);
   virtual int getType(void) const;
-  virtual void setText(string text);
+  virtual void setText(const string &text);
   virtual string getText(void) const;
   virtual string toString(void) const;
 
@@ -66,13 +68,13 @@ protected:
 //-----------------------------------------------------------------------------
 
 
-//  node and leaf handlers for stream parsing of evio event
+//  pure virtual node and leaf handler class for stream parsing of evio event
 class evioStreamParserHandler {
 
 public:
-  virtual void *nodeHandler(int length, int nodeType, int tag, int contentType, int num, 
+  virtual void *nodeHandler(int length, int tag, int contentType, int num, 
                             int depth, void *userArg) = 0;
-  virtual void leafHandler(int length, int nodeType, int tag, int contentType, int num, 
+  virtual void leafHandler(int length, int tag, int contentType, int num, 
                            int depth, const void *data, void *userArg) = 0;
 };
 
@@ -81,16 +83,16 @@ public:
 //--------------------------------------------------------------
 
 
-//  evio event stream parser dispatches to handlers when node or leaf reached
+//  evio event stream parser class dispatches to handler class when node or leaf reached
 class evioStreamParser {
 
 public:
   void *parse(const unsigned long *buf, evioStreamParserHandler &handler, void *userArg)
     throw(evioException*);
-
+  
 private:
-  void *parseBank(const unsigned long *buf, int nodeType, int depth, 
-                 evioStreamParserHandler &handler, void *userArg) throw(evioException*);
+  void *parseBank(const unsigned long *buf, int bankType, int depth, 
+                  evioStreamParserHandler &handler, void *userArg) throw(evioException*);
 
 };
 
@@ -105,24 +107,33 @@ class evioDOMTree:public evioStreamParserHandler {
 public:
   evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
   evioDOMTree(evioDOMNode *root, const string &name = "root") throw(evioException*);
-  ~evioDOMTree(void);
+  virtual ~evioDOMTree(void);
 
-  //  void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
+  void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
+  const evioDOMNode *getRoot(void) const;
   string getName(void) const;
   void setName(const string &newName);
-  string toString(void) const throw(evioException*);
+  string toString(void) const;
 
 
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
+  int toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
-  void *nodeHandler(int length, int nodeType, int tag, int contentType, int num, 
+  void *nodeHandler(int length, int tag, int contentType, int num, 
                     int depth, void *userArg);
-  void leafHandler(int length, int nodeType, int tag, int contentType, int num, 
+  void leafHandler(int length, int tag, int contentType, int num, 
                    int depth, const void *data, void *userArg);
+  void createNodeMap(void);
 
+
+protected:
   evioDOMNode *root;
   string name;
+
+
+private:
+  map<string, evioDOMNode*> nodeMap;
 };
 
 
@@ -131,7 +142,7 @@ private:
 //-----------------------------------------------------------------------------
 
 
-// represents an evio node in memory, pure virtual
+// virtual class represents an evio node in memory
 class evioDOMNode {
 
 public:
@@ -141,7 +152,7 @@ public:
   virtual void toString(ostream &os, int depth) const = 0;
 
 public:
-  int containerType;
+  evioDOMNode *parent;
   int tag;
   int contentType;
   int num;
@@ -157,13 +168,16 @@ public:
 class evioDOMContainerNode:public evioDOMNode {
 
 public:
-  evioDOMContainerNode(int containerType, int tag, int contentType, int num) throw(evioException*);
+  evioDOMContainerNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
   virtual ~evioDOMContainerNode(void);
 
   string toString(void) const;
   void toString(ostream &os, int depth) const;
 
+public:
+  // list of contained nodes
   list<evioDOMNode*> childList;
+
 };
 
 
@@ -175,12 +189,14 @@ public:
 template <class T> class evioDOMLeafNode:public evioDOMNode {
 
 public:
-  evioDOMLeafNode(int containerType, int tag, int contentType, int num, T *p, int ndata) throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, T *p, int ndata) 
+    throw(evioException*);
   virtual ~evioDOMLeafNode(void);
 
   string toString(void) const;
   void toString(ostream &os, int depth) const;
 
+public:
   vector<T> data;
 };
 
