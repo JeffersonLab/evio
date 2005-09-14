@@ -140,11 +140,15 @@ private:
 //-----------------------------------------------------------------------------
 
 
-// virtual class represents an evio node in memory
+//  represents an evio node in memory
 class evioDOMNode {
 
 public:
   virtual ~evioDOMNode(void) {};
+  virtual bool operator==(const evioDOMNode &pNode) const;
+  virtual bool operator!=(const evioDOMNode &pNode) const;
+  virtual bool operator==(int tag) const;
+  virtual bool operator!=(int tag) const;
 
   virtual string toString(void) const = 0;
   virtual void toString(ostream &os, int depth) const = 0;

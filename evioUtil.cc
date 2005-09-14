@@ -572,6 +572,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
 
 //-----------------------------------------------------------------------------
 
+
 const evioDOMNode *evioDOMTree::getRoot(void) const {
   return(root);
 }
@@ -600,7 +601,6 @@ list<evioDOMNode*> *evioDOMTree::getNodeList(evioDOMNode *pNode, list<evioDOMNod
   // add children to list
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
-    //   ???  for_each(c->begin(), c->end(), getNodeList???);
     list<evioDOMNode*>::const_iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       getNodeList(*iter,pList);
@@ -674,6 +674,39 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
   } else {
     os << getIndent(depth) << "</" << get_typename(pNode->contentType) << ">" << endl;
   }
+}
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator==(const evioDOMNode &aNode) const {
+  return(this->tag==aNode.tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator!=(const evioDOMNode &aNode) const {
+  return(this->tag!=aNode.tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator==(int tag) const {
+  return(this->tag==tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator!=(int tag) const {
+  return(this->tag!=tag);
 }
 
 
