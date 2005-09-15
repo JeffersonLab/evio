@@ -110,7 +110,7 @@ public:
 
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
-  list<evioDOMNode*> *getNodeList(void) const throw(evioException*);
+  list<evioDOMNode> *getNodeList(void) const throw(evioException*);
   string getName(void) const;
   void setName(const string &newName);
   string toString(void) const;
@@ -119,7 +119,7 @@ public:
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
   int toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*);
-  list<evioDOMNode*> *getNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*);
+  list<evioDOMNode> *getNodeList(evioDOMNode *pNode, list<evioDOMNode> *pList) const throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
   void *nodeHandler(int length, int tag, int contentType, int num, 
                     int depth, void *userArg);
@@ -145,13 +145,11 @@ class evioDOMNode {
 
 public:
   virtual ~evioDOMNode(void) {};
-  virtual bool operator==(const evioDOMNode &pNode) const;
-  virtual bool operator!=(const evioDOMNode &pNode) const;
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
 
-  virtual string toString(void) const = 0;
-  virtual void toString(ostream &os, int depth) const = 0;
+  virtual string toString(void) const;
+  virtual void toString(ostream &os, int depth) const {};
 
 public:
   evioDOMNode *parent;

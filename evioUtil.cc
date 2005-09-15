@@ -9,16 +9,13 @@
 
 #include <evioUtil.hxx>
 
-#define BANK 0xe
-
-// debug ???
-unsigned long *bufp;
 
 
 //--------------------------------------------------------------
 //-------------------- local variables -------------------------
 //--------------------------------------------------------------
 
+#define BANK 0xe
 
 static bool debug = true;
 
@@ -42,7 +39,7 @@ template <typename T> static void deleteIt(T *t) {
 
 
 //--------------------------------------------------------------
-//------------------- class methods ----------------------------
+//---------------------- evioException -------------------------
 //--------------------------------------------------------------
 
 
@@ -103,8 +100,9 @@ string evioException::toString(void) const {
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//------------------------ evioStreamParser -----------------------------
+//-----------------------------------------------------------------------
 
 
 void *evioStreamParser::parse(const unsigned long *buf, 
@@ -258,6 +256,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 
 
 //--------------------------------------------------------------
+//---------------------- evioDOMTree ---------------------------
 //--------------------------------------------------------------
 
 
@@ -408,7 +407,6 @@ void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int
 
 
 void evioDOMTree::toEVIOBuffer(unsigned long *buf) const throw(evioException*) {
-  bufp=buf;
   toEVIOBuffer(buf,root);
 }
 
@@ -581,21 +579,21 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioException*) {
-  return(getNodeList(root,new list<evioDOMNode*>));
+list<evioDOMNode> *evioDOMTree::getNodeList(void) const throw(evioException*) {
+  return(getNodeList(root,new list<evioDOMNode>));
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode*> *evioDOMTree::getNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*) {
+list<evioDOMNode> *evioDOMTree::getNodeList(evioDOMNode *pNode, list<evioDOMNode> *pList) const throw(evioException*) {
 
   if(pNode==NULL)return(pList);
 
 
   // add this node to list
-  pList->push_back(pNode);
+  pList->push_back(*pNode);
   
   
   // add children to list
@@ -678,19 +676,12 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
 
 
 //-----------------------------------------------------------------------------
+//---------------------------- evioDOMNode ------------------------------------
 //-----------------------------------------------------------------------------
 
 
-bool evioDOMNode::operator==(const evioDOMNode &aNode) const {
-  return(this->tag==aNode.tag);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-bool evioDOMNode::operator!=(const evioDOMNode &aNode) const {
-  return(this->tag!=aNode.tag);
+string evioDOMNode::toString(void) const {
+  return("?default toString(void) should NOT be called!");
 }
 
 
@@ -711,6 +702,7 @@ bool evioDOMNode::operator!=(int tag) const {
 
 
 //-----------------------------------------------------------------------------
+//----------------------- evioDOMContainerNode --------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -756,6 +748,7 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 
 
 //-----------------------------------------------------------------------------
+//------------------------- evioDOMLeafNode -----------------------------------
 //-----------------------------------------------------------------------------
 
                                    
@@ -875,5 +868,6 @@ template <class T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
 }
   
 
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
