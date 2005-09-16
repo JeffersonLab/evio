@@ -579,29 +579,29 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode> *evioDOMTree::getNodeList(void) const throw(evioException*) {
-  return(getNodeList(root,new list<evioDOMNode>));
+list<evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioException*) {
+  return(addToNodeList(root,new list<evioDOMNode*>));
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode> *evioDOMTree::getNodeList(evioDOMNode *pNode, list<evioDOMNode> *pList) const throw(evioException*) {
+list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*) {
 
   if(pNode==NULL)return(pList);
 
 
   // add this node to list
-  pList->push_back(*pNode);
+  pList->push_back(pNode);
   
-  
+
   // add children to list
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
     list<evioDOMNode*>::const_iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-      getNodeList(*iter,pList);
+      addToNodeList(*iter,pList);
     }
   }
 
@@ -640,6 +640,7 @@ string evioDOMTree::toString(void) const {
   toOstream(os,root,0);
   os << endl << endl;
   return(os.str());
+
 }
 
 
@@ -653,7 +654,7 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
 
 
   // dump node opening information into ostream
-  pNode->toString(os,depth);
+  pNode->toOstream(os,depth);
 
 
   // dump contained banks if node is a container
@@ -681,7 +682,15 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
 
 
 string evioDOMNode::toString(void) const {
-  return("?default toString(void) should NOT be called!");
+  return("?default evioDOMNode::toString(void) should NOT be called!");
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void evioDOMNode::toOstream(ostream &os, int depth) const {
+  os << "?default evioDOMNode::toOstream(ostream &os, int depth) should NOT be called!";
 }
 
 
@@ -723,7 +732,8 @@ string evioDOMContainerNode::toString(void) const {
 
   // just dump header
   ostringstream os;
-  toString(os,0);
+  toOstream(os,0);
+  os << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
   return(os.str());
 }
 
@@ -731,7 +741,7 @@ string evioDOMContainerNode::toString(void) const {
 //-----------------------------------------------------------------------------
 
                                    
-void evioDOMContainerNode::toString(ostream &os, int depth) const {
+void evioDOMContainerNode::toOstream(ostream &os, int depth) const {
   os << getIndent(depth)
      <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " tag=\'"  << tag << "\' data_type=\'" 
      << hex << "0x" << contentType << dec << "\' num=\'" << num << "\">" << endl;
@@ -770,7 +780,8 @@ template <class T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg,
 
 template <class T> string evioDOMLeafNode<T>::toString(void) const {
   ostringstream os;
-  toString(os,0);
+  toOstream(os,0);
+  os << "</" << get_typename(this->contentType) << ">" << endl;
   return(os.str());
 }
 
@@ -778,7 +789,7 @@ template <class T> string evioDOMLeafNode<T>::toString(void) const {
 //-----------------------------------------------------------------------------
 
                                    
-template <class T> void evioDOMLeafNode<T>::toString(ostream &os, int depth) const {
+template <class T> void evioDOMLeafNode<T>::toOstream(ostream &os, int depth) const {
 
   string indent = getIndent(depth);
   string indent2 = indent + "    ";

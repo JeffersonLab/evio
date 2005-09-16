@@ -7,6 +7,7 @@
 //   use more stl algorithms...for_each instead of iterators
 
 //   get private, protected, public straight...should all node data be private?
+//   get static and dynamic casts straight, or use other RTTI stuff
 //   get const straight
 //   signed byte in toString()
 //   toString() compatible with evio2xml
@@ -110,7 +111,7 @@ public:
 
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
-  list<evioDOMNode> *getNodeList(void) const throw(evioException*);
+  list<evioDOMNode*> *getNodeList(void) const throw(evioException*);
   string getName(void) const;
   void setName(const string &newName);
   string toString(void) const;
@@ -119,7 +120,7 @@ public:
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
   int toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*);
-  list<evioDOMNode> *getNodeList(evioDOMNode *pNode, list<evioDOMNode> *pList) const throw(evioException*);
+  list<evioDOMNode*> *addToNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
   void *nodeHandler(int length, int tag, int contentType, int num, 
                     int depth, void *userArg);
@@ -148,8 +149,8 @@ public:
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
 
-  virtual string toString(void) const;
-  virtual void toString(ostream &os, int depth) const {};
+  virtual string toString(void) const = 0;
+  virtual void toOstream(ostream &os, int depth) const = 0;
 
 public:
   evioDOMNode *parent;
@@ -171,8 +172,8 @@ public:
   evioDOMContainerNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
   virtual ~evioDOMContainerNode(void);
 
-  string toString(void) const;
-  void toString(ostream &os, int depth) const;
+  virtual string toString(void) const;
+  virtual void toOstream(ostream &os, int depth) const;
 
 public:
   // list of contained nodes
@@ -194,7 +195,7 @@ public:
   virtual ~evioDOMLeafNode(void);
 
   string toString(void) const;
-  void toString(ostream &os, int depth) const;
+  void toOstream(ostream &os, int depth) const;
 
 public:
   vector<T> data;
