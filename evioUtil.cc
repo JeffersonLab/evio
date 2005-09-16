@@ -476,7 +476,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const thro
     case 0x2:
     case 0xb:
       {
-        const evioDOMLeafNode<unsigned long*> *leaf = static_cast<const evioDOMLeafNode<unsigned long*>*>(pNode);
+        const evioDOMLeafNode<unsigned long> *leaf = static_cast<const evioDOMLeafNode<unsigned long>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata;
         for(i=0; i<ndata; i++) buf[dataOffset+i]=(unsigned long)(leaf->data[i]);
@@ -687,6 +687,22 @@ bool evioDOMNode::operator==(int tag) const {
 
 bool evioDOMNode::operator!=(int tag) const {
   return(this->tag!=tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::isContainer(void) const {
+  return(::isContainer(contentType)==1);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::isLeaf(void) const {
+  return(::isContainer(contentType)==0);
 }
 
 

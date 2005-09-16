@@ -14,6 +14,7 @@
 //   more exceptions, get types correct
 //   copy constructors?
 
+//   get pointer to leaf data
 //   AIDA interface?
 //   add,drop sub-trees
 
@@ -148,7 +149,10 @@ public:
   virtual ~evioDOMNode(void) {};
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
+  bool isContainer(void) const;
+  bool isLeaf(void) const;
 
+  //  virtual string xxx(void) const {return "base";}
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;
@@ -177,6 +181,7 @@ public:
   string getHeader(int depth) const;
   string getFooter(int depth) const;
 
+
 public:
   // list of contained nodes
   list<evioDOMNode*> childList;
@@ -196,6 +201,7 @@ public:
     throw(evioException*);
   virtual ~evioDOMLeafNode(void);
 
+  vector<T> *getData(void);
   string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
@@ -206,6 +212,15 @@ public:
 
 
 //-----------------------------------------------------------------------------
+//------------------ templates for non-overloaded methods ---------------------
 //-----------------------------------------------------------------------------
 
+
+template <class T> vector<T> *evioDOMLeafNode<T>::getData(void) {
+  return(&data);
+}
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #endif
