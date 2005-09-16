@@ -653,8 +653,8 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
   if(pNode==NULL)return;
 
 
-  // dump node opening information into ostream
-  pNode->toOstream(os,depth);
+  // get node header
+  os << pNode->getHeader(depth);
 
 
   // dump contained banks if node is a container
@@ -667,33 +667,13 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
   }
 
 
-  // closing tags different for container or leaf
-  if(c!=NULL) {
-    os << getIndent(depth) << "</" << get_typename(pNode->parent==NULL?BANK:pNode->parent->contentType) << ">" << endl;
-  } else {
-    os << getIndent(depth) << "</" << get_typename(pNode->contentType) << ">" << endl;
-  }
+  // get footer
+  os << pNode->getFooter(depth);
 }
 
 
 //-----------------------------------------------------------------------------
 //---------------------------- evioDOMNode ------------------------------------
-//-----------------------------------------------------------------------------
-
-
-string evioDOMNode::toString(void) const {
-  return("?default evioDOMNode::toString(void) should NOT be called!");
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-void evioDOMNode::toOstream(ostream &os, int depth) const {
-  os << "?default evioDOMNode::toOstream(ostream &os, int depth) should NOT be called!";
-}
-
-
 //-----------------------------------------------------------------------------
 
 
@@ -729,11 +709,8 @@ evioDOMContainerNode::evioDOMContainerNode(evioDOMNode *par, int tg, int content
 
 
 string evioDOMContainerNode::toString(void) const {
-
-  // just dump header
   ostringstream os;
-  toOstream(os,0);
-  os << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
+  os << getHeader(0) << getFooter(0);
   return(os.str());
 }
 
@@ -741,10 +718,22 @@ string evioDOMContainerNode::toString(void) const {
 //-----------------------------------------------------------------------------
 
                                    
-void evioDOMContainerNode::toOstream(ostream &os, int depth) const {
+string evioDOMContainerNode::getHeader(int depth) const {
+  ostringstream os;
   os << getIndent(depth)
      <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " tag=\'"  << tag << "\' data_type=\'" 
      << hex << "0x" << contentType << dec << "\' num=\'" << num << "\">" << endl;
+  return(os.str());
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
+string evioDOMContainerNode::getFooter(int depth) const {
+  ostringstream os;
+  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
+  return(os.str());
 }
 
 
@@ -780,8 +769,7 @@ template <class T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg,
 
 template <class T> string evioDOMLeafNode<T>::toString(void) const {
   ostringstream os;
-  toOstream(os,0);
-  os << "</" << get_typename(this->contentType) << ">" << endl;
+  os << getHeader(0) << getFooter(0);
   return(os.str());
 }
 
@@ -789,8 +777,9 @@ template <class T> string evioDOMLeafNode<T>::toString(void) const {
 //-----------------------------------------------------------------------------
 
                                    
-template <class T> void evioDOMLeafNode<T>::toOstream(ostream &os, int depth) const {
+template <class T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
+  ostringstream os;
   string indent = getIndent(depth);
   string indent2 = indent + "    ";
 
@@ -867,13 +856,23 @@ template <class T> void evioDOMLeafNode<T>::toOstream(ostream &os, int depth) co
 
   }
 
-  return;
+  return(os.str());
 }
 
 
 //-----------------------------------------------------------------------------
 
 
+template <class T> string evioDOMLeafNode<T>::getFooter(int depth) const {
+  ostringstream os;
+  os << getIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
+  return(os.str());
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
 template <class T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
   if(debug)cout << "deleting leaf node" << endl;
 }

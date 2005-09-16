@@ -150,7 +150,8 @@ public:
   virtual bool operator!=(int tag) const;
 
   virtual string toString(void) const = 0;
-  virtual void toOstream(ostream &os, int depth) const = 0;
+  virtual string getHeader(int depth) const = 0;
+  virtual string getFooter(int depth) const = 0;
 
 public:
   evioDOMNode *parent;
@@ -172,8 +173,9 @@ public:
   evioDOMContainerNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
   virtual ~evioDOMContainerNode(void);
 
-  virtual string toString(void) const;
-  virtual void toOstream(ostream &os, int depth) const;
+  string toString(void) const;
+  string getHeader(int depth) const;
+  string getFooter(int depth) const;
 
 public:
   // list of contained nodes
@@ -195,7 +197,8 @@ public:
   virtual ~evioDOMLeafNode(void);
 
   string toString(void) const;
-  void toOstream(ostream &os, int depth) const;
+  string getHeader(int depth) const;
+  string getFooter(int depth) const;
 
 public:
   vector<T> data;
