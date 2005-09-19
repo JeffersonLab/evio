@@ -13,6 +13,7 @@
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct
 //   copy constructors?
+//   turn utilities into function objects
 
 //   get pointer to leaf data
 //   AIDA interface?
@@ -38,6 +39,17 @@ using namespace std;
 
 class evioDOMNode;
 class evioDOMContainerNode;
+
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+
+
+// global utility function prototypes
+void toString(const evioDOMNode *node);
+bool tagEquals(const evioDOMNode *node, int tag);
+bool typeEquals(const evioDOMNode *node, int type);
+bool numEquals(const evioDOMNode *node, int num);
 
 
 //--------------------------------------------------------------
@@ -152,7 +164,6 @@ public:
   bool isContainer(void) const;
   bool isLeaf(void) const;
 
-  //  virtual string xxx(void) const {return "base";}
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;

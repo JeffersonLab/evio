@@ -21,6 +21,40 @@ static bool debug = true;
 
 
 //--------------------------------------------------------------
+//----------------------global utilities ------------------------
+//--------------------------------------------------------------
+
+
+void toString(const evioDOMNode *pNode) {
+  cout << pNode->toString() << endl;
+}
+
+
+//--------------------------------------------------------------
+
+
+bool tagEquals(const evioDOMNode *pNode, int tag) {
+  return(*pNode==tag);
+}
+
+
+//--------------------------------------------------------------
+
+
+bool typeEquals(const evioDOMNode *pNode, int type) {
+  return(pNode->contentType== type);
+}
+
+
+//--------------------------------------------------------------
+
+
+bool numEquals(const evioDOMNode *pNode, int num) {
+  return(pNode->num==num);
+}
+
+
+//--------------------------------------------------------------
 //----------------------local utilities ------------------------
 //--------------------------------------------------------------
 
