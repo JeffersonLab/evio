@@ -55,6 +55,22 @@ bool numEquals(const evioDOMNode *pNode, int num) {
 
 
 //--------------------------------------------------------------
+
+
+bool isContainerType(const evioDOMNode *pNode) {
+  return(pNode->isContainer());
+}
+
+
+//--------------------------------------------------------------
+
+
+bool isLeafType(const evioDOMNode *pNode) {
+  return(pNode->isLeaf());
+}
+
+
+//--------------------------------------------------------------
 //----------------------local utilities ------------------------
 //--------------------------------------------------------------
 
@@ -621,7 +637,8 @@ list<evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioException*) {
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*) {
+list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const
+  throw(evioException*) {
 
   if(pNode==NULL)return(pList);
 
@@ -629,7 +646,7 @@ list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMN
   // add this node to list
   pList->push_back(pNode);
   
-
+  
   // add children to list
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
@@ -641,6 +658,26 @@ list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMN
 
 
   // return the list
+  return(pList);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+list<evioDOMNode*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
+  list<evioDOMNode*> *pList = getNodeList();
+  pList->erase(remove_if(pList->begin(),pList->end(),::isContainerType),pList->end());
+  return(pList);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+list<evioDOMNode*> *evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
+  list<evioDOMNode*> *pList = getNodeList();
+  pList->erase(remove_if(pList->begin(),pList->end(),::isLeafType),pList->end());
   return(pList);
 }
 

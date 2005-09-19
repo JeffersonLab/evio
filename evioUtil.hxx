@@ -4,6 +4,7 @@
 
 
 // still to do
+//   redo getLeafNodeList()
 //   use more stl algorithms...for_each instead of iterators
 
 //   get private, protected, public straight...should all node data be private?
@@ -19,6 +20,7 @@
 //   AIDA interface?
 //   add,drop sub-trees
 
+//   wrap entire evio c library
 
 
 #ifndef _evioUtil_hxx
@@ -50,6 +52,8 @@ void toString(const evioDOMNode *node);
 bool tagEquals(const evioDOMNode *node, int tag);
 bool typeEquals(const evioDOMNode *node, int type);
 bool numEquals(const evioDOMNode *node, int num);
+bool isContainerType(const evioDOMNode *node);
+bool isLeafType(const evioDOMNode *node);
 
 
 //--------------------------------------------------------------
@@ -125,6 +129,8 @@ public:
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
   list<evioDOMNode*> *getNodeList(void) const throw(evioException*);
+  list<evioDOMNode*> *getContainerNodeList(void) const throw(evioException*);
+  list<evioDOMNode*> *getLeafNodeList(void) const throw(evioException*);
   string getName(void) const;
   void setName(const string &newName);
   string toString(void) const;
