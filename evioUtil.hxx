@@ -41,6 +41,7 @@ using namespace std;
 
 class evioDOMNode;
 class evioDOMContainerNode;
+template<class T> class evioDOMLeafNode;
 
 
 //--------------------------------------------------------------
@@ -128,9 +129,12 @@ public:
 
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
+
   list<evioDOMNode*> *getNodeList(void) const throw(evioException*);
   list<evioDOMNode*> *getContainerNodeList(void) const throw(evioException*);
   list<evioDOMNode*> *getLeafNodeList(void) const throw(evioException*);
+  template <typename T> list<evioDOMLeafNode<T>*> *getLeafNodeList(void) const throw(evioException*);
+
   string getName(void) const;
   void setName(const string &newName);
   string toString(void) const;
@@ -153,7 +157,6 @@ private:
   string name;
   map<string, evioDOMNode*> nodeMap;
 };
-
 
 
 //-----------------------------------------------------------------------------
@@ -240,4 +243,27 @@ template <class T> vector<T> *evioDOMLeafNode<T>::getData(void) {
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+
+
+template <typename T> list<evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
+  list<evioDOMNode*> *pNodeList = getNodeList();
+  list<evioDOMLeafNode<T>*> *pLeafList = new list<evioDOMLeafNode<T>*>;
+
+  list<evioDOMNode*>::const_iterator iter;
+  evioDOMLeafNode<T>* p;
+  for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
+    if((*iter)->isLeaf()) {
+      p=dynamic_cast<evioDOMLeafNode<T>*>(*iter);
+      if(p!=NULL)pLeafList->push_back(p);
+    }
+  }
+
+  return(pLeafList);
+}
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
 #endif
