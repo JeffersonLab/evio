@@ -25,49 +25,9 @@ static bool debug = true;
 //--------------------------------------------------------------
 
 
-void toString(const evioDOMNode *pNode) {
-  cout << pNode->toString() << endl;
-}
-
-
-//--------------------------------------------------------------
-
-
-bool tagEquals(const evioDOMNode *pNode, int tag) {
-  return(*pNode==tag);
-}
-
-
-//--------------------------------------------------------------
-
-
-bool typeEquals(const evioDOMNode *pNode, int type) {
-  return(pNode->contentType== type);
-}
-
-
-//--------------------------------------------------------------
-
-
-bool numEquals(const evioDOMNode *pNode, int num) {
-  return(pNode->num==num);
-}
-
-
-//--------------------------------------------------------------
-
-
-bool isContainerType(const evioDOMNode *pNode) {
-  return(pNode->isContainer());
-}
-
-
-//--------------------------------------------------------------
-
-
-bool isLeafType(const evioDOMNode *pNode) {
-  return(pNode->isLeaf());
-}
+// void toString(const evioDOMNode *pNode) {
+//   cout << pNode->toString() << endl;
+// }
 
 
 //--------------------------------------------------------------
@@ -667,7 +627,7 @@ list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMN
 
 list<evioDOMNode*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
   list<evioDOMNode*> *pList = getNodeList();
-  pList->erase(remove_if(pList->begin(),pList->end(),::isContainerType),pList->end());
+  pList->erase(remove_if(pList->begin(),pList->end(),isContainerType()),pList->end());
   return(pList);
 }
 
@@ -677,7 +637,7 @@ list<evioDOMNode*> *evioDOMTree::getLeafNodeList(void) const throw(evioException
 
 list<evioDOMNode*> *evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
   list<evioDOMNode*> *pList = getNodeList();
-  pList->erase(remove_if(pList->begin(),pList->end(),::isLeafType),pList->end());
+  pList->erase(remove_if(pList->begin(),pList->end(),isLeafType()),pList->end());
   return(pList);
 }
 

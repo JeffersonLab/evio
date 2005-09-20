@@ -4,9 +4,6 @@
 
 
 // still to do
-//   redo getLeafNodeList()
-//   use more stl algorithms...for_each instead of iterators
-
 //   get private, protected, public straight...should all node data be private?
 //   get static and dynamic casts straight, or use other RTTI stuff
 //   get const straight
@@ -16,7 +13,6 @@
 //   copy constructors?
 //   turn utilities into function objects
 
-//   get pointer to leaf data
 //   AIDA interface?
 //   add,drop sub-trees
 
@@ -42,19 +38,6 @@ using namespace std;
 class evioDOMNode;
 class evioDOMContainerNode;
 template<class T> class evioDOMLeafNode;
-
-
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-
-
-// global utility function prototypes
-void toString(const evioDOMNode *node);
-bool tagEquals(const evioDOMNode *node, int tag);
-bool typeEquals(const evioDOMNode *node, int type);
-bool numEquals(const evioDOMNode *node, int num);
-bool isContainerType(const evioDOMNode *node);
-bool isLeafType(const evioDOMNode *node);
 
 
 //--------------------------------------------------------------
@@ -259,6 +242,85 @@ template <typename T> list<evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(vo
   
   return(pLeafList);
 }
+
+
+//-----------------------------------------------------------------------------
+//------------------------ Function Objects ---------------------------------
+//-----------------------------------------------------------------------------
+
+
+class typeEquals {
+
+public:
+  typeEquals(int aType):type(aType) {}
+  bool operator()(const evioDOMNode* node) {return(node->contentType==type);}
+private:
+  int type;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class tagEquals {
+
+public:
+  tagEquals(int aTag):tag(aTag) {}
+  bool operator()(const evioDOMNode* node) {return(*node==tag);}
+private:
+  int tag;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class numEquals {
+
+public:
+  numEquals(int aNum):num(aNum) {}
+  bool operator()(const evioDOMNode* node) {return(node->num==num);}
+private:
+  int num;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class isContainerType {
+
+public:
+  isContainerType(void) {}
+  bool operator()(const evioDOMNode* node) {return(node->isContainer());}
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class isLeafType {
+
+public:
+  isLeafType(void) {}
+  bool operator()(const evioDOMNode* node) {return(node->isLeaf());}
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class toString {
+
+public:
+  toString (void) {}
+  void operator()(const evioDOMNode* node) { node->toString(); return; }
+};
 
 
 //-----------------------------------------------------------------------------
