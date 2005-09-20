@@ -4,6 +4,8 @@
 
 
 // still to do
+//   use adaptable function objects
+
 //   get private, protected, public straight...should all node data be private?
 //   get static and dynamic casts straight, or use other RTTI stuff
 //   get const straight
@@ -249,11 +251,11 @@ template <typename T> list<evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(vo
 //-----------------------------------------------------------------------------
 
 
-class typeEquals {
+class typeEquals : unary_function<const evioDOMNode*,bool> {
 
 public:
   typeEquals(int aType):type(aType) {}
-  bool operator()(const evioDOMNode* node) {return(node->contentType==type);}
+  bool operator()(const evioDOMNode* node) const {return(node->contentType==type);}
 private:
   int type;
 };
@@ -263,11 +265,11 @@ private:
 //-----------------------------------------------------------------------------
 
 
-class tagEquals {
+class tagEquals : unary_function<const evioDOMNode*,bool> {
 
 public:
   tagEquals(int aTag) : tag(aTag) {}
-  bool operator()(const evioDOMNode* node) {return(*node==tag);}
+  bool operator()(const evioDOMNode* node) const {return(node->tag==tag);}
 private:
   int tag;
 };
@@ -277,11 +279,11 @@ private:
 //-----------------------------------------------------------------------------
 
 
-class numEquals {
+class numEquals : unary_function<const evioDOMNode*,bool> {
 
 public:
   numEquals(int aNum) : num(aNum) {}
-  bool operator()(const evioDOMNode* node) {return(node->num==num);}
+  bool operator()(const evioDOMNode* node) const {return(node->num==num);}
 private:
   int num;
 };
@@ -291,11 +293,14 @@ private:
 //-----------------------------------------------------------------------------
 
 
-class isContainerType {
+class tagNumEquals : unary_function<const evioDOMNode*, bool> {
 
 public:
-  isContainerType(void) {}
-  bool operator()(const evioDOMNode* node) {return(node->isContainer());}
+  tagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
+  bool operator()(const evioDOMNode* node) const {return((node->tag==tag)&&(node->num==num));}
+private:
+  int tag;
+  int num;
 };
 
 
@@ -303,11 +308,23 @@ public:
 //-----------------------------------------------------------------------------
 
 
-class isLeafType {
+class isContainerType : unary_function<const evioDOMNode*,bool> {
+
+public:
+  isContainerType(void) {}
+  bool operator()(const evioDOMNode* node) const {return(node->isContainer());}
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class isLeafType  : unary_function<const evioDOMNode*,bool> {
 
 public:
   isLeafType(void) {}
-  bool operator()(const evioDOMNode* node) {return(node->isLeaf());}
+  bool operator()(const evioDOMNode* node) const {return(node->isLeaf());}
 };
 
 
@@ -319,7 +336,7 @@ class toString : public unary_function<const evioDOMNode*, void> {
 
 public:
   toString(void) {}
-  void operator()(const evioDOMNode* node) {cout << node->toString() << endl;}
+  void operator()(const evioDOMNode* node) const {cout << node->toString() << endl;}
 };
 
 
