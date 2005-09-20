@@ -246,18 +246,17 @@ template <class T> vector<T> *evioDOMLeafNode<T>::getData(void) {
 
 
 template <typename T> list<evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
-  list<evioDOMNode*> *pNodeList = getNodeList();
+
+  list<evioDOMNode*> *pNodeList        = getNodeList();
   list<evioDOMLeafNode<T>*> *pLeafList = new list<evioDOMLeafNode<T>*>;
 
   list<evioDOMNode*>::const_iterator iter;
   evioDOMLeafNode<T>* p;
   for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
-    if((*iter)->isLeaf()) {
-      p=dynamic_cast<evioDOMLeafNode<T>*>(*iter);
-      if(p!=NULL)pLeafList->push_back(p);
-    }
+    p=dynamic_cast<evioDOMLeafNode<T>*>(*iter);
+    if(p!=NULL)pLeafList->push_back(p);
   }
-
+  
   return(pLeafList);
 }
 
