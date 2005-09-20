@@ -103,7 +103,7 @@ private:
 
 
 //  contains object-based in-memory tree representation of evio event
-class evioDOMTree:public evioStreamParserHandler {
+class evioDOMTree : public evioStreamParserHandler {
 
 public:
   evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
@@ -174,7 +174,7 @@ public:
 
 
 //  represents an evio container node in memory
-class evioDOMContainerNode:public evioDOMNode {
+class evioDOMContainerNode : public evioDOMNode {
 
 public:
   evioDOMContainerNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
@@ -197,7 +197,7 @@ public:
 
 
 //  represents the many types of evio leaf nodes in memory
-template <class T> class evioDOMLeafNode:public evioDOMNode {
+template <class T> class evioDOMLeafNode : public evioDOMNode {
 
 public:
   evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, T *p, int ndata) 
@@ -266,7 +266,7 @@ private:
 class tagEquals {
 
 public:
-  tagEquals(int aTag):tag(aTag) {}
+  tagEquals(int aTag) : tag(aTag) {}
   bool operator()(const evioDOMNode* node) {return(*node==tag);}
 private:
   int tag;
@@ -280,7 +280,7 @@ private:
 class numEquals {
 
 public:
-  numEquals(int aNum):num(aNum) {}
+  numEquals(int aNum) : num(aNum) {}
   bool operator()(const evioDOMNode* node) {return(node->num==num);}
 private:
   int num;
@@ -315,11 +315,11 @@ public:
 //-----------------------------------------------------------------------------
 
 
-class toString {
+class toString : public unary_function<const evioDOMNode*, void> {
 
 public:
-  toString (void) {}
-  void operator()(const evioDOMNode* node) { node->toString(); return; }
+  toString(void) {}
+  void operator()(const evioDOMNode* node) {cout << node->toString() << endl;}
 };
 
 
