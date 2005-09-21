@@ -61,38 +61,6 @@ evioException::evioException(int t, const string &s) {
 //--------------------------------------------------------------
 
 
-void evioException::setType(int t) {
-  type=t;
-}
-
-
-//--------------------------------------------------------------
-
-
-int evioException::getType(void) const {
-  return(type);
-}
-
-
-//--------------------------------------------------------------
-
-
-void evioException::setText(const string &t) {
-  text=t;
-}
-
-
-//--------------------------------------------------------------
-
-
-string evioException::getText(void) const {
-  return(text);
-}
-
-
-//--------------------------------------------------------------
-
-
 string evioException::toString(void) const {
   ostringstream s;
   s << type << ends;
@@ -635,29 +603,12 @@ list<const evioDOMNode*> *evioDOMTree::getContainerNodeList(void) const throw(ev
 //-----------------------------------------------------------------------------
 
 
-string evioDOMTree::getName(void) const {
-  return(name);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-void evioDOMTree::setName(const string &newName) {
-  name=newName;
-  return;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 string evioDOMTree::toString(void) const {
 
   if(root==NULL)return("");
 
   ostringstream os;
-  os << endl << endl << "<!-- Dump of tree: " << getName() << " -->" << endl << endl;
+  os << endl << endl << "<!-- Dump of tree: " << name << " -->" << endl << endl;
   toOstream(os,root,0);
   os << endl << endl;
   return(os.str());
@@ -788,7 +739,7 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 //-----------------------------------------------------------------------------
 
                                    
-template <class T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int content, int n,
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int content, int n,
                                                        T *p, int ndata) throw(evioException*) {
   
   parent        = par;
@@ -804,7 +755,7 @@ template <class T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg,
 //-----------------------------------------------------------------------------
 
 
-template <class T> string evioDOMLeafNode<T>::toString(void) const {
+template <typename T> string evioDOMLeafNode<T>::toString(void) const {
   ostringstream os;
   os << getHeader(0) << getFooter(0);
   return(os.str());
@@ -814,7 +765,7 @@ template <class T> string evioDOMLeafNode<T>::toString(void) const {
 //-----------------------------------------------------------------------------
 
                                    
-template <class T> string evioDOMLeafNode<T>::getHeader(int depth) const {
+template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   ostringstream os;
   string indent = getIndent(depth);
@@ -900,7 +851,7 @@ template <class T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 //-----------------------------------------------------------------------------
 
 
-template <class T> string evioDOMLeafNode<T>::getFooter(int depth) const {
+template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
   ostringstream os;
   os << getIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
   return(os.str());
@@ -910,7 +861,7 @@ template <class T> string evioDOMLeafNode<T>::getFooter(int depth) const {
 //-----------------------------------------------------------------------------
 
                                    
-template <class T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
+template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
   if(debug)cout << "deleting leaf node" << endl;
 }
   

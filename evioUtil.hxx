@@ -4,17 +4,17 @@
 
 
 // still to do
-//   get private, protected, public straight...should all node data be private?
-//   get static and dynamic casts straight, or use other RTTI stuff
 //   signed byte in toString()
+//   copy constructors?
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct
-//   copy constructors?
+//   string vs string&
 
-//   Interface for tree modification?  AIDA?
-//   add,drop sub-trees
+//   Interface for tree modification, add and drip trees, etc?  AIDA?
 
 //   wrap entire evio c library
+
+//   user's manual
 
 
 #ifndef _evioUtil_hxx
@@ -23,23 +23,21 @@
 
 using namespace std;
 #include <evio_util.h>
-#include <string>
 #include <list>
-#include <map>
 #include <vector>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <algorithm>
 
 
+// prototypes
 class evioDOMNode;
 class evioDOMContainerNode;
-template<class T> class evioDOMLeafNode;
+template<typename T> class evioDOMLeafNode;
 
 
-//--------------------------------------------------------------
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
 // simple exception contains int and text field
@@ -49,14 +47,10 @@ public:
   evioException(void);
   evioException(int t, const string &s);
 
-  virtual void setType(int type);
-  virtual int getType(void) const;
-  virtual void setText(const string &text);
-  virtual string getText(void) const;
   virtual string toString(void) const;
 
 
-private:
+public:
   int type;
   string text;
 
@@ -78,8 +72,8 @@ public:
 };
 
 
-//--------------------------------------------------------------
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
 //  evio event stream parser class dispatches to handler class when node or leaf reached
@@ -116,8 +110,6 @@ public:
   list<const evioDOMNode*> *getLeafNodeList(void) const throw(evioException*);
   template <typename T> list<const evioDOMLeafNode<T>*> *getLeafNodeList(void) const throw(evioException*);
 
-  string getName(void) const;
-  void setName(const string &newName);
   string toString(void) const;
 
 
@@ -133,6 +125,8 @@ private:
 
 private:
   evioDOMNode *root;
+
+public:
   string name;
 };
 
@@ -191,7 +185,7 @@ public:
 
 
 //  represents the many types of evio leaf nodes in memory
-template <class T> class evioDOMLeafNode : public evioDOMNode {
+template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 public:
   evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, T *p, int ndata) 
@@ -213,16 +207,16 @@ public:
 //-----------------------------------------------------------------------------
 
 
-template <class T> const vector<T> *evioDOMLeafNode<T>::getData(void) const {
+template <typename T> const vector<T> *evioDOMLeafNode<T>::getData(void) const {
   return(&data);
 }
 
 
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 
 
-template <typename T> list<const evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
+template <typename T> list<const evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(void) const
+  throw(evioException*) {
 
   list<const evioDOMNode*> *pNodeList        = getNodeList();
   list<const evioDOMLeafNode<T>*> *pLeafList = new list<const evioDOMLeafNode<T>*>;
