@@ -21,16 +21,6 @@ static bool debug = true;
 
 
 //--------------------------------------------------------------
-//----------------------global utilities ------------------------
-//--------------------------------------------------------------
-
-
-// void toString(const evioDOMNode *pNode) {
-//   cout << pNode->toString() << endl;
-// }
-
-
-//--------------------------------------------------------------
 //----------------------local utilities ------------------------
 //--------------------------------------------------------------
 
@@ -589,15 +579,15 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioException*) {
-  return(addToNodeList(root,new list<evioDOMNode*>));
+list<const evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioException*) {
+  return(addToNodeList(root,new list<const evioDOMNode*>));
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const
+list<const evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<const evioDOMNode*> *pList) const
   throw(evioException*) {
 
   if(pNode==NULL)return(pList);
@@ -610,7 +600,7 @@ list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMN
   // add children to list
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
-    list<evioDOMNode*>::const_iterator iter;
+   list<evioDOMNode*>::const_iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       addToNodeList(*iter,pList);
     }
@@ -625,8 +615,8 @@ list<evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<evioDOMN
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
-  list<evioDOMNode*> *pList = getNodeList();
+list<const evioDOMNode*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
+  list<const evioDOMNode*> *pList = getNodeList();
   pList->erase(remove_if(pList->begin(),pList->end(),isContainerType()),pList->end());
   return(pList);
 }
@@ -635,8 +625,8 @@ list<evioDOMNode*> *evioDOMTree::getLeafNodeList(void) const throw(evioException
 //-----------------------------------------------------------------------------
 
 
-list<evioDOMNode*> *evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
-  list<evioDOMNode*> *pList = getNodeList();
+list<const evioDOMNode*> *evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
+  list<const evioDOMNode*> *pList = getNodeList();
   pList->erase(remove_if(pList->begin(),pList->end(),isLeafType()),pList->end());
   return(pList);
 }

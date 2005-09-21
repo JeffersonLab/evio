@@ -4,18 +4,15 @@
 
 
 // still to do
-//   use adaptable function objects
-
 //   get private, protected, public straight...should all node data be private?
 //   get static and dynamic casts straight, or use other RTTI stuff
-//   get const straight
+//   get const straight...should getNodeList return const pointers?
 //   signed byte in toString()
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct
 //   copy constructors?
-//   turn utilities into function objects
 
-//   AIDA interface?
+//   Interface for tree modification?  AIDA?
 //   add,drop sub-trees
 
 //   wrap entire evio c library
@@ -115,10 +112,10 @@ public:
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
 
-  list<evioDOMNode*> *getNodeList(void) const throw(evioException*);
-  list<evioDOMNode*> *getContainerNodeList(void) const throw(evioException*);
-  list<evioDOMNode*> *getLeafNodeList(void) const throw(evioException*);
-  template <typename T> list<evioDOMLeafNode<T>*> *getLeafNodeList(void) const throw(evioException*);
+  list<const evioDOMNode*> *getNodeList(void) const throw(evioException*);
+  list<const evioDOMNode*> *getContainerNodeList(void) const throw(evioException*);
+  list<const evioDOMNode*> *getLeafNodeList(void) const throw(evioException*);
+  template <typename T> list<const evioDOMLeafNode<T>*> *getLeafNodeList(void) const throw(evioException*);
 
   string getName(void) const;
   void setName(const string &newName);
@@ -128,13 +125,10 @@ public:
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
   int toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*);
-  list<evioDOMNode*> *addToNodeList(evioDOMNode *pNode, list<evioDOMNode*> *pList) const throw(evioException*);
+  list<const evioDOMNode*> *addToNodeList(evioDOMNode *pNode, list<const evioDOMNode*> *pList) const throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
-  void *nodeHandler(int length, int tag, int contentType, int num, 
-                    int depth, void *userArg);
-  void leafHandler(int length, int tag, int contentType, int num, 
-                   int depth, const void *data, void *userArg);
-  void createNodeMap(void);
+  void *nodeHandler(int length, int tag, int contentType, int num, int depth, void *userArg);
+  void leafHandler(int length, int tag, int contentType, int num, int depth, const void *data, void *userArg);
 
 
 private:
@@ -188,7 +182,6 @@ public:
 
 
 public:
-  // list of contained nodes
   list<evioDOMNode*> childList;
 
 };
@@ -206,7 +199,7 @@ public:
     throw(evioException*);
   virtual ~evioDOMLeafNode(void);
 
-  vector<T> *getData(void);
+  const vector<T> *getData(void) const;
   string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
@@ -221,7 +214,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-template <class T> vector<T> *evioDOMLeafNode<T>::getData(void) {
+template <class T> const vector<T> *evioDOMLeafNode<T>::getData(void) const {
   return(&data);
 }
 
@@ -230,15 +223,15 @@ template <class T> vector<T> *evioDOMLeafNode<T>::getData(void) {
 //-----------------------------------------------------------------------------
 
 
-template <typename T> list<evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
+template <typename T> list<const evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
 
-  list<evioDOMNode*> *pNodeList        = getNodeList();
-  list<evioDOMLeafNode<T>*> *pLeafList = new list<evioDOMLeafNode<T>*>;
+  list<const evioDOMNode*> *pNodeList        = getNodeList();
+  list<const evioDOMLeafNode<T>*> *pLeafList = new list<const evioDOMLeafNode<T>*>;
 
-  list<evioDOMNode*>::const_iterator iter;
-  evioDOMLeafNode<T>* p;
+  list<const evioDOMNode*>::const_iterator iter;
+  const evioDOMLeafNode<T>* p;
   for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
-    p=dynamic_cast<evioDOMLeafNode<T>*>(*iter);
+    p=dynamic_cast<const evioDOMLeafNode<T>*>(*iter);
     if(p!=NULL)pLeafList->push_back(p);
   }
   
