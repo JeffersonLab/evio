@@ -6,7 +6,6 @@
 // still to do
 //   get private, protected, public straight...should all node data be private?
 //   get static and dynamic casts straight, or use other RTTI stuff
-//   get const straight...should getNodeList return const pointers?
 //   signed byte in toString()
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct
@@ -124,8 +123,9 @@ public:
 
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
-  int toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*);
-  list<const evioDOMNode*> *addToNodeList(evioDOMNode *pNode, list<const evioDOMNode*> *pList) const throw(evioException*);
+  int toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) const throw(evioException*);
+  list<const evioDOMNode*> *addToNodeList(const evioDOMNode *pNode, list<const evioDOMNode*> *pList) const 
+    throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
   void *nodeHandler(int length, int tag, int contentType, int num, int depth, void *userArg);
   void leafHandler(int length, int tag, int contentType, int num, int depth, const void *data, void *userArg);
@@ -134,7 +134,6 @@ private:
 private:
   evioDOMNode *root;
   string name;
-  map<string, evioDOMNode*> nodeMap;
 };
 
 

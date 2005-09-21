@@ -414,7 +414,7 @@ void evioDOMTree::toEVIOBuffer(unsigned long *buf) const throw(evioException*) {
 //-----------------------------------------------------------------------------
 
 
-int evioDOMTree::toEVIOBuffer(unsigned long *buf, evioDOMNode *pNode) const throw(evioException*) {
+int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) const throw(evioException*) {
 
   int bankLen,bankType,dataOffset;
 
@@ -587,7 +587,7 @@ list<const evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioExcepti
 //-----------------------------------------------------------------------------
 
 
-list<const evioDOMNode*> *evioDOMTree::addToNodeList(evioDOMNode *pNode, list<const evioDOMNode*> *pList) const
+list<const evioDOMNode*> *evioDOMTree::addToNodeList(const evioDOMNode *pNode, list<const evioDOMNode*> *pList) const
   throw(evioException*) {
 
   if(pNode==NULL)return(pList);
