@@ -10,8 +10,6 @@
 
 //   Interface for tree modification, add and drip trees, etc?  AIDA?
 
-//   wrap entire evio c library
-
 //   user's manual
 
 
@@ -38,7 +36,7 @@ template<typename T> class evioDOMLeafNode;
 //-----------------------------------------------------------------------------
 
 
-// simple exception contains int and text field
+// basic evio exception class
 class evioException {
 
 public:
@@ -61,7 +59,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  performs basic evio input/output functions, wrapper for evio C library
+//  wrapper around evio C library, acts as channel that performs basic event i/o functions
 class evio {
 
 public:
@@ -73,6 +71,9 @@ public:
   void ioctl(const string &request, void *argp) throw(evioException*);
   void close(void) throw(evioException*);
 
+  string getFileName(void) const;
+  string getMode(void) const;
+  int getBufSize(void) const;
 
 public:
   unsigned long *buf;

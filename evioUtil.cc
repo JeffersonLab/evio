@@ -92,16 +92,13 @@ evio::evio(const string &f, const string &m, int size) throw(evioException*)
   // open file and get handle
   if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
     throw(new evioException(0,"?evio constructor...unable to open file"));
-  if(handle==0)throw(new evioException(0,"?evio constructor...unable to get handle"));
+  if(handle==0)throw(new evioException(0,"?evio constructor...zero handle"));
 
 
   // allocate buffer
   buf = new unsigned long[bufSize];
   if(buf==NULL)throw(new evioException(0,"?evio constructor...unable to allocate buffer"));
 
-  cout << "evio...file opened and buf allocated, handle is 0x" << hex << handle 
-       << ", bufSize is " << dec << bufSize << endl 
-       << "filename is " << filename << ", mode is " << mode << endl;
 }
 
 
@@ -147,6 +144,30 @@ void evio::ioctl(const string &request, void *argp) throw(evioException*) {
 
 void evio::close(void) throw(evioException*) {
   evClose(handle);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+string evio::getFileName(void) const {
+  return(filename);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+string evio::getMode(void) const {
+  return(mode);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+int evio::getBufSize(void) const {
+  return(bufSize);
 }
 
 
@@ -342,7 +363,6 @@ evioDOMTree::evioDOMTree(evioDOMNode *r, const string &n) throw(evioException*) 
 
 evioDOMTree::~evioDOMTree(void) {
   delete(root);
-  if(debug)cout << "deleted tree " << name << endl;
 }
 
 
