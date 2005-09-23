@@ -5,10 +5,8 @@
 
 // still to do
 //   signed byte in toString()
-//   copy constructors?
 //   toString() compatible with evio2xml
-//   more exceptions, get types correct
-//   string vs string&
+//   more exceptions, get types correct, add debug info
 
 //   Interface for tree modification, add and drip trees, etc?  AIDA?
 
@@ -46,6 +44,7 @@ class evioException {
 public:
   evioException(void);
   evioException(int t, const string &s);
+  evioException(int t, const string &s, const string &aux);
 
   virtual string toString(void) const;
 
@@ -53,7 +52,36 @@ public:
 public:
   int type;
   string text;
+  string auxText;
 
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+//  performs basic evio input/output functions, wrapper for evio C library
+class evio {
+
+public:
+  evio(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
+  ~evio();
+
+  bool read(void) throw(evioException*);
+  void write(void) throw(evioException*);
+  void ioctl(const string &request, void *argp) throw(evioException*);
+  void close(void) throw(evioException*);
+
+
+public:
+  unsigned long *buf;
+
+private:
+  string filename;
+  string mode;
+  int bufSize;
+  int handle;
 };
 
 
@@ -98,8 +126,10 @@ private:
 class evioDOMTree : public evioStreamParserHandler {
 
 public:
+  evioDOMTree(const evio &channel, const string &name = "root") throw(evioException*);
   evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
   evioDOMTree(evioDOMNode *root, const string &name = "root") throw(evioException*);
+  evioDOMTree(const evioDOMTree &tree) throw(evioException*);
   virtual ~evioDOMTree(void);
 
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
@@ -139,7 +169,10 @@ public:
 class evioDOMNode {
 
 public:
+  evioDOMNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
+  //  evioDOMNode(const evioDOMNode &node); ???
   virtual ~evioDOMNode(void) {};
+
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
   bool isContainer(void) const;
@@ -167,6 +200,8 @@ class evioDOMContainerNode : public evioDOMNode {
 
 public:
   evioDOMContainerNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
+  evioDOMContainerNode(const evioDOMContainerNode &cNode) throw (evioException*);
+  evioDOMContainerNode& operator=(const evioDOMContainerNode &cNode) throw(evioException*);
   virtual ~evioDOMContainerNode(void);
 
   string toString(void) const;
