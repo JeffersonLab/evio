@@ -81,24 +81,16 @@ string evioException::toString(void) const {
 
 
 //-----------------------------------------------------------------------
-//----------------------------- evio ------------------------------------
+//---------------------------- evioFile ---------------------------------
 //-----------------------------------------------------------------------
 
 
 evioFile::evioFile(const string &f, const string &m, int size) throw(evioException*) 
   : filename(f), mode(m), bufSize(size), buf(NULL), handle(0) {
 
-
-  // open file and get handle
-  if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
-    throw(new evioException(0,"?evio constructor...unable to open file"));
-  if(handle==0)throw(new evioException(0,"?evio constructor...zero handle"));
-
-
   // allocate buffer
   buf = new unsigned long[bufSize];
-  if(buf==NULL)throw(new evioException(0,"?evio constructor...unable to allocate buffer"));
-
+  if(buf==NULL)throw(new evioException(0,"?evioFile constructor...unable to allocate buffer"));
 }
 
 
@@ -112,6 +104,18 @@ evioFile::~evioFile(void) {
 
 //-----------------------------------------------------------------------
 
+
+
+void evioFile:: open(void) throw(evioException*) {
+
+  if(buf==NULL)throw(new evioException(0,"evioFile::open...null buffer"));
+  if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
+    throw(new evioException(0,"?evioFile::open...unable to open file"));
+  if(handle==0)throw(new evioException(0,"?evioFile::open...zero handle"));
+}
+
+
+//-----------------------------------------------------------------------
 
 
 bool evioFile::read(void) throw(evioException*) {
@@ -340,9 +344,9 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 //--------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evioSource &source, const string &n) throw(evioException*) {
-  const unsigned long *buf = source.getBuffer();
-  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer"));
+evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException*) {
+  const unsigned long *buf = channel.getBuffer();
+  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...channel delivered null buffer"));
   name=n;
   root=parse(buf);
 }

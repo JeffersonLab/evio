@@ -9,6 +9,7 @@
 //   more exceptions, get types correct, add debug info
 
 //   Interface for tree modification, add and drip trees, etc?  AIDA?
+//   getBuffer() and const?
 
 //   user's manual
 
@@ -59,11 +60,16 @@ public:
 //-----------------------------------------------------------------------------
 
 
-// evio source interface
-class evioSource {
+// evio channel interface
+class evioChannel{
 
 public:
+  virtual void open(void) throw(evioException*) = 0;
+  virtual bool read(void) throw(evioException*) = 0;
+  virtual void write(void) throw(evioException*) = 0;
+  virtual void close(void) throw(evioException*) = 0;
   virtual const unsigned long *getBuffer(void) const throw(evioException*) = 0;
+  virtual int getBufSize(void) const = 0;
 
 };
 
@@ -73,30 +79,31 @@ public:
 
 
 //  wrapper around evio C library, acts as channel that performs basic event i/o functions
-class evioFile : public evioSource {
+class evioFile : public evioChannel{
 
 public:
   evioFile(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
   ~evioFile();
 
+  void open(void) throw(evioException*);
   bool read(void) throw(evioException*);
   void write(void) throw(evioException*);
-  void ioctl(const string &request, void *argp) throw(evioException*);
   void close(void) throw(evioException*);
+  const unsigned long *getBuffer(void) const throw(evioException*);
+  int getBufSize(void) const;
+
+  void ioctl(const string &request, void *argp) throw(evioException*);
 
   string getFileName(void) const;
   string getMode(void) const;
-  int getBufSize(void) const;
 
-public:
-  const unsigned long *getBuffer(void) const throw(evioException*);
 
 private:
   string filename;
   string mode;
+  int handle;
   unsigned long *buf;
   int bufSize;
-  int handle;
 };
 
 
@@ -141,7 +148,7 @@ private:
 class evioDOMTree : public evioStreamParserHandler {
 
 public:
-  evioDOMTree(const evioSource &source, const string &name = "root") throw(evioException*);
+  evioDOMTree(const evioChannel &channel, const string &name = "root") throw(evioException*);
   evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
   evioDOMTree(evioDOMNode *root, const string &name = "root") throw(evioException*);
   evioDOMTree(const evioDOMTree &tree) throw(evioException*);
