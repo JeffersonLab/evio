@@ -105,7 +105,6 @@ evio::evio(const string &f, const string &m, int size) throw(evioException*)
 //-----------------------------------------------------------------------
 
 
-
 evio::~evio(void) {
   if(buf!=NULL)delete(buf);
 }
@@ -164,6 +163,16 @@ string evio::getMode(void) const {
 
 
 //-----------------------------------------------------------------------
+
+
+const unsigned long *evio::getBuffer(void) const throw(evioException*) {
+  if(buf==NULL)throw(new evioException(0,"evio::getbuffer...null buffer"));
+  return(buf);
+}
+
+
+//-----------------------------------------------------------------------
+
 
 
 int evio::getBufSize(void) const {
@@ -331,10 +340,11 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 //--------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evio &e, const string &n) throw(evioException*) {
-  if(e.buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer"));
+evioDOMTree::evioDOMTree(const evioSource &source, const string &n) throw(evioException*) {
+  const unsigned long *buf = source.getBuffer();
+  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer"));
   name=n;
-  root=parse(e.buf);
+  root=parse(buf);
 }
 
 

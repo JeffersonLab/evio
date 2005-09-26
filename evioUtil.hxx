@@ -59,8 +59,21 @@ public:
 //-----------------------------------------------------------------------------
 
 
+// evio source interface
+class evioSource {
+
+public:
+  virtual const unsigned long *getBuffer(void) const throw(evioException*) = 0;
+
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
 //  wrapper around evio C library, acts as channel that performs basic event i/o functions
-class evio {
+class evio : public evioSource {
 
 public:
   evio(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
@@ -76,11 +89,12 @@ public:
   int getBufSize(void) const;
 
 public:
-  unsigned long *buf;
+  const unsigned long *getBuffer(void) const throw(evioException*);
 
 private:
   string filename;
   string mode;
+  unsigned long *buf;
   int bufSize;
   int handle;
 };
@@ -127,7 +141,7 @@ private:
 class evioDOMTree : public evioStreamParserHandler {
 
 public:
-  evioDOMTree(const evio &channel, const string &name = "root") throw(evioException*);
+  evioDOMTree(const evioSource &source, const string &name = "root") throw(evioException*);
   evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
   evioDOMTree(evioDOMNode *root, const string &name = "root") throw(evioException*);
   evioDOMTree(const evioDOMTree &tree) throw(evioException*);
