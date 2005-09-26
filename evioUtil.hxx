@@ -73,11 +73,11 @@ public:
 
 
 //  wrapper around evio C library, acts as channel that performs basic event i/o functions
-class evio : public evioSource {
+class evioFile : public evioSource {
 
 public:
-  evio(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
-  ~evio();
+  evioFile(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
+  ~evioFile();
 
   bool read(void) throw(evioException*);
   void write(void) throw(evioException*);
