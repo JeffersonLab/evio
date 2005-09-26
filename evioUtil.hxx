@@ -9,7 +9,7 @@
 //   more exceptions, get types correct, add debug info
 
 //   Interface for tree modification, add and drip trees, etc?  AIDA?
-//   getBuffer() and const?
+//   evioChannel for output, getBuffer() and const?
 
 //   user's manual
 
@@ -79,11 +79,11 @@ public:
 
 
 //  wrapper around evio C library, acts as channel that performs basic event i/o functions
-class evioFile : public evioChannel{
+class evioFile : public evioChannel {
 
 public:
   evioFile(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
-  ~evioFile();
+  virtual ~evioFile();
 
   void open(void) throw(evioException*);
   bool read(void) throw(evioException*);
@@ -111,7 +111,7 @@ private:
 //-----------------------------------------------------------------------------
 
 
-//  pure virtual node and leaf handler class for stream parsing of evio event
+// interface defines node and leaf handlers for stream parsing
 class evioStreamParserHandler {
 
 public:
@@ -126,7 +126,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  evio event stream parser class dispatches to handler class when node or leaf reached
+// stream parser dispatches to handlers when node or leaf reached
 class evioStreamParser {
 
 public:
@@ -144,7 +144,7 @@ private:
 //--------------------------------------------------------------
 
 
-//  contains object-based in-memory tree representation of evio event
+//  contains tree representation of evio event in memory
 class evioDOMTree : public evioStreamParserHandler {
 
 public:
