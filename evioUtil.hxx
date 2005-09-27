@@ -4,7 +4,8 @@
 
 
 // still to do
-//   copy constructors?  operator=?  What do they all mean?
+//   copy constructors?  operator=?  What should they do?
+//   auto_ptr and exceptions?  smart pointers?
 
 //   signed byte in toString()
 //   toString() compatible with evio2xml
@@ -12,7 +13,6 @@
 
 //   Interface for tree modification, add and drip trees, etc?  AIDA?
 //   evioChannel for output, getBuffer() and const?
-//   auto_ptr and exceptions?  smart pointers?
 
 //   user's manual
 
@@ -44,10 +44,7 @@ template<typename T> class evioDOMLeafNode;
 class evioException {
 
 public:
-  evioException(void);
-  evioException(int t, const string &s);
-  evioException(int t, const string &s, const string &aux);
-
+  evioException(int t = 0, const string &s = "", const string &aux = "");
   virtual string toString(void) const;
 
 
@@ -153,7 +150,7 @@ class evioDOMTree : public evioStreamParserHandler {
 public:
   evioDOMTree(const evioChannel &channel, const string &name = "root") throw(evioException*);
   evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
-  evioDOMTree(const evioDOMNode *root, const string &name = "root") throw(evioException*);
+  evioDOMTree(const evioDOMNode *node, const string &name = "root") throw(evioException*);
   evioDOMTree(const evioDOMTree &tree) throw(evioException*);
   evioDOMTree& operator=(const evioDOMTree &rhs) throw(evioException*);
   virtual ~evioDOMTree(void);
@@ -200,7 +197,7 @@ public:
 
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
-  //virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*);
+  // virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*); ???
 
   virtual evioDOMNode *clone(evioDOMNode *parent) const = 0;
 

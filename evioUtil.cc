@@ -43,30 +43,7 @@ template <typename T> static void deleteIt(T *t) {
 //--------------------------------------------------------------
 
 
-evioException::evioException() {
-  type=0;
-  text="";
-  auxText="";
-}
-
-
-//--------------------------------------------------------------
-
-
-evioException::evioException(int t, const string &s) {
-  type=t;
-  text=s;
-  auxText="";
-}
-
-
-//--------------------------------------------------------------
-
-
-evioException::evioException(int t, const string &s, const string &aux) {
-  type=t;
-  text=s;
-  auxText=aux;
+evioException::evioException(int t, const string &s, const string &aux) : type(t), text(s), auxText(aux) {
 }
 
 
@@ -365,10 +342,10 @@ evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioEx
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evioDOMNode *r, const string &n) throw(evioException*) {
-  if(r==NULL)throw(new evioException(0,"?evioDOMTree constructor...null evioDOMNode"));
+evioDOMTree::evioDOMTree(const evioDOMNode *node, const string &n) throw(evioException*) {
+  if(node==NULL)throw(new evioException(0,"?evioDOMTree constructor...null evioDOMNode"));
   name=n;
-  root=r->clone(NULL);
+  root=node->clone(NULL);
 }
 
 
@@ -856,10 +833,7 @@ evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) th
   cout << "container node copy constructor called" << endl;
 
   // copy contents of child list
-  list<evioDOMNode*>::const_iterator iter;
-  for(iter=cNode.childList.begin(); iter!=cNode.childList.end(); iter++) {
-    childList.push_back((*iter)->clone(this));
-  }
+  copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
 }
 
 
