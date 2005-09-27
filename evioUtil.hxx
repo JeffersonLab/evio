@@ -1,15 +1,18 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 31-aug-2005
+//  Author:  Elliott Wolin, JLab, 27-Sep-2005
 
 
 // still to do
+//   copy constructors?  operator=?  What do they all mean?
+
 //   signed byte in toString()
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct, add debug info
 
 //   Interface for tree modification, add and drip trees, etc?  AIDA?
 //   evioChannel for output, getBuffer() and const?
+//   auto_ptr and exceptions?  smart pointers?
 
 //   user's manual
 
@@ -150,8 +153,9 @@ class evioDOMTree : public evioStreamParserHandler {
 public:
   evioDOMTree(const evioChannel &channel, const string &name = "root") throw(evioException*);
   evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
-  evioDOMTree(evioDOMNode *root, const string &name = "root") throw(evioException*);
+  evioDOMTree(const evioDOMNode *root, const string &name = "root") throw(evioException*);
   evioDOMTree(const evioDOMTree &tree) throw(evioException*);
+  evioDOMTree& operator=(const evioDOMTree &rhs) throw(evioException*);
   virtual ~evioDOMTree(void);
 
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
@@ -192,11 +196,14 @@ class evioDOMNode {
 
 public:
   evioDOMNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
-  //  evioDOMNode(const evioDOMNode &node); ???
   virtual ~evioDOMNode(void) {};
 
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
+  //virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*);
+
+  virtual evioDOMNode *clone(evioDOMNode *parent) const = 0;
+
   bool isContainer(void) const;
   bool isLeaf(void) const;
 
@@ -223,8 +230,10 @@ class evioDOMContainerNode : public evioDOMNode {
 public:
   evioDOMContainerNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw (evioException*);
-  evioDOMContainerNode& operator=(const evioDOMContainerNode &cNode) throw(evioException*);
+  evioDOMContainerNode& operator=(const evioDOMContainerNode &rhs) throw(evioException*);
   virtual ~evioDOMContainerNode(void);
+
+  evioDOMContainerNode *clone(evioDOMNode *newParent) const;
 
   string toString(void) const;
   string getHeader(int depth) const;
@@ -245,9 +254,13 @@ public:
 template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 public:
-  evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, T *p, int ndata) 
-    throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, T *p, int ndata) throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, const vector<T> &v) throw(evioException*);
+  evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*);
+  evioDOMLeafNode<T>& operator=(const evioDOMLeafNode<T> &rhs) throw(evioException*);
   virtual ~evioDOMLeafNode(void);
+
+  evioDOMLeafNode<T>* clone(evioDOMNode *newParent) const;
 
   const vector<T> *getData(void) const;
   string toString(void) const;
