@@ -388,10 +388,10 @@ evioDOMTree &evioDOMTree::operator=(const evioDOMTree &rhs) throw(evioException*
 
   cout << "DOMTree operator= called" << endl;
 
-  if(&rhs==this)throw(new evioException(0,"?evioDOMTree::operator=...self-copy"));
-
-  name=rhs.name;
-  root=rhs.getRoot()->clone(NULL);
+  if(&rhs!=this) {
+    name=rhs.name;
+    root=rhs.getRoot()->clone(NULL);
+  }
 
   return(*this);
 }
@@ -870,14 +870,14 @@ evioDOMContainerNode &evioDOMContainerNode::operator=(const evioDOMContainerNode
 
   cout << "container node operator= called" << endl;
 
-  if(&rhs==this)throw(new evioException(0,"?evioDOMContainerNode::operator=...self-copy"));
+  if(&rhs!=this) {
+    parent=rhs.parent;
+    tag=rhs.tag;
+    contentType=rhs.contentType;
+    num=rhs.num;
 
-  parent=rhs.parent;
-  tag=rhs.tag;
-  contentType=rhs.contentType;
-  num=rhs.num;
-
-  copy(rhs.childList.begin(),rhs.childList.end(),inserter(childList,childList.begin()));
+    copy(rhs.childList.begin(),rhs.childList.end(),inserter(childList,childList.begin()));
+  }
 
   return(*this);
 }
@@ -995,14 +995,14 @@ template <typename T> evioDOMLeafNode<T> &evioDOMLeafNode<T>::operator=(const ev
 
   cout << "leaf node operator= called" << endl;
 
-  if(&rhs==this)throw(new evioException(0,"?evioDOMLeafNode::operator=...self-copy"));
-
-  parent=rhs.parent;
-  tag=rhs.tag;
-  contentType=rhs.contentType;
-  num=rhs.num;
-
-  copy(rhs.data.begin(),rhs.data.end(),inserter(data,data.begin()));
+  if(&rhs!=this) {
+    parent=rhs.parent;
+    tag=rhs.tag;
+    contentType=rhs.contentType;
+    num=rhs.num;
+    
+    copy(rhs.data.begin(),rhs.data.end(),inserter(data,data.begin()));
+  }
 
   return(*this);
 }
