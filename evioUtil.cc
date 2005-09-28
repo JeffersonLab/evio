@@ -515,10 +515,10 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
   int bankLen,bankType,dataOffset;
 
 
-  if(pNode->parent==NULL) {
+  if(pNode->getParent()==NULL) {
     bankType=BANK;
   } else {
-    bankType=pNode->parent->contentType;
+    bankType=pNode->getParent()->contentType;
   }
 
 
@@ -795,6 +795,14 @@ bool evioDOMNode::operator==(int tag) const {
 
 bool evioDOMNode::operator!=(int tag) const {
   return(this->tag!=tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+const evioDOMNode *evioDOMNode::getParent(void) const {
+  return(parent);
 }
 
 

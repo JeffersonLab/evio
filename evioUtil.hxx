@@ -4,9 +4,9 @@
 
 
 // still to do
-//   copy constructors?  operator=?  What should they do?
-//   auto_ptr and exceptions?  smart pointers?
+//   auto_ptr, smart pointers?
 
+//   should parent be private?
 //   signed byte in toString()
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct, add debug info
@@ -197,7 +197,7 @@ public:
 
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
-  // virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*); ???
+  // virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*); ??? not needed 
 
   virtual evioDOMNode *clone(evioDOMNode *parent) const = 0;
 
@@ -205,11 +205,16 @@ public:
   bool isLeaf(void) const;
 
   virtual string toString(void) const = 0;
+  virtual const evioDOMNode *getParent(void) const;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;
 
-public:
+
+protected:
   evioDOMNode *parent;
+
+
+public:
   int tag;
   int contentType;
   int num;
