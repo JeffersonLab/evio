@@ -43,7 +43,20 @@ template <typename T> static void deleteIt(T *t) {
 //--------------------------------------------------------------
 
 
-evioException::evioException(int t, const string &s, const string &aux) : type(t), text(s), auxText(aux) {
+evioException::evioException(int typ, const string &txt, const string &aux) 
+  : type(typ), text(txt), auxText(aux) {
+}
+
+
+//--------------------------------------------------------------
+
+
+evioException::evioException(int typ, const string &txt, const string &file, int line) 
+  : type(typ), text(txt) {
+
+  ostringstream oss;
+  oss <<  "    evioException occured in file " << file << ", line " << line << ends;
+  auxText=oss.str();
 }
 
 
@@ -51,9 +64,9 @@ evioException::evioException(int t, const string &s, const string &aux) : type(t
 
 
 string evioException::toString(void) const {
-  ostringstream s;
-  s << type << ends;
-  return(string("evioException type: ") + s.str() + string(",   text:  ") + text);
+  ostringstream oss;
+  oss << "?evioException type = " << type << "    text = " << text << endl << endl << auxText << endl;
+  return(oss.str());
 }
 
 
@@ -67,7 +80,7 @@ evioFile::evioFile(const string &f, const string &m, int size) throw(evioExcepti
 
   // allocate buffer
   buf = new unsigned long[bufSize];
-  if(buf==NULL)throw(new evioException(0,"?evioFile constructor...unable to allocate buffer"));
+  if(buf==NULL)throw(new evioException(0,"?evioFile constructor...unable to allocate buffer",__FILE__,__LINE__));
 }
 
 
@@ -85,10 +98,10 @@ evioFile::~evioFile(void) {
 
 void evioFile:: open(void) throw(evioException*) {
 
-  if(buf==NULL)throw(new evioException(0,"evioFile::open...null buffer"));
+  if(buf==NULL)throw(new evioException(0,"evioFile::open...null buffer",__FILE__,__LINE__));
   if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
-    throw(new evioException(0,"?evioFile::open...unable to open file"));
-  if(handle==0)throw(new evioException(0,"?evioFile::open...zero handle"));
+    throw(new evioException(0,"?evioFile::open...unable to open file",__FILE__,__LINE__));
+  if(handle==0)throw(new evioException(0,"?evioFile::open...zero handle",__FILE__,__LINE__));
 }
 
 
@@ -96,7 +109,7 @@ void evioFile:: open(void) throw(evioException*) {
 
 
 bool evioFile::read(void) throw(evioException*) {
-  if(buf==NULL)throw(new evioException(0,"evioFile::read...null buffer"));
+  if(buf==NULL)throw(new evioException(0,"evioFile::read...null buffer",__FILE__,__LINE__));
   return(evRead(handle,&buf[0],bufSize)==0);
 }
 
@@ -105,8 +118,8 @@ bool evioFile::read(void) throw(evioException*) {
 
 
 void evioFile::write(void) throw(evioException*) {
-  if(buf==NULL)throw(new evioException(0,"evioFile::write...null buffer"));
-  if(evWrite(handle,buf)!=0) throw(new evioException(0,"?evioFile::write...unable to write"));
+  if(buf==NULL)throw(new evioException(0,"evioFile::write...null buffer",__FILE__,__LINE__));
+  if(evWrite(handle,buf)!=0) throw(new evioException(0,"?evioFile::write...unable to write",__FILE__,__LINE__));
 }
 
 
@@ -115,7 +128,7 @@ void evioFile::write(void) throw(evioException*) {
 
 void evioFile::ioctl(const string &request, void *argp) throw(evioException*) {
   if(evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
-    throw(new evioException(0,"?evioFile::ioCtl...error return"));
+    throw(new evioException(0,"?evioFile::ioCtl...error return",__FILE__,__LINE__));
 }
 
 
@@ -147,7 +160,7 @@ string evioFile::getMode(void) const {
 
 
 const unsigned long *evioFile::getBuffer(void) const throw(evioException*) {
-  if(buf==NULL)throw(new evioException(0,"evioFile::getbuffer...null buffer"));
+  if(buf==NULL)throw(new evioException(0,"evioFile::getbuffer...null buffer",__FILE__,__LINE__));
   return(buf);
 }
 
@@ -169,7 +182,7 @@ int evioFile::getBufSize(void) const {
 void *evioStreamParser::parse(const unsigned long *buf, 
                               evioStreamParserHandler &handler, void *userArg) throw(evioException*) {
   
-  if(buf==NULL)throw(new evioException(0,"?evioStreamParser::parse...null buffer"));
+  if(buf==NULL)throw(new evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__LINE__));
 
   void *newUserArg = parseBank(buf,BANK,0,handler,userArg);
   return(newUserArg);
@@ -219,7 +232,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
   default:
     ostringstream ss;
     ss << hex << "0x" << bankType << ends;
-    throw(new evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str()));
+    throw(new evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str(),__FILE__,__LINE__));
   }
 
 
@@ -305,7 +318,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
   default:
     ostringstream ss;
     ss << hex << "0x" << contentType << ends;
-    throw(new evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str()));
+    throw(new evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__LINE__));
     break;
 
   }  // end main switch(contentType)
@@ -323,7 +336,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 
 evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException*) {
   const unsigned long *buf = channel.getBuffer();
-  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...channel delivered null buffer"));
+  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   name=n;
   root=parse(buf);
 }
@@ -333,7 +346,7 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evio
 
 
 evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioException*) {
-  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer"));
+  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
   name=n;
   root=parse(buf);
 }
@@ -343,7 +356,7 @@ evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioEx
 
 
 evioDOMTree::evioDOMTree(const evioDOMNode *node, const string &n) throw(evioException*) {
-  if(node==NULL)throw(new evioException(0,"?evioDOMTree constructor...null evioDOMNode"));
+  if(node==NULL)throw(new evioException(0,"?evioDOMTree constructor...null evioDOMNode",__FILE__,__LINE__));
   name=n;
   root=node->clone(NULL);
 }
@@ -489,7 +502,7 @@ void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int
   default:
     ostringstream ss;
     ss << hex << "0x" << contentType<< ends;
-    throw(new evioException(0,"?evioDOMTree::leafHandler...illegal content type: " + ss.str()));
+    throw(new evioException(0,"?evioDOMTree::leafHandler...illegal content type: " + ss.str(),__FILE__,__LINE__));
     break;
   }
 
@@ -543,7 +556,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
   default:
     ostringstream ss;
     ss << hex << "0x" << bankType<< ends;
-    throw(new evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str()));
+    throw(new evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str(),__FILE__,__LINE__));
     break;
   }
 
@@ -629,7 +642,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
     default:
       ostringstream ss;
       ss << pNode->contentType<< ends;
-      throw(new evioException(0,"?evioDOMTree::toEVOIBuffer...illegal leaf type: " + ss.str()));
+      throw(new evioException(0,"?evioDOMTree::toEVOIBuffer...illegal leaf type: " + ss.str(),__FILE__,__LINE__));
       break;
     }
 
@@ -648,13 +661,13 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
   case 0x20:
   case 0xc:
   case 0x40:
-    if((bankLen-1)>0xffff)throw(new evioException(0,"?evioDOMTree::toEVIOVuffer...length too long for segment type"));
+    if((bankLen-1)>0xffff)throw(new evioException(0,"?evioDOMTree::toEVIOVuffer...length too long for segment type",__FILE__,__LINE__));
     buf[0]|=bankLen-1;
     break;
   default: 
     ostringstream ss;
     ss << bankType<< ends;
-    throw(new evioException(0,"?evioDOMTree::toEVIOVuffer...illegal bank type setting length: " + ss.str()));
+    throw(new evioException(0,"?evioDOMTree::toEVIOVuffer...illegal bank type setting length: " + ss.str(),__FILE__,__LINE__));
     break;
   }
 

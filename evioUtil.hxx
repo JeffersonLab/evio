@@ -3,16 +3,21 @@
 //  Author:  Elliott Wolin, JLab, 27-Sep-2005
 
 
-// still to do
-//   templated typedefs for evioDOMLeafNode
+// must do:
 //   signed byte in toString()
 //   toString() compatible with evio2xml
-//   more exceptions, get types correct, add debug info
+//   user's manual
 
+// should do:
 //   Interface for tree modification, add and drip trees, etc?  AIDA?
 //   evioChannel for output, getBuffer() and const?
 
-//   user's manual
+//  would like to do:
+//   scheme for exception types
+//   stack trace in exception
+//   templated typedefs for evioDOMLeafNode
+
+
 
 
 #ifndef _evioUtil_hxx
@@ -34,12 +39,10 @@ class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 
 
-// typedefs to simplify life a little bit
-typedef list<const evioDOMNode*> evioDOMNodeList;
+// typedefs simplify life a little...unfortunately, no templated typedefs allowed for leaf node objects
+typedef list<const evioDOMNode*>  evioDOMNodeList;
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
 
-
-//template<typename T> typedef auto_ptr< list<evioDOMLeafNode<T>* > evioDOMLeafNodeListP<T>;
 
 
 //-----------------------------------------------------------------------------
@@ -50,7 +53,8 @@ typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
 class evioException {
 
 public:
-  evioException(int t = 0, const string &s = "", const string &aux = "");
+  evioException(int typ = 0, const string &txt = "", const string &aux = "");
+  evioException(int typ, const string &txt, const string &file, int line);
   virtual string toString(void) const;
 
 
