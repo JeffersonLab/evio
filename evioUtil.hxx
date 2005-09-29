@@ -4,6 +4,7 @@
 
 
 // still to do
+//   templated typedefs for evioDOMLeafNode
 //   signed byte in toString()
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct, add debug info
@@ -34,7 +35,11 @@ template<typename T> class evioDOMLeafNode;
 
 
 // typedefs to simplify life a little bit
-typedef auto_ptr< list<const evioDOMNode*> > evioDOMNodeListP;
+typedef list<const evioDOMNode*> evioDOMNodeList;
+typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
+
+
+//template<typename T> typedef auto_ptr< list<evioDOMLeafNode<T>* > evioDOMLeafNodeListP<T>;
 
 
 //-----------------------------------------------------------------------------
@@ -170,7 +175,7 @@ public:
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
   int toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) const throw(evioException*);
-  list<const evioDOMNode*> *addToNodeList(const evioDOMNode *pNode, list<const evioDOMNode*> *pList) const 
+  evioDOMNodeList *addToNodeList(const evioDOMNode *pNode, evioDOMNodeList *pList) const 
     throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
   void *nodeHandler(int length, int tag, int contentType, int num, int depth, void *userArg);
@@ -294,7 +299,7 @@ template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::g
   evioDOMNodeListP pNodeList        = getNodeList();
   auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
 
-  list<const evioDOMNode*>::const_iterator iter;
+  evioDOMNodeList::const_iterator iter;
   const evioDOMLeafNode<T>* p;
   for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
     p=dynamic_cast<const evioDOMLeafNode<T>*>(*iter);

@@ -675,15 +675,15 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 //-----------------------------------------------------------------------------
 
 
-auto_ptr< list<const evioDOMNode*> > evioDOMTree::getNodeList(void) const throw(evioException*) {
-  return(auto_ptr< list< const evioDOMNode*> >(addToNodeList(root,new list<const evioDOMNode*>)));
+evioDOMNodeListP evioDOMTree::getNodeList(void) const throw(evioException*) {
+  return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList)));
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-list<const evioDOMNode*> *evioDOMTree::addToNodeList(const evioDOMNode *pNode, list<const evioDOMNode*> *pList) const
+evioDOMNodeList *evioDOMTree::addToNodeList(const evioDOMNode *pNode, evioDOMNodeList *pList) const
   throw(evioException*) {
 
   if(pNode==NULL)return(pList);
@@ -711,20 +711,20 @@ list<const evioDOMNode*> *evioDOMTree::addToNodeList(const evioDOMNode *pNode, l
 //-----------------------------------------------------------------------------
 
 
-auto_ptr< list< const evioDOMNode*> > evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
-  auto_ptr< list< const evioDOMNode*> > pList = getNodeList();
+evioDOMNodeListP evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
+  evioDOMNodeListP pList = getNodeList();
   pList->erase(remove_if(pList->begin(),pList->end(),isContainerType()),pList->end());
-  return(auto_ptr< list< const evioDOMNode*> >(pList));
+  return(pList);
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-auto_ptr< list< const evioDOMNode*> > evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
-  auto_ptr< list< const evioDOMNode*> > pList = getNodeList();
+evioDOMNodeListP evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
+  evioDOMNodeListP pList = getNodeList();
   pList->erase(remove_if(pList->begin(),pList->end(),isLeafType()),pList->end());
-  return(auto_ptr< list< const evioDOMNode*> >(pList));
+  return(pList);
 }
 
 
