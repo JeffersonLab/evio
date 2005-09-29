@@ -675,8 +675,8 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 //-----------------------------------------------------------------------------
 
 
-list<const evioDOMNode*> *evioDOMTree::getNodeList(void) const throw(evioException*) {
-  return(addToNodeList(root,new list<const evioDOMNode*>));
+auto_ptr< list<const evioDOMNode*> > evioDOMTree::getNodeList(void) const throw(evioException*) {
+  return(auto_ptr< list< const evioDOMNode*> >(addToNodeList(root,new list<const evioDOMNode*>)));
 }
 
 
@@ -711,20 +711,20 @@ list<const evioDOMNode*> *evioDOMTree::addToNodeList(const evioDOMNode *pNode, l
 //-----------------------------------------------------------------------------
 
 
-list<const evioDOMNode*> *evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
-  list<const evioDOMNode*> *pList = getNodeList();
+auto_ptr< list< const evioDOMNode*> > evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
+  auto_ptr< list< const evioDOMNode*> > pList = getNodeList();
   pList->erase(remove_if(pList->begin(),pList->end(),isContainerType()),pList->end());
-  return(pList);
+  return(auto_ptr< list< const evioDOMNode*> >(pList));
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-list<const evioDOMNode*> *evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
-  list<const evioDOMNode*> *pList = getNodeList();
+auto_ptr< list< const evioDOMNode*> > evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
+  auto_ptr< list< const evioDOMNode*> > pList = getNodeList();
   pList->erase(remove_if(pList->begin(),pList->end(),isLeafType()),pList->end());
-  return(pList);
+  return(auto_ptr< list< const evioDOMNode*> >(pList));
 }
 
 

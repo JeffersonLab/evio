@@ -4,9 +4,8 @@
 
 
 // still to do
-//   auto_ptr, smart pointers?
+//   auto_ptr for getting lists
 
-//   should parent be private?
 //   signed byte in toString()
 //   toString() compatible with evio2xml
 //   more exceptions, get types correct, add debug info
@@ -158,10 +157,10 @@ public:
   void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
 
-  list<const evioDOMNode*> *getNodeList(void) const throw(evioException*);
-  list<const evioDOMNode*> *getContainerNodeList(void) const throw(evioException*);
-  list<const evioDOMNode*> *getLeafNodeList(void) const throw(evioException*);
-  template <typename T> list<const evioDOMLeafNode<T>*> *getLeafNodeList(void) const throw(evioException*);
+  auto_ptr< list<const evioDOMNode*> > getNodeList(void) const throw(evioException*);
+  auto_ptr< list<const evioDOMNode*> > getContainerNodeList(void) const throw(evioException*);
+  auto_ptr< list<const evioDOMNode*> > getLeafNodeList(void) const throw(evioException*);
+  template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > getLeafNodeList(void) const throw(evioException*);
 
   string toString(void) const;
 
@@ -197,15 +196,15 @@ public:
 
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
-  // virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*); ??? not needed 
+  // virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*);  Does not seem to be needed...
 
   virtual evioDOMNode *clone(evioDOMNode *parent) const = 0;
 
+  virtual const evioDOMNode *getParent(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
 
   virtual string toString(void) const = 0;
-  virtual const evioDOMNode *getParent(void) const;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;
 
@@ -287,11 +286,11 @@ template <typename T> const vector<T> *evioDOMLeafNode<T>::getData(void) const {
 //-----------------------------------------------------------------------------
 
 
-template <typename T> list<const evioDOMLeafNode<T>*> *evioDOMTree::getLeafNodeList(void) const
+template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::getLeafNodeList(void) const
   throw(evioException*) {
 
-  list<const evioDOMNode*> *pNodeList        = getNodeList();
-  list<const evioDOMLeafNode<T>*> *pLeafList = new list<const evioDOMLeafNode<T>*>;
+  auto_ptr< list<const evioDOMNode*> > pNodeList        = getNodeList();
+  auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
 
   list<const evioDOMNode*>::const_iterator iter;
   const evioDOMLeafNode<T>* p;
