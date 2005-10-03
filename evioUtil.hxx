@@ -1,10 +1,9 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 27-Sep-2005
+//  Author:  Elliott Wolin, JLab, 3-Oct-2005
 
 
 // must do:
-//   toString() compatible with evio2xml
 //   user's manual
 
 // should do:
@@ -12,9 +11,9 @@
 //   evioChannel for output, getBuffer() and const?
 
 //  would like to do:
-//   scheme for exception types
-//   stack trace in exception
-//   templated typedefs for evioDOMLeafNode
+//   need scheme for exception type code
+//   stack trace in exception if supported on all platforms
+//   equivalent of (unsupported) templated typedefs for evioDOMLeafNode to simplify user code
 
 
 

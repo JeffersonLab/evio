@@ -911,8 +911,11 @@ string evioDOMContainerNode::toString(void) const {
 string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
   os << getIndent(depth)
-     <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " tag=\'"  << tag << "\' data_type=\'" 
-     << hex << showbase << contentType << dec << "\' num=\'" << num << "\">" << endl;
+     <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " content=\"" << get_typename(contentType)
+     << "\" data_type=\"" << hex << showbase << contentType
+     << dec << "\" tag=\""  << tag;
+  if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
+  os << "\">" << endl;
   return(os.str());
 }
 
@@ -1057,8 +1060,11 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   // dump header
   os << indent
-     <<  "<" << get_typename(contentType) <<  " tag=\'" << tag << "\' data_type=\'" << hex << showbase << contentType 
-     << dec << "\' num=\'" << num << "\'>" << endl;
+     <<  "<" << get_typename(contentType) 
+     << "\" data_type=\"" << hex << showbase << contentType
+     << dec << "\" tag=\"" << tag;
+  if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
+  os << "\">" << endl;
 
 
   // dump data...odd what has to be done for char types 0x6,0x7 due to bugs in ostream operator<<
