@@ -1062,7 +1062,6 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
 
   // dump data...odd what has to be done for char types 0x6,0x7 due to bugs in ostream operator<<
-  T i;
   int *j;
   short k;
   typename vector<T>::const_iterator iter;
@@ -1073,30 +1072,26 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       switch (contentType) {
       case 0x0:
       case 0x1:
+      case 0x5:
       case 0xa:
         os << hex << showbase << setw(swid) << *iter << "  ";
         break;
       case 0x3:
         os << "<!CDATA[" << endl << *iter << endl << "]]>";
         break;
-      case 0x5:
-        os << hex << showbase << setw(swid) << *iter << "  ";
-        break;
       case 0x6:
-        k=*((short*)(&(*iter)));
-        k&=0xff;
+        k = (*((short*)(&(*iter)))) & 0xff;
         if((k&0x80)!=0)k|=0xff00;
         os << setw(swid) << k << "  ";
         break;
       case 0x7:
-        i=*iter;
-        os << hex << showbase << setw(swid) << ((*(int*)&i)&0xff) << "  ";
+        os << hex << showbase << setw(swid) << ((*(int*)&(*iter))&0xff) << "  ";
         break;
       case 0x2:
         os << setprecision(6) << fixed << setw(swid) << *iter << "  ";
         break;
       case 0x8:
-        os << setw(28) << setprecision(20) << scientific << *iter << "  ";
+        os << setw(swid) << setprecision(20) << scientific << *iter << "  ";
         break;
       default:
         os << setw(swid) << *iter << "  ";
