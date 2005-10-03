@@ -4,7 +4,6 @@
 
 
 // must do:
-//   signed byte in toString()
 //   toString() compatible with evio2xml
 //   user's manual
 
@@ -39,7 +38,8 @@ class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 
 
-// typedefs simplify life a little...unfortunately, no templated typedefs allowed for leaf node objects
+// typedefs simplify life a little for users
+// ...unfortunately c++ does not accept templated typedefs (for leaf nodes)
 typedef list<const evioDOMNode*>  evioDOMNodeList;
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
 

@@ -231,7 +231,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 
   default:
     ostringstream ss;
-    ss << hex << "0x" << bankType << ends;
+    ss << hex << showbase << bankType << ends;
     throw(new evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str(),__FILE__,__LINE__));
   }
 
@@ -317,7 +317,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 
   default:
     ostringstream ss;
-    ss << hex << "0x" << contentType << ends;
+    ss << hex << showbase << contentType << ends;
     throw(new evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__LINE__));
     break;
 
@@ -476,7 +476,7 @@ void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int
     break;
 
   case 0x6:
-    newLeaf = new evioDOMLeafNode<char>(parent,tag,contentType,num,(char*)data,length);
+    newLeaf = new evioDOMLeafNode<signed char>(parent,tag,contentType,num,(signed char*)data,length);
     break;
 
   case 0x7:
@@ -501,7 +501,7 @@ void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int
 
   default:
     ostringstream ss;
-    ss << hex << "0x" << contentType<< ends;
+    ss << hex << showbase << contentType<< ends;
     throw(new evioException(0,"?evioDOMTree::leafHandler...illegal content type: " + ss.str(),__FILE__,__LINE__));
     break;
   }
@@ -555,7 +555,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
     break;
   default:
     ostringstream ss;
-    ss << hex << "0x" << bankType<< ends;
+    ss << hex << showbase << bankType<< ends;
     throw(new evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str(),__FILE__,__LINE__));
     break;
   }
@@ -912,7 +912,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
   os << getIndent(depth)
      <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " tag=\'"  << tag << "\' data_type=\'" 
-     << hex << "0x" << contentType << dec << "\' num=\'" << num << "\">" << endl;
+     << hex << showbase << contentType << dec << "\' num=\'" << num << "\">" << endl;
   return(os.str());
 }
 
@@ -1023,40 +1023,48 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
   string indent = getIndent(depth);
   string indent2 = indent + "    ";
 
-  int wid;
+  int wid,swid;
   switch (contentType) {
   case 0x0:
   case 0x1:
   case 0x2:
   case 0xb:
     wid=5;
+    swid=10;
     break;
   case 0x4:
   case 0x5:
+    wid=8;
+    swid=6;
+    break;
   case 0x6:
   case 0x7:
     wid=8;
+    swid=4;
     break;
   case 0x8:
   case 0x9:
   case 0xa:
     wid=2;
+    swid=28;
     break;
   default:
     wid=1;
+   swid=30;
     break;
   }
 
 
   // dump header
   os << indent
-     <<  "<" << get_typename(contentType) <<  " tag=\'" << tag << "\' data_type=\'" << hex << "0x" << contentType 
+     <<  "<" << get_typename(contentType) <<  " tag=\'" << tag << "\' data_type=\'" << hex << showbase << contentType 
      << dec << "\' num=\'" << num << "\'>" << endl;
 
 
-  // dump data...odd what has to be done for unsigned char type 0x7
+  // dump data...odd what has to be done for char types 0x6,0x7 due to bugs in ostream operator<<
   T i;
   int *j;
+  short k;
   typename vector<T>::const_iterator iter;
   for(iter=data.begin(); iter!=data.end();) {
 
@@ -1065,29 +1073,33 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       switch (contentType) {
       case 0x0:
       case 0x1:
-      case 0x5:
       case 0xa:
-        os << "0x" << hex << *iter << "  ";
+        os << hex << showbase << setw(swid) << *iter << "  ";
         break;
       case 0x3:
         os << "<!CDATA[" << endl << *iter << endl << "]]>";
         break;
-      case 0x6:  // ??? not sure what to do for signed byte
-        i=*iter;
-        os << ((*(int*)&i)&0xff) << "  ";
+      case 0x5:
+        os << hex << showbase << setw(swid) << *iter << "  ";
+        break;
+      case 0x6:
+        k=*((short*)(&(*iter)));
+        k&=0xff;
+        if((k&0x80)!=0)k|=0xff00;
+        os << setw(swid) << k << "  ";
         break;
       case 0x7:
         i=*iter;
-        os << "0x" << hex << ((*(int*)&i)&0xff) << "  ";
+        os << hex << showbase << setw(swid) << ((*(int*)&i)&0xff) << "  ";
         break;
       case 0x2:
-        os << setprecision(6) << fixed << *iter << "  ";
+        os << setprecision(6) << fixed << setw(swid) << *iter << "  ";
         break;
       case 0x8:
         os << setw(28) << setprecision(20) << scientific << *iter << "  ";
         break;
       default:
-        os << *iter << "  ";
+        os << setw(swid) << *iter << "  ";
         break;
       }
       iter++;
