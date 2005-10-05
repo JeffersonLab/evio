@@ -5,14 +5,15 @@
 
 // must do:
 //   user's manual
+//   Doxygen comments
 
 // should do:
-//   Interface for tree modification, add and drip trees, etc?  AIDA?
-//   evioChannel for output, getBuffer() and const?
+//   Interface for tree modification, add and drop trees, etc?  AIDA?
+//   evioChannel and output, getBuffer() and const?
 
 //  would like to do:
-//   need scheme for exception type code
-//   stack trace in exception if supported on all platforms
+//   scheme for exception type codes
+//   exception stack trace if supported on all platforms
 //   equivalent of (unsupported) templated typedefs for evioDOMLeafNode to simplify user code
 
 
@@ -88,11 +89,11 @@ public:
 
 
 //  wrapper around evio C library, acts as channel that performs basic event i/o functions
-class evioFile : public evioChannel {
+class evioFileChannel : public evioChannel {
 
 public:
-  evioFile(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
-  virtual ~evioFile();
+  evioFileChannel(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
+  virtual ~evioFileChannel();
 
   void open(void) throw(evioException*);
   bool read(void) throw(evioException*);

@@ -71,23 +71,23 @@ string evioException::toString(void) const {
 
 
 //-----------------------------------------------------------------------
-//---------------------------- evioFile ---------------------------------
+//------------------------- evioFileChannel -----------------------------
 //-----------------------------------------------------------------------
 
 
-evioFile::evioFile(const string &f, const string &m, int size) throw(evioException*) 
+evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException*) 
   : filename(f), mode(m), bufSize(size), buf(NULL), handle(0) {
 
   // allocate buffer
   buf = new unsigned long[bufSize];
-  if(buf==NULL)throw(new evioException(0,"?evioFile constructor...unable to allocate buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(new evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__LINE__));
 }
 
 
 //-----------------------------------------------------------------------
 
 
-evioFile::~evioFile(void) {
+evioFileChannel::~evioFileChannel(void) {
   if(buf!=NULL)delete(buf);
 }
 
@@ -96,20 +96,20 @@ evioFile::~evioFile(void) {
 
 
 
-void evioFile:: open(void) throw(evioException*) {
+void evioFileChannel:: open(void) throw(evioException*) {
 
-  if(buf==NULL)throw(new evioException(0,"evioFile::open...null buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(new evioException(0,"evioFileChannel::open...null buffer",__FILE__,__LINE__));
   if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
-    throw(new evioException(0,"?evioFile::open...unable to open file",__FILE__,__LINE__));
-  if(handle==0)throw(new evioException(0,"?evioFile::open...zero handle",__FILE__,__LINE__));
+    throw(new evioException(0,"?evioFileChannel::open...unable to open file",__FILE__,__LINE__));
+  if(handle==0)throw(new evioException(0,"?evioFileChannel::open...zero handle",__FILE__,__LINE__));
 }
 
 
 //-----------------------------------------------------------------------
 
 
-bool evioFile::read(void) throw(evioException*) {
-  if(buf==NULL)throw(new evioException(0,"evioFile::read...null buffer",__FILE__,__LINE__));
+bool evioFileChannel::read(void) throw(evioException*) {
+  if(buf==NULL)throw(new evioException(0,"evioFileChannel::read...null buffer",__FILE__,__LINE__));
   return(evRead(handle,&buf[0],bufSize)==0);
 }
 
@@ -117,25 +117,25 @@ bool evioFile::read(void) throw(evioException*) {
 //-----------------------------------------------------------------------
 
 
-void evioFile::write(void) throw(evioException*) {
-  if(buf==NULL)throw(new evioException(0,"evioFile::write...null buffer",__FILE__,__LINE__));
-  if(evWrite(handle,buf)!=0) throw(new evioException(0,"?evioFile::write...unable to write",__FILE__,__LINE__));
+void evioFileChannel::write(void) throw(evioException*) {
+  if(buf==NULL)throw(new evioException(0,"evioFileChannel::write...null buffer",__FILE__,__LINE__));
+  if(evWrite(handle,buf)!=0) throw(new evioException(0,"?evioFileChannel::write...unable to write",__FILE__,__LINE__));
 }
 
 
 //-----------------------------------------------------------------------
 
 
-void evioFile::ioctl(const string &request, void *argp) throw(evioException*) {
+void evioFileChannel::ioctl(const string &request, void *argp) throw(evioException*) {
   if(evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
-    throw(new evioException(0,"?evioFile::ioCtl...error return",__FILE__,__LINE__));
+    throw(new evioException(0,"?evioFileChannel::ioCtl...error return",__FILE__,__LINE__));
 }
 
 
 //-----------------------------------------------------------------------
 
 
-void evioFile::close(void) throw(evioException*) {
+void evioFileChannel::close(void) throw(evioException*) {
   evClose(handle);
 }
 
@@ -143,7 +143,7 @@ void evioFile::close(void) throw(evioException*) {
 //-----------------------------------------------------------------------
 
 
-string evioFile::getFileName(void) const {
+string evioFileChannel::getFileName(void) const {
   return(filename);
 }
 
@@ -151,7 +151,7 @@ string evioFile::getFileName(void) const {
 //-----------------------------------------------------------------------
 
 
-string evioFile::getMode(void) const {
+string evioFileChannel::getMode(void) const {
   return(mode);
 }
 
@@ -159,8 +159,8 @@ string evioFile::getMode(void) const {
 //-----------------------------------------------------------------------
 
 
-const unsigned long *evioFile::getBuffer(void) const throw(evioException*) {
-  if(buf==NULL)throw(new evioException(0,"evioFile::getbuffer...null buffer",__FILE__,__LINE__));
+const unsigned long *evioFileChannel::getBuffer(void) const throw(evioException*) {
+  if(buf==NULL)throw(new evioException(0,"evioFileChannel::getbuffer...null buffer",__FILE__,__LINE__));
   return(buf);
 }
 
@@ -169,7 +169,7 @@ const unsigned long *evioFile::getBuffer(void) const throw(evioException*) {
 
 
 
-int evioFile::getBufSize(void) const {
+int evioFileChannel::getBufSize(void) const {
   return(bufSize);
 }
 
