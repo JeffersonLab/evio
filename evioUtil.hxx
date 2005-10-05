@@ -8,7 +8,7 @@
 //   Doxygen comments
 
 // should do:
-//   Interface for tree modification, add and drop trees, etc?  AIDA?
+//   Interface for tree createion and modification, add and drop sub-trees, etc?  AIDA?
 //   evioChannel and output, getBuffer() and const?
 
 //  would like to do:
@@ -88,7 +88,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  wrapper around evio C library, acts as channel that performs basic event i/o functions
+//  wrapper around evio C library
 class evioFileChannel : public evioChannel {
 
 public:
@@ -154,7 +154,7 @@ private:
 //--------------------------------------------------------------
 
 
-//  contains tree representation of evio event in memory
+//  manages tree representation of evio event in memory
 class evioDOMTree : public evioStreamParserHandler {
 
 public:
@@ -262,7 +262,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  represents the many types of evio leaf nodes in memory
+//  represents an evio leaf node in memory
 template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 public:

@@ -38,9 +38,9 @@ template <typename T> static void deleteIt(T *t) {
 }
 
 
-//--------------------------------------------------------------
-//---------------------- evioException -------------------------
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-------------------------- evioException ------------------------------
+//-----------------------------------------------------------------------
 
 
 evioException::evioException(int typ, const string &txt, const string &aux) 
@@ -96,7 +96,7 @@ evioFileChannel::~evioFileChannel(void) {
 
 
 
-void evioFileChannel:: open(void) throw(evioException*) {
+void evioFileChannel::open(void) throw(evioException*) {
 
   if(buf==NULL)throw(new evioException(0,"evioFileChannel::open...null buffer",__FILE__,__LINE__));
   if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
@@ -184,8 +184,7 @@ void *evioStreamParser::parse(const unsigned long *buf,
   
   if(buf==NULL)throw(new evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__LINE__));
 
-  void *newUserArg = parseBank(buf,BANK,0,handler,userArg);
-  return(newUserArg);
+  return((void*)parseBank(buf,BANK,0,handler,userArg));
 }
 
 
@@ -196,12 +195,15 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
                                  evioStreamParserHandler &handler, void *userArg) throw(evioException*) {
 
   int length,tag,contentType,num,dataOffset,p,bankLen;
-  void *newUserArg = userArg;
   const unsigned long *data;
+  unsigned long mask;
+
+  void *newUserArg = userArg;
 
 
   /* get type-dependent info */
   switch(bankType) {
+
   case 0xe:
   case 0x10:
     length  	= buf[0]+1;
@@ -246,28 +248,28 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
   case 0x1:
   case 0x2:
   case 0xb:
-    handler.leafHandler(length-dataOffset,tag,contentType,num,depth,
-                        &buf[dataOffset],userArg);
+    // four-byte types
+    handler.leafHandler(length-dataOffset,tag,contentType,num,depth,&buf[dataOffset],userArg);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
-    handler.leafHandler((length-dataOffset)*4,tag,contentType,num,depth,
-                        (char*)(&buf[dataOffset]),userArg);
+    // one-byte types
+    handler.leafHandler((length-dataOffset)*4,tag,contentType,num,depth,(char*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x4:
   case 0x5:
-    handler.leafHandler((length-dataOffset)*2,tag,contentType,num,depth,
-                        (short*)(&buf[dataOffset]),userArg);
+    // two-byte types
+    handler.leafHandler((length-dataOffset)*2,tag,contentType,num,depth,(short*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
-    handler.leafHandler((length-dataOffset)/2,tag,contentType,num,
-                        depth,(long long*)(&buf[dataOffset]),userArg);
+    // eight-byte types
+    handler.leafHandler((length-dataOffset)/2,tag,contentType,num,depth,(long long*)(&buf[dataOffset]),userArg);
     break;
 
   case 0xe:
@@ -276,7 +278,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
   case 0x20:
   case 0xc:
   case 0x40:
-    // call node handler and get new userArg
+    // container types
     newUserArg=handler.nodeHandler(length,tag,contentType,num,depth,userArg);
 
 
@@ -284,34 +286,15 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
     p       = 0;
     bankLen = length-dataOffset;
     data    = &buf[dataOffset];
+    mask    = ((contentType==0xe)||(contentType==0x10))?0xffffffff:0xffff;
 
     depth++;
-    switch (contentType) {
-    case 0xe:
-    case 0x10:
-      while(p<bankLen) {
-        parseBank(&data[p],contentType,depth,handler,newUserArg);
-        p+=data[p]+1;
-      }
-      break;
-
-    case 0xd:
-    case 0x20:
-      while(p<bankLen) {
-        parseBank(&data[p],contentType,depth,handler,newUserArg);
-        p+=(data[p]&0xffff)+1;
-      }
-      break;
-
-    case 0xc:
-    case 0x40:
-      while(p<bankLen) {
-        parseBank(&data[p],contentType,depth,handler,newUserArg);
-        p+=(data[p]&0xffff)+1;
-      }
-      break;
+    while(p<bankLen) {
+      parseBank(&data[p],contentType,depth,handler,newUserArg);
+      p+=(data[p]&mask)+1;
     }
     depth--;
+
     break;
 
 
@@ -321,7 +304,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
     throw(new evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__LINE__));
     break;
 
-  }  // end main switch(contentType)
+  }
 
 
   // new user arg is pointer to parent node
@@ -376,8 +359,6 @@ evioDOMTree::evioDOMTree(const evioDOMTree &t) throw(evioException*) {
 
 evioDOMTree &evioDOMTree::operator=(const evioDOMTree &rhs) throw(evioException*) {
 
-  cout << "DOMTree operator= called" << endl;
-
   if(&rhs!=this) {
     name=rhs.name;
     root=rhs.getRoot()->clone(NULL);
@@ -426,7 +407,7 @@ void *evioDOMTree::nodeHandler(int length, int tag, int contentType, int num, in
   if(parent!=NULL)parent->childList.push_back(newNode);
 
 
-  // return new userArg that points to the new node
+  // return pointer to new node
   return((void*)newNode);
 }
   
@@ -461,7 +442,7 @@ void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int
     break;
       
   case 0x3:
-    for(int i=0; i<length; i++) os << ((char *)data)[i];
+    for(int i=0; i<length; i++) os << ((char*)data)[i];
     os << ends;
     s=os.str();
     newLeaf = new evioDOMLeafNode<string>(parent,tag,contentType,num,&s,1);
@@ -537,6 +518,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
 
   // add bank header word(s)
   switch (bankType) {
+
   case 0xe:
   case 0x10:
     buf[0]=0;
@@ -653,6 +635,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
 
   // finaly set node length in buffer
   switch (bankType) {
+
   case 0xe:
   case 0x10:
     buf[0]=bankLen-1;
@@ -662,7 +645,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) cons
   case 0xc:
   case 0x40:
     if((bankLen-1)>0xffff)throw(new evioException(0,"?evioDOMTree::toEVIOVuffer...length too long for segment type",__FILE__,__LINE__));
-    buf[0]|=bankLen-1;
+    buf[0]|=(bankLen-1);
     break;
   default: 
     ostringstream ss;
@@ -851,8 +834,6 @@ evioDOMContainerNode::evioDOMContainerNode(evioDOMNode *par, int tg, int content
 evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException*) 
   : evioDOMNode(NULL,cNode.tag,cNode.contentType,cNode.num)  {
 
-  cout << "container node copy constructor called" << endl;
-
   // copy contents of child list
   copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
 }
@@ -862,8 +843,6 @@ evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) th
 
 
 evioDOMContainerNode &evioDOMContainerNode::operator=(const evioDOMContainerNode &rhs) throw(evioException*) {
-
-  cout << "container node operator= called" << endl;
 
   if(&rhs!=this) {
     parent=rhs.parent;
@@ -883,8 +862,6 @@ evioDOMContainerNode &evioDOMContainerNode::operator=(const evioDOMContainerNode
 
 evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNode *newParent) const {
 
-  cout << "container node clone called" << endl;
-  
   evioDOMContainerNode *c = new evioDOMContainerNode(newParent,tag,contentType,num);
 
   list<evioDOMNode*>::const_iterator iter;
@@ -968,8 +945,6 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*)
   : evioDOMNode(NULL,lNode.tag,lNode.contentType,lNode.num)  {
 
-  cout << "leaf copy constructor called" << endl;
-
   copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
 }
 
@@ -978,8 +953,6 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<
 
                                    
 template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNode *newParent) const {
-
-  cout << "leaf node clone called" << endl;
 
   return(new evioDOMLeafNode(newParent,tag,contentType,num,data));
 }
@@ -990,8 +963,6 @@ template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNode 
 
 template <typename T> evioDOMLeafNode<T> &evioDOMLeafNode<T>::operator=(const evioDOMLeafNode<T> &rhs) 
   throw(evioException*) {
-
-  cout << "leaf node operator= called" << endl;
 
   if(&rhs!=this) {
     parent=rhs.parent;
@@ -1028,6 +999,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   int wid,swid;
   switch (contentType) {
+
   case 0x0:
   case 0x1:
   case 0x2:
@@ -1076,6 +1048,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
     if(contentType!=0x3)os << indent2;
     for(int j=0; (j<wid)&&(iter!=data.end()); j++) {
       switch (contentType) {
+
       case 0x0:
       case 0x1:
       case 0x5:
