@@ -1055,6 +1055,9 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       case 0xa:
         os << hex << showbase << setw(swid) << *iter << "  ";
         break;
+      case 0x2:
+        os << setprecision(6) << showpoint << setw(swid) << *iter << "  ";
+        break;
       case 0x3:
         os << "<!CDATA[" << endl << *iter << endl << "]]>";
         break;
@@ -1065,9 +1068,6 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
         break;
       case 0x7:
         os << hex << showbase << setw(swid) << ((*(int*)&(*iter))&0xff) << "  ";
-        break;
-      case 0x2:
-        os << setprecision(6) << fixed << setw(swid) << *iter << "  ";
         break;
       case 0x8:
         os << setw(swid) << setprecision(20) << scientific << *iter << "  ";
