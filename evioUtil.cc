@@ -249,27 +249,27 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
   case 0x2:
   case 0xb:
     // four-byte types
-    handler.leafHandler(length-dataOffset,tag,contentType,num,depth,&buf[dataOffset],userArg);
+    handler.leafNodeHandler(length-dataOffset,tag,contentType,num,depth,&buf[dataOffset],userArg);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
     // one-byte types
-    handler.leafHandler((length-dataOffset)*4,tag,contentType,num,depth,(char*)(&buf[dataOffset]),userArg);
+    handler.leafNodeHandler((length-dataOffset)*4,tag,contentType,num,depth,(char*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x4:
   case 0x5:
     // two-byte types
-    handler.leafHandler((length-dataOffset)*2,tag,contentType,num,depth,(short*)(&buf[dataOffset]),userArg);
+    handler.leafNodeHandler((length-dataOffset)*2,tag,contentType,num,depth,(short*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
     // eight-byte types
-    handler.leafHandler((length-dataOffset)/2,tag,contentType,num,depth,(long long*)(&buf[dataOffset]),userArg);
+    handler.leafNodeHandler((length-dataOffset)/2,tag,contentType,num,depth,(long long*)(&buf[dataOffset]),userArg);
     break;
 
   case 0xe:
@@ -279,7 +279,7 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
   case 0xc:
   case 0x40:
     // container types
-    newUserArg=handler.nodeHandler(length,tag,contentType,num,depth,userArg);
+    newUserArg=handler.containerNodeHandler(length,tag,contentType,num,depth,userArg);
 
 
     // parse contained banks
@@ -388,7 +388,7 @@ evioDOMNode *evioDOMTree::parse(const unsigned long *buf) throw(evioException*) 
 //-----------------------------------------------------------------------------
 
 
-void *evioDOMTree::nodeHandler(int length, int tag, int contentType, int num, int depth, 
+void *evioDOMTree::containerNodeHandler(int length, int tag, int contentType, int num, int depth, 
                                void *userArg) {
     
   if(debug) printf("node   depth %2d  contentType,tag,num,length:  0x%-6x %6d %6d %6d\n",
@@ -415,7 +415,7 @@ void *evioDOMTree::nodeHandler(int length, int tag, int contentType, int num, in
 //-----------------------------------------------------------------------------
 
 
-void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int depth, 
+void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num, int depth, 
                               const void *data, void *userArg) {
 
   if(debug) printf("leaf   depth %2d  contentType,tag,num,length:  0x%-6x %6d %6d %6d\n",
@@ -483,7 +483,7 @@ void evioDOMTree::leafHandler(int length, int tag, int contentType, int num, int
   default:
     ostringstream ss;
     ss << hex << showbase << contentType<< ends;
-    throw(new evioException(0,"?evioDOMTree::leafHandler...illegal content type: " + ss.str(),__FILE__,__LINE__));
+    throw(new evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__LINE__));
     break;
   }
 

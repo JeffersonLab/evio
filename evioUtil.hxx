@@ -92,7 +92,7 @@ public:
 class evioFileChannel : public evioChannel {
 
 public:
-  evioFileChannel(const string &fileName, const string &mode, int size = 8192) throw(evioException*);
+  evioFileChannel(const string &fileName, const string &mode = "r", int size = 8192) throw(evioException*);
   virtual ~evioFileChannel();
 
   void open(void) throw(evioException*);
@@ -125,9 +125,9 @@ private:
 class evioStreamParserHandler {
 
 public:
-  virtual void *nodeHandler(int length, int tag, int contentType, int num, 
+  virtual void *containerNodeHandler(int length, int tag, int contentType, int num, 
                             int depth, void *userArg) = 0;
-  virtual void leafHandler(int length, int tag, int contentType, int num, 
+  virtual void leafNodeHandler(int length, int tag, int contentType, int num, 
                            int depth, const void *data, void *userArg) = 0;
 };
 
@@ -182,8 +182,8 @@ private:
   evioDOMNodeList *addToNodeList(const evioDOMNode *pNode, evioDOMNodeList *pList) const 
     throw(evioException*);
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
-  void *nodeHandler(int length, int tag, int contentType, int num, int depth, void *userArg);
-  void leafHandler(int length, int tag, int contentType, int num, int depth, const void *data, void *userArg);
+  void *containerNodeHandler(int length, int tag, int contentType, int num, int depth, void *userArg);
+  void leafNodeHandler(int length, int tag, int contentType, int num, int depth, const void *data, void *userArg);
 
 
 private:
