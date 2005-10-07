@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.12  2005/10/07 13:30:03  wolin
+ *   Typo in writing to pipe
+ *
  *   Revision 1.11  2003/12/24 15:18:37  abbottd
  *     fix for vxWorks(PPC) support
  *
@@ -342,7 +345,7 @@ int evOpen(char *fname,char *flags,int *handle)
     if(strcmp(filename,"-")==0) {
       a->file = stdout;
     } else if(filename[0] == '|') {
-      a->file = popen(filename+1,"r");
+      a->file = popen(filename+1,"w");
       a->rw = EV_PIPEWRITE;	/* Make sure we know to use pclose */
     } else {
       a->file = fopen(filename,"w");
