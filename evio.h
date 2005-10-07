@@ -33,7 +33,7 @@ extern "C" {
 
 int evOpen(char *fileName, char *mode, int *handle);
 int evRead(int handle, unsigned long *buffer, int size);
-int evWrite(int handle, unsigned long *buffer);
+int evWrite(int handle, const unsigned long *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
 

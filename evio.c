@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.14  2005/10/07 18:32:48  wolin
+ *   Added some const
+ *
  *   Revision 1.13  2005/10/07 13:35:22  wolin
  *   unsigned long *
  *
@@ -94,7 +97,7 @@
  * --------
  *
  *	evOpen(char *filename,char *flags,int *descriptor)
- *	evWrite(int descriptor,int *data)
+ *	evWrite(int descriptor,const int *data)
  *	evRead(int descriptor,int *data,int *datalen)
  *	evClose(int descriptor)
  *	evIoctl(int descriptor,char *request, void *argp)
@@ -547,7 +550,7 @@ int evwrite_
 /*-----------------------------------------------------------------------------*/
 
 
-int evWrite(int handle, unsigned long *buffer)
+int evWrite(int handle, const unsigned long *buffer)
 {
   EVFILE *a;
   int nleft,ncopy,error;
