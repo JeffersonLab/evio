@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.13  2005/10/07 13:35:22  wolin
+ *   unsigned long *
+ *
  *   Revision 1.12  2005/10/07 13:30:03  wolin
  *   Typo in writing to pipe
  *
@@ -425,7 +428,7 @@ int evread
 #else
 int evread_
 #endif
-(int *handle,int *buffer,int *buflen)
+(int *handle,unsigned long *buffer,int *buflen)
 {
   return(evRead(*handle,buffer,*buflen));
 }
@@ -434,7 +437,7 @@ int evread_
 /*-----------------------------------------------------------------------------*/
 
 
-int evRead(int handle,int *buffer,int buflen)
+int evRead(int handle, unsigned long *buffer,int buflen)
 {
   EVFILE *a;
   int nleft,ncopy,error,status;
@@ -535,7 +538,7 @@ int evwrite
 #else
 int evwrite_
 #endif
-(int *handle,int *buffer)
+(int *handle,unsigned long *buffer)
 {
   return(evWrite(*handle,buffer));
 }
@@ -544,7 +547,7 @@ int evwrite_
 /*-----------------------------------------------------------------------------*/
 
 
-int evWrite(int handle,int *buffer)
+int evWrite(int handle, unsigned long *buffer)
 {
   EVFILE *a;
   int nleft,ncopy,error;
