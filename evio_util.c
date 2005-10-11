@@ -15,7 +15,7 @@
 /* include files */
 #include <stdio.h>
 #include <stdlib.h>
-#include <evio_util.h>
+#include <evio.h>
 
 
 /* prototypes */

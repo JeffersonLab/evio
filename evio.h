@@ -26,6 +26,11 @@
 
 
 
+/* node and leaf handler typedefs */
+typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth);
+typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, int num, int depth);
+
+
 /* prototypes */
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +41,10 @@ int evRead(int handle, unsigned long *buffer, int size);
 int evWrite(int handle, const unsigned long *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
+
+void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
+const char *get_typename(int type);
+int isContainer(int type);
 
 #ifdef __cplusplus
 }
