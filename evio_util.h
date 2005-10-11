@@ -21,7 +21,7 @@ typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, in
 #ifdef __cplusplus
 extern "C" {
 #endif  
-void evio_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
+void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
 const char *get_typename(int type);
 int isContainer(int type);
 #ifdef __cplusplus

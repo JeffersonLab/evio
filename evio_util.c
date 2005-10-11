@@ -35,7 +35,7 @@ enum {
 /*---------------------------------------------------------------- */
 
 
-void evio_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh) {
+void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh) {
 
   int depth=0;
   parse_bank(buf,BANK,depth,nh,lh);
