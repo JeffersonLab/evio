@@ -936,11 +936,11 @@ void set_dict_defaults(void) {
   dict[ndict-1].data_type=0x5;
 
   ndict++;
-  dict[ndict-1].name=strdup("byte");
+  dict[ndict-1].name=strdup("int8");
   dict[ndict-1].data_type=0x6;
 
   ndict++;
-  dict[ndict-1].name=strdup("ubyte");
+  dict[ndict-1].name=strdup("uint8");
   dict[ndict-1].data_type=0x7;
 
   ndict++;

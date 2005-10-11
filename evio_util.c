@@ -204,11 +204,11 @@ const char *get_typename(int type) {
     break;
 
   case 0x6:
-    return("byte");
+    return("int8");
     break;
 
   case 0x7:
-    return("ubyte");
+    return("uint8");
     break;
 
   case 0x8:
