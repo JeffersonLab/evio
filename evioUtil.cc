@@ -836,6 +836,15 @@ bool evioDOMNode::isLeaf(void) const {
 
 
 //-----------------------------------------------------------------------------
+
+
+const list<evioDOMNode*> *evioDOMNode::getContents(void) const {
+  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(this);
+  return((c==NULL)?NULL:&c->childList);
+}
+
+
+//-----------------------------------------------------------------------------
 //----------------------- evioDOMContainerNode --------------------------------
 //-----------------------------------------------------------------------------
 
@@ -886,14 +895,6 @@ evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNode *newParent) const 
     c->childList.push_back((*iter)->clone(c));
   }
   return(c);
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-const void *evioDOMContainerNode::getContents(void) const {
-  return((const void*)&childList);
 }
 
 
@@ -979,14 +980,6 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<
                                    
 template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNode *newParent) const {
   return(new evioDOMLeafNode(newParent,tag,contentType,num,data));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> const void *evioDOMLeafNode<T>::getContents(void) const {
-  return((const void*)&data);
 }
 
 

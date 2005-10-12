@@ -4,6 +4,7 @@
 
 
 // must do:
+//   auto_ptr in getContents()
 //   user's manual
 //   Doxygen comments
 
@@ -217,7 +218,8 @@ public:
   virtual const evioDOMNode *getParent(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
-  virtual const void *getContents(void) const = 0;
+  template <typename T> const vector<T> *getContents(void) const throw(evioException*) ;
+  const list<evioDOMNode*> *getContents(void) const;
 
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
@@ -250,8 +252,7 @@ public:
   virtual ~evioDOMContainerNode(void);
 
   evioDOMContainerNode *clone(evioDOMNode *newParent) const;
-  const void *getContents(void) const;
-
+  
   string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
@@ -278,7 +279,6 @@ public:
   virtual ~evioDOMLeafNode(void);
 
   evioDOMLeafNode<T>* clone(evioDOMNode *newParent) const;
-  const void *getContents(void) const;
 
   string toString(void) const;
   string getHeader(int depth) const;
@@ -291,6 +291,15 @@ public:
 
 //-----------------------------------------------------------------------------
 //------------------ templates for non-overloaded methods ---------------------
+//-----------------------------------------------------------------------------
+
+
+template <typename T> const vector<T> *evioDOMNode::getContents(void) const throw(evioException*) {
+  const evioDOMLeafNode<T> *l = dynamic_cast<const evioDOMLeafNode<T>*>(this);
+  return((l==NULL)?(NULL):&l->data);
+}
+
+
 //-----------------------------------------------------------------------------
 
 
