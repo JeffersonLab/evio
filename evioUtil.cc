@@ -126,6 +126,23 @@ void evioFileChannel::write(void) throw(evioException*) {
 //-----------------------------------------------------------------------
 
 
+void evioFileChannel::write(const unsigned long *myBuf) throw(evioException*) {
+  if(myBuf==NULL)throw(new evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__LINE__));
+  if(evWrite(handle,myBuf)!=0) throw(new evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+
+void evioFileChannel::write(const evioChannel &channel) throw(evioException*) {
+  if(evWrite(handle,channel.getBuffer())!=0) throw(new evioException(0,"?evioFileChannel::write...unable to write from channel",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+
 void evioFileChannel::ioctl(const string &request, void *argp) throw(evioException*) {
   if(evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
     throw(new evioException(0,"?evioFileChannel::ioCtl...error return",__FILE__,__LINE__));
@@ -875,6 +892,14 @@ evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNode *newParent) const 
 //-----------------------------------------------------------------------------
 
                                    
+const void *evioDOMContainerNode::getContents(void) const {
+  return((const void*)&childList);
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
 string evioDOMContainerNode::toString(void) const {
   ostringstream os;
   os << getHeader(0) << getFooter(0);
@@ -953,8 +978,15 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<
 
                                    
 template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNode *newParent) const {
-
   return(new evioDOMLeafNode(newParent,tag,contentType,num,data));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> const void *evioDOMLeafNode<T>::getContents(void) const {
+  return((const void*)&data);
 }
 
 

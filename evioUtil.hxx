@@ -24,7 +24,7 @@
 
 
 using namespace std;
-#include <evio_util.h>
+#include <evio.h>
 #include <list>
 #include <vector>
 #include <iostream>
@@ -77,6 +77,8 @@ public:
   virtual void open(void) throw(evioException*) = 0;
   virtual bool read(void) throw(evioException*) = 0;
   virtual void write(void) throw(evioException*) = 0;
+  virtual void write(const unsigned long *myBuf) throw(evioException*) = 0;
+  virtual void write(const evioChannel &channel) throw(evioException*) = 0;
   virtual void close(void) throw(evioException*) = 0;
   virtual const unsigned long *getBuffer(void) const throw(evioException*) = 0;
   virtual int getBufSize(void) const = 0;
@@ -98,6 +100,8 @@ public:
   void open(void) throw(evioException*);
   bool read(void) throw(evioException*);
   void write(void) throw(evioException*);
+  void write(const unsigned long *myBuf) throw(evioException*);
+  void write(const evioChannel &channel) throw(evioException*);
   void close(void) throw(evioException*);
   const unsigned long *getBuffer(void) const throw(evioException*);
   int getBufSize(void) const;
@@ -158,9 +162,9 @@ private:
 class evioDOMTree : public evioStreamParserHandler {
 
 public:
-  evioDOMTree(const evioChannel &channel, const string &name = "root") throw(evioException*);
-  evioDOMTree(const unsigned long *buf, const string &name = "root") throw(evioException*);
-  evioDOMTree(const evioDOMNode *node, const string &name = "root") throw(evioException*);
+  evioDOMTree(const evioChannel &channel, const string &name = "evio") throw(evioException*);
+  evioDOMTree(const unsigned long *buf, const string &name = "evio") throw(evioException*);
+  evioDOMTree(const evioDOMNode *node, const string &name = "evio") throw(evioException*);
   evioDOMTree(const evioDOMTree &tree) throw(evioException*);
   evioDOMTree& operator=(const evioDOMTree &rhs) throw(evioException*);
   virtual ~evioDOMTree(void);
@@ -207,13 +211,13 @@ public:
 
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
-  // virtual evioDOMNode& operator=(const evioDOMNode &rhs) throw(evioException*);  Does not seem to be needed...
 
   virtual evioDOMNode *clone(evioDOMNode *parent) const = 0;
 
   virtual const evioDOMNode *getParent(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
+  virtual const void *getContents(void) const = 0;
 
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
@@ -246,6 +250,7 @@ public:
   virtual ~evioDOMContainerNode(void);
 
   evioDOMContainerNode *clone(evioDOMNode *newParent) const;
+  const void *getContents(void) const;
 
   string toString(void) const;
   string getHeader(int depth) const;
@@ -273,8 +278,8 @@ public:
   virtual ~evioDOMLeafNode(void);
 
   evioDOMLeafNode<T>* clone(evioDOMNode *newParent) const;
+  const void *getContents(void) const;
 
-  const vector<T> *getData(void) const;
   string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
@@ -286,14 +291,6 @@ public:
 
 //-----------------------------------------------------------------------------
 //------------------ templates for non-overloaded methods ---------------------
-//-----------------------------------------------------------------------------
-
-
-template <typename T> const vector<T> *evioDOMLeafNode<T>::getData(void) const {
-  return(&data);
-}
-
-
 //-----------------------------------------------------------------------------
 
 
@@ -400,10 +397,10 @@ public:
 //-----------------------------------------------------------------------------
 
 
-class toString : public unary_function<const evioDOMNode*, void> {
+class toCout: public unary_function<const evioDOMNode*, void> {
 
 public:
-  toString(void) {}
+  toCout(void) {}
   void operator()(const evioDOMNode* node) const {cout << node->toString() << endl;}
 };
 
