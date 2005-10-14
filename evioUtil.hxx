@@ -4,7 +4,8 @@
 
 
 // must do:
-//   auto_ptr in getContents()
+//   addToNodeList(Predicate pred)?
+//   l.get() and getContents(), evio_ptr<>?
 //   user's manual
 //   Doxygen comments
 
@@ -31,6 +32,7 @@ using namespace std;
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <functional>
 
 
 // prototypes
@@ -174,8 +176,7 @@ public:
   const evioDOMNode *getRoot(void) const;
 
   evioDOMNodeListP getNodeList(void) const throw(evioException*);
-  evioDOMNodeListP getContainerNodeList(void) const throw(evioException*);
-  evioDOMNodeListP getLeafNodeList(void) const throw(evioException*);
+  template <typename Predicate> evioDOMNodeListP getNodeList(Predicate pred) const throw(evioException*);
   template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > getLeafNodeList(void) const throw(evioException*);
 
   string toString(void) const;
@@ -184,8 +185,9 @@ public:
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
   int toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) const throw(evioException*);
-  evioDOMNodeList *addToNodeList(const evioDOMNode *pNode, evioDOMNodeList *pList) const 
+  template <typename Predicate> evioDOMNodeList *addToNodeList(const evioDOMNode *pNode,evioDOMNodeList *pList, Predicate pred) const
     throw(evioException*);
+  
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
   void *containerNodeHandler(int length, int tag, int contentType, int num, int depth, void *userArg);
   void leafNodeHandler(int length, int tag, int contentType, int num, int depth, const void *data, void *userArg);
@@ -218,8 +220,9 @@ public:
   virtual const evioDOMNode *getParent(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
-  template <typename T> const vector<T> *getContents(void) const throw(evioException*) ;
-  const list<evioDOMNode*> *getContents(void) const;
+
+  evioDOMNodeListP getContents(void) const throw(evioException*);
+  template <typename T> const vector<T> *getContents(void) const throw(evioException*);
 
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
@@ -303,10 +306,48 @@ template <typename T> const vector<T> *evioDOMNode::getContents(void) const thro
 //-----------------------------------------------------------------------------
 
 
+template <typename Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) const throw(evioException*) {
+  evioDOMNodeList *pList = addToNodeList(root,new evioDOMNodeList,pred);
+  return(evioDOMNodeListP(pList));
+}  
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(const evioDOMNode *pNode, 
+                                                                          evioDOMNodeList *pList, Predicate pred) const
+  throw(evioException*) {
+
+  if(pNode==NULL)return(pList);
+
+
+  // add this node to list
+  if(pred(pNode))pList->push_back(pNode);
+  
+  
+  // add children to list
+  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+  if(c!=NULL) {
+   list<evioDOMNode*>::const_iterator iter;
+    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+      addToNodeList(*iter,pList,pred);
+    }
+  }
+
+
+  // return the list
+  return(pList);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::getLeafNodeList(void) const
   throw(evioException*) {
 
-  evioDOMNodeListP pNodeList        = getNodeList();
+  evioDOMNodeListP pNodeList = getNodeList();
   auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
 
   evioDOMNodeList::const_iterator iter;

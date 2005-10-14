@@ -31,10 +31,19 @@ static string getIndent(int depth) {
   return(s);
 }
 
+
 //--------------------------------------------------------------
+
 
 template <typename T> static void deleteIt(T *t) {
   delete(t);
+}
+
+
+//--------------------------------------------------------------
+
+static bool isTrue(const evioDOMNode *pNode) {
+  return(true);
 }
 
 
@@ -689,55 +698,7 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 
 
 evioDOMNodeListP evioDOMTree::getNodeList(void) const throw(evioException*) {
-  return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList)));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeList *evioDOMTree::addToNodeList(const evioDOMNode *pNode, evioDOMNodeList *pList) const
-  throw(evioException*) {
-
-  if(pNode==NULL)return(pList);
-
-
-  // add this node to list
-  pList->push_back(pNode);
-  
-  
-  // add children to list
-  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
-  if(c!=NULL) {
-   list<evioDOMNode*>::const_iterator iter;
-    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-      addToNodeList(*iter,pList);
-    }
-  }
-
-
-  // return the list
-  return(pList);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeListP evioDOMTree::getLeafNodeList(void) const throw(evioException*) {
-  evioDOMNodeListP pList = getNodeList();
-  pList->erase(remove_if(pList->begin(),pList->end(),isContainerType()),pList->end());
-  return(pList);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeListP evioDOMTree::getContainerNodeList(void) const throw(evioException*) {
-  evioDOMNodeListP pList = getNodeList();
-  pList->erase(remove_if(pList->begin(),pList->end(),isLeafType()),pList->end());
-  return(pList);
+  return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,isTrue)));
 }
 
 
@@ -838,9 +799,16 @@ bool evioDOMNode::isLeaf(void) const {
 //-----------------------------------------------------------------------------
 
 
-const list<evioDOMNode*> *evioDOMNode::getContents(void) const {
+evioDOMNodeListP evioDOMNode::getContents(void) const throw(evioException*) {
+
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(this);
-  return((c==NULL)?NULL:&c->childList);
+  if(c==NULL) {
+    return(evioDOMNodeListP(NULL));
+  } else {
+    evioDOMNodeList *l = new evioDOMNodeList;
+    copy(c->childList.begin(),c->childList.end(),inserter(*l,l->begin()));
+    return(evioDOMNodeListP(l));
+  }
 }
 
 
