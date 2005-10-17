@@ -237,7 +237,7 @@ void evio_xmldump(unsigned long *buf, int bufnum, char *string, int len) {
 
 static void dump_fragment(unsigned long *buf, int fragment_type) {
 
-  int length,tag,type,num,is_container,noexpand;
+  int length,tag,type,num,is_a_container,noexpand;
   char *myname;
 
 
@@ -282,9 +282,9 @@ static void dump_fragment(unsigned long *buf, int fragment_type) {
     exit(EXIT_FAILURE);
   }
   tagstack[depth-1]=tag;
-  is_container=isContainer(type);
+  is_a_container=is_container(type);
   myname=(char*)get_tagname();
-  noexpand=is_container&&(max_depth>=0)&&(depth>max_depth);
+  noexpand=is_a_container&&(max_depth>=0)&&(depth>max_depth);
 
 
   /* print header word (as comment) if requested */
@@ -309,7 +309,7 @@ static void dump_fragment(unsigned long *buf, int fragment_type) {
   } else if((fragment_type==BANK)&&(depth==2)) {
     xml+=sprintf(xml,"<%s",bank2_tag);
     xml+=sprintf(xml," content=\"%s\"",get_typename(type));
-  } else if(is_container||no_typename) {
+  } else if(is_a_container||no_typename) {
     xml+=sprintf(xml,"<%s",fragment_name[fragment_type]);
     xml+=sprintf(xml," content=\"%s\"",get_typename(type));
   } else {
@@ -340,7 +340,7 @@ static void dump_fragment(unsigned long *buf, int fragment_type) {
     xml+=sprintf(xml,"</%s>\n",myname);
   } else if((fragment_type==BANK)&&(depth==2)) {
     xml+=sprintf(xml,"</%s>\n",bank2_tag);
-  } else if(is_container||no_typename) {
+  } else if(is_a_container||no_typename) {
     xml+=sprintf(xml,"</%s>\n",fragment_name[fragment_type]);
   } else {
     xml+=sprintf(xml,"</%s>\n",get_typename(type));

@@ -44,7 +44,7 @@ int evClose(int handle);
 
 void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
 const char *get_typename(int type);
-int isContainer(int type);
+int is_container(int type);
 
 #ifdef __cplusplus
 }

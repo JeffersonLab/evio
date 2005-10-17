@@ -256,7 +256,7 @@ const char *get_typename(int type) {
 /*---------------------------------------------------------------- */
 
 
-int isContainer(int type) {
+int is_container(int type) {
 
   switch (type) {
     
