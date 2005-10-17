@@ -4,7 +4,6 @@
 
 
 // must do:
-//   addToNodeList(Predicate pred)?
 //   l.get() and getContents(), evio_ptr<>?
 //   user's manual
 //   Doxygen comments
@@ -293,7 +292,7 @@ public:
 
 
 //-----------------------------------------------------------------------------
-//------------------ templates for non-overloaded methods ---------------------
+//------------ evioDOMNode templated methods (not overridden) -----------------
 //-----------------------------------------------------------------------------
 
 
@@ -303,6 +302,8 @@ template <typename T> const vector<T> *evioDOMNode::getContents(void) const thro
 }
 
 
+//-----------------------------------------------------------------------------
+//------------ evioDOMTree templated methods (not overridden) -----------------
 //-----------------------------------------------------------------------------
 
 
@@ -362,7 +363,7 @@ template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::g
 
 
 //-----------------------------------------------------------------------------
-//------------------------ Function Objects ---------------------------------
+//--------------------- Misc Function Objects ---------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -423,10 +424,10 @@ private:
 //-----------------------------------------------------------------------------
 
 
-class isContainerType : unary_function<const evioDOMNode*,bool> {
+class isContainer : unary_function<const evioDOMNode*,bool> {
 
 public:
-  isContainerType(void) {}
+  isContainer(void) {}
   bool operator()(const evioDOMNode* node) const {return(node->isContainer());}
 };
 
@@ -435,10 +436,10 @@ public:
 //-----------------------------------------------------------------------------
 
 
-class isLeafType  : unary_function<const evioDOMNode*,bool> {
+class isLeaf : unary_function<const evioDOMNode*,bool> {
 
 public:
-  isLeafType(void) {}
+  isLeaf(void) {}
   bool operator()(const evioDOMNode* node) const {return(node->isLeaf());}
 };
 

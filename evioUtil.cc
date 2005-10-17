@@ -784,7 +784,7 @@ const evioDOMNode *evioDOMNode::getParent(void) const {
 
 
 bool evioDOMNode::isContainer(void) const {
-  return(::isContainer(contentType)==1);
+  return(::is_container(contentType)==1);
 }
 
 
@@ -792,7 +792,7 @@ bool evioDOMNode::isContainer(void) const {
 
 
 bool evioDOMNode::isLeaf(void) const {
-  return(::isContainer(contentType)==0);
+  return(::is_container(contentType)==0);
 }
 
 
