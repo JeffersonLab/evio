@@ -4,7 +4,7 @@
 
 
 // must do:
-//   l.get() and getContents(), evio_ptr<>?
+//   l.get() and getContents(), evio_auto_ptr<>?
 //   user's manual
 //   Doxygen comments
 
@@ -38,6 +38,22 @@ using namespace std;
 class evioDOMNode;
 class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
+
+
+
+
+// can't get either of these to work...
+
+// bool operator!=(evioDOMNodeListP &lP, int i) {return(lP.get()!=(void*)i);}
+
+// //  minor addition to standard auto_ptr<>
+// template <typename T> class evio_auto_ptr : public auto_ptr<T> {
+// public:
+//   evio_auto_ptr(T t) : auto_ptr<T>(t){};
+//   bool operator==(evioDOMNode *pNode) const {return(this->get()==pNode);}
+// };
+
+
 
 
 // typedefs simplify life a little for users
@@ -456,8 +472,17 @@ public:
 };
 
 
+
 //-----------------------------------------------------------------------------
+//--------------------- Misc Templated Functions ------------------------------
 //-----------------------------------------------------------------------------
 
+
+template <typename T> bool isNull(auto_ptr<T> p) {return(p.get()==NULL);}
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #endif
