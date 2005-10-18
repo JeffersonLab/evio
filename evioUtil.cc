@@ -3,7 +3,7 @@
  *
  *   Assorted evio utilities, C++ version
  *
- *   Author:  Elliott Wolin, JLab, 31-aug-2005
+ *   Author:  Elliott Wolin, JLab, 17-oct-2005
 */
 
 
@@ -805,9 +805,12 @@ evioDOMNodeListP evioDOMNode::getContents(void) const throw(evioException*) {
   if(c==NULL) {
     return(evioDOMNodeListP(NULL));
   } else {
-    evioDOMNodeList *l = new evioDOMNodeList;
-    copy(c->childList.begin(),c->childList.end(),inserter(*l,l->begin()));
-    return(evioDOMNodeListP(l));
+    evioDOMNodeList *cListP = new evioDOMNodeList();
+    copy(c->childList.begin(),c->childList.end(),inserter(*cListP,cListP->begin()));
+
+    //    for_each(cListP->begin(),cListP->end(),toCout());
+
+    return(evioDOMNodeListP(cListP));
   }
 }
 

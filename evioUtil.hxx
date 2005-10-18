@@ -1,21 +1,21 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 3-Oct-2005
+//  Author:  Elliott Wolin, JLab, 17-Oct-2005
 
 
 // must do:
-//   l.get() and getContents(), evio_auto_ptr<>?
-//   user's manual
+//   API for manual tree creation and modification, add/drop/move sub-trees, etc?
 //   Doxygen comments
 
 // should do:
-//   Interface for tree createion and modification, add and drop sub-trees, etc?  AIDA?
 //   evioChannel and output, getBuffer() and const?
 
 //  would like to do:
+//   replace isNull(auto_ptr<T>)
 //   scheme for exception type codes
 //   exception stack trace if supported on all platforms
-//   equivalent of (unsupported) templated typedefs for evioDOMLeafNode to simplify user code
+//   templated typedefs for evioDOMLeafNode
+//   AIDA interface?
 
 
 
@@ -46,7 +46,6 @@ template<typename T> class evioDOMLeafNode;
 
 // bool operator!=(evioDOMNodeListP &lP, int i) {return(lP.get()!=(void*)i);}
 
-// //  minor addition to standard auto_ptr<>
 // template <typename T> class evio_auto_ptr : public auto_ptr<T> {
 // public:
 //   evio_auto_ptr(T t) : auto_ptr<T>(t){};
@@ -56,14 +55,25 @@ template<typename T> class evioDOMLeafNode;
 
 
 
-// typedefs simplify life a little for users
-// ...unfortunately c++ does not accept templated typedefs (for leaf nodes)
+//-----------------------------------------------------------------------------
+//----------------------------- Typedefs --------------------------------------
+//-----------------------------------------------------------------------------
+
+
 typedef list<const evioDOMNode*>  evioDOMNodeList;
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
 
 
+//-----------------------------------------------------------------------------
+//----------------------- Misc Global Functions -------------------------------
+//-----------------------------------------------------------------------------
+
+
+template <typename T> bool isNull(auto_ptr<T> &p) {return(p.get()==NULL);}
+
 
 //-----------------------------------------------------------------------------
+//--------------------------- Evio Classes ------------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -89,7 +99,7 @@ public:
 
 
 // evio channel interface
-class evioChannel{
+class evioChannel {
 
 public:
   virtual void open(void) throw(evioException*) = 0;
@@ -365,8 +375,9 @@ template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::g
   throw(evioException*) {
 
   evioDOMNodeListP pNodeList = getNodeList();
-  auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
-
+  auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = 
+    auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
+  
   evioDOMNodeList::const_iterator iter;
   const evioDOMLeafNode<T>* p;
   for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
@@ -470,15 +481,6 @@ public:
   toCout(void) {}
   void operator()(const evioDOMNode* node) const {cout << node->toString() << endl;}
 };
-
-
-
-//-----------------------------------------------------------------------------
-//--------------------- Misc Templated Functions ------------------------------
-//-----------------------------------------------------------------------------
-
-
-template <typename T> bool isNull(auto_ptr<T> p) {return(p.get()==NULL);}
 
 
 //-----------------------------------------------------------------------------
