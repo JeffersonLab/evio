@@ -254,11 +254,8 @@ public:
   virtual string getFooter(int depth) const = 0;
 
 
-protected:
-  evioDOMNode *parent;
-
-
 public:
+  evioDOMNode *parent;
   int tag;
   int contentType;
   int num;
@@ -441,6 +438,64 @@ class tagNumEquals : unary_function<const evioDOMNode*, bool> {
 public:
   tagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
   bool operator()(const evioDOMNode* node) const {return((node->tag==tag)&&(node->num==num));}
+private:
+  int tag;
+  int num;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class parentTypeEquals : unary_function<const evioDOMNode*, bool> {
+
+public:
+  parentTypeEquals(int aType) : type(aType) {}
+  bool operator()(const evioDOMNode* node) const {return((node->parent==NULL)?false:(node->parent->contentType==type));}
+private:
+  int type;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class parentTagEquals : unary_function<const evioDOMNode*, bool> {
+
+public:
+  parentTagEquals(int aTag) : tag(aTag) {}
+  bool operator()(const evioDOMNode* node) const {return((node->parent==NULL)?false:(node->parent->tag==tag));}
+private:
+  int tag;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class parentNumEquals : unary_function<const evioDOMNode*, bool> {
+
+public:
+  parentNumEquals(int aNum) : num(aNum) {}
+  bool operator()(const evioDOMNode* node) const {return((node->parent==NULL)?false:(node->parent->num==num));}
+private:
+  int num;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+class parentTagNumEquals : unary_function<const evioDOMNode*, bool> {
+
+public:
+  parentTagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
+  bool operator()(const evioDOMNode* node) const {
+    return((node->parent==NULL)?false:((node->parent->tag==tag)&&(node->parent->num==num)));}
 private:
   int tag;
   int num;
