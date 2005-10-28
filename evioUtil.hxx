@@ -4,13 +4,17 @@
 
 
 // must do:
+//   operator<< and operator>> for container node class, virtual class streamable 
+//   use vector in container node?  use node instead of node* in containers?
 //   API for manual tree creation and modification, add/drop/move sub-trees, etc?
 //   Doxygen comments
 
 // should do:
+//   namespaces
 //   evioChannel and output, getBuffer() and const?
 
 //  would like to do:
+//   cMsg channel
 //   replace isNull(auto_ptr<T>)
 //   scheme for exception type codes
 //   exception stack trace if supported on all platforms
@@ -65,11 +69,22 @@ typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
 
 
 //-----------------------------------------------------------------------------
-//----------------------- Misc Global Functions -------------------------------
+//---------------------------- Misc Structs -----------------------------------
+//-----------------------------------------------------------------------------
+
+
+class setEvioArraySize {public: int val; setEvioArraySize(int i):val(i){} };
+class setEvioTag {public: int val; setEvioTag(int i):val(i){} };
+class setEvioNum {public: int val; setEvioNum(int i):val(i){} };
+
+
+//-----------------------------------------------------------------------------
+//------------------------- Global Functions ----------------------------------
 //-----------------------------------------------------------------------------
 
 
 template <typename T> bool isNull(auto_ptr<T> &p) {return(p.get()==NULL);}
+template <typename T> int getContentType(void);
 
 
 //-----------------------------------------------------------------------------
@@ -110,6 +125,19 @@ public:
   virtual void close(void) throw(evioException*) = 0;
   virtual const unsigned long *getBuffer(void) const throw(evioException*) = 0;
   virtual int getBufSize(void) const = 0;
+
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+// evio serializable interface, hook for generic object serialization
+class evioSerializable {
+
+public:
+  virtual void serialize(evioDOMContainerNode &cNode) throw(evioException*) = 0;
 
 };
 
@@ -277,7 +305,34 @@ public:
   virtual ~evioDOMContainerNode(void);
 
   evioDOMContainerNode *clone(evioDOMNode *newParent) const;
-  
+
+
+  // stream operators for building trees and filling nodes
+  evioDOMContainerNode& operator<<(setEvioTag &s) throw(evioException*);
+  evioDOMContainerNode& operator<<(setEvioNum &s) throw(evioException*);
+  evioDOMContainerNode& operator<<(setEvioArraySize &s) throw(evioException*);
+  evioDOMContainerNode& operator<<(evioDOMNode *pNode) throw(evioException*);
+
+
+  // stream operators for object serializtion
+  evioDOMContainerNode& operator<<(char c) throw(evioException*);
+  evioDOMContainerNode& operator<<(unsigned char uc) throw(evioException*);
+  evioDOMContainerNode& operator<<(short s) throw(evioException*);
+  evioDOMContainerNode& operator<<(unsigned short us) throw(evioException*);
+
+  evioDOMContainerNode& operator<<(long l) throw(evioException*);
+  evioDOMContainerNode& operator<<(long *lp) throw(evioException*);
+  evioDOMContainerNode& operator<<(vector<long> &v) throw(evioException*);
+
+  evioDOMContainerNode& operator<<(unsigned long ul) throw(evioException*);
+  evioDOMContainerNode& operator<<(long long ll) throw(evioException*);
+  evioDOMContainerNode& operator<<(unsigned long long ull) throw(evioException*);
+  evioDOMContainerNode& operator<<(float f) throw(evioException*);
+  evioDOMContainerNode& operator<<(double d) throw(evioException*);
+  evioDOMContainerNode& operator<<(string &s) throw(evioException*);
+  evioDOMContainerNode& operator<<(evioSerializable &e) throw(evioException*);
+
+
   string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
@@ -285,6 +340,12 @@ public:
 
 public:
   list<evioDOMNode*> childList;
+
+private:
+  list<evioDOMNode*>::iterator mark;  // marks current item to stream out
+  int streamArraySize;
+  int streamTag;
+  int streamNum;
 
 };
 
@@ -297,8 +358,8 @@ public:
 template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 public:
-  evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, T *p, int ndata) throw(evioException*);
-  evioDOMLeafNode(evioDOMNode *parent, int tag, int contentType, int num, const vector<T> &v) throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *par, int tg, int n, T *p, int ndata) throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *parent, int tag, int num, const vector<T> &v) throw(evioException*);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*);
   evioDOMLeafNode<T>& operator=(const evioDOMLeafNode<T> &rhs) throw(evioException*);
   virtual ~evioDOMLeafNode(void);
