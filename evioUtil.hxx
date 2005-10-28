@@ -8,6 +8,7 @@
 //   use vector in container node?  use node instead of node* in containers?
 //   API for manual tree creation and modification, add/drop/move sub-trees, etc?
 //   Doxygen comments
+//   recheck const correctness
 
 // should do:
 //   namespaces
@@ -137,7 +138,7 @@ public:
 class evioSerializable {
 
 public:
-  virtual void serialize(evioDOMContainerNode &cNode) throw(evioException*) = 0;
+  virtual void serialize(evioDOMContainerNode &cNode) const throw(evioException*) = 0;
 
 };
 
@@ -320,6 +321,7 @@ public:
   evioDOMContainerNode& operator<<(short s) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned short us) throw(evioException*);
   evioDOMContainerNode& operator<<(long l) throw(evioException*);
+  evioDOMContainerNode& operator<<(long *lp) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned long ul) throw(evioException*);
   evioDOMContainerNode& operator<<(long long ll) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned long long ull) throw(evioException*);
@@ -327,10 +329,13 @@ public:
   evioDOMContainerNode& operator<<(double d) throw(evioException*);
   evioDOMContainerNode& operator<<(string &s) throw(evioException*);
 
-  template <typename T> evioDOMContainerNode& operator<<(T *tP) throw(evioException*);
-  template <typename T> evioDOMContainerNode& operator<<(vector<T> &v) throw(evioException*);
-
   evioDOMContainerNode& operator<<(evioSerializable &e) throw(evioException*);
+
+
+//   template <typename T> evioDOMContainerNode& operator<<(T t) throw(evioException*);
+//   template <typename T> evioDOMContainerNode& operator<<(T *tP) throw(evioException*);
+  template <typename T> evioDOMContainerNode& operator<<(const vector<T> &v) throw(evioException*);
+
 
 
   string toString(void) const;
@@ -391,19 +396,29 @@ template <typename T> const vector<T> *evioDOMNode::getContents(void) const thro
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(vector<T> &v) throw(evioException*) {
-  evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,NULL,0);
-  copy(v.begin(),v.end(),back_inserter(leaf->data));
-  childList.push_back(leaf);
-  return(*this);
-}
+// template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(T t) throw(evioException*) {
+//   evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,&t,1);
+//   childList.push_back(leaf);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(T *tP) throw(evioException*) {
+//   evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,tP,streamArraySize);
+//   childList.push_back(leaf);
+//   return(*this);
+// }
 
 
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(T *tP) throw(evioException*) {
-  evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,tP,streamArraySize);
+template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(const vector<T> &v) throw(evioException*) {
+  evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,NULL,0);
+  copy(v.begin(),v.end(),back_inserter(leaf->data));
   childList.push_back(leaf);
   return(*this);
 }

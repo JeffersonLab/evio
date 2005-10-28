@@ -935,7 +935,17 @@ evioDOMContainerNode& evioDOMContainerNode::operator<<(long l) throw(evioExcepti
 //-----------------------------------------------------------------------------
 
 
-evioDOMContainerNode& evioDOMContainerNode::operator<<(evioSerializable &o) throw(evioException*) {
+evioDOMContainerNode& evioDOMContainerNode::operator<<(long *lp) throw(evioException*) {
+  evioDOMLeafNode<long> *leaf = new evioDOMLeafNode<long>(this,0,0,lp,streamArraySize);
+  childList.push_back(leaf);
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMContainerNode& evioDOMContainerNode::operator<<( evioSerializable &o) throw(evioException*) {
   evioDOMContainerNode *c = new evioDOMContainerNode(this,0,0xc,0);  // uses tagsegments
   o.serialize(*c);
   childList.push_back(c);
