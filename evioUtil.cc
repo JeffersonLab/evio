@@ -935,27 +935,6 @@ evioDOMContainerNode& evioDOMContainerNode::operator<<(long l) throw(evioExcepti
 //-----------------------------------------------------------------------------
 
 
-evioDOMContainerNode& evioDOMContainerNode::operator<<(long *lp) throw(evioException*) {
-  evioDOMLeafNode<long> *leaf = new evioDOMLeafNode<long>(this,0,0,lp,streamArraySize);
-  childList.push_back(leaf);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<(vector<long> &v) throw(evioException*) {
-  evioDOMLeafNode<long> *leaf = new evioDOMLeafNode<long>(this,0,0,NULL,0);
-  copy(v.begin(),v.end(),back_inserter(leaf->data));
-  childList.push_back(leaf);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 evioDOMContainerNode& evioDOMContainerNode::operator<<(evioSerializable &o) throw(evioException*) {
   evioDOMContainerNode *c = new evioDOMContainerNode(this,0,0xc,0);  // uses tagsegments
   o.serialize(*c);
@@ -976,7 +955,7 @@ evioDOMContainerNode& evioDOMContainerNode::operator<<(evioDOMNode *pNode) throw
 //-----------------------------------------------------------------------------
 
 
-evioDOMContainerNode& evioDOMContainerNode::operator<<(setEvioArraySize &s) throw(evioException*) {
+evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioArraySize &s) throw(evioException*) {
   streamArraySize=s.val;
   return(*this);
 }
@@ -985,7 +964,7 @@ evioDOMContainerNode& evioDOMContainerNode::operator<<(setEvioArraySize &s) thro
 //-----------------------------------------------------------------------------
 
 
-evioDOMContainerNode& evioDOMContainerNode::operator<<(setEvioTag &s) throw(evioException*) {
+evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioTag &s) throw(evioException*) {
   streamTag=s.val;
   return(*this);
 }
@@ -994,7 +973,7 @@ evioDOMContainerNode& evioDOMContainerNode::operator<<(setEvioTag &s) throw(evio
 //-----------------------------------------------------------------------------
 
 
-evioDOMContainerNode& evioDOMContainerNode::operator<<(setEvioNum &s) throw(evioException*) {
+evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioNum &s) throw(evioException*) {
   streamNum=s.val;
   return(*this);
 }

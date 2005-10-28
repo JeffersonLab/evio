@@ -308,9 +308,9 @@ public:
 
 
   // stream operators for building trees and filling nodes
-  evioDOMContainerNode& operator<<(setEvioTag &s) throw(evioException*);
-  evioDOMContainerNode& operator<<(setEvioNum &s) throw(evioException*);
-  evioDOMContainerNode& operator<<(setEvioArraySize &s) throw(evioException*);
+  evioDOMContainerNode& operator<<(const setEvioTag &s) throw(evioException*);
+  evioDOMContainerNode& operator<<(const setEvioNum &s) throw(evioException*);
+  evioDOMContainerNode& operator<<(const setEvioArraySize &s) throw(evioException*);
   evioDOMContainerNode& operator<<(evioDOMNode *pNode) throw(evioException*);
 
 
@@ -319,17 +319,17 @@ public:
   evioDOMContainerNode& operator<<(unsigned char uc) throw(evioException*);
   evioDOMContainerNode& operator<<(short s) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned short us) throw(evioException*);
-
   evioDOMContainerNode& operator<<(long l) throw(evioException*);
-  evioDOMContainerNode& operator<<(long *lp) throw(evioException*);
-  evioDOMContainerNode& operator<<(vector<long> &v) throw(evioException*);
-
   evioDOMContainerNode& operator<<(unsigned long ul) throw(evioException*);
   evioDOMContainerNode& operator<<(long long ll) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned long long ull) throw(evioException*);
   evioDOMContainerNode& operator<<(float f) throw(evioException*);
   evioDOMContainerNode& operator<<(double d) throw(evioException*);
   evioDOMContainerNode& operator<<(string &s) throw(evioException*);
+
+  template <typename T> evioDOMContainerNode& operator<<(T *tP) throw(evioException*);
+  template <typename T> evioDOMContainerNode& operator<<(vector<T> &v) throw(evioException*);
+
   evioDOMContainerNode& operator<<(evioSerializable &e) throw(evioException*);
 
 
@@ -383,6 +383,29 @@ public:
 template <typename T> const vector<T> *evioDOMNode::getContents(void) const throw(evioException*) {
   const evioDOMLeafNode<T> *l = dynamic_cast<const evioDOMLeafNode<T>*>(this);
   return((l==NULL)?(NULL):&l->data);
+}
+
+
+//-----------------------------------------------------------------------------
+//--------- evioDOMContainerNode templated methods (not overridden) -----------
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(vector<T> &v) throw(evioException*) {
+  evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,NULL,0);
+  copy(v.begin(),v.end(),back_inserter(leaf->data));
+  childList.push_back(leaf);
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(T *tP) throw(evioException*) {
+  evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,tP,streamArraySize);
+  childList.push_back(leaf);
+  return(*this);
 }
 
 
