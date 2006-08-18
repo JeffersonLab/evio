@@ -42,6 +42,8 @@ int evWrite(int handle, const unsigned long *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
 
+void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest);
+
 void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
 const char *get_typename(int type);
 int is_container(int type);

@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.15  2006/08/18 15:10:47  wolin
+ *   Added prototypes
+ *
  *   Revision 1.14  2005/10/07 18:32:48  wolin
  *   Added some const
  *
@@ -172,7 +175,6 @@ static  int  physicsEventsInsideBlock(EVFILE *);
 
 
 /*  these replace routines from swap_util.c, ejw, 1-dec-03 */
-extern void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest);
 extern int swap_long_value(int val);
 extern unsigned long *swap_long(unsigned long *data, unsigned long length,unsigned long *dest);
 
