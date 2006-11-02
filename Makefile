@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.20  2006/11/02 14:48:00  wolin
+#    Still working on evioUtil library
+#
 #    Revision 1.19  2005/08/24 19:49:14  wolin
 #    Added evio_util.o
 #
@@ -88,74 +91,96 @@ EXPAT_LIB = $(EXPAT_HOME)/lib
 
 
 ifeq ($(ARCH),VXWORKS68K51)
-CC = cc68k
+CC  = cc68k
+CPP = c++68k
 AR = ar68k
 RANLIB = ranlib68k
 DEFS = -DCPU=MC68040 -DVXWORKS -DVXWORKS68K51
 VXINC = $(WIND_BASE)/target/h
 INCS = -w -Wall -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = 
-LIBS = 
-PROGS =
+OBJS   = 
+OBJSXX = 
+LIBS   = 
+LIBSXX = 
+PROGS  =
 endif
 
 ifeq ($(ARCH),VXWORKSPPC)
-CC = ccppc
+CC  = ccppc
+CPP = c++ppc
 AR = arppc
 RANLIB = ranlibppc
 DEFS = -mcpu=604 -DCPU=PPC604 -DVXWORKS -D_GNU_TOOL -DVXWORKSPPC
 VXINC = $(WIND_BASE)/target/h
 INCS = -w -Wall -fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -mlongcall -I. -I$(VXINC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = 
-LIBS = 
-PROGS =
+OBJS   = 
+OBJSXX = 
+LIBS   = 
+LIBSXX = 
+PROGS  =
 endif
 
 ifeq ($(ARCH),SunOS)
-CC = cc
+CC  = cc
+CPP = CC
 AR = ar
 RANLIB = touch
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
-LIBS = libcoda.a
-PROGS = evio2xml xml2evio eviocopy Evioswap.class
+OBJS   = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
+OBJSXX =  evioUtil.o
+LIBS   = libcoda.a
+LIBSXX = libcodaxx.a
+PROGS  = evio2xml xml2evio eviocopy Evioswap.class
 endif
 
 ifeq ($(ARCH),Linux)
-CC = gcc
+CC  = gcc
+CPP = g++
 AR = ar
 RANLIB = ranlib
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
 CFLAGS = -O $(DEFS) $(INCS)
-OBJS = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
-LIBS = libcoda.a
-PROGS = evio2xml xml2evio eviocopy Evioswap.class
+OBJS   = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
+OBJSXX = evioUtil.o
+LIBS   = libcoda.a
+LIBSXX = libcodaxx.a
+PROGS  = evio2xml xml2evio eviocopy Evioswap.class
 endif
 
 
-all: $(LIBS) $(PROGS)
+all: $(LIBS) $(LIBSXX) $(PROGS)
 
 
-install: $(LIBS) $(PROGS)
-	cp $(LIBS)  $(CODA)/$(ARCH)/lib/
-	cp $(PROGS) $(CODA)/$(ARCH)/bin/
+install: $(LIBS) $(LIBSXX) $(PROGS)
+	cp $(LIBS)   $(CODA)/$(ARCH)/lib/
+	cp $(LIBSXX) $(CODA)/$(ARCH)/lib/
+	cp $(PROGS)  $(CODA)/$(ARCH)/bin/
 
-install-vxworks: $(LIBS)
-	cp $(LIBS)  $(CODA)/$(ARCH)/lib/
+install-vxworks: $(LIBS) $(LIBSXX)
+	cp $(LIBS)   $(CODA)/$(ARCH)/lib/
+	cp $(LIBSXX) $(CODA)/$(ARCH)/lib/
 
 
 .c.o:
 	rm -f $@
 	$(CC) -c $(CFLAGS) $<
 
+.cc.o:
+	rm -f $@
+	$(CPP) -c $(CFLAGS) $<
+
 libcoda.a: $(OBJS)
 	$(AR) ruv $(LIBS) $(OBJS)
 	$(RANLIB) $(LIBS)
+
+libcodaxx.a: $(OBJSXX)
+	$(AR) ruv $(LIBSXX) $(OBJSXX)
+	$(RANLIB) $(LIBSXX)
 
 evio2xml: evio2xml.o
 	$(CC) $(CFLAGS) $< -o $@ -L$(EXPAT_LIB) -lexpat -L. -lcoda -lz 
@@ -170,4 +195,4 @@ Evioswap.class: Evioswap.java
 	javac $<
 
 clean:
-	$(RM) *.o $(LIBS) $(PROGS)
+	$(RM) *.o $(LIBS) $(LIBSXX) $(PROGS)

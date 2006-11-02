@@ -3,6 +3,14 @@
 //  Author:  Elliott Wolin, JLab, 17-Oct-2005
 
 
+// immediately
+//   check bufsize in toEVIOBuffer(), parseBank, etc.
+//   tree root is leaf node?
+//   write(node)
+//   is tree needed?
+//   evioOutputFileChannel, etc.
+
+
 // must do:
 //   operator<< and operator>> for container node class, virtual class streamable 
 //   use vector in container node?  use node instead of node* in containers?
@@ -40,6 +48,7 @@ using namespace std;
 
 
 // prototypes
+class evioDOMTree;
 class evioDOMNode;
 class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
@@ -89,7 +98,7 @@ template <typename T> int getContentType(void);
 
 
 //-----------------------------------------------------------------------------
-//--------------------------- Evio Classes ------------------------------------
+//--------------------------- evio Classes ------------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -159,6 +168,9 @@ public:
   void write(void) throw(evioException*);
   void write(const unsigned long *myBuf) throw(evioException*);
   void write(const evioChannel &channel) throw(evioException*);
+  void write(const evioChannel *channel) throw(evioException*);
+  void write(const evioDOMTree &tree) throw(evioException*);
+  void write(const evioDOMTree *tree) throw(evioException*);
   void close(void) throw(evioException*);
   const unsigned long *getBuffer(void) const throw(evioException*);
   int getBufSize(void) const;
@@ -220,14 +232,28 @@ class evioDOMTree : public evioStreamParserHandler {
 
 public:
   evioDOMTree(const evioChannel &channel, const string &name = "evio") throw(evioException*);
+  evioDOMTree(const evioChannel *channel, const string &name = "evio") throw(evioException*);
   evioDOMTree(const unsigned long *buf, const string &name = "evio") throw(evioException*);
   evioDOMTree(const evioDOMNode *node, const string &name = "evio") throw(evioException*);
+
+  evioDOMTree(int tag, int num, const string &name = "evio", int contentType = 0x10) throw(evioException*);
+  template <typename T> evioDOMTree(int tag, int num, const vector<T> &dataVec, const string &name = "evio") throw(evioException*);
+  template <typename T> evioDOMTree(int tag, int num, const vector<T> *pDataVec, const string &name = "evio") throw(evioException*);
+  template <typename T> evioDOMTree(int tag, int num, const T* dataBuf, int dataLen, const string &name = "evio") throw(evioException*);
+
+
   evioDOMTree(const evioDOMTree &tree) throw(evioException*);
   evioDOMTree& operator=(const evioDOMTree &rhs) throw(evioException*);
   virtual ~evioDOMTree(void);
 
-  void toEVIOBuffer(unsigned long *buf) const throw(evioException*);
+
+  template <typename T> void addBank(int tag, int num, const vector<T> dataVec) throw(evioException*);
+  template <typename T> void addBank(int tag, int num, const T* dataBuf, int dataLen) throw(evioException*);
+
+
+  void toEVIOBuffer(unsigned long *buf, int size) const throw(evioException*);
   const evioDOMNode *getRoot(void) const;
+
 
   evioDOMNodeListP getNodeList(void) const throw(evioException*);
   template <typename Predicate> evioDOMNodeListP getNodeList(Predicate pred) const throw(evioException*);
@@ -238,7 +264,7 @@ public:
 
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
-  int toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode) const throw(evioException*);
+  int toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode, int size) const throw(evioException*);
   template <typename Predicate> evioDOMNodeList *addToNodeList(const evioDOMNode *pNode,evioDOMNodeList *pList, Predicate pred) const
     throw(evioException*);
   
@@ -321,7 +347,6 @@ public:
   evioDOMContainerNode& operator<<(short s) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned short us) throw(evioException*);
   evioDOMContainerNode& operator<<(long l) throw(evioException*);
-  evioDOMContainerNode& operator<<(long *lp) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned long ul) throw(evioException*);
   evioDOMContainerNode& operator<<(long long ll) throw(evioException*);
   evioDOMContainerNode& operator<<(unsigned long long ull) throw(evioException*);
@@ -329,6 +354,7 @@ public:
   evioDOMContainerNode& operator<<(double d) throw(evioException*);
   evioDOMContainerNode& operator<<(string &s) throw(evioException*);
 
+  evioDOMContainerNode& operator<<(long *lp) throw(evioException*);
   evioDOMContainerNode& operator<<(evioSerializable &e) throw(evioException*);
 
 
@@ -363,8 +389,8 @@ private:
 template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 public:
-  evioDOMLeafNode(evioDOMNode *par, int tg, int n, T *p, int ndata) throw(evioException*);
-  evioDOMLeafNode(evioDOMNode *parent, int tag, int num, const vector<T> &v) throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *par, int tg, int n, const vector<T> &v) throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *par, int tg, int n, const T *p, int ndata) throw(evioException*);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*);
   evioDOMLeafNode<T>& operator=(const evioDOMLeafNode<T> &rhs) throw(evioException*);
   virtual ~evioDOMLeafNode(void);
@@ -381,112 +407,17 @@ public:
 
 
 //-----------------------------------------------------------------------------
-//------------ evioDOMNode templated methods (not overridden) -----------------
 //-----------------------------------------------------------------------------
 
 
-template <typename T> const vector<T> *evioDOMNode::getContents(void) const throw(evioException*) {
-  const evioDOMLeafNode<T> *l = dynamic_cast<const evioDOMLeafNode<T>*>(this);
-  return((l==NULL)?(NULL):&l->data);
-}
+
+
 
 
 //-----------------------------------------------------------------------------
-//--------- evioDOMContainerNode templated methods (not overridden) -----------
-//-----------------------------------------------------------------------------
-
-
-// template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(T t) throw(evioException*) {
-//   evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,&t,1);
-//   childList.push_back(leaf);
-//   return(*this);
-// }
-
-
-// //-----------------------------------------------------------------------------
-
-
-// template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(T *tP) throw(evioException*) {
-//   evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,tP,streamArraySize);
-//   childList.push_back(leaf);
-//   return(*this);
-// }
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(const vector<T> &v) throw(evioException*) {
-  evioDOMLeafNode<T> *leaf = new evioDOMLeafNode<T>(this,0,0,NULL,0);
-  copy(v.begin(),v.end(),back_inserter(leaf->data));
-  childList.push_back(leaf);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-//------------ evioDOMTree templated methods (not overridden) -----------------
-//-----------------------------------------------------------------------------
-
-
-template <typename Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) const throw(evioException*) {
-  evioDOMNodeList *pList = addToNodeList(root,new evioDOMNodeList,pred);
-  return(evioDOMNodeListP(pList));
-}  
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(const evioDOMNode *pNode, 
-                                                                          evioDOMNodeList *pList, Predicate pred) const
-  throw(evioException*) {
-
-  if(pNode==NULL)return(pList);
-
-
-  // add this node to list
-  if(pred(pNode))pList->push_back(pNode);
-  
-  
-  // add children to list
-  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
-  if(c!=NULL) {
-   list<evioDOMNode*>::const_iterator iter;
-    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-      addToNodeList(*iter,pList,pred);
-    }
-  }
-
-
-  // return the list
-  return(pList);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::getLeafNodeList(void) const
-  throw(evioException*) {
-
-  evioDOMNodeListP pNodeList = getNodeList();
-  auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = 
-    auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
-  
-  evioDOMNodeList::const_iterator iter;
-  const evioDOMLeafNode<T>* p;
-  for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
-    p=dynamic_cast<const evioDOMLeafNode<T>*>(*iter);
-    if(p!=NULL)pLeafList->push_back(p);
-  }
-  
-  return(pLeafList);
-}
-
-
 //-----------------------------------------------------------------------------
 //--------------------- Misc Function Objects ---------------------------------
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -639,6 +570,10 @@ public:
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
+
+
+// include template bodies
+#include <evioUtilTemplates.hxx>
 
 #endif

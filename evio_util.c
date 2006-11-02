@@ -19,8 +19,8 @@
 
 
 /* prototypes */
-static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh);
-static void loop_over_banks(unsigned long *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh);
+static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg);
+static void loop_over_banks(unsigned long *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg);
 
 
 /* container types used locally */
@@ -35,10 +35,10 @@ enum {
 /*---------------------------------------------------------------- */
 
 
-void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh) {
+void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh, void *userArg) {
 
   int depth=0;
-  parse_bank(buf,BANK,depth,nh,lh);
+  parse_bank(buf,BANK,depth,nh,lh,userArg);
 
   return;
 }
@@ -47,7 +47,7 @@ void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh) {
 /*---------------------------------------------------------------- */
 
 
-static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh) {
+static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg) {
 
   int length,tag,type,num,dataOffset;
 
@@ -95,24 +95,24 @@ static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_
   case 0x1:
   case 0x2:
   case 0xb:
-    if(lh!=NULL)lh(&buf[dataOffset],length-dataOffset,ftype,tag,type,num,depth);
+    if(lh!=NULL)lh(&buf[dataOffset],length-dataOffset,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
-    if(lh!=NULL)lh((char*)(&buf[dataOffset]),(length-dataOffset)*4,ftype,tag,type,num,depth);
+    if(lh!=NULL)lh((char*)(&buf[dataOffset]),(length-dataOffset)*4,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0x4:
   case 0x5:
-    if(lh!=NULL)lh((short*)(&buf[dataOffset]),(length-dataOffset)*2,ftype,tag,type,num,depth);
+    if(lh!=NULL)lh((short*)(&buf[dataOffset]),(length-dataOffset)*2,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
-    if(lh!=NULL)lh((long long*)(&buf[dataOffset]),(length-dataOffset)/2,ftype,tag,type,num,depth);
+    if(lh!=NULL)lh((long long*)(&buf[dataOffset]),(length-dataOffset)/2,ftype,tag,type,num,depth,userArg);
     break;
 
   case 0xe:
@@ -121,9 +121,9 @@ static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_
   case 0x20:
   case 0xc:
   case 0x40:
-    if(nh!=NULL)nh(length,ftype,tag,type,num,depth);
+    if(nh!=NULL)nh(length,ftype,tag,type,num,depth,userArg);
     depth++;
-    loop_over_banks(&buf[dataOffset],length-dataOffset,type,depth,nh,lh);
+    loop_over_banks(&buf[dataOffset],length-dataOffset,type,depth,nh,lh,userArg);
     depth--;
     break;
   }
@@ -135,7 +135,7 @@ static void parse_bank(unsigned long *buf, int ftype, int depth, NH_TYPE nh, LH_
 /*---------------------------------------------------------------- */
 
 
-static void loop_over_banks(unsigned long *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh) {
+static void loop_over_banks(unsigned long *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg) {
 
   int p=0;
 
@@ -144,7 +144,7 @@ static void loop_over_banks(unsigned long *data, int length, int type, int depth
   case 0xe:
   case 0x10:
     while(p<length) {
-      parse_bank(&data[p],BANK,depth,nh,lh);
+      parse_bank(&data[p],BANK,depth,nh,lh,userArg);
       p+=data[p]+1;
     }
     break;
@@ -152,7 +152,7 @@ static void loop_over_banks(unsigned long *data, int length, int type, int depth
   case 0xd:
   case 0x20:
     while(p<length) {
-      parse_bank(&data[p],SEGMENT,depth,nh,lh);
+      parse_bank(&data[p],SEGMENT,depth,nh,lh,userArg);
       p+=(data[p]&0xffff)+1;
     }
     break;
@@ -160,7 +160,7 @@ static void loop_over_banks(unsigned long *data, int length, int type, int depth
   case 0xc:
   case 0x40:
     while(p<length) {
-      parse_bank(&data[p],TAGSEGMENT,depth,nh,lh);
+      parse_bank(&data[p],TAGSEGMENT,depth,nh,lh,userArg);
       p+=(data[p]&0xffff)+1;
     }
     break;

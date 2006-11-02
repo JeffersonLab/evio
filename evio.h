@@ -27,8 +27,8 @@
 
 
 /* node and leaf handler typedefs */
-typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth);
-typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, int num, int depth);
+typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth, void *userArg);
+typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, int num, int depth, void *userArg);
 
 
 /* prototypes */
@@ -44,7 +44,7 @@ int evClose(int handle);
 
 void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest);
 
-void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh);
+void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh, void *userArg);
 const char *get_typename(int type);
 int is_container(int type);
 
