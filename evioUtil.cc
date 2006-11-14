@@ -3,7 +3,7 @@
  *
  *   Assorted evio utilities, C++ version
  *
- *   Author:  Elliott Wolin, JLab, 17-oct-2005
+ *   Author:  Elliott Wolin, JLab, 2-nov-2006
 */
 
 
@@ -24,46 +24,18 @@ static bool debug = false;
 //--------------------- global functions -----------------------
 //--------------------------------------------------------------
 
-
-template <typename T> int ::getContentType(void) {
-
-  if(typeid(T)==typeid(unsigned long)) {
-    return(0x1);
-    
-  } else if(typeid(T)==typeid(float)) {
-    return(0x2);
-
-  } else if(typeid(T)==typeid(string)) {
-    return(0x3);
-
-  } else if(typeid(T)==typeid(short)) {
-    return(0x4);
-
-  } else if(typeid(T)==typeid(unsigned short)) {
-    return(0x5);
-
-  } else if(typeid(T)==typeid(signed char)) {
-    return(0x6);
-
-  } else if(typeid(T)==typeid(unsigned char)) {
-    return(0x7);
-
-  } else if(typeid(T)==typeid(double)) {
-    return(0x8);
-
-  } else if(typeid(T)==typeid(long long)) {
-    return(0x9);
-
-  } else if(typeid(T)==typeid(unsigned long long)) {
-    return(0xa);
-
-  } else if(typeid(T)==typeid(long)) {
-    return(0xb);
-
-  } else {
-    return(0x0);
-  }
-};
+template <typename T> int ::getContentType(void)           {return(0x0);}
+template <> int ::getContentType<unsigned long>(void)      {return(0x1);}
+template <> int ::getContentType<float>(void)              {return(0x2);}
+template <> int ::getContentType<string&>(void)            {return(0x3);}
+template <> int ::getContentType<short>(void)              {return(0x4);}
+template <> int ::getContentType<unsigned short>(void)     {return(0x5);}
+template <> int ::getContentType<char>(void)               {return(0x6);}
+template <> int ::getContentType<unsigned char>(void)      {return(0x7);}
+template <> int ::getContentType<double>(void)             {return(0x8);}
+template <> int ::getContentType<long long>(void)          {return(0x9);}
+template <> int ::getContentType<unsigned long long>(void) {return(0xa);}
+template <> int ::getContentType<long>(void)               {return(0xb);}
 
 
 //--------------------------------------------------------------
@@ -869,6 +841,14 @@ evioDOMNode::evioDOMNode(evioDOMNode *par, int tg, int content, int n) throw(evi
 //-----------------------------------------------------------------------------
 
 
+evioDOMNode::~evioDOMNode(void) {
+  // not sure if this is needed
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 bool evioDOMNode::operator==(int tag) const {
   return(this->tag==tag);
 }
@@ -909,16 +889,13 @@ bool evioDOMNode::isLeaf(void) const {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeListP evioDOMNode::getContents(void) const throw(evioException*) {
+evioDOMNodeListP evioDOMNode::getChildList(void) const throw(evioException*) {
 
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(this);
-  if(c==NULL) {
-    return(evioDOMNodeListP(NULL));
-  } else {
-    evioDOMNodeList *cListP = new evioDOMNodeList();
-    copy(c->childList.begin(),c->childList.end(),inserter(*cListP,cListP->begin()));
-    return(evioDOMNodeListP(cListP));
-  }
+  if(c==NULL)throw(new evioException(0,"?evioDOMNode::getChildList...not a container node",__FILE__,__LINE__));
+  evioDOMNodeList *cListP = new evioDOMNodeList();
+  copy(c->childList.begin(),c->childList.end(),inserter(*cListP,cListP->begin()));
+  return(evioDOMNodeListP(cListP));
 }
 
 

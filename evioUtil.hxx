@@ -1,36 +1,34 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 17-Oct-2005
-
-
-// immediately
-//   check bufsize in toEVIOBuffer(), parseBank, etc.
-//   tree root is leaf node?
-//   write(node)
-//   is tree needed?
-//   evioOutputFileChannel, etc.
+//  Author:  Elliott Wolin, JLab, 6-Nov-2006
 
 
 // must do:
-//   operator<< and operator>> for container node class, virtual class streamable 
-//   use vector in container node?  use node instead of node* in containers?
+//   const vs non-const access to tree
+//   check bufsize in toEVIOBuffer(), parseBank, etc.
+//   evioDOMTree tree(tag=1, num=0, string("fred"), 0x30) should generate error
 //   API for manual tree creation and modification, add/drop/move sub-trees, etc?
+//   const correctness
 //   Doxygen comments
-//   recheck const correctness
 
 // should do:
-//   namespaces
 //   evioChannel and output, getBuffer() and const?
+//   operator<< and operator>> for container node class, virtual class streamable 
+//   mark node in evioDOMTree
 
 //  would like to do:
 //   cMsg channel
-//   replace isNull(auto_ptr<T>)
 //   scheme for exception type codes
 //   exception stack trace if supported on all platforms
 //   templated typedefs for evioDOMLeafNode
 //   AIDA interface?
 
-
+// not sure:
+//   namespaces?
+//   remove auto_ptr<>?
+//   remove isTrue()?
+//   evioOutputFileChannel, etc.
+//   write(node)?
 
 
 #ifndef _evioUtil_hxx
@@ -56,19 +54,6 @@ template<typename T> class evioDOMLeafNode;
 
 
 
-// can't get either of these to work...
-
-// bool operator!=(evioDOMNodeListP &lP, int i) {return(lP.get()!=(void*)i);}
-
-// template <typename T> class evio_auto_ptr : public auto_ptr<T> {
-// public:
-//   evio_auto_ptr(T t) : auto_ptr<T>(t){};
-//   bool operator==(evioDOMNode *pNode) const {return(this->get()==pNode);}
-// };
-
-
-
-
 //-----------------------------------------------------------------------------
 //----------------------------- Typedefs --------------------------------------
 //-----------------------------------------------------------------------------
@@ -79,13 +64,13 @@ typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
 
 
 //-----------------------------------------------------------------------------
-//---------------------------- Misc Structs -----------------------------------
+//----------------------------- for stream API --------------------------------
 //-----------------------------------------------------------------------------
 
 
-class setEvioArraySize {public: int val; setEvioArraySize(int i):val(i){} };
-class setEvioTag {public: int val; setEvioTag(int i):val(i){} };
-class setEvioNum {public: int val; setEvioNum(int i):val(i){} };
+class setEvioArraySize {public: int val; setEvioArraySize(int i) : val(i){} };
+class setEvioTag       {public: int val; setEvioTag(int i)       : val(i){} };
+class setEvioNum       {public: int val; setEvioNum(int i)       : val(i){} };
 
 
 //-----------------------------------------------------------------------------
@@ -93,12 +78,14 @@ class setEvioNum {public: int val; setEvioNum(int i):val(i){} };
 //-----------------------------------------------------------------------------
 
 
-template <typename T> bool isNull(auto_ptr<T> &p) {return(p.get()==NULL);}
+//template <typename T> bool isNull(auto_ptr<T> &p) {return(p.get()==NULL);}
 template <typename T> int getContentType(void);
 
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //--------------------------- evio Classes ------------------------------------
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -132,22 +119,14 @@ public:
   virtual void write(void) throw(evioException*) = 0;
   virtual void write(const unsigned long *myBuf) throw(evioException*) = 0;
   virtual void write(const evioChannel &channel) throw(evioException*) = 0;
+  virtual void write(const evioChannel *channel) throw(evioException*) = 0;
+  virtual void write(const evioDOMTree &tree) throw(evioException*) = 0;
+  virtual void write(const evioDOMTree *tree) throw(evioException*) = 0;
   virtual void close(void) throw(evioException*) = 0;
+
+  // not sure if these should be part of the interface
   virtual const unsigned long *getBuffer(void) const throw(evioException*) = 0;
   virtual int getBufSize(void) const = 0;
-
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-// evio serializable interface, hook for generic object serialization
-class evioSerializable {
-
-public:
-  virtual void serialize(evioDOMContainerNode &cNode) const throw(evioException*) = 0;
 
 };
 
@@ -176,7 +155,6 @@ public:
   int getBufSize(void) const;
 
   void ioctl(const string &request, void *argp) throw(evioException*);
-
   string getFileName(void) const;
   string getMode(void) const;
 
@@ -194,7 +172,7 @@ private:
 //-----------------------------------------------------------------------------
 
 
-// interface defines node and leaf handlers for stream parsing
+// interface defines node and leaf handlers for stream parsing of evio buffers
 class evioStreamParserHandler {
 
 public:
@@ -256,8 +234,9 @@ public:
 
 
   evioDOMNodeListP getNodeList(void) const throw(evioException*);
-  template <typename Predicate> evioDOMNodeListP getNodeList(Predicate pred) const throw(evioException*);
-  template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > getLeafNodeList(void) const throw(evioException*);
+  template <class Predicate> evioDOMNodeListP getNodeList(Predicate pred) const throw(evioException*);
+
+  //  template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > getLeafNodeList(void) const throw(evioException*);
 
   string toString(void) const;
 
@@ -265,7 +244,7 @@ public:
 private:
   evioDOMNode *parse(const unsigned long *buf) throw(evioException*);
   int toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode, int size) const throw(evioException*);
-  template <typename Predicate> evioDOMNodeList *addToNodeList(const evioDOMNode *pNode,evioDOMNodeList *pList, Predicate pred) const
+  template <class Predicate> evioDOMNodeList *addToNodeList(const evioDOMNode *pNode,evioDOMNodeList *pList, Predicate pred) const
     throw(evioException*);
   
   void toOstream(ostream &os, const evioDOMNode *node, int depth) const throw(evioException*);
@@ -285,12 +264,26 @@ public:
 //-----------------------------------------------------------------------------
 
 
+// evio serializable interface, hook for generic object serialization
+class evioSerializable {
+
+public:
+  // what about leaf nodes?
+  virtual void serialize(evioDOMContainerNode &cNode) const throw(evioException*) = 0;
+
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
 //  represents an evio node in memory
 class evioDOMNode {
 
 public:
   evioDOMNode(evioDOMNode *parent, int tag, int contentType, int num) throw(evioException*);
-  virtual ~evioDOMNode(void) {};
+  virtual ~evioDOMNode(void);
 
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
@@ -301,8 +294,8 @@ public:
   bool isContainer(void) const;
   bool isLeaf(void) const;
 
-  evioDOMNodeListP getContents(void) const throw(evioException*);
-  template <typename T> const vector<T> *getContents(void) const throw(evioException*);
+  evioDOMNodeListP getChildList(void) const throw(evioException*);
+  template <typename T> const vector<T> *getVector(void) const throw(evioException*);
 
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
@@ -421,10 +414,24 @@ public:
 //-----------------------------------------------------------------------------
 
 
+template <typename T> class typeIs : unary_function<const evioDOMNode*,bool> {
+
+public:
+  typeIs(void) : type(getContentType<T>()) {}
+  bool operator()(const evioDOMNode* node) const {return(node->contentType==type);}
+private:
+  int type;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
 class typeEquals : unary_function<const evioDOMNode*,bool> {
 
 public:
-  typeEquals(int aType):type(aType) {}
+  typeEquals(int aType) : type(aType) {}
   bool operator()(const evioDOMNode* node) const {return(node->contentType==type);}
 private:
   int type;

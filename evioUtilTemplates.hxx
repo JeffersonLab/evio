@@ -18,9 +18,10 @@
 //-----------------------------------------------------------------------------
 
 
-template <typename T> const vector<T> *evioDOMNode::getContents(void) const throw(evioException*) {
-  const evioDOMLeafNode<T> *l = dynamic_cast<const evioDOMLeafNode<T>*>(this);
-  return((l==NULL)?(NULL):&l->data);
+template <typename T> const vector<T> *evioDOMNode::getVector(void) const throw(evioException*) {
+  const evioDOMLeafNode<T> *leaf = dynamic_cast<const evioDOMLeafNode<T>*>(this);
+  if(leaf==NULL)throw(new evioException(0,"?evioDOMNode::getVector...not a leaf node",__FILE__,__LINE__));
+  return(&leaf->data);
 }
 
 
@@ -62,8 +63,8 @@ template <typename T> evioDOMContainerNode& evioDOMContainerNode::operator<<(con
 //-----------------------------------------------------------------------------
 
 
-template <typename Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) const throw(evioException*) {
-  evioDOMNodeList *pList = addToNodeList(root,new evioDOMNodeList,pred);
+template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) const throw(evioException*) {
+  evioDOMNodeList *pList = addToNodeList(root,new evioDOMNodeList(),pred);
   return(evioDOMNodeListP(pList));
 }  
 
@@ -71,7 +72,7 @@ template <typename Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicat
 //-----------------------------------------------------------------------------
 
 
-template <typename Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(const evioDOMNode *pNode, 
+template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(const evioDOMNode *pNode, 
                                                                           evioDOMNodeList *pList, Predicate pred) const
   throw(evioException*) {
 
@@ -100,22 +101,22 @@ template <typename Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(const 
 //-----------------------------------------------------------------------------
 
 
-template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::getLeafNodeList(void) const
-  throw(evioException*) {
+// template <typename T> auto_ptr< list<const evioDOMLeafNode<T>*> > evioDOMTree::getLeafNodeList(void) const
+//   throw(evioException*) {
 
-  evioDOMNodeListP pNodeList = getNodeList();
-  auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = 
-    auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
+//   evioDOMNodeListP pNodeList = getNodeList();
+//   auto_ptr< list<const evioDOMLeafNode<T>*> > pLeafList = 
+//     auto_ptr< list<const evioDOMLeafNode<T>*> >(new list<const evioDOMLeafNode<T>*>);
   
-  evioDOMNodeList::const_iterator iter;
-  const evioDOMLeafNode<T>* p;
-  for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
-    p=dynamic_cast<const evioDOMLeafNode<T>*>(*iter);
-    if(p!=NULL)pLeafList->push_back(p);
-  }
+//   evioDOMNodeList::const_iterator iter;
+//   const evioDOMLeafNode<T>* p;
+//   for(iter=pNodeList->begin(); iter!=pNodeList->end(); iter++) {
+//     p=dynamic_cast<const evioDOMLeafNode<T>*>(*iter);
+//     if(p!=NULL)pLeafList->push_back(p);
+//   }
   
-  return(pLeafList);
-}
+//   return(pLeafList);
+// }
 
 
 //-----------------------------------------------------------------------------
