@@ -1,3 +1,11 @@
+// to do:
+
+//    pointers vs refs in node constructors...only use pointers?
+//    default bank type?
+//    evioDOMTree clone node in constructor?
+//    int vs long as default?
+
+
 /*
  *  evioUtil.cc
  *
@@ -24,18 +32,33 @@ static bool debug = false;
 //--------------------- global functions -----------------------
 //--------------------------------------------------------------
 
-template <typename T> int ::getContentType(void)           {return(0x0);}
-template <> int ::getContentType<unsigned long>(void)      {return(0x1);}
-template <> int ::getContentType<float>(void)              {return(0x2);}
-template <> int ::getContentType<string&>(void)            {return(0x3);}
-template <> int ::getContentType<short>(void)              {return(0x4);}
-template <> int ::getContentType<unsigned short>(void)     {return(0x5);}
-template <> int ::getContentType<char>(void)               {return(0x6);}
-template <> int ::getContentType<unsigned char>(void)      {return(0x7);}
-template <> int ::getContentType<double>(void)             {return(0x8);}
-template <> int ::getContentType<long long>(void)          {return(0x9);}
-template <> int ::getContentType<unsigned long long>(void) {return(0xa);}
-template <> int ::getContentType<long>(void)               {return(0xb);}
+template <typename T> int getContentType(void)           {return(0x0);}
+template <> int getContentType<unsigned int>(void)       {return(0x1);}
+template <> int getContentType<float>(void)              {return(0x2);}
+template <> int getContentType<string&>(void)            {return(0x3);}
+template <> int getContentType<short>(void)              {return(0x4);}
+template <> int getContentType<unsigned short>(void)     {return(0x5);}
+template <> int getContentType<char>(void)               {return(0x6);}
+template <> int getContentType<unsigned char>(void)      {return(0x7);}
+template <> int getContentType<double>(void)             {return(0x8);}
+template <> int getContentType<long long>(void)          {return(0x9);}
+template <> int getContentType<unsigned long long>(void) {return(0xa);}
+template <> int getContentType<int>(void)                {return(0xb);}
+
+template <> int getContentType<unsigned long>(void) {
+  if(sizeof(unsigned long)==8) {
+    return(0xa);
+  } else {
+    return(0x1);
+  }
+}
+template <> int getContentType<long>(void) {
+  if(sizeof(long)==8) {
+    return(0x9);
+  } else {
+    return(0xb);
+  }
+}
 
 
 //--------------------------------------------------------------
@@ -160,6 +183,14 @@ void evioFileChannel::write(const unsigned long *myBuf) throw(evioException*) {
   if(myBuf==NULL)throw(new evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__LINE__));
   if(handle==0)throw(new evioException(0,"evioFileChannel::write...0 handle",__FILE__,__LINE__));
   if(evWrite(handle,myBuf)!=0) throw(new evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+
+void evioFileChannel::write(const unsigned int *myBuf) throw(evioException*) {
+  write(reinterpret_cast<const unsigned long*>(myBuf));
 }
 
 
@@ -392,61 +423,424 @@ void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int de
 }
 
 
-//--------------------------------------------------------------
-//---------------------- evioDOMTree ---------------------------
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//---------------------------- evioDOMNode ------------------------------------
+//-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException*) {
-  const unsigned long *buf = channel.getBuffer();
-  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
-  name=n;
-  root=parse(buf);
+evioDOMNode::evioDOMNode(evioDOMNode *par, int tg, int num, int contentType) throw(evioException*)
+  : parent(par), tag(tg), num(num), contentType(contentType) {
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evioChannel *channel, const string &n) throw(evioException*) {
+evioDOMNode::evioDOMNode(int tg, int num, int contentType) throw(evioException*)
+  : parent(NULL), tag(tg), num(num), contentType(contentType) {
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode::~evioDOMNode(void) {
+  // is this needed ???
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode *evioDOMNode::createEvioDOMNode(int tag, int num, ContainerType cType) throw(evioException*) {
+  return(new evioDOMContainerNode(tag,num,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode *evioDOMNode::createEvioDOMNode(evioDOMNode *parent, int tag, int num, ContainerType cType) throw(evioException*) {
+  return(new evioDOMContainerNode(parent,tag,num,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNodeListP evioDOMNode::getChildList(void) const throw(evioException*) {
+  throw(new evioException(0,"?evioDOMNode::getChildList...illegal usage",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator==(int tag) const {
+  return(this->tag==tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator!=(int tag) const {
+  return(this->tag!=tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+const evioDOMNode *evioDOMNode::getParent(void) const {
+  return(parent);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode *evioDOMNode::getParent(void) {
+  return(parent);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::isContainer(void) const {
+  return(::is_container(contentType)==1);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::isLeaf(void) const {
+  return(::is_container(contentType)==0);
+}
+
+
+//-----------------------------------------------------------------------------
+//----------------------- evioDOMContainerNode --------------------------------
+//-----------------------------------------------------------------------------
+
+
+evioDOMContainerNode::evioDOMContainerNode(evioDOMNode *par, int tg, int num, ContainerType cType) throw(evioException*)
+  : evioDOMNode(par,tg,num,cType), mark(childList.begin()), streamArraySize(1) {
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMContainerNode::evioDOMContainerNode(int tg, int num, ContainerType cType) throw(evioException*)
+  : evioDOMNode(tg,num,cType), mark(childList.begin()), streamArraySize(1) {
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException*) 
+  : evioDOMNode(cNode.tag,cNode.num,(ContainerType)cNode.contentType), mark(childList.begin()), streamArraySize(1) {
+
+  // copy contents of child list
+  copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNode *newParent) const {
+
+  evioDOMContainerNode *c = new evioDOMContainerNode(newParent,tag,num,(ContainerType)contentType);
+
+  list<evioDOMNode*>::const_iterator iter;
+  for(iter=childList.begin(); iter!=childList.end(); iter++) {
+    c->childList.push_back((*iter)->clone(c));
+  }
+  return(c);
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
+evioDOMNodeListP evioDOMContainerNode::getChildList(void) const throw(evioException*) {
+
+  evioDOMNodeList *cListP = new evioDOMNodeList();
+  copy(this->childList.begin(),this->childList.end(),inserter(*cListP,cListP->begin()));
+  return(evioDOMNodeListP(cListP));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<(unsigned long ul) throw(evioException*) {
+//   evioDOMLeafNode<unsigned long> *leaf = new evioDOMLeafNode<unsigned long>(this,0,0,&ul,1);
+//   childList.push_back(leaf);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<(unsigned int ul) throw(evioException*) {
+//   evioDOMLeafNode<unsigned int> *leaf = new evioDOMLeafNode<unsigned int>(this,0,0,&ul,1);
+//   childList.push_back(leaf);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<(long l) throw(evioException*) {
+//   evioDOMLeafNode<long> *leaf = new evioDOMLeafNode<long>(this,0,0,&l,1);
+//   childList.push_back(leaf);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<(int l) throw(evioException*) {
+//   evioDOMLeafNode<int> *leaf = new evioDOMLeafNode<int>(this,0,0,&l,1);
+//   childList.push_back(leaf);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<(long *lp) throw(evioException*) {
+//   evioDOMLeafNode<long> *leaf = new evioDOMLeafNode<long>(this,0,0,lp,streamArraySize);
+//   childList.push_back(leaf);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<( evioSerializable &o) throw(evioException*) {
+//   evioDOMContainerNode *c = new evioDOMContainerNode(this,0,0xc,0);  // uses tagsegments
+//   o.serialize(*c);
+//   childList.push_back(c);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<(evioDOMNode *pNode) throw(evioException*) {
+//   childList.push_back(pNode);
+//   return(*this);
+// }
+
+
+// //-----------------------------------------------------------------------------
+
+
+// evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioArraySize &s) throw(evioException*) {
+//   streamArraySize=s.val;
+//   return(*this);
+// }
+
+
+//-----------------------------------------------------------------------------
+
+
+string evioDOMContainerNode::toString(void) const {
+  ostringstream os;
+  os << getHeader(0) << getFooter(0);
+  return(os.str());
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
+string evioDOMContainerNode::getHeader(int depth) const {
+  ostringstream os;
+  os << getIndent(depth)
+     <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " content=\"" << get_typename(contentType)
+     << "\" data_type=\"" << hex << showbase << contentType
+     << dec << "\" tag=\""  << tag;
+  if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
+  os << "\">" << endl;
+  return(os.str());
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
+string evioDOMContainerNode::getFooter(int depth) const {
+  ostringstream os;
+  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
+  return(os.str());
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
+evioDOMContainerNode::~evioDOMContainerNode(void) {
+  for_each(childList.begin(),childList.end(),deleteIt<evioDOMNode>);
+}
+
+
+//-----------------------------------------------------------------------------
+//------------------------- evioDOMLeafNode -----------------------------------
+//-----------------------------------------------------------------------------
+
+                                   
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int num, const T* p, int ndata) 
+  throw(evioException*) : evioDOMNode(par,tg,num,getContentType<T>()) {
+  
+  // fill vector with data
+  for(int i=0; i<ndata; i++) data.push_back(p[i]);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const T* p, int ndata) 
+  throw(evioException*) : evioDOMNode(NULL,tg,num,getContentType<T>()) {
+  
+  // fill vector with data
+  for(int i=0; i<ndata; i++) data.push_back(p[i]);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int num, const vector<T> &v)
+  throw(evioException*) : evioDOMNode(par,tg,num,getContentType<T>()) {
+
+  copy(v.begin(),v.end(),inserter(data,data.begin()));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*)
+  : evioDOMNode(NULL,lNode.tag,lNode.num,lNode.getContentType<T>())  {
+
+  copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
+template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNode *newParent) const {
+  return(new evioDOMLeafNode(newParent,tag,num,data));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMLeafNode<T> &evioDOMLeafNode<T>::operator=(const evioDOMLeafNode<T> &rhs) 
+  throw(evioException*) {
+
+  if(&rhs!=this) {
+    parent=rhs.parent;
+    tag=rhs.tag;
+    contentType=rhs.contentType;
+    num=rhs.num;
+    
+    copy(rhs.data.begin(),rhs.data.end(),inserter(data,data.begin()));
+  }
+
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                
+template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
+}
+  
+
+//-----------------------------------------------------------------------------
+//------------------------------- evioDOMTree ---------------------------------
+//-----------------------------------------------------------------------------
+
+
+evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException*) 
+  : name(n) {
+  const unsigned long *buf = channel.getBuffer();
+  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
+  root=parse(buf);
+  rootType=BANK_t;  // ???
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMTree::evioDOMTree(const evioChannel *channel, const string &n) throw(evioException*) 
+  : name(n) {
   if(channel==NULL)throw(new evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__LINE__));
   const unsigned long *buf = channel->getBuffer();
   if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
-  name=n;
   root=parse(buf);
+  rootType=BANK_t;  // ???
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioException*) {
+evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioException*) 
+  : name(n) {
   if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
-  name=n;
   root=parse(buf);
+  rootType=BANK_t;  // ???
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evioDOMNode *node, const string &n) throw(evioException*) {
+evioDOMTree::evioDOMTree(const unsigned int *buf, const string &n) throw(evioException*) 
+  : name(n) {
+  if(buf==NULL)throw(new evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
+  root=parse(reinterpret_cast<const unsigned long*>(buf));
+  rootType=BANK_t;  // ???
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMTree::evioDOMTree(evioDOMNode *node, ContainerType rootType, const string &name) throw(evioException*)
+  : root(node), name(name), rootType(rootType) {
   if(node==NULL)throw(new evioException(0,"?evioDOMTree constructor...null evioDOMNode",__FILE__,__LINE__));
-  name=n;
-  root=node->clone(NULL);
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(int tag, int num, const string &n, int ctype) throw(evioException*) {
-  name=n;
-  //  if() {
-  root = new evioDOMContainerNode(NULL,tag,ctype,num);
-//   } else {
-//     root = new evioDOMLeafNode???(NULL,tag,ctype,num);
-//   }
+evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, ContainerType rootType, const string &name) throw(evioException*) 
+  : name(name), rootType(rootType) {
+  //  root = new evioDOMContainerNode(tag,num,cType);
+  root = evioDOMNode::createEvioDOMNode(tag,num,cType);
 }
 
 
@@ -456,20 +850,7 @@ evioDOMTree::evioDOMTree(int tag, int num, const string &n, int ctype) throw(evi
 evioDOMTree::evioDOMTree(const evioDOMTree &t) throw(evioException*) {
   name=t.name;
   root=t.getRoot()->clone(NULL);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMTree &evioDOMTree::operator=(const evioDOMTree &rhs) throw(evioException*) {
-
-  if(&rhs!=this) {
-    name=rhs.name;
-    root=rhs.getRoot()->clone(NULL);
-  }
-
-  return(*this);
+  rootType=t.rootType;
 }
 
 
@@ -505,7 +886,8 @@ void *evioDOMTree::containerNodeHandler(int length, int tag, int contentType, in
     
 
   // create new node
-  evioDOMContainerNode *newNode = new evioDOMContainerNode(parent,tag,contentType,num);
+  //  evioDOMContainerNode *newNode = new evioDOMContainerNode(parent,tag,num,(ContainerType)contentType);  ???
+  evioDOMNode *newNode = evioDOMNode::createEvioDOMNode(parent,tag,num,(ContainerType)contentType);
 
 
   // add new node to parent's list
@@ -539,50 +921,71 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 
   case 0x0:
   case 0x1:
-    newLeaf = new evioDOMLeafNode<unsigned long>(parent,tag,num,(unsigned long*)data,length);
+    if(sizeof(unsigned long)==4) {
+      //      newLeaf = new evioDOMLeafNode<unsigned long>(parent,tag,num,(unsigned long*)data,length); ???
+      newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned long*)data,length);
+    } else {
+      //      newLeaf = new evioDOMLeafNode<unsigned int>(parent,tag,num,(unsigned int*)data,length);
+      newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned int*)data,length);
+    }
     break;
       
   case 0x2:
-    newLeaf = new evioDOMLeafNode<float>(parent,tag,num,(float*)data,length);
+    //    newLeaf = new evioDOMLeafNode<float>(parent,tag,num,(float*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(float*)data,length);
     break;
       
   case 0x3:
     for(int i=0; i<length; i++) os << ((char*)data)[i];
     os << ends;
     s=os.str();
-    newLeaf = new evioDOMLeafNode<string>(parent,tag,num,&s,1);
+    //    newLeaf = new evioDOMLeafNode<string>(parent,tag,num,&s,1);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,&s,1);
     break;
 
   case 0x4:
-    newLeaf = new evioDOMLeafNode<short>(parent,tag,num,(short*)data,length);
+    //    newLeaf = new evioDOMLeafNode<short>(parent,tag,num,(short*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(short*)data,length);
     break;
 
   case 0x5:
-    newLeaf = new evioDOMLeafNode<unsigned short>(parent,tag,num,(unsigned short*)data,length);
+    //    newLeaf = new evioDOMLeafNode<unsigned short>(parent,tag,num,(unsigned short*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned short*)data,length);
     break;
 
   case 0x6:
-    newLeaf = new evioDOMLeafNode<signed char>(parent,tag,num,(signed char*)data,length);
+    //    newLeaf = new evioDOMLeafNode<signed char>(parent,tag,num,(signed char*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(signed char*)data,length);
     break;
 
   case 0x7:
-    newLeaf = new evioDOMLeafNode<unsigned char>(parent,tag,num,(unsigned char*)data,length);
+    //    newLeaf = new evioDOMLeafNode<unsigned char>(parent,tag,num,(unsigned char*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned char*)data,length);
     break;
 
   case 0x8:
-    newLeaf = new evioDOMLeafNode<double>(parent,tag,num,(double*)data,length);
+    //    newLeaf = new evioDOMLeafNode<double>(parent,tag,num,(double*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(double*)data,length);
     break;
 
   case 0x9:
-    newLeaf = new evioDOMLeafNode<long long>(parent,tag,num,(long long*)data,length);
+    //    newLeaf = new evioDOMLeafNode<long long>(parent,tag,num,(long long*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(long long*)data,length);
     break;
 
   case 0xa:
-    newLeaf = new evioDOMLeafNode<unsigned long long>(parent,tag,num,(unsigned long long*)data,length);
+    //    newLeaf = new evioDOMLeafNode<unsigned long long>(parent,tag,num,(unsigned long long*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned long long*)data,length);
     break;
 
   case 0xb:
-    newLeaf = new evioDOMLeafNode<long>(parent,tag,num,(long*)data,length);
+    if(sizeof(long)==4) {
+      //      newLeaf = new evioDOMLeafNode<long>(parent,tag,num,(long*)data,length);
+      newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(long*)data,length);
+    } else {
+  //      newLeaf = new evioDOMLeafNode<int>(parent,tag,num,(int*)data,length);
+      newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(int*)data,length);
+    }
     break;
 
   default:
@@ -595,6 +998,22 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 
   // add new leaf to parent list
   if(parent!=NULL)parent->childList.push_back(newLeaf);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void evioDOMTree::addNode(evioDOMNode *node) throw(evioException*) {
+
+  if(root==NULL) {
+    root=node;
+    return;
+  }
+
+  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(root);
+  if(c==NULL)throw(new evioException(0,"?evioDOMTree::addNode...root is not container",__FILE__,__LINE__));
+  c->childList.push_back(node);
 }
 
 
@@ -779,6 +1198,14 @@ const evioDOMNode *evioDOMTree::getRoot(void) const {
 //-----------------------------------------------------------------------------
 
 
+evioDOMNode *evioDOMTree::getRoot(void) {
+  return(root);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 evioDOMNodeListP evioDOMTree::getNodeList(void) const throw(evioException*) {
   return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,isTrue)));
 }
@@ -827,439 +1254,6 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNode *pNode, int depth) co
   os << pNode->getFooter(depth);
 }
 
-
-//-----------------------------------------------------------------------------
-//---------------------------- evioDOMNode ------------------------------------
-//-----------------------------------------------------------------------------
-
-
-evioDOMNode::evioDOMNode(evioDOMNode *par, int tg, int content, int n) throw(evioException*)
-  : parent(par), tag(tg), contentType(content), num(n)  {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNode::~evioDOMNode(void) {
-  // not sure if this is needed
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-bool evioDOMNode::operator==(int tag) const {
-  return(this->tag==tag);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-bool evioDOMNode::operator!=(int tag) const {
-  return(this->tag!=tag);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-const evioDOMNode *evioDOMNode::getParent(void) const {
-  return(parent);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-bool evioDOMNode::isContainer(void) const {
-  return(::is_container(contentType)==1);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-bool evioDOMNode::isLeaf(void) const {
-  return(::is_container(contentType)==0);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeListP evioDOMNode::getChildList(void) const throw(evioException*) {
-
-  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(this);
-  if(c==NULL)throw(new evioException(0,"?evioDOMNode::getChildList...not a container node",__FILE__,__LINE__));
-  evioDOMNodeList *cListP = new evioDOMNodeList();
-  copy(c->childList.begin(),c->childList.end(),inserter(*cListP,cListP->begin()));
-  return(evioDOMNodeListP(cListP));
-}
-
-
-//-----------------------------------------------------------------------------
-//----------------------- evioDOMContainerNode --------------------------------
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode::evioDOMContainerNode(evioDOMNode *par, int tg, int content, int n) throw(evioException*)
-  : evioDOMNode(par,tg,content,n), mark(childList.begin()), streamArraySize(1), streamTag(0), streamNum(0) {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException*) 
-  : evioDOMNode(NULL,cNode.tag,cNode.contentType,cNode.num), mark(childList.begin()), streamArraySize(1), streamTag(0), streamNum(0) {
-
-  // copy contents of child list
-  copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode &evioDOMContainerNode::operator=(const evioDOMContainerNode &rhs) throw(evioException*) {
-
-  if(&rhs!=this) {
-    parent=rhs.parent;
-    tag=rhs.tag;
-    contentType=rhs.contentType;
-    num=rhs.num;
-
-    copy(rhs.childList.begin(),rhs.childList.end(),inserter(childList,childList.begin()));
-  }
-
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNode *newParent) const {
-
-  evioDOMContainerNode *c = new evioDOMContainerNode(newParent,tag,contentType,num);
-
-  list<evioDOMNode*>::const_iterator iter;
-  for(iter=childList.begin(); iter!=childList.end(); iter++) {
-    c->childList.push_back((*iter)->clone(c));
-  }
-  return(c);
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-evioDOMContainerNode& evioDOMContainerNode::operator<<(unsigned long ul) throw(evioException*) {
-  evioDOMLeafNode<unsigned long> *leaf = new evioDOMLeafNode<unsigned long>(this,0,0,&ul,1);
-  childList.push_back(leaf);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<(long l) throw(evioException*) {
-  evioDOMLeafNode<long> *leaf = new evioDOMLeafNode<long>(this,0,0,&l,1);
-  childList.push_back(leaf);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<(long *lp) throw(evioException*) {
-  evioDOMLeafNode<long> *leaf = new evioDOMLeafNode<long>(this,0,0,lp,streamArraySize);
-  childList.push_back(leaf);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<( evioSerializable &o) throw(evioException*) {
-  evioDOMContainerNode *c = new evioDOMContainerNode(this,0,0xc,0);  // uses tagsegments
-  o.serialize(*c);
-  childList.push_back(c);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<(evioDOMNode *pNode) throw(evioException*) {
-  childList.push_back(pNode);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioArraySize &s) throw(evioException*) {
-  streamArraySize=s.val;
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioTag &s) throw(evioException*) {
-  streamTag=s.val;
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioNum &s) throw(evioException*) {
-  streamNum=s.val;
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-string evioDOMContainerNode::toString(void) const {
-  ostringstream os;
-  os << getHeader(0) << getFooter(0);
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-string evioDOMContainerNode::getHeader(int depth) const {
-  ostringstream os;
-  os << getIndent(depth)
-     <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " content=\"" << get_typename(contentType)
-     << "\" data_type=\"" << hex << showbase << contentType
-     << dec << "\" tag=\""  << tag;
-  if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
-  os << "\">" << endl;
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-string evioDOMContainerNode::getFooter(int depth) const {
-  ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-evioDOMContainerNode::~evioDOMContainerNode(void) {
-  if(debug)cout << "deleting container node" << endl;
-  for_each(childList.begin(),childList.end(),deleteIt<evioDOMNode>);
-}
-
-
-//-----------------------------------------------------------------------------
-//------------------------- evioDOMLeafNode -----------------------------------
-//-----------------------------------------------------------------------------
-
-                                   
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int n, const T* p, int ndata) 
-  throw(evioException*) : evioDOMNode(par,tg,getContentType<T>(),n) {
-  
-  // fill vector with data
-  for(int i=0; i<ndata; i++) data.push_back(p[i]);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int n, const vector<T> &v)
-  throw(evioException*) : evioDOMNode(par,tg,getContentType<T>(),n) {
-
-  copy(v.begin(),v.end(),inserter(data,data.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*)
-  : evioDOMNode(NULL,lNode.tag,lNode.getContentType<T>(),lNode.num)  {
-
-  copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNode *newParent) const {
-  return(new evioDOMLeafNode(newParent,tag,num,data));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T> &evioDOMLeafNode<T>::operator=(const evioDOMLeafNode<T> &rhs) 
-  throw(evioException*) {
-
-  if(&rhs!=this) {
-    parent=rhs.parent;
-    tag=rhs.tag;
-    contentType=rhs.contentType;
-    num=rhs.num;
-    
-    copy(rhs.data.begin(),rhs.data.end(),inserter(data,data.begin()));
-  }
-
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-                                  
-template <typename T> string evioDOMLeafNode<T>::toString(void) const {
-  ostringstream os;
-  os << getHeader(0) << getFooter(0);
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
-
-  ostringstream os;
-  string indent = getIndent(depth);
-  string indent2 = indent + "    ";
-
-  int wid,swid;
-  switch (contentType) {
-
-  case 0x0:
-  case 0x1:
-  case 0x2:
-  case 0xb:
-    wid=5;
-    swid=10;
-    break;
-  case 0x4:
-  case 0x5:
-    wid=8;
-    swid=6;
-    break;
-  case 0x6:
-  case 0x7:
-    wid=8;
-    swid=4;
-    break;
-  case 0x8:
-  case 0x9:
-  case 0xa:
-    wid=2;
-    swid=28;
-    break;
-  default:
-    wid=1;
-   swid=30;
-    break;
-  }
-
-
-  // dump header
-  os << indent
-     <<  "<" << get_typename(contentType) 
-     << " data_type=\"" << hex << showbase << contentType
-     << dec << "\" tag=\"" << tag;
-  if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
-  os << "\">" << endl;
-
-
-  // dump data...odd what has to be done for char types 0x6,0x7 due to bugs in ostream operator<<
-  int *j;
-  short k;
-  typename vector<T>::const_iterator iter;
-  for(iter=data.begin(); iter!=data.end();) {
-
-    if(contentType!=0x3)os << indent2;
-    for(int j=0; (j<wid)&&(iter!=data.end()); j++) {
-      switch (contentType) {
-
-      case 0x0:
-      case 0x1:
-      case 0x5:
-      case 0xa:
-        os << hex << showbase << setw(swid) << *iter << "  ";
-        break;
-      case 0x2:
-        os << setprecision(6) << showpoint << setw(swid) << *iter << "  ";
-        break;
-      case 0x3:
-        os << "<!CDATA[" << endl << *iter << endl << "]]>";
-        break;
-      case 0x6:
-        k = (*((short*)(&(*iter)))) & 0xff;
-        if((k&0x80)!=0)k|=0xff00;
-        os << setw(swid) << k << "  ";
-        break;
-      case 0x7:
-        os << hex << showbase << setw(swid) << ((*(int*)&(*iter))&0xff) << "  ";
-        break;
-      case 0x8:
-        os << setw(swid) << setprecision(20) << scientific << *iter << "  ";
-        break;
-      default:
-        os << setw(swid) << *iter << "  ";
-        break;
-      }
-      iter++;
-    }
-    os << dec << endl;
-
-  }
-
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
-  ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
-  if(debug)cout << "deleting leaf node" << endl;
-}
-  
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
