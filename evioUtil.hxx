@@ -78,18 +78,7 @@ class setEvioArraySize {public: int val; setEvioArraySize(int i) : val(i){} };
 
 
 //-----------------------------------------------------------------------------
-//------------------------- Global Functions ----------------------------------
-//-----------------------------------------------------------------------------
-
-
-//template <typename T> bool isNull(auto_ptr<T> &p) {return(p.get()==NULL);}
-template <typename T> int getContentType(void);
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 //--------------------------- evio Classes ------------------------------------
-//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -227,8 +216,10 @@ public:
 public:
   static evioDOMNode *createEvioDOMNode(int tag, int num, ContainerType cType=BANK_t) throw(evioException*);
   static evioDOMNode *createEvioDOMNode(evioDOMNode *parent, int tag, int num, ContainerType cType=BANK_t) throw(evioException*);
-  template <typename T> static evioDOMNode *createEvioDOMNode(evioDOMNode *parent, int tag, int num, vector<T> tVec) throw(evioException*);
-  template <typename T> static evioDOMNode *createEvioDOMNode(int tag, int num, vector<T> tVec) throw(evioException*);
+  template <typename T> static evioDOMNode *createEvioDOMNode(evioDOMNode *parent, int tag, int num, const vector<T> tVec)
+    throw(evioException*);
+  template <typename T> static evioDOMNode *createEvioDOMNode(int tag, int num, const vector<T> tVec)
+    throw(evioException*);
   template <typename T> static evioDOMNode *createEvioDOMNode(evioDOMNode *parent, int tag, int num, T* t, int len) throw(evioException*);
   template <typename T> static evioDOMNode *createEvioDOMNode(int tag, int num, T* t, int len) throw(evioException*);
 
@@ -335,8 +326,8 @@ template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 private:
   evioDOMLeafNode(evioDOMNode *par, int tg, int num, const vector<T> &v) throw(evioException*);
-  evioDOMLeafNode(evioDOMNode *par, int tg, int num, const T *p, int ndata) throw(evioException*);
   evioDOMLeafNode(int tg, int num, const vector<T> &v) throw(evioException*);
+  evioDOMLeafNode(evioDOMNode *par, int tg, int num, const T *p, int ndata) throw(evioException*);
   evioDOMLeafNode(int tg, int num, const T *p, int ndata) throw(evioException*);
 
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*);              // are these two needed ???
@@ -383,9 +374,9 @@ public:
   virtual ~evioDOMTree(void);
 
 
-  void addNode(evioDOMNode* node) throw(evioException*);
-  template <typename T> void addNode(int tag, int num, const vector<T> dataVec) throw(evioException*);
-  template <typename T> void addNode(int tag, int num, const T* dataBuf, int dataLen) throw(evioException*);
+  void addBank(evioDOMNode* node) throw(evioException*);
+  template <typename T> void addBank(int tag, int num, const vector<T> dataVec) throw(evioException*);
+  template <typename T> void addBank(int tag, int num, const T* dataBuf, int dataLen) throw(evioException*);
   evioDOMTree& operator<<(evioDOMNode *) throw(evioException*);
 
 
@@ -438,181 +429,11 @@ public:
 };
 
 
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//--------------------- Misc Function Objects ---------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
-template <typename T> class typeIs : unary_function<const evioDOMNode*,bool> {
-
-public:
-  typeIs(void) : type(getContentType<T>()) {}
-  bool operator()(const evioDOMNode* node) const {return(node->contentType==type);}
-private:
-  int type;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class typeEquals : unary_function<const evioDOMNode*,bool> {
-
-public:
-  typeEquals(int aType) : type(aType) {}
-  bool operator()(const evioDOMNode* node) const {return(node->contentType==type);}
-private:
-  int type;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class tagEquals : unary_function<const evioDOMNode*,bool> {
-
-public:
-  tagEquals(int aTag) : tag(aTag) {}
-  bool operator()(const evioDOMNode* node) const {return(node->tag==tag);}
-private:
-  int tag;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class numEquals : unary_function<const evioDOMNode*,bool> {
-
-public:
-  numEquals(int aNum) : num(aNum) {}
-  bool operator()(const evioDOMNode* node) const {return(node->num==num);}
-private:
-  int num;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class tagNumEquals : unary_function<const evioDOMNode*, bool> {
-
-public:
-  tagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
-  bool operator()(const evioDOMNode* node) const {return((node->tag==tag)&&(node->num==num));}
-private:
-  int tag;
-  int num;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class parentTypeEquals : unary_function<const evioDOMNode*, bool> {
-
-public:
-  parentTypeEquals(int aType) : type(aType) {}
-  bool operator()(const evioDOMNode* node) const {return((node->parent==NULL)?false:(node->parent->contentType==type));}
-private:
-  int type;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class parentTagEquals : unary_function<const evioDOMNode*, bool> {
-
-public:
-  parentTagEquals(int aTag) : tag(aTag) {}
-  bool operator()(const evioDOMNode* node) const {return((node->parent==NULL)?false:(node->parent->tag==tag));}
-private:
-  int tag;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class parentNumEquals : unary_function<const evioDOMNode*, bool> {
-
-public:
-  parentNumEquals(int aNum) : num(aNum) {}
-  bool operator()(const evioDOMNode* node) const {return((node->parent==NULL)?false:(node->parent->num==num));}
-private:
-  int num;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class parentTagNumEquals : unary_function<const evioDOMNode*, bool> {
-
-public:
-  parentTagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
-  bool operator()(const evioDOMNode* node) const {
-    return((node->parent==NULL)?false:((node->parent->tag==tag)&&(node->parent->num==num)));}
-private:
-  int tag;
-  int num;
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class isContainer : unary_function<const evioDOMNode*,bool> {
-
-public:
-  isContainer(void) {}
-  bool operator()(const evioDOMNode* node) const {return(node->isContainer());}
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class isLeaf : unary_function<const evioDOMNode*,bool> {
-
-public:
-  isLeaf(void) {}
-  bool operator()(const evioDOMNode* node) const {return(node->isLeaf());}
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-class toCout: public unary_function<const evioDOMNode*, void> {
-
-public:
-  toCout(void) {}
-  void operator()(const evioDOMNode* node) const {cout << node->toString() << endl;}
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-
-// include template bodies
+// include templates
 #include <evioUtilTemplates.hxx>
 
 #endif

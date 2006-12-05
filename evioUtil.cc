@@ -29,50 +29,7 @@ static bool debug = false;
 
 
 //--------------------------------------------------------------
-//--------------------- global functions -----------------------
-//--------------------------------------------------------------
-
-template <typename T> int getContentType(void)           {return(0x0);}
-template <> int getContentType<unsigned int>(void)       {return(0x1);}
-template <> int getContentType<float>(void)              {return(0x2);}
-template <> int getContentType<string&>(void)            {return(0x3);}
-template <> int getContentType<short>(void)              {return(0x4);}
-template <> int getContentType<unsigned short>(void)     {return(0x5);}
-template <> int getContentType<char>(void)               {return(0x6);}
-template <> int getContentType<unsigned char>(void)      {return(0x7);}
-template <> int getContentType<double>(void)             {return(0x8);}
-template <> int getContentType<long long>(void)          {return(0x9);}
-template <> int getContentType<unsigned long long>(void) {return(0xa);}
-template <> int getContentType<int>(void)                {return(0xb);}
-
-template <> int getContentType<unsigned long>(void) {
-  if(sizeof(unsigned long)==8) {
-    return(0xa);
-  } else {
-    return(0x1);
-  }
-}
-template <> int getContentType<long>(void) {
-  if(sizeof(long)==8) {
-    return(0x9);
-  } else {
-    return(0xb);
-  }
-}
-
-
-//--------------------------------------------------------------
 //----------------------local utilities ------------------------
-//--------------------------------------------------------------
-
-
-static string getIndent(int depth) {
-  string s;
-  for(int i=0; i<depth; i++) s+="   ";
-  return(s);
-}
-
-
 //--------------------------------------------------------------
 
 
@@ -699,84 +656,6 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 
 
 //-----------------------------------------------------------------------------
-//------------------------- evioDOMLeafNode -----------------------------------
-//-----------------------------------------------------------------------------
-
-                                   
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int num, const T* p, int ndata) 
-  throw(evioException*) : evioDOMNode(par,tg,num,getContentType<T>()) {
-  
-  // fill vector with data
-  for(int i=0; i<ndata; i++) data.push_back(p[i]);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const T* p, int ndata) 
-  throw(evioException*) : evioDOMNode(NULL,tg,num,getContentType<T>()) {
-  
-  // fill vector with data
-  for(int i=0; i<ndata; i++) data.push_back(p[i]);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int num, const vector<T> &v)
-  throw(evioException*) : evioDOMNode(par,tg,num,getContentType<T>()) {
-
-  copy(v.begin(),v.end(),inserter(data,data.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*)
-  : evioDOMNode(NULL,lNode.tag,lNode.num,lNode.getContentType<T>())  {
-
-  copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNode *newParent) const {
-  return(new evioDOMLeafNode(newParent,tag,num,data));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T> &evioDOMLeafNode<T>::operator=(const evioDOMLeafNode<T> &rhs) 
-  throw(evioException*) {
-
-  if(&rhs!=this) {
-    parent=rhs.parent;
-    tag=rhs.tag;
-    contentType=rhs.contentType;
-    num=rhs.num;
-    
-    copy(rhs.data.begin(),rhs.data.end(),inserter(data,data.begin()));
-  }
-
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                
-template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
-}
-  
-
-//-----------------------------------------------------------------------------
 //------------------------------- evioDOMTree ---------------------------------
 //-----------------------------------------------------------------------------
 
@@ -1004,7 +883,7 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 //-----------------------------------------------------------------------------
 
 
-void evioDOMTree::addNode(evioDOMNode *node) throw(evioException*) {
+void evioDOMTree::addBank(evioDOMNode *node) throw(evioException*) {
 
   if(root==NULL) {
     root=node;
@@ -1012,7 +891,7 @@ void evioDOMTree::addNode(evioDOMNode *node) throw(evioException*) {
   }
 
   evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(root);
-  if(c==NULL)throw(new evioException(0,"?evioDOMTree::addNode...root is not container",__FILE__,__LINE__));
+  if(c==NULL)throw(new evioException(0,"?evioDOMTree::addBank...root is not container",__FILE__,__LINE__));
   c->childList.push_back(node);
 }
 
