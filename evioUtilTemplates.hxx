@@ -2,7 +2,7 @@
 
 //  all the evio templates, some prototypes in evioUtil.hxx
 
-//  ejw, 23-oct-2006
+//  ejw, 5-dec-2006
 
 
 
@@ -17,61 +17,61 @@
 //--------------------------------------------------------------
 
 
-static int getContentType(unsigned int i)           {return(0x1);}
-static int getContentType(float f)                  {return(0x2);}
-static int getContentType(string& s)                {return(0x3);}
-static int getContentType(string s)                 {return(0x3);}
-static int getContentType(short s)                  {return(0x4);}
-static int getContentType(unsigned short us)        {return(0x5);}
-static int getContentType(char c)                   {return(0x6);}
-static int getContentType(unsigned char uc)         {return(0x7);}
-static int getContentType(double d)                 {return(0x8);}
-static int getContentType(long long ll)             {return(0x9);}
-static int getContentType(unsigned long long ull)   {return(0xa);}
-static int getContentType(int i)                    {return(0xb);}
-static int getContentType(unsigned long ul) {
-  if(sizeof(unsigned long)==8) {
-    return(0xa);
-  } else {
-    return(0x1);
-  }
-}
-static int getContentType(long l) {
-  if(sizeof(long)==8) {
-    return(0x9);
-  } else {
-    return(0xb);
-  }
-}
-
-
-// template <typename T> int getContentType(void)           {return(0x0);}
-// template <> int getContentType<unsigned int>(void)       {return(0x1);}
-// template <> int getContentType<float>(void)              {return(0x2);}
-// template <> int getContentType<string&>(void)            {return(0x3);}
-// template <> int getContentType<short>(void)              {return(0x4);}
-// template <> int getContentType<unsigned short>(void)     {return(0x5);}
-// template <> int getContentType<char>(void)               {return(0x6);}
-// template <> int getContentType<unsigned char>(void)      {return(0x7);}
-// template <> int getContentType<double>(void)             {return(0x8);}
-// template <> int getContentType<long long>(void)          {return(0x9);}
-// template <> int getContentType<unsigned long long>(void) {return(0xa);}
-// template <> int getContentType<int>(void)                {return(0xb);}
-
-// template <> int getContentType<unsigned long>(void) {
+// static int getContentType(unsigned int i)           {return(0x1);}
+// static int getContentType(float f)                  {return(0x2);}
+// static int getContentType(string& s)                {return(0x3);}
+// static int getContentType(string s)                 {return(0x3);}
+// static int getContentType(short s)                  {return(0x4);}
+// static int getContentType(unsigned short us)        {return(0x5);}
+// static int getContentType(char c)                   {return(0x6);}
+// static int getContentType(unsigned char uc)         {return(0x7);}
+// static int getContentType(double d)                 {return(0x8);}
+// static int getContentType(long long ll)             {return(0x9);}
+// static int getContentType(unsigned long long ull)   {return(0xa);}
+// static int getContentType(int i)                    {return(0xb);}
+// static int getContentType(unsigned long ul) {
 //   if(sizeof(unsigned long)==8) {
 //     return(0xa);
 //   } else {
 //     return(0x1);
 //   }
 // }
-// template <> int getContentType<long>(void) {
+// static int getContentType(long l) {
 //   if(sizeof(long)==8) {
 //     return(0x9);
 //   } else {
 //     return(0xb);
 //   }
 // }
+
+
+template <typename T> static int getContentType(void)           {return(0x0);}
+template <> static int getContentType<unsigned int>(void)       {return(0x1);}
+template <> static int getContentType<float>(void)              {return(0x2);}
+template <> static int getContentType<string&>(void)            {return(0x3);}
+template <> static int getContentType<short>(void)              {return(0x4);}
+template <> static int getContentType<unsigned short>(void)     {return(0x5);}
+template <> static int getContentType<char>(void)               {return(0x6);}
+template <> static int getContentType<unsigned char>(void)      {return(0x7);}
+template <> static int getContentType<double>(void)             {return(0x8);}
+template <> static int getContentType<long long>(void)          {return(0x9);}
+template <> static int getContentType<unsigned long long>(void) {return(0xa);}
+template <> static int getContentType<int>(void)                {return(0xb);}
+
+template <> static int getContentType<unsigned long>(void) {
+  if(sizeof(unsigned long)==8) {
+    return(0xa);
+  } else {
+    return(0x1);
+  }
+}
+template <> static int getContentType<long>(void) {
+  if(sizeof(long)==8) {
+    return(0x9);
+  } else {
+    return(0xb);
+  }
+}
 
 
 //-----------------------------------------------------------------------------
@@ -133,8 +133,7 @@ template <typename T> const vector<T> *evioDOMNode::getVector(void) const throw(
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int tg, int num, const vector<T> &v)
-  throw(evioException*) : evioDOMNode(par,tg,num,::getContentType((T)NULL)) {
-  //  throw(evioException*) : evioDOMNode(par,tg,num,getContentType<T>()) {
+  throw(evioException*) : evioDOMNode(par,tg,num,getContentType<T>()) {
   
   copy(v.begin(),v.end(),inserter(data,data.begin()));
 }
@@ -144,8 +143,7 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *par, int 
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const vector<T> &v)
-  throw(evioException*) : evioDOMNode(tg,num,::getContentType((T)NULL)) {
-  //  throw(evioException*) : evioDOMNode(tg,num,getContentType<T>()) {
+  throw(evioException*) : evioDOMNode(tg,num,getContentType<T>()) {
 
   copy(v.begin(),v.end(),inserter(data,data.begin()));
 }
@@ -155,9 +153,7 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *parent, int tg, int num, const T* p, int ndata) 
-  throw(evioException*) : evioDOMNode(parent,tg,num,::getContentType((T)NULL)) {
-  //  throw(evioException*) : evioDOMNode(parent,tg,num,::getContentType((T)NULL)) {
-  //  throw(evioException*) : evioDOMNode(parent,tg,num,getContentType<T>()) {
+  throw(evioException*) : evioDOMNode(parent,tg,num,getContentType<T>()) {
   
   // fill vector with data
   for(int i=0; i<ndata; i++) data.push_back(p[i]);
@@ -168,8 +164,7 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNode *parent, i
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const T* p, int ndata)
-  throw(evioException*) : evioDOMNode(tg,num,::getContentType((T)NULL)) {
-  // : evioDOMNode(tg,num,getContentType<T>()) {
+  throw(evioException*) : evioDOMNode(tg,num,getContentType<T>()) {
   
   // fill vector with data
   for(int i=0; i<ndata; i++) data.push_back(p[i]);
@@ -179,9 +174,8 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException*)
-  : evioDOMNode(lNode.tag,lNode.num,::getContentType((T)NULL))  {
-  //  : evioDOMNode(NULL,lNode.tag,lNode.num,lNode.getContentType<T>())  {
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode)
+  throw(evioException*) : evioDOMNode(NULL,lNode.tag,lNode.num,lNode.getContentType<T>())  {
 
   copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
 }
@@ -423,8 +417,7 @@ template <typename T> void evioDOMTree::addBank(int tag, int num, const T* dataB
 template <typename T> class typeIs : unary_function<const evioDOMNode*,bool> {
 
 public:
-  typeIs(void) : type(::getContentType((T)NULL)) {}
-  //  typeIs(void) : type(getContentType<T>()) {}
+  typeIs(void) : type(getContentType<T>()) {}
   bool operator()(const evioDOMNode* node) const {return(node->contentType==type);}
 private:
   int type;
