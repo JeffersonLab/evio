@@ -765,7 +765,6 @@ void *evioDOMTree::containerNodeHandler(int length, int tag, int contentType, in
     
 
   // create new node
-  //  evioDOMContainerNode *newNode = new evioDOMContainerNode(parent,tag,num,(ContainerType)contentType);  ???
   evioDOMNode *newNode = evioDOMNode::createEvioDOMNode(parent,tag,num,(ContainerType)contentType);
 
 
@@ -801,16 +800,13 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
   case 0x0:
   case 0x1:
     if(sizeof(unsigned long)==4) {
-      //      newLeaf = new evioDOMLeafNode<unsigned long>(parent,tag,num,(unsigned long*)data,length); ???
       newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned long*)data,length);
     } else {
-      //      newLeaf = new evioDOMLeafNode<unsigned int>(parent,tag,num,(unsigned int*)data,length);
       newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned int*)data,length);
     }
     break;
       
   case 0x2:
-    //    newLeaf = new evioDOMLeafNode<float>(parent,tag,num,(float*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(float*)data,length);
     break;
       
@@ -818,51 +814,41 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
     for(int i=0; i<length; i++) os << ((char*)data)[i];
     os << ends;
     s=os.str();
-    //    newLeaf = new evioDOMLeafNode<string>(parent,tag,num,&s,1);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,&s,1);
     break;
 
   case 0x4:
-    //    newLeaf = new evioDOMLeafNode<short>(parent,tag,num,(short*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(short*)data,length);
     break;
 
   case 0x5:
-    //    newLeaf = new evioDOMLeafNode<unsigned short>(parent,tag,num,(unsigned short*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned short*)data,length);
     break;
 
   case 0x6:
-    //    newLeaf = new evioDOMLeafNode<signed char>(parent,tag,num,(signed char*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(signed char*)data,length);
     break;
 
   case 0x7:
-    //    newLeaf = new evioDOMLeafNode<unsigned char>(parent,tag,num,(unsigned char*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned char*)data,length);
     break;
 
   case 0x8:
-    //    newLeaf = new evioDOMLeafNode<double>(parent,tag,num,(double*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(double*)data,length);
     break;
 
   case 0x9:
-    //    newLeaf = new evioDOMLeafNode<long long>(parent,tag,num,(long long*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(long long*)data,length);
     break;
 
   case 0xa:
-    //    newLeaf = new evioDOMLeafNode<unsigned long long>(parent,tag,num,(unsigned long long*)data,length);
     newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned long long*)data,length);
     break;
 
   case 0xb:
     if(sizeof(long)==4) {
-      //      newLeaf = new evioDOMLeafNode<long>(parent,tag,num,(long*)data,length);
       newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(long*)data,length);
     } else {
-  //      newLeaf = new evioDOMLeafNode<int>(parent,tag,num,(int*)data,length);
       newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(int*)data,length);
     }
     break;

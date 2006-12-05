@@ -12,6 +12,8 @@
 //   Doxygen comments
 
 // should do:
+//   standardize on unsigned int
+//   hang tree off of tree
 //   evioChannel and output, getBuffer() and const?
 //   operator<< and operator>> for container node class, virtual class streamable 
 //   mark node in evioDOMTree
@@ -20,7 +22,6 @@
 //   cMsg channel
 //   scheme for exception type codes
 //   exception stack trace if supported on all platforms
-//   templated typedefs for evioDOMLeafNode
 //   AIDA interface?
 
 // not sure:
@@ -220,8 +221,8 @@ public:
     throw(evioException*);
   template <typename T> static evioDOMNode *createEvioDOMNode(int tag, int num, const vector<T> tVec)
     throw(evioException*);
-  template <typename T> static evioDOMNode *createEvioDOMNode(evioDOMNode *parent, int tag, int num, T* t, int len) throw(evioException*);
-  template <typename T> static evioDOMNode *createEvioDOMNode(int tag, int num, T* t, int len) throw(evioException*);
+  template <typename T> static evioDOMNode *createEvioDOMNode(evioDOMNode *parent, int tag, int num, const T* t, int len) throw(evioException*);
+  template <typename T> static evioDOMNode *createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException*);
 
 
 public:
@@ -411,7 +412,7 @@ private:
 
 public:
   string name;
-  ContainerType rootType;  // must set everywhere ???
+  ContainerType rootType;
 };
 
 

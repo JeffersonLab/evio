@@ -17,34 +17,6 @@
 //--------------------------------------------------------------
 
 
-// static int getContentType(unsigned int i)           {return(0x1);}
-// static int getContentType(float f)                  {return(0x2);}
-// static int getContentType(string& s)                {return(0x3);}
-// static int getContentType(string s)                 {return(0x3);}
-// static int getContentType(short s)                  {return(0x4);}
-// static int getContentType(unsigned short us)        {return(0x5);}
-// static int getContentType(char c)                   {return(0x6);}
-// static int getContentType(unsigned char uc)         {return(0x7);}
-// static int getContentType(double d)                 {return(0x8);}
-// static int getContentType(long long ll)             {return(0x9);}
-// static int getContentType(unsigned long long ull)   {return(0xa);}
-// static int getContentType(int i)                    {return(0xb);}
-// static int getContentType(unsigned long ul) {
-//   if(sizeof(unsigned long)==8) {
-//     return(0xa);
-//   } else {
-//     return(0x1);
-//   }
-// }
-// static int getContentType(long l) {
-//   if(sizeof(long)==8) {
-//     return(0x9);
-//   } else {
-//     return(0xb);
-//   }
-// }
-
-
 template <typename T> static int getContentType(void)           {return(0x0);}
 template <> static int getContentType<unsigned int>(void)       {return(0x1);}
 template <> static int getContentType<float>(void)              {return(0x2);}
@@ -106,7 +78,7 @@ template <typename T> evioDOMNode* evioDOMNode::createEvioDOMNode(int tag, int n
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNode* evioDOMNode::createEvioDOMNode(int tag, int num, T* t, int len) throw(evioException*) {
+template <typename T> evioDOMNode* evioDOMNode::createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException*) {
   return(new evioDOMLeafNode<T>(tag,num,t,len));
 }
 
@@ -114,7 +86,8 @@ template <typename T> evioDOMNode* evioDOMNode::createEvioDOMNode(int tag, int n
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNode* evioDOMNode::createEvioDOMNode(evioDOMNode *parent, int tag, int num, T* t, int len) throw(evioException*) {
+template <typename T> evioDOMNode* evioDOMNode::createEvioDOMNode(evioDOMNode *parent, int tag, int num, const T* t, int len) 
+  throw(evioException*) {
   return(new evioDOMLeafNode<T>(parent,tag,num,t,len));
 }
 
