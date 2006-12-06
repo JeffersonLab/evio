@@ -15,7 +15,6 @@
 //   standardize on unsigned int
 //   hang tree off of tree
 //   evioChannel and output, getBuffer() and const?
-//   operator<< and operator>> for container node class, virtual class streamable 
 //   mark node in evioDOMTree
 
 //  would like to do:
@@ -229,6 +228,7 @@ public:
   evioDOMNode& operator<<(evioDOMNode *node) throw(evioException*);
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
+  template <typename T> evioDOMNode& operator<<(vector<T> &tVec) throw(evioException*);
 
 
 public:
