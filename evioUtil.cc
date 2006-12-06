@@ -425,8 +425,25 @@ evioDOMNode *evioDOMNode::createEvioDOMNode(evioDOMNode *parent, int tag, int nu
 //-----------------------------------------------------------------------------
 
 
+void evioDOMNode::addNode(evioDOMNode *node) throw(evioException*) {
+  throw(new evioException(0,"?evioDOMNode::addNode...illegal usage",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 evioDOMNodeListP evioDOMNode::getChildList(void) const throw(evioException*) {
   throw(new evioException(0,"?evioDOMNode::getChildList...illegal usage",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode& evioDOMNode::operator<<(evioDOMNode *node) throw(evioException*) {
+  addNode(node);
+  return(*this);
 }
 
 
@@ -525,6 +542,14 @@ evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNode *newParent) const 
 //-----------------------------------------------------------------------------
 
                                    
+void evioDOMContainerNode::addNode(evioDOMNode *node) throw(evioException*) {
+  childList.push_back(node);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 evioDOMNodeListP evioDOMContainerNode::getChildList(void) const throw(evioException*) {
 
   evioDOMNodeList *cListP = new evioDOMNodeList();
@@ -879,6 +904,15 @@ void evioDOMTree::addBank(evioDOMNode *node) throw(evioException*) {
   evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(root);
   if(c==NULL)throw(new evioException(0,"?evioDOMTree::addBank...root is not container",__FILE__,__LINE__));
   c->childList.push_back(node);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMTree& evioDOMTree::operator<<(evioDOMNode *node) throw(evioException*) {
+  addBank(node);
+  return(*this);
 }
 
 

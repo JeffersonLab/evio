@@ -95,8 +95,72 @@ template <typename T> evioDOMNode* evioDOMNode::createEvioDOMNode(evioDOMNode *p
 //-----------------------------------------------------------------------------
 
 
+template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evioException*) {
+  // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
+  if(l!=NULL) {
+    copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.end()));
+  } else {
+    throw(new evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> void evioDOMNode::append(T *tBuf, int len) throw(evioException*) {
+  // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
+  if(l!=NULL) {
+    for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
+  } else {
+    throw(new evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evioException*) {
+  // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
+  if(l!=NULL) {
+    l->data.clear();
+    copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.begin()));
+  } else {
+    throw(new evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> void evioDOMNode::replace(T *tBuf, int len) throw(evioException*) {
+  // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
+  if(l!=NULL) {
+    l->data.clear();
+    for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
+  } else {
+    throw(new evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 template <typename T> const vector<T> *evioDOMNode::getVector(void) const throw(evioException*) {
-  throw(new evioException(0,"?evioDOMNode::getVector...illegal usage",__FILE__,__LINE__));
+  // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+  const evioDOMLeafNode<T> *l = dynamic_cast<const evioDOMLeafNode<T>*>(this);
+  if(l!=NULL) {
+    return(&l->data);
+  } else {
+    throw(new evioException(0,"?evioDOMNode::getVector...not a leaf node",__FILE__,__LINE__));
+  }
 }
 
 
@@ -239,7 +303,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
   os << "\">" << endl;
 
 
-  // dump data...odd what has to be done for char types 0x6,0x7 due to bugs in ostream operator<<
+  // dump data...odd what has to be done for char types 0x6,0x7 due to bugs in ostream operator <<
   int *j;
   short k;
   typename vector<T>::const_iterator iter;
@@ -303,14 +367,6 @@ template <typename T> string evioDOMLeafNode<T>::toString(void) const {
   ostringstream os;
   os << getHeader(0) << getFooter(0);
   return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> const vector<T> *evioDOMLeafNode<T>::getVector(void) const throw(evioException*) {
-  return(&this->data);
 }
 
 

@@ -226,14 +226,23 @@ public:
 
 
 public:
+  evioDOMNode& operator<<(evioDOMNode *node) throw(evioException*);
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
 
 
 public:
+  virtual void addNode(evioDOMNode *node) throw(evioException*);
+  template <typename T> void append(const vector<T> &tVec) throw(evioException*);
+  template <typename T> void append(T *tBuf, int len) throw(evioException*);
+  template <typename T> void replace(const vector<T> &tVec) throw(evioException*);
+  template <typename T> void replace(T *tBuf, int len) throw(evioException*);
+
+
+public:
   virtual const evioDOMNode *getParent(void) const;
   virtual evioDOMNode *getParent(void);
-  evioDOMNodeListP getChildList(void) const throw(evioException*);
+  virtual evioDOMNodeListP getChildList(void) const throw(evioException*);
   template <typename T> const vector<T> *getVector(void) const throw(evioException*);
 
 
@@ -275,8 +284,12 @@ public:
 
 
 public:
-  evioDOMContainerNode& operator<<(evioDOMNode *pNode) throw(evioException*);
+  void addNode(evioDOMNode *node) throw(evioException*);
   evioDOMNodeListP getChildList(void) const throw(evioException*);
+
+
+
+  //evioDOMContainerNode& operator<<(evioDOMNode *pNode) throw(evioException*);
 
 
   // stream operators for object serializtion
@@ -341,10 +354,6 @@ public:
 
 
 public:
-  const vector<T> *getVector(void) const throw(evioException*);
-
-
-public:
   string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
@@ -378,6 +387,8 @@ public:
   void addBank(evioDOMNode* node) throw(evioException*);
   template <typename T> void addBank(int tag, int num, const vector<T> dataVec) throw(evioException*);
   template <typename T> void addBank(int tag, int num, const T* dataBuf, int dataLen) throw(evioException*);
+
+
   evioDOMTree& operator<<(evioDOMNode *) throw(evioException*);
 
 
