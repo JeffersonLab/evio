@@ -459,6 +459,7 @@ evioDOMNodeListP evioDOMNode::getChildList(void) const throw(evioException*) {
 
 evioDOMNode& evioDOMNode::operator<<(evioDOMTree &tree) throw(evioException*) {
   addTree(tree);
+  return(*this);
 }
 
 
@@ -466,7 +467,8 @@ evioDOMNode& evioDOMNode::operator<<(evioDOMTree &tree) throw(evioException*) {
 
 
 evioDOMNode& evioDOMNode::operator<<(evioDOMTree *tree) throw(evioException*) {
-  addTree(*tree);
+  if(tree!=NULL)addTree(*tree);
+  return(*this);
 }
 
 
@@ -584,7 +586,7 @@ void evioDOMContainerNode::addTree(evioDOMTree &tree) throw(evioException*) {
 
 
 void evioDOMContainerNode::addTree(evioDOMTree *tree) throw(evioException*) {
-  addTree(*tree);
+  if(tree!=NULL)addTree(*tree);
 }
 
 
@@ -592,6 +594,7 @@ void evioDOMContainerNode::addTree(evioDOMTree *tree) throw(evioException*) {
 
 
 void evioDOMContainerNode::addNode(evioDOMNode *node) throw(evioException*) {
+  if(node==NULL)return;
   childList.push_back(node);
   node->parent=this;
 }
@@ -954,7 +957,7 @@ void evioDOMTree::addTree(evioDOMTree &tree) throw(evioException*) {
 
 
 void evioDOMTree::addTree(evioDOMTree *tree) throw(evioException*) {
-  addTree(*tree);
+  if(tree!=NULL)addTree(*tree);
 }
 
 
@@ -979,6 +982,7 @@ void evioDOMTree::addBank(evioDOMNode *node) throw(evioException*) {
 
 evioDOMTree& evioDOMTree::operator<<(evioDOMTree &tree) throw(evioException*) {
   addTree(tree);
+  return(*this);
 }
 
 
@@ -986,7 +990,8 @@ evioDOMTree& evioDOMTree::operator<<(evioDOMTree &tree) throw(evioException*) {
 
 
 evioDOMTree& evioDOMTree::operator<<(evioDOMTree *tree) throw(evioException*) {
-  addTree(tree);
+  if(tree!=NULL)addTree(tree);
+  return(*this);
 }
 
 
