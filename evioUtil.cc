@@ -990,6 +990,14 @@ evioDOMTree& evioDOMTree::operator<<(evioDOMNode *node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
+// void evioDOMTree::toEVIOBuffer(unsigned long buf[], int size) const throw(evioException) {
+//   toEVIOBuffer((unsigned long*)buf,root,size);
+// }
+
+
+//-----------------------------------------------------------------------------
+
+
 void evioDOMTree::toEVIOBuffer(unsigned long *buf, int size) const throw(evioException) {
   toEVIOBuffer(buf,root,size);
 }

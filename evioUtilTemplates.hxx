@@ -164,12 +164,9 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) thro
 
 template <typename T> const vector<T> *evioDOMNode::getVector(void) const throw(evioException) {
   // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+  if(!isLeaf())throw(evioException(0,"?evioDOMNode::getVector...not a leaf node",__FILE__,__LINE__));
   const evioDOMLeafNode<T> *l = dynamic_cast<const evioDOMLeafNode<T>*>(this);
-  if(l!=NULL) {
-    return(&l->data);
-  } else {
-    throw(evioException(0,"?evioDOMNode::getVector...not a leaf node",__FILE__,__LINE__));
-  }
+  return((l==NULL)?NULL:(&l->data));
 }
 
 

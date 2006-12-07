@@ -4,16 +4,16 @@
 
 
 // must do:
-//   throw evioException
+//   getVector problems, also exception if container node?
 //   are copy constructors, clone(), and operator= needed?
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
-//   const correctness
-//   Doxygen comments
 
 // should do:
 //   standardize on unsigned int
 //   getBuffer() and const?
 //   mark node in evioDOMTree
+//   const correctness
+//   Doxygen comments
 
 //  would like to do:
 //   serialize objects
@@ -21,8 +21,8 @@
 //   exception stack trace if supported on all platforms
 
 // not sure:
-//   const vs non-const node access in getNodeList()
-//   scheme for exception type codes
+//   const vs non-const node access in getNodeList()?
+//   scheme for exception type codes?
 //   namespaces?
 //   remove auto_ptr<>?
 //   AIDA interface?
@@ -404,6 +404,7 @@ public:
 
 
 public:
+  //  void toEVIOBuffer(unsigned long buf[], int size) const throw(evioException);
   void toEVIOBuffer(unsigned long *buf, int size) const throw(evioException);
   void toEVIOBuffer(unsigned int *buf, int size) const throw(evioException);
 
