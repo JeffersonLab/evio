@@ -425,6 +425,22 @@ evioDOMNode *evioDOMNode::createEvioDOMNode(evioDOMNode *parent, int tag, int nu
 //-----------------------------------------------------------------------------
 
 
+void evioDOMNode::addTree(evioDOMTree &tree) throw(evioException*) {
+  throw(new evioException(0,"?evioDOMNode::addTree...illegal usage",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void evioDOMNode::addTree(evioDOMTree *tree) throw(evioException*) {
+  throw(new evioException(0,"?evioDOMNode::addTree...illegal usage",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 void evioDOMNode::addNode(evioDOMNode *node) throw(evioException*) {
   throw(new evioException(0,"?evioDOMNode::addNode...illegal usage",__FILE__,__LINE__));
 }
@@ -435,6 +451,22 @@ void evioDOMNode::addNode(evioDOMNode *node) throw(evioException*) {
 
 evioDOMNodeListP evioDOMNode::getChildList(void) const throw(evioException*) {
   throw(new evioException(0,"?evioDOMNode::getChildList...illegal usage",__FILE__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode& evioDOMNode::operator<<(evioDOMTree &tree) throw(evioException*) {
+  addTree(tree);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNode& evioDOMNode::operator<<(evioDOMTree *tree) throw(evioException*) {
+  addTree(*tree);
 }
 
 
@@ -542,8 +574,26 @@ evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNode *newParent) const 
 //-----------------------------------------------------------------------------
 
                                    
+void evioDOMContainerNode::addTree(evioDOMTree &tree) throw(evioException*) {
+  addNode(tree.root);
+  tree.root=NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void evioDOMContainerNode::addTree(evioDOMTree *tree) throw(evioException*) {
+  addTree(*tree);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 void evioDOMContainerNode::addNode(evioDOMNode *node) throw(evioException*) {
   childList.push_back(node);
+  node->parent=this;
 }
 
 
@@ -753,7 +803,7 @@ evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, ContainerType ro
 
 evioDOMTree::evioDOMTree(const evioDOMTree &t) throw(evioException*) {
   name=t.name;
-  root=t.getRoot()->clone(NULL);
+  root=t.root->clone(NULL);
   rootType=t.rootType;
 }
 
@@ -894,6 +944,23 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 //-----------------------------------------------------------------------------
 
 
+void evioDOMTree::addTree(evioDOMTree &tree) throw(evioException*) {
+  addBank(tree.root);
+  tree.root=NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void evioDOMTree::addTree(evioDOMTree *tree) throw(evioException*) {
+  addTree(*tree);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 void evioDOMTree::addBank(evioDOMNode *node) throw(evioException*) {
 
   if(root==NULL) {
@@ -904,6 +971,22 @@ void evioDOMTree::addBank(evioDOMNode *node) throw(evioException*) {
   evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(root);
   if(c==NULL)throw(new evioException(0,"?evioDOMTree::addBank...root is not container",__FILE__,__LINE__));
   c->childList.push_back(node);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMTree& evioDOMTree::operator<<(evioDOMTree &tree) throw(evioException*) {
+  addTree(tree);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMTree& evioDOMTree::operator<<(evioDOMTree *tree) throw(evioException*) {
+  addTree(tree);
 }
 
 
@@ -1083,22 +1166,6 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNode *pNode, int 
 
   // return length of this bank
   return(bankLen);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-const evioDOMNode *evioDOMTree::getRoot(void) const {
-  return(root);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNode *evioDOMTree::getRoot(void) {
-  return(root);
 }
 
 
