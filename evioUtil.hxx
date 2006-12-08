@@ -7,12 +7,8 @@
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
 
 // should do:
-//   are copy constructors, clone(), and operator= needed?
 //   serialize and stream api
 //   standardize on unsigned int
-//   getBuffer() and const?
-//   mark node in evioDOMTree
-//   const correctness
 //   Doxygen comments
 
 //  would like to do:
@@ -20,6 +16,8 @@
 //   exception stack trace
 
 // not sure:
+//   mark in tree, container node?
+//   copy constructors, clone(), and operator=?
 //   scheme for exception type codes?
 //   namespaces?
 //   AIDA interface?
@@ -141,6 +139,7 @@ public:
   void write(const evioDOMTree &tree) throw(evioException);
   void write(const evioDOMTree *tree) throw(evioException);
   void close(void) throw(evioException);
+
   const unsigned long *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
 
@@ -201,14 +200,11 @@ class evioDOMNode {
 protected:
   evioDOMNode(evioDOMNodeP parent, int tag, int num, int contentType) throw(evioException);
   evioDOMNode(int tag, int num, int contentType) throw(evioException);
-  //  evioDOMNode(const evioDOMNode &Node) throw (evioException) = 0;
 
 
 public:
   virtual ~evioDOMNode(void) = 0;
   virtual evioDOMNodeP clone(evioDOMNodeP newParent) const = 0;
-
-
 
 
 public:
@@ -228,9 +224,9 @@ public:
   virtual void addTree(evioDOMTree *tree) throw(evioException);
   virtual void addNode(evioDOMNodeP node) throw(evioException);
   template <typename T> void append(const vector<T> &tVec) throw(evioException);
-  template <typename T> void append(T *tBuf, int len) throw(evioException);
+  template <typename T> void append(const T* tBuf, int len) throw(evioException);
   template <typename T> void replace(const vector<T> &tVec) throw(evioException);
-  template <typename T> void replace(T *tBuf, int len) throw(evioException);
+  template <typename T> void replace(const T* tBuf, int len) throw(evioException);
 
 
 public:
@@ -239,13 +235,11 @@ public:
   evioDOMNode& operator<<(evioDOMTree *tree) throw(evioException);
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
-  template <typename T> evioDOMNode& operator<<(vector<T> &tVec) throw(evioException);
+  template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
 
 
 public:
-  virtual const evioDOMNodeP getParent(void) const;
-  virtual evioDOMNodeP getParent(void);
-  virtual evioDOMNodeListP getChildList(void) const throw(evioException);
+  virtual evioDOMNodeListP getChildList(void) throw(evioException);
   template <typename T> vector<T> *getVector(void) throw(evioException);
 
 
@@ -291,7 +285,7 @@ public:
   void addTree(evioDOMTree &tree) throw(evioException);
   void addTree(evioDOMTree *tree) throw(evioException);
   void addNode(evioDOMNodeP node) throw(evioException);
-  evioDOMNodeListP getChildList(void) const throw(evioException);
+  evioDOMNodeListP getChildList(void) throw(evioException);
 
 
   // stream operators for object serializtion
@@ -309,8 +303,10 @@ public:
 public:
   evioDOMNodeList childList;
 
+
 private:
-  evioDOMNodeList::iterator mark;  // marks current item to stream out
+  int streamTag;
+  int streamNum;
   int streamArraySize;
 
 };
@@ -391,8 +387,8 @@ public:
 
 
 public:
-  evioDOMNodeListP getNodeList(void) const throw(evioException);
-  template <class Predicate> evioDOMNodeListP getNodeList(Predicate pred) const throw(evioException);
+  evioDOMNodeListP getNodeList(void) throw(evioException);
+  template <class Predicate> evioDOMNodeListP getNodeList(Predicate pred) throw(evioException);
 
 
 public:
@@ -402,7 +398,7 @@ public:
 private:
   evioDOMNodeP parse(const unsigned long *buf) throw(evioException);
   int toEVIOBuffer(unsigned long *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
-  template <class Predicate> evioDOMNodeList *addToNodeList(const evioDOMNodeP pNode,evioDOMNodeList *pList, Predicate pred) const
+  template <class Predicate> evioDOMNodeList *addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
     throw(evioException);
   
   void toOstream(ostream &os, const evioDOMNodeP node, int depth) const throw(evioException);
@@ -414,6 +410,7 @@ public:
   evioDOMNodeP root;
   string name;
   ContainerType rootType;
+
 };
 
 

@@ -110,7 +110,7 @@ template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evio
 
 
 // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
-template <typename T> void evioDOMNode::append(T *tBuf, int len) throw(evioException) {
+template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evioException) {
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
   if(l!=NULL) {
     for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
@@ -139,7 +139,7 @@ template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evi
 
 
 // must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
-template <typename T> void evioDOMNode::replace(T *tBuf, int len) throw(evioException) {
+template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(evioException) {
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
   if(l!=NULL) {
     l->data.clear();
@@ -153,7 +153,7 @@ template <typename T> void evioDOMNode::replace(T *tBuf, int len) throw(evioExce
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) throw(evioException) {
+template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec) throw(evioException) {
   append(tVec);
   return(*this);
 }
@@ -218,7 +218,7 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode)
-  throw(evioException) : evioDOMNode(NULL,lNode.tag,lNode.num,lNode.getContentType<T>())  {
+  throw(evioException) : evioDOMNode(lNode.tag,lNode.num,lNode.getContentType<T>())  {
 
   copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
 }
@@ -235,25 +235,6 @@ template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNodeP
 //-----------------------------------------------------------------------------
 
 
-// template <typename T> evioDOMLeafNode<T> &evioDOMLeafNode<T>::operator=(const evioDOMLeafNode<T> &rhs) 
-//   throw(evioException) {
-
-//   if(&rhs!=this) {
-//     parent=rhs.parent;
-//     tag=rhs.tag;
-//     contentType=rhs.contentType;
-//     num=rhs.num;
-    
-//     copy(rhs.data.begin(),rhs.data.end(),inserter(data,data.begin()));
-//   }
-
-//   return(*this);
-// }
-
-
-//-----------------------------------------------------------------------------
-
-                                
 template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
 }
   
@@ -381,7 +362,7 @@ template <typename T> string evioDOMLeafNode<T>::toString(void) const {
 //-----------------------------------------------------------------------------
 
 
-template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) const throw(evioException) {
+template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) throw(evioException) {
   evioDOMNodeList *pList = addToNodeList(root, new evioDOMNodeList(), pred);
   return(evioDOMNodeListP(pList));
 }  
@@ -390,8 +371,7 @@ template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate p
 //-----------------------------------------------------------------------------
 
 
-template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(const evioDOMNodeP pNode, 
-                                                                          evioDOMNodeList *pList, Predicate pred) const
+template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
   throw(evioException) {
 
   if(pNode==NULL)return(pList);
@@ -402,9 +382,9 @@ template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(const evi
   
   
   // add children to list
-  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
-    evioDOMNodeList::const_iterator iter;
+    evioDOMNodeList::iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       addToNodeList(*iter,pList,pred);
     }

@@ -438,7 +438,7 @@ void evioDOMNode::addNode(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeListP evioDOMNode::getChildList(void) const throw(evioException) {
+evioDOMNodeListP evioDOMNode::getChildList(void) throw(evioException) {
   throw(evioException(0,"?evioDOMNode::getChildList...illegal usage",__FILE__,__LINE__));
 }
 
@@ -489,22 +489,6 @@ bool evioDOMNode::operator!=(int tag) const {
 //-----------------------------------------------------------------------------
 
 
-const evioDOMNodeP evioDOMNode::getParent(void) const {
-  return(parent);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeP evioDOMNode::getParent(void) {
-  return(parent);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 bool evioDOMNode::isContainer(void) const {
   return(::is_container(contentType)==1);
 }
@@ -524,7 +508,7 @@ bool evioDOMNode::isLeaf(void) const {
 
 
 evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, int tg, int num, ContainerType cType) throw(evioException)
-  : evioDOMNode(par,tg,num,cType), mark(childList.begin()), streamArraySize(1) {
+  : evioDOMNode(par,tg,num,cType), streamArraySize(1) {
 }
 
 
@@ -532,7 +516,7 @@ evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, int tg, int num, Co
 
 
 evioDOMContainerNode::evioDOMContainerNode(int tg, int num, ContainerType cType) throw(evioException)
-  : evioDOMNode(tg,num,cType), mark(childList.begin()), streamArraySize(1) {
+  : evioDOMNode(tg,num,cType), streamArraySize(1) {
 }
 
 
@@ -540,7 +524,7 @@ evioDOMContainerNode::evioDOMContainerNode(int tg, int num, ContainerType cType)
 
 
 evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException) 
-  : evioDOMNode(cNode.tag,cNode.num,(ContainerType)cNode.contentType), mark(childList.begin()), streamArraySize(1) {
+  : evioDOMNode(cNode.tag,cNode.num,(ContainerType)cNode.contentType), streamArraySize(1) {
 
   // copy contents of child list
   copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
@@ -592,7 +576,7 @@ void evioDOMContainerNode::addNode(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeListP evioDOMContainerNode::getChildList(void) const throw(evioException) {
+evioDOMNodeListP evioDOMContainerNode::getChildList(void) throw(evioException) {
 
   evioDOMNodeList *cListP = new evioDOMNodeList();
   copy(this->childList.begin(),this->childList.end(),inserter(*cListP,cListP->begin()));
@@ -956,10 +940,10 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNodeP pNode, int 
   if(size<=0)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
 
 
-  if(pNode->getParent()==NULL) {
+  if(pNode->parent==NULL) {
     bankType=BANKID;
   } else {
-    bankType=pNode->getParent()->contentType;
+    bankType=pNode->parent->contentType;
   }
 
 
@@ -1111,7 +1095,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNodeP pNode, int 
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeListP evioDOMTree::getNodeList(void) const throw(evioException) {
+evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
   return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,isTrue)));
 }
 
