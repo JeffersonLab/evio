@@ -414,6 +414,26 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int nu
 //-----------------------------------------------------------------------------
 
 
+evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType) 
+  throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,o,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const evioSerializable &o, ContainerType cType) 
+  throw(evioException) {
+  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  o.serialize(c);
+  return(c);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 void evioDOMNode::addTree(evioDOMTree &tree) throw(evioException) {
   throw(evioException(0,"?evioDOMNode::addTree...illegal usage",__FILE__,__LINE__));
 }
@@ -576,31 +596,9 @@ void evioDOMContainerNode::addNode(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeListP evioDOMContainerNode::getChildList(void) throw(evioException) {
-
-  evioDOMNodeList *cListP = new evioDOMNodeList();
-  copy(this->childList.begin(),this->childList.end(),inserter(*cListP,cListP->begin()));
-  return(evioDOMNodeListP(cListP));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 // evioDOMContainerNode& evioDOMContainerNode::operator<<(unsigned long ul) throw(evioException) {
 //   evioDOMLeafNode<unsigned long> *leaf = new evioDOMLeafNode<unsigned long>(this,0,0,&ul,1);
 //   childList.push_back(leaf);
-//   return(*this);
-// }
-
-
-// //-----------------------------------------------------------------------------
-
-
-// evioDOMContainerNode& evioDOMContainerNode::operator<<( evioSerializable &o) throw(evioException) {
-//   evioDOMContainerNode *c = new evioDOMContainerNode(this,0,0xc,0);  // uses tagsegments
-//   o.serialize(*c);
-//   childList.push_back(c);
 //   return(*this);
 // }
 
@@ -612,6 +610,17 @@ evioDOMNodeListP evioDOMContainerNode::getChildList(void) throw(evioException) {
 //   streamArraySize=s.val;
 //   return(*this);
 // }
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNodeListP evioDOMContainerNode::getChildList(void) throw(evioException) {
+
+  evioDOMNodeList *cListP = new evioDOMNodeList();
+  copy(this->childList.begin(),this->childList.end(),inserter(*cListP,cListP->begin()));
+  return(evioDOMNodeListP(cListP));
+}
 
 
 //-----------------------------------------------------------------------------

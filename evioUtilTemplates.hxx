@@ -153,6 +153,17 @@ template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(ev
 //-----------------------------------------------------------------------------
 
 
+// must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+template <typename T> vector<T> *evioDOMNode::getVector(void) throw(evioException) {
+  if(!isLeaf())return(NULL);
+  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
+  return((l==NULL)?NULL:(&l->data));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec) throw(evioException) {
   append(tVec);
   return(*this);
@@ -160,14 +171,9 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec
 
 
 //-----------------------------------------------------------------------------
+//------------------ evioDOMContainerNode templated methods -------------------
+//-----------------------------------------------------------------------------
 
-
-// must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
-template <typename T> vector<T> *evioDOMNode::getVector(void) throw(evioException) {
-  if(!isLeaf())return(NULL);
-  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
-  return((l==NULL)?NULL:(&l->data));
-}
 
 
 //-----------------------------------------------------------------------------

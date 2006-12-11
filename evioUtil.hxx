@@ -2,12 +2,14 @@
 
 //  Author:  Elliott Wolin, JLab, 8-dec-2006
 
+//  immediate:
+//    node constructors
+
 
 // must do:
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
 
 // should do:
-//   serialize and stream api
 //   standardize on unsigned int
 //   Doxygen comments
 
@@ -16,6 +18,7 @@
 //   exception stack trace
 
 // not sure:
+//   when to use pure virtual in evioDOMNode?
 //   mark in tree, container node?
 //   copy constructors, clone(), and operator=?
 //   scheme for exception type codes?
@@ -217,6 +220,10 @@ public:
   template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const T* t, int len)
     throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType=BANK) 
+    throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const evioSerializable &o, ContainerType cType=BANK)
+    throw(evioException);
 
 
 public:
@@ -230,11 +237,14 @@ public:
 
 
 public:
+  virtual bool operator==(int tag) const;
+  virtual bool operator!=(int tag) const;
+
+
+public:
   evioDOMNode& operator<<(evioDOMNodeP node) throw(evioException);
   evioDOMNode& operator<<(evioDOMTree &tree) throw(evioException);
   evioDOMNode& operator<<(evioDOMTree *tree) throw(evioException);
-  virtual bool operator==(int tag) const;
-  virtual bool operator!=(int tag) const;
   template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
 
 
@@ -288,10 +298,8 @@ public:
   evioDOMNodeListP getChildList(void) throw(evioException);
 
 
-  // stream operators for object serializtion
-//   evioDOMContainerNode& operator<<(unsigned long ul) throw(evioException);
-//   evioDOMContainerNode& operator<<(evioSerializable &e) throw(evioException);
-//   template <typename T> evioDOMContainerNode& operator<<(const vector<T> &v) throw(evioException);
+public:
+  template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
 
 
 public:
@@ -334,6 +342,10 @@ private:
 
 public:
   virtual ~evioDOMLeafNode(void);
+
+
+public:
+  evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
 
 
 public:
@@ -418,11 +430,10 @@ public:
 //-----------------------------------------------------------------------------
 
 
-// evio interface for generic object serialization
 class evioSerializable {
 
 public:
-  virtual void serialize(evioDOMNode &cNode) const throw(evioException) = 0;
+  virtual void serialize(evioDOMNodeP node) const throw(evioException) = 0;
 };
 
 
