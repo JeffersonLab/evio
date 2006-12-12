@@ -28,7 +28,7 @@
 
 
 /*  misc variables */
-static unsigned long buf[MAXEVIOBUF];
+static unsigned int buf[MAXEVIOBUF];
 static char *input_filename;
 static int input_handle;
 static char *output_filename;
@@ -48,8 +48,8 @@ static int debug          = 0;
 void decode_command_line(int argc, char **argv);
 int user_event_select();
 int evOpen(const char *filename, const char *mode, int *handle);
-int evRead(int handle, unsigned long *buf, int maxbuflen);
-int evWrite(int handle, unsigned long *buf);
+int evRead(int handle, unsigned int *buf, int maxbuflen);
+int evWrite(int handle, unsigned int *buf);
 int evClose(int handle);
 
 
@@ -59,7 +59,7 @@ int evClose(int handle);
 int main (int argc, char **argv) {
 
   int status;
-  long i,j,l;
+  int i,j,l;
   
 
   /* decode command line */
@@ -115,7 +115,7 @@ int main (int argc, char **argv) {
 /*---------------------------------------------------------------- */
 
 
-int user_event_select(unsigned long *buf) {
+int user_event_select(unsigned int *buf) {
 
   int i;
   int event_tag = buf[1]>>16;

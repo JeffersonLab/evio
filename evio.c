@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.16  2006/12/12 14:51:31  wolin
+ *   Now using unsigned int
+ *
  *   Revision 1.15  2006/08/18 15:10:47  wolin
  *   Added prototypes
  *
@@ -176,7 +179,7 @@ static  int  physicsEventsInsideBlock(EVFILE *);
 
 /*  these replace routines from swap_util.c, ejw, 1-dec-03 */
 extern int swap_long_value(int val);
-extern unsigned long *swap_long(unsigned long *data, unsigned long length,unsigned long *dest);
+extern unsigned int *swap_long(unsigned int *data, unsigned int length, unsigned int *dest);
 
 
 #if defined(__osf__) && defined(__alpha)
@@ -329,7 +332,7 @@ int evOpen(char *fname,char *flags,int *handle)
 	return(S_EVFILE_ALLOCFAIL);
       }
       if(a->byte_swapped) {
-	swap_long((unsigned long *)header,EV_HDSIZ,(unsigned long *)a->buf);
+	swap_long((unsigned int *)header,EV_HDSIZ,(unsigned int *)a->buf);
 	fread(&(a->buf[EV_HDSIZ]),4,blk_size-EV_HDSIZ,a->file);
       }
       else{
@@ -433,7 +436,7 @@ int evread
 #else
 int evread_
 #endif
-(int *handle,unsigned long *buffer,int *buflen)
+(int *handle,unsigned int *buffer,int *buflen)
 {
   return(evRead(*handle,buffer,*buflen));
 }
@@ -442,7 +445,7 @@ int evread_
 /*-----------------------------------------------------------------------------*/
 
 
-int evRead(int handle, unsigned long *buffer,int buflen)
+int evRead(int handle, unsigned int *buffer,int buflen)
 {
   EVFILE *a;
   int nleft,ncopy,error,status;
@@ -491,7 +494,7 @@ int evRead(int handle, unsigned long *buffer,int buflen)
     a->left -= ncopy;
   }
   if (a->byte_swapped) {
-    evioswap((unsigned long*)temp_ptr,1,(unsigned long*)buffer);
+    evioswap((unsigned int*)temp_ptr,1,(unsigned int*)buffer);
     free(temp_ptr);
   }
   return(status);
@@ -511,7 +514,7 @@ int evGetNewBuffer(a)
   a->buf[EV_HD_MAGIC] = 0;
   nread = fread(a->buf,4,a->blksiz,a->file);
   if (a->byte_swapped) {
-    swap_long((unsigned long*)a->buf,EV_HDSIZ,NULL);
+    swap_long((unsigned int*)a->buf,EV_HDSIZ,NULL);
   }
   if (feof(a->file)) return(EOF);
   if (ferror(a->file)) return(ferror(a->file));
@@ -543,7 +546,7 @@ int evwrite
 #else
 int evwrite_
 #endif
-(int *handle,unsigned long *buffer)
+(int *handle,unsigned int*buffer)
 {
   return(evWrite(*handle,buffer));
 }
@@ -552,7 +555,7 @@ int evwrite_
 /*-----------------------------------------------------------------------------*/
 
 
-int evWrite(int handle, const unsigned long *buffer)
+int evWrite(int handle, const unsigned int *buffer)
 {
   EVFILE *a;
   int nleft,ncopy,error;
@@ -1062,7 +1065,7 @@ static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
     fseek(a->file, a->blksiz*block_num*4, SEEK_SET);
     fread(header, sizeof(header), 1, a->file);
     if(a->byte_swapped)
-      swap_long((unsigned long *)header,EV_HDSIZ,(unsigned long *)buf);
+      swap_long((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
     else
       memcpy(buf, header, EV_HDSIZ*4);
     if(buf[EV_HD_START] > 0) {
@@ -1083,7 +1086,7 @@ static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
     fseek(a->file, a->blksiz*block_num*4, SEEK_SET);
     fread(header, sizeof(header), 1, a->file);
     if(a->byte_swapped)
-      swap_long((unsigned long *)header,EV_HDSIZ,(unsigned long *)buf);
+      swap_long((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
     else
       memcpy((char *)buf, (char *)header, EV_HDSIZ*4);
     if(buf[EV_HD_START] > 0) {
@@ -1221,7 +1224,7 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
   }
   
   if(a->byte_swapped) {
-    evioswap((unsigned long*)temp_ptr,1,(unsigned long*)buffer);
+    evioswap((unsigned int*)temp_ptr,1,(unsigned int*)buffer);
     free(temp_ptr);
   }
   return (status);
@@ -1291,7 +1294,7 @@ static int evGetEventType(EVFILE *a)
     fseek(a->file, (EV_HDSIZ)*4,SEEK_CUR);
   if(a->byte_swapped) {
     fread(&t_temp, sizeof(int), 1, a->file);
-    swap_long((unsigned long *)&t_temp,1,(unsigned long *)&temp);
+    swap_long((unsigned int*)&t_temp,1,(unsigned int*)&temp);
   }
   else
     fread(&temp, sizeof(int), 1, a->file);
@@ -1327,7 +1330,7 @@ static int physicsEventsInsideBlock(EVFILE *a)
   /* copy block header information */
   if(a->byte_swapped) {
     fread(header, sizeof(header), 1, a->file);
-    swap_long((unsigned long *)header,EV_HDSIZ,(unsigned long *)buf);
+    swap_long((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
   }
   else
     fread(buf, sizeof(buf), 1, a->file);

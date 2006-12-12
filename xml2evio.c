@@ -70,7 +70,7 @@ static char xmlbuf[MAXXMLBUF];
 static char cdata[MAXCDATA];
 static char *pcdata=cdata;
 static int cdatalen       = 0;
-static unsigned long eviobuf[MAXEVIOBUF];
+static unsigned int eviobuf[MAXEVIOBUF];
 static int eviolen        = 0;
 
 
@@ -136,7 +136,7 @@ int find_tag(const char **atts, const int natt, const char *tag);
 int get_int_tag(const char **atts, const int natt, const char *tag, int *val);
 const char *get_char_tag(const char **atts, const int natt, const char *tag);
 int evOpen(const char *filename, const char *mode, int *handle);
-int evWrite(int handle, unsigned long *buf);
+int evWrite(int handle, unsigned int *buf);
 int evClose(int handle);
 
 
@@ -578,7 +578,7 @@ void decode_cdata(int content, int *nword, int noexpand) {
       } else {
 	  sscanf(p,"%d%n",&ul,&len);
       }
-      ((unsigned long*)(&eviobuf[eviolen]))[n-1]=ul;
+      ((unsigned int*)(&eviobuf[eviolen]))[n-1]=ul;
       p=strtok(NULL," \n\t");
     }
     *nword=n;
@@ -600,7 +600,7 @@ void decode_cdata(int content, int *nword, int noexpand) {
       } else {
 	  sscanf(p,"%d%n",&ul,&len);
       }
-      ((unsigned long*)(&eviobuf[eviolen]))[n-1]=ul;
+      ((unsigned int*)(&eviobuf[eviolen]))[n-1]=ul;
       p=strtok(NULL," \n\t");
     }
     nw=n;
@@ -724,7 +724,7 @@ void decode_cdata(int content, int *nword, int noexpand) {
     while(p!=NULL) {
       n++;
       sscanf(p,"%d",&l);
-      ((long*)(&eviobuf[eviolen]))[n-1]=l;
+      ((int*)(&eviobuf[eviolen]))[n-1]=l;
       p=strtok(NULL," \n\t");
     }
     nw=n;

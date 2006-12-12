@@ -56,13 +56,13 @@ static char xml[MAXXMLSTRING];
 /* prototypes */
 void decode_command_line(int argc, char **argv);
 void evio_xmldump_init(char *dictfilename);
-void evio_xmldump(unsigned long *buf, int evnum, char *string, int len);
+void evio_xmldump(unsigned int *buf, int evnum, char *string, int len);
 void evio_xmldump_done(char *string, int len);
 void writeit(FILE *f, char *s, int len);
-int user_event_select(unsigned long *buf);
+int user_event_select(unsigned int *buf);
 int user_frag_select(int tag);
 int evOpen(const char *filename, const char *mode, int *handle);
-int evRead(int handle, unsigned long *buf, int maxbuflen );
+int evRead(int handle, unsigned int *buf, int maxbuflen );
 int evClose(int handle);
 
 
@@ -72,7 +72,7 @@ int evClose(int handle);
 int main (int argc, char **argv) {
 
   int handle,status;
-  unsigned long buf[MAXEVIOBUF];
+  unsigned int buf[MAXEVIOBUF];
   FILE *out = NULL;
   char s[256];
   
@@ -157,7 +157,7 @@ void writeit(FILE *f, char *s, int len) {
 /*---------------------------------------------------------------- */
 
 
-int user_event_select(unsigned long *buf) {
+int user_event_select(unsigned int *buf) {
 
   int i;
   int event_tag = buf[1]>>16;

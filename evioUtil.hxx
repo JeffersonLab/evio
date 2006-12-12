@@ -5,9 +5,9 @@
 
 // must do:
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
+//   update doc
 
 // should do:
-//   standardize on unsigned int
 //   Doxygen comments
 
 //  would like to do:
@@ -15,7 +15,6 @@
 //   exception stack trace
 
 // not sure:
-//   when to use pure virtual in evioDOMNode?
 //   mark in tree, container node?
 //   copy constructors, clone(), and operator=?
 //   evioDOMNode == defined on tag?
