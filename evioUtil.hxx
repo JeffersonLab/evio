@@ -2,9 +2,6 @@
 
 //  Author:  Elliott Wolin, JLab, 8-dec-2006
 
-//  immediate:
-//    node constructors
-
 
 // must do:
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
@@ -21,6 +18,7 @@
 //   when to use pure virtual in evioDOMNode?
 //   mark in tree, container node?
 //   copy constructors, clone(), and operator=?
+//   evioDOMNode == defined on tag?
 //   scheme for exception type codes?
 //   namespaces?
 //   AIDA interface?
@@ -63,14 +61,6 @@ typedef enum {
   SEGMENT    = 0xd,
   TAGSEGMENT = 0xc
 } ContainerType;
-
-
-//-----------------------------------------------------------------------------
-//----------------------------- for stream API --------------------------------
-//-----------------------------------------------------------------------------
-
-
-class setEvioArraySize {public: int val; setEvioArraySize(int i) : val(i){} };
 
 
 //-----------------------------------------------------------------------------
@@ -125,7 +115,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  wrapper around evio C library
+//  implements evioChannel for a file
 class evioFileChannel : public evioChannel {
 
 public:
@@ -197,12 +187,11 @@ private:
 //--------------------------------------------------------------
 
 
-//  represents an evio node in memory
+// interface, represents an evio node in memory, implemented via factory pattern
 class evioDOMNode {
 
 protected:
   evioDOMNode(evioDOMNodeP parent, int tag, int num, int contentType) throw(evioException);
-  evioDOMNode(int tag, int num, int contentType) throw(evioException);
 
 
 public:
@@ -211,8 +200,9 @@ public:
 
 
 public:
-  static evioDOMNodeP createEvioDOMNode(int tag, int num, ContainerType cType=BANK) throw(evioException);
+  // factory methods to create nodes
   static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, ContainerType cType=BANK) throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(int tag, int num, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const vector<T> tVec)
     throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const vector<T> tVec)
@@ -220,9 +210,9 @@ public:
   template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const T* t, int len)
     throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType=BANK) 
-    throw(evioException);
   static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const evioSerializable &o, ContainerType cType=BANK)
+    throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType=BANK) 
     throw(evioException);
 
 
@@ -281,7 +271,6 @@ class evioDOMContainerNode : public evioDOMNode {
 
 private:
   evioDOMContainerNode(evioDOMNodeP parent, int tag, int num, ContainerType cType) throw(evioException);
-  evioDOMContainerNode(int tag, int num, ContainerType cType) throw(evioException);
 
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw (evioException);
   evioDOMContainerNode *clone(evioDOMNodeP newParent) const;
@@ -311,12 +300,6 @@ public:
 public:
   evioDOMNodeList childList;
 
-
-private:
-  int streamTag;
-  int streamNum;
-  int streamArraySize;
-
 };
 
 
@@ -332,9 +315,7 @@ template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 private:
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const vector<T> &v) throw(evioException);
-  evioDOMLeafNode(int tg, int num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const T *p, int ndata) throw(evioException);
-  evioDOMLeafNode(int tg, int num, const T *p, int ndata) throw(evioException);
 
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
   evioDOMLeafNode<T>* clone(evioDOMNodeP newParent) const;
@@ -363,7 +344,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  manages tree representation of evio event in memory
+// represents an evio tree/event in memory
 class evioDOMTree : public evioStreamParserHandler {
 
 public:
@@ -430,6 +411,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
+// interface for object serialization
 class evioSerializable {
 
 public:

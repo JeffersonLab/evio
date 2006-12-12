@@ -71,7 +71,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP p
 
 
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, const vector<T> tVec) throw(evioException) {
-  return(new evioDOMLeafNode<T>(tag,num,tVec));
+  return(new evioDOMLeafNode<T>(NULL,tag,num,tVec));
 }
 
 
@@ -79,7 +79,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int n
 
 
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException) {
-  return(new evioDOMLeafNode<T>(tag,num,t,len));
+  return(new evioDOMLeafNode<T>(NULL,tag,num,t,len));
 }
 
 
@@ -191,16 +191,6 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, int 
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const vector<T> &v)
-  throw(evioException) : evioDOMNode(tg,num,getContentType<T>()) {
-
-  copy(v.begin(),v.end(),inserter(data,data.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, int tg, int num, const T* p, int ndata) 
   throw(evioException) : evioDOMNode(parent,tg,num,getContentType<T>()) {
   
@@ -212,19 +202,8 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, i
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(int tg, int num, const T* p, int ndata)
-  throw(evioException) : evioDOMNode(tg,num,getContentType<T>()) {
-  
-  // fill vector with data
-  for(int i=0; i<ndata; i++) data.push_back(p[i]);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode)
-  throw(evioException) : evioDOMNode(lNode.tag,lNode.num,lNode.getContentType<T>())  {
+  throw(evioException) : evioDOMNode(NULL,lNode.tag,lNode.num,lNode.getContentType<T>())  {
 
   copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
 }
@@ -410,7 +389,7 @@ template <typename T> void evioDOMTree::addBank(int tag, int num, const vector<T
   if(p!=NULL) {
     p->childList.push_back(evioDOMNode::createEvioDOMNode(root,tag,num,dataVec));
   } else {
-    root = evioDOMNode::createEvioDOMNode(tag,num,dataVec);
+    root = evioDOMNode::createEvioDOMNode(NULL,tag,num,dataVec);
   }
 }
 
@@ -423,7 +402,7 @@ template <typename T> void evioDOMTree::addBank(int tag, int num, const T* dataB
   if(p!=NULL) {
     p->childList.push_back(evioDOMNode::createEvioDOMNode(root,tag,num,dataBuf,dataLen));
   } else {
-    root = evioDOMNode::createEvioDOMNode(tag,num,dataBuf,dataLen);
+    root = evioDOMNode::createEvioDOMNode(NULL,tag,num,dataBuf,dataLen);
   }
 }
 

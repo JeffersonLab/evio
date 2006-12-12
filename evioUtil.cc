@@ -1,9 +1,7 @@
 /*
  *  evioUtil.cc
  *
- *   Assorted evio utilities, C++ version
- *
- *   Author:  Elliott Wolin, JLab, 2-nov-2006
+ *   Author:  Elliott Wolin, JLab, 11-dec-2006
 */
 
 
@@ -15,7 +13,6 @@
 //-------------------- local variables -------------------------
 //--------------------------------------------------------------
 
-#define BANKID 0xe
 
 
 //--------------------------------------------------------------
@@ -242,7 +239,7 @@ void *evioStreamParser::parse(const unsigned long *buf,
   
   if(buf==NULL)throw(evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__LINE__));
 
-  return((void*)parseBank(buf,BANKID,0,handler,userArg));
+  return((void*)parseBank(buf,BANK,0,handler,userArg));
 }
 
 
@@ -383,14 +380,6 @@ evioDOMNode::evioDOMNode(evioDOMNodeP par, int tg, int num, int contentType) thr
 //-----------------------------------------------------------------------------
 
 
-evioDOMNode::evioDOMNode(int tg, int num, int contentType) throw(evioException)
-  : parent(NULL), tag(tg), num(num), contentType(contentType) {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 evioDOMNode::~evioDOMNode(void) {
 }
 
@@ -399,7 +388,7 @@ evioDOMNode::~evioDOMNode(void) {
 
 
 evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, ContainerType cType) throw(evioException) {
-  return(new evioDOMContainerNode(tag,num,cType));
+  return(new evioDOMContainerNode(NULL,tag,num,cType));
 }
 
 
@@ -528,15 +517,7 @@ bool evioDOMNode::isLeaf(void) const {
 
 
 evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, int tg, int num, ContainerType cType) throw(evioException)
-  : evioDOMNode(par,tg,num,cType), streamArraySize(1) {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode::evioDOMContainerNode(int tg, int num, ContainerType cType) throw(evioException)
-  : evioDOMNode(tg,num,cType), streamArraySize(1) {
+  : evioDOMNode(par,tg,num,cType) {
 }
 
 
@@ -544,7 +525,7 @@ evioDOMContainerNode::evioDOMContainerNode(int tg, int num, ContainerType cType)
 
 
 evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException) 
-  : evioDOMNode(cNode.tag,cNode.num,(ContainerType)cNode.contentType), streamArraySize(1) {
+  : evioDOMNode(NULL,cNode.tag,cNode.num,(ContainerType)cNode.contentType) {
 
   // copy contents of child list
   copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
@@ -596,25 +577,6 @@ void evioDOMContainerNode::addNode(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-// evioDOMContainerNode& evioDOMContainerNode::operator<<(unsigned long ul) throw(evioException) {
-//   evioDOMLeafNode<unsigned long> *leaf = new evioDOMLeafNode<unsigned long>(this,0,0,&ul,1);
-//   childList.push_back(leaf);
-//   return(*this);
-// }
-
-
-// //-----------------------------------------------------------------------------
-
-
-// evioDOMContainerNode& evioDOMContainerNode::operator<<(const setEvioArraySize &s) throw(evioException) {
-//   streamArraySize=s.val;
-//   return(*this);
-// }
-
-
-//-----------------------------------------------------------------------------
-
-
 evioDOMNodeListP evioDOMContainerNode::getChildList(void) throw(evioException) {
 
   evioDOMNodeList *cListP = new evioDOMNodeList();
@@ -639,7 +601,7 @@ string evioDOMContainerNode::toString(void) const {
 string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
   os << getIndent(depth)
-     <<  "<" << get_typename(parent==NULL?BANKID:parent->contentType) << " content=\"" << get_typename(contentType)
+     <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " content=\"" << get_typename(contentType)
      << "\" data_type=\"" << hex << showbase << contentType
      << dec << "\" tag=\""  << tag;
   if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
@@ -653,7 +615,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
                                    
 string evioDOMContainerNode::getFooter(int depth) const {
   ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANKID:this->parent->contentType) << ">" << endl;
+  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
   return(os.str());
 }
 
@@ -671,8 +633,7 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException) 
-  : name(n) {
+evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException) : name(n) {
   const unsigned long *buf = channel.getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   root=parse(buf);
@@ -683,8 +644,7 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evio
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const evioChannel *channel, const string &n) throw(evioException) 
-  : name(n) {
+evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(evioException) : name(name) {
   if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__LINE__));
   const unsigned long *buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
@@ -696,8 +656,7 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &n) throw(evio
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioException) 
-  : name(n) {
+evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evioException) : name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
   root=parse(buf);
   rootType=BANK;
@@ -707,8 +666,7 @@ evioDOMTree::evioDOMTree(const unsigned long *buf, const string &n) throw(evioEx
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(const unsigned int *buf, const string &n) throw(evioException) 
-  : name(n) {
+evioDOMTree::evioDOMTree(const unsigned int *buf, const string &name) throw(evioException) : name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
   root=parse(reinterpret_cast<const unsigned long*>(buf));
   rootType=BANK;
@@ -729,8 +687,7 @@ evioDOMTree::evioDOMTree(evioDOMNodeP node, ContainerType rootType, const string
 
 evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, ContainerType rootType, const string &name) throw(evioException) 
   : name(name), rootType(rootType) {
-  //  root = new evioDOMContainerNode(tag,num,cType);
-  root = evioDOMNode::createEvioDOMNode(tag,num,cType);
+  root = evioDOMNode::createEvioDOMNode(NULL,tag,num,cType);
 }
 
 
@@ -950,7 +907,7 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNodeP pNode, int 
 
 
   if(pNode->parent==NULL) {
-    bankType=BANKID;
+    bankType=BANK;
   } else {
     bankType=pNode->parent->contentType;
   }
