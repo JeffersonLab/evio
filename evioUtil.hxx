@@ -105,7 +105,7 @@ public:
   virtual void close(void) throw(evioException) = 0;
 
   // not sure if these should be part of the interface
-  virtual const unsigned long *getBuffer(void) const throw(evioException) = 0;
+  virtual const unsigned int *getBuffer(void) const throw(evioException) = 0;
   virtual int getBufSize(void) const = 0;
 
 };
@@ -133,7 +133,7 @@ public:
   void write(const evioDOMTree *tree) throw(evioException);
   void close(void) throw(evioException);
 
-  const unsigned long *getBuffer(void) const throw(evioException);
+  const unsigned int *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
 
   void ioctl(const string &request, void *argp) throw(evioException);
@@ -145,7 +145,7 @@ private:
   string filename;
   string mode;
   int handle;
-  unsigned long *buf;
+  unsigned int *buf;
   int bufSize;
 };
 
@@ -173,11 +173,11 @@ public:
 class evioStreamParser {
 
 public:
-  void *parse(const unsigned long *buf, evioStreamParserHandler &handler, void *userArg)
+  void *parse(const unsigned int *buf, evioStreamParserHandler &handler, void *userArg)
     throw(evioException);
   
 private:
-  void *parseBank(const unsigned long *buf, int bankType, int depth, 
+  void *parseBank(const unsigned int *buf, int bankType, int depth, 
                   evioStreamParserHandler &handler, void *userArg) throw(evioException);
 
 };
@@ -389,8 +389,8 @@ public:
 
 
 private:
-  evioDOMNodeP parse(const unsigned long *buf) throw(evioException);
-  int toEVIOBuffer(unsigned long *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
+  evioDOMNodeP parse(const unsigned int *buf) throw(evioException);
+  int toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
   template <class Predicate> evioDOMNodeList *addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
     throw(evioException);
   

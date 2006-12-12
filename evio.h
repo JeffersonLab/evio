@@ -37,14 +37,14 @@ extern "C" {
 #endif
 
 int evOpen(char *fileName, char *mode, int *handle);
-int evRead(int handle, unsigned long *buffer, int size);
-int evWrite(int handle, const unsigned long *buffer);
+int evRead(int handle, unsigned int *buffer, int size);
+int evWrite(int handle, const unsigned int *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
 
-void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest);
+void evioswap(unsigned int *buffer, int tolocal, unsigned int *dest);
 
-void evio_stream_parse(unsigned long *buf, NH_TYPE nh, LH_TYPE lh, void *userArg);
+void evio_stream_parse(unsigned int *buf, NH_TYPE nh, LH_TYPE lh, void *userArg);
 const char *get_typename(int type);
 int is_container(int type);
 

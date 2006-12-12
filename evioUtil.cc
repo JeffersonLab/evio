@@ -73,7 +73,7 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
   : filename(f), mode(m), bufSize(size), buf(NULL), handle(0) {
 
   // allocate buffer
-  buf = new unsigned long[bufSize];
+  buf = new unsigned int[bufSize];
   if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__LINE__));
 }
 
@@ -123,7 +123,7 @@ void evioFileChannel::write(void) throw(evioException) {
 //-----------------------------------------------------------------------
 
 
-void evioFileChannel::write(const unsigned long *myBuf) throw(evioException) {
+void evioFileChannel::write(const unsigned int *myBuf) throw(evioException) {
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__LINE__));
   if(evWrite(handle,myBuf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__LINE__));
@@ -133,8 +133,8 @@ void evioFileChannel::write(const unsigned long *myBuf) throw(evioException) {
 //-----------------------------------------------------------------------
 
 
-void evioFileChannel::write(const unsigned int *myBuf) throw(evioException) {
-  write(reinterpret_cast<const unsigned long*>(myBuf));
+void evioFileChannel::write(const unsigned long *myBuf) throw(evioException) {
+  write(reinterpret_cast<const unsigned int*>(myBuf));
 }
 
 
@@ -214,7 +214,7 @@ string evioFileChannel::getMode(void) const {
 //-----------------------------------------------------------------------
 
 
-const unsigned long *evioFileChannel::getBuffer(void) const throw(evioException) {
+const unsigned int *evioFileChannel::getBuffer(void) const throw(evioException) {
   if(buf==NULL)throw(evioException(0,"evioFileChannel::getbuffer...null buffer",__FILE__,__LINE__));
   return(buf);
 }
@@ -234,7 +234,7 @@ int evioFileChannel::getBufSize(void) const {
 //-----------------------------------------------------------------------
 
 
-void *evioStreamParser::parse(const unsigned long *buf, 
+void *evioStreamParser::parse(const unsigned int *buf, 
                               evioStreamParserHandler &handler, void *userArg) throw(evioException) {
   
   if(buf==NULL)throw(evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__LINE__));
@@ -246,12 +246,12 @@ void *evioStreamParser::parse(const unsigned long *buf,
 //--------------------------------------------------------------
 
 
-void *evioStreamParser::parseBank(const unsigned long *buf, int bankType, int depth, 
+void *evioStreamParser::parseBank(const unsigned int *buf, int bankType, int depth, 
                                  evioStreamParserHandler &handler, void *userArg) throw(evioException) {
 
   int length,tag,contentType,num,dataOffset,p,bankLen;
-  const unsigned long *data;
-  unsigned long mask;
+  const unsigned int *data;
+  unsigned int mask;
 
   void *newUserArg = userArg;
 
@@ -634,7 +634,7 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 
 
 evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException) : name(n) {
-  const unsigned long *buf = channel.getBuffer();
+  const unsigned int *buf = channel.getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   root=parse(buf);
   rootType=BANK;
@@ -646,7 +646,7 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evio
 
 evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(evioException) : name(name) {
   if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__LINE__));
-  const unsigned long *buf = channel->getBuffer();
+  const unsigned int *buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   root=parse(buf);
   rootType=BANK;
@@ -658,7 +658,7 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
 
 evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evioException) : name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
-  root=parse(buf);
+  root=parse(reinterpret_cast<const unsigned int*>(buf));
   rootType=BANK;
 }
 
@@ -668,7 +668,7 @@ evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evi
 
 evioDOMTree::evioDOMTree(const unsigned int *buf, const string &name) throw(evioException) : name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
-  root=parse(reinterpret_cast<const unsigned long*>(buf));
+  root=parse(buf);
   rootType=BANK;
 }
 
@@ -712,7 +712,7 @@ evioDOMTree::~evioDOMTree(void) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeP evioDOMTree::parse(const unsigned long *buf) throw(evioException) {
+evioDOMNodeP evioDOMTree::parse(const unsigned int *buf) throw(evioException) {
   evioStreamParser p;
   return((evioDOMNodeP)p.parse(buf,*this,NULL));
 }
@@ -761,11 +761,7 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 
   case 0x0:
   case 0x1:
-    if(sizeof(unsigned long)==4) {
-      newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned long*)data,length);
-    } else {
-      newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned int*)data,length);
-    }
+    newLeaf = evioDOMNode::createEvioDOMNode(parent,tag,num,(unsigned int*)data,length);
     break;
       
   case 0x2:
@@ -891,7 +887,7 @@ evioDOMTree& evioDOMTree::operator<<(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-void evioDOMTree::toEVIOBuffer(unsigned long *buf, int size) const throw(evioException) {
+void evioDOMTree::toEVIOBuffer(unsigned int *buf, int size) const throw(evioException) {
   toEVIOBuffer(buf,root,size);
 }
 
@@ -899,7 +895,7 @@ void evioDOMTree::toEVIOBuffer(unsigned long *buf, int size) const throw(evioExc
 //-----------------------------------------------------------------------------
 
 
-int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNodeP pNode, int size) const throw(evioException) {
+int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int size) const throw(evioException) {
 
   int bankLen,bankType,dataOffset;
 
@@ -965,10 +961,10 @@ int evioDOMTree::toEVIOBuffer(unsigned long *buf, const evioDOMNodeP pNode, int 
     case 0x2:
     case 0xb:
       {
-        const evioDOMLeafNode<unsigned long> *leaf = static_cast<const evioDOMLeafNode<unsigned long>*>(pNode);
+        const evioDOMLeafNode<unsigned int> *leaf = static_cast<const evioDOMLeafNode<unsigned int>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata;
-        for(i=0; i<ndata; i++) buf[dataOffset+i]=(unsigned long)(leaf->data[i]);
+        for(i=0; i<ndata; i++) buf[dataOffset+i]=(unsigned int)(leaf->data[i]);
       }
       break;
       
