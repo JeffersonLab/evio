@@ -2,6 +2,8 @@
 
 //  Author:  Elliott Wolin, JLab, 8-dec-2006
 
+// immediate:
+//   tree root is always a BANK
 
 // must do:
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
@@ -11,6 +13,7 @@
 //   Doxygen comments
 
 //  would like to do:
+//   shared pointer
 //   cMsg channel
 //   exception stack trace
 
@@ -189,6 +192,9 @@ private:
 // interface, represents an evio node in memory, implemented via factory pattern
 class evioDOMNode {
 
+  friend class evioDOMTree;  // allows evioDOMTree to use protected factory methods
+
+
 protected:
   evioDOMNode(evioDOMNodeP parent, int tag, int num, int contentType) throw(evioException);
 
@@ -199,19 +205,21 @@ public:
 
 
 public:
-  // factory methods to create nodes
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, ContainerType cType=BANK) throw(evioException);
+  // public factory methods for node creation
   static evioDOMNodeP createEvioDOMNode(int tag, int num, ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const vector<T> tVec) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType=BANK) throw(evioException);
+
+
+protected:
+  // node creation factory methods used internally
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const vector<T> tVec)
-    throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const vector<T> tVec)
     throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const T* t, int len)
     throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException);
   static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const evioSerializable &o, ContainerType cType=BANK)
-    throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType=BANK) 
     throw(evioException);
 
 
@@ -238,7 +246,7 @@ public:
 
 
 public:
-  virtual evioDOMNodeListP getChildList(void) throw(evioException);
+  evioDOMNodeList *getChildList(void) throw(evioException);
   template <typename T> vector<T> *getVector(void) throw(evioException);
 
 
@@ -265,7 +273,7 @@ public:
 //  represents an evio container node in memory
 class evioDOMContainerNode : public evioDOMNode {
 
-  friend class evioDOMNode;
+  friend class evioDOMNode;  // allows evioDOMNode to use private subclass methods
 
 
 private:
@@ -283,7 +291,6 @@ public:
   void addTree(evioDOMTree &tree) throw(evioException);
   void addTree(evioDOMTree *tree) throw(evioException);
   void addNode(evioDOMNodeP node) throw(evioException);
-  evioDOMNodeListP getChildList(void) throw(evioException);
 
 
 public:
@@ -309,7 +316,7 @@ public:
 //  represents an evio leaf node in memory
 template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
-  friend class evioDOMNode;
+  friend class evioDOMNode;  // allows evioDOMNode to use private subclass methods
 
 
 private:

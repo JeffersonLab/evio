@@ -447,8 +447,10 @@ void evioDOMNode::addNode(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeListP evioDOMNode::getChildList(void) throw(evioException) {
-  throw(evioException(0,"?evioDOMNode::getChildList...illegal usage",__FILE__,__LINE__));
+evioDOMNodeList *evioDOMNode::getChildList(void) throw(evioException) {
+  if(!isContainer())return(NULL);
+  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(this);
+  return(&c->childList);
 }
 
 
@@ -571,17 +573,6 @@ void evioDOMContainerNode::addNode(evioDOMNodeP node) throw(evioException) {
   if(node==NULL)return;
   childList.push_back(node);
   node->parent=this;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeListP evioDOMContainerNode::getChildList(void) throw(evioException) {
-
-  evioDOMNodeList *cListP = new evioDOMNodeList();
-  copy(this->childList.begin(),this->childList.end(),inserter(*cListP,cListP->begin()));
-  return(evioDOMNodeListP(cListP));
 }
 
 
