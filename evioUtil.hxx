@@ -2,9 +2,6 @@
 
 //  Author:  Elliott Wolin, JLab, 8-dec-2006
 
-// immediate:
-//   tree root is always a BANK
-
 // must do:
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
 //   update doc
@@ -358,8 +355,8 @@ public:
   evioDOMTree(const evioChannel *channel, const string &name = "evio") throw(evioException);
   evioDOMTree(const unsigned long *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(const unsigned int *buf, const string &name = "evio") throw(evioException);
-  evioDOMTree(evioDOMNodeP node, ContainerType rootType=BANK, const string &name = "evio") throw(evioException);
-  evioDOMTree(int tag, int num, ContainerType cType=BANK, ContainerType rootType=BANK, const string &name = "evio")
+  evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
+  evioDOMTree(int tag, int num, ContainerType cType=BANK, const string &name = "evio")
     throw(evioException);
 
   evioDOMTree(const evioDOMTree &tree) throw(evioException);
@@ -408,7 +405,6 @@ private:
 public:
   evioDOMNodeP root;
   string name;
-  ContainerType rootType;
 
 };
 

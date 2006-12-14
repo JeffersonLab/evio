@@ -628,7 +628,6 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evio
   const unsigned int *buf = channel.getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   root=parse(buf);
-  rootType=BANK;
 }
 
 
@@ -640,7 +639,6 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
   const unsigned int *buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   root=parse(buf);
-  rootType=BANK;
 }
 
 
@@ -650,7 +648,6 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
 evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evioException) : name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
   root=parse(reinterpret_cast<const unsigned int*>(buf));
-  rootType=BANK;
 }
 
 
@@ -660,15 +657,14 @@ evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evi
 evioDOMTree::evioDOMTree(const unsigned int *buf, const string &name) throw(evioException) : name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
   root=parse(buf);
-  rootType=BANK;
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(evioDOMNodeP node, ContainerType rootType, const string &name) throw(evioException)
-  : root(node), name(name), rootType(rootType) {
+evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioException)
+  : root(node), name(name) {
   if(node==NULL)throw(evioException(0,"?evioDOMTree constructor...null evioDOMNode",__FILE__,__LINE__));
 }
 
@@ -676,8 +672,8 @@ evioDOMTree::evioDOMTree(evioDOMNodeP node, ContainerType rootType, const string
 //-----------------------------------------------------------------------------
 
 
-evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, ContainerType rootType, const string &name) throw(evioException) 
-  : name(name), rootType(rootType) {
+evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, const string &name) throw(evioException) 
+  : name(name) {
   root = evioDOMNode::createEvioDOMNode(NULL,tag,num,cType);
 }
 
@@ -688,7 +684,6 @@ evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, ContainerType ro
 evioDOMTree::evioDOMTree(const evioDOMTree &t) throw(evioException) {
   name=t.name;
   root=t.root->clone(NULL);
-  rootType=t.rootType;
 }
 
 
