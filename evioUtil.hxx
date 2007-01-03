@@ -1,8 +1,10 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 8-dec-2006
+//  Author:  Elliott Wolin, JLab, 3-jan-2007
 
 // must do:
+//   getContentType does not work on solaris
+//   trim, move, drop sub-trees...must node destructor be public?  isRoot?
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
 //   update doc
 
@@ -16,7 +18,8 @@
 
 // not sure:
 //   mark in tree, container node?
-//   copy constructors, clone(), and operator=?
+//   copy constructors and operator=?
+//   should parent, etc. be protected?
 //   evioDOMNode == defined on tag?
 //   scheme for exception type codes?
 //   namespaces?
@@ -186,19 +189,24 @@ private:
 //--------------------------------------------------------------
 
 
-// interface, represents an evio node in memory, implemented via factory pattern
+// virtual class represents an evio node in memory, concrete classes are evioDOMContainerNode and evioDOMLeafNode<T>
+// user can only create nodes via factory method createEvioDOMNode()
 class evioDOMNode {
 
-  friend class evioDOMTree;  // allows evioDOMTree to use protected factory methods
+  friend class evioDOMTree;            // allows evioDOMTree to use protected factory methods
+  friend class evioDOMContainerNode;   // allows container node to delete nodes in child list
 
 
 protected:
   evioDOMNode(evioDOMNodeP parent, int tag, int num, int contentType) throw(evioException);
 
 
-public:
-  virtual ~evioDOMNode(void) = 0;
-  virtual evioDOMNodeP clone(evioDOMNodeP newParent) const = 0;
+private:
+  evioDOMNode(const evioDOMNode &node) throw(evioException);
+
+
+protected:
+  virtual ~evioDOMNode(void);
 
 
 public:
@@ -207,6 +215,10 @@ public:
   template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const vector<T> tVec) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, const T* t, int len) throw(evioException);
   static evioDOMNodeP createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType=BANK) throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(int tag, int num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType=BANK) 
+    throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, T *t, void* T::*mfp(evioDOMNode *c, void *userArg),
+                                                              void *userArg, ContainerType cType=BANK) throw(evioException);
 
 
 protected:
@@ -218,11 +230,14 @@ protected:
     throw(evioException);
   static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const evioSerializable &o, ContainerType cType=BANK)
     throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, void (*f)(evioDOMNodeP c, void *userArg),
+                                        void *userArg, ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, T *t,
+                                                              void* T::*mfp(evioDOMNodeP c, void *userArg),
+                                                              void *userArg, ContainerType cType=BANK) throw(evioException);
 
 
 public:
-  virtual void addTree(evioDOMTree &tree) throw(evioException);
-  virtual void addTree(evioDOMTree *tree) throw(evioException);
   virtual void addNode(evioDOMNodeP node) throw(evioException);
   template <typename T> void append(const vector<T> &tVec) throw(evioException);
   template <typename T> void append(const T* tBuf, int len) throw(evioException);
@@ -240,6 +255,7 @@ public:
   evioDOMNode& operator<<(evioDOMTree &tree) throw(evioException);
   evioDOMNode& operator<<(evioDOMTree *tree) throw(evioException);
   template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
+  template <typename T> evioDOMNode& operator<<(T tVal) throw(evioException);
 
 
 public:
@@ -275,18 +291,14 @@ class evioDOMContainerNode : public evioDOMNode {
 
 private:
   evioDOMContainerNode(evioDOMNodeP parent, int tag, int num, ContainerType cType) throw(evioException);
-
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw (evioException);
-  evioDOMContainerNode *clone(evioDOMNodeP newParent) const;
 
 
-public:
+private:
   virtual ~evioDOMContainerNode(void);
 
 
 public:
-  void addTree(evioDOMTree &tree) throw(evioException);
-  void addTree(evioDOMTree *tree) throw(evioException);
   void addNode(evioDOMNodeP node) throw(evioException);
 
 
@@ -313,18 +325,16 @@ public:
 //  represents an evio leaf node in memory
 template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
-  friend class evioDOMNode;  // allows evioDOMNode to use private subclass methods
+  friend class evioDOMNode;           // allows evioDOMNode to use private subclass methods
 
 
 private:
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const T *p, int ndata) throw(evioException);
-
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
-  evioDOMLeafNode<T>* clone(evioDOMNodeP newParent) const;
 
 
-public:
+private:
   virtual ~evioDOMLeafNode(void);
 
 
@@ -359,21 +369,22 @@ public:
   evioDOMTree(int tag, int num, ContainerType cType=BANK, const string &name = "evio")
     throw(evioException);
 
+
+private:
   evioDOMTree(const evioDOMTree &tree) throw(evioException);
+
+
+public:
   virtual ~evioDOMTree(void);
 
 
 public:
-  void addTree(evioDOMTree &tree) throw(evioException);
-  void addTree(evioDOMTree *tree) throw(evioException);
   void addBank(evioDOMNodeP node) throw(evioException);
   template <typename T> void addBank(int tag, int num, const vector<T> dataVec) throw(evioException);
   template <typename T> void addBank(int tag, int num, const T* dataBuf, int dataLen) throw(evioException);
 
 
 public:
-  evioDOMTree& operator<<(evioDOMTree &tree) throw(evioException);
-  evioDOMTree& operator<<(evioDOMTree *tree) throw(evioException);
   evioDOMTree& operator<<(evioDOMNodeP node) throw(evioException);
 
 

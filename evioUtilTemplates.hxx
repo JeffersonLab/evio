@@ -17,27 +17,28 @@
 //--------------------------------------------------------------
 
 
-template <typename T> static int getContentType(void)           {return(0x0);}
-template <> static int getContentType<unsigned int>(void)       {return(0x1);}
-template <> static int getContentType<float>(void)              {return(0x2);}
-template <> static int getContentType<string&>(void)            {return(0x3);}
-template <> static int getContentType<short>(void)              {return(0x4);}
-template <> static int getContentType<unsigned short>(void)     {return(0x5);}
-template <> static int getContentType<char>(void)               {return(0x6);}
-template <> static int getContentType<unsigned char>(void)      {return(0x7);}
-template <> static int getContentType<double>(void)             {return(0x8);}
-template <> static int getContentType<long long>(void)          {return(0x9);}
-template <> static int getContentType<unsigned long long>(void) {return(0xa);}
-template <> static int getContentType<int>(void)                {return(0xb);}
+template <typename T> static int getContentType(void) throw(evioException) {
+  throw(evioException(0,"?getContentType<T>...illegal type",__FILE__,__LINE__));}
+template <> static int getContentType<unsigned int>(void)       throw(evioException) {return(0x1);}
+template <> static int getContentType<float>(void)              throw(evioException) {return(0x2);}
+template <> static int getContentType<string&>(void)            throw(evioException) {return(0x3);}
+template <> static int getContentType<short>(void)              throw(evioException) {return(0x4);}
+template <> static int getContentType<unsigned short>(void)     throw(evioException) {return(0x5);}
+template <> static int getContentType<char>(void)               throw(evioException) {return(0x6);}
+template <> static int getContentType<unsigned char>(void)      throw(evioException) {return(0x7);}
+template <> static int getContentType<double>(void)             throw(evioException) {return(0x8);}
+template <> static int getContentType<long long>(void)          throw(evioException) {return(0x9);}
+template <> static int getContentType<unsigned long long>(void) throw(evioException) {return(0xa);}
+template <> static int getContentType<int>(void)                throw(evioException) {return(0xb);}
 
-template <> static int getContentType<unsigned long>(void) {
+template <> static int getContentType<unsigned long>(void) throw(evioException) {
   if(sizeof(unsigned long)==8) {
     return(0xa);
   } else {
     return(0x1);
   }
 }
-template <> static int getContentType<long>(void) {
+template <> static int getContentType<long>(void) throw(evioException) {
   if(sizeof(long)==8) {
     return(0x9);
   } else {
@@ -89,6 +90,27 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int n
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const T* t, int len) 
   throw(evioException) {
   return(new evioDOMLeafNode<T>(parent,tag,num,t,len));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, T *t, 
+                                                                  void* T::*mfp(evioDOMNodeP c, void *userArg),
+                                                                  void *userArg, ContainerType cType) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,t,mfp,userArg,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int num, T *t, 
+                                                                  void* T::*mfp(evioDOMNodeP c, void *userArg),
+                                                                  void *userArg, ContainerType cType) throw(evioException) {
+  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  t->mfp(c,userArg);
 }
 
 
@@ -171,6 +193,15 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec
 
 
 //-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioException) {
+  append(&tVal,1);
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
 //------------------ evioDOMContainerNode templated methods -------------------
 //-----------------------------------------------------------------------------
 
@@ -212,14 +243,6 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<
 //-----------------------------------------------------------------------------
 
                                    
-template <typename T> evioDOMLeafNode<T> *evioDOMLeafNode<T>::clone(evioDOMNodeP newParent) const {
-  return(new evioDOMLeafNode(newParent,tag,num,data));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
 }
   

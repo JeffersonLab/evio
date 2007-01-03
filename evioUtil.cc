@@ -20,13 +20,6 @@
 //--------------------------------------------------------------
 
 
-template <typename T> static void deleteIt(T *t) {
-  delete(t);
-}
-
-
-//--------------------------------------------------------------
-
 static bool isTrue(const evioDOMNodeP pNode) {
   return(true);
 }
@@ -423,16 +416,20 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int nu
 //-----------------------------------------------------------------------------
 
 
-void evioDOMNode::addTree(evioDOMTree &tree) throw(evioException) {
-  throw(evioException(0,"?evioDOMNode::addTree...illegal usage",__FILE__,__LINE__));
+evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, void (*f)(evioDOMNodeP c, void *userArg), 
+                                            void *userArg, ContainerType cType) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,f,userArg,cType));
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-void evioDOMNode::addTree(evioDOMTree *tree) throw(evioException) {
-  throw(evioException(0,"?evioDOMNode::addTree...illegal usage",__FILE__,__LINE__));
+evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int num, void (*f)(evioDOMNodeP c, void *userArg), 
+                                            void *userArg, ContainerType cType)  throw(evioException) {
+  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  f(c,userArg);
+  return(c);
 }
 
 
@@ -457,24 +454,6 @@ evioDOMNodeList *evioDOMNode::getChildList(void) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNode& evioDOMNode::operator<<(evioDOMTree &tree) throw(evioException) {
-  addTree(tree);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNode& evioDOMNode::operator<<(evioDOMTree *tree) throw(evioException) {
-  if(tree!=NULL)addTree(*tree);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 evioDOMNode& evioDOMNode::operator<<(evioDOMNodeP node) throw(evioException) {
   addNode(node);
   return(*this);
@@ -484,16 +463,16 @@ evioDOMNode& evioDOMNode::operator<<(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-bool evioDOMNode::operator==(int tag) const {
-  return(this->tag==tag);
+bool evioDOMNode::operator==(int tg) const {
+  return(this->tag==tg);
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-bool evioDOMNode::operator!=(int tag) const {
-  return(this->tag!=tag);
+bool evioDOMNode::operator!=(int tg) const {
+  return(this->tag!=tg);
 }
 
 
@@ -531,38 +510,6 @@ evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) th
 
   // copy contents of child list
   copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode *evioDOMContainerNode::clone(evioDOMNodeP newParent) const {
-
-  evioDOMContainerNode *c = new evioDOMContainerNode(newParent,tag,num,(ContainerType)contentType);
-
-  evioDOMNodeList::const_iterator iter;
-  for(iter=childList.begin(); iter!=childList.end(); iter++) {
-    c->childList.push_back((*iter)->clone(c));
-  }
-  return(c);
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-void evioDOMContainerNode::addTree(evioDOMTree &tree) throw(evioException) {
-  addNode(tree.root);
-  tree.root=NULL;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-void evioDOMContainerNode::addTree(evioDOMTree *tree) throw(evioException) {
-  if(tree!=NULL)addTree(*tree);
 }
 
 
@@ -615,7 +562,10 @@ string evioDOMContainerNode::getFooter(int depth) const {
 
                                    
 evioDOMContainerNode::~evioDOMContainerNode(void) {
-  for_each(childList.begin(),childList.end(),deleteIt<evioDOMNode>);
+  evioDOMNodeList::iterator iter;
+  for(iter=childList.begin(); iter!=childList.end(); iter++) {
+    delete(*iter);
+  }
 }
 
 
@@ -675,15 +625,6 @@ evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioExcept
 evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, const string &name) throw(evioException) 
   : name(name) {
   root = evioDOMNode::createEvioDOMNode(NULL,tag,num,cType);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMTree::evioDOMTree(const evioDOMTree &t) throw(evioException) {
-  name=t.name;
-  root=t.root->clone(NULL);
 }
 
 
@@ -813,23 +754,6 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 //-----------------------------------------------------------------------------
 
 
-void evioDOMTree::addTree(evioDOMTree &tree) throw(evioException) {
-  addBank(tree.root);
-  tree.root=NULL;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-void evioDOMTree::addTree(evioDOMTree *tree) throw(evioException) {
-  if(tree!=NULL)addTree(*tree);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 
   if(root==NULL) {
@@ -840,24 +764,6 @@ void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
   evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(root);
   if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root is not container",__FILE__,__LINE__));
   c->childList.push_back(node);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMTree& evioDOMTree::operator<<(evioDOMTree &tree) throw(evioException) {
-  addTree(tree);
-  return(*this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMTree& evioDOMTree::operator<<(evioDOMTree *tree) throw(evioException) {
-  if(tree!=NULL)addTree(tree);
-  return(*this);
 }
 
 

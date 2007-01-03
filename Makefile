@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.21  2007/01/03 21:34:06  wolin
+#    private delete for node, stream var into node, more serialize options, eliminated stream tree into tree or node
+#
 #    Revision 1.20  2006/11/02 14:48:00  wolin
 #    Still working on evioUtil library
 #
@@ -74,9 +77,7 @@
 #
 #    Revision 1.1.1.1  1996/09/19 18:25:21  chen
 #    original port to solaris
-#
-#
-#
+
 
 ifndef ARCH
   ARCH := $(subst -,_,$(shell uname))
@@ -84,7 +85,7 @@ endif
 
 
 ifndef EXPAT_HOME
-  EXPAT_HOME = /apps/expat
+  EXPAT_HOME := /apps/expat
 endif
 EXPAT_INC = $(EXPAT_HOME)/include
 EXPAT_LIB = $(EXPAT_HOME)/lib
@@ -125,7 +126,7 @@ endif
 ifeq ($(ARCH),SunOS)
 CC  = cc
 CPP = CC
-AR = ar
+AR = /usr/ccs/bin/ar
 RANLIB = touch
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
