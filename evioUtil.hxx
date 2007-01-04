@@ -394,6 +394,7 @@ public:
 
 
 public:
+  void clear(void) throw(evioException);
   void addBank(evioDOMNodeP node) throw(evioException);
   template <typename T> void addBank(int tag, int num, const vector<T> dataVec) throw(evioException);
   template <typename T> void addBank(int tag, int num, const T* dataBuf, int dataLen) throw(evioException);

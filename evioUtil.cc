@@ -814,6 +814,17 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 //-----------------------------------------------------------------------------
 
 
+void evioDOMTree::clear(void) throw(evioException) {
+  if(root!=NULL) {
+    root->drop();
+    root=NULL;
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 
   if(root==NULL) {
