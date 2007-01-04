@@ -8,7 +8,6 @@
 #include <evioUtil.hxx>
 
 
-
 //--------------------------------------------------------------
 //-------------------- local variables -------------------------
 //--------------------------------------------------------------
@@ -16,7 +15,17 @@
 
 
 //--------------------------------------------------------------
-//----------------------local utilities ------------------------
+//------------------------ utilities ---------------------------
+//--------------------------------------------------------------
+
+
+string evioGetIndent(int depth) {
+  string s;
+  for(int i=0; i<depth; i++) s+="   ";
+  return(s);
+}
+
+
 //--------------------------------------------------------------
 
 
@@ -538,7 +547,7 @@ string evioDOMContainerNode::toString(void) const {
                                    
 string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
-  os << getIndent(depth)
+  os << evioGetIndent(depth)
      <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " content=\"" << get_typename(contentType)
      << "\" data_type=\"" << hex << showbase << contentType
      << dec << "\" tag=\""  << tag;
@@ -553,7 +562,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
                                    
 string evioDOMContainerNode::getFooter(int depth) const {
   ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
+  os << evioGetIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
   return(os.str());
 }
 

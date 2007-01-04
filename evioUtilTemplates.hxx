@@ -48,16 +48,6 @@ template <> static int getContentType<long>(void) throw(evioException) {
 
 
 //-----------------------------------------------------------------------------
-
-
-static string getIndent(int depth) {
-  string s;
-  for(int i=0; i<depth; i++) s+="   ";
-  return(s);
-}
-
-
-//-----------------------------------------------------------------------------
 //--------------------- evioDOMNode templated methods -------------------------
 //-----------------------------------------------------------------------------
 
@@ -253,7 +243,7 @@ template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
 template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   ostringstream os;
-  string indent = getIndent(depth);
+  string indent = evioGetIndent(depth);
   string indent2 = indent + "    ";
 
   int wid,swid;
@@ -350,7 +340,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
 template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
   ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
+  os << evioGetIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
   return(os.str());
 }
 

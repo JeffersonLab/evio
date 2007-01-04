@@ -3,8 +3,8 @@
 //  Author:  Elliott Wolin, JLab, 3-jan-2007
 
 // must do:
-//   getContentType does not work on solaris
 //   trim, move, drop sub-trees...must node destructor be public?  isRoot?
+//   solaris
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
 //   update doc
 
@@ -63,6 +63,14 @@ typedef enum {
   SEGMENT    = 0xd,
   TAGSEGMENT = 0xc
 } ContainerType;
+
+
+//-----------------------------------------------------------------------------
+//------------------------ Misc global functions ------------------------------
+//-----------------------------------------------------------------------------
+
+
+string evioGetIndent(int depth);
 
 
 //-----------------------------------------------------------------------------
@@ -205,7 +213,7 @@ private:
   evioDOMNode(const evioDOMNode &node) throw(evioException);
 
 
-protected:
+public:
   virtual ~evioDOMNode(void);
 
 
