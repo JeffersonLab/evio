@@ -445,6 +445,57 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int nu
 //-----------------------------------------------------------------------------
 
 
+evioDOMNodeP evioDOMNode::cut(void) throw(evioException) {
+  if(parent!=NULL) {
+    evioDOMContainerNode *par =static_cast<evioDOMContainerNode*>(parent);
+    par->childList.remove(this);
+    parent=NULL;
+  }
+  return(this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+void evioDOMNode::drop(void) throw(evioException) {
+  cut();
+  delete(this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNodeP evioDOMNode::move(evioDOMNodeP newParent) throw(evioException) {
+
+  cut();
+
+  evioDOMContainerNode *par = dynamic_cast<evioDOMContainerNode*>(newParent);
+  if(par==NULL)throw(evioException(0,"?evioDOMNode::cut...parent node not a container",__FILE__,__LINE__));
+  
+  par->childList.push_back(this);
+  parent=newParent;
+  return(this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNodeP evioDOMNode::move(evioDOMTree *newTree) throw(evioException) {
+
+  if(newTree->root!=NULL)throw(evioException(0,"?evioDOMNode::move...new tree not empty",__FILE__,__LINE__));
+
+  cut();
+  newTree->root=this;
+  return(this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 void evioDOMNode::addNode(evioDOMNodeP node) throw(evioException) {
   throw(evioException(0,"?evioDOMNode::addNode...illegal usage",__FILE__,__LINE__));
 }

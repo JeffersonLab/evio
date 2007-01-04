@@ -213,7 +213,7 @@ private:
   evioDOMNode(const evioDOMNode &node) throw(evioException);
 
 
-public:
+protected:
   virtual ~evioDOMNode(void);
 
 
@@ -251,6 +251,13 @@ public:
   template <typename T> void append(const T* tBuf, int len) throw(evioException);
   template <typename T> void replace(const vector<T> &tVec) throw(evioException);
   template <typename T> void replace(const T* tBuf, int len) throw(evioException);
+
+
+public:
+  virtual evioDOMNodeP cut(void) throw(evioException);
+  virtual void drop(void) throw(evioException);
+  virtual evioDOMNodeP move(evioDOMNodeP newParent) throw(evioException);
+  virtual evioDOMNodeP move(evioDOMTree *newTree) throw(evioException);
 
 
 public:
