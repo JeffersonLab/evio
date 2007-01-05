@@ -18,6 +18,9 @@
 # 
 #  Revision History:
 #    $Log$
+#    Revision 1.22  2007/01/05 21:10:41  wolin
+#    Eliminated evioNode being friend of evioDOMTree
+#
 #    Revision 1.21  2007/01/03 21:34:06  wolin
 #    private delete for node, stream var into node, more serialize options, eliminated stream tree into tree or node
 #
@@ -140,7 +143,7 @@ endif
 
 ifeq ($(ARCH),Linux)
 CC  = gcc
-CPP = g++
+CPP = g++ -g
 AR = ar
 RANLIB = ranlib
 DEFS = -DSYSV -DSVR4

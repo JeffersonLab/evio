@@ -6,6 +6,7 @@
 // must do:
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
 //   check tag,num range
+//   operator==(tag,num)
 
 
 // should do:
@@ -207,7 +208,6 @@ private:
 class evioDOMNode {
 
   friend class evioDOMContainerNode;   // allows container node to delete child nodes in destructor
-  friend class evioDOMTree;
 
 
 protected:
@@ -264,6 +264,7 @@ public:
   virtual evioDOMNodeP cut(void) throw(evioException);
   virtual void cutAndDelete(void) throw(evioException);
   virtual evioDOMNodeP move(evioDOMNodeP newParent) throw(evioException);
+  virtual evioDOMNodeP makeRoot(evioDOMTree *newTree) throw(evioException);
   virtual evioDOMNodeP replaceRoot(evioDOMTree *newTree) throw(evioException);
 
 
