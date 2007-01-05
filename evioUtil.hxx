@@ -3,7 +3,6 @@
 //  Author:  Elliott Wolin, JLab, 3-jan-2007
 
 // must do:
-//   trim, move, drop sub-trees...must node destructor be public?  isRoot?
 //   solaris
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
 //   update doc
@@ -55,6 +54,7 @@ class evioSerializable;
 //-----------------------------------------------------------------------------
 
 
+typedef evioDOMTree* evioDOMTreeP;
 typedef evioDOMNode* evioDOMNodeP;
 typedef list<evioDOMNodeP>  evioDOMNodeList;
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
@@ -288,6 +288,7 @@ public:
 
 public:
   evioDOMNodeP parent;
+  evioDOMTreeP parentTree;
   int tag;
   int num;
   int contentType;

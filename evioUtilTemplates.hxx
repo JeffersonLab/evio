@@ -403,6 +403,7 @@ template <typename T> void evioDOMTree::addBank(int tag, int num, const vector<T
     p->childList.push_back(evioDOMNode::createEvioDOMNode(root,tag,num,dataVec));
   } else {
     root = evioDOMNode::createEvioDOMNode(NULL,tag,num,dataVec);
+    root->parentTree=this;
   }
 }
 
@@ -416,6 +417,7 @@ template <typename T> void evioDOMTree::addBank(int tag, int num, const T* dataB
     p->childList.push_back(evioDOMNode::createEvioDOMNode(root,tag,num,dataBuf,dataLen));
   } else {
     root = evioDOMNode::createEvioDOMNode(NULL,tag,num,dataBuf,dataLen);
+    root->parentTree=this;
   }
 }
 
