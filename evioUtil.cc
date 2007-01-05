@@ -468,7 +468,7 @@ evioDOMNodeP evioDOMNode::move(evioDOMNodeP newParent) throw(evioException) {
   cut();
 
   evioDOMContainerNode *par = dynamic_cast<evioDOMContainerNode*>(newParent);
-  if(par==NULL)throw(evioException(0,"?evioDOMNode::cut...parent node not a container",__FILE__,__LINE__));
+  if(par==NULL)throw(evioException(0,"?evioDOMNode::move...parent node not a container",__FILE__,__LINE__));
   
   par->childList.push_back(this);
   parent=newParent;
@@ -744,7 +744,7 @@ void *evioDOMTree::containerNodeHandler(int length, int tag, int contentType, in
 
   // create new node
   evioDOMNodeP newNode = evioDOMNode::createEvioDOMNode(tag,num,(ContainerType)contentType);
-  newNode->move(parent);
+  if(parent!=NULL)newNode->move(parent);
 
 
   // add new node to parent's list
@@ -761,10 +761,6 @@ void *evioDOMTree::containerNodeHandler(int length, int tag, int contentType, in
 
 void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num, int depth, 
                               const void *data, void *userArg) {
-
-
-  // get parent pointer
-  evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
 
 
   // create and fill new leaf
@@ -834,7 +830,8 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 
 
   // add new leaf to parent
-  newLeaf->move(parent);
+  evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
+  if(parent!=NULL)newLeaf->move(parent);
 }
 
 
