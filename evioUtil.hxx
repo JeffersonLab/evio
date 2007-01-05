@@ -201,8 +201,7 @@ private:
 // user can only create nodes via factory method createEvioDOMNode()
 class evioDOMNode {
 
-  friend class evioDOMTree;            // allows evioDOMTree to use protected factory methods
-  friend class evioDOMContainerNode;   // allows container node to delete nodes in child list
+  friend class evioDOMContainerNode;   // allows container node to delete child nodes in destructor
 
 
 protected:
