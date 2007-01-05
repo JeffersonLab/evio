@@ -13,12 +13,11 @@
 //  would like to do:
 //   shared pointer
 //   cMsg channel
+//   ET channel
 //   exception stack trace
 
 // not sure:
 //   mark in tree, container node?
-//   copy constructors and operator=?
-//   should parent, etc. be protected?
 //   evioDOMNode == defined on tag?
 //   scheme for exception type codes?
 //   namespaces?
@@ -206,14 +205,12 @@ class evioDOMNode {
 
 protected:
   evioDOMNode(evioDOMNodeP parent, int tag, int num, int contentType) throw(evioException);
+  virtual ~evioDOMNode(void);
 
 
 private:
   evioDOMNode(const evioDOMNode &node) throw(evioException);
-
-
-protected:
-  virtual ~evioDOMNode(void);
+  bool operator=(const evioDOMNode &node) const {};
 
 
 public:
@@ -262,6 +259,8 @@ public:
 public:
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
+  virtual bool operator==(const evioDOMNodeP node) const;
+  virtual bool operator!=(const evioDOMNodeP node) const;
 
 
 public:
@@ -306,11 +305,9 @@ class evioDOMContainerNode : public evioDOMNode {
 
 private:
   evioDOMContainerNode(evioDOMNodeP parent, int tag, int num, ContainerType cType) throw(evioException);
-  evioDOMContainerNode(const evioDOMContainerNode &cNode) throw (evioException);
-
-
-private:
-  virtual ~evioDOMContainerNode(void);
+  evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
+  ~evioDOMContainerNode(void);
+  bool operator=(const evioDOMContainerNode &node) const {};
 
 
 public:
@@ -347,10 +344,8 @@ private:
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const T *p, int ndata) throw(evioException);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
-
-
-private:
-  virtual ~evioDOMLeafNode(void);
+  ~evioDOMLeafNode(void);
+  bool operator=(const evioDOMLeafNode<T> &lNode) const {};
 
 
 public:
@@ -383,14 +378,12 @@ public:
   evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
   evioDOMTree(int tag, int num, ContainerType cType=BANK, const string &name = "evio")
     throw(evioException);
+  virtual ~evioDOMTree(void);
 
 
 private:
   evioDOMTree(const evioDOMTree &tree) throw(evioException);
-
-
-public:
-  virtual ~evioDOMTree(void);
+  bool operator=(const evioDOMTree &tree) const {};
 
 
 public:

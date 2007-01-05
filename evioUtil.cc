@@ -544,6 +544,22 @@ bool evioDOMNode::operator!=(int tg) const {
 //-----------------------------------------------------------------------------
 
 
+bool evioDOMNode::operator==(const evioDOMNodeP node) const {
+  return(this->tag==node->tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator!=(const evioDOMNodeP node) const {
+  return(this->tag!=node->tag);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 bool evioDOMNode::isContainer(void) const {
   return(::is_container(contentType)==1);
 }
@@ -564,17 +580,6 @@ bool evioDOMNode::isLeaf(void) const {
 
 evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, int tg, int num, ContainerType cType) throw(evioException)
   : evioDOMNode(par,tg,num,cType) {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMContainerNode::evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException) 
-  : evioDOMNode(NULL,cNode.tag,cNode.num,(ContainerType)cNode.contentType) {
-
-  // copy contents of child list
-  copy(cNode.childList.begin(),cNode.childList.end(),inserter(childList,childList.begin()));
 }
 
 

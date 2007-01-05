@@ -223,16 +223,6 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, i
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(const evioDOMLeafNode<T> &lNode)
-  throw(evioException) : evioDOMNode(NULL,lNode.tag,lNode.num,lNode.getContentType<T>())  {
-
-  copy(lNode.begin(),lNode.end(),inserter(data,data.begin()));
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
 template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
 }
   
