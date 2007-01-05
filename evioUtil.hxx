@@ -1,14 +1,18 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 3-jan-2007
+//  Author:  Elliott Wolin, JLab, 5-jan-2007
+
 
 // must do:
-//   solaris
 //   check bufsize in toEVIOBuffer(), parseBank, etc.
-//   update doc
+//   check tag,num range
+
 
 // should do:
+//   solaris
+//   update doc
 //   Doxygen comments
+
 
 //  would like to do:
 //   shared pointer
@@ -16,12 +20,14 @@
 //   ET channel
 //   exception stack trace
 
+
 // not sure:
+//   breadth-first getNodeList()?
 //   mark in tree, container node?
-//   evioDOMNode == defined on tag?
 //   scheme for exception type codes?
-//   namespaces?
+//   namespace?
 //   AIDA interface?
+//   split header files?
 
 
 #ifndef _evioUtil_hxx
@@ -201,11 +207,12 @@ private:
 class evioDOMNode {
 
   friend class evioDOMContainerNode;   // allows container node to delete child nodes in destructor
+  friend class evioDOMTree;
 
 
 protected:
   evioDOMNode(evioDOMNodeP parent, int tag, int num, int contentType) throw(evioException);
-  virtual ~evioDOMNode(void);
+  virtual ~evioDOMNode(void) {};
 
 
 private:
@@ -221,7 +228,9 @@ public:
   static evioDOMNodeP createEvioDOMNode(int tag, int num, const evioSerializable &o, ContainerType cType=BANK) throw(evioException);
   static evioDOMNodeP createEvioDOMNode(int tag, int num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType=BANK) 
     throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, T *t, void* T::*mfp(evioDOMNode *c, void *userArg),
+  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, T *t,
+                                                              void *userArg, ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(int tag, int num, T *t, void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
 
@@ -237,6 +246,8 @@ protected:
   static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, void (*f)(evioDOMNodeP c, void *userArg),
                                         void *userArg, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, T *t,
+                                                              void *userArg, ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, int tag, int num, T *t,
                                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
@@ -251,16 +262,15 @@ public:
 
 public:
   virtual evioDOMNodeP cut(void) throw(evioException);
-  virtual void drop(void) throw(evioException);
+  virtual void cutAndDelete(void) throw(evioException);
   virtual evioDOMNodeP move(evioDOMNodeP newParent) throw(evioException);
-  virtual evioDOMNodeP move(evioDOMTree *newTree) throw(evioException);
+  virtual evioDOMNodeP replaceRoot(evioDOMTree *newTree) throw(evioException);
 
 
 public:
   virtual bool operator==(int tag) const;
   virtual bool operator!=(int tag) const;
-  virtual bool operator==(const evioDOMNodeP node) const;
-  virtual bool operator!=(const evioDOMNodeP node) const;
+  //  virtual bool operator==(unary_function<const evioDOMNodeP, bool>) const;
 
 
 public:
@@ -280,16 +290,22 @@ public:
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;
+  evioDOMNodeP getParent(void) const;
+  int getContentType(void) const;
+  evioDOMTreeP getParentTree(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
 
 
-public:
+protected:
   evioDOMNodeP parent;
   evioDOMTreeP parentTree;
+  int contentType;
+
+
+public:
   int tag;
   int num;
-  int contentType;
 };
 
 
@@ -307,7 +323,7 @@ private:
   evioDOMContainerNode(evioDOMNodeP parent, int tag, int num, ContainerType cType) throw(evioException);
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
   ~evioDOMContainerNode(void);
-  bool operator=(const evioDOMContainerNode &node) const {};
+  bool operator=(const evioDOMContainerNode &node);
 
 
 public:
@@ -344,8 +360,8 @@ private:
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const T *p, int ndata) throw(evioException);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
-  ~evioDOMLeafNode(void);
-  bool operator=(const evioDOMLeafNode<T> &lNode) const {};
+  ~evioDOMLeafNode(void) {};
+  bool operator=(const evioDOMLeafNode<T> &lNode);
 
 
 public:
@@ -370,6 +386,7 @@ public:
 // represents an evio tree/event in memory
 class evioDOMTree : public evioStreamParserHandler {
 
+
 public:
   evioDOMTree(const evioChannel &channel, const string &name = "evio") throw(evioException);
   evioDOMTree(const evioChannel *channel, const string &name = "evio") throw(evioException);
@@ -383,7 +400,7 @@ public:
 
 private:
   evioDOMTree(const evioDOMTree &tree) throw(evioException);
-  bool operator=(const evioDOMTree &tree) const {};
+  bool operator=(const evioDOMTree &tree);
 
 
 public:

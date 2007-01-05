@@ -382,13 +382,6 @@ evioDOMNode::evioDOMNode(evioDOMNodeP par, int tg, int num, int contentType) thr
 //-----------------------------------------------------------------------------
 
 
-evioDOMNode::~evioDOMNode(void) {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, ContainerType cType) throw(evioException) {
   return(new evioDOMContainerNode(NULL,tag,num,cType));
 }
@@ -462,7 +455,7 @@ evioDOMNodeP evioDOMNode::cut(void) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-void evioDOMNode::drop(void) throw(evioException) {
+void evioDOMNode::cutAndDelete(void) throw(evioException) {
   cut();
   delete(this);
 }
@@ -487,9 +480,9 @@ evioDOMNodeP evioDOMNode::move(evioDOMNodeP newParent) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeP evioDOMNode::move(evioDOMTree *newTree) throw(evioException) {
+evioDOMNodeP evioDOMNode::replaceRoot(evioDOMTree *newTree) throw(evioException) {
 
-  if(newTree->root!=NULL)throw(evioException(0,"?evioDOMNode::move...new tree not empty",__FILE__,__LINE__));
+  if(newTree->root!=NULL)newTree->root->cutAndDelete();
 
   cut();
   newTree->root=this;
@@ -544,16 +537,31 @@ bool evioDOMNode::operator!=(int tg) const {
 //-----------------------------------------------------------------------------
 
 
-bool evioDOMNode::operator==(const evioDOMNodeP node) const {
-  return(this->tag==node->tag);
+// bool evioDOMNode::operator==(unary_function<const evioDOMNodeP, bool> &u) const {
+// }
+
+
+//-----------------------------------------------------------------------------
+
+
+evioDOMNodeP evioDOMNode::getParent(void) const {
+  return(parent);
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-bool evioDOMNode::operator!=(const evioDOMNodeP node) const {
-  return(this->tag!=node->tag);
+evioDOMTreeP evioDOMNode::getParentTree(void) const {
+  return(parentTree);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+int evioDOMNode::getContentType(void) const {
+  return(contentType);
 }
 
 
@@ -709,7 +717,7 @@ evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, const string &na
 
 
 evioDOMTree::~evioDOMTree(void) {
-  root->drop();
+  root->cutAndDelete();
 }
 
 
@@ -845,7 +853,7 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 
 void evioDOMTree::clear(void) throw(evioException) {
   if(root!=NULL) {
-    root->drop();
+    root->cutAndDelete();
     root=NULL;
   }
 }

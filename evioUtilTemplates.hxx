@@ -17,28 +17,28 @@
 //--------------------------------------------------------------
 
 
-template <typename T> static int getContentType(void) throw(evioException) {
-  throw(evioException(0,"?getContentType<T>...illegal type",__FILE__,__LINE__));}
-template <> static int getContentType<unsigned int>(void)       throw(evioException) {return(0x1);}
-template <> static int getContentType<float>(void)              throw(evioException) {return(0x2);}
-template <> static int getContentType<string&>(void)            throw(evioException) {return(0x3);}
-template <> static int getContentType<short>(void)              throw(evioException) {return(0x4);}
-template <> static int getContentType<unsigned short>(void)     throw(evioException) {return(0x5);}
-template <> static int getContentType<char>(void)               throw(evioException) {return(0x6);}
-template <> static int getContentType<unsigned char>(void)      throw(evioException) {return(0x7);}
-template <> static int getContentType<double>(void)             throw(evioException) {return(0x8);}
-template <> static int getContentType<long long>(void)          throw(evioException) {return(0x9);}
-template <> static int getContentType<unsigned long long>(void) throw(evioException) {return(0xa);}
-template <> static int getContentType<int>(void)                throw(evioException) {return(0xb);}
+template <typename T> static int evioGetContentType(void) throw(evioException) {
+  throw(evioException(0,"?evioGetContentType<T>...illegal type",__FILE__,__LINE__));}
+template <> static int evioGetContentType<unsigned int>(void)       throw(evioException) {return(0x1);}
+template <> static int evioGetContentType<float>(void)              throw(evioException) {return(0x2);}
+template <> static int evioGetContentType<string&>(void)            throw(evioException) {return(0x3);}
+template <> static int evioGetContentType<short>(void)              throw(evioException) {return(0x4);}
+template <> static int evioGetContentType<unsigned short>(void)     throw(evioException) {return(0x5);}
+template <> static int evioGetContentType<char>(void)               throw(evioException) {return(0x6);}
+template <> static int evioGetContentType<unsigned char>(void)      throw(evioException) {return(0x7);}
+template <> static int evioGetContentType<double>(void)             throw(evioException) {return(0x8);}
+template <> static int evioGetContentType<long long>(void)          throw(evioException) {return(0x9);}
+template <> static int evioGetContentType<unsigned long long>(void) throw(evioException) {return(0xa);}
+template <> static int evioGetContentType<int>(void)                throw(evioException) {return(0xb);}
 
-template <> static int getContentType<unsigned long>(void) throw(evioException) {
+template <> static int evioGetContentType<unsigned long>(void) throw(evioException) {
   if(sizeof(unsigned long)==8) {
     return(0xa);
   } else {
     return(0x1);
   }
 }
-template <> static int getContentType<long>(void) throw(evioException) {
+template <> static int evioGetContentType<long>(void) throw(evioException) {
   if(sizeof(long)==8) {
     return(0x9);
   } else {
@@ -80,6 +80,25 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int n
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int num, const T* t, int len) 
   throw(evioException) {
   return(new evioDOMLeafNode<T>(parent,tag,num,t,len));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(int tag, int num, T *t, 
+                                                                  void *userArg, ContainerType cType) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,t,userArg,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int num, T *t, 
+                                                                  void *userArg, ContainerType cType) throw(evioException) {
+  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  t->serialize(c,userArg);
 }
 
 
@@ -203,7 +222,7 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioExc
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const vector<T> &v)
-  throw(evioException) : evioDOMNode(par,tg,num,getContentType<T>()) {
+  throw(evioException) : evioDOMNode(par,tg,num,evioGetContentType<T>()) {
   
   copy(v.begin(),v.end(),inserter(data,data.begin()));
 }
@@ -213,19 +232,12 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, int 
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, int tg, int num, const T* p, int ndata) 
-  throw(evioException) : evioDOMNode(parent,tg,num,getContentType<T>()) {
+  throw(evioException) : evioDOMNode(parent,tg,num,evioGetContentType<T>()) {
   
   // fill vector with data
   for(int i=0; i<ndata; i++) data.push_back(p[i]);
 }
 
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
-}
-  
 
 //-----------------------------------------------------------------------------
 
@@ -274,7 +286,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
      <<  "<" << get_typename(contentType) 
      << " data_type=\"" << hex << showbase << contentType
      << dec << "\" tag=\"" << tag;
-  if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
+  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << num;
   os << "\">" << endl;
 
 
@@ -422,8 +434,8 @@ template <typename T> void evioDOMTree::addBank(int tag, int num, const T* dataB
 template <typename T> class typeIs : unary_function<const evioDOMNodeP,bool> {
 
 public:
-  typeIs(void) : type(getContentType<T>()) {}
-  bool operator()(const evioDOMNodeP node) const {return(node->contentType==type);}
+  typeIs(void) : type(evioGetContentType<T>()) {}
+  bool operator()(const evioDOMNodeP node) const {return(node->getContentType()==type);}
 private:
   int type;
 };
@@ -437,7 +449,7 @@ class typeEquals : unary_function<const evioDOMNodeP,bool> {
 
 public:
   typeEquals(int aType) : type(aType) {}
-  bool operator()(const evioDOMNodeP node) const {return(node->contentType==type);}
+  bool operator()(const evioDOMNodeP node) const {return(node->getContentType()==type);}
 private:
   int type;
 };
@@ -494,7 +506,7 @@ class parentTypeEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentTypeEquals(int aType) : type(aType) {}
-  bool operator()(const evioDOMNodeP node) const {return((node->parent==NULL)?false:(node->parent->contentType==type));}
+  bool operator()(const evioDOMNodeP node) const {return((node->getParent()==NULL)?false:(node->getParent()->getContentType()==type));}
 private:
   int type;
 };
@@ -508,7 +520,7 @@ class parentTagEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentTagEquals(int aTag) : tag(aTag) {}
-  bool operator()(const evioDOMNodeP node) const {return((node->parent==NULL)?false:(node->parent->tag==tag));}
+  bool operator()(const evioDOMNodeP node) const {return((node->getParent()==NULL)?false:(node->getParent()->tag==tag));}
 private:
   int tag;
 };
@@ -522,7 +534,7 @@ class parentNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentNumEquals(int aNum) : num(aNum) {}
-  bool operator()(const evioDOMNodeP node) const {return((node->parent==NULL)?false:(node->parent->num==num));}
+  bool operator()(const evioDOMNodeP node) const {return((node->getParent()==NULL)?false:(node->getParent()->num==num));}
 private:
   int num;
 };
@@ -537,7 +549,7 @@ class parentTagNumEquals : unary_function<const evioDOMNodeP, bool> {
 public:
   parentTagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
   bool operator()(const evioDOMNodeP node) const {
-    return((node->parent==NULL)?false:((node->parent->tag==tag)&&(node->parent->num==num)));}
+    return((node->getParent()==NULL)?false:((node->getParent()->tag==tag)&&(node->getParent()->num==num)));}
 private:
   int tag;
   int num;
