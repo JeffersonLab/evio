@@ -438,9 +438,23 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, int tag, int nu
 //-----------------------------------------------------------------------------
 
 
+evioDOMNode::~evioDOMNode(void) {
+  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(this);
+  if(c!=NULL) {
+    evioDOMNodeList::iterator iter;
+    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+      delete(*iter);
+    }
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 evioDOMNodeP evioDOMNode::cut(void) throw(evioException) {
   if(parent!=NULL) {
-    evioDOMContainerNode *par =static_cast<evioDOMContainerNode*>(parent);
+    evioDOMContainerNode *par = static_cast<evioDOMContainerNode*>(parent);
     par->childList.remove(this);
     parent=NULL;
   } else if (parentTree!=NULL) {
@@ -529,7 +543,7 @@ bool evioDOMNode::operator!=(int tg) const {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeP evioDOMNode::getParent(void) const {
+const evioDOMNodeP evioDOMNode::getParent(void) const {
   return(parent);
 }
 
@@ -537,7 +551,7 @@ evioDOMNodeP evioDOMNode::getParent(void) const {
 //-----------------------------------------------------------------------------
 
 
-evioDOMTreeP evioDOMNode::getParentTree(void) const {
+const evioDOMTreeP evioDOMNode::getParentTree(void) const {
   return(parentTree);
 }
 
@@ -581,8 +595,7 @@ evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, int tg, int num, Co
 
 void evioDOMContainerNode::addNode(evioDOMNodeP node) throw(evioException) {
   if(node==NULL)return;
-  childList.push_back(node);
-  node->parent=this;
+  node->move(this);
 }
 
 
@@ -602,10 +615,10 @@ string evioDOMContainerNode::toString(void) const {
 string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
   os << evioGetIndent(depth)
-     <<  "<" << get_typename(parent==NULL?BANK:parent->contentType) << " content=\"" << get_typename(contentType)
-     << "\" data_type=\"" << hex << showbase << contentType
+     <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType)
+     << "\" data_type=\"" << hex << showbase << getContentType()
      << dec << "\" tag=\""  << tag;
-  if((parent==NULL)||((parent->contentType==0xe)||(parent->contentType==0x10))) os << dec << "\" num=\"" << num;
+  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << num;
   os << "\">" << endl;
   return(os.str());
 }
@@ -616,19 +629,8 @@ string evioDOMContainerNode::getHeader(int depth) const {
                                    
 string evioDOMContainerNode::getFooter(int depth) const {
   ostringstream os;
-  os << evioGetIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->contentType) << ">" << endl;
+  os << evioGetIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->getContentType()) << ">" << endl;
   return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-evioDOMContainerNode::~evioDOMContainerNode(void) {
-  evioDOMNodeList::iterator iter;
-  for(iter=childList.begin(); iter!=childList.end(); iter++) {
-    delete(*iter);
-  }
 }
 
 

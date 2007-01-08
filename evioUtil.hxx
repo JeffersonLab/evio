@@ -207,13 +207,12 @@ private:
 // user can only create nodes via factory method createEvioDOMNode()
 class evioDOMNode {
 
-  friend class evioDOMContainerNode;   // allows container node to delete child nodes in destructor
   friend class evioDOMTree;            // allows tree class to manipulate nodes
 
 
 protected:
   evioDOMNode(evioDOMNodeP parent, int tag, int num, int contentType) throw(evioException);
-  virtual ~evioDOMNode(void) {};
+  ~evioDOMNode(void);
 
 
 private:
@@ -290,9 +289,9 @@ public:
   virtual string toString(void) const = 0;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;
-  evioDOMNodeP getParent(void) const;
+  const evioDOMNodeP getParent(void) const;
   int getContentType(void) const;
-  evioDOMTreeP getParentTree(void) const;
+  const evioDOMTreeP getParentTree(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
 
@@ -322,7 +321,6 @@ class evioDOMContainerNode : public evioDOMNode {
 private:
   evioDOMContainerNode(evioDOMNodeP parent, int tag, int num, ContainerType cType) throw(evioException);
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
-  ~evioDOMContainerNode(void);
   bool operator=(const evioDOMContainerNode &node);
 
 
@@ -360,7 +358,6 @@ private:
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, int tg, int num, const T *p, int ndata) throw(evioException);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
-  ~evioDOMLeafNode(void) {};
   bool operator=(const evioDOMLeafNode<T> &lNode);
 
 
