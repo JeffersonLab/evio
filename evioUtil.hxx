@@ -208,6 +208,7 @@ private:
 class evioDOMNode {
 
   friend class evioDOMContainerNode;   // allows container node to delete child nodes in destructor
+  friend class evioDOMTree;            // allows tree class to manipulate nodes
 
 
 protected:
@@ -264,8 +265,6 @@ public:
   virtual evioDOMNodeP cut(void) throw(evioException);
   virtual void cutAndDelete(void) throw(evioException);
   virtual evioDOMNodeP move(evioDOMNodeP newParent) throw(evioException);
-  virtual evioDOMNodeP makeRoot(evioDOMTree *newTree) throw(evioException);
-  virtual evioDOMNodeP replaceRoot(evioDOMTree *newTree) throw(evioException);
 
 
 public:

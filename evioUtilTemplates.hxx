@@ -400,12 +400,17 @@ template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(evioDOMNo
 
 
 template <typename T> void evioDOMTree::addBank(int tag, int num, const vector<T> dataVec) throw(evioException) {
-  evioDOMContainerNode* p = dynamic_cast<evioDOMContainerNode*>(root);
-  if(p!=NULL) {
-    p->childList.push_back(evioDOMNode::createEvioDOMNode(root,tag,num,dataVec));
-  } else {
-    root = evioDOMNode::createEvioDOMNode(NULL,tag,num,dataVec);
+
+  if(root==NULL) {
+    root = evioDOMNode::createEvioDOMNode(tag,num,dataVec);
     root->parentTree=this;
+
+  } else {
+    evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
+    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__LINE__));
+    evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,dataVec);
+    c->childList.push_back(node);
+    node->parent=root;
   }
 }
 
@@ -414,12 +419,17 @@ template <typename T> void evioDOMTree::addBank(int tag, int num, const vector<T
 
 
 template <typename T> void evioDOMTree::addBank(int tag, int num, const T* dataBuf, int dataLen) throw(evioException) {
-  evioDOMContainerNode* p = dynamic_cast<evioDOMContainerNode*>(root);
-  if(p!=NULL) {
-    p->childList.push_back(evioDOMNode::createEvioDOMNode(root,tag,num,dataBuf,dataLen));
-  } else {
-    root = evioDOMNode::createEvioDOMNode(NULL,tag,num,dataBuf,dataLen);
+
+  if(root==NULL) {
+    root = evioDOMNode::createEvioDOMNode(tag,num,dataBuf,dataLen);
     root->parentTree=this;
+
+  } else {
+    evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
+    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__LINE__));
+    evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,dataBuf,dataLen);
+    c->childList.push_back(node);
+    node->parent=root;
   }
 }
 

@@ -479,31 +479,6 @@ evioDOMNodeP evioDOMNode::move(evioDOMNodeP newParent) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeP evioDOMNode::makeRoot(evioDOMTreeP newTree) throw(evioException) {
-  if(newTree->root!=NULL)throw(evioException(0,"?evioDOMNode::makeRoot...tree root not NULL",__FILE__,__LINE__));
-  newTree->root=this;
-  parentTree=newTree;
-  return(this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeP evioDOMNode::replaceRoot(evioDOMTree *newTree) throw(evioException) {
-
-  if(newTree->root!=NULL)newTree->root->cutAndDelete();
-
-  cut();
-  newTree->root=this;
-  parentTree=newTree;
-  return(this);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 void evioDOMNode::addNode(evioDOMNodeP node) throw(evioException) {
   throw(evioException(0,"?evioDOMNode::addNode...illegal usage",__FILE__,__LINE__));
 }
@@ -665,7 +640,8 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 evioDOMTree::evioDOMTree(const evioChannel &channel, const string &n) throw(evioException) : root(NULL), name(n) {
   const unsigned int *buf = channel.getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
-  parse(buf)->makeRoot(this);
+  root=parse(buf);
+  root->parentTree=this;
 }
 
 
@@ -676,7 +652,8 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
   if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__LINE__));
   const unsigned int *buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
-  parse(buf)->makeRoot(this);
+  root=parse(buf);
+  root->parentTree=this;
 }
 
 
@@ -684,7 +661,8 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
 
 evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evioException) : root(NULL), name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
-  parse(reinterpret_cast<const unsigned int*>(buf))->makeRoot(this);
+  root=parse(reinterpret_cast<const unsigned int*>(buf));
+  root->parentTree=this;
 }
 
 
@@ -693,7 +671,8 @@ evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evi
 
 evioDOMTree::evioDOMTree(const unsigned int *buf, const string &name) throw(evioException) : root(NULL), name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
-  parse(buf)->makeRoot(this);
+  root=parse(buf);
+  root->parentTree=this;
 }
 
 
@@ -702,7 +681,8 @@ evioDOMTree::evioDOMTree(const unsigned int *buf, const string &name) throw(evio
 
 evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioException) : root(NULL), name(name) {
   if(node==NULL)throw(evioException(0,"?evioDOMTree constructor...null evioDOMNode",__FILE__,__LINE__));
-  node->makeRoot(this);
+  root=node;
+  root->parentTree=this;
 }
 
 
@@ -710,7 +690,8 @@ evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioExcept
 
 
 evioDOMTree::evioDOMTree(int tag, int num, ContainerType cType, const string &name) throw(evioException) : root(NULL), name(name) {
-  evioDOMNode::createEvioDOMNode(tag,num,cType)->makeRoot(this);
+  root=evioDOMNode::createEvioDOMNode(tag,num,cType);
+  root->parentTree=this;
 }
 
 
@@ -744,12 +725,14 @@ void *evioDOMTree::containerNodeHandler(int length, int tag, int contentType, in
 
   // create new node
   evioDOMNodeP newNode = evioDOMNode::createEvioDOMNode(tag,num,(ContainerType)contentType);
-  if(parent!=NULL)newNode->move(parent);
 
 
-  // add new node to parent's list
-  if(parent!=NULL)parent->childList.push_back(newNode);
-
+  // set parent pointers
+  if(parent!=NULL) {
+    parent->childList.push_back(newNode);
+    newNode->parent=parent;
+  }
+  
 
   // return pointer to new node
   return((void*)newNode);
@@ -831,7 +814,10 @@ void evioDOMTree::leafNodeHandler(int length, int tag, int contentType, int num,
 
   // add new leaf to parent
   evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
-  if(parent!=NULL)newLeaf->move(parent);
+  if(parent!=NULL) {
+    parent->childList.push_back(newLeaf);
+    newLeaf->parent=parent;
+  }
 }
 
 
@@ -852,12 +838,14 @@ void evioDOMTree::clear(void) throw(evioException) {
 void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 
   if(root==NULL) {
-    node->makeRoot(this);
+    root=node;
+    root->parentTree=this;
 
   } else {
     evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(root);
     if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root is not container",__FILE__,__LINE__));
-    node->move(root);
+    c->childList.push_back(node);
+    node->parent=root;
   }
 }
 
