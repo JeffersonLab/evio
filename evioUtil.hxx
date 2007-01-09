@@ -22,8 +22,6 @@
 
 
 // not sure:
-//   breadth-first getNodeList()?
-//   mark in tree, container node?
 //   scheme for exception type codes?
 //   namespace?
 //   AIDA interface?

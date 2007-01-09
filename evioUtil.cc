@@ -876,7 +876,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
 
   int bankLen,bankType,dataOffset;
 
-  if(size<=0)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+  if(size<=0)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...illegal buffer size",__FILE__,__LINE__));
 
 
   if(pNode->parent==NULL) {
@@ -923,13 +923,13 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
   bankLen=dataOffset;
 
 
-  // if container node loop over contained nodes
+  // loop over contained nodes if container node
   const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
   if(c!=NULL) {
     evioDOMNodeList::const_iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       bankLen+=toEVIOBuffer(&buf[bankLen],*iter,size-bankLen-1);
-      // if(bankLen>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__)); ???
+      if(bankLen>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
     }
 
 
@@ -947,6 +947,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
         const evioDOMLeafNode<unsigned int> *leaf = static_cast<const evioDOMLeafNode<unsigned int>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata;
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
         for(i=0; i<ndata; i++) buf[dataOffset+i]=(unsigned int)(leaf->data[i]);
       }
       break;
@@ -957,6 +958,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
         string s = leaf->data[0];
         ndata - s.size();
         nword = (ndata+3)/4;
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
         unsigned char *c = (unsigned char*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=(s.c_str())[i];
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
@@ -969,6 +971,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
         const evioDOMLeafNode<unsigned short> *leaf = static_cast<const evioDOMLeafNode<unsigned short>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+1)/2;
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
         unsigned short *s = (unsigned short *)&buf[dataOffset];
         for(i=0; i<ndata; i++) s[i]=static_cast<unsigned short>(leaf->data[i]);
         if((ndata%2)!=0)buf[ndata]=0;
@@ -981,6 +984,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
         const evioDOMLeafNode<unsigned char> *leaf = static_cast<const evioDOMLeafNode<unsigned char>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+3)/4;
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
         unsigned char *c = (unsigned char*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=static_cast<unsigned char>(leaf->data[i]);
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
@@ -994,6 +998,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
         const evioDOMLeafNode<unsigned long long> *leaf = static_cast<const evioDOMLeafNode<unsigned long long>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata*2;
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
         unsigned long long *ll = (unsigned long long*)&buf[dataOffset];
         for(i=0; i<ndata; i++) ll[i]=static_cast<unsigned long long>(leaf->data[i]);
       }
