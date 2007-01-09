@@ -18,6 +18,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.7  2007/01/09 16:09:26  wolin
+ *   Minor mods for solaris
+ *
  *   Revision 1.6  2003/12/01 18:48:11  wolin
  *   Minor, but now replaced by evioswap
  *
@@ -70,10 +73,12 @@
 # include <vxWorks.h>
 # include <stdlib.h>
 # include <stdio.h>
+# include <string.h>
 # include <errno.h>
 #else
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 # include <errno.h>
 #endif
 

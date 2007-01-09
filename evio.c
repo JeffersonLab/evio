@@ -25,6 +25,9 @@
  *
  * Revision History:
  *   $Log$
+ *   Revision 1.17  2007/01/09 16:09:26  wolin
+ *   Minor mods for solaris
+ *
  *   Revision 1.16  2006/12/12 14:51:31  wolin
  *   Now using unsigned int
  *
@@ -121,6 +124,7 @@
 #define PMODE 0644
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <evio.h>
@@ -175,6 +179,8 @@ static  int  evGetEventNumber(EVFILE *, int);
 static  int  evGetEventType(EVFILE *);
 static  int  isRealEventsInsideBlock(EVFILE *, int, int);
 static  int  physicsEventsInsideBlock(EVFILE *);
+static  int  evGetNewBuffer(EVFILE *a);
+static  int  evFlush(EVFILE *a);
 
 
 /*  these replace routines from swap_util.c, ejw, 1-dec-03 */

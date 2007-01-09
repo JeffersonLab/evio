@@ -57,6 +57,7 @@ enum {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <expat.h>
 
 
@@ -119,6 +120,8 @@ static void indent(void);
 static int get_int_att(const char **atts, const int natt, const char *tag, int *val);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
 
+int user_frag_select(int tag);
+
 
 /*--------------------------------------------------------------------------*/
 
@@ -163,7 +166,7 @@ static void create_dictionary(char *dictfilename) {
   } while (len==MAXXMLBUF);
   
 
-  close(dictfile);
+  fclose(dictfile);
   return;
 }
 
