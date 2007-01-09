@@ -7,6 +7,9 @@
 
 #include <evioUtil.hxx>
 
+using namespace evio;
+using namespace std;
+
 
 //--------------------------------------------------------------
 //-------------------- local variables -------------------------
@@ -16,16 +19,6 @@
 
 //--------------------------------------------------------------
 //------------------------ utilities ---------------------------
-//--------------------------------------------------------------
-
-
-string evioGetIndent(int depth) {
-  string s;
-  for(int i=0; i<depth; i++) s+="   ";
-  return(s);
-}
-
-
 //--------------------------------------------------------------
 
 
@@ -597,6 +590,16 @@ bool evioDOMNode::isLeaf(void) const {
 }
 
 
+//--------------------------------------------------------------
+
+
+string evioDOMNode::getIndent(int depth) {
+  string s;
+  for(int i=0; i<depth; i++) s+="   ";
+  return(s);
+}
+
+
 //-----------------------------------------------------------------------------
 //----------------------- evioDOMContainerNode --------------------------------
 //-----------------------------------------------------------------------------
@@ -631,7 +634,7 @@ string evioDOMContainerNode::toString(void) const {
                                    
 string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
-  os << evioGetIndent(depth)
+  os << getIndent(depth)
      <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType)
      << "\" data_type=\"" << hex << showbase << getContentType()
      << dec << "\" tag=\""  << tag;
@@ -646,7 +649,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
                                    
 string evioDOMContainerNode::getFooter(int depth) const {
   ostringstream os;
-  os << evioGetIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->getContentType()) << ">" << endl;
+  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->getContentType()) << ">" << endl;
   return(os.str());
 }
 

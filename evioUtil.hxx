@@ -4,7 +4,6 @@
 
 
 // must do:
-//   operator==(tag,num)
 
 
 // should do:
@@ -21,17 +20,16 @@
 
 
 // not sure:
-//   scheme for exception type codes?
-//   namespace?
-//   AIDA interface?
 //   split header files?
+//   auto_ptr?
+//   scheme for exception type codes?
+//   AIDA interface?
 
 
 #ifndef _evioUtil_hxx
 #define _evioUtil_hxx
 
 
-using namespace std;
 #include <evio.h>
 #include <list>
 #include <vector>
@@ -40,6 +38,12 @@ using namespace std;
 #include <sstream>
 #include <functional>
 #include <utility>
+
+
+namespace evio {
+
+using namespace std;
+
 
 
 // class prototypes
@@ -71,9 +75,6 @@ typedef pair<unsigned int, unsigned char> tagNum;
 //-----------------------------------------------------------------------------
 //------------------------ Misc global functions ------------------------------
 //-----------------------------------------------------------------------------
-
-
-string evioGetIndent(int depth);
 
 
 //-----------------------------------------------------------------------------
@@ -298,6 +299,10 @@ public:
 
 
 protected:
+  static string getIndent(int depth);
+
+
+protected:
   evioDOMNodeP parent;
   evioDOMTreeP parentTree;
   int contentType;
@@ -463,4 +468,11 @@ public:
 // include templates
 #include <evioUtilTemplates.hxx>
 
+
+
+}  // namespace EVIO
+
+
 #endif
+
+

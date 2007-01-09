@@ -245,7 +245,7 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, u
 template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   ostringstream os;
-  string indent = evioGetIndent(depth);
+  string indent = getIndent(depth);
   string indent2 = indent + "    ";
 
   int wid,swid;
@@ -342,7 +342,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
 template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
   ostringstream os;
-  os << evioGetIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
+  os << getIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
   return(os.str());
 }
 
