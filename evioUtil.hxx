@@ -39,6 +39,7 @@ using namespace std;
 #include <iomanip>
 #include <sstream>
 #include <functional>
+#include <utility>
 
 
 // class prototypes
@@ -47,7 +48,6 @@ class evioDOMNode;
 class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 class evioSerializable;
-
 
 
 
@@ -65,6 +65,7 @@ typedef enum {
   SEGMENT    = 0xd,
   TAGSEGMENT = 0xc
 } ContainerType;
+typedef pair<unsigned int, unsigned char> tagNum;
 
 
 //-----------------------------------------------------------------------------
@@ -268,7 +269,8 @@ public:
 public:
   virtual bool operator==(unsigned int tag) const;
   virtual bool operator!=(unsigned int tag) const;
-  //  virtual bool operator==(unary_function<const evioDOMNodeP, bool>) const;
+  bool operator==(tagNum tnPair) const;
+  bool operator!=(tagNum tnPair) const;
 
 
 public:

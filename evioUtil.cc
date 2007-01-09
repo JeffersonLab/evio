@@ -538,8 +538,23 @@ bool evioDOMNode::operator!=(unsigned int tg) const {
 //-----------------------------------------------------------------------------
 
 
-// bool evioDOMNode::operator==(unary_function<const evioDOMNodeP, bool> &u) const {
-// ??? }
+bool evioDOMNode::operator==(tagNum tnPair) const {
+  return(
+         (this->tag==tnPair.first) &&
+         (this->num==tnPair.second)
+         );
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+bool evioDOMNode::operator!=(tagNum tnPair) const {
+  return(
+         (this->tag!=tnPair.first) ||
+         (this->num!=tnPair.second)
+         );
+}
 
 
 //-----------------------------------------------------------------------------
