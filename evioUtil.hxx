@@ -1,10 +1,9 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 8-jan-2007
+//  Author:  Elliott Wolin, JLab, 9-jan-2007
 
 
 // must do:
-//   check bufsize in toEVIOBuffer(), parseBank, etc.
 //   operator==(tag,num)
 
 
@@ -222,24 +221,27 @@ public:
   static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, const vector<T> tVec) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, const T* t, int len) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, const evioSerializable &o, ContainerType cType=BANK) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType=BANK) 
+  static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, const evioSerializable &o, ContainerType cType=BANK) 
     throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, 
+                                        ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, T *t,
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, T *t, void* T::*mfp(evioDOMNodeP c, void *userArg),
+  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, T *t, 
+                                                              void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
 
 protected:
   // node creation factory methods used internally
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, const vector<T> tVec)
-    throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, const T* t, int len)
-    throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, const evioSerializable &o, ContainerType cType=BANK)
-    throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, 
+                                        ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, 
+                                                              const vector<T> tVec) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, 
+                                                              const T* t, int len) throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, const evioSerializable &o, 
+                                        ContainerType cType=BANK) throw(evioException);
   static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg),
                                         void *userArg, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, T *t,

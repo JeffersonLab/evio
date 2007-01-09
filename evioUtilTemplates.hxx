@@ -472,7 +472,7 @@ private:
 class tagEquals : unary_function<const evioDOMNodeP,bool> {
 
 public:
-  tagEquals(int aTag) : tag(aTag) {}
+  tagEquals(unsigned int aTag) : tag(aTag) {}
   bool operator()(const evioDOMNodeP node) const {return(node->tag==tag);}
 private:
   unsigned int tag;
@@ -486,7 +486,7 @@ private:
 class numEquals : unary_function<const evioDOMNodeP,bool> {
 
 public:
-  numEquals(int aNum) : num(aNum) {}
+  numEquals(unsigned char aNum) : num(aNum) {}
   bool operator()(const evioDOMNodeP node) const {return(node->num==num);}
 private:
   unsigned char num;
@@ -500,7 +500,7 @@ private:
 class tagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
-  tagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
+  tagNumEquals(unsigned int aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
   bool operator()(const evioDOMNodeP node) const {return((node->tag==tag)&&(node->num==num));}
 private:
   unsigned int tag;
@@ -529,7 +529,7 @@ private:
 class parentTagEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
-  parentTagEquals(int aTag) : tag(aTag) {}
+  parentTagEquals(unsigned int aTag) : tag(aTag) {}
   bool operator()(const evioDOMNodeP node) const {return((node->getParent()==NULL)?false:(node->getParent()->tag==tag));}
 private:
   unsigned int tag;
@@ -543,7 +543,7 @@ private:
 class parentNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
-  parentNumEquals(int aNum) : num(aNum) {}
+  parentNumEquals(unsigned char aNum) : num(aNum) {}
   bool operator()(const evioDOMNodeP node) const {return((node->getParent()==NULL)?false:(node->getParent()->num==num));}
 private:
   unsigned char num;
@@ -557,7 +557,7 @@ private:
 class parentTagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
-  parentTagNumEquals(int aTag, int aNum) : tag(aTag), num(aNum) {}
+  parentTagNumEquals(unsigned int aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
   bool operator()(const evioDOMNodeP node) const {
     return((node->getParent()==NULL)?false:((node->getParent()->tag==tag)&&(node->getParent()->num==num)));}
 private:

@@ -251,7 +251,9 @@ void *evioStreamParser::parse(const unsigned int *buf,
 void *evioStreamParser::parseBank(const unsigned int *buf, int bankType, int depth, 
                                  evioStreamParserHandler &handler, void *userArg) throw(evioException) {
 
-  int length,tag,contentType,num,dataOffset,p,bankLen;
+  int length,contentType,dataOffset,p,bankLen;
+  unsigned int tag;
+  unsigned char num;
   const unsigned int *data;
   unsigned int mask;
 
