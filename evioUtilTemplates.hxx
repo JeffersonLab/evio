@@ -13,38 +13,52 @@
 
 
 //--------------------------------------------------------------
-//--------------------- global functions -----------------------
+//----------------------- local class  -------------------------
 //--------------------------------------------------------------
 
 
-template <typename T> static int evioGetContentType(void) throw(evioException) {
-  throw(evioException(0,"?evioGetContentType<T>...illegal type",__FILE__,__LINE__));}
-template <> static int evioGetContentType<unsigned int>(void)       throw(evioException) {return(0x1);}
-template <> static int evioGetContentType<float>(void)              throw(evioException) {return(0x2);}
-template <> static int evioGetContentType<string&>(void)            throw(evioException) {return(0x3);}
-template <> static int evioGetContentType<short>(void)              throw(evioException) {return(0x4);}
-template <> static int evioGetContentType<unsigned short>(void)     throw(evioException) {return(0x5);}
-template <> static int evioGetContentType<char>(void)               throw(evioException) {return(0x6);}
-template <> static int evioGetContentType<unsigned char>(void)      throw(evioException) {return(0x7);}
-template <> static int evioGetContentType<double>(void)             throw(evioException) {return(0x8);}
-template <> static int evioGetContentType<long long>(void)          throw(evioException) {return(0x9);}
-template <> static int evioGetContentType<unsigned long long>(void) throw(evioException) {return(0xa);}
-template <> static int evioGetContentType<int>(void)                throw(evioException) {return(0xb);}
+//  only way to do this on solaris...ejw, 9-jan-2007
+template <typename T> class evioUtil {
+public:
+  static int getContentType(void) throw(evioException) {
+    throw(evioException(0,"?evioUtil<T>::getContentType...illegal type",__FILE__,__LINE__));
+    return(0);
+  }
+};
 
-template <> static int evioGetContentType<unsigned long>(void) throw(evioException) {
-  if(sizeof(unsigned long)==8) {
-    return(0xa);
-  } else {
-    return(0x1);
+template <> class evioUtil<unsigned int>       {public: static int getContentType(void)  throw(evioException) {return(0x1);}};
+template <> class evioUtil<float>              {public: static int getContentType(void)  throw(evioException) {return(0x2);}};
+template <> class evioUtil<string&>            {public: static int getContentType(void)  throw(evioException) {return(0x3);}};
+template <> class evioUtil<short>              {public: static int getContentType(void)  throw(evioException) {return(0x4);}};
+template <> class evioUtil<unsigned short>     {public: static int getContentType(void)  throw(evioException) {return(0x5);}};
+template <> class evioUtil<char>               {public: static int getContentType(void)  throw(evioException) {return(0x6);}};
+template <> class evioUtil<unsigned char>      {public: static int getContentType(void)  throw(evioException) {return(0x7);}};
+template <> class evioUtil<double>             {public: static int getContentType(void)  throw(evioException) {return(0x8);}};
+template <> class evioUtil<long long>          {public: static int getContentType(void)  throw(evioException) {return(0x9);}};
+template <> class evioUtil<unsigned long long> {public: static int getContentType(void)  throw(evioException) {return(0xa);}};
+template <> class evioUtil<int>                {public: static int getContentType(void)  throw(evioException) {return(0xb);}};
+  
+template <> class evioUtil<unsigned long> {
+public:
+  static int getContentType(void) throw(evioException) {
+    if(sizeof(unsigned long)==8) {
+      return(0xa);
+    } else {
+      return(0x1);
+    }
   }
-}
-template <> static int evioGetContentType<long>(void) throw(evioException) {
-  if(sizeof(long)==8) {
-    return(0x9);
-  } else {
-    return(0xb);
+};
+
+template <> class evioUtil<long> { 
+public:
+  static int getContentType(void) throw(evioException) {
+    if(sizeof(long)==8) {
+      return(0x9);
+    } else {
+      return(0xb);
+    }
   }
-}
+};
 
 
 //-----------------------------------------------------------------------------
@@ -222,7 +236,7 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioExc
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, unsigned int tg, unsigned char num, const vector<T> &v)
-  throw(evioException) : evioDOMNode(par,tg,num,evioGetContentType<T>()) {
+  throw(evioException) : evioDOMNode(par,tg,num,evioUtil<T>::getContentType()) {
   
   copy(v.begin(),v.end(),inserter(data,data.begin()));
 }
@@ -232,7 +246,7 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, unsi
 
 
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, unsigned int tg, unsigned char num, const T* p, int ndata) 
-  throw(evioException) : evioDOMNode(parent,tg,num,evioGetContentType<T>()) {
+  throw(evioException) : evioDOMNode(parent,tg,num,evioUtil<T>::getContentType()) {
   
   // fill vector with data
   for(int i=0; i<ndata; i++) data.push_back(p[i]);
@@ -444,7 +458,7 @@ template <typename T> void evioDOMTree::addBank(unsigned int tag, unsigned char 
 template <typename T> class typeIs : unary_function<const evioDOMNodeP,bool> {
 
 public:
-  typeIs(void) : type(evioGetContentType<T>()) {}
+  typeIs(void) : type(evioUtil<T>::getContentType()) {}
   bool operator()(const evioDOMNodeP node) const {return(node->getContentType()==type);}
 private:
   int type;

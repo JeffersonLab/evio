@@ -3,9 +3,6 @@
 //  Author:  Elliott Wolin, JLab, 9-jan-2007
 
 
-// must do:
-
-
 // should do:
 //   solaris
 //   update doc
@@ -215,7 +212,7 @@ protected:
 
 private:
   evioDOMNode(const evioDOMNode &node) throw(evioException);
-  bool operator=(const evioDOMNode &node) const {};
+  bool operator=(const evioDOMNode &node) const {return(false);}
 
 
 public:
