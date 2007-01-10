@@ -24,7 +24,7 @@
  *
  *
  * Revision History:
- *   $Log$
+ *   $Log: evio.c,v $
  *   Revision 1.17  2007/01/09 16:09:26  wolin
  *   Minor mods for solaris
  *

@@ -15,9 +15,9 @@
  * Author:  Chip Watson, CEBAF Data Acquisition Group
  *
  * Revision History:
- *   $Log$
- *   Revision 1.1  1996/09/19 18:25:20  chen
- *   Initial revision
+ *   $Log: evtest.c,v $
+ *   Revision 1.1.1.1  1996/09/19 18:25:20  chen
+ *   original port to solaris
  *
  *	  Revision 1.2  1992/07/14  19:14:18  watson
  *	  Make test event more complex

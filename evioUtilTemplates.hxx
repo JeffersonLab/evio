@@ -209,6 +209,15 @@ template <typename T> vector<T> *evioDOMNode::getVector(void) throw(evioExceptio
 //-----------------------------------------------------------------------------
 
 
+template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioException) {
+  append(&tVal,1);
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec) throw(evioException) {
   append(tVec);
   return(*this);
@@ -218,8 +227,8 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioException) {
-  append(&tVal,1);
+template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) throw(evioException) {
+  append(tVec);
   return(*this);
 }
 

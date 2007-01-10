@@ -4,7 +4,6 @@
 
 
 // should do:
-//   solaris
 //   update doc
 //   Doxygen comments
 
@@ -17,6 +16,7 @@
 
 
 // not sure:
+//   solaris: count_if and function objects?
 //   split header files?
 //   auto_ptr?
 //   scheme for exception type codes?
@@ -275,8 +275,9 @@ public:
   evioDOMNode& operator<<(evioDOMNodeP node) throw(evioException);
   evioDOMNode& operator<<(evioDOMTree &tree) throw(evioException);
   evioDOMNode& operator<<(evioDOMTree *tree) throw(evioException);
-  template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
   template <typename T> evioDOMNode& operator<<(T tVal) throw(evioException);
+  template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
+  template <typename T> evioDOMNode& operator<<(      vector<T> &tVec) throw(evioException);
 
 
 public:

@@ -23,8 +23,10 @@
 
 
 /* include files */
+#include <evio.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 
 
 /*  misc variables */
@@ -47,10 +49,6 @@ static int debug          = 0;
 /* prototypes */
 void decode_command_line(int argc, char **argv);
 int user_event_select();
-int evOpen(const char *filename, const char *mode, int *handle);
-int evRead(int handle, unsigned int *buf, int maxbuflen);
-int evWrite(int handle, unsigned int *buf);
-int evClose(int handle);
 
 
 /*--------------------------------------------------------------------------*/

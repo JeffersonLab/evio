@@ -17,7 +17,7 @@
  * Modifications:  EJW, 19-jun-2001 bug fixes
  *
  * Revision History:
- *   $Log$
+ *   $Log: swap_util.c,v $
  *   Revision 1.8  2007/01/09 17:56:30  wolin
  *   Created evioUtil<T>::getContentType() to solve solaris bug
  *

@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 
 /*  misc variables */
@@ -64,6 +65,24 @@ int user_frag_select(int tag);
 int evOpen(const char *filename, const char *mode, int *handle);
 int evRead(int handle, unsigned int *buf, int maxbuflen );
 int evClose(int handle);
+FILE *gzopen(char*,char*);
+void gzclose(FILE*);
+void gzwrite(FILE*,char*,int);
+int set_event_tag(char *tag);
+int set_bank2_tag(char *tag);
+int set_n8(int val);
+int set_n16(int val);
+int set_n32(int val);
+int set_n64(int val);
+int set_w8(int val);
+int set_w16(int val);
+int set_w32(int val);
+int set_w64(int val);
+int set_xtod(int val);
+int set_indent_size(int val);
+int set_max_depth(int val);
+int set_no_typename(int val);
+int set_verbose(int val);
 
 
 /*--------------------------------------------------------------------------*/

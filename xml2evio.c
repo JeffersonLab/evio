@@ -51,6 +51,7 @@
 
 
 /* include files */
+#include <evio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -135,9 +136,6 @@ stack_entry *get_stack(void);
 int find_tag(const char **atts, const int natt, const char *tag);
 int get_int_tag(const char **atts, const int natt, const char *tag, int *val);
 const char *get_char_tag(const char **atts, const int natt, const char *tag);
-int evOpen(const char *filename, const char *mode, int *handle);
-int evWrite(int handle, unsigned int *buf);
-int evClose(int handle);
 
 
 /*--------------------------------------------------------------------------*/
@@ -232,7 +230,7 @@ void create_dictionary(void) {
   } while (len==MAXXMLBUF);
   
 
-  close(dictfile);
+  fclose(dictfile);
   return;
 }
 

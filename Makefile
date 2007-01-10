@@ -17,7 +17,7 @@
 #  Author:  Chip Watson, CEBAF Data Acquisition Group
 # 
 #  Revision History:
-#    $Log$
+#    $Log: Makefile,v $
 #    Revision 1.22  2007/01/05 21:10:41  wolin
 #    Eliminated evioNode being friend of evioDOMTree
 #
