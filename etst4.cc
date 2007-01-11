@@ -1,0 +1,89 @@
+//  example of evio tree and bank creation using "stream" style
+
+
+#include <vector>
+#include "evioUtil.hxx"
+using namespace evio;
+using namespace std;
+
+
+static evioFileChannel *chan = NULL;
+
+
+int tag,type,num,len;
+ContainerType cType;
+
+vector<unsigned long> uVec1,uVec2;
+double dBuf[100];
+int iBuf[100];
+vector<long> lVec;
+evioDOMNodeP parent;
+
+
+//-------------------------------------------------------------------------------
+
+
+int main(int argc, char **argv) {
+  
+
+  // fill vectors
+  for(int i=0; i<10; i++) uVec1.push_back(i),uVec2.push_back(2*i),dBuf[i]=i*10.0,lVec.push_back(100*i),iBuf[i]=100*i+i;
+
+
+
+  try {
+    chan = new evioFileChannel("ejw.dat","w");
+    chan->open();
+    
+
+    // create a tree
+    evioDOMTree t1(evioDOMNode::createEvioDOMNode(tag=1, num=5));
+
+
+    // create a container node (BANK) and add to tree
+    evioDOMNodeP cn1 = evioDOMNode::createEvioDOMNode(tag=3, num=7, cType=BANK);
+    t1 << cn1;
+
+
+    // create another leaf node
+    evioDOMNodeP ln2 = evioDOMNode::createEvioDOMNode(tag=2, num=6, uVec1); 
+
+
+    // hang leaf nodes off cn1, dereferencing of pointer mandatory due to C++ limitations
+    *cn1 << ln2
+        << evioDOMNode::createEvioDOMNode(tag=2, num=6, dBuf, 10) 
+        << evioDOMNode::createEvioDOMNode(tag=2, num=6, lVec);
+    
+    
+    // add some more data to ln2
+    *ln2 << uVec2 << uVec1;
+
+    
+    // create another sub-tree
+    evioDOMNodeP cn3 = evioDOMNode::createEvioDOMNode(tag=30, num=35, cType=BANK);
+    *cn3 << evioDOMNode::createEvioDOMNode(tag=31, num=36, uVec1)
+         << evioDOMNode::createEvioDOMNode(tag=32, num=37, lVec)
+         << evioDOMNode::createEvioDOMNode(tag=10, num=20, iBuf, 10)
+         << evioDOMNode::createEvioDOMNode(tag=11, num=21, dBuf, 5)
+         << evioDOMNode::createEvioDOMNode(tag=12, num=22, lVec);
+
+
+    // hang sub-tree off cn1
+    *cn1 << cn3;
+
+
+    // write out tree
+    chan->write(t1);
+    chan->close();
+    
+  } catch (evioException e) {
+    cerr << e.toString() << endl;
+  }
+
+  delete(chan);
+  cout << "ejw.dat created" << endl;
+}
+
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
