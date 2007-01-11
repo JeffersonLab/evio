@@ -1,6 +1,6 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 9-jan-2007
+//  Author:  Elliott Wolin, JLab, 10-jan-2007
 
 
 // should do:
@@ -42,14 +42,19 @@ namespace evio {
 using namespace std;
 
 
-
-// class prototypes
+// evio classes:
+class evioException;
+class evioChannel;
+class evioFileChannel;
+class evioStreamParserHandler;
+class evioStreamParser;
 class evioDOMTree;
 class evioDOMNode;
 class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 class evioSerializable;
-
+template <typename T> class evioUtil;
+// plus a number of function object classes
 
 
 //-----------------------------------------------------------------------------
@@ -66,12 +71,7 @@ typedef enum {
   SEGMENT    = 0xd,
   TAGSEGMENT = 0xc
 } ContainerType;
-typedef pair<unsigned int, unsigned char> tagNum;
-
-
-//-----------------------------------------------------------------------------
-//------------------------ Misc global functions ------------------------------
-//-----------------------------------------------------------------------------
+typedef pair<unsigned short, unsigned char> tagNum;
 
 
 //-----------------------------------------------------------------------------
@@ -169,9 +169,9 @@ private:
 class evioStreamParserHandler {
 
 public:
-  virtual void *containerNodeHandler(int length, unsigned int tag, int contentType, unsigned char num, 
+  virtual void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                             int depth, void *userArg) = 0;
-  virtual void leafNodeHandler(int length, unsigned int tag, int contentType, unsigned char num, 
+  virtual void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                            int depth, const void *data, void *userArg) = 0;
 };
 
@@ -206,7 +206,7 @@ class evioDOMNode {
 
 
 protected:
-  evioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, int contentType) throw(evioException);
+  evioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, int contentType) throw(evioException);
   ~evioDOMNode(void);
 
 
@@ -217,35 +217,35 @@ private:
 
 public:
   // public factory methods for node creation
-  static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, const vector<T> tVec) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, const T* t, int len) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, const evioSerializable &o, ContainerType cType=BANK) 
+  static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const T* t, int len) throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const evioSerializable &o, ContainerType cType=BANK) 
     throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, 
+  static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, 
                                         ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, T *t,
+  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, T *t,
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned int tag, unsigned char num, T *t, 
+  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
                                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
 
 protected:
   // node creation factory methods used internally
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, 
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, 
                                         ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, 
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, 
                                                               const vector<T> tVec) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, 
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, 
                                                               const T* t, int len) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, const evioSerializable &o, 
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, const evioSerializable &o, 
                                         ContainerType cType=BANK) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg),
+  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg),
                                         void *userArg, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, T *t,
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t,
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, T *t,
+  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t,
                                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
@@ -265,8 +265,8 @@ public:
 
 
 public:
-  virtual bool operator==(unsigned int tag) const;
-  virtual bool operator!=(unsigned int tag) const;
+  virtual bool operator==(unsigned short tag) const;
+  virtual bool operator!=(unsigned short tag) const;
   bool operator==(tagNum tnPair) const;
   bool operator!=(tagNum tnPair) const;
 
@@ -307,7 +307,7 @@ protected:
 
 
 public:
-  unsigned int tag;
+  unsigned short tag;
   unsigned char num;
 };
 
@@ -323,7 +323,7 @@ class evioDOMContainerNode : public evioDOMNode {
 
 
 private:
-  evioDOMContainerNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, ContainerType cType) throw(evioException);
+  evioDOMContainerNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, ContainerType cType) throw(evioException);
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
   bool operator=(const evioDOMContainerNode &node);
 
@@ -359,8 +359,8 @@ template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 
 private:
-  evioDOMLeafNode(evioDOMNodeP par, unsigned int tag, unsigned char num, const vector<T> &v) throw(evioException);
-  evioDOMLeafNode(evioDOMNodeP par, unsigned int tag, unsigned char num, const T *p, int ndata) throw(evioException);
+  evioDOMLeafNode(evioDOMNodeP par, unsigned short tag, unsigned char num, const vector<T> &v) throw(evioException);
+  evioDOMLeafNode(evioDOMNodeP par, unsigned short tag, unsigned char num, const T *p, int ndata) throw(evioException);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
   bool operator=(const evioDOMLeafNode<T> &lNode);
 
@@ -394,7 +394,7 @@ public:
   evioDOMTree(const unsigned long *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(const unsigned int *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
-  evioDOMTree(unsigned int tag, unsigned char num, ContainerType cType=BANK, const string &name = "evio")
+  evioDOMTree(unsigned short tag, unsigned char num, ContainerType cType=BANK, const string &name = "evio")
     throw(evioException);
   virtual ~evioDOMTree(void);
 
@@ -407,8 +407,8 @@ private:
 public:
   void clear(void) throw(evioException);
   void addBank(evioDOMNodeP node) throw(evioException);
-  template <typename T> void addBank(unsigned int tag, unsigned char num, const vector<T> dataVec) throw(evioException);
-  template <typename T> void addBank(unsigned int tag, unsigned char num, const T* dataBuf, int dataLen) throw(evioException);
+  template <typename T> void addBank(unsigned short tag, unsigned char num, const vector<T> dataVec) throw(evioException);
+  template <typename T> void addBank(unsigned short tag, unsigned char num, const T* dataBuf, int dataLen) throw(evioException);
 
 
 public:
@@ -436,8 +436,8 @@ private:
     throw(evioException);
   
   void toOstream(ostream &os, const evioDOMNodeP node, int depth) const throw(evioException);
-  void *containerNodeHandler(int length, unsigned int tag, int contentType, unsigned char num, int depth, void *userArg);
-  void leafNodeHandler(int length, unsigned int tag, int contentType, unsigned char num, int depth, const void *data, void *userArg);
+  void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, int depth, void *userArg);
+  void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, int depth, const void *data, void *userArg);
 
 
 public:
@@ -468,7 +468,7 @@ public:
 
 
 
-}  // namespace EVIO
+}  // namespace evio
 
 
 #endif

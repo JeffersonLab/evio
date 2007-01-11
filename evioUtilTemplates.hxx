@@ -20,27 +20,27 @@
 //  only way to do this on solaris...ejw, 9-jan-2007
 template <typename T> class evioUtil {
 public:
-  static int getContentType(void) throw(evioException) {
-    throw(evioException(0,"?evioUtil<T>::getContentType...illegal type",__FILE__,__LINE__));
+  static int evioContentType(void) throw(evioException) {
+    throw(evioException(0,"?evioUtil<T>::evioContentType...illegal type",__FILE__,__LINE__));
     return(0);
   }
 };
 
-template <> class evioUtil<unsigned int>       {public: static int getContentType(void)  throw(evioException) {return(0x1);}};
-template <> class evioUtil<float>              {public: static int getContentType(void)  throw(evioException) {return(0x2);}};
-template <> class evioUtil<string&>            {public: static int getContentType(void)  throw(evioException) {return(0x3);}};
-template <> class evioUtil<short>              {public: static int getContentType(void)  throw(evioException) {return(0x4);}};
-template <> class evioUtil<unsigned short>     {public: static int getContentType(void)  throw(evioException) {return(0x5);}};
-template <> class evioUtil<char>               {public: static int getContentType(void)  throw(evioException) {return(0x6);}};
-template <> class evioUtil<unsigned char>      {public: static int getContentType(void)  throw(evioException) {return(0x7);}};
-template <> class evioUtil<double>             {public: static int getContentType(void)  throw(evioException) {return(0x8);}};
-template <> class evioUtil<long long>          {public: static int getContentType(void)  throw(evioException) {return(0x9);}};
-template <> class evioUtil<unsigned long long> {public: static int getContentType(void)  throw(evioException) {return(0xa);}};
-template <> class evioUtil<int>                {public: static int getContentType(void)  throw(evioException) {return(0xb);}};
+template <> class evioUtil<unsigned int>       {public: static int evioContentType(void)  throw(evioException) {return(0x1);}};
+template <> class evioUtil<float>              {public: static int evioContentType(void)  throw(evioException) {return(0x2);}};
+template <> class evioUtil<string&>            {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
+template <> class evioUtil<short>              {public: static int evioContentType(void)  throw(evioException) {return(0x4);}};
+template <> class evioUtil<unsigned short>     {public: static int evioContentType(void)  throw(evioException) {return(0x5);}};
+template <> class evioUtil<char>               {public: static int evioContentType(void)  throw(evioException) {return(0x6);}};
+template <> class evioUtil<unsigned char>      {public: static int evioContentType(void)  throw(evioException) {return(0x7);}};
+template <> class evioUtil<double>             {public: static int evioContentType(void)  throw(evioException) {return(0x8);}};
+template <> class evioUtil<long long>          {public: static int evioContentType(void)  throw(evioException) {return(0x9);}};
+template <> class evioUtil<unsigned long long> {public: static int evioContentType(void)  throw(evioException) {return(0xa);}};
+template <> class evioUtil<int>                {public: static int evioContentType(void)  throw(evioException) {return(0xb);}};
   
 template <> class evioUtil<unsigned long> {
 public:
-  static int getContentType(void) throw(evioException) {
+  static int evioContentType(void) throw(evioException) {
     if(sizeof(unsigned long)==8) {
       return(0xa);
     } else {
@@ -51,7 +51,7 @@ public:
 
 template <> class evioUtil<long> { 
 public:
-  static int getContentType(void) throw(evioException) {
+  static int evioContentType(void) throw(evioException) {
     if(sizeof(long)==8) {
       return(0x9);
     } else {
@@ -66,7 +66,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, const vector<T> tVec)
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, const vector<T> tVec)
   throw(evioException) {
   return(new evioDOMLeafNode<T>(parent,tag,num,tVec));
 }
@@ -75,7 +75,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP p
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int tag, unsigned char num, const vector<T> tVec) throw(evioException) {
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec) throw(evioException) {
   return(new evioDOMLeafNode<T>(NULL,tag,num,tVec));
 }
 
@@ -83,7 +83,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int t
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int tag, unsigned char num, const T* t, int len) throw(evioException) {
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const T* t, int len) throw(evioException) {
   return(new evioDOMLeafNode<T>(NULL,tag,num,t,len));
 }
 
@@ -91,7 +91,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int t
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, const T* t, int len) 
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, const T* t, int len) 
   throw(evioException) {
   return(new evioDOMLeafNode<T>(parent,tag,num,t,len));
 }
@@ -100,7 +100,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP p
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int tag, unsigned char num, T *t, 
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
                                                                   void *userArg, ContainerType cType) throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(NULL,tag,num,t,userArg,cType));
 }
@@ -109,7 +109,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int t
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, T *t, 
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t, 
                                                                   void *userArg, ContainerType cType) throw(evioException) {
   evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
   t->serialize(c,userArg);
@@ -119,7 +119,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP p
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int tag, unsigned char num, T *t, 
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
                                                                   void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                                   void *userArg, ContainerType cType) throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(NULL,tag,num,t,mfp,userArg,cType));
@@ -129,7 +129,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned int t
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned int tag, unsigned char num, T *t, 
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t, 
                                                                   void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                                   void *userArg, ContainerType cType) throw(evioException) {
   evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
@@ -244,8 +244,8 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) thro
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, unsigned int tg, unsigned char num, const vector<T> &v)
-  throw(evioException) : evioDOMNode(par,tg,num,evioUtil<T>::getContentType()) {
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, unsigned short tg, unsigned char num, const vector<T> &v)
+  throw(evioException) : evioDOMNode(par,tg,num,evioUtil<T>::evioContentType()) {
   
   copy(v.begin(),v.end(),inserter(data,data.begin()));
 }
@@ -254,8 +254,8 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, unsi
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, unsigned int tg, unsigned char num, const T* p, int ndata) 
-  throw(evioException) : evioDOMNode(parent,tg,num,evioUtil<T>::getContentType()) {
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, unsigned short tg, unsigned char num, const T* p, int ndata) 
+  throw(evioException) : evioDOMNode(parent,tg,num,evioUtil<T>::evioContentType()) {
   
   // fill vector with data
   for(int i=0; i<ndata; i++) data.push_back(p[i]);
@@ -422,7 +422,7 @@ template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(evioDOMNo
 //-----------------------------------------------------------------------------
 
 
-template <typename T> void evioDOMTree::addBank(unsigned int tag, unsigned char num, const vector<T> dataVec) throw(evioException) {
+template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned char num, const vector<T> dataVec) throw(evioException) {
 
   if(root==NULL) {
     root = evioDOMNode::createEvioDOMNode(tag,num,dataVec);
@@ -441,7 +441,7 @@ template <typename T> void evioDOMTree::addBank(unsigned int tag, unsigned char 
 //-----------------------------------------------------------------------------
 
 
-template <typename T> void evioDOMTree::addBank(unsigned int tag, unsigned char num, const T* dataBuf, int dataLen) throw(evioException) {
+template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned char num, const T* dataBuf, int dataLen) throw(evioException) {
 
   if(root==NULL) {
     root = evioDOMNode::createEvioDOMNode(tag,num,dataBuf,dataLen);
@@ -467,7 +467,7 @@ template <typename T> void evioDOMTree::addBank(unsigned int tag, unsigned char 
 template <typename T> class typeIs : unary_function<const evioDOMNodeP,bool> {
 
 public:
-  typeIs(void) : type(evioUtil<T>::getContentType()) {}
+  typeIs(void) : type(evioUtil<T>::evioContentType()) {}
   bool operator()(const evioDOMNodeP node) const {return(node->getContentType()==type);}
 private:
   int type;
@@ -495,10 +495,10 @@ private:
 class tagEquals : unary_function<const evioDOMNodeP,bool> {
 
 public:
-  tagEquals(unsigned int aTag) : tag(aTag) {}
+  tagEquals(unsigned short aTag) : tag(aTag) {}
   bool operator()(const evioDOMNodeP node) const {return(node->tag==tag);}
 private:
-  unsigned int tag;
+  unsigned short tag;
 };
 
 
@@ -523,10 +523,10 @@ private:
 class tagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
-  tagNumEquals(unsigned int aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
+  tagNumEquals(unsigned short aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
   bool operator()(const evioDOMNodeP node) const {return((node->tag==tag)&&(node->num==num));}
 private:
-  unsigned int tag;
+  unsigned short tag;
   unsigned char num;
 };
 
@@ -552,10 +552,10 @@ private:
 class parentTagEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
-  parentTagEquals(unsigned int aTag) : tag(aTag) {}
+  parentTagEquals(unsigned short aTag) : tag(aTag) {}
   bool operator()(const evioDOMNodeP node) const {return((node->getParent()==NULL)?false:(node->getParent()->tag==tag));}
 private:
-  unsigned int tag;
+  unsigned short tag;
 };
 
 
@@ -580,11 +580,11 @@ private:
 class parentTagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
-  parentTagNumEquals(unsigned int aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
+  parentTagNumEquals(unsigned short aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
   bool operator()(const evioDOMNodeP node) const {
     return((node->getParent()==NULL)?false:((node->getParent()->tag==tag)&&(node->getParent()->num==num)));}
 private:
-  unsigned int tag;
+  unsigned short tag;
   unsigned char num;
 };
 
@@ -617,7 +617,7 @@ public:
 //-----------------------------------------------------------------------------
 
 
-class toCout: public unary_function<const evioDOMNodeP, void> {
+class toCout: public unary_function<const evioDOMNodeP,void> {
 
 public:
   toCout(void) {}
