@@ -11,19 +11,16 @@ using namespace evio;
 using namespace std;
 
 
-//--------------------------------------------------------------
-//-------------------- local variables -------------------------
-//--------------------------------------------------------------
-
-
 
 //--------------------------------------------------------------
 //-------------------- local utilities -------------------------
 //--------------------------------------------------------------
 
 
-static bool isTrue(const evioDOMNodeP pNode) {
-  return(true);
+namespace evio {
+  static bool isTrue(const evioDOMNodeP pNode) {
+    return(true);
+  }
 }
 
 

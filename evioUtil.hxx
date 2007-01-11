@@ -5,6 +5,7 @@
 
 // should do:
 //   update doc
+//   document etst*.cc
 //   Doxygen comments
 
 

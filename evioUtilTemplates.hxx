@@ -19,6 +19,7 @@
 
 //  only way to do this on solaris...ejw, 9-jan-2007
 template <typename T> class evioUtil {
+
 public:
   static int evioContentType(void) throw(evioException) {
     throw(evioException(0,"?evioUtil<T>::evioContentType...illegal type",__FILE__,__LINE__));
@@ -37,7 +38,7 @@ template <> class evioUtil<double>             {public: static int evioContentTy
 template <> class evioUtil<long long>          {public: static int evioContentType(void)  throw(evioException) {return(0x9);}};
 template <> class evioUtil<unsigned long long> {public: static int evioContentType(void)  throw(evioException) {return(0xa);}};
 template <> class evioUtil<int>                {public: static int evioContentType(void)  throw(evioException) {return(0xb);}};
-  
+
 template <> class evioUtil<unsigned long> {
 public:
   static int evioContentType(void) throw(evioException) {
@@ -524,6 +525,7 @@ class tagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
   tagNumEquals(unsigned short aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
+  tagNumEquals(tagNum tn) : tag(tn.first), num(tn.second) {}
   bool operator()(const evioDOMNodeP node) const {return((node->tag==tag)&&(node->num==num));}
 private:
   unsigned short tag;
@@ -581,6 +583,7 @@ class parentTagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentTagNumEquals(unsigned short aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
+  parentTagNumEquals(tagNum tn) : tag(tn.first), num(tn.second) {}
   bool operator()(const evioDOMNodeP node) const {
     return((node->getParent()==NULL)?false:((node->getParent()->tag==tag)&&(node->getParent()->num==num)));}
 private:
