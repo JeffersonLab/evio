@@ -1,12 +1,14 @@
 //  example of evio tree and bank manipulation
 
+//  ejw, 11-jan-2007
+
 
 #include <vector>
-
 #include "evioUtil.hxx"
 
 using namespace evio;
 using namespace std;
+
 
 
 int tag,type,num,len;
@@ -32,12 +34,12 @@ int main(int argc, char **argv) {
 
   try {
 
-    // create a tree
-    evioDOMTree t(evioDOMNode::createEvioDOMNode(tag=1, num=1));
+    // create a tree and root node
+    evioDOMTree t(tag=1, num=1);
 
 
-    // create a container node (BANK) and add to tree
-    evioDOMNodeP cn1 = evioDOMNode::createEvioDOMNode(tag=3, num=7, cType=BANK);
+    // create a container node and add to tree
+    evioDOMNodeP cn1 = evioDOMNode::createEvioDOMNode(tag=3, num=7);
     t << cn1;
 
 
@@ -58,7 +60,7 @@ int main(int argc, char **argv) {
     }
 
 
-    // hang leaf nodes off cn1, dereferencing of pointer mandatory due to C++ limitations
+    // hang leaf nodes off cn1, note dereferencing of cn1
     *cn1 << ln2
         << evioDOMNode::createEvioDOMNode(tag=2, num=7, dBuf, 10) 
         << evioDOMNode::createEvioDOMNode(tag=2, num=8, lVec);
@@ -77,12 +79,12 @@ int main(int argc, char **argv) {
          << evioDOMNode::createEvioDOMNode(tag=12, num=22, lVec);
 
 
-    // hang sub-tree off cn1
+    // hang cn3 off cn1
     *cn1 << cn3;
 
 
     // test move
-    //    ln2->move(cn3);
+    ln2->move(cn3);
 
 
     // test cut
@@ -90,20 +92,7 @@ int main(int argc, char **argv) {
 
 
     // test cutAndDelete
-    //    ln2->cutAndDelete();
     cn3->cutAndDelete();
-    //    cn1->cutAndDelete();
-
-    //t.clear();
-
-
-    // test private operator=
-    //    *cn1=*cn3;
-
-
-    // test private operator=
-//     evioDOMTree t2(1,2);
-//     t2=t;
 
 
     // print tree

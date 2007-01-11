@@ -1,8 +1,11 @@
 //  example of evio tree and bank creation using "stream" style
 
+//  ejw, 11-jan-2007
+
 
 #include <vector>
 #include "evioUtil.hxx"
+
 using namespace evio;
 using namespace std;
 
@@ -17,7 +20,6 @@ vector<unsigned long> uVec1,uVec2;
 double dBuf[100];
 int iBuf[100];
 vector<long> lVec;
-evioDOMNodeP parent;
 
 
 //-------------------------------------------------------------------------------
@@ -32,27 +34,27 @@ int main(int argc, char **argv) {
 
 
   try {
-    chan = new evioFileChannel("ejw.dat","w");
+    chan = new evioFileChannel("fakeEvents.dat","w");
     chan->open();
     
 
     // create a tree
-    evioDOMTree t1(evioDOMNode::createEvioDOMNode(tag=1, num=5));
+    evioDOMTree tree(tag=1, num=5);
 
 
-    // create a container node (BANK) and add to tree
-    evioDOMNodeP cn1 = evioDOMNode::createEvioDOMNode(tag=3, num=7, cType=BANK);
-    t1 << cn1;
+    // create a container node and add to tree
+    evioDOMNodeP cn1 = evioDOMNode::createEvioDOMNode(tag=3, num=7);
+    tree << cn1;
 
 
-    // create another leaf node
+    // create a leaf node
     evioDOMNodeP ln2 = evioDOMNode::createEvioDOMNode(tag=2, num=6, uVec1); 
 
 
-    // hang leaf nodes off cn1, dereferencing of pointer mandatory due to C++ limitations
+    // hang leaf nodes off cn1, note dereferencing of pointer cn1
     *cn1 << ln2
-        << evioDOMNode::createEvioDOMNode(tag=2, num=6, dBuf, 10) 
-        << evioDOMNode::createEvioDOMNode(tag=2, num=6, lVec);
+         << evioDOMNode::createEvioDOMNode(tag=2, num=6, dBuf, 10) 
+         << evioDOMNode::createEvioDOMNode(tag=2, num=6, lVec);
     
     
     // add some more data to ln2
@@ -60,7 +62,7 @@ int main(int argc, char **argv) {
 
     
     // create another sub-tree
-    evioDOMNodeP cn3 = evioDOMNode::createEvioDOMNode(tag=30, num=35, cType=BANK);
+    evioDOMNodeP cn3 = evioDOMNode::createEvioDOMNode(tag=30, num=35);
     *cn3 << evioDOMNode::createEvioDOMNode(tag=31, num=36, uVec1)
          << evioDOMNode::createEvioDOMNode(tag=32, num=37, lVec)
          << evioDOMNode::createEvioDOMNode(tag=10, num=20, iBuf, 10)
@@ -73,15 +75,16 @@ int main(int argc, char **argv) {
 
 
     // write out tree
-    chan->write(t1);
+    chan->write(tree);
     chan->close();
+
     
   } catch (evioException e) {
     cerr << e.toString() << endl;
   }
 
   delete(chan);
-  cout << "ejw.dat created" << endl;
+  cout << "fakeEvents.dat created" << endl;
 }
 
 

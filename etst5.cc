@@ -1,7 +1,6 @@
-//  etst5.cc 
+// parses buffer, uses toEVIOBuffer to create another buffer, then compares to original
 
-//  tests evio, ejw, 8-dec-2006
-
+// ejw, 8-dec-2006
 
 
 
@@ -9,6 +8,7 @@
 
 #include <iostream>
 #include <evioUtil.hxx>
+
 using namespace evio;
 using namespace std;
 
@@ -150,16 +150,19 @@ int main(int argc, char **argv) {
     printf("\n  *** event %d len %d type %d ***\n",nevents,buf[0],(buf[1]&0xffff0000)>>16);
 
 
-    // create evio tree from evio buffer
     try {
 
+      // create tree
       evioDOMTree t(buf,"fred");
+
 
       // dump tree
       cout << endl << endl << t.toString() << endl;
       
-      // tree to evio
+
+      // fill new evio buffer
       t.toEVIOBuffer(buf2,MAXBUFLEN);
+
 
       // compare buffers
       bool ok = true;
@@ -172,21 +175,6 @@ int main(int argc, char **argv) {
       if(ok)cout << " *** evio buffers agree ***" << endl << endl << endl;
 
 
-      // get node list and print some stuff
-      cout << "getNodeList test:" << endl << endl;
-      evioDOMNodeListP l = t.getNodeList();
-      for_each(l->begin(),l->end(),myNodePrinter);
-      cout << endl << endl << endl;
-
-
-      // add banks to nodes
-      evioDOMNodeList::const_iterator iter;
-      for(iter=l->begin(); iter!=l->end(); iter++) {
-        if((*iter)->isContainer()) *(*iter) << evioDOMNode::createEvioDOMNode(1,2,ivec);
-      }
-      cout << "addNode test complete" << endl << endl;
-
-      
     } catch (evioException e) {
       cerr << e.toString() << endl;
       exit(EXIT_FAILURE);

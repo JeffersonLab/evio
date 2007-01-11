@@ -7,6 +7,7 @@
 
 #include "evioUtil.hxx"
 #include <vector>
+
 using namespace evio;
 using namespace std;
 
@@ -39,9 +40,9 @@ bool myNodeChooser(const evioDOMNodeP pNode) {
 
 int main(int argc, char **argv) {
   
+
+
   int nread=0;
-
-
   try {
     evioFileChannel chan("fakeEvents.dat","r");
     chan.open();
@@ -84,14 +85,13 @@ int main(int argc, char **argv) {
 
       // print out data from all <long> nodes manually
       cout << endl << endl<< "Dumping long nodes manually:" << endl << endl;
-      //      evioDOMNodeList::const_iterator iter;
       evioDOMNodeList::const_iterator iter;
       for(iter=longList->begin(); iter!=longList->end(); iter++) {
         cout << "bank tag,type,num are: " << dec << (*iter)->tag << "  " << (*iter)->getContentType() 
              << "  " << (*iter)->num << endl;
-        const evioDOMNodeP np = *iter;
+
+        const evioDOMNodeP np = *iter;                              // solaris bug...
         const vector<long> *vec = np->getVector<long>();
-        // const vector<long> *vec = (*iter)->getVector<long>();    ??? solaris ??? 
         for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
         cout << endl;
       }

@@ -1,13 +1,16 @@
-// etst6.cc
+//  tests serialization
+//  demonstrates use of STL algorithms and EVIO function objects
 
-//  tests evioUtil library
+//  ejw, 11-jan-2007
 
 
-#define MAXBUFLEN  4096
 
 #include <evioUtil.hxx>
+
 using namespace evio;
 using namespace std;
+
+
 
 static vector<int> i1,i2;
 
@@ -15,6 +18,7 @@ static vector<int> i1,i2;
 
 //--------------------------------------------------------------
 //--------------------------------------------------------------
+
 
 class sObject : public evioSerializable {
 
@@ -49,11 +53,20 @@ bool myMatcher(const evioDOMNodeP node) {
 int main(int argc, char **argv) {
 
   int i,maxev,nevents;
-  unsigned int outbuf[MAXBUFLEN];
+
+
+  // get max events
+  if(argc==3) {
+    maxev = atoi(argv[2]);
+    printf("Read at most %d events\n",maxev);
+  } else {
+    maxev = 0;
+  }
 
 
   try {
 
+    // test object serialization
     cout << endl << endl << "Testing evioSerializable:" << endl;
     sObject s;
     evioDOMNodeP c2  = evioDOMNode::createEvioDOMNode(55,66,s);
@@ -62,21 +75,12 @@ int main(int argc, char **argv) {
     cout << "evioSerializable test done" << endl << endl;
     
 
-
-
-    // create evio file channelobject
+    // open file
     evioFileChannel e(argv[1]);
     e.open();
   
   
     // loop over events
-    if(argc==3) {
-      maxev = atoi(argv[2]);
-      printf("Read at most %d events\n",maxev);
-    } else {
-      maxev = 0;
-    }
-
     nevents=0;
     while(e.read()) {
       nevents++;
@@ -85,16 +89,9 @@ int main(int argc, char **argv) {
       evioDOMTree t(e);
     
     
-    
       // print tree
       cout << t.toString() << endl;
       
-
-
-      // serialize tree into another buffer
-      t.toEVIOBuffer(outbuf,MAXBUFLEN);
-
-
 
       // get lists of different types of node pointers
       evioDOMNodeListP pList                                         = t.getNodeList();
@@ -110,7 +107,6 @@ int main(int argc, char **argv) {
 
 
 
-
       // print information for various node types
       cout << endl << endl<< "Container nodes:"  << endl << endl;
       for_each(pContainerList->begin(),pContainerList->end(),toCout());
@@ -120,7 +116,6 @@ int main(int argc, char **argv) {
 
       cout << endl << endl << "Unsigned long nodes:"  << endl << endl;
       for_each(pUlong->begin(),pUlong->end(),toCout());
-
 
 
 
@@ -150,7 +145,7 @@ int main(int argc, char **argv) {
       cout << endl << "ending getNodeList(myMatcher)" << endl << endl << endl;
 
 
-      // how to get child lists or leaf node vectors
+      // get child lists or leaf node vectors
       evioDOMNodeList::const_iterator iter;
       for(iter=pList->begin(); iter!=pList->end(); iter++) {
 
@@ -164,11 +159,11 @@ int main(int argc, char **argv) {
             cout << "child tag: " << (*cIter)->tag << endl;
           }
           
-        } else if((*iter)->isLeaf()) {
+        } else {
           const evioDOMNodeP np = *iter;
           const vector<double> *v = np->getVector<double>();
           if(v!=NULL) {
-            cout << endl << endl << "Found double node using getVector:" << endl << endl << (*iter)->toString()
+            cout << endl << endl << "Got double node using getVector:" << endl << endl << (*iter)->toString()
                  << endl << "Double data:" << endl;
             for(i=0; i<v->size(); i++) cout << showpoint << (*v)[i] << endl;
           }
@@ -260,6 +255,9 @@ int main(int argc, char **argv) {
       if((nevents >= maxev) && (maxev != 0)) break;
       
     }
+
+
+    // close file
     e.close();
   
   } catch (evioException e) {

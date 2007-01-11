@@ -1,8 +1,11 @@
-//  example of evio tree and bank creation
+//  example of manual evio tree and bank creation
+
+//  ejw, 11-jan-2007
 
 
 #include <vector>
 #include "evioUtil.hxx"
+
 using namespace evio;
 using namespace std;
 
@@ -17,7 +20,6 @@ ContainerType cType;
 vector<unsigned long> uVec1,uVec2;
 double dBuf[100];
 vector<long> lVec;
-evioDOMNodeP parent;
 
 
 //-------------------------------------------------------------------------------i
@@ -31,17 +33,16 @@ int main(int argc, char **argv) {
 
 
   try {
-    chan = new evioFileChannel("ejw.dat","w");
+    chan = new evioFileChannel("fakeEvents.dat","w");
     chan->open();
     
 
-
-    // create tree with default bank type BANK and type BANK
-    evioDOMNodeP root;
-    evioDOMTree tree(root=evioDOMNode::createEvioDOMNode(tag=1, num=5));
+    // create root container node and build tree using it
+    evioDOMNodeP root = evioDOMNode::createEvioDOMNode(tag=1, num=5);
+    evioDOMTree tree(root);
     
 
-    // create leaf node contining ulong and add to tree
+    // create leaf node contining ulong and add to root container node in tree
     evioDOMNodeP ln1 = evioDOMNode::createEvioDOMNode(tag=2, num=6, uVec1); 
     tree.addBank(ln1);
 
@@ -58,7 +59,7 @@ int main(int argc, char **argv) {
     cn2->addNode(ln4);
 
     
-    // modify the data
+    // replace the data in some leaf nodes
     ln1->replace(uVec2);
     ln3->replace(dBuf,5);
 
@@ -66,13 +67,14 @@ int main(int argc, char **argv) {
     // write out tree
     chan->write(tree);
     chan->close();
+
     
   } catch (evioException e) {
     cerr << e.toString() << endl;
   }
 
   delete(chan);
-  cout << "ejw.dat created" << endl;
+  cout << "fakeEvents.dat created" << endl;
 }
 
 
