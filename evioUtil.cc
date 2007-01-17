@@ -382,26 +382,9 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char nu
 //-----------------------------------------------------------------------------
 
 
-evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, ContainerType cType) throw(evioException) {
-  return(new evioDOMContainerNode(parent,tag,num,cType));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const evioSerializable &o, ContainerType cType) 
   throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,o,cType));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, const evioSerializable &o, ContainerType cType) 
-  throw(evioException) {
-  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   o.serialize(c);
   return(c);
 }
@@ -412,16 +395,7 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short 
 
 evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), 
                                             void *userArg, ContainerType cType) throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,f,userArg,cType));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), 
-                                            void *userArg, ContainerType cType)  throw(evioException) {
-  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   f(c,userArg);
   return(c);
 }

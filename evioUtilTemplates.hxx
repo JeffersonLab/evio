@@ -67,15 +67,6 @@ public:
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, const vector<T> tVec)
-  throw(evioException) {
-  return(new evioDOMLeafNode<T>(parent,tag,num,tVec));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec) throw(evioException) {
   return(new evioDOMLeafNode<T>(NULL,tag,num,tVec));
 }
@@ -92,27 +83,9 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, const T* t, int len) 
-  throw(evioException) {
-  return(new evioDOMLeafNode<T>(parent,tag,num,t,len));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
                                                                   void *userArg, ContainerType cType) throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,t,userArg,cType));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t, 
-                                                                  void *userArg, ContainerType cType) throw(evioException) {
-  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   t->serialize(c,userArg);
 }
 
@@ -123,17 +96,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP p
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
                                                                   void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                                   void *userArg, ContainerType cType) throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(NULL,tag,num,t,mfp,userArg,cType));
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t, 
-                                                                  void* T::*mfp(evioDOMNodeP c, void *userArg),
-                                                                  void *userArg, ContainerType cType) throw(evioException) {
-  evioDOMContainerNode *c = new evioDOMContainerNode(parent,tag,num,cType);
+  evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   t->mfp(c,userArg);
 }
 

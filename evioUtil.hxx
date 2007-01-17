@@ -4,6 +4,8 @@
 
 
 // should do:
+//   bombproof addNode, operator<<, addBank, etc. via cut()
+//   createEvioDOMNode(parent,...)
 //   update doc
 //   document etst*.cc
 //   Doxygen comments
@@ -55,7 +57,9 @@ class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 class evioSerializable;
 template <typename T> class evioUtil;
-// plus a number of function object classes
+
+// plus a number of function object classes defined below
+
 
 
 //-----------------------------------------------------------------------------
@@ -232,25 +236,6 @@ public:
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
 
-protected:
-  // node creation factory methods used internally
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, 
-                                        ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, 
-                                                              const vector<T> tVec) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, 
-                                                              const T* t, int len) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, const evioSerializable &o, 
-                                        ContainerType cType=BANK) throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg),
-                                        void *userArg, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t,
-                                                              void *userArg, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, T *t,
-                                                              void* T::*mfp(evioDOMNodeP c, void *userArg),
-                                                              void *userArg, ContainerType cType=BANK) throw(evioException);
-
-
 public:
   virtual void addNode(evioDOMNodeP node) throw(evioException);
   template <typename T> void append(const vector<T> &tVec) throw(evioException);
@@ -274,8 +259,6 @@ public:
 
 public:
   evioDOMNode& operator<<(evioDOMNodeP node) throw(evioException);
-  evioDOMNode& operator<<(evioDOMTree &tree) throw(evioException);
-  evioDOMNode& operator<<(evioDOMTree *tree) throw(evioException);
   template <typename T> evioDOMNode& operator<<(T tVal) throw(evioException);
   template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
   template <typename T> evioDOMNode& operator<<(      vector<T> &tVec) throw(evioException);
@@ -334,10 +317,6 @@ public:
 
 
 public:
-  template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
-
-
-public:
   string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
@@ -364,10 +343,6 @@ private:
   evioDOMLeafNode(evioDOMNodeP par, unsigned short tag, unsigned char num, const T *p, int ndata) throw(evioException);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
   bool operator=(const evioDOMLeafNode<T> &lNode);
-
-
-public:
-  evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
 
 
 public:
