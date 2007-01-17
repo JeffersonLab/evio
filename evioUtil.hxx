@@ -4,7 +4,6 @@
 
 
 // should do:
-//   update doc
 //   Doxygen comments
 
 
@@ -270,9 +269,10 @@ public:
 
 
 public:
-  virtual string toString(void) const = 0;
+  virtual string toString(void) const       = 0;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;
+
   const evioDOMNodeP getParent(void) const;
   int getContentType(void) const;
   const evioDOMTreeP getParentTree(void) const;
