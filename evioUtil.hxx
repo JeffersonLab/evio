@@ -1,11 +1,10 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 10-jan-2007
+//  Author:  Elliott Wolin, JLab, 17-jan-2007
 
 
 // should do:
 //   update doc
-//   document etst*.cc
 //   Doxygen comments
 
 
@@ -36,6 +35,7 @@
 #include <sstream>
 #include <functional>
 #include <utility>
+
 
 
 namespace evio {
@@ -82,7 +82,7 @@ typedef pair<unsigned short, unsigned char> tagNum;
 //-----------------------------------------------------------------------------
 
 
-// basic evio exception class
+// evio exception class
 class evioException {
 
 public:
@@ -168,7 +168,7 @@ private:
 //-----------------------------------------------------------------------------
 
 
-// interface defines node and leaf handlers for stream parsing of evio buffers
+// interface defines node and leaf handlers for stream parser
 class evioStreamParserHandler {
 
 public:
@@ -197,8 +197,8 @@ private:
 };
 
 
-//--------------------------------------------------------------
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
 // virtual class represents an evio node in memory, concrete classes are evioDOMContainerNode and evioDOMLeafNode<T>
@@ -218,8 +218,8 @@ private:
   bool operator=(const evioDOMNode &node) const {return(false);}
 
 
+// public factory methods for node creation
 public:
-  // public factory methods for node creation
   static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec)
     throw(evioException);
@@ -310,10 +310,6 @@ private:
   evioDOMContainerNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, ContainerType cType) throw(evioException);
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
   bool operator=(const evioDOMContainerNode &node);
-
-
-public:
-  void addNode(evioDOMNodeP node) throw(evioException);
 
 
 public:

@@ -460,7 +460,9 @@ evioDOMNodeP evioDOMNode::move(evioDOMNodeP newParent) throw(evioException) {
 
 
 void evioDOMNode::addNode(evioDOMNodeP node) throw(evioException) {
-  throw(evioException(0,"?evioDOMNode::addNode...illegal usage",__FILE__,__LINE__));
+  if(node==NULL)return;
+  if(!isContainer())throw(evioException(0,"?evioDOMNode::addNode...not a container",__FILE__,__LINE__));
+  node->move(this);
 }
 
 
@@ -578,15 +580,6 @@ string evioDOMNode::getIndent(int depth) {
 
 evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, unsigned short tg, unsigned char num, ContainerType cType) throw(evioException)
   : evioDOMNode(par,tg,num,cType) {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-void evioDOMContainerNode::addNode(evioDOMNodeP node) throw(evioException) {
-  if(node==NULL)return;
-  node->move(this);
 }
 
 
