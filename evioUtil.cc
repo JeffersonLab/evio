@@ -830,6 +830,8 @@ void evioDOMTree::clear(void) throw(evioException) {
 
 void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 
+  node->cut();
+
   if(root==NULL) {
     root=node;
     root->parentTree=this;

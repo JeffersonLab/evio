@@ -4,8 +4,6 @@
 
 
 // should do:
-//   bombproof addNode, operator<<, addBank, etc. via cut()
-//   createEvioDOMNode(parent,...)
 //   update doc
 //   document etst*.cc
 //   Doxygen comments
@@ -223,8 +221,10 @@ private:
 public:
   // public factory methods for node creation
   static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const T* t, int len) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec)
+    throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const T* t, int len)
+    throw(evioException);
   static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const evioSerializable &o, ContainerType cType=BANK) 
     throw(evioException);
   static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, 
