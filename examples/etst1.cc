@@ -16,7 +16,9 @@ using namespace std;
 
 
 // misc
-int tag,num,len;
+unsigned char num;
+unsigned short tag;
+int len;
 vector<unsigned long> uvec;
 vector<float> fvec;
 unsigned long ubuf[100];

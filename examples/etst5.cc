@@ -17,14 +17,14 @@ using namespace std;
 //--------------------------------------------------------------
 
 
-class myHandler:public evioStreamParserHandler {
+class myHandler : public evioStreamParserHandler {
 
 
-  void *nodeHandler(int length, int ftype, int tag, int type, int num, int depth,
-                   void *userArg) {
+  void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
+                            int depth, void *userArg) {
 
-    printf("node   depth %2d  ftype %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
-           depth,ftype,type,tag,num,length);
+    printf("node   depth %2d   type,tag,num,length:  %6d %6d %6d %6d\n",
+           depth,contentType,tag,num,length);
     return(NULL);
   }
   
@@ -32,8 +32,8 @@ class myHandler:public evioStreamParserHandler {
 //--------------------------------------------------------------
 
 
-  void leafHandler(int length, int ftype, int tag, int type, int num, int depth, const void *data,
-                   void *userArg) {
+ void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
+                      int depth, const void *data, void *userArg) {
     
     long *l;
     short *s;
@@ -42,10 +42,10 @@ class myHandler:public evioStreamParserHandler {
     double *d;
     long long *ll;
 
-    printf("leaf   depth %2d  ftype %3d   type,tag,num,length:  %6d %6d %6d %6d     data:   ",
-           depth,ftype,type,tag,num,length);
+    printf("leaf   depth %2d   type,tag,num,length:  %6d %6d %6d %6d     data:   ",
+           depth,contentType,tag,num,length);
 
-    switch (type) {
+    switch (contentType) {
 
     case 0x0:
     case 0x1:
@@ -152,12 +152,21 @@ int main(int argc, char **argv) {
 
     try {
 
-      // create tree
+      // stream parse the buffer
+      cout << endl << endl << "Stream parsing event:" << endl << endl;
+      evioStreamParser p;
+      myHandler h;
+      p.parse(buf,h,(void*)NULL);
+
+
+
+
+      // DOM parse the event and create event tree
       evioDOMTree t(buf,"fred");
 
 
       // dump tree
-      cout << endl << endl << t.toString() << endl;
+      cout << endl << endl << "DOM parsing event:" << endl << t.toString() << endl;
       
 
       // fill new evio buffer

@@ -240,7 +240,10 @@ void evio_xmldump(unsigned long *buf, int bufnum, char *string, int len) {
 
 static void dump_fragment(unsigned long *buf, int fragment_type) {
 
-  int length,tag,type,num,is_a_container,noexpand;
+  int length,type,is_a_container,noexpand;
+  unsigned short tag;
+  unsigned char num;
+
   char *myname;
 
 
@@ -320,7 +323,7 @@ static void dump_fragment(unsigned long *buf, int fragment_type) {
   }
   xml+=sprintf(xml," data_type=\"0x%x\"",type);
   xml+=sprintf(xml," tag=\"%d\"",tag);
-  if(fragment_type==BANK)xml+=sprintf(xml," num=\"%d\"",num);
+  if(fragment_type==BANK)xml+=sprintf(xml," num=\"%d\"",(int)num);
   if(verbose!=0) {
     xml+=sprintf(xml," length=\"%d\" ndata=\"%d\"",length,
 	   get_ndata(type,length-fragment_offset[fragment_type]));

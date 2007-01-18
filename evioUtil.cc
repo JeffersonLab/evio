@@ -602,7 +602,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
      <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType)
      << "\" data_type=\"" << hex << showbase << getContentType()
      << dec << "\" tag=\""  << tag;
-  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << num;
+  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << (int)num;
   os << "\">" << endl;
   return(os.str());
 }
@@ -877,22 +877,19 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
 
   case 0xe:
   case 0x10:
-    if(pNode->tag>0xffff)cout << "?warning...tag truncated to 16 bits in bank: " << pNode->tag << endl;
-    if(pNode->num>0xff)cout << "?warning...num truncated to 8 bits in bank: " << pNode->num << endl;
     buf[0]=0;
-    buf[1] = (pNode->tag<<16) | (pNode->contentType<<8) | (pNode->num | 0xff);
+    buf[1] = (pNode->tag<<16) | (pNode->contentType<<8) | pNode->num;
     dataOffset=2;
     break;
   case 0xd:
   case 0x20:
-    if(pNode->tag>0xffff)cout << "?warning...tag truncated to 8 bits in segment: " << pNode->tag << endl;
-    if(pNode->num!=0)cout << "?warning...num ignored in segment: " << pNode->num<< endl;
+    if(pNode->num!=0)cout << "?warning...num ignored in segment: " << pNode->num << endl;
     buf[0] = (pNode->tag<<24) | ( pNode->contentType<<16);
     dataOffset=1;
     break;
   case 0xc:
   case 0x40:
-    if(pNode->tag>0xffff)cout << "?warning...tag truncated to 12 bits in tagsegment: " << pNode->tag << endl;
+    if(pNode->tag>0xfff)cout << "?warning...tag truncated to 12 bits in tagsegment: " << pNode->tag << endl;
     if(pNode->num!=0)cout << "?warning...num ignored in tagsegment: " << pNode->num<< endl;
     buf[0] = (pNode->tag<<20) | ( pNode->contentType<<16);
     dataOffset=1;

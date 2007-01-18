@@ -273,7 +273,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
      <<  "<" << get_typename(contentType) 
      << " data_type=\"" << hex << showbase << contentType
      << dec << "\" tag=\"" << tag;
-  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << num;
+  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << (int)num;
   os << "\">" << endl;
 
 
