@@ -37,6 +37,7 @@
 
 
 
+/** All evio symbols reside in this namespace.*/
 namespace evio {
 
 using namespace std;
@@ -64,16 +65,17 @@ template <typename T> class evioUtil;
 //-----------------------------------------------------------------------------
 
 
-typedef evioDOMTree* evioDOMTreeP;
-typedef evioDOMNode* evioDOMNodeP;
-typedef list<evioDOMNodeP>  evioDOMNodeList;
-typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;
+typedef evioDOMTree* evioDOMTreeP;                   /**<Pointer to evioDOMTree.*/
+typedef evioDOMNode* evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
+typedef list<evioDOMNodeP>  evioDOMNodeList;         /**<List of pointers to evioDOMNode.*/
+typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evioDOMNode pointers, returned by getNodeList.*/
+/** Defines the three container bank types.*/
 typedef enum {
-  BANK       = 0xe,
-  SEGMENT    = 0xd,
-  TAGSEGMENT = 0xc
+  BANK       = 0xe,  /**<2-word header, 16-bit tag, 8-bit num, 8-bit type.*/
+  SEGMENT    = 0xd,  /**<1-word header,  8-bit tag,    no num, 8-bit type.*/
+  TAGSEGMENT = 0xc   /**<1-word header, 12-bit tag,    no num, 4-bit type.*/
 } ContainerType;
-typedef pair<unsigned short, unsigned char> tagNum;
+typedef pair<unsigned short, unsigned char> tagNum;  /**<STL pair of tag,num.*/
 
 
 //-----------------------------------------------------------------------------
@@ -81,7 +83,9 @@ typedef pair<unsigned short, unsigned char> tagNum;
 //-----------------------------------------------------------------------------
 
 
-// evio exception class
+/**
+ * Basic evio exception class.  Includes integer type and two text fields.
+ */
 class evioException {
 
 public:
@@ -91,9 +95,9 @@ public:
 
 
 public:
-  int type;
-  string text;
-  string auxText;
+  int type;        /**<Exception type.*/
+  string text;     /**<Primary text.*/
+  string auxText;  /**<Auxiliary text.*/
 
 };
 
@@ -102,7 +106,11 @@ public:
 //-----------------------------------------------------------------------------
 
 
-// evio channel interface
+/**
+ * Virtual class defines EVIO I/O channel functionality.
+ * Sub-class gets channel-specific info from constructor and implements 
+ * evioChannel methods.
+ */
 class evioChannel {
 
 public:
@@ -128,7 +136,10 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  implements evioChannel for a file
+/**
+ * Implements evioChannel functionality for I/O to and from files.
+ * Basically a wrapper around the original evio C library.
+ */
 class evioFileChannel : public evioChannel {
 
 public:
@@ -155,11 +166,11 @@ public:
 
 
 private:
-  string filename;
-  string mode;
-  int handle;
-  unsigned int *buf;
-  int bufSize;
+  string filename;    /**<Name of evio file.*/
+  string mode;        /**<Open mode, "r" or "w".*/
+  int handle;         /**<Internal evio file handle.*/
+  unsigned int *buf;  /**<Pointer to internal buffer.*/
+  int bufSize;        /**<Size of internal buffer.*/
 };
 
 
@@ -167,7 +178,10 @@ private:
 //-----------------------------------------------------------------------------
 
 
-// interface defines node and leaf handlers for stream parser
+/**
+ * Interface defines node and leaf handlers for use with evioStreamParser.
+ * Separate handlers defined for container nodes and leaf nodes.
+ */
 class evioStreamParserHandler {
 
 public:
@@ -182,7 +196,9 @@ public:
 //-----------------------------------------------------------------------------
 
 
-// stream parser dispatches to handlers when node or leaf reached
+/**
+ * Stream parser dispatches to evioStreamParserHandler handlers when node or leaf reached.
+ */
 class evioStreamParser {
 
 public:
@@ -200,11 +216,15 @@ private:
 //-----------------------------------------------------------------------------
 
 
-// virtual class represents an evio node in memory, concrete classes are evioDOMContainerNode and evioDOMLeafNode<T>
-// user can only create nodes via factory method createEvioDOMNode()
+/** 
+ * Virtual class represents an evio node in memory, concrete sub-classes evioDOMContainerNode and evioDOMLeafNode
+ *   are hidden from users.
+ * Users work with nodes via this class, and create nodes via factory method createEvioDOMNode.
+ * Factory model ensures nodes are created on heap.  
+ */
 class evioDOMNode {
 
-  friend class evioDOMTree;            // allows tree class to manipulate nodes
+  friend class evioDOMTree;    /**<Allows evioDOMTree class to manipulate nodes.*/
 
 
 protected:
@@ -213,8 +233,8 @@ protected:
 
 
 private:
-  evioDOMNode(const evioDOMNode &node) throw(evioException);
-  bool operator=(const evioDOMNode &node) const {return(false);}
+  evioDOMNode(const evioDOMNode &node) throw(evioException);     /**<Not available to users */
+  bool operator=(const evioDOMNode &node) const {return(false);} /**<Not available to users */
 
 
 // public factory methods for node creation
@@ -285,14 +305,14 @@ protected:
 
 
 protected:
-  evioDOMNodeP parent;
-  evioDOMTreeP parentTree;
-  int contentType;
+  evioDOMNodeP parent;           /**<Pointer to node parent.*/
+  evioDOMTreeP parentTree;       /**<Pointer to parent tree if this node is the root.*/
+  int contentType;               /**<Content type.*/
 
 
 public:
-  unsigned short tag;
-  unsigned char num;
+  unsigned short tag;            /**<The node tag, max 16-bits depending on container type.*/
+  unsigned char num;             /**<The node num, max 8 bits, only used by BANK container type (only one with 2-word header).*/
 };
 
 
@@ -300,16 +320,19 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  represents an evio container node in memory
+/**
+ * Sub-class of evioDOMNode represents an evio container node.
+ * Only accessible to users via pointer to evioDOMNode object.
+ */
 class evioDOMContainerNode : public evioDOMNode {
 
-  friend class evioDOMNode;  // allows evioDOMNode to use private subclass methods
+  friend class evioDOMNode;    /**<Allows evioDOMNode to use private subclass methods.*/
 
 
 private:
   evioDOMContainerNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, ContainerType cType) throw(evioException);
-  evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
-  bool operator=(const evioDOMContainerNode &node);
+  evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);  /**<Not available to user */
+  bool operator=(const evioDOMContainerNode &node);                              /**<Not available to user */
 
 
 public:
@@ -319,7 +342,7 @@ public:
 
 
 public:
-  evioDOMNodeList childList;
+  evioDOMNodeList childList;   /**<STL List of pointers to children.*/
 
 };
 
@@ -328,17 +351,20 @@ public:
 //-----------------------------------------------------------------------------
 
 
-//  represents an evio leaf node in memory
+/**
+ * Sub-class of evioDOMNode represents an evio leaf node.
+ * Only accessible to users via pointer to evioDOMNode object.
+ */
 template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
-  friend class evioDOMNode;           // allows evioDOMNode to use private subclass methods
+  friend class evioDOMNode;     /**<Allows evioDOMNode to use private subclass methods.*/
 
 
 private:
   evioDOMLeafNode(evioDOMNodeP par, unsigned short tag, unsigned char num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, unsigned short tag, unsigned char num, const T *p, int ndata) throw(evioException);
-  evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
-  bool operator=(const evioDOMLeafNode<T> &lNode);
+  evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);  /**<Not available to user */
+  bool operator=(const evioDOMLeafNode<T> &lNode);                        /**<Not available to user */
 
 
 public:
@@ -348,7 +374,7 @@ public:
 
 
 public:
-  vector<T> data;
+  vector<T> data;    /**<Vector<T> of node data.*/
 };
 
 
@@ -356,7 +382,10 @@ public:
 //-----------------------------------------------------------------------------
 
 
-// represents an evio tree/event in memory
+/**
+ * Represents an evio tree/event in memory.
+ * Tree root is an evioDOMNode.
+ */
 class evioDOMTree : public evioStreamParserHandler {
 
 
@@ -372,8 +401,8 @@ public:
 
 
 private:
-  evioDOMTree(const evioDOMTree &tree) throw(evioException);
-  bool operator=(const evioDOMTree &tree);
+  evioDOMTree(const evioDOMTree &tree) throw(evioException);  /**<Not available to user */
+  bool operator=(const evioDOMTree &tree);                    /**<Not available to user */
 
 
 public:
@@ -413,8 +442,8 @@ private:
 
 
 public:
-  evioDOMNodeP root;
-  string name;
+  evioDOMNodeP root;    /**<Pointer to root node of tree.*/
+  string name;          /**<Name of tree.*/
 
 };
 
@@ -423,7 +452,10 @@ public:
 //-----------------------------------------------------------------------------
 
 
-// interface for object serialization
+/**
+ * Interface for object serialization.
+ * Just defines serialize method.
+ */
 class evioSerializable {
 
 public:

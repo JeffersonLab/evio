@@ -17,7 +17,11 @@
 //--------------------------------------------------------------
 
 
-//  only way to do this on solaris...ejw, 9-jan-2007
+/**
+ * Templated utility class has method that returns content type based on typename T.
+ * Complete specializations supplied for all defined types.
+ * Cumbersome, but this is the only way to do it on solaris...ejw, 9-jan-2007.
+ */
 template <typename T> class evioUtil {
 
 public:
@@ -67,7 +71,15 @@ public:
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec) throw(evioException) {
+/** 
+ * Static factory method to create leaf node of type T.
+ * @param tag Node tag
+ * @param num Node num
+ * @param tVec vector<T> of data
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec)
+  throw(evioException) {
   return(new evioDOMLeafNode<T>(NULL,tag,num,tVec));
 }
 
@@ -75,7 +87,16 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short
 //-----------------------------------------------------------------------------
 
 
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const T* t, int len) throw(evioException) {
+/** 
+ * Static factory method to create leaf node of type T.
+ * @param tag Node tag
+ * @param num Node num
+ * @param t Pointer to array containg data of type T
+ * @param len Length of array
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const T* t, int len)
+  throw(evioException) {
   return(new evioDOMLeafNode<T>(NULL,tag,num,t,len));
 }
 
@@ -83,6 +104,15 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short
 //-----------------------------------------------------------------------------
 
 
+/** 
+ * Static factory method to create container node using serialize method to fill container.
+ * @param tag Node tag
+ * @param num Node num
+ * @param t Pointer to object having serialize method
+ * @param userArg User arg passed to serialize method
+ * @param cType Container node content type
+ * @return Pointer to new node
+ */
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
                                                                   void *userArg, ContainerType cType) throw(evioException) {
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
@@ -93,6 +123,16 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short
 //-----------------------------------------------------------------------------
 
 
+/** 
+ * Static factory method to create container node filled via object method pointer.
+ * @param tag Node tag
+ * @param num Node num
+ * @param t Pointer to object
+ * @param mfp Pointer to object method used to fill container
+ * @param userArg User arg passed to object method
+ * @param cType Container node content type
+ * @return Pointer to new node
+ */
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
                                                                   void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                                   void *userArg, ContainerType cType) throw(evioException) {
@@ -104,7 +144,11 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short
 //-----------------------------------------------------------------------------
 
 
-// must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+/** 
+ * Appends more data to leaf node.
+ * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+ * @param tVec vector<T> of data to add to leaf node
+ */
 template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evioException) {
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
   if(l!=NULL) {
@@ -118,7 +162,12 @@ template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evio
 //-----------------------------------------------------------------------------
 
 
-// must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+/** 
+ * Appends more data to leaf node.
+ * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+ * @param tBuf Buffer of data of type T
+ * @param len Length of buffer
+ */
 template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evioException) {
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
   if(l!=NULL) {
@@ -132,7 +181,11 @@ template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evi
 //-----------------------------------------------------------------------------
 
 
-// must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+/** 
+ * Replaces data in leaf node.
+ * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+ * @param tVec vector<T> of data
+ */
 template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evioException) {
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
   if(l!=NULL) {
@@ -147,7 +200,12 @@ template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evi
 //-----------------------------------------------------------------------------
 
 
-// must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+/** 
+ * Replaces data in leaf node.
+ * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+ * @param tBuf Buffer of data of type T
+ * @param len Length of buffer
+ */
 template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(evioException) {
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
   if(l!=NULL) {
@@ -162,7 +220,11 @@ template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(ev
 //-----------------------------------------------------------------------------
 
 
-// must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+/** 
+ * Returns pointer to leaf node vector<T> of data
+ * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+ * @return Pointer to vector<T>
+ */
 template <typename T> vector<T> *evioDOMNode::getVector(void) throw(evioException) {
   if(!isLeaf())return(NULL);
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
@@ -173,6 +235,10 @@ template <typename T> vector<T> *evioDOMNode::getVector(void) throw(evioExceptio
 //-----------------------------------------------------------------------------
 
 
+/** 
+ * Appends single data value to leaf node
+ * @param tVal Data of type T
+ */
 template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioException) {
   append(&tVal,1);
   return(*this);
@@ -182,6 +248,10 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioExc
 //-----------------------------------------------------------------------------
 
 
+/** 
+ * Appends more data to leaf node.
+ * @param tVec vector<T> of data to add to leaf node
+ */
 template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec) throw(evioException) {
   append(tVec);
   return(*this);
@@ -191,6 +261,10 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec
 //-----------------------------------------------------------------------------
 
 
+/** 
+ * Appends more data to leaf node.
+ * @param tVec vector<T> of data to add to leaf node
+ */
 template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) throw(evioException) {
   append(tVec);
   return(*this);
@@ -198,16 +272,17 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) thro
 
 
 //-----------------------------------------------------------------------------
-//------------------ evioDOMContainerNode templated methods -------------------
-//-----------------------------------------------------------------------------
-
-
-
-//-----------------------------------------------------------------------------
 //--------------------- evioDOMLeafNode templated methods ---------------------
 //-----------------------------------------------------------------------------
 
 
+/** 
+ * Leaf node constructor used internally.
+ * @param par Parent node
+ * @param tag Node tag
+ * @param num Node num
+ * @param v vector<T> of data
+ */
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, unsigned short tg, unsigned char num, const vector<T> &v)
   throw(evioException) : evioDOMNode(par,tg,num,evioUtil<T>::evioContentType()) {
   
@@ -218,6 +293,14 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, unsi
 //-----------------------------------------------------------------------------
 
 
+/** 
+ * Leaf node constructor used internally.
+ * @param par Parent node
+ * @param tag Node tag
+ * @param num Node num
+ * @param p Pointer to array containg data of type T
+ * @param ndata Length of array
+ */
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, unsigned short tg, unsigned char num, const T* p, int ndata) 
   throw(evioException) : evioDOMNode(parent,tg,num,evioUtil<T>::evioContentType()) {
   
@@ -229,6 +312,11 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, u
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Returns XML string containing header needed by toString
+ * @param depth Current depth
+ * @return XML string
+ */
 template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   ostringstream os;
@@ -327,6 +415,11 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Returns XML string containing footer needed by toString
+ * @param depth Current depth
+ * @return XML string
+ */
 template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
   ostringstream os;
   os << getIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
@@ -337,6 +430,10 @@ template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
 //-----------------------------------------------------------------------------
 
                                    
+/**
+ * Returns XML string listing leaf node contents.
+ * @return XML string listing contents
+ */
 template <typename T> string evioDOMLeafNode<T>::toString(void) const {
   ostringstream os;
   os << getHeader(0) << getFooter(0);
@@ -349,6 +446,11 @@ template <typename T> string evioDOMLeafNode<T>::toString(void) const {
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Returns list of nodes in tree satisfying predicate.
+ * @param pred true if node meets predicate criteria
+ * @return Pointer to node list (actually auto_ptr<>)
+ */
 template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) throw(evioException) {
   evioDOMNodeList *pList = addToNodeList(root, new evioDOMNodeList(), pred);
   return(evioDOMNodeListP(pList));
@@ -358,6 +460,13 @@ template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate p
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Adds node to node list, used internally by getNodeList.
+ * @param pNode Node to check agains predicate
+ * @param pList Current node list
+ * @param pred true if node meets predicate criteria
+ * @return Pointer to node list
+ */
 template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
   throw(evioException) {
 
@@ -386,6 +495,12 @@ template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(evioDOMNo
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param tag Node tag
+ * @param num Node num
+ * @param dataVec vector<T> of data
+ */
 template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned char num, const vector<T> dataVec) throw(evioException) {
 
   if(root==NULL) {
@@ -405,7 +520,15 @@ template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned cha
 //-----------------------------------------------------------------------------
 
 
-template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned char num, const T* dataBuf, int dataLen) throw(evioException) {
+/** 
+ * Creates leaf node and adds it to tree root node.
+ * @param tag Node tag
+ * @param num Node num
+ * @param dataBuf Pointer to array containg data of type T
+ * @param dataLen Length of array
+ */
+template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned char num, const T* dataBuf, int dataLen)
+  throw(evioException) {
 
   if(root==NULL) {
     root = evioDOMNode::createEvioDOMNode(tag,num,dataBuf,dataLen);
@@ -428,6 +551,9 @@ template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned cha
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares to content type for typename T.
+ */
 template <typename T> class typeIs : unary_function<const evioDOMNodeP,bool> {
 
 public:
@@ -442,6 +568,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on type.
+ */
 class typeEquals : unary_function<const evioDOMNodeP,bool> {
 
 public:
@@ -456,6 +585,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on tag.
+ */
 class tagEquals : unary_function<const evioDOMNodeP,bool> {
 
 public:
@@ -470,6 +602,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on num.
+ */
 class numEquals : unary_function<const evioDOMNodeP,bool> {
 
 public:
@@ -484,6 +619,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on tag and num.
+ */
 class tagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
@@ -500,6 +638,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on parent content type.
+ */
 class parentTypeEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
@@ -514,6 +655,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on parent tag.
+ */
 class parentTagEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
@@ -528,6 +672,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on parent num.
+ */
 class parentNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
@@ -542,6 +689,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object compares on parent tag and num.
+ */
 class parentTagNumEquals : unary_function<const evioDOMNodeP, bool> {
 
 public:
@@ -559,6 +709,9 @@ private:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object true if container node.
+ */
 class isContainer : unary_function<const evioDOMNodeP,bool> {
 
 public:
@@ -571,6 +724,9 @@ public:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Boolean function object true if leaf node.
+ */
 class isLeaf : unary_function<const evioDOMNodeP,bool> {
 
 public:
@@ -583,6 +739,9 @@ public:
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Function object streams node->toString() to cout.
+ */
 class toCout: public unary_function<const evioDOMNodeP,void> {
 
 public:
