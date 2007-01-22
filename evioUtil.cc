@@ -785,7 +785,7 @@ string evioDOMNode::getIndent(int depth) {
 
 /** 
  * Container node constructor used internally.
- * @param parent Parent node
+ * @param par Parent node
  * @param tg Node tag
  * @param num Node num
  * @param cType Container node content type
