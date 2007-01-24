@@ -2,6 +2,9 @@
 
 //  Author:  Elliott Wolin, JLab, 23-jan-2007
 
+// must do:
+//   check char data type!
+
 
 //  would like to do:
 //   shared pointer
