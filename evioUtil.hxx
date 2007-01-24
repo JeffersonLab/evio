@@ -1,10 +1,6 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 23-jan-2007
-
-// must do:
-//   check char data type!
-
+//  Author:  Elliott Wolin, JLab, 24-jan-2007
 
 //  would like to do:
 //   shared pointer
@@ -90,7 +86,7 @@ class evioException {
 public:
   evioException(int typ = 0, const string &txt = "", const string &aux = "");
   evioException(int typ, const string &txt, const string &file, int line);
-  virtual ~evioException(void);
+  virtual ~evioException(void) {};
   virtual string toString(void) const;
 
 
@@ -205,7 +201,7 @@ class evioStreamParser {
 public:
   void *parse(const unsigned int *buf, evioStreamParserHandler &handler, void *userArg)
     throw(evioException);
-  virtual ~evioStreamParser(void);
+  virtual ~evioStreamParser(void) {};
 
   
 private:
