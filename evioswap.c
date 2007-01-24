@@ -253,7 +253,7 @@ int swap_long_value(int val) {
 
 unsigned long *swap_long(unsigned long *data, unsigned long length, unsigned long *dest) {
 
-  unsigned long i,j;
+  unsigned long i;
   unsigned long temp;
   char *d,*t;
 
@@ -292,7 +292,7 @@ unsigned long *swap_long(unsigned long *data, unsigned long length, unsigned lon
 
 static void swap_longlong(unsigned long long *data, unsigned long length, unsigned long long *dest) {
 
-  unsigned long i,j;
+  unsigned long i;
   unsigned long long temp;
   char *d,*t;
 
@@ -339,7 +339,7 @@ static void swap_longlong(unsigned long long *data, unsigned long length, unsign
 
 static void swap_short(unsigned short *data, unsigned long length, unsigned short *dest) {
 
-  unsigned long i,j;
+  unsigned long i;
   unsigned short temp;
   char *d,*t;
 

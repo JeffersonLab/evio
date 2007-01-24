@@ -47,7 +47,6 @@ static int nfragok        = 0;
 static int fragok[100];
 static int nnofrag        = 0;
 static int nofrag[100];
-static int verbose        = 0;
 static int pause          = 0;
 static int debug          = 0;
 static int done           = 0;
@@ -119,7 +118,7 @@ int main (int argc, char **argv) {
 
   /* init xmldump */
   evio_xmldump_init(dictfilename);
-  sprintf(s,"<!-- xml boilerplate needs to go here -->\n\n",main_tag);
+  sprintf(s,"<!-- xml boilerplate needs to go here -->\n\n");
   writeit(out,s,strlen(s));
   sprintf(s,"<%s>\n\n",main_tag);
   writeit(out,s,strlen(s));

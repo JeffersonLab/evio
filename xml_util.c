@@ -62,7 +62,6 @@ enum {
 
 
 /* xml tag dictionary */
-static char *dictfilename = NULL;
 static XML_Parser dictParser;
 static char xmlbuf[MAXXMLBUF];
 typedef struct {
@@ -109,15 +108,11 @@ static int xmllen;
 /* prototypes */
 static void create_dictionary(char *dictfilename);
 static void startDictElement(void *userData, const char *name, const char **atts);
-static void dump_fragment(unsigned long *buf, int fragment_type);
-static void dump_bank(unsigned long *buf);
-static void dump_segment(unsigned long *buf);
-static void dump_tagsegment(unsigned long *buf);
-static void dump_data(unsigned long *data, int type, int length, int noexpand);
+static void dump_fragment(unsigned int *buf, int fragment_type);
+static void dump_data(unsigned int *data, int type, int length, int noexpand);
 static int get_ndata(int type, int nwords);
 static const char *get_tagname();
 static void indent(void);
-static int get_int_att(const char **atts, const int natt, const char *tag, int *val);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
 
 int user_frag_select(int tag);
@@ -218,7 +213,7 @@ static void startDictElement(void *userData, const char *name, const char **atts
 /*---------------------------------------------------------------- */
 
 
-void evio_xmldump(unsigned long *buf, int bufnum, char *string, int len) {
+void evio_xmldump(unsigned int *buf, int bufnum, char *string, int len) {
 
   nbuf=bufnum;
   xml=string;
@@ -238,7 +233,7 @@ void evio_xmldump(unsigned long *buf, int bufnum, char *string, int len) {
 /*---------------------------------------------------------------- */
 
 
-static void dump_fragment(unsigned long *buf, int fragment_type) {
+static void dump_fragment(unsigned int *buf, int fragment_type) {
 
   int length,type,is_a_container,noexpand;
   unsigned short tag;
@@ -364,7 +359,7 @@ static void dump_fragment(unsigned long *buf, int fragment_type) {
 /*---------------------------------------------------------------- */
 
 
-static void dump_data(unsigned long *data, int type, int length, int noexpand) {
+static void dump_data(unsigned int *data, int type, int length, int noexpand) {
 
   int i,j,len;
   int p=0;
@@ -546,7 +541,7 @@ static void dump_data(unsigned long *data, int type, int length, int noexpand) {
     for(i=0; i<length; i+=n32) {
       indent();
       for(j=i; j<min(i+n32,length); j++) {
-	xml+=sprintf(xml,format,(unsigned long)data[j]);
+	xml+=sprintf(xml,format,(unsigned int)data[j]);
       }
       xml+=sprintf(xml,"\n");
     }
@@ -623,30 +618,6 @@ static void indent() {
 /*---------------------------------------------------------------- */
 
 
-static int get_int_att(const char **atts, const int natt, const char *name, int *val) {
-
-  int i;
-
-  for(i=0; i<natt; i+=2) {
-    if(strcasecmp(atts[i],name)==0) {
-      if(strncmp(atts[i+1],"0x",2)==0) {
-	sscanf(atts[i+1],"%x",val);
-      } else if(strncmp(atts[i+1],"0X",2)==0) {
-	sscanf(atts[i+1],"%X",val);
-      } else {
-	sscanf(atts[i+1],"%d",val);
-      }
-      return(1);
-    }
-  }
-
-  return(0);
-}
-
-
-/*---------------------------------------------------------------- */
-
-
 static const char *get_char_att(const char **atts, const int natt, const char *name) {
 
   int i;
@@ -693,7 +664,7 @@ static const char *get_tagname() {
 
 void evio_xmldump_done(char *string, int len) {
 
-  sprintf(string,"");
+  sprintf(string," ");
   return;
 }
 
@@ -706,7 +677,7 @@ void evio_xmldump_done(char *string, int len) {
 int set_event_tag(char *tag) {
 
   event_tag=tag;
-
+  return(0);
 }
 
 
@@ -716,6 +687,7 @@ int set_event_tag(char *tag) {
 int set_bank2_tag(char *tag) {
 
   bank2_tag=tag;
+  return(0);
 
 }
 
@@ -726,6 +698,7 @@ int set_bank2_tag(char *tag) {
 int set_n8(int val) {
 
   n8=val;
+  return(0);
 
 }
 
@@ -736,6 +709,7 @@ int set_n8(int val) {
 int set_n16(int val) {
 
   n16=val;
+  return(0);
 
 }
 
@@ -746,6 +720,7 @@ int set_n16(int val) {
 int set_n32(int val) {
 
   n32=val;
+  return(0);
 
 }
 
@@ -756,6 +731,7 @@ int set_n32(int val) {
 int set_n64(int val) {
 
   n64=val;
+  return(0);
 
 }
 
@@ -765,6 +741,7 @@ int set_n64(int val) {
 int set_w8(int val) {
 
   w8=val;
+  return(0);
 
 }
 
@@ -775,6 +752,7 @@ int set_w8(int val) {
 int set_w16(int val) {
 
   w16=val;
+  return(0);
 
 }
 
@@ -785,6 +763,7 @@ int set_w16(int val) {
 int set_w32(int val) {
 
   w32=val;
+  return(0);
 
 }
 
@@ -795,6 +774,7 @@ int set_w32(int val) {
 int set_w64(int val) {
 
   w64=val;
+  return(0);
 
 }
 
@@ -805,6 +785,7 @@ int set_w64(int val) {
 int set_xtod(int val) {
 
   xtod=val;
+  return(0);
 
 }
 
@@ -815,6 +796,7 @@ int set_xtod(int val) {
 int set_indent_size(int val) {
 
   indent_size=val;
+  return(0);
 
 }
 
@@ -825,6 +807,7 @@ int set_indent_size(int val) {
 int set_max_depth(int val) {
 
   max_depth=val;
+  return(0);
 
 }
 
@@ -835,6 +818,7 @@ int set_max_depth(int val) {
 int set_no_typename(int val) {
 
   no_typename=val;
+  return(0);
 
 }
 
@@ -845,6 +829,7 @@ int set_no_typename(int val) {
 int set_verbose(int val) {
 
   verbose=val;
+  return(0);
 
 }
 

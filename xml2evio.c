@@ -165,7 +165,7 @@ int main (int argc, char **argv) {
 
   /* open evio (binary) output file */
   if((status=evOpen(eviofilename,"w",&eviohandle))!=0) {
-    printf("\n ?Unable to open evio output file %s, status=$d\n\n",eviofilename,status);
+    printf("\n ?Unable to open evio output file %s, status=%d\n\n",eviofilename,status);
     exit(EXIT_FAILURE);
   }
 
@@ -275,9 +275,6 @@ void startDictElement(void *userData, const char *name, const char **atts) {
 
 FILE *open_xml_file(char *xmlfilename) {
 
-  FILE *f;
-  char fbytes[2];
-  char *gz;
   int i=strspn(xmlfilename," \n\t");
 
 
@@ -301,7 +298,7 @@ void startDataElement(void *userData, const char *name, const char **atts) {
 
   stack_entry s;
   const char *fmt;
-  int i,tag,data_type,num,ptype,noexp;
+  int tag,data_type,num,ptype,noexp;
   int natt=XML_GetSpecifiedAttributeCount(xmlParser);    
 
 
@@ -555,8 +552,8 @@ void decode_cdata(int content, int *nword, int noexpand) {
   int i,n=0,len,nw=0;
   char *p, *c;
 
-  long l;
-  unsigned long ul;
+  int l;
+  unsigned int ul;
   short s;
   unsigned short us;
   float f;

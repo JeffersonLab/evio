@@ -148,7 +148,7 @@ AR = ar
 RANLIB = ranlib
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
-CFLAGS = -O $(DEFS) $(INCS)
+CFLAGS = -Wall -O $(DEFS) $(INCS)
 OBJS   = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
 OBJSXX = evioUtil.o
 LIBS   = libcoda.a
@@ -158,6 +158,10 @@ endif
 
 
 all: $(LIBS) $(LIBSXX) $(PROGS)
+
+
+tar:
+	tar -X tarexclude -C .. -c -z -f evio.tar.gz evio
 
 
 install: $(LIBS) $(LIBSXX) $(PROGS)

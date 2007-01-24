@@ -1,10 +1,6 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 17-jan-2007
-
-
-// should do:
-//   Doxygen comments
+//  Author:  Elliott Wolin, JLab, 23-jan-2007
 
 
 //  would like to do:
@@ -91,6 +87,7 @@ class evioException {
 public:
   evioException(int typ = 0, const string &txt = "", const string &aux = "");
   evioException(int typ, const string &txt, const string &file, int line);
+  virtual ~evioException(void);
   virtual string toString(void) const;
 
 
@@ -144,7 +141,8 @@ class evioFileChannel : public evioChannel {
 
 public:
   evioFileChannel(const string &fileName, const string &mode = "r", int size = 8192) throw(evioException);
-  virtual ~evioFileChannel();
+  virtual ~evioFileChannel(void);
+
 
   void open(void) throw(evioException);
   bool read(void) throw(evioException);
@@ -204,6 +202,8 @@ class evioStreamParser {
 public:
   void *parse(const unsigned int *buf, evioStreamParserHandler &handler, void *userArg)
     throw(evioException);
+  virtual ~evioStreamParser(void);
+
   
 private:
   void *parseBank(const unsigned int *buf, int bankType, int depth, 
@@ -229,7 +229,7 @@ class evioDOMNode {
 
 protected:
   evioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, int contentType) throw(evioException);
-  ~evioDOMNode(void);
+  virtual ~evioDOMNode(void);
 
 
 private:
@@ -468,7 +468,7 @@ public:
 
 
 // include templates
-#include <evioUtilTemplates.hxx>
+#include "evioUtilTemplates.hxx"
 
 
 

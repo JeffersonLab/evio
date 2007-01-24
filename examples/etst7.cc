@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
   try {
 
     // create a tree and root node
-    evioDOMTree t(tag=1, num=1);
+    evioDOMTree event(tag=1, num=1);
 
 
     // create a container node and add to tree

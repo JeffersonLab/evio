@@ -117,6 +117,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short
                                                                   void *userArg, ContainerType cType) throw(evioException) {
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   t->serialize(c,userArg);
+  return(c);
 }
 
 
@@ -138,6 +139,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short
                                                                   void *userArg, ContainerType cType) throw(evioException) {
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   t->mfp(c,userArg);
+  return(c);
 }
 
 
@@ -366,7 +368,6 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
 
   // dump data...odd what has to be done for char types 0x6,0x7 due to bugs in ostream operator <<
-  int *j;
   short k;
   typename vector<T>::const_iterator iter;
   for(iter=data.begin(); iter!=data.end();) {

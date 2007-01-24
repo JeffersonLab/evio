@@ -57,7 +57,7 @@ int user_event_select();
 int main (int argc, char **argv) {
 
   int status;
-  int i,j,l;
+  int l;
   
 
   /* decode command line */

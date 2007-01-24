@@ -5,7 +5,7 @@
 */
 
 
-#include <evioUtil.hxx>
+#include "evioUtil.hxx"
 
 using namespace std;
 using namespace evio;
@@ -89,7 +89,7 @@ string evioException::toString(void) const {
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : filename(f), mode(m), bufSize(size), buf(NULL), handle(0) {
+  : filename(f), mode(m), handle(0), bufSize(size) {
 
   // allocate buffer
   buf = new unsigned int[bufSize];
@@ -477,7 +477,7 @@ void *evioStreamParser::parseBank(const unsigned int *buf, int bankType, int dep
  * @param contentType Container node content type
  */
 evioDOMNode::evioDOMNode(evioDOMNodeP par, unsigned short tag, unsigned char num, int contentType) throw(evioException)
-  : parent(par), parentTree(NULL), tag(tag), num(num), contentType(contentType) {
+  : parent(par), parentTree(NULL), contentType(contentType), tag(tag), num(num)  {
 }
 
 
@@ -1262,7 +1262,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
       {
         const evioDOMLeafNode<string> *leaf = static_cast<const evioDOMLeafNode<string>*>(pNode);
         string s = leaf->data[0];
-        ndata - s.size();
+        ndata = s.size();
         nword = (ndata+3)/4;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
         unsigned char *c = (unsigned char*)&buf[dataOffset];
@@ -1298,6 +1298,18 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
       break;
 
     case 0x8:
+      {
+        const evioDOMLeafNode<string> *leaf = static_cast<const evioDOMLeafNode<string>*>(pNode);
+        string s = leaf->data[0];
+        ndata = s.size();
+        nword = (ndata+3)/4;
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+        unsigned char *c = (unsigned char*)&buf[dataOffset];
+        for(i=0; i<ndata; i++) c[i]=(s.c_str())[i];
+        for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
+      }
+    break;
+
     case 0x9:
     case 0xa:
       {
