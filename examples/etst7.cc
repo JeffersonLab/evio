@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 
     // create a container node and add to tree
     evioDOMNodeP cn1 = evioDOMNode::createEvioDOMNode(tag=3, num=7);
-    t << cn1;
+    event << cn1;
 
 
     // create another leaf node
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 
 
     // print tree
-    cout << t.toString() << endl;
+    cout << event.toString() << endl;
 
     
   } catch (evioException e) {
