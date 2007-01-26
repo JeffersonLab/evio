@@ -449,7 +449,7 @@ template <typename T> string evioDOMLeafNode<T>::toString(void) const {
 
 /**
  * Returns list of nodes in tree satisfying predicate.
- * @param pred true if node meets predicate criteria
+ * @param pred Function object true if node meets predicate criteria
  * @return Pointer to node list (actually auto_ptr<>)
  */
 template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate pred) throw(evioException) {
