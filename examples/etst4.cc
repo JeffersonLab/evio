@@ -53,8 +53,8 @@ int main(int argc, char **argv) {
 
     // hang leaf nodes off cn1, note dereferencing of pointer cn1
     *cn1 << ln2
-         << evioDOMNode::createEvioDOMNode(tag=2, num=6, dBuf, 10) 
-         << evioDOMNode::createEvioDOMNode(tag=2, num=6, lVec);
+         << evioDOMNode::createEvioDOMNode(tag=8, num=1, dBuf, 10) 
+         << evioDOMNode::createEvioDOMNode(tag=8, num=2, lVec);
     
     
     // add some more data to ln2

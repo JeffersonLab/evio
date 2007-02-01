@@ -169,18 +169,6 @@ void evioFileChannel::write(const unsigned int *myBuf) throw(evioException) {
 
 
 /**
- * Writes to file from user-supplied buffer.
- * @param myBuf Buffer containing event
- */
-void evioFileChannel::write(const unsigned long *myBuf) throw(evioException) {
-  write(reinterpret_cast<const unsigned int*>(myBuf));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
  * Writes to file from internal buffer of another evioChannel object.
  * @param channel Channel object
  */
@@ -886,21 +874,6 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
  * @param buf Buffer containing event
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(const unsigned long *buf, const string &name) throw(evioException) : root(NULL), name(name) {
-  if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
-  root=parse(reinterpret_cast<const unsigned int*>(buf));
-  root->parentTree=this;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-/**
- * Constructor fills tree from contents of buffer
- * @param buf Buffer containing event
- * @param name Name of tree
- */
 evioDOMTree::evioDOMTree(const unsigned int *buf, const string &name) throw(evioException) : root(NULL), name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
   root=parse(buf);
@@ -1070,11 +1043,7 @@ void evioDOMTree::leafNodeHandler(int length, unsigned short tag, int contentTyp
     break;
 
   case 0xb:
-    if(sizeof(long)==4) {
-      newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(long*)data,length);
-    } else {
-      newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int*)data,length);
-    }
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int*)data,length);
     break;
 
   default:
@@ -1155,19 +1124,6 @@ evioDOMTree& evioDOMTree::operator<<(evioDOMNodeP node) throw(evioException) {
  */
 void evioDOMTree::toEVIOBuffer(unsigned int *buf, int size) const throw(evioException) {
   toEVIOBuffer(buf,root,size);
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-/** 
- * Serializes tree to buffer.
- * @param buf Buffer that receives serialized tree
- * @param size Size of buffer
- */
-void evioDOMTree::toEVIOBuffer(unsigned long *buf, int size) const throw(evioException) {
-  toEVIOBuffer(reinterpret_cast<unsigned int*>(buf),root,size);
 }
 
 
@@ -1333,7 +1289,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
   case 0x20:
   case 0xc:
   case 0x40:
-    if((bankLen-1)>0xffff)throw(evioException(0,"?evioDOMTree::toEVIOBuffer...length too long for segment type",__FILE__,__LINE__));
+    if((bankLen-1)>0xffff)throw(evioException(0,"?evioDOMTree::toEVIOBuffer...length too big for segment type",__FILE__,__LINE__));
     buf[0]|=(bankLen-1);
     break;
   default: 

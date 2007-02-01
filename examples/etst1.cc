@@ -19,9 +19,9 @@ using namespace std;
 unsigned char num;
 unsigned short tag;
 int len;
-vector<unsigned long> uvec;
+vector<unsigned long> ulvec;
 vector<float> fvec;
-unsigned long ubuf[100];
+int ibuf[100];
 long lbuf[100];
 double dbuf[100];
 
@@ -30,7 +30,7 @@ double dbuf[100];
 int main(int argc, char **argv) {
   
   // fill fake data buffers
-  for(int i=0; i<10; i++)uvec.push_back(i),lbuf[i]=-i,dbuf[i]=10.*i,fvec.push_back(i/10.);
+  for(int i=0; i<10; i++)ulvec.push_back(i),ibuf[i]=-i,lbuf[i]=2*i,dbuf[i]=10.*i,fvec.push_back(i/10.);
 
 
   try {
@@ -51,11 +51,12 @@ int main(int argc, char **argv) {
 
 
       // add banks to event in a single level below root node
-      event.addBank(tag=2, num=9,  uvec);
-      event.addBank(tag=3, num=10, lbuf,  len=8);
+      event.addBank(tag=2, num=9,  ulvec);
+      event.addBank(tag=3, num=10, ibuf,  len=8);
       event.addBank(tag=4, num=11, dbuf,  len=6);
       event.addBank(tag=5, num=12, fvec);
       event.addBank(tag=6, num=13, dbuf,  len=10);
+      event.addBank(tag=7, num=14, lbuf,  len=8);
 
 
       //  write out event tree

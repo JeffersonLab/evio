@@ -24,8 +24,7 @@
  */
 template <typename T> class evioUtil {
 
-public:
-  static int evioContentType(void) throw(evioException) {
+public: static int evioContentType(void) throw(evioException) {
     throw(evioException(0,"?evioUtil<T>::evioContentType...illegal type",__FILE__,__LINE__));
     return(0);
   }
@@ -46,10 +45,10 @@ template <> class evioUtil<int>                {public: static int evioContentTy
 template <> class evioUtil<unsigned long> {
 public:
   static int evioContentType(void) throw(evioException) {
-    if(sizeof(unsigned long)==8) {
-      return(0xa);
-    } else {
+    if(sizeof(unsigned long)==4) {
       return(0x1);
+    } else {
+      return(0xa);
     }
   }
 };
@@ -57,10 +56,10 @@ public:
 template <> class evioUtil<long> { 
 public:
   static int evioContentType(void) throw(evioException) {
-    if(sizeof(long)==8) {
-      return(0x9);
-    } else {
+    if(sizeof(long)==4) {
       return(0xb);
+    } else {
+      return(0x9);
     }
   }
 };
@@ -555,7 +554,7 @@ template <typename T> void evioDOMTree::addBank(unsigned short tag, unsigned cha
 /**
  * Boolean function object compares to content type for typename T.
  */
-template <typename T> class typeIs : unary_function<const evioDOMNodeP,bool> {
+template <typename T> class typeIs : public unary_function<const evioDOMNodeP,bool> {
 
 public:
   typeIs(void) : type(evioUtil<T>::evioContentType()) {}
@@ -572,7 +571,7 @@ private:
 /**
  * Boolean function object compares on type.
  */
-class typeEquals : unary_function<const evioDOMNodeP,bool> {
+class typeEquals : public unary_function<const evioDOMNodeP,bool> {
 
 public:
   typeEquals(int aType) : type(aType) {}
@@ -589,7 +588,7 @@ private:
 /**
  * Boolean function object compares on tag.
  */
-class tagEquals : unary_function<const evioDOMNodeP,bool> {
+class tagEquals : public unary_function<const evioDOMNodeP,bool> {
 
 public:
   tagEquals(unsigned short aTag) : tag(aTag) {}
@@ -606,7 +605,7 @@ private:
 /**
  * Boolean function object compares on num.
  */
-class numEquals : unary_function<const evioDOMNodeP,bool> {
+class numEquals : public unary_function<const evioDOMNodeP,bool> {
 
 public:
   numEquals(unsigned char aNum) : num(aNum) {}
@@ -623,7 +622,7 @@ private:
 /**
  * Boolean function object compares on tag and num.
  */
-class tagNumEquals : unary_function<const evioDOMNodeP, bool> {
+class tagNumEquals : public unary_function<const evioDOMNodeP, bool> {
 
 public:
   tagNumEquals(unsigned short aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
@@ -642,7 +641,7 @@ private:
 /**
  * Boolean function object compares on parent content type.
  */
-class parentTypeEquals : unary_function<const evioDOMNodeP, bool> {
+class parentTypeEquals : public unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentTypeEquals(int aType) : type(aType) {}
@@ -659,7 +658,7 @@ private:
 /**
  * Boolean function object compares on parent tag.
  */
-class parentTagEquals : unary_function<const evioDOMNodeP, bool> {
+class parentTagEquals : public unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentTagEquals(unsigned short aTag) : tag(aTag) {}
@@ -676,7 +675,7 @@ private:
 /**
  * Boolean function object compares on parent num.
  */
-class parentNumEquals : unary_function<const evioDOMNodeP, bool> {
+class parentNumEquals : public unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentNumEquals(unsigned char aNum) : num(aNum) {}
@@ -693,7 +692,7 @@ private:
 /**
  * Boolean function object compares on parent tag and num.
  */
-class parentTagNumEquals : unary_function<const evioDOMNodeP, bool> {
+class parentTagNumEquals : public unary_function<const evioDOMNodeP, bool> {
 
 public:
   parentTagNumEquals(unsigned short aTag, unsigned char aNum) : tag(aTag), num(aNum) {}
@@ -713,7 +712,7 @@ private:
 /**
  * Boolean function object true if container node.
  */
-class isContainer : unary_function<const evioDOMNodeP,bool> {
+class isContainer : public unary_function<const evioDOMNodeP,bool> {
 
 public:
   isContainer(void) {}
@@ -728,7 +727,7 @@ public:
 /**
  * Boolean function object true if leaf node.
  */
-class isLeaf : unary_function<const evioDOMNodeP,bool> {
+class isLeaf : public unary_function<const evioDOMNodeP,bool> {
 
 public:
   isLeaf(void) {}

@@ -58,14 +58,22 @@ int main(int argc, char **argv) {
       evioDOMTree event(chan);
 
 
+      // dump event
+      cout << endl << "Dumping event:" << endl;
+      cout << event.toString() << endl;
+
+
+
       // get lists of pointers to various types of nodes in event tree
       // note:  there are many functions available to select nodes, and it is easy to 
       //        write additional ones...contact EJW or see the EVIO manual for more information
-      evioDOMNodeListP fullList   = event.getNodeList();
-      evioDOMNodeListP longList   = event.getNodeList(typeIs<long>());
-      evioDOMNodeListP floatList  = event.getNodeList(typeIs<float>());
-      evioDOMNodeListP doubleList = event.getNodeList(typeIs<double>());
-      evioDOMNodeListP myList     = event.getNodeList(myNodeChooser);
+      evioDOMNodeListP fullList     = event.getNodeList();
+      evioDOMNodeListP intList      = event.getNodeList(typeIs<int>());
+      evioDOMNodeListP longList     = event.getNodeList(typeIs<long>());
+      evioDOMNodeListP floatList    = event.getNodeList(typeIs<float>());
+      evioDOMNodeListP doubleList   = event.getNodeList(typeIs<double>());
+      evioDOMNodeListP myList       = event.getNodeList(myNodeChooser);
+      evioDOMNodeListP longlongList = event.getNodeList(typeIs<long long>());
 
 
       // apply myProcessingFunction to all float nodes using STL for_each() algorithm
@@ -83,17 +91,57 @@ int main(int argc, char **argv) {
       for_each(myList->begin(),myList->end(),toCout());
 
 
+      // print out data from all <int> nodes manually
+      cout << endl << endl<< "Dumping int nodes manually:" << endl << endl;
+      evioDOMNodeList::const_iterator iter;
+      for(iter=intList->begin(); iter!=intList->end(); iter++) {
+        cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
+             << "  " << (int)((*iter)->num) << endl;
+
+        const evioDOMNodeP np = *iter;                              // solaris bug...
+        const vector<int> *vec = np->getVector<int>();
+        if(vec!=NULL) {
+          for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
+          cout << endl;
+        } else {
+          cerr << "?getVector<int> returned NULL" << endl;
+        }
+      }
+      cout << endl << endl;
+      
+      
       // print out data from all <long> nodes manually
       cout << endl << endl<< "Dumping long nodes manually:" << endl << endl;
-      evioDOMNodeList::const_iterator iter;
       for(iter=longList->begin(); iter!=longList->end(); iter++) {
-        cout << "bank tag,type,num are: " << dec << (*iter)->tag << "  " << (*iter)->getContentType() 
-             << "  " << (*iter)->num << endl;
+        cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
+             << "  " << (int)((*iter)->num) << endl;
 
         const evioDOMNodeP np = *iter;                              // solaris bug...
         const vector<long> *vec = np->getVector<long>();
-        for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
-        cout << endl;
+        if(vec!=NULL) {
+          for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
+          cout << endl;
+        } else {
+          cerr << "?getVector<long> returned NULL" << endl;
+        }
+      }
+      cout << endl << endl;
+      
+      
+      // print out data from all <long long> nodes manually
+      cout << endl << endl<< "Dumping long long nodes manually:" << endl << endl;
+      for(iter=longlongList->begin(); iter!=longlongList->end(); iter++) {
+        cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
+             << "  " << (int)((*iter)->num) << endl;
+
+        const evioDOMNodeP np = *iter;                              // solaris bug...
+        const vector<long long> *vec = np->getVector<long long>();
+        if(vec!=NULL) {
+          for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
+          cout << endl;
+        } else {
+          cerr << "?getVector<long long> returned NULL" << endl;
+        }
       }
       cout << endl << endl;
       
@@ -102,6 +150,7 @@ int main(int argc, char **argv) {
       evioDOMNodeList *list = event.root->getChildList();
       cout << "Root child list length is " << list->size() << endl;
       cout << endl << endl;
+
     }
       
 

@@ -2,6 +2,10 @@
 
 //  Author:  Elliott Wolin, JLab, 24-jan-2007
 
+//  should do:
+//   java version
+
+
 //  would like to do:
 //   shared pointer
 //   cMsg channel
@@ -113,13 +117,13 @@ public:
   virtual void open(void) throw(evioException) = 0;
   virtual bool read(void) throw(evioException) = 0;
   virtual void write(void) throw(evioException) = 0;
-  virtual void write(const unsigned long *myBuf) throw(evioException) = 0;
   virtual void write(const unsigned int* myBuf) throw(evioException) = 0;
   virtual void write(const evioChannel &channel) throw(evioException) = 0;
   virtual void write(const evioChannel *channel) throw(evioException) = 0;
   virtual void write(const evioDOMTree &tree) throw(evioException) = 0;
   virtual void write(const evioDOMTree *tree) throw(evioException) = 0;
   virtual void close(void) throw(evioException) = 0;
+  virtual ~evioChannel(void) {};
 
   // not sure if these should be part of the interface
   virtual const unsigned int *getBuffer(void) const throw(evioException) = 0;
@@ -146,7 +150,6 @@ public:
   void open(void) throw(evioException);
   bool read(void) throw(evioException);
   void write(void) throw(evioException);
-  void write(const unsigned long *myBuf) throw(evioException);
   void write(const unsigned int *myBuf) throw(evioException);
   void write(const evioChannel &channel) throw(evioException);
   void write(const evioChannel *channel) throw(evioException);
@@ -186,6 +189,7 @@ public:
                             int depth, void *userArg) = 0;
   virtual void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                            int depth, const void *data, void *userArg) = 0;
+  virtual ~evioStreamParserHandler(void) {};
 };
 
 
@@ -391,7 +395,6 @@ class evioDOMTree : public evioStreamParserHandler {
 public:
   evioDOMTree(const evioChannel &channel, const string &name = "evio") throw(evioException);
   evioDOMTree(const evioChannel *channel, const string &name = "evio") throw(evioException);
-  evioDOMTree(const unsigned long *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(const unsigned int *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
   evioDOMTree(unsigned short tag, unsigned char num, ContainerType cType=BANK, const string &name = "evio")
@@ -416,7 +419,6 @@ public:
 
 
 public:
-  void toEVIOBuffer(unsigned long *buf, int size) const throw(evioException);
   void toEVIOBuffer(unsigned int *buf, int size) const throw(evioException);
 
 
@@ -459,6 +461,7 @@ class evioSerializable {
 
 public:
   virtual void serialize(evioDOMNodeP node) const throw(evioException) = 0;
+  virtual ~evioSerializable(void) {};
 };
 
 

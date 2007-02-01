@@ -102,7 +102,8 @@ RANLIB = ranlib68k
 DEFS = -DCPU=MC68040 -DVXWORKS -DVXWORKS68K51
 VXINC = $(WIND_BASE)/target/h
 INCS = -w -Wall -fvolatile -fstrength-reduce -nostdinc -I. -I$(VXINC)
-CFLAGS = -O $(DEFS) $(INCS)
+CFLAGS  = -O $(DEFS) $(INCS)
+CCFLAGS = -O $(DEFS) $(INCS)
 OBJS   = 
 OBJSXX = 
 LIBS   = 
@@ -118,7 +119,8 @@ RANLIB = ranlibppc
 DEFS = -mcpu=604 -DCPU=PPC604 -DVXWORKS -D_GNU_TOOL -DVXWORKSPPC
 VXINC = $(WIND_BASE)/target/h
 INCS = -w -Wall -fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -mlongcall -I. -I$(VXINC)
-CFLAGS = -O $(DEFS) $(INCS)
+CFLAGS  = -O $(DEFS) $(INCS)
+CCFLAGS = -O $(DEFS) $(INCS)
 OBJS   = 
 OBJSXX = 
 LIBS   = 
@@ -133,7 +135,8 @@ AR = /usr/ccs/bin/ar
 RANLIB = touch
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
-CFLAGS = -Xc -O $(DEFS) $(INCS)
+CFLAGS = -Xc  -O $(DEFS) $(INCS)
+CCFLAGS = -Xc  -library=stlport4 -O $(DEFS) $(INCS)
 OBJS   = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
 OBJSXX =  evioUtil.o
 LIBS   = libcoda.a
@@ -143,12 +146,13 @@ endif
 
 ifeq ($(ARCH),Linux)
 CC  = gcc
-CPP = g++ -g
+CPP = g++
 AR = ar
 RANLIB = ranlib
 DEFS = -DSYSV -DSVR4
 INCS = -I. -I$(EXPAT_INC)
-CFLAGS = -Wall -O $(DEFS) $(INCS)
+CFLAGS  = -Wall -O $(DEFS) $(INCS)
+CCFLAGS = -Wall -O $(DEFS) $(INCS)
 OBJS   = evio.o swap_util.o evioswap.o xml_util.o evio_util.o
 OBJSXX = evioUtil.o
 LIBS   = libcoda.a
@@ -180,7 +184,7 @@ install-vxworks: $(LIBS) $(LIBSXX)
 
 .cc.o:
 	rm -f $@
-	$(CPP) -c $(CFLAGS) $<
+	$(CPP) -c $(CCFLAGS) $<
 
 libcoda.a: $(OBJS)
 	$(AR) ruv $(LIBS) $(OBJS)

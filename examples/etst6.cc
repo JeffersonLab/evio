@@ -6,6 +6,8 @@
 
 
 #include <evioUtil.hxx>
+#include <algorithm>
+
 
 using namespace evio;
 using namespace std;
