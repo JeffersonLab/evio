@@ -21,12 +21,12 @@
  * Templated utility class has method that returns content type based on typename T.
  * Complete specializations supplied for all defined types.
  * Cumbersome, but this is the only way to do it on solaris...ejw, 9-jan-2007.
- * Note that long data type illegal due to ambiguities on different architectures.
+ * Note that the long data type is not supported due to ambiguities on different architectures.
  */
 template <typename T> class evioUtil {
 
 public: static int evioContentType(void) throw(evioException) {
-    throw(evioException(0,"?evioUtil<T>::evioContentType...illegal type",__FILE__,__LINE__));
+    throw(evioException(0,"?evioUtil<T>::evioContentType...unsupported data type",__FILE__,__LINE__));
     return(0);
   }
 };
@@ -46,7 +46,7 @@ template <> class evioUtil<int>                {public: static int evioContentTy
 template <> class evioUtil<unsigned long> {
 public:
   static int evioContentType(void) throw(evioException) {
-    throw(evioException(0,"?evioUtil<unsigned long>::evioContentType...illegal type",__FILE__,__LINE__));
+    throw(evioException(0,"?evioUtil<unsigned long>::evioContentType...use of unsigned long is not supported",__FILE__,__LINE__));
     return(0);
   }
 };
@@ -54,7 +54,7 @@ public:
 template <> class evioUtil<long> {
 public:
   static int evioContentType(void) throw(evioException) {
-    throw(evioException(0,"?evioUtil<long>::evioContentType...illegal type",__FILE__,__LINE__));
+    throw(evioException(0,"?evioUtil<long>::evioContentType...use of long is not supported",__FILE__,__LINE__));
     return(0);
   }
 };
