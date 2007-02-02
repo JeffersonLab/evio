@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
       //        write additional ones...contact EJW or see the EVIO manual for more information
       evioDOMNodeListP fullList     = event.getNodeList();
       evioDOMNodeListP intList      = event.getNodeList(typeIs<int>());
-      evioDOMNodeListP longList     = event.getNodeList(typeIs<long>());
+      //      evioDOMNodeListP longList     = event.getNodeList(typeIs<long>());
       evioDOMNodeListP floatList    = event.getNodeList(typeIs<float>());
       evioDOMNodeListP doubleList   = event.getNodeList(typeIs<double>());
       evioDOMNodeListP myList       = event.getNodeList(myNodeChooser);
@@ -105,24 +105,6 @@ int main(int argc, char **argv) {
           cout << endl;
         } else {
           cerr << "?getVector<int> returned NULL" << endl;
-        }
-      }
-      cout << endl << endl;
-      
-      
-      // print out data from all <long> nodes manually
-      cout << endl << endl<< "Dumping long nodes manually:" << endl << endl;
-      for(iter=longList->begin(); iter!=longList->end(); iter++) {
-        cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
-             << "  " << (int)((*iter)->num) << endl;
-
-        const evioDOMNodeP np = *iter;                              // solaris bug...
-        const vector<long> *vec = np->getVector<long>();
-        if(vec!=NULL) {
-          for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
-          cout << endl;
-        } else {
-          cerr << "?getVector<long> returned NULL" << endl;
         }
       }
       cout << endl << endl;

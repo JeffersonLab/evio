@@ -17,9 +17,9 @@ int tag,num,len;
 ContainerType cType;
 
 
-vector<unsigned long> uVec1,uVec2;
+vector<unsigned int> uVec1,uVec2;
 double dBuf[100];
-vector<long> lVec;
+vector<int> lVec;
 
 
 //-------------------------------------------------------------------------------i
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     evioDOMTree tree(root);
     
 
-    // create leaf node contining ulong and add to root container node in tree
+    // create leaf node contining uint and add to root container node in tree
     evioDOMNodeP ln1 = evioDOMNode::createEvioDOMNode(tag=2, num=6, uVec1); 
     tree.addBank(ln1);
 

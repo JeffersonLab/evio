@@ -19,10 +19,10 @@ using namespace std;
 unsigned char num;
 unsigned short tag;
 int len;
-vector<unsigned long> ulvec;
+vector<unsigned int> ulvec;
 vector<float> fvec;
 int ibuf[100];
-long lbuf[100];
+long long lbuf[100];
 double dbuf[100];
 
 

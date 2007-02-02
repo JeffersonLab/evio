@@ -14,8 +14,7 @@
 
 
 // not sure:
-//   solaris: count_if and function objects?
-//   split header files?
+//   allow long data type somehow?
 //   auto_ptr?
 //   scheme for exception type codes?
 //   AIDA interface?

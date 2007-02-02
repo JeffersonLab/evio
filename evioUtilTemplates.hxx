@@ -21,6 +21,7 @@
  * Templated utility class has method that returns content type based on typename T.
  * Complete specializations supplied for all defined types.
  * Cumbersome, but this is the only way to do it on solaris...ejw, 9-jan-2007.
+ * Note that long data type illegal due to ambiguities on different architectures.
  */
 template <typename T> class evioUtil {
 
@@ -45,22 +46,16 @@ template <> class evioUtil<int>                {public: static int evioContentTy
 template <> class evioUtil<unsigned long> {
 public:
   static int evioContentType(void) throw(evioException) {
-    if(sizeof(unsigned long)==4) {
-      return(0x1);
-    } else {
-      return(0xa);
-    }
+    throw(evioException(0,"?evioUtil<unsigned long>::evioContentType...illegal type",__FILE__,__LINE__));
+    return(0);
   }
 };
 
-template <> class evioUtil<long> { 
+template <> class evioUtil<long> {
 public:
   static int evioContentType(void) throw(evioException) {
-    if(sizeof(long)==4) {
-      return(0xb);
-    } else {
-      return(0x9);
-    }
+    throw(evioException(0,"?evioUtil<long>::evioContentType...illegal type",__FILE__,__LINE__));
+    return(0);
   }
 };
 

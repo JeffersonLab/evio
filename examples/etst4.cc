@@ -16,10 +16,10 @@ static evioFileChannel *chan = NULL;
 int tag,type,num,len;
 ContainerType cType;
 
-vector<unsigned long> uVec1,uVec2;
+vector<unsigned int> uVec1,uVec2;
 double dBuf[100];
 int iBuf[100];
-vector<long> lVec;
+vector<int> lVec;
 
 
 //-------------------------------------------------------------------------------

@@ -99,12 +99,12 @@ int main(int argc, char **argv) {
       evioDOMNodeListP pList                                         = t.getNodeList();
       evioDOMNodeListP pLeafList                                     = t.getNodeList(isLeaf());
       evioDOMNodeListP pContainerList                                = t.getNodeList(isContainer());
-      evioDOMNodeListP pUlong                                        = t.getNodeList(typeIs<unsigned long>());
+      evioDOMNodeListP pUint                                        = t.getNodeList(typeIs<unsigned int>());
 
 
       cout << endl << endl << dec << "There are " << pList->size() << " total nodes, "
            << pLeafList->size() << " leaf nodes, "
-           << pContainerList->size() << " container nodes, and " << pUlong->size() << " unsigned long nodes"
+           << pContainerList->size() << " container nodes, and " << pUint->size() << " unsigned int nodes"
            << endl << endl << endl;
 
 
@@ -116,8 +116,8 @@ int main(int argc, char **argv) {
       cout << endl << endl << "Leaf nodes:"  << endl << endl;
       for_each(pLeafList->begin(),pLeafList->end(),toCout());
 
-      cout << endl << endl << "Unsigned long nodes:"  << endl << endl;
-      for_each(pUlong->begin(),pUlong->end(),toCout());
+      cout << endl << endl << "Unsigned int nodes:"  << endl << endl;
+      for_each(pUint->begin(),pUint->end(),toCout());
 
 
 
@@ -203,19 +203,19 @@ int main(int argc, char **argv) {
 
 
 
-      // print unsigned long nodes
+      // print unsigned int nodes
       evioDOMNodeList::const_iterator ulIter;
-      for(ulIter=pUlong->begin(); ulIter!=pUlong->end(); ulIter++) {
-        cout << endl << endl << "Unsigned long node" << endl << (*ulIter)->toString()
-             << endl << "Unsigned long node data:" << endl;
+      for(ulIter=pUint->begin(); ulIter!=pUint->end(); ulIter++) {
+        cout << endl << endl << "Unsigned int node" << endl << (*ulIter)->toString()
+             << endl << "Unsigned int node data:" << endl;
         const evioDOMNodeP np = *ulIter;
-        const vector<unsigned long> *lv = np->getVector<unsigned long>();
+        const vector<unsigned int> *lv = np->getVector<unsigned int>();
         if(lv!=NULL) {
           for(int k=0; k<lv->size(); k++) {
             cout << hex << showbase << (*lv)[k] << endl;
           }
         } else {
-          cerr << "?no ulong vector" << endl;
+          cerr << "?no uint vector" << endl;
         }
       }
       

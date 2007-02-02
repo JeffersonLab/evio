@@ -35,7 +35,7 @@ class myHandler : public evioStreamParserHandler {
  void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                       int depth, const void *data, void *userArg) {
     
-    long *l;
+    int *i;
     short *s;
     char *c;
     float *f;
@@ -50,8 +50,8 @@ class myHandler : public evioStreamParserHandler {
     case 0x0:
     case 0x1:
     case 0xb:
-      l = (long *)data;
-      printf("%d %d\n",l[0],l[1]);
+      i = (int *)data;
+      printf("%d %d\n",i[0],i[1]);
       break;
 
 
