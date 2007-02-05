@@ -68,12 +68,11 @@ int main(int argc, char **argv) {
       // note:  there are many functions available to select nodes, and it is easy to 
       //        write additional ones...contact EJW or see the EVIO manual for more information
       evioDOMNodeListP fullList     = event.getNodeList();
-      evioDOMNodeListP intList      = event.getNodeList(typeIs<int>());
-      //      evioDOMNodeListP longList     = event.getNodeList(typeIs<long>());
+      evioDOMNodeListP intList      = event.getNodeList(typeIs<int32_t>());
       evioDOMNodeListP floatList    = event.getNodeList(typeIs<float>());
       evioDOMNodeListP doubleList   = event.getNodeList(typeIs<double>());
       evioDOMNodeListP myList       = event.getNodeList(myNodeChooser);
-      evioDOMNodeListP longlongList = event.getNodeList(typeIs<long long>());
+      evioDOMNodeListP int64List = event.getNodeList(typeIs<int64_t>());
 
 
       // apply myProcessingFunction to all float nodes using STL for_each() algorithm
@@ -110,19 +109,19 @@ int main(int argc, char **argv) {
       cout << endl << endl;
       
       
-      // print out data from all <long long> nodes manually
-      cout << endl << endl<< "Dumping long long nodes manually:" << endl << endl;
-      for(iter=longlongList->begin(); iter!=longlongList->end(); iter++) {
+      // print out data from all int64_t nodes manually
+      cout << endl << endl<< "Dumping int64_t nodes manually:" << endl << endl;
+      for(iter=int64List->begin(); iter!=int64List->end(); iter++) {
         cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
              << "  " << (int)((*iter)->num) << endl;
 
         const evioDOMNodeP np = *iter;                              // solaris bug...
-        const vector<long long> *vec = np->getVector<long long>();
+        const vector<int64_t> *vec = np->getVector<int64_t>();
         if(vec!=NULL) {
           for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
           cout << endl;
         } else {
-          cerr << "?getVector<long long> returned NULL" << endl;
+          cerr << "?getVector<int64_t> returned NULL" << endl;
         }
       }
       cout << endl << endl;

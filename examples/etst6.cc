@@ -14,7 +14,7 @@ using namespace std;
 
 
 
-static vector<int> i1,i2;
+static vector<int32_t> i1,i2;
 
 
 
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
       evioDOMNodeListP pList                                         = t.getNodeList();
       evioDOMNodeListP pLeafList                                     = t.getNodeList(isLeaf());
       evioDOMNodeListP pContainerList                                = t.getNodeList(isContainer());
-      evioDOMNodeListP pUint                                        = t.getNodeList(typeIs<unsigned int>());
+      evioDOMNodeListP pUint                                         = t.getNodeList(typeIs<unsigned int>());
 
 
       cout << endl << endl << dec << "There are " << pList->size() << " total nodes, "

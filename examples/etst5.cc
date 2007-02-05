@@ -40,7 +40,7 @@ class myHandler : public evioStreamParserHandler {
     char *c;
     float *f;
     double *d;
-    long long *ll;
+    int64_t *ll;
 
     printf("leaf   depth %2d   type,tag,num,length:  %6d %6d %6d %6d     data:   ",
            depth,contentType,tag,num,length);
@@ -84,7 +84,7 @@ class myHandler : public evioStreamParserHandler {
 
     case 0x9:
     case 0xa:
-      ll=(long long*)data;
+      ll=(int64_t*)data;
       printf("%lld %lld\n",ll[0],ll[1]);
       break;
 
@@ -114,10 +114,10 @@ void myNodePrinter(const evioDOMNodeP pNode) {
 int main(int argc, char **argv) {
 
   int handle, nevents, status;
-  unsigned int buf[MAXBUFLEN];
-  unsigned int buf2[MAXBUFLEN];
+  uint32_t buf[MAXBUFLEN];
+  uint32_t buf2[MAXBUFLEN];
   int maxev =0;
-  vector<int> ivec;
+  vector<int32_t> ivec;
 
 
   for(int i=0; i<10; i++) ivec.push_back(i);

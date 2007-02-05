@@ -16,13 +16,14 @@ using namespace std;
 
 
 // misc
-unsigned char num;
-unsigned short tag;
+uint8_t num;
+uint16_t tag;
 int len;
-vector<unsigned int> ulvec;
+vector<uint32_t> ulvec;
 vector<float> fvec;
-int ibuf[100];
-long long lbuf[100];
+
+int32_t ibuf[100];
+int64_t lbuf[100];
 double dbuf[100];
 
 
@@ -74,7 +75,7 @@ int main(int argc, char **argv) {
 
 
   // done
-  cout << endl << "   *** fake event data file created ***" << endl << endl;
+  cout << "fakeEvents.dat created" << endl;
 }
 
 

@@ -11,13 +11,15 @@ using namespace std;
 
 
 
-int tag,type,num,len;
+uint16_t tag;
+uint8_t num;
+int len;
 ContainerType cType;
 
-vector<unsigned int> uVec1,uVec2;
+vector<uint32_t> uVec1,uVec2;
 double dBuf[100];
 int iBuf[100];
-vector<int> lVec;
+vector<int32_t> lVec;
 evioDOMNodeP parent;
 
 
