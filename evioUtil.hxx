@@ -1,9 +1,10 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 2-feb-2007
+//  Author:  Elliott Wolin, JLab, 5-feb-2007
 
 //  must do:
 //   update word doc
+
 
 //  should do:
 //   shared pointer
