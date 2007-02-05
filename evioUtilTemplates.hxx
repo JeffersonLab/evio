@@ -43,21 +43,6 @@ template <> class evioUtil<int64_t>      {public: static int evioContentType(voi
 template <> class evioUtil<uint64_t>     {public: static int evioContentType(void)  throw(evioException) {return(0xa);}};
 template <> class evioUtil<int32_t>      {public: static int evioContentType(void)  throw(evioException) {return(0xb);}};
 
-// template <> class evioUtil<unsigned long> {
-// public:
-//   static int evioContentType(void) throw(evioException) {
-//     throw(evioException(0,"?evioUtil<unsigned long>::evioContentType...unsigned long data type is not supported",__FILE__,__LINE__));
-//     return(0);
-//   }
-// };
-
-// template <> class evioUtil<long> {
-// public:
-//   static int evioContentType(void) throw(evioException) {
-//     throw(evioException(0,"?evioUtil<long>::evioContentType...long data type is not supported",__FILE__,__LINE__));
-//     return(0);
-//   }
-//};
 
 //-----------------------------------------------------------------------------
 //--------------------- evioDOMNode templated methods -------------------------

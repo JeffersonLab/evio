@@ -6,19 +6,17 @@
 //   update word doc
 
 //  should do:
+//   shared pointer
 //   java version
 
 
 //  would like to do:
-//   shared pointer
 //   cMsg channel
 //   ET channel
 //   exception stack trace
 
 
 // not sure:
-//   allow long data type somehow?
-//   auto_ptr?
 //   scheme for exception type codes?
 //   AIDA interface?
 
