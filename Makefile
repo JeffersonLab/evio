@@ -133,7 +133,7 @@ CC  = cc
 CPP = CC
 AR = /usr/ccs/bin/ar
 RANLIB = touch
-DEFS = -DSYSV -DSVR4
+DEFS = -DSYSV -DSVR4 -DSunOS
 INCS = -I. -I$(EXPAT_INC)
 CFLAGS = -Xc  -O $(DEFS) $(INCS)
 CCFLAGS = -Xc  -library=stlport4 -O $(DEFS) $(INCS)

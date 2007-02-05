@@ -31,11 +31,16 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 #include <functional>
 #include <utility>
-#include <stdint.h>
-#include <stddef.h>
 
+#ifdef SunOS
+#include <sys/param.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+#endif
 
 
 /** All evio symbols reside in this namespace.*/
