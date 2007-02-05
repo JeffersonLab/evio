@@ -263,8 +263,8 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) thro
  * @param num Node num
  * @param v vector<T> of data
  */
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num, const vector<T> &v)
-  throw(evioException) : evioDOMNode(par,tg,num,evioUtil<T>::evioContentType()) {
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const vector<T> &v)
+  throw(evioException) : evioDOMNode(par,tag,num,evioUtil<T>::evioContentType()) {
   
   copy(v.begin(),v.end(),inserter(data,data.begin()));
 }
@@ -281,8 +281,8 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint
  * @param p Pointer to array containg data of type T
  * @param ndata Length of array
  */
-template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP parent, uint16_t tg, uint8_t num, const T* p, int ndata) 
-  throw(evioException) : evioDOMNode(parent,tg,num,evioUtil<T>::evioContentType()) {
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const T* p, int ndata) 
+  throw(evioException) : evioDOMNode(par,tag,num,evioUtil<T>::evioContentType()) {
   
   // fill vector with data
   for(int i=0; i<ndata; i++) data.push_back(p[i]);
