@@ -35,6 +35,8 @@
 #include <sstream>
 #include <functional>
 #include <utility>
+#include <stdint.h>
+#include <stddef.h>
 
 
 
@@ -76,7 +78,7 @@ typedef enum {
   SEGMENT    = 0xd,  /**<1-word header,  8-bit tag,    no num, 8-bit type.*/
   TAGSEGMENT = 0xc   /**<1-word header, 12-bit tag,    no num, 4-bit type.*/
 } ContainerType;
-typedef pair<unsigned short, unsigned char> tagNum;  /**<STL pair of tag,num.*/
+typedef pair<uint16_t, uint8_t> tagNum;  /**<STL pair of tag,num.*/
 
 
 //-----------------------------------------------------------------------------
@@ -119,7 +121,7 @@ public:
   virtual void open(void) throw(evioException) = 0;
   virtual bool read(void) throw(evioException) = 0;
   virtual void write(void) throw(evioException) = 0;
-  virtual void write(const unsigned int* myBuf) throw(evioException) = 0;
+  virtual void write(const uint32_t* myBuf) throw(evioException) = 0;
   virtual void write(const evioChannel &channel) throw(evioException) = 0;
   virtual void write(const evioChannel *channel) throw(evioException) = 0;
   virtual void write(const evioDOMTree &tree) throw(evioException) = 0;
@@ -128,7 +130,7 @@ public:
   virtual ~evioChannel(void) {};
 
   // not sure if these should be part of the interface
-  virtual const unsigned int *getBuffer(void) const throw(evioException) = 0;
+  virtual const uint32_t *getBuffer(void) const throw(evioException) = 0;
   virtual int getBufSize(void) const = 0;
 
 };
@@ -152,14 +154,14 @@ public:
   void open(void) throw(evioException);
   bool read(void) throw(evioException);
   void write(void) throw(evioException);
-  void write(const unsigned int *myBuf) throw(evioException);
+  void write(const uint32_t *myBuf) throw(evioException);
   void write(const evioChannel &channel) throw(evioException);
   void write(const evioChannel *channel) throw(evioException);
   void write(const evioDOMTree &tree) throw(evioException);
   void write(const evioDOMTree *tree) throw(evioException);
   void close(void) throw(evioException);
 
-  const unsigned int *getBuffer(void) const throw(evioException);
+  const uint32_t *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
 
   void ioctl(const string &request, void *argp) throw(evioException);
@@ -171,7 +173,7 @@ private:
   string filename;    /**<Name of evio file.*/
   string mode;        /**<Open mode, "r" or "w".*/
   int handle;         /**<Internal evio file handle.*/
-  unsigned int *buf;  /**<Pointer to internal buffer.*/
+  uint32_t *buf;      /**<Pointer to internal buffer.*/
   int bufSize;        /**<Size of internal buffer.*/
 };
 
@@ -187,9 +189,9 @@ private:
 class evioStreamParserHandler {
 
 public:
-  virtual void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
+  virtual void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, 
                             int depth, void *userArg) = 0;
-  virtual void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
+  virtual void leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, 
                            int depth, const void *data, void *userArg) = 0;
   virtual ~evioStreamParserHandler(void) {};
 };
@@ -205,13 +207,13 @@ public:
 class evioStreamParser {
 
 public:
-  void *parse(const unsigned int *buf, evioStreamParserHandler &handler, void *userArg)
+  void *parse(const uint32_t *buf, evioStreamParserHandler &handler, void *userArg)
     throw(evioException);
   virtual ~evioStreamParser(void) {};
 
   
 private:
-  void *parseBank(const unsigned int *buf, int bankType, int depth, 
+  void *parseBank(const uint32_t *buf, int bankType, int depth, 
                   evioStreamParserHandler &handler, void *userArg) throw(evioException);
 
 };
@@ -233,7 +235,7 @@ class evioDOMNode {
 
 
 protected:
-  evioDOMNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, int contentType) throw(evioException);
+  evioDOMNode(evioDOMNodeP parent, uint16_t tag, uint8_t num, int contentType) throw(evioException);
   virtual ~evioDOMNode(void);
 
 
@@ -244,18 +246,18 @@ private:
 
 // public factory methods for node creation
 public:
-  static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const vector<T> tVec)
+  static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const vector<T> tVec)
     throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const T* t, int len)
+  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const T* t, int len)
     throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, const evioSerializable &o, ContainerType cType=BANK) 
+  static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const evioSerializable &o, ContainerType cType=BANK) 
     throw(evioException);
-  static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, 
+  static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, 
                                         ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, T *t,
+  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, T *t,
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(unsigned short tag, unsigned char num, T *t, 
+  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, T *t, 
                                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
@@ -275,8 +277,8 @@ public:
 
 
 public:
-  virtual bool operator==(unsigned short tag) const;
-  virtual bool operator!=(unsigned short tag) const;
+  virtual bool operator==(uint16_t tag) const;
+  virtual bool operator!=(uint16_t tag) const;
   bool operator==(tagNum tnPair) const;
   bool operator!=(tagNum tnPair) const;
 
@@ -316,8 +318,8 @@ protected:
 
 
 public:
-  unsigned short tag;            /**<The node tag, max 16-bits depending on container type.*/
-  unsigned char num;             /**<The node num, max 8 bits, only used by BANK container type (only one with 2-word header).*/
+  uint16_t tag;            /**<The node tag, max 16-bits depending on container type.*/
+  uint8_t num;             /**<The node num, max 8 bits, only used by BANK container type (only one with 2-word header).*/
 };
 
 
@@ -335,7 +337,7 @@ class evioDOMContainerNode : public evioDOMNode {
 
 
 private:
-  evioDOMContainerNode(evioDOMNodeP parent, unsigned short tag, unsigned char num, ContainerType cType) throw(evioException);
+  evioDOMContainerNode(evioDOMNodeP parent, uint16_t tag, uint8_t num, ContainerType cType) throw(evioException);
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);  /**<Not available to user */
   bool operator=(const evioDOMContainerNode &node);                              /**<Not available to user */
 
@@ -366,8 +368,8 @@ template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 
 private:
-  evioDOMLeafNode(evioDOMNodeP par, unsigned short tag, unsigned char num, const vector<T> &v) throw(evioException);
-  evioDOMLeafNode(evioDOMNodeP par, unsigned short tag, unsigned char num, const T *p, int ndata) throw(evioException);
+  evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const vector<T> &v) throw(evioException);
+  evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const T *p, int ndata) throw(evioException);
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);  /**<Not available to user */
   bool operator=(const evioDOMLeafNode<T> &lNode);                        /**<Not available to user */
 
@@ -397,9 +399,9 @@ class evioDOMTree : public evioStreamParserHandler {
 public:
   evioDOMTree(const evioChannel &channel, const string &name = "evio") throw(evioException);
   evioDOMTree(const evioChannel *channel, const string &name = "evio") throw(evioException);
-  evioDOMTree(const unsigned int *buf, const string &name = "evio") throw(evioException);
+  evioDOMTree(const uint32_t *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
-  evioDOMTree(unsigned short tag, unsigned char num, ContainerType cType=BANK, const string &name = "evio")
+  evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType=BANK, const string &name = "evio")
     throw(evioException);
   virtual ~evioDOMTree(void);
 
@@ -412,8 +414,8 @@ private:
 public:
   void clear(void) throw(evioException);
   void addBank(evioDOMNodeP node) throw(evioException);
-  template <typename T> void addBank(unsigned short tag, unsigned char num, const vector<T> dataVec) throw(evioException);
-  template <typename T> void addBank(unsigned short tag, unsigned char num, const T* dataBuf, int dataLen) throw(evioException);
+  template <typename T> void addBank(uint16_t tag, uint8_t num, const vector<T> dataVec) throw(evioException);
+  template <typename T> void addBank(uint16_t tag, uint8_t num, const T* dataBuf, int dataLen) throw(evioException);
 
 
 public:
@@ -421,7 +423,7 @@ public:
 
 
 public:
-  void toEVIOBuffer(unsigned int *buf, int size) const throw(evioException);
+  void toEVIOBuffer(uint32_t *buf, int size) const throw(evioException);
 
 
 public:
@@ -434,14 +436,14 @@ public:
 
 
 private:
-  evioDOMNodeP parse(const unsigned int *buf) throw(evioException);
-  int toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
+  evioDOMNodeP parse(const uint32_t *buf) throw(evioException);
+  int toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
   template <class Predicate> evioDOMNodeList *addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
     throw(evioException);
   
   void toOstream(ostream &os, const evioDOMNodeP node, int depth) const throw(evioException);
-  void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, int depth, void *userArg);
-  void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, int depth, const void *data, void *userArg);
+  void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, void *userArg);
+  void leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, const void *data, void *userArg);
 
 
 public:

@@ -92,7 +92,7 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
   : filename(f), mode(m), handle(0), bufSize(size) {
 
   // allocate buffer
-  buf = new unsigned int[bufSize];
+  buf = new uint32_t[bufSize];
   if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__LINE__));
 }
 
@@ -158,7 +158,7 @@ void evioFileChannel::write(void) throw(evioException) {
  * Writes to file from user-supplied buffer.
  * @param myBuf Buffer containing event
  */
-void evioFileChannel::write(const unsigned int *myBuf) throw(evioException) {
+void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__LINE__));
   if(evWrite(handle,myBuf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__LINE__));
@@ -277,7 +277,7 @@ string evioFileChannel::getMode(void) const {
  * Returns pointer to internal channel buffer.
  * @return Pointer to internal buffer
  */
-const unsigned int *evioFileChannel::getBuffer(void) const throw(evioException) {
+const uint32_t *evioFileChannel::getBuffer(void) const throw(evioException) {
   if(buf==NULL)throw(evioException(0,"evioFileChannel::getbuffer...null buffer",__FILE__,__LINE__));
   return(buf);
 }
@@ -308,7 +308,7 @@ int evioFileChannel::getBufSize(void) const {
  * @param userArg Passed to handler callbacks
  * @return void* Return value from parseBank
  */
-void *evioStreamParser::parse(const unsigned int *buf, 
+void *evioStreamParser::parse(const uint32_t *buf, 
                               evioStreamParserHandler &handler, void *userArg) throw(evioException) {
   
   if(buf==NULL)throw(evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__LINE__));
@@ -329,14 +329,14 @@ void *evioStreamParser::parse(const unsigned int *buf,
  * @param userArg Passed to handler callbacks
  * @return void* Used internally
  */
-void *evioStreamParser::parseBank(const unsigned int *buf, int bankType, int depth, 
+void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth, 
                                  evioStreamParserHandler &handler, void *userArg) throw(evioException) {
 
   int length,contentType,dataOffset,p,bankLen;
-  unsigned short tag;
-  unsigned char num;
-  const unsigned int *data;
-  unsigned int mask;
+  uint16_t tag;
+  uint8_t num;
+  const uint32_t *data;
+  uint32_t mask;
 
   void *newUserArg = userArg;
 
@@ -396,20 +396,20 @@ void *evioStreamParser::parseBank(const unsigned int *buf, int bankType, int dep
   case 0x6:
   case 0x7:
     // one-byte types
-    handler.leafNodeHandler((length-dataOffset)*4,tag,contentType,num,depth,(char*)(&buf[dataOffset]),userArg);
+    handler.leafNodeHandler((length-dataOffset)*4,tag,contentType,num,depth,(int8_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x4:
   case 0x5:
     // two-byte types
-    handler.leafNodeHandler((length-dataOffset)*2,tag,contentType,num,depth,(short*)(&buf[dataOffset]),userArg);
+    handler.leafNodeHandler((length-dataOffset)*2,tag,contentType,num,depth,(int16_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
     // eight-byte types
-    handler.leafNodeHandler((length-dataOffset)/2,tag,contentType,num,depth,(long long*)(&buf[dataOffset]),userArg);
+    handler.leafNodeHandler((length-dataOffset)/2,tag,contentType,num,depth,(int64_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0xe:
@@ -464,7 +464,7 @@ void *evioStreamParser::parseBank(const unsigned int *buf, int bankType, int dep
  * @param num Node num
  * @param contentType Container node content type
  */
-evioDOMNode::evioDOMNode(evioDOMNodeP par, unsigned short tag, unsigned char num, int contentType) throw(evioException)
+evioDOMNode::evioDOMNode(evioDOMNodeP par, uint16_t tag, uint8_t num, int contentType) throw(evioException)
   : parent(par), parentTree(NULL), contentType(contentType), tag(tag), num(num)  {
 }
 
@@ -479,7 +479,7 @@ evioDOMNode::evioDOMNode(evioDOMNodeP par, unsigned short tag, unsigned char num
  * @param cType Container node content type
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, ContainerType cType) throw(evioException) {
+evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, ContainerType cType) throw(evioException) {
   return(new evioDOMContainerNode(NULL,tag,num,cType));
 }
 
@@ -495,7 +495,7 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char nu
  * @param cType Container node content type
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, const evioSerializable &o, ContainerType cType) 
+evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, const evioSerializable &o, ContainerType cType) 
   throw(evioException) {
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   o.serialize(c);
@@ -515,7 +515,7 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char nu
  * @param cType Container node content type
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMNode::createEvioDOMNode(unsigned short tag, unsigned char num, void (*f)(evioDOMNodeP c, void *userArg), 
+evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, void (*f)(evioDOMNodeP c, void *userArg), 
                                             void *userArg, ContainerType cType) throw(evioException) {
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   f(c,userArg);
@@ -642,7 +642,7 @@ evioDOMNode& evioDOMNode::operator<<(evioDOMNodeP node) throw(evioException) {
  * @param tg Value to compare to
  * @return true if tags agree
  */
-bool evioDOMNode::operator==(unsigned short tg) const {
+bool evioDOMNode::operator==(uint16_t tg) const {
   return(this->tag==tg);
 }
 
@@ -655,7 +655,7 @@ bool evioDOMNode::operator==(unsigned short tg) const {
  * @param tg Value to compare to
  * @return true if tags disagree
  */
-bool evioDOMNode::operator!=(unsigned short tg) const {
+bool evioDOMNode::operator!=(uint16_t tg) const {
   return(this->tag!=tg);
 }
 
@@ -778,7 +778,7 @@ string evioDOMNode::getIndent(int depth) {
  * @param num Node num
  * @param cType Container node content type
  */
-evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, unsigned short tg, unsigned char num, ContainerType cType) throw(evioException)
+evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, uint16_t tg, uint8_t num, ContainerType cType) throw(evioException)
   : evioDOMNode(par,tg,num,cType) {
 }
 
@@ -843,7 +843,7 @@ string evioDOMContainerNode::getFooter(int depth) const {
  * @param name Name of tree
  */
 evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(evioException) : root(NULL), name(name) {
-  const unsigned int *buf = channel.getBuffer();
+  const uint32_t *buf = channel.getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
@@ -860,7 +860,7 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(e
  */
 evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(evioException) : root(NULL), name(name) {
   if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__LINE__));
-  const unsigned int *buf = channel->getBuffer();
+  const uint32_t *buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
@@ -874,7 +874,7 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
  * @param buf Buffer containing event
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(const unsigned int *buf, const string &name) throw(evioException) : root(NULL), name(name) {
+evioDOMTree::evioDOMTree(const uint32_t *buf, const string &name) throw(evioException) : root(NULL), name(name) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
@@ -906,7 +906,7 @@ evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioExcept
  * @param cType Root node content type
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(unsigned short tag, unsigned char num, ContainerType cType, const string &name) throw(evioException) : root(NULL), name(name) {
+evioDOMTree::evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType, const string &name) throw(evioException) : root(NULL), name(name) {
   root=evioDOMNode::createEvioDOMNode(tag,num,cType);
   root->parentTree=this;
 }
@@ -931,7 +931,7 @@ evioDOMTree::~evioDOMTree(void) {
  * @param buf Buffer containing event data
  * @return Pointer to highest node resulting from parsing of buffer
  */
-evioDOMNodeP evioDOMTree::parse(const unsigned int *buf) throw(evioException) {
+evioDOMNodeP evioDOMTree::parse(const uint32_t *buf) throw(evioException) {
   evioStreamParser p;
   return((evioDOMNodeP)p.parse(buf,*this,NULL));
 }
@@ -950,7 +950,7 @@ evioDOMNodeP evioDOMTree::parse(const unsigned int *buf) throw(evioException) {
  * @param userArg Used internally
  * @return void* used internally
  */
-void *evioDOMTree::containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, int depth, 
+void *evioDOMTree::containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, 
                                void *userArg) {
     
     
@@ -988,7 +988,7 @@ void *evioDOMTree::containerNodeHandler(int length, unsigned short tag, int cont
  * @param userArg Used internally
  * @return void* used internally
  */
-void evioDOMTree::leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, int depth, 
+void evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, 
                               const void *data, void *userArg) {
 
 
@@ -1000,7 +1000,7 @@ void evioDOMTree::leafNodeHandler(int length, unsigned short tag, int contentTyp
 
   case 0x0:
   case 0x1:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(unsigned int*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint32_t*)data,length);
     break;
       
   case 0x2:
@@ -1015,19 +1015,19 @@ void evioDOMTree::leafNodeHandler(int length, unsigned short tag, int contentTyp
     break;
 
   case 0x4:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(short*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int16_t*)data,length);
     break;
 
   case 0x5:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(unsigned short*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint16_t*)data,length);
     break;
 
   case 0x6:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(signed char*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int8_t*)data,length);
     break;
 
   case 0x7:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(unsigned char*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint8_t*)data,length);
     break;
 
   case 0x8:
@@ -1035,15 +1035,15 @@ void evioDOMTree::leafNodeHandler(int length, unsigned short tag, int contentTyp
     break;
 
   case 0x9:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(long long*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int64_t*)data,length);
     break;
 
   case 0xa:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(unsigned long long*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint64_t*)data,length);
     break;
 
   case 0xb:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int32_t*)data,length);
     break;
 
   default:
@@ -1122,7 +1122,7 @@ evioDOMTree& evioDOMTree::operator<<(evioDOMNodeP node) throw(evioException) {
  * @param buf Buffer that receives serialized tree
  * @param size Size of buffer
  */
-void evioDOMTree::toEVIOBuffer(unsigned int *buf, int size) const throw(evioException) {
+void evioDOMTree::toEVIOBuffer(uint32_t *buf, int size) const throw(evioException) {
   toEVIOBuffer(buf,root,size);
 }
 
@@ -1137,7 +1137,7 @@ void evioDOMTree::toEVIOBuffer(unsigned int *buf, int size) const throw(evioExce
  * @param size Size of buffer
  * @return Size of serialized node
  */
-int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int size) const throw(evioException) {
+int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size) const throw(evioException) {
 
   int bankLen,bankType,dataOffset;
 
@@ -1206,11 +1206,11 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
     case 0x2:
     case 0xb:
       {
-        const evioDOMLeafNode<unsigned int> *leaf = static_cast<const evioDOMLeafNode<unsigned int>*>(pNode);
+        const evioDOMLeafNode<uint32_t> *leaf = static_cast<const evioDOMLeafNode<uint32_t>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
-        for(i=0; i<ndata; i++) buf[dataOffset+i]=(unsigned int)(leaf->data[i]);
+        for(i=0; i<ndata; i++) buf[dataOffset+i]=(uint32_t)(leaf->data[i]);
       }
       break;
       
@@ -1221,7 +1221,7 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
         ndata = s.size();
         nword = (ndata+3)/4;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
-        unsigned char *c = (unsigned char*)&buf[dataOffset];
+        uint8_t *c = (uint8_t*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=(s.c_str())[i];
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
       }
@@ -1230,12 +1230,12 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
     case 0x4:
     case 0x5:
       {
-        const evioDOMLeafNode<unsigned short> *leaf = static_cast<const evioDOMLeafNode<unsigned short>*>(pNode);
+        const evioDOMLeafNode<uint16_t> *leaf = static_cast<const evioDOMLeafNode<uint16_t>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+1)/2;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
-        unsigned short *s = (unsigned short *)&buf[dataOffset];
-        for(i=0; i<ndata; i++) s[i]=static_cast<unsigned short>(leaf->data[i]);
+        uint16_t *s = (uint16_t *)&buf[dataOffset];
+        for(i=0; i<ndata; i++) s[i]=static_cast<uint16_t>(leaf->data[i]);
         if((ndata%2)!=0)buf[ndata]=0;
       }
       break;
@@ -1243,12 +1243,12 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
     case 0x6:
     case 0x7:
       {
-        const evioDOMLeafNode<unsigned char> *leaf = static_cast<const evioDOMLeafNode<unsigned char>*>(pNode);
+        const evioDOMLeafNode<uint8_t> *leaf = static_cast<const evioDOMLeafNode<uint8_t>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+3)/4;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
-        unsigned char *c = (unsigned char*)&buf[dataOffset];
-        for(i=0; i<ndata; i++) c[i]=static_cast<unsigned char>(leaf->data[i]);
+        uint8_t *c = (uint8_t*)&buf[dataOffset];
+        for(i=0; i<ndata; i++) c[i]=static_cast<uint8_t>(leaf->data[i]);
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
       }
       break;
@@ -1257,12 +1257,12 @@ int evioDOMTree::toEVIOBuffer(unsigned int *buf, const evioDOMNodeP pNode, int s
     case 0x9:
     case 0xa:
       {
-        const evioDOMLeafNode<unsigned long long> *leaf = static_cast<const evioDOMLeafNode<unsigned long long>*>(pNode);
+        const evioDOMLeafNode<uint64_t> *leaf = static_cast<const evioDOMLeafNode<uint64_t>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata*2;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
-        unsigned long long *ll = (unsigned long long*)&buf[dataOffset];
-        for(i=0; i<ndata; i++) ll[i]=static_cast<unsigned long long>(leaf->data[i]);
+        uint64_t *ll = (uint64_t*)&buf[dataOffset];
+        for(i=0; i<ndata; i++) ll[i]=static_cast<uint64_t>(leaf->data[i]);
       }
       break;
 
