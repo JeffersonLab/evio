@@ -26,7 +26,7 @@
 template <typename T> class evioUtil {
 
 public: static int evioContentType(void) throw(evioException) {
-    throw(evioException(0,"?evioUtil<T>::evioContentType...unsupported data type",__FILE__,__LINE__));
+    throw(evioException(0,"?evioUtil<T>::evioContentType...unsupported data type",__FILE__,__FUNCTION__,__LINE__));
     return(0);
   }
 };
@@ -134,7 +134,7 @@ template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evio
   if(l!=NULL) {
     copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.end()));
   } else {
-    throw(evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -153,7 +153,7 @@ template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evi
   if(l!=NULL) {
     for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
   } else {
-    throw(evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -172,7 +172,7 @@ template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evi
     l->data.clear();
     copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.begin()));
   } else {
-    throw(evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -192,7 +192,7 @@ template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(ev
     l->data.clear();
     for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
   } else {
-    throw(evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -488,7 +488,7 @@ template <typename T> void evioDOMTree::addBank(uint16_t tag, uint8_t num, const
 
   } else {
     evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
-    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__LINE__));
+    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
     evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,dataVec);
     c->childList.push_back(node);
     node->parent=root;
@@ -515,7 +515,7 @@ template <typename T> void evioDOMTree::addBank(uint16_t tag, uint8_t num, const
 
   } else {
     evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
-    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__LINE__));
+    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
     evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,dataBuf,dataLen);
     c->childList.push_back(node);
     node->parent=root;

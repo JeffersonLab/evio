@@ -44,7 +44,31 @@
 #endif
 
 
-/** All evio symbols reside in this namespace.*/
+/** @mainpage  EVIO Event I/O Package.
+ * @author Elliott Wolin.
+ * @version 2.0.
+ * @date 5-Feb-2007.
+ *
+ * @section intro Introduction
+ * The EVIO package is an object-oriented extension of the original EVIO C event I/O utility.  
+ *
+ * The base utility reads and writes EVIO format events in an event buffer to and from disk.  
+ * Events are blocked into standard block sizes, and endian swapping is performed if necessary.
+ *
+ * This package maps the event in the event buffer into an in-memory tree-like bank hierarchy.  Event trees can be queried, modified, 
+ * or created from scratch.  In-memory trees can be automatically serialized into a buffer and written to disk.
+ * 
+ * @warning Internally EVIO uses only the unambiguous types int8_t, uint8_t, ... int64_t, uint64_t.  
+ * The long and long long data types are not supported, as their interpretion varies among different compilers
+ * and architectures.  The unambiguous types are compatible with char, short, and int wherever I have checked.
+ * But only the 64-bit types int64_t and uint64_t work consistently across architectures.
+ *
+ * @warning The safest route, of course, is to use the unambiguous types exclusively.  
+ * But the example programs use char, short, int, and int64_t and so far work fine.  No guarantees for the future, though...
+ */
+
+
+/** All evio symbols reside in the evio namespace.*/
 namespace evio {
 
 using namespace std;
@@ -67,13 +91,77 @@ template <typename T> class evioUtil;
 
 
 
+
+
+template <class X> class counted_ptr {
+
+public:
+    typedef X element_type;
+
+    explicit counted_ptr(X* p = 0) // allocate a new counter
+        : itsCounter(0) {if (p) itsCounter = new counter(p);}
+    ~counted_ptr()
+        {release();}
+    counted_ptr(const counted_ptr& r) throw()
+        {acquire(r.itsCounter);}
+    counted_ptr& operator=(const counted_ptr& r)
+    {
+        if (this != &r) {
+            release();
+            acquire(r.itsCounter);
+        }
+        return *this;
+    }
+
+    X& operator*()  const throw()   {return *itsCounter->ptr;}
+    X* operator->() const throw()   {return itsCounter->ptr;}
+    X* get()        const throw()   {return itsCounter ? itsCounter->ptr : 0;}
+    bool unique()   const throw()
+        {return (itsCounter ? itsCounter->count == 1 : true);}
+
+private:
+
+    struct counter {
+        counter(X* p = 0, unsigned c = 1) : ptr(p), count(c) {}
+        X*          ptr;
+        unsigned    count;
+    }* itsCounter;
+
+    void acquire(counter* c) throw()
+    { // increment the count
+        itsCounter = c;
+        if (c) ++c->count;
+    }
+
+    void release()
+    { // decrement the count, delete if it is 0
+        if (itsCounter) {
+            if (--itsCounter->count == 0) {
+                delete itsCounter->ptr;
+                delete itsCounter;
+            }
+            itsCounter = 0;
+        }
+    }
+};
+
+
+
+
+
 //-----------------------------------------------------------------------------
 //----------------------------- Typedefs --------------------------------------
 //-----------------------------------------------------------------------------
 
 
 typedef evioDOMTree* evioDOMTreeP;                   /**<Pointer to evioDOMTree.*/
+
+
 typedef evioDOMNode* evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
+//typedef counted_ptr<evioDOMNode*> evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
+
+
+
 typedef list<evioDOMNodeP>  evioDOMNodeList;         /**<List of pointers to evioDOMNode.*/
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evioDOMNode pointers, returned by getNodeList.*/
 /** Defines the three container bank types.*/
@@ -97,7 +185,7 @@ class evioException {
 
 public:
   evioException(int typ = 0, const string &txt = "", const string &aux = "");
-  evioException(int typ, const string &txt, const string &file, int line);
+  evioException(int typ, const string &txt, const string &file, const string &func, int line);
   virtual ~evioException(void) {};
   virtual string toString(void) const;
 
@@ -106,7 +194,7 @@ public:
   int type;        /**<Exception type.*/
   string text;     /**<Primary text.*/
   string auxText;  /**<Auxiliary text.*/
-
+  string trace;    /**<Stack trace, not available on all platforms.*/
 };
 
 

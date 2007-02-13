@@ -7,6 +7,10 @@
 
 #include "evioUtil.hxx"
 
+#include <execinfo.h>
+#include <sstream>
+
+
 using namespace std;
 using namespace evio;
 
@@ -18,13 +22,39 @@ using namespace evio;
 
 
 namespace evio {
-/**
- * Only used internally, always returns true.
- * @return true Always!
- */
+
+  /**
+   * Only used internally, always returns true.
+   * @return true Always!
+   */
   static bool isTrue(const evioDOMNodeP pNode) {
     return(true);
   }
+  
+  
+  /** 
+   * Returns stack trace.
+   * @return String containing stack trace
+   */
+  string getStackTrace() {
+#ifdef sun
+    return("");
+#else
+    void *trace[1024];
+    int trace_size = backtrace(trace,1024);
+    if(trace_size>1024)trace_size=1024;
+    char **messages = backtrace_symbols(trace, trace_size);
+    
+    stringstream ss;
+    for(int i=0; i<trace_size; ++i) {
+      ss << messages[i] << endl;
+    }
+    ss << ends;
+    
+    free(messages);
+    return(ss.str());
+  }
+#endif
 }
 
 
@@ -40,7 +70,7 @@ namespace evio {
  * @param aux Auxiliary text
  */
 evioException::evioException(int typ, const string &txt, const string &aux) 
-  : type(typ), text(txt), auxText(aux) {
+  : type(typ), text(txt), auxText(aux), trace(getStackTrace()) {
 }
 
 
@@ -52,13 +82,14 @@ evioException::evioException(int typ, const string &txt, const string &aux)
  * @param typ Exception type user-defined
  * @param txt Basic exception text
  * @param file __FILE__
+ * @param func __FUNCTION__
  * @param line __LINE__
  */
-evioException::evioException(int typ, const string &txt, const string &file, int line) 
-  : type(typ), text(txt) {
+evioException::evioException(int typ, const string &txt, const string &file, const string &func, int line) 
+  : type(typ), text(txt), trace(getStackTrace()) {
 
   ostringstream oss;
-  oss <<  "    evioException occured in file " << file << ", line " << line << ends;
+  oss <<  "    evioException occured in file " << file << ", function " << func << ", line " << line << ends;
   auxText=oss.str();
 }
 
@@ -72,7 +103,8 @@ evioException::evioException(int typ, const string &txt, const string &file, int
  */
 string evioException::toString(void) const {
   ostringstream oss;
-  oss << "?evioException type = " << type << "    text = " << text << endl << endl << auxText << endl;
+  oss << "?evioException type = " << type << "    text = " << text << endl << endl << auxText;
+  if(trace.size()>0) oss << endl << endl << endl << "Stack trace:" << endl << endl << trace << endl;
   return(oss.str());
 }
 
@@ -93,7 +125,7 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
 
   // allocate buffer
   buf = new uint32_t[bufSize];
-  if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -117,10 +149,10 @@ evioFileChannel::~evioFileChannel(void) {
  */
 void evioFileChannel::open(void) throw(evioException) {
 
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::open...null buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"evioFileChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
-    throw(evioException(0,"?evioFileChannel::open...unable to open file",__FILE__,__LINE__));
-  if(handle==0)throw(evioException(0,"?evioFileChannel::open...zero handle",__FILE__,__LINE__));
+    throw(evioException(0,"?evioFileChannel::open...unable to open file",__FILE__,__FUNCTION__,__LINE__));
+  if(handle==0)throw(evioException(0,"?evioFileChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -132,8 +164,8 @@ void evioFileChannel::open(void) throw(evioException) {
  * @return true if successful, false on EOF or other evRead error condition
  */
 bool evioFileChannel::read(void) throw(evioException) {
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::read...null buffer",__FILE__,__LINE__));
-  if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"evioFileChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
   return(evRead(handle,&buf[0],bufSize)==0);
 }
 
@@ -145,9 +177,9 @@ bool evioFileChannel::read(void) throw(evioException) {
  * Writes to file from internal buffer.
  */
 void evioFileChannel::write(void) throw(evioException) {
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::write...null buffer",__FILE__,__LINE__));
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__LINE__));
-  if(evWrite(handle,buf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"evioFileChannel::write...null buffer",__FILE__,__FUNCTION__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  if(evWrite(handle,buf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write",__FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -159,9 +191,9 @@ void evioFileChannel::write(void) throw(evioException) {
  * @param myBuf Buffer containing event
  */
 void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
-  if(myBuf==NULL)throw(evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__LINE__));
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__LINE__));
-  if(evWrite(handle,myBuf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__LINE__));
+  if(myBuf==NULL)throw(evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__FUNCTION__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  if(evWrite(handle,myBuf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -173,8 +205,8 @@ void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
  * @param channel Channel object
  */
 void evioFileChannel::write(const evioChannel &channel) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__LINE__));
-  if(evWrite(handle,channel.getBuffer())!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from channel",__FILE__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  if(evWrite(handle,channel.getBuffer())!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from channel",__FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -186,7 +218,7 @@ void evioFileChannel::write(const evioChannel &channel) throw(evioException) {
  * @param channel Pointer to channel object
  */
 void evioFileChannel::write(const evioChannel *channel) throw(evioException) {
-  if(channel==NULL)throw(evioException(0,"evioFileChannel::write...null channel",__FILE__,__LINE__));
+  if(channel==NULL)throw(evioException(0,"evioFileChannel::write...null channel",__FILE__,__FUNCTION__,__LINE__));
   evioFileChannel::write(*channel);
 }
 
@@ -199,7 +231,7 @@ void evioFileChannel::write(const evioChannel *channel) throw(evioException) {
  * @param tree evioDOMTree containing event
  */
 void evioFileChannel::write(const evioDOMTree &tree) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
   tree.toEVIOBuffer(buf,bufSize);
   evioFileChannel::write();
 }
@@ -213,7 +245,7 @@ void evioFileChannel::write(const evioDOMTree &tree) throw(evioException) {
  * @param tree Pointer to evioDOMTree containing event
  */
 void evioFileChannel::write(const evioDOMTree *tree) throw(evioException) {
-  if(tree==NULL)throw(evioException(0,"evioFileChannel::write...null tree",__FILE__,__LINE__));
+  if(tree==NULL)throw(evioException(0,"evioFileChannel::write...null tree",__FILE__,__FUNCTION__,__LINE__));
   evioFileChannel::write(*tree);
 }
 
@@ -227,9 +259,9 @@ void evioFileChannel::write(const evioDOMTree *tree) throw(evioException) {
  * @param argp Additional evIoctl parameter
  */
 void evioFileChannel::ioctl(const string &request, void *argp) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::ioctl...0 handle",__FILE__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
   if(evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
-    throw(evioException(0,"?evioFileChannel::ioCtl...error return",__FILE__,__LINE__));
+    throw(evioException(0,"?evioFileChannel::ioCtl...error return",__FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -240,7 +272,7 @@ void evioFileChannel::ioctl(const string &request, void *argp) throw(evioExcepti
  * Closes channel.
  */
 void evioFileChannel::close(void) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::close...0 handle",__FILE__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::close...0 handle",__FILE__,__FUNCTION__,__LINE__));
   evClose(handle);
   handle=0;
 }
@@ -278,7 +310,7 @@ string evioFileChannel::getMode(void) const {
  * @return Pointer to internal buffer
  */
 const uint32_t *evioFileChannel::getBuffer(void) const throw(evioException) {
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::getbuffer...null buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"evioFileChannel::getbuffer...null buffer",__FILE__,__FUNCTION__,__LINE__));
   return(buf);
 }
 
@@ -311,7 +343,7 @@ int evioFileChannel::getBufSize(void) const {
 void *evioStreamParser::parse(const uint32_t *buf, 
                               evioStreamParserHandler &handler, void *userArg) throw(evioException) {
   
-  if(buf==NULL)throw(evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__FUNCTION__,__LINE__));
 
   return((void*)parseBank(buf,BANK,0,handler,userArg));
 }
@@ -374,7 +406,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
   default:
     ostringstream ss;
     ss << hex << showbase << bankType << ends;
-    throw(evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str(),__FILE__,__LINE__));
+    throw(evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
   }
 
 
@@ -441,7 +473,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
   default:
     ostringstream ss;
     ss << hex << showbase << contentType << ends;
-    throw(evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__LINE__));
+    throw(evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
 
   }
@@ -585,7 +617,7 @@ evioDOMNodeP evioDOMNode::move(evioDOMNodeP newParent) throw(evioException) {
   cut();
 
   evioDOMContainerNode *par = dynamic_cast<evioDOMContainerNode*>(newParent);
-  if(par==NULL)throw(evioException(0,"?evioDOMNode::move...parent node not a container",__FILE__,__LINE__));
+  if(par==NULL)throw(evioException(0,"?evioDOMNode::move...parent node not a container",__FILE__,__FUNCTION__,__LINE__));
   
   par->childList.push_back(this);
   parent=newParent;
@@ -602,7 +634,7 @@ evioDOMNodeP evioDOMNode::move(evioDOMNodeP newParent) throw(evioException) {
  */
 void evioDOMNode::addNode(evioDOMNodeP node) throw(evioException) {
   if(node==NULL)return;
-  if(!isContainer())throw(evioException(0,"?evioDOMNode::addNode...not a container",__FILE__,__LINE__));
+  if(!isContainer())throw(evioException(0,"?evioDOMNode::addNode...not a container",__FILE__,__FUNCTION__,__LINE__));
   node->move(this);
 }
 
@@ -844,7 +876,7 @@ string evioDOMContainerNode::getFooter(int depth) const {
  */
 evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(evioException) : root(NULL), name(name) {
   const uint32_t *buf = channel.getBuffer();
-  if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
 }
@@ -859,9 +891,9 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(e
  * @param name Name of tree
  */
 evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(evioException) : root(NULL), name(name) {
-  if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__LINE__));
+  if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__FUNCTION__,__LINE__));
   const uint32_t *buf = channel->getBuffer();
-  if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
 }
@@ -875,7 +907,7 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
  * @param name Name of tree
  */
 evioDOMTree::evioDOMTree(const uint32_t *buf, const string &name) throw(evioException) : root(NULL), name(name) {
-  if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__FUNCTION__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
 }
@@ -890,7 +922,7 @@ evioDOMTree::evioDOMTree(const uint32_t *buf, const string &name) throw(evioExce
  * @param name Name of tree
  */
 evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioException) : root(NULL), name(name) {
-  if(node==NULL)throw(evioException(0,"?evioDOMTree constructor...null evioDOMNode",__FILE__,__LINE__));
+  if(node==NULL)throw(evioException(0,"?evioDOMTree constructor...null evioDOMNode",__FILE__,__FUNCTION__,__LINE__));
   root=node;
   root->parentTree=this;
 }
@@ -1049,7 +1081,7 @@ void evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, uin
   default:
     ostringstream ss;
     ss << hex << showbase << contentType<< ends;
-    throw(evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__LINE__));
+    throw(evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
 
@@ -1094,7 +1126,7 @@ void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 
   } else {
     evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(root);
-    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root is not container",__FILE__,__LINE__));
+    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root is not container",__FILE__,__FUNCTION__,__LINE__));
     c->childList.push_back(node);
     node->parent=root;
   }
@@ -1141,7 +1173,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
 
   int bankLen,bankType,dataOffset;
 
-  if(size<=0)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...illegal buffer size",__FILE__,__LINE__));
+  if(size<=0)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...illegal buffer size",__FILE__,__FUNCTION__,__LINE__));
 
 
   if(pNode->parent==NULL) {
@@ -1176,7 +1208,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
   default:
     ostringstream ss;
     ss << hex << showbase << bankType<< ends;
-    throw(evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str(),__FILE__,__LINE__));
+    throw(evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
 
@@ -1191,7 +1223,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     evioDOMNodeList::const_iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       bankLen+=toEVIOBuffer(&buf[bankLen],*iter,size-bankLen-1);
-      if(bankLen>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+      if(bankLen>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
     }
 
 
@@ -1209,7 +1241,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         const evioDOMLeafNode<uint32_t> *leaf = static_cast<const evioDOMLeafNode<uint32_t>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata;
-        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         for(i=0; i<ndata; i++) buf[dataOffset+i]=(uint32_t)(leaf->data[i]);
       }
       break;
@@ -1220,7 +1252,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         string s = leaf->data[0];
         ndata = s.size();
         nword = (ndata+3)/4;
-        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         uint8_t *c = (uint8_t*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=(s.c_str())[i];
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
@@ -1233,7 +1265,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         const evioDOMLeafNode<uint16_t> *leaf = static_cast<const evioDOMLeafNode<uint16_t>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+1)/2;
-        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         uint16_t *s = (uint16_t *)&buf[dataOffset];
         for(i=0; i<ndata; i++) s[i]=static_cast<uint16_t>(leaf->data[i]);
         if((ndata%2)!=0)buf[ndata]=0;
@@ -1246,7 +1278,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         const evioDOMLeafNode<uint8_t> *leaf = static_cast<const evioDOMLeafNode<uint8_t>*>(pNode);
         ndata = leaf->data.size();
         nword = (ndata+3)/4;
-        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         uint8_t *c = (uint8_t*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=static_cast<uint8_t>(leaf->data[i]);
         for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
@@ -1260,7 +1292,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         const evioDOMLeafNode<uint64_t> *leaf = static_cast<const evioDOMLeafNode<uint64_t>*>(pNode);
         ndata = leaf->data.size();
         nword = ndata*2;
-        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__LINE__));
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         uint64_t *ll = (uint64_t*)&buf[dataOffset];
         for(i=0; i<ndata; i++) ll[i]=static_cast<uint64_t>(leaf->data[i]);
       }
@@ -1269,7 +1301,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     default:
       ostringstream ss;
       ss << pNode->contentType<< ends;
-      throw(evioException(0,"?evioDOMTree::toEVOIBuffer...illegal leaf type: " + ss.str(),__FILE__,__LINE__));
+      throw(evioException(0,"?evioDOMTree::toEVOIBuffer...illegal leaf type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
       break;
     }
 
@@ -1289,13 +1321,13 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
   case 0x20:
   case 0xc:
   case 0x40:
-    if((bankLen-1)>0xffff)throw(evioException(0,"?evioDOMTree::toEVIOBuffer...length too big for segment type",__FILE__,__LINE__));
+    if((bankLen-1)>0xffff)throw(evioException(0,"?evioDOMTree::toEVIOBuffer...length too big for segment type",__FILE__,__FUNCTION__,__LINE__));
     buf[0]|=(bankLen-1);
     break;
   default: 
     ostringstream ss;
     ss << bankType<< ends;
-    throw(evioException(0,"?evioDOMTree::toEVIOBuffer...illegal bank type setting length: " + ss.str(),__FILE__,__LINE__));
+    throw(evioException(0,"?evioDOMTree::toEVIOBuffer...illegal bank type setting length: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
 
