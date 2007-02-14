@@ -44,12 +44,18 @@ int main(int argc, char **argv) {
 
   int nread=0;
   try {
-    evioFileChannel chan("fakeEvents.dat","r");
-    chan.open();
+    evioFileChannel *chan;
+
+    if(argc>1) {
+      chan = new evioFileChannel(argv[1],"r");
+    } else {
+      chan = new evioFileChannel("fakeEvents.dat","r");
+    }
+    chan->open();
     
 
     // loop over all events in file
-    while(chan.read()) {
+    while(chan->read()) {
 
       cout << endl << " --- processing event " << ++nread << " ---" << endl;
 
@@ -136,7 +142,7 @@ int main(int argc, char **argv) {
       
 
     // done...close channel
-    chan.close();
+    chan->close();
     
 
   } catch (evioException e) {

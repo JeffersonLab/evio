@@ -9,6 +9,7 @@
 
 #include <execinfo.h>
 #include <sstream>
+#include <cxxabi.h>
 
 
 using namespace std;
@@ -32,6 +33,9 @@ namespace evio {
   }
   
   
+//--------------------------------------------------------------
+
+
   /** 
    * Returns stack trace.
    * @return String containing stack trace
@@ -40,17 +44,43 @@ namespace evio {
 #ifdef sun
     return("");
 #else
+    size_t dlen = 1024;
+    char *dname = (char*)malloc(dlen);
     void *trace[1024];
+    int status;
+
+
+    // get trace messages
     int trace_size = backtrace(trace,1024);
     if(trace_size>1024)trace_size=1024;
     char **messages = backtrace_symbols(trace, trace_size);
     
+    // demangle and create string
     stringstream ss;
     for(int i=0; i<trace_size; ++i) {
-      ss << messages[i] << endl;
+
+      // find first '(' and '+'
+      char *ppar = strchr(messages[i],'(');
+      char *pplus = strchr(messages[i],'+');
+      if((ppar!=NULL)&&(pplus!=NULL)) {
+        
+        // replace '+' with nul, then get demangled name
+        *pplus='\0';
+        abi::__cxa_demangle(ppar+1,dname,&dlen,&status);
+        
+        // add to stringstream
+        *(ppar+1)='\0';
+        *pplus='+';
+        ss << messages[i] << dname << pplus << endl;
+
+      } else {
+        ss << messages[i] << endl;
+      }
+
     }
     ss << ends;
-    
+      
+    free(dname);
     free(messages);
     return(ss.str());
   }
