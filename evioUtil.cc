@@ -71,10 +71,10 @@ namespace evio {
         // add to stringstream
         *(ppar+1)='\0';
         *pplus='+';
-        ss << messages[i] << dname << pplus << endl;
+        ss << "   " << messages[i] << dname << pplus << endl;
 
       } else {
-        ss << messages[i] << endl;
+        ss << "   " << messages[i] << endl;
       }
 
     }
