@@ -68,6 +68,8 @@ typedef struct {
   int ntag;
   int *tag;
   char *name;
+  int hasNum;
+  int num;
 } dict_entry;
 static dict_entry dict[MAXDICT];
 static int ndict          = 0;
@@ -97,6 +99,7 @@ static char *bank2_tag    = (char*)"bank";
 static int max_depth      = -1;
 static int depth          = 0;
 static int tagstack[MAXDEPTH];
+static int numstack[MAXDEPTH];
 static int no_typename    = 0;
 static int verbose        = 0;
 static int nindent        = 0;
@@ -173,6 +176,7 @@ static void startDictElement(void *userData, const char *name, const char **atts
 
   int natt=XML_GetSpecifiedAttributeCount(dictParser);
   char *tagtext,*p;
+  const char *pNum;
   int i,npt;
   int *ip;
 
@@ -205,6 +209,13 @@ static void startDictElement(void *userData, const char *name, const char **atts
   dict[ndict-1].ntag = npt+1;
   dict[ndict-1].tag  = ip;
   dict[ndict-1].name = strdup(get_char_att(atts,natt,"name"));
+  pNum=get_char_att(atts,natt,"num");  
+  if(pNum==NULL) {
+    dict[ndict-1].hasNum=0;
+  } else {
+    dict[ndict-1].hasNum=1;
+    dict[ndict-1].num=atoi(pNum);
+  }  
 
   return;
 }
@@ -283,6 +294,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
     exit(EXIT_FAILURE);
   }
   tagstack[depth-1]=tag;
+  numstack[depth-1]=num;
   is_a_container=is_container(type);
   myname=(char*)get_tagname();
   noexpand=is_a_container&&(max_depth>=0)&&(depth>max_depth);
@@ -635,24 +647,26 @@ static const char *get_char_att(const char **atts, const int natt, const char *n
 
 static const char *get_tagname() {
 
-  int i,j,ntd,nt;
+  int i,j,ntd,nt,hasNum,num;
   int match;
 
 
-  /* search dictionary for match with current tag */
+  /* search dictionary for match with current tag, and num if specified */
   for(i=0; i<ndict; i++) {
     
     ntd=dict[i].ntag;
     nt=min(ntd,depth);
+    hasNum=dict[i].hasNum;    
+    num=dict[i].num;
 
     match=1;
     for(j=0; j<nt; j++) {
       if(dict[i].tag[ntd-j-1]!=tagstack[depth-j-1]) {
-	match=0;
-	break;
+        match=0;
+        break;
       }
     }
-    if(match)return(dict[i].name);
+    if(match&&((hasNum==0)||(num==numstack[depth-1])))return(dict[i].name);
   }
 
   return(NULL);

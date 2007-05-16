@@ -41,8 +41,10 @@ namespace evio {
    * @return String containing stack trace
    */
   string getStackTrace() {
+
 #ifdef sun
     return("");
+
 #else
     size_t dlen = 1024;
     char *dname = (char*)malloc(dlen);
@@ -131,11 +133,23 @@ evioException::evioException(int typ, const string &txt, const string &file, con
  * Returns XML string listing exception object contents.
  * @return XML string listing contents
  */
-string evioException::toString(void) const {
+string evioException::toString(void) const throw() {
   ostringstream oss;
   oss << "?evioException type = " << type << "    text = " << text << endl << endl << auxText;
   if(trace.size()>0) oss << endl << endl << endl << "Stack trace:" << endl << endl << trace << endl;
   return(oss.str());
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Returns char * listing exception object contents.
+ * @return char * listing contents
+ */
+const char *evioException::what(void) const throw() {
+  return(toString().c_str());
 }
 
 

@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <functional>
 #include <utility>
+#include <exception>
 
 #ifdef SunOS
 #include <sys/param.h>
@@ -181,13 +182,14 @@ typedef pair<uint16_t, uint8_t> tagNum;  /**<STL pair of tag,num.*/
 /**
  * Basic evio exception class.  Includes integer type and two text fields.
  */
-class evioException {
+class evioException : public exception {
 
 public:
   evioException(int typ = 0, const string &txt = "", const string &aux = "");
   evioException(int typ, const string &txt, const string &file, const string &func, int line);
-  virtual ~evioException(void) {};
-  virtual string toString(void) const;
+  virtual ~evioException(void) throw() {};
+  virtual string toString(void) const throw();
+  virtual const char *what(void) const throw();
 
 
 public:

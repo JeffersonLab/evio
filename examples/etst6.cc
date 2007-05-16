@@ -57,6 +57,12 @@ int main(int argc, char **argv) {
   int i,maxev,nevents;
 
 
+  // check for file name
+  if(argc==1) {
+    cout << "Usage:  etst6 fileName max_evt" << endl << endl;
+    exit(EXIT_SUCCESS);
+  }
+
   // get max events
   if(argc==3) {
     maxev = atoi(argv[2]);
