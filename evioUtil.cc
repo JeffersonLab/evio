@@ -88,8 +88,9 @@ namespace evio {
     free(dname);
     free(messages);
     return(ss.str());
-  }
 #endif
+
+  }
 
 }  // namespace evio
 
@@ -1454,9 +1455,3 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth) co
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-
-
-// I am clueless as to why this is needed. I think cc on solaris has a bug...ejw
-#ifdef SunOS
-}
-#endif
