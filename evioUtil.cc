@@ -7,9 +7,12 @@
 
 #include "evioUtil.hxx"
 
+
+#ifndef SunOS
 #include <execinfo.h>
 #include <sstream>
 #include <cxxabi.h>
+#endif
 
 
 using namespace std;
@@ -42,7 +45,7 @@ namespace evio {
    */
   string getStackTrace() {
 
-#ifdef sun
+#ifdef SunOS
     return("");
 
 #else
@@ -60,7 +63,7 @@ namespace evio {
     // demangle and create string
     stringstream ss;
     for(int i=0; i<trace_size; ++i) {
-
+      
       // find first '(' and '+'
       char *ppar = strchr(messages[i],'(');
       char *pplus = strchr(messages[i],'+');
@@ -87,7 +90,8 @@ namespace evio {
     return(ss.str());
   }
 #endif
-}
+
+}  // namespace evio
 
 
 //-----------------------------------------------------------------------
@@ -114,7 +118,7 @@ evioException::evioException(int typ, const string &txt, const string &aux)
  * @param typ Exception type user-defined
  * @param txt Basic exception text
  * @param file __FILE__
- * @param func __FUNCTION__
+ * @param func __FUNCTION__ (not on SunOS)
  * @param line __LINE__
  */
 evioException::evioException(int typ, const string &txt, const string &file, const string &func, int line) 
@@ -1450,3 +1454,9 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth) co
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+
+
+// I am clueless as to why this is needed. I think cc on solaris has a bug...ejw
+#ifdef SunOS
+}
+#endif

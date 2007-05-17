@@ -45,6 +45,12 @@
 #endif
 
 
+#ifdef SunOS
+#define __FUNCTION__ "unknown"
+#endif
+
+
+
 /** @mainpage  EVIO Event I/O Package.
  * @author Elliott Wolin.
  * @version 2.0.
