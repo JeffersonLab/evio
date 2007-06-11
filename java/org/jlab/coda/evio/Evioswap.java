@@ -1,10 +1,11 @@
 //
-//  evioswap.java
+//  Evioswap.java
 //
 //   java equivalent of evioswap.c, but not as efficient
 //     ...note that routines with same name are subtly different from c version
 
 
+package org.jlab.coda.evio;
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
