@@ -37,7 +37,7 @@
 #include <utility>
 #include <exception>
 
-#ifdef SunOS
+#ifdef sun
 #include <sys/param.h>
 #else
 #include <stddef.h>
@@ -45,7 +45,7 @@
 #endif
 
 
-#ifdef SunOS
+#ifdef sun
 #define __FUNCTION__ "unknown"
 #endif
 
