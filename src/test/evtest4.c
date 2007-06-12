@@ -73,7 +73,7 @@ void lh(void *data, int length, int ftype, int tag, int type, int num, int depth
 
 
 
-main (argc, argv)
+int main (argc, argv)
      int argc;
      char **argv;
 {

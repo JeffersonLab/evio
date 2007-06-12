@@ -12,7 +12,7 @@
 #define MAXBUFLEN  100000
 
 
-main (int argc, char **argv) {
+int main (int argc, char **argv) {
 
   int i,loop,handle, nevents, status;
   unsigned long buf[MAXBUFLEN];

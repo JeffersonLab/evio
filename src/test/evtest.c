@@ -30,7 +30,7 @@
 int *makeEvent();
 #define MIN(a,b) (a<b)? a : b
 
-main()
+int main()
 {
   int handle,status,nevents,nlong,handle2;
   int buffer[2048],i;

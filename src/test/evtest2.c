@@ -14,7 +14,7 @@
 
 #define MAXBUFLEN  4096
 
-main (argc, argv)
+int main (argc, argv)
      int argc;
      char **argv;
 {
