@@ -8,17 +8,23 @@
  */
 
 
+#include <stdlib.h>
 #include <stdio.h>
+#include "evio.h"
+
 #define MAXBUFLEN  100000
+
+/* dummy */
+int user_frag_select(int tag) {return 1;}
 
 
 int main (int argc, char **argv) {
 
   int i,loop,handle, nevents, status;
-  unsigned long buf[MAXBUFLEN];
-  unsigned long buf2[MAXBUFLEN];
-  unsigned long buf3[MAXBUFLEN];
-  unsigned long other[MAXBUFLEN];
+  unsigned int buf[MAXBUFLEN];
+  unsigned int buf2[MAXBUFLEN];
+  unsigned int buf3[MAXBUFLEN];
+  unsigned int other[MAXBUFLEN];
   int maxev   = 0;
   int maxloop = 1;
   
@@ -51,7 +57,7 @@ int main (int argc, char **argv) {
       evioswap(buf2,1,NULL); /* buf2 is now same */
       for(i=0; i<buf[0]; i++) {
 	if(buf2[i]!=buf[i]) {
-	  printf("?error event %d word %d in: %d same %d (%x)\n",
+	  printf("?error event %d word %d in: %u same %u (%x)\n",
 		 nevents,i,buf[i],buf2[i],buf2[i]);
 	}
       }
@@ -59,7 +65,7 @@ int main (int argc, char **argv) {
       evioswap(buf2,0,NULL); /* buf2 is now other */
       for(i=0; i<buf[0]; i++) {
 	if(buf2[i]!=other[i]) {
-	  printf("?error event %d word %d in: %d other %d (%x)\n",
+	  printf("?error event %d word %d in: %u other %u (%x)\n",
 		 nevents,i,buf2[i],other[i],other[i]);
 	}
       }
@@ -69,7 +75,7 @@ int main (int argc, char **argv) {
     
     for(i=0; i<buf[0]; i++) {
       if(buf3[i]!=buf[i]) {
-	printf("?error event %d word %d in: %d same %d (%x)\n",
+	printf("?error event %d word %d in: %u same %u (%x)\n",
 	       nevents,i,buf[i],buf3[i],buf3[i]);
       }
     }

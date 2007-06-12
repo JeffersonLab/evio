@@ -1,18 +1,23 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <evio.h>
 
 #define MAXBUFLEN  4096
 
+/* dummy */
+int user_frag_select(int tag) {return 1;}
 
 
-void nh(int length, int ftype, int tag, int type, int num, int depth) {
+
+
+void nh(int length, int ftype, int tag, int type, int num, int depth, void *userArg) {
   printf("node   depth %2d  ftype %3d   type,tag,num,length:  %6d %6d %6d %6d\n",
          depth,ftype,type,tag,num,length);
 } 
 
-void lh(void *data, int length, int ftype, int tag, int type, int num, int depth) {
+void lh(void *data, int length, int ftype, int tag, int type, int num, int depth, void *userArg) {
 
-  long *l;
+  int *l;
   short *s;
   char *c;
   float *f;
@@ -27,7 +32,7 @@ void lh(void *data, int length, int ftype, int tag, int type, int num, int depth
   case 0x0:
   case 0x1:
   case 0xb:
-    l=(long*)(&data[0]);
+    l=(int*)(&data[0]);
     printf("%d %d\n",l[0],l[1]);
     break;
 
@@ -78,7 +83,7 @@ int main (argc, argv)
      char **argv;
 {
   int handle, nevents, status;
-  unsigned long buf[MAXBUFLEN];
+  unsigned int buf[MAXBUFLEN];
   int maxev =0;
   
 
@@ -106,7 +111,7 @@ int main (argc, argv)
   while ((status=evRead(handle,buf,MAXBUFLEN))==0) {
     nevents++;
     printf("  *** event %d len %d type %d ***\n",nevents,buf[0],(buf[1]&0xffff0000)>>16);
-    evio_parse(buf,nh,lh);
+    evio_stream_parse(buf,nh,lh,NULL);
     if((nevents >= maxev) && (maxev != 0)) break;
   }
 

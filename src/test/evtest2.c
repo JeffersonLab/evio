@@ -10,16 +10,22 @@
 *                                                *
 **************************************************/
 
+#include <stdlib.h>
 #include <stdio.h>
+#include "evio.h"
 
 #define MAXBUFLEN  4096
+
+/* dummy */
+int user_frag_select(int tag) {return 1;}
+
 
 int main (argc, argv)
      int argc;
      char **argv;
 {
   int handle, nevents, status;
-  unsigned long buf[MAXBUFLEN];
+  unsigned int buf[MAXBUFLEN];
   int maxev =0;
   
 
@@ -46,7 +52,7 @@ int main (argc, argv)
   nevents=0;
   while ((status=evRead(handle,buf,MAXBUFLEN))==0) {
     nevents++;
-    printf("  event %d len %d type %d\n",nevents,buf[0],(buf[1]&0xffff0000)>>16);
+    printf("  event %d len %u type %u\n",nevents,buf[0],(buf[1]&0xffff0000)>>16);
     if((nevents >= maxev) && (maxev != 0)) break;
   }
 

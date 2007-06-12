@@ -14,21 +14,17 @@
  *	
  * Author:  Chip Watson, CEBAF Data Acquisition Group
  *
- * Revision History:
- *   $Log: evtest.c,v $
- *   Revision 1.1.1.1  1996/09/19 18:25:20  chen
- *   original port to solaris
- *
- *	  Revision 1.2  1992/07/14  19:14:18  watson
- *	  Make test event more complex
- *
- *	  Revision 1.1  1992/07/08  18:28:48  watson
- *	  Initial revision
- *
  */
+ 
+#include <stdlib.h>
+#include <stdio.h>
+#include "evio.h"
 
 int *makeEvent();
 #define MIN(a,b) (a<b)? a : b
+
+/* dummy */
+int user_frag_select(int tag) {return 1;}
 
 int main()
 {
