@@ -137,6 +137,8 @@ int find_tag(const char **atts, const int natt, const char *tag);
 int get_int_tag(const char **atts, const int natt, const char *tag, int *val);
 const char *get_char_tag(const char **atts, const int natt, const char *tag);
 
+/* dummy */
+int user_frag_select(int tag) {return 1;}
 
 /*--------------------------------------------------------------------------*/
 
