@@ -17,6 +17,10 @@ using namespace std;
 static vector<int32_t> i1,i2;
 
 
+/* dummy */
+extern "C" {
+  int user_frag_select(int tag) {return 1;}
+}
 
 //--------------------------------------------------------------
 //--------------------------------------------------------------

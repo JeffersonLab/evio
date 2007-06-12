@@ -26,7 +26,10 @@ int32_t ibuf[100];
 int64_t lbuf[100];
 double dbuf[100];
 
-
+/* dummy */
+extern "C" {
+  int user_frag_select(int tag) {return 1;}
+}
 
 int main(int argc, char **argv) {
   

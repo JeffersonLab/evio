@@ -23,6 +23,11 @@ vector<int32_t> lVec;
 evioDOMNodeP parent;
 
 
+/* dummy */
+extern "C" {
+  int user_frag_select(int tag) {return 1;}
+}
+
 //-------------------------------------------------------------------------------
 
 
