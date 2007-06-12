@@ -118,6 +118,12 @@ static const char *get_tagname();
 static void indent(void);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
 
+ /*
+     If you do xml dumping, then you will need to supply this routine.
+     The shared lib needs this function even if you don't call it. So
+     supply a dummy if you want your executable to compile. If you use
+     a static lib, this problem does not occur.
+ */
 int user_frag_select(int tag);
 
 
