@@ -14,93 +14,12 @@
  *	
  * Author:  Chip Watson, CEBAF Data Acquisition Group
  * Modified: Stephen A. Wood, TJNAF Hall C
- *      Works on ALPHA 64 bit machines if BIT64 is defined
+ *      Works on ALPHA 64 bit machines if _LP64 is defined
  *      Will read input from standard input if filename is "-"
  *      If input filename is "|command" will take data from standard output
  *                        of command.
  *      If input file is compressed and uncompressible with gunzip, it will
  *                        decompress the data on the fly.
- * Modified: E.Wolin, JLab DAQ group 19-jun-2001
- *
- *
- * Revision History:
- *   $Log: evio.c,v $
- *   Revision 1.17  2007/01/09 16:09:26  wolin
- *   Minor mods for solaris
- *
- *   Revision 1.16  2006/12/12 14:51:31  wolin
- *   Now using unsigned int
- *
- *   Revision 1.15  2006/08/18 15:10:47  wolin
- *   Added prototypes
- *
- *   Revision 1.14  2005/10/07 18:32:48  wolin
- *   Added some const
- *
- *   Revision 1.13  2005/10/07 13:35:22  wolin
- *   unsigned long *
- *
- *   Revision 1.12  2005/10/07 13:30:03  wolin
- *   Typo in writing to pipe
- *
- *   Revision 1.11  2003/12/24 15:18:37  abbottd
- *     fix for vxWorks(PPC) support
- *
- *   Revision 1.10  2003/12/01 19:24:34  wolin
- *   Fix comments
- *
- *   Revision 1.9  2003/12/01 19:18:21  wolin
- *   Typo
- *
- *   Revision 1.8  2003/12/01 18:47:44  wolin
- *   Now using evioswap
- *
- *   Revision 1.7  2002/08/27 15:37:48  wolin
- *   Fixed out of place brace, endif comments, case NULL, and did some minor code reformmating
- *
- *   Revision 1.6  2001/09/13 16:01:41  wolin
- *   Fixed evIoctl
- *
- *   Revision 1.3  1999/11/04 20:30:48  saw
- *   Add code to write coda output to stdout or pipes
- *
- *   Revision 1.2  1998/12/01 13:54:12  saw
- *   (saw) Alpha 64 bit fixes, input from std input, pipes and compressed
- *   files
- *
- *   Revision 1.1  1996/12/19 14:05:02  saw
- *   Initial revision
- *
- *	  Revision 1.5  1994/08/15  15:45:09  chen
- *	  add evnum to EVFILE structure. Keep event number when call evWrite
- *
- *	  Revision 1.4  1994/08/12  17:14:55  chen
- *	  check event type explicitly
- *
- *	  Revision 1.3  1994/06/17  16:11:12  chen
- *	  fix a bug when there is a single special event in the last block
- *
- *	  Revision 1.2  1994/05/12  15:38:37  chen
- *	  In case a wrong data format, close file and free memory
- *
- *	  Revision 1.1  1994/04/11  13:07:06  chen
- *	  Initial revision
- *
- *	  Revision 1.6  1993/11/16  20:57:27  chen
- *	  stronger type casting for swapped_memecpy
- *
- *	  Revision 1.5  1993/11/09  18:21:58  chen
- *	  fix a bug
- *
- *	  Revision 1.4  1993/11/09  18:16:49  chen
- *	  add binary search routines
- *
- *	  Revision 1.3  1993/11/03  16:40:55  chen
- *	  cosmatic change
- *
- *	  Revision 1.2  1993/11/03  16:39:39  chen
- *	  add bytpe_swapped flag to EVFILE struct
- *
  *
  * Routines
  * --------
@@ -110,14 +29,6 @@
  *	evRead(int descriptor,int *data,int *datalen)
  *	evClose(int descriptor)
  *	evIoctl(int descriptor,char *request, void *argp)
- *
- *
- * Modifications
- * -------------
- *  17-dec-91 cw started coding streams version with local buffers
- *  21-jun-01 ejw version 2 supports tagsegments, long long, no more VAX types, etc.
- *  24-nov-03 ejw using evioswap instead of old swap_util
- *   1-dec-03 ejw conversion to evioswap tested and complete
  *
  */
 
@@ -189,11 +100,11 @@ extern unsigned int *swap_long(unsigned int *data, unsigned int length, unsigned
 
 
 #if defined(__osf__) && defined(__alpha)
-#define BIT64
+#define _LP64
 #endif
 
 
-#ifdef BIT64
+#ifdef _LP64
 #define MAXHANDLES 10
 EVFILE *handle_list[10]={0,0,0,0,0,0,0,0,0,0};
 #endif
@@ -245,13 +156,14 @@ static char *kill_trailing(char *s, char t)
 int evOpen(char *fname,char *flags,int *handle)
 {
   
-#ifdef BIT64
+#ifdef _LP64
   int ihandle;
 #endif
   EVFILE *a;
+#if 0
   char *cp;
+#endif
   int header[EV_HDSIZ];
-  int i;
   int temp,blk_size;
   char *filename;
   
@@ -291,7 +203,6 @@ int evOpen(char *fname,char *flags,int *handle)
     } else {
       a->file = fopen(filename,"r");
       if(a->file) {
-	int compressed;
 	char bytes[2];
 	fread(bytes,2,1,a->file); /* Check magic bytes for compressions */
 	if(bytes[0]=='\037' && (bytes[1]=='\213' || bytes[1]=='\235')) {
@@ -402,7 +313,7 @@ int evOpen(char *fname,char *flags,int *handle)
     a->magic = EV_MAGIC;
     a->blksiz = a->buf[EV_HD_BLKSIZ];
     a->blknum = a->buf[EV_HD_BLKNUM];
-#ifdef BIT64
+#ifdef _LP64
     for(ihandle=0;ihandle<MAXHANDLES;ihandle++) {
       if(handle_list[ihandle]==0) {
 	handle_list[ihandle] = a;
@@ -457,7 +368,7 @@ int evRead(int handle, unsigned int *buffer,int buflen)
   int nleft,ncopy,error,status;
   int *temp_buffer,*temp_ptr;
 
-#ifdef BIT64
+#ifdef _LP64
   a = handle_list[handle-1];
 #else
   a = (EVFILE *)handle;
@@ -513,7 +424,7 @@ int evRead(int handle, unsigned int *buffer,int buflen)
 int evGetNewBuffer(a)
      EVFILE *a;
 {
-  int i,nread,status;
+  int nread,status;
   status = S_SUCCESS;
   if (feof(a->file)) return(EOF);
   clearerr(a->file);
@@ -565,7 +476,7 @@ int evWrite(int handle, const unsigned int *buffer)
 {
   EVFILE *a;
   int nleft,ncopy,error;
-#ifdef BIT64
+#ifdef _LP64
   a = handle_list[handle-1];
 #else
   a = (EVFILE *)handle;
@@ -641,7 +552,7 @@ int evioctl_
 int evIoctl(int handle,char *request,void *argp)
 {
   EVFILE *a;
-#ifdef BIT64
+#ifdef _LP64
   a = handle_list[handle-1];
 #else
   a = (EVFILE *)handle;
@@ -704,7 +615,7 @@ int evClose(int handle)
 {
   EVFILE *a;
   int status, status2;
-#ifdef BIT64
+#ifdef _LP64
   a = handle_list[handle-1];
 #else
   a = (EVFILE *)handle;
@@ -723,7 +634,7 @@ int evClose(int handle)
   }
 #endif
 
-#ifdef BIT64
+#ifdef _LP64
   handle_list[handle-1] = 0;
 #endif
   free((char *)(a->buf));
@@ -744,16 +655,16 @@ int evClose(int handle)
  *****************************************************************/
 int evOpenSearch(int handle, int *b_handle)
 {
-#ifdef BIT64
+#ifdef _LP64
   int ihandle;
 #endif
   EVFILE *a;
   EVBSEARCH *b;
-  int    found = 0, temp, status, i = 1;
-  int    last_evn,  ev_type, bknum;
+  int    found = 0, temp, i = 1;
+  int    last_evn, bknum;
   int    header[EV_HDSIZ];
 
-#ifdef BIT64
+#ifdef _LP64
   a = handle_list[handle-1];
 #else
   a = (EVFILE *)handle;
@@ -787,7 +698,7 @@ int evOpenSearch(int handle, int *b_handle)
   b->found_bk = -1;
   b->found_evn = -1;
   b->last_evn = last_evn;
-#ifdef BIT64
+#ifdef _LP64
   for(ihandle=0;ihandle<MAXHANDLES;ihandle++) {
     if(handle_list[ihandle]==0) {
       handle_list[ihandle] = (EVFILE *)b;
@@ -818,8 +729,8 @@ int evOpenSearch(int handle, int *b_handle)
  ********************************************************************/
 static int findLastEventWithinBlock(EVFILE *a)
 {
-  int header, t_header, found = 0;
-  int ev_size, temp, evn = 0, last_evn = 0;
+  int header, found = 0;
+  int ev_size, evn = 0, last_evn = 0;
   int ev_type;
   int first_time = 0;
   
@@ -895,7 +806,7 @@ int evSearch(int handle, int b_handle, int evn, int *buffer, int buflen, int *si
   int       start,end, mid;
   int       found;
 
-#ifdef BIT64
+#ifdef _LP64
   a = handle_list[handle-1];
   b = (EVBSEARCH *)handle_list[b_handle-1];
 #else
@@ -967,10 +878,8 @@ int evSearch(int handle, int b_handle, int evn, int *buffer, int buflen, int *si
 static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum, 
 			       int evn, int *buffer, int buflen, int *size)
 {
-  int header[EV_HDSIZ], temp, ev_size;
-  int buf[EV_HDSIZ], status;
-  int found = 0, t_evn, block_num;
-  int ev_type, t_temp;
+  int temp, ev_size, status;
+  int found = 0, t_evn, block_num, ev_type;
 
   evFindEventBlockNum(a, b, bknum);
   block_num = *bknum;
@@ -1062,9 +971,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
  *******************************************************************/
 static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
 {
-  int header[EV_HDSIZ], block_num;
-  int buf[EV_HDSIZ];
-  int found = 0, temp, nleft;
+  int header[EV_HDSIZ], buf[EV_HDSIZ], block_num, nleft;
 
   block_num = *bknum;
   while(block_num <= b->ebk) {
@@ -1164,7 +1071,7 @@ static int isRealEventsInsideBlock(EVFILE *a, int bknum, int old_left)
 static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
 {
   int *temp_buffer, *temp_ptr, *ptr;
-  int status, nleft, temp, block_left;
+  int status, nleft, block_left;
   int ncopy;
 
 
@@ -1248,13 +1155,14 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
 int evCloseSearch(int b_handle)
 {
   EVBSEARCH *b;
-#ifdef BIT64
+#ifdef _LP64
   b = (EVBSEARCH *)handle_list[b_handle-1];
   handle_list[b_handle-1] = 0;
 #else
   b = (EVBSEARCH *)b_handle;
 #endif
   free((char *)b);
+  return 1; /* added to get rid of compile warning - CT */
 }
 
 
