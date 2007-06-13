@@ -11,7 +11,7 @@ endif
 # directory.
 TOPLEVEL = ../..
 
-PACKAGES = evio
+PACKAGES = evio:expat
 MODULE_NAME = evio
 
 CFLAGS   += -I../libsrc
