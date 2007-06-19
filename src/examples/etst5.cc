@@ -12,10 +12,6 @@
 using namespace evio;
 using namespace std;
 
-/* dummy */
-extern "C" {
-  int user_frag_select(int tag) {return 1;}
-}
 
 //--------------------------------------------------------------
 //--------------------------------------------------------------

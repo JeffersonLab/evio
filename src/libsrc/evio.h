@@ -36,6 +36,8 @@ typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, in
 extern "C" {
 #endif
 
+void set_user_frag_select_func( int (*f) (int tag) );
+
 int evOpen(char *fileName, char *mode, int *handle);
 int evRead(int handle, unsigned int *buffer, int size);
 int evWrite(int handle, const unsigned int *buffer);

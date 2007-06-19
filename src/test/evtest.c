@@ -23,8 +23,6 @@
 int *makeEvent();
 #define MIN(a,b) (a<b)? a : b
 
-/* dummy */
-int user_frag_select(int tag) {return 1;}
 
 int main()
 {

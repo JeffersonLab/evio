@@ -23,10 +23,6 @@ double dBuf[100];
 int iBuf[100];
 vector<int32_t> lVec;
 
-/* dummy */
-extern "C" {
-  int user_frag_select(int tag) {return 1;}
-}
 
 //-------------------------------------------------------------------------------
 

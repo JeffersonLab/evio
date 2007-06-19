@@ -16,8 +16,6 @@
 
 #define MAXBUFLEN  4096
 
-/* dummy */
-int user_frag_select(int tag) {return 1;}
 
 
 int main (argc, argv)

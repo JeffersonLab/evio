@@ -50,9 +50,6 @@ static int debug          = 0;
 void decode_command_line(int argc, char **argv);
 int user_event_select(unsigned int *buf);
 
-/* dummy */
-int user_frag_select(int tag) {return 1;}
-
 /*--------------------------------------------------------------------------*/
 
 

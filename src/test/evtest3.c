@@ -14,8 +14,6 @@
 
 #define MAXBUFLEN  100000
 
-/* dummy */
-int user_frag_select(int tag) {return 1;}
 
 
 int main (int argc, char **argv) {

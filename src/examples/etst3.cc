@@ -23,10 +23,6 @@ vector<uint32_t> uVec1,uVec2;
 double dBuf[100];
 vector<int32_t> lVec;
 
-/* dummy */
-extern "C" {
-  int user_frag_select(int tag) {return 1;}
-}
 
 //-------------------------------------------------------------------------------i
 
