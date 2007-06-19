@@ -47,8 +47,7 @@ javaDistClean:
 
 doc:
 	ant javadoc;
-	export TOPLEVEL=$(TOPLEVEL); doxygen doc/doxygen/DoxyfileC
-	export TOPLEVEL=$(TOPLEVEL); doxygen doc/doxygen/DoxyfileCC
+	export TOPLEVEL=$(TOPLEVEL); doxygen doc/doxygen/Doxyfile
 	cd doc; $(MAKE) -f $(MAKEFILE);
 
 tar:
