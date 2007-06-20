@@ -4,15 +4,6 @@
 
 MAKEFILE = Makefile
 
-# if using vxworks, use different set of the lowest level makefiles
-ifeq ($(OS), vxworks)
-  ifdef ARCH
-    MAKEFILE = Makefile.$(OS)-$(ARCH)
-  else
-    $(error "Need to define ARCH if using OS = vxworks")
-  endif
-endif
-
 # define TOPLEVEL for use in making doxygen docs
 TOPLEVEL = .
 
@@ -59,3 +50,10 @@ tar:
 	@for i in $(SRC_DIRS); do \
 	   $(MAKE) -C $$i -f $(MAKEFILE) $@; \
 	done;
+        
+# If vxworks, overwrite above pattern rule to print message and return.
+# This must come AFTER above rule.
+ifeq ($(OS), vxworks)
+  %:
+	@echo "No vxworks stuff in evio package"
+endif
