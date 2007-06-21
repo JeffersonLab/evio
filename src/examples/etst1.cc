@@ -27,7 +27,6 @@ int64_t lbuf[100];
 double dbuf[100];
 
 
-
 int main(int argc, char **argv) {
   
   // fill fake data buffers

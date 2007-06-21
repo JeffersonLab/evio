@@ -48,8 +48,7 @@ static int debug          = 0;
 
 /* prototypes */
 void decode_command_line(int argc, char **argv);
-int user_event_select();
-
+int user_event_select(unsigned int *buf);
 
 /*--------------------------------------------------------------------------*/
 

@@ -8,7 +8,7 @@
 #include "evioUtil.hxx"
 
 
-#ifndef SunOS
+#ifndef sun
 #include <execinfo.h>
 #include <sstream>
 #include <cxxabi.h>
@@ -45,7 +45,7 @@ namespace evio {
    */
   string getStackTrace() {
 
-#ifdef SunOS
+#ifdef sun
     return("");
 
 #else
@@ -119,7 +119,7 @@ evioException::evioException(int typ, const string &txt, const string &aux)
  * @param typ Exception type user-defined
  * @param txt Basic exception text
  * @param file __FILE__
- * @param func __FUNCTION__ (not on SunOS)
+ * @param func __FUNCTION__ (not on sun)
  * @param line __LINE__
  */
 evioException::evioException(int typ, const string &txt, const string &file, const string &func, int line) 

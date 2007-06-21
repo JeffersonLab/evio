@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <evio.h>
 
 
 /*  misc variables */
@@ -61,9 +62,6 @@ void evio_xmldump_done(char *string, int len);
 void writeit(FILE *f, char *s, int len);
 int user_event_select(unsigned int *buf);
 int user_frag_select(int tag);
-int evOpen(const char *filename, const char *mode, int *handle);
-int evRead(int handle, unsigned int *buf, int maxbuflen );
-int evClose(int handle);
 FILE *gzopen(char*,char*);
 void gzclose(FILE*);
 void gzwrite(FILE*,char*,int);
@@ -114,9 +112,10 @@ int main (int argc, char **argv) {
       out=(FILE*)gzopen(outfilename,"wb");
     }  
   }
-
+  
 
   /* init xmldump */
+  set_user_frag_select_func(user_frag_select);
   evio_xmldump_init(dictfilename);
   sprintf(s,"<!-- xml boilerplate needs to go here -->\n\n");
   writeit(out,s,strlen(s));

@@ -118,7 +118,8 @@ static const char *get_tagname();
 static void indent(void);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
 
-int user_frag_select(int tag);
+/* user supplied fragment select function via set_user_frag_select_func(int (*f) (int tag)) */
+static int (*USER_FRAG_SELECT_FUNC) (int tag) = NULL;
 
 
 /*--------------------------------------------------------------------------*/
@@ -244,6 +245,15 @@ void evio_xmldump(unsigned int *buf, int bufnum, char *string, int len) {
 /*---------------------------------------------------------------- */
 
 
+void set_user_frag_select_func( int (*f) (int tag) ) {
+  USER_FRAG_SELECT_FUNC = f;
+  return;
+}
+
+
+/*---------------------------------------------------------------- */
+
+
 static void dump_fragment(unsigned int *buf, int fragment_type) {
 
   int length,type,is_a_container,noexpand;
@@ -284,7 +294,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 
 
   /* user selection on fragment tags (not on event tag) */
-  if((depth>0)&&(user_frag_select(tag)==0))return;
+  if( (depth>0) && (USER_FRAG_SELECT_FUNC != NULL) && (USER_FRAG_SELECT_FUNC(tag)==0) )return;
 
 
   /* update depth, tagstack, etc. */
