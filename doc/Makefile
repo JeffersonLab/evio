@@ -20,8 +20,8 @@ include $(BMS_HOME)/Makefile.common
 all: doc install
 
 install:
-	@mkdir -p $(INSTALL_DIR)/doc/evio
-	cp -rp doxygen $(INSTALL_DIR)/doc/evio
+	@mkdir -p $(INSTALL_DIR)/doc/evio/doxygen
+	cp -rp doxygen/html $(INSTALL_DIR)/doc/evio/doxygen
 
 doc:
 	export TOPLEVEL=$(TOPLEVEL) ; doxygen doxygen/Doxyfile
