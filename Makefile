@@ -8,7 +8,7 @@ MAKEFILE = Makefile
 TOPLEVEL = .
 
 # list directories in which there are makefiles to be run (relative to this one)
-SRC_DIRS = src/libsrc src/libsrc++ src/execsrc src/examples
+SRC_DIRS = src/libsrc src/libsrc++ src/execsrc
 
 # declaring a target phony skips the implicit rule search and saves time
 .PHONY : first help java javaClean javaDistClean doc tar
