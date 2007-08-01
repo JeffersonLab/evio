@@ -89,7 +89,9 @@ static int n64          = 2;
 static int w8           = 4;
 static int w16          = 9;
 static int w32          = 14;
+static int p32          = 6;
 static int w64          = 28;
+static int p64          = 20;
 
 
 /*  misc variables */
@@ -394,7 +396,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
   nindent+=indent_size;
 
 
-  /* dump data in if no expansion, even if this is a container */
+  /* dump data if no expansion, even if this is a container */
   if(noexpand) {
     sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
     for(i=0; i<length; i+=n32) {
@@ -425,7 +427,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     break;
 
   case 0x2:
-    sprintf(format,"%%#%df ",w32);
+    sprintf(format,"%%#%d.%df ",w32,p32);
     for(i=0; i<length; i+=n32) {
       indent();
       for(j=i; j<min(i+n32,length); j++) {
@@ -491,7 +493,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     break;
 
   case 0x8:
-    sprintf(format,"%%#%d.20e ",w64);
+    sprintf(format,"%%#%d.%de ",w64,p64);
     for(i=0; i<length/2; i+=n64) {
       indent();
       for(j=i; j<min(i+n64,length/2); j++) {
@@ -795,9 +797,31 @@ int set_w32(int val) {
 /*---------------------------------------------------------------- */
 
 
+int set_p32(int val) {
+
+  p32=val;
+  return(0);
+
+}
+
+
+/*---------------------------------------------------------------- */
+
+
 int set_w64(int val) {
 
   w64=val;
+  return(0);
+
+}
+
+
+/*---------------------------------------------------------------- */
+
+
+int set_p64(int val) {
+
+  p64=val;
   return(0);
 
 }

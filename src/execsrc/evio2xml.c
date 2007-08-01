@@ -227,6 +227,7 @@ void decode_command_line(int argc, char**argv) {
     "           [-ev evtag] [-noev evtag] [-frag frag] [-nofrag frag] [-max_depth max_depth]\n"
     "           [-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]\n"
     "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
+    "           [-p32 p32] [-p64 p64]\n"
     "           [-verbose] [-xtod] [-m main_tag] [-e event_tag]\n"
     "           [-indent indent_size] [-no_typename] [-debug]\n"
     "           [-out outfilenema] [-gz] filename\n";
@@ -354,8 +355,16 @@ void decode_command_line(int argc, char**argv) {
       set_w32(atoi(argv[i+1]));
       i=i+2;
 
+    } else if (strncasecmp(argv[i],"-p32",4)==0) {
+      set_p32(atoi(argv[i+1]));
+      i=i+2;
+
     } else if (strncasecmp(argv[i],"-w64",4)==0) {
       set_w64(atoi(argv[i+1]));
+      i=i+2;
+
+    } else if (strncasecmp(argv[i],"-p64",4)==0) {
+      set_p64(atoi(argv[i+1]));
       i=i+2;
 
     } else if (strncasecmp(argv[i],"-m",2)==0) {
