@@ -8,7 +8,7 @@
 #include "evioUtil.hxx"
 
 
-#ifndef sun
+#ifdef linux
 #include <execinfo.h>
 #include <sstream>
 #include <cxxabi.h>
@@ -45,7 +45,7 @@ namespace evio {
    */
   string getStackTrace() {
 
-#ifdef sun
+#ifndef linux
     return("");
 
 #else
