@@ -83,7 +83,6 @@ namespace evio {
       }
 
     }
-    ss << ends;
       
     free(dname);
     free(messages);
@@ -126,7 +125,7 @@ evioException::evioException(int typ, const string &txt, const string &file, con
   : type(typ), text(txt), trace(getStackTrace()) {
 
   ostringstream oss;
-  oss <<  "    evioException occured in file " << file << ", function " << func << ", line " << line << ends;
+  oss <<  "    evioException occured in file " << file << ", function " << func << ", line " << line;
   auxText=oss.str();
 }
 
@@ -454,7 +453,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
 
   default:
     ostringstream ss;
-    ss << hex << showbase << bankType << ends;
+    ss << hex << showbase << bankType;
     throw(evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
   }
 
@@ -521,7 +520,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
 
   default:
     ostringstream ss;
-    ss << hex << showbase << contentType << ends;
+    ss << hex << showbase << contentType;
     throw(evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
 
@@ -1090,7 +1089,6 @@ void evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, uin
       
   case 0x3:
     for(int i=0; i<length; i++) os << ((char*)data)[i];
-    os << ends;
     s=os.str();
     newLeaf = evioDOMNode::createEvioDOMNode(tag,num,&s,1);
     break;
@@ -1129,7 +1127,7 @@ void evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, uin
 
   default:
     ostringstream ss;
-    ss << hex << showbase << contentType<< ends;
+    ss << hex << showbase << contentType;
     throw(evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
@@ -1256,7 +1254,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     break;
   default:
     ostringstream ss;
-    ss << hex << showbase << bankType<< ends;
+    ss << hex << showbase << bankType;
     throw(evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
@@ -1349,7 +1347,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
 
     default:
       ostringstream ss;
-      ss << pNode->contentType<< ends;
+      ss << pNode->contentType;
       throw(evioException(0,"?evioDOMTree::toEVOIBuffer...illegal leaf type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
       break;
     }
@@ -1375,7 +1373,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     break;
   default: 
     ostringstream ss;
-    ss << bankType<< ends;
+    ss << bankType;
     throw(evioException(0,"?evioDOMTree::toEVIOBuffer...illegal bank type setting length: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
