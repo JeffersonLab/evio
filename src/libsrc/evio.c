@@ -193,6 +193,10 @@ int evOpen(char *fname,char *flags,int *handle)
 #ifdef VXWORKS
     a->file = fopen(filename,"r");
     a->rw = EV_READ;
+#else
+#ifdef _MSC_VER
+    a->file = fopen(filename,"r");
+    a->rw = EV_READ;
 #else   /* No pipe or zip/unzip support in vxWorks */
     a->rw = EV_READ;
     if(strcmp(filename,"-")==0) {
@@ -220,6 +224,7 @@ int evOpen(char *fname,char *flags,int *handle)
 	}
       }
     }
+#endif
 #endif
     if (a->file) {
       fread(header,sizeof(header),1,a->file); /* update: check nbytes return */
@@ -269,6 +274,10 @@ int evOpen(char *fname,char *flags,int *handle)
     a->file = fopen(filename,"w");
     a->rw = EV_WRITE;
 #else
+#ifdef _MSC_VER
+    a->file = fopen(filename,"r");
+    a->rw = EV_READ;
+#else
     a->rw = EV_WRITE;
     if(strcmp(filename,"-")==0) {
       a->file = stdout;
@@ -279,7 +288,8 @@ int evOpen(char *fname,char *flags,int *handle)
       a->file = fopen(filename,"w");
     }
 #endif
-    if (a->file) {
+#endif
+		if (a->file) {
       a->buf = (int *) malloc(EVBLOCKSIZE*4);
       if (!(a->buf)) {
 	free(a);
@@ -627,13 +637,16 @@ int evClose(int handle)
 #ifdef VXWORKS
   status2 = fclose(a->file);
 #else
+#ifdef _MSC_VER
+  status2 = fclose(a->file);
+#else
   if(a->rw == EV_PIPE) {
     status2 = pclose(a->file);
   } else {
     status2 = fclose(a->file);
   }
 #endif
-
+#endif
 #ifdef _LP64
   handle_list[handle-1] = 0;
 #endif

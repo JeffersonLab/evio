@@ -41,8 +41,14 @@
 #include <sys/param.h>
 #else
 #include <stddef.h>
-#include <stdint.h>
+#ifdef _MSC_VER
+   typedef __int64 int64_t;	// Define it from MSVC's internal type
+   #include "inttypes.h"
+#else
+   #include <stdint.h>		  // Use the C99 official header
 #endif
+#endif
+
 
 
 #ifdef sun

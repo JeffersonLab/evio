@@ -8,10 +8,12 @@
 #include "evioUtil.hxx"
 
 
-#ifdef linux
-#include <execinfo.h>
-#include <sstream>
-#include <cxxabi.h>
+#ifndef sun
+  #ifndef _MSC_VER
+    #include <execinfo.h>
+    #include <cxxabi.h>
+  #endif
+  #include <sstream>
 #endif
 
 
@@ -45,9 +47,11 @@ namespace evio {
    */
   string getStackTrace() {
 
-#ifndef linux
+#ifdef sun
     return("");
-
+#endif
+#ifdef _MSC_VER
+    return("");
 #else
     size_t dlen = 1024;
     char *dname = (char*)malloc(dlen);
