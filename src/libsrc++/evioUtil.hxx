@@ -529,7 +529,8 @@ public:
 
 
 public:
-  void toEVIOBuffer(uint32_t *buf, int size) const throw(evioException);
+  int getSerializedLength(void) const throw(evioException);
+  int toEVIOBuffer(uint32_t *buf, int size) const throw(evioException);
 
 
 public:
@@ -543,6 +544,7 @@ public:
 
 private:
   evioDOMNodeP parse(const uint32_t *buf) throw(evioException);
+  int getSerializedLength(const evioDOMNodeP pNode) const throw(evioException);
   int toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
   template <class Predicate> evioDOMNodeList *addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
     throw(evioException);

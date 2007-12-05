@@ -1201,12 +1201,149 @@ evioDOMTree& evioDOMTree::operator<<(evioDOMNodeP node) throw(evioException) {
 
 
 /** 
+ * Gets serialized length of tree.
+ * @return Size of serialized tree in words
+ */
+int evioDOMTree::getSerializedLength(void) const throw(evioException) {
+  return(getSerializedLength(root));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Serializes tree to buffer.
  * @param buf Buffer that receives serialized tree
  * @param size Size of buffer
+ * @return Size of serialized buffer in words
  */
-void evioDOMTree::toEVIOBuffer(uint32_t *buf, int size) const throw(evioException) {
-  toEVIOBuffer(buf,root,size);
+int evioDOMTree::toEVIOBuffer(uint32_t *buf, int size) const throw(evioException) {
+  return(toEVIOBuffer(buf,root,size));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Gets serialized length of node, used internally.
+ * @param pNode Node to serialize
+ * @return Size of serialized node
+ */
+int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioException) {
+
+  int bankLen,bankType,dataOffset;
+
+  if(pNode->parent==NULL) {
+    bankType=BANK;
+  } else {
+    bankType=pNode->parent->contentType;
+  }
+
+
+  // add bank header word(s)
+  switch (bankType) {
+
+  case 0xe:
+  case 0x10:
+    dataOffset=2;
+    break;
+  case 0xc:
+  case 0xd:
+  case 0x20:
+  case 0x40:
+    dataOffset=1;
+    break;
+  default:
+    ostringstream ss;
+    ss << hex << showbase << bankType;
+    throw(evioException(0,"evioDOMTree::getSerializedLength...illegal bank type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
+    break;
+  }
+
+
+  // set starting length
+  bankLen=dataOffset;
+
+
+  // loop over contained nodes if container node
+  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+  if(c!=NULL) {
+    evioDOMNodeList::const_iterator iter;
+    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+      bankLen+=getSerializedLength(*iter);
+    }
+
+
+  // leaf node...count data including padding
+  } else {
+
+    int nword,ndata;
+    switch (pNode->contentType) {
+
+    case 0x0:
+    case 0x1:
+    case 0x2:
+    case 0xb:
+      {
+        const evioDOMLeafNode<uint32_t> *leaf = static_cast<const evioDOMLeafNode<uint32_t>*>(pNode);
+        ndata = leaf->data.size();
+        nword = ndata;
+      }
+      break;
+      
+    case 0x3:
+      {
+        const evioDOMLeafNode<string> *leaf = static_cast<const evioDOMLeafNode<string>*>(pNode);
+        string s = leaf->data[0];
+        ndata = s.size();
+        nword = (ndata+3)/4;
+      }
+      break;
+
+    case 0x4:
+    case 0x5:
+      {
+        const evioDOMLeafNode<uint16_t> *leaf = static_cast<const evioDOMLeafNode<uint16_t>*>(pNode);
+        ndata = leaf->data.size();
+        nword = (ndata+1)/2;
+      }
+      break;
+
+    case 0x6:
+    case 0x7:
+      {
+        const evioDOMLeafNode<uint8_t> *leaf = static_cast<const evioDOMLeafNode<uint8_t>*>(pNode);
+        ndata = leaf->data.size();
+        nword = (ndata+3)/4;
+      }
+      break;
+
+    case 0x8:
+    case 0x9:
+    case 0xa:
+      {
+        const evioDOMLeafNode<uint64_t> *leaf = static_cast<const evioDOMLeafNode<uint64_t>*>(pNode);
+        ndata = leaf->data.size();
+        nword = ndata*2;
+      }
+      break;
+
+    default:
+      ostringstream ss;
+      ss << pNode->contentType;
+      throw(evioException(0,"?evioDOMTree::getSerializedLength...illegal leaf type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
+      break;
+    }
+
+    // increment data count
+    bankLen+=nword;
+  }
+
+
+  // return length of this bank
+  return(bankLen);
 }
 
 
