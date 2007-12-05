@@ -275,8 +275,8 @@ int evOpen(char *fname,char *flags,int *handle)
     a->rw = EV_WRITE;
 #else
 #ifdef _MSC_VER
-    a->file = fopen(filename,"r");
-    a->rw = EV_READ;
+    a->file = fopen(filename,"w");
+    a->rw = EV_WRITE;
 #else
     a->rw = EV_WRITE;
     if(strcmp(filename,"-")==0) {
