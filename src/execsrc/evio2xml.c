@@ -5,7 +5,7 @@
  *
  *   NOTE:  does NOT handle VAX float or double, packets, or repeating structures
  *
- *   Use -gz to write output file using gzip
+ *   Use -gz to write output file using gzip, but not on windows
  *
  *   Author: Elliott Wolin, JLab, 6-sep-2001
 */
@@ -108,8 +108,10 @@ int main (int argc, char **argv) {
   if(outfilename!=NULL) {
     if(gzip==0) {
       out=fopen(outfilename,"w");
+#ifdef _MSC_VER
     } else {
       out=(FILE*)gzopen(outfilename,"wb");
+#endif
     }  
   }
   
@@ -150,7 +152,9 @@ int main (int argc, char **argv) {
   sprintf(s,"</%s>\n\n",main_tag);
   writeit(out,s,strlen(s));
   evClose(handle);
+#ifdef MSC_VER
   if((out!=NULL)&&(gzip!=0))gzclose(out);
+#endif
   exit(EXIT_SUCCESS);
 }
 
@@ -165,7 +169,9 @@ void writeit(FILE *f, char *s, int len) {
   } else if (gzip==0) {
     fprintf(f,s,len);
   } else {
+#ifdef _MSC_VER
     gzwrite(f,s,len);
+#endif
   }
 
 }
@@ -259,9 +265,11 @@ void decode_command_line(int argc, char**argv) {
       debug=1;
       i=i+1;
 
+#ifdef _MSC_VER
     } else if (strncasecmp(argv[i],"-gz",3)==0) {
       gzip=1;
       i=i+1;
+#endif
 
     } else if (strncasecmp(argv[i],"-verbose",8)==0) {
       set_verbose(1);
