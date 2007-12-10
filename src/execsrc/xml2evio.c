@@ -56,7 +56,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <expat.h>
+
+#ifndef _MSC_VER
 #include <zlib.h>
+#endif
 
 
 /* file variables */
@@ -181,7 +184,11 @@ int main (int argc, char **argv) {
 
   /* read event fragments from file and pass to parser */
   while (!done) {
+#ifdef _MSC_VER
+    len=(int)read(xmlfile,xmlbuf,MAXXMLBUF);
+#else
     len=(int)gzread(xmlfile,xmlbuf,MAXXMLBUF);
+#endif
     XML_Parse(xmlParser,xmlbuf,len,len<MAXXMLBUF/4);
     done=done||(len<MAXXMLBUF/4);
   }
@@ -284,7 +291,11 @@ FILE *open_xml_file(char *xmlfilename) {
     return(popen(xmlfilename+i+1,"r"));
 
   } else {
+#ifdef _MSC_VER
+    return(open(xmlfilename+i,"r"));
+#else
     return(gzopen(xmlfilename+i,"r"));
+#endif
   }
 
 }

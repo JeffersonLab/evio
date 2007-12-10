@@ -24,7 +24,10 @@
 #define S_EVFILE_UNXPTDEOF	0x80730005	/* Unexpected end of file while reading event */
 #define S_EVFILE_BADSIZEREQ	0x80730006	/* Invalid buffer size request to evIoct */
 
-
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#define strncasecmp strnicmp
+#endif
 
 /* node and leaf handler typedefs */
 typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth, void *userArg);

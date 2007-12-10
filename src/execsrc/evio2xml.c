@@ -62,9 +62,13 @@ void evio_xmldump_done(char *string, int len);
 void writeit(FILE *f, char *s, int len);
 int user_event_select(unsigned int *buf);
 int user_frag_select(int tag);
+
+#ifndef _MSC_VER
 FILE *gzopen(char*,char*);
 void gzclose(FILE*);
 void gzwrite(FILE*,char*,int);
+#endif
+
 int set_event_tag(char *tag);
 int set_bank2_tag(char *tag);
 int set_n8(int val);
@@ -108,7 +112,7 @@ int main (int argc, char **argv) {
   if(outfilename!=NULL) {
     if(gzip==0) {
       out=fopen(outfilename,"w");
-#ifdef _MSC_VER
+#ifndef _MSC_VER
     } else {
       out=(FILE*)gzopen(outfilename,"wb");
 #endif
@@ -152,7 +156,7 @@ int main (int argc, char **argv) {
   sprintf(s,"</%s>\n\n",main_tag);
   writeit(out,s,strlen(s));
   evClose(handle);
-#ifdef MSC_VER
+#ifndef _MSC_VER
   if((out!=NULL)&&(gzip!=0))gzclose(out);
 #endif
   exit(EXIT_SUCCESS);
@@ -168,8 +172,8 @@ void writeit(FILE *f, char *s, int len) {
     printf("%s",s);
   } else if (gzip==0) {
     fprintf(f,s,len);
+#ifndef _MSC_VER
   } else {
-#ifdef _MSC_VER
     gzwrite(f,s,len);
 #endif
   }
@@ -265,7 +269,7 @@ void decode_command_line(int argc, char**argv) {
       debug=1;
       i=i+1;
 
-#ifdef _MSC_VER
+#ifndef _MSC_VER
     } else if (strncasecmp(argv[i],"-gz",3)==0) {
       gzip=1;
       i=i+1;
