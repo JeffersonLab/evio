@@ -84,6 +84,7 @@ int set_indent_size(int val);
 int set_max_depth(int val);
 int set_no_typename(int val);
 int set_verbose(int val);
+int set_brief(int val);
 
 
 /*--------------------------------------------------------------------------*/
@@ -238,7 +239,7 @@ void decode_command_line(int argc, char**argv) {
     "           [-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]\n"
     "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
     "           [-p32 p32] [-p64 p64]\n"
-    "           [-verbose] [-xtod] [-m main_tag] [-e event_tag]\n"
+    "           [-verbose] [-brief] [-xtod] [-m main_tag] [-e event_tag]\n"
     "           [-indent indent_size] [-no_typename] [-debug]\n"
     "           [-out outfilenema] [-gz] filename\n";
   int i;
@@ -277,6 +278,10 @@ void decode_command_line(int argc, char**argv) {
 
     } else if (strncasecmp(argv[i],"-verbose",8)==0) {
       set_verbose(1);
+      i=i+1;
+
+    } else if (strncasecmp(argv[i],"-brief",6)==0) {
+      set_brief(1);
       i=i+1;
 
     } else if (strncasecmp(argv[i],"-no_typename",12)==0) {

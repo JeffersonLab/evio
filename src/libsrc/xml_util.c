@@ -22,6 +22,7 @@
  *
  *   Author:  Elliott Wolin, JLab, 6-sep-2001
  *   Revised: Elliott Wolin, 5-apr-2004 convert to library, print to string
+ *   Revised: Elliott Wolin, 8-feb-2008 added brief mode and num chaining in dictionary
 */
 
 /* still to do
@@ -103,6 +104,7 @@ static int tagstack[MAXDEPTH];
 static int numstack[MAXDEPTH];
 static int no_typename    = 0;
 static int verbose        = 0;
+static int brief          = 0;
 static int nindent        = 0;
 static int indent_size    = 3;
 static char *xml;
@@ -311,7 +313,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
   noexpand=is_a_container&&(max_depth>=0)&&(depth>max_depth);
 
 
-  /* print header word (as comment) if requested */
+  /* verbose header */
   if(verbose!=0) {
     xml+=sprintf(xml,"\n"); indent();
     if(fragment_type==BANK) {
@@ -324,6 +326,9 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 
   /* fragment opening xml tag */
   indent();
+
+
+  /* format and content */
   if((fragment_type==BANK)&&(depth==1)) {
     xml+=sprintf(xml,"<%s format=\"evio\" count=\"%d\"",event_tag,nbuf);
     xml+=sprintf(xml," content=\"%s\"",get_typename(type));
@@ -339,13 +344,20 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
   } else {
     xml+=sprintf(xml,"<%s",get_typename(type));
   }
-  xml+=sprintf(xml," data_type=\"0x%x\"",type);
-  xml+=sprintf(xml," tag=\"%d\"",tag);
-  if(fragment_type==BANK)xml+=sprintf(xml," num=\"%d\"",(int)num);
+
+  /* data_type, tag, and num */
+  if(brief==0)xml+=sprintf(xml," data_type=\"0x%x\"",type);
+  if(brief==0)xml+=sprintf(xml," tag=\"%d\"",tag);
+  if((brief==0)&&(fragment_type==BANK))xml+=sprintf(xml," num=\"%d\"",(int)num);
+
+  /* length, ndata for verbose */
   if(verbose!=0) {
     xml+=sprintf(xml," length=\"%d\" ndata=\"%d\"",length,
 	   get_ndata(type,length-fragment_offset[fragment_type]));
   }
+
+
+  /* noexpand option */
   if(noexpand)xml+=sprintf(xml," opt=\"noexpand\"");
   xml+=sprintf(xml,">\n");
   
@@ -876,6 +888,17 @@ int set_no_typename(int val) {
 int set_verbose(int val) {
 
   verbose=val;
+  return(0);
+
+}
+
+
+/*---------------------------------------------------------------- */
+
+
+int set_brief(int val) {
+
+  brief=val;
   return(0);
 
 }
