@@ -69,7 +69,8 @@ typedef struct {
   int *tag;
   char *name;
   int hasNum;
-  int num;
+  int nnum;
+  int *num;
 } dict_entry;
 static dict_entry dict[MAXDICT];
 static int ndict          = 0;
@@ -105,6 +106,7 @@ static int numstack[MAXDEPTH];
 static int no_typename    = 0;
 static int verbose        = 0;
 static int brief          = 0;
+static int no_data        = 0;
 static int nindent        = 0;
 static int indent_size    = 3;
 static char *xml;
@@ -427,123 +429,145 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
 
   case 0x0:
   case 0x1:
-    sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
-    for(i=0; i<length; i+=n32) {
-      indent();
-      for(j=i; j<min((i+n32),length); j++) {
-	xml+=sprintf(xml,format,data[j]);
+    if(!no_data) {
+      sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
+      for(i=0; i<length; i+=n32) {
+        indent();
+        for(j=i; j<min((i+n32),length); j++) {
+          xml+=sprintf(xml,format,data[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
   case 0x2:
-    sprintf(format,"%%#%d.%df ",w32,p32);
-    for(i=0; i<length; i+=n32) {
-      indent();
-      for(j=i; j<min(i+n32,length); j++) {
-	xml+=sprintf(xml,format,*(float*)&data[j]);
+    if(!no_data) {
+      sprintf(format,"%%#%d.%df ",w32,p32);
+      for(i=0; i<length; i+=n32) {
+        indent();
+        for(j=i; j<min(i+n32,length); j++) {
+          xml+=sprintf(xml,format,*(float*)&data[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
   case 0x3:
-    c=(char*)&data[0];
-    len=length*4;
-    sprintf(format,"<![CDATA[\n%%.%ds\n]]>\n",len);  /* handle unterminated strings */
-    xml+=sprintf(xml,format,c);
+    if(!no_data) {
+      c=(char*)&data[0];
+      len=length*4;
+      sprintf(format,"<![CDATA[\n%%.%ds\n]]>\n",len);  /* handle unterminated strings */
+      xml+=sprintf(xml,format,c);
+    }
     break;
 
   case 0x4:
-    sprintf(format,"%%%dhd ",w16);
-    s=(short*)&data[0];
-    for(i=0; i<2*length; i+=n16) {
-      indent();
-      for(j=i; j<min(i+n16,2*length); j++) {
-	xml+=sprintf(xml,format,s[j]);
+    if(!no_data) {
+      sprintf(format,"%%%dhd ",w16);
+      s=(short*)&data[0];
+      for(i=0; i<2*length; i+=n16) {
+        indent();
+        for(j=i; j<min(i+n16,2*length); j++) {
+          xml+=sprintf(xml,format,s[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
   case 0x5:
-    sprintf(format,"%%#%d%s ",w16,(xtod==0)?"hx":"d");
-    s=(short*)&data[0];
-    for(i=0; i<2*length; i+=n16) {
-      indent();
-      for(j=i; j<min(i+n16,2*length); j++) {
-	xml+=sprintf(xml,format,s[j]);
+    if(!no_data) {
+      sprintf(format,"%%#%d%s ",w16,(xtod==0)?"hx":"d");
+      s=(short*)&data[0];
+      for(i=0; i<2*length; i+=n16) {
+        indent();
+        for(j=i; j<min(i+n16,2*length); j++) {
+          xml+=sprintf(xml,format,s[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
   case 0x6:
-    sprintf(format,"   %%%dd ",w8);
-    c=(char*)&data[0];
-    for(i=0; i<4*length; i+=n8) {
-      indent();
-      for(j=i; j<min(i+n8,4*length); j++) {
-	xml+=sprintf(xml,format,c[j]);
+    if(!no_data) {
+      sprintf(format,"   %%%dd ",w8);
+      c=(char*)&data[0];
+      for(i=0; i<4*length; i+=n8) {
+        indent();
+        for(j=i; j<min(i+n8,4*length); j++) {
+          xml+=sprintf(xml,format,c[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
-     }
+    }
     break;
 
   case 0x7:
-    sprintf(format,"   %%#%d%s ",w8,(xtod==0)?"x":"d");
-    uc=(unsigned char*)&data[0];
-    for(i=0; i<4*length; i+=n8) {
-      indent();
-      for(j=i; j<min(i+n8,4*length); j++) {
-	xml+=sprintf(xml,format,uc[j]);
+    if(!no_data) {
+      sprintf(format,"   %%#%d%s ",w8,(xtod==0)?"x":"d");
+      uc=(unsigned char*)&data[0];
+      for(i=0; i<4*length; i+=n8) {
+        indent();
+        for(j=i; j<min(i+n8,4*length); j++) {
+          xml+=sprintf(xml,format,uc[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
-     }
+    }
     break;
 
   case 0x8:
-    sprintf(format,"%%#%d.%de ",w64,p64);
-    for(i=0; i<length/2; i+=n64) {
-      indent();
-      for(j=i; j<min(i+n64,length/2); j++) {
-	xml+=sprintf(xml,format,*(double*)&data[2*j]);
+    if(!no_data) {
+      sprintf(format,"%%#%d.%de ",w64,p64);
+      for(i=0; i<length/2; i+=n64) {
+        indent();
+        for(j=i; j<min(i+n64,length/2); j++) {
+          xml+=sprintf(xml,format,*(double*)&data[2*j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
   case 0x9:
-    sprintf(format,"%%%dlld ",w64);
-    for(i=0; i<length/2; i+=n64) {
-      indent();
-      for(j=i; j<min(i+n64,length/2); j++) {
-	xml+=sprintf(xml,format,*(long long*)&data[2*j]);
+    if(!no_data) {
+      sprintf(format,"%%%dlld ",w64);
+      for(i=0; i<length/2; i+=n64) {
+        indent();
+        for(j=i; j<min(i+n64,length/2); j++) {
+          xml+=sprintf(xml,format,*(long long*)&data[2*j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
   case 0xa:
-    sprintf(format,"%%#%dll%s ",w64,(xtod==0)?"x":"d");
-    for(i=0; i<length/2; i+=n64) {
-      indent();
-      for(j=i; j<min(i+n64,length/2); j++) {
-	xml+=sprintf(xml,format,*(long long*)&data[2*j]);
+    if(!no_data) {
+      sprintf(format,"%%#%dll%s ",w64,(xtod==0)?"x":"d");
+      for(i=0; i<length/2; i+=n64) {
+        indent();
+        for(j=i; j<min(i+n64,length/2); j++) {
+          xml+=sprintf(xml,format,*(long long*)&data[2*j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
   case 0xb:
-    sprintf(format,"%%#%dd ",w32);
-    for(i=0; i<length; i+=n32) {
-      indent();
-      for(j=i; j<min((i+n32),length); j++) {
-	xml+=sprintf(xml,format,data[j]);
+    if(!no_data) {
+      sprintf(format,"%%#%dd ",w32);
+      for(i=0; i<length; i+=n32) {
+        indent();
+        for(j=i; j<min((i+n32),length); j++) {
+          xml+=sprintf(xml,format,data[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
 
@@ -572,13 +596,15 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     break;
 
   default:
-    sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
-    for(i=0; i<length; i+=n32) {
-      indent();
-      for(j=i; j<min(i+n32,length); j++) {
-	xml+=sprintf(xml,format,(unsigned int)data[j]);
+    if(!no_data) {
+      sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
+      for(i=0; i<length; i+=n32) {
+        indent();
+        for(j=i; j<min(i+n32,length); j++) {
+          xml+=sprintf(xml,format,(unsigned int)data[j]);
+        }
+        xml+=sprintf(xml,"\n");
       }
-      xml+=sprintf(xml,"\n");
     }
     break;
   }
@@ -899,6 +925,16 @@ int set_verbose(int val) {
 int set_brief(int val) {
 
   brief=val;
+  return(0);
+
+}
+
+
+/*---------------------------------------------------------------- */
+
+int set_no_data(int val) {
+
+  no_data=val;
   return(0);
 
 }

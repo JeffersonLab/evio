@@ -18,8 +18,8 @@
 
 
 /*  misc macros, etc. */
-#define MAXEVIOBUF   100000
-#define MAXXMLSTRING 500000
+#define MAXEVIOBUF   1000000
+#define MAXXMLSTRING 5000000
 
 
 /* include files */
@@ -85,6 +85,7 @@ int set_max_depth(int val);
 int set_no_typename(int val);
 int set_verbose(int val);
 int set_brief(int val);
+int set_no_data(int val);
 
 
 /*--------------------------------------------------------------------------*/
@@ -239,7 +240,7 @@ void decode_command_line(int argc, char**argv) {
     "           [-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]\n"
     "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
     "           [-p32 p32] [-p64 p64]\n"
-    "           [-verbose] [-brief] [-xtod] [-m main_tag] [-e event_tag]\n"
+    "           [-verbose] [-brief] [-no_data] [-xtod] [-m main_tag] [-e event_tag]\n"
     "           [-indent indent_size] [-no_typename] [-debug]\n"
     "           [-out outfilenema] [-gz] filename\n";
   int i;
@@ -282,6 +283,10 @@ void decode_command_line(int argc, char**argv) {
 
     } else if (strncasecmp(argv[i],"-brief",6)==0) {
       set_brief(1);
+      i=i+1;
+
+    } else if (strncasecmp(argv[i],"-no_data",8)==0) {
+      set_no_data(1);
       i=i+1;
 
     } else if (strncasecmp(argv[i],"-no_typename",12)==0) {
