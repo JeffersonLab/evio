@@ -333,16 +333,16 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
   /* format and content */
   if((fragment_type==BANK)&&(depth==1)) {
     xml+=sprintf(xml,"<%s format=\"evio\" count=\"%d\"",event_tag,nbuf);
-    xml+=sprintf(xml," content=\"%s\"",get_typename(type));
+    if(brief==0)xml+=sprintf(xml," content=\"%s\"",get_typename(type));
   } else if(myname!=NULL) {
     xml+=sprintf(xml,"<%s",myname);
-    xml+=sprintf(xml," content=\"%s\"",get_typename(type));
+    if(brief==0)xml+=sprintf(xml," content=\"%s\"",get_typename(type));
   } else if((fragment_type==BANK)&&(depth==2)) {
     xml+=sprintf(xml,"<%s",bank2_tag);
-    xml+=sprintf(xml," content=\"%s\"",get_typename(type));
+    if(brief==0)xml+=sprintf(xml," content=\"%s\"",get_typename(type));
   } else if(is_a_container||no_typename) {
     xml+=sprintf(xml,"<%s",fragment_name[fragment_type]);
-    xml+=sprintf(xml," content=\"%s\"",get_typename(type));
+    if(brief==0)xml+=sprintf(xml," content=\"%s\"",get_typename(type));
   } else {
     xml+=sprintf(xml,"<%s",get_typename(type));
   }
