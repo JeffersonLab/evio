@@ -19,7 +19,7 @@
 
 /*  misc macros, etc. */
 #define MAXEVIOBUF   1000000
-#define MAXXMLSTRING 5000000
+#define XML2EVIO     5
 
 
 /* include files */
@@ -49,9 +49,9 @@ static int fragok[100];
 static int nnofrag        = 0;
 static int nofrag[100];
 static int pause          = 0;
+static int maxbuf         = MAXEVIOBUF;
 static int debug          = 0;
 static int done           = 0;
-static char xml[MAXXMLSTRING];
 
 
 /* prototypes */
@@ -94,13 +94,17 @@ int set_no_data(int val);
 int main (int argc, char **argv) {
 
   int handle,status;
-  unsigned int buf[MAXEVIOBUF];
   FILE *out = NULL;
   char s[256];
   
 
   /* decode command line */
   decode_command_line(argc,argv);
+
+
+  /* allocate buffer and string memory */
+  unsigned int *buf = (unsigned int*)malloc(maxbuf*4);
+  char *xml = malloc(maxbuf*4*XML2EVIO);
 
 
   /* open evio input file */
@@ -133,11 +137,11 @@ int main (int argc, char **argv) {
 
   /* loop over events, perhaps skip some, dump up to max_event events */
   nevent=0;
-  while ((status=evRead(handle,buf,MAXEVIOBUF))==0) {
+  while ((status=evRead(handle,buf,maxbuf))==0) {
     nevent++;
     if(skip_event>=nevent)continue;
     if(user_event_select(buf)==0)continue;
-    evio_xmldump(buf,nevent,xml,MAXXMLSTRING);
+    evio_xmldump(buf,nevent,xml,maxbuf*4*XML2EVIO);
     writeit(out,xml,strlen(xml));
 
 
@@ -153,7 +157,7 @@ int main (int argc, char **argv) {
 
 
   /* done */
-  evio_xmldump_done(xml,MAXXMLSTRING);
+  evio_xmldump_done(xml,maxbuf*4*XML2EVIO);
   writeit(out,xml,strlen(xml));
   sprintf(s,"</%s>\n\n",main_tag);
   writeit(out,s,strlen(s));
@@ -241,7 +245,7 @@ void decode_command_line(int argc, char**argv) {
     "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
     "           [-p32 p32] [-p64 p64]\n"
     "           [-verbose] [-brief] [-no_data] [-xtod] [-m main_tag] [-e event_tag]\n"
-    "           [-indent indent_size] [-no_typename] [-debug]\n"
+    "           [-indent indent_size] [-no_typename] [-maxbuf maxbuf] [-debug]\n"
     "           [-out outfilenema] [-gz] filename\n";
   int i;
     
@@ -265,6 +269,10 @@ void decode_command_line(int argc, char**argv) {
 
     } else if (strncasecmp(argv[i],"-out",4)==0) {
       outfilename=strdup(argv[i+1]);
+      i=i+2;
+
+    } else if (strncasecmp(argv[i],"-maxbuf",7)==0) {
+      maxbuf=atoi(argv[i+1]);
       i=i+2;
 
     } else if (strncasecmp(argv[i],"-debug",6)==0) {
