@@ -19,7 +19,7 @@
 
 /*  misc macros, etc. */
 #define MAXEVIOBUF   1000000
-#define XML2EVIO     5
+#define EVIO2XML     5
 
 
 /* include files */
@@ -102,9 +102,15 @@ int main (int argc, char **argv) {
   decode_command_line(argc,argv);
 
 
-  /* allocate buffer and string memory */
-  unsigned int *buf = (unsigned int*)malloc(maxbuf*4);
-  char *xml = malloc(maxbuf*4*XML2EVIO);
+  /* allocate binary buffer and string buffer (EVIO2XML times as large) */
+  unsigned int *buf = (unsigned int*)malloc(maxbuf*sizeof(unsigned int));
+  char *xml = malloc(maxbuf*sizeof(unsigned int)*EVIO2XML);
+  if((buf==NULL)||(xml==NULL)) {
+    int sz=maxbuf*sizeof(unsigned int);
+    printf("\n   *** Unable to allocate buffers ***\n\n");
+    printf("\n buf size=%d bytes, addr=0x%x     xml size=%d bytes, addr=0x%x\n\n",sz,buf,sz*EVIO2XML,xml);
+    exit(EXIT_FAILURE);
+  }
 
 
   /* open evio input file */
@@ -141,7 +147,8 @@ int main (int argc, char **argv) {
     nevent++;
     if(skip_event>=nevent)continue;
     if(user_event_select(buf)==0)continue;
-    evio_xmldump(buf,nevent,xml,maxbuf*4*XML2EVIO);
+    xml[0]='\0';              /* clear xml string buffer */
+    evio_xmldump(buf,nevent,xml,maxbuf*sizeof(unsigned int)*EVIO2XML);
     writeit(out,xml,strlen(xml));
 
 
@@ -157,7 +164,7 @@ int main (int argc, char **argv) {
 
 
   /* done */
-  evio_xmldump_done(xml,maxbuf*4*XML2EVIO);
+  evio_xmldump_done(xml,maxbuf*sizeof(unsigned int)*EVIO2XML);
   writeit(out,xml,strlen(xml));
   sprintf(s,"</%s>\n\n",main_tag);
   writeit(out,s,strlen(s));

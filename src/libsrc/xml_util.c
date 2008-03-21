@@ -70,7 +70,7 @@ typedef struct {
   char *name;
   int hasNum;
   int nnum;
-  int *num;
+  int num;
 } dict_entry;
 static dict_entry dict[MAXDICT];
 static int ndict          = 0;
