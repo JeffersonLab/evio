@@ -1,5 +1,3 @@
-CFLAGS += -g
-
 #
 # evio C library
 #
