@@ -65,12 +65,11 @@ enum {
 static XML_Parser dictParser;
 static char xmlbuf[MAXXMLBUF];
 typedef struct {
+  char *name;
   int ntag;
   int *tag;
-  char *name;
-  int hasNum;
   int nnum;
-  int num;
+  int *num;
 } dict_entry;
 static dict_entry dict[MAXDICT];
 static int ndict          = 0;
@@ -119,7 +118,7 @@ static void startDictElement(void *userData, const char *name, const char **atts
 static void dump_fragment(unsigned int *buf, int fragment_type);
 static void dump_data(unsigned int *data, int type, int length, int noexpand);
 static int get_ndata(int type, int nwords);
-static const char *get_tagname();
+static const char *get_matchname();
 static void indent(void);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
 
@@ -181,10 +180,10 @@ static void create_dictionary(char *dictfilename) {
 static void startDictElement(void *userData, const char *name, const char **atts) {
 
   int natt=XML_GetSpecifiedAttributeCount(dictParser);
-  char *tagtext,*p;
-  const char *pNum;
-  int i,npt;
-  int *ip;
+  char *tagtext,*p,*numtext;
+  const char *cp;
+  int i,nt,nn;
+  int *ip=NULL, *in=NULL;
 
 
   if(strcasecmp(name,"xmldumpDictEntry")!=0)return;
@@ -196,32 +195,46 @@ static void startDictElement(void *userData, const char *name, const char **atts
   }
   
 
-  /* allocate array for sub-tags */
-  tagtext=strdup(get_char_att(atts,natt,"tag"));
-  npt=0; for(i=0; i<strlen(tagtext); i++) if(tagtext[i]=='.')npt++;
-  ip=(int*)malloc((npt+1)*sizeof(int));
-  
+  /* sub-tags */
+  nt=0;
+  cp=get_char_att(atts,natt,"tag");
+  if(cp!=NULL) {
+    tagtext=strdup(cp);
+    for(i=0; i<strlen(tagtext); i++) if(tagtext[i]=='.')nt++;
+    ip=(int*)malloc((nt+1)*sizeof(int));
+    
+    i=0; 
+    p=tagtext-1;
+    do {
+      ip[i++]=atoi(++p);
+      p=strchr(p,'.');
+    } while (p!=NULL);
+  }
 
-  /* fill array with sub-tags */
-  i=0; 
-  p=tagtext-1;
-  do {
-    ip[i++]=atoi(++p);
-    p=strchr(p,'.');
-  } while (p!=NULL);
 
+  /* sub-nums */
+  nn=0;
+  cp=get_char_att(atts,natt,"num");
+  if(cp!=NULL) {
+    numtext=strdup(cp);
+    for(i=0; i<strlen(numtext); i++) if(numtext[i]=='.')nn++;
+    in=(int*)malloc((nn+1)*sizeof(int));
+    
+    i=0; 
+    p=numtext-1;
+    do {
+      in[i++]=atoi(++p);
+      p=strchr(p,'.');
+    } while (p!=NULL);
+  }
+    
 
   /* store dictionary info */
-  dict[ndict-1].ntag = npt+1;
-  dict[ndict-1].tag  = ip;
   dict[ndict-1].name = strdup(get_char_att(atts,natt,"name"));
-  pNum=get_char_att(atts,natt,"num");  
-  if(pNum==NULL) {
-    dict[ndict-1].hasNum=0;
-  } else {
-    dict[ndict-1].hasNum=1;
-    dict[ndict-1].num=atoi(pNum);
-  }  
+  dict[ndict-1].ntag = nt+1;
+  dict[ndict-1].tag  = ip;
+  dict[ndict-1].nnum = nn+1;
+  dict[ndict-1].num  = in;
 
   return;
 }
@@ -302,16 +315,16 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
   if( (depth>0) && (USER_FRAG_SELECT_FUNC != NULL) && (USER_FRAG_SELECT_FUNC(tag)==0) )return;
 
 
-  /* update depth, tagstack, etc. */
+  /* update depth, tagstack, numstack, etc. */
   depth++;
-  if(depth>(sizeof(tagstack)/sizeof(int))) {
-    printf("?error...tagstack overflow\n");
+  if( (depth>(sizeof(tagstack)/sizeof(int))) || (depth>(sizeof(numstack)/sizeof(int))) ) {
+    printf("?error...tagstack/numstack overflow\n");
     exit(EXIT_FAILURE);
   }
   tagstack[depth-1]=tag;
   numstack[depth-1]=num;
   is_a_container=is_container(type);
-  myname=(char*)get_tagname();
+  myname=(char*)get_matchname();
   noexpand=is_a_container&&(max_depth>=0)&&(depth>max_depth);
 
 
@@ -326,7 +339,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
   }
 
 
-  /* fragment opening xml tag */
+  /* xml opening fragment */
   indent();
 
 
@@ -369,7 +382,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 	    length-fragment_offset[fragment_type],noexpand);
 
 
-  /* fragment close tag */
+  /* xml closing fragment */
   indent();
   if((fragment_type==BANK)&&(depth==1)) {
     xml+=sprintf(xml,"</%s>\n\n",event_tag);
@@ -694,28 +707,40 @@ static const char *get_char_att(const char **atts, const int natt, const char *n
 /*---------------------------------------------------------------- */
 
 
-static const char *get_tagname() {
+static const char *get_matchname() {
 
-  int i,j,ntd,nt,hasNum,num;
-  int match;
+  int i,j,ntd,nnd,nt,nn;
+  int tagmatch,nummatch;
 
 
-  /* search dictionary for match with current tag, and num if specified */
+  /* search dictionary for match with current tag/num */
   for(i=0; i<ndict; i++) {
     
+    tagmatch=1;
     ntd=dict[i].ntag;
-    nt=min(ntd,depth);
-    hasNum=dict[i].hasNum;    
-    num=dict[i].num;
-
-    match=1;
-    for(j=0; j<nt; j++) {
-      if(dict[i].tag[ntd-j-1]!=tagstack[depth-j-1]) {
-        match=0;
-        break;
+    if(ntd>0) {
+      nt=min(ntd,depth);
+      for(j=0; j<nt; j++) {
+        if(dict[i].tag[ntd-j-1]!=tagstack[depth-j-1]) {
+          tagmatch=0;
+          break;
+        }
       }
     }
-    if(match&&((hasNum==0)||(num==numstack[depth-1])))return(dict[i].name);
+
+    nummatch=1;
+    nnd=dict[i].nnum;
+    if(nnd>0) {
+      nn=min(nnd,depth);
+      for(j=0; j<nn; j++) {
+        if(dict[i].num[nnd-j-1]!=numstack[depth-j-1]) {
+          nummatch=0;
+          break;
+        }
+      }
+    }
+
+    if((tagmatch==0)&&(nummatch==0))return(dict[i].name);
   }
 
   return(NULL);
