@@ -183,25 +183,27 @@ static void startDictElement(void *userData, const char *name, const char **atts
   char *tagtext,*p,*numtext;
   const char *cp;
   int i,nt,nn;
-  int *ip=NULL, *in=NULL;
+  int *ip, *in;
 
 
   if(strcasecmp(name,"xmldumpDictEntry")!=0)return;
 
   ndict++;
   if(ndict>MAXDICT) {
-    printf("\n?dictionary too large\n\n");
+    printf("\n?too many dictionary entries in file\n\n");
     exit(EXIT_FAILURE);
   }
   
 
-  /* sub-tags */
+  /* store tags */
   nt=0;
+  ip=NULL;
   cp=get_char_att(atts,natt,"tag");
   if(cp!=NULL) {
+    nt=1;
     tagtext=strdup(cp);
     for(i=0; i<strlen(tagtext); i++) if(tagtext[i]=='.')nt++;
-    ip=(int*)malloc((nt+1)*sizeof(int));
+    ip=(int*)malloc(nt*sizeof(int));
     
     i=0; 
     p=tagtext-1;
@@ -212,13 +214,15 @@ static void startDictElement(void *userData, const char *name, const char **atts
   }
 
 
-  /* sub-nums */
+  /* store nums */
   nn=0;
+  in=NULL;
   cp=get_char_att(atts,natt,"num");
   if(cp!=NULL) {
+    nn=1;
     numtext=strdup(cp);
     for(i=0; i<strlen(numtext); i++) if(numtext[i]=='.')nn++;
-    in=(int*)malloc((nn+1)*sizeof(int));
+    in=(int*)malloc(nn*sizeof(int));
     
     i=0; 
     p=numtext-1;
@@ -231,9 +235,9 @@ static void startDictElement(void *userData, const char *name, const char **atts
 
   /* store dictionary info */
   dict[ndict-1].name = strdup(get_char_att(atts,natt,"name"));
-  dict[ndict-1].ntag = nt+1;
+  dict[ndict-1].ntag = nt;
   dict[ndict-1].tag  = ip;
-  dict[ndict-1].nnum = nn+1;
+  dict[ndict-1].nnum = nn;
   dict[ndict-1].num  = in;
 
   return;
@@ -294,14 +298,14 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
     length  	= (buf[0]&0xffff)+1;
     type    	= (buf[0]>>16)&0xff;
     tag     	= (buf[0]>>24)&0xff;
-    num     	= 0;
+    num     	= -1;  /* doesn't have num */
     break;
     
   case 2:
     length  	= (buf[0]&0xffff)+1;
     type    	= (buf[0]>>16)&0xf;
     tag     	= (buf[0]>>20)&0xfff;
-    num     	= 0;
+    num     	= -1;   /* doesn't have num */
     break;
 
   default:
@@ -709,11 +713,11 @@ static const char *get_char_att(const char **atts, const int natt, const char *n
 
 static const char *get_matchname() {
 
-  int i,j,ntd,nnd,nt,nn;
+  int i,j,ntd,nnd,nt,nn,num;
   int tagmatch,nummatch;
 
 
-  /* search dictionary for match with current tag/num */
+  /* search dictionary for tag/num match */
   for(i=0; i<ndict; i++) {
     
     tagmatch=1;
@@ -733,15 +737,18 @@ static const char *get_matchname() {
     if(nnd>0) {
       nn=min(nnd,depth);
       for(j=0; j<nn; j++) {
-        if(dict[i].num[nnd-j-1]!=numstack[depth-j-1]) {
+        num=numstack[depth-j-1];
+        if((num>=0)&&(dict[i].num[nnd-j-1]!=num)) {
           nummatch=0;
           break;
         }
       }
     }
 
-    if((tagmatch==0)&&(nummatch==0))return(dict[i].name);
-  }
+    /* tag and num match, done */
+    if((tagmatch==1)&&(nummatch==1))return(dict[i].name);
+
+  }  /* try next dictionary element */
 
   return(NULL);
 }
