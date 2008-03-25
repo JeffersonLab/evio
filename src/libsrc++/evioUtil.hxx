@@ -43,7 +43,7 @@
 #include <stddef.h>
 #ifdef _MSC_VER
    typedef __int64 int64_t;	// Define it from MSVC's internal type
-   #include "inttypes.h"
+   #include "msinttypes.h"
 #else
    #include <stdint.h>		  // Use the C99 official header
 #endif
