@@ -34,7 +34,9 @@
 #include <sstream>
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include <utility>
+#include <cstring>
 #include <exception>
 
 #ifdef sun
