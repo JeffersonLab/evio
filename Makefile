@@ -58,7 +58,7 @@ tar:
         
 # If vxworks, overwrite above pattern rule to print message and return.
 # This must come AFTER above rule.
-ifeq ($(OS), vxworks)
+ifeq ($(BMS_OS), vxworks)
   %:
 	@echo "No vxworks stuff in evio package"
 endif
