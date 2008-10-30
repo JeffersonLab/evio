@@ -74,6 +74,7 @@ int main(int argc, char **argv) {
       // note:  there are many functions available to select nodes, and it is easy to 
       //        write additional ones...contact EJW or see the EVIO manual for more information
       evioDOMNodeListP fullList     = event.getNodeList();
+      evioDOMNodeListP uintList     = event.getNodeList(typeIs<uint32_t>());
       evioDOMNodeListP intList      = event.getNodeList(typeIs<int32_t>());
       evioDOMNodeListP floatList    = event.getNodeList(typeIs<float>());
       evioDOMNodeListP doubleList   = event.getNodeList(typeIs<double>());
@@ -96,9 +97,27 @@ int main(int argc, char **argv) {
       for_each(myList->begin(),myList->end(),toCout());
 
 
+      // print out data from all <uint> nodes manually
+      cout << endl << endl<< "Dumping uint nodes manually:" << endl << endl;
+      evioDOMNodeList::const_iterator iter;
+      for(iter=uintList->begin(); iter!=uintList->end(); iter++) {
+        cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
+             << "  " << (int)((*iter)->num) << endl;
+
+        const evioDOMNodeP np = *iter;                              // solaris bug...
+        const vector<uint> *vec = np->getVector<uint>();
+        if(vec!=NULL) {
+          for(unsigned int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
+          cout << endl;
+        } else {
+          cerr << "?getVector<uint> returned NULL" << endl;
+        }
+      }
+      cout << endl << endl;
+      
+      
       // print out data from all <int> nodes manually
       cout << endl << endl<< "Dumping int nodes manually:" << endl << endl;
-      evioDOMNodeList::const_iterator iter;
       for(iter=intList->begin(); iter!=intList->end(); iter++) {
         cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
              << "  " << (int)((*iter)->num) << endl;
@@ -106,7 +125,7 @@ int main(int argc, char **argv) {
         const evioDOMNodeP np = *iter;                              // solaris bug...
         const vector<int> *vec = np->getVector<int>();
         if(vec!=NULL) {
-          for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
+          for(unsigned int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
           cout << endl;
         } else {
           cerr << "?getVector<int> returned NULL" << endl;
@@ -124,7 +143,7 @@ int main(int argc, char **argv) {
         const evioDOMNodeP np = *iter;                              // solaris bug...
         const vector<int64_t> *vec = np->getVector<int64_t>();
         if(vec!=NULL) {
-          for(int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
+          for(unsigned int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
           cout << endl;
         } else {
           cerr << "?getVector<int64_t> returned NULL" << endl;
@@ -135,8 +154,13 @@ int main(int argc, char **argv) {
       
       // get child list from container node
       evioDOMNodeList *list = event.root->getChildList();
-      cout << "Root child list length is " << list->size() << endl;
-      cout << endl << endl;
+      if(list!=NULL) {
+        cout << "Root child list length is " << list->size() << endl;
+        cout << endl << endl;
+      } else {
+        cout << "Root node is not a container" << endl;
+        cout << endl << endl;
+      }
 
     }
       

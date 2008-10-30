@@ -390,13 +390,12 @@ int evioFileChannel::getBufSize(void) const {
  * @param buf Buffer containing event
  * @param handler evioStreamParserHandler object containing callbacks to handle container and leaf nodes
  * @param userArg Passed to handler callbacks
- * @return void* Return value from parseBank
+ * @return void* Pointer to root bank of new tree
  */
 void *evioStreamParser::parse(const uint32_t *buf, 
                               evioStreamParserHandler &handler, void *userArg) throw(evioException) {
   
   if(buf==NULL)throw(evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__FUNCTION__,__LINE__));
-
   return((void*)parseBank(buf,BANK,0,handler,userArg));
 }
 
@@ -466,6 +465,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
    * if a leaf node, call leaf handler.
    * if container node, call node handler and then parse contained banks.
    */
+  void *newLeaf = NULL;
   switch (contentType) {
 
   case 0x0:
@@ -473,27 +473,27 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
   case 0x2:
   case 0xb:
     // four-byte types
-    handler.leafNodeHandler(length-dataOffset,tag,contentType,num,depth,&buf[dataOffset],userArg);
+    newLeaf=handler.leafNodeHandler(length-dataOffset,tag,contentType,num,depth,&buf[dataOffset],userArg);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
     // one-byte types
-    handler.leafNodeHandler((length-dataOffset)*4,tag,contentType,num,depth,(int8_t*)(&buf[dataOffset]),userArg);
+    newLeaf=handler.leafNodeHandler((length-dataOffset)*4,tag,contentType,num,depth,(int8_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x4:
   case 0x5:
     // two-byte types
-    handler.leafNodeHandler((length-dataOffset)*2,tag,contentType,num,depth,(int16_t*)(&buf[dataOffset]),userArg);
+    newLeaf=handler.leafNodeHandler((length-dataOffset)*2,tag,contentType,num,depth,(int16_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
     // eight-byte types
-    handler.leafNodeHandler((length-dataOffset)/2,tag,contentType,num,depth,(int64_t*)(&buf[dataOffset]),userArg);
+    newLeaf=handler.leafNodeHandler((length-dataOffset)/2,tag,contentType,num,depth,(int64_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0xe:
@@ -531,8 +531,13 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
   }
 
 
-  // new user arg is pointer to parent node
-  return(newUserArg);
+  // new user arg is pointer to new node
+  if(newLeaf!=NULL) {
+    return(newLeaf);
+  } else {
+    return(newUserArg);
+  }
+
 }
 
 
@@ -1070,9 +1075,9 @@ void *evioDOMTree::containerNodeHandler(int length, uint16_t tag, int contentTyp
  * @param depth Current depth
  * @param data Pointer to data in buffer
  * @param userArg Used internally
- * @return void* used internally
+ * @return void* Pointer to new leaf node
  */
-void evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, 
+void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, 
                               const void *data, void *userArg) {
 
 
@@ -1143,6 +1148,10 @@ void evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, uin
     parent->childList.push_back(newLeaf);
     newLeaf->parent=parent;
   }
+
+
+  // return pointer to newly created leaf node
+  return((void*)newLeaf);
 }
 
 

@@ -32,8 +32,8 @@ class myHandler : public evioStreamParserHandler {
 //--------------------------------------------------------------
 
 
- void leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
-                      int depth, const void *data, void *userArg) {
+  void *leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
+                        int depth, const void *data, void *userArg) {
     
     int *i;
     short *s;
@@ -41,10 +41,10 @@ class myHandler : public evioStreamParserHandler {
     float *f;
     double *d;
     int64_t *ll;
-
+    
     printf("leaf   depth %2d   type,tag,num,length:  %6d %6d %6d %6d     data:   ",
            depth,contentType,tag,num,length);
-
+    
     switch (contentType) {
 
     case 0x0:
@@ -89,6 +89,8 @@ class myHandler : public evioStreamParserHandler {
       break;
 
     }  
+
+    return((void*)NULL);
   } 
 
 };
@@ -175,7 +177,7 @@ int main(int argc, char **argv) {
 
       // compare buffers
       bool ok = true;
-      for(int i=0; i<buf[0]+1; i++) {
+      for(unsigned int i=0; i<buf[0]+1; i++) {
         if(buf[i]!=buf2[i]) {
           ok=false;
           cout << dec << i << ":   " << hex << "0x" << buf[i] << "    0x" << buf2[i] << endl;

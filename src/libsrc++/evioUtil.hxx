@@ -299,8 +299,8 @@ class evioStreamParserHandler {
 public:
   virtual void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, 
                             int depth, void *userArg) = 0;
-  virtual void leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, 
-                           int depth, const void *data, void *userArg) = 0;
+  virtual void *leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, 
+                                int depth, const void *data, void *userArg) = 0;
   virtual ~evioStreamParserHandler(void) {};
 };
 
@@ -553,7 +553,7 @@ private:
   
   void toOstream(ostream &os, const evioDOMNodeP node, int depth) const throw(evioException);
   void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, void *userArg);
-  void leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, const void *data, void *userArg);
+  void *leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, const void *data, void *userArg);
 
 
 public:
