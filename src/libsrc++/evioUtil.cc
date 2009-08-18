@@ -188,10 +188,8 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  * Destructor closes file, deletes internal buffer.
  */
 evioFileChannel::~evioFileChannel(void) {
-  cout << "fileChannel destructor" << endl;
   if(handle!=0)close();
   if(buf!=NULL) {
-    cout << "deleting buf" << endl;
     delete[](buf),buf=NULL;
   }
 }
