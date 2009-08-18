@@ -344,6 +344,8 @@ class evioDOMNode {
 
 protected:
   evioDOMNode(evioDOMNodeP parent, uint16_t tag, uint8_t num, int contentType) throw(evioException);
+
+public:
   virtual ~evioDOMNode(void);
 
 
@@ -446,6 +448,8 @@ class evioDOMContainerNode : public evioDOMNode {
 
 private:
   evioDOMContainerNode(evioDOMNodeP parent, uint16_t tag, uint8_t num, ContainerType cType) throw(evioException);
+ ~evioDOMContainerNode(void);
+
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);  /**<Not available to user */
   bool operator=(const evioDOMContainerNode &node);                              /**<Not available to user */
 

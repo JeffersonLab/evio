@@ -188,8 +188,12 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  * Destructor closes file, deletes internal buffer.
  */
 evioFileChannel::~evioFileChannel(void) {
+  cout << "fileChannel destructor" << endl;
   if(handle!=0)close();
-  if(buf!=NULL)delete(buf),buf=NULL;
+  if(buf!=NULL) {
+    cout << "deleting buf" << endl;
+    delete[](buf),buf=NULL;
+  }
 }
 
 
@@ -615,17 +619,7 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, void (*f)
 //-----------------------------------------------------------------------------
 
 
-/** 
- * Destructor recursively deletes children if this is a container node.
- */
 evioDOMNode::~evioDOMNode(void) {
-  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(this);
-  if(c!=NULL) {
-    evioDOMNodeList::iterator iter;
-    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-      delete(*iter);
-    }
-  }
 }
 
 
@@ -869,6 +863,20 @@ string evioDOMNode::getIndent(int depth) {
  */
 evioDOMContainerNode::evioDOMContainerNode(evioDOMNodeP par, uint16_t tg, uint8_t num, ContainerType cType) throw(evioException)
   : evioDOMNode(par,tg,num,cType) {
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Destructor recursively deletes children.
+ */
+evioDOMContainerNode::~evioDOMContainerNode(void) {
+  evioDOMNodeList::iterator iter;
+  for(iter=childList.begin(); iter!=childList.end(); iter++) {
+    delete(*iter);
+  }
 }
 
 

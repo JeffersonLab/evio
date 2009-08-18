@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
 
     // done...close channel
     chan->close();
-    
+    delete(chan);
 
   } catch (evioException e) {
     cerr << e.toString() << endl;

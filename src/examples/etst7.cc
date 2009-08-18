@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
 
     // test cut
-    ln2->cut();
+    ln2->cutAndDelete();
 
 
     // test cutAndDelete
