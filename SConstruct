@@ -6,7 +6,7 @@ from util import cmloptions
 from util import loadoptions
 
 # Command line Options
-opts = Options()
+opts = Variables()
 cmloptions(opts)
     
 env = Environment(tools=['default'], options = opts)
