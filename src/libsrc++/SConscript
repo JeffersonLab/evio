@@ -1,0 +1,10 @@
+# scons build file for evio
+Import('env', 'libDir', 'incDir', 'debugSuffix')
+
+fileList = ['evioUtil.cc']
+
+env.AppendUnique(CPPPATH = ['.', '#src/libsrc'])
+evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)
+    
+env.Alias("install", env.Install(target = incDir, source = ['evioUtil.hxx', 'evioUtilTemplates.hxx']))
+env.Alias("install", env.Install(target = libDir, source = evioxxLib))
