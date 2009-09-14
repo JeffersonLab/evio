@@ -6,6 +6,7 @@
 
 
 #include <evioUtil.hxx>
+#include <stdio.h>
 #include <algorithm>
 
 
@@ -55,6 +56,7 @@ bool myMatcher(const evioDOMNodeP node) {
 int main(int argc, char **argv) {
 
   int i,maxev,nevents;
+  unsigned int ui;
 
 
   // check for file name
@@ -173,7 +175,7 @@ int main(int argc, char **argv) {
           if(v!=NULL) {
             cout << endl << endl << "Got double node using getVector:" << endl << endl << (*iter)->toString()
                  << endl << "Double data:" << endl;
-            for(i=0; i<v->size(); i++) cout << showpoint << (*v)[i] << endl;
+            for(ui=0; ui<v->size(); ui++) cout << showpoint << (*v)[ui] << endl;
           }
         }
       }
@@ -186,7 +188,7 @@ int main(int argc, char **argv) {
         if(l!=NULL) {
           cout << endl << "Found a float node in the full list:" << endl << l->toString() << endl;
           cout << "vector<float> contents:" << endl;
-          for(i=0; i<l->data.size(); i++) cout << (l->data)[i] << endl;
+          for(ui=0; ui<l->data.size(); ui++) cout << (l->data)[ui] << endl;
           cout << endl << endl;
         }
       }
@@ -217,7 +219,7 @@ int main(int argc, char **argv) {
         const evioDOMNodeP np = *ulIter;
         const vector<unsigned int> *lv = np->getVector<unsigned int>();
         if(lv!=NULL) {
-          for(int k=0; k<lv->size(); k++) {
+          for(unsigned int k=0; k<lv->size(); k++) {
             cout << hex << showbase << (*lv)[k] << endl;
           }
         } else {

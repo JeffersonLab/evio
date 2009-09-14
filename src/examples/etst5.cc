@@ -7,6 +7,7 @@
 #define MAXBUFLEN  4096
 
 #include <iostream>
+#include <stdio.h>
 #include <evioUtil.hxx>
 
 using namespace evio;

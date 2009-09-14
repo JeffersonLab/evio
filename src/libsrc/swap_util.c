@@ -492,7 +492,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	sg_tag  = (header2 >> 24) & (0xff);
 	sg_type = (header2 >> 16) & (0xff);
 	if((sg_type>=0x10)||(sg_type==0xc)||(sg_type==0xd)||(sg_type==0xe)) {
-	  evStack_pushon((sg_size)*2,i,sg_type,sg_tag,(int)NULL,head);
+	  evStack_pushon((sg_size)*2,i,sg_type,sg_tag,0,head);
 	  lk.head_pos = i + 2;
 	  head->length += 1;
 	  i = i+ 2;
@@ -515,7 +515,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	tsg_tag  = (header2 >> 20) & (0xfff);
 	tsg_type = (header2 >> 16) & (0xf);
 	if((tsg_type==0xc)||(tsg_type==0xd)||(tsg_type==0xe)) {
-	  evStack_pushon((tsg_size)*2,i,tsg_type,tsg_tag,(int)NULL,head);
+	  evStack_pushon((tsg_size)*2,i,tsg_type,tsg_tag,0,head);
 	  lk.head_pos = i + 2;
 	  head->length += 1;
 	  i = i+ 2;
