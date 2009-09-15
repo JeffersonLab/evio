@@ -134,6 +134,7 @@ AddOption('--uninstall',
 uninstall = GetOption('uninstall')
 Help('--uninstall         uninstall libs, headers, & examples\n')
 Help('-c  install         uninstall libs, headers, examples, and remove all generated files\n')
+Help('tests               compile/link and install test programs\n')
 
 
 #########################
