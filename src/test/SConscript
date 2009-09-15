@@ -3,8 +3,8 @@ Import('env', 'binDir', 'archDir', 'execLibs', 'debugSuffix')
 import re
 
  # lists of all C and C++ files
-cfileList  = Glob('*.c',  strings=True)
-ccfileList = Glob('*.cc', strings=True)
+cfileList  = ['evtest.c', 'evtest2.c', 'evtest3.c', 'evtest4.c']
+ccfileList  = []
 
 # For each C file, create executable of the same name,
 # and install that executable if "scons examples" is command
