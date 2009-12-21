@@ -74,7 +74,7 @@ static char xmlbuf[MAXXMLBUF];
 static char cdata[MAXCDATA];
 static char *pcdata=cdata;
 static int cdatalen       = 0;
-static unsigned int eviobuf[MAXEVIOBUF];
+static uint32_t eviobuf[MAXEVIOBUF];
 static int eviolen        = 0;
 
 

@@ -228,6 +228,22 @@ bool evioFileChannel::read(void) throw(evioException) {
 
 
 /**
+ * Reads from file into user-supplied buffer.
+ * @param myBuf User-supplied buffer.
+ * @parem length Length of buffer in 4-byte words.
+ * @return true if successful, false on EOF or other evRead error condition
+ */
+bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
+  if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
+  if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  return(evRead(handle,&myBuf[0],length)==0);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
  * Writes to file from internal buffer.
  */
 void evioFileChannel::write(void) throw(evioException) {

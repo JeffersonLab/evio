@@ -5,8 +5,8 @@
  *       - in place if dest is NULL
  *       - copy to dest if not NULL
  *
- *   swap_long_val() swaps one long, call by val
- *   swap_long() swaps an array of unsigned longs
+ *   swap_int2_t_val() swaps one int32_t, call by val
+ *   swap_int32_t() swaps an array of uint32_t's
  *
  *   thread safe
  *
@@ -25,31 +25,31 @@
 
 
 /* include files */
+#include <evio.h>
 #include <stdlib.h>
 
 
 /* entry points */
-void evioswap(unsigned long *buffer, int tolocal, unsigned long *dest);
-int swap_long_value(int val);
-unsigned long *swap_long(unsigned long *data, unsigned long length,unsigned long *dest);
+void evioswap(uint32_t *buffer, int tolocal, uint32_t*dest);
+int32_t swap_int32_t_value(int32_t val);
+uint32_t *swap_int32_t(uint32_t *data, unsigned length, uint32_t *dest);
 
 
 /* internal prototypes */
-static void swap_bank(unsigned long *buf, int tolocal, unsigned long *dest);
-static void swap_segment(unsigned long *buf, int tolocal, unsigned long *dest);
-static void swap_tagsegment(unsigned long *buf, int tolocal, unsigned long *dest);
-static void swap_data(unsigned long *data, unsigned long type, unsigned long length,
-		      int tolocal,  unsigned long *dest);
-static void swap_longlong(unsigned long long *data, unsigned long length,
-			  unsigned long long *dest);
-static void swap_short(unsigned short *data, unsigned long length, unsigned short *dest);
-static void copy_data(unsigned long *data, unsigned long length, unsigned long *dest);
+static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest);
+static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest);
+static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest);
+static void swap_data(uint32_t *data, uint32_t type, uint32_t length,
+		      int tolocal,  uint32_t *dest);
+static void swap_int64_t(uint64_t *data, uint32_t length, uint64_t *dest);
+static void swap_short(unsigned short *data, uint32_t length, unsigned short *dest);
+static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest);
 
 
 /*--------------------------------------------------------------------------*/
 
 
-void evioswap(unsigned long *buf, int tolocal, unsigned long *dest) {
+void evioswap(uint32_t *buf, int tolocal, uint32_t *dest) {
 
   swap_bank(buf,tolocal,dest);
 
@@ -60,17 +60,17 @@ void evioswap(unsigned long *buf, int tolocal, unsigned long *dest) {
 /*---------------------------------------------------------------- */
 
 
-static void swap_bank(unsigned long *buf, int tolocal, unsigned long *dest) {
+static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  unsigned long data_length,data_type;
-  unsigned long *p=buf;
+  uint32_t data_length,data_type;
+  uint32_t *p=buf;
 
 
   /* swap header, get length and contained type */
-  if(tolocal)p = swap_long(buf,2,dest);
+  if(tolocal)p = swap_int32_t(buf,2,dest);
   data_length  = p[0]-1;
   data_type    = (p[1]>>8)&0xff;
-  if(!tolocal)swap_long(buf,2,dest);
+  if(!tolocal)swap_int32_t(buf,2,dest);
   
   swap_data(&buf[2], data_type, data_length, tolocal, (dest==NULL)?NULL:&dest[2]);
 
@@ -81,17 +81,17 @@ static void swap_bank(unsigned long *buf, int tolocal, unsigned long *dest) {
 /*---------------------------------------------------------------- */
 
 
-static void swap_segment(unsigned long *buf, int tolocal, unsigned long *dest) {
+static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  unsigned long data_length,data_type;
-  unsigned long *p=buf;
+  uint32_t data_length,data_type;
+  uint32_t *p=buf;
 
 
   /* swap header, get length and contained type */
-  if(tolocal)p = swap_long(buf,1,dest);
+  if(tolocal)p = swap_int32_t(buf,1,dest);
   data_length  = (p[0]&0xffff);
   data_type    = (p[0]>>16)&0xff;
-  if(!tolocal)swap_long(buf,1,dest);
+  if(!tolocal)swap_int32_t(buf,1,dest);
 
   swap_data(&buf[1], data_type, data_length, tolocal, (dest==NULL)?NULL:&dest[1]);
   
@@ -102,17 +102,17 @@ static void swap_segment(unsigned long *buf, int tolocal, unsigned long *dest) {
 /*---------------------------------------------------------------- */
 
 
-static void swap_tagsegment(unsigned long *buf, int tolocal, unsigned long *dest) {
+static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  unsigned long data_length,data_type;
-  unsigned long *p=buf;
+  uint32_t data_length,data_type;
+  uint32_t *p=buf;
 
 
   /* swap header, get length and contained type */
-  if(tolocal)p = swap_long(buf,1,dest);
+  if(tolocal)p = swap_int32_t(buf,1,dest);
   data_length  = (p[0]&0xffff);
   data_type    = (p[0]>>16)&0xf;
-  if(!tolocal)swap_long(buf,1,dest);
+  if(!tolocal)swap_int32_t(buf,1,dest);
 
   swap_data(&buf[1], data_type, data_length, tolocal, (dest==NULL)?NULL:&dest[1]);
   
@@ -123,11 +123,11 @@ static void swap_tagsegment(unsigned long *buf, int tolocal, unsigned long *dest
 /*---------------------------------------------------------------- */
 
 
-static void swap_data(unsigned long *data, unsigned long type, unsigned long length, 
-	       int tolocal, unsigned long *dest) {
+static void swap_data(uint32_t *data, uint32_t type, uint32_t length, 
+	       int tolocal, uint32_t *dest) {
 
-  unsigned long fraglen;
-  unsigned long l=0;
+  uint32_t fraglen;
+  uint32_t l=0;
 
 
   /* swap the data or call swap_fragment */
@@ -140,11 +140,11 @@ static void swap_data(unsigned long *data, unsigned long type, unsigned long len
     break;
 
 
-    /* long */
+    /* int32_t */
   case 0x1:
   case 0x2:
   case 0xb:
-    swap_long(data,length,dest);
+    swap_int32_t(data,length,dest);
     break;
 
 
@@ -163,11 +163,11 @@ static void swap_data(unsigned long *data, unsigned long type, unsigned long len
     break;
 
 
-    /* longlong */
+    /* int64_t */
   case 0x8:
   case 0x9:
   case 0xa:
-    swap_longlong((unsigned long long*)data,length/2,(unsigned long long*)dest);
+    swap_int64_t((uint64_t*)data,length/2,(uint64_t*)dest);
     break;
 
 
@@ -233,7 +233,7 @@ static void swap_data(unsigned long *data, unsigned long type, unsigned long len
 /*---------------------------------------------------------------- */
 
 
-int swap_long_value(int val) {
+int32_t swap_int32_t_value(int32_t val) {
 
   int temp;
   char *t = (char*)&temp+4;
@@ -251,10 +251,10 @@ int swap_long_value(int val) {
 /*---------------------------------------------------------------- */
 
 
-unsigned long *swap_long(unsigned long *data, unsigned long length, unsigned long *dest) {
+uint32_t *swap_int32_t(uint32_t *data, uint32_t length, uint32_t *dest) {
 
-  unsigned long i;
-  unsigned long temp;
+  uint32_t i;
+  uint32_t temp;
   char *d,*t;
 
   if(dest==NULL) {
@@ -290,10 +290,10 @@ unsigned long *swap_long(unsigned long *data, unsigned long length, unsigned lon
 /*---------------------------------------------------------------- */
 
 
-static void swap_longlong(unsigned long long *data, unsigned long length, unsigned long long *dest) {
+static void swap_int64_t(uint64_t *data, uint32_t length, uint64_t *dest) {
 
-  unsigned long i;
-  unsigned long long temp;
+  uint32_t i;
+  uint64_t temp;
   char *d,*t;
 
   if(dest==NULL) {
@@ -337,9 +337,9 @@ static void swap_longlong(unsigned long long *data, unsigned long length, unsign
 /*---------------------------------------------------------------- */
 
 
-static void swap_short(unsigned short *data, unsigned long length, unsigned short *dest) {
+static void swap_short(unsigned short *data, uint32_t length, unsigned short *dest) {
 
-  unsigned long i;
+  uint32_t i;
   unsigned short temp;
   char *d,*t;
 
@@ -372,7 +372,7 @@ static void swap_short(unsigned short *data, unsigned long length, unsigned shor
 /*---------------------------------------------------------------- */
  
  
-static void copy_data(unsigned long *data, unsigned long length, unsigned long *dest) {
+static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest) {
    
   int i;
   

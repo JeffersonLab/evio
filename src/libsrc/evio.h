@@ -27,6 +27,19 @@
 #define S_EVFILE_BADSIZEREQ	0x80730006	/* Invalid buffer size request to evIoct */
 
 
+#ifdef sun
+#include <sys/param.h>
+#else
+#include <stddef.h>
+#ifdef _MSC_VER
+   typedef __int64 int64_t;	// Define it from MSVC's internal type
+   #include "msinttypes.h"
+#else
+   #include <stdint.h>		  // Use the C99 official header
+#endif
+#endif
+
+
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
 #define strncasecmp strnicmp
@@ -34,8 +47,8 @@
 
 
  /* node and leaf handler typedefs */
-typedef void (*NH_TYPE)(int length, int ftype, int tag, int type, int num, int depth, void *userArg);
-typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, int num, int depth, void *userArg);
+typedef void (*NH_TYPE)(int32_t length, int32_t ftype, int32_t tag, int32_t type, int32_t num, int32_t depth, void *userArg);
+typedef void (*LH_TYPE)(void *data, int32_t length, int32_t ftype, int32_t tag, int32_t type, int32_t num, int32_t depth, void *userArg);
 
 
 /* prototypes */
@@ -43,19 +56,19 @@ typedef void (*LH_TYPE)(void *data, int length, int ftype, int tag, int type, in
 extern "C" {
 #endif
 
-void set_user_frag_select_func( int (*f) (int tag) );
+void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 
-int evOpen(char *fileName, char *mode, int *handle);
-int evRead(int handle, unsigned int *buffer, int size);
-int evWrite(int handle, const unsigned int *buffer);
-int evIoctl(int handle, char *request, void *argp);
-int evClose(int handle);
+int32_t evOpen(char *fileName, char *mode, int32_t *handle);
+int32_t evRead(int32_t handle, uint32_t *buffer, int32_t size);
+int32_t evWrite(int32_t handle, const uint32_t *buffer);
+int32_t evIoctl(int32_t handle, char *request, void *argp);
+int32_t evClose(int32_t handle);
 
-void evioswap(unsigned int *buffer, int tolocal, unsigned int *dest);
+void evioswap(uint32_t *buffer, int32_t tolocal, uint32_t *dest);
 
-void evio_stream_parse(unsigned int *buf, NH_TYPE nh, LH_TYPE lh, void *userArg);
-const char *get_typename(int type);
-int is_container(int type);
+void evio_stream_parse(uint32_t *buf, NH_TYPE nh, LH_TYPE lh, void *userArg);
+const char *get_typename(int32_t type);
+int32_t is_container(int32_t type);
 
 #ifdef __cplusplus
 }

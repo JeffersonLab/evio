@@ -24,11 +24,11 @@
  * Routines
  * --------
  *
- *	evOpen(char *filename,char *flags,int *descriptor)
- *	evWrite(int descriptor,const int *data)
- *	evRead(int descriptor,int *data,int *datalen)
- *	evClose(int descriptor)
- *	evIoctl(int descriptor,char *request, void *argp)
+ *	evOpen(char *filename,char *flags,int32_t *descriptor)
+ *	evWrite(int32_t descriptor,const int32_t *data)
+ *	evRead(int32_t descriptor,int32_t *data,int32_t *datalen)
+ *	evClose(int32_t descriptor)
+ *	evIoctl(int32_t descriptor,char *request, void *argp)
  *
  */
 
@@ -42,23 +42,23 @@
 
 typedef struct evfilestruct {
   FILE *file;
-  int *buf;
-  int *next;
-  int left;
-  int blksiz;
-  int blknum;
-  int rw;
-  int magic;
-  int evnum;         /* last events with evnum so far */
-  int byte_swapped;
+  int32_t *buf;
+  int32_t *next;
+  int32_t left;
+  int32_t blksiz;
+  int32_t blknum;
+  int32_t rw;
+  int32_t magic;
+  int32_t evnum;         /* last events with evnum so far */
+  int32_t byte_swapped;
 } EVFILE;
 
 typedef struct evBinarySearch {
-  int sbk;
-  int ebk;
-  int found_bk;
-  int found_evn;
-  int last_evn;
+  int32_t sbk;
+  int32_t ebk;
+  int32_t found_bk;
+  int32_t found_evn;
+  int32_t last_evn;
 } EVBSEARCH;
 
 #define EVBLOCKSIZE 8192
@@ -71,9 +71,9 @@ typedef struct evBinarySearch {
 #define EV_HDSIZ 8
 
 
-#define EV_HD_BLKSIZ 0		/* size of block in longwords */
+#define EV_HD_BLKSIZ 0		/* size of block in 32-bit words */
 #define EV_HD_BLKNUM 1		/* number, starting at 0 */
-#define EV_HD_HDSIZ  2		/* size of header in longwords (=8) */
+#define EV_HD_HDSIZ  2		/* size of header in 32-bit words (=8) */
 #define EV_HD_START  3		/* first start of event in this block */
 #define EV_HD_USED   4		/* number of words used in block (<= BLKSIZ) */
 #define EV_HD_VER    5		/* version of file format (=1) */
@@ -82,21 +82,21 @@ typedef struct evBinarySearch {
 
 #define evGetStructure() (EVFILE *)malloc(sizeof(EVFILE))
 
-static  int  findLastEventWithinBlock(EVFILE *);
-static  int  copySingleEvent(EVFILE *, int *, int, int);
-static  int  evSearchWithinBlock(EVFILE *, EVBSEARCH *, int *, int, int *, int, int *);
-static  void evFindEventBlockNum(EVFILE *, EVBSEARCH *, int *);
-static  int  evGetEventNumber(EVFILE *, int);
-static  int  evGetEventType(EVFILE *);
-static  int  isRealEventsInsideBlock(EVFILE *, int, int);
-static  int  physicsEventsInsideBlock(EVFILE *);
-static  int  evGetNewBuffer(EVFILE *a);
-static  int  evFlush(EVFILE *a);
+static  int32_t  findLastEventWithinBlock(EVFILE *);
+static  int32_t  copySingleEvent(EVFILE *, int32_t *, int32_t, int32_t);
+static  int32_t  evSearchWithinBlock(EVFILE *, EVBSEARCH *, int32_t *, int32_t, int32_t *, int32_t, int32_t *);
+static  void evFindEventBlockNum(EVFILE *, EVBSEARCH *, int32_t *);
+static  int32_t  evGetEventNumber(EVFILE *, int32_t);
+static  int32_t  evGetEventType(EVFILE *);
+static  int32_t  isRealEventsInsideBlock(EVFILE *, int32_t, int32_t);
+static  int32_t  physicsEventsInsideBlock(EVFILE *);
+static  int32_t  evGetNewBuffer(EVFILE *a);
+static  int32_t  evFlush(EVFILE *a);
 
 
 /*  these replace routines from swap_util.c, ejw, 1-dec-03 */
-extern int swap_long_value(int val);
-extern unsigned int *swap_long(unsigned int *data, unsigned int length, unsigned int *dest);
+extern int32_t swap_int32_t_value(int32_t val);
+extern uint32_t *swap_uint32_t(uint32_t *data, uint32_t length, uint32_t *dest);
 
 
 #if defined(__osf__) && defined(__alpha)
@@ -114,14 +114,14 @@ EVFILE *handle_list[10]={0,0,0,0,0,0,0,0,0,0};
 
 
 #ifdef AbsoftUNIXFortran
-int evopen
+int32_t evopen
 #else
-int evopen_
+int32_t evopen_
 #endif
-(char *filename,char *flags,int *handle,int fnlen,int flen)
+(char *filename,char *flags,int32_t *handle, int32_t fnlen, int32_t flen)
 {
   char *fn, *fl;
-  int status;
+  int32_t status;
   fn = (char *) malloc(fnlen+1);
   strncpy(fn,filename,fnlen);
   fn[fnlen] = 0;		/* insure filename is null terminated */
@@ -153,18 +153,18 @@ static char *kill_trailing(char *s, char t)
 /*-----------------------------------------------------------------------------*/
 
 
-int evOpen(char *fname,char *flags,int *handle)
+int32_t evOpen(char *fname,char *flags,int32_t *handle)
 {
   
 #ifdef _LP64
-  int ihandle;
+  int32_t ihandle;
 #endif
   EVFILE *a;
 #if 0
   char *cp;
 #endif
-  int header[EV_HDSIZ];
-  int temp,blk_size;
+  int32_t header[EV_HDSIZ];
+  int32_t temp,blk_size;
   char *filename;
   
   filename = (char*)malloc(strlen(fname)+1);
@@ -229,7 +229,7 @@ int evOpen(char *fname,char *flags,int *handle)
     if (a->file) {
       fread(header,sizeof(header),1,a->file); /* update: check nbytes return */
       if (header[EV_HD_MAGIC] != EV_MAGIC) {
-	temp = swap_long_value(header[EV_HD_MAGIC]);
+	temp = swap_int32_t_value(header[EV_HD_MAGIC]);
 	if(temp == EV_MAGIC)
 	  a->byte_swapped = 1;
 	else{ /* close file and free memory */
@@ -243,18 +243,18 @@ int evOpen(char *fname,char *flags,int *handle)
 	a->byte_swapped = 0;
       
       if(a->byte_swapped) {
-	blk_size = swap_long_value(header[EV_HD_BLKSIZ]);
-	a->buf = (int *)malloc(blk_size*4);
+	blk_size = swap_int32_t_value(header[EV_HD_BLKSIZ]);
+	a->buf = (int32_t *)malloc(blk_size*4);
       }
       else
-	a->buf = (int *) malloc(header[EV_HD_BLKSIZ]*4);
+	a->buf = (int32_t *) malloc(header[EV_HD_BLKSIZ]*4);
       if (!(a->buf)) {
 	free(a);		/* if can't allocate buffer, give up */
 	free(filename);
 	return(S_EVFILE_ALLOCFAIL);
       }
       if(a->byte_swapped) {
-	swap_long((unsigned int *)header,EV_HDSIZ,(unsigned int *)a->buf);
+	swap_int32_t((uint32_t *)header,EV_HDSIZ,(uint32_t *)a->buf);
 	fread(&(a->buf[EV_HDSIZ]),4,blk_size-EV_HDSIZ,a->file);
       }
       else{
@@ -290,7 +290,7 @@ int evOpen(char *fname,char *flags,int *handle)
 #endif
 #endif
 		if (a->file) {
-      a->buf = (int *) malloc(EVBLOCKSIZE*4);
+      a->buf = (int32_t *) malloc(EVBLOCKSIZE*4);
       if (!(a->buf)) {
 	free(a);
 	free(filename);
@@ -359,11 +359,11 @@ int evOpen(char *fname,char *flags,int *handle)
 
 
 #ifdef AbsoftUNIXFortran
-int evread
+int32_t evread
 #else
-int evread_
+int32_t evread_
 #endif
-(int *handle,unsigned int *buffer,int *buflen)
+(int32_t *handle,uint32_t *buffer,int32_t *buflen)
 {
   return(evRead(*handle,buffer,*buflen));
 }
@@ -372,11 +372,11 @@ int evread_
 /*-----------------------------------------------------------------------------*/
 
 
-int evRead(int handle, unsigned int *buffer,int buflen)
+int32_t evRead(int32_t handle, uint32_t *buffer,int32_t buflen)
 {
   EVFILE *a;
-  int nleft,ncopy,error,status;
-  int *temp_buffer,*temp_ptr;
+  int32_t nleft,ncopy,error,status;
+  int32_t *temp_buffer,*temp_ptr;
 
 #ifdef _LP64
   a = handle_list[handle-1];
@@ -384,7 +384,7 @@ int evRead(int handle, unsigned int *buffer,int buflen)
   a = (EVFILE *)handle;
 #endif
   if (a->byte_swapped) {
-    temp_buffer = (int *)malloc(buflen*sizeof(int));
+    temp_buffer = (int32_t *)malloc(buflen*sizeof(int));
     temp_ptr = temp_buffer;
   }
   if (a->magic != EV_MAGIC) return(S_EVFILE_BADHANDLE);
@@ -393,7 +393,7 @@ int evRead(int handle, unsigned int *buffer,int buflen)
     if (error) return(error);
   }
   if (a->byte_swapped)
-    nleft = swap_long_value(*(a->next)) + 1;
+    nleft = swap_int32_t_value(*(a->next)) + 1;
   else
     nleft = *(a->next) + 1;	/* inclusive size */
   if (nleft < buflen) {
@@ -431,17 +431,17 @@ int evRead(int handle, unsigned int *buffer,int buflen)
 /*-----------------------------------------------------------------------------*/
 
 
-int evGetNewBuffer(a)
+int32_t evGetNewBuffer(a)
      EVFILE *a;
 {
-  int nread,status;
+  int32_t nread,status;
   status = S_SUCCESS;
   if (feof(a->file)) return(EOF);
   clearerr(a->file);
   a->buf[EV_HD_MAGIC] = 0;
   nread = fread(a->buf,4,a->blksiz,a->file);
   if (a->byte_swapped) {
-    swap_long((unsigned int*)a->buf,EV_HDSIZ,NULL);
+    swap_int32_t((unsigned int*)a->buf,EV_HDSIZ,NULL);
   }
   if (feof(a->file)) return(EOF);
   if (ferror(a->file)) return(ferror(a->file));
@@ -469,11 +469,11 @@ int evGetNewBuffer(a)
 
 
 #ifdef AbsoftUNIXFortran
-int evwrite
+int32_t evwrite
 #else
-int evwrite_
+int32_t evwrite_
 #endif
-(int *handle,unsigned int*buffer)
+(int32_t *handle,unsigned int*buffer)
 {
   return(evWrite(*handle,buffer));
 }
@@ -482,10 +482,10 @@ int evwrite_
 /*-----------------------------------------------------------------------------*/
 
 
-int evWrite(int handle, const unsigned int *buffer)
+int32_t evWrite(int32_t handle, const uint32_t *buffer)
 {
   EVFILE *a;
-  int nleft,ncopy,error;
+  int32_t nleft,ncopy,error;
 #ifdef _LP64
   a = handle_list[handle-1];
 #else
@@ -514,10 +514,10 @@ int evWrite(int handle, const unsigned int *buffer)
 /*-----------------------------------------------------------------------------*/
 
 
-int evFlush(a)
+int32_t evFlush(a)
      EVFILE *a;
 {
-  int nwrite;
+  int32_t nwrite;
   clearerr(a->file);
   a->buf[EV_HD_USED] = a->next - a->buf;
   a->buf[EV_HD_RESVD] = a->evnum;
@@ -543,14 +543,14 @@ int evFlush(a)
 
 
 #ifdef AbsoftUNIXFortran
-int evioctl
+int32_t evioctl
 #else
-int evioctl_
+int32_t evioctl_
 #endif
-(int *handle,char *request,void *argp,int reqlen)
+(int32_t *handle,char *request,void *argp,int32_t reqlen)
 {
   char *req;
-  int status;
+  int32_t status;
   req = (char *)malloc(reqlen+1);
   strncpy(req,request,reqlen);
   req[reqlen]=0;		/* insure request is null terminated */
@@ -559,7 +559,7 @@ int evioctl_
   return(status);
 }
 
-int evIoctl(int handle,char *request,void *argp)
+int32_t evIoctl(int32_t handle,char *request,void *argp)
 {
   EVFILE *a;
 #ifdef _LP64
@@ -575,9 +575,9 @@ int evIoctl(int handle,char *request,void *argp)
     if (a->blknum != 0) return(S_EVFILE_BADSIZEREQ);
     if (a->buf[EV_HD_START] != 0) return(S_EVFILE_BADSIZEREQ);
     free (a->buf);
-    a->blksiz = *(int *) argp;
+    a->blksiz = *(int32_t *) argp;
     a->left = a->blksiz - EV_HDSIZ;
-    a->buf = (int *) malloc(a->blksiz*4);
+    a->buf = (int32_t *) malloc(a->blksiz*4);
     if (!(a->buf)) {
       a->magic = 0;
       free(a);        /* if can't allocate buffer, give up */
@@ -608,11 +608,11 @@ int evIoctl(int handle,char *request,void *argp)
 
 
 #ifdef AbsoftUNIXFortran
-int evclose
+int32_t evclose
 #else
-int evclose_
+int32_t evclose_
 #endif
-(int *handle)
+(int32_t *handle)
 {
   return(evClose(*handle));
 }
@@ -621,10 +621,10 @@ int evclose_
 /*-----------------------------------------------------------------------------*/
 
 
-int evClose(int handle)
+int32_t evClose(int32_t handle)
 {
   EVFILE *a;
-  int status, status2;
+  int32_t status, status2;
 #ifdef _LP64
   a = handle_list[handle-1];
 #else
@@ -661,21 +661,21 @@ int evClose(int handle)
 
 
 /******************************************************************
- *         int evOpenSearch(int, int *)                           *
+ *         int32_t evOpenSearch(int, int32_t *)                           *
  * Description:                                                   *
  *     Open for binary search on data blocks                      *
  *     return last physics event number                           *
  *****************************************************************/
-int evOpenSearch(int handle, int *b_handle)
+int32_t evOpenSearch(int32_t handle, int32_t *b_handle)
 {
 #ifdef _LP64
-  int ihandle;
+  int32_t ihandle;
 #endif
   EVFILE *a;
   EVBSEARCH *b;
-  int    found = 0, temp, i = 1;
-  int    last_evn, bknum;
-  int    header[EV_HDSIZ];
+  int32_t    found = 0, temp, i = 1;
+  int32_t    last_evn, bknum;
+  int32_t    header[EV_HDSIZ];
 
 #ifdef _LP64
   a = handle_list[handle-1];
@@ -690,7 +690,7 @@ int evOpenSearch(int handle, int *b_handle)
   fseek(a->file, 0L, SEEK_SET);
   fread(header, sizeof(header), 1, a->file);
   if(a->byte_swapped)
-    temp = swap_long_value(header[EV_HD_BLKNUM]);
+    temp = swap_int32_t_value(header[EV_HD_BLKNUM]);
   else
     temp = header[EV_HD_BLKNUM];
   b->sbk = temp;
@@ -706,7 +706,7 @@ int evOpenSearch(int handle, int *b_handle)
     else
       i++;
   }
-  /* the file pointer will point to the first physics event in the block */
+  /* the file pointer will point32_t to the first physics event in the block */
   last_evn = findLastEventWithinBlock(a);
   b->found_bk = -1;
   b->found_evn = -1;
@@ -733,24 +733,24 @@ int evOpenSearch(int handle, int *b_handle)
 
 
 /*********************************************************************
- *       static int findLastEventWithinBlock(EVFILE *)               *
+ *       static int32_t findLastEventWithinBlock(EVFILE *)               *
  * Description:                                                      *
  *     Doing sequential search on a block pointed by a               *
  *     return last event number in the block                         *
  *     the pointer to the file has been moved to the beginning       *
  *     of the fisrt event already by evOpenSearch()                  *
  ********************************************************************/
-static int findLastEventWithinBlock(EVFILE *a)
+static int32_t findLastEventWithinBlock(EVFILE *a)
 {
-  int header, found = 0;
-  int ev_size, evn = 0, last_evn = 0;
-  int ev_type;
-  int first_time = 0;
+  int32_t header, found = 0;
+  int32_t ev_size, evn = 0, last_evn = 0;
+  int32_t ev_type;
+  int32_t first_time = 0;
   
   while(!found) {
     fread(&header, sizeof(int), 1, a->file);
     if(a->byte_swapped)
-      ev_size = swap_long_value(header) + 1;
+      ev_size = swap_int32_t_value(header) + 1;
     else
       ev_size = header + 1;
     /* read event type */
@@ -762,7 +762,7 @@ static int findLastEventWithinBlock(EVFILE *a)
 	fseek(a->file, 3*4, SEEK_CUR);
 	fread(&header, sizeof(int), 1, a->file);
 	if(a->byte_swapped)
-	  evn = swap_long_value(header);
+	  evn = swap_int32_t_value(header);
 	else
 	  evn = header;
 	found = 1;
@@ -784,7 +784,7 @@ static int findLastEventWithinBlock(EVFILE *a)
 	fseek(a->file, 3*4, SEEK_CUR);
 	fread(&header, sizeof(int), 1, a->file);
 	if(a->byte_swapped)
-	  evn = swap_long_value(header);
+	  evn = swap_int32_t_value(header);
 	else
 	  evn = header;
 	last_evn = evn;
@@ -803,7 +803,7 @@ static int findLastEventWithinBlock(EVFILE *a)
 
 
 /********************************************************************
- *      int evSearch(int, int, int, int *, int, int *)              *
+ *      int32_t evSearch(int, int, int, int32_t *, int, int32_t *)              *
  * Description:                                                     *
  *    Doing binary search for event number evn, -1 failure          *
  *    Copy event to buffer with buffer length buflen                *
@@ -812,12 +812,12 @@ static int findLastEventWithinBlock(EVFILE *a)
  *    return -1: the event number bigger than largest ev number     *
  *    return 1:  cannot find the event number                       *
  *******************************************************************/
-int evSearch(int handle, int b_handle, int evn, int *buffer, int buflen, int *size)
+int32_t evSearch(int32_t handle, int32_t b_handle, int32_t evn, int32_t *buffer, int32_t buflen, int32_t *size)
 {
   EVFILE    *a;
   EVBSEARCH *b;
-  int       start,end, mid;
-  int       found;
+  int32_t       start,end, mid;
+  int32_t       found;
 
 #ifdef _LP64
   a = handle_list[handle-1];
@@ -879,8 +879,8 @@ int evSearch(int handle, int b_handle, int evn, int *buffer, int buflen, int *si
 
 
 /****************************************************************************
- *   static int evSearchWithinBlock(EVFILE *, EVBSEARCH *, int *,int, int * *
- *                                  int, int *                )             *
+ *   static int32_t evSearchWithinBlock(EVFILE *, EVBSEARCH *, int32_t *,int, int32_t * *
+ *                                  int, int32_t *                )             *
  * Description:                                                             *
  *    Doing sequential search on a particular block to find out event       *
  *    number evn                                                            *
@@ -888,11 +888,11 @@ int evSearch(int handle, int b_handle, int evn, int *buffer, int buflen, int *si
  *    return -1: evn < all events in the block                              *
  *    return 1:  evn > all events in the block                              *
  ***************************************************************************/
-static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum, 
-			       int evn, int *buffer, int buflen, int *size)
+static int32_t evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int32_t *bknum, 
+			       int32_t evn, int32_t *buffer, int32_t buflen, int32_t *size)
 {
-  int temp, ev_size, status;
-  int found = 0, t_evn, block_num, ev_type;
+  int32_t temp, ev_size, status;
+  int32_t found = 0, t_evn, block_num, ev_type;
 
   evFindEventBlockNum(a, b, bknum);
   block_num = *bknum;
@@ -904,7 +904,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
    */
   fread(&temp,sizeof(int),1,a->file);
   if(a->byte_swapped)
-    ev_size = swap_long_value(temp) + 1;
+    ev_size = swap_int32_t_value(temp) + 1;
   else
     ev_size = temp + 1;
 
@@ -927,7 +927,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
       while(!found && a->left > 0) {
 	fread(&temp, sizeof(int), 1, a->file);
 	if(a->byte_swapped)
-	  ev_size = swap_long_value(temp) + 1;
+	  ev_size = swap_int32_t_value(temp) + 1;
 	else
 	  ev_size = temp + 1;
 	/* read event type */
@@ -977,21 +977,21 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
 
 
 /********************************************************************
- *   static void evFindEventBlockNum(EVFILE *, EVBSEARCH *, int *)  *
+ *   static void evFindEventBlockNum(EVFILE *, EVBSEARCH *, int32_t *)  *
  * Description:                                                     *
  *    find out real block number in the case of this block          *
  *    has one big event just crossing it                            *
  *******************************************************************/
-static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
+static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int32_t *bknum)
 {
-  int header[EV_HDSIZ], buf[EV_HDSIZ], block_num, nleft;
+  int32_t header[EV_HDSIZ], buf[EV_HDSIZ], block_num, nleft;
 
   block_num = *bknum;
   while(block_num <= b->ebk) {
     fseek(a->file, a->blksiz*block_num*4, SEEK_SET);
     fread(header, sizeof(header), 1, a->file);
     if(a->byte_swapped)
-      swap_long((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
+      swap_int32_t((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
     else
       memcpy(buf, header, EV_HDSIZ*4);
     if(buf[EV_HD_START] > 0) {
@@ -1012,7 +1012,7 @@ static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
     fseek(a->file, a->blksiz*block_num*4, SEEK_SET);
     fread(header, sizeof(header), 1, a->file);
     if(a->byte_swapped)
-      swap_long((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
+      swap_int32_t((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
     else
       memcpy((char *)buf, (char *)header, EV_HDSIZ*4);
     if(buf[EV_HD_START] > 0) {
@@ -1036,20 +1036,20 @@ static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
 
 
 /*************************************************************************
- *   static int isRealEventInsideBlock(EVFILE *, int, int)               *
+ *   static int32_t isRealEventInsideBlock(EVFILE *, int, int)               *
  * Description:                                                          *
  *     Find out whether there is a real event inside this block          *
  *     return 1: yes, return 0: no                                       *
  ************************************************************************/
-static int isRealEventsInsideBlock(EVFILE *a, int bknum, int old_left)
+static int32_t isRealEventsInsideBlock(EVFILE *a, int32_t bknum, int32_t old_left)
 {
-  int nleft = old_left;
-  int ev_size, temp, ev_type;
+  int32_t nleft = old_left;
+  int32_t ev_size, temp, ev_type;
 
   while(nleft > 0) {
     fread(&temp, sizeof(int), 1, a->file);
     if(a->byte_swapped)
-      ev_size = swap_long_value(temp) + 1;
+      ev_size = swap_int32_t_value(temp) + 1;
     else
       ev_size = temp + 1;
 
@@ -1076,20 +1076,20 @@ static int isRealEventsInsideBlock(EVFILE *a, int bknum, int old_left)
 
 
 /*****************************************************************************
- *    static int copySingleEvent(EVFILE *, int *, int, int)                  *
+ *    static int32_t copySingleEvent(EVFILE *, int32_t *, int, int)                  *
  * Description:                                                              *
  *    copy a single event to buffer by using fread.                          *
- *    starting point is given by EVFILE *a                                   *
+ *    starting point32_t is given by EVFILE *a                                   *
  ****************************************************************************/      
-static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
+static int32_t copySingleEvent(EVFILE *a, int32_t *buffer, int32_t buflen, int32_t ev_size)
 {
-  int *temp_buffer, *temp_ptr, *ptr;
-  int status, nleft, block_left;
-  int ncopy;
+  int32_t *temp_buffer, *temp_ptr, *ptr;
+  int32_t status, nleft, block_left;
+  int32_t ncopy;
 
 
   if(a->byte_swapped) {
-    temp_buffer = (int *)malloc(buflen*sizeof(int));
+    temp_buffer = (int32_t *)malloc(buflen*sizeof(int));
     temp_ptr = temp_buffer;
   }
   else{
@@ -1161,11 +1161,11 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
 
 
 /***********************************************************************
- *   int evCloseSearch(int )                                           *
+ *   int32_t evCloseSearch(int32_t )                                           *
  * Description:                                                        *
  *     Close evSearch process, release memory                          *
  **********************************************************************/
-int evCloseSearch(int b_handle)
+int32_t evCloseSearch(int32_t b_handle)
 {
   EVBSEARCH *b;
 #ifdef _LP64
@@ -1183,13 +1183,13 @@ int evCloseSearch(int b_handle)
 
 
 /**********************************************************************
- *     static int evGeteventNumber(EVFILE *, int)                     *
+ *     static int32_t evGeteventNumber(EVFILE *, int)                     *
  * Description:                                                       *
  *     get event number starting from event head.                     *
  *********************************************************************/
-static int evGetEventNumber(EVFILE *a, int ev_size)
+static int32_t evGetEventNumber(EVFILE *a, int32_t ev_size)
 {
-  int temp, evn, nleft;
+  int32_t temp, evn, nleft;
 
   nleft = a->left + ev_size;
   if(nleft >= 5)
@@ -1198,7 +1198,7 @@ static int evGetEventNumber(EVFILE *a, int ev_size)
     fseek(a->file, (EV_HDSIZ+3)*4, SEEK_CUR);
   fread(&temp, sizeof(int), 1, a->file);
   if(a->byte_swapped)
-    evn = swap_long_value(temp);
+    evn = swap_int32_t_value(temp);
   else
     evn = temp;
 
@@ -1213,15 +1213,15 @@ static int evGetEventNumber(EVFILE *a, int ev_size)
 
 /*-----------------------------------------------------------------------------*/
 
-static int evGetEventType(EVFILE *a)
+static int32_t evGetEventType(EVFILE *a)
 {
-  int ev_type, temp, t_temp;
+  int32_t ev_type, temp, t_temp;
   
-  if(a->left == 1) /* event type long word is in the following block */
+  if(a->left == 1) /* event type 32-bit word is in the following block */
     fseek(a->file, (EV_HDSIZ)*4,SEEK_CUR);
   if(a->byte_swapped) {
     fread(&t_temp, sizeof(int), 1, a->file);
-    swap_long((unsigned int*)&t_temp,1,(unsigned int*)&temp);
+    swap_int32_t((unsigned int*)&t_temp,1,(unsigned int*)&temp);
   }
   else
     fread(&temp, sizeof(int), 1, a->file);
@@ -1240,7 +1240,7 @@ static int evGetEventType(EVFILE *a)
 
 
 /*************************************************************************
- *   static int physicsEventsInsideBlock(a)                              *
+ *   static int32_t physicsEventsInsideBlock(a)                              *
  * Description:                                                          *
  *     Check out whether this block pointed by a contains any physics    *
  *     events                                                            *
@@ -1249,15 +1249,15 @@ static int evGetEventType(EVFILE *a)
  *     the file pointer will stays at the begining of the first physics  *
  *     event    inside the block                                         *
  ************************************************************************/
-static int physicsEventsInsideBlock(EVFILE *a)
+static int32_t physicsEventsInsideBlock(EVFILE *a)
 {
-  int header[EV_HDSIZ], buf[EV_HDSIZ];
-  int nleft, temp, ev_size, ev_type;
+  int32_t header[EV_HDSIZ], buf[EV_HDSIZ];
+  int32_t nleft, temp, ev_size, ev_type;
   
   /* copy block header information */
   if(a->byte_swapped) {
     fread(header, sizeof(header), 1, a->file);
-    swap_long((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
+    swap_int32_t((unsigned int*)header,EV_HDSIZ,(unsigned int*)buf);
   }
   else
     fread(buf, sizeof(buf), 1, a->file);
@@ -1271,7 +1271,7 @@ static int physicsEventsInsideBlock(EVFILE *a)
     while (nleft > 0) {
       fread(&temp, sizeof(int), 1, a->file);
       if(a->byte_swapped)
-	ev_size = swap_long_value(temp) + 1;
+	ev_size = swap_int32_t_value(temp) + 1;
       else
 	ev_size = temp + 1;
       /* check event type and file pointer stays */
