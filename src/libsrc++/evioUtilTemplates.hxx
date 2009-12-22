@@ -26,14 +26,16 @@
 template <typename T> class evioUtil {
 
 public: static int evioContentType(void) throw(evioException) {
-    throw(evioException(0,"?evioUtil<T>::evioContentType...unsupported data type",__FILE__,__FUNCTION__,__LINE__));
-    return(0);
-  }
+  throw(evioException(0,"?evioUtil<T>::evioContentType...unsupported data type: "+string(typeid(T).name()),
+                      __FILE__,__FUNCTION__,__LINE__));
+   return(0);
+ }
 };
 
 template <> class evioUtil<uint32_t>     {public: static int evioContentType(void)  throw(evioException) {return(0x1);}};
 template <> class evioUtil<float>        {public: static int evioContentType(void)  throw(evioException) {return(0x2);}};
 template <> class evioUtil<string&>      {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
+template <> class evioUtil<string>       {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
 template <> class evioUtil<int16_t>      {public: static int evioContentType(void)  throw(evioException) {return(0x4);}};
 template <> class evioUtil<uint16_t>     {public: static int evioContentType(void)  throw(evioException) {return(0x5);}};
 template <> class evioUtil<int8_t>       {public: static int evioContentType(void)  throw(evioException) {return(0x6);}};
@@ -75,6 +77,7 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, 
  */
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, const T* t, int len)
   throw(evioException) {
+  cout << "tag,num,len " << tag << "   " << (int)num << "   " << len << endl;
   return(new evioDOMLeafNode<T>(NULL,tag,num,t,len));
 }
 

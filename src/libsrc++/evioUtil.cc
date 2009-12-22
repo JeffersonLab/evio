@@ -1106,7 +1106,6 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
   // create and fill new leaf
   evioDOMNodeP newLeaf;
   string s;
-  ostringstream os;
   switch (contentType) {
 
   case 0x0:
@@ -1119,10 +1118,13 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
     break;
       
   case 0x3:
-    for(int i=0; i<length; i++) os << ((char*)data)[i];
-    s=os.str();
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,&s,1);
-    break;
+    {
+      ostringstream ss;
+      for(int i=0; i<length; i++) ss << ((char*)data)[i];
+      s=ss.str();
+      newLeaf = evioDOMNode::createEvioDOMNode(tag,num,&s,1);
+      break;
+    }
 
   case 0x4:
     newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int16_t*)data,length);
@@ -1157,10 +1159,12 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
     break;
 
   default:
-    ostringstream ss;
-    ss << hex << showbase << contentType;
-    throw(evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
-    break;
+    {
+      ostringstream ss;
+      ss << hex << showbase << contentType;
+      throw(evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
+      break;
+    }
   }
 
 

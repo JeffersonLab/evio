@@ -171,6 +171,8 @@ int main(int argc, char **argv) {
 
   } catch (evioException e) {
     cerr << e.toString() << endl;
+  } catch (...) {
+    cerr << "?unknown exception" << endl;
   }
   
 }

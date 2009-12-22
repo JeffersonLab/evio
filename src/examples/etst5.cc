@@ -121,23 +121,24 @@ int main(int argc, char **argv) {
   uint32_t buf2[MAXBUFLEN];
   int maxev =0;
   vector<int32_t> ivec;
+  char *filename;
 
 
   for(int i=0; i<10; i++) ivec.push_back(i);
 
-  
-
-  if(argc < 2) {
-    printf("Incorrect number of arguments:\n");
-    printf("  usage: etst5 filename [maxev]\n");
-    exit(-1);
+ 
+  if(argc>1) {
+    filename=argv[1];
+  } else {
+    filename="fakeEvents.dat";
   }
 
-  if ( (status = evOpen(argv[1],(char*)"r",&handle)) < 0) {
-    printf("Unable to open file %s status = %d\n",argv[1],status);
+
+  if ((status=evOpen(filename,(char*)"r",&handle))<0) {
+    printf("Unable to open file %s status = %d\n",filename,status);
     exit(-1);
   } else {
-    printf("Opened %s for reading\n",argv[1]);
+    printf("Opened %s for reading\n",filename);
   }
 
   if(argc==3) {
@@ -163,13 +164,13 @@ int main(int argc, char **argv) {
 
 
 
-
       // DOM parse the event and create event tree
+      cout << endl << endl << "DOM parsing event:" << endl << endl;
       evioDOMTree t(buf,"fred");
 
 
       // dump tree
-      cout << endl << endl << "DOM parsing event:" << endl << t.toString() << endl;
+      cout << t.toString() << endl;
       
 
       // fill new evio buffer
