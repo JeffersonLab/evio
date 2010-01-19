@@ -38,6 +38,7 @@
 #include <utility>
 #include <cstring>
 #include <exception>
+#include <typeinfo>
 
 #ifdef sun
 #include <sys/param.h>
