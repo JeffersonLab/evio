@@ -77,7 +77,6 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, 
  */
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, const T* t, int len)
   throw(evioException) {
-  cout << "tag,num,len " << tag << "   " << (int)num << "   " << len << endl;
   return(new evioDOMLeafNode<T>(NULL,tag,num,t,len));
 }
 
