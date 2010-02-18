@@ -34,6 +34,49 @@ osname   = platform + '-' +  machine
 # So for vxworks, make sure the tools are in your PATH
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
+####################################################################################
+# Create a Builder to install symbolic links, where "source" is list of node objects
+# of the existing files, and "target" is a list of node objects of link files.
+# NOTE: link file must have same name as its source file.
+####################################################################################
+def buildSymbolicLinks(target, source, env):    
+    # For each file to create a link for ...
+    for s in source:
+        filename = os.path.basename(str(s))
+
+        # is there a corresponding link to make?
+        makeLink = False
+        for t in target:
+            linkname = os.path.basename(str(t))
+            if not linkname == filename:
+                continue
+            else :
+                makeLink = True
+                break
+
+        # go to next source since no corresponding link
+        if not makeLink:
+            continue
+        
+        # If link exists don't recreate it
+        try:
+            # Test if the symlink exists
+            lstat(str(t))
+        except OSError:
+            # OK, symlink doesn't exist so create it
+            pass
+        else:
+            continue
+
+        print "Create link = " + str(t)
+        symlink(str(s), str(t))
+
+    return None
+
+
+symLinkBuilder = Builder(action = buildSymbolicLinks)
+env.Append(BUILDERS = {'CreateSymbolicLinks' : symLinkBuilder})
+
 ################################
 # 64 or 32 bit operating system?
 ################################
@@ -108,6 +151,15 @@ print "debug =", debug
 Help('\nlocal scons OPTIONS:\n')
 Help('--dbg               compile with debug flag\n')
 
+# vxworks option
+AddOption('--vx',
+           dest='doVX',
+           default=False,
+           action='store_true')
+useVxworks = GetOption('doVX')
+print "useVxworks =", useVxworks
+Help('--vx                cross compile for vxworks\n')
+
 # 32 bit option
 AddOption('--32bits',
            dest='use32bits',
@@ -148,6 +200,10 @@ if debug:
     # compile with -g and add debugSuffix to all executable names
     env.Append(CCFLAGS = '-g', PROGSUFFIX = debugSuffix)
 
+elif useVxworks:
+    # no optimization for vxworks
+    junk = 'rt'
+
 elif platform == 'SunOS':
     env.Append(CCFLAGS = '-xO3')
 
@@ -157,38 +213,76 @@ else:
 vxInc = ''
 execLibs = ['']
 
-# platform dependent quantities
-execLibs = ['expat', 'z']  # default to standard Linux libs
-if platform == 'SunOS':
-    env.Append(CCFLAGS = '-mt')
-    env.Append(CPPDEFINES = ['_GNU_SOURCE', '_REENTRANT', '_POSIX_PTHREAD_SEMANTICS', 'SunOS'])
-    execLibs = ['m', 'posix4', 'pthread', 'dl']
-    if is64bits and not use32bits:
-        if machine == 'sun4u':
-            env.Append(CCFLAGS = '-xarch=native64 -xcode=pic32',
-                       #LIBPATH = '/lib/64', # to do this we need to pass LIBPATH to lower level
-                       LINKFLAGS = '-xarch=native64 -xcode=pic32')
-        else:
-            env.Append(CCFLAGS = '-xarch=amd64',
-                       #LIBPATH = ['/lib/64', '/usr/ucblib/amd64'],
-                       LINKFLAGS = '-xarch=amd64')
+# If using vxworks
+if useVxworks:
+    print "\nDoing vxworks\n"
+    osname = 'vxworks-ppc'
 
-elif platform == 'Darwin':
-    execLibs = ['pthread', 'dl']
-    env.Append(CPPDEFINES = 'Darwin', SHLINKFLAGS = '-multiply_defined suppress -flat_namespace -undefined suppress')
-    env.Append(CCFLAGS = '-fmessage-length=0')
-    if is64bits and not use32bits:
-        env.Append(CCFLAGS = '-arch x86_64',
-                   LINKFLAGS = '-arch x86_64 -Wl,-bind_at_load')
-
-elif platform == 'Linux':
-    if is64bits and use32bits:
-        env.Append(CCFLAGS = '-m32', LINKFLAGS = '-m32')
-
-if not is64bits and not use32bits:
+    if platform == 'Linux':
+        vxbase = os.getenv('WIND_BASE', '/site/vxworks/5.5/ppc')
+        vxbin = vxbase + '/x86-linux/bin'
+    elif platform == 'SunOS':
+        vxbase = os.getenv('WIND_BASE', '/site/vxworks/5.5/ppc')
+        print "WIND_BASE = ", vxbase
+        vxbin = vxbase + '/sun4-solaris/bin'
+        if machine == 'i86pc':
+            print '\nVxworks compilation not allowed on x86 solaris\n'
+            raise SystemExit
+    else:
+        print '\nVxworks compilation not allowed on ' + platform + '\n'
+        raise SystemExit
+                    
+    env.Replace(SHLIBSUFFIX = '.o')
+    # get rid of -shared and use -r
+    env.Replace(SHLINKFLAGS = '-r')
+    # redefine SHCFLAGS/SHCCFLAGS to get rid of -fPIC (in Linux)
+    env.Replace(SHCFLAGS = '-fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -mlongcall -mcpu=604')
+    env.Replace(SHCCFLAGS = '-fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -mlongcall -mcpu=604')
+    env.Append(CFLAGS = '-fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -mlongcall -mcpu=604')
+    env.Append(CCFLAGS = '-fno-for-scope -fno-builtin -fvolatile -fstrength-reduce -mlongcall -mcpu=604')
+    env.Append(CPPPATH = vxbase + '/target/h')
+    env.Append(CPPDEFINES = ['CPU=PPC604', 'VXWORKS', '_GNU_TOOL', 'VXWORKSPPC', 'POSIX_MISTAKE'])
+    env['CC']     = 'ccppc'
+    env['CXX']    = 'g++ppc'
+    env['SHLINK'] = 'ldppc'
+    env['AR']     = 'arppc'
+    env['RANLIB'] = 'ranlibppc'
     use32bits = True
 
-if is64bits and use32bits:
+# else if NOT using vxworks
+else:
+    # platform dependent quantities
+    execLibs = ['expat', 'z']  # default to standard Linux libs
+    if platform == 'SunOS':
+        env.Append(CCFLAGS = '-mt')
+        env.Append(CPPDEFINES = ['_GNU_SOURCE', '_REENTRANT', '_POSIX_PTHREAD_SEMANTICS', 'SunOS'])
+        execLibs = ['m', 'posix4', 'pthread', 'dl']
+        if is64bits and not use32bits:
+            if machine == 'sun4u':
+                env.Append(CCFLAGS = '-xarch=native64 -xcode=pic32',
+                           #LIBPATH = '/lib/64', # to do this we need to pass LIBPATH to lower level
+                           LINKFLAGS = '-xarch=native64 -xcode=pic32')
+            else:
+                env.Append(CCFLAGS = '-xarch=amd64',
+                           #LIBPATH = ['/lib/64', '/usr/ucblib/amd64'],
+                           LINKFLAGS = '-xarch=amd64')
+
+    elif platform == 'Darwin':
+        execLibs = ['pthread', 'dl']
+        env.Append(CPPDEFINES = 'Darwin', SHLINKFLAGS = '-multiply_defined suppress -flat_namespace -undefined suppress')
+        env.Append(CCFLAGS = '-fmessage-length=0')
+        if is64bits and not use32bits:
+            env.Append(CCFLAGS = '-arch x86_64',
+                       LINKFLAGS = '-arch x86_64 -Wl,-bind_at_load')
+
+    elif platform == 'Linux':
+        if is64bits and use32bits:
+            env.Append(CCFLAGS = '-m32', LINKFLAGS = '-m32')
+
+    if not is64bits and not use32bits:
+        use32bits = True
+
+if is64bits and use32bits and not useVxworks:
     osname = osname + '-32'
 
 print "OSNAME = ", osname
@@ -220,6 +314,7 @@ else:
 # set our install directories
 libDir = prefix + "/" + osname + '/lib'
 binDir = prefix + "/" + osname + '/bin'
+archIncDir = prefix + "/" + osname + '/include'
 incDir = prefix + '/include'
 print 'binDir = ', binDir
 print 'libDir = ', libDir
@@ -237,13 +332,8 @@ Help('examples            install executable examples\n')
 # use "tests" on command line to install executable tests
 Help('tests               install executable tests\n')
 
-# create needed install directories
-if not os.path.exists(incDir):
-    Execute(Mkdir(incDir))
-if not os.path.exists(libDir):
-    Execute(Mkdir(libDir))
-if not os.path.exists(binDir):
-    Execute(Mkdir(binDir))
+# not necessary to create install directories explicitly
+# (done automatically during install)
 
 #########################
 # Tar file
@@ -278,14 +368,18 @@ Help('tar                 create tar file (in ./tar)\n')
 ######################################################
 
 # make available to lower level scons files
-Export('env incDir libDir binDir archDir execLibs tarfile debugSuffix')
+Export('env incDir libDir binDir archIncDir archDir execLibs tarfile debugSuffix')
 
 # run lower level build files
-env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
-env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
-env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
-env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
-env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
+
+if useVxworks:
+    env.SConscript('src/libsrc++/SConscript.vx', variant_dir='src/libsrc++/'+archDir, duplicate=0)
+else
+    env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
+    env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
+    env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
+    env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
+    env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
 
 #########################
 # Uninstall stuff
