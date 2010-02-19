@@ -10,6 +10,7 @@
 
 #include <vector>
 #include "evioUtil.hxx"
+#include "evioFileChannel.hxx"
 
 using namespace evio;
 using namespace std;

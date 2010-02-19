@@ -6,6 +6,7 @@
 
 
 #include <evioUtil.hxx>
+#include "evioFileChannel.hxx"
 #include <stdio.h>
 #include <algorithm>
 
@@ -59,11 +60,15 @@ int main(int argc, char **argv) {
   unsigned int ui;
 
 
-  // check for file name
-  if(argc==1) {
-    cout << "Usage:  etst6 fileName max_evt" << endl << endl;
-    exit(EXIT_SUCCESS);
+  evioFileChannel *chan;
+
+  if(argc>1) {
+    chan = new evioFileChannel(argv[1],"r");
+  } else {
+    chan = new evioFileChannel("fakeEvents.dat","r");
   }
+  chan->open();
+    
 
   // get max events
   if(argc==3) {
@@ -86,17 +91,16 @@ int main(int argc, char **argv) {
     
 
     // open file
-    evioFileChannel e(argv[1]);
-    e.open();
+    chan->open();
   
   
     // loop over events
     nevents=0;
-    while(e.read()) {
+    while(chan->read()) {
       nevents++;
     
       // create tree from file channel
-      evioDOMTree t(e);
+      evioDOMTree t(chan);
     
     
       // print tree
@@ -268,7 +272,7 @@ int main(int argc, char **argv) {
 
 
     // close file
-    e.close();
+    chan->close();
   
   } catch (evioException e) {
     cerr << endl << e.toString() << endl << endl;

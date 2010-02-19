@@ -5,17 +5,10 @@
 */
 
 
-#include "evioUtil.hxx"
-
-
-#ifndef sun
-  #ifndef _MSC_VER
-    #include <execinfo.h>
-    #include <cxxabi.h>
-  #endif
-  #include <sstream>
+#ifdef vxworks
+#include <iostream.h>
 #endif
-
+#include "evioUtil.hxx"
 
 using namespace std;
 using namespace evio;
@@ -40,362 +33,7 @@ namespace evio {
   
 //--------------------------------------------------------------
 
-
-  /** 
-   * Returns stack trace.
-   * @return String containing stack trace
-   */
-  string getStackTrace() {
-
-#ifdef sun
-    return("");
-#endif
-#ifdef _MSC_VER
-    return("");
-#else
-    size_t dlen = 1024;
-    char *dname = (char*)malloc(dlen);
-    void *trace[1024];
-    int status;
-
-
-    // get trace messages
-    int trace_size = backtrace(trace,1024);
-    if(trace_size>1024)trace_size=1024;
-    char **messages = backtrace_symbols(trace, trace_size);
-    
-    // demangle and create string
-    stringstream ss;
-    for(int i=0; i<trace_size; ++i) {
-      
-      // find first '(' and '+'
-      char *ppar = strchr(messages[i],'(');
-      char *pplus = strchr(messages[i],'+');
-      if((ppar!=NULL)&&(pplus!=NULL)) {
-        
-        // replace '+' with nul, then get demangled name
-        *pplus='\0';
-        abi::__cxa_demangle(ppar+1,dname,&dlen,&status);
-        
-        // add to stringstream
-        *(ppar+1)='\0';
-        *pplus='+';
-        ss << "   " << messages[i] << dname << pplus << endl;
-
-      } else {
-        ss << "   " << messages[i] << endl;
-      }
-
-    }
-      
-    free(dname);
-    free(messages);
-    return(ss.str());
-#endif
-
-  }
-
 }  // namespace evio
-
-
-//-----------------------------------------------------------------------
-//-------------------------- evioException ------------------------------
-//-----------------------------------------------------------------------
-
-
-/**
- * Constructor.
- * @param typ User-defined exception type
- * @param txt Basic text
- * @param aux Auxiliary text
- */
-evioException::evioException(int typ, const string &txt, const string &aux) 
-  : type(typ), text(txt), auxText(aux), trace(getStackTrace()) {
-}
-
-
-//--------------------------------------------------------------
-
-
-/**
- * Constructor.
- * @param typ Exception type user-defined
- * @param txt Basic exception text
- * @param file __FILE__
- * @param func __FUNCTION__ (not on sun)
- * @param line __LINE__
- */
-evioException::evioException(int typ, const string &txt, const string &file, const string &func, int line) 
-  : type(typ), text(txt), trace(getStackTrace()) {
-
-  ostringstream oss;
-  oss <<  "    evioException occured in file " << file << ", function " << func << ", line " << line;
-  auxText=oss.str();
-}
-
-
-//--------------------------------------------------------------
-
-
-/**
- * Returns XML string listing exception object contents.
- * @return XML string listing contents
- */
-string evioException::toString(void) const throw() {
-  ostringstream oss;
-  oss << "?evioException type = " << type << "    text = " << text << endl << endl << auxText;
-  if(trace.size()>0) oss << endl << endl << endl << "Stack trace:" << endl << endl << trace << endl;
-  return(oss.str());
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Returns char * listing exception object contents.
- * @return char * listing contents
- */
-const char *evioException::what(void) const throw() {
-  return(toString().c_str());
-}
-
-
-//-----------------------------------------------------------------------
-//------------------------- evioFileChannel -----------------------------
-//-----------------------------------------------------------------------
-
-
-/**
- * Constructor opens file for reading or writing.
- * @param f File name
- * @param m I/O mode, "r" or "w"
- * @param size Internal buffer size
- */
-evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : filename(f), mode(m), handle(0), bufSize(size) {
-
-  // allocate buffer
-  buf = new uint32_t[bufSize];
-  if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Destructor closes file, deletes internal buffer.
- */
-evioFileChannel::~evioFileChannel(void) {
-  if(handle!=0)close();
-  if(buf!=NULL) {
-    delete[](buf),buf=NULL;
-  }
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Opens channel for reading or writing.
- */
-void evioFileChannel::open(void) throw(evioException) {
-
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
-    throw(evioException(0,"?evioFileChannel::open...unable to open file",__FILE__,__FUNCTION__,__LINE__));
-  if(handle==0)throw(evioException(0,"?evioFileChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Reads from file into internal buffer.
- * @return true if successful, false on EOF or other evRead error condition
- */
-bool evioFileChannel::read(void) throw(evioException) {
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  return(evRead(handle,&buf[0],bufSize)==0);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Reads from file into user-supplied buffer.
- * @param myBuf User-supplied buffer.
- * @parem length Length of buffer in 4-byte words.
- * @return true if successful, false on EOF or other evRead error condition
- */
-bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
-  if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
-  if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  return(evRead(handle,&myBuf[0],length)==0);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Writes to file from internal buffer.
- */
-void evioFileChannel::write(void) throw(evioException) {
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::write...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,buf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write",__FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Writes to file from user-supplied buffer.
- * @param myBuf Buffer containing event
- */
-void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
-  if(myBuf==NULL)throw(evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__FUNCTION__,__LINE__));
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,myBuf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Writes to file from internal buffer of another evioChannel object.
- * @param channel Channel object
- */
-void evioFileChannel::write(const evioChannel &channel) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,channel.getBuffer())!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from channel",__FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Writes from internal buffer of another evioChannel object.
- * @param channel Pointer to channel object
- */
-void evioFileChannel::write(const evioChannel *channel) throw(evioException) {
-  if(channel==NULL)throw(evioException(0,"evioFileChannel::write...null channel",__FILE__,__FUNCTION__,__LINE__));
-  evioFileChannel::write(*channel);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Writes from contents of evioDOMTree object.
- * @param tree evioDOMTree containing event
- */
-void evioFileChannel::write(const evioDOMTree &tree) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  tree.toEVIOBuffer(buf,bufSize);
-  evioFileChannel::write();
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Writes from contents of evioDOMTree object.
- * @param tree Pointer to evioDOMTree containing event
- */
-void evioFileChannel::write(const evioDOMTree *tree) throw(evioException) {
-  if(tree==NULL)throw(evioException(0,"evioFileChannel::write...null tree",__FILE__,__FUNCTION__,__LINE__));
-  evioFileChannel::write(*tree);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * For setting evIoctl parameters.
- * @param request String containing evIoctl parameters
- * @param argp Additional evIoctl parameter
- */
-void evioFileChannel::ioctl(const string &request, void *argp) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
-    throw(evioException(0,"?evioFileChannel::ioCtl...error return",__FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Closes channel.
- */
-void evioFileChannel::close(void) throw(evioException) {
-  if(handle==0)throw(evioException(0,"evioFileChannel::close...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  evClose(handle);
-  handle=0;
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Returns channel file name.
- * @return String containing file name
- */
-string evioFileChannel::getFileName(void) const {
-  return(filename);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Returns channel I/O mode.
- * @return String containing I/O mode
- */
-string evioFileChannel::getMode(void) const {
-  return(mode);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Returns pointer to internal channel buffer.
- * @return Pointer to internal buffer
- */
-const uint32_t *evioFileChannel::getBuffer(void) const throw(evioException) {
-  if(buf==NULL)throw(evioException(0,"evioFileChannel::getbuffer...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  return(buf);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-
-/**
- * Returns internal channel buffer size.
- * @return Internal buffer size in 4-byte words
- */
-int evioFileChannel::getBufSize(void) const {
-  return(bufSize);
-}
 
 
 //-----------------------------------------------------------------------
@@ -474,7 +112,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
 
   default:
     ostringstream ss;
-    ss << hex << showbase << bankType;
+    ss << hex << ios::showbase << bankType;
     throw(evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
   }
 
@@ -542,7 +180,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
 
   default:
     ostringstream ss;
-    ss << hex << showbase << contentType;
+    ss << hex << ios::showbase << contentType;
     throw(evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
 
@@ -920,7 +558,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
   os << getIndent(depth)
      <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType)
-     << "\" data_type=\"" << hex << showbase << getContentType()
+     << "\" data_type=\"" << hex << ios::showbase << getContentType()
      << dec << "\" tag=\""  << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << (int)num;
   os << "\">" << endl;
@@ -1161,7 +799,7 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
   default:
     {
       ostringstream ss;
-      ss << hex << showbase << contentType;
+      ss << hex << ios::showbase << contentType;
       throw(evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
       break;
     }
@@ -1292,7 +930,7 @@ int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioE
     break;
   default:
     ostringstream ss;
-    ss << hex << showbase << bankType;
+    ss << hex << ios::showbase << bankType;
     throw(evioException(0,"evioDOMTree::getSerializedLength...illegal bank type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
@@ -1430,7 +1068,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     break;
   default:
     ostringstream ss;
-    ss << hex << showbase << bankType;
+    ss << hex << ios::showbase << bankType;
     throw(evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }

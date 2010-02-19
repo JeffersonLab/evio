@@ -10,5 +10,5 @@ fileList = ['evio.c',
 env.AppendUnique(CPPPATH = ['.'])
 evioLib = env.SharedLibrary(target = 'evio'+debugSuffix, source = fileList)
 
-env.Alias("install", env.Install(target = incDir, source = 'evio.h'))
+env.Alias("install", env.Install(target = incDir, source = ['evio.h', 'evio_util.h']))
 env.Alias("install", env.Install(target = libDir, source = evioLib))

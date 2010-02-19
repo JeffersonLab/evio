@@ -14,19 +14,16 @@
 //  would like to do:
 //   cMsg channel
 //   ET channel
-//   exception stack trace
 
 
 // not sure:
 //   scheme for exception type codes?
-//   AIDA interface?
 
 
 #ifndef _evioUtil_hxx
 #define _evioUtil_hxx
 
 
-#include <evio.h>
 #include <list>
 #include <vector>
 #include <iostream>
@@ -37,20 +34,12 @@
 #include <memory>
 #include <utility>
 #include <cstring>
-#include <exception>
 #include <typeinfo>
 
-#ifdef sun
-#include <sys/param.h>
-#else
-#include <stddef.h>
-#ifdef _MSC_VER
-   typedef __int64 int64_t;	// Define it from MSVC's internal type
-   #include "msinttypes.h"
-#else
-   #include <stdint.h>		  // Use the C99 official header
-#endif
-#endif
+
+#include <evio_util.h>
+#include <evioException.hxx>
+#include <evioChannel.hxx>
 
 
 
@@ -88,12 +77,10 @@
 namespace evio {
 
 using namespace std;
+using namespace evio;
 
 
 // evio classes:
-class evioException;
-class evioChannel;
-class evioFileChannel;
 class evioStreamParserHandler;
 class evioStreamParser;
 class evioDOMTree;
@@ -195,105 +182,6 @@ typedef pair<uint16_t, uint8_t> tagNum;  /**<STL pair of tag,num.*/
 
 
 /**
- * Basic evio exception class.  Includes integer type and two text fields.
- */
-class evioException : public exception {
-
-public:
-  evioException(int typ = 0, const string &txt = "", const string &aux = "");
-  evioException(int typ, const string &txt, const string &file, const string &func, int line);
-  virtual ~evioException(void) throw() {};
-  virtual string toString(void) const throw();
-  virtual const char *what(void) const throw();
-
-
-public:
-  int type;        /**<Exception type.*/
-  string text;     /**<Primary text.*/
-  string auxText;  /**<Auxiliary text.*/
-  string trace;    /**<Stack trace, not available on all platforms.*/
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-/**
- * Virtual class defines EVIO I/O channel functionality.
- * Sub-class gets channel-specific info from constructor and implements 
- * evioChannel methods.
- */
-class evioChannel {
-
-public:
-  virtual void open(void) throw(evioException) = 0;
-  virtual bool read(void) throw(evioException) = 0;
-  virtual bool read(uint32_t *myBuf, int length) throw(evioException) = 0;
-  virtual void write(void) throw(evioException) = 0;
-  virtual void write(const uint32_t* myBuf) throw(evioException) = 0;
-  virtual void write(const evioChannel &channel) throw(evioException) = 0;
-  virtual void write(const evioChannel *channel) throw(evioException) = 0;
-  virtual void write(const evioDOMTree &tree) throw(evioException) = 0;
-  virtual void write(const evioDOMTree *tree) throw(evioException) = 0;
-  virtual void close(void) throw(evioException) = 0;
-  virtual ~evioChannel(void) {};
-
-  // not sure if these should be part of the interface
-  virtual const uint32_t *getBuffer(void) const throw(evioException) = 0;
-  virtual int getBufSize(void) const = 0;
-
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-/**
- * Implements evioChannel functionality for I/O to and from files.
- * Basically a wrapper around the original evio C library.
- */
-class evioFileChannel : public evioChannel {
-
-public:
-  evioFileChannel(const string &fileName, const string &mode = "r", int size = 8192) throw(evioException);
-  virtual ~evioFileChannel(void);
-
-
-  void open(void) throw(evioException);
-  bool read(void) throw(evioException);
-  bool read(uint32_t *myBuf, int length) throw(evioException);
-  void write(void) throw(evioException);
-  void write(const uint32_t *myBuf) throw(evioException);
-  void write(const evioChannel &channel) throw(evioException);
-  void write(const evioChannel *channel) throw(evioException);
-  void write(const evioDOMTree &tree) throw(evioException);
-  void write(const evioDOMTree *tree) throw(evioException);
-  void close(void) throw(evioException);
-
-  const uint32_t *getBuffer(void) const throw(evioException);
-  int getBufSize(void) const;
-
-  void ioctl(const string &request, void *argp) throw(evioException);
-  string getFileName(void) const;
-  string getMode(void) const;
-
-
-private:
-  string filename;    /**<Name of evio file.*/
-  string mode;        /**<Open mode, "r" or "w".*/
-  int handle;         /**<Internal evio file handle.*/
-  uint32_t *buf;      /**<Pointer to internal buffer.*/
-  int bufSize;        /**<Size of internal buffer.*/
-};
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-/**
  * Interface defines node and leaf handlers for use with evioStreamParser.
  * Separate handlers defined for container nodes and leaf nodes.
  */
@@ -342,6 +230,7 @@ private:
  */
 class evioDOMNode {
 
+
   friend class evioDOMTree;    /**<Allows evioDOMTree class to manipulate nodes.*/
 
 
@@ -353,13 +242,14 @@ public:
 
 
 private:
-  evioDOMNode(const evioDOMNode &node) throw(evioException);     /**<Not available to users */
-  bool operator=(const evioDOMNode &node) const {return(false);} /**<Not available to users */
+  evioDOMNode(const evioDOMNode &node) throw(evioException);
+  bool operator=(const evioDOMNode &node) const {return(false);}
 
 
 // public factory methods for node creation
 public:
   static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, ContainerType cType=BANK) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const vector<T> tVec)
     throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const T* t, int len)
@@ -377,6 +267,7 @@ public:
 
 public:
   virtual void addNode(evioDOMNodeP node) throw(evioException);
+  template <typename T> void append(T tVal) throw(evioException);
   template <typename T> void append(const vector<T> &tVec) throw(evioException);
   template <typename T> void append(const T* tBuf, int len) throw(evioException);
   template <typename T> void replace(const vector<T> &tVec) throw(evioException);
@@ -400,7 +291,6 @@ public:
   evioDOMNode& operator<<(evioDOMNodeP node) throw(evioException);
   template <typename T> evioDOMNode& operator<<(T tVal) throw(evioException);
   template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
-  template <typename T> evioDOMNode& operator<<(      vector<T> &tVec) throw(evioException);
 
 
 public:
@@ -453,8 +343,8 @@ private:
   evioDOMContainerNode(evioDOMNodeP parent, uint16_t tag, uint8_t num, ContainerType cType) throw(evioException);
  ~evioDOMContainerNode(void);
 
-  evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);  /**<Not available to user */
-  bool operator=(const evioDOMContainerNode &node);                              /**<Not available to user */
+  evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
+  bool operator=(const evioDOMContainerNode &node);
 
 
 public:
@@ -483,10 +373,11 @@ template <typename T> class evioDOMLeafNode : public evioDOMNode {
 
 
 private:
+  evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const T *p, int ndata) throw(evioException);
-  evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);  /**<Not available to user */
-  bool operator=(const evioDOMLeafNode<T> &lNode);                        /**<Not available to user */
+  evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
+  bool operator=(const evioDOMLeafNode<T> &lNode);
 
 
 public:
@@ -508,7 +399,7 @@ public:
  * Represents an evio tree/event in memory.
  * Tree root is an evioDOMNode.
  */
-class evioDOMTree : public evioStreamParserHandler {
+class evioDOMTree : public evioStreamParserHandler, public evioChannelBufferizable {
 
 
 public:
@@ -522,8 +413,8 @@ public:
 
 
 private:
-  evioDOMTree(const evioDOMTree &tree) throw(evioException);  /**<Not available to user */
-  bool operator=(const evioDOMTree &tree);                    /**<Not available to user */
+  evioDOMTree(const evioDOMTree &tree) throw(evioException);
+  bool operator=(const evioDOMTree &tree);
 
 
 public:

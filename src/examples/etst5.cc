@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <evioUtil.hxx>
+#include "evioFileChannel.hxx"
 
 using namespace evio;
 using namespace std;

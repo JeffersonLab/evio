@@ -52,6 +52,20 @@ template <> class evioUtil<int32_t>      {public: static int evioContentType(voi
 
 
 /** 
+ * Static factory method to create empty leaf node of type T.
+ * @param tag Node tag
+ * @param num Node num
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num) throw(evioException) {
+  return(new evioDOMLeafNode<T>(NULL,tag,num));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Static factory method to create leaf node of type T.
  * @param tag Node tag
  * @param num Node num
@@ -127,7 +141,119 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, 
 
 
 /** 
- * Appends more data to leaf node.
+ * Appends one data element to leaf node.
+ * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
+ * @param tVal Data to be added.
+ */
+
+template <typename T> void evioDOMNode::append(T tVal) throw(evioException) {
+
+  static int errCount = 0;
+
+
+  // first try for exact match between container type and data value
+  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
+  if(l!=NULL) {
+    l->data.push_back(tVal);
+    return;
+  }
+    
+
+  // no match, try all possibilities
+  if((++errCount%2)==100) cout << "evioDOMNode::append...type mismatch, slowly trying every possibility, count = " 
+                               << errCount << endl;
+  
+
+  {
+    evioDOMLeafNode<int32_t> *l = dynamic_cast<evioDOMLeafNode<int32_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((int32_t)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<uint32_t> *l = dynamic_cast<evioDOMLeafNode<uint32_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((uint32_t)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<double> *l = dynamic_cast<evioDOMLeafNode<double>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((double)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<float> *l = dynamic_cast<evioDOMLeafNode<float>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((float)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<int16_t> *l = dynamic_cast<evioDOMLeafNode<int16_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((int16_t)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<uint16_t> *l = dynamic_cast<evioDOMLeafNode<uint16_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((uint16_t)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<int64_t> *l = dynamic_cast<evioDOMLeafNode<int64_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((int64_t)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<uint64_t> *l = dynamic_cast<evioDOMLeafNode<uint64_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((uint64_t)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<int8_t> *l = dynamic_cast<evioDOMLeafNode<int8_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((int8_t)tVal);
+      return;
+    }
+  }
+
+  {
+    evioDOMLeafNode<uint8_t> *l = dynamic_cast<evioDOMLeafNode<uint8_t>*>(this);
+    if(l!=NULL) {
+      l->data.push_back((uint8_t)tVal);
+      return;
+    }
+  }
+
+  // no match, must not be a leaf node
+  throw(evioException(0,"?evioDOMNode::append...unable to append",__FILE__,__FUNCTION__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends vector of data to leaf node.
  * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
  * @param tVec vector<T> of data to add to leaf node
  */
@@ -145,7 +271,7 @@ template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evio
 
 
 /** 
- * Appends more data to leaf node.
+ * Appends array of data to leaf node.
  * Must be done this way because C++ forbids templated virtual functions...ejw, dec-2006
  * @param tBuf Buffer of data of type T
  * @param len Length of buffer
@@ -219,10 +345,11 @@ template <typename T> vector<T> *evioDOMNode::getVector(void) throw(evioExceptio
 
 /** 
  * Appends single data value to leaf node
- * @param tVal Data of type T
+ * @param tVal Data to be added
+ * @return Reference to this
  */
 template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioException) {
-  append(&tVal,1);
+  append(tVal);
   return(*this);
 }
 
@@ -231,8 +358,9 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(T tVal) throw(evioExc
 
 
 /** 
- * Appends more data to leaf node.
+ * Appends vector of data to leaf node.
  * @param tVec vector<T> of data to add to leaf node
+ * @return Reference to this
  */
 template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec) throw(evioException) {
   append(tVec);
@@ -241,20 +369,21 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec
 
 
 //-----------------------------------------------------------------------------
+//--------------------- evioDOMLeafNode templated methods ---------------------
+//-----------------------------------------------------------------------------
 
 
 /** 
- * Appends more data to leaf node.
- * @param tVec vector<T> of data to add to leaf node
+ * Leaf node constructor used internally.
+ * @param par Parent node
+ * @param tag Node tag
+ * @param num Node num
  */
-template <typename T> evioDOMNode& evioDOMNode::operator<<(vector<T> &tVec) throw(evioException) {
-  append(tVec);
-  return(*this);
+template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num)
+  throw(evioException) : evioDOMNode(par,tag,num,evioUtil<T>::evioContentType()) {
 }
 
 
-//-----------------------------------------------------------------------------
-//--------------------- evioDOMLeafNode templated methods ---------------------
 //-----------------------------------------------------------------------------
 
 
@@ -341,7 +470,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
   // dump header
   os << indent
      <<  "<" << get_typename(contentType) 
-     << " data_type=\"" << hex << showbase << contentType
+     << " data_type=\"" << hex << ios::showbase << contentType
      << dec << "\" tag=\"" << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << (int)num;
   os << "\">" << endl;
@@ -360,10 +489,10 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       case 0x1:
       case 0x5:
       case 0xa:
-        os << hex << showbase << setw(swid) << *iter << "  ";
+        os << hex << ios::showbase << setw(swid) << *iter << "  ";
         break;
       case 0x2:
-        os << setprecision(6) << showpoint << setw(swid) << *iter << "  ";
+        os << setprecision(6) << ios::showpoint << setw(swid) << *iter << "  ";
         break;
       case 0x3:
         os << "<!CDATA[" << endl << *iter << endl << "]]>";
@@ -374,10 +503,10 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
         os << setw(swid) << k << "  ";
         break;
       case 0x7:
-        os << hex << showbase << setw(swid) << ((*(int*)&(*iter))&0xff) << "  ";
+        os << hex << ios::showbase << setw(swid) << ((*(int*)&(*iter))&0xff) << "  ";
         break;
       case 0x8:
-        os << setw(swid) << setprecision(20) << scientific << *iter << "  ";
+        os << setw(swid) << setprecision(20) << ios::scientific << *iter << "  ";
         break;
       default:
         os << setw(swid) << *iter << "  ";

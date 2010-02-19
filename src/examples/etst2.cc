@@ -6,6 +6,7 @@
 
 
 #include "evioUtil.hxx"
+#include "evioFileChannel.hxx"
 #include <vector>
 
 using namespace evio;

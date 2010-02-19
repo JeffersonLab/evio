@@ -46,9 +46,7 @@
 #endif
 
 
- /* node and leaf handler typedefs */
-typedef void (*NH_TYPE)(int32_t length, int32_t ftype, int32_t tag, int32_t type, int32_t num, int32_t depth, void *userArg);
-typedef void (*LH_TYPE)(void *data, int32_t length, int32_t ftype, int32_t tag, int32_t type, int32_t num, int32_t depth, void *userArg);
+#include <evio_util.h>
 
 
 /* prototypes */
@@ -65,10 +63,6 @@ int32_t evIoctl(int32_t handle, char *request, void *argp);
 int32_t evClose(int32_t handle);
 
 void evioswap(uint32_t *buffer, int32_t tolocal, uint32_t *dest);
-
-void evio_stream_parse(uint32_t *buf, NH_TYPE nh, LH_TYPE lh, void *userArg);
-const char *get_typename(int32_t type);
-int32_t is_container(int32_t type);
 
 #ifdef __cplusplus
 }

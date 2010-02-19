@@ -5,6 +5,7 @@
 
 #include <vector>
 #include "evioUtil.hxx"
+#include "evioFileChannel.hxx"
 
 using namespace evio;
 using namespace std;
@@ -66,6 +67,16 @@ int main(int argc, char **argv) {
     ln3->replace(dBuf,5);
 
     
+    // create empty node and add data
+    evioDOMNodeP ln5 = evioDOMNode::createEvioDOMNode<int>(tag=10, num=10); 
+    evioDOMNodeP ln6 = evioDOMNode::createEvioDOMNode<double>(tag=10, num=11);
+    *root << ln5 << ln6;
+    *ln5 << 23 << 15 << 99;
+     ln6->append(111.0);
+    *ln6 << 222 << 333 << 444 << 555;
+
+
+
     // write out tree
     chan->write(tree);
     chan->close();

@@ -15,12 +15,13 @@
 /* include files */
 #include <stdio.h>
 #include <stdlib.h>
-#include <evio.h>
+#include <evio_util.h>
+
 
 
 /* prototypes */
-static void parse_bank(unsigned int *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg);
-static void loop_over_banks(unsigned int *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg);
+static void parse_bank(int32_t *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg);
+static void loop_over_banks(int32_t *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg);
 
 
 /* container types used locally */
@@ -35,7 +36,7 @@ enum {
 /*---------------------------------------------------------------- */
 
 
-void evio_stream_parse(unsigned int *buf, NH_TYPE nh, LH_TYPE lh, void *userArg) {
+void evio_stream_parse(int32_t *buf, NH_TYPE nh, LH_TYPE lh, void *userArg) {
 
   int depth=0;
   parse_bank(buf,BANK,depth,nh,lh,userArg);
@@ -47,7 +48,7 @@ void evio_stream_parse(unsigned int *buf, NH_TYPE nh, LH_TYPE lh, void *userArg)
 /*---------------------------------------------------------------- */
 
 
-static void parse_bank(unsigned int *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg) {
+static void parse_bank(int32_t *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg) {
 
   int length,tag,type,num,dataOffset;
 
@@ -135,7 +136,7 @@ static void parse_bank(unsigned int *buf, int ftype, int depth, NH_TYPE nh, LH_T
 /*---------------------------------------------------------------- */
 
 
-static void loop_over_banks(unsigned int *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg) {
+static void loop_over_banks(int32_t *data, int length, int type, int depth, NH_TYPE nh, LH_TYPE lh, void *userArg) {
 
   int p=0;
 

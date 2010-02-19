@@ -373,8 +373,9 @@ Export('env incDir libDir binDir archIncDir archDir execLibs tarfile debugSuffix
 # run lower level build files
 
 if useVxworks:
+    env.SConscript('src/libsrc/SConscript.vx',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
     env.SConscript('src/libsrc++/SConscript.vx', variant_dir='src/libsrc++/'+archDir, duplicate=0)
-else
+else:
     env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
     env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
     env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
