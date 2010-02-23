@@ -26,8 +26,6 @@
 
 #include <list>
 #include <vector>
-#include <iostream>
-#include <iomanip>
 #include <sstream>
 #include <algorithm>
 #include <functional>
@@ -36,6 +34,12 @@
 #include <cstring>
 #include <typeinfo>
 
+#ifdef vxworks
+#include <iostream.h>
+#else
+#include <iostream>
+#include <iomanip>
+#endif
 
 #include <evio_util.h>
 #include <evioException.hxx>

@@ -489,10 +489,13 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       case 0x1:
       case 0x5:
       case 0xa:
-        os << hex << ios::showbase << setw(swid) << *iter << "  ";
+        os.width(swid);
+        os << hex << ios::showbase << *iter << "  ";
         break;
       case 0x2:
-        os << setprecision(6) << ios::showpoint << setw(swid) << *iter << "  ";
+        os.precision(6);
+        os.width(swid);
+        os << ios::showpoint << *iter << "  ";
         break;
       case 0x3:
         os << "<!CDATA[" << endl << *iter << endl << "]]>";
@@ -500,16 +503,21 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       case 0x6:
         k = (*((int16_t*)(&(*iter)))) & 0xff;
         if((k&0x80)!=0)k|=0xff00;
-        os << setw(swid) << k << "  ";
+        os.width(swid);
+        os << k << "  ";
         break;
       case 0x7:
-        os << hex << ios::showbase << setw(swid) << ((*(int*)&(*iter))&0xff) << "  ";
+        os.width(swid);
+        os << hex << ios::showbase << ((*(int*)&(*iter))&0xff) << "  ";
         break;
       case 0x8:
-        os << setw(swid) << setprecision(20) << ios::scientific << *iter << "  ";
+        os.width(swid);
+        os.precision(20);
+        os << ios::scientific << *iter << "  ";
         break;
       default:
-        os << setw(swid) << *iter << "  ";
+        os.width(swid);
+        os << *iter << "  ";
         break;
       }
       iter++;
@@ -517,6 +525,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
     os << dec << endl;
 
   }
+
 
   return(os.str());
 }
