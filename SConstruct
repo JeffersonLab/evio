@@ -268,7 +268,7 @@ else:
                            LINKFLAGS = '-xarch=amd64')
 
     elif platform == 'Darwin':
-        execLibs = ['pthread', 'dl']
+        execLibs = ['pthread', 'dl', 'expat', 'z']
         env.Append(CPPDEFINES = 'Darwin', SHLINKFLAGS = '-multiply_defined suppress -flat_namespace -undefined suppress')
         env.Append(CCFLAGS = '-fmessage-length=0')
         if is64bits and not use32bits:
