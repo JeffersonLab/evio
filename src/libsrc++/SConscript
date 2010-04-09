@@ -1,10 +1,26 @@
 # scons build file for evio
-Import('env', 'libDir', 'incDir', 'debugSuffix')
+Import('env', 'libDir', 'incDir', 'archIncDir', 'debugSuffix')
+import os
+from os import sep
+
+headerList = ['evioException.hxx',
+              'evioChannel.hxx',
+              'evioFileChannel.hxx',
+              'evioUtil.hxx',
+              'evioUtilTemplates.hxx']
+
+linkList = [archIncDir + sep + 'evioException.hxx',
+            archIncDir + sep + 'evioChannel.hxx',
+            archIncDir + sep + 'evioFileChannel.hxx',
+            archIncDir + sep + 'evioUtil.hxx',
+            archIncDir + sep + 'evioUtilTemplates.hxx']
 
 fileList = ['evioException.cc', 'evioFileChannel.cc', 'evioUtil.cc']
 
 env.AppendUnique(CPPPATH = ['.', '#src/libsrc'])
 evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)
     
-env.Alias("install", env.Install(target = incDir, source = ['evioException.hxx', 'evioChannel.hxx', 'evioFileChannel.hxx', 'evioUtil.hxx', 'evioUtilTemplates.hxx']))
+env.Alias("install", env.Install(target = incDir, source = headerList))
 env.Alias("install", env.Install(target = libDir, source = evioxxLib))
+# create symbolic links to installed header files
+env.Alias("install", env.CreateSymbolicLinks(target = linkList, source = env.Install(target = incDir, source = headerList)))

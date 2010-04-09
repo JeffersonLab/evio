@@ -16,6 +16,7 @@
 import os
 import string
 import SCons.Node.FS
+from os import access, F_OK, sep, symlink, lstat
 
 os.umask(022)
 
@@ -68,8 +69,20 @@ def buildSymbolicLinks(target, source, env):
         else:
             continue
 
-        print "Create link = " + str(t)
-        symlink(str(s), str(t))
+        # remember our current working dir
+        currentDir = os.getcwd()
+
+        # get directory of target
+        targetDirName = os.path.dirname(str(t))
+
+        # change dirs to target directory
+        os.chdir(targetDirName)
+
+        # create symbolic link: symlink(source, linkname)
+        symlink("../../include/"+linkname, linkname)
+
+        # change back to original directory
+        os.chdir(currentDir)
 
     return None
 
