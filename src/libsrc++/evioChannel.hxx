@@ -7,6 +7,7 @@
 #define _evioChannel_hxx
 
 
+#include <stdint.h>
 #include <evioException.hxx>
 
 

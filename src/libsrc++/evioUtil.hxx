@@ -1,14 +1,16 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 5-feb-2007
+//  Author:  Elliott Wolin, JLab, 5-apr-2010
+
 
 //  must do:
+//   char* arrays
+//   string bank and version number
 //   update word doc
 
 
 //  should do:
 //   shared pointer
-//   java version
 
 
 //  would like to do:
@@ -64,8 +66,9 @@
  * The base utility reads and writes EVIO format events in an event buffer to and from disk.  
  * Events are blocked into standard block sizes, and endian swapping is performed if necessary.
  *
- * This package maps the event in the event buffer into an in-memory tree-like bank hierarchy.  Event trees can be queried, modified, 
- * or created from scratch.  In-memory trees can be automatically serialized into a buffer and written to disk.
+ * This package maps the event in the event buffer into an in-memory tree-like bank hierarchy.  
+ * Event trees can be queried, modified, or created from scratch.  In-memory trees can be automatically 
+ * serialized into a buffer and written to disk.
  * 
  * @warning Internally EVIO uses only the unambiguous types int8_t, uint8_t, ... int64_t, uint64_t.  
  * The long and long long data types are not supported, as their interpretion varies among different compilers
@@ -73,7 +76,8 @@
  * But only the 64-bit types int64_t and uint64_t work consistently across architectures.
  *
  * @warning The safest route, of course, is to use the unambiguous types exclusively.  
- * But the example programs use char, short, int, and int64_t and so far work fine.  No guarantees for the future, though...
+ * But the example programs use char, short, int, and int64_t and so far work fine.  No guarantees 
+ * for the future, though...
  */
 
 
@@ -99,7 +103,7 @@ template <typename T> class evioUtil;
 
 
 
-
+// not sure whether to use this or not...ejw
 template <class X> class counted_ptr {
 
 public:
@@ -171,7 +175,7 @@ typedef evioDOMNode* evioDOMNodeP;                   /**<Pointer to evioDOMNode,
 
 typedef list<evioDOMNodeP>  evioDOMNodeList;         /**<List of pointers to evioDOMNode.*/
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evioDOMNode pointers, returned by getNodeList.*/
-/** Defines the three container bank types.*/
+/** Defines the container bank types.*/
 typedef enum {
   BANK       = 0xe,  /**<2-word header, 16-bit tag, 8-bit num, 8-bit type.*/
   SEGMENT    = 0xd,  /**<1-word header,  8-bit tag,    no num, 8-bit type.*/
@@ -271,6 +275,12 @@ public:
 
 public:
   virtual void addNode(evioDOMNodeP node) throw(evioException);
+  void append(const string &s) throw(evioException);
+  void append(const char *s) throw(evioException);
+  void append(char *s) throw(evioException);
+  void append(const char **ca, int len) throw(evioException);
+  void append(char **ca, int len) throw(evioException);
+
   template <typename T> void append(T tVal) throw(evioException);
   template <typename T> void append(const vector<T> &tVec) throw(evioException);
   template <typename T> void append(const T* tBuf, int len) throw(evioException);
@@ -293,6 +303,9 @@ public:
 
 public:
   evioDOMNode& operator<<(evioDOMNodeP node) throw(evioException);
+  evioDOMNode& operator<<(const string &s) throw(evioException);
+  evioDOMNode& operator<<(const char *s) throw(evioException);
+  evioDOMNode& operator<<(char *s) throw(evioException);
   template <typename T> evioDOMNode& operator<<(T tVal) throw(evioException);
   template <typename T> evioDOMNode& operator<<(const vector<T> &tVec) throw(evioException);
 
@@ -326,7 +339,7 @@ protected:
 
 public:
   uint16_t tag;            /**<The node tag, max 16-bits depending on container type.*/
-  uint8_t num;             /**<The node num, max 8 bits, only used by BANK container type (only one with 2-word header).*/
+  uint8_t num;             /**<The node num, max 8 bits, used by BANK and String container types (2-word header).*/
 };
 
 

@@ -418,7 +418,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
   int i,j,len;
   int p=0;
   short *s;
-  char *c;
+  char *c, *start;
   unsigned char *uc;
   char format[132];
 
@@ -472,11 +472,16 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     break;
 
   case 0x3:
+    //??? tokenize, check for EOT and padding
     if(!no_data) {
-      c=(char*)&data[0];
-      len=length*4;
-      sprintf(format,"<![CDATA[\n%%.%ds\n]]>\n",len);  /* handle unterminated strings */
-      xml+=sprintf(xml,format,c);
+      start=(char*)&data[0];
+      c=start;
+      while((c[0]!=4)&&((c-start)<length*4)) {
+        len=strlen(c);
+        sprintf(format,"<![CDATA[\n%%.%ds\n]]>\n",len);  /* handle unterminated strings */
+        xml+=sprintf(xml,format,c);
+        c+=len+1;
+      }
     }
     break;
 
@@ -647,6 +652,7 @@ static int get_ndata(int type, int length) {
     break;
 
   case 0x3:
+    //???
     return(1);
     break;
 
@@ -670,7 +676,6 @@ static int get_ndata(int type, int length) {
   case 0xc:
   case 0xd:
   case 0xe:
-  case 0xf:
   case 0x10:
   case 0x20:
   case 0x40:

@@ -7,11 +7,11 @@
 #define _evioException_hxx
 
 
+#include <stdlib.h>
+#include <string.h>
 #include <exception>
 #include <string>
 
-
-//  #ifndef _MSC_VER
 
 #ifndef sun
  #ifdef linux

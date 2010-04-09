@@ -17,8 +17,8 @@ namespace evio {
    */
   string getStackTrace() {
 
-#if defined sun || defined VXWORKS || defined _MSC_VER
-    return("");
+#ifndef linux
+    return("\n\n   <backtrace not supported on this platform>\n\n");
 #else
     size_t dlen = 1024;
     char *dname = (char*)malloc(dlen);

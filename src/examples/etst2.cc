@@ -80,7 +80,8 @@ int main(int argc, char **argv) {
       evioDOMNodeListP floatList    = event.getNodeList(typeIs<float>());
       evioDOMNodeListP doubleList   = event.getNodeList(typeIs<double>());
       evioDOMNodeListP myList       = event.getNodeList(myNodeChooser);
-      evioDOMNodeListP int64List = event.getNodeList(typeIs<int64_t>());
+      evioDOMNodeListP int64List    = event.getNodeList(typeIs<int64_t>());
+      evioDOMNodeListP stringList   = event.getNodeList(typeIs<string>());
 
 
       // apply myProcessingFunction to all float nodes using STL for_each() algorithm
@@ -98,7 +99,7 @@ int main(int argc, char **argv) {
       for_each(myList->begin(),myList->end(),toCout());
 
 
-      // print out data from all <uint> nodes manually
+      // print out data from all <uint32_t> nodes manually
       cout << endl << endl<< "Dumping uint nodes manually:" << endl << endl;
       evioDOMNodeList::const_iterator iter;
       for(iter=uintList->begin(); iter!=uintList->end(); iter++) {
@@ -106,30 +107,30 @@ int main(int argc, char **argv) {
              << "  " << (int)((*iter)->num) << endl;
 
         const evioDOMNodeP np = *iter;                              // solaris bug...
-        const vector<uint> *vec = np->getVector<uint>();
+        const vector<uint32_t> *vec = np->getVector<uint32_t>();
         if(vec!=NULL) {
           for(unsigned int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
           cout << endl;
         } else {
-          cerr << "?getVector<uint> returned NULL" << endl;
+          cerr << "?getVector<uint32_t> returned NULL" << endl;
         }
       }
       cout << endl << endl;
       
       
-      // print out data from all <int> nodes manually
-      cout << endl << endl<< "Dumping int nodes manually:" << endl << endl;
+      // print out data from all <int32_t> nodes manually
+      cout << endl << endl<< "Dumping int32_t nodes manually:" << endl << endl;
       for(iter=intList->begin(); iter!=intList->end(); iter++) {
         cout << "bank type,tag,num are: " << hex << "  0x" << (*iter)->getContentType() << dec << "  "  << (*iter)->tag
              << "  " << (int)((*iter)->num) << endl;
 
         const evioDOMNodeP np = *iter;                              // solaris bug...
-        const vector<int> *vec = np->getVector<int>();
+        const vector<int32_t> *vec = np->getVector<int32_t>();
         if(vec!=NULL) {
           for(unsigned int i=0; i<vec->size(); i++) cout  << "   " << (*vec)[i];
           cout << endl;
         } else {
-          cerr << "?getVector<int> returned NULL" << endl;
+          cerr << "?getVector<int32_t> returned NULL" << endl;
         }
       }
       cout << endl << endl;
@@ -150,6 +151,13 @@ int main(int argc, char **argv) {
           cerr << "?getVector<int64_t> returned NULL" << endl;
         }
       }
+      cout << endl << endl;
+      
+      
+      // print out data from all string nodes manually
+      // dump all double nodes to cout using toCout()
+      cout << endl << endl<< "Dumping string nodes using toCout:" << endl << endl;
+      for_each(stringList->begin(),stringList->end(),toCout());
       cout << endl << endl;
       
       

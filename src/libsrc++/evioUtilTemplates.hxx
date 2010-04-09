@@ -34,8 +34,8 @@ public: static int evioContentType(void) throw(evioException) {
 
 template <> class evioUtil<uint32_t>     {public: static int evioContentType(void)  throw(evioException) {return(0x1);}};
 template <> class evioUtil<float>        {public: static int evioContentType(void)  throw(evioException) {return(0x2);}};
-template <> class evioUtil<string&>      {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
 template <> class evioUtil<string>       {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
+template <> class evioUtil<string&>      {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
 template <> class evioUtil<int16_t>      {public: static int evioContentType(void)  throw(evioException) {return(0x4);}};
 template <> class evioUtil<uint16_t>     {public: static int evioContentType(void)  throw(evioException) {return(0x5);}};
 template <> class evioUtil<int8_t>       {public: static int evioContentType(void)  throw(evioException) {return(0x6);}};
@@ -151,7 +151,7 @@ template <typename T> void evioDOMNode::append(T tVal) throw(evioException) {
   static int errCount = 0;
 
 
-  // first try for exact match between container type and data value
+  // first try for exact match between leaf node type and data value
   evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
   if(l!=NULL) {
     l->data.push_back(tVal);
@@ -244,6 +244,7 @@ template <typename T> void evioDOMNode::append(T tVal) throw(evioException) {
     }
   }
 
+
   // no match, must not be a leaf node
   throw(evioException(0,"?evioDOMNode::append...unable to append",__FILE__,__FUNCTION__,__LINE__));
 }
@@ -262,7 +263,7 @@ template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evio
   if(l!=NULL) {
     copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.end()));
   } else {
-    throw(evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -281,7 +282,7 @@ template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evi
   if(l!=NULL) {
     for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
   } else {
-    throw(evioException(0,"?evioDOMNode::append...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -300,7 +301,7 @@ template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evi
     l->data.clear();
     copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.begin()));
   } else {
-    throw(evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::replace...not correctl leaf node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -320,7 +321,7 @@ template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(ev
     l->data.clear();
     for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
   } else {
-    throw(evioException(0,"?evioDOMNode::replace...not a leaf node",__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::replace...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -462,7 +463,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
     break;
   default:
     wid=1;
-   swid=30;
+    swid=30;
     break;
   }
 
@@ -472,7 +473,8 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
      <<  "<" << get_typename(contentType) 
      << " data_type=\"" << hex << ios::showbase << contentType
      << dec << "\" tag=\"" << tag;
-  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << (int)num;
+  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
+    os << dec << "\" num=\"" << (int)num;
   os << "\">" << endl;
 
 
@@ -498,6 +500,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
         os << ios::showpoint << *iter << "  ";
         break;
       case 0x3:
+        // ??? something else between CDATA sections?
         os << "<!CDATA[" << endl << *iter << endl << "]]>";
         break;
       case 0x6:

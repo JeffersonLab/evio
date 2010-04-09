@@ -22,20 +22,35 @@ uint16_t tag;
 int len;
 vector<uint32_t> ulvec;
 vector<float> fvec;
+vector<string> svec;
+vector<string> svec2;
 
 int32_t ibuf[100];
 int64_t lbuf[100];
 double dbuf[100];
 
+string sa[3] = {"I", "am", "bored"};;
+
+char *ca[3];
+
+
 
 int main(int argc, char **argv) {
   
   // fill fake data buffers
-  for(int i=0; i<10; i++)ulvec.push_back(i),ibuf[i]=-i,lbuf[i]=2*i,dbuf[i]=10.*i,fvec.push_back(i/10.);
+  for(int i=0; i<10; i++) 
+    ulvec.push_back(i),ibuf[i]=-i,lbuf[i]=2*i,dbuf[i]=10.*i,fvec.push_back(i/10.),svec.push_back("hello"),svec2.push_back("goodbye");
 
+  ca[0]="in";
+  ca[1]="the";
+  ca[2]="end";
+  
+  char *fred="fred";
 
+  
+  
   try {
-
+    
     // create fileChannel object for writing
     evioFileChannel chan("fakeEvents.dat","w");
 
@@ -58,7 +73,29 @@ int main(int argc, char **argv) {
       event.addBank(tag=5, num=12, fvec);
       event.addBank(tag=6, num=13, dbuf,  len=10);
       event.addBank(tag=7, num=14, lbuf,  len=8);
+      event.addBank(tag=8, num=15, svec);
+      
+      evioDOMNodeP sbank = evioDOMNode::createEvioDOMNode<string>(tag=9,num=16);
+      event << sbank;
 
+      sbank->append(string("abcdef"));
+      sbank->append("ghijkl");
+      *sbank << string("goodbye");
+      //      *sbank << svec;
+      //      sbank->append(svec2);
+      *sbank << "mnopqrs";
+      sbank->append(sa,3);
+      sbank->append(ca,3);
+      *sbank << fred;
+
+
+      evioDOMNodeP tbank = evioDOMNode::createEvioDOMNode<string>(tag=10,num=17);
+      event << tbank;
+
+      *tbank << "1234";
+
+
+      cout << event.toString() << endl;
 
       //  write out event tree
       chan.write(event);

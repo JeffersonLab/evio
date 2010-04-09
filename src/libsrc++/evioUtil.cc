@@ -346,6 +346,125 @@ void evioDOMNode::addNode(evioDOMNodeP node) throw(evioException) {
 
 
 /** 
+ * Appends string to leaf node.
+ * @param s string to append
+ */
+void evioDOMNode::append(const string &s) throw(evioException) {
+  evioDOMLeafNode<string> *l = dynamic_cast<evioDOMLeafNode<string>*>(this);
+  if(l!=NULL) {
+    l->data.push_back(s);
+  } else {
+    throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends const char* to leaf node.
+ * @param s char* to append
+ */
+void evioDOMNode::append(const char *s) throw(evioException) {
+  evioDOMLeafNode<string> *l = dynamic_cast<evioDOMLeafNode<string>*>(this);
+  if(l!=NULL) {
+    l->data.push_back(s);
+  } else {
+    throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends char* to leaf node.
+ * @param s char* to append
+ */
+void evioDOMNode::append(char *s) throw(evioException) {
+  append((const char*)s);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends array of const char* to leaf node.
+ * @param sa array of char* to append
+ */
+void evioDOMNode::append(const char **ca, int len) throw(evioException) {
+  evioDOMLeafNode<string> *l = dynamic_cast<evioDOMLeafNode<string>*>(this);
+  if(l!=NULL) {
+    for(unsigned int i=0; i<len; i++) {
+      l->data.push_back(ca[i]);
+    }
+  } else {
+    throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends array of const char* to leaf node.
+ * @param sa array of char* to append
+ */
+void evioDOMNode::append(char **ca, int len) throw(evioException) {
+  append((const char**)ca,len);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends single string to leaf node
+ * @param sRef String to be added
+ * @return Reference to this
+ */
+evioDOMNode& evioDOMNode::operator<<(const string &s) throw(evioException) {
+  append(s);
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends single const char* to leaf node
+ * @param s char* to be added
+ * @return Reference to this
+ */
+evioDOMNode& evioDOMNode::operator<<(const char *s) throw(evioException) {
+  append(s);
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Appends single char* to leaf node
+ * @param s char* to be added
+ * @return Reference to this
+ */
+evioDOMNode& evioDOMNode::operator<<(char *s) throw(evioException) {
+  append((const char*)s);
+  return(*this);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Returns pointer to child list of container node.
  */
 evioDOMNodeList *evioDOMNode::getChildList(void) throw(evioException) {
@@ -560,7 +679,8 @@ string evioDOMContainerNode::getHeader(int depth) const {
      <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType)
      << "\" data_type=\"" << hex << ios::showbase << getContentType()
      << dec << "\" tag=\""  << tag;
-  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10))) os << dec << "\" num=\"" << (int)num;
+  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
+    os << dec << "\" num=\"" << (int)num;
   os << "\">" << endl;
   return(os.str());
 }
@@ -757,10 +877,15 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
       
   case 0x3:
     {
-      ostringstream ss;
-      for(int i=0; i<length; i++) ss << ((char*)data)[i];
-      s=ss.str();
-      newLeaf = evioDOMNode::createEvioDOMNode(tag,num,&s,1);
+      newLeaf = evioDOMNode::createEvioDOMNode<string>(tag,num);
+      char *start = (char*)data;
+      char *c = start;
+      while((c[0]!=0x4)&&((c-start)<length)) {
+        s=string(c);
+        cout << "string:  " << s << "  (len " << s.size() << ")" << endl;
+        newLeaf->append(s);
+        c+=s.size()+1;
+      }
       break;
     }
 
@@ -969,9 +1094,11 @@ int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioE
     case 0x3:
       {
         const evioDOMLeafNode<string> *leaf = static_cast<const evioDOMLeafNode<string>*>(pNode);
-        string s = leaf->data[0];
-        ndata = s.size();
-        nword = (ndata+3)/4;
+        int nstring = leaf->data.size();
+        ndata=0;
+        for(unsigned int i=0; i<nstring; i++) ndata+=leaf->data[i].size();
+        ndata+=nstring;        // account for nulls
+        nword = (ndata+3)/4;   // include padding
       }
       break;
 
@@ -1110,13 +1237,20 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     case 0x3:
       {
         const evioDOMLeafNode<string> *leaf = static_cast<const evioDOMLeafNode<string>*>(pNode);
-        string s = leaf->data[0];
-        ndata = s.size();
-        nword = (ndata+3)/4;
-        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
+        int nstring =  leaf->data.size();
+        int nbytes,nbytesTotal=0;
         uint8_t *c = (uint8_t*)&buf[dataOffset];
-        for(i=0; i<ndata; i++) c[i]=(s.c_str())[i];
-        for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
+        for(unsigned int j=0; j<nstring; j++) {
+          string s = leaf->data[j];
+          nbytes = s.size();
+          nbytesTotal += nbytes + 1;
+          if(bankLen+((nbytesTotal+3)/4)>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
+          for(i=0; i<nbytes; i++) c[i]=(s.c_str())[i]; 
+          c[nbytes]='\0';
+          c+=nbytes+1;
+        }
+        for(i=0; i<(4-nbytesTotal%4)%4; i++) c[i]=0x04;   // pad with EOT if needed
+        nword = (nbytesTotal+3)/4;
       }
       break;
 

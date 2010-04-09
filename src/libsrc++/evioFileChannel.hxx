@@ -7,6 +7,7 @@
 #define _evioFileChannel_hxx
 
 
+#include <stdint.h>
 #include <evioChannel.hxx>
 #include <evio.h>
 

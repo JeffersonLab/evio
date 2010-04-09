@@ -965,18 +965,18 @@ void set_dict_defaults(void) {
   dict[ndict-1].data_type=0xb;
 
 
-  /* containers default to contain tagsegments */
+  /* containers default to contain banks */
   ndict++;
   dict[ndict-1].name=strdup("bank");
-  dict[ndict-1].data_type=0xc;
+  dict[ndict-1].data_type=0xe;
 
   ndict++;
   dict[ndict-1].name=strdup("segment");
-  dict[ndict-1].data_type=0xc;
+  dict[ndict-1].data_type=0xe;
 
   ndict++;
   dict[ndict-1].name=strdup("tagsegment");
-  dict[ndict-1].data_type=0xc;
+  dict[ndict-1].data_type=0xe;
 
   return;
 }

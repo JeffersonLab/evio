@@ -160,6 +160,7 @@ int main (int argc, char **argv) {
 
     if((done!=0)||((nevent>=max_event+skip_event)&&(max_event!=0)))break;
   }
+  if(status!=EOF)printf("\n   *** error reading file, status is: 0x%x ***\n\n",status);;
 
 
 

@@ -228,10 +228,6 @@ const char *get_typename(int type) {
     return("int32");
     break;
 
-  case 0xf:
-    return("repeating");
-    break;
-
   case 0xe:
   case 0x10:
     return("bank");

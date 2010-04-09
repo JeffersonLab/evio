@@ -66,7 +66,7 @@ typedef struct evBinarySearch {
 #define EV_WRITE 1
 #define EV_PIPE 2 
 #define EV_PIPEWRITE 3 
-#define EV_VERSION 2
+#define EV_VERSION 3
 #define EV_MAGIC 0xc0da0100
 #define EV_HDSIZ 8
 
@@ -76,7 +76,7 @@ typedef struct evBinarySearch {
 #define EV_HD_HDSIZ  2		/* size of header in 32-bit words (=8) */
 #define EV_HD_START  3		/* first start of event in this block */
 #define EV_HD_USED   4		/* number of words used in block (<= BLKSIZ) */
-#define EV_HD_VER    5		/* version of file format (=1) */
+#define EV_HD_VER    5		/* version of file format */
 #define EV_HD_RESVD  6		/* (reserved) */
 #define EV_HD_MAGIC  7		/* magic number for error detection */
 
@@ -85,7 +85,7 @@ typedef struct evBinarySearch {
 static  int32_t  findLastEventWithinBlock(EVFILE *);
 static  int32_t  copySingleEvent(EVFILE *, int32_t *, int32_t, int32_t);
 static  int32_t  evSearchWithinBlock(EVFILE *, EVBSEARCH *, int32_t *, int32_t, int32_t *, int32_t, int32_t *);
-static  void evFindEventBlockNum(EVFILE *, EVBSEARCH *, int32_t *);
+static  void     evFindEventBlockNum(EVFILE *, EVBSEARCH *, int32_t *);
 static  int32_t  evGetEventNumber(EVFILE *, int32_t);
 static  int32_t  evGetEventType(EVFILE *);
 static  int32_t  isRealEventsInsideBlock(EVFILE *, int32_t, int32_t);
@@ -289,7 +289,7 @@ int32_t evOpen(char *fname,char *flags,int32_t *handle)
     }
 #endif
 #endif
-		if (a->file) {
+    if (a->file) {
       a->buf = (int32_t *) malloc(EVBLOCKSIZE*4);
       if (!(a->buf)) {
 	free(a);
@@ -568,6 +568,7 @@ int32_t evIoctl(int32_t handle,char *request,void *argp)
   a = (EVFILE *)handle;
 #endif
   if (a->magic != EV_MAGIC) return(S_EVFILE_BADHANDLE);
+
   switch (*request) {
 
   case 'b': case 'B':
@@ -594,7 +595,9 @@ int32_t evIoctl(int32_t handle,char *request,void *argp)
     a->buf[EV_HD_MAGIC] = EV_MAGIC;
     break;
 
-
+  case 'v': case 'V':
+    return(a->buf[EV_HD_VER]);
+    break;
 
   default:
     return(S_EVFILE_UNKOPTION);

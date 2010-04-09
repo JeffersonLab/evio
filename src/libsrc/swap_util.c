@@ -567,7 +567,6 @@ void swapped_memcpy(char *buffer,char *source,int size)
       case 0x1:   /* unsigned integer    */
       case 0x2:   /* IEEE floating point */
       case 0xb:   /* signed integer      */
-      case 0xF:  /* repeating structure, treat as 4-byte for now */
 	for(j = i; j < lk.head_pos; j=j+2){
 	  swapped_intcpy (&temp,&(source[j*2]),int_len);
 	  memcpy (&(buffer[j*2]), (void *)&temp,int_len);
