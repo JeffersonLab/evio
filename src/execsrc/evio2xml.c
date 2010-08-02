@@ -34,6 +34,7 @@
 /*  misc variables */
 static char *filename;
 static char *dictfilename = NULL;
+static char *dicttagname  = "xmlDumpDictEntry";
 static char *outfilename  = NULL;
 static int gzip           = 0;
 static char *main_tag     = (char*)"evio-data";
@@ -56,7 +57,7 @@ static int done           = 0;
 
 /* prototypes */
 void decode_command_line(int argc, char **argv);
-void evio_xmldump_init(char *dictfilename);
+void evio_xmldump_init(char *dictfilename, char *dicttagname);
 void evio_xmldump(unsigned int *buf, int evnum, char *string, int len);
 void evio_xmldump_done(char *string, int len);
 void writeit(FILE *f, char *s, int len);
@@ -134,7 +135,7 @@ int main (int argc, char **argv) {
 
   /* init xmldump */
   set_user_frag_select_func(user_frag_select);
-  evio_xmldump_init(dictfilename);
+  evio_xmldump_init(dictfilename,dicttagname);
   sprintf(s,"<!-- xml boilerplate needs to go here -->\n\n");
   writeit(out,s,strlen(s));
   sprintf(s,"<%s>\n\n",main_tag);
@@ -247,7 +248,8 @@ int user_frag_select(int tag) {
 void decode_command_line(int argc, char**argv) {
   
   const char *help = 
-    "\nusage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event] [-dict dictfilename]\n"
+    "\nusage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event]\n"
+    "           [-dict dictfilename] [-dtag dtag]\n"
     "           [-ev evtag] [-noev evtag] [-frag frag] [-nofrag frag] [-max_depth max_depth]\n"
     "           [-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]\n"
     "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
@@ -327,6 +329,10 @@ void decode_command_line(int argc, char**argv) {
 
     } else if (strncasecmp(argv[i],"-dict",5)==0) {
       dictfilename=strdup(argv[i+1]);
+      i=i+2;
+
+    } else if (strncasecmp(argv[i],"-dtag",5)==0) {
+      dicttagname=strdup(argv[i+1]);
       i=i+2;
 
     } else if (strncasecmp(argv[i],"-xtod",5)==0) {

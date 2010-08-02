@@ -98,6 +98,7 @@ static int p64          = 20;
 static int nbuf;
 static char *event_tag    = (char*)"event";
 static char *bank2_tag    = (char*)"bank";
+static char *dicttagname  = NULL;
 static int max_depth      = -1;
 static int depth          = 0;
 static int tagstack[MAXDEPTH];
@@ -129,8 +130,9 @@ static int (*USER_FRAG_SELECT_FUNC) (int tag) = NULL;
 /*--------------------------------------------------------------------------*/
 
 
-void evio_xmldump_init(char *dictfilename) {
+void evio_xmldump_init(char *dictfilename, char *dtagname) {
 
+  dicttagname=strdup(dtagname);
   create_dictionary(dictfilename);
 
   return;
@@ -186,7 +188,7 @@ static void startDictElement(void *userData, const char *name, const char **atts
   int *ip, *in;
 
 
-  if(strcasecmp(name,"xmldumpDictEntry")!=0)return;
+  if(strcasecmp(name,dicttagname)!=0)return;
 
   ndict++;
   if(ndict>MAXDICT) {
@@ -475,10 +477,14 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     //??? tokenize, check for EOT and padding
     if(!no_data) {
       start=(char*)&data[0];
+      //      c=start+strspn(start,"\n ");
       c=start;
-      while((c[0]!=4)&&((c-start)<length*4)) {
+      while((c[0]!=0x4)&&((c-start)<length*4)) {
         len=strlen(c);
-        sprintf(format,"<![CDATA[\n%%.%ds\n]]>\n",len);  /* handle unterminated strings */
+        indent();
+        //        sprintf(format,"<![CDATA[\n%%.%ds\n]]>\n",len);
+        //        sprintf(format,"<str><![CDATA[%%.%ds]]></str>\n",len);
+        sprintf(format,"<![CDATA[%%.%ds]]>\n",len);
         xml+=sprintf(xml,format,c);
         c+=len+1;
       }
