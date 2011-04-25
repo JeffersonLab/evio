@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
   if(argc>1) {
     filename=argv[1];
   } else {
-    filename="fakeEvents.dat";
+    filename=(char*)"fakeEvents.dat";
   }
 
 

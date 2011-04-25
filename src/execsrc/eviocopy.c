@@ -19,7 +19,7 @@
 
 
 /*  misc macros, etc. */
-#define MAXEVIOBUF 100000
+#define MAXEVIOBUF 1000000
 
 
 /* include files */
@@ -43,6 +43,8 @@ static int nevok          = 0;
 static int evok[100];
 static int nnoev          = 0;
 static int noev[100];
+static int nnonum         = 0;
+static int nonum[100];
 static int debug          = 0;
 
 
@@ -75,13 +77,15 @@ int main (int argc, char **argv) {
     printf("\n ?Unable to open output file %s, status=%d\n\n",output_filename,status);
     exit(EXIT_FAILURE);
   }
+
+
   /* debug...need to set large block size ??? */
-  l=0x8000;
-  status=evIoctl(output_handle,"b",(void*)&l);
-  if(status!=0) {
-    printf("\n ?evIoctl error on output file %s, status=%d\n\n",output_filename,status);
-    exit(EXIT_FAILURE);
-  }
+/*   l=0x8000; */
+/*   status=evIoctl(output_handle,"b",(void*)&l); */
+/*   if(status!=0) { */
+/*     printf("\n ?evIoctl error on output file %s, status=%d\n\n",output_filename,status); */
+/*     exit(EXIT_FAILURE); */
+/*   } */
 
 
   /* loop over events, skip some, copy up to max_event events */
@@ -97,7 +101,7 @@ int main (int argc, char **argv) {
       printf("\n ?evWrite error output file %s, status=%d\n\n",output_filename,status);
       exit(EXIT_FAILURE);
     }
-    if((nevent>=max_event+skip_event)&&(max_event!=0))break;
+    if( (max_event>0) && (nevent>=max_event+skip_event) )break;
   }
 
 
@@ -118,15 +122,19 @@ int user_event_select(unsigned int *buf) {
   int event_tag = buf[1]>>16;
 
 
-  if((nevok<=0)&&(nnoev<=0)) {
+  if((nevok<=0)&&(nnoev<=0)&&(nnonum<=0)) {
     return(1);
 
   } else if(nevok>0) {
     for(i=0; i<nevok; i++) if(event_tag==evok[i])return(1);
     return(0);
     
-  } else {
+  } else if(nnoev>0) {
     for(i=0; i<nnoev; i++) if(event_tag==noev[i])return(0);
+    return(1);
+
+  } else if(nnonum>0) {
+    for(i=0; i<nnonum; i++) if(nevent==nonum[i])return(0);
     return(1);
   }
 
@@ -140,7 +148,7 @@ void decode_command_line(int argc, char**argv) {
   
   const char *help = 
     "\nusage:\n\n  eviocopy [-max max_event] [-skip skip_event] \n"
-    "           [-ev evtag] [-noev evtag] [-debug] input_filename output_filename\n";
+    "           [-ev evtag] [-noev evtag] [-nonum evnum] [-debug] input_filename output_filename\n";
   int i;
     
     
@@ -183,6 +191,14 @@ void decode_command_line(int argc, char**argv) {
 	i=i+2;
       } else {
 	printf("?too many noev flags: %s\n",argv[i+1]);
+      }
+
+    } else if (strncasecmp(argv[i],"-nonum",6)==0) {
+      if(nnonum<(sizeof(nonum)/sizeof(int))) {
+	nonum[nnonum++]=atoi(argv[i+1]);
+	i=i+2;
+      } else {
+	printf("?too many nonum flags: %s\n",argv[i+1]);
       }
 
     } else if (strncasecmp(argv[i],"-",1)==0) {

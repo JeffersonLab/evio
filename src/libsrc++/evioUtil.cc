@@ -398,7 +398,7 @@ void evioDOMNode::append(char *s) throw(evioException) {
 void evioDOMNode::append(const char **ca, int len) throw(evioException) {
   evioDOMLeafNode<string> *l = dynamic_cast<evioDOMLeafNode<string>*>(this);
   if(l!=NULL) {
-    for(unsigned int i=0; i<len; i++) {
+    for(unsigned int i=0; (int)i<len; i++) {
       l->data.push_back(ca[i]);
     }
   } else {
@@ -880,7 +880,7 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
       newLeaf = evioDOMNode::createEvioDOMNode<string>(tag,num);
       char *start = (char*)data;
       char *c = start;
-      while((c[0]!=0x4)&&((c-start)<length)) {
+      while((c[0]!=0x4)&&((c-start)<length)) {  // ???
         s=string(c);
         cout << "string:  " << s << "  (len " << s.size() << ")" << endl;
         newLeaf->append(s);
@@ -1096,7 +1096,7 @@ int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioE
         const evioDOMLeafNode<string> *leaf = static_cast<const evioDOMLeafNode<string>*>(pNode);
         int nstring = leaf->data.size();
         ndata=0;
-        for(unsigned int i=0; i<nstring; i++) ndata+=leaf->data[i].size();
+        for(unsigned int i=0; (int)i<nstring; i++) ndata+=leaf->data[i].size();
         ndata+=nstring;        // account for nulls
         nword = (ndata+3)/4;   // include padding
       }
@@ -1240,7 +1240,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         int nstring =  leaf->data.size();
         int nbytes,nbytesTotal=0;
         uint8_t *c = (uint8_t*)&buf[dataOffset];
-        for(unsigned int j=0; j<nstring; j++) {
+        for(unsigned int j=0; (int)j<nstring; j++) {
           string s = leaf->data[j];
           nbytes = s.size();
           nbytesTotal += nbytes + 1;

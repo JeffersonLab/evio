@@ -30,8 +30,9 @@ int64_t lbuf[100];
 double dbuf[100];
 
 string sa[3] = {"I", "am", "bored"};;
+string sca[3] = {"in", "the", "end"};;
 
-char *ca[3];
+const char *ca[3];
 
 
 
@@ -41,10 +42,7 @@ int main(int argc, char **argv) {
   for(int i=0; i<10; i++) 
     ulvec.push_back(i),ibuf[i]=-i,lbuf[i]=2*i,dbuf[i]=10.*i,fvec.push_back(i/10.),svec.push_back("hello"),svec2.push_back("goodbye");
 
-  ca[0]="in";
-  ca[1]="the";
-  ca[2]="end";
-  
+  for(int i=0; i<3; i++) ca[i]=sca[i].c_str();
   char *fred="fred";
 
   

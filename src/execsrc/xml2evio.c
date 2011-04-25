@@ -441,6 +441,18 @@ void get_params(const char *name, const char **atts, int natt,
   int i;
 
 
+  // check for new substring element
+  if(strcasecmp(name,"str")==0) {
+    *tag=0;
+    *num=0;
+    *data_type=0x3;
+    *ptype=0x3;  // ???
+    *noexpand=0;
+    return;
+  }
+  
+
+
   /* check dictionary for defaults */
   for(i=0; i<ndict; i++) {
     if(strcasecmp(name,dict[i].name)==0) {
@@ -542,6 +554,7 @@ int ignore_end_tag(const char *name) {
 
 void dataHandler(void *userData, const XML_Char *s, int len) {
 
+
   if(skipit)return;
 /*    if(len<1)return; */
   cdatalen+=len;
@@ -624,6 +637,7 @@ void decode_cdata(int content, int *nword, int noexpand) {
 
   case 0x3:
     p=cdata+strspn(cdata,"\n");
+/* ??? */
     i=strlen(p);    
     while((i>0)&&((p[i-1]==' ')||(p[i-1]=='\n')))p[(i--)-1]='\0';
     strcpy((char*)(&eviobuf[eviolen]),p);
