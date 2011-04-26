@@ -19,7 +19,7 @@
     </path>
 
     <!-- Version -->
-    <property name="evio.version" value="2.0" />
+    <property name="evio.version" value="2.1" />
     
     <!-- Debug -->
     <property name="javac.debug" value="off" />
