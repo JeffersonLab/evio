@@ -47,8 +47,8 @@ doc:
 	cd doc; $(MAKE) -f $(MAKEFILE);
 
 tar:
-	-$(RM) tar/evio-2.0.tar.gz;
-	tar -X tar/tarexclude -C .. -c -z -f tar/evio-2.0.tar.gz evio
+	-$(RM) tar/evio-2.1.tar.gz;
+	tar -X tar/tarexclude -C .. -c -z -f tar/evio-2.1.tar.gz evio
 
 # Use this pattern rule for all other targets
 %:
