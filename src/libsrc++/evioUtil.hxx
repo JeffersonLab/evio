@@ -454,6 +454,8 @@ public:
   evioDOMNodeListP getNodeList(void) throw(evioException);
   template <class Predicate> evioDOMNodeListP getNodeList(Predicate pred) throw(evioException);
 
+  template <typename T> vector<T> *getVectorUnique(void) throw(evioException);
+  template <typename T, class Predicate> vector<T> *getVectorUnique(Predicate pred) throw(evioException);
 
 public:
   string toString(void) const;
