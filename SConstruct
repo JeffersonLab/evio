@@ -387,11 +387,11 @@ def docGeneratorC(target, source, env):
 docBuildC = Builder(action = docGeneratorC)
 env.Append(BUILDERS = {'DocGenC' : docBuildC})
 
-# generate Java documentation
+# generate documentation
 env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/html/index.html'],
                              source = scanFiles("src/libsrc++", accept=["*.cc", "*.hxx"]) ))
 
-# use "doc" on command line to create tar file
+# use "doc" on command line
 Help('doc                 create doxygen docs (in ./doc)\n')
 
 #########################
