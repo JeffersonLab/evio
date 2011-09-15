@@ -10,6 +10,7 @@
 #define _evioUtilTemplates_hxx
 
 
+template <typename T> class typeIs;
 
 
 //--------------------------------------------------------------
@@ -583,6 +584,54 @@ template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate p
 
 
 /**
+ * Returns vector<T> from single node in tree containing vector<T>.
+ * Throws exception if more than one node contains vector<T>.
+ * @return Pointer to vector, NULL if no node contains vector<T>
+ */
+template <typename T> vector<T> *evioDOMTree::getVectorUnique(void) throw(evioException) {
+
+  evioDOMNodeListP l = getNodeList(typeIs<T>());
+  int s = l->size();
+
+  if(s==0) {
+    return(NULL);
+  } else if (s==1) {
+    return((l->front())->getVector<T>());
+  } else {
+    throw(evioException(0,"?evioDOMTree::getVectorUnique...more than one node found",__FILE__,__FUNCTION__,__LINE__));
+  }
+}  
+
+
+//-----------------------------------------------------------------------------
+
+
+
+/**
+ * Returns vector<T> from single node in tree that is of type T AND satisfies predicate.
+ * Throws exception if more than one node satisfies predicate.
+ * @param pred Function object true if node satisfies predicate
+ * @return Pointer to vector<T>, NULL if no node containing vector<T> satisfies predicate
+ */
+template <typename T, class Predicate> vector<T> *evioDOMTree::getVectorUnique(Predicate pred) throw(evioException) {
+  evioDOMNodeListP l = getNodeList(pred);
+  int c = count_if(l->begin(),l->end(),typeIs<T>());
+  
+  if(c==0) {
+    return(NULL);
+  } else if (c==1) {
+    evioDOMNodeList::iterator iter = find_if(l->begin(),l->end(),typeIs<T>());
+    return((*iter)->getVector<T>());
+  } else {
+    throw(evioException(0,"?evioDOMTree::getVectorUnique...more than one node found",__FILE__,__FUNCTION__,__LINE__));
+  }
+}  
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
  * Adds node to node list, used internally by getNodeList.
  * @param pNode Node to check agains predicate
  * @param pList Current node list
@@ -874,5 +923,6 @@ public:
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+
 
 #endif

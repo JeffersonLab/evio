@@ -882,7 +882,7 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
       char *c = start;
       while((c[0]!=0x4)&&((c-start)<length)) {  // ???
         s=string(c);
-        cout << "string:  " << s << "  (len " << s.size() << ")" << endl;
+        //        cout << "string:  " << s << "  (len " << s.size() << ")" << endl;
         newLeaf->append(s);
         c+=s.size()+1;
       }
