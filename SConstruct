@@ -13,10 +13,12 @@
 ################################
 
 # get operating system info
-import os
-import string
-import SCons.Node.FS
+import re
+import sys
+import glob
+import os, string, subprocess, SCons.Node.FS
 from os import access, F_OK, sep, symlink, lstat
+from subprocess import Popen, PIPE
 
 os.umask(022)
 
@@ -34,6 +36,28 @@ osname   = platform + '-' +  machine
 # This allows us to get to the vxworks compiler for example.
 # So for vxworks, make sure the tools are in your PATH
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
+
+def recursiveDirs(root) :
+	return filter( (lambda a : a.rfind( ".svn")==-1 ),  [ a[0] for a in os.walk(root)]  )
+
+def unique(list) :
+	return dict.fromkeys(list).keys()
+
+def scanFiles(dir, accept=["*.cpp"], reject=[]) :
+	sources = []
+	paths = recursiveDirs(dir)
+	for path in paths :
+		for pattern in accept :
+			sources+=glob.glob(path+"/"+pattern)
+	for pattern in reject :
+		sources = filter( (lambda a : a.rfind(pattern)==-1 ),  sources )
+	return unique(sources)
+
+def subdirsContaining(root, patterns):
+	dirs = unique(map(os.path.dirname, scanFiles(root, patterns)))
+	dirs.sort()
+	return dirs
+
 
 ####################################################################################
 # Create a Builder to install symbolic links, where "source" is list of node objects
@@ -348,6 +372,27 @@ Help('tests               install executable tests\n')
 
 # not necessary to create install directories explicitly
 # (done automatically during install)
+
+###########################
+# Documentation generation
+###########################
+
+# Functions that do the documentation creation
+def docGeneratorC(target, source, env):
+    cmd = 'doxygen doc/doxygen/Doxyfile'
+    pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+    return
+
+# doc files builders
+docBuildC = Builder(action = docGeneratorC)
+env.Append(BUILDERS = {'DocGenC' : docBuildC})
+
+# generate Java documentation
+env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/html/index.html'],
+                             source = scanFiles("src/libsrc++", accept=["*.cc", "*.hxx"]) ))
+
+# use "doc" on command line to create tar file
+Help('doc                 create doxygen docs (in ./doc)\n')
 
 #########################
 # Tar file
