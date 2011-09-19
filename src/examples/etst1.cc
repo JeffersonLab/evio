@@ -9,8 +9,8 @@
 
 
 #include <vector>
-#include "evioUtil.hxx"
 #include "evioFileChannel.hxx"
+#include "evioUtil.hxx"
 
 using namespace evio;
 using namespace std;
@@ -39,9 +39,15 @@ const char *ca[3];
 int main(int argc, char **argv) {
   
   // fill fake data buffers
-  for(int i=0; i<10; i++) 
-    ulvec.push_back(i),ibuf[i]=-i,lbuf[i]=2*i,dbuf[i]=10.*i,fvec.push_back(i/10.),svec.push_back("hello"),svec2.push_back("goodbye");
-
+  for(int i=0; i<10; i++) {
+    ulvec.push_back(uint32_t(i));
+    ibuf[i]=-i;
+    lbuf[i]=2*i;
+    dbuf[i]=10.*i;
+    fvec.push_back(float(i)/10.);
+    svec.push_back("hello");
+    svec2.push_back("goodbye");
+  }
   for(int i=0; i<3; i++) ca[i]=sca[i].c_str();
   char *fred="fred";
 
