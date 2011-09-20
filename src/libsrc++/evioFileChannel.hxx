@@ -29,7 +29,7 @@ namespace evio {
 class evioFileChannel : public evioChannel {
 
 public:
-  evioFileChannel(const string &fileName, const string &mode = "r", int size = 8192) throw(evioException);
+  evioFileChannel(const string &fileName, const string &mode = "r", int size = 10000) throw(evioException);
   virtual ~evioFileChannel(void);
 
 

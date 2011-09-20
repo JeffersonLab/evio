@@ -41,9 +41,7 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  */
 evioFileChannel::~evioFileChannel(void) {
   if(handle!=0)close();
-  if(buf!=NULL) {
-    delete[](buf),buf=NULL;
-  }
+  if(buf!=NULL)delete[](buf),buf=NULL;
 }
 
 

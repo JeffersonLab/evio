@@ -434,7 +434,8 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   ostringstream os;
   string indent = getIndent(depth);
-  string indent2 = indent + "    ";
+  string indent2 = indent + "       ";
+  string spaces = "     ";
 
   int wid,swid;
   switch (contentType) {
@@ -471,9 +472,9 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
 
   // dump header
   os << indent
-     <<  "<" << get_typename(contentType) 
-     << " data_type=\"" << hex << ios::showbase << contentType
-     << dec << "\" tag=\"" << tag;
+     <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType) << "\""
+     << " data_type=\"" << hex << showbase << contentType << noshowbase << dec
+     << "\" tag=\"" << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
     os << dec << "\" num=\"" << (int)num;
   os << "\">" << endl;
@@ -484,7 +485,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
   typename vector<T>::const_iterator iter;
   for(iter=data.begin(); iter!=data.end();) {
 
-    if(contentType!=0x3)os << indent2;
+    os << indent2;
     for(int j=0; (j<wid)&&(iter!=data.end()); j++) {
       switch (contentType) {
 
@@ -493,35 +494,34 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       case 0x5:
       case 0xa:
         os.width(swid);
-        os << hex << ios::showbase << *iter << "  ";
+        os << hex << showbase << *iter << noshowbase << dec << spaces;
         break;
       case 0x2:
         os.precision(6);
         os.width(swid);
-        os << ios::showpoint << *iter << "  ";
+        os << showpoint << *iter << noshowpoint << spaces;
         break;
       case 0x3:
-        // ??? something else between CDATA sections?
-        os << "<!CDATA[" << endl << *iter << endl << "]]>";
+        os << "<![CDATA[" << *iter << "]]>";
         break;
       case 0x6:
         k = (*((int16_t*)(&(*iter)))) & 0xff;
         if((k&0x80)!=0)k|=0xff00;
         os.width(swid);
-        os << k << "  ";
+        os << k << spaces;
         break;
       case 0x7:
         os.width(swid);
-        os << hex << ios::showbase << ((*(int*)&(*iter))&0xff) << "  ";
+        os << hex << showbase << ((*(int*)&(*iter))&0xff) << noshowbase << dec << spaces;
         break;
       case 0x8:
         os.width(swid);
         os.precision(20);
-        os << ios::scientific << *iter << "  ";
+        os << scientific << *iter << fixed << spaces;
         break;
       default:
         os.width(swid);
-        os << *iter << "  ";
+        os << *iter << spaces;
         break;
       }
       iter++;
@@ -545,23 +545,10 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
  */
 template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
   ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(this->contentType) << ">" << endl;
+  os << getIndent(depth) << "</" << get_typename(parent==NULL?BANK:parent->getContentType()) << ">" << endl;
   return(os.str());
 }
 
-
-//-----------------------------------------------------------------------------
-
-                                   
-/**
- * Returns XML string listing leaf node contents.
- * @return XML string listing contents
- */
-template <typename T> string evioDOMLeafNode<T>::toString(void) const {
-  ostringstream os;
-  os << getHeader(0) << getFooter(0);
-  return(os.str());
-}
 
 
 //-----------------------------------------------------------------------------

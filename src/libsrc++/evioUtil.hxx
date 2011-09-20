@@ -4,21 +4,29 @@
 
 
 //  must do:
-//   char* arrays
-//   string bank and version number
 //   update word doc
+//   version 4:  data dictionary, new C I/O routines, etc.
 
 
 //  should do:
-//   shared pointer
+//   bring toString() into agreement with evio2xml output, include data dictionary, redo evio2xml program
+//   xml2evio symmetric with toString() and evio2xml, maybe do this as a channel
+//   check multi-threading
+//   shared pointer, for all returned pointers?  Who maintains ownership?
 
 
 //  would like to do:
+//   XML channel
 //   cMsg channel
 //   ET channel
+//   Jevio query
 
 
 // not sure:
+//   convert vectors?
+//   auto internal buf size?
+//   auto-gzip and gunzip?
+//   pipes, named pipes?
 //   scheme for exception type codes?
 
 
@@ -35,6 +43,7 @@
 #include <utility>
 #include <cstring>
 #include <typeinfo>
+//#include "boost/shared_ptr.hpp"
 
 #ifdef vxworks
 #include <iostream.h>
@@ -88,7 +97,7 @@ using namespace std;
 using namespace evio;
 
 
-// evio classes:
+// evio classes
 class evioStreamParserHandler;
 class evioStreamParser;
 class evioDOMTree;
@@ -98,66 +107,6 @@ template<typename T> class evioDOMLeafNode;
 class evioSerializable;
 template <typename T> class evioUtil;
 
-// plus a number of function object classes defined below
-
-
-
-
-// not sure whether to use this or not...ejw
-template <class X> class counted_ptr {
-
-public:
-    typedef X element_type;
-
-    explicit counted_ptr(X* p = 0) // allocate a new counter
-        : itsCounter(0) {if (p) itsCounter = new counter(p);}
-    ~counted_ptr()
-        {release();}
-    counted_ptr(const counted_ptr& r) throw()
-        {acquire(r.itsCounter);}
-    counted_ptr& operator=(const counted_ptr& r)
-    {
-        if (this != &r) {
-            release();
-            acquire(r.itsCounter);
-        }
-        return *this;
-    }
-
-    X& operator*()  const throw()   {return *itsCounter->ptr;}
-    X* operator->() const throw()   {return itsCounter->ptr;}
-    X* get()        const throw()   {return itsCounter ? itsCounter->ptr : 0;}
-    bool unique()   const throw()
-        {return (itsCounter ? itsCounter->count == 1 : true);}
-
-private:
-
-    struct counter {
-        counter(X* p = 0, unsigned c = 1) : ptr(p), count(c) {}
-        X*          ptr;
-        unsigned    count;
-    }* itsCounter;
-
-    void acquire(counter* c) throw()
-    { // increment the count
-        itsCounter = c;
-        if (c) ++c->count;
-    }
-
-    void release()
-    { // decrement the count, delete if it is 0
-        if (itsCounter) {
-            if (--itsCounter->count == 0) {
-                delete itsCounter->ptr;
-                delete itsCounter;
-            }
-            itsCounter = 0;
-        }
-    }
-};
-
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -165,23 +114,21 @@ private:
 //-----------------------------------------------------------------------------
 
 
-typedef evioDOMTree* evioDOMTreeP;                   /**<Pointer to evioDOMTree.*/
-
-
 typedef evioDOMNode* evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
-//typedef counted_ptr<evioDOMNode*> evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
-
-
-
 typedef list<evioDOMNodeP>  evioDOMNodeList;         /**<List of pointers to evioDOMNode.*/
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evioDOMNode pointers, returned by getNodeList.*/
+// typedef boost::shared_ptr<evioDOMNodeList> evioDOMNodeListP;  /** Returned by getNodeList.*/
+
+
 /** Defines the container bank types.*/
 typedef enum {
   BANK       = 0xe,  /**<2-word header, 16-bit tag, 8-bit num, 8-bit type.*/
   SEGMENT    = 0xd,  /**<1-word header,  8-bit tag,    no num, 8-bit type.*/
   TAGSEGMENT = 0xc   /**<1-word header, 12-bit tag,    no num, 4-bit type.*/
 } ContainerType;
+
 typedef pair<uint16_t, uint8_t> tagNum;  /**<STL pair of tag,num.*/
+
 
 
 //-----------------------------------------------------------------------------
@@ -316,13 +263,13 @@ public:
 
 
 public:
-  virtual string toString(void) const       = 0;
+  virtual string toString(void) const;
   virtual string getHeader(int depth) const = 0;
   virtual string getFooter(int depth) const = 0;
 
   const evioDOMNodeP getParent(void) const;
   int getContentType(void) const;
-  const evioDOMTreeP getParentTree(void) const;
+  const evioDOMTree *getParentTree(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
 
@@ -333,7 +280,7 @@ protected:
 
 protected:
   evioDOMNodeP parent;           /**<Pointer to node parent.*/
-  evioDOMTreeP parentTree;       /**<Pointer to parent tree if this node is the root.*/
+  evioDOMTree *parentTree;       /**<Pointer to parent tree if this node is the root.*/
   int contentType;               /**<Content type.*/
 
 
@@ -365,7 +312,6 @@ private:
 
 
 public:
-  string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
 
@@ -398,7 +344,6 @@ private:
 
 
 public:
-  string toString(void) const;
   string getHeader(int depth) const;
   string getFooter(int depth) const;
 

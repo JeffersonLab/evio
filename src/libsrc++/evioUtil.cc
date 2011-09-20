@@ -112,7 +112,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
 
   default:
     ostringstream ss;
-    ss << hex << ios::showbase << bankType;
+    ss << hex << showbase << bankType << noshowbase << dec;
     throw(evioException(0,"?evioStreamParser::parseBank...illegal bank type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
   }
 
@@ -180,7 +180,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
 
   default:
     ostringstream ss;
-    ss << hex << ios::showbase << contentType;
+    ss << hex << showbase << contentType << noshowbase << dec;
     throw(evioException(0,"?evioStreamParser::parseBank...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
 
@@ -565,7 +565,7 @@ const evioDOMNodeP evioDOMNode::getParent(void) const {
  * Returns parent evioDOMTree.
  * @return Pointer to parent evioDOMTree
  */
-const evioDOMTreeP evioDOMNode::getParentTree(void) const {
+const evioDOMTree *evioDOMNode::getParentTree(void) const {
   return(parentTree);
 }
 
@@ -621,6 +621,21 @@ string evioDOMNode::getIndent(int depth) {
 
 
 //-----------------------------------------------------------------------------
+
+                                   
+/**
+ * Returns XML string listing container node contents.
+ * @return XML string listing contents
+ */
+string evioDOMNode::toString(void) const {
+  ostringstream os;
+  os << getHeader(0) << getFooter(0);
+  return(os.str());
+}
+
+
+
+//-----------------------------------------------------------------------------
 //----------------------- evioDOMContainerNode --------------------------------
 //-----------------------------------------------------------------------------
 
@@ -655,20 +670,6 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 
 
 /**
- * Returns XML string listing container node contents.
- * @return XML string listing contents
- */
-string evioDOMContainerNode::toString(void) const {
-  ostringstream os;
-  os << getHeader(0) << getFooter(0);
-  return(os.str());
-}
-
-
-//-----------------------------------------------------------------------------
-
-                                   
-/**
  * Returns XML string containing header needed by toString
  * @param depth Current depth
  * @return XML string
@@ -677,7 +678,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
   ostringstream os;
   os << getIndent(depth)
      <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType)
-     << "\" data_type=\"" << hex << ios::showbase << getContentType()
+     << "\" data_type=\"" << hex << showbase << getContentType() << noshowbase << dec
      << dec << "\" tag=\""  << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
     os << dec << "\" num=\"" << (int)num;
@@ -696,7 +697,7 @@ string evioDOMContainerNode::getHeader(int depth) const {
  */
 string evioDOMContainerNode::getFooter(int depth) const {
   ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(this->parent==NULL?BANK:this->parent->getContentType()) << ">" << endl;
+  os << getIndent(depth) << "</" << get_typename(parent==NULL?BANK:parent->getContentType()) << ">" << endl;
   return(os.str());
 }
 
@@ -924,7 +925,7 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
   default:
     {
       ostringstream ss;
-      ss << hex << ios::showbase << contentType;
+      ss << hex << showbase << contentType << noshowbase << dec;
       throw(evioException(0,"?evioDOMTree::leafNodeHandler...illegal content type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
       break;
     }
@@ -1055,7 +1056,7 @@ int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioE
     break;
   default:
     ostringstream ss;
-    ss << hex << ios::showbase << bankType;
+    ss << hex << showbase << bankType << noshowbase << dec;
     throw(evioException(0,"evioDOMTree::getSerializedLength...illegal bank type: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
@@ -1195,7 +1196,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     break;
   default:
     ostringstream ss;
-    ss << hex << ios::showbase << bankType;
+    ss << hex << showbase << bankType << noshowbase << dec;
     throw(evioException(0,"evioDOMTree::toEVIOBuffer...illegal bank type in boilerplate: " + ss.str(),__FILE__,__FUNCTION__,__LINE__));
     break;
   }
