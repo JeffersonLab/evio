@@ -66,7 +66,7 @@ evioToStringConfig::~evioToStringConfig() {
 //-----------------------------------------------------------------------
 
 
-void evioToStringConfig::parseDictionary(const string &dictionary) {
+bool evioToStringConfig::parseDictionary(const string &dictionary) {
 
   // init string parser and start element handler
   XML_Parser xmlParser = XML_ParserCreate(NULL);
@@ -75,14 +75,14 @@ void evioToStringConfig::parseDictionary(const string &dictionary) {
       
 
   // parse XML dictionary
-  if(XML_Parse(xmlParser,dictionary.c_str(),dictionary.size(),true)!=0) {
-    cout << endl << "  evioToStringConfig::parseDictionary...successfully parsed dictionary string" << endl << endl;
-  } else {
+  bool stat = XML_Parse(xmlParser,dictionary.c_str(),dictionary.size(),true)==0;
+  if(!stat) {
     cerr << endl << "  ?evioToStringConfig::parseDictionary...parse error"
          << endl << endl << XML_ErrorString(XML_GetErrorCode(xmlParser));
   }
   XML_ParserFree(xmlParser);
 
+  return(stat);
 }
 
 
@@ -715,7 +715,11 @@ string evioDOMNode::getIndent(int depth) {
  */
 string evioDOMNode::toString(void) const {
   ostringstream os;
-  os << getHeader(0) << "   <!--skipping contents of size " << getSize() << " -->" << endl << getFooter(0);
+  if(isLeaf()) {
+    os << getHeader(0) << "   <!-- leaf node contains vector of size " << getSize() << " -->" << endl << getFooter(0);
+  } else {
+    os << getHeader(0) << "   <!-- container node has " << getSize() << " children -->" << endl << getFooter(0);
+  }
   return(os.str());
 }
 
@@ -1528,14 +1532,15 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, ev
   // dump data if leaf node, dump contained banks if container
   if(pNode->isLeaf()) {
     if((config!=NULL)&&(config->noData)) {
-      os << pNode->getIndent(depth) << "   <!-- not dumping "<< pNode->getSize() << " data elements -->" << endl;
+      os << pNode->getIndent(depth) << "   <!-- leaf node contains vector of size "<< pNode->getSize() << " -->" << endl;
     } else {
       os << pNode->getBody(depth,config);
     }
 
   } else {
+
     if((config!=NULL)&&(config->maxDepth>0)&&((depth+1)>=config->maxDepth)) {
-      os << pNode->getIndent(depth) << "   <!-- not dumping "<< pNode->getSize() << " child banks -->" << endl;
+      os << pNode->getIndent(depth) << "   <!-- container node has "<< pNode->getSize() << " children -->" << endl;
     } else {
       const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
       if(c!=NULL) {

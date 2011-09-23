@@ -4,7 +4,6 @@
 
 
 //  must do:
-//   default config for toString()?
 //   update word doc
 //   version 4:  data dictionary, new C I/O routines, etc.
 //   indentSize in config?
@@ -25,6 +24,7 @@
 
 
 // not sure:
+//   default config for toString()?
 //   convert vectors?
 //   auto internal buf size?
 //   auto-gzip and gunzip?
@@ -110,10 +110,12 @@ class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 class evioSerializable;
 template <typename T> class evioUtil;
+class evioToStringConfig;
 
 
-// pretty-printin increment per level of depth
+// pretty-printing increment per level of depth
 #define DEFAULT_INDENT_SIZE 3
+
 
 
 
@@ -160,7 +162,7 @@ public:
 
 
 public:
-  void parseDictionary(const string &dictionary);
+  bool parseDictionary(const string &dictionary);
 
 
 private:
@@ -174,6 +176,12 @@ public:
   int indentSize;
   map< pair<uint16_t,uint8_t>, string > toStringDictionary;
 };
+
+
+
+// default toString config
+static evioToStringConfig defaultToStringConfig;
+
 
 
 //-----------------------------------------------------------------------------
@@ -308,9 +316,9 @@ public:
 
 public:
   virtual string toString(void) const;
-  virtual string getHeader(int depth, evioToStringConfig *config = NULL) const = 0;
-  virtual string getBody(int depth, evioToStringConfig *config = NULL) const = 0;
-  virtual string getFooter(int depth, evioToStringConfig *config = NULL) const = 0;
+  virtual string getHeader(int depth, evioToStringConfig *config = &defaultToStringConfig) const = 0;
+  virtual string getBody(int depth, evioToStringConfig *config = &defaultToStringConfig) const = 0;
+  virtual string getFooter(int depth, evioToStringConfig *config = &defaultToStringConfig) const = 0;
   virtual int getSize(void) const = 0;
 
   const evioDOMNodeP getParent(void) const;
@@ -358,9 +366,9 @@ private:
 
 
 public:
-  string getHeader(int depth, evioToStringConfig *config = NULL) const;
-  string getBody(int depth, evioToStringConfig *config = NULL) const;
-  string getFooter(int depth, evioToStringConfig *config = NULL) const;
+  string getHeader(int depth, evioToStringConfig *config = &defaultToStringConfig) const;
+  string getBody(int depth, evioToStringConfig *config = &defaultToStringConfig) const;
+  string getFooter(int depth, evioToStringConfig *config = &defaultToStringConfig) const;
   int getSize(void) const;
 
 
@@ -392,9 +400,9 @@ private:
 
 
 public:
-  string getHeader(int depth, evioToStringConfig *config = NULL) const;
-  string getBody(int depth, evioToStringConfig *config = NULL) const;
-  string getFooter(int depth, evioToStringConfig *config = NULL) const;
+  string getHeader(int depth, evioToStringConfig *config = &defaultToStringConfig) const;
+  string getBody(int depth, evioToStringConfig *config = &defaultToStringConfig) const;
+  string getFooter(int depth, evioToStringConfig *config = &defaultToStringConfig) const;
   int getSize(void) const;
 
 
@@ -454,7 +462,7 @@ public:
   template <typename T, class Predicate> vector<T> *getVectorUnique(Predicate pred) throw(evioException);
 
 public:
-  string toString(evioToStringConfig *config = NULL) const;
+  string toString(evioToStringConfig *config = &defaultToStringConfig) const;
   string toString(evioToStringConfig &config) const;
 
 
@@ -466,7 +474,7 @@ private:
     throw(evioException);
   //  template <class Predicate> evioDOMNodeP findFirstNode(evioDOMNodeP pNode, Predicate pred) throw(evioException);
   
-  void toOstream(ostream &os, const evioDOMNodeP node, int depth, evioToStringConfig *config = NULL) const throw(evioException);
+  void toOstream(ostream &os, const evioDOMNodeP node, int depth, evioToStringConfig *config = &defaultToStringConfig) const throw(evioException);
   void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, void *userArg);
   void *leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, const void *data, void *userArg);
 
