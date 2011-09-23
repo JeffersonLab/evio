@@ -36,6 +36,93 @@ namespace evio {
 }  // namespace evio
 
 
+
+
+//-----------------------------------------------------------------------
+//---------------------- evioToString Config ----------------------------
+//-----------------------------------------------------------------------
+
+
+evioToStringConfig::evioToStringConfig() : 
+  maxDepth(0), noData(false), xtod(false), indentSize(DEFAULT_INDENT_SIZE) {
+}
+
+
+//-----------------------------------------------------------------------
+
+
+evioToStringConfig::evioToStringConfig(const string &dictionary) : 
+  maxDepth(0), noData(false), xtod(false), indentSize(DEFAULT_INDENT_SIZE) {
+  parseDictionary(dictionary);
+}
+
+
+//-----------------------------------------------------------------------
+
+evioToStringConfig::~evioToStringConfig() {
+}
+
+
+//-----------------------------------------------------------------------
+
+
+void evioToStringConfig::parseDictionary(const string &dictionary) {
+
+  // init string parser and start element handler
+  XML_Parser xmlParser = XML_ParserCreate(NULL);
+  XML_SetElementHandler(xmlParser,startElementHandler,NULL);
+  XML_SetUserData(xmlParser,reinterpret_cast<void*>(&toStringDictionary));
+      
+
+  // parse XML dictionary
+  if(XML_Parse(xmlParser,dictionary.c_str(),dictionary.size(),true)!=0) {
+    cout << endl << "  evioToStringConfig::parseDictionary...successfully parsed dictionary string" << endl << endl;
+  } else {
+    cerr << endl << "  ?evioToStringConfig::parseDictionary...parse error"
+         << endl << endl << XML_ErrorString(XML_GetErrorCode(xmlParser));
+  }
+  XML_ParserFree(xmlParser);
+
+}
+
+
+//-----------------------------------------------------------------------
+
+
+void evioToStringConfig::startElementHandler(void *userData, const char *xmlname, const char **atts) {
+  
+
+  // userData points to dictionary 
+  if(userData==NULL) {
+    cerr << "?evioToStringConfig::startElement...NULL userData" << endl;
+    return;
+  }
+
+
+  // only process dictionary entries
+  if((strstr(xmlname,"dictEntry")==NULL)&&(strstr(xmlname,"DictEntry")==NULL)&&(strstr(xmlname,"dictentry")==NULL))return;
+
+
+  string name = "";
+  int tag = 0;
+  int num = 0;
+  for (int i=0; atts[i]; i+=2) {
+    if(strcasecmp(atts[i],"name")==0) {
+      name = string(atts[i+1]);
+    } else if(strcasecmp(atts[i],"tag")==0) {
+      tag = atoi(atts[i+1]);
+    } else if(strcasecmp(atts[i],"num")==0) {
+      num = atoi(atts[i+1]);
+    }
+  }
+
+  // add tag/num pair and name to dictionary
+  map< pair<uint16_t,uint8_t>, string > *dict = reinterpret_cast< map< pair<uint16_t,uint8_t>, string >* >(userData);
+  (*dict)[pair<uint16_t,uint8_t>(tag,num)]=name;
+}
+    
+
+
 //-----------------------------------------------------------------------
 //------------------------ evioStreamParser -----------------------------
 //-----------------------------------------------------------------------
@@ -610,13 +697,12 @@ bool evioDOMNode::isLeaf(void) const {
 
 
 /** 
- * Returns indent for toString method, used internally
- * @return String containing proper number of indent spaces
+ * Returns indent for pretty-printing, used internally
+ * @param depth Depth level
+ * @return String containing proper number of indent spaces for this depth
  */
 string evioDOMNode::getIndent(int depth) {
-  string s;
-  for(int i=0; i<depth; i++) s+="   ";
-  return(s);
+  return(string(depth*DEFAULT_INDENT_SIZE,' '));
 }
 
 
@@ -629,7 +715,7 @@ string evioDOMNode::getIndent(int depth) {
  */
 string evioDOMNode::toString(void) const {
   ostringstream os;
-  os << getHeader(0) << getFooter(0);
+  os << getHeader(0) << "   <!--skipping contents of size " << getSize() << " -->" << endl << getFooter(0);
   return(os.str());
 }
 
@@ -670,14 +756,20 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
 
 
 /**
- * Returns XML string containing header needed by toString
+ * Returns XML string containing header needed for toString() and related methods
  * @param depth Current depth
  * @return XML string
  */
-string evioDOMContainerNode::getHeader(int depth) const {
+string evioDOMContainerNode::getHeader(int depth, evioToStringConfig *config) const {
   ostringstream os;
+
+  // get node name
+  string name;
+  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+  
   os << getIndent(depth)
-     <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType)
+     <<  "<" << name << " content=\"" << get_typename(contentType)
      << "\" data_type=\"" << hex << showbase << getContentType() << noshowbase << dec
      << dec << "\" tag=\""  << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
@@ -691,15 +783,47 @@ string evioDOMContainerNode::getHeader(int depth) const {
 
                                    
 /**
+ * Returns empty body for container node
+ * @param depth Current depth
+ * @return Empty string
+ */
+string evioDOMContainerNode::getBody(int depth, evioToStringConfig *config) const {
+  return("");
+}
+
+
+//-----------------------------------------------------------------------------
+
+                                   
+/**
  * Returns XML string containing footer needed by toString
  * @param depth Current depth
  * @return XML string
  */
-string evioDOMContainerNode::getFooter(int depth) const {
+string evioDOMContainerNode::getFooter(int depth, evioToStringConfig *config) const {
   ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(parent==NULL?BANK:parent->getContentType()) << ">" << endl;
+
+  // get node name
+  string name;
+  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+
+  os << getIndent(depth) << "</" << name << ">" << endl;
   return(os.str());
 }
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns number of child nodes
+ * @return 
+ */
+int evioDOMContainerNode::getSize(void) const {
+  return(childList.size());
+}
+
 
 
 //-----------------------------------------------------------------------------
@@ -865,6 +989,8 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
   // create and fill new leaf
   evioDOMNodeP newLeaf;
   string s;
+
+
   switch (contentType) {
 
   case 0x0:
@@ -1263,8 +1389,9 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         nword = (ndata+1)/2;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         uint16_t *s = (uint16_t *)&buf[dataOffset];
+        cout << "ndata,nword are: " << ndata << "," << nword << endl;
         for(i=0; i<ndata; i++) s[i]=static_cast<uint16_t>(leaf->data[i]);
-        if((ndata%2)!=0)buf[ndata]=0;
+        if((ndata%2)!=0)s[ndata]=0;
       }
       break;
 
@@ -1350,18 +1477,31 @@ evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
 
 /**
  * Returns XML string listing tree contents.
+ * @param config Pointer to evioToStringConfig contains options that control string creation
  * @return XML string listing contents
  */
-string evioDOMTree::toString(void) const {
+string evioDOMTree::toString(evioToStringConfig *config) const {
 
   if(root==NULL)return("<!-- empty tree -->");
 
   ostringstream os;
-  os << endl << endl << "<!-- Dump of tree: " << name << " -->" << endl << endl;
-  toOstream(os,root,0);
+  toOstream(os,root,0,config);
   os << endl << endl;
   return(os.str());
 
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * @param config Pointer to config
+ * Returns XML string listing tree contents.
+ * @return XML string listing contents
+ */
+string evioDOMTree::toString(evioToStringConfig &config) const {
+  return(toString(&config));
 }
 
 
@@ -1374,28 +1514,40 @@ string evioDOMTree::toString(void) const {
  * @param pNode Node to get XML representation
  * @param depth Current depth
  */
-void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth) const throw(evioException) {
+void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, evioToStringConfig *config) const
+  throw(evioException) {
 
   
   if(pNode==NULL)return;
 
 
   // get node header
-  os << pNode->getHeader(depth);
+  os << pNode->getHeader(depth,config);
 
 
-  // dump contained banks if node is a container
-  const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
-  if(c!=NULL) {
-    evioDOMNodeList::const_iterator iter;
-    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-      toOstream(os,*iter,depth+1);
+  // dump data if leaf node, dump contained banks if container
+  if(pNode->isLeaf()) {
+    if((config!=NULL)&&(config->noData)) {
+      os << pNode->getIndent(depth) << "   <!-- not dumping "<< pNode->getSize() << " data elements -->" << endl;
+    } else {
+      os << pNode->getBody(depth,config);
+    }
+
+  } else {
+    if((config!=NULL)&&(config->maxDepth>0)&&((depth+1)>=config->maxDepth)) {
+      os << pNode->getIndent(depth) << "   <!-- not dumping "<< pNode->getSize() << " child banks -->" << endl;
+    } else {
+      const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
+      if(c!=NULL) {
+        evioDOMNodeList::const_iterator iter;
+        for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) toOstream(os,*iter,depth+1,config);
+      }
     }
   }
-
+  
 
   // get footer
-  os << pNode->getFooter(depth);
+  os << pNode->getFooter(depth,config);
 }
 
 

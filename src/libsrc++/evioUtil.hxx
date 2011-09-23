@@ -4,12 +4,14 @@
 
 
 //  must do:
+//   default config for toString()?
 //   update word doc
 //   version 4:  data dictionary, new C I/O routines, etc.
+//   indentSize in config?
 
 
 //  should do:
-//   bring toString() into agreement with evio2xml output, include data dictionary, redo evio2xml program
+//   include data dictionary in toString(), redo evio2xml program
 //   xml2evio symmetric with toString() and evio2xml, maybe do this as a channel
 //   check multi-threading
 //   shared pointer, for all returned pointers?  Who maintains ownership?
@@ -36,6 +38,7 @@
 
 #include <list>
 #include <vector>
+#include <map>
 #include <sstream>
 #include <algorithm>
 #include <functional>
@@ -43,6 +46,7 @@
 #include <utility>
 #include <cstring>
 #include <typeinfo>
+#include <expat.h>
 //#include "boost/shared_ptr.hpp"
 
 #ifdef vxworks
@@ -108,6 +112,10 @@ class evioSerializable;
 template <typename T> class evioUtil;
 
 
+// pretty-printin increment per level of depth
+#define DEFAULT_INDENT_SIZE 3
+
+
 
 //-----------------------------------------------------------------------------
 //----------------------------- Typedefs --------------------------------------
@@ -133,6 +141,42 @@ typedef pair<uint16_t, uint8_t> tagNum;  /**<STL pair of tag,num.*/
 
 //-----------------------------------------------------------------------------
 //--------------------------- evio Classes ------------------------------------
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Configuration options for toString() method.
+ *   max_depth:     depth to convert to, 0 means no limit, default 0.
+ *   no_children:   true to not dump children of container nodes, default false.
+ *   no_data:       true to not dump data of leaf nodes, default false.
+ *   xtod:          true to dump unsigned values as dec (instead of hex), default false.
+ */
+class evioToStringConfig {
+
+public:
+  evioToStringConfig();
+  evioToStringConfig(const string &dictionary);
+  virtual ~evioToStringConfig();
+
+
+public:
+  void parseDictionary(const string &dictionary);
+
+
+private:
+  static void startElementHandler(void *userData, const char *xmlname, const char **atts);
+
+
+public:
+  int maxDepth;
+  bool noData;
+  bool xtod;
+  int indentSize;
+  map< pair<uint16_t,uint8_t>, string > toStringDictionary;
+};
+
+
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -264,8 +308,10 @@ public:
 
 public:
   virtual string toString(void) const;
-  virtual string getHeader(int depth) const = 0;
-  virtual string getFooter(int depth) const = 0;
+  virtual string getHeader(int depth, evioToStringConfig *config = NULL) const = 0;
+  virtual string getBody(int depth, evioToStringConfig *config = NULL) const = 0;
+  virtual string getFooter(int depth, evioToStringConfig *config = NULL) const = 0;
+  virtual int getSize(void) const = 0;
 
   const evioDOMNodeP getParent(void) const;
   int getContentType(void) const;
@@ -312,8 +358,10 @@ private:
 
 
 public:
-  string getHeader(int depth) const;
-  string getFooter(int depth) const;
+  string getHeader(int depth, evioToStringConfig *config = NULL) const;
+  string getBody(int depth, evioToStringConfig *config = NULL) const;
+  string getFooter(int depth, evioToStringConfig *config = NULL) const;
+  int getSize(void) const;
 
 
 public:
@@ -344,8 +392,10 @@ private:
 
 
 public:
-  string getHeader(int depth) const;
-  string getFooter(int depth) const;
+  string getHeader(int depth, evioToStringConfig *config = NULL) const;
+  string getBody(int depth, evioToStringConfig *config = NULL) const;
+  string getFooter(int depth, evioToStringConfig *config = NULL) const;
+  int getSize(void) const;
 
 
 public:
@@ -398,12 +448,14 @@ public:
 public:
   evioDOMNodeListP getNodeList(void) throw(evioException);
   template <class Predicate> evioDOMNodeListP getNodeList(Predicate pred) throw(evioException);
+  //  template <class Predicate> evioDOMNodeP getFirstNode(Predicate pred) throw(evioException);
 
   template <typename T> vector<T> *getVectorUnique(void) throw(evioException);
   template <typename T, class Predicate> vector<T> *getVectorUnique(Predicate pred) throw(evioException);
 
 public:
-  string toString(void) const;
+  string toString(evioToStringConfig *config = NULL) const;
+  string toString(evioToStringConfig &config) const;
 
 
 private:
@@ -412,8 +464,9 @@ private:
   int toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
   template <class Predicate> evioDOMNodeList *addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
     throw(evioException);
+  //  template <class Predicate> evioDOMNodeP findFirstNode(evioDOMNodeP pNode, Predicate pred) throw(evioException);
   
-  void toOstream(ostream &os, const evioDOMNodeP node, int depth) const throw(evioException);
+  void toOstream(ostream &os, const evioDOMNodeP node, int depth, evioToStringConfig *config = NULL) const throw(evioException);
   void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, void *userArg);
   void *leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, const void *data, void *userArg);
 

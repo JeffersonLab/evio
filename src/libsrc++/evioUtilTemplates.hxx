@@ -430,7 +430,38 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint
  * @param depth Current depth
  * @return XML string
  */
-template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
+template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, evioToStringConfig *config) const {
+
+  ostringstream os;
+  string indent = getIndent(depth);
+
+  // get node name
+  string name;
+  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+
+  os << indent
+     <<  "<" << name << " content=\"" << get_typename(contentType) << "\""
+     << " data_type=\"" << hex << showbase << contentType << noshowbase << dec
+     << "\" tag=\"" << tag;
+  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
+    os << dec << "\" num=\"" << (int)num;
+  os << "\">" << endl;
+
+
+  return(os.str());
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns XML string containing header needed by toString
+ * @param depth Current depth
+ * @return XML string
+ */
+template <typename T> string evioDOMLeafNode<T>::getBody(int depth, evioToStringConfig *config) const {
 
   ostringstream os;
   string indent = getIndent(depth);
@@ -470,15 +501,6 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
   }
 
 
-  // dump header
-  os << indent
-     <<  "<" << get_typename(parent==NULL?BANK:parent->getContentType()) << " content=\"" << get_typename(contentType) << "\""
-     << " data_type=\"" << hex << showbase << contentType << noshowbase << dec
-     << "\" tag=\"" << tag;
-  if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
-    os << dec << "\" num=\"" << (int)num;
-  os << "\">" << endl;
-
 
   // dump data...odd what has to be done for 1-byte types 0x6,0x7 due to bugs in ostream operator <<
   int16_t k;
@@ -494,7 +516,11 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
       case 0x5:
       case 0xa:
         os.width(swid);
-        os << hex << showbase << *iter << noshowbase << dec << spaces;
+        if((config!=NULL)&&(config->xtod)) {
+          os << dec << noshowbase << *iter << spaces;
+        } else {
+          os << hex << showbase << *iter << noshowbase << dec << spaces;
+        }
         break;
       case 0x2:
         os.precision(6);
@@ -512,7 +538,11 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
         break;
       case 0x7:
         os.width(swid);
-        os << hex << showbase << ((*(int*)&(*iter))&0xff) << noshowbase << dec << spaces;
+        if((config!=NULL)&&(config->xtod)) {
+          os << dec << noshowbase << ((*(int*)&(*iter))&0xff) << spaces;
+        } else {
+          os << hex << showbase << ((*(int*)&(*iter))&0xff) << noshowbase << dec << spaces;
+        }
         break;
       case 0x8:
         os.width(swid);
@@ -543,10 +573,29 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth) const {
  * @param depth Current depth
  * @return XML string
  */
-template <typename T> string evioDOMLeafNode<T>::getFooter(int depth) const {
+template <typename T> string evioDOMLeafNode<T>::getFooter(int depth, evioToStringConfig *config) const {
   ostringstream os;
-  os << getIndent(depth) << "</" << get_typename(parent==NULL?BANK:parent->getContentType()) << ">" << endl;
+
+  // get node name
+  string name;
+  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+
+  os << getIndent(depth) << "</" << name << ">" << endl;
   return(os.str());
+}
+
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns numnber of data elements
+ * @return number of data elements
+ */
+template <typename T> int evioDOMLeafNode<T>::getSize(void) const {
+  return(data.size());
 }
 
 
@@ -565,6 +614,19 @@ template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate p
   evioDOMNodeList *pList = addToNodeList(root, new evioDOMNodeList(), pred);
   return(evioDOMNodeListP(pList));
 }  
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns pointer to first node in tree satisfying predicate.
+ * @param pred Function object true if node meets predicate criteria
+ * @return Pointer to node
+ */
+// template <class Predicate> evioDOMNodeP evioDOMTree::getFirstNode(Predicate pred) throw(evioException) {
+//   return(findFirstNode(root,pred);
+// }  
 
 
 //-----------------------------------------------------------------------------
