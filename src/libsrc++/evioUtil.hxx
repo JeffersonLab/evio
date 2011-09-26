@@ -111,6 +111,7 @@ class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 class evioSerializable;
 template <typename T> class evioUtil;
+class evioDictionary;
 class evioToStringConfig;
 
 
@@ -138,7 +139,7 @@ typedef enum {
   TAGSEGMENT = 0xc   /**<1-word header, 12-bit tag,    no num, 4-bit type.*/
 } ContainerType;
 
-typedef pair<uint16_t, uint8_t> tagNum;  /**<STL pair of tag,num.*/
+typedef pair<uint16_t,uint8_t> tagNum;  /**<STL pair of tag,num.*/
 
 
 
@@ -175,13 +176,42 @@ public:
   bool noData;
   bool xtod;
   int indentSize;
-  map< pair<uint16_t,uint8_t>, string > toStringDictionary;
+  map<tagNum,string> toStringDictionary;
 };
 
 
 
 // default toString config
 static evioToStringConfig defaultToStringConfig;
+
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+/**
+ * EVIO Dictionary
+ */
+class evioDictionary {
+
+public:
+  virtual void evioToDictionary(void);
+  virtual void evioToDictionary(const string &dictionary);
+
+
+public:
+  bool setDictionary(const string &dictionary);
+
+
+private:
+  static void startElementHandler(void *userData, const char *xmlname, const char **atts);
+
+
+public:
+  map<string,tagNum> getTagNum;
+  map<tagNum,string> getName;
+};
 
 
 

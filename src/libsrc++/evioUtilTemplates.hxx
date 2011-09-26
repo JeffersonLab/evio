@@ -437,7 +437,10 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, evioToStri
 
   // get node name
   string name;
-  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(config!=NULL) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
   os << indent
@@ -578,7 +581,10 @@ template <typename T> string evioDOMLeafNode<T>::getFooter(int depth, evioToStri
 
   // get node name
   string name;
-  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(config!=NULL) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
   os << getIndent(depth) << "</" << name << ">" << endl;
@@ -621,6 +627,12 @@ template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate p
 
 /**
  * Returns pointer to first node in tree satisfying predicate.
+ * Consider that the order of the search is undefined, so if there is
+ *   more than one bank satisfying predicate this method may not return
+ *   the same thing each time.  Currently it does a depth-first search, 
+ *   but this could change.
+ * I.e. to be safe only use this method when you are sure there is only 
+ *   one bank that satisfies predicate.
  * @param pred Function object true if node meets predicate criteria
  * @return Pointer to node
  */

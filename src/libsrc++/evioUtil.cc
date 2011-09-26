@@ -75,14 +75,14 @@ bool evioToStringConfig::parseDictionary(const string &dictionary) {
       
 
   // parse XML dictionary
-  bool stat = XML_Parse(xmlParser,dictionary.c_str(),dictionary.size(),true)==0;
-  if(!stat) {
+  bool ok = XML_Parse(xmlParser,dictionary.c_str(),dictionary.size(),true)!=0;
+  if(!ok) {
     cerr << endl << "  ?evioToStringConfig::parseDictionary...parse error"
          << endl << endl << XML_ErrorString(XML_GetErrorCode(xmlParser));
   }
   XML_ParserFree(xmlParser);
 
-  return(stat);
+  return(ok);
 }
 
 
@@ -117,8 +117,8 @@ void evioToStringConfig::startElementHandler(void *userData, const char *xmlname
   }
 
   // add tag/num pair and name to dictionary
-  map< pair<uint16_t,uint8_t>, string > *dict = reinterpret_cast< map< pair<uint16_t,uint8_t>, string >* >(userData);
-  (*dict)[pair<uint16_t,uint8_t>(tag,num)]=name;
+  map<tagNum,string> *dict = reinterpret_cast< map<tagNum,string>* >(userData);
+  (*dict)[tagNum(tag,num)]=name;
 }
     
 
@@ -769,7 +769,10 @@ string evioDOMContainerNode::getHeader(int depth, evioToStringConfig *config) co
 
   // get node name
   string name;
-  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(config!=NULL) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
   
   os << getIndent(depth)
@@ -809,7 +812,10 @@ string evioDOMContainerNode::getFooter(int depth, evioToStringConfig *config) co
 
   // get node name
   string name;
-  if(config!=NULL) name = config->toStringDictionary[pair<uint16_t,uint8_t>(tag,num)];
+  if(config!=NULL) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
   os << getIndent(depth) << "</" << name << ">" << endl;
