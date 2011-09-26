@@ -624,9 +624,36 @@ template <class Predicate> evioDOMNodeListP evioDOMTree::getNodeList(Predicate p
  * @param pred Function object true if node meets predicate criteria
  * @return Pointer to node
  */
-// template <class Predicate> evioDOMNodeP evioDOMTree::getFirstNode(Predicate pred) throw(evioException) {
-//   return(findFirstNode(root,pred);
-// }  
+template <class Predicate> evioDOMNodeP evioDOMTree::getFirstNode(Predicate pred) throw(evioException) {
+  return(findFirstNode(root,pred));
+}  
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns pointer to first node in tree satisfying predicate.
+ * @param pred Function object true if node meets predicate criteria
+ * @return Pointer to node
+ */
+template <class Predicate> evioDOMNodeP evioDOMTree::findFirstNode(evioDOMNodeP pNode, Predicate pred) throw(evioException) {
+
+
+  // check this node
+  if(pred(pNode))return(pNode);
+  if(pNode->isLeaf())return(NULL);
+  
+ 
+  // check children
+  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(pNode);
+  evioDOMNodeList::iterator iter;
+  for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+    evioDOMNodeP p=checkChildren(*iter,pred);
+    if(p!=NULL)return(p);
+  }        
+
+}  
 
 
 //-----------------------------------------------------------------------------

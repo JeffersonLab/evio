@@ -7,6 +7,7 @@
 //   update word doc
 //   version 4:  data dictionary, new C I/O routines, etc.
 //   indentSize in config?
+//   map usage in getHeader()
 
 
 //  should do:
@@ -456,7 +457,7 @@ public:
 public:
   evioDOMNodeListP getNodeList(void) throw(evioException);
   template <class Predicate> evioDOMNodeListP getNodeList(Predicate pred) throw(evioException);
-  //  template <class Predicate> evioDOMNodeP getFirstNode(Predicate pred) throw(evioException);
+  template <class Predicate> evioDOMNodeP getFirstNode(Predicate pred) throw(evioException);
 
   template <typename T> vector<T> *getVectorUnique(void) throw(evioException);
   template <typename T, class Predicate> vector<T> *getVectorUnique(Predicate pred) throw(evioException);
@@ -470,11 +471,12 @@ private:
   evioDOMNodeP parse(const uint32_t *buf) throw(evioException);
   int getSerializedLength(const evioDOMNodeP pNode) const throw(evioException);
   int toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size) const throw(evioException);
-  template <class Predicate> evioDOMNodeList *addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred)
-    throw(evioException);
-  //  template <class Predicate> evioDOMNodeP findFirstNode(evioDOMNodeP pNode, Predicate pred) throw(evioException);
-  
   void toOstream(ostream &os, const evioDOMNodeP node, int depth, evioToStringConfig *config = &defaultToStringConfig) const throw(evioException);
+  template <class Predicate> evioDOMNodeList *addToNodeList(evioDOMNodeP pNode, evioDOMNodeList *pList, Predicate pred) throw(evioException);
+  template <class Predicate> evioDOMNodeP findFirstNode(evioDOMNodeP pNode, Predicate pred) throw(evioException);
+
+
+private:
   void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, void *userArg);
   void *leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, const void *data, void *userArg);
 
