@@ -649,7 +649,7 @@ template <class Predicate> evioDOMNodeP evioDOMTree::findFirstNode(evioDOMNodeP 
   evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(pNode);
   evioDOMNodeList::iterator iter;
   for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-    evioDOMNodeP p=checkChildren(*iter,pred);
+    evioDOMNodeP p=findFirstNode(*iter,pred);
     if(p!=NULL)return(p);
   }        
 

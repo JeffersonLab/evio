@@ -84,6 +84,17 @@ int main(int argc, char **argv) {
       evioDOMNodeListP stringList   = event.getNodeList(typeIs<string>());
 
 
+      // test getFirstNode()
+      evioDOMNodeP n = event.getFirstNode(tagNumEquals(6,13));
+      if(n!=NULL) {
+        cout << "Found node:" << endl << endl;
+        cout << n->toString() << endl;
+      } else {
+        cout << "?unable to find string node" << endl;
+      }
+
+
+
       // apply myProcessingFunction to all float nodes using STL for_each() algorithm
       cout << endl << endl << "Applying myProcessingFunction to all float nodes:" << endl << endl;
       for_each(floatList->begin(),floatList->end(),myProcessingFunction);
