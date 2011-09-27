@@ -25,7 +25,7 @@ using namespace evio;
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : filename(f), mode(m), handle(0), bufSize(size) {
+  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size) {
 
   // allocate buffer
   buf = new uint32_t[bufSize];

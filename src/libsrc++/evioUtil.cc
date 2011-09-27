@@ -39,45 +39,57 @@ namespace evio {
 
 
 //-----------------------------------------------------------------------
-//---------------------- evioToString Config ----------------------------
+//------------------------- evioDictionary ------------------------------
 //-----------------------------------------------------------------------
 
 
-evioToStringConfig::evioToStringConfig() : 
-  maxDepth(0), noData(false), xtod(false), indentSize(DEFAULT_INDENT_SIZE) {
+/**
+ * No-arg constructor contains empty maps.
+ */
+evioDictionary::evioDictionary() {
 }
 
 
 //-----------------------------------------------------------------------
 
 
-evioToStringConfig::evioToStringConfig(const string &dictionary) : 
-  maxDepth(0), noData(false), xtod(false), indentSize(DEFAULT_INDENT_SIZE) {
-  parseDictionary(dictionary);
+/**
+ * Constructor fills dictionary maps from string.
+ * @param dictionaryXML XML string parsed to create dictionary maps
+ */
+evioDictionary::evioDictionary(const string &dictionaryXML) {
+  parseDictionary(dictionaryXML);
 }
 
 
 //-----------------------------------------------------------------------
 
-evioToStringConfig::~evioToStringConfig() {
+/**
+ * Destructor.
+ */
+evioDictionary::~evioDictionary() {
 }
 
 
 //-----------------------------------------------------------------------
 
 
-bool evioToStringConfig::parseDictionary(const string &dictionary) {
+/**
+ * Uses Expat to parse XML dictionary string and fill maps.
+ * @param dictionaryXML XML string
+ */
+bool evioDictionary::parseDictionary(const string &dictionaryXML) {
 
   // init string parser and start element handler
   XML_Parser xmlParser = XML_ParserCreate(NULL);
   XML_SetElementHandler(xmlParser,startElementHandler,NULL);
-  XML_SetUserData(xmlParser,reinterpret_cast<void*>(&toStringDictionary));
+  XML_SetUserData(xmlParser,reinterpret_cast<void*>(this));
       
 
   // parse XML dictionary
-  bool ok = XML_Parse(xmlParser,dictionary.c_str(),dictionary.size(),true)!=0;
+  bool ok = XML_Parse(xmlParser,dictionaryXML.c_str(),dictionaryXML.size(),true)!=0;
   if(!ok) {
-    cerr << endl << "  ?evioToStringConfig::parseDictionary...parse error"
+    cerr << endl << "  ?evioDictionary::parseDictionary...parse error"
          << endl << endl << XML_ErrorString(XML_GetErrorCode(xmlParser));
   }
   XML_ParserFree(xmlParser);
@@ -89,12 +101,18 @@ bool evioToStringConfig::parseDictionary(const string &dictionary) {
 //-----------------------------------------------------------------------
 
 
-void evioToStringConfig::startElementHandler(void *userData, const char *xmlname, const char **atts) {
+/**
+ * Expat start element handler, must be static.
+ * @param userData Contains two maps, must be cast back
+ * @param xmlname Name of current element
+ * @param atts Array of attributes for this element
+ */
+void evioDictionary::startElementHandler(void *userData, const char *xmlname, const char **atts) {
   
 
   // userData points to dictionary 
   if(userData==NULL) {
-    cerr << "?evioToStringConfig::startElement...NULL userData" << endl;
+    cerr << "?evioDictionary::startElement...NULL userData" << endl;
     return;
   }
 
@@ -116,11 +134,78 @@ void evioToStringConfig::startElementHandler(void *userData, const char *xmlname
     }
   }
 
-  // add tag/num pair and name to dictionary
-  map<tagNum,string> *dict = reinterpret_cast< map<tagNum,string>* >(userData);
-  (*dict)[tagNum(tag,num)]=name;
+  // add tag/num pair and name to maps
+  evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
+  tagNum tn = tagNum(tag,num);
+  d->getName[tn]     = name;
+  d->getTagNum[name] = tn;
 }
     
+
+
+//-----------------------------------------------------------------------
+//---------------------- evioToString Config ----------------------------
+//-----------------------------------------------------------------------
+
+
+/**
+ * No-arg constructor with no dictionary.
+ */
+evioToStringConfig::evioToStringConfig() {
+  init();
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Constructor accepts dictionary.
+ * @param dictionary evioDictionary
+ */
+evioToStringConfig::evioToStringConfig(const evioDictionary *dictionary) {
+  init();
+  toStringDictionary=dictionary;
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Constructor accepts dictionary.
+ * @param dictionary evioDictionary
+ */
+evioToStringConfig::evioToStringConfig(const evioDictionary &dictionary) {
+  init();
+  toStringDictionary=&dictionary;
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Destructor.
+ */
+evioToStringConfig::~evioToStringConfig() {
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Initializes config.
+ */
+void evioToStringConfig::init(void) {
+  maxDepth           = 0;
+  noData             = false;
+  xtod               = false;
+  indentSize         = 3;    
+  toStringDictionary = NULL;
+}
+
 
 
 //-----------------------------------------------------------------------
@@ -702,7 +787,7 @@ bool evioDOMNode::isLeaf(void) const {
  * @return String containing proper number of indent spaces for this depth
  */
 string evioDOMNode::getIndent(int depth) {
-  return(string(depth*DEFAULT_INDENT_SIZE,' '));
+  return(string(depth*3,' '));
 }
 
 
@@ -764,16 +849,20 @@ evioDOMContainerNode::~evioDOMContainerNode(void) {
  * @param depth Current depth
  * @return XML string
  */
-string evioDOMContainerNode::getHeader(int depth, evioToStringConfig *config) const {
+string evioDOMContainerNode::getHeader(int depth, const evioToStringConfig *config) const {
   ostringstream os;
 
   // get node name
   string name;
-  if(config!=NULL) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getName.end()) {
+      tagNum t=(*iter).first;
+      name=(*iter).second;
+    }
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+
   
   os << getIndent(depth)
      <<  "<" << name << " content=\"" << get_typename(contentType)
@@ -794,7 +883,7 @@ string evioDOMContainerNode::getHeader(int depth, evioToStringConfig *config) co
  * @param depth Current depth
  * @return Empty string
  */
-string evioDOMContainerNode::getBody(int depth, evioToStringConfig *config) const {
+string evioDOMContainerNode::getBody(int depth, const evioToStringConfig *config) const {
   return("");
 }
 
@@ -807,14 +896,14 @@ string evioDOMContainerNode::getBody(int depth, evioToStringConfig *config) cons
  * @param depth Current depth
  * @return XML string
  */
-string evioDOMContainerNode::getFooter(int depth, evioToStringConfig *config) const {
+string evioDOMContainerNode::getFooter(int depth, const evioToStringConfig *config) const {
   ostringstream os;
 
   // get node name
   string name;
-  if(config!=NULL) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getName.end()) name=(*iter).second;
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
@@ -842,7 +931,7 @@ int evioDOMContainerNode::getSize(void) const {
 
 
 /**
- * Constructor fills tree from contents of evioChannel object.
+ * Constructor fills tree from contents of evioChannel object, gets dictionary from channel.
  * @param channel evioChannel object
  * @param name Name of tree
  */
@@ -851,6 +940,7 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(e
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
+  dictionary=channel.getDictionary();
 }
 
 
@@ -858,7 +948,7 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(e
 
 
 /**
- * Constructor fills tree from contents of evioChannel object.
+ * Constructor fills tree from contents of evioChannel object, gets dictionary from channel.
  * @param channel Pointer to evioChannel object
  * @param name Name of tree
  */
@@ -868,6 +958,7 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
+  dictionary=channel->getDictionary();
 }
 
 
@@ -1319,14 +1410,14 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     break;
   case 0xd:
   case 0x20:
-    if(pNode->num!=0)cout << "?warning...num ignored in segment: " << pNode->num << endl;
+    if(pNode->num!=0)cerr << "?warning...num ignored in segment: " << pNode->num << endl;
     buf[0] = (pNode->tag<<24) | ( pNode->contentType<<16);
     dataOffset=1;
     break;
   case 0xc:
   case 0x40:
-    if(pNode->tag>0xfff)cout << "?warning...tag truncated to 12 bits in tagsegment: " << pNode->tag << endl;
-    if(pNode->num!=0)cout << "?warning...num ignored in tagsegment: " << pNode->num<< endl;
+    if(pNode->tag>0xfff)cerr << "?warning...tag truncated to 12 bits in tagsegment: " << pNode->tag << endl;
+    if(pNode->num!=0)cerr << "?warning...num ignored in tagsegment: " << pNode->num<< endl;
     buf[0] = (pNode->tag<<20) | ( pNode->contentType<<16);
     dataOffset=1;
     break;
@@ -1399,7 +1490,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         nword = (ndata+1)/2;
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         uint16_t *s = (uint16_t *)&buf[dataOffset];
-        cout << "ndata,nword are: " << ndata << "," << nword << endl;
+        cerr << "   ndata,nword are: " << ndata << "," << nword << endl;
         for(i=0; i<ndata; i++) s[i]=static_cast<uint16_t>(leaf->data[i]);
         if((ndata%2)!=0)s[ndata]=0;
       }
@@ -1487,10 +1578,34 @@ evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
 
 /**
  * Returns XML string listing tree contents.
+ * @return XML string listing contents
+ */
+string evioDOMTree::toString(void) const {
+
+  if(root==NULL)return("<!-- empty tree -->");
+
+  ostringstream os;
+  if(dictionary==NULL) {
+    toOstream(os,root,0,&defaultToStringConfig);
+  } else {
+    evioToStringConfig config(dictionary);
+    toOstream(os,root,0,&config);
+  }
+  os << endl << endl;
+  return(os.str());
+
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns XML string listing tree contents.
  * @param config Pointer to evioToStringConfig contains options that control string creation
  * @return XML string listing contents
  */
-string evioDOMTree::toString(evioToStringConfig *config) const {
+string evioDOMTree::toString(const evioToStringConfig *config) const {
 
   if(root==NULL)return("<!-- empty tree -->");
 
@@ -1510,7 +1625,7 @@ string evioDOMTree::toString(evioToStringConfig *config) const {
  * Returns XML string listing tree contents.
  * @return XML string listing contents
  */
-string evioDOMTree::toString(evioToStringConfig &config) const {
+string evioDOMTree::toString(const evioToStringConfig &config) const {
   return(toString(&config));
 }
 
@@ -1524,7 +1639,7 @@ string evioDOMTree::toString(evioToStringConfig &config) const {
  * @param pNode Node to get XML representation
  * @param depth Current depth
  */
-void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, evioToStringConfig *config) const
+void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, const evioToStringConfig *config) const
   throw(evioException) {
 
   
@@ -1559,6 +1674,42 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, ev
 
   // get footer
   os << pNode->getFooter(depth,config);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Sets dictionary to use by this tree.
+ * @param dict Pointer to dictionary
+ */
+const evioDictionary *evioDOMTree::getDictionary(void) const {
+  return(dictionary);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Sets dictionary to use by this tree.
+ * @param dict Pointer to dictionary
+ */
+void evioDOMTree::setDictionary(const evioDictionary *dict) {
+  dictionary=dict;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Sets dictionary to use by this tree.
+ * @param dict Ref to dictionary
+ */
+void evioDOMTree::setDictionary(const evioDictionary &dict) {
+  dictionary=&dict;
 }
 
 

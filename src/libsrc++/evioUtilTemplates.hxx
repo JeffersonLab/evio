@@ -430,16 +430,16 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint
  * @param depth Current depth
  * @return XML string
  */
-template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, evioToStringConfig *config) const {
+template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, const evioToStringConfig *config) const {
 
   ostringstream os;
   string indent = getIndent(depth);
 
   // get node name
   string name;
-  if(config!=NULL) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getName.end()) name=(*iter).second;
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
@@ -464,7 +464,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, evioToStri
  * @param depth Current depth
  * @return XML string
  */
-template <typename T> string evioDOMLeafNode<T>::getBody(int depth, evioToStringConfig *config) const {
+template <typename T> string evioDOMLeafNode<T>::getBody(int depth, const evioToStringConfig *config) const {
 
   ostringstream os;
   string indent = getIndent(depth);
@@ -576,14 +576,14 @@ template <typename T> string evioDOMLeafNode<T>::getBody(int depth, evioToString
  * @param depth Current depth
  * @return XML string
  */
-template <typename T> string evioDOMLeafNode<T>::getFooter(int depth, evioToStringConfig *config) const {
+template <typename T> string evioDOMLeafNode<T>::getFooter(int depth, const evioToStringConfig *config) const {
   ostringstream os;
 
   // get node name
   string name;
-  if(config!=NULL) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary.end()) name=(*iter).second;
+  if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getName.end()) name=(*iter).second;
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 

@@ -11,10 +11,15 @@
 #include <evioException.hxx>
 
 
+
 using namespace std;
 
 
 namespace evio {
+
+
+class evioDictionary;
+
 
 
 //-----------------------------------------------------------------------------
@@ -45,6 +50,7 @@ public:
 class evioChannel {
 
 public:
+  evioChannel(void) : dictionary(NULL) {}
   virtual void open(void) throw(evioException) = 0;
   virtual bool read(void) throw(evioException) = 0;
   virtual bool read(uint32_t *myBuf, int length) throw(evioException) = 0;
@@ -57,10 +63,20 @@ public:
   virtual void close(void) throw(evioException) = 0;
   virtual ~evioChannel(void) {};
 
+
+private:
+  evioDictionary *dictionary;
+
+
+public:
+  virtual void setDictionary(evioDictionary &dict)        {dictionary = &dict;}
+  virtual void setDictionary(evioDictionary *dict)        {dictionary = dict;}
+  virtual const evioDictionary *getDictionary(void) const {return(dictionary);}
+
+
   // not sure if these should be part of the interface
   virtual const uint32_t *getBuffer(void) const throw(evioException) = 0;
   virtual int getBufSize(void) const = 0;
-
 };
 
 
