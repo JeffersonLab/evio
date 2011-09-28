@@ -438,8 +438,8 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, const evio
   // get node name
   string name;
   if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary->getName.end()) name=(*iter).second;
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getNameMap.end()) name=(*iter).second;
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
@@ -582,8 +582,8 @@ template <typename T> string evioDOMLeafNode<T>::getFooter(int depth, const evio
   // get node name
   string name;
   if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary->getName.end()) name=(*iter).second;
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getNameMap.end()) name=(*iter).second;
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 

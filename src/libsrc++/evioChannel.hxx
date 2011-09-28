@@ -65,7 +65,7 @@ public:
 
 
 private:
-  evioDictionary *dictionary;
+  const evioDictionary *dictionary;
 
 
 public:

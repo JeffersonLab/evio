@@ -137,10 +137,47 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
   // add tag/num pair and name to maps
   evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
   tagNum tn = tagNum(tag,num);
-  d->getName[tn]     = name;
-  d->getTagNum[name] = tn;
+  d->getNameMap[tn]     = name;
+  d->getTagNumMap[name] = tn;
 }
     
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Gets tagNum given name, throws exception if not found.
+ * @param tn tagNum to find
+ */
+tagNum evioDictionary::getTagNum(const string &name) throw(evioException) {
+  map<string,tagNum>::const_iterator iter = getTagNumMap.find(name);
+  if(iter!=getTagNumMap.end()) {
+    return((*iter).second);
+  } else {
+    throw(evioException(0,"?evioDictionary::getTagNum...no entry named "+name,__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Gets name given tagNum, throws exception if not found.
+ * @param name Name of bank
+ */
+string evioDictionary::getName(tagNum tn) throw(evioException) {
+  map<tagNum,string>::const_iterator iter = getNameMap.find(tn);
+  if(iter!=getNameMap.end()) {
+    return((*iter).second);
+  } else {
+    ostringstream ss;
+    ss << "?evioDictionary::getName...no entry with tagNum "<<  tn.first << "," << tn.second << ends;
+    throw(evioException(0,ss.str(),__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
 
 
 //-----------------------------------------------------------------------
@@ -855,8 +892,8 @@ string evioDOMContainerNode::getHeader(int depth, const evioToStringConfig *conf
   // get node name
   string name;
   if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary->getName.end()) {
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getNameMap.end()) {
       tagNum t=(*iter).first;
       name=(*iter).second;
     }
@@ -902,8 +939,8 @@ string evioDOMContainerNode::getFooter(int depth, const evioToStringConfig *conf
   // get node name
   string name;
   if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
-    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getName.find(tagNum(tag,num));
-    if(iter!=config->toStringDictionary->getName.end()) name=(*iter).second;
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
+    if(iter!=config->toStringDictionary->getNameMap.end()) name=(*iter).second;
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
@@ -952,7 +989,8 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(e
  * @param channel Pointer to evioChannel object
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(evioException) : root(NULL), name(name) {
+evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(evioException)
+  : root(NULL), name(name), dictionary(NULL) {
   if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__FUNCTION__,__LINE__));
   const uint32_t *buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
@@ -969,7 +1007,8 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
  * @param buf Buffer containing event
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(const uint32_t *buf, const string &name) throw(evioException) : root(NULL), name(name) {
+evioDOMTree::evioDOMTree(const uint32_t *buf, const string &name) throw(evioException)
+  : root(NULL), name(name), dictionary(NULL) {
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...null buffer",__FILE__,__FUNCTION__,__LINE__));
   root=parse(buf);
   root->parentTree=this;
@@ -984,7 +1023,8 @@ evioDOMTree::evioDOMTree(const uint32_t *buf, const string &name) throw(evioExce
  * @param node Pointer to node that becomes the root node
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioException) : root(NULL), name(name) {
+evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioException)
+  : root(NULL), name(name), dictionary(NULL) {
   if(node==NULL)throw(evioException(0,"?evioDOMTree constructor...null evioDOMNode",__FILE__,__FUNCTION__,__LINE__));
   root=node;
   root->parentTree=this;
@@ -1001,7 +1041,8 @@ evioDOMTree::evioDOMTree(evioDOMNodeP node, const string &name) throw(evioExcept
  * @param cType Root node content type
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType, const string &name) throw(evioException) : root(NULL), name(name) {
+evioDOMTree::evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType, const string &name) throw(evioException)
+  : root(NULL), name(name), dictionary(NULL) {
   root=evioDOMNode::createEvioDOMNode(tag,num,cType);
   root->parentTree=this;
 }

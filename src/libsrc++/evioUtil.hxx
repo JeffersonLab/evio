@@ -4,16 +4,15 @@
 
 
 //  must do:
-//   map pair vs dictionary object
-//   const in dictionary and config
 //   Doxygen comments
 //   update word doc
-//   version 4:  data dictionary, new C I/O routines, etc.
+//   version 4: new C I/O routines, etc.
 //   indentSize in config vs usage in evioDOMNode?
+//   set dictionary in evioFileChannel when opening file, careful about pre-specified dictionary
 
 
 //  should do:
-//   include data dictionary in toString(), redo evio2xml program
+//   redo evio2xml program
 //   xml2evio symmetric with toString() and evio2xml, maybe do this as a channel
 //   check multi-threading
 //   shared pointer, for all returned pointers?  Who maintains ownership?
@@ -27,7 +26,6 @@
 
 
 // not sure:
-//   default config for toString()?
 //   convert vectors?
 //   auto internal buf size?
 //   auto-gzip and gunzip?
@@ -158,6 +156,8 @@ public:
 
 public:
   bool parseDictionary(const string &dictionaryXML);
+  tagNum getTagNum(const string &name) throw(evioException);
+  string getName(tagNum tn) throw(evioException);
 
 
 private:
@@ -165,8 +165,8 @@ private:
 
 
 public:
-  map<tagNum,string> getName;     /**<Gets node name given tag/num.*/
-  map<string,tagNum> getTagNum;   /**<Gets tag/num given node name.*/
+  map<tagNum,string> getNameMap;     /**<Gets node name given tag/num.*/
+  map<string,tagNum> getTagNumMap;   /**<Gets tag/num given node name.*/
 };
 
 
@@ -190,6 +190,10 @@ public:
   evioToStringConfig(const evioDictionary *dictionary);
   evioToStringConfig(const evioDictionary &dictionary);
   virtual ~evioToStringConfig();
+
+
+private:
+  evioToStringConfig(const string &s) {};  // eliminates auto-coercion of string to dictionary
 
 
 public:
