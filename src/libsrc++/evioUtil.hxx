@@ -9,6 +9,7 @@
 //   version 4: new C I/O routines, etc.
 //   indentSize in config vs usage in evioDOMNode?
 //   set dictionary in evioFileChannel when opening file, careful about pre-specified dictionary
+//   break dictionary out because it's needed in evioFileChannel
 
 
 //  should do:

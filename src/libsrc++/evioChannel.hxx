@@ -64,7 +64,7 @@ public:
   virtual ~evioChannel(void) {};
 
 
-private:
+protected:
   const evioDictionary *dictionary;
 
 

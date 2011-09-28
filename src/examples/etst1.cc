@@ -52,7 +52,6 @@ int main(int argc, char **argv) {
   char *fred="fred";
 
   
-  
   try {
     
     // create fileChannel object for writing
