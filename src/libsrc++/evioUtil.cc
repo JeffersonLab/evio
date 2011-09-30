@@ -1404,6 +1404,49 @@ void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 
 
 /** 
+ * Creates new container node.
+ * @param name Node name
+ * @param ContainerType Type of container node
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMTree::createNode(const string &name, ContainerType cType) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates new container node.
+ * @param name Node name
+ * @param ContainerType Type of container node
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMTree::createNode(const string &name, const evioSerializable &o, ContainerType cType) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,o,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates new container node.
+ * @param name Node name
+ * @param ContainerType Type of container node
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMTree::createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType)
+  throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,f,userArg,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Makes node root if tree is empty, or adds node to root if a container.
  * @param node Node to add to root
  */

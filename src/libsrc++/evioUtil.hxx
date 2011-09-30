@@ -508,17 +508,16 @@ public:
   template <typename T> void addBank(const string &name, const T* dataBuf, int dataLen) throw(evioException);
 
 
-//   evioDOMNodeP createNode(const string &name, ContainerType cType=BANK) throw(evioException);
-//   template <typename T> evioDOMNodeP createNode(const string &name, const vector<T> tVec) throw(evioException);
-//   template <typename T> evioDOMNodeP createNode(const string &name, const T* t, int len) throw(evioException);
-//   evioDOMNodeP createNode(const string &name, const evioSerializable &o, ContainerType cType=BANK) throw(evioException);
-//   evioDOMNodeP createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType=BANK)
-//      throw(evioException);
-//   template <typename T> evioDOMNodeP createNode(const string &name, T *t, void *userArg, ContainerType cType=BANK) throw(evioException);
-//   template <typename T> evioDOMNodeP createNode(const string &name, T *t, 
-//       void* T::*mfp(evioDOMNodeP c, void *userArg),
-//       void *userArg, ContainerType cType=BANK) throw(evioException);
-
+  evioDOMNodeP createNode(const string &name, ContainerType cType=BANK) throw(evioException);
+  template <typename T> evioDOMNodeP createNode(const string &name, const vector<T> tVec) throw(evioException);
+  template <typename T> evioDOMNodeP createNode(const string &name, const T* t, int len) throw(evioException);
+  evioDOMNodeP createNode(const string &name, const evioSerializable &o, ContainerType cType=BANK) throw(evioException);
+  evioDOMNodeP createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType=BANK)
+    throw(evioException);
+  template <typename T> evioDOMNodeP createNode(const string &name, T *t, void *userArg, ContainerType cType=BANK) throw(evioException);
+  template <typename T> evioDOMNodeP createNode(const string &name, T *t, 
+                                                void* T::*mfp(evioDOMNodeP c, void *userArg),
+                                                void *userArg, ContainerType cType=BANK) throw(evioException);
 
 public:
   evioDOMTree& operator<<(evioDOMNodeP node) throw(evioException);

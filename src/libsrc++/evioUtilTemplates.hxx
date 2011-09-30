@@ -984,7 +984,72 @@ template <typename T> void evioDOMTree::addBank(const string &name, const T* dat
 }
 
 
+//-----------------------------------------------------------------------------
 
+
+/** 
+ * Creates leaf node.
+ * @param name Node name
+ * @param tVec Vector of values
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, const vector<T> tVec) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,tVec));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates leaf node.
+ * @param name Node name
+ * @param t Pointer to array of values
+ * @param len Length of array
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, const T* t, int len) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,t,len));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates container node.
+ * @param name Node name
+ * @param t Pointer to object having serialize method
+ * @param userArg User arg passed to serialize method
+ * @parme cType Container node type
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, T *t, void *userArg, ContainerType cType) 
+  throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,t,userArg,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates container node.
+ * @param name Node name
+ * @param t Pointer to object having serialize method
+ * @param userArg User arg passed to serialize method
+ * @parme cType Container node type
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, T *t, 
+                                              void* T::*mfp(evioDOMNodeP c, void *userArg),
+                                              void *userArg, ContainerType cType) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,t,mfp,userArg,cType));
+}
+
+
+
+//-----------------------------------------------------------------------------
 //--------------------- Misc Function Objects ---------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
