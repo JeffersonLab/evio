@@ -67,6 +67,27 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, 
 
 
 /** 
+ * Static factory method to create empty leaf node of type T.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioDOMLeafNode<T>(NULL,tn.first,tn.second));
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Static factory method to create leaf node of type T.
  * @param tag Node tag
  * @param num Node num
@@ -76,6 +97,29 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, 
 template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, const vector<T> tVec)
   throw(evioException) {
   return(new evioDOMLeafNode<T>(NULL,tag,num,tVec));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create leaf node of type T.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param tVec vector<T> of data
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, const vector<T> tVec)
+  throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioDOMLeafNode<T>(NULL,tn.first,tn.second,tVec));
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
 }
 
 
@@ -100,19 +144,50 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, 
 
 
 /** 
+ * Static factory method to create leaf node of type T.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param t Pointer to array containg data of type T
+ * @param len Length of array
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, const T* t, int len)
+  throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioDOMLeafNode<T>(NULL,tn.first,tn.second,t,len));
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Static factory method to create container node using serialize method to fill container.
- * @param tag Node tag
- * @param num Node num
+ * @param name Node name
+ * @param dictionary Dictionary to use
  * @param t Pointer to object having serialize method
  * @param userArg User arg passed to serialize method
  * @param cType Container node content type
  * @return Pointer to new node
  */
-template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, T *t, 
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, T *t, 
                                                                   void *userArg, ContainerType cType) throw(evioException) {
-  evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
-  t->serialize(c,userArg);
-  return(c);
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.first,tn.second,cType);
+    t->serialize(c,userArg);
+    return(c);
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
 }
 
 
@@ -135,6 +210,35 @@ template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, 
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   t->mfp(c,userArg);
   return(c);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create container node filled via object method pointer.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param t Pointer to object
+ * @param mfp Pointer to object method used to fill container
+ * @param userArg User arg passed to object method
+ * @param cType Container node content type
+ * @return Pointer to new node
+ */
+template <typename T> evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, T *t, 
+                                                                  void* T::*mfp(evioDOMNodeP c, void *userArg),
+                                                                  void *userArg, ContainerType cType) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.first,tn.second,cType);
+    t->mfp(c,userArg);
+    return(c);
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
 }
 
 
@@ -665,6 +769,7 @@ template <class Predicate> evioDOMNodeP evioDOMTree::findFirstNode(evioDOMNodeP 
     if(p!=NULL)return(p);
   }        
 
+  return(NULL);
 }  
 
 
@@ -713,6 +818,7 @@ template <typename T, class Predicate> vector<T> *evioDOMTree::getVectorUnique(P
   } else {
     throw(evioException(0,"?evioDOMTree::getVectorUnique...more than one node found",__FILE__,__FUNCTION__,__LINE__));
   }
+
 }  
 
 
@@ -773,6 +879,8 @@ template <typename T> void evioDOMTree::addBank(uint16_t tag, uint8_t num, const
     c->childList.push_back(node);
     node->parent=root;
   }
+
+  return;
 }
 
 
@@ -800,11 +908,83 @@ template <typename T> void evioDOMTree::addBank(uint16_t tag, uint8_t num, const
     c->childList.push_back(node);
     node->parent=root;
   }
+
+  return;
 }
 
 
 //-----------------------------------------------------------------------------
+
+
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param tn Leaf node tagNum
+ * @param dataVec vector<T> of data
+ */
+template <typename T> void evioDOMTree::addBank(tagNum tn, const vector<T> dataVec) throw(evioException) {
+  addBank(tn.first,tn.second,dataVec);
+  return;
+}
+
+
 //-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates leaf node and adds it to tree root node.  @param tn Leaf
+ * node tagNum @param dataBuf Pointer to array containg data of type T
+ * @param dataLen Length of array
+ */
+template <typename T> void evioDOMTree::addBank(tagNum tn, const T* dataBuf, int dataLen) throw(evioException) {
+  addBank(tn.first,tn.second,dataBuf,dataLen);
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param name Leaf node name
+ * @param dataVec vector<T> of data
+ */
+template <typename T> void evioDOMTree::addBank(const string &name, const vector<T> dataVec) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    addBank(tn,dataVec);
+  } else {
+    throw(evioException(0,"?evioDOMTree::addBank...no dictionary",__FILE__,__FUNCTION__,__LINE__));
+  }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates leaf node and adds it to tree root node.
+ * @param name Node name
+ * @param dataBuf Pointer to array containg data of type T
+ * @param dataLen Length of array
+ */
+template <typename T> void evioDOMTree::addBank(const string &name, const T* dataBuf, int dataLen) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    addBank(tn.first,tn.second,dataBuf,dataLen);
+  } else {
+    throw(evioException(0,"?evioDOMTree::addBank...no dictionary",__FILE__,__FUNCTION__,__LINE__));
+  }
+
+  return;
+}
+
+
+
 //--------------------- Misc Function Objects ---------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -887,6 +1067,66 @@ public:
   tagNumEquals(uint16_t aTag, uint8_t aNum) : tag(aTag), num(aNum) {}
   tagNumEquals(tagNum tn) : tag(tn.first), num(tn.second) {}
   bool operator()(const evioDOMNodeP node) const {return((node->tag==tag)&&(node->num==num));}
+private:
+  uint16_t tag;
+  uint8_t num;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Boolean function object compares on name translated to tag/num using dictionary.
+ * If dictionary not available prints warning and uses tag=0,num=0.
+ */
+
+class nameEquals : public unary_function<const evioDOMNodeP, bool> {
+
+public:
+  nameEquals(const string &name, const evioDictionary *dictionary) : tag(0), num(0) {
+    if(dictionary!=NULL) {
+      tagNum tn = dictionary->getTagNum(name); 
+      tag=tn.first;
+      num=tn.second;
+    } else {
+      cerr << "?nameEquals...NULL dictionary, using tag=0,num=0" << endl;
+    }
+  }
+
+  nameEquals(const string &name, const evioDictionary &dictionary) : tag(0), num(0) {
+    tagNum tn = dictionary.getTagNum(name); 
+    tag=tn.first;
+    num=tn.second;
+  }
+
+  nameEquals(const string &name, const evioDOMTree *tree) : tag(0), num(0) {
+    if((tree!=NULL)&&(tree->dictionary!=NULL)) {
+      tagNum tn = tree->dictionary->getTagNum(name); 
+      tag=tn.first;
+      num=tn.second;
+    } else {
+      cerr << "?nameEquals...NULL tree or dictionary, using tag=0,num=0" << endl;
+    }
+  }
+
+  nameEquals(const string &name, const evioDOMTree &tree) : tag(0), num(0) {
+    if(tree.dictionary!=NULL) {
+      tagNum tn = tree.dictionary->getTagNum(name); 
+      tag=tn.first;
+      num=tn.second;
+    } else {
+      cerr << "?nameEquals...NULL tree, using tag=0,num=0" << endl;
+    }
+  }
+
+
+  bool operator()(const evioDOMNodeP node) const {
+    return((node->tag==tag)&&(node->num==num));
+  }
+
+
 private:
   uint16_t tag;
   uint8_t num;

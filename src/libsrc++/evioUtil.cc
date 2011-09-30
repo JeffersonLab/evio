@@ -149,7 +149,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
  * Gets tagNum given name, throws exception if not found.
  * @param tn tagNum to find
  */
-tagNum evioDictionary::getTagNum(const string &name) throw(evioException) {
+tagNum evioDictionary::getTagNum(const string &name) const throw(evioException) {
   map<string,tagNum>::const_iterator iter = getTagNumMap.find(name);
   if(iter!=getTagNumMap.end()) {
     return((*iter).second);
@@ -167,7 +167,7 @@ tagNum evioDictionary::getTagNum(const string &name) throw(evioException) {
  * Gets name given tagNum, throws exception if not found.
  * @param name Name of bank
  */
-string evioDictionary::getName(tagNum tn) throw(evioException) {
+string evioDictionary::getName(tagNum tn) const throw(evioException) {
   map<tagNum,string>::const_iterator iter = getNameMap.find(tn);
   if(iter!=getNameMap.end()) {
     return((*iter).second);
@@ -427,6 +427,43 @@ evioDOMNode::evioDOMNode(evioDOMNodeP par, uint16_t tag, uint8_t num, int conten
 
 
 /** 
+ * Container node constructor used internally.
+ * @param par Parent node
+ * @param tn tagNum
+ * @param contentType Container node content type
+ */
+evioDOMNode::evioDOMNode(evioDOMNodeP par, tagNum tn, int contentType) throw(evioException)
+  : parent(par), parentTree(NULL), contentType(contentType), tag(tn.first), num(tn.second) {
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Container node constructor used internally.
+ * @param par Parent node
+ * @param name Bank name
+ * @parem dictionary Dictionary to use
+ * @param contentType Container node content type
+ */
+evioDOMNode::evioDOMNode(evioDOMNodeP par, const string &name, const evioDictionary *dictionary, int contentType) throw(evioException)
+  : parent(par), parentTree(NULL), contentType(contentType) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    tag=tn.first;
+    num=tn.second;
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Static factory method to create container node.
  * @param tag Node tag
  * @param num Node num
@@ -435,6 +472,28 @@ evioDOMNode::evioDOMNode(evioDOMNodeP par, uint16_t tag, uint8_t num, int conten
  */
 evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, ContainerType cType) throw(evioException) {
   return(new evioDOMContainerNode(NULL,tag,num,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create container node.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param cType Container node content type
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, ContainerType cType) throw(evioException) {
+  
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioDOMContainerNode(NULL,tn.first,tn.second,cType));
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
 }
 
 
@@ -461,6 +520,32 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, const evi
 
 
 /** 
+ * Static factory method to create container node holding evioSerializable object.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param o evioSerializable object
+ * @param cType Container node content type
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, const evioSerializable &o, ContainerType cType) 
+  throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.first,tn.second,cType);
+    o.serialize(c);
+    return(c);
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Static factory method to create container node using C function to fill container.
  * @param tag Node tag
  * @param num Node num
@@ -474,6 +559,32 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, void (*f)
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   f(c,userArg);
   return(c);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create container node using C function to fill container.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param f C function that fills container node
+ * @param userArg User arg passed to C function
+ * @param cType Container node content type
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, void (*f)(evioDOMNodeP c, void *userArg), 
+                                            void *userArg, ContainerType cType) throw(evioException) {
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.first,tn.second,cType);
+    f(c,userArg);
+    return(c);
+  } else {
+    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
 }
 
 
@@ -1052,6 +1163,44 @@ evioDOMTree::evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType, const s
 
 
 /**
+ * Constructor creates new container node as root node.
+ * @param tag Root node name
+ * @param cType Root node content type
+ * @param name Name of tree
+ */
+evioDOMTree::evioDOMTree(const string& bankName, ContainerType cType, const string &name) throw(evioException)
+  : root(NULL), name(name), dictionary(NULL) {
+  
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(bankName);
+    root=evioDOMNode::createEvioDOMNode(tn.first,tn.second,cType);
+    root->parentTree=this;
+  } else {
+    throw(evioException(0,"?evioDOMTree constructor...no dictionary to lookup bank name: " + bankName,__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Constructor creates new container node as root node.
+ * @param name Root node tagNum
+ * @param cType Root node content type
+ * @param name Name of tree
+ */
+evioDOMTree::evioDOMTree(tagNum tn, ContainerType cType, const string &name) throw(evioException)
+  : root(NULL), name(name), dictionary(NULL) {
+  root=evioDOMNode::createEvioDOMNode(tn.first,tn.second,cType);
+  root->parentTree=this;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
  * Destructor deletes root node and contents.
  */
 evioDOMTree::~evioDOMTree(void) {
@@ -1611,6 +1760,27 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
  */
 evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
   return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,isTrue)));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns list of all nodes in tree with particular name, tagNum from dictionary
+ * @param name Name of banks to find
+ * @return Pointer to list of nodes in tree (actually auto_ptr<>)
+ */
+evioDOMNodeListP evioDOMTree::getNodeList(const string &name) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    map<string,tagNum>::const_iterator iter = dictionary->getTagNumMap.find(name);
+    if(iter!=dictionary->getTagNumMap.end())
+      return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,tagNumEquals((*iter).second))));
+  }
+
+  // return empty list if no dictionary or name not found
+  return(*(new evioDOMNodeListP));
 }
 
 
