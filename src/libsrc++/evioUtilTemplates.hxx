@@ -1274,6 +1274,61 @@ private:
 
 
 /**
+ * Boolean function object compares on parent tag and num.
+ */
+class parentNameEquals : public unary_function<const evioDOMNodeP, bool> {
+
+public:
+  parentNameEquals(const string &name, const evioDictionary *dictionary) : tag(0), num(0) {
+    if(dictionary!=NULL) {
+      tagNum tn = dictionary->getTagNum(name); 
+      tag=tn.first;
+      num=tn.second;
+    } else {
+      cerr << "?parentNameEquals...NULL dictionary, using tag=0,num=0" << endl;
+    }
+  }
+
+  parentNameEquals(const string &name, const evioDictionary &dictionary) : tag(0), num(0) {
+    tagNum tn = dictionary.getTagNum(name); 
+    tag=tn.first;
+    num=tn.second;
+  }
+
+  parentNameEquals(const string &name, const evioDOMTree *tree) : tag(0), num(0) {
+    if((tree!=NULL)&&(tree->dictionary!=NULL)) {
+      tagNum tn = tree->dictionary->getTagNum(name); 
+      tag=tn.first;
+      num=tn.second;
+    } else {
+      cerr << "?parentNameEquals...NULL tree or dictionary, using tag=0,num=0" << endl;
+    }
+  }
+
+  parentNameEquals(const string &name, const evioDOMTree &tree) : tag(0), num(0) {
+    if(tree.dictionary!=NULL) {
+      tagNum tn = tree.dictionary->getTagNum(name); 
+      tag=tn.first;
+      num=tn.second;
+    } else {
+      cerr << "?parentNameEquals...NULL dictionary, using tag=0,num=0" << endl;
+    }
+  }
+
+  bool operator()(const evioDOMNodeP node) const {
+    return((node->getParent()==NULL)?false:((node->getParent()->tag==tag)&&(node->getParent()->num==num)));}
+
+private:
+  uint16_t tag;
+  uint8_t num;
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+/**
  * Boolean function object true if container node.
  */
 class isContainer : public unary_function<const evioDOMNodeP,bool> {
