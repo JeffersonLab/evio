@@ -77,6 +77,7 @@ evioDictionary::~evioDictionary() {
 /**
  * Uses Expat to parse XML dictionary string and fill maps.
  * @param dictionaryXML XML string
+ * @return True if parsing succeeded
  */
 bool evioDictionary::parseDictionary(const string &dictionaryXML) {
 
@@ -147,7 +148,8 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
 
 /**
  * Gets tagNum given name, throws exception if not found.
- * @param tn tagNum to find
+ * @param name Name of bank
+ * @return tagNum
  */
 tagNum evioDictionary::getTagNum(const string &name) const throw(evioException) {
   map<string,tagNum>::const_iterator iter = getTagNumMap.find(name);
@@ -1409,7 +1411,7 @@ void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
  * @param ContainerType Type of container node
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, ContainerType cType) throw(evioException) {
+evioDOMNodeP evioDOMTree::createNode(const string &name, ContainerType cType) const throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,cType));
 }
 
@@ -1423,7 +1425,7 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, ContainerType cType) th
  * @param ContainerType Type of container node
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, const evioSerializable &o, ContainerType cType) throw(evioException) {
+evioDOMNodeP evioDOMTree::createNode(const string &name, const evioSerializable &o, ContainerType cType) const throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,o,cType));
 }
 
@@ -1437,7 +1439,7 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, const evioSerializable 
  * @param ContainerType Type of container node
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType)
+evioDOMNodeP evioDOMTree::createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType) const 
   throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,f,userArg,cType));
 }

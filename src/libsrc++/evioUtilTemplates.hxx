@@ -993,7 +993,7 @@ template <typename T> void evioDOMTree::addBank(const string &name, const T* dat
  * @param tVec Vector of values
  * @return Pointer to new node
  */
-template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, const vector<T> tVec) throw(evioException) {
+template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, const vector<T> tVec) const throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,tVec));
 }
 
@@ -1008,7 +1008,7 @@ template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, c
  * @param len Length of array
  * @return Pointer to new node
  */
-template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, const T* t, int len) throw(evioException) {
+template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, const T* t, int len) const throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,t,len));
 }
 
@@ -1024,7 +1024,7 @@ template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, c
  * @parme cType Container node type
  * @return Pointer to new node
  */
-template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, T *t, void *userArg, ContainerType cType) 
+template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, T *t, void *userArg, ContainerType cType) const 
   throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,t,userArg,cType));
 }
@@ -1043,7 +1043,7 @@ template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, T
  */
 template <typename T> evioDOMNodeP evioDOMTree::createNode(const string &name, T *t, 
                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
-                                              void *userArg, ContainerType cType) throw(evioException) {
+                                              void *userArg, ContainerType cType) const throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,t,mfp,userArg,cType));
 }
 
