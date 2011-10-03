@@ -104,7 +104,7 @@ bool evioDictionary::parseDictionary(const string &dictionaryXML) {
 
 /**
  * Expat start element handler, must be static.
- * @param userData Contains two maps, must be cast back
+ * @param userData void* pointer to evioDictionary
  * @param xmlname Name of current element
  * @param atts Array of attributes for this element
  */
@@ -167,7 +167,8 @@ tagNum evioDictionary::getTagNum(const string &name) const throw(evioException) 
 
 /**
  * Gets name given tagNum, throws exception if not found.
- * @param name Name of bank
+ * @param tn tagNum of bank
+ * @return name
  */
 string evioDictionary::getName(tagNum tn) const throw(evioException) {
   map<tagNum,string>::const_iterator iter = getNameMap.find(tn);
@@ -593,6 +594,9 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictio
 //-----------------------------------------------------------------------------
 
 
+/*
+ * Destructor
+ */
 evioDOMNode::~evioDOMNode(void) {
 }
 
@@ -1066,8 +1070,8 @@ string evioDOMContainerNode::getFooter(int depth, const evioToStringConfig *conf
 
 
 /**
- * Returns number of child nodes
- * @return 
+ * Returns number of children of this container node
+ * @return Number of children of this container node
  */
 int evioDOMContainerNode::getSize(void) const {
   return(childList.size());
@@ -1463,7 +1467,7 @@ evioDOMTree& evioDOMTree::operator<<(evioDOMNodeP node) throw(evioException) {
 
 /** 
  * Gets serialized length of tree.
- * @return Size of serialized tree in words
+ * @return Size of serialized tree in 4-byte words
  */
 int evioDOMTree::getSerializedLength(void) const throw(evioException) {
   return(getSerializedLength(root));
@@ -1477,7 +1481,7 @@ int evioDOMTree::getSerializedLength(void) const throw(evioException) {
  * Serializes tree to buffer.
  * @param buf Buffer that receives serialized tree
  * @param size Size of buffer
- * @return Size of serialized buffer in words
+ * @return Size of serialized buffer in 4-byte words
  */
 int evioDOMTree::toEVIOBuffer(uint32_t *buf, int size) const throw(evioException) {
   return(toEVIOBuffer(buf,root,size));
@@ -1490,7 +1494,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, int size) const throw(evioException
 /** 
  * Gets serialized length of node, used internally.
  * @param pNode Node to serialize
- * @return Size of serialized node
+ * @return Size of serialized node in 4-byte words
  */
 int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioException) {
 
@@ -1617,8 +1621,8 @@ int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioE
  * Serializes node into buffer, used internally.
  * @param buf Buffer that receives serialized tree
  * @param pNode Node to serialize
- * @param size Size of buffer
- * @return Size of serialized node
+ * @param size Size of buffer in 4-byte words
+ * @return Size of serialized node in 4-byte words
  */
 int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size) const throw(evioException) {
 
@@ -1938,7 +1942,7 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, co
 
 /**
  * Sets dictionary to use by this tree.
- * @param dict Pointer to dictionary
+ * @return Const pointer to dictionary
  */
 const evioDictionary *evioDOMTree::getDictionary(void) const {
   return(dictionary);
