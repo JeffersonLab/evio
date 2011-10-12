@@ -7,8 +7,8 @@
 
 
 
-#ifndef EVIO
-#define EVIO
+#ifndef __EVIO_h__
+#define __EVIO_h__
 
 
 #ifndef S_SUCCESS
@@ -66,6 +66,7 @@ void evioswap(uint32_t *buffer, int32_t tolocal, uint32_t *dest);
 
 #ifdef __cplusplus
 }
+
 #endif
 
 #endif

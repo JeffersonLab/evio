@@ -432,20 +432,6 @@ evioDOMNode::evioDOMNode(evioDOMNodeP par, uint16_t tag, uint8_t num, int conten
 /** 
  * Container node constructor used internally.
  * @param par Parent node
- * @param tn tagNum
- * @param contentType Container node content type
- */
-evioDOMNode::evioDOMNode(evioDOMNodeP par, tagNum tn, int contentType) throw(evioException)
-  : parent(par), parentTree(NULL), contentType(contentType), tag(tn.first), num(tn.second) {
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-/** 
- * Container node constructor used internally.
- * @param par Parent node
  * @param name Bank name
  * @parem dictionary Dictionary to use
  * @param contentType Container node content type
@@ -494,7 +480,7 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictio
     tagNum tn = dictionary->getTagNum(name);
     return(new evioDOMContainerNode(NULL,tn.first,tn.second,cType));
   } else {
-    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::createEvioDOMNode...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
   }
 
 }
@@ -539,7 +525,7 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictio
     o.serialize(c);
     return(c);
   } else {
-    throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(0,"?evioDOMNode::createEvioDOMNode...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
   }
 
 }
@@ -562,6 +548,182 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, void (*f)
   evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tag,num,cType);
   f(c,userArg);
   return(c);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create composite leaf node.
+ * @param tag Node tag
+ * @param num Node num
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param tVec vector<uint32_t> of data
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                                            uint16_t dataTag, const vector<uint32_t> &tVec) throw(evioException) {
+  return(new evioCompositeDOMLeafNode(NULL,tag,num,formatTag,formatString,dataTag,tVec));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create composite leaf node.
+ * @param tag Node tag
+ * @param num Node num
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param t Pointer to uint32_t data
+ * @param len Length of data array
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                                            uint16_t dataTag, const uint32_t* t, int len) throw(evioException) {
+  return(new evioCompositeDOMLeafNode(NULL,tag,num,formatTag,formatString,dataTag,t,len));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create composite leaf node.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param tVec vector<uint32_t> of data
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, uint16_t formatTag, const string &formatString,
+                                            uint16_t dataTag, const vector<uint32_t> &tVec) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioCompositeDOMLeafNode(NULL,tn.first,tn.second,formatTag,formatString,dataTag,tVec));
+  } else {
+    throw(evioException(0,"?evioDOMNode::createEvioDOMNode...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Static factory method to create composite leaf node.
+ * @param name Node name
+ * @param dictionary Dictionary to use
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param t Pointer to array of uint32_t data
+ * @param len Length of array
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, uint16_t formatTag, const string &formatString,
+                                            uint16_t dataTag, const uint32_t *t, int len) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioCompositeDOMLeafNode(NULL,tn.first,tn.second,formatTag,formatString,dataTag,t,len));
+  } else {
+    throw(evioException(0,"?evioDOMNode::createEvioDOMNode...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Unknown type node constructor used internally.
+ * @param tag Tag
+ * @param num Num
+ * @param tVec Vector of uint32_t
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createUnknownEvioDOMNode(uint16_t tag, uint8_t num, const vector<uint32_t> &tVec) throw(evioException) {
+  evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tag,num,tVec);
+  p->contentType=0x0;
+  return(p);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Unknown type node constructor used internally.
+ * @param tag Tag
+ * @param num Num
+ * @param t Pointer to uint32_t array
+ * @param len Length of array
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createUnknownEvioDOMNode(uint16_t tag, uint8_t num, const uint32_t *t, int len) throw(evioException) {
+  evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tag,num,t,len);
+  p->contentType=0x0;
+  return(p);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Unknown type node constructor used internally.
+ * @param name Name
+ * @param dictionary Dictionary
+ * @param tVec Vector of uint32_t
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createUnknownEvioDOMNode(const string &name, const evioDictionary *dictionary, const vector<uint32_t> &tVec)
+  throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tn.first,tn.second,tVec);
+    p->contentType=0x0;
+    return(p);
+  } else {
+    throw(evioException(0,"?evioUnknwonnDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Unknown type node constructor used internally.
+ * @param name Name
+ * @param dictionary Dictionary
+ * @param t Pointer to array of uint32_t
+ * @param len Length of array
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMNode::createUnknownEvioDOMNode(const string &name, const evioDictionary *dictionary, const uint32_t* t, int len)
+  throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tn.first,tn.second,t,len);
+    p->contentType=0x0;
+    return(p);
+  } else {
+    throw(evioException(0,"?evioUnknwonnDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
+  }
 }
 
 
@@ -955,7 +1117,7 @@ string evioDOMNode::getIndent(int depth) {
 string evioDOMNode::toString(void) const {
   ostringstream os;
   if(isLeaf()) {
-    os << getHeader(0) << "   <!-- leaf node contains vector of size " << getSize() << " -->" << endl << getFooter(0);
+    os << getHeader(0) << "   <!-- leaf node contains data of size " << getSize() << " -->" << endl << getFooter(0);
   } else {
     os << getHeader(0) << "   <!-- container node has " << getSize() << " children -->" << endl << getFooter(0);
   }
@@ -1075,6 +1237,108 @@ string evioDOMContainerNode::getFooter(int depth, const evioToStringConfig *conf
  */
 int evioDOMContainerNode::getSize(void) const {
   return(childList.size());
+}
+
+
+
+//-----------------------------------------------------------------------------
+//----------------------- evioCompositeDOMLeafNode --------------------------------
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Composite leaf node constructor used internally.
+ * @param par Parent node
+ * @param tg Node tag
+ * @param num Node num
+ */
+evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
+                                                   uint16_t formatTag, const string &formatString, 
+                                                   uint16_t datatag, const vector<uint32_t> &v) throw(evioException)
+  : formatTag(formatTag), formatString(formatString), dataTag(dataTag), evioDOMLeafNode<uint32_t>(par,tg,num,v) {
+  contentType=0xf;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Composite leaf node constructor used internally.
+ * @param par Parent node
+ * @param tg Node tag
+ * @param num Node num
+ */
+evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
+                                                   uint16_t formatTag, const string &formatString, 
+                                                   uint16_t datatag, const uint32_t *p, int ndata) throw(evioException)
+  : formatTag(formatTag), formatString(formatString), dataTag(dataTag), evioDOMLeafNode<uint32_t>(par,tg,num,p,ndata) {
+  contentType=0xf;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/*
+ * Destructor
+ */
+evioCompositeDOMLeafNode::~evioCompositeDOMLeafNode(void) {
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns XML string containing body needed by toString
+ * @param depth Current depth
+ * @return XML string
+ */
+string evioCompositeDOMLeafNode::getBody(int depth, const evioToStringConfig *config) const {
+
+  ostringstream os;
+  string indent = getIndent(depth);
+  string indent2 = indent + "       ";
+  string indent3 = indent2 + "       ";
+  string spaces = "     ";
+
+  int wid=5,swid=10;
+
+
+  // dump format string
+  os << indent2 << "<formatString>" << endl << indent3 << formatString << endl << indent2 << "</formatString>" << endl;
+
+
+  // dump data as uint32_t
+  os << indent2 << "<data> " << endl;
+  vector<uint32_t>::const_iterator iter;
+  for(iter=data.begin(); iter!=data.end();) {
+
+    os << indent3;
+    for(int j=0; (j<wid)&&(iter!=data.end()); j++) {
+      os.width(swid);
+      os << hex << showbase << *iter << spaces;
+      iter++;
+    }
+    os << endl;
+  }
+  os << indent2 << "</data>" << dec << noshowbase << endl;
+
+
+  return(os.str());
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Returns numnber of data elements
+ * @return number of data elements
+ */
+int evioCompositeDOMLeafNode::getSize(void) const {
+  return(2 + ((formatString.size()+3)/4) + data.size());
 }
 
 
@@ -1446,6 +1710,43 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, const evioSerializable 
 evioDOMNodeP evioDOMTree::createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType) const 
   throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,f,userArg,cType));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates new composite leaf node.
+ * @param name Node name
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param dataVec Vector of uint32_t data
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, const string &formatString, 
+                        uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,formatTag,formatString,dataTag,dataVec));
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
+ * Creates new composite leaf node.
+ * @param name Node name
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param dataVec Pointer to arry of uint32_t data
+ * @param len Length of array
+ * @return Pointer to new node
+ */
+evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, const string &formatString, 
+                        uint16_t dataTag, const uint32_t *t, int len) throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(name,dictionary,formatTag,formatString,dataTag,t,len));
 }
 
 

@@ -4,22 +4,37 @@
 
 
 //  must do:
+//   unknown data type and bank type, same for composite type, careful about packing/unpacking
+//   composite bank
 //   Doxygen comments
 //   update word doc
 //   version 4: new C I/O routines, etc.
-//   indentSize in config vs usage in evioDOMNode?
 //   set dictionary in evioFileChannel when opening file, careful about pre-specified dictionary
-//   break dictionary out because it's needed in evioFileChannel
+//   complete function objects (is nameEquals needed?)
 
 
 //  should do:
+//   break dictionary out because it's needed in evioFileChannel?
+//   indentSize in config vs usage in evioDOMNode?
 //   redo evio2xml program
 //   xml2evio symmetric with toString() and evio2xml, maybe do this as a channel
 //   check multi-threading
 //   shared pointer, for all returned pointers?  Who maintains ownership?
+//   parse dictionary with alternate tag or predicate or existance of name,tag,num attributes
+
+
+
+//   for version 4
+//       append
+//       decompress/compress on input/output (gzip, bzip, etc.)
+//       auto tag/num creation, multiple dictionaries?
+//       random access i/o
+//       pipes, named pipes on input
+//       handle buffer swapping automatically
 
 
 //  would like to do:
+//   allow parent notation in dictionary names, e.g. 1.2.*, etc.
 //   XML channel
 //   cMsg channel
 //   ET channel
@@ -27,10 +42,9 @@
 
 
 // not sure:
+//   is complete addBank() and createNode() mirroring of createEvioDOMNode() needed?
 //   convert vectors?
 //   auto internal buf size?
-//   auto-gzip and gunzip?
-//   pipes, named pipes?
 //   scheme for exception type codes?
 
 
@@ -282,7 +296,6 @@ class evioDOMNode {
 
 protected:
   evioDOMNode(evioDOMNodeP parent, uint16_t tag, uint8_t num, int contentType) throw(evioException);
-  evioDOMNode(evioDOMNodeP parent, tagNum tn, int contentType) throw(evioException);
   evioDOMNode(evioDOMNodeP parent, const string &name, const evioDictionary *dictionary, int contentType) throw(evioException);
 
 
@@ -299,10 +312,8 @@ private:
 public:
   static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const vector<T> tVec)
-    throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const T* t, int len)
-    throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const vector<T> &tVec) throw(evioException);
+  template <typename T> static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const T* t, int len) throw(evioException);
   static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const evioSerializable &o, ContainerType cType=BANK) 
     throw(evioException);
   static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, 
@@ -313,10 +324,19 @@ public:
                                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
+  static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                                        uint16_t dataTag, const vector<uint32_t> &tVec) throw(evioException);
+
+  static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                                        uint16_t dataTag, const uint32_t* t, int len) throw(evioException);
+
+  static evioDOMNodeP createUnknownEvioDOMNode(uint16_t tag, uint8_t num, const vector<uint32_t> &tVec) throw(evioException);
+  static evioDOMNodeP createUnknownEvioDOMNode(uint16_t tag, uint8_t num, const uint32_t *t, int len) throw(evioException);
+
 
   static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, ContainerType cType=BANK) throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary) throw(evioException);
-  template <typename T> static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, const vector<T> tVec)
+  template <typename T> static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, const vector<T> &tVec)
     throw(evioException);
   template <typename T> static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, const T* t, int len)
     throw(evioException);
@@ -329,6 +349,15 @@ public:
   template <typename T> static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, T *t, 
                                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
+  static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, uint16_t formatTag, const string &formatString,
+                                        uint16_t dataTag, const vector<uint32_t> &tVec) throw(evioException);
+  
+  static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, uint16_t formatTag, const string &formatString,
+                                        uint16_t dataTag, const uint32_t* t, int len) throw(evioException);
+  static evioDOMNodeP createUnknownEvioDOMNode(const string &name, const evioDictionary *dictionary, const vector<uint32_t> &tVec)
+    throw(evioException);
+  static evioDOMNodeP createUnknownEvioDOMNode(const string &name, const evioDictionary *dictionary, const uint32_t *t, int len)
+    throw(evioException);
 
 
 public:
@@ -416,19 +445,19 @@ class evioDOMContainerNode : public evioDOMNode {
   friend class evioDOMNode;    /**<Allows evioDOMNode to use private subclass methods.*/
 
 
-private:
+protected:
   evioDOMContainerNode(evioDOMNodeP parent, uint16_t tag, uint8_t num, ContainerType cType) throw(evioException);
- ~evioDOMContainerNode(void);
+  virtual ~evioDOMContainerNode(void);
 
   evioDOMContainerNode(const evioDOMContainerNode &cNode) throw(evioException);
   bool operator=(const evioDOMContainerNode &node);
 
 
 public:
-  string getHeader(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
-  string getBody(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
-  string getFooter(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
-  int getSize(void) const;
+  virtual string getHeader(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
+  virtual string getBody(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
+  virtual string getFooter(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
+  virtual int getSize(void) const;
 
 
 public:
@@ -450,24 +479,64 @@ template <typename T> class evioDOMLeafNode : public evioDOMNode {
   friend class evioDOMNode;     /**<Allows evioDOMNode to use private subclass methods.*/
 
 
-private:
+protected:
   evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const vector<T> &v) throw(evioException);
   evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const T *p, int ndata) throw(evioException);
+  virtual ~evioDOMLeafNode(void);
+
   evioDOMLeafNode(const evioDOMLeafNode<T> &lNode) throw(evioException);
   bool operator=(const evioDOMLeafNode<T> &lNode);
 
 
 public:
-  string getHeader(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
-  string getBody(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
-  string getFooter(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
-  int getSize(void) const;
+  virtual string getHeader(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
+  virtual string getBody(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
+  virtual string getFooter(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
+  virtual int getSize(void) const;
 
 
 public:
   vector<T> data;    /**<Vector<T> of node data.*/
 };
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Sub-class of evioDOMLeafNode<uint32_t> represents composite leaf node.
+ * Only accessible to users via pointer to evioDOMNode object.
+ */
+class evioCompositeDOMLeafNode : public evioDOMLeafNode<uint32_t> {
+
+
+  friend class evioDOMNode;     /**<Allows evioDOMNode to use private subclass methods.*/
+
+
+protected:
+  evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
+                           uint16_t dataTag, const vector<uint32_t> &v) throw(evioException);
+  evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
+                           uint16_t dataTag, const uint32_t *p, int ndata) throw(evioException);
+  ~evioCompositeDOMLeafNode(void);
+
+  evioCompositeDOMLeafNode(const evioCompositeDOMLeafNode &lNode) throw(evioException);
+  bool operator=(const evioCompositeDOMLeafNode &lNode);
+
+
+public:
+  virtual string getBody(int depth, const evioToStringConfig *config = &defaultToStringConfig) const;
+  virtual int getSize(void) const;
+
+
+public:
+  uint16_t formatTag;
+  string formatString;
+  uint16_t dataTag;
+};
+
 
 
 //-----------------------------------------------------------------------------
@@ -487,8 +556,12 @@ public:
   evioDOMTree(const uint32_t *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
   evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
+
+  // ???
   evioDOMTree(const string &bankName, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
+
   evioDOMTree(tagNum tn, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
+  evioDOMTree(const string &bankName, evioDictionary *dictionary, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
   virtual ~evioDOMTree(void);
 
 
@@ -500,16 +573,16 @@ private:
 public:
   void clear(void) throw(evioException);
   void addBank(evioDOMNodeP node) throw(evioException);
-  template <typename T> void addBank(uint16_t tag, uint8_t num, const vector<T> dataVec) throw(evioException);
+  template <typename T> void addBank(uint16_t tag, uint8_t num, const vector<T> &dataVec) throw(evioException);
   template <typename T> void addBank(uint16_t tag, uint8_t num, const T* dataBuf, int dataLen) throw(evioException);
-  template <typename T> void addBank(tagNum tn, const vector<T> dataVec) throw(evioException);
+  template <typename T> void addBank(tagNum tn, const vector<T> &dataVec) throw(evioException);
   template <typename T> void addBank(tagNum tn, const T* dataBuf, int dataLen) throw(evioException);
-  template <typename T> void addBank(const string &name, const vector<T> dataVec) throw(evioException);
+  template <typename T> void addBank(const string &name, const vector<T> &dataVec) throw(evioException);
   template <typename T> void addBank(const string &name, const T* dataBuf, int dataLen) throw(evioException);
 
 
   evioDOMNodeP createNode(const string &name, ContainerType cType=BANK) const throw(evioException);
-  template <typename T> evioDOMNodeP createNode(const string &name, const vector<T> tVec) const throw(evioException);
+  template <typename T> evioDOMNodeP createNode(const string &name, const vector<T> &tVec) const throw(evioException);
   template <typename T> evioDOMNodeP createNode(const string &name, const T* t, int len) const throw(evioException);
   evioDOMNodeP createNode(const string &name, const evioSerializable &o, ContainerType cType=BANK) const throw(evioException);
   evioDOMNodeP createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType=BANK) const
@@ -518,6 +591,12 @@ public:
   template <typename T> evioDOMNodeP createNode(const string &name, T *t, 
                                                 void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                 void *userArg, ContainerType cType=BANK) const throw(evioException);
+  evioDOMNodeP createNode(const string &name, uint16_t formatTag, const string &formatString, 
+                          uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+  evioDOMNodeP createNode(const string &name, uint16_t formatTag, const string &formatString, 
+                          uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+
+
 
 public:
   evioDOMTree& operator<<(evioDOMNodeP node) throw(evioException);
@@ -590,14 +669,17 @@ public:
 //-----------------------------------------------------------------------------
 
 
+
 // include templates
 #include "evioUtilTemplates.hxx"
 
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
 }  // namespace evio
 
 
 #endif
-
-

@@ -39,12 +39,18 @@ int main(int argc, char **argv) {
     
     // add banks to event in a single level below root node
     event.addBank(tag=2, num=9,  ulvec);
-    event.addBank(tag=3, num=10, ibuf,  len=8);
-    event.addBank(tag=4, num=11, dbuf,  len=6);
-    event.addBank(tag=5, num=12, fvec);
-    event.addBank(tag=6, num=13, dbuf,  len=10);
-    event.addBank(tag=7, num=14, lbuf,  len=8);
+//     event.addBank(tag=3, num=10, ibuf,  len=8);
+//     event.addBank(tag=4, num=11, dbuf,  len=6);
+//     event.addBank(tag=5, num=12, fvec);
+//     event.addBank(tag=6, num=13, dbuf,  len=10);
+//     event.addBank(tag=7, num=14, lbuf,  len=8);
     
+
+    event << evioDOMNode::createEvioDOMNode(1,2,3,"i,2f,2i",4,ulvec);
+    event << evioDOMNode::createEvioDOMNode(4,5,6,"i,2(i,f)",10,ulvec);
+    event << evioDOMNode::createUnknownEvioDOMNode(10,11,ulvec);
+
+
     cout << event.toString() << endl;
 
   }

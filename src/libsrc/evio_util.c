@@ -243,6 +243,10 @@ const char *get_typename(int type) {
     return("tagsegment");
     break;
 
+  case 0xf:
+    return("composite");
+    break;
+
   default:
     return("unknown");
     break;
