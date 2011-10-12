@@ -1100,10 +1100,11 @@ bool evioDOMNode::isLeaf(void) const {
 /** 
  * Returns indent for pretty-printing, used internally
  * @param depth Depth level
+ * @param size Size of indent per level
  * @return String containing proper number of indent spaces for this depth
  */
-string evioDOMNode::getIndent(int depth) {
-  return(string(depth*3,' '));
+string evioDOMNode::getIndent(int depth, int size) {
+  return(string(depth*size,' '));
 }
 
 
@@ -1179,8 +1180,8 @@ string evioDOMContainerNode::getHeader(int depth, const evioToStringConfig *conf
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
-  
-  os << getIndent(depth)
+
+  os << ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize))
      <<  "<" << name << " content=\"" << get_typename(contentType)
      << "\" data_type=\"" << hex << showbase << getContentType() << noshowbase << dec
      << dec << "\" tag=\""  << tag;
@@ -1223,7 +1224,7 @@ string evioDOMContainerNode::getFooter(int depth, const evioToStringConfig *conf
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
-  os << getIndent(depth) << "</" << name << ">" << endl;
+  os << ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize)) << "</" << name << ">" << endl;
   return(os.str());
 }
 
@@ -1298,7 +1299,7 @@ evioCompositeDOMLeafNode::~evioCompositeDOMLeafNode(void) {
 string evioCompositeDOMLeafNode::getBody(int depth, const evioToStringConfig *config) const {
 
   ostringstream os;
-  string indent = getIndent(depth);
+  string indent = ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize));
   string indent2 = indent + "       ";
   string indent3 = indent2 + "       ";
   string spaces = "     ";
@@ -2214,7 +2215,8 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, co
   // dump data if leaf node, dump contained banks if container
   if(pNode->isLeaf()) {
     if((config!=NULL)&&(config->noData)) {
-      os << pNode->getIndent(depth) << "   <!-- leaf node contains vector of size "<< pNode->getSize() << " -->" << endl;
+      os << pNode->getIndent(depth,config->indentSize) 
+         << "   <!-- leaf node contains vector of size "<< pNode->getSize() << " -->" << endl;
     } else {
       os << pNode->getBody(depth,config);
     }
@@ -2222,7 +2224,7 @@ void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, co
   } else {
 
     if((config!=NULL)&&(config->maxDepth>0)&&((depth+1)>=config->maxDepth)) {
-      os << pNode->getIndent(depth) << "   <!-- container node has "<< pNode->getSize() << " children -->" << endl;
+      os << pNode->getIndent(depth,config->indentSize) << "   <!-- container node has "<< pNode->getSize() << " children -->" << endl;
     } else {
       const evioDOMContainerNode *c = dynamic_cast<const evioDOMContainerNode*>(pNode);
       if(c!=NULL) {

@@ -4,18 +4,12 @@
 
 
 //  must do:
-//   unknown data type and bank type, same for composite type, careful about packing/unpacking
-//   composite bank
+//   unknown data and composite banks serialize/deserialize and swapping
 //   Doxygen comments
 //   update word doc
-//   version 4: new C I/O routines, etc.
-//   set dictionary in evioFileChannel when opening file, careful about pre-specified dictionary
-//   complete function objects (is nameEquals needed?)
 
 
 //  should do:
-//   break dictionary out because it's needed in evioFileChannel?
-//   indentSize in config vs usage in evioDOMNode?
 //   redo evio2xml program
 //   xml2evio symmetric with toString() and evio2xml, maybe do this as a channel
 //   check multi-threading
@@ -23,10 +17,10 @@
 //   parse dictionary with alternate tag or predicate or existance of name,tag,num attributes
 
 
-
 //   for version 4
 //       append
 //       decompress/compress on input/output (gzip, bzip, etc.)
+//       set dictionary on file open, must dictionary be its own class?
 //       auto tag/num creation, multiple dictionaries?
 //       random access i/o
 //       pipes, named pipes on input
@@ -34,7 +28,6 @@
 
 
 //  would like to do:
-//   allow parent notation in dictionary names, e.g. 1.2.*, etc.
 //   XML channel
 //   cMsg channel
 //   ET channel
@@ -43,6 +36,7 @@
 
 // not sure:
 //   is complete addBank() and createNode() mirroring of createEvioDOMNode() needed?
+//   allow parent dot notation in dictionary lookup, e.g. 1.2.*?
 //   convert vectors?
 //   auto internal buf size?
 //   scheme for exception type codes?
@@ -417,7 +411,7 @@ public:
 
 
 protected:
-  static string getIndent(int depth);
+  static string getIndent(int depth, int size = 3);
 
 
 protected:

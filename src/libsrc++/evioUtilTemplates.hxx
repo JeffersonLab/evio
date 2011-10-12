@@ -547,7 +547,8 @@ template <typename T> evioDOMLeafNode<T>::~evioDOMLeafNode(void) {
 template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, const evioToStringConfig *config) const {
 
   ostringstream os;
-  string indent = getIndent(depth);
+  string indent = ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize));
+
 
   // get node name
   string name;
@@ -585,7 +586,7 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, const evio
 template <typename T> string evioDOMLeafNode<T>::getBody(int depth, const evioToStringConfig *config) const {
 
   ostringstream os;
-  string indent = getIndent(depth);
+  string indent = ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize));
   string indent2 = indent + "       ";
   string spaces = "     ";
 
@@ -705,7 +706,7 @@ template <typename T> string evioDOMLeafNode<T>::getFooter(int depth, const evio
   }
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
-  os << getIndent(depth) << "</" << name << ">" << endl;
+  os << ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize)) << "</" << name << ">" << endl;
   return(os.str());
 }
 
