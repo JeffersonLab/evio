@@ -283,7 +283,8 @@ void *evioStreamParser::parse(const uint32_t *buf,
 void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth, 
                                  evioStreamParserHandler &handler, void *userArg) throw(evioException) {
 
-  int length,contentType,dataOffset,p,bankLen;
+  int length,dataOffset,p,bankLen;
+  int contentType;
   uint16_t tag;
   uint8_t num;
   const uint32_t *data;

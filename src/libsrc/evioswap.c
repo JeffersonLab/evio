@@ -27,6 +27,13 @@
 /* include files */
 #include <evio.h>
 #include <stdlib.h>
+#include <stdio.h>
+
+
+// from Sergey's composite swap library
+int eviofmt(char *fmt, unsigned char *ifmt);
+int eviofmtswap(int *iarr, int nwrd, unsigned char *ifmt, int nfmt);
+
 
 
 /* entry points */
@@ -128,9 +135,14 @@ static void swap_data(uint32_t *data, uint32_t type, uint32_t length,
 
   uint32_t fraglen;
   uint32_t l=0;
+  int formatLen, dataLen;
+  char *formatString;
+  uint32_t *d,*dswap;
+  int nfmt,ret;
+  unsigned char ifmt[1024];
 
 
-  /* swap the data or call swap_fragment */
+   /* swap the data or call swap_fragment */
   switch (type) {
 
 
@@ -170,6 +182,27 @@ static void swap_data(uint32_t *data, uint32_t type, uint32_t length,
     swap_int64_t((uint64_t*)data,length/2,(uint64_t*)dest);
     break;
 
+
+    /* composite */
+  case 0xf:
+    if(dest==NULL) d=data; else d=dest;                                     // in place or copy
+
+    swap_int32_t(data,1,d);                                                 // swap format tagsegment header word
+    formatLen=d[0]&0xffff;                                                  // get length of format string
+    if(dest==NULL)copy_data(&data[1],formatLen,&d[1]);                      // copy if needed
+    formatString=(char*)(&d[1]);                                            // set start of format string
+
+    swap_int32_t(&(data[formatLen+1]),1,&d[formatLen+1]);                   // swap data tagsegment header word
+    dataLen=data[formatLen+1]&0xffff;                                       // get length of composite data
+    if(dest==NULL)copy_data(&data[formatLen+2],dataLen,&d[formatLen+2]);    // copy if needed
+    dswap=&(d[formatLen+2]);                                                // get start of composite data
+
+    // swap composite data: convert format string to internal format, then call formatted swap routine
+    if((nfmt=eviofmt(formatString,ifmt))>0 ) {
+      ret=eviofmtswap(dswap,dataLen,ifmt,nfmt);
+      if(ret)printf("?evioswap...eviofmtswap returned %d\n",ret);
+    }
+    break;
 
 
     /* bank */

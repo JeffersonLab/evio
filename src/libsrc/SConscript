@@ -11,6 +11,8 @@ linkList = [archIncDir + sep + 'evio.h',
 
 fileList = ['evio.c',
             'evioswap.c',
+            'eviofmt.c',
+            'eviofmtswap.c',
             'evio_util.c',
             'swap_util.c',
             'xml_util.c']
