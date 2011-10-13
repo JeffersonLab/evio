@@ -1309,11 +1309,11 @@ string evioCompositeDOMLeafNode::getBody(int depth, const evioToStringConfig *co
 
 
   // dump format string
-  os << indent2 << "<formatString>" << endl << indent3 << formatString << endl << indent2 << "</formatString>" << endl;
+  os << indent2 << "<formatString tag=\"" << formatTag << "\">" << endl << indent3 << formatString << endl << indent2 << "</formatString>" << endl;
 
 
   // dump data as uint32_t
-  os << indent2 << "<data> " << endl;
+  os << indent2 << "<data tag=\"" << dataTag << "\"> " << endl;
   vector<uint32_t>::const_iterator iter;
   for(iter=data.begin(); iter!=data.end();) {
 
