@@ -559,12 +559,9 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, const evio
   if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
 
 
-  //??? unknown 0x0 and composite 0xf
-  int dataType = contentType;
-
   os << indent
      <<  "<" << name << " content=\"" << get_typename(contentType) << "\""
-     << " data_type=\"" << hex << showbase << dataType << noshowbase << dec
+     << " data_type=\"" << hex << showbase << contentType << noshowbase << dec
      << "\" tag=\"" << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
     os << dec << "\" num=\"" << (int)num;

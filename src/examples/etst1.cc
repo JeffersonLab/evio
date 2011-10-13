@@ -66,7 +66,11 @@ int main(int argc, char **argv) {
     for(int i=0; i<NEVFAKE; i++) {
 
       // create an event tree, root node has (tag=1,num=0)
-      evioDOMTree event(tag=1, num=0);
+      evioDOMTree event(tag=0x30, num=0x31);
+
+
+      // add composite bank
+      event << evioDOMNode::createEvioDOMNode(tag=0x33, num=0x34, tag=0x55, "(2(i,3f),2f)", tag=0x56, uivec);
 
 
       // add banks to event in a single level below root node
@@ -77,6 +81,7 @@ int main(int argc, char **argv) {
       event.addBank(tag=6, num=13, dbuf,  len=10);
       event.addBank(tag=7, num=14, lbuf,  len=8);
       event.addBank(tag=8, num=15, svec);
+      
       
       evioDOMNodeP sbank = evioDOMNode::createEvioDOMNode<string>(tag=9,num=16);
       event << sbank;

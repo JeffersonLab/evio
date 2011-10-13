@@ -1255,7 +1255,7 @@ int evioDOMContainerNode::getSize(void) const {
  */
 evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
                                                    uint16_t formatTag, const string &formatString, 
-                                                   uint16_t datatag, const vector<uint32_t> &v) throw(evioException)
+                                                   uint16_t dataTag, const vector<uint32_t> &v) throw(evioException)
   : formatTag(formatTag), formatString(formatString), dataTag(dataTag), evioDOMLeafNode<uint32_t>(par,tg,num,v) {
   contentType=0xf;
 }
@@ -1272,7 +1272,7 @@ evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg
  */
 evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
                                                    uint16_t formatTag, const string &formatString, 
-                                                   uint16_t datatag, const uint32_t *p, int ndata) throw(evioException)
+                                                   uint16_t dataTag, const uint32_t *p, int ndata) throw(evioException)
   : formatTag(formatTag), formatString(formatString), dataTag(dataTag), evioDOMLeafNode<uint32_t>(par,tg,num,p,ndata) {
   contentType=0xf;
 }
@@ -1727,7 +1727,7 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, void (*f)(evioDOMNodeP 
  * @return Pointer to new node
  */
 evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, const string &formatString, 
-                        uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException) {
+                        uint16_t dataTag, const vector<uint32_t> &dataVec) const throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,formatTag,formatString,dataTag,dataVec));
 }
 
@@ -1746,7 +1746,7 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, con
  * @return Pointer to new node
  */
 evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, const string &formatString, 
-                        uint16_t dataTag, const uint32_t *t, int len) throw(evioException) {
+                        uint16_t dataTag, const uint32_t *t, int len) const throw(evioException) {
   return(evioDOMNode::createEvioDOMNode(name,dictionary,formatTag,formatString,dataTag,t,len));
 }
 
@@ -2062,6 +2062,33 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         for(i=0; i<ndata; i++) ll[i]=static_cast<uint64_t>(leaf->data[i]);
       }
       break;
+
+    case 0xf:
+      {
+        const evioCompositeDOMLeafNode *leaf = static_cast<const evioCompositeDOMLeafNode*>(pNode);
+        int nfmtchar  = leaf->formatString.size()+1;
+        int nfmtword  = (nfmtchar+3)/4;
+        ndata = leaf->data.size();
+        nword = 2 + nfmtword + ndata;
+        if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
+
+        // format string stored in tagsegment
+        if(leaf->formatTag>0xfff)cerr << "?warning...formatTag truncated to 12 bits in composite leaf node tagsegment: " 
+                                      << leaf->formatTag << endl;
+        buf[dataOffset] = (leaf->formatTag<<20) | (0x3<<16) | nfmtword;
+        uint8_t *c = (uint8_t*)&buf[dataOffset+1];
+        for(i=0; i<nfmtchar; i++) c[i]=(leaf->formatString.c_str())[i]; 
+        c[nfmtchar]='\0';
+        for(i=0; i<(4-nfmtchar%4)%4; i++) c[nfmtchar+i]=0x04;   // pad with EOT if needed
+        
+        // data stored as uint32_t in tagsegment
+        if(leaf->dataTag>0xfff)cerr << "?warning...dataTag truncated to 12 bits in composite leaf node tagsegment: " << leaf->dataTag << endl;
+        buf[dataOffset+nfmtword+1] = (leaf->dataTag<<20) | (0x1<<16) | ndata;
+        uint32_t *d = &buf[dataOffset+2+nfmtword];
+        for(i=0; i<ndata; i++) d[i]=leaf->data[i];
+      }
+      break;
+
 
     default:
       ostringstream ss;

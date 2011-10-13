@@ -35,6 +35,7 @@
 
 
 // not sure:
+//   additonal addBank() and createEvioDOMNode() for composite bank?
 //   is complete addBank() and createNode() mirroring of createEvioDOMNode() needed?
 //   allow parent dot notation in dictionary lookup, e.g. 1.2.*?
 //   convert vectors?
@@ -206,11 +207,11 @@ private:
 
 
 public:
-  int maxDepth;
-  bool noData;
-  bool xtod;
-  int indentSize;
-  const evioDictionary *toStringDictionary;
+  int maxDepth;      /**<Max depth to dump.*/
+  bool noData;       /**<True do not dump leaf node data.*/
+  bool xtod;         /**<True print unsigned values as decimal.*/
+  int indentSize;    /**<Indent size per unit of depth.*/
+  const evioDictionary *toStringDictionary;   /**<Dictionary to use.*/
 
 
 protected:
@@ -526,9 +527,9 @@ public:
 
 
 public:
-  uint16_t formatTag;
-  string formatString;
-  uint16_t dataTag;
+  uint16_t formatTag;      /**<Tag to use for the internal format bank.*/
+  string formatString;     /**<The format string.*/
+  uint16_t dataTag;        /**<Tag to use for the internal data bank.*/
 };
 
 
@@ -550,10 +551,7 @@ public:
   evioDOMTree(const uint32_t *buf, const string &name = "evio") throw(evioException);
   evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
   evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
-
-  // ???
   evioDOMTree(const string &bankName, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
-
   evioDOMTree(tagNum tn, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
   evioDOMTree(const string &bankName, evioDictionary *dictionary, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
   virtual ~evioDOMTree(void);
@@ -574,7 +572,6 @@ public:
   template <typename T> void addBank(const string &name, const vector<T> &dataVec) throw(evioException);
   template <typename T> void addBank(const string &name, const T* dataBuf, int dataLen) throw(evioException);
 
-
   evioDOMNodeP createNode(const string &name, ContainerType cType=BANK) const throw(evioException);
   template <typename T> evioDOMNodeP createNode(const string &name, const vector<T> &tVec) const throw(evioException);
   template <typename T> evioDOMNodeP createNode(const string &name, const T* t, int len) const throw(evioException);
@@ -586,9 +583,9 @@ public:
                                                 void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                 void *userArg, ContainerType cType=BANK) const throw(evioException);
   evioDOMNodeP createNode(const string &name, uint16_t formatTag, const string &formatString, 
-                          uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+                          uint16_t dataTag, const vector<uint32_t> &dataVec) const throw(evioException);
   evioDOMNodeP createNode(const string &name, uint16_t formatTag, const string &formatString, 
-                          uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+                          uint16_t dataTag, const uint32_t *t, int len) const throw(evioException);
 
 
 
