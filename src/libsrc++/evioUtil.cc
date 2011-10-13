@@ -340,6 +340,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
   case 0x1:
   case 0x2:
   case 0xb:
+  case 0xf:
     // four-byte types
     newLeaf=handler.leafNodeHandler(length-dataOffset,tag,contentType,num,depth,&buf[dataOffset],userArg);
     break;
@@ -1556,6 +1557,10 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
   switch (contentType) {
 
   case 0x0:
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint32_t*)data,length);
+    newLeaf->contentType=0x0;
+    break;
+
   case 0x1:
     newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint32_t*)data,length);
     break;
@@ -1608,6 +1613,18 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
 
   case 0xb:
     newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int32_t*)data,length);
+    break;
+
+  case 0xf:
+    {
+      const uint32_t *d   = (const uint32_t*)data;
+      int formatTag       = (d[0]>>20)&0xfff;
+      int formatLen       = d[0]&0xffff;
+      string formatString = string((const char *) &(((uint32_t*)data)[1]));
+      int dataTag         = (d[1+formatLen]>>20)&0xfff;
+      int dataLen         = (d[1+formatLen])&0xffff;
+      newLeaf = evioDOMNode::createEvioDOMNode(tag,num,formatTag,formatString,dataTag,(uint32_t*)&d[2+formatLen],dataLen);
+    }
     break;
 
   default:

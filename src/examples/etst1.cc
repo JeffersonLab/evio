@@ -69,10 +69,6 @@ int main(int argc, char **argv) {
       evioDOMTree event(tag=0x30, num=0x31);
 
 
-      // add composite bank
-      event << evioDOMNode::createEvioDOMNode(tag=0x33, num=0x34, tag=0x55, "(2(i,3f),2f)", tag=0x56, uivec);
-
-
       // add banks to event in a single level below root node
       event.addBank(tag=2, num=9,  uivec);
       event.addBank(tag=3, num=10, ibuf,  len=8);
@@ -101,6 +97,11 @@ int main(int argc, char **argv) {
       event << tbank;
 
       *tbank << "1234";
+
+
+      // add composite banks
+      event << evioDOMNode::createEvioDOMNode(tag=0x33, num=0x34, tag=0x55, "(2(i,3f),2f)", tag=0x56, uivec);
+      event << evioDOMNode::createEvioDOMNode(tag=0x43, num=0x44, tag=0x45, "i", tag=0x46, uivec);
 
 
       cout << event.toString() << endl;
