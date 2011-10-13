@@ -19,6 +19,8 @@
    #include <cxxabi.h>
  #endif
  #include <sstream>
+#else
+ #include <sstream>
 #endif
 
 
