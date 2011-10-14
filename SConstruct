@@ -267,6 +267,9 @@ if useVxworks:
 else:
     # platform dependent quantities
     execLibs = ['expat', 'z']  # default to standard Linux libs
+    env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
+    env.AppendUnique(CPPPATH = ['/usr/include', '/usr/local/include'])
+    
     if platform == 'SunOS':
         env.Append(CCFLAGS = '-mt')
         env.Append(CPPDEFINES = ['_GNU_SOURCE', '_REENTRANT', '_POSIX_PTHREAD_SEMANTICS', 'SunOS'])
