@@ -28,6 +28,7 @@ vector<string> svec2;
 int32_t ibuf[100];
 int64_t lbuf[100];
 double dbuf[100];
+uint32_t uibuf[100];
 
 string sa[3] = {"I", "am", "bored"};;
 string sca[3] = {"in", "the", "end"};;
@@ -103,6 +104,14 @@ int main(int argc, char **argv) {
       event << evioDOMNode::createEvioDOMNode(33, 34, 35, "(2(i,3f),2f)", 36, uivec);
       event << evioDOMNode::createEvioDOMNode(43, 44, 45, "i", 46, uivec);
       event << evioDOMNode::createUnknownEvioDOMNode(53, 54, uivec);
+
+
+      uint16_t *ui16 = (uint16_t*)uibuf;
+      uint32_t *ui32 = (uint32_t*)(&(ui16[1]));
+      ui16[0]=0x2211;
+      ui32[0]=0x66554433;
+      ui16[3]=0x8877;
+      event << evioDOMNode::createEvioDOMNode(63, 64, 65, "s,i,s", 66, uibuf,2);
 
 
       cout << event.toString() << endl;

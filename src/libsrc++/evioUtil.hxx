@@ -4,7 +4,7 @@
 
 
 //  must do:
-//   test unknown data bank and composite bank swapping
+//   templates, composite banks and function objects?
 //   redo evio2xml program (what about verbose mode?)
 //   update word doc
 
@@ -33,6 +33,7 @@
 
 
 // not sure:
+//   get rid of unknown object since uint8_t does the same thing?
 //   additonal addBank() and createEvioDOMNode() for composite bank?
 //   is complete addBank() and createNode() mirroring of createEvioDOMNode() needed?
 //   allow parent dot notation in dictionary lookup, e.g. 1.2.*?
@@ -588,6 +589,20 @@ public:
   template <typename T> void addBank(tagNum tn, const T* dataBuf, int dataLen) throw(evioException);
   template <typename T> void addBank(const string &name, const vector<T> &dataVec) throw(evioException);
   template <typename T> void addBank(const string &name, const T* dataBuf, int dataLen) throw(evioException);
+
+  void addBank(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
+               uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+  void addBank(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
+               uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+  void addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
+               uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+  void addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
+               uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+  void addBank(const string &name, uint16_t formatTag, const string &formatString, 
+               uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+  void addBank(const string &name, uint16_t formatTag, const string &formatString, 
+               uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+
 
   evioDOMNodeP createNode(const string &name, ContainerType cType=BANK) const throw(evioException);
   template <typename T> evioDOMNodeP createNode(const string &name, const vector<T> &tVec) const throw(evioException);

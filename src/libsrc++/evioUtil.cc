@@ -1692,6 +1692,158 @@ void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 //-----------------------------------------------------------------------------
 
 
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param tag Node tag
+ * @param num Node num
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param dataVec vector<T> of data
+ */
+void evioDOMTree::addBank(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                          uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException) {
+  
+  if(root==NULL) {
+    root = evioDOMNode::createEvioDOMNode(tag,num,formatTag,formatString,dataTag,dataVec);
+    root->parentTree=this;
+
+  } else {
+    evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
+    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
+    evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,formatTag,formatString,dataTag,dataVec);
+    c->childList.push_back(node);
+    node->parent=root;
+  }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param name Leaf node name
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param dataVec vector<T> of data
+ */
+void evioDOMTree::addBank(const string &name, uint16_t formatTag, const string &formatString, 
+                          uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    addBank(tn.first, tn.second, formatTag, formatString, dataTag, dataVec);
+  } else {
+    throw(evioException(0,"?evioDOMTree::addBank...no dictionary",__FILE__,__FUNCTION__,__LINE__));
+  }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param tn Leaf tagNum
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param dataVec vector<T> of data
+ */
+void evioDOMTree::addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
+                          uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException) {
+  addBank(tn.first, tn.second, formatTag, formatString, dataTag, dataVec);
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param tn Leaf tagNum
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param t array of uint32_t data
+ * @parem len Length of array
+ */
+void evioDOMTree::addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
+                          uint16_t dataTag, const uint32_t *t, int len) throw(evioException) {
+
+  addBank(tn.first, tn.second, formatTag, formatString, dataTag, t, len);
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param tag Node tag
+ * @param num Node num
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param t array of uint32_t data
+ * @parem len Length of array
+ */
+void evioDOMTree::addBank(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                          uint16_t dataTag, const uint32_t *t, int len) throw(evioException) {
+  
+  if(root==NULL) {
+    root = evioDOMNode::createEvioDOMNode(tag,num,formatTag,formatString,dataTag,t,len);
+    root->parentTree=this;
+
+  } else {
+    evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
+    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
+    evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,formatTag,formatString,dataTag,t,len);
+    c->childList.push_back(node);
+    node->parent=root;
+  }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/**
+ * Creates leaf node and adds it to tree root node.
+ * @param name Leaf node name
+ * @param formatTag Format tag
+ * @param formatString Format string
+ * @param dataTag Data tag
+ * @param t array of uint32_t data
+ * @parem len Length of array
+ */
+void evioDOMTree::addBank(const string &name, uint16_t formatTag, const string &formatString, 
+                          uint16_t dataTag, const uint32_t *t, int len) throw(evioException) {
+
+  if(dictionary!=NULL) {
+    tagNum tn = dictionary->getTagNum(name);
+    addBank(tn.first, tn.second, formatTag, formatString, dataTag, t, len);
+  } else {
+    throw(evioException(0,"?evioDOMTree::addBank...no dictionary",__FILE__,__FUNCTION__,__LINE__));
+  }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+
+
 /** 
  * Creates new container node.
  * @param nName Node name

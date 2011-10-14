@@ -86,13 +86,26 @@ int main(int argc, char **argv) {
 
 
 
-//       cout << "getVectorUnique" << endl;
-//       vector<double> *v = tree.getVectorUnique<double>(tagNumEquals("wilma",tree));
-//       if(v!=NULL) {
-//         cout << "vector size is " << v->size() << endl;
-//       } else {
-//         cout << "vector is null" << endl;
-//       }
+      //      cout << "getVectorUnique" << endl;
+      //      vector<double> *v = tree.getVectorUnique<double>(tagNumEquals("wilma",tree));
+      //      vector<uint32_t> *v = tree.getVectorUnique<uint32_t>(tagNumEquals(63,64));
+      
+      evioDOMNodeP n = tree.getFirstNode(tagNumEquals(63,64));
+      vector<uint32_t> *v = n->getVector<uint32_t>();
+      if(v!=NULL) {
+        cout << "vector size is " << v->size() << endl;
+        uint32_t uibuf[100];
+        for(int i=0; i<v->size(); i++) uibuf[i]=(*v)[i];
+        uint16_t *ui16 = (uint16_t*)uibuf;
+        uint32_t *ui32 = (uint32_t*)(&(ui16[1]));
+        cout << "ui16[0] " << showbase << hex << ui16[0] << endl;
+        cout << "ui16[3] " << showbase << hex << ui16[3] << endl;
+        cout << "ui32[0] " << showbase << hex << ui32[0] << endl;
+
+
+      } else {
+        cout << "vector is null" << endl;
+      }
 
     }
 
