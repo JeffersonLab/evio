@@ -34,7 +34,7 @@
 /*  misc variables */
 static char *filename;
 static char *dictfilename = NULL;
-static char *dicttagname  = "xmlDumpDictEntry";
+static char *dicttagname  = "dictEntry";
 static char *outfilename  = NULL;
 static int gzip           = 0;
 static char *main_tag     = (char*)"evio-data";

@@ -821,6 +821,7 @@ template <typename T> vector<T> *evioDOMTree::getVectorUnique(void) throw(evioEx
  */
 template <typename T, class Predicate> vector<T> *evioDOMTree::getVectorUnique(Predicate pred) throw(evioException) {
   evioDOMNodeListP l = getNodeList(pred);
+
   int c = count_if(l->begin(),l->end(),typeIs<T>());
   
   if(c==0) {

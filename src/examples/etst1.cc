@@ -100,8 +100,9 @@ int main(int argc, char **argv) {
 
 
       // add composite banks
-      event << evioDOMNode::createEvioDOMNode(tag=0x33, num=0x34, tag=0x55, "(2(i,3f),2f)", tag=0x56, uivec);
-      event << evioDOMNode::createEvioDOMNode(tag=0x43, num=0x44, tag=0x45, "i", tag=0x46, uivec);
+      event << evioDOMNode::createEvioDOMNode(33, 34, 35, "(2(i,3f),2f)", 36, uivec);
+      event << evioDOMNode::createEvioDOMNode(43, 44, 45, "i", 46, uivec);
+      event << evioDOMNode::createUnknownEvioDOMNode(53, 54, uivec);
 
 
       cout << event.toString() << endl;

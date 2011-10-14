@@ -185,23 +185,24 @@ static void swap_data(uint32_t *data, uint32_t type, uint32_t length,
 
     /* composite */
   case 0xf:
-    if(dest==NULL) d=data; else d=dest;                                     // in place or copy
+    if(dest==NULL) d=data; else d=dest;                                        // in place or copy
 
-    swap_int32_t(data,1,d);                                                 // swap format tagsegment header word
-    formatLen=d[0]&0xffff;                                                  // get length of format string
-    if(dest==NULL)copy_data(&data[1],formatLen,&d[1]);                      // copy if needed
-    formatString=(char*)(&d[1]);                                            // set start of format string
+    swap_int32_t(data,1,d);                                                    // swap format tagsegment header word
+    formatLen=d[0]&0xffff;                                                     // get length of format string
+    if(dest!=NULL)copy_data(&(data[1]),formatLen,&(d[1]));                     // copy if needed
+    formatString=(char*)(&(d[1]));                                             // set start of format string
 
-    swap_int32_t(&(data[formatLen+1]),1,&d[formatLen+1]);                   // swap data tagsegment header word
-    dataLen=data[formatLen+1]&0xffff;                                       // get length of composite data
-    if(dest==NULL)copy_data(&data[formatLen+2],dataLen,&d[formatLen+2]);    // copy if needed
-    dswap=&(d[formatLen+2]);                                                // get start of composite data
+    swap_int32_t(&(data[formatLen+1]),1,&(d[formatLen+1]));                    // swap data tagsegment header word
+    dataLen=d[formatLen+1]&0xffff;                                             // get length of composite data
+    if(dest!=NULL)copy_data(&(data[formatLen+2]),dataLen,&(d[formatLen+2]));   // copy if needed
+    dswap=&(d[formatLen+2]);                                                   // get start of composite data
 
     // swap composite data: convert format string to internal format, then call formatted swap routine
     if((nfmt=eviofmt(formatString,ifmt))>0 ) {
       ret=eviofmtswap(dswap,dataLen,ifmt,nfmt);
       if(ret)printf("?evioswap...eviofmtswap returned %d\n",ret);
     }
+
     break;
 
 

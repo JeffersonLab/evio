@@ -235,6 +235,7 @@ int main(int argc, char **argv) {
       // count nodes by tag (up to 10)
       cout << endl << endl << "There are " << dec << setw(2) << pList->size() << " total nodes" << endl;
     
+      // doesn't work on Solaris
       for(int tg=0; tg<=10; tg++) {
         cout << "There are " << setw(2) 
              << count_if(pList->begin(),pList->end(),tagEquals(tg))
@@ -244,10 +245,11 @@ int main(int argc, char **argv) {
     
     
     
+      // doesn't work on Solaris
       // count and print nodes satisfying user match criteria
       int count = count_if(pList->begin(),pList->end(),myMatcher);
       cout << "There are " << count << " nodes satisfying user match criteria:" << endl << endl;
-    
+   
       evioDOMNodeList::iterator resultIter1=pList->begin();
       for(i=0; i<count; i++) {
         cout << (*((resultIter1=find_if(resultIter1,pList->end(),myMatcher))++))->toString() << endl << endl;

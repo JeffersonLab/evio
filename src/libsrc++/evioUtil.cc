@@ -1694,12 +1694,12 @@ void evioDOMTree::addBank(evioDOMNodeP node) throw(evioException) {
 
 /** 
  * Creates new container node.
- * @param name Node name
+ * @param nName Node name
  * @param ContainerType Type of container node
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, ContainerType cType) const throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(name,dictionary,cType));
+evioDOMNodeP evioDOMTree::createNode(const string &nName, ContainerType cType) const throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(nName,dictionary,cType));
 }
 
 
@@ -1708,12 +1708,12 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, ContainerType cType) co
 
 /** 
  * Creates new container node.
- * @param name Node name
+ * @param nName Node name
  * @param ContainerType Type of container node
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, const evioSerializable &o, ContainerType cType) const throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(name,dictionary,o,cType));
+evioDOMNodeP evioDOMTree::createNode(const string &nName, const evioSerializable &o, ContainerType cType) const throw(evioException) {
+  return(evioDOMNode::createEvioDOMNode(nName,dictionary,o,cType));
 }
 
 
@@ -1722,13 +1722,13 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, const evioSerializable 
 
 /** 
  * Creates new container node.
- * @param name Node name
+ * @param nName Node name
  * @param ContainerType Type of container node
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType) const 
+evioDOMNodeP evioDOMTree::createNode(const string &nName, void (*f)(evioDOMNodeP c, void *userArg), void *userArg, ContainerType cType) const 
   throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(name,dictionary,f,userArg,cType));
+  return(evioDOMNode::createEvioDOMNode(nName,dictionary,f,userArg,cType));
 }
 
 
@@ -1737,16 +1737,16 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, void (*f)(evioDOMNodeP 
 
 /** 
  * Creates new composite leaf node.
- * @param name Node name
+ * @param nName Node name
  * @param formatTag Format tag
  * @param formatString Format string
  * @param dataTag Data tag
  * @param dataVec Vector of uint32_t data
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, const string &formatString, 
+evioDOMNodeP evioDOMTree::createNode(const string &nName, uint16_t formatTag, const string &formatString, 
                         uint16_t dataTag, const vector<uint32_t> &dataVec) const throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(name,dictionary,formatTag,formatString,dataTag,dataVec));
+  return(evioDOMNode::createEvioDOMNode(nName,dictionary,formatTag,formatString,dataTag,dataVec));
 }
 
 
@@ -1755,7 +1755,7 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, con
 
 /** 
  * Creates new composite leaf node.
- * @param name Node name
+ * @param nName Node name
  * @param formatTag Format tag
  * @param formatString Format string
  * @param dataTag Data tag
@@ -1763,9 +1763,9 @@ evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, con
  * @param len Length of array
  * @return Pointer to new node
  */
-evioDOMNodeP evioDOMTree::createNode(const string &name, uint16_t formatTag, const string &formatString, 
+evioDOMNodeP evioDOMTree::createNode(const string &nName, uint16_t formatTag, const string &formatString, 
                         uint16_t dataTag, const uint32_t *t, int len) const throw(evioException) {
-  return(evioDOMNode::createEvioDOMNode(name,dictionary,formatTag,formatString,dataTag,t,len));
+  return(evioDOMNode::createEvioDOMNode(nName,dictionary,formatTag,formatString,dataTag,t,len));
 }
 
 
@@ -2167,10 +2167,10 @@ evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
  * @param name Name of banks to find
  * @return Pointer to list of nodes in tree (actually auto_ptr<>)
  */
-evioDOMNodeListP evioDOMTree::getNodeList(const string &name) throw(evioException) {
+evioDOMNodeListP evioDOMTree::getNodeList(const string &nName) throw(evioException) {
 
   if(dictionary!=NULL) {
-    map<string,tagNum>::const_iterator iter = dictionary->getTagNumMap.find(name);
+    map<string,tagNum>::const_iterator iter = dictionary->getTagNumMap.find(nName);
     if(iter!=dictionary->getTagNumMap.end())
       return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,tagNumEquals((*iter).second))));
   }

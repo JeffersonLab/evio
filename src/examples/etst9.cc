@@ -9,7 +9,8 @@
 #include "evioFileChannel.hxx"
 #include <vector>
 
-#include <boost/function.hpp>
+// doesn't work on Solaris
+//  #include <boost/function.hpp>
 
 
 

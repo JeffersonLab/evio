@@ -273,7 +273,7 @@ else:
     if platform == 'SunOS':
         env.Append(CCFLAGS = '-mt')
         env.Append(CPPDEFINES = ['_GNU_SOURCE', '_REENTRANT', '_POSIX_PTHREAD_SEMANTICS', 'SunOS'])
-        execLibs = ['m', 'posix4', 'pthread', 'dl']
+        execLibs = ['m', 'posix4', 'pthread', 'dl', 'expat', 'z']
         if is64bits and not use32bits:
             if machine == 'sun4u':
                 env.Append(CCFLAGS = '-xarch=native64 -xcode=pic32',

@@ -4,13 +4,12 @@
 
 
 //  must do:
-//   unknown data and composite bank swapping
+//   test unknown data bank and composite bank swapping
+//   redo evio2xml program (what about verbose mode?)
 //   update word doc
 
 
 //  should do:
-//   redo evio2xml program
-//   xml2evio symmetric with toString() and evio2xml, maybe do this as a channel
 //   check multi-threading
 //   shared pointer, for all returned pointers?  Who maintains ownership?
 //   parse dictionary with alternate tag or predicate or existance of name,tag,num attributes
@@ -28,7 +27,6 @@
 
 
 //  would like to do:
-//   XML channel
 //   cMsg channel
 //   ET channel
 //   Jevio query
@@ -38,6 +36,7 @@
 //   additonal addBank() and createEvioDOMNode() for composite bank?
 //   is complete addBank() and createNode() mirroring of createEvioDOMNode() needed?
 //   allow parent dot notation in dictionary lookup, e.g. 1.2.*?
+//   XML input channel? i.e. revisit xml2evio.
 //   convert vectors?
 //   auto internal buf size?
 //   scheme for exception type codes?
