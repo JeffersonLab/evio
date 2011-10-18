@@ -120,7 +120,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type);
 static void dump_data(unsigned int *data, int type, int length, int noexpand);
 static int get_ndata(int type, int nwords);
 static const char *get_matchname();
-static void indent(void);
+static void indent(int extra);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
 
 /* user supplied fragment select function via set_user_frag_select_func(int (*f) (int tag)) */
@@ -336,7 +336,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 
   /* verbose header */
   if(verbose!=0) {
-    xml+=sprintf(xml,"\n"); indent();
+    xml+=sprintf(xml,"\n"); indent(0);
     if(fragment_type==BANK) {
       xml+=sprintf(xml,"<!-- header words: %d, %#x -->\n",buf[0],buf[1]);
     } else {
@@ -346,7 +346,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 
 
   /* xml opening fragment */
-  indent();
+  indent(0);
 
 
   /* format and content */
@@ -389,7 +389,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 
 
   /* xml closing fragment */
-  indent();
+  indent(0);
   if((fragment_type==BANK)&&(depth==1)) {
     xml+=sprintf(xml,"</%s>\n\n",event_tag);
     xml+=sprintf(xml,"<!-- end buffer %d -->\n\n",nbuf);
@@ -423,6 +423,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
   char *c, *start;
   unsigned char *uc;
   char format[132];
+  int fLen,fTag,dLen,dTag;
 
 
   nindent+=indent_size;
@@ -432,7 +433,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
   if(noexpand) {
     sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
     for(i=0; i<length; i+=n32) {
-      indent();
+      indent(0);
       for(j=i; j<min((i+n32),length); j++) {
 	xml+=sprintf(xml,format,data[j]);
       }
@@ -451,7 +452,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     if(!no_data) {
       sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
       for(i=0; i<length; i+=n32) {
-        indent();
+        indent(0);
         for(j=i; j<min((i+n32),length); j++) {
           xml+=sprintf(xml,format,data[j]);
         }
@@ -464,7 +465,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     if(!no_data) {
       sprintf(format,"%%#%d.%df ",w32,p32);
       for(i=0; i<length; i+=n32) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n32,length); j++) {
           xml+=sprintf(xml,format,*(float*)&data[j]);
         }
@@ -474,16 +475,12 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     break;
 
   case 0x3:
-    //??? tokenize, check for EOT and padding
     if(!no_data) {
       start=(char*)&data[0];
-      //      c=start+strspn(start,"\n ");
       c=start;
       while((c[0]!=0x4)&&((c-start)<length*4)) {
         len=strlen(c);
-        indent();
-        //        sprintf(format,"<![CDATA[\n%%.%ds\n]]>\n",len);
-        //        sprintf(format,"<str><![CDATA[%%.%ds]]></str>\n",len);
+        indent(0);
         sprintf(format,"<![CDATA[%%.%ds]]>\n",len);
         xml+=sprintf(xml,format,c);
         c+=len+1;
@@ -496,7 +493,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
       sprintf(format,"%%%dhd ",w16);
       s=(short*)&data[0];
       for(i=0; i<2*length; i+=n16) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n16,2*length); j++) {
           xml+=sprintf(xml,format,s[j]);
         }
@@ -510,7 +507,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
       sprintf(format,"%%#%d%s ",w16,(xtod==0)?"hx":"d");
       s=(short*)&data[0];
       for(i=0; i<2*length; i+=n16) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n16,2*length); j++) {
           xml+=sprintf(xml,format,s[j]);
         }
@@ -524,7 +521,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
       sprintf(format,"   %%%dd ",w8);
       c=(char*)&data[0];
       for(i=0; i<4*length; i+=n8) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n8,4*length); j++) {
           xml+=sprintf(xml,format,c[j]);
         }
@@ -538,7 +535,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
       sprintf(format,"   %%#%d%s ",w8,(xtod==0)?"x":"d");
       uc=(unsigned char*)&data[0];
       for(i=0; i<4*length; i+=n8) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n8,4*length); j++) {
           xml+=sprintf(xml,format,uc[j]);
         }
@@ -551,7 +548,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     if(!no_data) {
       sprintf(format,"%%#%d.%de ",w64,p64);
       for(i=0; i<length/2; i+=n64) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n64,length/2); j++) {
           xml+=sprintf(xml,format,*(double*)&data[2*j]);
         }
@@ -564,7 +561,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     if(!no_data) {
       sprintf(format,"%%%dlld ",w64);
       for(i=0; i<length/2; i+=n64) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n64,length/2); j++) {
           xml+=sprintf(xml,format,*(long long*)&data[2*j]);
         }
@@ -577,7 +574,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     if(!no_data) {
       sprintf(format,"%%#%dll%s ",w64,(xtod==0)?"x":"d");
       for(i=0; i<length/2; i+=n64) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n64,length/2); j++) {
           xml+=sprintf(xml,format,*(long long*)&data[2*j]);
         }
@@ -590,7 +587,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     if(!no_data) {
       sprintf(format,"%%#%dd ",w32);
       for(i=0; i<length; i+=n32) {
-        indent();
+        indent(0);
         for(j=i; j<min((i+n32),length); j++) {
           xml+=sprintf(xml,format,data[j]);
         }
@@ -598,6 +595,37 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
       }
     }
     break;
+
+  case 0xf:
+    if(!no_data) {
+      fLen=data[0]&0xffff;
+      fTag=(data[0]>>20)&0xfff;
+      c=(char*)&data[1];
+      indent(4);
+      xml+=sprintf(xml,"<formatString tag=\"%d\">\n",fTag);
+      indent(11);
+      xml+=sprintf(xml,"%s\n",c);
+      indent(4);
+      xml+=sprintf(xml,"</formatString>\n");
+      
+
+      dLen=(data[fLen+1])&0xffff;
+      dTag=(data[fLen+1]>>20)&0xfff;
+      indent(4);
+      xml+=sprintf(xml,"<data tag=\"%d\">\n",dTag);
+      sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
+      for(i=0; i<dLen; i+=n32) {
+        indent(7);
+        for(j=i; j<min((i+n32),dLen); j++) {
+          xml+=sprintf(xml,format,data[fLen+2+j]);
+        }
+        xml+=sprintf(xml,"\n");
+      }
+      indent(4);
+      xml+=sprintf(xml,"</data>\n");
+    }
+    break;
+
 
   case 0xe:
   case 0x10:
@@ -627,7 +655,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     if(!no_data) {
       sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
       for(i=0; i<length; i+=n32) {
-        indent();
+        indent(0);
         for(j=i; j<min(i+n32,length); j++) {
           xml+=sprintf(xml,format,(unsigned int)data[j]);
         }
@@ -695,11 +723,11 @@ static int get_ndata(int type, int length) {
 /*---------------------------------------------------------------- */
 
 
-static void indent() {
+static void indent(int extra) {
 
   int i;
 
-  for(i=0; i<nindent; i++)xml+=sprintf(xml," ");
+  for(i=0; i<nindent+extra; i++)xml+=sprintf(xml," ");
   return;
 }
 
