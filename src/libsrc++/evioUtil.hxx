@@ -143,27 +143,6 @@ typedef enum {
   TAGSEGMENT = 0xc   /**<1-word header, 12-bit tag,    no num, 4-bit type.*/
 } ContainerType;
 
-
-// typedef enum {
-//   UNKNOWN    = 0x0,
-//   UINT32     = 0x1,
-//   FLOAT32    = 0x2,
-//   STRING     = 0x3,
-//   INT16      = 0x4,
-//   UINT16     = 0x5,
-//   INT8       = 0x6,
-//   UINT8      = 0x7,
-//   FLOAT64    = 0x8,
-//   INT64      = 0x9,
-//   UINT64     = 0xa,
-//   INT32      = 0xb,
-//   TAGSEGMENT = 0xc,
-//   SEGMENT    = 0xd,
-//   BANK       = 0xe,
-//   COMPOSITE  = 0xf
-// } ContentType;
-
-
 typedef pair<uint16_t,uint8_t> tagNum;     /**<STL pair of tag,num.*/
 
 
