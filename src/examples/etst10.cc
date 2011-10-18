@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
            << (chan->getBuffer())[0]*4+4 <<  " bytes) ===================== -->\n";
       cout << tree.toString();
       cout << endl << endl << "=================================================" << endl << endl;
-      cout << tree.toString(config1);
+      //      cout << tree.toString(config1);
       cout << "<!-- end buffer " << bufferCount << " -->\n\n";
 
 

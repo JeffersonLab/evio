@@ -46,8 +46,8 @@ int main(int argc, char **argv) {
 //     event.addBank(tag=7, num=14, lbuf,  len=8);
     
 
-    event << evioDOMNode::createEvioDOMNode(1,2,3,"i,2f,2i",4,ulvec);
-    event << evioDOMNode::createEvioDOMNode(4,5,6,"i,2(i,f)",10,ulvec);
+    event << evioDOMNode::createEvioDOMNode(1,2,3,"i,2f,2i",4,5,ulvec);
+    event << evioDOMNode::createEvioDOMNode(4,5,6,"i,2(i,f)",10,11,ulvec);
     event << evioDOMNode::createUnknownEvioDOMNode(10,11,ulvec);
 
 

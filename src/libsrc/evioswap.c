@@ -192,10 +192,10 @@ static void swap_data(uint32_t *data, uint32_t type, uint32_t length,
     if(dest!=NULL)copy_data(&(data[1]),formatLen,&(d[1]));                     // copy if needed
     formatString=(char*)(&(d[1]));                                             // set start of format string
 
-    swap_int32_t(&(data[formatLen+1]),1,&(d[formatLen+1]));                    // swap data tagsegment header word
-    dataLen=d[formatLen+1]&0xffff;                                             // get length of composite data
-    if(dest!=NULL)copy_data(&(data[formatLen+2]),dataLen,&(d[formatLen+2]));   // copy if needed
-    dswap=&(d[formatLen+2]);                                                   // get start of composite data
+    swap_int32_t(&(data[formatLen+1]),2,&(d[formatLen+1]));                    // swap data bank header words
+    dataLen=d[formatLen+1];                                                    // get length of composite data
+    if(dest!=NULL)copy_data(&(data[formatLen+3]),dataLen,&(d[formatLen+3]));   // copy if needed
+    dswap=&(d[formatLen+3]);                                                   // get start of composite data
 
     // swap composite data: convert format string to internal format, then call formatted swap routine
     if((nfmt=eviofmt(formatString,ifmt))>0 ) {

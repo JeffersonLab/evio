@@ -4,7 +4,7 @@
 
 
 //  must do:
-//   redo evio2xml program (what about verbose mode?)
+//   bank for composite data
 //   update word doc
 
 
@@ -317,10 +317,10 @@ public:
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
 
   static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
-                                        uint16_t dataTag, const vector<uint32_t> &tVec) throw(evioException);
+                                        uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &tVec) throw(evioException);
 
   static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
-                                        uint16_t dataTag, const uint32_t* t, int len) throw(evioException);
+                                        uint16_t dataTag, uint8_t dataNum, const uint32_t* t, int len) throw(evioException);
 
   static evioDOMNodeP createUnknownEvioDOMNode(uint16_t tag, uint8_t num, const vector<uint32_t> &tVec) throw(evioException);
   static evioDOMNodeP createUnknownEvioDOMNode(uint16_t tag, uint8_t num, const uint32_t *t, int len) throw(evioException);
@@ -342,10 +342,10 @@ public:
                                                               void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                               void *userArg, ContainerType cType=BANK) throw(evioException);
   static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, uint16_t formatTag, const string &formatString,
-                                        uint16_t dataTag, const vector<uint32_t> &tVec) throw(evioException);
+                                        uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &tVec) throw(evioException);
   
   static evioDOMNodeP createEvioDOMNode(const string &name, const evioDictionary *dictionary, uint16_t formatTag, const string &formatString,
-                                        uint16_t dataTag, const uint32_t* t, int len) throw(evioException);
+                                        uint16_t dataTag, uint8_t dataNum, const uint32_t* t, int len) throw(evioException);
   static evioDOMNodeP createUnknownEvioDOMNode(const string &name, const evioDictionary *dictionary, const vector<uint32_t> &tVec)
     throw(evioException);
   static evioDOMNodeP createUnknownEvioDOMNode(const string &name, const evioDictionary *dictionary, const uint32_t *t, int len)
@@ -509,9 +509,9 @@ class evioCompositeDOMLeafNode : public evioDOMLeafNode<uint32_t> {
 
 protected:
   evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
-                           uint16_t dataTag, const vector<uint32_t> &v) throw(evioException);
+                           uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &v) throw(evioException);
   evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
-                           uint16_t dataTag, const uint32_t *p, int ndata) throw(evioException);
+                           uint16_t dataTag, uint8_t dataNum, const uint32_t *p, int ndata) throw(evioException);
   ~evioCompositeDOMLeafNode(void);
 
   evioCompositeDOMLeafNode(const evioCompositeDOMLeafNode &lNode) throw(evioException);
@@ -527,6 +527,7 @@ public:
   uint16_t formatTag;      /**<Tag to use for the internal format bank.*/
   string formatString;     /**<The format string.*/
   uint16_t dataTag;        /**<Tag to use for the internal data bank.*/
+  uint8_t dataNum;         /**<Num to use for the internal data bank.*/
 };
 
 
@@ -570,17 +571,17 @@ public:
   template <typename T> void addBank(const string &name, const T* dataBuf, int dataLen) throw(evioException);
 
   void addBank(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
-               uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+               uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException);
   void addBank(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
-               uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+               uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException);
   void addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
-               uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+               uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException);
   void addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
-               uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+               uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException);
   void addBank(const string &name, uint16_t formatTag, const string &formatString, 
-               uint16_t dataTag, const vector<uint32_t> &dataVec) throw(evioException);
+               uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException);
   void addBank(const string &name, uint16_t formatTag, const string &formatString, 
-               uint16_t dataTag, const uint32_t *t, int len) throw(evioException);
+               uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException);
 
 
   evioDOMNodeP createNode(const string &name, ContainerType cType=BANK) const throw(evioException);
@@ -594,9 +595,9 @@ public:
                                                 void* T::*mfp(evioDOMNodeP c, void *userArg),
                                                 void *userArg, ContainerType cType=BANK) const throw(evioException);
   evioDOMNodeP createNode(const string &name, uint16_t formatTag, const string &formatString, 
-                          uint16_t dataTag, const vector<uint32_t> &dataVec) const throw(evioException);
+                          uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) const throw(evioException);
   evioDOMNodeP createNode(const string &name, uint16_t formatTag, const string &formatString, 
-                          uint16_t dataTag, const uint32_t *t, int len) const throw(evioException);
+                          uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) const throw(evioException);
 
 
 

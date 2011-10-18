@@ -101,8 +101,8 @@ int main(int argc, char **argv) {
 
 
       // add composite banks
-      event << evioDOMNode::createEvioDOMNode(33, 34, 35, "(2(i,3f),2f)", 36, uivec);
-      event << evioDOMNode::createEvioDOMNode(43, 44, 45, "i", 46, uivec);
+      event << evioDOMNode::createEvioDOMNode(33, 34, 35, "(2(i,3f),2f)", 36,37, uivec);
+      event << evioDOMNode::createEvioDOMNode(43, 44, 45, "i", 46,47, uivec);
       event << evioDOMNode::createUnknownEvioDOMNode(53, 54, uivec);
 
 
@@ -111,7 +111,10 @@ int main(int argc, char **argv) {
       ui16[0]=0x2211;
       ui32[0]=0x66554433;
       ui16[3]=0x8877;
-      event << evioDOMNode::createEvioDOMNode(63, 64, 65, "s,i,s", 66, uibuf,2);
+      event << evioDOMNode::createEvioDOMNode(63, 64, 65, "s,i,s", 66,67, uibuf,2);
+
+
+      event << evioDOMNode::createUnknownEvioDOMNode(73, 74, uivec);
 
 
       cout << event.toString() << endl;
