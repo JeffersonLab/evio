@@ -10,12 +10,10 @@
 
 //  should do:
 //   check multi-threading
-//   shared pointer, for all returned pointers?  Who maintains ownership?
-//   parse dictionary with alternate tag or predicate or existance of name,tag,num attributes
 
 
 //   for version 4
-//       append
+//       append to file
 //       decompress/compress on input/output (gzip, bzip, etc.)
 //       set dictionary on file open, must dictionary be its own class?
 //       auto tag/num creation, multiple dictionaries?
@@ -31,9 +29,7 @@
 
 
 // not sure:
-//   get rid of unknown object since uint8_t does the same thing?
-//   additonal addBank() and createEvioDOMNode() for composite bank?
-//   is complete addBank() and createNode() mirroring of createEvioDOMNode() needed?
+//   shared pointer, for all returned pointers?  Who maintains ownership?
 //   allow parent dot notation in dictionary lookup, e.g. 1.2.*?
 //   XML input channel? i.e. revisit xml2evio.
 //   convert vectors?
@@ -158,11 +154,13 @@ class evioDictionary {
 
 public:
   evioDictionary();
-  evioDictionary(const string &dictionaryXML);
+  evioDictionary(const string &dictionaryXML, const string &dictTag="");
   virtual ~evioDictionary();
 
 
 public:
+  void setDictTag(const string &tag);
+  string getDictTag(void) const;
   bool parseDictionary(const string &dictionaryXML);
   tagNum getTagNum(const string &name) const throw(evioException);
   string getName(tagNum tn) const throw(evioException);
@@ -173,6 +171,7 @@ private:
 
 
 public:
+  string dictTag;                    /**<User-supplied dictionary entry tag, default NULL.*/
   map<tagNum,string> getNameMap;     /**<Gets node name given tag/num.*/
   map<string,tagNum> getTagNumMap;   /**<Gets tag/num given node name.*/
 };

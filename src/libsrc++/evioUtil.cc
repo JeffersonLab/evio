@@ -57,7 +57,7 @@ evioDictionary::evioDictionary() {
  * Constructor fills dictionary maps from string.
  * @param dictionaryXML XML string parsed to create dictionary maps
  */
-evioDictionary::evioDictionary(const string &dictionaryXML) {
+evioDictionary::evioDictionary(const string &dictionaryXML, const string &dictTag) : dictTag(dictTag) {
   parseDictionary(dictionaryXML);
 }
 
@@ -68,6 +68,30 @@ evioDictionary::evioDictionary(const string &dictionaryXML) {
  * Destructor.
  */
 evioDictionary::~evioDictionary() {
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Sets dictionary tag
+ * @param tag Dictionary tag
+ */
+void evioDictionary::setDictTag(const string &tag) {
+  dictTag=tag;
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Gets dictionary tag
+ * @return dictionary tag
+ */
+string evioDictionary::getDictTag(void) const {
+  return(dictTag);
 }
 
 
@@ -118,9 +142,16 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
   }
 
 
-  // only process dictionary entries
-  if((strstr(xmlname,"dictEntry")==NULL)&&(strstr(xmlname,"DictEntry")==NULL)&&(strstr(xmlname,"dictentry")==NULL))return;
+  // get dictionary from user data
+  evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
 
+
+
+  // only process dictionary entries
+  if( (strstr(xmlname,d->dictTag.c_str())==NULL) &&
+      (strstr(xmlname,"dictEntry")==NULL)&&(strstr(xmlname,"DictEntry")==NULL)&&(strstr(xmlname,"dictentry")==NULL)
+      ) return;
+  
 
   string name = "";
   int tag = 0;
@@ -136,7 +167,6 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
   }
 
   // add tag/num pair and name to maps
-  evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
   tagNum tn = tagNum(tag,num);
   d->getNameMap[tn]     = name;
   d->getTagNumMap[name] = tn;
