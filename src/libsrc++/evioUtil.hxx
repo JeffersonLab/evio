@@ -4,7 +4,6 @@
 
 
 //  must do:
-//   templates, composite banks and function objects?
 //   redo evio2xml program (what about verbose mode?)
 //   update word doc
 

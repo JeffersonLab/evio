@@ -71,27 +71,27 @@ int main(int argc, char **argv) {
 
 
       // add banks to event in a single level below root node
-//       event.addBank(tag=2, num=9,  uivec);
-//       event.addBank(tag=3, num=10, ibuf,  len=8);
-//       event.addBank(tag=4, num=11, dbuf,  len=6);
-//       event.addBank(tag=5, num=12, fvec);
-//       event.addBank(tag=6, num=13, dbuf,  len=10);
-//       event.addBank(tag=7, num=14, lbuf,  len=8);
-//       event.addBank(tag=8, num=15, svec);
+      event.addBank(tag=2, num=9,  uivec);
+      event.addBank(tag=3, num=10, ibuf,  len=8);
+      event.addBank(tag=4, num=11, dbuf,  len=6);
+      event.addBank(tag=5, num=12, fvec);
+      event.addBank(tag=6, num=13, dbuf,  len=10);
+      event.addBank(tag=7, num=14, lbuf,  len=8);
+      event.addBank(tag=8, num=15, svec);
       
       
-//       evioDOMNodeP sbank = evioDOMNode::createEvioDOMNode<string>(tag=9,num=16);
-//       event << sbank;
+      evioDOMNodeP sbank = evioDOMNode::createEvioDOMNode<string>(tag=9,num=16);
+      event << sbank;
 
-//       sbank->append(string("abcdef"));
-//       sbank->append("ghijkl");
-//       *sbank << string("goodbye");
-//       //      *sbank << svec;
-//       //      sbank->append(svec2);
-//       *sbank << "mnopqrs";
-//       sbank->append(sa,3);
-//       sbank->append(ca,3);
-//       *sbank << fred;
+      sbank->append(string("abcdef"));
+      sbank->append("ghijkl");
+      *sbank << string("goodbye");
+      //      *sbank << svec;
+      //      sbank->append(svec2);
+      *sbank << "mnopqrs";
+      sbank->append(sa,3);
+      sbank->append(ca,3);
+      *sbank << fred;
 
 
       evioDOMNodeP tbank = evioDOMNode::createEvioDOMNode<string>(tag=10,num=17);
@@ -101,9 +101,9 @@ int main(int argc, char **argv) {
 
 
       // add composite banks
-//       event << evioDOMNode::createEvioDOMNode(33, 34, 35, "(2(i,3f),2f)", 36, uivec);
-//       event << evioDOMNode::createEvioDOMNode(43, 44, 45, "i", 46, uivec);
-//       event << evioDOMNode::createUnknownEvioDOMNode(53, 54, uivec);
+      event << evioDOMNode::createEvioDOMNode(33, 34, 35, "(2(i,3f),2f)", 36, uivec);
+      event << evioDOMNode::createEvioDOMNode(43, 44, 45, "i", 46, uivec);
+      event << evioDOMNode::createUnknownEvioDOMNode(53, 54, uivec);
 
 
       uint16_t *ui16 = (uint16_t*)uibuf;
