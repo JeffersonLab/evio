@@ -27,25 +27,25 @@ template <typename T> class typeIs;
 template <typename T> class evioUtil {
 
 public:
-  static ContentType evioContentType(void) throw(evioException) {
+  static int evioContentType(void) throw(evioException) {
     throw(evioException(0,"?evioUtil<T>::evioContentType...unsupported data type: "+string(typeid(T).name()),
                         __FILE__,__FUNCTION__,__LINE__));
-    return(UINT32);
+    return(0x0);
   }
 };
 
-template <> class evioUtil<uint32_t>     {public: static ContentType evioContentType(void)  throw(evioException) {return(UINT32);}};
-template <> class evioUtil<float>        {public: static ContentType evioContentType(void)  throw(evioException) {return(FLOAT32);}};
-template <> class evioUtil<string>       {public: static ContentType evioContentType(void)  throw(evioException) {return(STRING);}};
-template <> class evioUtil<string&>      {public: static ContentType evioContentType(void)  throw(evioException) {return(STRING);}};
-template <> class evioUtil<int16_t>      {public: static ContentType evioContentType(void)  throw(evioException) {return(INT16);}};
-template <> class evioUtil<uint16_t>     {public: static ContentType evioContentType(void)  throw(evioException) {return(UINT16);}};
-template <> class evioUtil<int8_t>       {public: static ContentType evioContentType(void)  throw(evioException) {return(INT8);}};
-template <> class evioUtil<uint8_t>      {public: static ContentType evioContentType(void)  throw(evioException) {return(UINT8);}};
-template <> class evioUtil<double>       {public: static ContentType evioContentType(void)  throw(evioException) {return(FLOAT64);}};
-template <> class evioUtil<int64_t>      {public: static ContentType evioContentType(void)  throw(evioException) {return(INT64);}};
-template <> class evioUtil<uint64_t>     {public: static ContentType evioContentType(void)  throw(evioException) {return(UINT64);}};
-template <> class evioUtil<int32_t>      {public: static ContentType evioContentType(void)  throw(evioException) {return(INT32);}};
+template <> class evioUtil<uint32_t>     {public: static int evioContentType(void)  throw(evioException) {return(0x1);}};
+template <> class evioUtil<float>        {public: static int evioContentType(void)  throw(evioException) {return(0x2);}};
+template <> class evioUtil<string>       {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
+template <> class evioUtil<string&>      {public: static int evioContentType(void)  throw(evioException) {return(0x3);}};
+template <> class evioUtil<int16_t>      {public: static int evioContentType(void)  throw(evioException) {return(0x4);}};
+template <> class evioUtil<uint16_t>     {public: static int evioContentType(void)  throw(evioException) {return(0x5);}};
+template <> class evioUtil<int8_t>       {public: static int evioContentType(void)  throw(evioException) {return(0x6);}};
+template <> class evioUtil<uint8_t>      {public: static int evioContentType(void)  throw(evioException) {return(0x7);}};
+template <> class evioUtil<double>       {public: static int evioContentType(void)  throw(evioException) {return(0x8);}};
+template <> class evioUtil<int64_t>      {public: static int evioContentType(void)  throw(evioException) {return(0x9);}};
+template <> class evioUtil<uint64_t>     {public: static int evioContentType(void)  throw(evioException) {return(0xa);}};
+template <> class evioUtil<int32_t>      {public: static int evioContentType(void)  throw(evioException) {return(0xb);}};
 
 
 //-----------------------------------------------------------------------------
@@ -1077,9 +1077,15 @@ template <typename T> class typeIs : public unary_function<const evioDOMNodeP,bo
 
 public:
   typeIs(void) : type(evioUtil<T>::evioContentType()) {}
-  bool operator()(const evioDOMNodeP node) const {return(node->getContentType()==type);}
+
+  bool operator()(const evioDOMNodeP node) const {
+    int nodeType = node->getContentType();
+    if((nodeType==0x0)||(nodeType==0xf))nodeType=0x1;   // coerce for unknown and composite types
+    return(nodeType==type);
+  }
+
 private:
-  ContentType type;
+ int type;
 };
 
 

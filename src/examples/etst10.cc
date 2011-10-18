@@ -90,8 +90,13 @@ int main(int argc, char **argv) {
       //      vector<double> *v = tree.getVectorUnique<double>(tagNumEquals("wilma",tree));
       //      vector<uint32_t> *v = tree.getVectorUnique<uint32_t>(tagNumEquals(63,64));
       
-      evioDOMNodeP n = tree.getFirstNode(tagNumEquals(63,64));
-      vector<uint32_t> *v = n->getVector<uint32_t>();
+      vector<uint32_t> *v = NULL;
+      evioDOMNodeP n = tree.getFirstNode(typeEquals(0xf));
+      if(n!=NULL) v = n->getVector<uint32_t>();
+
+      //      vector<uint32_t> *v = tree.getVectorUnique<uint32_t>();
+
+
       if(v!=NULL) {
         cout << "vector size is " << v->size() << endl;
         uint32_t uibuf[100];
