@@ -4,7 +4,6 @@
 
 
 //  must do:
-//   bank for composite data
 //   update word doc
 
 

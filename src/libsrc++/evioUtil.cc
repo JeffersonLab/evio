@@ -1655,7 +1655,7 @@ void *evioDOMTree::leafNodeHandler(int length, uint16_t tag, int contentType, ui
       int formatTag       = (d[0]>>20)&0xfff;
       int formatLen       = d[0]&0xffff;
       string formatString = string((const char *) &(((uint32_t*)data)[1]));
-      int dataLen         = d[1+formatLen];
+      int dataLen         = d[1+formatLen]-1;
       int dataTag         = (d[1+formatLen+1]>>16)&0xffff;
       int dataNum         = d[1+formatLen+1]&0xff;
       newLeaf = evioDOMNode::createEvioDOMNode(tag,num,formatTag,formatString,dataTag,dataNum,(uint32_t*)&d[3+formatLen],dataLen);
@@ -2294,7 +2294,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         for(i=0; i<(4-nfmtchar%4)%4; i++) c[nfmtchar+i]=0x04;   // pad with EOT if needed
         
         // data stored as uint32_t in bank
-        buf[dataOffset+nfmtword+1] = ndata;
+        buf[dataOffset+nfmtword+1] = ndata+1;
         buf[dataOffset+nfmtword+2] = (leaf->dataTag<<16) | (0x1<<8) | leaf->dataNum;
         uint32_t *d = &buf[dataOffset+3+nfmtword];
         for(i=0; i<ndata; i++) d[i]=leaf->data[i];
