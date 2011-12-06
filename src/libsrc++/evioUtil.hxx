@@ -5,20 +5,19 @@
 
 //  must do:
 //   update word doc
+//   multi-threading:  defaultToStringconfig?
 
 
 //  should do:
-//   check multi-threading
 
 
 //   for version 4
 //       append to file
 //       decompress/compress on input/output (gzip, bzip, etc.)
 //       set dictionary on file open, must dictionary be its own class?
-//       auto tag/num creation, multiple dictionaries?
 //       random access i/o
 //       pipes, named pipes on input
-//       handle buffer swapping automatically
+//       handle buffer swapping automatically (what does this mean?)
 
 
 //  would like to do:
@@ -28,12 +27,15 @@
 
 
 // not sure:
-//   shared pointer, for all returned pointers?  Who maintains ownership?
-//   allow parent dot notation in dictionary lookup, e.g. 1.2.*?
-//   XML input channel? i.e. revisit xml2evio.
-//   convert vectors?
-//   auto internal buf size?
-//   scheme for exception type codes?
+//   change how evioToStringConfig and default config used
+//   shared pointer for all returned pointers...who maintains ownership?
+//   auto tag/num creation
+//   multiple dictionaries in a file
+//   allow parent dot notation in dictionary lookup, e.g. 1.2.*
+//   XML input channel, i.e. resurrect xml2evio
+//   convert vectors (what does this mean? to what?)
+//   auto internal fileChannel buf size
+//   scheme for exception type codes
 
 
 #ifndef _evioUtil_hxx
@@ -124,10 +126,13 @@ class evioToStringConfig;
 //-----------------------------------------------------------------------------
 
 
+//typedef boost::shared_ptr<evioDOMNode> evioDOMNodeP;          /** Node pointer returned by many functions, need to fix all new() calls.*/
+
 typedef evioDOMNode* evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
 typedef list<evioDOMNodeP>  evioDOMNodeList;         /**<List of pointers to evioDOMNode.*/
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evioDOMNode pointers, returned by getNodeList.*/
-// typedef boost::shared_ptr<evioDOMNodeList> evioDOMNodeListP;  /** Returned by getNodeList.*/
+
+//typedef boost::shared_ptr<evioDOMNodeList> evioDOMNodeListP;  /** List of node pointers returned by getNodeList.*/
 
 
 /** Defines the container bank types.*/
