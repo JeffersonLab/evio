@@ -121,7 +121,6 @@ static void parse_bank(int32_t *buf, int ftype, int depth, NH_TYPE nh, LH_TYPE l
   case 0xd:
   case 0x20:
   case 0xc:
-  case 0x40:
     if(nh!=NULL)nh(length,ftype,tag,type,num,depth,userArg);
     depth++;
     loop_over_banks(&buf[dataOffset],length-dataOffset,type,depth,nh,lh,userArg);
@@ -159,7 +158,6 @@ static void loop_over_banks(int32_t *data, int length, int type, int depth, NH_T
     break;
 
   case 0xc:
-  case 0x40:
     while(p<length) {
       parse_bank(&data[p],TAGSEGMENT,depth,nh,lh,userArg);
       p+=(data[p]&0xffff)+1;
@@ -239,7 +237,6 @@ const char *get_typename(int type) {
     break;
 
   case 0xc:
-  case 0x40:
     return("tagsegment");
     break;
 
@@ -266,7 +263,6 @@ int is_container(int type) {
   case (0xe):
   case (0x10):
   case (0x20):
-  case (0x40):
     return(1);
 
   default:
