@@ -14,7 +14,6 @@ fileList = ['evio.c',
             'eviofmt.c',
             'eviofmtswap.c',
             'evio_util.c',
-            'swap_util.c',
             'xml_util.c']
 
 env.AppendUnique(CPPPATH = ['.'])
