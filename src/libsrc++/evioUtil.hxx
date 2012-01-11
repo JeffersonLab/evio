@@ -62,7 +62,7 @@
 #include <iomanip>
 #endif
 
-#include <evio_util.h>
+#include <evio.h>
 #include <evioException.hxx>
 #include <evioChannel.hxx>
 
