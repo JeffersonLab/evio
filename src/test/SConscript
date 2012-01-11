@@ -3,7 +3,7 @@ Import('env', 'binDir', 'archDir', 'execLibs', 'debugSuffix')
 import re
 
  # lists of all C and C++ files
-cfileList  = ['evtest.c', 'evtest2.c', 'evtest3.c', 'evtest4.c']
+cfileList  = ['evtest.c', 'evtest2.c', 'evtest3.c']
 ccfileList  = []
 
 # For each C file, create executable of the same name,
