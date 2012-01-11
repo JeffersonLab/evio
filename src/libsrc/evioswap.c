@@ -13,15 +13,20 @@
  *
  *   Author: Elliott Wolin, JLab, 21-nov-2003
  *
- *
- *  Notes:
+ *   Notes:
  *     simple loop in swap_xxx takes 50% longer than pointers and unrolled loops
  *     -O is over twice as fast as -g
  *
- *  To do:
+ *   To do:
  *     use in evio.c, replace swap_util.c
  *
-*/
+ *   Author: Carl Timmer, JLab, jan-2012
+ *      - add doxygen documentation
+ *      - add comments & beautify
+ *      - simplify swapping routines
+ *      - make compatible with evio version 4 (padding info in data type)
+ *
+ */
 
 
 /* include files */
@@ -47,373 +52,406 @@ static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest);
 static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest);
 static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest);
 static void swap_data(uint32_t *data, uint32_t type, uint32_t length,
-		      int tolocal,  uint32_t *dest);
+		              int tolocal,  uint32_t *dest);
 static void swap_int64_t(uint64_t *data, uint32_t length, uint64_t *dest);
-static void swap_short(unsigned short *data, uint32_t length, unsigned short *dest);
+static void swap_short(uint16_t *data, uint32_t length, uint16_t *dest);
 static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest);
 
 
 /*--------------------------------------------------------------------------*/
 
-
+/**
+ * Routine to swap the endianness of an evio event (bank).
+ *
+ * @param buf     buffer of evio event data to be swapped
+ * @param tolocal if 0 buf contains data of same endian as local host,
+ *                else buf has data of opposite endian
+ * @param dest    buffer to place swapped data into.
+ *                If this is NULL, then dest = buf.
+ */
 void evioswap(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  swap_bank(buf,tolocal,dest);
+  swap_bank(buf, tolocal, dest);
 
   return;
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * Routine to swap the endianness of an evio bank.
+ *
+ * @param buf     buffer of evio bank data to be swapped
+ * @param tolocal if 0 buf contains data of same endian as local host,
+ *                else buf has data of opposite endian
+ * @param dest    buffer to place swapped data into.
+ *                If this is NULL, then dest = buf.
+ */
 static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  uint32_t data_length,data_type;
-  uint32_t *p=buf;
+    uint32_t data_length, data_type;
+    uint32_t *p=buf;
 
+    /* Swap header to get length and contained type if buf NOT local endian */
+    if (tolocal) {
+        p = swap_int32_t(buf, 2, dest);
+    }
+    
+    data_length  =  p[0]-1;
+    data_type    = (p[1] >> 8) & 0x3f; /* padding info in top 2 bits of type byte */
+    
+    /* Swap header if buf is local endian */
+    if (!tolocal) {
+        swap_int32_t(buf, 2, dest);
+    }
+    
+    /* Swap non-header bank data */
+    swap_data(&buf[2], data_type, data_length, tolocal, ((dest==NULL) ? NULL: &dest[2]));
 
-  /* swap header, get length and contained type */
-  if(tolocal)p = swap_int32_t(buf,2,dest);
-  data_length  = p[0]-1;
-  data_type    = (p[1]>>8)&0xff;
-  if(!tolocal)swap_int32_t(buf,2,dest);
-  
-  swap_data(&buf[2], data_type, data_length, tolocal, (dest==NULL)?NULL:&dest[2]);
-
-  return;
+    return;
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * Routine to swap the endianness of an evio segment.
+ *
+ * @param buf     buffer of evio segment data to be swapped
+ * @param tolocal if 0 buf contains data of same endian as local host,
+ *                else buf has data of opposite endian
+ * @param dest    buffer to place swapped data into.
+ *                If this is NULL, then dest = buf.
+ */
 static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  uint32_t data_length,data_type;
-  uint32_t *p=buf;
+    uint32_t data_length,data_type;
+    uint32_t *p=buf;
 
-
-  /* swap header, get length and contained type */
-  if(tolocal)p = swap_int32_t(buf,1,dest);
-  data_length  = (p[0]&0xffff);
-  data_type    = (p[0]>>16)&0xff;
-  if(!tolocal)swap_int32_t(buf,1,dest);
-
-  swap_data(&buf[1], data_type, data_length, tolocal, (dest==NULL)?NULL:&dest[1]);
+    /* Swap header to get length and contained type if buf NOT local endian */
+    if (tolocal) {
+        p = swap_int32_t(buf, 1, dest);
+    }
   
-  return;
+    data_length  =  p[0] & 0xffff;
+    data_type    = (p[0] >> 16) & 0x3f; /* padding info in top 2 bits of type byte */
+  
+    /* Swap header if buf is local endian */
+    if (!tolocal) {
+        swap_int32_t(buf, 1, dest);
+    }
+  
+    /* Swap non-header segment data */
+    swap_data(&buf[1], data_type, data_length, tolocal, ((dest==NULL) ? NULL : &dest[1]));
+  
+    return;
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * Routine to swap the endianness of an evio tagsegment.
+ *
+ * @param buf     buffer of evio tagsegment data to be swapped
+ * @param tolocal if 0 buf contains data of same endian as local host,
+ *                else buf has data of opposite endian
+ * @param dest    buffer to place swapped data into.
+ *                If this is NULL, then dest = buf.
+ */
 static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest) {
 
-  uint32_t data_length,data_type;
-  uint32_t *p=buf;
+    uint32_t data_length,data_type;
+    uint32_t *p=buf;
 
-
-  /* swap header, get length and contained type */
-  if(tolocal)p = swap_int32_t(buf,1,dest);
-  data_length  = (p[0]&0xffff);
-  data_type    = (p[0]>>16)&0xf;
-  if(!tolocal)swap_int32_t(buf,1,dest);
-
-  swap_data(&buf[1], data_type, data_length, tolocal, (dest==NULL)?NULL:&dest[1]);
+    /* Swap header to get length and contained type if buf NOT local endian */
+    if (tolocal) {
+        p = swap_int32_t(buf,1,dest);
+    }
+    
+    data_length  =  p[0] & 0xffff;
+    data_type    = (p[0] >> 16) & 0xf; /* no padding info in tagsegments */
+    
+    /* Swap header if buf is local endian */
+    if (!tolocal) {
+        swap_int32_t(buf,1,dest);
+    }
+    
+    /* Swap non-header tagsegment data */
+    swap_data(&buf[1], data_type, data_length, tolocal, ((dest==NULL)? NULL : &dest[1]));
   
-  return;
+    return;
 }
 
 
-/*---------------------------------------------------------------- */
+
+/**
+ * Routine to swap any type of evio data.
+ *
+ * @param data    buffer of evio data to be swapped
+ * @param type    type of evio data
+ * @param length  length of evio data in 32 bit words
+ * @param tolocal if 0 data is of same endian as local host,
+ *                else data is of opposite endian
+ * @param dest    buffer to place swapped data into.
+ *                If this is NULL, then dest = data.
+ */
+static void swap_data(uint32_t *data, uint32_t type, uint32_t length,
+                      int tolocal, uint32_t *dest) {
+    uint32_t fraglen;
+    uint32_t l=0;
+    int formatLen, dataLen;
+    char *formatString;
+    uint32_t *d, *dswap;
+    int nfmt, ret;
+    unsigned char ifmt[1024];
 
 
-static void swap_data(uint32_t *data, uint32_t type, uint32_t length, 
-	       int tolocal, uint32_t *dest) {
+    /* Swap the data or call swap_fragment */
+    switch (type) {
 
-  uint32_t fraglen;
-  uint32_t l=0;
-  int formatLen, dataLen;
-  char *formatString;
-  uint32_t *d,*dswap;
-  int nfmt,ret;
-  unsigned char ifmt[1024];
+        /* unknown type ... no swap */
+        case 0x0:
+            copy_data(data, length, dest);
+            break;
 
 
-   /* swap the data or call swap_fragment */
-  switch (type) {
+        /* 32-bit types: uint, float, or int */
+        case 0x1:
+        case 0x2:
+        case 0xb:
+            swap_int32_t(data, length, dest);
+            break;
 
 
-    /* undefined...no swap */
-  case 0x0:
-    copy_data(data,length,dest);
-    break;
+        /* 8-bit types: string array, char, or uchar ... no swap */
+        case 0x3:
+        case 0x6:
+        case 0x7:
+            copy_data(data, length, dest);
+            break;
 
 
-    /* int32_t */
-  case 0x1:
-  case 0x2:
-  case 0xb:
-    swap_int32_t(data,length,dest);
-    break;
+        /* 16-bit types: short or ushort */
+        case 0x4:
+        case 0x5:
+            swap_short((uint16_t*)data, length*2, (uint16_t*)dest);
+            break;
 
 
-    /* char or byte */
-  case 0x3:
-  case 0x6:
-  case 0x7:
-    copy_data(data,length,dest);
-    break;
+        /* 64-bit types: double, int, or uint */
+        case 0x8:
+        case 0x9:
+        case 0xa:
+            swap_int64_t((uint64_t*)data, length/2, (uint64_t*)dest);
+            break;
 
 
-    /* short */
-  case 0x4:
-  case 0x5:
-    swap_short((unsigned short*)data,length*2,(unsigned short*)dest);
-    break;
+        /* Composite type */
+        case 0xf:
+            /* swap in place or copy ? */
+            d = (dest == NULL) ? data : dest;
+// TODO: should tolocal play a role here ?
+            /* swap format tagsegment header word */
+            swap_int32_t(data, 1, d);
+            
+            /* get length of format string */
+            formatLen = d[0] & 0xffff;
+            
+            /* copy if needed */
+            if (dest != NULL) {
+                copy_data(&(data[1]), formatLen, &(d[1]));
+            }
+            
+            /* set start of format string */
+            formatString = (char*)(&(d[1]));
+            
+            /* swap data bank header words */
+            swap_int32_t(&(data[formatLen+1]), 2, &(d[formatLen+1]));
+                               
+            /* get length of composite data */
+            dataLen = d[formatLen+1];
+
+            /* copy if needed */
+            if (dest != NULL) {
+                copy_data(&(data[formatLen+3]), dataLen, &(d[formatLen+3]));
+            }
+            
+            /* get start of composite data */
+            dswap = &(d[formatLen+3]);                                                   
+
+            /* swap composite data: convert format string to internal format, then call formatted swap routine */
+            if ((nfmt = eviofmt(formatString, ifmt)) > 0 ) {
+                ret = eviofmtswap(dswap, dataLen, ifmt, nfmt);
+                if (ret) printf("?evioswap...eviofmtswap returned %d\n", ret);
+            }
+            break;
 
 
-    /* int64_t */
-  case 0x8:
-  case 0x9:
-  case 0xa:
-    swap_int64_t((uint64_t*)data,length/2,(uint64_t*)dest);
-    break;
+        /* bank */
+        case 0xe:
+        case 0x10:
+            while (l < length) {
+                /* data is opposite local endian */
+                if (tolocal) {
+                    /* swap bank */
+                    swap_bank(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                    /* bank was this long (32 bit words) including header */
+                    fraglen = (dest==NULL) ? data[l]+1: dest[l]+1;
+                } else {
+                    fraglen = data[l] + 1;
+                    swap_bank(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                }
+                l += fraglen;
+            }
+            break;
 
 
-    /* composite */
-  case 0xf:
-    if(dest==NULL) d=data; else d=dest;                                        // in place or copy
+        /* segment */
+        case 0xd:
+        case 0x20:
+            while (l < length) {
+                if (tolocal) {
+                    swap_segment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                    fraglen = (dest==NULL) ? (data[l]&0xffff)+1: (dest[l]&0xffff)+1;
+                } else {
+                    fraglen = (data[l] & 0xffff) + 1;
+                    swap_segment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                }
+                l += fraglen;
+            }
+            break;
 
-    swap_int32_t(data,1,d);                                                    // swap format tagsegment header word
-    formatLen=d[0]&0xffff;                                                     // get length of format string
-    if(dest!=NULL)copy_data(&(data[1]),formatLen,&(d[1]));                     // copy if needed
-    formatString=(char*)(&(d[1]));                                             // set start of format string
 
-    swap_int32_t(&(data[formatLen+1]),2,&(d[formatLen+1]));                    // swap data bank header words
-    dataLen=d[formatLen+1];                                                    // get length of composite data
-    if(dest!=NULL)copy_data(&(data[formatLen+3]),dataLen,&(d[formatLen+3]));   // copy if needed
-    dswap=&(d[formatLen+3]);                                                   // get start of composite data
+        /* tagsegment, NOTE: val of 0x40 is no longer used for tagsegment - needed for padding */
+        case 0xc:
+            while (l < length) {
+                if (tolocal) {
+                    swap_tagsegment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                    fraglen = (dest==NULL)?(data[l]&0xffff)+1:(dest[l]&0xffff)+1;
+                } else {
+                    fraglen = (data[l] & 0xffff) + 1;
+                    swap_tagsegment(&data[l], tolocal, (dest==NULL) ? NULL : &dest[l]);
+                }
+                l += fraglen;
+            }
+            break;
 
-    // swap composite data: convert format string to internal format, then call formatted swap routine
-    if((nfmt=eviofmt(formatString,ifmt))>0 ) {
-      ret=eviofmtswap(dswap,dataLen,ifmt,nfmt);
-      if(ret)printf("?evioswap...eviofmtswap returned %d\n",ret);
+
+        /* unknown type, just copy */
+        default:
+            copy_data(data, length, dest);
+            break;
     }
 
-    break;
-
-
-    /* bank */
-  case 0xe:
-  case 0x10:
-    while(l<length) {
-      if(tolocal) {
-	swap_bank(&data[l],tolocal,(dest==NULL)?NULL:&dest[l]);
-	fraglen=(dest==NULL)?data[l]+1:dest[l]+1;
-      } else {
-	fraglen=data[l]+1;
-	swap_bank(&data[l],tolocal,(dest==NULL)?NULL:&dest[l]);
-      }
-      l+=fraglen;
-    }
-    break;
-
-
-    /* segment */
-  case 0xd:
-  case 0x20:
-    while(l<length) {
-      if(tolocal) {
-	swap_segment(&data[l],tolocal,(dest==NULL)?NULL:&dest[l]);
-	fraglen=(dest==NULL)?(data[l]&0xffff)+1:(dest[l]&0xffff)+1;
-      } else {
-	fraglen=(data[l]&0xffff)+1;
-	swap_segment(&data[l],tolocal,(dest==NULL)?NULL:&dest[l]);
-      }
-      l+=fraglen;
-    }
-    break;
-
-
-    /* tagsegment */
-  case 0xc:
-  case 0x40:
-    while(l<length) {
-      if(tolocal) {
-	swap_tagsegment(&data[l],tolocal,(dest==NULL)?NULL:&dest[l]);
-	fraglen=(dest==NULL)?(data[l]&0xffff)+1:(dest[l]&0xffff)+1;
-      } else {
-	fraglen=(data[l]&0xffff)+1;
-	swap_tagsegment(&data[l],tolocal,(dest==NULL)?NULL:&dest[l]);
-      }
-      l+=fraglen;
-    }
-    break;
-
-
-    /* unknown type, just copy */
-  default:
-    copy_data(data,length,dest);
-    break;
-  }
-
-  return;
+    return;
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * This routine swaps the bytes of a 32 bit integer and
+ * returns the swapped value. Rewritten to be a wrapper
+ * for EVIO_SWAP32(x) macro.
+ *
+ * @param val int val to be swapped
+ * @return swapped value
+ * @deprecated Use the EVIO_SWAP32(x) macro instead of this routine.
+ */
 int32_t swap_int32_t_value(int32_t val) {
-
-  int temp;
-  char *t = (char*)&temp+4;
-  char *v = (char*)&val;
-  
-  *--t=*(v++);
-  *--t=*(v++);
-  *--t=*(v++);
-  *--t=*(v++);
-
-  return(temp);
+  return EVIO_SWAP32(val);
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * This routine swaps a buffer of 32 bit integers.
+ *
+ * @param data   pointer to data to be swapped
+ * @param length number of 32 bit ints to be swapped
+ * @param dest   pointer to where swapped data is to be copied to.
+ *               If NULL, the data is swapped in place.
+ * @return pointer to beginning of swapped data
+ */
 uint32_t *swap_int32_t(uint32_t *data, uint32_t length, uint32_t *dest) {
 
-  uint32_t i;
-  uint32_t temp;
-  char *d,*t;
+    int i;
 
-  if(dest==NULL) {
-
-    d=(char*)data+4;
-    for(i=0; i<length; i++) {
-      temp=data[i];
-      t=(char*)&temp;
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      d+=8;
+    if (dest == NULL) {
+        dest = data;
     }
-    return(data);
 
-  } else {
-
-    d=(char*)dest+4;
-    t=(char*)data;
-    for(i=0; i<length; i++) {
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      d+=8;
+    for (i=0; i < length; i++) {
+        dest[i] = EVIO_SWAP32(data[i]);
     }
+    
     return(dest);
-  }
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * This routine swaps a buffer of 64 bit integers.
+ *
+ * @param data   pointer to data to be swapped
+ * @param length number of 64 bit ints to be swapped
+ * @param dest   pointer to where swapped data is to be copied to.
+ *               If NULL, the data is swapped in place.
+ */
 static void swap_int64_t(uint64_t *data, uint32_t length, uint64_t *dest) {
 
-  uint32_t i;
-  uint64_t temp;
-  char *d,*t;
+    int i;
 
-  if(dest==NULL) {
-
-    d=(char*)data+8;
-    for(i=0; i<length; i++) {
-      temp=data[i];
-      t=(char*)&temp;
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      d+=16;
+    if (dest == NULL) {
+        dest = data;
     }
 
-  } else {
-    
-    d=(char*)dest+8;
-    t=(char*)data;
-    for(i=0; i<length; i++) {
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      *--d=*(t++);
-      d+=16;
+    for (i=0; i < length; i++) {
+        dest[i] = EVIO_SWAP64(data[i]);
     }
-    
-    return;
-  }
+}
+
+ 
+ 
+/**
+ * This routine swaps a buffer of 16 bit integers.
+ *
+ * @param data   pointer to data to be swapped
+ * @param length number of 16 bit ints to be swapped
+ * @param dest   pointer to where swapped data is to be copied to.
+ *               If NULL, the data is swapped in place.
+ */
+static void swap_short(uint16_t *data, uint32_t length, uint16_t *dest) {
+
+    int i;
+
+    if (dest == NULL) {
+        dest = data;
+    }
+
+    for (i=0; i < length; i++) {
+        dest[i] = EVIO_SWAP16(data[i]);
+    }
 }
 
 
-/*---------------------------------------------------------------- */
 
-
-static void swap_short(unsigned short *data, uint32_t length, unsigned short *dest) {
-
-  uint32_t i;
-  unsigned short temp;
-  char *d,*t;
-
-  if(dest==NULL) {
-
-    d=(char*)data+2;
-    for(i=0; i<length; i++) {
-      temp=data[i];
-      t=(char*)&temp;
-      *--d=*(t++);
-      *--d=*(t++);
-      d+=4;
-    }
-
-  } else {
-
-    d=(char*)dest+2;
-    t=(char*)data;
-    for(i=0; i<length; i++) {
-      *--d=*(t++);
-      *--d=*(t++);
-      d+=4;
-    }
-    
-    return;
-  }
-}
- 
- 
-/*---------------------------------------------------------------- */
- 
- 
+/**
+ * This routine swaps nothing, it just copies the given number of 32 bit ints.
+ *
+ * @param data   pointer to data to be copied
+ * @param length number of 32 bit ints to be copied
+ * @param dest   pointer to where data is to be copied to.
+ *               If NULL, nothing is done.
+ */
 static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest) {
    
   int i;
   
-  if(dest==NULL)return;
-  for(i=0; i<length; i++)dest[i]=data[i];
-  return;
+  if (dest == NULL) {
+      return;
+  }
+  
+  for (i=0; i<length; i++) {
+      dest[i] = data[i];
+  }
 }
  
- 
-/*---------------------------------------------------------------- */

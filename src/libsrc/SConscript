@@ -3,17 +3,14 @@ Import('env', 'libDir', 'incDir', 'archIncDir', 'debugSuffix')
 import os
 from os import sep
 
-headerList = ['evio.h',
-              'evio_util.h']
+headerList = ['evio.h']
 
-linkList = [archIncDir + sep + 'evio.h',
-            archIncDir + sep + 'evio_util.h']
+linkList = [archIncDir + sep + 'evio.h']
 
 fileList = ['evio.c',
             'evioswap.c',
             'eviofmt.c',
             'eviofmtswap.c',
-            'evio_util.c',
             'xml_util.c']
 
 env.AppendUnique(CPPPATH = ['.'])

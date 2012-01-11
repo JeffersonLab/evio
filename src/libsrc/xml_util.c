@@ -96,8 +96,8 @@ static int p64          = 20;
 
 /*  misc variables */
 static int nbuf;
-static char *event_tag    = (char*)"event";
-static char *bank2_tag    = (char*)"bank";
+static char *event_tag    = "event";
+static char *bank2_tag    = "bank";
 static char *dicttagname  = NULL;
 static int max_depth      = -1;
 static int depth          = 0;
@@ -117,8 +117,8 @@ static int xmllen;
 static void create_dictionary(char *dictfilename);
 static void startDictElement(void *userData, const char *name, const char **atts);
 static void dump_fragment(unsigned int *buf, int fragment_type);
-static void dump_data(unsigned int *data, int type, int length, int noexpand);
-static int get_ndata(int type, int nwords);
+static void dump_data(unsigned int *data, int type, int length, int padding, int noexpand);
+static int get_ndata(int type, int nwords, int padding);
 static const char *get_matchname();
 static void indent(int extra);
 static const char *get_char_att(const char **atts, const int natt, const char *tag);
@@ -246,9 +246,15 @@ static void startDictElement(void *userData, const char *name, const char **atts
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * This routine creates an xml representation of an evio event.
+ *
+ * @param buf    buffer with evio event data
+ * @param bufnum buffer id number
+ * @param string buffer in which to place the resulting xml
+ * @param len    length of xml string buffer
+ */
 void evio_xmldump(unsigned int *buf, int bufnum, char *string, int len) {
 
   nbuf=bufnum;
@@ -275,12 +281,16 @@ void set_user_frag_select_func( int (*f) (int tag) ) {
 }
 
 
-/*---------------------------------------------------------------- */
 
-
+/**
+ * This routine puts evio container data into an xml string representing an evio event.
+ *
+ * @param buf            pointer to data to put in xml string
+ * @param fragment_type  container type of evio data (bank=0, segment=1, or tagsegment=2)
+ */
 static void dump_fragment(unsigned int *buf, int fragment_type) {
 
-  int length,type,is_a_container,noexpand;
+  int length,type,is_a_container,noexpand, padding=0;
   unsigned short tag;
   unsigned char num;
 
@@ -289,21 +299,23 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 
   /* get type-dependent info */
   switch(fragment_type) {
-  case 0:
+  case BANK:
     length  	= buf[0]+1;
-    tag     	= buf[1]>>16;
-    type    	= (buf[1]>>8)&0xff;
+    tag     	= (buf[1]>>16)&0xffff;
+    type        = (buf[1]>>8)&0x3f;
+    padding     = (buf[1]>>14)&0x3;
     num     	= buf[1]&0xff;
     break;
 
-  case 1:
+  case SEGMENT:
     length  	= (buf[0]&0xffff)+1;
-    type    	= (buf[0]>>16)&0xff;
+    type    	= (buf[0]>>16)&0x3f;
+    padding     = (buf[0]>>22)&0x3;
     tag     	= (buf[0]>>24)&0xff;
     num     	= -1;  /* doesn't have num */
     break;
     
-  case 2:
+  case TAGSEGMENT:
     length  	= (buf[0]&0xffff)+1;
     type    	= (buf[0]>>16)&0xf;
     tag     	= (buf[0]>>20)&0xfff;
@@ -374,7 +386,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
   /* length, ndata for verbose */
   if(verbose!=0) {
     xml+=sprintf(xml," length=\"%d\" ndata=\"%d\"",length,
-	   get_ndata(type,length-fragment_offset[fragment_type]));
+                 get_ndata(type, (length - fragment_offset[fragment_type]), padding));
   }
 
 
@@ -384,8 +396,8 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
   
 
   /* fragment data */
-  dump_data(&buf[fragment_offset[fragment_type]],type,
-	    length-fragment_offset[fragment_type],noexpand);
+  dump_data(&buf[fragment_offset[fragment_type]], type,
+	    length-fragment_offset[fragment_type], padding, noexpand);
 
 
   /* xml closing fragment */
@@ -412,10 +424,17 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 }
 
 
-/*---------------------------------------------------------------- */
 
-
-static void dump_data(unsigned int *data, int type, int length, int noexpand) {
+/**
+ * This routine puts evio data into an xml string representing an evio event.
+ *
+ * @param data     pointer to data to put in xml string
+ * @param type     type of evio data (ie. short, bank, etc)
+ * @param length   length of data in 32 bit words
+ * @param padding  number of bytes to be ignored at end of data
+ * @param noexpand if true, just print data as ints, don't expand as detailed xml
+ */
+static void dump_data(unsigned int *data, int type, int length, int padding, int noexpand) {
 
   int i,j,len;
   int p=0;
@@ -430,12 +449,12 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
 
 
   /* dump data if no expansion, even if this is a container */
-  if(noexpand) {
+  if (noexpand) {
     sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
     for(i=0; i<length; i+=n32) {
       indent(0);
       for(j=i; j<min((i+n32),length); j++) {
-	xml+=sprintf(xml,format,data[j]);
+        xml+=sprintf(xml,format,data[j]);
       }
       xml+=sprintf(xml,"\n");
     }
@@ -447,7 +466,9 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
   /* dump the data or call dump_fragment */
   switch (type) {
 
+  /* unknown */
   case 0x0:
+  /* unsigned 32 bit int */
   case 0x1:
     if(!no_data) {
       sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
@@ -461,6 +482,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* 32 bit float */
   case 0x2:
     if(!no_data) {
       sprintf(format,"%%#%d.%df ",w32,p32);
@@ -474,6 +496,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* string */ // TODO: need to print array of strings
   case 0x3:
     if(!no_data) {
       start=(char*)&data[0];
@@ -488,13 +511,17 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* 16 bit int */
   case 0x4:
     if(!no_data) {
+      int numShorts = 2*length;
+      if (padding == 2) numShorts--;
+      
       sprintf(format,"%%%dhd ",w16);
       s=(short*)&data[0];
-      for(i=0; i<2*length; i+=n16) {
+      for(i=0; i<numShorts; i+=n16) {
         indent(0);
-        for(j=i; j<min(i+n16,2*length); j++) {
+        for(j=i; j<min(i+n16,numShorts); j++) {
           xml+=sprintf(xml,format,s[j]);
         }
         xml+=sprintf(xml,"\n");
@@ -502,13 +529,17 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* unsigned 16 bit int */
   case 0x5:
     if(!no_data) {
+      int numShorts = 2*length;
+      if (padding == 2) numShorts--;
+      
       sprintf(format,"%%#%d%s ",w16,(xtod==0)?"hx":"d");
       s=(short*)&data[0];
-      for(i=0; i<2*length; i+=n16) {
+      for(i=0; i<numShorts; i+=n16) {
         indent(0);
-        for(j=i; j<min(i+n16,2*length); j++) {
+        for(j=i; j<min(i+n16,numShorts); j++) {
           xml+=sprintf(xml,format,s[j]);
         }
         xml+=sprintf(xml,"\n");
@@ -516,13 +547,17 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* 8 bit int */
   case 0x6:
     if(!no_data) {
+      int numBytes = 4*length;
+      if (padding >=1 && padding <= 3) numBytes -= padding;
+
       sprintf(format,"   %%%dd ",w8);
       c=(char*)&data[0];
-      for(i=0; i<4*length; i+=n8) {
+      for(i=0; i<numBytes; i+=n8) {
         indent(0);
-        for(j=i; j<min(i+n8,4*length); j++) {
+        for(j=i; j<min(i+n8,numBytes); j++) {
           xml+=sprintf(xml,format,c[j]);
         }
         xml+=sprintf(xml,"\n");
@@ -530,13 +565,17 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* unsigned 8 bit int */
   case 0x7:
     if(!no_data) {
+      int numBytes = 4*length;
+      if (padding >=1 && padding <= 3) numBytes -= padding;
+
       sprintf(format,"   %%#%d%s ",w8,(xtod==0)?"x":"d");
       uc=(unsigned char*)&data[0];
-      for(i=0; i<4*length; i+=n8) {
+      for(i=0; i<numBytes; i+=n8) {
         indent(0);
-        for(j=i; j<min(i+n8,4*length); j++) {
+        for(j=i; j<min(i+n8,numBytes); j++) {
           xml+=sprintf(xml,format,uc[j]);
         }
         xml+=sprintf(xml,"\n");
@@ -544,6 +583,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* 64 bit double */
   case 0x8:
     if(!no_data) {
       sprintf(format,"%%#%d.%de ",w64,p64);
@@ -557,6 +597,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* 64 bit int */
   case 0x9:
     if(!no_data) {
       sprintf(format,"%%%dlld ",w64);
@@ -570,6 +611,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* unsigned 64 bit int */
   case 0xa:
     if(!no_data) {
       sprintf(format,"%%#%dll%s ",w64,(xtod==0)?"x":"d");
@@ -583,6 +625,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* 32 bit int */
   case 0xb:
     if(!no_data) {
       sprintf(format,"%%#%dd ",w32);
@@ -596,6 +639,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* composite */
   case 0xf:
     if(!no_data) {
       fLen=data[0]&0xffff;
@@ -626,7 +670,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
-
+  /* bank */
   case 0xe:
   case 0x10:
     while(p<length) {
@@ -635,6 +679,7 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* segment */
   case 0xd:
   case 0x20:
     while(p<length) {
@@ -643,8 +688,8 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
     }
     break;
 
+  /* tagsegment */
   case 0xc:
-  case 0x40:
     while(p<length) {
       dump_fragment(&data[p],TAGSEGMENT);
       p+=(data[p]&0xffff)+1;
@@ -674,49 +719,64 @@ static void dump_data(unsigned int *data, int type, int length, int noexpand) {
 
 /*---------------------------------------------------------------- */
 
+/**
+ * Get the number of items given the data type, data length, and padding.
+ *
+ * @param type    numerical value of data type
+ * @param length  length of data in 32 bit words
+ * @param padding number of bytes used to pad data at the end:
+ *                 0 or 2 for short types, 0-3 for byte types
+ */
+static int get_ndata(int type, int length, int padding) {
 
-static int get_ndata(int type, int length) {
+    switch (type) {
 
-  switch (type) {
+        case 0x0:
+        case 0x1:
+        case 0x2:
+            return(length);
+            break;
 
-  case 0x0:
-  case 0x1:
-  case 0x2:
-    return(length);
-    break;
+        case 0x3:
+            //??? // TODO: strings arrays?
+            return(1);
+            break;
 
-  case 0x3:
-    //???
-    return(1);
-    break;
+        /* 16 bit ints */
+        case 0x4:
+        case 0x5:
+            if (padding == 2) {
+                return(2*length - 1);
+            }
+            return(2*length);
+            break;
 
-  case 0x4:
-  case 0x5:
-    return(2*length);
-    break;
+        /* 8 bit ints */
+        case 0x6:
+        case 0x7:
+            if (padding >= 0 && padding <= 3) {
+                return(4*length - padding);
+            }
+            return(4*length);
+            break;
 
-  case 0x6:
-  case 0x7:
-    return(4*length);
-    break;
+        case 0x8:
+        case 0x9:
+        case 0xa:
+            return(length/2);
+            break;
 
-  case 0x8:
-  case 0x9:
-  case 0xa:
-    return(length/2);
-    break;
-
-  case 0xb:
-  case 0xc:
-  case 0xd:
-  case 0xe:
-  case 0x10:
-  case 0x20:
-  case 0x40:
-  default:
-    return(length);
-    break;
-  }
+        case 0xb:
+        case 0xc:
+        case 0xd:
+        case 0xe:
+        case 0x10:
+        case 0x20:
+        case 0x40:
+        default:
+            return(length);
+            break;
+    }
 }
 
 
