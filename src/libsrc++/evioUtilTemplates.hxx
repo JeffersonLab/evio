@@ -557,11 +557,11 @@ template <typename T> string evioDOMLeafNode<T>::getHeader(int depth, const evio
     map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
     if(iter!=config->toStringDictionary->getNameMap.end()) name=(*iter).second;
   }
-  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+  if(name.size()<=0) name = evGetTypename(parent==NULL?BANK:parent->getContentType());
 
 
   os << indent
-     <<  "<" << name << " content=\"" << get_typename(contentType) << "\""
+     <<  "<" << name << " content=\"" << evGetTypename(contentType) << "\""
      << " data_type=\"" << hex << showbase << contentType << noshowbase << dec
      << "\" tag=\"" << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
@@ -702,7 +702,7 @@ template <typename T> string evioDOMLeafNode<T>::getFooter(int depth, const evio
     map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
     if(iter!=config->toStringDictionary->getNameMap.end()) name=(*iter).second;
   }
-  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+  if(name.size()<=0) name = evGetTypename(parent==NULL?BANK:parent->getContentType());
 
   os << ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize)) << "</" << name << ">" << endl;
   return(os.str());

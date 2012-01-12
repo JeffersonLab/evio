@@ -1114,7 +1114,7 @@ int evioDOMNode::getContentType(void) const {
  * @return true if node is a container
  */
 bool evioDOMNode::isContainer(void) const {
-  return(::is_container(contentType)==1);
+  return(::evIsContainer(contentType)==1);
 }
 
 
@@ -1126,7 +1126,7 @@ bool evioDOMNode::isContainer(void) const {
  * @return true if node is a leaf
  */
 bool evioDOMNode::isLeaf(void) const {
-  return(::is_container(contentType)==0);
+  return(::evIsContainer(contentType)==0);
 }
 
 
@@ -1214,11 +1214,11 @@ string evioDOMContainerNode::getHeader(int depth, const evioToStringConfig *conf
       name=(*iter).second;
     }
   }
-  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+  if(name.size()<=0) name = evGetTypename(parent==NULL?BANK:parent->getContentType());
 
 
   os << ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize))
-     <<  "<" << name << " content=\"" << get_typename(contentType)
+     <<  "<" << name << " content=\"" << evGetTypename(contentType)
      << "\" data_type=\"" << hex << showbase << getContentType() << noshowbase << dec
      << dec << "\" tag=\""  << tag;
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
@@ -1258,7 +1258,7 @@ string evioDOMContainerNode::getFooter(int depth, const evioToStringConfig *conf
     map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
     if(iter!=config->toStringDictionary->getNameMap.end()) name=(*iter).second;
   }
-  if(name.size()<=0) name = get_typename(parent==NULL?BANK:parent->getContentType());
+  if(name.size()<=0) name = evGetTypename(parent==NULL?BANK:parent->getContentType());
 
   os << ((config==NULL)?getIndent(depth):getIndent(depth,config->indentSize)) << "</" << name << ">" << endl;
   return(os.str());
