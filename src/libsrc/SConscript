@@ -10,8 +10,7 @@ linkList = [archIncDir + sep + 'evio.h']
 fileList = ['evio.c',
             'evioswap.c',
             'eviofmt.c',
-            'eviofmtswap.c',
-            'xml_util.c']
+            'eviofmtswap.c']
 
 env.AppendUnique(CPPPATH = ['.'])
 evioLib = env.SharedLibrary(target = 'evio'+debugSuffix, source = fileList)

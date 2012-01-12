@@ -18,7 +18,7 @@
 #endif
 
 #define S_EVFILE    		0x00730000	/* evfile.msg Event File I/O */
-#define S_EVFILE_TRUNC		0x40730001	/* Event truncated on read */
+#define S_EVFILE_TRUNC		0x40730001	/* Event truncated on read/write */
 #define S_EVFILE_BADBLOCK	0x40730002	/* Bad block number encountered */
 #define S_EVFILE_BADHANDLE	0x80730001	/* Bad handle (file/stream not open) */
 #define S_EVFILE_ALLOCFAIL	0x80730002	/* Failed to allocate event I/O structure */
@@ -64,31 +64,30 @@
 #define strncasecmp strnicmp
 #endif
 
-typedef struct evBuffer_t {
-    char *buf;
-    size_t size;
-} EV_BUFFER;
-
-
 /* prototypes */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
+void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
 
-int evOpen(void *srcDest, char *flags, int *handle);
+int evOpen(char *filename, char *flags, int *handle);
+int evOpenBuffer(char *buffer, int bufLen, char *flags, int *handle);
+int evOpenSocket(int sockFd, char *flags, int *handle);
+
 int evRead(int handle, uint32_t *buffer, int size);
-int evReadNew(int handle, uint32_t **buffer, int *buflen);
+int evReadAlloc(int handle, uint32_t **buffer, int *buflen);
+
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
+
 int evGetDictionary(int handle, char **dictionary, int *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
 
-void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
-const char *get_typename(int type);
-int is_container(int type);
+int evIsContainer(int type);
+const char *evGetTypename(int type);
 
 #ifdef __cplusplus
 }
