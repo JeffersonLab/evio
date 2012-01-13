@@ -34,11 +34,14 @@
  *          5) Each data block is variable size with an integral number of events
  *          6) Data block size is suggestable
  *          7) Added documentation - How about that!
+ *          8) Move 2 routines from evio_util.c to here (evIsContainer, evGetTypename)
  *
  * Routines:
  * ---------
  * 
- * int  evOpen            (void *srcDest, char *flags, int *handle)
+ * int  evOpen            (char *filename, char *flags, int *handle)
+ * int  evOpenBuffer      (char *buffer, int bufLen, char *flags, int *handle)
+ * int  evOpenSocket      (int sockFd, char *flags, int *handle)
  * int  evRead            (int handle, uint32_t *buffer, int size)
  * int  evReadNew         (int handle, uint32_t **buffer, int *buflen)
  * int  evWrite           (int handle, const uint32_t *buffer)
@@ -46,6 +49,8 @@
  * int  evClose           (int handle)
  * int  evGetDictionary   (int handle, char **dictionary, int *len)
  * int  evWriteDictionary (int handle, char *xmlDictionary)
+ * int  evIsContainer     (int type)
+ * const char *evGetTypename (int type)
  */
 
 
@@ -95,11 +100,6 @@ typedef struct evfilestruct {
   char *dictionary;      /**< xml format dictionary to either read or write. */
 
 } EVFILE;
-
-typedef struct evBuffer_t {
-    char *buf;
-    size_t size;
-} EV_BUFFER;
 
 
 /* A few items to make the code more readable */
@@ -228,6 +228,43 @@ typedef struct evBuffer_t {
  *   Bit 0 = true if dictionary is included (relevant for first block only)
  *   Bit 1 = true if this block is the last block in file or network transmission
  *
+ *
+ *
+ * ################################
+ * COMPOSITE DATA:
+ * ################################
+ *   This is a new type of data (value = 0xf) which originated with Hall B.
+ *   It is a composite type and allows for possible expansion in the future
+ *   if there is a demand. Basically it allows the user to specify a custom
+ *   format by means of a string - stored in a tagsegment. The data in that
+ *   format follows in a bank. The routine to swap this data must be provided
+ *   by the definer of the composite type - in this case Hall B. The swapping
+ *   function is plugged into this evio library's swapping routine.
+ *   Here's what it looks like.
+ *
+ * MSB(31)                          LSB(0)
+ * <---  32 bits ------------------------>
+ * _______________________________________
+ * |  tag    | type |    length          | --> tagsegment header
+ * |_________|______|____________________|
+ * |        Data Format String           |
+ * |                                     |
+ * |_____________________________________|
+ * |              length                 | \
+ * |_____________________________________|  \  bank header
+ * |       tag      |  type   |   num    |  /
+ * |________________|_________|__________| /
+ * |               Data                  |
+ * |                                     |
+ * |_____________________________________|
+ *
+ *   The beginning tagsegment is a normal evio tagsegment containing a string
+ *   (type = 0x3). Currently its type and tag are not used - at least not for
+ *   data formatting.
+ *   The bank is a normal evio bank header with data following.
+ *   The format string is used to read/write this data so that takes care of any
+ *   padding that may exist. As with the tagsegment, the tags and type are ignored.
+ * 
  */
 
 #define EV_HD_BLKSIZ 0	/**< Position of blk hdr word for size of block in 32-bit words. */
