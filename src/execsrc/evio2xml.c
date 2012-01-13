@@ -9,6 +9,7 @@
  *
  *   Author: Elliott Wolin, JLab, 6-sep-2001
  *
+ *   Carl Timmer, Jan 2012, evio version 4
  *   Merged src/libsrc/xml_util.c with this file.
  *   This takes all xml formatting stuff out of evio library.
  */
