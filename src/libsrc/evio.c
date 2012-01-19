@@ -1743,7 +1743,7 @@ static int evGetNewBuffer(EVFILE *a)
     /* Each block may be different size so find it. */
     a->blksiz = a->buf[EV_HD_BLKSIZ];
    
-    /* Do we have room to read the rest of the data?
+    /* Do we have room to read the rest of the block data?
      * If not, allocate a bigger block buffer. */
     if (a->bufSize < a->blksiz) {
         newBuf = (int32_t *)malloc(4*a->blksiz);
