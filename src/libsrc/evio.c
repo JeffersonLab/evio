@@ -279,8 +279,6 @@ typedef struct evfilestruct {
 #define EV_HD_MAGIC  7	/**< Position of blk hdr word for magic number for endianness tracking. */
 
 
-/** Allocates and zeros file structure */
-#define evGetStructure() (EVFILE *)calloc(1,sizeof(EVFILE))
 /** Turn on 9th bit to indicate dictionary included in block */
 #define setDictionaryBit(a)  (a->buf[EV_HD_VER] |= 0x100)
 /** Is there a dictionary in this block? */
@@ -693,7 +691,7 @@ static int evOpenImpl(char *srcDest, int bufLen, int sockFd, char *flags, int *h
   
     
     /* Allocate control structure (mem zeroed) or quit */
-    a = evGetStructure();
+    a = (EVFILE *)calloc(1, sizeof(EVFILE));
     if (!a) {
         if (useFile) {
             free(filename);
@@ -853,12 +851,17 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
         /**********************************/
         /* Allocate buffer to store block */
         /**********************************/
+
+        /* size of block we're reading */
         blk_size = header[EV_HD_BLKSIZ];
         if (a->byte_swapped) {
             blk_size = EVIO_SWAP32(blk_size);
         }
         a->blksiz = blk_size;
-        a->buf = (int32_t *)malloc(blk_size*4);
+
+        /* How big do we make this buffer? Use a minimum size. */
+        a->bufSize = blk_size < EV_BLOCKSIZE_MIN ? EV_BLOCKSIZE_MIN : blk_size;
+        a->buf = (int32_t *)malloc(4*a->bufSize);
 
         /* Error if can't allocate buffer memory */
         if (a->buf == NULL) {
@@ -960,10 +963,10 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
             a->rw = EV_WRITEFILE;
 #else
             a->rw = EV_WRITEFILE;
-            if(strcmp(filename,"-") == 0) {
+            if (strcmp(filename,"-") == 0) {
                 a->file = stdout;
             }
-            else if(filename[0] == '|') {
+            else if (filename[0] == '|') {
                 a->file = popen(filename+1,"w");
                 a->rw = EV_WRITEPIPE;	/* Make sure we know to use pclose */
             }
@@ -993,7 +996,8 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
         }
 
         /* Allocate memory for a block */
-        a->buf = (int32_t *) malloc(4*EV_BLOCKSIZE_V4);
+printf("FOR MALLOC:  a = %p, a->buf = %p, size = %d\n", a, a->buf, (4*EV_BLOCKSIZE_V4));
+        a->buf = (int32_t *) calloc(1,4*EV_BLOCKSIZE_V4);
         if (!(a->buf)) {
             if (useFile) {
                 if (a->rw == EV_WRITEFILE) {
@@ -1096,7 +1100,7 @@ static int32_t evOpenOrig(char *fname, char *flags, int32_t *handle)
     }
     
     /* Allocate control structure (mem zeroed) or quit */
-    a = evGetStructure();
+    a = (EVFILE *)calloc(1, sizeof(EVFILE));
     if (!a) {
         free(filename);
         return(S_EVFILE_ALLOCFAIL);
@@ -1682,6 +1686,7 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
  * @return S_SUCCESS          if successful
  * @return S_EVFILE_BADFILE   if data has bad magic #
  * @return S_EVFILE_BADBLOCK  if data has bad block #
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
  *                            while reading data (perhaps bad block header)
  * @return EOF                if end-of-file or end-of-valid-data reached
@@ -1690,8 +1695,9 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
  */
 static int evGetNewBuffer(EVFILE *a)
 {
+    int32_t *newBuf;
     int nread, nBytes, status, blkSize;
-    
+
     status = S_SUCCESS;
 
     /* See if we read in the last block the last time this was called (v4) */
@@ -1737,6 +1743,23 @@ static int evGetNewBuffer(EVFILE *a)
     /* Each block may be different size so find it. */
     a->blksiz = a->buf[EV_HD_BLKSIZ];
    
+    /* Do we have room to read the rest of the data?
+     * If not, allocate a bigger block buffer. */
+    if (a->bufSize < a->blksiz) {
+        newBuf = (int32_t *)malloc(4*a->blksiz);
+        if (newBuf == NULL) {
+            return(S_EVFILE_ALLOCFAIL);
+        }
+        
+        /* copy header into new buf */
+        memcpy((void *)newBuf, (void *)a->buf, 4*EV_HDSIZ);
+        
+        /* bookkeeping */
+        a->bufSize = a->blksiz;
+        free(a->buf);
+        a->buf = newBuf;
+    }
+
     /* Read rest of block */
     if (a->rw == EV_READFILE) {
         nBytes = 4*fread((a->buf + EV_HDSIZ), 4, (a->blksiz - EV_HDSIZ), a->file);
@@ -2396,7 +2419,7 @@ int evClose(int handle)
 
     /* Free up resources */
     handle_list[handle-1] = 0;
-    free((void *)(a->buf));
+    if (a->buf != NULL) free((void *)(a->buf));
     if (a->dictionary != NULL) free(a->dictionary);
     free((void *)a);
     
