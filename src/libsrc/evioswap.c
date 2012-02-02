@@ -63,7 +63,7 @@
  *   data formatting.
  *   The bank is a normal evio bank header with data following.
  *   The format string is used to read/write this data so that takes care of any
- *   padding that may exist. As with the tagsegment, the tags and type are ignored.
+ *   padding that may exist. As with the tagsegment, the tag, type, & num are ignored.
  */
 
 
@@ -372,6 +372,82 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
 
     int formatLen, dataLen;
     char *formatString;
+    uint32_t *d, *pData;
+    int nfmt, ret;
+    unsigned char ifmt[1024];
+
+    
+    /* swap in place or copy ? */
+    d = (dest == NULL) ? data : dest;
+    
+    /* location of incoming data */
+    pData = data;
+    
+    /* swap format tagsegment header word */
+    if (tolocal) {
+        pData = swap_int32_t(data, 1, dest);
+    }
+            
+    /* get length of format string (in 32 bit words) */
+    formatLen = pData[0] & 0xffff;
+    /*printf("swap_composite: formatLen = %d, first int = %d\n", formatLen, pData[0]);*/
+            
+    if (!tolocal) {
+        swap_int32_t(data, 1, dest);
+    }
+
+    /* copy if needed */
+    if (dest != NULL) {
+        copy_data(&data[1], formatLen, &dest[1]);
+    }
+            
+    /* set start of format string */
+    formatString = (char*)(&pData[1]);
+    /*printf("swap_composite: formatString = %s\n", formatString);*/
+           
+    /* swap data bank header words */
+    pData = &data[formatLen+1];
+    if (tolocal) {
+        pData = swap_int32_t(&data[formatLen+1], 2, &dest[formatLen+1]);
+    }
+                              
+    /* get length of composite data */
+    dataLen = pData[0];
+    /*printf("swap_composite: dataLen = %d\n", dataLen);*/
+
+    if (!tolocal) {
+        swap_int32_t(&data[formatLen+1], 2, &dest[formatLen+1]);
+    }
+
+    /* copy if needed */
+    if (dest != NULL) {
+        copy_data(&data[formatLen+3], dataLen, &d[formatLen+3]);
+    }
+            
+    /* get start of composite data, will be swapped in place */
+    pData = &(d[formatLen+3]);
+
+    /* swap composite data: convert format string to internal format, then call formatted swap routine */
+    if ((nfmt = eviofmt(formatString, ifmt)) > 0 ) {
+        ret = eviofmtswap(pData, dataLen, ifmt, nfmt);
+        if (ret) printf("?evioswap...eviofmtswap returned %d\n", ret);
+    }
+}
+
+
+/**
+ * This routine swaps a single buffer of composite type.
+ *
+ * @param data    pointer to data to be swapped
+ * @param tolocal if 0 data is of same endian as local host,
+ *                else data is of opposite endian
+ * @param dest    pointer to where swapped data is to be copied to.
+ *                If NULL, the data is swapped in place.
+ */
+static void swap_composite_tOrig(uint32_t *data, int tolocal, uint32_t *dest) {
+
+    int formatLen, dataLen;
+    char *formatString;
     uint32_t *d, *dswap;
     int nfmt, ret;
     unsigned char ifmt[1024];
@@ -387,6 +463,7 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
             
     /* get length of format string (in 32 bit words) */
     formatLen = d[0] & 0xffff;
+    printf("swap_composite: formatLen = %d, first int = %d\n", formatLen, d[0]);
             
     if (!tolocal) {
         swap_int32_t(data, 1, d);
@@ -399,7 +476,8 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
             
     /* set start of format string */
     formatString = (char*)(&(d[1]));
-            
+    printf("swap_composite: formatString = %d\n", formatString);
+           
     /* swap data bank header words */
     if (tolocal) {
         swap_int32_t(&(data[formatLen+1]), 2, &(d[formatLen+1]));
@@ -407,6 +485,7 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
                               
     /* get length of composite data */
     dataLen = d[formatLen+1];
+    printf("swap_composite: dataLen = %d\n", dataLen);
 
     if (!tolocal) {
         swap_int32_t(&(data[formatLen+1]), 2, &(d[formatLen+1]));
@@ -426,6 +505,7 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
         if (ret) printf("?evioswap...eviofmtswap returned %d\n", ret);
     }
 }
+
 
 
 
