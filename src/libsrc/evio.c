@@ -84,7 +84,7 @@ typedef struct evfilestruct {
   /* buffer stuff */
   char *rwBuf;           /**< pointer to buffer if reading/writing from/to buffer. */
   int   rwBufSize;       /**< size of rwBuf buffer in bytes. */
-  int   rwBufUsed;       /**< number of bytes written into rwBuf so far. */
+  int   rwBufUsed;       /**< number of bytes read/written into rwBuf so far. */
 
   /* socket stuff */
   int   sockFd;          /**< socket file descriptor if reading/writing from/to socket. */
@@ -171,7 +171,7 @@ typedef struct evfilestruct {
  *
  *      Block Size    = number of 32 bit ints in block (including this one).
  *                      This is fixed for versions 1-3, generally at 8192 (32768 bytes)
- *      Block Number  = id number
+ *      Block Number  = id number (starting at 1)
  *      Header Size   = number of 32 bit nts in this header (always 8)
  *      Start         = offset to first event header in block relative to start of block
  *      Used          = # of used/valid words (header + data) in block,
@@ -211,7 +211,7 @@ typedef struct evfilestruct {
  *
  *
  *      Block Size         = number of ints in block (including this one).
- *      Block Number       = id number
+ *      Block Number       = id number (starting at 1)
  *      Header Length      = number of ints in this header (always 8)
  *      Event Count        = number of events in this block (always an integral #).
  *                           NOTE: this value should not be used to parse the following
@@ -284,7 +284,7 @@ typedef struct evfilestruct {
 /** Is there a dictionary in this block? */
 #define hasDictionary(a)    ((a->buf[EV_HD_VER] & 0x100) > 0 ? 1 : 0)
 /** Turn on 10th bit to indicate last block of file/transmission */
-#define setLastBlockBit(a)   (a->buf[EV_HD_VER] | 0x200)
+#define setLastBlockBit(a)   (a->buf[EV_HD_VER] |= 0x200)
 /** Is this the last block of file/transmission? */
 #define isLastBlock(a)      ((a->buf[EV_HD_VER] & 0x200) > 0 ? 1 : 0)
 
@@ -459,7 +459,7 @@ static char *evTrim(char *s, int skip) {
  */
 static void initBlockHeader(EVFILE *a) {
     a->buf[EV_HD_BLKSIZ] = 0; /* final block size unknown yet */
-    a->buf[EV_HD_BLKNUM] = 0;
+    a->buf[EV_HD_BLKNUM] = 1;
     a->buf[EV_HD_HDSIZ]  = EV_HDSIZ;
     a->buf[EV_HD_COUNT]  = 0;
     a->buf[EV_HD_RESVD1] = 0;
@@ -633,7 +633,7 @@ static int evOpenImpl(char *srcDest, int bufLen, int sockFd, char *flags, int *h
     EVFILE *a;
     char *filename, *buffer;
     int useFile=0, useBuffer=0, useSocket=0, reading=0;
-    int nBytes, rwBufSize, blk_size, hdr_size, version, ihandle;
+    int i, nBytes, rwBufSize, blk_size, hdr_size, version, ihandle, bytesToRead;
     int32_t temp, header[EV_HDSIZ], headerInfo;
 
     /* Check args */
@@ -757,8 +757,9 @@ static int evOpenImpl(char *srcDest, int bufLen, int sockFd, char *flags, int *h
             a->rwBufSize = rwBufSize;
             
             /* Read (copy) in header */
-            memcpy(header, buffer, sizeof(header));
             nBytes = sizeof(header);
+            memcpy(header, (a->rwBuf + a->rwBufUsed), nBytes);
+            a->rwBufUsed += nBytes;
         }
 
         /***********************************/
@@ -780,14 +781,18 @@ static int evOpenImpl(char *srcDest, int bufLen, int sockFd, char *flags, int *h
             free(a);
             return(S_EVFILE_BADFILE);
         }
+printf("Header bytes are all read in, magic # = %#10.8x, swapped = %#10.8x\n",
+       header[EV_HD_MAGIC],  EVIO_SWAP32(header[EV_HD_MAGIC]));
 
         /* Check endianness */
         if (header[EV_HD_MAGIC] != EV_MAGIC) {
             temp = EVIO_SWAP32(header[EV_HD_MAGIC]);
             if (temp == EV_MAGIC) {
+printf("SWAPPING\n");
                 a->byte_swapped = 1;
             }
             else {
+printf("Magic # is a bad value\n");
                 if (useFile) {
                     if (a->rw == EV_READFILE) {
                         fclose(a->file);
@@ -802,16 +807,19 @@ static int evOpenImpl(char *srcDest, int bufLen, int sockFd, char *flags, int *h
             }
         }
         else {
+printf("NO SWAPPING\n");
             a->byte_swapped = 0;
         }
+        a->magic = EV_MAGIC;
 
         /* Check VERSION */
         headerInfo = header[EV_HD_VER];
         if (a->byte_swapped) {
             headerInfo = EVIO_SWAP32(headerInfo);
         }
-        /* only lowest 8 bits count in version 4's header word */
+        /* Only lowest 8 bits count in version 4's header word */
         version = headerInfo & EV_VERSION_MASK;
+printf("VERSION = %d\n", version);
         if (version < 1 || version > 4) {
 printf("Header has unsupported evio version (%d), quit\n", version);
             if (useFile) {
@@ -858,6 +866,7 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
             blk_size = EVIO_SWAP32(blk_size);
         }
         a->blksiz = blk_size;
+printf("BLOCK SIZE = %d\n", blk_size);
 
         /* How big do we make this buffer? Use a minimum size. */
         a->bufSize = blk_size < EV_BLOCKSIZE_MIN ? EV_BLOCKSIZE_MIN : blk_size;
@@ -890,11 +899,12 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
         /**********************/
         /* Read rest of block */
         /**********************/
+        bytesToRead = 4*(blk_size - EV_HDSIZ);
         if (useFile) {
-            nBytes = 4*fread(a->buf+EV_HDSIZ, 4, (blk_size - EV_HDSIZ), a->file);
+            nBytes = 4*fread(a->buf+EV_HDSIZ, 4, bytesToRead/4, a->file);
         }
         else if (useSocket) {
-            nBytes = tcpRead(sockFd, a->buf+EV_HDSIZ, 4*(blk_size - EV_HDSIZ));
+            nBytes = tcpRead(sockFd, a->buf+EV_HDSIZ, bytesToRead);
             if (nBytes < 0) {
                 free(a->buf);
                 free(a);
@@ -902,12 +912,13 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
             }
         }
         else if (useBuffer) {
-            memcpy(a->buf+EV_HDSIZ, buffer, 4*(blk_size - EV_HDSIZ));
             nBytes = 4*(blk_size - EV_HDSIZ);
+            memcpy(a->buf+EV_HDSIZ, (a->rwBuf + a->rwBufUsed), bytesToRead);
+            a->rwBufUsed += nBytes;
         }
 
         /* Check to see if all bytes were read in */
-        if (nBytes != 4*(blk_size - EV_HDSIZ)) {
+        if (nBytes != bytesToRead) {
             if (useFile) {
                 if (a->rw == EV_READFILE) {
                     fclose(a->file);
@@ -932,11 +943,16 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
             /* Pointer to where start of first event header occurs =
              * right after header for version 4+. */
             a->next = a->buf + EV_HDSIZ;
+            
             /* Number of valid 32 bit words = (full block size - header size) in v4+ */
             a->left = (a->buf)[EV_HD_BLKSIZ] - EV_HDSIZ;
-
+        
+            /* Is this the last block? */
+            a->isLastBlock = isLastBlock(a);
+if (a->isLastBlock) printf("LAST BLOCK\n");
             /* Pull out dictionary if there is one (works only after header is swapped). */
             if (hasDictionary(a)) {
+printf("HAVE DICTIONARY\n");
                 int status;
                 int32_t buflen;
                 uint32_t *buf;
@@ -946,6 +962,9 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
                 if (status == S_SUCCESS) {
                     // Trim off any whitespace/padding, skipping over event header (8 bytes)
                     a->dictionary = evTrim((char *)buf, 8);
+                }
+                else {
+                    printf("ERROR retrieving DICTIONARY, status = %#.8x\n", status);
                 }
             }
         }
@@ -996,7 +1015,6 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
         }
 
         /* Allocate memory for a block */
-printf("FOR MALLOC:  a = %p, a->buf = %p, size = %d\n", a, a->buf, (4*EV_BLOCKSIZE_V4));
         a->buf = (int32_t *) calloc(1,4*EV_BLOCKSIZE_V4);
         if (!(a->buf)) {
             if (useFile) {
@@ -1032,12 +1050,13 @@ printf("FOR MALLOC:  a = %p, a->buf = %p, size = %d\n", a, a->buf, (4*EV_BLOCKSI
         a->bufSize = EV_BLOCKSIZE_V4;
         /* EVIO version number */
         a->version = EV_VERSION;
+        /* Magic number */
+        a->magic = EV_MAGIC;
 
     } /* if writing */
     
           
     /* Store general info in handle structure */
-    a->magic  = EV_MAGIC;
     a->blknum = a->buf[EV_HD_BLKNUM];
 
     for (ihandle=0; ihandle < MAXHANDLES; ihandle++) {
@@ -1178,7 +1197,7 @@ static int32_t evOpenOrig(char *fname, char *flags, int32_t *handle)
                 /* only lowest 8 bits count in version 4's header word */
                 version &= EV_VERSION_MASK;
                 if (version < 1 || version > 4) {
-                    printf("Header has unsupported evio version (%d), quit\n", version);
+printf("Header has unsupported evio version (%d), quit\n", version);
                     fclose(a->file);
                     free(a);
                     free(filename);
@@ -1191,7 +1210,7 @@ static int32_t evOpenOrig(char *fname, char *flags, int32_t *handle)
                     hdr_size = EVIO_SWAP32(hdr_size);
                 }
                 if (hdr_size != EV_HDSIZ) {
-                    printf("Header size was assumed to be %d but the file said it was %d, quit\n", EV_HDSIZ, hdr_size);
+printf("Header size was assumed to be %d but the file said it was %d, quit\n", EV_HDSIZ, hdr_size);
                     fclose(a->file);
                     free(a);
                     free(filename);
@@ -1573,7 +1592,7 @@ int evRead(int handle, uint32_t *buffer, int buflen)
          * copy # words left to read in event to buffer, else
          * copy # left in block to buffer.*/
         ncopy = (nleft <= a->left) ? nleft : a->left;
-        
+
         if (a->byte_swapped) {
             memcpy(temp_buffer, a->next, ncopy*4);
             temp_buffer += ncopy;
@@ -1654,7 +1673,7 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
 
     /* Keep track of the # of blocks read */
     a->blknum++;
-    
+
     /* Is our block # consistent with block header's? */
     if (a->buf[EV_HD_BLKNUM] != a->blknum) {
         status = S_EVFILE_BADBLOCK;
@@ -1688,7 +1707,8 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
  * @return S_EVFILE_BADBLOCK  if data has bad block #
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
- *                            while reading data (perhaps bad block header)
+ *                            while reading data (perhaps bad block header
+ *                            or reading from a too-small buffer)
  * @return EOF                if end-of-file or end-of-valid-data reached
  * @return errno              if file/socket read error
  * @return stream error       if file stream error
@@ -1696,7 +1716,7 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
 static int evGetNewBuffer(EVFILE *a)
 {
     int32_t *newBuf;
-    int nread, nBytes, status, blkSize;
+    int nread, nBytes, status, blkSize, bytesToRead;
 
     status = S_SUCCESS;
 
@@ -1706,32 +1726,44 @@ static int evGetNewBuffer(EVFILE *a)
     }
 
     /* First read block header from file/sock/buf */
+    bytesToRead = 4*EV_HDSIZ;
     if (a->rw == EV_READFILE) {
         /* If end-of-file, return EOF as status */
-        if (feof(a->file)) return(EOF);
+        if (feof(a->file)) {
+            return(EOF);
+        }
 
         /* Clear EOF and error indicators for file stream */
         clearerr(a->file);
 
         /* Read block header */
-        nBytes = 4*fread(a->buf, 4, EV_HDSIZ, a->file);
+        nBytes = 4*fread(a->buf, 4, bytesToRead/4, a->file);
         
         /* Return end-of-file if so */
-        if (feof(a->file)) return(EOF);
+        if (feof(a->file)) {
+            return(EOF);
+        }
     
         /* Return any error condition of file stream */
-        if (ferror(a->file)) return(ferror(a->file));
+        if (ferror(a->file)) {
+            return(ferror(a->file));
+        }
     }
     else if (a->rw == EV_READSOCK) {
-        nBytes = tcpRead(a->sockFd, a->buf, 4*EV_HDSIZ);
+        nBytes = tcpRead(a->sockFd, a->buf, bytesToRead);
     }
     else if (a->rw == EV_READBUF) {
-        memcpy(a->buf, a->rwBuf, 4*EV_HDSIZ);
-        nBytes = 4*EV_HDSIZ;
+        if (a->rwBufSize < a->rwBufUsed + bytesToRead) {
+printf("evGetNewBuffer: ran out of buffer to read 1");
+            return(S_EVFILE_UNXPTDEOF);
+        }
+        memcpy(a->buf, (a->rwBuf + a->rwBufUsed), bytesToRead);
+        nBytes = bytesToRead;
+        a->rwBufUsed += bytesToRead;
     }
 
     /* Return any read error */
-    if (nBytes != 4*EV_HDSIZ) {
+    if (nBytes != bytesToRead) {
         return(errno);
     }
 
@@ -1742,10 +1774,11 @@ static int evGetNewBuffer(EVFILE *a)
     
     /* Each block may be different size so find it. */
     a->blksiz = a->buf[EV_HD_BLKSIZ];
-   
+
     /* Do we have room to read the rest of the block data?
      * If not, allocate a bigger block buffer. */
     if (a->bufSize < a->blksiz) {
+printf("evGetNewBuffer: increase internal buffer size to %d bytes\n", 4*a->blksiz);
         newBuf = (int32_t *)malloc(4*a->blksiz);
         if (newBuf == NULL) {
             return(S_EVFILE_ALLOCFAIL);
@@ -1761,21 +1794,27 @@ static int evGetNewBuffer(EVFILE *a)
     }
 
     /* Read rest of block */
+    bytesToRead = 4*(a->blksiz - EV_HDSIZ);
     if (a->rw == EV_READFILE) {
-        nBytes = 4*fread((a->buf + EV_HDSIZ), 4, (a->blksiz - EV_HDSIZ), a->file);
-        if (feof(a->file))   return(EOF);
-        if (ferror(a->file)) return(ferror(a->file));
+        nBytes = 4*fread((a->buf + EV_HDSIZ), 4, bytesToRead/4, a->file);
+        if (feof(a->file))   {return(EOF);}
+        if (ferror(a->file)) {return(ferror(a->file));}
     }
     else if (a->rw == EV_READSOCK) {
-        nBytes = tcpRead(a->sockFd, (a->buf + EV_HDSIZ), 4*(a->blksiz - EV_HDSIZ));
+        nBytes = tcpRead(a->sockFd, (a->buf + EV_HDSIZ), bytesToRead);
     }
     else if (a->rw == EV_READBUF) {
-        memcpy((a->buf + EV_HDSIZ), a->rwBuf, 4*(a->blksiz - EV_HDSIZ));
-        nBytes = 4*(a->blksiz - EV_HDSIZ);
+        if (a->rwBufSize < a->rwBufUsed + bytesToRead) {
+printf("evGetNewBuffer: ran out of buffer to read 2\n");
+            return(S_EVFILE_UNXPTDEOF);
+        }
+        memcpy((a->buf + EV_HDSIZ), (a->rwBuf + a->rwBufUsed), bytesToRead);
+        nBytes = bytesToRead;
+        a->rwBufUsed += bytesToRead;
     }
 
     /* Return any read error */
-    if (nBytes != 4*(a->blksiz - EV_HDSIZ)) {
+    if (nBytes != bytesToRead) {
         return(errno);
     }
 
@@ -1789,7 +1828,8 @@ static int evGetNewBuffer(EVFILE *a)
 
     /* Check to see if we just read in the last block (v4) */
     if (a->version > 3) {
-        a->isLastBlock = isLastBlock(a);
+        setLastBlockBit(a);
+        a->isLastBlock = 1;
     }
 
     /* Start out pointing to the data right after the block header.
@@ -1930,7 +1970,7 @@ int evWrite(int handle, const uint32_t *buffer)
     a->left -= nToWrite;
 
     /* If no space for writing left in block or reached the maximum
-     * number of events per block, flush block to file */
+    * number of events per block, flush block to file/buf/socket */
     if (a->left <= 0 || a->evCount >= a->eventsMax) {
         status = evFlush(a);
         if (status != S_SUCCESS) {
@@ -1957,9 +1997,8 @@ int evWrite(int handle, const uint32_t *buffer)
  */
 static int evFlush(EVFILE *a)
 {
-    int nBytes;
+    int nBytes, bytesToWrite;
 
-    
     /* Store, in header, the actual, final block size */
     a->buf[EV_HD_BLKSIZ] = a->blksiz;
     
@@ -1971,16 +2010,17 @@ static int evFlush(EVFILE *a)
     a->buf[EV_HD_RESVD2] = a->evnum;
 
     /* Write data */
+    bytesToWrite = 4*a->blksiz;
     if (a->rw == EV_WRITEFILE) {
         /* Clear EOF and error indicators for file stream */
         clearerr(a->file);
         /* Write block to file */
-        nBytes = 4*fwrite((const void *)a->buf, 4, a->blksiz, a->file);
+        nBytes = 4*fwrite((const void *)a->buf, 4, bytesToWrite/4, a->file);
         /* Return any error condition of file stream */
         if (ferror(a->file)) return(ferror(a->file));
     }
     else if (a->rw == EV_WRITESOCK) {
-        nBytes = tcpWrite(a->sockFd, a->buf, 4*a->blksiz);
+        nBytes = tcpWrite(a->sockFd, a->buf, bytesToWrite);
     }
     else if (a->rw == EV_WRITEBUF) {
         /* If there's not enough space in the user-given
@@ -1988,13 +2028,13 @@ static int evFlush(EVFILE *a)
         if (a->rwBufSize < a->rwBufUsed + 4*a->blksiz) {
             return(S_EVFILE_TRUNC);
         }
-        memcpy(a->rwBuf, a->buf, 4*a->blksiz);
-        nBytes = 4*a->blksiz;
-        a->rwBufUsed += nBytes;
+        memcpy((a->rwBuf + a->rwBufUsed), a->buf, bytesToWrite);
+        nBytes = bytesToWrite;
+        a->rwBufUsed += bytesToWrite;
     }
-
+    
     /* Return any error condition of write attempt - will only happen for file & socket */
-    if (nBytes != 4*a->blksiz) return(errno);
+    if (nBytes != bytesToWrite) return(errno);
 
     /* Initialize block header for next write */
     initBlockHeader(a);
@@ -2047,11 +2087,13 @@ int evioctl_
  * @param request string value of "b" "B" for setting (target) block size;
  *                "v" or "V" for getting evio version #;
  *                "n" or "N" for setting max # of events/block
- * @param argp    pointer to 32 bit int containing new block size if request = b or B,
- *                or new max number of events/block if request = n or N.
+ * @param argp    pointer to 32 bit int:
+ *                  1) containing new block size if request = b or B, or
+ *                  2) containing new max number of events/block if request = n or N, or
+ *                  3) returning version # if request = v or V
  *
  * @return S_SUCCESS           if successful
- * @return S_EVFILE_BADARG     if request is NULL; request = v,n and argp is NULL
+ * @return S_EVFILE_BADARG     if request is NULL or argp is NULL
  * @return S_EVFILE_BADHANDLE  if bad handle arg or wrong magic # in handle
  * @return S_EVFILE_ALLOCFAIL  if cannot allocate memory
  * @return S_EVFILE_UNKOPTION  if unknown option specified in request arg
@@ -2100,7 +2142,7 @@ int evIoctl(int handle, char *request, void *argp)
             }
             
             /* Cannot have already written events */
-            if (a->blknum != 0 || a->evCount != 0) {
+            if (a->blknum != 1 || a->evCount != 0) {
                 return(S_EVFILE_BADSIZEREQ);
             }
 
@@ -2155,7 +2197,13 @@ int evIoctl(int handle, char *request, void *argp)
         /**************************/
         case 'v':
         case 'V':
-            return(a->buf[EV_HD_VER] & EV_VERSION_MASK);
+            /* Need to pass version back in pointer to int */
+            if (argp == NULL) {
+                return(S_EVFILE_BADARG);
+            }
+
+            *((int32_t *) argp) = a->buf[EV_HD_VER] & EV_VERSION_MASK;
+            
             break;
 
         /**********************************************/
@@ -2187,11 +2235,14 @@ int evIoctl(int handle, char *request, void *argp)
 
 /**
  * This routine gets the dictionary associated with this handle
- * if there is any.
+ * if there is any. Memory must be freed by caller if a dictionary
+ * was successfully returned.
  *
  * @param handle     evio handle
  * @param dictionary pointer to string which gets filled with dictionary
- *                   string (xml) if it exists, else gets filled with NULL
+ *                   string (xml) if it exists, else gets filled with NULL.
+ *                   Memory for dictionary allocated here, must be freed by
+ *                   caller.
  * @param len        pointer to int which gets filled with dictionary
  *                   string length if there is one, else filled with 0.
  *                   If this arg = NULL, no len is returned.
@@ -2286,12 +2337,13 @@ int evWriteDictionary(int handle, char *xmlDictionary)
     }
             
     /* Need to be writing not reading */
-    if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE) {
+    if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
+        a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
         return(S_EVFILE_BADSIZEREQ);
     }
     
     /* Cannot have already written events */
-    if (a->blknum != 0 || a->evCount != 0) {
+    if (a->blknum != 1 || a->evCount != 0) {
         return(S_EVFILE_BADSIZEREQ);
     }
 
@@ -2347,6 +2399,8 @@ int evWriteDictionary(int handle, char *xmlDictionary)
 
     /* Write event */
     status = evWrite(handle, dictBuf);
+
+    free(dictBuf);
     
     return(status);
 }
@@ -2383,7 +2437,7 @@ int evclose_
 int evClose(int handle)
 {
     EVFILE *a;
-    int status, status2;
+    int status = S_SUCCESS, status2 = S_SUCCESS;
     
     /* Look up file struct from handle */
     a = handle_list[handle-1];
@@ -2398,11 +2452,13 @@ int evClose(int handle)
         return(S_EVFILE_BADHANDLE);
     }
 
-    /* Flush everything to file if writing */
-    status = S_SUCCESS;
-    if (a->rw == EV_WRITEFILE || a->rw == EV_WRITEPIPE) {
+    /* Flush everything to file/socket/buffer if writing */
+    if (a->rw == EV_WRITEFILE || a->rw == EV_WRITEPIPE ||
+        a->rw == EV_WRITEBUF  || a->rw == EV_WRITESOCK) {
         /* Mark the block as the last one to be written. */
         setLastBlockBit(a);
+        a->isLastBlock = 1;
+
         /* Write last block. If no events left to write,
          * just write an empty block (header only). */
         status = evFlush(a);
