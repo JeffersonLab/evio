@@ -74,8 +74,8 @@
 
 
 // from Sergey's composite swap library
-int eviofmt(char *fmt, unsigned char *ifmt);
-int eviofmtswap(int *iarr, int nwrd, unsigned char *ifmt, int nfmt);
+int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
+int eviofmtswap(int *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal);
 
 
 
@@ -373,10 +373,9 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
     int formatLen, dataLen;
     char *formatString;
     uint32_t *d, *pData;
-    int nfmt, ret;
+    int nfmt;
     unsigned char ifmt[1024];
 
-    
     /* swap in place or copy ? */
     d = (dest == NULL) ? data : dest;
     
@@ -390,8 +389,7 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
             
     /* get length of format string (in 32 bit words) */
     formatLen = pData[0] & 0xffff;
-    /*printf("swap_composite: formatLen = %d, first int = %d\n", formatLen, pData[0]);*/
-            
+
     if (!tolocal) {
         swap_int32_t(data, 1, dest);
     }
@@ -403,17 +401,15 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
             
     /* set start of format string */
     formatString = (char*)(&pData[1]);
-    /*printf("swap_composite: formatString = %s\n", formatString);*/
-           
+
     /* swap data bank header words */
     pData = &data[formatLen+1];
     if (tolocal) {
         pData = swap_int32_t(&data[formatLen+1], 2, &dest[formatLen+1]);
     }
                               
-    /* get length of composite data */
-    dataLen = pData[0];
-    /*printf("swap_composite: dataLen = %d\n", dataLen);*/
+    /* get length of composite data (bank's len - 1)*/
+    dataLen = pData[0] - 1;
 
     if (!tolocal) {
         swap_int32_t(&data[formatLen+1], 2, &dest[formatLen+1]);
@@ -428,9 +424,13 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
     pData = &(d[formatLen+3]);
 
     /* swap composite data: convert format string to internal format, then call formatted swap routine */
-    if ((nfmt = eviofmt(formatString, ifmt)) > 0 ) {
-        ret = eviofmtswap(pData, dataLen, ifmt, nfmt);
-        if (ret) printf("?evioswap...eviofmtswap returned %d\n", ret);
+    if ((nfmt = eviofmt(formatString, ifmt, 1024)) > 0 ) {
+        if (eviofmtswap(pData, dataLen, ifmt, nfmt, tolocal)) {
+            printf("swap_composite_t: eviofmtswap returned error, bad arg(s)\n");
+        }
+    }
+    else {
+        printf("swap_composite_t: error %d in eviofmt\n", nfmt);
     }
 }
 
