@@ -31,7 +31,10 @@
 #undef DEBUG
 
 /**
- *  This routine translates a format-containing ASCII string to an unsigned char array.
+ *  This routine transforms a composite, format-containing
+ *  ASCII string to an unsigned char array. It is to be used
+ *  in conjunction with {@link #eviofmtswap} to swap the endianness of
+ *  composite data.
  * 
  *   format code bits <- format in ascii form
  *     [7:4] [3:0]
@@ -60,132 +63,128 @@
  *       of repeats is symbol 'N' instead of the number, it will be taken from data
  *       assuming 'int' format
  * 
- *  @param fmt     null-terminated character string fmt
- *  @param ifmt    unsigned char array to hold translated format
+ *  @param fmt     null-terminated composite data format string
+ *  @param ifmt    unsigned char array to hold transformed format
  *  @param ifmtLen length of unsigned char array, ifmt, in # of chars
  * 
  *  @return the number of bytes in ifmt[] (positive)
  *  @return -1 to -8 for improper format string
  *  @return -9 if unsigned char array is too small
  */
-int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen)
-{
-  char ch;
-  int  l, n, kf, lev, nr, nn;
+int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen) {
 
-  n   = 0; /* ifmt[] index */
-  nr  = 0;
-  nn  = 1;
-  lev = 0;
+    char ch;
+    int  l, n, kf, lev, nr, nn;
+
+    n   = 0; /* ifmt[] index */
+    nr  = 0;
+    nn  = 1;
+    lev = 0;
 
 #ifdef DEBUG
-  printf("\nfmt >%s<\n",fmt);
+    printf("\nfmt >%s<\n",fmt);
 #endif
 
-  /* loop over format string */
-  for (l=0; l<strlen(fmt); l++)
-  {
-    ch = fmt[l];
-    if(ch == ' ') continue;
+    /* loop over format string */
+    for (l=0; l < strlen(fmt); l++) {
+        ch = fmt[l];
+        if (ch == ' ') continue;
 #ifdef DEBUG
-    printf("%c\n",ch);
+        printf("%c\n",ch);
 #endif
+        /* if digit, following before komma will be repeated 'number' times */
+        if (isdigit(ch)) {
+            if (nr < 0) return(-1);
+            nr = 10*MAX(0,nr) + atoi((char *)&ch);
+            if (nr > 15) return(-2);
+#ifdef DEBUG
+            printf("the number of repeats nr=%d\n",nr);
+#endif
+        }
+        /* a left parenthesis -> 16*nr + 0 */
+        else if (ch == '(') {
+            if (nr < 0) return(-3);
+            if (--ifmtLen < 0) return(-9);
+            lev++;
+#ifdef DEBUG
+            printf("111: nn=%d nr=%d\n",nn,nr);
+#endif
+            if (nn == 0) ifmt[n++] = 15; /*special case: if #repeats is in data, use code '15'*/
+            else         ifmt[n++] = 16*MAX(nn,nr);
 
-    if (isdigit(ch))     /* if digit, following before komma will be repeated 'number' times */
-    {
-      if (nr < 0) return(-1);
-      nr = 10*MAX(0,nr) + atoi((char *)&ch);
-      if (nr > 15) return(-2);
+            nn = 1;
+            nr = 0;
 #ifdef DEBUG
-      printf("the number of repeats nr=%d\n",nr);
+            debugprint(n-1);
 #endif
+        }
+        /* a right parenthesis -> 16*0 + 0 */
+        else if (ch == ')') {
+            if (nr >= 0) return(-4);
+            if (--ifmtLen < 0) return(-9);
+            lev--;
+            ifmt[n++] = 0;
+            nr = -1;
+#ifdef DEBUG
+            debugprint(n-1);
+#endif
+        }
+        /* a komma, reset nr */
+        else if (ch == ',') {
+            if (nr >= 0) return(-5);
+            nr = 0;
+#ifdef DEBUG
+            printf("komma, nr=%d\n",nr);
+#endif
+        }
+        /* variable length format */
+        else if (ch == 'N') {
+            nn = 0;
+#ifdef DEBUG
+            printf("nn\n");
+#endif
+        }
+        /* actual format */
+        else {
+            if(     ch == 'i') kf = 1;  /* 32 */
+            else if(ch == 'F') kf = 2;  /* 32 */
+            else if(ch == 'a') kf = 3;  /*  8 */
+            else if(ch == 'S') kf = 4;  /* 16 */
+            else if(ch == 's') kf = 5;  /* 16 */
+            else if(ch == 'C') kf = 6;  /*  8 */
+            else if(ch == 'c') kf = 7;  /*  8 */
+            else if(ch == 'D') kf = 8;  /* 64 */
+            else if(ch == 'L') kf = 9;  /* 64 */
+            else if(ch == 'l') kf = 10; /* 64 */
+            else if(ch == 'I') kf = 11; /* 32 */
+            else if(ch == 'A') kf = 12; /* 32 */
+            else               kf = 0;
+
+            if (kf != 0) {
+                if (nr < 0) return(-6);
+                if (--ifmtLen < 0) return(-9);
+#ifdef DEBUG
+                printf("222: nn=%d nr=%d\n",nn,nr);
+#endif
+                ifmt[n++] = 16*MAX(nn,nr) + kf;
+                nn=1;
+#ifdef DEBUG
+                debugprint(n-1);
+#endif
+            }
+            else {
+                /* illegal character */
+                return(-7);
+            }
+            nr = -1;
+        }
     }
-    else if (ch == '(')  /* a left parenthesis -> 16*nr + 0 */
-    {
-      if (nr < 0) return(-3);
-      if (--ifmtLen < 0) return(-9);
-      lev++;
-#ifdef DEBUG
-      printf("111: nn=%d nr=%d\n",nn,nr);
-#endif
-      if(nn==0) ifmt[n++] = 15; /*special case: if #repeats is in data, use code '15'*/
-      else      ifmt[n++] = 16*MAX(nn,nr);
 
-      nn = 1;
-      nr = 0;
-#ifdef DEBUG
-      debugprint(n-1);
-#endif
-    }
-    else if(ch == ')')  /* a right parenthesis -> 16*0 + 0 */
-    {
-      if (nr >= 0) return(-4);
-      if (--ifmtLen < 0) return(-9);
-      lev--;
-      ifmt[n++] = 0;
-      nr = -1;
-#ifdef DEBUG
-      debugprint(n-1);
-#endif
-    }
-    else if (ch == ',')  /* a komma, reset nr */
-    {
-      if (nr >= 0) return(-5);
-      nr = 0;
-#ifdef DEBUG
-      printf("komma, nr=%d\n",nr);
-#endif
-    }
-    else if (ch == 'N')  /* variable length format */
-    {
-      nn = 0;
-#ifdef DEBUG
-      printf("nn\n");
-#endif
-    }
-    else                /* actual format */
-    {
-      if(     ch == 'i') kf = 1;  /*32*/
-      else if(ch == 'F') kf = 2;  /*32*/
-      else if(ch == 'a') kf = 3;  /*8*/
-      else if(ch == 'S') kf = 4;  /*16*/
-      else if(ch == 's') kf = 5;  /*16*/
-      else if(ch == 'C') kf = 6;  /*8*/
-      else if(ch == 'c') kf = 7;  /*8*/
-      else if(ch == 'D') kf = 8;  /*64*/
-      else if(ch == 'L') kf = 9;  /*64*/
-      else if(ch == 'l') kf = 10; /*64*/
-      else if(ch == 'I') kf = 11; /*32*/
-      else if(ch == 'A') kf = 12; /*32*/
-      else kf = 0;
-
-      if (kf != 0)
-      {
-        if (nr < 0) return(-6);
-        if (--ifmtLen < 0) return(-9);
-#ifdef DEBUG
-        printf("222: nn=%d nr=%d\n",nn,nr);
-#endif
-        ifmt[n++] = 16*MAX(nn,nr) + kf;
-        nn=1;
-#ifdef DEBUG
-      debugprint(n-1);
-#endif
-      }
-      else
-      {
-        /* illegal character */
-        return(-7);
-      }
-      nr = -1;
-    }
-  }
-
-  if(lev != 0) return(-8);
+    if (lev != 0) return(-8);
 
 #ifdef DEBUG
-  printf("\n");
+    printf("\n");
 #endif
 
-  return(n);
+    return(n);
 }
