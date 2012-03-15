@@ -72,6 +72,8 @@ typedef struct evfilestruct {
   int   blksiz;          /**< size of block in 32 bit words - v3 or
                           *   size of actual data - v4. */
   int   blknum;          /**< block number. */
+  int   blkNumDiff;      /**< When reading, the difference between blknum read in and
+                          *   the expected (sequential) value. Used in debug message. */
   int   rw;              /**< are we reading, writing, piping? */
   int   magic;           /**< magic number. */
   int   evnum;           /**< last events with evnum so far. */
@@ -1367,7 +1369,6 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
  * @return S_EVFILE_BADHANDLE if wrong magic # in handle
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
  * @return S_EVFILE_BADFILE   if file has bad magic #
- * @return S_EVFILE_BADBLOCK  if file has bad block #
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
  *                            while reading data (perhaps bad block header)
  * @return EOF                if end-of-file or end-of-valid-data reached
@@ -1517,7 +1518,6 @@ int evread_
  * @return S_EVFILE_BADARG    if buffer is NULL or buflen < 3
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
  * @return S_EVFILE_BADFILE   if data has bad magic #
- * @return S_EVFILE_BADBLOCK  if data has bad block #
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
  *                            while reading data (perhaps bad block header)
  * @return EOF                if end-of-file or end-of-valid-data reached
@@ -1628,7 +1628,6 @@ int evRead(int handle, uint32_t *buffer, int buflen)
  * @return errno              if file read error
  * @return stream error       if file stream error
  * @return S_EVFILE_BADFILE   if file has bad magic #
- * @return S_EVFILE_BADBLOCK  if file has bad block #
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF while reading data (perhaps bad block header)
  */
 static int32_t evGetNewBufferOrig(EVFILE *a)
@@ -1675,8 +1674,14 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
     a->blknum++;
 
     /* Is our block # consistent with block header's? */
-    if (a->buf[EV_HD_BLKNUM] != a->blknum) {
-        status = S_EVFILE_BADBLOCK;
+    if (a->buf[EV_HD_BLKNUM] != a->blknum + a->blkNumDiff) {
+        /* Record the difference so we don't print out a message
+         * every single time if things get out of sync. */
+        a->blkNumDiff = a->buf[EV_HD_BLKNUM] - a->blknum;
+#ifdef DEBUG
+        fprintf(stderr,"evGetNewBuffer: block # read(%d) is different than expected(%d)\n",
+                a->buf[EV_HD_BLKNUM], a->blknum);
+#endif
     }
 
     /* Start out pointing to the data right after the block header.
@@ -1704,7 +1709,6 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
  *
  * @return S_SUCCESS          if successful
  * @return S_EVFILE_BADFILE   if data has bad magic #
- * @return S_EVFILE_BADBLOCK  if data has bad block #
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
  *                            while reading data (perhaps bad block header
@@ -1754,7 +1758,9 @@ static int evGetNewBuffer(EVFILE *a)
     }
     else if (a->rw == EV_READBUF) {
         if (a->rwBufSize < a->rwBufUsed + bytesToRead) {
-printf("evGetNewBuffer: ran out of buffer to read 1");
+#ifdef DEBUG
+            fprintf(stderr,"evGetNewBuffer: ran out of buffer to read 1\n");
+#endif
             return(S_EVFILE_UNXPTDEOF);
         }
         memcpy(a->buf, (a->rwBuf + a->rwBufUsed), bytesToRead);
@@ -1778,7 +1784,9 @@ printf("evGetNewBuffer: ran out of buffer to read 1");
     /* Do we have room to read the rest of the block data?
      * If not, allocate a bigger block buffer. */
     if (a->bufSize < a->blksiz) {
-printf("evGetNewBuffer: increase internal buffer size to %d bytes\n", 4*a->blksiz);
+#ifdef DEBUG
+        fprintf(stderr,"evGetNewBuffer: increase internal buffer size to %d bytes\n", 4*a->blksiz);
+#endif
         newBuf = (int32_t *)malloc(4*a->blksiz);
         if (newBuf == NULL) {
             return(S_EVFILE_ALLOCFAIL);
@@ -1805,7 +1813,9 @@ printf("evGetNewBuffer: increase internal buffer size to %d bytes\n", 4*a->blksi
     }
     else if (a->rw == EV_READBUF) {
         if (a->rwBufSize < a->rwBufUsed + bytesToRead) {
-printf("evGetNewBuffer: ran out of buffer to read 2\n");
+#ifdef DEBUG
+            fprintf(stderr,"evGetNewBuffer: ran out of buffer to read 2\n");
+#endif
             return(S_EVFILE_UNXPTDEOF);
         }
         memcpy((a->buf + EV_HDSIZ), (a->rwBuf + a->rwBufUsed), bytesToRead);
@@ -1822,8 +1832,14 @@ printf("evGetNewBuffer: ran out of buffer to read 2\n");
     a->blknum++;
     
     /* Is our block # consistent with block header's? */
-    if (a->buf[EV_HD_BLKNUM] != a->blknum) {
-        status = S_EVFILE_BADBLOCK;
+    if (a->buf[EV_HD_BLKNUM] != a->blknum + a->blkNumDiff) {
+        /* Record the difference so we don't print out a message
+        * every single time if things get out of sync. */
+        a->blkNumDiff = a->buf[EV_HD_BLKNUM] - a->blknum;
+#ifdef DEBUG
+        fprintf(stderr,"evGetNewBuffer: block # read(%d) is different than expected(%d)\n",
+                a->buf[EV_HD_BLKNUM], a->blknum);
+#endif
     }
 
     /* Check to see if we just read in the last block (v4) */
