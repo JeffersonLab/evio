@@ -2098,15 +2098,23 @@ int evioctl_
  * It returns the version number if request arg = v or V.<p>
  * It changes the maximum number of events/block if request arg = n or N,
  * used only in version 4.<p>
+ * It returns a pointer to the 8 block header ints if request arg = h or H.
+ * This pointer must be freed by the caller to avoid a memory leak.
+ * Used only in version 4.<p>
  *
  * @param handle  evio handle
  * @param request string value of "b" "B" for setting (target) block size;
  *                "v" or "V" for getting evio version #;
- *                "n" or "N" for setting max # of events/block
+ *                "n" or "N" for setting max # of events/block;
+ *                "h" or "H" for getting 8 ints of block header info;
  * @param argp    pointer to 32 bit int:
  *                  1) containing new block size if request = b or B, or
  *                  2) containing new max number of events/block if request = n or N, or
- *                  3) returning version # if request = v or V
+ *                  3) returning version # if request = v or V, or
+ *                address of pointer to 32 bit int:
+ *                  4) returning pointer to 8 ints of block header if request = h or H.
+ *                     This pointer must be freed by caller since it points
+ *                     to an allocated 8, 32-bit ints or 256 bytes.
  *
  * @return S_SUCCESS           if successful
  * @return S_EVFILE_BADARG     if request is NULL or argp is NULL
@@ -2121,7 +2129,7 @@ int evioctl_
 int evIoctl(int handle, char *request, void *argp)
 {
     EVFILE *a;
-    int32_t *newBuf;
+    int32_t *newBuf, *pHeader;
     int eventsMax, blockSize;
 
     /* Look up file struct from handle */
@@ -2208,9 +2216,9 @@ int evIoctl(int handle, char *request, void *argp)
 
             break;
 
-        /**************************/
-        /* Getting version number */
-        /**************************/
+            /**************************/
+            /* Getting version number */
+            /**************************/
         case 'v':
         case 'V':
             /* Need to pass version back in pointer to int */
@@ -2222,7 +2230,25 @@ int evIoctl(int handle, char *request, void *argp)
             
             break;
 
-        /**********************************************/
+            /*****************************/
+            /* Getting block header info */
+            /*****************************/
+        case 'h':
+        case 'H':
+            /* Need to pass header data back in allocated int array */
+            if (argp == NULL) {
+                return(S_EVFILE_BADARG);
+            }
+            pHeader = (int32_t *)malloc(8*sizeof(int));
+            if (pHeader == NULL) {
+                return(S_EVFILE_ALLOCFAIL);
+            }
+            memcpy((void *)pHeader, (const void *)a->buf, 8*sizeof(int));
+            *((int32_t **) argp) = pHeader;
+            
+            break;
+
+            /**********************************************/
         /* Setting maximum number of events per block */
         /**********************************************/
         case 'n':
