@@ -21,7 +21,7 @@ from os import access, F_OK, sep, symlink, lstat
 os.umask(022)
 
 # Software version
-versionMajor = '2'
+versionMajor = '4'
 versionMinor = '0'
 
 # determine the os and machine names
