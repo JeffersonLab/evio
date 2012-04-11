@@ -12,9 +12,13 @@
 
 
 //   for version 4
+//       evioBufferChannel and evioSocketChannel
+//       what about evReadAlloc?
+//       should evioDictionary be in a separate file?
+//       when to delete dictionaries?  destructor chaining in evioFileChannel?
+
 //       append to file
 //       decompress/compress on input/output (gzip, bzip, etc.)
-//       set dictionary on file open, must dictionary be its own class?
 //       random access i/o
 //       pipes, named pipes on input
 //       handle buffer swapping automatically (what does this mean?)
@@ -158,7 +162,7 @@ class evioDictionary {
 
 public:
   evioDictionary();
-  evioDictionary(const string &dictionaryXML, const string &dictTag="");
+  evioDictionary(const string &dictXML, const string &dictTag="");
   virtual ~evioDictionary();
 
 
@@ -168,10 +172,12 @@ public:
   bool parseDictionary(const string &dictionaryXML);
   tagNum getTagNum(const string &name) const throw(evioException);
   string getName(tagNum tn) const throw(evioException);
+  string getDictionaryXML(void) const;
 
 
 private:
   static void startElementHandler(void *userData, const char *xmlname, const char **atts);
+  string dictionaryXML;
 
 
 public:

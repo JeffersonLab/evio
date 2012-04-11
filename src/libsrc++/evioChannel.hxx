@@ -61,11 +61,12 @@ public:
   virtual void write(const evioChannelBufferizable &o) throw(evioException) = 0;
   virtual void write(const evioChannelBufferizable *o) throw(evioException) = 0;
   virtual void close(void) throw(evioException) = 0;
+  virtual int ioctl(const string &request, void *argp) throw(evioException) = 0;
   virtual ~evioChannel(void) {};
 
 
 protected:
-  const evioDictionary *dictionary;
+  evioDictionary *dictionary;
 
 
 public:

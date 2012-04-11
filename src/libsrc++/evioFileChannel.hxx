@@ -7,8 +7,10 @@
 #define _evioFileChannel_hxx
 
 
+#include <iostream>
 #include <stdint.h>
 #include <evioChannel.hxx>
+#include <evioUtil.hxx>
 #include <evio.h>
 
 
@@ -29,7 +31,7 @@ namespace evio {
 class evioFileChannel : public evioChannel {
 
 public:
-  evioFileChannel(const string &fileName, const string &mode = "r", int size = 50000) throw(evioException);
+  evioFileChannel(const string &fileName, const string &mode = "r", int size = 1000000) throw(evioException);
   virtual ~evioFileChannel(void);
 
 
@@ -47,17 +49,19 @@ public:
   const uint32_t *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
 
-  void ioctl(const string &request, void *argp) throw(evioException);
+  int ioctl(const string &request, void *argp) throw(evioException);
   string getFileName(void) const;
   string getMode(void) const;
+  string getFileXMLDictionary(void) const;
 
 
 private:
-  string filename;    /**<Name of evio file.*/
-  string mode;        /**<Open mode, "r" or "w".*/
-  int handle;         /**<Internal evio file handle.*/
-  uint32_t *buf;      /**<Pointer to internal buffer.*/
-  int bufSize;        /**<Size of internal buffer.*/
+  string filename;            /**<Name of evio file.*/
+  string mode;                /**<Open mode, "r" or "w".*/
+  int handle;                 /**<Internal evio file handle.*/
+  uint32_t *buf;              /**<Pointer to internal buffer.*/
+  int bufSize;                /**<Size of internal buffer.*/
+  string fileXMLDictionary;   /**<XML dictionary in file.*/
 };
 
 

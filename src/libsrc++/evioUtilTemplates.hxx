@@ -258,93 +258,92 @@ template <typename T> void evioDOMNode::append(T tVal) throw(evioException) {
 
 
   // first try for exact match between leaf node type and data value
-  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
-  if(l!=NULL) {
+  if(contentType==evioUtil<T>::evioContentType()) {
+    evioDOMLeafNode<T> *l = static_cast< evioDOMLeafNode<T>* >(this);
     l->data.push_back(tVal);
     return;
   }
-    
-
+  
   // no match, try all possibilities
   if((++errCount%2)==100) cout << "evioDOMNode::append...type mismatch, slowly trying every possibility, count = " 
                                << errCount << endl;
   
 
   {
-    evioDOMLeafNode<int32_t> *l = dynamic_cast<evioDOMLeafNode<int32_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<int32_t>::evioContentType()) {
+      evioDOMLeafNode<int32_t> *l = static_cast<evioDOMLeafNode<int32_t>*>(this);
       l->data.push_back((int32_t)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<uint32_t> *l = dynamic_cast<evioDOMLeafNode<uint32_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<uint32_t>::evioContentType()) {
+      evioDOMLeafNode<uint32_t> *l = static_cast<evioDOMLeafNode<uint32_t>*>(this);
       l->data.push_back((uint32_t)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<double> *l = dynamic_cast<evioDOMLeafNode<double>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<double>::evioContentType()) {
+      evioDOMLeafNode<double> *l = static_cast<evioDOMLeafNode<double>*>(this);
       l->data.push_back((double)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<float> *l = dynamic_cast<evioDOMLeafNode<float>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<float>::evioContentType()) {
+      evioDOMLeafNode<float> *l = static_cast<evioDOMLeafNode<float>*>(this);
       l->data.push_back((float)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<int16_t> *l = dynamic_cast<evioDOMLeafNode<int16_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<int16_t>::evioContentType()) {
+      evioDOMLeafNode<int16_t> *l = static_cast<evioDOMLeafNode<int16_t>*>(this);
       l->data.push_back((int16_t)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<uint16_t> *l = dynamic_cast<evioDOMLeafNode<uint16_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<uint16_t>::evioContentType()) {
+      evioDOMLeafNode<uint16_t> *l = static_cast<evioDOMLeafNode<uint16_t>*>(this);
       l->data.push_back((uint16_t)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<int64_t> *l = dynamic_cast<evioDOMLeafNode<int64_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<int64_t>::evioContentType()) {
+      evioDOMLeafNode<int64_t> *l = static_cast<evioDOMLeafNode<int64_t>*>(this);
       l->data.push_back((int64_t)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<uint64_t> *l = dynamic_cast<evioDOMLeafNode<uint64_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<uint64_t>::evioContentType()) {
+      evioDOMLeafNode<uint64_t> *l = static_cast<evioDOMLeafNode<uint64_t>*>(this);
       l->data.push_back((uint64_t)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<int8_t> *l = dynamic_cast<evioDOMLeafNode<int8_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<uint8_t>::evioContentType()) {
+      evioDOMLeafNode<int8_t> *l = static_cast<evioDOMLeafNode<int8_t>*>(this);
       l->data.push_back((int8_t)tVal);
       return;
     }
   }
 
   {
-    evioDOMLeafNode<uint8_t> *l = dynamic_cast<evioDOMLeafNode<uint8_t>*>(this);
-    if(l!=NULL) {
+    if(contentType==evioUtil<uint8_t>::evioContentType()) {
+      evioDOMLeafNode<uint8_t> *l = static_cast<evioDOMLeafNode<uint8_t>*>(this);
       l->data.push_back((uint8_t)tVal);
       return;
     }
@@ -365,12 +364,10 @@ template <typename T> void evioDOMNode::append(T tVal) throw(evioException) {
  * @param tVec vector<T> of data to add to leaf node
  */
 template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evioException) {
-  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
-  if(l!=NULL) {
-    copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.end()));
-  } else {
+  if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
-  }
+  evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
+  copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.end()));
 }
 
 
@@ -384,12 +381,10 @@ template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evio
  * @param len Length of buffer
  */
 template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evioException) {
-  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
-  if(l!=NULL) {
-    for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
-  } else {
+  if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
-  }
+  evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
+  for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
 }
 
 
@@ -402,13 +397,11 @@ template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evi
  * @param tVec vector<T> of data
  */
 template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evioException) {
-  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
-  if(l!=NULL) {
-    l->data.clear();
-    copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.begin()));
-  } else {
+  if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::replace...not correctl leaf node",__FILE__,__FUNCTION__,__LINE__));
-  }
+  evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
+  l->data.clear();
+  copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.begin()));
 }
 
 
@@ -422,13 +415,11 @@ template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evi
  * @param len Length of buffer
  */
 template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(evioException) {
-  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
-  if(l!=NULL) {
-    l->data.clear();
-    for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
-  } else {
+  if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::replace...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
-  }
+  evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
+  l->data.clear();
+  for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
 }
 
 
@@ -441,9 +432,9 @@ template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(ev
  * @return Pointer to vector<T>
  */
 template <typename T> vector<T> *evioDOMNode::getVector(void) throw(evioException) {
-  if(!isLeaf())return(NULL);
-  evioDOMLeafNode<T> *l = dynamic_cast<evioDOMLeafNode<T>*>(this);
-  return((l==NULL)?NULL:(&l->data));
+  if(contentType!=evioUtil<T>::evioContentType())return(NULL);
+  evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
+  return(&l->data);
 }
 
 
@@ -775,12 +766,14 @@ template <class Predicate> evioDOMNodeP evioDOMTree::findFirstNode(evioDOMNodeP 
   
  
   // check children
-  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(pNode);
-  evioDOMNodeList::iterator iter;
-  for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
-    evioDOMNodeP p=findFirstNode(*iter,pred);
-    if(p!=NULL)return(p);
-  }        
+  if(pNode->isContainer()) {
+    evioDOMContainerNode *c = static_cast<evioDOMContainerNode*>(pNode);
+    evioDOMNodeList::iterator iter;
+    for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
+      evioDOMNodeP p=findFirstNode(*iter,pred);
+      if(p!=NULL)return(p);
+    }
+  }   
 
   return(NULL);
 }  
@@ -857,8 +850,8 @@ template <class Predicate> evioDOMNodeList *evioDOMTree::addToNodeList(evioDOMNo
   
   
   // add children to list
-  evioDOMContainerNode *c = dynamic_cast<evioDOMContainerNode*>(pNode);
-  if(c!=NULL) {
+  if(pNode->isContainer()) {
+    evioDOMContainerNode *c = static_cast<evioDOMContainerNode*>(pNode);
     evioDOMNodeList::iterator iter;
     for(iter=c->childList.begin(); iter!=c->childList.end(); iter++) {
       addToNodeList(*iter,pList,pred);
@@ -887,8 +880,8 @@ template <typename T> void evioDOMTree::addBank(uint16_t tag, uint8_t num, const
     root->parentTree=this;
 
   } else {
-    evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
-    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
+    if(!root->isContainer())throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
+    evioDOMContainerNode* c = static_cast<evioDOMContainerNode*>(root);
     evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,dataVec);
     c->childList.push_back(node);
     node->parent=root;
@@ -916,8 +909,8 @@ template <typename T> void evioDOMTree::addBank(uint16_t tag, uint8_t num, const
     root->parentTree=this;
 
   } else {
-    evioDOMContainerNode* c = dynamic_cast<evioDOMContainerNode*>(root);
-    if(c==NULL)throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
+    if(!root->isContainer())throw(evioException(0,"?evioDOMTree::addBank...root not a container node",__FILE__,__FUNCTION__,__LINE__));
+    evioDOMContainerNode* c = static_cast<evioDOMContainerNode*>(root);
     evioDOMNodeP node = evioDOMNode::createEvioDOMNode(tag,num,dataBuf,dataLen);
     c->childList.push_back(node);
     node->parent=root;

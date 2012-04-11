@@ -25,7 +25,7 @@ using namespace evio;
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size) {
+  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary("") {
 
   // allocate buffer
   buf = new uint32_t[bufSize];
@@ -37,11 +37,12 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
 
 
 /**
- * Destructor closes file, deletes internal buffer.
+ * Destructor closes file, deletes internal buffer and dictionary.
  */
 evioFileChannel::~evioFileChannel(void) {
   if(handle!=0)close();
   if(buf!=NULL)delete[](buf),buf=NULL;
+  if(dictionary!=NULL)delete(dictionary);
 }
 
 
@@ -50,6 +51,7 @@ evioFileChannel::~evioFileChannel(void) {
 
 /**
  * Opens channel for reading or writing.
+ * For read, user-supplied dictionary overrides one found in file.
  */
 void evioFileChannel::open(void) throw(evioException) {
 
@@ -57,6 +59,28 @@ void evioFileChannel::open(void) throw(evioException) {
   if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
     throw(evioException(0,"?evioFileChannel::open...unable to open file",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"?evioFileChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));
+
+
+  // on read check if file has dictionary, warn if conflict with user dictionary
+  // store file XML just in case
+  // set dictionary on write
+  if((mode=="r")||(mode=="R")) {
+    char *d;
+    int len;
+    int stat=evGetDictionary(handle,&d,&len);
+    if((stat==S_SUCCESS)&&(d!=NULL)&&(len>0))fileXMLDictionary = string(d);
+
+    if(dictionary==NULL) {
+      if(stat!=S_SUCCESS)throw(evioException(0,"?evioFileChannel::open...bad dictionary in file",__FILE__,__FUNCTION__,__LINE__));
+      if((d!=NULL)&&(len>0))dictionary = new evioDictionary(d);
+    } else {
+      cout << "evioFileChannel::open...user-supplied dictionary overrides dictionary in file" << endl;
+    }
+
+  } else if((dictionary!=NULL) && ((mode=="w")||(mode=="W"))) {
+    evWriteDictionary(handle,const_cast<char*>(dictionary->getDictionaryXML().c_str()));
+  }
+
 }
 
 
@@ -178,10 +202,12 @@ void evioFileChannel::write(const evioChannelBufferizable *o) throw(evioExceptio
  * @param request String containing evIoctl parameters
  * @param argp Additional evIoctl parameter
  */
-void evioFileChannel::ioctl(const string &request, void *argp) throw(evioException) {
+int evioFileChannel::ioctl(const string &request, void *argp) throw(evioException) {
+  int stat;
   if(handle==0)throw(evioException(0,"evioFileChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
+  if(stat=evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
     throw(evioException(0,"?evioFileChannel::ioCtl...error return",__FILE__,__FUNCTION__,__LINE__));
+  return(stat);
 }
 
 
@@ -245,6 +271,18 @@ const uint32_t *evioFileChannel::getBuffer(void) const throw(evioException) {
  */
 int evioFileChannel::getBufSize(void) const {
   return(bufSize);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Returns XML dictionary read in from file
+ * @return XML dictionary read in from file
+ */
+string evioFileChannel::getFileXMLDictionary(void) const {
+  return(fileXMLDictionary);
 }
 
 

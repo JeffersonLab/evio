@@ -24,6 +24,8 @@ vector<uint32_t> uivec;
 vector<float> fvec;
 vector<string> svec;
 vector<string> svec2;
+vector<uint16_t> shvec;
+vector<uint8_t> bvec;
 
 int32_t ibuf[100];
 int64_t lbuf[100];
@@ -40,7 +42,7 @@ const char *ca[3];
 int main(int argc, char **argv) {
   
   // fill fake data buffers
-  for(int i=0; i<10; i++) {
+  for(int i=0; i<11; i++) {
     uivec.push_back((uint32_t)i);
     ibuf[i]=-i;
     lbuf[i]=2*i;
@@ -48,6 +50,8 @@ int main(int argc, char **argv) {
     fvec.push_back((float)i/10.);
     svec.push_back("hello");
     svec2.push_back("goodbye");
+    shvec.push_back(i);
+    bvec.push_back(i);
   }
   for(int i=0; i<3; i++) ca[i]=sca[i].c_str();
   char *fred="fred";
@@ -78,6 +82,8 @@ int main(int argc, char **argv) {
       event.addBank(tag=6, num=13, dbuf,  len=10);
       event.addBank(tag=7, num=14, lbuf,  len=8);
       event.addBank(tag=8, num=15, svec);
+      event.addBank(tag=15, num=16, shvec);
+      event.addBank(tag=20, num=21, bvec);
       
       
       evioDOMNodeP sbank = evioDOMNode::createEvioDOMNode<string>(tag=9,num=16);
