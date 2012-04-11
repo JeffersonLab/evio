@@ -4,33 +4,37 @@
 
 
 //  must do:
-//   update word doc
+//   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
+//   evioBufferChannel and evioSocketChannel
+//   additional ioctl and other API features, evReadAlloc?
+//   evio2xml.cc replaces C version
+//   when to delete dictionaries?  destructor chaining in evioFileChannel?
+
+//   string and num?
+//   dictionary:  bank creation vs pretty printing and dot notation
+//   should evioDictionary be in a separate file?
+//   java evio compatibility?
 
 
 //  should do:
-
-
-//   for version 4
-//       evioBufferChannel and evioSocketChannel
-//       what about evReadAlloc?
-//       should evioDictionary be in a separate file?
-//       when to delete dictionaries?  destructor chaining in evioFileChannel?
-
-//       append to file
-//       decompress/compress on input/output (gzip, bzip, etc.)
-//       random access i/o
-//       pipes, named pipes on input
-//       handle buffer swapping automatically (what does this mean?)
+//   append to file
+//   decompress/compress on input/output (gzip, bzip, etc.)
+//   random access i/o
+//   pipes, named pipes on input
+//   handle buffer swapping automatically (what does this mean?)
 
 
 //  would like to do:
+//   shared_ptr
 //   cMsg channel
 //   ET channel
 //   Jevio query
 
 
 // not sure:
+//   do we need API for creating and reading composite banks and data?
+//   can string array contain NULL string?
 //   change how evioToStringConfig and default config used
 //   shared pointer for all returned pointers...who maintains ownership?
 //   auto tag/num creation

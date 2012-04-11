@@ -55,6 +55,15 @@ int main(int argc, char **argv) {
     chan->open();
     
 
+    // check for dictionary
+    const evioDictionary *dict = chan->getDictionary();
+    if(dict!=NULL) {
+      cout << endl << "Dictionary is:" << endl << endl << dict->getDictionaryXML() << endl;
+    } else {
+      cout << endl << "No dictionary in file" << endl << endl;
+    }
+
+
     // loop over all events in file
     while(chan->read()) {
 
