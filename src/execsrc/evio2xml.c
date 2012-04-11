@@ -839,7 +839,7 @@ static void dump_data(unsigned int *data, int type, int length, int padding, int
     char *c, *start;
     unsigned char *uc;
     char format[132];
-    int fLen,fTag,dLen,dTag;
+    int fLen,fTag,dLen,dTag,dNum;
 
 
     nindent+=indent_size;
@@ -1050,15 +1050,16 @@ static void dump_data(unsigned int *data, int type, int length, int padding, int
                 xml+=sprintf(xml,"</formatString>\n");
       
 
-                dLen=(data[fLen+1])&0xffff;
-                dTag=(data[fLen+1]>>20)&0xfff;
+                dLen=data[fLen+1]-1;
+                dTag=data[fLen+2]>>16;
+                dNum=data[fLen+2]&0xff;
                 indent(4);
-                xml+=sprintf(xml,"<data tag=\"%d\">\n",dTag);
+                xml+=sprintf(xml,"<data tag=\"%d\" num=\"%d\">\n",dTag,dNum);
                 sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
                 for(i=0; i<dLen; i+=n32) {
                     indent(7);
                     for(j=i; j<min((i+n32),dLen); j++) {
-                        xml+=sprintf(xml,format,data[fLen+2+j]);
+                        xml+=sprintf(xml,format,data[fLen+3+j]);
                     }
                     xml+=sprintf(xml,"\n");
                 }
