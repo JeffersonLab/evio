@@ -6,13 +6,14 @@
 //  must do:
 //   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
-//   evioBufferChannel and evioSocketChannel
-//   additional ioctl and other API features, evReadAlloc?
+//   evioBufferChannel (evOpenBuffer) and evioSocketChannel (evOpenSocket)
+//   evReadAlloc?
 //   evio2xml.cc replaces C version
 //   when to delete dictionaries?  destructor chaining in evioFileChannel?
 
-//   string and num?
+//   string vs num in dictionaries?
 //   dictionary:  bank creation vs pretty printing and dot notation
+//   dictionary to describe hierarchical bank structure?
 //   should evioDictionary be in a separate file?
 //   java evio compatibility?
 
@@ -38,7 +39,6 @@
 //   change how evioToStringConfig and default config used
 //   shared pointer for all returned pointers...who maintains ownership?
 //   auto tag/num creation
-//   multiple dictionaries in a file
 //   allow parent dot notation in dictionary lookup, e.g. 1.2.*
 //   XML input channel, i.e. resurrect xml2evio
 //   convert vectors (what does this mean? to what?)

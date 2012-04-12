@@ -1,10 +1,10 @@
-// evioFileChannel.hxx
+// evioBufferChannel.hxx
 
-//  Author:  Elliott Wolin, JLab, 18-feb-2010
+//  Author:  Elliott Wolin, JLab, 12-Apr-2012
 
 
-#ifndef _evioFileChannel_hxx
-#define _evioFileChannel_hxx
+#ifndef _evioBufferChannel_hxx
+#define _evioBufferChannel_hxx
 
 
 #include <iostream>
@@ -25,14 +25,13 @@ namespace evio {
 
 
 /**
- * Implements evioChannel functionality for I/O to and from files.
- * Basically a wrapper around the original evio C library.
+ * Implements evioChannel functionality for I/O to and from user-supplied evio buffer.
  */
-class evioFileChannel : public evioChannel {
+class evioBufferChannel : public evioChannel {
 
 public:
-  evioFileChannel(const string &fileName, const string &mode = "r", int size = 1000000) throw(evioException);
-  virtual ~evioFileChannel(void);
+  evioBufferChannel(uint32_t *streamBuf, int bufLen, const string &mode = "r", int size=100000) throw(evioException);
+  virtual ~evioBufferChannel(void);
 
 
   void open(void) throw(evioException);
@@ -49,19 +48,22 @@ public:
   const uint32_t *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
 
+  const uint32_t *getStreamBuffer(void) const throw(evioException);
+  int getStreamBufSize(void) const;
+
   int ioctl(const string &request, void *argp) throw(evioException);
-  string getFileName(void) const;
   string getMode(void) const;
-  string getFileXMLDictionary(void) const;
+  string getBufferXMLDictionary(void) const;
 
 
 private:
-  string filename;            /**<Name of evio file.*/
-  string mode;                /**<Open mode, "r" or "w".*/
-  int handle;                 /**<Internal evio handle.*/
-  uint32_t *buf;              /**<Pointer to internal event buffer.*/
-  int bufSize;                /**<Size of internal event buffer.*/
-  string fileXMLDictionary;   /**<XML dictionary in file.*/
+  uint32_t *streamBuf;         /**<Pointer to user-supplied stream i/o buffer.*/
+  int streamBufSize;           /**<Size of user-supplied stream buffer.*/
+  string mode;                 /**<Open mode, "r" or "w".*/
+  int handle;                  /**<Internal evio handle.*/
+  uint32_t *buf;               /**<Pointer to internal event buffer.*/
+  int bufSize;                 /**<Size of internal buffer.*/
+  string bufferXMLDictionary;  /**<XML dictionary in buffer.*/
 };
 
 

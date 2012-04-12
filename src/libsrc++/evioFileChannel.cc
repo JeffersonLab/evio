@@ -27,7 +27,7 @@ using namespace evio;
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
   : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary("") {
 
-  // allocate buffer
+  // allocate internal event buffer
   buf = new uint32_t[bufSize];
   if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
 }
@@ -198,15 +198,15 @@ void evioFileChannel::write(const evioChannelBufferizable *o) throw(evioExceptio
 
 
 /**
- * For setting evIoctl parameters.
+ * For getting and setting evIoctl parameters.
  * @param request String containing evIoctl parameters
  * @param argp Additional evIoctl parameter
  */
 int evioFileChannel::ioctl(const string &request, void *argp) throw(evioException) {
   int stat;
   if(handle==0)throw(evioException(0,"evioFileChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(stat=evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0)
-    throw(evioException(0,"?evioFileChannel::ioCtl...error return",__FILE__,__FUNCTION__,__LINE__));
+  stat=evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0;
+  if(stat!=S_SUCCESS)throw(evioException(stat,"?evioFileChannel::ioCtl...error return",__FILE__,__FUNCTION__,__LINE__));
   return(stat);
 }
 
