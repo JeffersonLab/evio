@@ -3,19 +3,22 @@
 //  Author:  Elliott Wolin, JLab, 5-apr-2010
 
 
+//  must do for v4:
+//   evReadAlloc?
+
+
 //  must do:
 //   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
-//    evioSocketChannel (evOpenSocket)
-//   evReadAlloc?
 //   evio2xml.cc replaces C version
+
 //   when to delete dictionaries?  destructor chaining in evioFileChannel?
 //   who does dictionary belong to?  channel?  tree?
-
 //   string vs num in dictionaries?
 //   dictionary:  bank creation vs pretty printing and dot notation
 //   dictionary to describe hierarchical bank structure?
 //   should evioDictionary be in a separate file?
+
 //   java evio compatibility?
 
 
