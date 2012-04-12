@@ -40,13 +40,13 @@ int main(int argc, char **argv) {
 
     // create buffer channel, write to it, then close
     chan = new evioBufferChannel(buf,bufLen,"w");
-    //    chan->setDictionary(dict);
+    chan->setDictionary(dict);
     chan->open();
 
-    evioDOMTree event1(30, 31);
-    event1.addBank(2, 9,  x, 10);
-    event1.addBank(3, 10, x, 5);
-    cout << "initial event: " << endl << event1.toString() << endl << endl;
+    evioDOMTree event1(1, 0);
+    event1.addBank(4, 11, x, 10);
+    event1.addBank(5, 12, x, 5);
+    cout << "initial event: " << endl << event1.toString(dict) << endl << endl;
     chan->write(event1);
 
     chan->close();

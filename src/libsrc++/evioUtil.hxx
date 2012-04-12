@@ -6,10 +6,11 @@
 //  must do:
 //   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
-//   evioBufferChannel (evOpenBuffer) and evioSocketChannel (evOpenSocket)
+//    evioSocketChannel (evOpenSocket)
 //   evReadAlloc?
 //   evio2xml.cc replaces C version
 //   when to delete dictionaries?  destructor chaining in evioFileChannel?
+//   who does dictionary belong to?  channel?  tree?
 
 //   string vs num in dictionaries?
 //   dictionary:  bank creation vs pretty printing and dot notation

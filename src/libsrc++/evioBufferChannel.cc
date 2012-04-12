@@ -44,7 +44,6 @@ evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const stri
 evioBufferChannel::~evioBufferChannel(void) {
   if(handle!=0)close();
   if(buf!=NULL)delete[](buf),buf=NULL;
-  if(dictionary!=NULL)delete(dictionary);
 }
 
 
