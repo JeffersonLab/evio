@@ -1015,6 +1015,25 @@ evioDOMNodeList *evioDOMNode::getChildList(void) throw(evioException) {
 
 
 /** 
+ * Returns copy of child list of container node.
+ * List must be deleted by user
+ * @return Copy of child list
+ */
+//??? @return ???
+
+evioDOMNodeList *evioDOMNode::getChildren(void) throw(evioException) {
+  evioDOMNodeList *l1 = getChildList();
+  if(l1==NULL)return(NULL);
+  evioDOMNodeList *l2 = new evioDOMNodeList(l1->size());
+  copy(l1->begin(), l1->end(), l2->begin());
+  return(l2);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+/** 
  * Adds node to container node.
  * @param node Node to be added
  * @return Reference to node to be added

@@ -44,15 +44,21 @@ int main(int argc, char **argv) {
     chan->open();
 
     evioDOMTree event1(1, 0);
-    event1.addBank(4, 11, x, 10);
+    event1.addBank(4, 11, x, 4);
     event1.addBank(5, 12, x, 5);
+    event1.addBank(6, 13, x, 6);
     cout << "initial event: " << endl << event1.toString(dict) << endl << endl;
     chan->write(event1);
 
     chan->close();
     delete(chan);
 
-
+    evioDOMNodeList *l1 = event1.root->getChildren();
+    cout << "l1 size is " << l1->size() << endl;
+    evioDOMNodeList *l2 = event1.root->getChildren(tagNumEquals(4,11));
+    cout << "l2 size is " << l2->size() << endl;
+    cout << endl << endl;
+    
 
     // create buffer channel, read from it, then close
     chan = new evioBufferChannel(buf,bufLen,"r");

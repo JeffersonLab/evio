@@ -409,6 +409,8 @@ public:
 
 public:
   evioDOMNodeList *getChildList(void) throw(evioException);
+  evioDOMNodeList *getChildren(void) throw(evioException);
+  template <class Predicate> evioDOMNodeList *getChildren(Predicate pred) throw(evioException);
   template <typename T> vector<T> *getVector(void) throw(evioException);
 
 

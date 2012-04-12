@@ -467,6 +467,22 @@ template <typename T> evioDOMNode& evioDOMNode::operator<<(const vector<T> &tVec
 
 
 //-----------------------------------------------------------------------------
+
+
+/** 
+ * Returns list of children satisfying predicate
+ * @param pred Predicate
+ * @return List of children satisfying predicate
+ */
+template <class Predicate> evioDOMNodeList *evioDOMNode::getChildren(Predicate pred) throw(evioException) {
+  evioDOMNodeList *l = getChildren();
+  if(l==NULL)return(NULL);
+  l->remove_if(not1(pred));
+  return(l);
+}
+
+
+//-----------------------------------------------------------------------------
 //--------------------- evioDOMLeafNode templated methods ---------------------
 //-----------------------------------------------------------------------------
 
