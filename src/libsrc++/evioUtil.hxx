@@ -6,18 +6,19 @@
 //  must do for v4:
 //   evReadAlloc?  should this be the only read routine used?
 //   append mode high priority for Gagik
+//   dictionary checksum?
+//   create evio2xml.cc to replace evio2xml.c
+//   remove test dir
+
 
 //  must do:
 //   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
-//   evio2xml.cc replaces C version
 
-//   dictionary checksum?
-//   when to delete dictionaries?  destructor chaining in evioFileChannel?
 //   who does dictionary belong to?  channel?  tree?
-//   string vs num in dictionaries?
-//   dictionary:  bank creation vs pretty printing and dot notation
-//   dictionary to describe hierarchical bank structure?
+//   when to delete dictionaries?  destructor chaining in evioFileChannel?
+//   dictionary for bank definition, pretty printing, describe composite banks
+//   should tag/num be unique in dictionary?
 
 //   java evio compatibility?
 
@@ -42,7 +43,6 @@
 //   change how evioToStringConfig and default config used
 //   shared pointer for all returned pointers...who maintains ownership?
 //   auto tag/num creation
-//   allow parent dot notation in dictionary lookup, e.g. 1.2.*
 //   XML input channel, i.e. resurrect xml2evio
 //   convert vectors (what does this mean? to what?)
 //   auto internal fileChannel buf size

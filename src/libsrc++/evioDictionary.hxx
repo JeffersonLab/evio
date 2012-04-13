@@ -7,8 +7,12 @@
 #ifndef _evioDictionary_hxx
 #define _evioDictionary_hxx
 
+
 #include <evioTypedefs.hxx>
 #include <evioException.hxx>
+
+#include <expat.h>
+
 
 
 namespace evio {
