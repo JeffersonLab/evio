@@ -25,7 +25,7 @@ using namespace evio;
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary("") {
+  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary(""), createdFileDictionary(true) {
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -37,11 +37,12 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
 
 
 /**
- * Destructor closes file, deletes internal buffer and dictionary.
+ * Destructor closes file, deletes internal buffer
  */
 evioFileChannel::~evioFileChannel(void) {
   if(handle!=0)close();
   if(buf!=NULL)delete[](buf),buf=NULL;
+  if(createdFileDictionary)delete(dictionary);
 }
 
 
@@ -71,7 +72,10 @@ void evioFileChannel::open(void) throw(evioException) {
 
     if(dictionary==NULL) {
       if(stat!=S_SUCCESS)throw(evioException(0,"?evioFileChannel::open...bad dictionary in file",__FILE__,__FUNCTION__,__LINE__));
-      if((d!=NULL)&&(len>0))dictionary = new evioDictionary(d);
+      if((d!=NULL)&&(len>0)) {
+        dictionary = new evioDictionary(d);
+        createdFileDictionary=true;
+      }
     } else {
       cout << "evioFileChannel::open...user-supplied dictionary overrides dictionary in file" << endl;
     }

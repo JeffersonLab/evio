@@ -62,6 +62,7 @@ private:
   uint32_t *buf;              /**<Pointer to internal event buffer.*/
   int bufSize;                /**<Size of internal event buffer.*/
   string fileXMLDictionary;   /**<XML dictionary in file.*/
+  bool createdFileDictionary; /**<true if internally created new dictionary from file.*/
 };
 
 
