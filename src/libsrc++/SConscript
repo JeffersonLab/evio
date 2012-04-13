@@ -4,6 +4,7 @@ import os
 from os import sep
 
 headerList = ['evioException.hxx',
+              'evioDictionary.hxx',
               'evioChannel.hxx',
               'evioFileChannel.hxx',
               'evioBufferChannel.hxx',
@@ -12,6 +13,7 @@ headerList = ['evioException.hxx',
               'evioUtilTemplates.hxx']
 
 linkList = [archIncDir + sep + 'evioException.hxx',
+            archIncDir + sep + 'evioDictionary.hxx',
             archIncDir + sep + 'evioChannel.hxx',
             archIncDir + sep + 'evioFileChannel.hxx',
             archIncDir + sep + 'evioBufferChannel.hxx',
@@ -19,7 +21,7 @@ linkList = [archIncDir + sep + 'evioException.hxx',
             archIncDir + sep + 'evioUtil.hxx',
             archIncDir + sep + 'evioUtilTemplates.hxx']
 
-fileList = ['evioException.cc', 'evioFileChannel.cc', 'evioBufferChannel.cc', 'evioSocketChannel.cc', 'evioUtil.cc']
+fileList = ['evioException.cc', 'evioDictionary.cc', 'evioFileChannel.cc', 'evioBufferChannel.cc', 'evioSocketChannel.cc', 'evioUtil.cc']
 
 env.AppendUnique(CPPPATH = ['.', '#src/libsrc'])
 evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)

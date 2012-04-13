@@ -53,11 +53,11 @@ int main(int argc, char **argv) {
     chan->close();
     delete(chan);
 
-    evioDOMNodeList *l1 = event1.root->getChildren();
-    cout << "l1 size is " << l1->size() << endl;
-    evioDOMNodeList *l2 = event1.root->getChildren(tagNumEquals(4,11));
-    cout << "l2 size is " << l2->size() << endl;
-    cout << endl << endl;
+    // evioDOMNodeList *l1 = event1.root->getChildren();
+    // cout << "l1 size is " << l1->size() << endl;
+    // evioDOMNodeList *l2 = event1.root->getChildren(tagNumEquals(4,11));
+    // cout << "l2 size is " << l2->size() << endl;
+    // cout << endl << endl;
     
 
     // create buffer channel, read from it, then close

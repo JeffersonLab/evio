@@ -1,29 +1,28 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 5-apr-2010
+//  Author:  Elliott Wolin, JLab, 13-apr-2012
 
 
 //  must do for v4:
-//   evReadAlloc?
-
+//   evReadAlloc?  should this be the only read routine used?
+//   append mode high priority for Gagik
 
 //  must do:
 //   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
 //   evio2xml.cc replaces C version
 
+//   dictionary checksum?
 //   when to delete dictionaries?  destructor chaining in evioFileChannel?
 //   who does dictionary belong to?  channel?  tree?
 //   string vs num in dictionaries?
 //   dictionary:  bank creation vs pretty printing and dot notation
 //   dictionary to describe hierarchical bank structure?
-//   should evioDictionary be in a separate file?
 
 //   java evio compatibility?
 
 
 //  should do:
-//   append to file
 //   decompress/compress on input/output (gzip, bzip, etc.)
 //   random access i/o
 //   pipes, named pipes on input
@@ -75,7 +74,9 @@
 #endif
 
 #include <evio.h>
+#include <evioTypedefs.hxx>
 #include <evioException.hxx>
+#include <evioDictionary.hxx>
 #include <evioChannel.hxx>
 
 
@@ -128,75 +129,12 @@ class evioDOMContainerNode;
 template<typename T> class evioDOMLeafNode;
 class evioSerializable;
 template <typename T> class evioUtil;
-class evioDictionary;
 class evioToStringConfig;
 
 
 
 //-----------------------------------------------------------------------------
-//----------------------------- Typedefs --------------------------------------
-//-----------------------------------------------------------------------------
-
-
-//typedef boost::shared_ptr<evioDOMNode> evioDOMNodeP;          /** Node pointer returned by many functions, need to fix all new() calls.*/
-
-typedef evioDOMNode* evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
-typedef list<evioDOMNodeP>  evioDOMNodeList;         /**<List of pointers to evioDOMNode.*/
-typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evioDOMNode pointers, returned by getNodeList.*/
-
-//typedef boost::shared_ptr<evioDOMNodeList> evioDOMNodeListP;  /** List of node pointers returned by getNodeList.*/
-
-
-/** Defines the container bank types.*/
-typedef enum {
-  BANK       = 0xe,  /**<2-word header, 16-bit tag, 8-bit num, 8-bit type.*/
-  SEGMENT    = 0xd,  /**<1-word header,  8-bit tag,    no num, 8-bit type.*/
-  TAGSEGMENT = 0xc   /**<1-word header, 12-bit tag,    no num, 4-bit type.*/
-} ContainerType;
-
-typedef pair<uint16_t,uint8_t> tagNum;     /**<STL pair of tag,num.*/
-
-
-
-//-----------------------------------------------------------------------------
 //--------------------------- evio Classes ------------------------------------
-//-----------------------------------------------------------------------------
-
-
-/**
- * Parses XML dictionary string and holds two maps, one for each lookup direction.
- */
-class evioDictionary {
-
-public:
-  evioDictionary();
-  evioDictionary(const string &dictXML, const string &dictTag="");
-  virtual ~evioDictionary();
-
-
-public:
-  void setDictTag(const string &tag);
-  string getDictTag(void) const;
-  bool parseDictionary(const string &dictionaryXML);
-  tagNum getTagNum(const string &name) const throw(evioException);
-  string getName(tagNum tn) const throw(evioException);
-  string getDictionaryXML(void) const;
-
-
-private:
-  static void startElementHandler(void *userData, const char *xmlname, const char **atts);
-  string dictionaryXML;
-
-
-public:
-  string dictTag;                    /**<User-supplied dictionary entry tag, default NULL.*/
-  map<tagNum,string> getNameMap;     /**<Gets node name given tag/num.*/
-  map<string,tagNum> getTagNumMap;   /**<Gets tag/num given node name.*/
-};
-
-
-
-//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
