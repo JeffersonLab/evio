@@ -56,12 +56,13 @@ public:
 
 
 private:
-  int sockFD;                  /**<Socket file descriptor.*/
-  string mode;                 /**<Open mode, "r" or "w".*/
-  int handle;                  /**<Internal evio handle.*/
-  uint32_t *buf;               /**<Pointer to internal event socket.*/
-  int bufSize;                 /**<Size of internal socket.*/
-  string socketXMLDictionary;  /**<XML dictionary in socket.*/
+  int sockFD;                     /**<Socket file descriptor.*/
+  string mode;                    /**<Open mode, "r" or "w".*/
+  int handle;                     /**<Internal evio handle.*/
+  uint32_t *buf;                  /**<Pointer to internal event socket.*/
+  int bufSize;                    /**<Size of internal socket.*/
+  string socketXMLDictionary;     /**<XML dictionary in socket.*/
+  bool createdSocketDictionary;   /**<true if created dictionary from socket.*/
 };
 
 

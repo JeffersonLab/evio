@@ -57,13 +57,14 @@ public:
 
 
 private:
-  uint32_t *streamBuf;         /**<Pointer to user-supplied stream i/o buffer.*/
-  int streamBufSize;           /**<Size of user-supplied stream buffer.*/
-  string mode;                 /**<Open mode, "r" or "w".*/
-  int handle;                  /**<Internal evio handle.*/
-  uint32_t *buf;               /**<Pointer to internal event buffer.*/
-  int bufSize;                 /**<Size of internal buffer.*/
-  string bufferXMLDictionary;  /**<XML dictionary in buffer.*/
+  uint32_t *streamBuf;           /**<Pointer to user-supplied stream i/o buffer.*/
+  int streamBufSize;             /**<Size of user-supplied stream buffer.*/
+  string mode;                   /**<Open mode, "r" or "w".*/
+  int handle;                    /**<Internal evio handle.*/
+  uint32_t *buf;                 /**<Pointer to internal event buffer.*/
+  int bufSize;                   /**<Size of internal buffer.*/
+  string bufferXMLDictionary;    /**<XML dictionary in buffer.*/
+  bool createdBufferDictionary;  /**<true if dictionary created from buffer.*/
 };
 
 

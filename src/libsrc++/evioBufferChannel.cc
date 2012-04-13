@@ -26,7 +26,8 @@ using namespace evio;
  * @param size Internal event buffer size
  */
 evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const string &m, int size) throw(evioException) 
-  : evioChannel(), streamBuf(streamBuf), streamBufSize(bufLen), mode(m), handle(0), bufSize(size), bufferXMLDictionary("") {
+  : evioChannel(), streamBuf(streamBuf), streamBufSize(bufLen), mode(m), handle(0), bufSize(size), bufferXMLDictionary(""),
+    createdBufferDictionary(false) {
   if(streamBuf==NULL)throw(evioException(0,"?evioBufferChannel constructor...NULL buffer",__FILE__,__FUNCTION__,__LINE__));
 
   // allocate internal event buffer
@@ -44,6 +45,7 @@ evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const stri
 evioBufferChannel::~evioBufferChannel(void) {
   if(handle!=0)close();
   if(buf!=NULL)delete[](buf),buf=NULL;
+  if(createdBufferDictionary)delete(dictionary), dictionary=NULL;
 }
 
 
@@ -73,7 +75,11 @@ void evioBufferChannel::open(void) throw(evioException) {
 
     if(dictionary==NULL) {
       if(stat!=S_SUCCESS)throw(evioException(0,"?evioBufferChannel::open...bad dictionary in buffer",__FILE__,__FUNCTION__,__LINE__));
-      if((d!=NULL)&&(len>0))dictionary = new evioDictionary(d);
+      if((d!=NULL)&&(len>0)) {
+        dictionary = new evioDictionary(d);
+        createdBufferDictionary=true;
+      }
+      
     } else {
       cout << "evioBufferChannel::open...user-supplied dictionary overrides dictionary in buffer" << endl;
     }

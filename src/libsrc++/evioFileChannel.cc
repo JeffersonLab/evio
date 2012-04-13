@@ -25,7 +25,7 @@ using namespace evio;
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary(""), createdFileDictionary(true) {
+  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary(""), createdFileDictionary(false) {
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -37,12 +37,12 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
 
 
 /**
- * Destructor closes file, deletes internal buffer
+ * Destructor closes file, deletes internal buffer, deletes dictionary one created from file
  */
 evioFileChannel::~evioFileChannel(void) {
   if(handle!=0)close();
   if(buf!=NULL)delete[](buf),buf=NULL;
-  if(createdFileDictionary)delete(dictionary);
+  if(createdFileDictionary)delete(dictionary),dictionary=NULL;
 }
 
 

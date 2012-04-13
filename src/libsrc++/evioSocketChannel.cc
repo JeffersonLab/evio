@@ -25,7 +25,7 @@ using namespace evio;
  * @param size Internal event buffer size
  */
 evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size) throw(evioException) 
-  : evioChannel(), sockFD(sockFD), mode(m), handle(0), bufSize(size), socketXMLDictionary("") {
+  : evioChannel(), sockFD(sockFD), mode(m), handle(0), bufSize(size), socketXMLDictionary(""), createdSocketDictionary(false)  {
   if(sockFD==0)throw(evioException(0,"?evioSocketChannel constructor...zero socket file descriptor",__FILE__,__FUNCTION__,__LINE__));
 
   // allocate internal event buffer
@@ -43,6 +43,7 @@ evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size) thro
 evioSocketChannel::~evioSocketChannel(void) {
   if(handle!=0)close();
   if(buf!=NULL)delete[](buf),buf=NULL;
+  if(createdSocketDictionary)delete(dictionary),dictionary=NULL;
 }
 
 
@@ -72,7 +73,10 @@ void evioSocketChannel::open(void) throw(evioException) {
 
     if(dictionary==NULL) {
       if(stat!=S_SUCCESS)throw(evioException(0,"?evioSocketChannel::open...bad dictionary in socket",__FILE__,__FUNCTION__,__LINE__));
-      if((d!=NULL)&&(len>0))dictionary = new evioDictionary(d);
+      if((d!=NULL)&&(len>0)) {
+        dictionary = new evioDictionary(d);
+        createdSocketDictionary=true;
+      }
     } else {
       cout << "evioSocketChannel::open...user-supplied dictionary overrides dictionary in socket" << endl;
     }
