@@ -43,7 +43,7 @@
  * int  evOpenBuffer      (char *buffer, int bufLen, char *flags, int *handle)
  * int  evOpenSocket      (int sockFd, char *flags, int *handle)
  * int  evRead            (int handle, uint32_t *buffer, int size)
- * int  evReadNew         (int handle, uint32_t **buffer, int *buflen)
+ * int  evReadAlloc       (int handle, uint32_t **buffer, int *buflen)
  * int  evWrite           (int handle, const uint32_t *buffer)
  * int  evIoctl           (int handle, char *request, void *argp)
  * int  evClose           (int handle)
@@ -138,7 +138,7 @@ typedef struct evfilestruct {
 #define EV_DICTIONARY_MASK 0x100
 
 /** In version 4, max number of events per block */
-#define EV_EVENTS_MAX 100
+#define EV_EVENTS_MAX 10000
 
 /**
  * Evio block header, also known as a physical record header.
@@ -1462,7 +1462,7 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, int *buflen)
  * @param buffer pointer to pointer to buffer gets filled with
  *               pointer to allocated buffer (caller must free)
  * @param buflen pointer to int gets filled with length of buffer in 32 bit words
- *               including the full (8 byte) header
+ *               including the full (8 byte) bank header
  *
  * @return S_SUCCESS          if successful
  * @return S_EVFILE_BADARG    if buffer or buflen is NULL
@@ -2094,7 +2094,7 @@ int evioctl_
 /**
  * This routine changes the target block size for writes if request arg = b or B.
  * If setting block size fails, writes can still continue with original
- * block size.<p>
+ * block size. Minimum size = 1K + 32(header) bytes.<p>
  * It returns the version number if request arg = v or V.<p>
  * It changes the maximum number of events/block if request arg = n or N,
  * used only in version 4.<p>
