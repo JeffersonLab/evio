@@ -833,12 +833,13 @@ evioDOMNodeList *evioDOMNode::getChildList(void) throw(evioException) {
  * @return Copy of child list
  */
 
-evioDOMNodeList *evioDOMNode::getChildren(void) throw(evioException) {
+//evioDOMNodeList *evioDOMNode::getChildren(void) throw(evioException) {
+evioDOMNodeListP evioDOMNode::getChildren(void) throw(evioException) {
   evioDOMNodeList *l1 = getChildList();
-  if(l1==NULL)return(NULL);
+  if(l1==NULL)return(evioDOMNodeListP(NULL));
   evioDOMNodeList *l2 = new evioDOMNodeList(l1->size());
   copy(l1->begin(), l1->end(), l2->begin());
-  return(l2);
+  return(evioDOMNodeListP(l2));
 }
 
 
