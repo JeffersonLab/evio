@@ -7,38 +7,36 @@
 //   append mode high priority for Gagik
 //   dictionary checksum?
 //   create evio2xml.cc to replace evio2xml.c
+//   who does dictionary belong to?  tree?  toStringConfig?
 
 
 //  must do:
 //   update word doc or docx (conflict?)
-//   multi-threading:  defaultToStringconfig?
-//   who does dictionary belong to?  tree?  toStringConfig?
-//   java evio compatibility?
 
 
 //  should do:
-//   decompress/compress on input/output (gzip, bzip, etc.)
 //   random access i/o
-//   pipes, named pipes on input
+//   multi-threading:  defaultToStringconfig?
 
 
 //  would like to do:
-//   shared_ptr
+//   shared_ptr (std or boost)
 //   cMsg channel
 //   ET channel
-//   Jevio query
+//   java evio tree query and manipulation compatibility?
 
 
 // not sure:
 //   do we need API for creating and reading composite banks and data?
 //   can string array contain NULL string?
 //   change how evioToStringConfig and default config used
-//   shared pointer for all returned pointers...who maintains ownership?
 //   auto tag/num creation
 //   XML input channel, i.e. resurrect xml2evio
 //   convert vectors (what does this mean? to what?)
-//   auto internal fileChannel buf size
 //   scheme for exception type codes
+//   decompress/compress on input/output (gzip, bzip, etc.)
+//   pipes, named pipes on input
+
 
 
 #ifndef _evioUtil_hxx

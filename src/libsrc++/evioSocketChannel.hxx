@@ -37,6 +37,7 @@ public:
   void open(void) throw(evioException);
   bool read(void) throw(evioException);
   bool read(uint32_t *myEventBuf, int length) throw(evioException);
+  bool readAlloc(uint32_t **buffer, int *bufLen) throw(evioException);
   void write(void) throw(evioException);
   void write(const uint32_t *myEventBuf) throw(evioException);
   void write(const evioChannel &channel) throw(evioException);

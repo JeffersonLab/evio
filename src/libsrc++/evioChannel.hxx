@@ -54,6 +54,7 @@ public:
   virtual void open(void) throw(evioException) = 0;
   virtual bool read(void) throw(evioException) = 0;
   virtual bool read(uint32_t *myBuf, int length) throw(evioException) = 0;
+  virtual bool readAlloc(uint32_t **buffer, int *bufLen) throw(evioException) = 0;
   virtual void write(void) throw(evioException) = 0;
   virtual void write(const uint32_t* myBuf) throw(evioException) = 0;
   virtual void write(const evioChannel &channel) throw(evioException) = 0;
