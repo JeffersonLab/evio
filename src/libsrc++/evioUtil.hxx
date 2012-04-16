@@ -15,8 +15,7 @@
 //   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
 
-//   who does dictionary belong to?  channel?  tree?
-//   when to delete dictionaries?  destructor chaining in evioFileChannel?
+//   who does dictionary belong to?  tree?  toStringConfig?
 //   dictionary for bank definition, pretty printing, describe composite banks
 //   should tag/num be unique in dictionary?
 

@@ -24,8 +24,16 @@ int main(int argc, char **argv) {
     "<dictEntry name=\"wilma\"  tag=\"4\" num=\"11\"/>\n"
     "<dictEntry name=\"barney\" tag=\"5\" num=\"12\"/>\n"
     "<dictEntry name=\"betty\"  tag=\"6\" num=\"13\"/>\n"
+    "<bank name=\"b1\"     tag=\"7\" num=\"14\">\n"
+    "<bank name=\"b2\"    tag=\"8\" num=\"15\">\n"
+    "<leaf name=\"l21\"   tag=\"9\" num=\"16\"/>\n"
+    "<leaf name=\"l22\"        tag=\"10\" num=\"17\"/>\n"
+    "</bank>\n"
+    "<leaf name=\"l13\"        tag=\"11\" num=\"18\"/>\n"
+    "</bank>\n"
     "</dict>\n";
-  
+
+
   evioBufferChannel * chan;
 
   try {
@@ -47,6 +55,11 @@ int main(int argc, char **argv) {
     event1.addBank(4, 11, x, 4);
     event1.addBank(5, 12, x, 5);
     event1.addBank(6, 13, x, 6);
+    event1.addBank(7, 14, x, 2);
+    event1.addBank(8, 15, x, 3);
+    event1.addBank(9, 16, x, 4);
+    event1.addBank(10, 17, x, 8);
+    event1.addBank(11, 18, x, 7);
     cout << "initial event: " << endl << event1.toString(dict) << endl << endl;
     chan->write(event1);
 

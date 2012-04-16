@@ -30,8 +30,8 @@ evioDictionary::evioDictionary() {
  * Constructor fills dictionary maps from string.
  * @param dictionaryXML XML string parsed to create dictionary maps
  */
-evioDictionary::evioDictionary(const string &dictXML, const string &dictTag) 
-  : dictionaryXML(dictXML), dictTag(dictTag) {
+evioDictionary::evioDictionary(const string &dictXML, const string &sep) 
+  : dictionaryXML(dictXML), separator(sep), parentIsLeaf(false) {
   parseDictionary(dictionaryXML);
 }
 
@@ -42,30 +42,6 @@ evioDictionary::evioDictionary(const string &dictXML, const string &dictTag)
  * Destructor.
  */
 evioDictionary::~evioDictionary() {
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Sets dictionary tag
- * @param tag Dictionary tag
- */
-void evioDictionary::setDictTag(const string &tag) {
-  dictTag=tag;
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Gets dictionary tag
- * @return dictionary tag
- */
-string evioDictionary::getDictTag(void) const {
-  return(dictTag);
 }
 
 
@@ -93,7 +69,7 @@ bool evioDictionary::parseDictionary(const string &dictionaryXML) {
 
   // init string parser and start element handler
   XML_Parser xmlParser = XML_ParserCreate(NULL);
-  XML_SetElementHandler(xmlParser,startElementHandler,NULL);
+  XML_SetElementHandler(xmlParser,startElementHandler,endElementHandler);
   XML_SetUserData(xmlParser,reinterpret_cast<void*>(this));
       
 
@@ -114,7 +90,7 @@ bool evioDictionary::parseDictionary(const string &dictionaryXML) {
 
 /**
  * Expat start element handler, must be static.
- * @param userData void* pointer to evioDictionary
+ * @param userData void* pointer to evioDictionary instance
  * @param xmlname Name of current element
  * @param atts Array of attributes for this element
  */
@@ -123,7 +99,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
 
   // userData points to dictionary 
   if(userData==NULL) {
-    cerr << "?evioDictionary::startElement...NULL userData" << endl;
+    cerr << "?evioDictionary::startElementHandler...NULL userData" << endl;
     return;
   }
 
@@ -132,13 +108,16 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
   evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
 
 
-
   // only process dictionary entries
-  if( (strstr(xmlname,d->dictTag.c_str())==NULL) &&
-      (strstr(xmlname,"dictEntry")==NULL)&&(strstr(xmlname,"DictEntry")==NULL)&&(strstr(xmlname,"dictentry")==NULL)
-      ) return;
+  string xmlnameLC = xmlname;
+  std::transform(xmlnameLC.begin(), xmlnameLC.end(), xmlnameLC.begin(), (int(*)(int)) tolower);  // magic
+  if((xmlnameLC!="bank")&&(xmlnameLC!="leaf")&&(xmlnameLC!=dictEntryTag))return;
+  if(d->parentIsLeaf) {
+    throw(evioException(0,"?evioDictionary::startElementHandler...parent bank is leaf!",__FILE__,__FUNCTION__,__LINE__));
+  }
   
 
+  // only look at name,tag,num attributes
   string name = "";
   int tag = 0;
   int num = 0;
@@ -152,10 +131,47 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
     }
   }
 
-  // add tag/num pair and name to maps
+
+  // create full name using parent prefix for hierarchical dictionary tags
+  string fullName = name;
+  if(xmlnameLC!=dictEntryTag) {
+
+    if(d->parentPrefix.empty()) {
+      d->parentPrefix = name;
+    } else {
+      fullName = d->parentPrefix + d->separator + name;
+      d->parentPrefix += d->separator + name;
+    }
+    d->parentIsLeaf = xmlnameLC=="leaf";
+  }
+  
+
+  // add tag/num pair and full (hierarchical) name to both maps
   tagNum tn = tagNum(tag,num);
-  d->getNameMap[tn]     = name;
-  d->getTagNumMap[name] = tn;
+  d->getNameMap[tn]         = fullName;
+  d->getTagNumMap[fullName] = tn;
+}
+    
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Expat end element handler, must be static.
+ * @param userData void* pointer to evioDictionary instance
+ * @param xmlname Name of current element
+ */
+void evioDictionary::endElementHandler(void *userData, const char *xmlname) {
+  if((strcasecmp(xmlname,"bank")==0)||(strcasecmp(xmlname,"leaf")==0)) {
+    evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
+    d->parentIsLeaf = false;
+    int spos = d->parentPrefix.rfind(d->separator);
+    if(spos==d->parentPrefix.npos) {
+      d->parentPrefix.clear();
+    } else {
+      d->parentPrefix.erase(spos);
+    }
+  }
 }
     
 
@@ -195,6 +211,30 @@ string evioDictionary::getName(tagNum tn) const throw(evioException) {
     ss << "?evioDictionary::getName...no entry with tagNum "<<  tn.first << "," << tn.second << ends;
     throw(evioException(0,ss.str(),__FILE__,__FUNCTION__,__LINE__));
   }
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Sets separator character.
+ * @param sep Separator character
+ */
+void evioDictionary::setSeparator(const string &sep) {
+  separator=sep;
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Gets separator character.
+ * @return Separator character
+ */
+string evioDictionary::getSeparator(void) const {
+  return(separator);
 }
 
 
