@@ -4,21 +4,15 @@
 
 
 //  must do for v4:
-//   evReadAlloc?  should this be the only read routine used?
 //   append mode high priority for Gagik
 //   dictionary checksum?
 //   create evio2xml.cc to replace evio2xml.c
-//   remove test dir
 
 
 //  must do:
 //   update word doc or docx (conflict?)
 //   multi-threading:  defaultToStringconfig?
-
 //   who does dictionary belong to?  tree?  toStringConfig?
-//   dictionary for bank definition, pretty printing, describe composite banks
-//   should tag/num be unique in dictionary?
-
 //   java evio compatibility?
 
 
@@ -26,7 +20,6 @@
 //   decompress/compress on input/output (gzip, bzip, etc.)
 //   random access i/o
 //   pipes, named pipes on input
-//   handle buffer swapping automatically (what does this mean?)
 
 
 //  would like to do:

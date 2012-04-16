@@ -65,12 +65,16 @@ int main(int argc, char **argv) {
 
 
     // loop over all events in file
+    // uint32_t *buffer;
+    // int len;
+    // while(chan->readAlloc(&buffer,&len)) {
     while(chan->read()) {
 
       cout << endl << " --- processing event " << ++nread << " ---" << endl;
 
 
       // create event tree from channel contents
+      //      evioDOMTree event(buffer);
       evioDOMTree event(chan);
 
 

@@ -5,6 +5,7 @@
 */
 
 
+#include <stdio.h>
 #include "evioFileChannel.hxx"
 
 
@@ -114,6 +115,32 @@ bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
   return(evRead(handle,&myBuf[0],length)==0);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Reads from file and allocates buffer as needed.
+ * @param buffer Pointer to pointer to allocated buffer.
+ * @param len Length of allocated buffer in 4-byte words.
+ * @return true if successful, false on EOF, throws exception for other error.
+ *
+ * Note:  user MUST free the allocated buffer!
+ */
+bool evioFileChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioException) {
+  if(handle==0)throw(evioException(0,"evioFileChannel::readAlloc...0 handle",__FILE__,__FUNCTION__,__LINE__));
+
+  int stat=evReadAlloc(handle,buffer,bufLen);
+  if(stat==EOF) {
+    *buffer=NULL;
+    *bufLen=0;
+    return(false);
+  }
+
+  if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readAlloc...read error",__FILE__,__FUNCTION__,__LINE__));
+  return(true);
 }
 
 
