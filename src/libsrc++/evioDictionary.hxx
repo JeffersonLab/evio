@@ -61,6 +61,7 @@ class evioDictionary {
 public:
   evioDictionary();
   evioDictionary(const string &dictXML, const string &sep=".");
+  evioDictionary(ifstream &dictIFS, const string &sep=".");
   virtual ~evioDictionary();
 
 

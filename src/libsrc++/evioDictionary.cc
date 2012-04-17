@@ -6,6 +6,8 @@
 
 
 #include "evioDictionary.hxx"
+#include <iostream>
+#include <fstream>
 
 
 using namespace std;
@@ -33,6 +35,30 @@ evioDictionary::evioDictionary() {
 evioDictionary::evioDictionary(const string &dictXML, const string &sep) 
   : dictionaryXML(dictXML), separator(sep), parentIsLeaf(false) {
   parseDictionary(dictionaryXML);
+}
+
+
+//-----------------------------------------------------------------------
+
+/**
+ * Constructor fills dictionary maps from ifstream.
+ * @param dictionaryXML XML string parsed to create dictionary maps
+ */
+evioDictionary::evioDictionary(ifstream &dictIFS, const string &sep) : separator(sep), parentIsLeaf(false) {
+
+    if(dictIFS.is_open()) {
+      string s;
+      while((dictIFS.good())&&(!dictIFS.eof())) {
+        getline(dictIFS,s);
+        if(s.size()>0)dictionaryXML += s + '\n';
+      }
+      dictIFS.close();
+    } else {
+      throw(evioException(0,"?evioDictionary::evioDictionary...unable to read from ifstream",__FILE__,__FUNCTION__,__LINE__));
+    }
+    
+    // now parse XML
+    parseDictionary(dictionaryXML);
 }
 
 
