@@ -2014,14 +2014,14 @@ int evGetBufferLength(int handle, int *length)
 {
     EVFILE *a;
 
+    /* Look up file struct (which contains block buffer) from handle */
+    a = handle_list[handle-1];
+
     /* Check arg */
     if (a == NULL) {
         return(S_EVFILE_BADHANDLE);
     }
     
-    /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
-
     if (length != NULL) {
         *length = a->rwBufUsed;
     }
