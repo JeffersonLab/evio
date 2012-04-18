@@ -9,6 +9,7 @@
 
 
 //  should do:
+//   evPerror
 //   append mode high priority for Gagik
 //   dictionary checksum
 //   who does dictionary belong to?  tree?  toStringConfig?

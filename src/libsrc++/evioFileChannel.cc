@@ -56,9 +56,12 @@ evioFileChannel::~evioFileChannel(void) {
  */
 void evioFileChannel::open(void) throw(evioException) {
 
+  int stat;
+
   if(buf==NULL)throw(evioException(0,"evioFileChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if(evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle)<0)
-    throw(evioException(0,"?evioFileChannel::open...unable to open file",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle))<0)
+    throw(evioException(stat,"?evioFileChannel::open...unable to open file: " + string(evPerror(stat)),
+                        __FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"?evioFileChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));
 
 
@@ -72,7 +75,8 @@ void evioFileChannel::open(void) throw(evioException) {
     if((stat==S_SUCCESS)&&(d!=NULL)&&(len>0))fileXMLDictionary = string(d);
 
     if(dictionary==NULL) {
-      if(stat!=S_SUCCESS)throw(evioException(0,"?evioFileChannel::open...bad dictionary in file",__FILE__,__FUNCTION__,__LINE__));
+      if(stat!=S_SUCCESS)throw(evioException(stat,"?evioFileChannel::open...bad dictionary in file: " + string(evPerror(stat)),
+                                             __FILE__,__FUNCTION__,__LINE__));
       if((d!=NULL)&&(len>0)) {
         dictionary = new evioDictionary(d);
         createdFileDictionary=true;
@@ -139,7 +143,8 @@ bool evioFileChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExcept
     return(false);
   }
 
-  if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readAlloc...read error",__FILE__,__FUNCTION__,__LINE__));
+  if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readAlloc...read error: " + string(evPerror(stat)),
+                                          __FILE__,__FUNCTION__,__LINE__));
   return(true);
 }
 
@@ -151,9 +156,11 @@ bool evioFileChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExcept
  * Writes to file from internal buffer.
  */
 void evioFileChannel::write(void) throw(evioException) {
+  int stat;
   if(buf==NULL)throw(evioException(0,"evioFileChannel::write...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,buf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evWrite(handle,buf))!=0) throw(evioException(stat,"?evioFileChannel::write...unable to write: " + string(evPerror(stat)),
+                                                      __FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -165,9 +172,11 @@ void evioFileChannel::write(void) throw(evioException) {
  * @param myBuf Buffer containing event
  */
 void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
+  int stat;
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::write...null myBuf",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,myBuf)!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from myBuf",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evWrite(handle,myBuf))!=0) throw(evioException(stat,"?evioFileChannel::write...unable to write from myBuf: " + string(evPerror(stat)),
+                                                        __FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -179,8 +188,11 @@ void evioFileChannel::write(const uint32_t *myBuf) throw(evioException) {
  * @param channel Channel object
  */
 void evioFileChannel::write(const evioChannel &channel) throw(evioException) {
+  int stat;
   if(handle==0)throw(evioException(0,"evioFileChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,channel.getBuffer())!=0) throw(evioException(0,"?evioFileChannel::write...unable to write from channel",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evWrite(handle,channel.getBuffer()))!=0) throw(evioException(stat,
+       "?evioFileChannel::write...unable to write from channel: " + string(evPerror(stat)),
+       __FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -236,7 +248,8 @@ int evioFileChannel::ioctl(const string &request, void *argp) throw(evioExceptio
   int stat;
   if(handle==0)throw(evioException(0,"evioFileChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
   stat=evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0;
-  if(stat!=S_SUCCESS)throw(evioException(stat,"?evioFileChannel::ioCtl...error return",__FILE__,__FUNCTION__,__LINE__));
+  if(stat!=S_SUCCESS)throw(evioException(stat,"?evioFileChannel::ioCtl...error return: " + string(evPerror(stat)),
+                                         __FILE__,__FUNCTION__,__LINE__));
   return(stat);
 }
 

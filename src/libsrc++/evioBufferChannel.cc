@@ -59,9 +59,11 @@ evioBufferChannel::~evioBufferChannel(void) {
  */
 void evioBufferChannel::open(void) throw(evioException) {
 
+  int stat;
   if(buf==NULL)throw(evioException(0,"evioBufferChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if(evOpenBuffer((char*)streamBuf,streamBufSize,const_cast<char*>(mode.c_str()),&handle)<0)
-    throw(evioException(0,"?evioBufferChannel::open...unable to open buffer",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evOpenBuffer((char*)streamBuf,streamBufSize,const_cast<char*>(mode.c_str()),&handle))<0)
+    throw(evioException(stat,"?evioBufferChannel::open...unable to open buffer: " + string(evPerror(stat)),
+                        __FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"?evioBufferChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));
 
 
@@ -75,7 +77,8 @@ void evioBufferChannel::open(void) throw(evioException) {
     if((stat==S_SUCCESS)&&(d!=NULL)&&(len>0))bufferXMLDictionary = string(d);
 
     if(dictionary==NULL) {
-      if(stat!=S_SUCCESS)throw(evioException(0,"?evioBufferChannel::open...bad dictionary in buffer",__FILE__,__FUNCTION__,__LINE__));
+      if(stat!=S_SUCCESS)throw(evioException(stat,"?evioBufferChannel::open...bad dictionary in buffer: " + string(evPerror(stat)),
+                                             __FILE__,__FUNCTION__,__LINE__));
       if((d!=NULL)&&(len>0)) {
         dictionary = new evioDictionary(d);
         createdBufferDictionary=true;
@@ -143,7 +146,8 @@ bool evioBufferChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExce
     return(false);
   }
 
-  if(stat!=S_SUCCESS) throw(evioException(stat,"evioBufferChannel::readAlloc...read error",__FILE__,__FUNCTION__,__LINE__));
+  if(stat!=S_SUCCESS) throw(evioException(stat,"evioBufferChannel::readAlloc...read error: " + string(evPerror(stat)),
+                                          __FILE__,__FUNCTION__,__LINE__));
   return(true);
 }
 
@@ -155,9 +159,11 @@ bool evioBufferChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExce
  * Writes to buffer from internal buffer.
  */
 void evioBufferChannel::write(void) throw(evioException) {
+  int stat;
   if(buf==NULL)throw(evioException(0,"evioBufferChannel::write...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioBufferChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,buf)!=0) throw(evioException(0,"?evioBufferChannel::write...unable to write",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evWrite(handle,buf))!=0) throw(evioException(stat,"?evioBufferChannel::write...unable to write: " + string(evPerror(stat)),
+                                                      __FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -169,9 +175,11 @@ void evioBufferChannel::write(void) throw(evioException) {
  * @param myBuf Buffer containing event
  */
 void evioBufferChannel::write(const uint32_t *myBuf) throw(evioException) {
+  int stat;
   if(myBuf==NULL)throw(evioException(0,"evioBufferChannel::write...null myBuf",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioBufferChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,myBuf)!=0) throw(evioException(0,"?evioBufferChannel::write...unable to write from myBuf",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evWrite(handle,myBuf))!=0) throw(evioException(stat,"?evioBufferChannel::write...unable to write from myBuf: " + string(evPerror(stat)),
+                                                        __FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -183,8 +191,11 @@ void evioBufferChannel::write(const uint32_t *myBuf) throw(evioException) {
  * @param channel Channel object
  */
 void evioBufferChannel::write(const evioChannel &channel) throw(evioException) {
+  int stat;
   if(handle==0)throw(evioException(0,"evioBufferChannel::write...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  if(evWrite(handle,channel.getBuffer())!=0) throw(evioException(0,"?evioBufferChannel::write...unable to write from channel",__FILE__,__FUNCTION__,__LINE__));
+  if((stat=evWrite(handle,channel.getBuffer()))!=0)
+    throw(evioException(stat,"?evioBufferChannel::write...unable to write from channel: " + string(evPerror(stat)),
+                        __FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -240,7 +251,8 @@ int evioBufferChannel::ioctl(const string &request, void *argp) throw(evioExcept
   int stat;
   if(handle==0)throw(evioException(0,"evioBufferChannel::ioctl...0 handle",__FILE__,__FUNCTION__,__LINE__));
   stat=evIoctl(handle,const_cast<char*>(request.c_str()),argp)!=0;
-  if(stat!=S_SUCCESS)throw(evioException(stat,"?evioBufferChannel::ioCtl...error return",__FILE__,__FUNCTION__,__LINE__));
+  if(stat!=S_SUCCESS)throw(evioException(stat,"?evioBufferChannel::ioCtl...error return: " + string(evPerror(stat)),
+                                         __FILE__,__FUNCTION__,__LINE__));
   return(stat);
 }
 
@@ -294,7 +306,8 @@ int evioBufferChannel::getBufLength(void) const throw(evioException) {
   if(handle==0)throw(evioException(0,"evioBufferChannel::getBufLength...0 handle",__FILE__,__FUNCTION__,__LINE__));
   int l;
   int stat = evGetBufferLength(handle,&l);   // length is in bytes
-  if(stat!=S_SUCCESS)throw(evioException(stat,"evioBufferChannel::getBufLength...error return",__FILE__,__FUNCTION__,__LINE__));
+  if(stat!=S_SUCCESS)throw(evioException(stat,"evioBufferChannel::getBufLength...error return: " + string(evPerror(stat)),
+                                         __FILE__,__FUNCTION__,__LINE__));
   return((l+3)/4);  // convert to 4-byte words
 }
 
