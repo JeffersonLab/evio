@@ -83,8 +83,9 @@ int main(int argc, char **argv) {
     chan->write(event1);
     cout << endl << "wrote " << chan->getBufLength() << " words into stream buffer" << endl << endl;
 
-    // chan->write(event1);
-    // cout << endl << "wrote " << chan->getBufLength() << " words into stream buffer" << endl << endl;
+    // what the hell, write the event out again
+    chan->write(event1);
+    cout << endl << "wrote " << chan->getBufLength() << " words into stream buffer" << endl << endl;
 
 
     // close buffer channel
