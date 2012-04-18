@@ -3,39 +3,38 @@
 //  Author:  Elliott Wolin, JLab, 13-apr-2012
 
 
-//  must do for v4:
-//   append mode high priority for Gagik
-//   dictionary checksum?
-//   create evio2xml.cc to replace evio2xml.c
-//   who does dictionary belong to?  tree?  toStringConfig?
-
-
 //  must do:
+//   create evio2xml.cc to replace evio2xml.c
 //   update word doc or docx (conflict?)
 
 
 //  should do:
+//   append mode high priority for Gagik
+//   dictionary checksum
+//   who does dictionary belong to?  tree?  toStringConfig?
 //   random access i/o
+//   std::shared_ptr
 //   multi-threading:  defaultToStringconfig?
+//   API for creating and reading composite banks and data
 
 
 //  would like to do:
-//   shared_ptr (std or boost)
-//   cMsg channel
-//   ET channel
-//   java evio tree query and manipulation compatibility?
+//   improve java evio tree query and manipulation compatibility
 
 
 // not sure:
-//   do we need API for creating and reading composite banks and data?
 //   can string array contain NULL string?
 //   change how evioToStringConfig and default config used
-//   auto tag/num creation
-//   XML input channel, i.e. resurrect xml2evio
-//   convert vectors (what does this mean? to what?)
-//   scheme for exception type codes
+//   convert vectors (what does this mean? to what? arrays?)
+
+
+// probably not:
+//   cMsg channel
+//   ET channel
+//   XML channel and xml2evio
 //   decompress/compress on input/output (gzip, bzip, etc.)
 //   pipes, named pipes on input
+//   scheme for exception type codes
 
 
 

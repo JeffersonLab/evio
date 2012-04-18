@@ -34,23 +34,38 @@ int main(int argc, char **argv) {
     "</dict>\n";
 
 
+  // evio buffer channel
   evioBufferChannel * chan;
+
 
   try {
 
-    // create dictionary
+    // create dictionary from XML string
+    // to create a dictionary from a file use:
+    //      evioDictionary dict(ifstream("myfile.xml"));
+    //  (can you guess why evioDictionary dict("myfile.xml") can't work?)
     evioDictionary dict(dictXML);
 
+
     // create stream buffer
-    int bufLen=100000;
-    uint32_t buf[bufLen];
+    int streamBufLen=100000;
+    uint32_t streamBuf[streamBufLen];
 
 
-    // create buffer channel, write to it, then close
-    chan = new evioBufferChannel(buf,bufLen,"w");
+    // create output buffer channel
+    chan = new evioBufferChannel(streamBuf,streamBufLen,"w");
+
+
+    // specify dictionary, gets stored in the stream buffer
+    // MUST supply dictionary prior to opening the channel, otherwise it won't get written to stream buffer!
     chan->setDictionary(dict);
+
+
+    // open the channel, dictionary gets written to stream buffer header now
     chan->open();
 
+
+    // create event tree
     evioDOMTree event1(1, 0);
     event1.addBank(4, 11, x, 4);
     event1.addBank(5, 12, x, 5);
@@ -60,30 +75,58 @@ int main(int argc, char **argv) {
     event1.addBank(9, 16, x, 4);
     event1.addBank(10, 17, x, 8);
     event1.addBank(11, 18, x, 7);
-    cout << "initial event: " << endl << event1.toString(dict) << endl << endl;
-    chan->write(event1);
+    cout << endl << "created event tree: " << endl << event1.toString(dict) << endl << endl;
 
+
+    // write event to stream buffer
+    // must get number of words written BEFORE closing channel!
+    chan->write(event1);
+    cout << endl << "wrote " << chan->getBufLength() << " words into stream buffer" << endl << endl;
+
+    // chan->write(event1);
+    // cout << endl << "wrote " << chan->getBufLength() << " words into stream buffer" << endl << endl;
+
+
+    // close buffer channel
     chan->close();
     delete(chan);
 
-    evioDOMNodeListP l1 = event1.root->getChildren();
-    cout << "l1 size is " << l1->size() << endl;
-    evioDOMNodeListP l2 = event1.root->getChildren(tagNumEquals(4,11));
-    cout << "l2 size is " << l2->size() << endl;
-    cout << endl << endl;
+
+
+    // test some new api functions
+    //   evioDOMNodeListP l1 = event1.root->getChildren();
+    //   cout << "l1 size is " << l1->size() << endl;
+    //   evioDOMNodeListP l2 = event1.root->getChildren(tagNumEquals(4,11));
+    //   cout << "l2 size is " << l2->size() << endl;
+    //   cout << endl << endl;
     
 
-    // create buffer channel, read from it, then close
-    chan = new evioBufferChannel(buf,bufLen,"r");
+
+    // create input buffer channel from original stream buffer
+    // dictionary was written to buffer it gets read in automatically
+    // N.B. you can supply a different dictionary if desired
+    chan = new evioBufferChannel(streamBuf,streamBufLen,"r");
+
+
+    // open channel, dictionary gets read in
     chan->open();
 
-    chan->read();
-    evioDOMTree event2(chan);
-    cout << "final event: " << endl << event2.toString() << endl << endl;
 
+    // get the dictionary
+    const evioDictionary *d = chan->getDictionary();
+    if(d!=NULL)cout << endl << "found dictionary in stream buffer : " << endl << d->getDictionaryXML() << endl << endl;
+
+
+    // read and dump all events in stream buffer
+    while(chan->read()) {
+      evioDOMTree event2(chan);
+      cout << endl << "found event: " << endl << event2.toString() << endl << endl;
+    }
+
+
+    // done
     chan->close();
     delete(chan);
-
 
 
   } catch (evioException e) {

@@ -46,6 +46,9 @@ public:
   void write(const evioChannelBufferizable *o) throw(evioException);
   void close(void) throw(evioException);
 
+  int getBufLength(void) const throw(evioException);
+
+
   const uint32_t *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
 

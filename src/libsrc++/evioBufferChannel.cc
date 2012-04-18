@@ -286,6 +286,21 @@ const uint32_t *evioBufferChannel::getBuffer(void) const throw(evioException) {
 //-----------------------------------------------------------------------
 
 
+/**
+ * Returns length of event record in stream buffer in 4-byte words.
+ * @return Length of event record in stream buffer 4-byte words
+ */
+int evioBufferChannel::getBufLength(void) const throw(evioException) {
+  if(handle==0)throw(evioException(0,"evioBufferChannel::getBufLength...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  int l;
+  int stat = evGetBufferLength(handle,&l);   // length is in bytes
+  if(stat!=S_SUCCESS)throw(evioException(stat,"evioBufferChannel::getBufLength...error return",__FILE__,__FUNCTION__,__LINE__));
+  return((l+3)/4);  // convert to 4-byte words
+}
+
+
+//-----------------------------------------------------------------------
+
 
 /**
  * Returns internal channel buffer size.

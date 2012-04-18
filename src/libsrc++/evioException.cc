@@ -108,7 +108,7 @@ evioException::evioException(int typ, const string &txt, const string &file, con
  */
 string evioException::toString(void) const throw() {
   ostringstream oss;
-  oss << "?evioException type = " << type << "    text = " << text << endl << endl << auxText;
+  oss << "?evioException type = " << hex << "0x" << type << "    text = " << text << endl << endl << auxText << dec;
   if(trace.size()>0) oss << endl << endl << endl << "Stack trace:" << endl << endl << trace << endl;
   return(oss.str());
 }
