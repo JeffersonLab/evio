@@ -47,6 +47,7 @@
  * int  evWrite           (int handle, const uint32_t *buffer)
  * int  evIoctl           (int handle, char *request, void *argp)
  * int  evClose           (int handle)
+ * int  evGetBufferLength (int handle, int *length)
  * int  evGetDictionary   (int handle, char **dictionary, int *len)
  * int  evWriteDictionary (int handle, char *xmlDictionary)
  * int  evIsContainer     (int type)
@@ -76,7 +77,7 @@ typedef struct evfilestruct {
                           *   the expected (sequential) value. Used in debug message. */
   int   rw;              /**< are we reading, writing, piping? */
   int   magic;           /**< magic number. */
-  int   evnum;           /**< last events with evnum so far. */
+  int   evnum;           /**< total # of events written so far. */
   
   int   byte_swapped;    /**< bytes do NOT need swapping = 0 else 1 */
 
@@ -86,7 +87,7 @@ typedef struct evfilestruct {
   /* buffer stuff */
   char *rwBuf;           /**< pointer to buffer if reading/writing from/to buffer. */
   int   rwBufSize;       /**< size of rwBuf buffer in bytes. */
-  int   rwBufUsed;       /**< number of bytes read/written into rwBuf so far. */
+  int   rwBufUsed;       /**< number of bytes read/written from/to rwBuf so far. */
 
   /* socket stuff */
   int   sockFd;          /**< socket file descriptor if reading/writing from/to socket. */
@@ -1994,6 +1995,37 @@ int evWrite(int handle, const uint32_t *buffer)
         }
     }
 
+    return(S_SUCCESS);
+}
+
+
+/**
+ * This routine returns the number of bytes written into a buffer so
+ * far when given a handle provided by calling {@link evOpenBuffer}.
+ *
+ * @param handle evio handle
+ * @param length pointer to int which gets filled with number of bytes
+ *               written to buffer so far
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
+ */
+int evGetBufferLength(int handle, int *length)
+{
+    EVFILE *a;
+
+    /* Check arg */
+    if (a == NULL) {
+        return(S_EVFILE_BADHANDLE);
+    }
+    
+    /* Look up file struct (which contains block buffer) from handle */
+    a = handle_list[handle-1];
+
+    if (length != NULL) {
+        *length = a->rwBufUsed;
+    }
+    
     return(S_SUCCESS);
 }
 
