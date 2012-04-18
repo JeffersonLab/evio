@@ -87,7 +87,8 @@ typedef struct evfilestruct {
   /* buffer stuff */
   char *rwBuf;           /**< pointer to buffer if reading/writing from/to buffer. */
   int   rwBufSize;       /**< size of rwBuf buffer in bytes. */
-  int   rwBufUsed;       /**< number of bytes read/written from/to rwBuf so far. */
+  int   rwBufUsed;       /**< number of bytes read/written from/to rwBuf so far (after each flush). */
+  int   rwBytesOut;      /**< number of bytes read/written from/to rwBuf so far (after each evWrite). */
 
   /* socket stuff */
   int   sockFd;          /**< socket file descriptor if reading/writing from/to socket. */
@@ -1047,6 +1048,7 @@ printf("HAVE DICTIONARY\n");
         a->blkSizeTarget = EV_BLOCKSIZE_V4;
         /* Total data written = block header size so far */
         a->blksiz = EV_HDSIZ;
+        a->rwBytesOut = 4*EV_HDSIZ;
         /* Max # of events/block */
         a->eventsMax = EV_EVENTS_MAX;
         /* Remember size of block buffer */
@@ -1985,6 +1987,7 @@ int evWrite(int handle, const uint32_t *buffer)
         
     a->next += nToWrite;
     a->left -= nToWrite;
+    a->rwBytesOut += 4*nToWrite;
 
     /* If no space for writing left in block or reached the maximum
     * number of events per block, flush block to file/buf/socket */
@@ -2002,6 +2005,7 @@ int evWrite(int handle, const uint32_t *buffer)
 /**
  * This routine returns the number of bytes written into a buffer so
  * far when given a handle provided by calling {@link evOpenBuffer}.
+ * After the handle is closed, this no longer returns anything valid.
  *
  * @param handle evio handle
  * @param length pointer to int which gets filled with number of bytes
@@ -2022,8 +2026,13 @@ int evGetBufferLength(int handle, int *length)
         return(S_EVFILE_BADHANDLE);
     }
     
+    /* Check magic # */
+    if (a->magic != EV_MAGIC) {
+        return(S_EVFILE_BADHANDLE);
+    }
+
     if (length != NULL) {
-        *length = a->rwBufUsed;
+        *length = a->rwBytesOut;
     }
     
     return(S_SUCCESS);
@@ -2097,6 +2106,7 @@ static int evFlush(EVFILE *a)
     a->left = a->bufSize - EV_HDSIZ;
     /* Total written size = block header size so far */
     a->blksiz = EV_HDSIZ;
+    a->rwBytesOut += 4*EV_HDSIZ;
     /* No events in block yet */
     a->evCount = 0;
  
