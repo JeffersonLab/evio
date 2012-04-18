@@ -89,6 +89,8 @@ int evWriteDictionary(int handle, char *xmlDictionary);
 
 int evIsContainer(int type);
 const char *evGetTypename(int type);
+char *evPerror(int error);
+
 
 #ifdef __cplusplus
 }

@@ -51,6 +51,7 @@
  * int  evGetDictionary   (int handle, char **dictionary, int *len)
  * int  evWriteDictionary (int handle, char *xmlDictionary)
  * int  evIsContainer     (int type)
+ * char *evPerror         (int error)
  * const char *evGetTypename (int type)
  */
 
@@ -1105,6 +1106,7 @@ printf("HAVE DICTIONARY\n");
  *
  * @return S_SUCCESS          if successful
  * @return S_EVFILE_ALLOCFAIL if memory allocation failed
+ * @return S_EVFILE_UNKOPTION if unknown flags specified
  * @return S_EVFILE_BADFILE   if error reading file, unsupported version,
  *                            or contradictory data in file
  * @return S_EVFILE_BADHANDLE if no memory available to store handle structure
@@ -1472,7 +1474,6 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, int *buflen)
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
  * @return S_EVFILE_BADFILE   if file has bad magic #
- * @return S_EVFILE_BADBLOCK  if file has bad block #
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
  *                            while reading data (perhaps bad block header)
  * @return EOF                if end-of-file or end-of-valid-data reached
@@ -2387,10 +2388,10 @@ int evGetDictionary(int handle, char **dictionary, int *len) {
  *                      NULL to remove previously specified dictionary
  *
  * @return S_SUCCESS           if successful
+ * @return S_FAILURE           if reading or have already written events
  * @return S_EVFILE_BADARG     if dictionary in wrong format
  * @return S_EVFILE_ALLOCFAIL  if cannot allocate memory
  * @return S_EVFILE_BADHANDLE  if bad handle arg or wrong magic # in handle
- * @return S_EVFILE_BADSIZEREQ if reading or have already written events
  * @return errno               if file/socket write error
  * @return stream error        if file stream error
  */
@@ -2423,12 +2424,12 @@ int evWriteDictionary(int handle, char *xmlDictionary)
     /* Need to be writing not reading */
     if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
         a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
-        return(S_EVFILE_BADSIZEREQ);
+        return(S_FAILURE);
     }
     
     /* Cannot have already written events */
     if (a->blknum != 1 || a->evCount != 0) {
-        return(S_EVFILE_BADSIZEREQ);
+        return(S_FAILURE);
     }
 
     /* Clear any previously specified dictionary (should never happen) */
@@ -2676,4 +2677,79 @@ int evIsContainer(int type) {
             return(0);
     }
 }
+
+
+/**
+ * This routine returns a string describing the given error value.
+ * The returned string is a static char array. This means it is not
+ * thread-safe and will be overwritten on subsequent calls.
+ *
+ * @param error error condition
+ *
+ * @returns error string
+ */
+char *evPerror(int error) {
+
+    static char temp[256];
+
+    switch(error) {
+
+        case S_SUCCESS:
+            sprintf(temp, "S_SUCCESS:  action completed successfully\n");
+            break;
+
+        case S_FAILURE:
+            sprintf(temp, "S_FAILURE:  action failed\n");
+            break;
+
+        case S_EVFILE:
+            sprintf(temp, "S_EVFILE:  evfile.msg event file I/O\n");
+            break;
+
+        case S_EVFILE_TRUNC:
+            sprintf(temp, "S_EVFILE_TRUNC:  event truncated, insufficient buffer space\n");
+            break;
+
+        case S_EVFILE_BADBLOCK:
+            sprintf(temp, "S_EVFILE_BADBLOCK:  bad block (header) number\n");
+            break;
+
+        case S_EVFILE_BADHANDLE:
+            sprintf(temp, "S_EVFILE_BADHANDLE:  bad handle (closed?) or no memory to create new handle\n");
+            break;
+
+        case S_EVFILE_BADFILE:
+            sprintf(temp, "S_EVFILE_BADFILE:  bad file format\n");
+            break;
+
+        case S_EVFILE_BADARG:
+            sprintf(temp, "S_EVFILE_BADARG:  invalid function argument\n");
+            break;
+
+        case S_EVFILE_ALLOCFAIL:
+            sprintf(temp, "S_EVFILE_ALLOCFAIL:  failed to allocate memory\n");
+            break;
+
+        case S_EVFILE_UNKOPTION:
+            sprintf(temp, "S_EVFILE_UNKOPTION:  unknown option specified\n");
+            break;
+        
+        case S_EVFILE_UNXPTDEOF:
+            sprintf(temp, "S_EVFILE_UNXPTDEOF:  unexpected end-of-file or end-of-valid_data while reading\n");
+            break;
+
+        case S_EVFILE_BADSIZEREQ:
+            sprintf(temp, "S_EVFILE_BADSIZEREQ:  invalid buffer size request to evIoct\n");
+            break;
+
+        default:
+            sprintf(temp, "?evPerror...no such error: %d\n",error);
+            break;
+    }
+
+    return(temp);
+}
+
+
+
 
