@@ -82,6 +82,7 @@ int evReadAlloc(int handle, uint32_t **buffer, int *buflen);
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
+int evGetBufferLength(int handle, int *length);
 
 int evGetDictionary(int handle, char **dictionary, int *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
