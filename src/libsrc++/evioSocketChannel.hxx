@@ -31,6 +31,7 @@ class evioSocketChannel : public evioChannel {
 
 public:
   evioSocketChannel(int socFd, const string &mode = "r", int size=100000) throw(evioException);
+  evioSocketChannel(int socFd, evioDictionary *dict, const string &mode = "r", int size=100000) throw(evioException);
   virtual ~evioSocketChannel(void);
 
 

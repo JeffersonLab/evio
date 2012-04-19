@@ -31,6 +31,7 @@ class evioBufferChannel : public evioChannel {
 
 public:
   evioBufferChannel(uint32_t *streamBuf, int bufLen, const string &mode = "r", int size=100000) throw(evioException);
+  evioBufferChannel(uint32_t *streamBuf, int bufLen, evioDictionary *dict, const string &mode = "r", int size=100000) throw(evioException);
   virtual ~evioBufferChannel(void);
 
 

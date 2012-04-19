@@ -51,6 +51,7 @@ class evioChannel {
 
 public:
   evioChannel(void) : dictionary(NULL) {}
+  evioChannel(evioDictionary *dict) : dictionary(dict) {}
   virtual void open(void) throw(evioException) = 0;
   virtual bool read(void) throw(evioException) = 0;
   virtual bool read(uint32_t *myBuf, int length) throw(evioException) = 0;
@@ -71,8 +72,6 @@ protected:
 
 
 public:
-  virtual void setDictionary(evioDictionary &dict)        {dictionary = &dict;}
-  virtual void setDictionary(evioDictionary *dict)        {dictionary = dict;}
   virtual const evioDictionary *getDictionary(void) const {return(dictionary);}
 
 

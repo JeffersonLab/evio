@@ -41,6 +41,28 @@ evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const stri
 
 
 /**
+ * Constructor opens buffer for reading or writing.
+ * @param streamBuf Stream buffer specified by the user
+ * @param bufLen size of the stream buffer
+ * @param dict Dictionary
+ * @param m I/O mode, "r" or "w"
+ * @param size Internal event buffer size
+ */
+evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, evioDictionary *dict, const string &m, int size) throw(evioException) 
+  : evioChannel(dict), streamBuf(streamBuf), streamBufSize(bufLen), mode(m), handle(0), bufSize(size), bufferXMLDictionary(""),
+    createdBufferDictionary(false) {
+  if(streamBuf==NULL)throw(evioException(0,"?evioBufferChannel constructor...NULL buffer",__FILE__,__FUNCTION__,__LINE__));
+
+  // allocate internal event buffer
+  buf = new uint32_t[bufSize];
+  if(buf==NULL)throw(evioException(0,"?evioBufferChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
  * Destructor closes buffer, deletes internal buffer and dictionary.
  */
 evioBufferChannel::~evioBufferChannel(void) {

@@ -38,6 +38,25 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
 
 
 /**
+ * Constructor opens file for reading or writing, dictionary specified.
+ * @param f File name
+ * @param dict Dictionary
+ * @param m I/O mode, "r" or "w"
+ * @param size Internal buffer size
+ */
+evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const string &m, int size) throw(evioException) 
+  : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary(""), createdFileDictionary(false) {
+
+  // allocate internal event buffer
+  buf = new uint32_t[bufSize];
+  if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
  * Destructor closes file, deletes internal buffer, deletes dictionary one created from file
  */
 evioFileChannel::~evioFileChannel(void) {

@@ -52,13 +52,8 @@ int main(int argc, char **argv) {
     uint32_t streamBuf[streamBufLen];
 
 
-    // create output buffer channel
-    chan = new evioBufferChannel(streamBuf,streamBufLen,"w");
-
-
-    // specify dictionary, gets stored in the stream buffer
-    // MUST supply dictionary prior to opening the channel, otherwise it won't get written to stream buffer!
-    chan->setDictionary(dict);
+    // create output buffer channel and specify dictionary
+    chan = new evioBufferChannel(streamBuf,streamBufLen,&dict,"w");
 
 
     // open the channel, dictionary gets written to stream buffer header now

@@ -39,6 +39,26 @@ evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size) thro
 
 
 /**
+ * Constructor opens socket for reading or writing.
+ * @param sockFD Socket file descriptor
+ * @param dict Dictionary
+ * @param m I/O mode, "r" or "w"
+ * @param size Internal event buffer size
+ */
+evioSocketChannel::evioSocketChannel(int sockFD, evioDictionary *dict, const string &m, int size) throw(evioException) 
+  : evioChannel(dict), sockFD(sockFD), mode(m), handle(0), bufSize(size), socketXMLDictionary(""), createdSocketDictionary(false)  {
+  if(sockFD==0)throw(evioException(0,"?evioSocketChannel constructor...zero socket file descriptor",__FILE__,__FUNCTION__,__LINE__));
+
+  // allocate internal event buffer
+  buf = new uint32_t[bufSize];
+  if(buf==NULL)throw(evioException(0,"?evioSocketChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
  * Destructor closes socket, deletes internal buffer
  */
 evioSocketChannel::~evioSocketChannel(void) {

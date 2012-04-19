@@ -32,6 +32,7 @@ class evioFileChannel : public evioChannel {
 
 public:
   evioFileChannel(const string &fileName, const string &mode = "r", int size = 1000000) throw(evioException);
+  evioFileChannel(const string &fileName, evioDictionary *dict, const string &mode = "r", int size = 1000000) throw(evioException);
   virtual ~evioFileChannel(void);
 
 
