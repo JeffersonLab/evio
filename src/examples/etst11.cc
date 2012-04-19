@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     // create dictionary from XML string
     // to create a dictionary from a file use:
     //      evioDictionary dict(ifstream("myfile.xml"));
-    //  (can you guess why evioDictionary dict("myfile.xml") can't work?)
+    //  (can you guess why evioDictionary dict("myfile.xml") won't work?)
     evioDictionary dict(dictXML);
 
 
