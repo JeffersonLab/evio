@@ -9,10 +9,11 @@
 
 
 //  should do:
-//   append mode high priority for Gagik
+//   no-copy read from stream buffer just returns const pointer to event
+//   append mode
+//   random access i/o
 //   dictionary checksum
 //   who does dictionary belong to?  tree?  toStringConfig?
-//   random access i/o
 //   std::shared_ptr
 //   multi-threading:  defaultToStringconfig?
 //   API for creating and reading composite banks and data
