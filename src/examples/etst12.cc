@@ -37,10 +37,8 @@ class myHandler: public evioStreamParserHandler {
   void *leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                         int depth, const void *data, void *userArg) {
     
-    // add banks containing doubles to event tree
-    if(contentType==0x8) {
-      ((evioDOMTree*)(userArg))->addBank(tag,num,(double*)data,length);
-    }      
+    // just add banks containing doubles to event tree
+    if(contentType==0x8) ((evioDOMTree*)(userArg))->addBank(tag,num,(double*)data,length);
 
     return(userArg);
   } 
