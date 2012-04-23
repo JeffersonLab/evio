@@ -42,8 +42,8 @@ int main(int argc, char **argv) {
     while(chan->read()) {
       evioDOMTree event(chan);
       event.toEVIOBuffer(buffer,sizeof(buffer)/sizeof(uint32_t));
-      cout << "getSerializedLength:  " << event.getSerializedLength() << endl;
-      cout << "event length:  " << (buffer[0]+1) << endl;
+      cout << "Length of event read in from channel:  " << (chan->getBuffer[0]+1) << endl;
+      cout << "Length of event after serialization:   " << (buffer[0]+1) << endl;
     }    
     
     
