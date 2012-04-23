@@ -23,8 +23,7 @@ using namespace std;
 
 int main(int argc, char **argv) {
 
-  uint32_t buf[100000];
-  uint32_t outbuf[100000];
+  uint32_t outputStreamBuf[100000];
 
 
 
@@ -41,7 +40,7 @@ int main(int argc, char **argv) {
     
 
     // create and open output buffer channel
-    evioBufferChannel *chan2 = new evioBufferChannel(outbuf,sizeof(outbuf),"w");
+    evioBufferChannel *chan2 = new evioBufferChannel(outputStreamBuf,sizeof(outputStreamBuf),"w");
     chan2->open();
 
 
@@ -54,13 +53,8 @@ int main(int argc, char **argv) {
       cout << "Event length from input file channel:  " << (chan1->getBuffer()[0]+1) << endl;
 
 
-      // serialize event only to buffer
-      event.toEVIOBuffer(buf,sizeof(buf));
-      cout << "Event length after serialization:      " << (buf[0]+1) << endl;
-
-
-      // write serialized event to output stream buffer channel
-      chan2->write(buf);
+      // write event to output stream buffer channel
+      chan2->write(event);
       cout << "Event length in stream buffer:         " << chan2->getBufLength() << endl;
     }    
     

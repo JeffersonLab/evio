@@ -6,9 +6,11 @@
 //  must do:
 //   create evio2xml.cc to replace evio2xml.c
 //   update word doc or docx (conflict?)
+//   figure out about evioBufferChannel.write() and internal buffers
 
 
 //  should do:
+//   add evioChannel.write(evioDOMTree&)
 //   append mode and random access i/o
 //   no-copy read from stream buffer just returns const pointer to event
 //   dictionary checksum
