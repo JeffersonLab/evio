@@ -121,7 +121,14 @@ void evioFileChannel::open(void) throw(evioException) {
 bool evioFileChannel::read(void) throw(evioException) {
   if(buf==NULL)throw(evioException(0,"evioFileChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  return(evRead(handle,&buf[0],bufSize)==0);
+  int stat=evRead(handle,&buf[0],bufSize);
+  if(stat==S_SUCCESS) {
+    return(true);
+  } else if(stat==EOF) {
+    return(false);
+  } else {
+    throw(evioException(stat,"evioFileChannel::read...read error",__FILE__,__FUNCTION__,__LINE__));
+  }
 }
 
 
@@ -137,7 +144,14 @@ bool evioFileChannel::read(void) throw(evioException) {
 bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  return(evRead(handle,&myBuf[0],length)==0);
+  int stat=evRead(handle,&buf[0],bufSize);
+  if(stat==S_SUCCESS) {
+    return(true);
+  } else if(stat==EOF) {
+    return(false);
+  } else {
+    throw(evioException(stat,"evioFileChannel::read...read error",__FILE__,__FUNCTION__,__LINE__));
+  }
 }
 
 

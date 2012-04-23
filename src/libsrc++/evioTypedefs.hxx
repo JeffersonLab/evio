@@ -45,14 +45,16 @@ class evioToStringConfig;
 
 
 
-//typedef boost::shared_ptr<evioDOMNode> evioDOMNodeP;          /** Node pointer returned by many functions, need to fix all new() calls.*/
-
 typedef evioDOMTree* evioDOMTreeP;                   /**<Pointer to evioDOMTree.*/
 typedef evioDOMNode* evioDOMNodeP;                   /**<Pointer to evioDOMNode, only way to access nodes.*/
 typedef list<evioDOMNodeP>  evioDOMNodeList;         /**<List of pointers to evioDOMNode.*/
 typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evioDOMNode pointers, returned by getNodeList.*/
 
-//typedef boost::shared_ptr<evioDOMNodeList> evioDOMNodeListP;  /** List of node pointers returned by getNodeList.*/
+
+// should lists contain shared pointers?
+//typedef shared_ptr<evioDOMNode> evioDOMNodeP;          /** Node pointer.*/
+//typedef shared_ptr<evioDOMTree> evioDOMTreeP;          /** Tree pointer.*/
+//typedef shared_ptr<evioDOMNodeList> evioDOMNodeListP;  /** List of node pointers.*/
 
 
 /** Defines the container bank types.*/

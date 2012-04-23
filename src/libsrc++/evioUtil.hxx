@@ -9,9 +9,8 @@
 
 
 //  should do:
+//   append mode and random access i/o
 //   no-copy read from stream buffer just returns const pointer to event
-//   append mode
-//   random access i/o
 //   dictionary checksum
 //   who does dictionary belong to?  tree?  toStringConfig?
 //   std::shared_ptr
@@ -54,7 +53,6 @@
 #include <cstring>
 #include <typeinfo>
 #include <expat.h>
-//#include "boost/shared_ptr.hpp"
 
 #ifdef vxworks
 #include <iostream.h>
@@ -150,9 +148,12 @@ private:
 
 
 public:
-  int maxDepth;      /**<Max depth to dump.*/
-  bool noData;       /**<True do not dump leaf node data.*/
+  bool debug;        /**<True to turn on debug printout.*/
+  bool verbose;      /**<True to turn on verbose printout.*/
+  bool brief;        /**<True to turn on brief printout.*/
   bool xtod;         /**<True print unsigned values as decimal.*/
+  bool noData;       /**<True do not dump leaf node data.*/
+  int maxDepth;      /**<Max depth to dump.*/
   int indentSize;    /**<Indent size per unit of depth.*/
   const evioDictionary *toStringDictionary;   /**<Dictionary to use.*/
 
