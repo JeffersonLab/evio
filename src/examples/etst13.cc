@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <evioUtil.hxx>
 #include "evioFileChannel.hxx"
+#include "evioBufferChannel.hxx"
 
 using namespace evio;
 using namespace std;
@@ -22,38 +23,57 @@ using namespace std;
 
 int main(int argc, char **argv) {
 
-  uint32_t buffer[100000];
+  uint32_t buf[100000];
+  uint32_t outbuf[100000];
 
 
 
   try {
 
-    // create and open file channel
-    evioFileChannel *chan;
+    // create and open input file channel
+    evioFileChannel *chan1;
     if(argc>1) {
-      chan = new evioFileChannel(argv[1],"r");
+      chan1 = new evioFileChannel(argv[1],"r");
     } else {
-      chan = new evioFileChannel("fakeEvents.dat","r");
+      chan1 = new evioFileChannel("fakeEvents.dat","r");
     }
-    chan->open();
+    chan1->open();
     
+
+    // create and open output buffer channel
+    evioBufferChannel *chan2 = new evioBufferChannel(outbuf,sizeof(outbuf),"w");
+    chan2->open();
+
+
     
-    // read events from channel
-    while(chan->read()) {
-      evioDOMTree event(chan);
-      event.toEVIOBuffer(buffer,sizeof(buffer)/sizeof(uint32_t));
-      cout << "Length of event read in from channel:  " << (chan->getBuffer[0]+1) << endl;
-      cout << "Length of event after serialization:   " << (buffer[0]+1) << endl;
+    // loop over events in file channel
+    while(chan1->read()) {
+
+      // create tree from input file channel
+      evioDOMTree event(chan1);
+      cout << "Event length from input file channel:  " << (chan1->getBuffer()[0]+1) << endl;
+
+
+      // serialize event only to buffer
+      event.toEVIOBuffer(buf,sizeof(buf));
+      cout << "Event length after serialization:      " << (buf[0]+1) << endl;
+
+
+      // write serialized event to output stream buffer channel
+      chan2->write(buf);
+      cout << "Event length in stream buffer:         " << chan2->getBufLength() << endl;
     }    
     
+
+    // done
+    chan1->close();
+    chan2->close();
     
   } catch (evioException e) {
     cerr << e.toString() << endl;
     exit(EXIT_FAILURE);
   }
   
-
-  cout << "done" << endl;
 }
 
 
