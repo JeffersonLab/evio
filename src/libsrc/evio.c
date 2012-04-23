@@ -1730,6 +1730,7 @@ static int evGetNewBuffer(EVFILE *a)
 
     /* See if we read in the last block the last time this was called (v4) */
     if (a->version > 3 && a->isLastBlock) {
+/*printf("evGetNewBuffer: read in LAST BLOCK, return EOF\n");*/
         return(EOF);
     }
 
@@ -1809,7 +1810,7 @@ static int evGetNewBuffer(EVFILE *a)
     bytesToRead = 4*(a->blksiz - EV_HDSIZ);
     if (a->rw == EV_READFILE) {
         nBytes = 4*fread((a->buf + EV_HDSIZ), 4, bytesToRead/4, a->file);
-        if (feof(a->file))   {return(EOF);}
+        if (feof(a->file)) {return(EOF);}
         if (ferror(a->file)) {return(ferror(a->file));}
     }
     else if (a->rw == EV_READSOCK) {
@@ -1847,8 +1848,8 @@ static int evGetNewBuffer(EVFILE *a)
     }
 
     /* Check to see if we just read in the last block (v4) */
-    if (a->version > 3) {
-        setLastBlockBit(a);
+    if (a->version > 3 && isLastBlock(a)) {
+/*printf("evGetNewBuffer: read in last block, #%d\n", a->blknum);*/
         a->isLastBlock = 1;
     }
 
