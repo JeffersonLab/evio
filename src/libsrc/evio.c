@@ -68,8 +68,8 @@
  */
 typedef struct evfilestruct {
   FILE    *file;         /**< pointer to file. */
-  int32_t *buf;          /**< pointer to buffer of block being read/written. */
-  int32_t *next;         /**< pointer to next word in block to be read/written. */
+  uint32_t *buf;          /**< pointer to buffer of block being read/written. */
+  uint32_t *next;         /**< pointer to next word in block to be read/written. */
   int   left;            /**< # of valid 32 bit unread/unwritten words in block. */
   int   blksiz;          /**< size of block in 32 bit words - v3 or
                           *   size of actual data - v4. */
@@ -875,7 +875,7 @@ printf("BLOCK SIZE = %d\n", blk_size);
 
         /* How big do we make this buffer? Use a minimum size. */
         a->bufSize = blk_size < EV_BLOCKSIZE_MIN ? EV_BLOCKSIZE_MIN : blk_size;
-        a->buf = (int32_t *)malloc(4*a->bufSize);
+        a->buf = (uint32_t *)malloc(4*a->bufSize);
 
         /* Error if can't allocate buffer memory */
         if (a->buf == NULL) {
@@ -959,7 +959,7 @@ if (a->isLastBlock) printf("LAST BLOCK\n");
             if (hasDictionary(a)) {
 printf("HAVE DICTIONARY\n");
                 int status;
-                int32_t buflen;
+                uint32_t buflen;
                 uint32_t *buf;
 
                 /* Read in first bank which will be dictionary */
@@ -1020,7 +1020,7 @@ printf("HAVE DICTIONARY\n");
         }
 
         /* Allocate memory for a block */
-        a->buf = (int32_t *) calloc(1,4*EV_BLOCKSIZE_V4);
+        a->buf = (uint32_t *) calloc(1,4*EV_BLOCKSIZE_V4);
         if (!(a->buf)) {
             if (useFile) {
                 if (a->rw == EV_WRITEFILE) {
@@ -1230,7 +1230,7 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
                     blk_size = EVIO_SWAP32(blk_size);
                 }
                 a->blksiz = blk_size;
-                a->buf = (int32_t *)malloc(blk_size*4);
+                a->buf = (uint32_t *)malloc(blk_size*4);
                
                 /* Error if can't allocate buffer memory */
                 if (!(a->buf)) {
@@ -1285,7 +1285,7 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
 
             if (a->file) {
                 /* Allocate memory for a block */
-                a->buf = (int32_t *) malloc(EV_BLOCKSIZE_V4*4);
+                a->buf = (uint32_t *) malloc(EV_BLOCKSIZE_V4*4);
                 if (!(a->buf)) {
                     free(a);
                     free(filename);
@@ -1530,6 +1530,7 @@ int evread_
  * @return S_EVFILE_TRUNC     if buffer provided by caller is too small for event read
  * @return S_EVFILE_BADARG    if buffer is NULL or buflen < 3
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
  * @return S_EVFILE_BADFILE   if data has bad magic #
  * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
  *                            while reading data (perhaps bad block header)
@@ -1541,7 +1542,7 @@ int evRead(int handle, uint32_t *buffer, int buflen)
 {
     EVFILE *a;
     int     nleft, ncopy, error, status;
-    int32_t *temp_buffer, *temp_ptr=NULL;
+    uint32_t *temp_buffer, *temp_ptr=NULL;
 
 
     if (buffer == NULL || buflen < 3) {
@@ -1578,7 +1579,8 @@ int evRead(int handle, uint32_t *buffer, int buflen)
     /* Find number of words to read in next event (including header) */
     if (a->byte_swapped) {
         /* Create temp buffer for swapping */
-        temp_ptr = temp_buffer = (int32_t *) malloc(buflen*sizeof(int32_t));
+        temp_ptr = temp_buffer = (uint32_t *) malloc(buflen*sizeof(uint32_t));
+        if (temp_ptr == NULL) return(S_EVFILE_ALLOCFAIL);
         /* Value at pointer to next event (bank) header = length of bank - 1 */
         nleft = EVIO_SWAP32(*(a->next)) + 1;
     }
@@ -1632,6 +1634,121 @@ int evRead(int handle, uint32_t *buffer, int buflen)
         free(temp_ptr);
     }
     
+    return(S_SUCCESS);
+}
+
+
+/**
+ * This routine reads from an evio format file/buffer/socket opened with routine
+ * {@link evOpen} and returns a pointer to the next event residing in an internal buffer.
+ * If the data needs to be swapped, it is stored in a static buffer. Thus any other
+ * call to read routines will cause the swapped data to be overwritten.
+ * No writing to the returned pointer is allowed.
+ * Works only with evio version 4 and up. A status is returned.
+ * NOTE: a bug is that the last event read which needs swapping, does NOT get freed
+ *
+ * @param handle evio handle
+ * @param buffer pointer to pointer to buffer gets filled with pointer to location in
+ *               internal buffer which is guaranteed to be valid only until the next
+ *              {@link evRead}, {@link evReadNoAlloc}, or {@link evReadNoCopy} call.
+ * @param buflen pointer to int gets filled with length of buffer in 32 bit words
+ *               including the full (8 byte) header
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_FAILURE          if opened for writing in {@link evOpen}
+ * @return S_EVFILE_TRUNC     if buffer provided by caller is too small for event read
+ * @return S_EVFILE_BADARG    if buffer or buflen is NULL
+ * @return S_EVFILE_BADFILE   if version < 4, unsupported or bad format
+ * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
+ * @return S_EVFILE_BADFILE   if data has bad magic #
+ * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
+ *                               while reading data (perhaps bad block header)
+ * @return EOF                if end-of-file or end-of-valid-data reached
+ * @return errno              if file/socket read error
+ * @return stream error       if file stream error
+ */
+int evReadNoCopy(int handle, const uint32_t **buffer, int *buflen)
+{
+    EVFILE *a;
+    int     nleft, status;
+    static uint32_t *tempBuf = NULL;
+
+
+    if (buffer == NULL || buflen == NULL) {
+        return(S_EVFILE_BADARG);
+    }
+
+    /* Look up file struct (which contains block buffer) from handle */
+    a = handle_list[handle-1];
+
+    /* Check args */
+    if (a == NULL) {
+        return(S_EVFILE_BADHANDLE);
+    }
+
+    /* Returning a pointer into a block only works in evio version 4 and
+     * up since in earlier versions events may be split between blocks. */
+    if (a->version < 4) {
+        return(S_EVFILE_BADFILE);
+    }
+
+    /* Check magic # */
+    if (a->magic != EV_MAGIC) {
+        return(S_EVFILE_BADHANDLE);
+    }
+
+    /* Need to be reading (not from socket) and not writing */
+    if (a->rw != EV_READFILE && a->rw != EV_READPIPE &&
+        a->rw != EV_READBUF  && a->rw != EV_READSOCK) {
+        return(S_FAILURE);
+    }
+    
+    /* If no more data left to read from current block, get a new block */
+    if (a->left <= 0) {
+        status = evGetNewBuffer(a);
+        if (status != S_SUCCESS) {
+            return(status);
+        }
+    }
+
+    /* Get rid of the last event read in & swapped. */
+    if (tempBuf != NULL) {
+        free(tempBuf);
+        tempBuf = NULL;
+    }
+
+    /* Find number of words to read in next event (including header) */
+    if (a->byte_swapped) {
+        /* Length of next bank, including header, in 32 bit words */
+        nleft = EVIO_SWAP32(*(a->next)) + 1;
+        
+        /* Create temp buffer for swapping */
+        tempBuf = (uint32_t *) malloc(nleft*sizeof(uint32_t));
+        if (tempBuf == NULL) return(S_EVFILE_ALLOCFAIL);
+        
+        /* copy data into temp buffer */
+        memcpy(tempBuf, a->next, nleft*4);
+        
+        /* swap in place */
+        evioswap((uint32_t*)tempBuf, 1, NULL);
+
+        /* return location of this temp buffer */
+        *buffer = tempBuf;
+    }
+    else {
+        /* Length of next bank, including header, in 32 bit words */
+        nleft = *(a->next) + 1;
+        
+        /* return location of place of event in block buffer */
+        *buffer = a->next;
+    }
+
+    *buflen = nleft;
+
+    a->next += nleft;
+    a->left -= nleft;
+
     return(S_SUCCESS);
 }
 
@@ -1738,7 +1855,7 @@ static int32_t evGetNewBufferOrig(EVFILE *a)
  */
 static int evGetNewBuffer(EVFILE *a)
 {
-    int32_t *newBuf;
+    uint32_t *newBuf;
     int nread, nBytes, status, blkSize, bytesToRead;
 
     status = S_SUCCESS;
@@ -1807,7 +1924,7 @@ static int evGetNewBuffer(EVFILE *a)
 #ifdef DEBUG
         fprintf(stderr,"evGetNewBuffer: increase internal buffer size to %d bytes\n", 4*a->blksiz);
 #endif
-        newBuf = (int32_t *)malloc(4*a->blksiz);
+        newBuf = (uint32_t *)malloc(4*a->blksiz);
         if (newBuf == NULL) {
             return(S_EVFILE_ALLOCFAIL);
         }
@@ -1966,10 +2083,10 @@ int evWrite(int handle, const uint32_t *buffer)
         if (a->evCount < 1 && (nToWrite > a->bufSize - EV_HDSIZ)) {
 
             /* Keep old buffer around for a bit */
-            int32_t *pOldBuf = a->buf;
+            uint32_t *pOldBuf = a->buf;
             
             /* Allocate more space */
-            a->buf = (int32_t *) malloc((nToWrite + EV_HDSIZ)*4);
+            a->buf = (uint32_t *) malloc((nToWrite + EV_HDSIZ)*4);
             if (!(a->buf)) {
                 /* Set things back to the way they were so if more memory
                  * is freed somewhere, can continue to call this function */
@@ -2196,7 +2313,7 @@ int evioctl_
 int evIoctl(int handle, char *request, void *argp)
 {
     EVFILE *a;
-    int32_t *newBuf, *pHeader;
+    uint32_t *newBuf, *pHeader;
     int eventsMax, blockSize;
 
     /* Look up file struct from handle */
@@ -2254,7 +2371,7 @@ int evIoctl(int handle, char *request, void *argp)
             if (blockSize > a->bufSize) {
                 /* Allocate memory for increased block size. If this fails
                  * we can still (theoretically) continue with writing. */
-                newBuf = (int32_t *) malloc(blockSize*4);
+                newBuf = (uint32_t *) malloc(blockSize*4);
                 if (newBuf == NULL) {
                     return(S_EVFILE_ALLOCFAIL);
                 }
@@ -2306,7 +2423,7 @@ int evIoctl(int handle, char *request, void *argp)
             if (argp == NULL) {
                 return(S_EVFILE_BADARG);
             }
-            pHeader = (int32_t *)malloc(8*sizeof(int));
+            pHeader = (uint32_t *)malloc(8*sizeof(int));
             if (pHeader == NULL) {
                 return(S_EVFILE_ALLOCFAIL);
             }
@@ -2423,7 +2540,7 @@ int evWriteDictionary(int handle, char *xmlDictionary)
 {
     EVFILE  *a;
     char    *pChar;
-    int32_t *dictBuf;
+    uint32_t *dictBuf;
     int      i, status, dictionaryLen, padSize, bufSize, pads[] = {4,3,2,1};
 
     /* Look up file struct from handle */

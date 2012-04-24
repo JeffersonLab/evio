@@ -78,6 +78,7 @@ int evOpenSocket(int sockFd, char *flags, int *handle);
 
 int evRead(int handle, uint32_t *buffer, int size);
 int evReadAlloc(int handle, uint32_t **buffer, int *buflen);
+int evReadNoCopy(int handle, const uint32_t **buffer, int *buflen);
 
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);
