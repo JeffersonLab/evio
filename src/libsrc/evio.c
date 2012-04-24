@@ -1726,12 +1726,9 @@ int evReadNoCopy(int handle, const uint32_t **buffer, int *buflen)
         /* Create temp buffer for swapping */
         tempBuf = (uint32_t *) malloc(nleft*sizeof(uint32_t));
         if (tempBuf == NULL) return(S_EVFILE_ALLOCFAIL);
-        
-        /* copy data into temp buffer */
-        memcpy(tempBuf, a->next, nleft*4);
-        
-        /* swap in place */
-        evioswap((uint32_t*)tempBuf, 1, NULL);
+                
+        /* swap data into buffer */
+        evioswap(a->next, 1, (uint32_t*)tempBuf);
 
         /* return location of this temp buffer */
         *buffer = tempBuf;
