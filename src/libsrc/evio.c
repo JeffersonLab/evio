@@ -1728,7 +1728,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, int *buflen)
         if (tempBuf == NULL) return(S_EVFILE_ALLOCFAIL);
                 
         /* swap data into buffer */
-        evioswap(a->next, 1, (uint32_t*)tempBuf);
+        evioswap(a->next, 1, tempBuf);
 
         /* return location of this temp buffer */
         *buffer = tempBuf;
