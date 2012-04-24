@@ -1370,6 +1370,7 @@ printf("Header size was assumed to be %d but the file said it was %d, quit\n", E
  *               including the full (8 byte) header
  *
  * @return S_SUCCESS          if successful
+ * @return S_FAILURE          if opened for writing in {@link evOpen}
  * @return S_EVFILE_BADARG    if buffer or buflen is NULL
  * @return S_EVFILE_BADHANDLE if wrong magic # in handle
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
@@ -1395,6 +1396,12 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, int *buflen)
         return(S_EVFILE_BADHANDLE);
     }
 
+    /* Need to be reading not writing */
+    if (a->rw != EV_READFILE && a->rw != EV_READPIPE &&
+        a->rw != EV_READBUF  && a->rw != EV_READSOCK) {
+        return(S_FAILURE);
+    }
+    
     /* If no more data left to read from current block, get a new block */
     if (a->left <= 0) {
         status = evGetNewBuffer(a);
@@ -1470,6 +1477,7 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, int *buflen)
  *               including the full (8 byte) bank header
  *
  * @return S_SUCCESS          if successful
+ * @return S_FAILURE          if opened for writing in {@link evOpen}
  * @return S_EVFILE_BADARG    if buffer or buflen is NULL
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
@@ -1518,6 +1526,7 @@ int evread_
  * @param buflen length of buffer in 32 bit words
  *
  * @return S_SUCCESS          if successful
+ * @return S_FAILURE          if opened for writing in {@link evOpen}
  * @return S_EVFILE_TRUNC     if buffer provided by caller is too small for event read
  * @return S_EVFILE_BADARG    if buffer is NULL or buflen < 3
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
@@ -1552,6 +1561,12 @@ int evRead(int handle, uint32_t *buffer, int buflen)
         return(S_EVFILE_BADHANDLE);
     }
 
+    /* Need to be reading not writing */
+    if (a->rw != EV_READFILE && a->rw != EV_READPIPE &&
+        a->rw != EV_READBUF  && a->rw != EV_READSOCK) {
+        return(S_FAILURE);
+    }
+    
     /* If no more data left to read from current block, get a new block */
     if (a->left <= 0) {
         status = evGetNewBuffer(a);
@@ -1902,6 +1917,7 @@ int evwrite_
  * @param buffer pointer to buffer containing event to write
  *
  * @return S_SUCCESS          if successful
+ * @return S_FAILURE          if opened for reading in {@link evOpen}
  * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
  * @return S_EVFILE_BADARG    if buffer is NULL
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
@@ -1930,6 +1946,13 @@ int evWrite(int handle, const uint32_t *buffer)
     /* Check magic # */
     if (a->magic != EV_MAGIC) {
         return(S_EVFILE_BADHANDLE);
+        
+    }
+    
+    /* Need to be open for writing not reading */
+    if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
+        a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
+        return(S_FAILURE);
     }
 
     /* Number of words left to write = full event size + bank header */
