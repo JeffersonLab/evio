@@ -149,9 +149,6 @@ private:
 
 
 public:
-  bool debug;        /**<True to turn on debug printout.*/
-  bool verbose;      /**<True to turn on verbose printout.*/
-  bool brief;        /**<True to turn on brief printout.*/
   bool xtod;         /**<True print unsigned values as decimal.*/
   bool noData;       /**<True do not dump leaf node data.*/
   int maxDepth;      /**<Max depth to dump.*/

@@ -94,9 +94,6 @@ evioToStringConfig::~evioToStringConfig() {
  * Initializes config.
  */
 void evioToStringConfig::init(void) {
-  debug              = false;
-  verbose            = false;
-  brief              = false;
   xtod               = false;
   noData             = false;
   maxDepth           = 0;
