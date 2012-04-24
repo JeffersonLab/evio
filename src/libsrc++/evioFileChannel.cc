@@ -201,33 +201,6 @@ void evioFileChannel::write(void) throw(evioException) {
 
 
 /**
- * Writes to file from tree, uses internal buffer for serialization.
- *
- * @param tree Reference to evioDOMTree
- */
-void evioFileChannel::write(evioDOMTree &tree) throw(evioException) {
-  tree.toEVIOBuffer(buf,bufSize);
-  write(buf);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Writes to file from tree, uses internal buffer for serialization.
- * 
- * @param tree Pointer to evioDOMTree
- */
-void evioFileChannel::write(evioDOMTree *tree) throw(evioException) {
-  write(*tree);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
  * Writes to file from user-supplied buffer.
  * @param myBuf Buffer containing event
  */

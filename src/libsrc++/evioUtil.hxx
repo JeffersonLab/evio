@@ -10,7 +10,6 @@
 
 
 //  should do:
-//   add evioChannel.write(evioDOMTree&)
 //   append mode and random access i/o
 //   no-copy read from stream buffer just returns const pointer to event
 //   dictionary checksum
