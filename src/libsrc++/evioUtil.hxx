@@ -4,12 +4,13 @@
 
 
 //  must do:
+//   does no-copy read work for socket?
+//   implement swap in place
 //   create evio2xml.cc to replace evio2xml.c
 //   update word doc or docx (conflict?)
 
 
 //  should do:
-//   no-copy read from stream buffer just returns const pointer to event
 //   append mode and random access i/o
 //   dictionary checksum
 //   std::shared_ptr

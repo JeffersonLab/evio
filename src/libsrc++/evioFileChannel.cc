@@ -189,7 +189,7 @@ bool evioFileChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExcept
 
 
 /**
- * Reads next event using no copy mechanism.
+ * Reads from file using no copy mechanism.
  * @return true if successful, false on EOF, throws exception for other error.
  */
 bool evioFileChannel::readNoCopy(void) throw(evioException) {

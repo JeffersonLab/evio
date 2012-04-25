@@ -65,6 +65,7 @@ private:
   int handle;                     /**<Internal evio handle.*/
   uint32_t *buf;                  /**<Pointer to internal event socket.*/
   int bufSize;                    /**<Size of internal socket.*/
+  const uint32_t *noCopyBuf;      /**<Pointer to no copy buffer.*/
   string socketXMLDictionary;     /**<XML dictionary in socket.*/
   bool createdSocketDictionary;   /**<true if created dictionary from socket.*/
 };

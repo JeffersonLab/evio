@@ -116,10 +116,11 @@ void evioSocketChannel::open(void) throw(evioException) {
 
 
 /**
- * Reads from socket
+ * Reads from socket.
  * @return true if successful, false on EOF or other evRead error condition
  */
 bool evioSocketChannel::read(void) throw(evioException) {
+  noCopyBuf=NULL;
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
   return(evRead(handle,&buf[0],bufSize)==0);
@@ -136,6 +137,7 @@ bool evioSocketChannel::read(void) throw(evioException) {
  * @return true if successful, false on EOF or other evRead error condition
  */
 bool evioSocketChannel::read(uint32_t *myBuf, int length) throw(evioException) {
+  noCopyBuf=NULL;
   if(myBuf==NULL)throw(evioException(0,"evioSocketChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
   return(evRead(handle,&myBuf[0],length)==0);
@@ -146,7 +148,7 @@ bool evioSocketChannel::read(uint32_t *myBuf, int length) throw(evioException) {
 
 
 /**
- * Reads from file and allocates buffer as needed.
+ * Reads from socket and allocates buffer as needed.
  * @param buffer Pointer to pointer to allocated buffer.
  * @param len Length of allocated buffer in 4-byte words.
  * @return true if successful, false on EOF, throws exception for other error.
@@ -154,6 +156,7 @@ bool evioSocketChannel::read(uint32_t *myBuf, int length) throw(evioException) {
  * Note:  user MUST free the allocated buffer!
  */
 bool evioSocketChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioException) {
+  noCopyBuf=NULL;
   if(handle==0)throw(evioException(0,"evioSocketChannel::readAlloc...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
   int stat=evReadAlloc(handle,buffer,bufLen);
@@ -173,11 +176,18 @@ bool evioSocketChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExce
 
 
 /**
- * No copy read not possible for socket
- * @return false
+ * Reads from socket using no copy mechanism.
+ * @return true if successful, false on EOF, throws exception for other error.
  */
 bool evioSocketChannel::readNoCopy(void) throw(evioException) {
-  return(false);
+  if(handle==0)throw(evioException(0,"evioSocketChannel::readNoCopy...0 handle",__FILE__,__FUNCTION__,__LINE__));
+
+  int bufLen;
+  int stat=evReadNoCopy(handle,&noCopyBuf,&bufLen);
+  if(stat==EOF) return(false);
+  if(stat!=S_SUCCESS) throw(evioException(stat,"evioSocketChannel::readNoCopy...read error: " + string(evPerror(stat)),
+                                          __FILE__,__FUNCTION__,__LINE__));
+  return(true);
 }
 
 
@@ -344,7 +354,7 @@ int evioSocketChannel::getBufSize(void) const {
  * @return NULL Since not implemented
  */
 const uint32_t *evioSocketChannel::getNoCopyBuffer(void) const throw(evioException) {
-  return(NULL);
+  return(noCopyBuf);
 }
 
 
