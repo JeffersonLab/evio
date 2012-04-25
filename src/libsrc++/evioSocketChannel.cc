@@ -173,6 +173,18 @@ bool evioSocketChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExce
 
 
 /**
+ * No copy read not possible for socket
+ * @return false
+ */
+bool evioSocketChannel::readNoCopy(void) throw(evioException) {
+  return(false);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
  * Writes to socket from internal buffer.
  */
 void evioSocketChannel::write(void) throw(evioException) {
@@ -321,6 +333,18 @@ const uint32_t *evioSocketChannel::getBuffer(void) const throw(evioException) {
  */
 int evioSocketChannel::getBufSize(void) const {
   return(bufSize);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Returns pointer to no copy buffer
+ * @return NULL Since not implemented
+ */
+const uint32_t *evioSocketChannel::getNoCopyBuffer(void) const throw(evioException) {
+  return(NULL);
 }
 
 

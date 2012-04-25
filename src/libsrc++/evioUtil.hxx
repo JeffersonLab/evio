@@ -6,17 +6,16 @@
 //  must do:
 //   create evio2xml.cc to replace evio2xml.c
 //   update word doc or docx (conflict?)
-//   figure out about evioBufferChannel.write() and internal buffers
 
 
 //  should do:
-//   append mode and random access i/o
 //   no-copy read from stream buffer just returns const pointer to event
+//   append mode and random access i/o
 //   dictionary checksum
-//   who does dictionary belong to?  tree?  toStringConfig?
 //   std::shared_ptr
-//   multi-threading:  defaultToStringconfig?
 //   API for creating and reading composite banks and data
+//   multi-threading:  defaultToStringconfig?
+//   who does dictionary belong to?  tree?  toStringConfig?
 
 
 //  would like to do:
@@ -26,7 +25,6 @@
 // not sure:
 //   can string array contain NULL string?
 //   change how evioToStringConfig and default config used
-//   convert vectors (what does this mean? to what? arrays?)
 
 
 // probably not:
@@ -36,6 +34,7 @@
 //   decompress/compress on input/output (gzip, bzip, etc.)
 //   pipes, named pipes on input
 //   scheme for exception type codes
+//   convert vectors to arrays
 
 
 

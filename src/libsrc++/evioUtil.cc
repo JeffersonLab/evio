@@ -1236,8 +1236,13 @@ int evioCompositeDOMLeafNode::getSize(void) const {
  * @param name Name of tree
  */
 evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(evioException) : root(NULL), name(name) {
-  const uint32_t *buf = channel.getBuffer();
+
+  // check for no copy read first
+  const uint32_t *buf;
+  buf = channel.getNoCopyBuffer();
+  if(buf==NULL) buf = channel.getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
+
   root=parse(buf);
   root->parentTree=this;
   dictionary=channel.getDictionary();
@@ -1254,9 +1259,15 @@ evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(e
  */
 evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(evioException)
   : root(NULL), name(name), dictionary(NULL) {
+
   if(channel==NULL)throw(evioException(0,"?evioDOMTree constructor...null channel",__FILE__,__FUNCTION__,__LINE__));
-  const uint32_t *buf = channel->getBuffer();
+
+  // check for no copy read first
+  const uint32_t *buf;
+  buf = channel->getNoCopyBuffer();
+  if(buf==NULL) buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
+
   root=parse(buf);
   root->parentTree=this;
   dictionary=channel->getDictionary();

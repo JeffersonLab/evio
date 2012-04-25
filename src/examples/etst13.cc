@@ -46,11 +46,11 @@ int main(int argc, char **argv) {
 
     
     // loop over events in file channel
-    while(chan1->read()) {
+    while(chan1->readNoCopy()) {
 
       // create tree from input file channel
       evioDOMTree event(chan1);
-      cout << "Event length from input file channel:  " << (chan1->getBuffer()[0]+1) << endl;
+      cout << "Event length from input file channel:  " << (chan1->getNoCopyBuffer()[0]+1) << endl;
 
 
       // write event to output stream buffer channel

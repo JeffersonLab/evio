@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 
 
     // loop over all buffers in file
-    while(chan->read()) {
+    while(chan->readNoCopy()) {
 
 
       // create event tree from channel contents

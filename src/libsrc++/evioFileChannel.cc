@@ -26,7 +26,7 @@ using namespace evio;
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary(""), createdFileDictionary(false) {
+  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -45,7 +45,7 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const string &m, int size) throw(evioException) 
-  : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), fileXMLDictionary(""), createdFileDictionary(false) {
+  : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -119,6 +119,7 @@ void evioFileChannel::open(void) throw(evioException) {
  * @return true if successful, false on EOF or other evRead error condition
  */
 bool evioFileChannel::read(void) throw(evioException) {
+  noCopyBuf=NULL;
   if(buf==NULL)throw(evioException(0,"evioFileChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
   int stat=evRead(handle,&buf[0],bufSize);
@@ -142,6 +143,7 @@ bool evioFileChannel::read(void) throw(evioException) {
  * @return true if successful, false on EOF or other evRead error condition
  */
 bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
+  noCopyBuf=NULL;
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
   int stat=evRead(handle,&buf[0],bufSize);
@@ -167,6 +169,7 @@ bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
  * Note:  user MUST free the allocated buffer!
  */
 bool evioFileChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioException) {
+  noCopyBuf=NULL;
   if(handle==0)throw(evioException(0,"evioFileChannel::readAlloc...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
   int stat=evReadAlloc(handle,buffer,bufLen);
@@ -177,6 +180,25 @@ bool evioFileChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExcept
   }
 
   if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readAlloc...read error: " + string(evPerror(stat)),
+                                          __FILE__,__FUNCTION__,__LINE__));
+  return(true);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Reads next event using no copy mechanism.
+ * @return true if successful, false on EOF, throws exception for other error.
+ */
+bool evioFileChannel::readNoCopy(void) throw(evioException) {
+  if(handle==0)throw(evioException(0,"evioFileChannel::readNoCopy...0 handle",__FILE__,__FUNCTION__,__LINE__));
+
+  int bufLen;
+  int stat=evReadNoCopy(handle,&noCopyBuf,&bufLen);
+  if(stat==EOF) return(false);
+  if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readNoCopy...read error: " + string(evPerror(stat)),
                                           __FILE__,__FUNCTION__,__LINE__));
   return(true);
 }
@@ -340,13 +362,24 @@ const uint32_t *evioFileChannel::getBuffer(void) const throw(evioException) {
 //-----------------------------------------------------------------------
 
 
-
 /**
  * Returns internal channel buffer size.
  * @return Internal buffer size in 4-byte words
  */
 int evioFileChannel::getBufSize(void) const {
   return(bufSize);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Returns pointer to no copy buffer.
+ * @return Pointer to no copy buffer
+ */
+const uint32_t *evioFileChannel::getNoCopyBuffer(void) const throw(evioException) {
+  return(noCopyBuf);
 }
 
 

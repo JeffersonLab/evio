@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
   
     // loop over events
     nevents=0;
-    while(chan->read()) {
+    while(chan->readNoCopy()) {
       nevents++;
     
       // create tree from file channel

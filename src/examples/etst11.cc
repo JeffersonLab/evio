@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 
 
     // read and dump all events in stream buffer
-    while(chan->read()) {
+    while(chan->readNoCopy()) {
       evioDOMTree event2(chan);
       cout << endl << "found event: " << endl << event2.toString() << endl << endl;
     }

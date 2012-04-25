@@ -57,6 +57,7 @@ public:
   virtual bool read(void) throw(evioException) = 0;
   virtual bool read(uint32_t *myBuf, int length) throw(evioException) = 0;
   virtual bool readAlloc(uint32_t **buffer, int *bufLen) throw(evioException) = 0;
+  virtual bool readNoCopy(void) throw(evioException) = 0;
   virtual void write(void) throw(evioException) = 0;
   virtual void write(const uint32_t* myBuf) throw(evioException) = 0;
   virtual void write(const evioChannel &channel) throw(evioException) = 0;
@@ -74,10 +75,8 @@ protected:
 
 public:
   virtual const evioDictionary *getDictionary(void) const {return(dictionary);}
-
-
-  // not sure if these should be part of the interface
   virtual const uint32_t *getBuffer(void) const throw(evioException) = 0;
+  virtual const uint32_t *getNoCopyBuffer(void) const throw(evioException) = 0;
   virtual int getBufSize(void) const = 0;
 };
 

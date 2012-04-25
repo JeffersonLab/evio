@@ -67,11 +67,12 @@ int main(int argc, char **argv) {
     // read event from channel, then stream parse the event
     // create event tree, will get filled by parser
     // container node and leaf handlers called as appropriate for each bank in the event
-    while(chan->read()) {
+    //    while(chan->read()) {
+    while(chan->readNoCopy()) {
       evioDOMTree event(1,0);
       evioStreamParser p;
       myHandler h;
-      p.parse(chan->getBuffer(),h,((void*)(&event)));
+      p.parse(chan->getNoCopyBuffer(),h,((void*)(&event)));
       cout << event.toString() << endl;
     }    
     

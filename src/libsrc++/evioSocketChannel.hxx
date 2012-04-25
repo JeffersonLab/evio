@@ -39,6 +39,7 @@ public:
   bool read(void) throw(evioException);
   bool read(uint32_t *myEventBuf, int length) throw(evioException);
   bool readAlloc(uint32_t **buffer, int *bufLen) throw(evioException);
+  bool readNoCopy(void) throw(evioException);
   void write(void) throw(evioException);
   void write(const uint32_t *myEventBuf) throw(evioException);
   void write(const evioChannel &channel) throw(evioException);
@@ -49,6 +50,7 @@ public:
 
   const uint32_t *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
+  const uint32_t *getNoCopyBuffer(void) const throw(evioException);
 
   int getSocketFD(void) const throw(evioException);
 

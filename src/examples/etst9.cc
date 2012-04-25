@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     while(true) {
       try {
         nread++;
-        if(chan->read()) {
+        if(chan->readNoCopy()) {
           cout << endl << " --- read event " << nread << " ---" << endl;
           evioDOMTree tree(chan);
 

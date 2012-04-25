@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     // uint32_t *buffer;
     // int len;
     // while(chan->readAlloc(&buffer,&len)) {
-    while(chan->read()) {
+    while(chan->readNoCopy()) {
 
       cout << endl << " --- processing event " << ++nread << " ---" << endl;
 

@@ -40,6 +40,7 @@ public:
   bool read(void) throw(evioException);
   bool read(uint32_t *myEventBuf, int length) throw(evioException);
   bool readAlloc(uint32_t **buffer, int *bufLen) throw(evioException);
+  bool readNoCopy(void) throw(evioException);
   void write(void) throw(evioException);
   void write(const uint32_t *myEventBuf) throw(evioException);
   void write(const evioChannel &channel) throw(evioException);
@@ -50,6 +51,7 @@ public:
 
   const uint32_t *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
+  const uint32_t *getNoCopyBuffer(void) const throw(evioException);
 
   int ioctl(const string &request, void *argp) throw(evioException);
   string getFileName(void) const;
@@ -63,6 +65,7 @@ private:
   int handle;                 /**<Internal evio handle.*/
   uint32_t *buf;              /**<Pointer to internal event buffer.*/
   int bufSize;                /**<Size of internal event buffer.*/
+  const uint32_t *noCopyBuf;  /**<Pointer to no copy event buffer.*/
   string fileXMLDictionary;   /**<XML dictionary in file.*/
   bool createdFileDictionary; /**<true if internally created new dictionary from file.*/
 };
