@@ -1,12 +1,10 @@
 // evioUtil.hxx
 
-//  Author:  Elliott Wolin, JLab, 13-apr-2012
+//  Author:  Elliott Wolin, JLab, 26-apr-2012
 
 
 //  must do:
-//   does no-copy read work for socket?
 //   implement swap in place
-//   create evio2xml.cc to replace evio2xml.c
 //   update word doc or docx (conflict?)
 
 
@@ -131,7 +129,6 @@ class evioToStringConfig;
  * Configuration options for toString() method.
  *   max_depth:          depth to convert to, 0 means no limit, default 0.
  *   no_data:            true to not dump data of leaf nodes, default false.
- *   xtod:               true to dump unsigned values as dec (instead of hex), default false.
  *   indentSize          indent size for increasing bank level depth, default 3
  *   toStringDictionary  dictionary to use, overrides default dictionary
  */
@@ -149,10 +146,15 @@ private:
 
 
 public:
-  bool xtod;         /**<True print unsigned values as decimal.*/
-  bool noData;       /**<True do not dump leaf node data.*/
-  int maxDepth;      /**<Max depth to dump.*/
-  int indentSize;    /**<Indent size per unit of depth.*/
+  bool xtod;                     /**<True print unsigned values as decimal.*/
+  bool noData;                   /**<True do not dump leaf node data.*/
+  int maxDepth;                  /**<Max depth to dump.*/
+  int indentSize;                /**<Indent size per unit of depth.*/
+  vector<int16_t> bankOk;        /**<Vector of bank tags to dump.*/
+  vector<int16_t> noBank;        /**<Vector of bank tags to skip.*/
+  vector<string> bankNameOk;     /**<Vector of bank names to dump.*/
+  vector<string> noBankName;     /**<Vector of bank names to skip.*/
+
   const evioDictionary *toStringDictionary;   /**<Dictionary to use.*/
 
 
@@ -164,7 +166,7 @@ public:
   virtual void setDictionary(const evioDictionary *dict)  {toStringDictionary=dict;}
   virtual void setDictionary(const evioDictionary &dict)  {toStringDictionary=&dict;}
   virtual const evioDictionary *getDictionary(void) const {return(toStringDictionary);}
-
+  bool skipNode(const evioDOMNodeP pNode) const;
 };
 
 

@@ -102,6 +102,34 @@ void evioToStringConfig::init(void) {
 }
 
 
+//-----------------------------------------------------------------------
+
+
+/**
+ * Checks if bank tag/num is listed in include/exclude vectors by tag/num OR by name.
+ * @param pNode Node under consideration
+ * @return true to skip this node
+ */
+bool evioToStringConfig::skipNode(const evioDOMNodeP pNode) const {
+
+  // if dictionary exists search for bank name given tag/num
+  tagNum tn(pNode->tag,pNode->num);
+  string name;
+  if((toStringDictionary!=NULL)&&(toStringDictionary->getNameMap.find(tn)!=toStringDictionary->getNameMap.end()))
+    name=toStringDictionary->getName(tn);
+  
+
+  // priority:  name included, tag included, name excluded, tag excluded
+  if((toStringDictionary!=NULL)&&(name.size()>0)&&(find(bankNameOk.begin(),bankNameOk.end(),name)!=bankNameOk.end()))return(false);
+  if(find(bankOk.begin(),bankOk.end(),pNode->tag)!=bankOk.end())return(false);
+  if((toStringDictionary!=NULL)&&(name.size()>0)&&(find(noBankName.begin(),noBankName.end(),name)!=bankNameOk.end()))return(true);
+  if(find(noBank.begin(),noBank.end(),pNode->tag)!=noBank.end())return(true);
+
+
+  // not in any list, it's a keeper
+  return(false);
+}
+
 
 //-----------------------------------------------------------------------
 //------------------------ evioStreamParser -----------------------------
@@ -2271,9 +2299,19 @@ string evioDOMTree::toString(const evioToStringConfig *config) const {
 
   if(root==NULL)return("<!-- empty tree -->");
 
+
+  // use tree dictionary if none in config, otherwise config dictionary has priority
   ostringstream os;
-  toOstream(os,root,0,config);
-  os << endl << endl;
+  if((config->toStringDictionary==NULL)&&(dictionary!=NULL)) {
+    evioToStringConfig c(*config);
+    c.setDictionary(dictionary);
+    toOstream(os,root,0,&c);
+    os << endl << endl;
+  } else {
+    toOstream(os,root,0,config);
+    os << endl << endl;
+  }
+  
   return(os.str());
 
 }
@@ -2300,12 +2338,16 @@ string evioDOMTree::toString(const evioToStringConfig &config) const {
  * @param os ostream to append XML fragments
  * @param pNode Node to get XML representation
  * @param depth Current depth
+ * @param config Pointer to toStringConfig
  */
 void evioDOMTree::toOstream(ostream &os, const evioDOMNodeP pNode, int depth, const evioToStringConfig *config) const
   throw(evioException) {
 
-  
   if(pNode==NULL)return;
+
+
+  // check if bank name or tag is in one of toStringConfig include/exclude vectors
+  if((config!=NULL)&&config->skipNode(pNode))return;
 
 
   // get node header
