@@ -37,7 +37,8 @@ class myHandler: public evioStreamParserHandler {
   void *leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                         int depth, const void *data, void *userArg) {
     
-    // just add banks containing doubles to event tree
+    // adds selected banks (e.g. containing doubles) to event tree
+    // alternatively, skip the tree and process the data now, or store the data someplace for later processing
     if(contentType==0x8) ((evioDOMTree*)(userArg))->addBank(tag,num,(double*)data,length);
 
     return(userArg);
@@ -64,14 +65,17 @@ int main(int argc, char **argv) {
     chan->open();
     
     
-    // read event from channel, then stream parse the event
-    // create event tree, will get filled by parser
+    // create parser and handler
+    evioStreamParser p;
+    myHandler h;
+
+
+    // read events (no copy) from channel, then stream parse them
+    // event tree will get filled by parser with selected banks
+    // alternatively, you can just process the data in the callback and skip event trees altogether
     // container node and leaf handlers called as appropriate for each bank in the event
-    //    while(chan->read()) {
     while(chan->readNoCopy()) {
       evioDOMTree event(1,0);
-      evioStreamParser p;
-      myHandler h;
       p.parse(chan->getNoCopyBuffer(),h,((void*)(&event)));
       cout << event.toString() << endl;
     }    
