@@ -1641,18 +1641,17 @@ int evRead(int handle, uint32_t *buffer, int buflen)
 /**
  * This routine reads from an evio format file/buffer/socket opened with routine
  * {@link evOpen} and returns a pointer to the next event residing in an internal buffer.
- * If the data needs to be swapped, it is stored in a static buffer. Thus any other
- * call to read routines will cause the swapped data to be overwritten.
+ * If the data needs to be swapped, it is swapped in place. Any other
+ * calls to read routines may cause the data to be overwritten.
  * No writing to the returned pointer is allowed.
  * Works only with evio version 4 and up. A status is returned.
- * NOTE: a bug is that the last event read which needs swapping, does NOT get freed
  *
  * @param handle evio handle
  * @param buffer pointer to pointer to buffer gets filled with pointer to location in
  *               internal buffer which is guaranteed to be valid only until the next
  *              {@link evRead}, {@link evReadNoAlloc}, or {@link evReadNoCopy} call.
  * @param buflen pointer to int gets filled with length of buffer in 32 bit words
- *               including the full (8 byte) header
+ *               including the full (8 byte) bank header
  *
  * @return S_SUCCESS          if successful
  * @return S_FAILURE          if opened for writing in {@link evOpen}
@@ -1672,7 +1671,6 @@ int evReadNoCopy(int handle, const uint32_t **buffer, int *buflen)
 {
     EVFILE *a;
     int     nleft, status;
-    static uint32_t *tempBuf = NULL;
 
 
     if (buffer == NULL || buflen == NULL) {
@@ -1712,35 +1710,21 @@ int evReadNoCopy(int handle, const uint32_t **buffer, int *buflen)
         }
     }
 
-    /* Get rid of the last event read in & swapped. */
-    if (tempBuf != NULL) {
-        free(tempBuf);
-        tempBuf = NULL;
-    }
-
     /* Find number of words to read in next event (including header) */
     if (a->byte_swapped) {
         /* Length of next bank, including header, in 32 bit words */
         nleft = EVIO_SWAP32(*(a->next)) + 1;
-        
-        /* Create temp buffer for swapping */
-        tempBuf = (uint32_t *) malloc(nleft*sizeof(uint32_t));
-        if (tempBuf == NULL) return(S_EVFILE_ALLOCFAIL);
-                
-        /* swap data into buffer */
-        evioswap(a->next, 1, tempBuf);
-
-        /* return location of this temp buffer */
-        *buffer = tempBuf;
+                        
+        /* swap data in block buffer */
+        evioswap(a->next, 1, NULL);
     }
     else {
         /* Length of next bank, including header, in 32 bit words */
         nleft = *(a->next) + 1;
-        
-        /* return location of place of event in block buffer */
-        *buffer = a->next;
     }
 
+    /* return location of place of event in block buffer */
+    *buffer = a->next;
     *buflen = nleft;
 
     a->next += nleft;
