@@ -12,6 +12,10 @@
 
 #define EV_VERSION 4
 
+/** Size of block header in 32 bit words */
+#define EV_HDSIZ 8
+
+
 #ifndef S_SUCCESS
 #define S_SUCCESS 0
 #define S_FAILURE -1
