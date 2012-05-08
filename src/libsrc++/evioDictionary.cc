@@ -161,7 +161,6 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
   // create full name using parent prefix for hierarchical dictionary tags
   string fullName = name;
   if(xmlnameLC!=dictEntryTag) {
-
     if(d->parentPrefix.empty()) {
       d->parentPrefix = name;
     } else {
@@ -172,10 +171,14 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
   }
   
 
-  // add tag/num pair and full (hierarchical) name to both maps
+  // add tag/num pair and full (hierarchical) name to both maps, first check for duplicates
   tagNum tn = tagNum(tag,num);
-  d->getNameMap[tn]         = fullName;
-  d->getTagNumMap[fullName] = tn;
+  if((d->getNameMap.find(tn)==d->getNameMap.end())&&(d->getTagNumMap.find(fullName)==d->getTagNumMap.end())) {
+    d->getNameMap[tn]         = fullName;
+    d->getTagNumMap[fullName] = tn;
+  } else {
+    throw(evioException(0,"?evioDictionary::startElementHandler...duplicate entry in dictionary!",__FILE__,__FUNCTION__,__LINE__));
+  }
 }
     
 

@@ -4,12 +4,12 @@
 
 
 //  must do:
-//   implement swap in place
+//   check for duplicate map entries in dictionary, evioBankIndex, etc.
+//   append mode and random access i/o
 //   update word doc or docx (conflict?)
 
 
 //  should do:
-//   append mode and random access i/o
 //   dictionary checksum
 //   std::shared_ptr
 //   API for creating and reading composite banks and data
@@ -24,6 +24,7 @@
 // not sure:
 //   can string array contain NULL string?
 //   change how evioToStringConfig and default config used
+//   evioParseBankAt(int index_of_bank_in_event), i.e. random access to banks in events?
 
 
 // probably not:

@@ -1,18 +1,22 @@
 // parses event using stream parser
 
-// builds a tree with just selected nodes
+// builds a tree from selected nodes
+// builds an index to banks in the event, searches index for particular banks
+
+// in principle more than one bank may have the same tagNum,
+//   in this case must use the getRange() method to get them all, see Doxygen doc
 
 
-// ejw, 20-apr-2012
+// ejw, 1-may-2012
 
 
-
-#define MAXBUFLEN  4096
 
 #include <iostream>
 #include <stdio.h>
-#include <evioUtil.hxx>
+#include "evioUtil.hxx"
 #include "evioFileChannel.hxx"
+#include "evioBankIndex.hxx"
+
 
 using namespace evio;
 using namespace std;
@@ -22,9 +26,11 @@ using namespace std;
 //--------------------------------------------------------------
 
 
-class myHandler: public evioStreamParserHandler {
+// callbacks for stream parser
+class handler: public evioStreamParserHandler {
 
 
+  // do nothing with container nodes
   void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                              int depth, void *userArg) {
     return(userArg);
@@ -37,8 +43,8 @@ class myHandler: public evioStreamParserHandler {
   void *leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
                         int depth, const void *data, void *userArg) {
     
-    // adds selected banks (e.g. containing doubles) to event tree
-    // alternatively, skip the tree and process the data now, or store the data someplace for later processing
+    // add banks containing doubles to event tree
+    // alternatively, skip the tree entirely and process the data now, or store the data someplace for later processing
     if(contentType==0x8) ((evioDOMTree*)(userArg))->addBank(tag,num,(double*)data,length);
 
     return(userArg);
@@ -64,20 +70,55 @@ int main(int argc, char **argv) {
     }
     chan->open();
     
-    
+
     // create parser and handler
     evioStreamParser p;
-    myHandler h;
+    handler h;
+    
 
-
-    // read events (no copy) from channel, then stream parse them
-    // event tree will get filled by parser with selected banks
+    // read events (no copy) from channel, then parse them
+    // event tree will get filled by parser callbacks with selected banks
     // alternatively, you can just process the data in the callback and skip event trees altogether
-    // container node and leaf handlers called as appropriate for each bank in the event
     while(chan->readNoCopy()) {
+
+      // create empty tree, then stream parse event and fill tree with selected banks
       evioDOMTree event(1,0);
       p.parse(chan->getNoCopyBuffer(),h,((void*)(&event)));
-      cout << event.toString() << endl;
+      cout << endl << event.toString() << endl;
+
+
+      // create bank index from contents of noCopy buffer
+      evioBankIndex bi(chan->getNoCopyBuffer());
+
+
+      // query the index and get <double> data for some tagNum
+      int len;
+      tagNum tn(80,13);
+
+      cout << endl << endl << "Count of banks with tagNum " << tn.first << "," << (int)tn.second << " is: " << bi.tagNumCount(tn) << endl;
+      const double *d = bi.getData<double>(tn,&len);
+      if(d!=NULL) {
+        cout << "data length: " << len << endl;
+        cout << "some data <double> for tagNum " << tn.first << "," << (int)tn.second<< ":  " << endl; 
+        for(int i=0; i<min(len,10); i++) cout << d[i] << "  ";
+        cout << endl;
+      } else {
+        cout << "?tagNum not found: " << tn.first << "," << (int)tn.second << endl;
+      }
+    
+
+      // query the index and get <int32_t> data for some tagNum
+      tagNum tn2(460,22);
+      cout << endl << endl << "Count of banks with tagNum " << tn2.first << "," << (int)tn2.second << " is: " << bi.tagNumCount(tn2) << endl;
+      const int32_t *ii = bi.getData<int32_t>(tn2,&len);
+      if(ii!=NULL) {
+        cout << "data length: " << len << endl;
+        cout << "some data <int32_t> for tagNum " << tn2.first << "," << (int)tn2.second<< ":  " << endl; 
+        for(int i=0; i<min(len,10); i++) cout << ii[i] << "  ";
+        cout << endl;
+      } else {
+        cout << "?tagNum not found: " << tn2.first << "," << (int)tn2.second << endl;
+      }
     }    
     
     

@@ -9,6 +9,7 @@ headerList = ['evioException.hxx',
               'evioFileChannel.hxx',
               'evioBufferChannel.hxx',
               'evioSocketChannel.hxx',
+              'evioBankIndex.hxx',
               'evioUtil.hxx',
               'evioUtilTemplates.hxx']
 
@@ -18,10 +19,11 @@ linkList = [archIncDir + sep + 'evioException.hxx',
             archIncDir + sep + 'evioFileChannel.hxx',
             archIncDir + sep + 'evioBufferChannel.hxx',
             archIncDir + sep + 'evioSocketChannel.hxx',
+            archIncDir + sep + 'evioBankIndex.hxx',
             archIncDir + sep + 'evioUtil.hxx',
             archIncDir + sep + 'evioUtilTemplates.hxx']
 
-fileList = ['evioException.cc', 'evioDictionary.cc', 'evioFileChannel.cc', 'evioBufferChannel.cc', 'evioSocketChannel.cc', 'evioUtil.cc']
+fileList = ['evioException.cc', 'evioDictionary.cc', 'evioFileChannel.cc', 'evioBufferChannel.cc', 'evioSocketChannel.cc', 'evioBankIndex.cc', 'evioUtil.cc']
 
 env.AppendUnique(CPPPATH = ['.', '#src/libsrc'])
 evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)
