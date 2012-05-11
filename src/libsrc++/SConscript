@@ -4,6 +4,7 @@ import os
 from os import sep
 
 headerList = ['evioException.hxx',
+              'evioTypedefs.hxx',
               'evioDictionary.hxx',
               'evioChannel.hxx',
               'evioFileChannel.hxx',
@@ -14,6 +15,7 @@ headerList = ['evioException.hxx',
               'evioUtilTemplates.hxx']
 
 linkList = [archIncDir + sep + 'evioException.hxx',
+            archIncDir + sep + 'evioTypedefs.hxx',
             archIncDir + sep + 'evioDictionary.hxx',
             archIncDir + sep + 'evioChannel.hxx',
             archIncDir + sep + 'evioFileChannel.hxx',
