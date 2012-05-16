@@ -38,7 +38,7 @@ public:
   void open(void) throw(evioException);
   bool read(void) throw(evioException);
   bool read(uint32_t *myEventBuf, int length) throw(evioException);
-  bool readAlloc(uint32_t **buffer, int *bufLen) throw(evioException);
+  bool readAlloc(uint32_t **buffer, uint64_t *bufLen) throw(evioException);
   bool readNoCopy(void) throw(evioException);
   void write(void) throw(evioException);
   void write(const uint32_t *myEventBuf) throw(evioException);
@@ -48,7 +48,7 @@ public:
   void write(const evioChannelBufferizable *o) throw(evioException);
   void close(void) throw(evioException);
 
-  int getBufLength(void) const throw(evioException);
+  uint64_t getBufLength(void) const throw(evioException);
 
 
   const uint32_t *getBuffer(void) const throw(evioException);

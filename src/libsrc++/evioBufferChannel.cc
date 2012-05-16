@@ -160,7 +160,7 @@ bool evioBufferChannel::read(uint32_t *myBuf, int length) throw(evioException) {
  *
  * Note:  user MUST free the allocated buffer!
  */
-bool evioBufferChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioException) {
+bool evioBufferChannel::readAlloc(uint32_t **buffer, uint64_t *bufLen) throw(evioException) {
   noCopyBuf=NULL;
   if(handle==0)throw(evioException(0,"evioBufferChannel::readAlloc...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
@@ -187,7 +187,7 @@ bool evioBufferChannel::readAlloc(uint32_t **buffer, int *bufLen) throw(evioExce
 bool evioBufferChannel::readNoCopy(void) throw(evioException) {
   if(handle==0)throw(evioException(0,"evioBufferChannel::readNoCopy...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
-  int bufLen;
+  uint64_t bufLen;
   int stat=evReadNoCopy(handle,&noCopyBuf,&bufLen);
   if(stat==EOF)return(false);
   if(stat!=S_SUCCESS) throw(evioException(stat,"evioBufferChannel::readNoCopy...read error: " + string(evPerror(stat)),
@@ -346,9 +346,9 @@ const uint32_t *evioBufferChannel::getBuffer(void) const throw(evioException) {
  * Returns length of event record in stream buffer in 4-byte words.
  * @return Length of event record in stream buffer 4-byte words
  */
-int evioBufferChannel::getBufLength(void) const throw(evioException) {
+uint64_t evioBufferChannel::getBufLength(void) const throw(evioException) {
   if(handle==0)throw(evioException(0,"evioBufferChannel::getBufLength...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  int l;
+  uint64_t l;
   int stat = evGetBufferLength(handle,&l);   // length is in bytes
   if(stat!=S_SUCCESS)throw(evioException(stat,"evioBufferChannel::getBufLength...error return: " + string(evPerror(stat)),
                                          __FILE__,__FUNCTION__,__LINE__));
