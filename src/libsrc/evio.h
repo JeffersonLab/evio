@@ -12,7 +12,8 @@
 
 #define EV_VERSION 4
 
-/** Size of block header in 32 bit words */
+/** Size of block header in 32 bit words.
+ *  Must never be smaller than 8, but can be set larger.*/
 #define EV_HDSIZ 8
 
 
@@ -77,17 +78,19 @@ void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
 
 int evOpen(char *filename, char *flags, int *handle);
-int evOpenBuffer(char *buffer, int bufLen, char *flags, int *handle);
+int evOpenBuffer(char *buffer, size_t bufLen, char *flags, int *handle);
 int evOpenSocket(int sockFd, char *flags, int *handle);
 
-int evRead(int handle, uint32_t *buffer, int size);
-int evReadAlloc(int handle, uint32_t **buffer, int *buflen);
-int evReadNoCopy(int handle, const uint32_t **buffer, int *buflen);
+int evRead(int handle, uint32_t *buffer, size_t size);
+int evReadAlloc(int handle, uint32_t **buffer, uint64_t *buflen);
+int evReadNoCopy(int handle, const uint32_t **buffer, uint64_t *buflen);
+int evReadRandom(int handle, const uint32_t **pEvent, size_t eventNumber);
+int evGetRandomAccessTable(int handle, const uint32_t *** const table, uint64_t *len);
 
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
-int evGetBufferLength(int handle, int *length);
+int evGetBufferLength(int handle, uint64_t *length);
 
 int evGetDictionary(int handle, char **dictionary, int *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
