@@ -163,6 +163,9 @@ typedef struct evfilestruct {
 /** In version 4, dictionary presence is 9th bit in version/info word */
 #define EV_DICTIONARY_MASK 0x100
 
+/** In version 4, "last block" is 10th bit in version/info word */
+#define EV_LASTBLOCK_MASK 0x200
+
 /** In version 4, max number of events per block */
 #define EV_EVENTS_MAX 10000
 
@@ -308,20 +311,20 @@ typedef struct evfilestruct {
 
 
 /** Turn on 9th bit to indicate dictionary included in block */
-#define setDictionaryBit(a)     (a->buf[EV_HD_VER] |= 0x100)
+#define setDictionaryBit(a)     (a->buf[EV_HD_VER] |= EV_DICTIONARY_MASK)
 /** Turn off 9th bit to indicate dictionary included in block */
-#define clearDictionaryBit(a)   (a->buf[EV_HD_VER] &= ~0x100)
+#define clearDictionaryBit(a)   (a->buf[EV_HD_VER] &= ~EV_DICTIONARY_MASK)
 /** Is there a dictionary in this block? */
-#define hasDictionary(a)        ((a->buf[EV_HD_VER] & 0x100) > 0 ? 1 : 0)
-#define hasDictionaryInt(i)     ((i & 0x100) > 0 ? 1 : 0)
+#define hasDictionary(a)        ((a->buf[EV_HD_VER] & EV_DICTIONARY_MASK) > 0 ? 1 : 0)
+#define hasDictionaryInt(i)     ((i & EV_DICTIONARY_MASK) > 0 ? 1 : 0)
 /** Turn on 10th bit to indicate last block of file/transmission */
-#define setLastBlockBit(a)      (a->buf[EV_HD_VER] |= 0x200)
+#define setLastBlockBit(a)      (a->buf[EV_HD_VER] |= EV_LASTBLOCK_MASK)
 /** Turn off 10th bit to indicate last block of file/transmission */
-#define clearLastBlockBit(a)    (a->buf[EV_HD_VER] &= ~0x200)
-#define clearLastBlockBitInt(i) (i &= ~0x200)
+#define clearLastBlockBit(a)    (a->buf[EV_HD_VER] &= ~EV_LASTBLOCK_MASK)
+#define clearLastBlockBitInt(i) (i &= ~EV_LASTBLOCK_MASK)
 /** Is this the last block of file/transmission? */
-#define isLastBlock(a)          ((a->buf[EV_HD_VER] & 0x200) > 0 ? 1 : 0)
-#define isLastBlockInt(i)       ((i & 0x200) > 0 ? 1 : 0)
+#define isLastBlock(a)          ((a->buf[EV_HD_VER] & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
+#define isLastBlockInt(i)       ((i & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
 
 /* Prototypes for static routines */
 static  int      evOpenImpl(char *srcDest, size_t bufLen, int sockFd, char *flags, int *handle);
@@ -1540,8 +1543,8 @@ static int generatePointerTable(EVFILE *a)
 
         /* For each event in block, store its location */
         for (i=0; i < blockEventCount; i++) {
-            /* Sanity check */
-            if (bytesLeft < 0) {
+            /* Sanity check - must have at least 2 ints left */
+            if (bytesLeft < 8) {
                 free(a->pTable);
                 return(S_EVFILE_UNXPTDEOF);
             }
@@ -1575,10 +1578,9 @@ static int generatePointerTable(EVFILE *a)
 }
 
 /**
- * This function positions a file stream or buffer for the first {@link evWrite}
- * in append mode. This may be just before the last block if that block is empty.
- * Or it may be after if not empty. In either case the bit declaring that the last
- * block is indeed the last block must be cleared.
+ * This function positions a file or buffer for the first {@link evWrite}
+ * in append mode. It makes sure that the last block header is an empty one
+ * with its "last block" bit set.
  *
  * @param a  handle structure
  *
@@ -3205,7 +3207,7 @@ int evGetDictionary(int handle, char **dictionary, int *len) {
  *                      NULL to remove previously specified dictionary
  *
  * @return S_SUCCESS           if successful
- * @return S_FAILURE           if reading or have already written events/dictionary
+ * @return S_FAILURE           if reading, appending, or have already written events/dictionary
  * @return S_EVFILE_BADARG     if dictionary in wrong format
  * @return S_EVFILE_ALLOCFAIL  if cannot allocate memory
  * @return S_EVFILE_BADHANDLE  if bad handle arg or wrong magic # in handle
@@ -3246,6 +3248,11 @@ int evWriteDictionary(int handle, char *xmlDictionary)
     
     /* Cannot have already written event or dictionary */
     if (a->blknum != 1 || a->blkEvCount != 0 || a->wroteDictionary) {
+        return(S_FAILURE);
+    }
+
+    /* Cannot be appending */
+    if (a->append) {
         return(S_FAILURE);
     }
 
