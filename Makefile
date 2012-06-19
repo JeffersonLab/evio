@@ -11,7 +11,7 @@ TOPLEVEL = .
 SRC_DIRS = src/libsrc src/libsrc++ src/execsrc
 
 # declaring a target phony skips the implicit rule search and saves time
-.PHONY : first help java javaClean javaDistClean doc tar
+.PHONY : first help doc tar
 
 
 first: all
@@ -28,21 +28,9 @@ help:
 	@echo "      clean     - delete all exec, library, object, and dependency files"
 	@echo "      distClean - clean and remove hidden OS directory"
 	@echo "      execClean - delete all exec and library files"
-	@echo "      java      - make java files"
-	@echo "      javaClean - remove java class files"
-	@echo "      javaDistClean - remove java class files and generated documentation"
 
-java:
-	ant;
-
-javaClean:
-	ant clean;
-
-javaDistClean:
-	ant cleanall;
 
 doc:
-	ant javadoc;
 	export TOPLEVEL=$(TOPLEVEL); doxygen doc/doxygen/Doxyfile
 	cd doc; $(MAKE) -f $(MAKEFILE);
 
