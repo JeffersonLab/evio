@@ -32,7 +32,7 @@ help:
 
 doc:
 	export TOPLEVEL=$(TOPLEVEL); doxygen doc/doxygen/Doxyfile
-	cd doc; $(MAKE) -f $(MAKEFILE);
+#	cd doc; $(MAKE) -f $(MAKEFILE);
 
 tar:
 	-$(RM) tar/evio-4.0.tar.gz;
