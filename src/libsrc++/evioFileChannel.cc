@@ -168,7 +168,7 @@ bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
  *
  * Note:  user MUST free the allocated buffer!
  */
-bool evioFileChannel::readAlloc(uint32_t **buffer, uint64_t *bufLen) throw(evioException) {
+bool evioFileChannel::readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioException) {
   noCopyBuf=NULL;
   if(handle==0)throw(evioException(0,"evioFileChannel::readAlloc...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
@@ -195,7 +195,7 @@ bool evioFileChannel::readAlloc(uint32_t **buffer, uint64_t *bufLen) throw(evioE
 bool evioFileChannel::readNoCopy(void) throw(evioException) {
   if(handle==0)throw(evioException(0,"evioFileChannel::readNoCopy...0 handle",__FILE__,__FUNCTION__,__LINE__));
 
-  uint64_t bufLen;
+  uint32_t bufLen;
   int stat=evReadNoCopy(handle,&noCopyBuf,&bufLen);
   if(stat==EOF) return(false);
   if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readNoCopy...read error: " + string(evPerror(stat)),

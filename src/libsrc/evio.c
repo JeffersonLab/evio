@@ -334,7 +334,7 @@ static  void     initBlockHeader(EVFILE *a);
 static  char *   evTrim(char *s, int skip);
 static  int      tcpWrite(int fd, const void *vptr, int n);
 static  int      tcpRead(int fd, void *vptr, int n);
-static  int      evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint64_t *buflen);
+static  int      evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen);
 static  void     localClose(EVFILE *a);
 static  int      getEventCount(EVFILE *a, uint64_t *count);
 
@@ -1039,7 +1039,7 @@ printf("Header size is too small (%u), return error\n", blkHdrSize);
                 /* Pull out dictionary if there is one (works only after header is swapped). */
                 if (hasDictionary(a)) {
                     int status;
-                    uint64_t buflen;
+                    uint32_t buflen;
                     uint32_t *buf;
     
                     /* Read in first bank which will be dictionary */
@@ -1789,11 +1789,11 @@ static int toAppendPosition(EVFILE *a)
  * @return errno              if file/socket read error
  * @return stream error       if file stream error
  */
-static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint64_t *buflen)
+static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 {
     uint32_t *buf, *pBuf;
     int       error, status;
-    size_t    nleft, ncopy, len;
+    uint32_t  nleft, ncopy, len;
 
 
     if (buffer == NULL || buflen == NULL) {
@@ -1902,7 +1902,7 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint64_t *buflen)
  * @return errno              if file/socket read error
  * @return stream error       if file stream error
  */
-int evReadAlloc(int handle, uint32_t **buffer, uint64_t *buflen)
+int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen)
 {
     EVFILE *a;
 
@@ -2087,11 +2087,11 @@ int evRead(int handle, uint32_t *buffer, size_t buflen)
  * @return errno              if file/socket read error
  * @return stream error       if file stream error
  */
-int evReadNoCopy(int handle, const uint32_t **buffer, uint64_t *buflen)
+int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
 {
-    EVFILE *a;
-    int     status;
-    size_t  nleft;
+    EVFILE    *a;
+    int       status;
+    uint32_t  nleft;
 
 
     if (buffer == NULL || buflen == NULL) {
