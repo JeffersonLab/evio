@@ -85,7 +85,7 @@ int evRead(int handle, uint32_t *buffer, size_t size);
 int evReadAlloc(int handle, uint32_t **buffer, uint64_t *buflen);
 int evReadNoCopy(int handle, const uint32_t **buffer, uint64_t *buflen);
 int evReadRandom(int handle, const uint32_t **pEvent, size_t eventNumber);
-int evGetRandomAccessTable(int handle, const uint32_t *** const table, uint64_t *len);
+int evGetRandomAccessTable(int handle, const uint32_t ***table, uint64_t *len);
 
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);

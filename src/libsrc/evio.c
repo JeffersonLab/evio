@@ -149,7 +149,7 @@ typedef struct evfilestruct {
 #define EV_BLOCKSIZE_V3 8192
 
 /** Version 4's target block size in 32 bit words (2MB) */
-#define EV_BLOCKSIZE_V4 500000
+#define EV_BLOCKSIZE_V4 512000
 
 /** Number used to determine data endian */
 #define EV_MAGIC 0xc0da0100
@@ -334,7 +334,7 @@ static  void     initBlockHeader(EVFILE *a);
 static  char *   evTrim(char *s, int skip);
 static  int      tcpWrite(int fd, const void *vptr, int n);
 static  int      tcpRead(int fd, void *vptr, int n);
-static  int      evReadAllocImpl(EVFILE *a, uint32_t **buffer, size_t *buflen);
+static  int      evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint64_t *buflen);
 static  void     localClose(EVFILE *a);
 static  int      getEventCount(EVFILE *a, uint64_t *count);
 
@@ -1039,7 +1039,7 @@ printf("Header size is too small (%u), return error\n", blkHdrSize);
                 /* Pull out dictionary if there is one (works only after header is swapped). */
                 if (hasDictionary(a)) {
                     int status;
-                    size_t buflen;
+                    uint64_t buflen;
                     uint32_t *buf;
     
                     /* Read in first bank which will be dictionary */
@@ -2874,18 +2874,18 @@ int evioctl_
 
 
 /**
- * This routine changes the target block size for writes if request arg = B.
- * If setting block size fails, writes can still continue with original
- * block size. Minimum size = 1K + 32(header) bytes.<p>
- * It returns the version number if request arg = V.<p>
- * It changes the maximum number of events/block if request arg = N.
+ * This routine changes the target block size (in 32-bit words) for writes if request
+ * = "B". If setting block size fails, writes can still continue with original
+ * block size. Minimum size = 1K + 8(header) words.<p>
+ * It returns the version number if request = "V".<p>
+ * It changes the maximum number of events/block if request = "N".
  * Used only in version 4.<p>
  * It returns the total number of events in a file/buffer
- * opened for reading or writing if request arg = E. Includes any
+ * opened for reading or writing if request = "E". Includes any
  * event added with {@link evWrite} call. Returns an unsigned 64 bit int so
  * make sure the argp points to an int of that size or you'll overwrite sections
  * of your code. Used only in version 4.<p>
- * It returns a pointer to the EV_HDSIZ block header ints if request arg = H.
+ * It returns a pointer to the EV_HDSIZ block header ints if request = "H".
  * This pointer must be freed by the caller to avoid a memory leak.<p>
  * NOTE: all request strings are case insensitive. All version 4 commands to
  * version 3 files are ignored.
@@ -2898,7 +2898,7 @@ int evioctl_
  *                "H"  for getting EV_HDSIZ ints of block header info;
  *                "E"  for getting # of events in file/buffer;
  * @param argp    pointer to 32 bit int:
- *                  1) containing new block size if request = B, or
+ *                  1) containing new block size in 32-bit words if request = B, or
  *                  2) containing new max number of events/block if request = N, or
  *                  3) returning version # if request = V, or
  *                pointer to unsigned 64 bit int (uint64_t):
@@ -3109,7 +3109,7 @@ int evIoctl(int handle, char *request, void *argp)
  * @return S_EVFILE_BADARG     if table or len arg(s) is NULL
  * @return S_EVFILE_BADHANDLE  if bad handle arg
  */
-int evGetRandomAccessTable(int handle, const uint32_t *** const table, uint64_t *len) {
+int evGetRandomAccessTable(int handle, const uint32_t ***table, uint64_t *len) {
     EVFILE *a;
 
     /* Look up file struct from handle */
