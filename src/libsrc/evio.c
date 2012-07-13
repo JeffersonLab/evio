@@ -98,16 +98,16 @@ typedef struct evfilestruct {
   /* new struct members for version 4 */
   int      version;      /**< evio version number. */
   int      append;       /**< open buffer or file for writing in append mode. */
-  uint64_t eventCount;   /**< current number of events in (or written to) file/buffer
+  uint32_t eventCount;   /**< current number of events in (or written to) file/buffer
                                NOT including dictionary. */
 
   /* buffer stuff */
-  char   *rwBuf;         /**< pointer to buffer if reading/writing from/to buffer. */
-  size_t  rwBufSize;     /**< size of rwBuf buffer in bytes. */
-  size_t  rwBytesOut;    /**< number of bytes written to rwBuf with evWrite,
-                              but not necessary in the actual buffer yet. */
-  size_t  rwBytesUsed;   /**< number of bytes read/written from/to rwBuf so far (after each flush),
-                              i.e. # bytes in buffer already used.*/
+  char     *rwBuf;         /**< pointer to buffer if reading/writing from/to buffer. */
+  uint32_t  rwBufSize;     /**< size of rwBuf buffer in bytes. */
+  uint32_t  rwBytesOut;    /**< number of bytes written to rwBuf with evWrite,
+                            *   but not necessary in the actual buffer yet. */
+  uint32_t  rwBytesUsed;   /**< number of bytes read/written from/to rwBuf so far
+                            * (after each flush) i.e. # bytes in buffer already used.*/
 
   /* socket stuff */
   int   sockFd;          /**< socket file descriptor if reading/writing from/to socket. */
@@ -327,7 +327,7 @@ typedef struct evfilestruct {
 #define isLastBlockInt(i)       ((i & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
 
 /* Prototypes for static routines */
-static  int      evOpenImpl(char *srcDest, size_t bufLen, int sockFd, char *flags, int *handle);
+static  int      evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, int *handle);
 static  int      evGetNewBuffer(EVFILE *a);
 static  int      evFlush(EVFILE *a, int closing);
 static  void     initBlockHeader(EVFILE *a);
@@ -336,7 +336,7 @@ static  int      tcpWrite(int fd, const void *vptr, int n);
 static  int      tcpRead(int fd, void *vptr, int n);
 static  int      evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen);
 static  void     localClose(EVFILE *a);
-static  int      getEventCount(EVFILE *a, uint64_t *count);
+static  int      getEventCount(EVFILE *a, uint32_t *count);
 
 /* Append Mode */
 static  int      toAppendPosition(EVFILE *a);
@@ -594,7 +594,7 @@ int evOpen(char *filename, char *flags, int *handle)
  * @return S_EVFILE_BADHANDLE if no memory available to store handle structure
  *                            (increase MAXHANDLES in evio.c and recompile)
  */
-int evOpenBuffer(char *buffer, size_t bufLen, char *flags, int *handle)
+int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle)
 {
     char *flag;
     
@@ -690,13 +690,13 @@ int evOpenSocket(int sockFd, char *flags, int *handle)
  *                            (increase MAXHANDLES in evio.c and recompile)
  * @return errno              for file opening or socket reading problems
  */
-static int evOpenImpl(char *srcDest, size_t bufLen, int sockFd, char *flags, int *handle)
+static int evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, int *handle)
 {
     EVFILE *a;
     char *filename, *buffer;
     
     uint32_t blk_size, temp, headerInfo, blkHdrSize, header[EV_HDSIZ];
-    size_t   rwBufSize, nBytes, bytesToRead;
+    uint32_t rwBufSize, nBytes, bytesToRead;
 
     int i, err, version, ihandle;
     int useFile=0, useBuffer=0, useSocket=0, reading=0, randomAccess=0, append=0;
@@ -1343,12 +1343,11 @@ static int memoryMapFile(EVFILE *a, const char *fileName)
  * @return S_EVFILE_UNXPTDEOF if buffer too small
  * @return errno              if error in fseek, ftell
  */
-static int getEventCount(EVFILE *a, uint64_t *count)
+static int getEventCount(EVFILE *a, uint32_t *count)
 {
     int        i, usingBuffer = 0, nBytes;
     ssize_t    startingPosition;
-    size_t     bytesUsed;
-    uint32_t   blockEventCount, blockSize, blockHeaderSize, header[EV_HDSIZ];
+    uint32_t   bytesUsed, blockEventCount, blockSize, blockHeaderSize, header[EV_HDSIZ];
 
     
     /* Reject if using sockets */
@@ -1477,9 +1476,8 @@ static int getEventCount(EVFILE *a, uint64_t *count)
 static int generatePointerTable(EVFILE *a)
 {
     int        i, usingBuffer=0, lastBlock=0, firstBlock=1;
-    size_t     len, numPointers, bytesLeft;
-    uint32_t  *pmem, blockEventCount, blockHdrSize;
-    uint64_t   evIndex = 0L;
+    size_t     bytesLeft;
+    uint32_t  *pmem, len, numPointers, blockEventCount, blockHdrSize, evIndex = 0L;
 
     /* Only random access handles need apply */
     if (!a->randomAccess) {
@@ -1594,7 +1592,7 @@ static int generatePointerTable(EVFILE *a)
 static int toAppendPosition(EVFILE *a)
 {
     int         i, err, usingBuffer=0;
-    size_t      nBytes, bytesToWrite;
+    uint32_t    nBytes, bytesToWrite;
     uint32_t   *pmem, sixthWord, header[EV_HDSIZ];
     uint32_t    blockEventCount, blockSize, blockHeaderSize, blockNumber=1;
     
@@ -1778,7 +1776,7 @@ static int toAppendPosition(EVFILE *a)
  *               including the full (8 byte) header
  *
  * @return S_SUCCESS          if successful
- * @return S_FAILURE          if opened for writing or random-access reading in {@link evOpen}
+ * @return S_EVFILE_BADMODE   if opened for writing or random-access reading in {@link evOpen}
  * @return S_EVFILE_BADARG    if buffer or buflen is NULL
  * @return S_EVFILE_BADHANDLE if wrong magic # in handle
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
@@ -1808,12 +1806,12 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
     /* Need to be reading not writing */
     if (a->rw != EV_READFILE && a->rw != EV_READPIPE &&
         a->rw != EV_READBUF  && a->rw != EV_READSOCK) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
 
     /* Cannot be random access reading */
     if (a->randomAccess) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
      }
     
     /* If no more data left to read from current block, get a new block */
@@ -1891,7 +1889,7 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
  *               including the full (8 byte) bank header
  *
  * @return S_SUCCESS          if successful
- * @return S_FAILURE          if opened for writing or random-access reading in {@link evOpen}
+ * @return S_EVFILE_BADMODE   if opened for writing or random-access reading in {@link evOpen}
  * @return S_EVFILE_BADARG    if buffer or buflen is NULL
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
@@ -1924,7 +1922,7 @@ int evread
 #else
 int evread_
 #endif
-(int *handle, uint32_t *buffer, size_t *buflen)
+(int *handle, uint32_t *buffer, uint32_t *buflen)
 {
     return(evRead(*handle, buffer, *buflen));
 }
@@ -1940,7 +1938,7 @@ int evread_
  * @param buflen length of buffer in 32 bit words
  *
  * @return S_SUCCESS          if successful
- * @return S_FAILURE          if opened for writing or random-access reading in {@link evOpen}
+ * @return S_EVFILE_BADMODE   if opened for writing or random-access reading in {@link evOpen}
  * @return S_EVFILE_TRUNC     if buffer provided by caller is too small for event read
  * @return S_EVFILE_BADARG    if buffer is NULL or buflen < 3
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
@@ -1952,11 +1950,11 @@ int evread_
  * @return errno              if file/socket read error
  * @return stream error       if file stream error
  */
-int evRead(int handle, uint32_t *buffer, size_t buflen)
+int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 {
     EVFILE   *a;
     int       error, status;
-    size_t    nleft, ncopy; 
+    uint32_t  nleft, ncopy;
     uint32_t *temp_buffer, *temp_ptr=NULL;
 
 
@@ -1980,12 +1978,12 @@ int evRead(int handle, uint32_t *buffer, size_t buflen)
     /* Need to be reading not writing */
     if (a->rw != EV_READFILE && a->rw != EV_READPIPE &&
         a->rw != EV_READBUF  && a->rw != EV_READSOCK) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
     
     /* Cannot be random access reading */
     if (a->randomAccess) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
     
     /* If no more data left to read from current block, get a new block */
@@ -2074,7 +2072,7 @@ int evRead(int handle, uint32_t *buffer, size_t buflen)
  *               including the full (8 byte) bank header
  *
  * @return S_SUCCESS          if successful
- * @return S_FAILURE          if opened for writing or random-access reading in {@link evOpen}
+ * @return S_EVFILE_BADMODE   if opened for writing or random-access reading in {@link evOpen}
  * @return S_EVFILE_TRUNC     if buffer provided by caller is too small for event read
  * @return S_EVFILE_BADARG    if buffer or buflen is NULL
  * @return S_EVFILE_BADFILE   if version < 4, unsupported or bad format
@@ -2120,12 +2118,12 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
     /* Need to be reading and not writing */
     if (a->rw != EV_READFILE && a->rw != EV_READPIPE &&
         a->rw != EV_READBUF  && a->rw != EV_READSOCK) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
     
     /* Cannot be random access reading */
     if (a->randomAccess) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
     
     /* If no more data left to read from current block, get a new block */
@@ -2175,16 +2173,15 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
  * @param eventNumber the number of the event to be read (returned) starting at 1.
  *
  * @return S_SUCCESS          if successful
- * @return S_FAILURE          if not opened for random access reading in {@link evOpen};
- *                            if no events found in file or failure to make random access map
+ * @return S_FAILURE          if no events found in file or failure to make random access map
+ * @return S_EVFILE_BADMODE   if not opened for random access reading in {@link evOpen}
  * @return S_EVFILE_BADARG    if pEvent arg is NULL
  * @return S_EVFILE_BADFILE   if version < 4, unsupported or bad format
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
  */
-int evReadRandom(int handle, const uint32_t **pEvent, size_t eventNumber)
+int evReadRandom(int handle, const uint32_t **pEvent, uint32_t eventNumber)
 {
     EVFILE   *a;
-    size_t    nleft;
     uint32_t *pev;
 
     if (pEvent == NULL) {
@@ -2212,7 +2209,7 @@ int evReadRandom(int handle, const uint32_t **pEvent, size_t eventNumber)
 
     /* Need to be *** random access *** reading (not from socket or pipe) and not writing */
     if ((a->rw != EV_READFILE && a->rw != EV_READBUF) || !a->randomAccess) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
 
     /* event not in file/buf */
@@ -2461,7 +2458,7 @@ int evwrite_
  * @param buffer pointer to buffer containing event to write
  *
  * @return S_SUCCESS          if successful
- * @return S_FAILURE          if opened for reading in {@link evOpen}
+ * @return S_EVFILE_BADMODE   if opened for reading in {@link evOpen}
  * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
  * @return S_EVFILE_BADARG    if buffer is NULL
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
@@ -2472,9 +2469,9 @@ int evwrite_
  */
 int evWrite(int handle, const uint32_t *buffer)
 {
-    EVFILE *a;
-    int     status;
-    size_t  nToWrite;
+    EVFILE   *a;
+    int       status;
+    uint32_t  nToWrite;
 
     /* Look up file struct (which contains block buffer) from handle */
     a = handle_list[handle-1];
@@ -2497,7 +2494,7 @@ int evWrite(int handle, const uint32_t *buffer)
     /* Need to be open for writing not reading */
     if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
         a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
 
     /* Number of words left to write = full event size + bank header */
@@ -2587,7 +2584,7 @@ int evWrite(int handle, const uint32_t *buffer)
  * @return S_SUCCESS          if successful
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
  */
-int evGetBufferLength(int handle, uint64_t *length)
+int evGetBufferLength(int handle, uint32_t *length)
 {
     EVFILE *a;
 
@@ -2631,7 +2628,7 @@ int evGetBufferLength(int handle, uint64_t *length)
  */
 static int evFlush(EVFILE *a, int closing)
 {
-    size_t  nBytes, bytesToWrite, blockHeaderBytes = 4*EV_HDSIZ;
+    uint32_t  nBytes, bytesToWrite, blockHeaderBytes = 4*EV_HDSIZ;
 
     /* Store, in header, the actual, final block size */
     a->buf[EV_HD_BLKSIZ] = a->blksiz;
@@ -2882,9 +2879,7 @@ int evioctl_
  * Used only in version 4.<p>
  * It returns the total number of events in a file/buffer
  * opened for reading or writing if request = "E". Includes any
- * event added with {@link evWrite} call. Returns an unsigned 64 bit int so
- * make sure the argp points to an int of that size or you'll overwrite sections
- * of your code. Used only in version 4.<p>
+ * event added with {@link evWrite} call. Used only in version 4.<p>
  * It returns a pointer to the EV_HDSIZ block header ints if request = "H".
  * This pointer must be freed by the caller to avoid a memory leak.<p>
  * NOTE: all request strings are case insensitive. All version 4 commands to
@@ -2901,7 +2896,6 @@ int evioctl_
  *                  1) containing new block size in 32-bit words if request = B, or
  *                  2) containing new max number of events/block if request = N, or
  *                  3) returning version # if request = V, or
- *                pointer to unsigned 64 bit int (uint64_t):
  *                  4) returning total # of original events in existing
  *                     file/buffer when reading or appending if request = E, or
  *                address of pointer to 32 bit int:
@@ -3076,7 +3070,7 @@ int evIoctl(int handle, char *request, void *argp)
                 return(S_EVFILE_BADARG);
             }
 
-            err = getEventCount(a, (int64_t *) argp);
+            err = getEventCount(a, (int32_t *) argp);
             if (err != S_SUCCESS) {
                 return(err);
             }
@@ -3105,11 +3099,11 @@ int evIoctl(int handle, char *request, void *argp)
  *                pointers in the array. If this arg = NULL, error is returned.
  *                   
  * @return S_SUCCESS           if successful
- * @return S_FAILURE           if handle not opened in random access mode
+ * @return S_EVFILE_BADMODE    if handle not opened in random access mode
  * @return S_EVFILE_BADARG     if table or len arg(s) is NULL
  * @return S_EVFILE_BADHANDLE  if bad handle arg
  */
-int evGetRandomAccessTable(int handle, const uint32_t ***table, uint64_t *len) {
+int evGetRandomAccessTable(int handle, const uint32_t ***table, uint32_t *len) {
     EVFILE *a;
 
     /* Look up file struct from handle */
@@ -3126,7 +3120,7 @@ int evGetRandomAccessTable(int handle, const uint32_t ***table, uint64_t *len) {
 
     /* Must be in random access mode */
     if (!a->randomAccess) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
             
     *table = a->pTable;
@@ -3156,7 +3150,7 @@ int evGetRandomAccessTable(int handle, const uint32_t ***table, uint64_t *len) {
  * @return S_EVFILE_ALLOCFAIL  if cannot allocate memory
  * @return S_EVFILE_BADHANDLE  if bad handle arg
  */
-int evGetDictionary(int handle, char **dictionary, int *len) {
+int evGetDictionary(int handle, char **dictionary, uint32_t *len) {
     EVFILE *a;
     char *dictCpy;
 
@@ -3207,7 +3201,8 @@ int evGetDictionary(int handle, char **dictionary, int *len) {
  *                      NULL to remove previously specified dictionary
  *
  * @return S_SUCCESS           if successful
- * @return S_FAILURE           if reading, appending, or have already written events/dictionary
+ * @return S_FAILURE           if already written events/dictionary
+ * @return S_EVFILE_BADMODE    if reading or appending
  * @return S_EVFILE_BADARG     if dictionary in wrong format
  * @return S_EVFILE_ALLOCFAIL  if cannot allocate memory
  * @return S_EVFILE_BADHANDLE  if bad handle arg or wrong magic # in handle
@@ -3243,7 +3238,7 @@ int evWriteDictionary(int handle, char *xmlDictionary)
     /* Need to be writing not reading */
     if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
         a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
     
     /* Cannot have already written event or dictionary */
@@ -3253,7 +3248,7 @@ int evWriteDictionary(int handle, char *xmlDictionary)
 
     /* Cannot be appending */
     if (a->append) {
-        return(S_FAILURE);
+        return(S_EVFILE_BADMODE);
     }
 
     /* Clear any previously specified dictionary (should never happen) */
@@ -3483,6 +3478,10 @@ char *evPerror(int error) {
 
         case S_EVFILE_BADSIZEREQ:
             sprintf(temp, "S_EVFILE_BADSIZEREQ:  invalid buffer size request to evIoct\n");
+            break;
+
+        case S_EVFILE_BADMODE:
+            sprintf(temp, "S_EVFILE_BADMODE:  invalid operation current evOpen() mode\n");
             break;
 
         default:

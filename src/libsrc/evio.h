@@ -32,6 +32,7 @@
 #define S_EVFILE_UNXPTDEOF	0x80730005	/* Unexpected end of file while reading event */
 #define S_EVFILE_BADSIZEREQ 0x80730006  /* Invalid buffer size request to evIoct */
 #define S_EVFILE_BADARG     0x80730007  /* Invalid function argument */
+#define S_EVFILE_BADMODE    0x80730008  /* Wrong mode used in evOpen for this operation */
 
 /* macros for swapping ints of various sizes */
 #define EVIO_SWAP64(x) ( (((x) >> 56) & 0x00000000000000FFL) | \
@@ -78,21 +79,21 @@ void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
 
 int evOpen(char *filename, char *flags, int *handle);
-int evOpenBuffer(char *buffer, size_t bufLen, char *flags, int *handle);
+int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle);
 int evOpenSocket(int sockFd, char *flags, int *handle);
 
-int evRead(int handle, uint32_t *buffer, size_t size);
+int evRead(int handle, uint32_t *buffer, uint32_t size);
 int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen);
 int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen);
-int evReadRandom(int handle, const uint32_t **pEvent, size_t eventNumber);
-int evGetRandomAccessTable(int handle, const uint32_t ***table, uint64_t *len);
+int evReadRandom(int handle, const uint32_t **pEvent, uint32_t eventNumber);
+int evGetRandomAccessTable(int handle, const uint32_t ***table, uint32_t *len);
 
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);
 int evClose(int handle);
-int evGetBufferLength(int handle, uint64_t *length);
+int evGetBufferLength(int handle, uint32_t *length);
 
-int evGetDictionary(int handle, char **dictionary, int *len);
+int evGetDictionary(int handle, char **dictionary, uint32_t *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
 
 int evIsContainer(int type);
