@@ -94,7 +94,7 @@ void evioBufferChannel::open(void) throw(evioException) {
   // set dictionary on write
   if((mode=="r")||(mode=="R")) {
     char *d;
-    int len;
+    uint32_t len;
     int stat=evGetDictionary(handle,&d,&len);
     if((stat==S_SUCCESS)&&(d!=NULL)&&(len>0))bufferXMLDictionary = string(d);
 
@@ -346,9 +346,9 @@ const uint32_t *evioBufferChannel::getBuffer(void) const throw(evioException) {
  * Returns length of event record in stream buffer in 4-byte words.
  * @return Length of event record in stream buffer 4-byte words
  */
-uint64_t evioBufferChannel::getBufLength(void) const throw(evioException) {
+uint32_t evioBufferChannel::getBufLength(void) const throw(evioException) {
   if(handle==0)throw(evioException(0,"evioBufferChannel::getBufLength...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  uint64_t l;
+  uint32_t l;
   int stat = evGetBufferLength(handle,&l);   // length is in bytes
   if(stat!=S_SUCCESS)throw(evioException(stat,"evioBufferChannel::getBufLength...error return: " + string(evPerror(stat)),
                                          __FILE__,__FUNCTION__,__LINE__));

@@ -89,7 +89,7 @@ void evioFileChannel::open(void) throw(evioException) {
   // set dictionary on write
   if((mode=="r")||(mode=="R")) {
     char *d;
-    int len;
+    uint32_t len;
     int stat=evGetDictionary(handle,&d,&len);
     if((stat==S_SUCCESS)&&(d!=NULL)&&(len>0))fileXMLDictionary = string(d);
 
