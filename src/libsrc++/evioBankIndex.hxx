@@ -1,16 +1,10 @@
 //  evioBankIndex.hxx
 //
 // creates bank index for serialized event 
-// uses boost::tuple, eventually will switch to std::tuple
+// eventually need to switch to std::tuple instead of custom struct
 //
 //
-// this class is NOT an essential component of EVIO and can be ignored if
-//   your compiler does not implement tuples
-//
-// to ignore this facility you'll need to edit the SConscript file in this directory
-//
-//
-//  Author:  Elliott Wolin, JLab, 30-apr-2012
+//  Author:  Elliott Wolin, JLab, 15-aug-2012
 
 
 
@@ -20,7 +14,7 @@
 
 #include <evioException.hxx>
 #include <evioUtil.hxx>
-#include <boost/tuple/tuple.hpp>
+//  #include <boost/tuple/tuple.hpp>
 
 
 namespace evio {
@@ -29,9 +23,16 @@ using namespace std;
 using namespace evio;
 
 
+// holds bank index info
+typedef struct {
+  int contentType;
+  const void *data;
+  int length;
+} bankIndex;
+  
 
 // tuple holds:  data type, pointer to bank data, length of data array
-typedef boost::tuple<int, const void*, int> bankIndex;
+//typedef boost::tuple<int, const void*, int> bankIndex;
 
 
 // compares tagNums to each other, first by tag, then by num
@@ -97,9 +98,13 @@ public:
 
     bankIndexMap::const_iterator iter = tagNumMap.find(tn);
 
-    if((iter!=tagNumMap.end()) && (boost::get<0>((*iter).second)==evioUtil<T>::evioContentType())) {
-      *pLen=boost::get<2>((*iter).second);
-      return(static_cast<const T*>(boost::get<1>((*iter).second)));
+    // if((iter!=tagNumMap.end()) && (boost::get<0>((*iter).second)==evioUtil<T>::evioContentType())) {
+    //   *pLen=boost::get<2>((*iter).second);
+    //   return(static_cast<const T*>(boost::get<1>((*iter).second)));
+
+    if((iter!=tagNumMap.end()) && ((((*iter).second).contentType)==evioUtil<T>::evioContentType())) {
+      *pLen=((*iter).second).length;
+      return(static_cast<const T*>(((*iter).second).data));
     } else {
       *pLen=0;
       return(NULL);
@@ -115,9 +120,13 @@ public:
    * @return Pointer to data, NULL on bad type
    */
   template <typename T> const T* getData(const bankIndex &bi, int *pLen) throw (evioException) {
-    if(boost::get<0>(bi)==evioUtil<T>::evioContentType()) {
-      *pLen=boost::get<2>(bi);
-      return(static_cast<const T*>(boost::get<1>(bi)));
+    // if(boost::get<0>(bi)==evioUtil<T>::evioContentType()) {
+    //   *pLen=boost::get<2>(bi);
+    //   return(static_cast<const T*>(boost::get<1>(bi)));
+
+    if(bi.contentType==evioUtil<T>::evioContentType()) {
+      *pLen=(bi.length);
+      return(static_cast<const T*>(bi.data));
     } else {
       *pLen=0;
       return(NULL);

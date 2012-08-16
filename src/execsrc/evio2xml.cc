@@ -171,7 +171,7 @@ void decode_command_line(int argc, char**argv) {
   
   string help = 
     "\nusage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event]\n"
-    "           [-dict dictfilename] [-dumpDict\n"
+    "           [-dict dictfilename] [-dumpDict]\n"
     "           [-bankTag bankTag] [-noBankTag bankTag] [-bankName bankName] [-noBankName bankName]\n"
     "           [-max_depth max_depth] [-no_data] [-xtod]\n"
     "           [-indent indent_size] [-maxbuf maxbuf] [-debug]\n"

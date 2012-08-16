@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 
       // query the index and get <double> data for some tagNum
       int len;
-      tagNum tn(80,13);
+      tagNum tn(11,21);
 
       cout << endl << endl << "Count of banks with tagNum " << tn.first << "," << (int)tn.second << " is: " << bi.tagNumCount(tn) << endl;
       const double *d = bi.getData<double>(tn,&len);
@@ -103,12 +103,12 @@ int main(int argc, char **argv) {
         for(int i=0; i<min(len,10); i++) cout << d[i] << "  ";
         cout << endl;
       } else {
-        cout << "?tagNum not found: " << tn.first << "," << (int)tn.second << endl;
+        cout << "?cannot find <double> data for: " << tn.first << "," << (int)tn.second << endl;
       }
     
 
       // query the index and get <int32_t> data for some tagNum
-      tagNum tn2(460,22);
+      tagNum tn2(32,37);
       cout << endl << endl << "Count of banks with tagNum " << tn2.first << "," << (int)tn2.second << " is: " << bi.tagNumCount(tn2) << endl;
       const int32_t *ii = bi.getData<int32_t>(tn2,&len);
       if(ii!=NULL) {
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
         for(int i=0; i<min(len,10); i++) cout << ii[i] << "  ";
         cout << endl;
       } else {
-        cout << "?tagNum not found: " << tn2.first << "," << (int)tn2.second << endl;
+        cout << "?cannot find <int32_t> data for: " << tn2.first << "," << (int)tn2.second << endl;
       }
     }    
     

@@ -34,7 +34,15 @@ class myHandler : public evioStreamParserHandler {
     
     // adds bank index to map
     evioBankIndex *bi = static_cast<evioBankIndex*>(userArg);
-    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),boost::make_tuple(contentType,data,length)));
+    //    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),boost::make_tuple(contentType,data,length)));
+
+    bankIndex b;
+    b.contentType=contentType;
+    b.data=data;
+    b.length=length;
+    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
+
+    //    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),bankIndex(contentType,data,length)));
     return(userArg);
   }
 
