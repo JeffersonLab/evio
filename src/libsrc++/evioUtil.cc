@@ -1892,6 +1892,7 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, int size) const throw(evioException
 
 /** 
  * Gets serialized length of node, used internally.
+ * Must include padding in byte count.
  * @param pNode Node to serialize
  * @return Size of serialized node in 4-byte words
  */
@@ -1963,8 +1964,8 @@ int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioE
         int nstring = leaf->data.size();
         ndata=0;
         for(unsigned int i=0; (int)i<nstring; i++) ndata+=leaf->data[i].size();
-        ndata+=nstring;        // account for nulls
-        nword = (ndata+3)/4;   // include padding
+        ndata+=nstring;
+        nword = (ndata+3)/4;
       }
       break;
 
@@ -2025,8 +2026,7 @@ int evioDOMTree::getSerializedLength(const evioDOMNodeP pNode) const throw(evioE
  */
 int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size) const throw(evioException) {
 
-  int bankLen,bankType,dataOffset;
-  int padding = 0;
+  int bankLen,bankType,dataOffset,padding=0;
 
   if(size<=0)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...illegal buffer size",__FILE__,__FUNCTION__,__LINE__));
 

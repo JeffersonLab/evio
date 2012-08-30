@@ -31,8 +31,10 @@ string dictFileXML;
 evioDictionary *dictFile = NULL;
 
 bool debug          = false;
+bool no_dump        = false;
 bool done           = false;
 int evcount         = 0;
+int wordcount       = 0;
 int max_event       = 0;
 int skip            = 0;
 bool dumpDict       = false;
@@ -111,7 +113,7 @@ int main(int argc, char **argv) {
 
 
     // dump data
-    cout << "<!-- xml boilerplate needs to go here -->\n\n<evio-data>\n"; 
+    if(!no_dump)cout << "<!-- xml boilerplate needs to go here -->\n\n<evio-data>\n"; 
 
 
     // loop over all buffers in file
@@ -129,15 +131,17 @@ int main(int argc, char **argv) {
       // dump tree
       if(debug)cout << "tree created, about to dump" << endl;
       bufferCount++;
-      cout << "\n\n<!-- ===================== Buffer " << bufferCount << " contains " << (chan->getBuffer())[0] +1 << " words (" 
-           << (chan->getBuffer())[0]*4+4 <<  " bytes) ===================== -->\n";
-      cout << tree.toString(config);
-      cout << endl << endl << "=================================================" << endl << endl;
-      cout << "<!-- end buffer " << bufferCount << " -->\n\n";
-      if(debug)cout << "dump complete" << endl;
+      wordcount+=(chan->getBuffer())[0]+1;
+      if(!no_dump) {
+          cout << "\n\n<!-- ===================== Buffer " << bufferCount << " contains " << (chan->getBuffer())[0]+1 << " words (" 
+               << (chan->getBuffer())[0]*4+4 <<  " bytes) ===================== -->\n";
+        cout << tree.toString(config);
+        cout << "<!-- ================== end buffer " << bufferCount << " containing " << (chan->getBuffer())[0]+1 << " words  ================== -->\n\n";
+        if(debug)cout << "dump complete" << endl;
+      }
       
       
-      if(evioPause) {
+      if(!no_dump && evioPause) {
         char s[100];
         cout << endl << "Hit return to continue, q to quit: ";
         fgets(s,sizeof(s),stdin);
@@ -147,10 +151,10 @@ int main(int argc, char **argv) {
 
 
     // done...close channel
-    cout << "</evio-data>\n\n"; 
+    if(!no_dump)cout << "</evio-data>\n\n"; 
     chan->close();
     delete(chan);
-
+    cout << endl << "<!-- total events read(skipped) is " << evcount << "(" << skip << "), total words dumped is " << wordcount << " -->" << endl << endl;
 
 
 
@@ -173,7 +177,7 @@ void decode_command_line(int argc, char**argv) {
     "\nusage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event]\n"
     "           [-dict dictfilename] [-dumpDict]\n"
     "           [-bankTag bankTag] [-noBankTag bankTag] [-bankName bankName] [-noBankName bankName]\n"
-    "           [-max_depth max_depth] [-no_data] [-xtod]\n"
+    "           [-max_depth max_depth] [-no_data] [-xtod] [-no_dump]\n"
     "           [-indent indent_size] [-maxbuf maxbuf] [-debug]\n"
     "           filename\n";
   int i;
@@ -210,6 +214,10 @@ void decode_command_line(int argc, char**argv) {
 
     } else if (strncasecmp(argv[i],"-no_data",8)==0) {
       no_data=true;
+      i=i+1;
+
+    } else if (strncasecmp(argv[i],"-no_dump",8)==0) {
+      no_dump=true;
       i=i+1;
 
     } else if (strncasecmp(argv[i],"-max_depth",10)==0) {

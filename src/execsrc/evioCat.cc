@@ -21,10 +21,16 @@ using namespace evio;
 
 void decode_command_line(int argc, char**argv);
 
+static int maxev             = 0;
+static int maxevFile         = 0;
 static bool debug            = false;
-static int maxbuf            = 200000;
-static int nInput            = 0;
+static bool done             = false;
+static int maxbuf            = 250000;
+static int nfile             = 0;
 static int nevent            = 0; 
+static int neventFile        = 0; 
+static int nword             = 0;
+static int nwordFile         = 0;
 static string outputFileName = "eviocat.evio";
 
 static queue<string> inputFileNames;
@@ -50,21 +56,31 @@ int main(int argc, char **argv) {
     
 
     // loop over input files
-    while(!inputFileNames.empty()) {
+    while(!done&&!inputFileNames.empty()) {
 
       // open next input file
       string fileName = inputFileNames.front();
+      if(debug)cout << "...opening file " << fileName << endl;
       inputFileNames.pop();
       evioFileChannel in(fileName,"r",maxbuf);
       in.open();
       
       // loop over events, copy to output
-      while(in.read()) {
+      neventFile=0;
+      nwordFile=0;
+      while(!done&&in.read()) {
         nevent++;
+        neventFile++;
+        nword += (in.getBuffer())[0]+1;
+        nwordFile += (in.getBuffer())[0]+1;
+        if(debug)cout << "writing event " << nevent << ", nwords is " << (in.getBuffer())[0]+1 << endl;
         out.write(in);
+        if((maxevFile>0)&&(neventFile>=maxevFile))break;
+        if((maxev>0)&&(nevent>=maxev))done=true;
       }
 
       // close file
+      if(debug)cout << "...closing file " << fileName << " after " << neventFile << " events, " << nwordFile << " words" << endl;
       in.close();
     }
 
@@ -80,7 +96,7 @@ int main(int argc, char **argv) {
   }
   
 
-  cout << endl << endl << " *** Copied " << nevent << " events from " << nInput << " files ***" << endl << endl;
+  cout << endl << endl << " *** Copied " << nevent << " events from " << nfile << " files, total words " << nword << " ***" << endl << endl;
 }
 
 
@@ -90,7 +106,7 @@ int main(int argc, char **argv) {
 void decode_command_line(int argc, char**argv) {
   
   string help = 
-    "\nusage:\n\n  evioCat [-debug] -o outputFile  file1 file2 file3 ...\n";
+    "\nusage:\n\n  evioCat [-maxev maxEvent] [-maxevFile maxEventFile] [-debug] -o outputFile  file1 file2 file3 ...\n";
   int i;
     
     
@@ -106,6 +122,14 @@ void decode_command_line(int argc, char**argv) {
     if (strncasecmp(argv[i],"-h",2)==0) {
       cout << help << endl;
       exit(EXIT_SUCCESS);
+      
+    } else if (strncasecmp(argv[i],"-maxevfile",10)==0) {
+      maxevFile=atoi(argv[i+1]);
+      i=i+2;
+      
+    } else if (strncasecmp(argv[i],"-maxev",6)==0) {
+      maxev=atoi(argv[i+1]);
+      i=i+2;
       
     } else if (strncasecmp(argv[i],"-debug",6)==0) {
       debug=true;
@@ -131,8 +155,8 @@ void decode_command_line(int argc, char**argv) {
 
 
   // check for input files
-  nInput=inputFileNames.size();
-  if(nInput<=0) {
+  nfile=inputFileNames.size();
+  if(nfile<=0) {
     cout << endl << "?no input files specified" << endl << endl << help << endl;
     exit(EXIT_SUCCESS);
   }
