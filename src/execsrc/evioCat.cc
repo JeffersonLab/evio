@@ -42,6 +42,7 @@ static queue<string> inputFileNames;
 
 int main(int argc, char **argv) {
   
+  int length;
 
 
   // decode command line arguments
@@ -68,13 +69,14 @@ int main(int argc, char **argv) {
       // loop over events, copy to output
       neventFile=0;
       nwordFile=0;
-      while(!done&&in.read()) {
+      while(!done&&in.readNoCopy()) {
+        length=(in.getNoCopyBuffer())[0]+1;
         nevent++;
         neventFile++;
-        nword += (in.getBuffer())[0]+1;
-        nwordFile += (in.getBuffer())[0]+1;
-        if(debug)cout << "writing event " << nevent << ", nwords is " << (in.getBuffer())[0]+1 << endl;
-        out.write(in);
+        nword += length;
+        nwordFile += length;
+        if(debug)cout << "writing event " << nevent << ", nwords is " << length << endl;
+        out.write(in.getNoCopyBuffer());
         if((maxevFile>0)&&(neventFile>=maxevFile))break;
         if((maxev>0)&&(nevent>=maxev))done=true;
       }
