@@ -2628,7 +2628,8 @@ int evGetBufferLength(int handle, uint32_t *length)
  */
 static int evFlush(EVFILE *a, int closing)
 {
-    uint32_t  nBytes, bytesToWrite, blockHeaderBytes = 4*EV_HDSIZ;
+    uint32_t  nBytes, bytesToWrite=0, blockHeaderBytes = 4*EV_HDSIZ;
+    int64_t pos;
 
     /* Store, in header, the actual, final block size */
     a->buf[EV_HD_BLKSIZ] = a->blksiz;
@@ -2651,7 +2652,9 @@ static int evFlush(EVFILE *a, int closing)
             /* If "last block" (header only) already written out,
              * back up one block header and write over it.  */
             if (a->lastBlockOut) {
-                fseek(a->file, -blockHeaderBytes, SEEK_CUR);
+                /* Carefully change unsigned int (blockHeaderBytes) into neg # */
+                pos = -1L * blockHeaderBytes;
+                fseek(a->file, pos, SEEK_CUR);
             }
             /* Write block to file */
             nBytes = fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
@@ -2684,10 +2687,9 @@ static int evFlush(EVFILE *a, int closing)
 
         /* Initialize block header for next write */
         initBlockHeader(a);
-    
+
         /* Track how many blocks written (first block # = 0) & put in header */
         a->buf[EV_HD_BLKNUM] = ++(a->blknum);
-
         /* Pointer to where next to write. In this case, the start
          * of first event header will be right after header. */
         a->next = a->buf + EV_HDSIZ;
@@ -3481,7 +3483,7 @@ char *evPerror(int error) {
             break;
 
         case S_EVFILE_BADMODE:
-            sprintf(temp, "S_EVFILE_BADMODE:  invalid operation current evOpen() mode\n");
+            sprintf(temp, "S_EVFILE_BADMODE:  invalid operation for current evOpen() mode\n");
             break;
 
         default:
