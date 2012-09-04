@@ -85,7 +85,7 @@ int evOpenSocket(int sockFd, char *flags, int *handle);
 int evRead(int handle, uint32_t *buffer, uint32_t size);
 int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen);
 int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen);
-int evReadRandom(int handle, const uint32_t **pEvent, uint32_t eventNumber);
+int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t eventNumber);
 int evGetRandomAccessTable(int handle, const uint32_t ***table, uint32_t *len);
 
 int evWrite(int handle, const uint32_t *buffer);
