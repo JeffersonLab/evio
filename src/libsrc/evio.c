@@ -48,16 +48,16 @@
  * int  evOpen                 (char *filename, char *flags, int *handle)
  * int  evOpenBuffer           (char *buffer, int bufLen, char *flags, int *handle)
  * int  evOpenSocket           (int sockFd, char *flags, int *handle)
- * int  evRead                 (int handle, uint32_t *buffer, size_t buflen)
- * int  evReadAlloc            (int handle, uint32_t **buffer, uint64_t *buflen)
- * int  evReadNoCopy           (int handle, const uint32_t **buffer, uint64_t *buflen)
- * int  evReadRandom           (int handle, const uint32_t **pEvent, size_t eventNumber)
+ * int  evRead                 (int handle, uint32_t *buffer, uint32_t buflen)
+ * int  evReadAlloc            (int handle, uint32_t **buffer, uint32_t *buflen)
+ * int  evReadNoCopy           (int handle, const uint32_t **buffer, uint32_t *buflen)
+ * int  evReadRandom           (int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t eventNumber)
  * int  evWrite                (int handle, const uint32_t *buffer)
  * int  evIoctl                (int handle, char *request, void *argp)
  * int  evClose                (int handle)
- * int  evGetBufferLength      (int handle, uint64_t *length)
- * int  evGetRandomAccessTable (int handle, const uint32_t *** const table, uint64_t *len)
- * int  evGetDictionary        (int handle, char **dictionary, int *len)
+ * int  evGetBufferLength      (int handle, uint32_t *length)
+ * int  evGetRandomAccessTable (int handle, const uint32_t *** const table, uint32_t *len)
+ * int  evGetDictionary        (int handle, char **dictionary, uint32_t *len)
  * int  evWriteDictionary      (int handle, char *xmlDictionary)
  * int  evIsContainer          (int type)
  * char *evPerror              (int error)
@@ -2170,6 +2170,8 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
  * @param handle evio handle
  * @param buffer pointer which gets filled with pointer to event in buffer or
  *               memory mapped file
+ * @param buflen pointer to int gets filled with length of buffer in 32 bit words
+ *               including the full (8 byte) bank header
  * @param eventNumber the number of the event to be read (returned) starting at 1.
  *
  * @return S_SUCCESS          if successful
@@ -2179,7 +2181,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
  * @return S_EVFILE_BADFILE   if version < 4, unsupported or bad format
  * @return S_EVFILE_BADHANDLE if bad handle arg or wrong magic # in handle
  */
-int evReadRandom(int handle, const uint32_t **pEvent, uint32_t eventNumber)
+int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t eventNumber)
 {
     EVFILE   *a;
     uint32_t *pev;
@@ -2224,11 +2226,20 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t eventNumber)
         return(S_FAILURE);
     }
 
-    /* swap data in buf/mem-map if necessary */
+    /* Find number of words to read in next event (including header) */
+    /* and swap data in buf/mem-map if necessary */
     if (a->byte_swapped) {
+        /* Length of bank, including header, in 32 bit words */
+        *buflen = EVIO_SWAP32(*pev) + 1;
+                        
+        /* swap data in buf/mem-map buffer */
         evioswap(pev, 1, NULL);
     }
-
+    else {
+        /* Length of bank, including header, in 32 bit words */
+        *buflen = *pev + 1;
+    }
+    
     /* return pointer to event in memory map / buffer */
     *pEvent = pev;
 
