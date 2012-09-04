@@ -2629,7 +2629,7 @@ int evGetBufferLength(int handle, uint32_t *length)
 static int evFlush(EVFILE *a, int closing)
 {
     uint32_t  nBytes, bytesToWrite=0, blockHeaderBytes = 4*EV_HDSIZ;
-    int64_t pos;
+    long pos;
 
     /* Store, in header, the actual, final block size */
     a->buf[EV_HD_BLKSIZ] = a->blksiz;
