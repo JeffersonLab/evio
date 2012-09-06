@@ -13,17 +13,12 @@
 
 #include "evioUtil.hxx"
 #include "evioFileChannel.hxx"
-
-#include <iostream>
 #include <fstream>
-//#include <tr1/memory>
 
 
 using namespace std;
 using namespace evio;
 
-
-void decode_command_line(int argc, char**argv);
 
 string filename;
 string dictFileName;
@@ -41,6 +36,7 @@ bool dumpDict       = false;
 bool evioPause      = false;
 int maxbuf          = 100000;   // ??? no error
 
+
 // set in toStringConfig()
 bool xtod           = false;
 bool no_data        = false;
@@ -55,6 +51,10 @@ vector<string> bankNameOk;
 vector<string> noBankName;
 
 
+// misc prototypes
+void decode_command_line(int argc, char**argv);
+
+
 
 //-------------------------------------------------------------------------------
 
@@ -66,9 +66,9 @@ int main(int argc, char **argv) {
   evioFileChannel *chan;
 
 
-
   // decode command line arguments
   decode_command_line(argc,argv);
+  if(filename.empty())filename="fakeEvents.dat";
 
 
   try {
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
 
     // loop over all buffers in file
     if(debug)cout << "file open, about to read event" << endl;
-    while(!done && ((max_event<=0)||(evcount<max_event)) && chan->read()) {
+       while(!done && ((max_event<=0)||(evcount<max_event)) && chan->read()) {
       evcount++;
       if((skip>0)&&(evcount<=skip))continue;
 
@@ -154,7 +154,8 @@ int main(int argc, char **argv) {
     if(!no_dump)cout << "</evio-data>\n\n"; 
     chan->close();
     delete(chan);
-    cout << endl << "<!-- total events read(skipped) is " << evcount << "(" << skip << "), total words dumped is " << wordcount << " -->" << endl << endl;
+    cout << endl << "<!-- total events read(skipped) is " << evcount << "(" << skip << "), total words dumped is " 
+         << wordcount << " -->" << endl << endl;
 
 
 
@@ -172,17 +173,16 @@ int main(int argc, char **argv) {
 
 
 void decode_command_line(int argc, char**argv) {
-  
-  string help = 
-    "\nusage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event]\n"
-    "           [-dict dictfilename] [-dumpDict]\n"
-    "           [-bankTag bankTag] [-noBankTag bankTag] [-bankName bankName] [-noBankName bankName]\n"
-    "           [-max_depth max_depth] [-no_data] [-xtod] [-no_dump]\n"
-    "           [-indent indent_size] [-maxbuf maxbuf] [-debug]\n"
-    "           filename\n";
-  int i;
+
+  static string help = 
+    "\nUsage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event]\n"
+                "           [-dict dictfilename] [-dumpDict]\n";
+                "           [-bankTag bankTag] [-noBankTag bankTag] [-bankName bankName] [-noBankName bankName]\n"
+                "           [-max_depth max_depth] [-no_data] [-xtod] [-no_dump]\n"
+                "           [-indent indent_size] [-maxbuf maxbuf] [-debug]\n"
+                "           filename\n";
     
-    
+
   if(argc<2) {
     cout << help << endl;
     exit(EXIT_SUCCESS);
@@ -190,7 +190,7 @@ void decode_command_line(int argc, char**argv) {
 
 
   /* loop over arguments */
-  i=1;
+  int i=1;
   while (i<argc) {
     if (strncasecmp(argv[i],"-h",2)==0) {
       cout << help << endl;

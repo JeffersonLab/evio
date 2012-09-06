@@ -40,6 +40,7 @@ public:
   bool read(uint32_t *myEventBuf, int length) throw(evioException);
   bool readAlloc(uint32_t **buffer, uint32_t *bufLen) throw(evioException);
   bool readNoCopy(void) throw(evioException);
+  bool readRandom(uint32_t bufferNumber) throw(evioException);
   void write(void) throw(evioException);
   void write(const uint32_t *myEventBuf) throw(evioException);
   void write(const evioChannel &channel) throw(evioException);
@@ -54,6 +55,8 @@ public:
   const uint32_t *getBuffer(void) const throw(evioException);
   int getBufSize(void) const;
   const uint32_t *getNoCopyBuffer(void) const throw(evioException);
+  const uint32_t *getRandomBuffer(void) const throw(evioException);
+  void getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException);
 
   const uint32_t *getStreamBuffer(void) const throw(evioException);
   int getStreamBufSize(void) const;
@@ -66,11 +69,12 @@ public:
 private:
   uint32_t *streamBuf;           /**<Pointer to user-supplied stream i/o buffer.*/
   int streamBufSize;             /**<Size of user-supplied stream buffer.*/
-  string mode;                   /**<Open mode, "r" or "w".*/
+  string mode;                   /**<Open mode, "r" or "ra" or "w" or "a".*/
   int handle;                    /**<Internal evio handle.*/
   uint32_t *buf;                 /**<Pointer to internal event buffer.*/
   int bufSize;                   /**<Size of internal buffer.*/
   const uint32_t *noCopyBuf;     /**<Pointer to no copy buffer.*/
+  const uint32_t *randomBuf;     /**<Pointer to random read buffer.*/
   string bufferXMLDictionary;    /**<XML dictionary in buffer.*/
   bool createdBufferDictionary;  /**<true if dictionary created from buffer.*/
 };

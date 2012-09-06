@@ -23,13 +23,16 @@ using namespace evio;
  * Constructor opens buffer for reading or writing.
  * @param streamBuf Stream buffer specified by the user
  * @param bufLen size of the stream buffer
- * @param m I/O mode, "r" or "w"
+ * @param m I/O mode, "r" or "ra" or "w" or "a"
  * @param size Internal event buffer size
  */
 evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const string &m, int size) throw(evioException) 
-  : evioChannel(), streamBuf(streamBuf), streamBufSize(bufLen), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), bufferXMLDictionary(""),
-    createdBufferDictionary(false) {
+  : evioChannel(), streamBuf(streamBuf), streamBufSize(bufLen), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL), 
+    bufferXMLDictionary(""), createdBufferDictionary(false) {
   if(streamBuf==NULL)throw(evioException(0,"?evioBufferChannel constructor...NULL buffer",__FILE__,__FUNCTION__,__LINE__));
+
+  // lowercase mode
+  std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -45,13 +48,16 @@ evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const stri
  * @param streamBuf Stream buffer specified by the user
  * @param bufLen size of the stream buffer
  * @param dict Dictionary
- * @param m I/O mode, "r" or "w"
+ * @param m I/O mode, "r" or "ra" or "w" or "a"
  * @param size Internal event buffer size
  */
 evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, evioDictionary *dict, const string &m, int size) throw(evioException) 
-  : evioChannel(dict), streamBuf(streamBuf), streamBufSize(bufLen), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), bufferXMLDictionary(""),
-    createdBufferDictionary(false) {
+  : evioChannel(dict), streamBuf(streamBuf), streamBufSize(bufLen), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL), 
+    bufferXMLDictionary(""), createdBufferDictionary(false) {
   if(streamBuf==NULL)throw(evioException(0,"?evioBufferChannel constructor...NULL buffer",__FILE__,__FUNCTION__,__LINE__));
+
+  // lowercase mode
+  std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -92,7 +98,7 @@ void evioBufferChannel::open(void) throw(evioException) {
   // on read check if buffer has dictionary, warn if conflict with user dictionary
   // store buffer XML just in case
   // set dictionary on write
-  if((mode=="r")||(mode=="R")) {
+  if(mode=="r") {
     char *d;
     uint32_t len;
     int stat=evGetDictionary(handle,&d,&len);
@@ -110,7 +116,7 @@ void evioBufferChannel::open(void) throw(evioException) {
       cout << "evioBufferChannel::open...user-supplied dictionary overrides dictionary in buffer" << endl;
     }
 
-  } else if((dictionary!=NULL) && ((mode=="w")||(mode=="W"))) {
+  } else if((dictionary!=NULL) && (mode=="w")) {
     evWriteDictionary(handle,const_cast<char*>(dictionary->getDictionaryXML().c_str()));
   }
 
@@ -191,6 +197,26 @@ bool evioBufferChannel::readNoCopy(void) throw(evioException) {
   int stat=evReadNoCopy(handle,&noCopyBuf,&bufLen);
   if(stat==EOF)return(false);
   if(stat!=S_SUCCESS) throw(evioException(stat,"evioBufferChannel::readNoCopy...read error: " + string(evPerror(stat)),
+                                          __FILE__,__FUNCTION__,__LINE__));
+  return(true);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Reads buffer from file given buffer number
+ * @param bufferNumber Buffer to return
+ * @return true if successful, false on EOF, throws exception for other error.
+ */
+bool evioBufferChannel::readRandom(uint32_t bufferNumber) throw(evioException) {
+  if(handle==0)throw(evioException(0,"evioBufferChannel::readRandom...0 handle",__FILE__,__FUNCTION__,__LINE__));
+
+  uint32_t bufLen;
+  int stat=evReadRandom(handle,&randomBuf,&bufLen,bufferNumber);
+  if(stat==EOF) return(false);
+  if(stat!=S_SUCCESS) throw(evioException(stat,"evioBufferChannel::readRandom...read error: " + string(evPerror(stat)),
                                           __FILE__,__FUNCTION__,__LINE__));
   return(true);
 }
@@ -384,6 +410,18 @@ const uint32_t *evioBufferChannel::getNoCopyBuffer(void) const throw(evioExcepti
 
 
 /**
+ * Returns pointer to random buffer
+ * @return Pointer to random buffer
+ */
+const uint32_t *evioBufferChannel::getRandomBuffer(void) const throw(evioException) {
+  return(randomBuf);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
  * Returns pointer to stream buffer.
  * @return Pointer to stream buffer
  */
@@ -418,3 +456,19 @@ string evioBufferChannel::getBufferXMLDictionary(void) const {
 
 
 //-----------------------------------------------------------------------
+
+
+/**
+ * Returns random access table
+ * @param table Pointer to table
+ * @param len Length of table
+ */
+void evioBufferChannel::getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException) {
+  if(handle==0)throw(evioException(0,"evioBufferChannel::getRandomAccessTable...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  evGetRandomAccessTable(handle,table,len);
+}
+
+
+//-----------------------------------------------------------------------
+
+

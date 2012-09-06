@@ -29,6 +29,9 @@ evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size) thro
   : evioChannel(), sockFD(sockFD), mode(m), handle(0), bufSize(size), socketXMLDictionary(""), createdSocketDictionary(false)  {
   if(sockFD==0)throw(evioException(0,"?evioSocketChannel constructor...zero socket file descriptor",__FILE__,__FUNCTION__,__LINE__));
 
+  // lowercase mode
+  std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
+
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
   if(buf==NULL)throw(evioException(0,"?evioSocketChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
@@ -48,6 +51,9 @@ evioSocketChannel::evioSocketChannel(int sockFD, const string &m, int size) thro
 evioSocketChannel::evioSocketChannel(int sockFD, evioDictionary *dict, const string &m, int size) throw(evioException) 
   : evioChannel(dict), sockFD(sockFD), mode(m), handle(0), bufSize(size), socketXMLDictionary(""), createdSocketDictionary(false)  {
   if(sockFD==0)throw(evioException(0,"?evioSocketChannel constructor...zero socket file descriptor",__FILE__,__FUNCTION__,__LINE__));
+
+  // lowercase mode
+  std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -88,7 +94,7 @@ void evioSocketChannel::open(void) throw(evioException) {
   // on read check if socket has dictionary, warn if conflict with user dictionary
   // store socket XML just in case
   // set dictionary on write
-  if((mode=="r")||(mode=="R")) {
+  if(mode=="r") {
     char *d;
     uint32_t len;
     int stat=evGetDictionary(handle,&d,&len);
@@ -105,7 +111,7 @@ void evioSocketChannel::open(void) throw(evioException) {
       cout << "evioSocketChannel::open...user-supplied dictionary overrides dictionary in socket" << endl;
     }
 
-  } else if((dictionary!=NULL) && ((mode=="w")||(mode=="W"))) {
+  } else if((dictionary!=NULL) && (mode=="w")) {
     evWriteDictionary(handle,const_cast<char*>(dictionary->getDictionaryXML().c_str()));
   }
 
@@ -188,6 +194,17 @@ bool evioSocketChannel::readNoCopy(void) throw(evioException) {
   if(stat!=S_SUCCESS) throw(evioException(stat,"evioSocketChannel::readNoCopy...read error: " + string(evPerror(stat)),
                                           __FILE__,__FUNCTION__,__LINE__));
   return(true);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Reads buffer from file given buffer number, throws exception since not implemented
+ */
+bool evioSocketChannel::readRandom(uint32_t bufferNumber) throw(evioException) {
+  throw(evioException(0,"evioSocketChannel::readRandom...not implemented", __FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -354,7 +371,18 @@ int evioSocketChannel::getBufSize(void) const {
  * @return NULL Since not implemented
  */
 const uint32_t *evioSocketChannel::getNoCopyBuffer(void) const throw(evioException) {
-  return(noCopyBuf);
+  return(NULL);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Returns pointer to random buffer, throws exception since not implemented
+ */
+const uint32_t *evioSocketChannel::getRandomBuffer(void) const throw(evioException) {
+  throw(evioException(0,"evioSocketChannel::getRandomBuffer...not implemented",__FILE__,__FUNCTION__,__LINE__));
 }
 
 
@@ -384,3 +412,18 @@ string evioSocketChannel::getSocketXMLDictionary(void) const {
 
 
 //-----------------------------------------------------------------------
+
+
+/**
+ * Returns random access table
+ * @param table Pointer to table
+ * @param len Length of table
+ */
+void evioSocketChannel::getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException) {
+  throw(evioException(0,"evioSocketChannel::getRandomAccessTable...not implemented",__FILE__,__FUNCTION__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+

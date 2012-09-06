@@ -1265,9 +1265,11 @@ int evioCompositeDOMLeafNode::getSize(void) const {
  */
 evioDOMTree::evioDOMTree(const evioChannel &channel, const string &name) throw(evioException) : root(NULL), name(name) {
 
-  // check for no copy read first
+  // check for random and no copy read
   const uint32_t *buf;
-  buf = channel.getNoCopyBuffer();
+
+  buf = channel.getRandomBuffer();
+  if(buf==NULL) buf = channel.getNoCopyBuffer();
   if(buf==NULL) buf = channel.getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
 
@@ -1292,7 +1294,8 @@ evioDOMTree::evioDOMTree(const evioChannel *channel, const string &name) throw(e
 
   // check for no copy read first
   const uint32_t *buf;
-  buf = channel->getNoCopyBuffer();
+  buf = channel->getRandomBuffer();
+  if(buf==NULL) buf = channel->getNoCopyBuffer();
   if(buf==NULL) buf = channel->getBuffer();
   if(buf==NULL)throw(evioException(0,"?evioDOMTree constructor...channel delivered null buffer",__FILE__,__FUNCTION__,__LINE__));
 

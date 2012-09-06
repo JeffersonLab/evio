@@ -22,11 +22,16 @@ using namespace evio;
 /**
  * Constructor opens file for reading or writing.
  * @param f File name
- * @param m I/O mode, "r" or "w"
+ * @param m I/O mode, "r" or "ra" or "w" or "a"
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
+  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL), 
+    fileXMLDictionary(""), createdFileDictionary(false) {
+
+  // lowercase mode
+  std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
+  
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -41,11 +46,15 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  * Constructor opens file for reading or writing, dictionary specified.
  * @param f File name
  * @param dict Dictionary
- * @param m I/O mode, "r" or "w"
+ * @param m I/O mode, "r" or "ra" or "w" or "a"
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const string &m, int size) throw(evioException) 
-  : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
+  : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL),
+    fileXMLDictionary(""), createdFileDictionary(false) {
+
+  // lowercase mode
+  std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
 
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
@@ -87,7 +96,7 @@ void evioFileChannel::open(void) throw(evioException) {
   // on read check if file has dictionary, warn if conflict with user dictionary
   // store file XML just in case
   // set dictionary on write
-  if((mode=="r")||(mode=="R")) {
+  if((mode=="r")||(mode=="ra")) {
     char *d;
     uint32_t len;
     int stat=evGetDictionary(handle,&d,&len);
@@ -104,7 +113,7 @@ void evioFileChannel::open(void) throw(evioException) {
       cout << "evioFileChannel::open...user-supplied dictionary overrides dictionary in file" << endl;
     }
 
-  } else if((dictionary!=NULL) && ((mode=="w")||(mode=="W"))) {
+  } else if((dictionary!=NULL) && (mode=="w")) {
     evWriteDictionary(handle,const_cast<char*>(dictionary->getDictionaryXML().c_str()));
   }
 
@@ -199,6 +208,27 @@ bool evioFileChannel::readNoCopy(void) throw(evioException) {
   int stat=evReadNoCopy(handle,&noCopyBuf,&bufLen);
   if(stat==EOF) return(false);
   if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readNoCopy...read error: " + string(evPerror(stat)),
+                                          __FILE__,__FUNCTION__,__LINE__));
+  return(true);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Reads buffer from file given buffer number
+ * @param bufferNumber Buffer to return
+ * @return true if successful, false on EOF, throws exception for other error.
+ */
+bool evioFileChannel::readRandom(uint32_t bufferNumber) throw(evioException) {
+  noCopyBuf=NULL;
+  if(handle==0)throw(evioException(0,"evioFileChannel::readRandom...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  
+  uint32_t bufLen;
+  int stat=evReadRandom(handle,&randomBuf,&bufLen,bufferNumber);
+  if(stat==EOF) return(false);
+  if(stat!=S_SUCCESS) throw(evioException(stat,"evioFileChannel::readRandom...read error: " + string(evPerror(stat)),
                                           __FILE__,__FUNCTION__,__LINE__));
   return(true);
 }
@@ -387,11 +417,37 @@ const uint32_t *evioFileChannel::getNoCopyBuffer(void) const throw(evioException
 
 
 /**
+ * Returns pointer to random buffer.
+ * @return Pointer to random buffer
+ */
+const uint32_t *evioFileChannel::getRandomBuffer(void) const throw(evioException) {
+  return(randomBuf);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
  * Returns XML dictionary read in from file
  * @return XML dictionary read in from file
  */
 string evioFileChannel::getFileXMLDictionary(void) const {
   return(fileXMLDictionary);
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Returns random access table
+ * @param table Pointer to table
+ * @param len Length of table
+ */
+void evioFileChannel::getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException) {
+  if(handle==0)throw(evioException(0,"evioFileChannel::getRandomAccessTable...0 handle",__FILE__,__FUNCTION__,__LINE__));
+  evGetRandomAccessTable(handle,table,len);
 }
 
 
