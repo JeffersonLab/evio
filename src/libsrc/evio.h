@@ -22,6 +22,14 @@
 #define S_FAILURE -1
 #endif
 
+/* see "Programming with POSIX threads' by Butenhof */
+#define evio_err_abort(code,text) do { \
+    fprintf (stderr, "%s at \"%s\":%d: %s\n", \
+        text, __FILE__, __LINE__, strerror (code)); \
+    exit (-1); \
+} while (0)
+
+
 #define S_EVFILE    		0x00730000	/* evfile.msg Event File I/O */
 #define S_EVFILE_TRUNC		0x40730001	/* Event truncated on read/write */
 #define S_EVFILE_BADBLOCK	0x40730002	/* Bad block number encountered */
