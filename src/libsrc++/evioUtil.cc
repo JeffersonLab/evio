@@ -2147,8 +2147,8 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         if(bankLen+nword>size)throw(evioException(0,"?evioDOMTree::toEVOIBuffer...buffer too small",__FILE__,__FUNCTION__,__LINE__));
         uint8_t *c = (uint8_t*)&buf[dataOffset];
         for(i=0; i<ndata; i++) c[i]=static_cast<uint8_t>(leaf->data[i]);
-        for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]='\0';
-        padding=4-ndata%4;
+        for(i=ndata; i<ndata+(4-ndata%4)%4; i++) c[i]=0;
+        padding=(4-ndata%4)%4;
       }
       break;
 
