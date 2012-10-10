@@ -19,6 +19,7 @@ using namespace evio;
 int main(int argc, char **argv) {
   
   float x[10] = {1,2,3,4,5,6,7,8,9,10};
+  uint32_t ix[10] = {1,2,3,4,5,6,7,8,9,10};
   string dictXML = "<dict>\n"
     "<dictEntry name=\"fred\"   tag=\"1\" num=\"0\"/> \n"
     "<dictEntry name=\"wilma\"  tag=\"4\" num=\"11\"/>\n"
@@ -54,6 +55,7 @@ int main(int argc, char **argv) {
 
     // create output buffer channel and specify dictionary
     chan = new evioBufferChannel(streamBuf,streamBufLen,&dict,"w");
+    //    chan = new evioBufferChannel(streamBuf,streamBufLen,"w");
 
 
     // open the channel, dictionary gets written to stream buffer header now
@@ -62,13 +64,13 @@ int main(int argc, char **argv) {
 
     // create event tree
     evioDOMTree event1(1, 0);
-    event1.addBank(4, 11, x, 4);
+    event1.addBank(4, 11, ix, 4);
     event1.addBank(5, 12, x, 5);
-    event1.addBank(6, 13, x, 6);
+    event1.addBank(6, 13, ix, 6);
     event1.addBank(7, 14, x, 2);
-    event1.addBank(8, 15, x, 3);
+    event1.addBank(8, 15, ix, 3);
     event1.addBank(9, 16, x, 4);
-    event1.addBank(10, 17, x, 8);
+    event1.addBank(10, 17, ix, 8);
     event1.addBank(11, 18, x, 7);
     cout << endl << "created event tree: " << endl << event1.toString(dict) << endl << endl;
 
@@ -76,16 +78,29 @@ int main(int argc, char **argv) {
     // write event to stream buffer
     // must get number of words written BEFORE closing channel!
     chan->write(event1);
-    cout << endl << "wrote " << chan->getBufLength() << " words into stream buffer" << endl << endl;
+    cout << endl << "wrote " << chan->getBufLength() << " total words into stream buffer" << endl << endl;
 
-    // what the hell, write the event out again
-    chan->write(event1);
-    cout << endl << "wrote " << chan->getBufLength() << " words into stream buffer" << endl << endl;
+
+    // write the event a few times more
+    for(int i=0; i<5; i++) {
+      chan->write(event1);
+      cout << endl << "wrote " << chan->getBufLength() << " total words into stream buffer" << endl << endl;
+    }
+
 
 
     // close buffer channel
+    int streamBufSize = chan->getBufLength();
     chan->close();
     delete(chan);
+
+
+    // dump streamBuf
+    // cout << endl << endl;
+    // for(int i=0; i<streamBufSize; i++) {
+    //   cout << hex << "0x" << streamBuf[i] << "  ";
+    // }
+    // cout << dec << endl;
 
 
 
