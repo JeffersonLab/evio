@@ -42,6 +42,7 @@ bool xtod           = false;
 bool no_data        = false;
 int max_depth       = 0;
 int indent          = 0;
+bool verbose        = false;
 
 
 // for selectively dumping banks
@@ -110,6 +111,7 @@ int main(int argc, char **argv) {
     config.noBankName = noBankName;
     config.bankOk     = bankOk;
     config.noBank     = noBank;
+    config.verbose    = verbose;
 
 
     // dump data
@@ -179,7 +181,7 @@ void decode_command_line(int argc, char**argv) {
                 "           [-dict dictfilename] [-dumpDict]\n";
                 "           [-bankTag bankTag] [-noBankTag bankTag] [-bankName bankName] [-noBankName bankName]\n"
                 "           [-max_depth max_depth] [-no_data] [-xtod] [-no_dump]\n"
-                "           [-indent indent_size] [-maxbuf maxbuf] [-debug]\n"
+                "           [-indent indent_size] [-maxbuf maxbuf] [-verbose] [-debug]\n"
                 "           filename\n";
     
 
@@ -206,6 +208,10 @@ void decode_command_line(int argc, char**argv) {
 
     } else if (strncasecmp(argv[i],"-dumpDict",9)==0) {
       dumpDict=true;
+      i=i+1;
+
+    } else if (strncasecmp(argv[i],"-verbose",8)==0) {
+      verbose=true;
       i=i+1;
 
     } else if (strncasecmp(argv[i],"-debug",6)==0) {

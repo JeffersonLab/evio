@@ -99,6 +99,7 @@ void evioToStringConfig::init(void) {
   maxDepth           = 0;
   indentSize         = 3;    
   toStringDictionary = NULL;
+  verbose            = false;
 }
 
 
@@ -1094,8 +1095,14 @@ string evioDOMContainerNode::getHeader(int depth, const evioToStringConfig *conf
      <<  "<" << name << " content=\"" << evGetTypename(contentType)
      << "\" data_type=\"" << hex << showbase << getContentType() << noshowbase << dec
      << dec << "\" tag=\""  << tag;
+
   if((parent==NULL)||((parent->getContentType()==0xe)||(parent->getContentType()==0x10)))
     os << dec << "\" num=\"" << (int)num;
+
+  if((config!=NULL)&&(config->verbose)) {
+    os << dec << "\" nchildren=\"" << getSize();
+  }
+
   os << "\">" << endl;
   return(os.str());
 }

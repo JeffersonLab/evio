@@ -151,6 +151,7 @@ public:
   bool noData;                   /**<True do not dump leaf node data.*/
   int maxDepth;                  /**<Max depth to dump.*/
   int indentSize;                /**<Indent size per unit of depth.*/
+  bool verbose;                  /**<Turn on verbose mode.*/
   vector<int16_t> bankOk;        /**<Vector of bank tags to dump.*/
   vector<int16_t> noBank;        /**<Vector of bank tags to skip.*/
   vector<string> bankNameOk;     /**<Vector of bank names to dump.*/
