@@ -155,7 +155,7 @@ bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
   noCopyBuf=NULL;
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  int stat=evRead(handle,&myBuf[0],length));
+  int stat=evRead(handle,&myBuf[0],length);
   if(stat==S_SUCCESS) {
     return(true);
   } else if(stat==EOF) {
