@@ -292,7 +292,7 @@ if useVxworks:
 # else if NOT using vxworks
 else:
     # platform dependent quantities
-    execLibs = ['pthread', 'expat', 'z']  # default to standard Linux libs
+    execLibs = ['pthread', 'expat', 'z', 'dl', 'm']  # default to standard Linux libs
     env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
     env.AppendUnique(CPPPATH = ['/usr/include', '/usr/local/include'])
     

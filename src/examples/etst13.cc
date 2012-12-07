@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
       // write event to output stream buffer channel
       chan2->write(event);
-      cout << "Event length in stream buffer:         " << chan2->getBufLength() << endl;
+      cout << "Event length in stream buffer:         " << chan2->getEVIOBufferLength() << endl;
     }    
     
 

@@ -78,19 +78,19 @@ int main(int argc, char **argv) {
     // write event to stream buffer
     // must get number of words written BEFORE closing channel!
     chan->write(event1);
-    cout << endl << "wrote " << chan->getBufLength() << " total words into stream buffer" << endl << endl;
+    cout << endl << "wrote " << chan->getEVIOBufferLength() << " total words into stream buffer" << endl << endl;
 
 
     // write the event a few times more
     for(int i=0; i<5; i++) {
       chan->write(event1);
-      cout << endl << "wrote " << chan->getBufLength() << " total words into stream buffer" << endl << endl;
+      cout << endl << "wrote " << chan->getEVIOBufferLength() << " total words into stream buffer" << endl << endl;
     }
 
 
 
     // close buffer channel
-    int streamBufSize = chan->getBufLength();
+    int streamBufSize = chan->getEVIOBufferLength();
     chan->close();
     delete(chan);
 

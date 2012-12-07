@@ -201,17 +201,6 @@ bool evioSocketChannel::readNoCopy(void) throw(evioException) {
 
 
 /**
- * Reads buffer from file given buffer number, throws exception since not implemented
- */
-bool evioSocketChannel::readRandom(uint32_t bufferNumber) throw(evioException) {
-  throw(evioException(0,"evioSocketChannel::readRandom...not implemented", __FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
  * Writes to socket from internal buffer.
  */
 void evioSocketChannel::write(void) throw(evioException) {
@@ -368,21 +357,11 @@ int evioSocketChannel::getBufSize(void) const {
 
 /**
  * Returns pointer to no copy buffer
- * @return NULL Since not implemented
+ * @return Returs pointer to internal buffer since there is noCopy buffer does not exist
  */
 const uint32_t *evioSocketChannel::getNoCopyBuffer(void) const throw(evioException) {
-  return(NULL);
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
- * Returns pointer to random buffer, throws exception since not implemented
- */
-const uint32_t *evioSocketChannel::getRandomBuffer(void) const throw(evioException) {
-  throw(evioException(0,"evioSocketChannel::getRandomBuffer...not implemented",__FILE__,__FUNCTION__,__LINE__));
+  if(buf==NULL)throw(evioException(0,"evioSocketChannel::getNoCopyBuffer...null internal buffer",__FILE__,__FUNCTION__,__LINE__));
+  return(buf);
 }
 
 
@@ -412,18 +391,4 @@ string evioSocketChannel::getSocketXMLDictionary(void) const {
 
 
 //-----------------------------------------------------------------------
-
-
-/**
- * Returns random access table
- * @param table Pointer to table
- * @param len Length of table
- */
-void evioSocketChannel::getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException) {
-  throw(evioException(0,"evioSocketChannel::getRandomAccessTable...not implemented",__FILE__,__FUNCTION__,__LINE__));
-}
-
-
-//-----------------------------------------------------------------------
-
 

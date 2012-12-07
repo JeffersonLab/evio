@@ -1,8 +1,8 @@
 # scons build file for evio
-Import('env', 'binDir', 'archDir', 'execLibs', 'debugSuffix')
+Import('env', 'libDir', 'binDir', 'archDir', 'execLibs', 'debugSuffix')
 import re
 
- # lists of all C and C++ files
+# lists of all C and C++ files
 cfileList  = Glob('*.c',  strings=True)
 ccfileList = Glob('*.cc', strings=True)
 
@@ -10,10 +10,11 @@ ccfileList = Glob('*.cc', strings=True)
 # and install that executable if "scons examples" is command
 for fileName in cfileList:
     compiledFile = env.Program(source  = fileName,
-                               LIBS    = ['evio'+debugSuffix] + execLibs,
-                               LIBPATH = ['#src/libsrc/'+archDir],
+                               LIBS    = ['evio'+debugSuffix, 'et'+debugSuffix] + execLibs,
+                               LIBPATH = ['#src/libsrc/'+archDir, libDir],
                                CPPPATH = ['.', '#src/libsrc'])
     env.Alias('install', env.Install(target = binDir, source = compiledFile))
+
 
 # If we store all compiled programs in a list and then
 # install the list itself, for some unknown reason the
@@ -24,8 +25,8 @@ for fileName in cfileList:
 for fileName in ccfileList:
     compiledFile = env.Program(source  = fileName,
                                LIBS    = ['evio'+debugSuffix,
-                                          'evioxx'+debugSuffix] + execLibs,
+                                          'evioxx'+debugSuffix, 'et'+debugSuffix] + execLibs,
                                LIBPATH = ['#src/libsrc/'+archDir,
-                                          '#src/libsrc++/'+archDir],
+                                          '#src/libsrc++/'+archDir, libDir],
                                CPPPATH = ['.', '#src/libsrc', '#src/libsrc++'])
     env.Alias('install', env.Install(target = binDir, source = compiledFile))
