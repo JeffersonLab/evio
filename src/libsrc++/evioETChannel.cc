@@ -40,7 +40,7 @@ evioETChannel::evioETChannel(et_sys_id et_system_id, et_att_id et_attach_id, con
     bufferXMLDictionary(""), createdBufferDictionary(false), etBufReceived(0), etBufUsed(0) {
 
   if(et_system_id==NULL)throw(evioException(0,"?evioETChannel constructor...NULL system id",__FILE__,__FUNCTION__,__LINE__));
-  if(et_attach_id==0)throw(evioException(0,"?evioETChannel constructor...NULL station id",__FILE__,__FUNCTION__,__LINE__));
+  if(et_attach_id<0)throw(evioException(0,"?evioETChannel constructor...bad station id",__FILE__,__FUNCTION__,__LINE__));
   
   // check chunk
   if(chunk<=0)chunk=1;
@@ -71,7 +71,7 @@ evioETChannel::evioETChannel(et_sys_id et_system_id, et_att_id et_attach_id, evi
     bufferXMLDictionary(""), createdBufferDictionary(false), etBufReceived(0), etBufUsed(0) {
 
   if(et_system_id==NULL)throw(evioException(0,"?evioETChannel constructor...NULL system id",__FILE__,__FUNCTION__,__LINE__));
-  if(et_attach_id==0)throw(evioException(0,"?evioETChannel constructor...NULL station id",__FILE__,__FUNCTION__,__LINE__));
+  if(et_attach_id<0)throw(evioException(0,"?evioETChannel constructor...bad station id",__FILE__,__FUNCTION__,__LINE__));
   
   // check chunk
   if(chunk<=0)chunk=1;
