@@ -450,8 +450,11 @@ if useVxworks:
 else:
     env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
     env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
+#    if 'examples' in COMMAND_LINE_TARGETS:
     env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
+#    if 'execsrc' in COMMAND_LINE_TARGETS:
     env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
+#    if 'tests' in COMMAND_LINE_TARGETS:
     env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
 
 #########################
