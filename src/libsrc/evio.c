@@ -87,7 +87,10 @@
  */
 typedef struct evfilestruct {
   FILE    *file;         /**< pointer to file. */
-  uint32_t *buf;         /**< pointer to buffer of block being read/written. */
+  uint32_t *buf;         /**< For files, sockets, and reading buffers = pointer to
+                          *   buffer of block being read/written.
+                          *   For writing buffers = pointer to current block buffer info in buffer
+                          *   being written to (no separate block buffer exists). */
   uint32_t *next;        /**< pointer to next word in block to be read/written. */
   uint32_t left;         /**< # of valid 32 bit unread/unwritten words in block. */
   uint32_t blksiz;       /**< size of block in 32 bit words - v3 or
@@ -158,17 +161,21 @@ typedef struct evfilestruct {
 #define EV_WRITEBUF     7
 
 
+/** Number used to determine data endian */
+#define EV_MAGIC 0xc0da0100
+
 /** Version 3's fixed block size in 32 bit words */
 #define EV_BLOCKSIZE_V3 8192
 
 /** Version 4's target block size in 32 bit words (2MB) */
 #define EV_BLOCKSIZE_V4 512000
 
-/** Number used to determine data endian */
-#define EV_MAGIC 0xc0da0100
-
 /** Minimum block size allowed if size reset */
 #define EV_BLOCKSIZE_MIN (EV_HDSIZ + 1024)
+
+/** Maximum block size allowed if size reset. Need to play nice with jevio.
+ * Can be a max of (2^31 - 1) = 2147483647, but set it to a reasonable 20MB. */
+#define EV_BLOCKSIZE_MAX 5120000
 
 /** In version 4, lowest 8 bits are version, rest is bit info */
 #define EV_VERSION_MASK 0xFF
@@ -338,19 +345,49 @@ typedef struct evfilestruct {
 /** Is this the last block of file/transmission? */
 #define isLastBlock(a)          ((a->buf[EV_HD_VER] & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
 #define isLastBlockInt(i)       ((i & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
+/** Increment stuff in block header */
+#define incrementEventCount(a)     (a->buf[EV_HD_COUNT]++)
+#define incrementBlockCount(a)     (a->buf[EV_HD_BLKNUM]++)
+#define incrementBlockLength(a,l)  (a->buf[EV_HD_BLKSIZ] += l)
+
+/** Initialize a block header */
+#define initBlockHeader(a) { \
+    a->buf[EV_HD_BLKSIZ] = 0; \
+    a->buf[EV_HD_BLKNUM] = 1; \
+    a->buf[EV_HD_HDSIZ]  = EV_HDSIZ; \
+    a->buf[EV_HD_COUNT]  = 0; \
+    a->buf[EV_HD_RESVD1] = 0; \
+    a->buf[EV_HD_VER]    = EV_VERSION; \
+    a->buf[EV_HD_RESVD2] = 0; \
+    a->buf[EV_HD_MAGIC]  = EV_MAGIC; \
+} \
+
+/** Write a last block header */
+#define writeLastBlockHeader(a,b) { \
+    a[EV_HD_BLKSIZ] = 8; \
+    a[EV_HD_BLKNUM] = b; \
+    a[EV_HD_HDSIZ]  = EV_HDSIZ; \
+    a[EV_HD_COUNT]  = 0; \
+    a[EV_HD_RESVD1] = 0; \
+    a[EV_HD_VER]    = EV_VERSION | EV_LASTBLOCK_MASK; \
+    a[EV_HD_RESVD2] = 0; \
+    a[EV_HD_MAGIC]  = EV_MAGIC; \
+} \
+
 
 /* Prototypes for static routines */
 static  int      evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, int *handle);
 static  int      evGetNewBuffer(EVFILE *a);
 static  int      evFlush(EVFILE *a, int closing);
-static  void     initBlockHeader(EVFILE *a);
+//static  void     initBlockHeader(EVFILE *a);
 static  char *   evTrim(char *s, int skip);
 static  int      tcpWrite(int fd, const void *vptr, int n);
 static  int      tcpRead(int fd, void *vptr, int n);
 static  int      evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen);
 static  void     localClose(EVFILE *a);
 static  int      getEventCount(EVFILE *a, uint32_t *count);
-static  int      evWriteNoMutex(int handle, const uint32_t *buffer);
+static  int      evWriteImpl(int handle, const uint32_t *buffer, int useMutex);
+static  int      evWriteBuffer(EVFILE *a, const uint32_t *buffer, int useMutex);
 
 /* Dealing with EVFILE struct */
 static void      structInit(EVFILE *a);
@@ -689,8 +726,9 @@ static char *evTrim(char *s, int skip) {
  * Function to initialize block header.
  * @param a pointer to file structure containing block header
  */
+ /* REPLACED WITH MACRO, see above ...
 static void initBlockHeader(EVFILE *a) {
-    a->buf[EV_HD_BLKSIZ] = 0; /* final block size unknown yet */
+    a->buf[EV_HD_BLKSIZ] = 0;
     a->buf[EV_HD_BLKNUM] = 1;
     a->buf[EV_HD_HDSIZ]  = EV_HDSIZ;
     a->buf[EV_HD_COUNT]  = 0;
@@ -699,7 +737,7 @@ static void initBlockHeader(EVFILE *a) {
     a->buf[EV_HD_RESVD2] = 0;
     a->buf[EV_HD_MAGIC]  = EV_MAGIC;
 }
-
+                              */
 
 /** Fortran interface to {@link evOpen}. */
 #ifdef AbsoftUNIXFortran
@@ -1049,6 +1087,7 @@ printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n", EV_HDSIZ)
             
             /* Read (copy) in header */
             nBytes = sizeof(header);
+//TODO: get rid of this copy!
             memcpy((void *)header, (const void *)(a->rwBuf + a->rwBytesUsed), nBytes);
             a->rwBytesUsed += nBytes;
         }
@@ -1368,53 +1407,56 @@ printf("File must be evio version %d (not %d) for append mode, quit\n", EV_VERSI
             }
         }
         
-        /* Allocate memory for a block */
-        a->buf = (uint32_t *) calloc(1,4*EV_BLOCKSIZE_V4);
-        if (!(a->buf)) {
-            if (useFile) {
-                if (a->rw == EV_WRITEFILE) {
-                    fclose(a->file);
+        /* Allocate memory for a block only if we are not writing to a buffer. */
+        if (!useBuffer) {
+            a->buf = (uint32_t *) calloc(1,4*EV_BLOCKSIZE_V4);
+            if (!(a->buf)) {
+                if (useFile) {
+                    if (a->rw == EV_WRITEFILE) {
+                        fclose(a->file);
+                    }
+                    else if (a->rw == EV_WRITEPIPE) {
+                        pclose(a->file);
+                    }
+                    free(filename);
                 }
-                else if (a->rw == EV_WRITEPIPE) {
-                    pclose(a->file);
-                }
-                free(filename);
+                free(a);
+                return(S_EVFILE_ALLOCFAIL);
             }
-            free(a);
-            return(S_EVFILE_ALLOCFAIL);
+            
+            /* Initialize block header */
+            initBlockHeader(a);
+        }
+        /* If writing to buffer, skip step of writing to separate block buffer first. */
+        else {
+            /* If not appending, get the block header in the buffer set up.
+             * The equivalent is done in toAppendPosition() when appending. */
+            if (!append) {
+                /* Block header is at beginning of buffer */
+                a->buf = (uint32_t*) a->rwBuf;
+
+                /* Initialize block header as the last one to be written */
+                writeLastBlockHeader(a->buf, 1);
+                a->isLastBlock  = 1;
+                a->lastBlockOut = 1;
+
+                /* # of bytes "written" - just the block header so far */
+                a->rwBytesOut  = 4*EV_HDSIZ;
+                a->rwBytesUsed = 4*EV_HDSIZ;
+            }
         }
 
-        /* Initialize block header */
-        initBlockHeader(a);
-
-        /* Initialize other file struct members */
-
-        /* Pointer to where next to write. In this case, the start
-         * of first event header will be right after header. */
-        a->next = a->buf + EV_HDSIZ;
-
-        /* Following now done in structInit() */
-        /* Space in number of words, not in header, left for writing */
-        /*a->left = EV_BLOCKSIZE_V4 - EV_HDSIZ;*/
-        /* Target block size (final size may be larger or smaller) */
-        /*a->blkSizeTarget = EV_BLOCKSIZE_V4;*/
-        /* Total data written = block header size so far */
-        /*a->blksiz = EV_HDSIZ;*/
-        /*a->rwBytesOut = 4*EV_HDSIZ;*/
-        /* Max # of events/block */
-        /*a->eventsMax = EV_EVENTS_MAX;*/
-        /* Remember size of block buffer */
-        /*a->bufSize = EV_BLOCKSIZE_V4;*/
-        /* EVIO version number */
-        /*a->version = EV_VERSION;*/
-
-        /* Position file stream / buffer for next write.
+        /* Set position in file stream / buffer for next write.
          * If not appending this is does nothing. */
         err = toAppendPosition(a);
         if (err != S_SUCCESS) {
             return(err);
         }
         
+        /* Pointer to where next to write. In this case, the start of the
+         * first event header will be right after first block header. */
+        a->next = a->buf + EV_HDSIZ;
+
     } /* if writing */
     
     /* Store general info in handle structure */
@@ -1444,7 +1486,7 @@ printf("File must be evio version %d (not %d) for append mode, quit\n", EV_VERSI
         localClose(a);
         free(filename);
     }
-    if (a->buf != NULL)        free(a->buf);
+    if (a->buf != NULL && !useBuffer)  free(a->buf);
     if (a->pTable != NULL)     free(a->pTable);
     if (a->dictionary != NULL) free(a->dictionary);
     structDestroy(a);
@@ -1793,10 +1835,10 @@ static int generatePointerTable(EVFILE *a)
  */
 static int toAppendPosition(EVFILE *a)
 {
-    int         i, err, usingBuffer=0;
+    int         err, usingBuffer=0;
     uint32_t    nBytes, bytesToWrite;
-    uint32_t   *pmem, sixthWord, header[EV_HDSIZ];
-    uint32_t    blockEventCount, blockSize, blockHeaderSize, blockNumber=1;
+    uint32_t   *pmem, sixthWord, header[EV_HDSIZ], *pHeader;
+    uint32_t    blockBitInfo, blockEventCount, blockSize, blockHeaderSize, blockNumber=1;
     
     /* Only for append mode */
     if (!a->append) {
@@ -1825,8 +1867,22 @@ static int toAppendPosition(EVFILE *a)
                 /* unexpected EOF or end-of-buffer in this case */
                 return(S_EVFILE_UNXPTDEOF);
             }
-            /* Read (copy) in header */
-            memcpy(header, (a->rwBuf + a->rwBytesUsed), 4*EV_HDSIZ);
+
+            /* Look for block header info here */
+            a->buf = pHeader = (uint32_t *) (a->rwBuf + a->rwBytesUsed);
+
+            blockBitInfo    = pHeader[EV_HD_VER];
+            blockSize       = pHeader[EV_HD_BLKSIZ];
+            blockHeaderSize = pHeader[EV_HD_HDSIZ];
+            blockEventCount = pHeader[EV_HD_COUNT];
+            
+            /* Swap header if necessary */
+            if (a->byte_swapped) {
+                blockBitInfo    = EVIO_SWAP32(blockBitInfo);
+                blockSize       = EVIO_SWAP32(blockSize);
+                blockHeaderSize = EVIO_SWAP32(blockHeaderSize);
+                blockEventCount = EVIO_SWAP32(blockEventCount);
+            }
         }
         else {
             nBytes = sizeof(header)*fread(header, sizeof(header), 1, a->file);
@@ -1835,19 +1891,19 @@ static int toAppendPosition(EVFILE *a)
             if (nBytes != sizeof(header)) {
                 return(S_EVFILE_BADFILE);
             }
+            
+            /* Swap header if necessary */
+            if (a->byte_swapped) {
+                swap_int32_t(header, EV_HDSIZ, NULL);
+            }
+
+            /* Look at block header to get info */
+            blockBitInfo    = header[EV_HD_VER];
+            blockSize       = header[EV_HD_BLKSIZ];
+            blockHeaderSize = header[EV_HD_HDSIZ];
+            blockEventCount = header[EV_HD_COUNT];
         }
         
-        /* Swap header if necessary */
-        if (a->byte_swapped) {
-            swap_int32_t(header, EV_HDSIZ, NULL);
-        }
-
-        /* Look at block header to get info */
-        i               = header[EV_HD_VER];
-        blockSize       = header[EV_HD_BLKSIZ];
-        blockHeaderSize = header[EV_HD_HDSIZ];
-        blockEventCount = header[EV_HD_COUNT];
-
         /* Add to the number of events */
         a->eventCount += blockEventCount;
 
@@ -1855,7 +1911,7 @@ static int toAppendPosition(EVFILE *a)
         blockNumber++;
 
         /* Stop at the last block */
-        if (isLastBlockInt(i)) {
+        if (isLastBlockInt(blockBitInfo)) {
             break;
         }
 
@@ -1882,7 +1938,7 @@ static int toAppendPosition(EVFILE *a)
      * last block contains no data, just write over it with a new one. */
     if (blockSize > blockHeaderSize) {
         /* Clear last block bit in 6th header word */
-        sixthWord = clearLastBlockBitInt(header[EV_HD_VER]);
+        sixthWord = clearLastBlockBitInt(blockBitInfo);
         
         /* Rewrite header word with bit info & hop over block */
         if (usingBuffer) {
@@ -1894,6 +1950,16 @@ static int toAppendPosition(EVFILE *a)
             /* Hop over the entire block */
             a->rwBytesOut  += 4*blockSize;
             a->rwBytesUsed += 4*blockSize;
+
+            /* If there's not enough space in the user-given buffer to
+             * contain another (empty ending) block header, return an error. */
+            if (a->rwBufSize < a->rwBytesUsed + 4*EV_HDSIZ) {
+                return(S_EVFILE_TRUNC);
+            }
+
+            /* Initialize bytes in a->rwBuf for a new block header */
+            a->buf = (uint32_t *) (a->rwBuf + a->rwBytesUsed);
+            initBlockHeader(a);
         }
         else {
             /* Back up to before 6th block header word */
@@ -1912,9 +1978,12 @@ static int toAppendPosition(EVFILE *a)
     }
     else {
         /* We already read in the block header, now back up so we can overwrite it.
-         * If using buffer, we never incremented the position, so we're OK. */
+         * If using buffer, we never incremented the position, so we're OK position wise. */
         blockNumber--;
-        if (!usingBuffer) {
+        if (usingBuffer) {
+            initBlockHeader(a);
+        }
+        else {
             if (fseek(a->file, -4*EV_HDSIZ, SEEK_CUR) < 0) return(errno);
         }
     }
@@ -1935,15 +2004,8 @@ static int toAppendPosition(EVFILE *a)
     bytesToWrite = 4*EV_HDSIZ;
 
     if (usingBuffer) {
-        /* If there's not enough space in the user-given
-         * buffer to contain this block, return an error. */
-        if (a->rwBufSize < a->rwBytesUsed + bytesToWrite) {
-            return(S_EVFILE_TRUNC);
-        }
-
-        memcpy((a->rwBuf + a->rwBytesUsed), a->buf, bytesToWrite);
         nBytes = bytesToWrite;
-        /* How many bytes will end up in the buffer we're writing to? */
+        /* How many bytes ended up in the buffer we're writing to? */
         a->rwBytesOut  += bytesToWrite;
         a->rwBytesUsed += bytesToWrite;
     }
@@ -2715,7 +2777,8 @@ int evwrite_
  * @param buffer pointer to buffer containing event to write
  *
  * @return S_SUCCESS          if successful
- * @return S_EVFILE_BADMODE   if opened for reading in {@link evOpen}
+ * @return S_EVFILE_BADMODE   if opened for reading in {@link evOpen} or
+ *                            appending to opposite endian file/buffer.
  * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
  * @return S_EVFILE_BADARG    if buffer is NULL
  * @return S_EVFILE_BADHANDLE if bad handle arg
@@ -2726,6 +2789,33 @@ int evwrite_
  */
 int evWrite(int handle, const uint32_t *buffer)
 {
+    return evWriteImpl(handle, buffer, 1);
+}
+
+
+/**
+ * This routine writes an evio event to an internal buffer containing evio data.
+ * If that internal buffer is full, it is flushed to the final destination
+ * file/socket/buffer opened with routine {@link evOpen}.
+ * It writes data in evio version 4 format and returns a status.
+ *
+ * @param handle   evio handle
+ * @param buffer   pointer to buffer containing event to write
+ * @param useMutex if != 0, use mutex locking, else no locking
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADMODE   if opened for reading in {@link evOpen} or
+ *                            appending to opposite endian file/buffer.
+ * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
+ * @return S_EVFILE_BADARG    if buffer is NULL
+ * @return S_EVFILE_BADHANDLE if bad handle arg
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
+ *                            (can still try this calling this function again)
+ * @return errno              if file/socket write error
+ * @return stream error       if file stream error
+ */
+static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
+{
     EVFILE   *a;
     int       status;
     uint32_t  nToWrite;
@@ -2735,21 +2825,31 @@ int evWrite(int handle, const uint32_t *buffer)
     }
 
     /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
-    handleReadLock();
+    if (useMutex) handleReadLock();
 
     /* Look up file struct (which contains block buffer) from handle */
     a = handle_list[handle-1];
 
     /* Check args */
     if (a == NULL) {
-        handleReadUnlock();
+        if (useMutex) handleReadUnlock();
         return(S_EVFILE_BADHANDLE);
     }
 
+    /* If appending and existing file/buffer is opposite endian, return error */
+    if (a->append && a->byte_swapped) {
+        if (useMutex) handleReadUnlock();
+        return(S_EVFILE_BADMODE);
+    }
+    
+    /* Special case when writing directly to buffer (no block buffer) */
+    if (a->rw == EV_WRITEBUF) {
+        return evWriteBuffer(a, buffer, useMutex);
+    }
+
     /* Need to be open for writing not reading */
-    if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
-        a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
-        handleReadUnlock();
+    if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE && a->rw != EV_WRITESOCK) {
+        if (useMutex) handleReadUnlock();
         return(S_EVFILE_BADMODE);
     }
 
@@ -2757,12 +2857,12 @@ int evWrite(int handle, const uint32_t *buffer)
     nToWrite = buffer[0] + 1;
 
     /* Lock mutex for multithreaded reads/writes/access */
-    mutexLock(a);
+    if (useMutex) mutexLock(a);
 
     /* If did an ending flush last time, but am still adding events,
-       take account of another block header. */
+     * take account of another block header. */
     if (a->rwEndFlush) {
-/*printf("evWrite: did ending flush last time, add header\n");*/
+        /*printf("evWrite: did ending flush last time, add header\n");*/
         a->rwBytesOut += 4*EV_HDSIZ;
         a->rwEndFlush = 0;
     }
@@ -2771,7 +2871,7 @@ int evWrite(int handle, const uint32_t *buffer)
     while (nToWrite + a->blksiz > a->blkSizeTarget) {
 
         /* Have a single large event to write which is bigger than the target
-         * block size & larger than the block buffer - need larger buffer */
+        * block size & larger than the block buffer - need larger buffer */
         if (a->blkEvCount < 1 && (nToWrite > a->bufSize - EV_HDSIZ)) {
 
             /* Keep old buffer around for a bit */
@@ -2781,10 +2881,12 @@ int evWrite(int handle, const uint32_t *buffer)
             a->buf = (uint32_t *) malloc(4*(nToWrite + EV_HDSIZ));
             if (!(a->buf)) {
                 /* Set things back to the way they were so if more memory
-                 * is freed somewhere, can continue to call this function */
+                * is freed somewhere, can continue to call this function */
                 a->buf = pOldBuf;
-                mutexUnlock(a);
-                handleReadUnlock();
+                if (useMutex) {
+                    mutexUnlock(a);
+                    handleReadUnlock();
+                }
                 return(S_EVFILE_ALLOCFAIL);
             }
 
@@ -2804,12 +2906,14 @@ int evWrite(int handle, const uint32_t *buffer)
         else {
             status = evFlush(a, 0);
             if (status != S_SUCCESS) {
-                mutexUnlock(a);
-                handleReadUnlock();
+                if (useMutex) {
+                    mutexUnlock(a);
+                    handleReadUnlock();
+                }
                 return(status);
             }
             a->rwBytesOut += 4*EV_HDSIZ;
-/*printf("evWrite: did flush, add header\n");*/
+            /*printf("evWrite: did flush, add header\n");*/
         }
     }
     
@@ -2836,131 +2940,157 @@ int evWrite(int handle, const uint32_t *buffer)
     if (a->rwFirstWrite) {
         a->rwBytesOut  += 2*4*EV_HDSIZ;
         a->rwFirstWrite = 0;
-/*printf("evWrite: did first write, add 2 headers\n");*/
+        /*printf("evWrite: did first write, add 2 headers\n");*/
     }
     a->rwBytesOut += 4*nToWrite;
-/*printf("evWrite: did write, add data\n");*/
+    /*printf("evWrite: did write, add data\n");*/
 
     /* If no space for writing left in block or reached the maximum
      * number of events per block, flush block to file/buf/socket */
     if (a->left < 1 || a->blkEvCount >= a->eventsMax) {
         status = evFlush(a, 0);
         if (status != S_SUCCESS) {
-            mutexUnlock(a);
-            handleReadUnlock();
+            if (useMutex)  {
+                mutexUnlock(a);
+                handleReadUnlock();
+            }
             return(status);
         }
         a->rwEndFlush = 1;
-/*printf("evWrite: did ending flush, no additions\n");*/
+        /*printf("evWrite: did ending flush, no additions\n");*/
     }
 
-    mutexUnlock(a);
-    handleReadUnlock();
+    if (useMutex)  {
+        mutexUnlock(a);
+        handleReadUnlock();
+    }
 
     return(S_SUCCESS);
 }
 
 
 /**
- * A static version of evWrite with no mutex locking.
- * Used only in {@link #evWriteDictionary}.
+ * This routine writes an evio event to the buffer given as an argument
+ * to {@link evOpen}. This does <b>not</b> write to an internal block
+ * buffer as is in the case when using a file or socket.
+ * It writes data in evio version 4 format and returns a status.
  *
- * @param handle evio handle
+ * @param a      pointer handle structure
  * @param buffer pointer to buffer containing event to write
+ * @param useMutex if != 0, use mutex locking, else no locking
  *
- * @return S_SUCCESS          if successful
- * @return S_EVFILE_BADMODE   if opened for reading in {@link evOpen}
- * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
- * @return S_EVFILE_BADARG    if buffer is NULL
- * @return S_EVFILE_BADHANDLE if bad handle arg
- * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
- *                            (can still try this calling this function again)
- * @return errno              if file/socket write error
- * @return stream error       if file stream error
+ * @return S_SUCCESS        if successful
+ * @return S_EVFILE_TRUNC   if not enough room writing to a user-given buffer in {@link evOpen}
  */
-static int evWriteNoMutex(int handle, const uint32_t *buffer)
+static int evWriteBuffer(EVFILE *a, const uint32_t *buffer, int useMutex)
 {
-    EVFILE   *a;
     int       status;
     uint32_t  nToWrite;
 
-    if (buffer == NULL) {
-        return(S_EVFILE_BADARG);
-    }
-
-
-    a = handle_list[handle-1];
-
-    if (a == NULL) {
-        return(S_EVFILE_BADHANDLE);
-    }
-
-    if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
-        a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
-        return(S_EVFILE_BADMODE);
-    }
-
+    /* Number of words left to write = full event size + bank header length word */
     nToWrite = buffer[0] + 1;
-    
-    if (a->rwEndFlush) {
-        a->rwBytesOut += 4*EV_HDSIZ;
-        a->rwEndFlush = 0;
-    }
 
-    while (nToWrite + a->blksiz > a->blkSizeTarget) {
-        if (a->blkEvCount < 1 && (nToWrite > a->bufSize - EV_HDSIZ)) {
-            uint32_t *pOldBuf = a->buf;
+    /* Lock mutex for multithreaded reads/writes/access */
+    if (useMutex) mutexLock(a);
 
-            a->buf = (uint32_t *) malloc(4*(nToWrite + EV_HDSIZ));
-            if (!(a->buf)) {
-                a->buf = pOldBuf;
-                return(S_EVFILE_ALLOCFAIL);
+    /* Flow control */
+    while (1) {
+        
+        /* Check to see if CURRENT block header is also the last, empty one.
+         * If so, that's the sign to begin a new one.
+         * Note that there is always a last, empty block header but it may not be
+         * the CURRENT one (which may still be the next-to-last block). */
+        if (isLastBlock(a)) {
+            /* If adding another event & block header to existing data
+             * would put us over the buffer size ... */
+            if (a->rwBufSize < a->rwBytesUsed + 4*nToWrite + 4*EV_HDSIZ) {
+                if (useMutex)  {
+                    mutexUnlock(a);
+                    handleReadUnlock();
+                }
+                return(S_EVFILE_TRUNC);
             }
 
-            memcpy((void *)a->buf, (const void *)pOldBuf, 4*EV_HDSIZ);
-
-            a->left = nToWrite;
+            /* CURRENT block is no longer last one */
+            clearLastBlockBit(a);
+        
+            /* Start writing at this location in buffer */
             a->next = a->buf + EV_HDSIZ;
-            a->bufSize = nToWrite + EV_HDSIZ;
-
-            free(pOldBuf);
-            break;
-        }
-        else {
-            status = evFlush(a, 0);
-            if (status != S_SUCCESS) {
-                return(status);
+            /* Space in number of words, not in header, left for writing in block buffer */
+            a->left = a->blkSizeTarget - EV_HDSIZ;
+            /* Total written size (words) = block header size so far */
+            a->blksiz = EV_HDSIZ;
+            /* How many bytes will end up in the buffer we're writing to? */
+            a->rwBytesOut  += 4*EV_HDSIZ;
+            a->rwBytesUsed += 4*EV_HDSIZ;
+            /* Adding a block header on the end so increment block number */
+            a->blknum++;
+            
+            /* Store number of events written, but do NOT include dictionary */
+            if (!hasDictionary(a) || a->wroteDictionary > 0) {
+                a->blkEvCount = 1;
+                a->eventCount = 1;
             }
-            a->rwBytesOut += 4*EV_HDSIZ;
+            else {
+                a->wroteDictionary = 1;
+            }
         }
-    }
+        /* Adding event to existing block */
+        else {
+            /* See if there's room for another event in this block. If not, make another block. */
+            if (nToWrite + a->blksiz > a->blkSizeTarget) {
+/*printf("Will go over target block size, so add another block\n");*/
+                /* Make the CURRENT block the next, last, empty one */
+                a->buf = a->next;
+                /* and try again */
+                continue;
+            }
 
-    if (!hasDictionary(a) || a->wroteDictionary > 0) {
-        a->blkEvCount++;
-        a->eventCount++;
+            /* If adding another event to existing data puts us over the buffer size ... */
+            if (a->rwBufSize < a->rwBytesUsed + 4*nToWrite) {
+                if (useMutex)  {
+                    mutexUnlock(a);
+                    handleReadUnlock();
+                }
+                return(S_EVFILE_TRUNC);
+            }
+        
+            /* Adding 1 event to block */
+            a->blkEvCount++;
+            a->eventCount++;
+        }
+        
+        break;
     }
-    else {
-        a->wroteDictionary = 1;
-    }
-
-    a->blksiz += nToWrite;
-
+    
+    /* Copy data from arg into final buffer */
     memcpy((void *)a->next, (const void *)buffer, 4*nToWrite);
+    a->next   += nToWrite;
+    a->left   -= nToWrite;
+    a->blksiz += nToWrite;
+    a->rwBytesOut  += 4*nToWrite;
+    a->rwBytesUsed += 4*nToWrite;
 
-    a->next += nToWrite;
-    a->left -= nToWrite;
-    if (a->rwFirstWrite) {
-        a->rwBytesOut  += 2*4*EV_HDSIZ;
-        a->rwFirstWrite = 0;
+    /* One more event in block - update block header */
+    incrementEventCount(a);
+
+    /* Block is bigger now - update block header */
+    incrementBlockLength(a, nToWrite);
+
+    /* Append empty block header after event */
+    writeLastBlockHeader(a->next, a->blknum);
+
+    /* If no space for writing left in block or reached the maximum
+     * number of events per block, end this block and start another.
+     * There must be a minimum of 2 ints left to write a bank. */
+    if (a->left < 2 || a->blkEvCount >= a->eventsMax) {
+        /* Make the CURRENT block the last, empty one */
+        a->buf = a->next;
     }
-    a->rwBytesOut += 4*nToWrite;
 
-    if (a->left < 1 || a->blkEvCount >= a->eventsMax) {
-        status = evFlush(a, 0);
-        if (status != S_SUCCESS) {
-            return(status);
-        }
-        a->rwEndFlush = 1;
+    if (useMutex)  {
+        mutexUnlock(a);
+        handleReadUnlock();
     }
 
     return(S_SUCCESS);
@@ -2968,38 +3098,139 @@ static int evWriteNoMutex(int handle, const uint32_t *buffer)
 
 
 /**
- * This routine returns the number of bytes written into a buffer so
- * far when given a handle provided by calling {@link evOpenBuffer}.
- * After the handle is closed, this no longer returns anything valid.
+ * This routine writes any existing evio format data in an internal buffer
+ * (written to with {@link evWrite}) to the final destination
+ * file/socket/buffer opened with routine {@link evOpen}.
+ * It writes data in evio version 4 format and returns a status.
+ * If writing to a buffer or file, it always places an empty block header
+ * at the end - marked as the last block. If more events are written, the
+ * last block header is overwritten.
  *
- * @param handle evio handle
- * @param length pointer to int which gets filled with number of bytes
- *               written to buffer so far
+ * @param a pointer handle structure
+ * @param closing if != 0 then {@link evClose} is calling this function
  *
- * @return S_SUCCESS          if successful
- * @return S_EVFILE_BADHANDLE if bad handle arg
+ * @return S_SUCCESS      if successful
+ * @return S_EVFILE_TRUNC if not enough room writing to a user-given buffer in {@link evOpen}
+ * @return errno          if file/socket write error
+ * @return stream error   if file stream error
  */
-int evGetBufferLength(int handle, uint32_t *length)
+static int evFlush(EVFILE *a, int closing)
 {
-    EVFILE *a;
+    uint32_t  nBytes, bytesToWrite=0, blockHeaderBytes = 4*EV_HDSIZ;
+    long pos;
 
-    /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
-    handleReadLock();
-
-    /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
-
-    /* Check arg */
-    if (a == NULL) {
-        handleReadUnlock();
-        return(S_EVFILE_BADHANDLE);
+    /* Nothing needs to be done for buffers */
+    if (a->rw == EV_WRITEBUF) {
+        return(S_SUCCESS);
     }
     
-    if (length != NULL) {
-        *length = a->rwBytesOut;
-    }
+    /* Store, in header, the actual, final block size */
+    a->buf[EV_HD_BLKSIZ] = a->blksiz;
     
-    handleReadUnlock();
+    /* Store, in header, the number of events in block */
+    a->buf[EV_HD_COUNT] = a->blkEvCount;
+
+    /* How much data do we write? */
+    bytesToWrite = 4*a->blksiz;
+
+    /* Write only if there is data (something besides the block header) to write */
+    if (bytesToWrite > blockHeaderBytes) {
+        /* Unmark this block as the last one to be written. */
+        clearLastBlockBit(a);
+        a->isLastBlock = 0;
+
+        if (a->rw == EV_WRITEFILE) {
+            /* Clear EOF and error indicators for file stream */
+            clearerr(a->file);
+            /* If "last block" (header only) already written out,
+            * back up one block header and write over it.  */
+            if (a->lastBlockOut) {
+                /* Carefully change unsigned int (blockHeaderBytes) into neg # */
+                pos = -1L * blockHeaderBytes;
+                fseek(a->file, pos, SEEK_CUR);
+            }
+            /* Write block to file */
+            nBytes = fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
+            /* Return any error condition of file stream */
+            if (ferror(a->file)) return(ferror(a->file));
+        }
+        else if (a->rw == EV_WRITESOCK) {
+            nBytes = tcpWrite(a->sockFd, a->buf, bytesToWrite);
+        }
+    
+        /* Return any error condition of write attempt - will only happen for file & socket */
+        if (nBytes != bytesToWrite) return(errno);
+
+        /* Initialize block header for next write */
+        initBlockHeader(a);
+
+        /* Track how many blocks written (first block # = 0) & put in header */
+        a->buf[EV_HD_BLKNUM] = ++(a->blknum);
+        /* Pointer to where next to write. In this case, the start
+        * of first event header will be right after header. */
+        a->next = a->buf + EV_HDSIZ;
+        /* Space in number of words, not in header, left for writing in block buffer */
+        a->left = a->bufSize - EV_HDSIZ;
+        /* Total written size (words) = block header size so far */
+        a->blksiz = EV_HDSIZ;
+        /* How many bytes will end up in the buffer we're writing to? */
+        /* Update: change this value in evWrite, not here. */
+        /*        a->rwBytesOut += blockHeaderBytes;*/
+        /* No events in block yet */
+        a->blkEvCount = 0;
+    }
+
+    /* If we're closing socket communications, send the last block header */
+    if (closing && a->rw == EV_WRITESOCK) {
+        /* Mark this block as the last one to be written. */
+        setLastBlockBit(a);
+        a->isLastBlock = 1;
+        a->buf[EV_HD_BLKSIZ] = a->blksiz;
+        bytesToWrite = 4*a->blksiz;
+       
+        nBytes = tcpWrite(a->sockFd, a->buf, bytesToWrite);
+        if (nBytes != bytesToWrite) return(errno);
+    }
+    /* Now always write an empty, last block (just the header) since this is not a socket.
+     * This ensures that if the data taking software crashes in the mean time,
+     * we still have a file or buffer in the proper format.
+     * Make sure that the "last block" bit is set. If we're not closing,
+     * the block header simply gets over written in the next flush. */
+    else if (a->rw == EV_WRITEFILE) {
+        /* We only get here if all data has been written and therefore the
+        * block buffer's header has been initialized. No need to do it again. */
+
+        /* If we had no data to write, but flush was called previously and
+        * an ending block header has already been written, we're done. */
+        if (a->lastBlockOut && bytesToWrite <= blockHeaderBytes) {
+            return(S_SUCCESS);
+        }
+        
+        /* Mark this block as the last one to be written. */
+        setLastBlockBit(a);
+        a->isLastBlock = 1;
+        a->buf[EV_HD_BLKSIZ] = EV_HDSIZ;
+        bytesToWrite = 4*EV_HDSIZ;
+
+        /* Clear EOF and error indicators for file stream */
+        clearerr(a->file);
+        
+        /* Write block header to file. This last block is always EV_HDSIZ ints long.
+         * The regular block header may be larger but here we need only the
+         * minimal length as a place holder for the next flush or as a marker
+         * of the last block. */
+        nBytes = fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
+        
+        /* Return any error condition of file stream */
+        if (ferror(a->file)) return(ferror(a->file));
+
+        /* Return any error condition of write attempt */
+        if (nBytes != bytesToWrite) return(errno);
+       
+        /* Remember that a "last" block was written out (perhaps to be
+         * overwritten for files or buffers if evWrite called again). */
+        a->lastBlockOut = 1;
+    }
  
     return(S_SUCCESS);
 }
@@ -3022,7 +3253,7 @@ int evGetBufferLength(int handle, uint32_t *length)
  * @return errno          if file/socket write error
  * @return stream error   if file stream error
  */
-static int evFlush(EVFILE *a, int closing)
+static int evFlushOrig(EVFILE *a, int closing)
 {
     uint32_t  nBytes, bytesToWrite=0, blockHeaderBytes = 4*EV_HDSIZ;
     long pos;
@@ -3046,7 +3277,7 @@ static int evFlush(EVFILE *a, int closing)
             /* Clear EOF and error indicators for file stream */
             clearerr(a->file);
             /* If "last block" (header only) already written out,
-             * back up one block header and write over it.  */
+            * back up one block header and write over it.  */
             if (a->lastBlockOut) {
                 /* Carefully change unsigned int (blockHeaderBytes) into neg # */
                 pos = -1L * blockHeaderBytes;
@@ -3062,13 +3293,13 @@ static int evFlush(EVFILE *a, int closing)
         }
         else if (a->rw == EV_WRITEBUF) {
             /* If "last block" (header only) already written out,
-             * back up one block header and write over it.  */
+            * back up one block header and write over it.  */
             if (a->lastBlockOut) {
                 a->rwBytesUsed -= blockHeaderBytes;
             }
             
             /* If there's not enough space in the user-given
-             * buffer to contain this block, return an error. */
+            * buffer to contain this block, return an error. */
             if (a->rwBufSize < a->rwBytesUsed + bytesToWrite) {
                 return(S_EVFILE_TRUNC);
             }
@@ -3087,15 +3318,15 @@ static int evFlush(EVFILE *a, int closing)
         /* Track how many blocks written (first block # = 0) & put in header */
         a->buf[EV_HD_BLKNUM] = ++(a->blknum);
         /* Pointer to where next to write. In this case, the start
-         * of first event header will be right after header. */
+        * of first event header will be right after header. */
         a->next = a->buf + EV_HDSIZ;
         /* Space in number of words, not in header, left for writing in block buffer */
         a->left = a->bufSize - EV_HDSIZ;
         /* Total written size (words) = block header size so far */
         a->blksiz = EV_HDSIZ;
         /* How many bytes will end up in the buffer we're writing to? */
-/* Update: change this value in evWrite, not here. */
-/*        a->rwBytesOut += blockHeaderBytes;*/
+        /* Update: change this value in evWrite, not here. */
+        /*        a->rwBytesOut += blockHeaderBytes;*/
         /* No events in block yet */
         a->blkEvCount = 0;
     }
@@ -3112,16 +3343,16 @@ static int evFlush(EVFILE *a, int closing)
         if (nBytes != bytesToWrite) return(errno);
     }
     /* Now always write an empty, last block (just the header) since this is not a socket.
-     * This ensures that if the data taking software crashes in the mean time,
-     * we still have a file or buffer in the proper format.
-     * Make sure that the "last block" bit is set. If we're not closing,
-     * the block header simply gets over written in the next flush. */
+    * This ensures that if the data taking software crashes in the mean time,
+    * we still have a file or buffer in the proper format.
+    * Make sure that the "last block" bit is set. If we're not closing,
+    * the block header simply gets over written in the next flush. */
     else if (a->rw != EV_WRITESOCK) {
         /* We only get here if all data has been written and therefore the
-         * block buffer's header has been initialized. No need to do it again. */
+        * block buffer's header has been initialized. No need to do it again. */
 
         /* If we had no data to write, but flush was called previously and
-         * an ending block header has already been written, we're done. */
+        * an ending block header has already been written, we're done. */
         if (a->lastBlockOut && bytesToWrite <= blockHeaderBytes) {
             return(S_SUCCESS);
         }
@@ -3136,16 +3367,16 @@ static int evFlush(EVFILE *a, int closing)
             /* Clear EOF and error indicators for file stream */
             clearerr(a->file);
             /* Write block header to file. This last block is always EV_HDSIZ ints long.
-             * The regular block header may be larger but here we need only the
-             * minimal length as a place holder for the next flush or as a marker
-             * of the last block. */
+            * The regular block header may be larger but here we need only the
+            * minimal length as a place holder for the next flush or as a marker
+            * of the last block. */
             nBytes = fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
             /* Return any error condition of file stream */
             if (ferror(a->file)) return(ferror(a->file));
         }
         else if (a->rw == EV_WRITEBUF) {
             /* If there's not enough space in the user-given
-             * buffer to contain this block, return an error. */
+            * buffer to contain this block, return an error. */
             if (a->rwBufSize < a->rwBytesUsed + bytesToWrite) {
                 return(S_EVFILE_TRUNC);
             }
@@ -3159,12 +3390,13 @@ static int evFlush(EVFILE *a, int closing)
         if (nBytes != bytesToWrite) return(errno);
        
         /* Remember that a "last" block was written out (perhaps to be
-         * overwritten for files or buffers if evWrite called again). */
+        * overwritten for files or buffers if evWrite called again). */
         a->lastBlockOut = 1;
     }
  
     return(S_SUCCESS);
 }
+
 
 
 /** Fortran interface to {@link evClose}. */
@@ -3217,9 +3449,8 @@ int evClose(int handle)
     /* Remove this handle from the list */
     handle_list[handle-1] = 0;
     
-    /* Flush everything to file/socket/buffer if writing */
-    if (a->rw == EV_WRITEFILE || a->rw == EV_WRITEPIPE ||
-        a->rw == EV_WRITEBUF  || a->rw == EV_WRITESOCK)  {
+    /* Flush everything to file/socket if writing */
+    if (a->rw == EV_WRITEFILE || a->rw == EV_WRITEPIPE || a->rw == EV_WRITESOCK)  {
         /* Write last block. If no events left to write,
          * just write an empty block (header only). */
         status = evFlush(a, 1);
@@ -3241,7 +3472,7 @@ int evClose(int handle)
     }
 
     /* Free up resources */
-    if (a->buf != NULL) free((void *)(a->buf));
+    if (a->buf != NULL && a->rw != EV_WRITEBUF) free((void *)(a->buf));
     if (a->dictionary != NULL) free(a->dictionary);
     structDestroy(a);
     free((void *)a);
@@ -3253,6 +3484,44 @@ int evClose(int handle)
     }
     
     return(status);
+}
+
+
+/**
+ * This routine returns the number of bytes written into a buffer so
+ * far when given a handle provided by calling {@link evOpenBuffer}.
+ * After the handle is closed, this no longer returns anything valid.
+ *
+ * @param handle evio handle
+ * @param length pointer to int which gets filled with number of bytes
+ *               written to buffer so far
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADHANDLE if bad handle arg
+ */
+int evGetBufferLength(int handle, uint32_t *length)
+{
+    EVFILE *a;
+
+    /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
+    handleReadLock();
+
+    /* Look up file struct (which contains block buffer) from handle */
+    a = handle_list[handle-1];
+
+    /* Check arg */
+    if (a == NULL) {
+        handleReadUnlock();
+        return(S_EVFILE_BADHANDLE);
+    }
+    
+    if (length != NULL) {
+        *length = a->rwBytesOut;
+    }
+    
+    handleReadUnlock();
+ 
+    return(S_SUCCESS);
 }
 
 
@@ -3278,7 +3547,7 @@ int evioctl_
 /**
  * This routine changes the target block size (in 32-bit words) for writes if request
  * = "B". If setting block size fails, writes can still continue with original
- * block size. Minimum size = 1K + 8(header) words.<p>
+ * block size. Minimum size = 1K + 8(header) words. Max size = 5120000 words.<p>
  * It returns the version number if request = "V".<p>
  * It changes the maximum number of events/block if request = "N".
  * Used only in version 4.<p>
@@ -3324,7 +3593,8 @@ int evioctl_
  * @return S_EVFILE_UNKOPTION  if unknown option specified in request arg
  * @return S_EVFILE_BADSIZEREQ when setting block size - if currently reading,
  *                              have already written events with different block size,
- *                              or is smaller than minimum allowed size (header size + 1K);
+ *                              or is smaller than min allowed size (header size + 1K),
+ *                              or is larger than the max allowed size (5120000 words);
  *                              when setting max # events/blk - if val < 1
  * @return errno                if error in fseek, ftell when request = E
  */
@@ -3395,8 +3665,14 @@ int evIoctl(int handle, char *request, void *argp)
                 return(S_EVFILE_BADSIZEREQ);
             }
 
+            /* If it's too big, return error */
+            if (blockSize > EV_BLOCKSIZE_MAX) {
+                handleWriteUnlock();
+                return(S_EVFILE_BADSIZEREQ);
+            }
+
             /* If we need a bigger block buffer ... */
-            if (blockSize > a->bufSize) {
+            if (blockSize > a->bufSize && a->rw != EV_WRITEBUF) {
                 /* Allocate memory for increased block size. If this fails
                  * we can still (theoretically) continue with writing. */
                 newBuf = (uint32_t *) malloc(blockSize*4);
@@ -3788,7 +4064,7 @@ int evWriteDictionary(int handle, char *xmlDictionary)
     setDictionaryBit(a);
     
     /* Write event without mutex locking (since it's already done in this routine). */
-    status = evWriteNoMutex(handle, dictBuf);
+    status = evWriteImpl(handle, dictBuf, 0);
     
     mutexUnlock(a);
     handleReadUnlock();
