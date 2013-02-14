@@ -22,8 +22,8 @@ using namespace std;
 class myHandler : public evioStreamParserHandler {
 
 
-  void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
-                            int depth, void *userArg) {
+  void *containerNodeHandler(int length, int containerType, int contentType, unsigned short tag, unsigned char num, 
+                             int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg) {
 
     printf("node   depth %2d   type,tag,num,length:  %6d %6d %6d %6d\n",
            depth,contentType,tag,num,length);
@@ -34,8 +34,8 @@ class myHandler : public evioStreamParserHandler {
 //--------------------------------------------------------------
 
 
-  void *leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
-                        int depth, const void *data, void *userArg) {
+  void *leafNodeHandler(int length, int containerType, int contentType, unsigned short tag, unsigned char num, 
+                        int depth, const uint32_t *bankPointer, const void *data, void *userArg) {
     
     int *i;
     short *s;

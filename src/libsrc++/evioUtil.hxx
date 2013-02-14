@@ -126,6 +126,17 @@ class evioToStringConfig;
 //-----------------------------------------------------------------------------
 
 
+class evioUtilities {
+
+  static void appendToBuffer(uint32_t *buffer, const uint32_t *structure, int structureType=BANK) 
+    throw(evioException);
+};
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
 /**
  * Configuration options for toString() method.
  *   max_depth:          depth to convert to, 0 means no limit, default 0.
@@ -189,10 +200,10 @@ static evioToStringConfig defaultToStringConfig;
 class evioStreamParserHandler {
 
 public:
-  virtual void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, 
-                            int depth, void *userArg) = 0;
-  virtual void *leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, 
-                                int depth, const void *data, void *userArg) = 0;
+  virtual void *containerNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                                     int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg) = 0;
+  virtual void *leafNodeHandler(int length, int bankType, int contentType, uint16_t tag, uint8_t num, 
+                                int depth, const uint32_t *bankPointer, const void *data, void *userArg) = 0;
   virtual ~evioStreamParserHandler(void) {};
 };
 
@@ -495,6 +506,8 @@ class evioDOMTree : public evioStreamParserHandler, public evioChannelBufferizab
 
 
 public:
+  evioDOMTree(void) throw(evioException);
+  evioDOMTree(evioDictionary *dictionary) throw(evioException);
   evioDOMTree(const evioChannel &channel, const string &name = "evio") throw(evioException);
   evioDOMTree(const evioChannel *channel, const string &name = "evio") throw(evioException);
   evioDOMTree(const uint32_t *buf, const string &name = "evio") throw(evioException);
@@ -591,9 +604,11 @@ private:
 
 
 private:
-  void *containerNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, void *userArg);
-  void *leafNodeHandler(int length, uint16_t tag, int contentType, uint8_t num, int depth, const void *data, void *userArg);
-
+  void *containerNodeHandler(int length, int bankType, int contentType, uint16_t tag, uint8_t num, 
+                             int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg);
+  void *leafNodeHandler(int length, int bankType, int contentType, uint16_t tag, uint8_t num, 
+                        int depth, const uint32_t *bankPointer, const void *data, void *userArg);
+  
 
 public:
   evioDOMNodeP root;                 /**<Pointer to root node of tree.*/

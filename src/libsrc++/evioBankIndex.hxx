@@ -1,6 +1,6 @@
 //  evioBankIndex.hxx
 //
-// creates bank index for serialized event 
+// creates bank index for serialized event, indexes all banks including container banks
 // eventually need to switch to std::tuple instead of custom struct
 //
 //
@@ -25,13 +25,16 @@ using namespace evio;
 
 // holds bank index info
 typedef struct {
-  int contentType;
-  const void *data;
-  int length;
+  int containerType;            // bank container type
+  int contentType;              // bank content type
+  const uint32_t *bankPointer;  // pointer to first word of bank
+  int bankLength;               // length of bank in 32-bit words
+  const void *data;             // pointer to first word of data of bank
+  int dataLength;               // length of data in bank in 32-bit words
 } bankIndex;
   
 
-// tuple holds:  data type, pointer to bank data, length of data array
+// tuple holds:  data type, pointer to bank data, length of data array ???
 //typedef boost::tuple<int, const void*, int> bankIndex;
 
 
@@ -68,27 +71,30 @@ typedef pair< bankIndexMap::const_iterator, bankIndexMap::const_iterator > bankI
 class evioBankIndex {
 
 public:
-  evioBankIndex();
-  evioBankIndex(const uint32_t *buffer);
+  evioBankIndex(int maxDepth=0);
+  evioBankIndex(const uint32_t *buffer, int maxDepth=0);
   virtual ~evioBankIndex();
 
 
 public:
-  bool parseBuffer(const uint32_t *buffer);
+  bool parseBuffer(const uint32_t *buffer, int maxDepth);
   bool tagNumExists(const tagNum& tn) const;
   int tagNumCount(const tagNum& tn) const;
   bankIndexRange getRange(const tagNum& tn) const;
   bankIndex getBankIndex(const tagNum &tn) const throw(evioException);
+  int getMaxDepth();
 
 
 public:
   bankIndexMap tagNumMap;     /**<Holds index to one or more banks having tag/num.*/
 
+private:
+  int maxDepth;
 
 
 public:
   /**
-   * Returns length and pointer to data, NULL if bad tagNum or wrong type.
+   * Returns length and pointer to data, NULL if container bank, bad tagNum or wrong data type.
    *
    * @param tn tagNum
    * @param pLen Pointer to int to receive data length, set to 0 upon error
@@ -103,7 +109,7 @@ public:
     //   return(static_cast<const T*>(boost::get<1>((*iter).second)));
 
     if((iter!=tagNumMap.end()) && ((((*iter).second).contentType)==evioUtil<T>::evioContentType())) {
-      *pLen=((*iter).second).length;
+      *pLen=((*iter).second).dataLength;
       return(static_cast<const T*>(((*iter).second).data));
     } else {
       *pLen=0;
@@ -125,7 +131,7 @@ public:
     //   return(static_cast<const T*>(boost::get<1>(bi)));
 
     if(bi.contentType==evioUtil<T>::evioContentType()) {
-      *pLen=(bi.length);
+      *pLen=(bi.dataLength);
       return(static_cast<const T*>(bi.data));
     } else {
       *pLen=0;

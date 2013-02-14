@@ -31,8 +31,8 @@ class handler: public evioStreamParserHandler {
 
 
   // do nothing with container nodes
-  void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
-                             int depth, void *userArg) {
+  void *containerNodeHandler(int length, int containterType, int contentType, unsigned short tag, unsigned char num, 
+                             int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg) {
     return(userArg);
   }
   
@@ -40,8 +40,8 @@ class handler: public evioStreamParserHandler {
 //--------------------------------------------------------------
 
 
-  void *leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
-                        int depth, const void *data, void *userArg) {
+  void *leafNodeHandler(int length, int containterType, int contentType, unsigned short tag, unsigned char num, 
+                        int depth, const uint32_t *bankPointer, const void *data, void *userArg) {
     
     // add banks containing doubles to event tree
     // alternatively, skip the tree entirely and process the data now, or store the data someplace for later processing

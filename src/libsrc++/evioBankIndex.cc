@@ -20,8 +20,30 @@ using namespace std;
 // used internally to stream-parse the event and fill the tagNum map
 class myHandler : public evioStreamParserHandler {
   
-  void *containerNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
-                             int depth, void *userArg) {
+public:
+  myHandler(int maxDepth) : maxDepth(maxDepth) {}
+
+  void *containerNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                             int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg) {
+
+    // don't index beyond specified depth
+    // Note...maxDepth 0 means index all levels, 1 means just include children level, etc.
+    // Note...current depth 0 means you are at children level, 1 means grandchildren level, etc.
+    if((maxDepth>0)&&(depth>maxDepth))return(userArg);
+
+
+    // adds bank index to map
+    evioBankIndex *bi = static_cast<evioBankIndex*>(userArg);
+
+    bankIndex b;
+    b.containerType=containerType;
+    b.contentType=contentType;
+    b.bankPointer=bankPointer;
+    b.bankLength=length;
+    b.data=data;
+    b.dataLength=(containerType==BANK)?length-2:length-1;
+    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
+    
     return(userArg);
   }
   
@@ -29,22 +51,34 @@ class myHandler : public evioStreamParserHandler {
   //--------------------------------------------------------------
   
   
-  void *leafNodeHandler(int length, unsigned short tag, int contentType, unsigned char num, 
-                        int depth, const void *data, void *userArg) {
+  void *leafNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                        int depth, const uint32_t *bankPointer, const void *data, void *userArg) {
     
+    // don't index beyond specified depth
+    // Note...maxDepth 0 means index all levels, 1 means just include children level, etc.
+    // Note...current depth 0 means you are at children level, 1 means grandchildren level, etc.
+    if((maxDepth>0)&&(depth>maxDepth))return(userArg);
+
+
     // adds bank index to map
     evioBankIndex *bi = static_cast<evioBankIndex*>(userArg);
     //    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),boost::make_tuple(contentType,data,length)));
 
     bankIndex b;
+    b.containerType=containerType;
     b.contentType=contentType;
+    b.bankPointer=bankPointer;
+    b.bankLength=(containerType==BANK)?length+2:length+1;
     b.data=data;
-    b.length=length;
+    b.dataLength=length;
     bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
 
     //    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),bankIndex(contentType,data,length)));
     return(userArg);
   }
+
+private:
+   int maxDepth;
 
 };
 
@@ -56,7 +90,7 @@ class myHandler : public evioStreamParserHandler {
 /**
  * Constructor.
  */
-evioBankIndex::evioBankIndex() {
+evioBankIndex::evioBankIndex(int maxDepth) : maxDepth(maxDepth) {
 }
 
 
@@ -68,8 +102,8 @@ evioBankIndex::evioBankIndex() {
  *
  * @param buffer Event buffer to index
  */
-evioBankIndex::evioBankIndex(const uint32_t *buffer) {
-  parseBuffer(buffer);
+evioBankIndex::evioBankIndex(const uint32_t *buffer, int maxDepth) : maxDepth(maxDepth) {
+  parseBuffer(buffer,maxDepth);
 }
 
 
@@ -91,12 +125,14 @@ evioBankIndex::~evioBankIndex() {
  * @param buffer Buffer containing serialized event
  * @return true if indexing succeeded
  */
-bool evioBankIndex::parseBuffer(const uint32_t *buffer) {
+bool evioBankIndex::parseBuffer(const uint32_t *buffer, int maxDepth) {
 
   // create parser and handler
   evioStreamParser p;
-  myHandler h;
+  myHandler h(maxDepth);
   p.parse(buffer,h,((void*)this));
+  // pair<evioBankIndex*,int> pr(this,BANK);
+  // p.parse(buffer,h,((void*)&pr));
 
   return(true);
 }
