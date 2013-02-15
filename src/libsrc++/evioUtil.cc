@@ -54,7 +54,7 @@ namespace evio {
  * @param structureType Container type of structure
  * @return Pointer to new buffer
  */
-uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferType, const uint32_t *structure, ContainerType structureType)
+uint32_t *evioUtilities::appendToBuffer(const uint32_t *buffer, ContainerType bufferType, const uint32_t *structure, ContainerType structureType)
     throw(evioException) {
 
 
@@ -109,11 +109,11 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferTy
 
 
   // append structure to new buffer
-  memcpy((void*)(buffer[bufferLength]),(void*)structure,structureLength*sizeof(uint32_t));
+  memcpy((void*)(&newBuffer[bufferLength]),(void*)structure,structureLength*sizeof(uint32_t));
 
 
   // update new buffer length
-  buffer[0]+=structureLength;
+  newBuffer[0]+=structureLength;
 
 
   // return pointer to new buffer

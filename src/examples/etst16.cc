@@ -119,6 +119,21 @@ int main(int argc, char **argv) {
 
 
 
+      // test appending structure to buffer
+
+      // create test tree, serialize to buffer
+      evioDOMTree tTest(1,0);
+      tTest << evioDOMNode::createEvioDOMNode(1,2);
+      tTest << evioDOMNode::createEvioDOMNode(3,4);
+      uint32_t *testBuf = new uint32_t[10000];
+      tTest.toEVIOBuffer(testBuf,10000);
+
+      // append serialized tree to original buffer
+      uint32_t *newBuf = evioUtilities::appendToBuffer(buffer,BANK,testBuf,BANK);
+      
+      // deserialize new buffer and print
+      evioDOMTree tNew(newBuf);
+      cout << tNew.toString() << endl;
       
       break;
     }
