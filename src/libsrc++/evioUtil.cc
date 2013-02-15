@@ -62,8 +62,10 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferTy
   int bufferContentType;
   if(bufferType==BANK) {
     bufferContentType=(buffer[1]>>8)&0x3f;
+  } else if(bufferType==SEGMENT) {
+    bufferContentType=(buffer[0]>>16)&0x3f;
   } else {
-    bufferContentType=(buffer[0]>>8)&0x3f;
+    bufferContentType=(buffer[0]>>16)&0xf;
   }
 
 
@@ -72,7 +74,7 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferTy
 
 
   // get buffer length
-  int bufferLength;
+  unsigned int bufferLength;
   if(bufferType==BANK) {
     bufferLength = buffer[0]+1;
   } else {
@@ -81,7 +83,7 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferTy
 
 
   // get structure length
-  int structureLength;
+  unsigned int structureLength;
   if(structureType==BANK) {
     structureLength=structure[0]+1;
   } else {
@@ -89,9 +91,13 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferTy
   }
 
 
-  // check combined length fits in 16 bits if buffer not BANK type
-  if((bufferType!=BANK)&&((bufferLength+structureLength)>0xffff))
-     throw(evioException(0,"?evioUtilties::appendToBuffer...combination too long",__FILE__,__FUNCTION__,__LINE__));
+  // check combined length fits in 32 bits for BANK, 16 bits for SEGMENT and TAGSEGMENT
+  if(bufferType==BANK) {
+    if(((uint64_t)bufferLength+(uint64_t)structureLength)>0xffffffff)
+      throw(evioException(0,"?evioUtilties::appendToBuffer...combined length does not fit in 32 bits",__FILE__,__FUNCTION__,__LINE__));
+  } else if((bufferLength+structureLength)>0xffff) {
+    throw(evioException(0,"?evioUtilties::appendToBuffer...combined length does not fit in 16 bits",__FILE__,__FUNCTION__,__LINE__));
+  }
 
 
   // allocate new buffer
@@ -107,11 +113,7 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferTy
 
 
   // update new buffer length
-  if(bufferType==BANK) {
-    buffer[0]+=structureLength;
-  } else {
-    buffer[0]+=structureLength;
-  }
+  buffer[0]+=structureLength;
 
 
   // return pointer to new buffer
