@@ -128,7 +128,7 @@ class evioToStringConfig;
 
 class evioUtilities {
 
-  static void appendToBuffer(uint32_t *buffer, const uint32_t *structure, int structureType=BANK) 
+  static uint32_t *appendToBuffer(uint32_t *buffer, const uint32_t *structure, int structureType=BANK) 
     throw(evioException);
 };
 

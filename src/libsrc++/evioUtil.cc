@@ -43,18 +43,25 @@ namespace evio {
 //-----------------------------------------------------------------------
 
 /**
- * Appends structure to buffer, throws exception if types don't match.
+ * Allocates new buffer, copies in buffer and appends structure to buffer.
+ * Throws exception if types don't match.
+ * Buffer MUST be a bank!
  * @param buffer Buffer
- * @param structure Structure
+ * @param structure Structure to append to buffer
  * @param structureType Type of structure, must match buffer content type
+ * @return Pointer to new buffer
  */
-void evioUtilities::appendToBuffer(uint32_t *buffer, const uint32_t *structure, int structureType)
+uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, const uint32_t *structure, int structureType)
     throw(evioException) {
 
 
   // does structure type match buffer content type
   int bufferType = (buffer[1]>>8)&0x3f;
   if(bufferType!=structureType) throw(evioException(0,"?evioUtilties::appendToBuffer...types do not match",__FILE__,__FUNCTION__,__LINE__));
+
+
+  // get buffer length
+  int bufferLength = buffer[0]+1;
 
 
   // get structure length
@@ -66,13 +73,24 @@ void evioUtilities::appendToBuffer(uint32_t *buffer, const uint32_t *structure, 
   }
 
 
-  // append to buffer
-  int bufferLength=buffer[0]+1;
+  // allocate new buffer
+  uint32_t *newBuffer = (uint32_t*)malloc((bufferLength+structureLength)*sizeof(uint32_t));
+
+
+  // copy buffer into new buffer
+  memcpy((void*)newBuffer,(void*)buffer,bufferLength*sizeof(uint32_t));
+
+
+  // append structure to new buffer
   memcpy((void*)(buffer[bufferLength]),(void*)structure,structureLength*sizeof(uint32_t));
 
 
-  // update buffer length
+  // update new buffer length
   buffer[0]+=structureLength;
+
+
+  // return pointer to new buffer
+  return(newBuffer);
 }
 
 
