@@ -42,26 +42,42 @@ namespace evio {
 //---------------------- evioUtilities ----------------------------
 //-----------------------------------------------------------------------
 
+
 /**
- * Allocates new buffer, copies in buffer and appends structure to buffer.
- * Throws exception if types don't match.
- * Buffer MUST be a bank!
+ * Appends structure to buffer in newly allocated memory.
+ * Throws exception if buffer content type and structure container type don't match.
+ *   I.e. cannot add a segment structure to a bank of banks.
+ *
  * @param buffer Buffer
+ * @param bufferType Container type of buffer (BANK, SEGMENT or TAGSEGMENT)
  * @param structure Structure to append to buffer
- * @param structureType Type of structure, must match buffer content type
+ * @param structureType Container type of structure
  * @return Pointer to new buffer
  */
-uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, const uint32_t *structure, int structureType)
+uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, ContainerType bufferType, const uint32_t *structure, ContainerType structureType)
     throw(evioException) {
 
 
+  // get buffer content type
+  int bufferContentType;
+  if(bufferType==BANK) {
+    bufferContentType=(buffer[1]>>8)&0x3f;
+  } else {
+    bufferContentType=(buffer[0]>>8)&0x3f;
+  }
+
+
   // does structure type match buffer content type
-  int bufferType = (buffer[1]>>8)&0x3f;
-  if(bufferType!=structureType) throw(evioException(0,"?evioUtilties::appendToBuffer...types do not match",__FILE__,__FUNCTION__,__LINE__));
+  if(bufferContentType!=structureType) throw(evioException(0,"?evioUtilties::appendToBuffer...types do not match",__FILE__,__FUNCTION__,__LINE__));
 
 
   // get buffer length
-  int bufferLength = buffer[0]+1;
+  int bufferLength;
+  if(bufferType==BANK) {
+    bufferLength = buffer[0]+1;
+  } else {
+    bufferLength = buffer[0]&0xffff + 1;
+  }
 
 
   // get structure length
@@ -71,6 +87,11 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, const uint32_t *struct
   } else {
     structureLength=(buffer[0]&0xffff)+1;
   }
+
+
+  // check combined length fits in 16 bits if buffer not BANK type
+  if((bufferType!=BANK)&&((bufferLength+structureLength)>0xffff))
+     throw(evioException(0,"?evioUtilties::appendToBuffer...combination too long",__FILE__,__FUNCTION__,__LINE__));
 
 
   // allocate new buffer
@@ -86,12 +107,17 @@ uint32_t *evioUtilities::appendToBuffer(uint32_t *buffer, const uint32_t *struct
 
 
   // update new buffer length
-  buffer[0]+=structureLength;
+  if(bufferType==BANK) {
+    buffer[0]+=structureLength;
+  } else {
+    buffer[0]+=structureLength;
+  }
 
 
   // return pointer to new buffer
   return(newBuffer);
-}
+
+ }
 
 
 //-----------------------------------------------------------------------
