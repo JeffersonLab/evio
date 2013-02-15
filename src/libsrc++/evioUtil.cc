@@ -271,30 +271,30 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
   case 0xb:
   case 0xf:
     // four-byte types
-    newLeaf=handler.leafNodeHandler(length-dataOffset,bankType,contentType,tag,num,depth,&buf[0],&buf[dataOffset],userArg);
+    newLeaf=handler.leafNodeHandler(length,bankType,contentType,tag,num,depth,&buf[0],length-dataOffset,&buf[dataOffset],userArg);
     break;
 
   case 0x3:
   case 0x6:
   case 0x7:
     // one-byte types
-    newLeaf=handler.leafNodeHandler((length-dataOffset)*4-padding,bankType,contentType,tag,num,depth,&buf[0],
+    newLeaf=handler.leafNodeHandler(length,bankType,contentType,tag,num,depth,&buf[0],(length-dataOffset)*4-padding,
                                     (int8_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x4:
   case 0x5:
     // two-byte types
-    newLeaf=handler.leafNodeHandler((length-dataOffset)*2-padding/2,bankType,contentType,tag,num,depth,
-                                    &buf[0],(int16_t*)(&buf[dataOffset]),userArg);
+    newLeaf=handler.leafNodeHandler(length,bankType,contentType,tag,num,depth,
+                                    &buf[0],(length-dataOffset)*2-padding/2,(int16_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0x8:
   case 0x9:
   case 0xa:
     // eight-byte types
-    newLeaf=handler.leafNodeHandler((length-dataOffset)/2,bankType,contentType,tag,num,depth,
-                                    &buf[0],(int64_t*)(&buf[dataOffset]),userArg);
+    newLeaf=handler.leafNodeHandler(length,bankType,contentType,tag,num,depth,
+                                    &buf[0],(length-dataOffset)/2,(int64_t*)(&buf[dataOffset]),userArg);
     break;
 
   case 0xe:
@@ -304,7 +304,7 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
   case 0xc:
   case 0x40:
     // container types
-    newUserArg=handler.containerNodeHandler(length,bankType,contentType,tag,num,depth,&buf[0],&buf[dataOffset],userArg);
+    newUserArg=handler.containerNodeHandler(length,bankType,contentType,tag,num,depth,&buf[0],length-dataOffset,&buf[dataOffset],userArg);
 
 
     // parse contained banks
@@ -1496,19 +1496,20 @@ evioDOMNodeP evioDOMTree::parse(const uint32_t *buf) throw(evioException) {
 
 /**
  * Creates container node, used internally when parsing buffer.
- * @param length not used
+ * @param bankLength Length of bank in 32-bit units
  * @param containerType Container type
  * @param contentType New node content type
  * @param tag New node tag
  * @param num New node num
  * @param depth Current depth
  * @param bankPointer Pointer to head of bank
- * @param dataPointer Pointer to bank data
+ * @param payloadLength Length of contained payload in 32-bit units
+ * @param payload Pointer to bank payload
  * @param userArg Used internally
  * @return void* used internally
  */
-void *evioDOMTree::containerNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, int depth, 
-                                        const uint32_t *bankPointer, const uint32_t *data, void *userArg) {
+void *evioDOMTree::containerNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, int depth, 
+                                        const uint32_t *bankPointer, int payloadLength, const uint32_t *payload, void *userArg) {
   
     
   // get parent pointer
@@ -1536,19 +1537,20 @@ void *evioDOMTree::containerNodeHandler(int length, int containerType, int conte
 
 /**
  * Creates leaf node, used internally when parsing buffer.
- * @param length Length of data in buffer
+ * @param bankLength Length of bank in 32-bit units
  * @param containerType Container type
  * @param contentType New node content type
  * @param tag New node tag
  * @param num New node num
  * @param depth Current depth
  * @param bankPointer Pointer to head of bank
+ * @param dataLength Length of data in appropriate units
  * @param data Pointer to data in buffer
  * @param userArg Used internally
  * @return void* Pointer to new leaf node
  */
-void *evioDOMTree::leafNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, int depth, 
-                                   const uint32_t *bankPointer, const void *data, void *userArg) {
+void *evioDOMTree::leafNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, int depth, 
+                                   const uint32_t *bankPointer, int dataLength, const void *data, void *userArg) {
   
 
   // create and fill new leaf
@@ -1559,16 +1561,16 @@ void *evioDOMTree::leafNodeHandler(int length, int containerType, int contentTyp
   switch (contentType) {
 
   case 0x0:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint32_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint32_t*)data,dataLength);
     newLeaf->contentType=0x0;
     break;
 
   case 0x1:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint32_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint32_t*)data,dataLength);
     break;
       
   case 0x2:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(float*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(float*)data,dataLength);
     break;
       
   case 0x3:
@@ -1576,7 +1578,7 @@ void *evioDOMTree::leafNodeHandler(int length, int containerType, int contentTyp
       newLeaf = evioDOMNode::createEvioDOMNode<string>(tag,num);
       char *start = (char*)data;
       char *c = start;
-      while((c[0]!=0x4)&&((c-start)<length)) {
+      while((c[0]!=0x4)&&((c-start)<dataLength)) {
         s=string(c);
         newLeaf->append(s);
         c+=s.size()+1;
@@ -1585,35 +1587,35 @@ void *evioDOMTree::leafNodeHandler(int length, int containerType, int contentTyp
     }
 
   case 0x4:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int16_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int16_t*)data,dataLength);
     break;
 
   case 0x5:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint16_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint16_t*)data,dataLength);
     break;
 
   case 0x6:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int8_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int8_t*)data,dataLength);
     break;
 
   case 0x7:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint8_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint8_t*)data,dataLength);
     break;
 
   case 0x8:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(double*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(double*)data,dataLength);
     break;
 
   case 0x9:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int64_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int64_t*)data,dataLength);
     break;
 
   case 0xa:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint64_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(uint64_t*)data,dataLength);
     break;
 
   case 0xb:
-    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int32_t*)data,length);
+    newLeaf = evioDOMNode::createEvioDOMNode(tag,num,(int32_t*)data,dataLength);
     break;
 
   case 0xf:

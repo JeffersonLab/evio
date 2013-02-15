@@ -95,6 +95,24 @@ int main(int argc, char **argv) {
       cout << endl;
 
 
+      b = b0.getBankIndex(tagNum(11,21));
+      cout << "11,21:             " << b0.tagNumExists(tagNum(11,21)) << endl;
+      cout << "11,21 count:       " << b0.tagNumCount(tagNum(11,21)) << endl;
+      cout << "11,21 container:   " << b.containerType << endl;
+      cout << "11,21 content:     " << b.contentType << endl;
+      cout << "11,21 bank length: " << b.bankLength << endl;
+      cout << "11,21 data length: " << b.dataLength << endl;
+      if(b.dataLength>0) {
+        cout << " full bank: ";
+        for(unsigned int i=0; i<b.bankLength; i++) cout << ((uint32_t*)b.bankPointer)[i] << "  ";
+        cout << endl << endl;
+        cout << " data only: ";
+        for(unsigned int i=0; i<b.dataLength; i++) cout << ((double*)b.data)[i] << "  ";
+        cout << endl;
+      }
+      cout << endl;
+
+
       cout << "12,99: "       << b0.tagNumExists(tagNum(12,99)) << endl;
       cout << "12,99 count: " << b0.tagNumCount(tagNum(12,99)) << endl;
       cout << endl;

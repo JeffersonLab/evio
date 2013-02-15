@@ -23,8 +23,8 @@ class myHandler : public evioStreamParserHandler {
 public:
   myHandler(int maxDepth) : maxDepth(maxDepth) {}
 
-  void *containerNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, 
-                             int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg) {
+  void *containerNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                             int depth, const uint32_t *bankPointer, int dataLength, const uint32_t *data, void *userArg) {
 
     // don't index beyond specified depth
     // Note...maxDepth 0 means index all levels, 1 means just include children level, etc.
@@ -34,14 +34,14 @@ public:
 
     // adds bank index to map
     evioBankIndex *bi = static_cast<evioBankIndex*>(userArg);
-
+  
     bankIndex b;
     b.containerType=containerType;
     b.contentType=contentType;
     b.bankPointer=bankPointer;
-    b.bankLength=length;
+    b.bankLength=bankLength;
     b.data=data;
-    b.dataLength=(containerType==BANK)?length-2:length-1;
+    b.dataLength=dataLength;
     bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
     
     return(userArg);
@@ -51,8 +51,8 @@ public:
   //--------------------------------------------------------------
   
   
-  void *leafNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, 
-                        int depth, const uint32_t *bankPointer, const void *data, void *userArg) {
+  void *leafNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                        int depth, const uint32_t *bankPointer, int dataLength, const void *data, void *userArg) {
     
     // don't index beyond specified depth
     // Note...maxDepth 0 means index all levels, 1 means just include children level, etc.
@@ -68,9 +68,9 @@ public:
     b.containerType=containerType;
     b.contentType=contentType;
     b.bankPointer=bankPointer;
-    b.bankLength=(containerType==BANK)?length+2:length+1;
+    b.bankLength=bankLength;
     b.data=data;
-    b.dataLength=length;
+    b.dataLength=dataLength;
     bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
 
     //    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),bankIndex(contentType,data,length)));

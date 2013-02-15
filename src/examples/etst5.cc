@@ -22,11 +22,11 @@ using namespace std;
 class myHandler : public evioStreamParserHandler {
 
 
-  void *containerNodeHandler(int length, int containerType, int contentType, unsigned short tag, unsigned char num, 
-                             int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg) {
+  void *containerNodeHandler(int bankLength, int containerType, int contentType, unsigned short tag, unsigned char num, 
+                             int depth, const uint32_t *bankPointer, int payloadLength, const uint32_t *payload, void *userArg) {
 
     printf("node   depth %2d   type,tag,num,length:  %6d %6d %6d %6d\n",
-           depth,contentType,tag,num,length);
+           depth,contentType,tag,num,bankLength);
     return(NULL);
   }
   
@@ -34,8 +34,8 @@ class myHandler : public evioStreamParserHandler {
 //--------------------------------------------------------------
 
 
-  void *leafNodeHandler(int length, int containerType, int contentType, unsigned short tag, unsigned char num, 
-                        int depth, const uint32_t *bankPointer, const void *data, void *userArg) {
+  void *leafNodeHandler(int bankLength, int containerType, int contentType, unsigned short tag, unsigned char num, 
+                        int depth, const uint32_t *bankPointer, int dataLength, const void *data, void *userArg) {
     
     int *i;
     short *s;
@@ -45,7 +45,7 @@ class myHandler : public evioStreamParserHandler {
     int64_t *ll;
     
     printf("leaf   depth %2d   type,tag,num,length:  %6d %6d %6d %6d     data:   ",
-           depth,contentType,tag,num,length);
+           depth,contentType,tag,num,bankLength);
     
     switch (contentType) {
 

@@ -200,10 +200,10 @@ static evioToStringConfig defaultToStringConfig;
 class evioStreamParserHandler {
 
 public:
-  virtual void *containerNodeHandler(int length, int containerType, int contentType, uint16_t tag, uint8_t num, 
-                                     int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg) = 0;
-  virtual void *leafNodeHandler(int length, int bankType, int contentType, uint16_t tag, uint8_t num, 
-                                int depth, const uint32_t *bankPointer, const void *data, void *userArg) = 0;
+  virtual void *containerNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                                     int depth, const uint32_t *bankPointer, int payloadLength, const uint32_t *payload, void *userArg) = 0;
+  virtual void *leafNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                                int depth, const uint32_t *bankPointer, int dataLength, const void *data, void *userArg) = 0;
   virtual ~evioStreamParserHandler(void) {};
 };
 
@@ -604,10 +604,10 @@ private:
 
 
 private:
-  void *containerNodeHandler(int length, int bankType, int contentType, uint16_t tag, uint8_t num, 
-                             int depth, const uint32_t *bankPointer, const uint32_t *data, void *userArg);
-  void *leafNodeHandler(int length, int bankType, int contentType, uint16_t tag, uint8_t num, 
-                        int depth, const uint32_t *bankPointer, const void *data, void *userArg);
+  void *containerNodeHandler(int bankLength, int constainerType, int contentType, uint16_t tag, uint8_t num, 
+                             int depth, const uint32_t *bankPointer, int payloadLength, const uint32_t *payload, void *userArg);
+  void *leafNodeHandler(int bankLength, int containerType, int contentType, uint16_t tag, uint8_t num, 
+                        int depth, const uint32_t *bankPointer, int dataLength, const void *data, void *userArg);
   
 
 public:
