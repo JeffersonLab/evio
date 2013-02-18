@@ -72,6 +72,7 @@ public:
   string getDictionaryXML(void) const;
   void setSeparator(const string &sep);
   string getSeparator(void) const;
+  string toString(void) const throw(evioException);
 
 
 private:

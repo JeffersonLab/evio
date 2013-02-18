@@ -270,3 +270,26 @@ string evioDictionary::getSeparator(void) const {
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
+
+/**
+ * Converts dictionary into string.
+ * @return String containing dictionary keys and values
+ */
+string evioDictionary::toString(void) const throw(evioException) {
+
+  stringstream ss;
+
+  map<string,tagNum>::const_iterator pos;
+  ss << "key                                    " << "value" << endl;
+  ss << "---                                    " << "-----" << endl;
+  for (pos = getTagNumMap.begin(); pos != getTagNumMap.end(); pos++) {
+    ss << left << setw(35) << pos->first << "    " << (int)pos->second.first << "," << (int)pos->second.second << endl;
+  }
+
+  return(ss.str());
+}
+
+
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+
