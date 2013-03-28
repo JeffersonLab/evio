@@ -1,6 +1,7 @@
 # scons build file for evio
 Import('env', 'libDir', 'binDir', 'archDir', 'execLibs', 'debugSuffix')
 import re
+import os
 
 # lists of all C and C++ files
 cfileList  = Glob('*.c',  strings=True)
@@ -23,10 +24,15 @@ for fileName in cfileList:
 
 # compile and install
 for fileName in ccfileList:
-    compiledFile = env.Program(source  = fileName,
-                               LIBS    = ['evio'+debugSuffix,
-                                          'evioxx'+debugSuffix, 'et'+debugSuffix] + execLibs,
-                               LIBPATH = ['#src/libsrc/'+archDir,
-                                          '#src/libsrc++/'+archDir, libDir],
-                               CPPPATH = ['.', '#src/libsrc', '#src/libsrc++'])
+    if(os.getenv('ETROOT')!=None):
+        compiledFile = env.Program(source  = fileName,
+                                   LIBS    = ['evio'+debugSuffix,'evioxx'+debugSuffix, 'et'+debugSuffix] + execLibs,
+                                   LIBPATH = ['#src/libsrc/'+archDir,'#src/libsrc++/'+archDir, libDir],
+                                   CPPPATH = ['.', '#src/libsrc', '#src/libsrc++'])
+    else:
+        compiledFile = env.Program(source  = fileName,
+                                   LIBS    = ['evio'+debugSuffix,'evioxx'+debugSuffix] + execLibs,
+                                   LIBPATH = ['#src/libsrc/'+archDir,'#src/libsrc++/'+archDir, libDir],
+                                   CPPPATH = ['.', '#src/libsrc', '#src/libsrc++'])
     env.Alias('install', env.Install(target = binDir, source = compiledFile))
+        
