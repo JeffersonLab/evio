@@ -112,6 +112,7 @@ int main(int argc, char **argv) {
     config.bankOk     = bankOk;
     config.noBank     = noBank;
     config.verbose    = verbose;
+    config.xtod       = xtod;
 
 
     // dump data
@@ -178,11 +179,11 @@ void decode_command_line(int argc, char**argv) {
 
   static string help = 
     "\nUsage:\n\n  evio2xml [-max max_event] [-pause] [-skip skip_event]\n"
-                "           [-dict dictfilename] [-dumpDict]\n";
-                "           [-bankTag bankTag] [-noBankTag bankTag] [-bankName bankName] [-noBankName bankName]\n"
-                "           [-max_depth max_depth] [-no_data] [-xtod] [-no_dump]\n"
-                "           [-indent indent_size] [-maxbuf maxbuf] [-verbose] [-debug]\n"
-                "           filename\n";
+    "           [-dict dictfilename] [-dumpDict]\n"
+    "           [-xtod] [-max_depth max_depth] [-no_data] [-no_dump]\n"
+    "           [-indent indent_size] [-maxbuf maxbuf] [-verbose] [-debug]\n"
+    "           [-bankTag bankTag] [-noBankTag bankTag] [-bankName bankName] [-noBankName bankName]\n"
+    "           filename\n";
     
 
   if(argc<2) {
