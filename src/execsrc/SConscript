@@ -11,7 +11,7 @@ ccfileList = Glob('*.cc', strings=True)
 # and install that executable if "scons examples" is command
 for fileName in cfileList:
     compiledFile = env.Program(source  = fileName,
-                               LIBS    = ['evio'+debugSuffix, 'et'+debugSuffix] + execLibs,
+                               LIBS    = ['evio'+debugSuffix] + execLibs,
                                LIBPATH = ['#src/libsrc/'+archDir, libDir],
                                CPPPATH = ['.', '#src/libsrc'])
     env.Alias('install', env.Install(target = binDir, source = compiledFile))
