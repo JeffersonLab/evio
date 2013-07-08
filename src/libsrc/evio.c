@@ -3486,6 +3486,62 @@ int evClose(int handle)
     return(status);
 }
 
+/* Make this routine static for now until ready. */
+
+/**
+ * This routine reads all evio events from the src and writes them to
+ * the destination. This is useful, for example, when needing to convert
+ * the endianness of data in a file. A program on a little endian machine
+ * can read a big endian file and write it to a local file in little endian format.
+ * It writes data in evio version 4 format and returns a status.
+ *
+ * @param srcHandle   evio handle to read events from
+ * @param destHandle  evio handle to write events to
+ *
+ * @return S_SUCCESS        if successful
+ * @return S_EVFILE_TRUNC   if not enough room writing to a user-given buffer in {@link evOpen}
+ */
+static int evTransfer(int srcHandle, int destHandle)
+{
+    const uint32_t *pEvent;
+    uint32_t buflen;
+    uint32_t eventNumber = 1;
+    EVFILE   *src, *dest;
+
+    /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
+    handleReadLock();
+
+    /* Look up structs from handles */
+    src  = handle_list[srcHandle  - 1];
+    dest = handle_list[destHandle - 1];
+
+    /* Check args */
+    if (src == NULL || dest == NULL) {
+        handleReadUnlock();
+        return(S_EVFILE_BADHANDLE);
+    }
+
+    /* Need to be reading from (not writing to) the source */
+    if (src->rw != EV_READFILE && src->rw != EV_READPIPE &&
+        src->rw != EV_READBUF  && src->rw != EV_READSOCK) {
+        handleReadUnlock();
+        return(S_EVFILE_BADMODE);
+    }
+
+    /* Need to be writing to (not reading from) the destination */
+    if (dest->rw != EV_WRITEFILE && dest->rw != EV_WRITEPIPE &&
+        dest->rw != EV_WRITESOCK && dest->rw != EV_WRITEBUF) {
+        handleWriteUnlock();
+        return(S_EVFILE_BADMODE);
+    }
+   
+    /* Since we are going to look at every event, use random access read */
+//    int evReadRandom(srcHandle, &pEvent, &buflen, eventNumber);
+    
+
+    return S_SUCCESS;
+}
+
 
 /**
  * This routine returns the number of bytes written into a buffer so
