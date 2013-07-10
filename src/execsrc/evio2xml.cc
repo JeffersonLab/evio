@@ -46,8 +46,8 @@ bool verbose        = false;
 
 
 // for selectively dumping banks
-vector<int16_t> bankOk;
-vector<int16_t> noBank;
+vector<uint16_t> bankOk;
+vector<uint16_t> noBank;
 vector<string> bankNameOk;
 vector<string> noBankName;
 

@@ -167,8 +167,8 @@ public:
   int maxDepth;                  /**<Max depth to dump.*/
   int indentSize;                /**<Indent size per unit of depth.*/
   bool verbose;                  /**<Turn on verbose mode.*/
-  vector<int16_t> bankOk;        /**<Vector of bank tags to dump.*/
-  vector<int16_t> noBank;        /**<Vector of bank tags to skip.*/
+  vector<uint16_t> bankOk;       /**<Vector of bank tags to dump.*/
+  vector<uint16_t> noBank;       /**<Vector of bank tags to skip.*/
   vector<string> bankNameOk;     /**<Vector of bank names to dump.*/
   vector<string> noBankName;     /**<Vector of bank names to skip.*/
 
