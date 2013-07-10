@@ -29,6 +29,8 @@ int main(int argc, char **argv) {
   et_stat_id      et_station_id;
   et_att_id       et_attach_id;
 
+  bool analyze = argc>4;
+
 
   try {
 
@@ -72,8 +74,10 @@ int main(int argc, char **argv) {
     int n=0;
     while(chan.read()) {
       n++;
-      evioDOMTree event(chan);
-      if(n%100000==1)cout << event.toString();
+      if(analyze) {
+        evioDOMTree event(chan);
+        if(n%100000==1)cout << event.toString();
+      }
     }
     
 

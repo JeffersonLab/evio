@@ -205,13 +205,20 @@ bool evioToStringConfig::skipNode(const evioDOMNodeP pNode) const {
   
 
   // priority:  name included, tag included, name excluded, tag excluded
-  if((toStringDictionary!=NULL)&&(name.size()>0)&&(find(bankNameOk.begin(),bankNameOk.end(),name)!=bankNameOk.end()))return(false);
-  if(find(bankOk.begin(),bankOk.end(),pNode->tag)!=bankOk.end())return(false);
-  if((toStringDictionary!=NULL)&&(name.size()>0)&&(find(noBankName.begin(),noBankName.end(),name)!=bankNameOk.end()))return(true);
-  if(find(noBank.begin(),noBank.end(),pNode->tag)!=noBank.end())return(true);
+  if( (toStringDictionary!=NULL) && (name.size()>0) && (bankNameOk.size()>0) )
+    return(find(bankNameOk.begin(),bankNameOk.end(),name)==bankNameOk.end());
+
+  if(bankOk.size()>0)
+    return(find(bankOk.begin(),bankOk.end(),pNode->tag)==bankOk.end());
+
+  if( (toStringDictionary!=NULL) && (name.size()>0) && (noBankName.size()>0) ) 
+    return(find(noBankName.begin(),noBankName.end(),name)==bankNameOk.end());
+
+  if(noBank.size()>0) 
+    return(find(noBank.begin(),noBank.end(),pNode->tag)==noBank.end());
 
 
-  // not in any list, it's a keeper
+  // it's a keeper
   return(false);
 }
 
