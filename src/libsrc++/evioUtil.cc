@@ -212,10 +212,10 @@ bool evioToStringConfig::skipNode(const evioDOMNodeP pNode) const {
     return(find(bankOk.begin(),bankOk.end(),pNode->tag)==bankOk.end());
 
   if( (toStringDictionary!=NULL) && (name.size()>0) && (noBankName.size()>0) ) 
-    return(find(noBankName.begin(),noBankName.end(),name)==bankNameOk.end());
+    return(find(noBankName.begin(),noBankName.end(),name)!=bankNameOk.end());
 
   if(noBank.size()>0) 
-    return(find(noBank.begin(),noBank.end(),pNode->tag)==noBank.end());
+    return(find(noBank.begin(),noBank.end(),pNode->tag)!=noBank.end());
 
 
   // it's a keeper
