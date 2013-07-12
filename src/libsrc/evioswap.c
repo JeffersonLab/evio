@@ -68,9 +68,9 @@
 
 
 /* include files */
-#include <evio.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <evio.h>
 
 
 // from Sergey's composite swap library
