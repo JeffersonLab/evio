@@ -2030,7 +2030,8 @@ static int toAppendPosition(EVFILE *a)
 
 /**
  * This routine reads an evio bank from an evio format file/socket/buffer opened
- * with routine {@link evOpen}, allocates a buffer and fills it with the bank.
+ * with routines {@link evOpen}, {@link evOpenBuffer}, or
+ * {@link evOpenSocket}, allocates a buffer and fills it with the bank.
  * Works with all versions of evio. A status is returned. Caller will need to
  * free buffer to avoid a memory leak.
  *
@@ -2147,7 +2148,8 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 
 /**
  * This routine reads an evio bank from an evio format file/socket/buffer opened
- * with routine {@link evOpen}, allocates a buffer and fills it with the bank.
+ * with routine {@link evOpen}, {@link evOpenBuffer}, or
+ * {@link evOpenSocket}, allocates a buffer and fills it with the bank.
  * Works with all versions of evio. A status is returned.
  *
  * @param handle evio handle
@@ -2205,7 +2207,8 @@ int evread_
 
 /**
  * This routine reads from an evio format file/socket/buffer opened with routine
- * {@link evOpen} and returns the next event in the buffer arg. Works with all
+ * {@link evOpen}, {@link evOpenBuffer}, or {@link evOpenSocket}
+ * and returns the next event in the buffer arg. Works with all
  * versions of evio. A status is returned.
  *
  * @param handle evio handle
@@ -2770,7 +2773,8 @@ int evwrite_
 /**
  * This routine writes an evio event to an internal buffer containing evio data.
  * If that internal buffer is full, it is flushed to the final destination
- * file/socket/buffer opened with routine {@link evOpen}.
+ * file/socket/buffer opened with routine {@link evOpen}, {@link evOpenBuffer}, or
+ * {@link evOpenSocket}.
  * It writes data in evio version 4 format and returns a status.
  *
  * @param handle evio handle
@@ -2796,7 +2800,8 @@ int evWrite(int handle, const uint32_t *buffer)
 /**
  * This routine writes an evio event to an internal buffer containing evio data.
  * If that internal buffer is full, it is flushed to the final destination
- * file/socket/buffer opened with routine {@link evOpen}.
+ * file/socket/buffer opened with routine {@link evOpen}, {@link evOpenBuffer}, or
+ * {@link evOpenSocket}.
  * It writes data in evio version 4 format and returns a status.
  *
  * @param handle   evio handle
@@ -2971,7 +2976,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
 
 /**
  * This routine writes an evio event to the buffer given as an argument
- * to {@link evOpen}. This does <b>not</b> write to an internal block
+ * to {@link evOpenBuffer}. This does <b>not</b> write to an internal block
  * buffer as is in the case when using a file or socket.
  * It writes data in evio version 4 format and returns a status.
  *
@@ -3100,7 +3105,8 @@ static int evWriteBuffer(EVFILE *a, const uint32_t *buffer, int useMutex)
 /**
  * This routine writes any existing evio format data in an internal buffer
  * (written to with {@link evWrite}) to the final destination
- * file/socket/buffer opened with routine {@link evOpen}.
+ * file/socket/buffer opened with routine {@link evOpen}, {@link evOpenBuffer},
+ * or {@link evOpenSocket}.
  * It writes data in evio version 4 format and returns a status.
  * If writing to a buffer or file, it always places an empty block header
  * at the end - marked as the last block. If more events are written, the
@@ -3239,7 +3245,8 @@ static int evFlush(EVFILE *a, int closing)
 /**
  * This routine writes any existing evio format data in an internal buffer
  * (written to with {@link evWrite}) to the final destination
- * file/socket/buffer opened with routine {@link evOpen}.
+ * file/socket/buffer opened with routine {@link evOpen}, {@link evOpenBuffer},
+ * or {@link evOpenSocket}.
  * It writes data in evio version 4 format and returns a status.
  * If writing to a buffer or file, it always places an empty block header
  * at the end - marked as the last block. If more events are written, the
@@ -3414,7 +3421,8 @@ int evclose_
 /**
  * This routine flushes any existing evio format data in an internal buffer
  * (written to with {@link evWrite}) to the final destination
- * file/socket/buffer opened with routine {@link evOpen}.
+ * file/socket/buffer opened with routine {@link evOpen}, {@link evOpenBuffer}, 
+ * or {@link evOpenSocket}.
  * It also frees up the handle so it cannot be used any more without calling
  * {@link evOpen} again.
  * Any data written is in evio version 4 format and any opened file is closed.
