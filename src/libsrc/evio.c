@@ -3432,13 +3432,13 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
     /* Lock mutex for multithreaded reads/writes/access */
     if (useMutex) mutexLock(a);
 
-    /* Are we splitting files? If so, is this event (together with the
-     * current buffer and current file) large enough to split the file? */
-    if (a->splitting) {
-        if (debug) printf("evWrite: splitting, file size = %lu (bytes), event bytes = %u, bytesToBuf = %u, split = %lu\n",
+    if (debug && a->splitting) {
+        printf("evWrite: splitting, file size = %lu (bytes), event bytes = %u, bytesToBuf = %u, split = %lu\n",
                a->fileSize, (4*nToWrite), a->bytesToBuf, a->split );
     }
     
+    /* Are we splitting files? If so, is this event (together with the
+     * current buffer and current file) large enough to split the file? */
     if (a->splitting && (a->fileSize + 4*nToWrite + a->bytesToBuf > a->split)) {
          /* If so, write out the current buffer (if any) and prepare
           * for a new file (split) to hold the current event.
