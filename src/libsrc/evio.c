@@ -3629,7 +3629,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
         
     /* If we're writing over the last empty block header for the
      * first time (first write after opening file), increment block #,
-     * clear last block bit, and add another (ending) header to size. */
+     * clear last block bit */
     if (isLastBlock(a->currentHeader)) {
         if (debug) printf("evWrite: IS LAST BLOCK, bytesToBuf = %u\n", a->bytesToBuf);
         clearLastBlockBit(a->currentHeader);
@@ -3640,7 +3640,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
                        a->blksiz, a->blkEvCount);
 
     /* (Re)Write the last block header so in case
-     * of catastrophe, the file/buf is still good.
+     * of catastrophe, the file is still good.
      * Ignore return value since we'll always have buffer room. */
     writeEmptyLastBlockHeader(a, a->blknum);
 
