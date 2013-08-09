@@ -60,6 +60,9 @@
 #define EVIO_SWAP16(x) ( (((x) >> 8) & 0x00FF) | \
                          (((x) << 8) & 0xFF00) )
 
+#include <stdio.h>
+#include <pthread.h>
+
 #ifdef sun
 #include <sys/param.h>
 #else
@@ -77,6 +80,100 @@
 #define strcasecmp _stricmp
 #define strncasecmp strnicmp
 #endif
+
+
+/**
+ * This structure contains information about file
+ * opened for either reading or writing.
+ */
+typedef struct evfilestruct {
+
+  FILE    *file;         /**< pointer to file. */
+  int      handle;       /**< handle used to access this structure. */
+  int      rw;           /**< are we reading, writing, piping? */
+  int      magic;        /**< magic number. */
+  int      byte_swapped; /**< bytes do NOT need swapping = 0 else 1 */
+  int      version;      /**< evio version number. */
+  int      append;       /**< open buffer or file for writing in append mode. */
+  uint32_t eventCount;   /**< current number of events in (or written to) file/buffer
+                          * NOT including dictionary. If the file being written to is split,
+                          * this value refers to all split files taken together. */
+
+  /* block stuff */
+  uint32_t *buf;           /**< For files, sockets, and reading buffers = pointer to
+                            *   buffer of block-being-read / blocks-being-written.
+                            *   When writing to file/socket/pipe, this buffer may
+                            *   contain multiple blocks.
+                            *   When writing to buffer, this points to block header
+                            *   in block currently being written to (no separate
+                            *   block buffer exists). */
+  uint32_t  *next;         /**< pointer to next word in block to be read/written. */
+  uint32_t  left;          /**< # of valid 32 bit unread/unwritten words in block. */
+  uint32_t  blksiz;        /**< size of block in 32 bit words - v3 or
+                            *   size of actual data in block (including header) - v4. */
+  uint32_t  blknum;        /**< block number of block being read/written (block #s start at 1). */
+  int       blkNumDiff;    /**< When reading, the difference between blknum read in and
+                            *   the expected (sequential) value. Used in debug message. */
+  uint32_t  blkSizeTarget; /**< target size of block in 32 bit words (including block header). */
+  uint32_t  blkEvCount;    /**< number of events written to block so far. */
+  uint32_t  bufSize;       /**< When reading, size of block buffer (buf) in 32 bit words.
+                            *   When writing file/sock/pipe, size of buffer being written to
+                            *   that is actually being used (must be <= bufRealSize). */
+  uint32_t  bufRealSize;   /**< When writing file/sock/pipe, total size of buffer being written to.
+                            *   Amount of memory actually allocated in 32 bit words (not all may
+                            *   be used). */
+  uint32_t  blkEvMax;      /**< max number of events per block. */
+  int       isLastBlock;   /**< 1 if buf contains last block of file/sock/buf, else 0. */
+
+
+  /* file stuff: splitting, auto naming, internal buffer */
+  char     *baseFileName;   /**< base name of file to be written to. */
+  char     *fileName;       /**< actual name of file to be written to. */
+  char     *runType;        /**< run type used in auto naming of split files. */
+  int       specifierCount; /**< number of C printing int format specifiers in file name (0, 1, 2). */
+  int       splitting;      /**< 0 if not splitting file, else non-zero. */
+  uint32_t *currentHeader;  /**< When writing to file/socket/pipe, this points to
+                             *   current block header of block being written. */
+  uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including ending empty block. */
+  uint32_t  eventsToBuf;    /**< # events written to internal buffer. */
+  uint64_t  bytesToFile;    /**< # bytes flushed to the current file (including ending empty block),
+                             *   not the total in all split files. */
+  uint32_t  runNumber;      /**< run # used in auto naming of split files. */
+  uint32_t  splitNumber;    /**< number of next split file (used in auto naming). */
+  uint64_t  split;          /**< # of bytes at which to split file when writing
+                             *  (defaults to EV_SPLIT_SIZE, 1GB). */
+  uint64_t  fileSize;       /**< size of file being written to, in bytes. */
+
+
+  /* buffer stuff */
+  char     *rwBuf;         /**< pointer to buffer if reading/writing from/to buffer. */
+  uint32_t  rwBufSize;     /**< size of rwBuf buffer in bytes. */
+  uint32_t  rwBytesOut;    /**< number of bytes written to rwBuf with evWrite. */
+  uint32_t  rwBytesIn;     /**< number of bytes read from rwBuf so far
+                            *   (i.e. # bytes in buffer already used).*/
+  int       rwFirstWrite;  /**< 1 if this evWrite is the first for this rwBuf, else 0.
+                            *   Needed for calculating accurate value for rwBytesOut. */
+
+  /* socket stuff */
+  int   sockFd;          /**< socket file descriptor if reading/writing from/to socket. */
+
+  /* randomAcess stuff */
+  int        randomAccess; /**< if true, use random access file/buffer reading. */
+  size_t     mmapFileSize; /**< size of mapped file in bytes. */
+  uint32_t  *mmapFile;     /**< pointer to memory mapped file. */
+  uint32_t  **pTable;      /**< array of pointers to events in memory mapped file or buffer. */
+
+  /* dictionary */
+  int   wroteDictionary;   /**< dictionary already written out. */
+  char *dictionary;        /**< xml format dictionary to either read or write. */
+
+  /* synchronization */
+  int   lockOff;          /**< is locking for multithreaded reads & writes turned off? */
+  pthread_mutex_t lock;   /**< lock for multithreaded reads & writes. */
+
+} EVFILE;
+
+
 
 /* prototypes */
 #ifdef __cplusplus
@@ -108,6 +205,12 @@ int evIsContainer(int type);
 const char *evGetTypename(int type);
 char *evPerror(int error);
 
+char *evStrReplace(char *orig, const char *replace, const char *with);
+char *evStrReplaceEnvVar(const char *orig);
+char *evStrReplaceSpecifier(const char *orig, int *specifierCount);
+int   evGenerateBaseFileName(char *origName, char **baseName, int *count);
+char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
+                         int split, int splitNumber, char *runType);
 
 #ifdef __cplusplus
 }
