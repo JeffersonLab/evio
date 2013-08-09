@@ -7,6 +7,7 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "evio.h"
 
 #define MAXBUFLEN  4096
@@ -25,18 +26,20 @@ int main (int argc, char **argv)
     char *replace = "X";
     char *with = "$(BLAH)";
     
-    char *tmp, *result = evStrReplace(orig, replace, with);
+    char *baseName, *tmp, *result = evStrReplace(orig, replace, with);
     
     if (argc > 1) orig = argv[1];
     
     printf("String = %s\n", orig);
     printf("OUT    = %s\n", result);
 
+    /* Replace environmental variables */
     tmp = evStrReplaceEnvVar(result);
     printf("ENV    = %s\n", tmp);
     free(tmp);
     free(result);
-    
+
+    /* Fix specifiers and fix 'em */
     result = evStrReplaceSpecifier(orig, &specifierCount);
     if (result == NULL) {
         printf("error in evStrReplaceSpecifier routine\n");
@@ -54,18 +57,27 @@ int main (int argc, char **argv)
     
     a = (EVFILE *) tmp;
     
-    printf("opened file = %s\n", a->filename);
+    printf("opened file = %s\n", a->baseFileName);
    
     
-    err = evGenerateBaseFileName(handle, "runType", &specifierCount);
+    err = evGenerateBaseFileName(a->baseFileName, &baseName, &specifierCount);
     if (err != S_SUCCESS) {
         printf("Error in evGenerateBaseFileName(), err = %x\n", err);
         exit(0);
     }
 
-    printf("BASE   = %s, count = %d\n", a->filename, specifierCount);
+    free(a->baseFileName);
+    a->baseFileName   = baseName;
+    a->specifierCount = specifierCount;
+    a->runNumber = 7;
+    a->split = 100;
+    a->splitNumber = 666;
+    a->runType = "runType";
+
+    printf("BASE   = %s, count = %d\n", baseName, specifierCount);
     
-    result = evGenerateFileName(handle, specifierCount, 7, 0, 666);
+    result = evGenerateFileName(a, a->specifierCount, a->runNumber,
+                                a->split, a->splitNumber, a->runType);
     if (result == NULL) {
         printf("Error in evGenerateFileName()\n");
         exit(0);
