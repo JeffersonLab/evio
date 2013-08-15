@@ -64,6 +64,7 @@ evioETChannel::evioETChannel(et_sys_id et_system_id, et_att_id et_attach_id, con
  * @param et_attach_id ET station id
  * @param dict Dictionary
  * @param m I/O mode, "r" or "rw" or "w"
+ * @param chunk How many ET buffers to fetch at one go
  */
 evioETChannel::evioETChannel(et_sys_id et_system_id, et_att_id et_attach_id, evioDictionary *dict, 
                              const string &m, int chunk, int etmode) throw(evioException) 
