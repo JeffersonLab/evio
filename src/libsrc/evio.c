@@ -2822,7 +2822,7 @@ int evWrite(int handle, const uint32_t *buffer)
 static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
 {
     EVFILE   *a;
-    int       status;
+    int       status, count = 0;
     uint32_t  nToWrite;
 
     if (buffer == NULL) {
@@ -2871,12 +2871,18 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
         a->rwBytesOut += 4*EV_HDSIZ;
         a->rwEndFlush = 0;
     }
-
+    
     /* If adding this event to existing data would put us over the target block size ... */
     while (nToWrite + a->blksiz > a->blkSizeTarget) {
+/*
+printf("evWrite, in while: nToWrite = %u, n2Wr + blksiz = %u, target size = %u\n",
+nToWrite, nToWrite + a->blksiz, a->blkSizeTarget);
 
+printf("    blkCount = %u, n2Wr ?> bufSize-header (%u)\n",
+a->blkEvCount, a->bufSize - EV_HDSIZ);
+*/
         /* Have a single large event to write which is bigger than the target
-        * block size & larger than the block buffer - need larger buffer */
+         * block size & larger than the block buffer - need larger buffer */
         if (a->blkEvCount < 1 && (nToWrite > a->bufSize - EV_HDSIZ)) {
 
             /* Keep old buffer around for a bit */
@@ -2908,7 +2914,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
             break;
         }
         /* Write what we already have and try again with a new, empty block */
-        else {
+        else if (a->blkEvCount > 0) {
             status = evFlush(a, 0);
             if (status != S_SUCCESS) {
                 if (useMutex) {
@@ -2918,10 +2924,13 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
                 return(status);
             }
             a->rwBytesOut += 4*EV_HDSIZ;
-            /*printf("evWrite: did flush, add header\n");*/
+            /* printf("evWrite: did flush, see if we have room now\n"); */
+            continue;
         }
-    }
-    
+        
+        break;
+   }
+   
     /* Store number of events written, but do NOT include dictionary */
     if (!hasDictionary(a) || a->wroteDictionary > 0) {
         a->blkEvCount++;
@@ -2969,6 +2978,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
         mutexUnlock(a);
         handleReadUnlock();
     }
+/*printf("evWrite: END\n");*/
 
     return(S_SUCCESS);
 }
