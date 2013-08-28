@@ -41,9 +41,8 @@
 static int  tcp_listen(unsigned short port, int size);
 static int  Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
 static int32_t *makeEvent();
-static int32_t *makeEvent2();
 
-char *dictionary =
+static char *dictionary2 =
 "<xmlDict>\n"
 "  <xmldumpDictEntry name=\"Tag1-Num1\"   tag=\"1\"   num=\"1\"/>\n"
 "  <xmldumpDictEntry name=\"Tag2-Num2\"   tag=\"2\"   num=\"2\"/>\n"
@@ -54,6 +53,11 @@ char *dictionary =
 "  <xmldumpDictEntry name=\"Tag7-Num7\"   tag=\"7\"   num=\"7\"/>\n"
 "  <xmldumpDictEntry name=\"Tag8-Num8\"   tag=\"8\"   num=\"8\"/>\n"
 "</xmlDict>\n";
+
+static char *dictionary =
+        "<xmlDict>\n"
+        "  <dictEntry name=\"TAG1_NUM1\" tag=\"1\" num=\"1\"/>\n"
+        "</xmlDict>\n";
 
 
 static int     noDelay    = 1;
@@ -92,10 +96,10 @@ printf("Receiver thread: accepting\n");
     
 printf("Receiver thread: got client ... \n");
     status = evOpenSocket(recvFd, "r", &handle);
-printf ("    Opened socket, status = %#x\n", status);
+printf ("Receiver thread: Opened socket, status = %#x\n", status);
 
      status = evGetDictionary(handle, &dict, &dictLen);
-     printf ("    get dictionary, status = %#x\n\n", status);
+printf ("Receiver thread: get dictionary, status = %#x\n\n", status);
 
      if (dictionary != NULL) {
          printf("DICTIONARY =\n%s\n", dict);
@@ -104,10 +108,17 @@ printf ("    Opened socket, status = %#x\n", status);
 
      nevents = 0;
     
-     while ((status = evRead(handle, buffer, 2048)) == S_SUCCESS) {
+     while (1) {
+
+//printf("Receiver thread: Waiting on evRead\n");
+         if ((status = evRead(handle, buffer, 2048)) != S_SUCCESS) {
+             printf("Receiver thread: Done reading\n");
+             break;
+         }
+         
          nevents++;
         
-         printf("    Event #%d,  len = %d data words\n", nevents, buffer[0] - 1);
+         printf("Receiver thread: Read event #%d,  len = %d data words\n", nevents, buffer[0] - 1);
 
          ip = buffer;
          nwords = buffer[0] + 1;
@@ -128,46 +139,13 @@ printf ("    Opened socket, status = %#x\n", status);
          printf("\n");
      }
     
-    status = evClose(handle);
-printf ("    Closed socket, status = %#x\n\n", status);
-
-
-printf ("    Will reopen socket for reading\n");
-    status = evOpenSocket(recvFd, "r", &handle);
-printf ("    Opened socket, status = %#x\n", status);
-
-    nevents = 0;
-    
-    while ((status = evRead(handle, buffer, 2048)) == S_SUCCESS) {
-        nevents++;
-        
-        printf("    Event #%d,  len = %d data words\n", nevents, buffer[0] - 1);
-
-        ip = buffer;
-        nwords = buffer[0] + 1;
-        
-        printf("      Header words\n");
-        printf("        %#10.8x\n", *ip++);
-        printf("        %#10.8x\n\n", *ip++);
-        printf("      Data words\n");
-   
-        nwords -= 2;
-        
-        for (; nwords > 0; nwords-=4) {
-            for (i = MIN(nwords,4); i > 0; i--) {
-                printf("        %#10.8x", *ip++);
-            }
-            printf("\n");
-        }
-        printf("\n");
-    }
-    
-printf("\n    Last read, status = %x\n", status);
+printf("\nReceiver thread: Last read, status = %x\n", status);
     if (status == EOF) {
-printf("    Last read, reached EOF!\n");
+        printf("Receiver thread: Last read, reached EOF!\n");
     }
     
-    evClose(handle);
+    status = evClose(handle);
+    printf ("Receiver thread: Closed socket, status = %#x\n\n", status);
 }
 
 
@@ -252,7 +230,7 @@ static int tcpWrite(int fd, const void *vptr, int n)
 }
 
 
-int main()
+int main2()
 {
     int i, handle, status, sendFd, maxEvBlk=2;
     int *ip, *pBuf;
@@ -330,12 +308,92 @@ int main()
     sleep(6);
 }
 
+/* Bank with bank of int (data ranges from 4 to 12 to 14 to 16 words */
 
-int main2()
+static uint32_t evBuf_8[] =
+{
+    0x00000007,
+    0x00011001,
+    0x00000005,
+    0x00020b02,
+    0x00000000,
+    0x00000001,
+    0x00000002,
+    0x00000003
+}; /* len = 8 words */
+
+static uint32_t evBuf_16[] =
+{
+    0x0000000f,
+    0x00011001,
+    0x0000000d,
+    0x00020b02,
+    0x00000000,
+    0x00000001,
+    0x00000002,
+    0x00000003,
+    0x00000004,
+    0x00000005,
+    0x00000006,
+    0x00000007,
+    0x00000008,
+    0x00000009,
+    0x0000000a,
+    0x0000000b
+};/* len = 16 words */
+
+static uint32_t evBuf_18[] =
+{
+    0x00000011,
+    0x00011001,
+    0x0000000f,
+    0x00020b02,
+    0x00000000,
+    0x00000001,
+    0x00000002,
+    0x00000003,
+    0x00000004,
+    0x00000005,
+    0x00000006,
+    0x00000007,
+    0x00000008,
+    0x00000009,
+    0x0000000a,
+    0x0000000b,
+    0x0000000c,
+    0x0000000d
+};/* len = 18 words */
+
+static uint32_t evBuf_20[] =
+{
+    0x00000013,
+    0x00011001,
+    0x00000011,
+    0x00020b02,
+    0x00000000,
+    0x00000001,
+    0x00000002,
+    0x00000003,
+    0x00000004,
+    0x00000005,
+    0x00000006,
+    0x00000007,
+    0x00000008,
+    0x00000009,
+    0x0000000a,
+    0x0000000b,
+    0x0000000c,
+    0x0000000d,
+    0x0000000e,
+    0x0000000f
+};/* len = 20 words */
+
+
+int main()
 {
     int i, handle, status, sendFd, maxEvBlk=2;
-    int *ip, *pBuf;
     pthread_t tid;
+    char stuff[128];
 
 
     printf("Try running Receiver thread\n");
@@ -343,89 +401,99 @@ int main2()
     /* run receiver thread */
     pthread_create(&tid, NULL, receiverThread, (void *) NULL);
 
+    printf("Sending thd: sleep for 2 seconds\n");
+    
     /* give it a chance to start */
     sleep(2);
 
     /* Create sending socket */
     sendFd = createSendFd();
 
-    printf("Sending socket fd = %d\n\n", sendFd);
+    printf("Sending thd: socket fd = %d\n\n", sendFd);
+
+    printf("\nSending thd: event I/O tests to socket (%d)\n", sendFd);
+    status = evOpenSocket(sendFd, "w", &handle);
+    
+    printf("Sending thd: sleep for 1 more seconds\n");
+    
+    /* give it a chance to start */
+    sleep(1);
+    
+    printf ("Sending thd: opened socket, status = %#x\n", status);
 
     
+    status = evIoctl(handle, "N", (void *) (&maxEvBlk));
+    printf ("Sending thd: changed max events/block to %d, status = %d\n", maxEvBlk, status);
+    
 
-    printf("\nEvent I/O tests to socket (%d)\n", sendFd);
-    status = evOpenSocket(sendFd, "w", &handle);
-    printf ("    Opened socket, status = %#x\n", status);
+    /* target block size = 8 header + 16 event words */
+    i = 40;
+    status = evIoctl(handle, "B", &i);
+    if (status == S_EVFILE_BADSIZEREQ) {
+        printf("Sending thd: bad value for target block size given\n");
+        exit(0);
+    }
+    else if (status != S_SUCCESS) {
+        printf("Sending thd: error setting target block size\n");
+        exit(0);
+    }
+    printf ("Sending thd: changed target block size to %d, status = %d\n", i, status);
 
+
+    /* buffer size = 2-8 headers + 16 event words or */
+    
+    i = 48;
+    status = evIoctl(handle, "W", &i);
+    if (status == S_EVFILE_BADSIZEREQ) {
+        printf("Sending thd: bad value for buffer size given\n");
+        exit(0);
+    }
+    else if (status != S_SUCCESS) {
+        printf("Sending thd: error setting buffer size\n");
+        exit(0);
+    }
+    printf ("Sending thd: changed buffer size to %d, status = %d\n", i, status);
+    
 
     status = evWriteDictionary(handle, dictionary);
-    printf ("    Write dictionary to socket, status = %#x\n\n", status);
+    printf ("Sending thd: write dictionary to socket, status = %d\n\n", status);
 
-    pBuf = ip = makeEvent();
-    
-    printf ("    Will write ** SINGLE ** event to buffer, status = %#x\n",status);
-    status = evWrite(handle, ip);
+//    printf ("Sending thd: will write ** MED (16 word) ** ev to socket, status = %d\n",status);
+//    status = evWrite(handle, evBuf_16);
+    for (i=0; i < 4; i++) {
+        printf("\nevtestSock: write little event %d ...\n", (i+1));
+        status = evWrite(handle, evBuf_8);
+        if (status != S_SUCCESS) {
+            printf("Error in evWrite(), status = %x\n", status);
+            exit(0);
+        }
+//        printf("\nEnter to continue\n");
+//        gets(stuff);
+    }
 
+//    printf ("Sending thd: will write ** LITTLE (8 word) ** ev to socket, status = %d\n",status);
+//    status = evWrite(handle, evBuf_8);
+
+    printf ("Sending thd: will write ** BIG (18 word) ** ev to socket, status = %d\n",status);
+    status = evWrite(handle, evBuf_18);
+
+    printf ("Sending thd: will write ** HUGE (20 word) ** ev to socket, status = %d\n",status);
+    status = evWrite(handle, evBuf_20);
+
+    printf ("Sending thd: Call close()\n");
     status = evClose(handle);
-    printf ("    \"Closed\" buffer, status = %#x\n\n", status);
-
-
-
-    ip = pBuf;
-    
-    status = evOpenSocket(sendFd, "w", &handle);
-    printf ("    Opened socket for multiple writes, status = %#x\n", status);
-
-    status = evIoctl(handle, "N", (void *) (&maxEvBlk));
-    printf ("    Changed max events/block to %d, status = %#x\n", maxEvBlk, status);
-    
-    printf ("    Will write 3 events to buffer\n");
-    evWrite(handle,ip);
-    evWrite(handle,ip);
-    evWrite(handle,ip);
-
-    status = evClose(handle);
-    printf ("    Closed send socket, status %#x\n\n", status);
-
-    free(pBuf);
+    printf ("Sending thd: closed send socket, status %#x, wait 2 seconds\n\n", status);
 
     /* Don't exit the program before the receiver thread can do its stuff. */
-    sleep(10);
+    sleep(2);
+
+    /* Close socket */
+    close(sendFd);
+
+    return(0);
 }
 
 
-static int32_t *makeEvent2()
-{
-    int32_t *bank, *segment;
-    short *word;
-
-
-    bank = (int *) calloc(1, 11*sizeof(int32_t));
-    bank[0] = 10;                    /* event length = 10 */
-    bank[1] = 1 << 16 | 0x20 << 8;   /* tag = 1, bank 1 contains segments */
-
-    segment = &(bank[2]);
-    segment[0] = 2 << 24 | 0xb << 16 | 2; /* tag = 2, seg 1 has 2 - 32 bit ints, len = 2 */
-    segment[1] = 0x1;
-    segment[2] = 0x2;
-        
-    segment += 3;
-        
-    segment[0] = 3 << 24 | 2 << 22 | 4 << 16 | 2; /* tag = 3, 2 bytes padding, seg 2 has 3 shorts, len = 2 */
-    word = (short *) &(segment[1]);
-    word[0] = 0x3;
-    word[1] = 0x4;
-    word[2] = 0x5;
-
-    segment += 3;
-
-    /* HI HO - 2 strings */
-    segment[0] =    4 << 24 | 0x3 << 16 | 2; /* tag = 4, seg 3 has 2 strings, len = 2 */
-    segment[1] = 0x48 << 24 | 0 << 16   | 0x49 << 8 | 0x48 ;   /* H \0 I H */
-    segment[2] =   4  << 24 | 4 << 16   | 0 << 8    | 0x4F ;   /* \4 \4 \0 O */
-
-    return(bank);
-}
 
 static int32_t *makeEvent()
 {
