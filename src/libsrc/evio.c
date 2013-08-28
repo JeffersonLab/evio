@@ -3725,7 +3725,6 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
     int status, debug=0, headerBytes = 4*EV_HDSIZ, splittingFile=0;
     int originalSplitNumber;
     int doFlush = 0;
-    int flushBigEvent = 0;
     int roomInBuffer = 1;
     int needBiggerBuffer = 0;
     int writeNewBlockHeader = 1;
