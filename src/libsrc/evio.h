@@ -94,9 +94,9 @@ typedef struct evfilestruct {
   int      magic;        /**< magic number. */
   int      byte_swapped; /**< bytes do NOT need swapping = 0 else 1 */
   int      version;      /**< evio version number. */
-  int      append;       /**< open buffer or file for writing in append mode. */
+  int      append;       /**< open buffer or file for writing in append mode = 1, else 0. */
   uint32_t eventCount;   /**< current number of events in (or written to) file/buffer
-                          * NOT including dictionary. If the file being written to is split,
+                          * NOT including dictionary(ies). If the file being written to is split,
                           * this value refers to all split files taken together. */
 
   /* block stuff */
@@ -131,13 +131,16 @@ typedef struct evfilestruct {
   char     *fileName;       /**< actual name of file to be written to. */
   char     *runType;        /**< run type used in auto naming of split files. */
   int       specifierCount; /**< number of C printing int format specifiers in file name (0, 1, 2). */
-  int       splitting;      /**< 0 if not splitting file, else non-zero. */
+  int       splitting;      /**< 0 if not splitting file, else 1. */
   uint32_t *currentHeader;  /**< When writing to file/socket/pipe, this points to
                              *   current block header of block being written. */
-  uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including ending empty block. */
-  uint32_t  eventsToBuf;    /**< # events written to internal buffer. */
-  uint64_t  bytesToFile;    /**< # bytes flushed to the current file (including ending empty block),
-                             *   not the total in all split files. */
+  uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including ending empty block & dict. */
+  uint32_t  eventsToBuf;    /**< # events written to internal buffer including dictionary. */
+  uint32_t  eventsToFile;   /**< # of events written to file including dictionary.
+                             * If the file is being split, this value refers to the file
+                             * currently being written to. */
+  uint64_t  bytesToFile;    /**< # bytes flushed to the current file (including ending
+                             *   empty block & dictionary), not the total in all split files. */
   uint32_t  runNumber;      /**< run # used in auto naming of split files. */
   uint32_t  splitNumber;    /**< number of next split file (used in auto naming). */
   uint64_t  split;          /**< # of bytes at which to split file when writing
@@ -155,7 +158,7 @@ typedef struct evfilestruct {
                             *   Needed for calculating accurate value for rwBytesOut. */
 
   /* socket stuff */
-  int   sockFd;          /**< socket file descriptor if reading/writing from/to socket. */
+  int   sockFd;            /**< socket file descriptor if reading/writing from/to socket. */
 
   /* randomAcess stuff */
   int        randomAccess; /**< if true, use random access file/buffer reading. */
@@ -164,7 +167,9 @@ typedef struct evfilestruct {
   uint32_t  **pTable;      /**< array of pointers to events in memory mapped file or buffer. */
 
   /* dictionary */
-  int   wroteDictionary;   /**< dictionary already written out. */
+  int   wroteDictionary;   /**< dictionary already written out to a single (split fragment) file? */
+  uint32_t dictLength;     /**< length of dictionary bank in bytes. */
+  uint32_t *dictBuf;       /**< buffer containing dictionary bank. */
   char *dictionary;        /**< xml format dictionary to either read or write. */
 
   /* synchronization */
