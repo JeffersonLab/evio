@@ -3689,7 +3689,7 @@ static void resetBuffer(EVFILE *a) {
     /* No events in block yet */
     a->blkEvCount = 0;
     
-    /* Reset buffer values so for reuse */
+    /* Reset buffer values for reuse */
     a->bytesToBuf  = 4*EV_HDSIZ; /* First block header */
     a->eventsToBuf = 0;
 }
