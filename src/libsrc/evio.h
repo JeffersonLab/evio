@@ -1,10 +1,21 @@
-/*  evio.h
+/*-----------------------------------------------------------------------------
+ * Copyright (c) 2013 Jefferson Science Associates,
+ *                    Thomas Jefferson National Accelerator Faciltiy,
  *
- * based on evfile_msg.h from SAW
+ * This software was developed under a United States Government license
+ * described in the NOTICE file included as part of this distribution.
  *
- *  E.Wolin, 19-jun-2001
+ * JLAB Data Acquisition Group, 12000 Jefferson Ave., Newport News, VA 23606
+ * Email: timmmer@jlab.org  Tel: (757) 269-5130
+ *-----------------------------------------------------------------------------
+ * 
+ * Description:
+ *  Event I/O test program
+ *  
+ * Author:  Elliott Wolin, June 2001
+ *          Carl Timmer 2013, JLAB Data Acquisition Group
+ *
  */
-
 
 
 #ifndef __EVIO_h__
