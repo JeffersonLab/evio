@@ -540,11 +540,13 @@ static void mutexUnlock(EVFILE *a)
  */
 static void getHandleLock(void)
 {
+#ifndef VXWORKS
     int status;
     status = pthread_mutex_lock(&getHandleMutex);
     if (status != 0) {
         evio_err_abort(status, "Failed get handle lock");
     }
+#endif
 }
 
 
@@ -554,11 +556,13 @@ static void getHandleLock(void)
  */
 static void getHandleUnlock(void)
 {
+#ifndef VXWORKS
     int status;
     status = pthread_mutex_unlock(&getHandleMutex);
     if (status != 0) {
         evio_err_abort(status, "Failed get handle unlock");
     }
+#endif
 }
 
 
