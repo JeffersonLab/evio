@@ -293,9 +293,11 @@
 #define isLastBlock(a)          (((a)[EV_HD_VER] & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
 #define isLastBlockInt(i)       ((i & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
 /** Increment stuff in block header */
+/*
 #define incrementEventCount(a)     ((a)[EV_HD_COUNT]++)
-#define incrementBlockCount(a)     ((a[)EV_HD_BLKNUM]++)
+#define incrementBlockCount(a)     ((a)[EV_HD_BLKNUM]++)
 #define incrementBlockLength(a,l)  ((a)[EV_HD_BLKSIZ] += l)
+*/
 
 /** Initialize a block header */
 #define initBlockHeader(a) { \
@@ -3723,7 +3725,6 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
     EVFILE   *a;
     uint32_t nToWrite, size;
     int status, debug=0, headerBytes = 4*EV_HDSIZ, splittingFile=0;
-    int originalSplitNumber;
     int doFlush = 0;
     int roomInBuffer = 1;
     int needBiggerBuffer = 0;
@@ -3785,10 +3786,6 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
         }
         return (status);
     }
-
-    /* Store this to determine if we need to write
-     * another dictionary at top of split file */
-    originalSplitNumber = a->splitNumber;
     
     if (debug && a->splitting) {
 printf("evWrite: splitting, bytesToFile = %lu (bytes), event bytes = %u, bytesToBuf = %u, split = %lu\n",
@@ -4329,13 +4326,15 @@ static int evWriteBuffer(EVFILE *a, const uint32_t *buffer, int useMutex)
     a->next   += nToWrite;
     a->left   -= nToWrite;
     a->blksiz += nToWrite;
-    a->rwBytesOut  += 4*nToWrite;
+    a->rwBytesOut += 4*nToWrite;
 
     /* One more event in block - update block header */
-    incrementEventCount(a->buf);
-
+    /*incrementEventCount(a->buf);*/
+    a->buf[EV_HD_COUNT] = a->blkEvCount;
+    
     /* Block is bigger now - update block header */
-    incrementBlockLength(a->buf, nToWrite);
+    /*incrementBlockLength(a->buf, nToWrite); */
+    a->buf[EV_HD_BLKSIZ] = a->blksiz;
 
     /* Append empty block header after event */
     initLastBlockHeader(a->next, a->blknum);
