@@ -149,12 +149,25 @@ int main (int argc, char **argv)
 
 
     /* 1 event per block max */
-    arg = 2;
+    arg = 5;
     evIoctl(handle, "N", &arg);
 
-    /* target block size = 8 header + 16 event words */
-    
-    arg = 40;
+     /*
+    int split = 4*24;
+    int blockSizeMax  = 16;
+    int blockCountMax = 10;
+    int bufferSize = 4*24; //4*48;
+
+
+    int split = 240;
+    int blockSizeMax  = 80/4 + 4*32/4; //= 16;
+    int blockCountMax = 10;
+    int bufferSize = 80 + 5*32; //= 4*24;
+
+     */
+
+    /* target block size words */
+    arg = 80/4 + 4*32/4;
     err = evIoctl(handle, "B", &arg);
     if (err == S_EVFILE_BADSIZEREQ) {
         printf("splitTest: bad value for target block size given\n");
@@ -165,10 +178,8 @@ int main (int argc, char **argv)
         exit(0);
     }
     
-    
-    /* buffer size = 2-8 headers + 16 event words or */
-    
-    arg = 48;
+    /* buffer size words */
+    arg = 80/4 + 5*32/4;
     /*arg = 1000000;*/
     err = evIoctl(handle, "W", &arg);
     if (err == S_EVFILE_BADSIZEREQ) {
@@ -182,7 +193,7 @@ int main (int argc, char **argv)
     
     
     /* split at x bytes */
-    split = 224L;
+    split = 240;
     /*split = 4000032L;*/
     err = evIoctl(handle, "S", &split);
     if (err == S_EVFILE_BADSIZEREQ) {
@@ -194,14 +205,14 @@ int main (int argc, char **argv)
         exit(0);
     }
 
-    /*
+    
     printf("\nsplitTest: write dictionary ...\n");
     err = evWriteDictionary(handle, xmlDictionary2);
     printf ("splitTest: write dictionary, err = %x\n\n", err);
-    */
+    
 
     printf("\nsplitTest: write 8-word events ...\n");
-    for (i=0; i < 10; i++) {
+    for (i=0; i < 3; i++) {
         printf("\nsplitTest: write little event %d ...\n", (i+1));
         err = evWrite(handle, eventBuffer1);
         if (err != S_SUCCESS) {
@@ -213,7 +224,7 @@ int main (int argc, char **argv)
 //        gets(stuff);
     }
 
-
+    /*
     printf("\nsplitTest: write 1 REALLY big event ...\n");
     err = evWrite(handle, eventBuffer5);
     if (err != S_SUCCESS) {
@@ -221,16 +232,10 @@ int main (int argc, char **argv)
         printf("\nEnter to continue\n");
         exit(0);
     }
+    */
 
 //    printf("\nEnter to continue\n");
 //    gets(stuff);
-
-        printf("\nsplitTest: write little event %d ...\n", (i+1));
-        err = evWrite(handle, eventBuffer1);
-        if (err != S_SUCCESS) {
-            printf("Error in evWrite(), err = %x\n", err);
-            exit(0);
-        }
 
 
 
