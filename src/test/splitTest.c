@@ -10,9 +10,6 @@
 #include <string.h>
 #include "evio.h"
 
-extern int evOpenFake(char *filename, char *flags, int *handle, char **evf);
-
-
 
 static uint32_t eventBuffer1[] =
 {
@@ -93,9 +90,8 @@ static uint32_t eventBuffer3[] =
 };/* len = 16 words */
 
 
-//char *filename = "/daqfs/home/timmer/coda/evio-4.1/myFile000000";
-//char *filename = "/daqfs/home/timmer/coda/evio-4.1/myFile";
-static char *filename = "/daqfs/home/timmer/coda/evio-4.1/my$(FILE_ENV)run_%d_.dat_%4d";
+static char *filename  = "/daqfs/home/timmer/coda/evio-4.1/my$(FILE_ENV)run_%d_.dat_%4d";
+static char *filename2 = "/daqfs/home/timmer/coda/evio-4.1/myFile";
 
 
 /* xml dictionary */
@@ -123,6 +119,231 @@ static void printI(int i) {
 }
 
 int main (int argc, char **argv)
+{
+    int i, err, handle, arg;
+    int evCount = 5;
+    uint32_t bufLen = 60, buffer[60];
+
+    /* open file for writing & create a buffer */
+    /*
+    err = evOpenBuffer(buffer, bufLen, "w", &handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evOpen(), err = %x\n", err);
+        exit(0);
+    }
+    */
+    /* open file for splitting */
+    err = evOpen(filename2, "w", &handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evOpen(), err = %x\n", err);
+        exit(0);
+    }
+
+    /* events per block max */
+    arg = 5;
+    evIoctl(handle, "N", &arg);
+
+     /*
+    int blockSizeMax  = 80/4 + 4*32/4;
+    int bufferSize = 4*60;
+     */
+
+    /* target block size words */
+    arg = 80/4 + 4*32/4;
+    err = evIoctl(handle, "B", &arg);
+    if (err == S_EVFILE_BADSIZEREQ) {
+        printf("splitTest: bad value for target block size given\n");
+        exit(0);
+    }
+    else if (err != S_SUCCESS) {
+        printf("splitTest: error setting target block size\n");
+        exit(0);
+    }
+        
+    printf("\nsplitTest: write dictionary ...\n");
+    err = evWriteDictionary(handle, xmlDictionary2);
+    printf ("splitTest: write dictionary, err = %x\n\n", err);
+    
+    printf("\nsplitTest: write little event ...\n");
+    err = evWrite(handle, eventBuffer1);
+    if (err != S_SUCCESS) {
+        printf("Error in evWrite(), err = %x\n", err);
+        exit(0);
+    }
+
+    printf("\nsplitTest: close() ...\n");
+    err = evClose(handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evClose(), err = %x\n", err);
+    }
+
+  //  evPrintBuffer(buffer, 44, 0);
+
+    
+    printf("\nsplitTest: open for appending ...\n");
+    /* open file for writing & create a buffer */
+    /*
+    err = evOpenBuffer(buffer, bufLen, "a", &handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evOpen(), err = %x\n", err);
+        exit(0);
+    }
+    */
+    
+    err = evOpen(filename2, "a", &handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evOpen(), err = %x\n", err);
+        exit(0);
+    }
+
+    /* events per block max */
+    printf("\nsplitTest: set events/blk ...\n");
+    arg = 5;
+    evIoctl(handle, "N", &arg);
+
+     /*
+    int blockSizeMax  = 80/4 + 4*32/4;
+    int bufferSize = 4*60;
+     */
+
+    /* target block size words */
+    printf("\nsplitTest: set block size ...\n");
+    arg = 80/4 + 5*32/4;
+    err = evIoctl(handle, "B", &arg);
+    if (err == S_EVFILE_BADSIZEREQ) {
+        printf("splitTest: bad value for target block size given\n");
+        exit(0);
+    }
+    else if (err != S_SUCCESS) {
+        printf("splitTest: error setting target block size\n");
+        exit(0);
+    }
+
+    /* buffer size words */
+    arg = 80/4 + 6*32/4;
+    /*arg = 1000000;*/
+    err = evIoctl(handle, "W", &arg);
+    if (err == S_EVFILE_BADSIZEREQ) {
+        printf("splitTest: bad value for buffer size given\n");
+        exit(0);
+    }
+    else if (err != S_SUCCESS) {
+        printf("splitTest: error setting buffer size\n");
+        exit(0);
+    }
+
+    printf("\nsplitTest: write little event ...\n");
+    err = evWrite(handle, eventBuffer1);
+    if (err != S_SUCCESS) {
+        printf("Error in evWrite(), err = %x\n", err);
+        exit(0);
+    }
+
+    printf("\nsplitTest: close() ...\n");
+    err = evClose(handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evClose(), err = %x\n", err);
+    }
+
+  //  evPrintBuffer(buffer, 60, 0);
+    
+    exit(0);
+}
+
+
+int mainBuffer (int argc, char **argv)
+{
+    int i, err, handle, arg;
+    int evCount = 5;
+    uint64_t split;
+    uint32_t bufLen = 60, buffer[60];
+
+    /* open file for writing */
+    err = evOpenBuffer(buffer, bufLen, "w", &handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evOpen(), err = %x\n", err);
+        exit(0);
+    }
+
+
+    /* events per block max */
+    arg = 5;
+    evIoctl(handle, "N", &arg);
+
+     /*
+    int blockSizeMax  = 80/4 + 4*32/4;
+    int bufferSize = 4*60;
+     */
+
+    /* target block size words */
+    arg = 80/4 + 4*32/4;
+    err = evIoctl(handle, "B", &arg);
+    if (err == S_EVFILE_BADSIZEREQ) {
+        printf("splitTest: bad value for target block size given\n");
+        exit(0);
+    }
+    else if (err != S_SUCCESS) {
+        printf("splitTest: error setting target block size\n");
+        exit(0);
+    }
+        
+      
+    /* buffer size words */
+    arg = 80/4 + 5*32/4;
+    /*arg = 1000000;*/
+    err = evIoctl(handle, "W", &arg);
+    if (err == S_EVFILE_BADSIZEREQ) {
+        printf("splitTest: bad value for buffer size given\n");
+        exit(0);
+    }
+    else if (err != S_SUCCESS) {
+        printf("splitTest: error setting buffer size\n");
+        exit(0);
+    }
+    
+    
+    /* split at x bytes */
+    split = 240;
+    /*split = 4000032L;*/
+    err = evIoctl(handle, "S", &split);
+    if (err == S_EVFILE_BADSIZEREQ) {
+        printf("splitTest: bad value for split size given\n");
+        exit(0);
+    }
+    else if (err != S_SUCCESS) {
+        printf("splitTest: error setting split size\n");
+        exit(0);
+    }
+
+    printf("\nsplitTest: write dictionary ...\n");
+    err = evWriteDictionary(handle, xmlDictionary2);
+    printf ("splitTest: write dictionary, err = %x\n\n", err);
+    
+
+    printf("\nsplitTest: write 8-word events ...\n");
+    for (i=0; i < 3; i++) {
+        printf("\nsplitTest: write little event %d ...\n", (i+1));
+        err = evWrite(handle, eventBuffer1);
+        if (err != S_SUCCESS) {
+            printf("Error in evWrite(), err = %x\n", err);
+            exit(0);
+        }
+    }
+
+    printf("\nsplitTest: close() ...\n");
+    err = evClose(handle);
+    if (err != S_SUCCESS) {
+        printf("Error in evClose(), err = %x\n", err);
+    }
+
+    evPrintBuffer(buffer, 60, 0);
+    
+    exit(0);
+}
+
+
+
+int mainFile (int argc, char **argv)
 {
     int i, err, handle, arg;
     int evCount = 5;
@@ -228,10 +449,10 @@ int main (int argc, char **argv)
     printf("\nsplitTest: write 1 REALLY big event ...\n");
     err = evWrite(handle, eventBuffer5);
     if (err != S_SUCCESS) {
-        printf("Error in evWrite(), err = %x\n", err);
-        printf("\nEnter to continue\n");
-        exit(0);
-    }
+    printf("Error in evWrite(), err = %x\n", err);
+    printf("\nEnter to continue\n");
+    exit(0);
+}
     */
 
 //    printf("\nEnter to continue\n");
@@ -242,14 +463,14 @@ int main (int argc, char **argv)
    /*
 
     for (i=0; i < evCount; i++) {
-printf("\nsplitTest: write little event %d ...\n", (i+1));
-        err = evWrite(handle, eventBuffer1);
-        if (err != S_SUCCESS) {
-            printf("Error in evWrite(), err = %x\n", err);
-            exit(0);
-        }
-    }
-    */
+    printf("\nsplitTest: write little event %d ...\n", (i+1));
+    err = evWrite(handle, eventBuffer1);
+    if (err != S_SUCCESS) {
+    printf("Error in evWrite(), err = %x\n", err);
+    exit(0);
+}
+}
+   */
 //     printf("\nsplitTest: write 1 big event ...\n");
 //     err = evWrite(handle, eventBuffer2);
 //     if (err != S_SUCCESS) {
@@ -265,3 +486,4 @@ printf("\nsplitTest: write little event %d ...\n", (i+1));
 
     exit(0);
 }
+
