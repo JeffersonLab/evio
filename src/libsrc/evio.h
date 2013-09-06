@@ -105,7 +105,8 @@ typedef struct evfilestruct {
   int      magic;        /**< magic number. */
   int      byte_swapped; /**< bytes do NOT need swapping = 0 else 1 */
   int      version;      /**< evio version number. */
-  int      append;       /**< open buffer or file for writing in append mode = 1, else 0. */
+  int      append;       /**< open buffer or file for writing in append mode = 1, else 0.
+                              If append = 2, then an event was already been appended. */
   uint32_t eventCount;   /**< current number of events in (or written to) file/buffer
                           * NOT including dictionary(ies). If the file being written to is split,
                           * this value refers to all split files taken together. */
@@ -184,7 +185,6 @@ typedef struct evfilestruct {
   char *dictionary;        /**< xml format dictionary to either read or write. */
 
   /* synchronization */
-  int   lockOff;          /**< is locking for multithreaded reads & writes turned off? */
   pthread_mutex_t lock;   /**< lock for multithreaded reads & writes. */
 
 } EVFILE;
@@ -220,6 +220,8 @@ int evWriteDictionary(int handle, char *xmlDictionary);
 int evIsContainer(int type);
 const char *evGetTypename(int type);
 char *evPerror(int error);
+
+void  evPrintBuffer(uint32_t *p, uint32_t len, int swap);
 
 char *evStrReplace(char *orig, const char *replace, const char *with);
 char *evStrReplaceEnvVar(const char *orig);
