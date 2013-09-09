@@ -1468,9 +1468,9 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
         
         useFile = 1;
         
-        if (strcasecmp(flags,  "a") == 0) append = 1;
-        if (strcasecmp(flags,  "s") == 0) splitting = 1;
-        if (strcasecmp(flags, "ra") == 0) randomAccess = 1;
+        if      (strcasecmp(flags,  "a") == 0) append = 1;
+        else if (strcasecmp(flags,  "s") == 0) splitting = 1;
+        else if (strcasecmp(flags, "ra") == 0) randomAccess = 1;
 
 #if defined VXWORKS || defined _MSC_VER
         /* No random access support in vxWorks or Windows */
@@ -1497,8 +1497,8 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
         
         useBuffer = 1;
         
-        if (strcasecmp(flags, "ab")  == 0) append = 1;
-        if (strcasecmp(flags, "rab") == 0) randomAccess = 1;
+        if      (strcasecmp(flags, "ab")  == 0) append = 1;
+        else if (strcasecmp(flags, "rab") == 0) randomAccess = 1;
 
         if (srcDest == NULL) {
             return(S_EVFILE_BADARG);
