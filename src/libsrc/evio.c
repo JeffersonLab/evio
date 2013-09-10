@@ -4521,32 +4521,33 @@ int evioctl_
  *
  * @param handle  evio handle
  * @param request case independent string value of:
- *                "B"  for setting target block size for writing in words;
- *                "W"  for setting writing buffer size in words;
- *                "N"  for setting max # of events/block;
- *                "S"  for setting file split size in bytes;
- *                "R"  for setting run number (used in file splitting);
- *                "T"  for setting run type   (used in file splitting);
+ * <OL type=1>
+ * <LI>  "B"  for setting target block size for writing in words
+ * <LI>  "W"  for setting writing (to file) internal buffer size in words
+ * <LI>  "N"  for setting max # of events/block
+ * <LI>  "R"  for setting run number (used in file splitting)
+ * <LI>  "T"  for setting run type   (used in file splitting)
+ * <LI>  "S"  for setting file split size in bytes
+ * <LI>  "V"  for getting evio version #
+ * <LI>  "H"  for getting 8 ints of block header info
+ * <LI>  "E"  for getting # of events in file/buffer
+ * </OL>
  *
- *                "V"  for getting evio version #;
- *                "H"  for getting EV_HDSIZ ints of block header info;
- *                "E"  for getting # of events in file/buffer;
- *
- * @param argp    pointer to 32 bit int:
- *                  1) containing new block size in 32-bit words if request = B, or
- *                  2) containing new buffer size in 32-bit words if request = W, or
- *                  3) containing new max number of events/block if request = N, or
- *                  4) containing run number if request = R, or
- *                  5) containing run type if request = T, or
- *                  6) returning version # if request = V, or
- *                  7) returning total # of original events in existing
- *                     file/buffer when reading or appending if request = E, or
- *                address of pointer to 32 bit int:
- *                  8) returning pointer to EV_HDSIZ uint32_t's of block header if request = H.
- *                     This pointer must be freed by caller since it points
- *                     to allocated memory, or
- *                pointer to <b>64</b> bit int:
- *                  9)containing size in bytes of when to split file
+ * @param argp
+ * <OL type=1>
+ * <LI> pointer to uin32_t containing new block size in 32-bit words if request = B, or
+ * <LI> pointer to uin32_t containing new buffer size in 32-bit words if request = W, or
+ * <LI> pointer to uin32_t containing new max # of events/block if request = N, or
+ * <LI> pointer to uin32_t containing run number if request = R, or
+ * <LI> pointer to character containing run type if request = T, or
+ * <LI> pointer to int32_t returning version # if request = V, or
+ * <LI> pointer to <b>uint64_t</b> containing max size in bytes of split file if request = S, or
+ * <LI> address of pointer to uint32_t returning pointer to 8
+ *              uint32_t's of block header if request = H. This pointer must be
+ *              freed by caller since it points to allocated memory
+ * <LI> pointer to uin32_t returning total # of original events in existing
+ *              file/buffer when reading or appending if request = E, or
+ * </OL>
  *
  * @return S_SUCCESS           if successful
  * @return S_FAILURE           if using sockets when request = E
@@ -4919,14 +4920,14 @@ if (debug) printf("evIoctl: split file at %lu (0x%x) bytes\n", splitSize, splitS
         case 'T':
             /* Need to specify run type */
             if (argp == NULL) {
-                handleWriteUnlock(handle);
-                return(S_EVFILE_BADARG);
+                runType = NULL;
             }
-            
-            runType = strdup((char *) argp);
-            if (runType == NULL) {
-                handleWriteUnlock(handle);
-                return(S_EVFILE_BADSIZEREQ);
+            else {
+                runType = strdup((char *) argp);
+                if (runType == NULL) {
+                    handleWriteUnlock(handle);
+                    return(S_EVFILE_BADSIZEREQ);
+                }
             }
             
             a->runType = runType;
@@ -4943,7 +4944,7 @@ if (debug) printf("evIoctl: split file at %lu (0x%x) bytes\n", splitSize, splitS
                 return(S_EVFILE_BADARG);
             }
 
-            err = getEventCount(a, (int32_t *) argp);
+            err = getEventCount(a, (uint32_t *) argp);
             if (err != S_SUCCESS) {
                 handleWriteUnlock(handle);
                 return(err);
