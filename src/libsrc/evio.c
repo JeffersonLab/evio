@@ -136,7 +136,11 @@
 #define EV_SPLIT_SIZE 1000000000L
 
 /**
- * Evio block header, also known as a physical record header.
+ * @file
+ * <pre>
+ * Let's take a look at an evio block header also
+ * known as a physical record header.
+ * 
  * In versions 1, 2 & 3, evio files impose an anachronistic
  * block structure. The complication that arises is that logical records
  * (events) will sometimes cross physical record boundaries.
@@ -220,7 +224,8 @@
  *      Magic #            = magic number (0xc0da0100) used to check endianness
  *
  *
- * Bit info (24 bits) has the following bits defined:
+ *   Bit info (24 bits) has the following bits defined:
+ * 
  *   Bit  9     = true if dictionary is included (relevant for first block only)
  *   Bit  10    = true if this block is the last block in file or network transmission
  *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
@@ -262,7 +267,7 @@
  *   The bank is a normal evio bank header with data following.
  *   The format string is used to read/write this data so that takes care of any
  *   padding that may exist. As with the tagsegment, the tags and type are ignored.
- * 
+ * </pre>
  */
 
 #define EV_HD_BLKSIZ 0	/**< Position of blk hdr word for size of block in 32-bit words. */
@@ -283,21 +288,18 @@
 #define clearDictionaryBit(a)   ((a)[EV_HD_VER] &= ~EV_DICTIONARY_MASK)
 /** Is there a dictionary in this block? */
 #define hasDictionary(a)        (((a)[EV_HD_VER] & EV_DICTIONARY_MASK) > 0 ? 1 : 0)
+/** Is there a dictionary in this block? */
 #define hasDictionaryInt(i)     ((i & EV_DICTIONARY_MASK) > 0 ? 1 : 0)
 /** Turn on 10th bit to indicate last block of file/transmission */
 #define setLastBlockBit(a)      ((a)[EV_HD_VER] |= EV_LASTBLOCK_MASK)
 /** Turn off 10th bit to indicate last block of file/transmission */
 #define clearLastBlockBit(a)    ((a)[EV_HD_VER] &= ~EV_LASTBLOCK_MASK)
+/** Turn off 10th bit to indicate last block of file/transmission */
 #define clearLastBlockBitInt(i) (i &= ~EV_LASTBLOCK_MASK)
 /** Is this the last block of file/transmission? */
 #define isLastBlock(a)          (((a)[EV_HD_VER] & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
+/** Is this the last block of file/transmission? */
 #define isLastBlockInt(i)       ((i & EV_LASTBLOCK_MASK) > 0 ? 1 : 0)
-/** Increment stuff in block header */
-/*
-#define incrementEventCount(a)     ((a)[EV_HD_COUNT]++)
-#define incrementBlockCount(a)     ((a)[EV_HD_BLKNUM]++)
-#define incrementBlockLength(a,l)  ((a)[EV_HD_BLKSIZ] += l)
-*/
 
 /** Initialize a block header */
 #define initBlockHeader(a) { \
@@ -1374,7 +1376,7 @@ int evOpenSocket(int sockFd, char *flags, int *handle)
     return(evOpenImpl((char *)NULL, 0, sockFd, flag, handle));
 }
 
-/* For test purposes only ... */
+/* For test purposes only ... 
 int evOpenFake(char *filename, char *flags, int *handle, char **evf)
 {
     EVFILE *a;
@@ -1398,7 +1400,7 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
     
     return(S_SUCCESS);
 }
-
+*/
     
 /**
  * This function opens a file, socket, or buffer for either reading or writing

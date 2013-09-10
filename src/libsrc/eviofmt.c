@@ -31,6 +31,7 @@
 #undef DEBUG
 
 /**
+ * <pre>
  *  This routine transforms a composite, format-containing
  *  ASCII string to an unsigned char array. It is to be used
  *  in conjunction with {@link #eviofmtswap} to swap the endianness of
@@ -62,6 +63,7 @@
  *    2. The number of repeats '#' must be the number between 2 and 15; if the number
  *       of repeats is symbol 'N' instead of the number, it will be taken from data
  *       assuming 'int' format
+ * </pre>
  * 
  *  @param fmt     null-terminated composite data format string
  *  @param ifmt    unsigned char array to hold transformed format
