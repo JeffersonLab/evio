@@ -385,22 +385,32 @@ Help('tests               install executable tests\n')
 if 'doc' in COMMAND_LINE_TARGETS:
     # Functions that do the documentation creation
     def docGeneratorC(target, source, env):
-        cmd = 'doxygen doc/doxygen/Doxyfile'
+        cmd = 'doxygen doc/doxygen/DoxyfileC'
         pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
         return
 
+    def docGeneratorCC(target, source, env):
+        cmd = 'doxygen doc/doxygen/DoxyfileCC'
+        pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
+        return
 
     # doc files builders
     docBuildC = Builder(action = docGeneratorC)
     env.Append(BUILDERS = {'DocGenC' : docBuildC})
 
+    docBuildCC = Builder(action = docGeneratorCC)
+    env.Append(BUILDERS = {'DocGenCC' : docBuildCC})
+
     # generate documentation
-    env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/html/index.html'],
-            source = scanFiles("src/libsrc", accept=["*.[ch]"]) ))
+    env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/C/html/index.html'],
+              source = scanFiles("src/libsrc", accept=["*.[ch]"]) ))
+
+    env.Alias('doc', env.DocGenCC(target = ['#/doc/doxygen/CC/html/index.html'],
+              source = scanFiles("src/libsrc++", accept=["*.[ch]", "*.cc", "*.hxx"]) ))
 
 
 # use "doc" on command line to create tar file
-Help('doc                 create javadoc and doxygen docs (in ./doc)\n')
+Help('doc                 create doxygen docs (in ./doc)\n')
 
 
 #########################
