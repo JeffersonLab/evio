@@ -14,7 +14,6 @@
 
 #include <evioException.hxx>
 #include <evioUtil.hxx>
-//  #include <boost/tuple/tuple.hpp>
 
 
 namespace evio {
@@ -27,16 +26,13 @@ using namespace evio;
 typedef struct {
   int containerType;            // bank container type
   int contentType;              // bank content type
+  int depth;                    // depth in hierarchy
   const uint32_t *bankPointer;  // pointer to first word of bank
   int bankLength;               // length of bank in 32-bit words
   const void *data;             // pointer to first word of data of bank
-  int dataLength;               // length of data in bank in 32-bit words
+  int dataLength;               // length of data item array units of item
 } bankIndex;
   
-
-// tuple holds:  data type, pointer to bank data, length of data array ???
-//typedef boost::tuple<int, const void*, int> bankIndex;
-
 
 // compares tagNums to each other, first by tag, then by num
 struct tagNumComp {
@@ -104,10 +100,6 @@ public:
 
     bankIndexMap::const_iterator iter = tagNumMap.find(tn);
 
-    // if((iter!=tagNumMap.end()) && (boost::get<0>((*iter).second)==evioUtil<T>::evioContentType())) {
-    //   *pLen=boost::get<2>((*iter).second);
-    //   return(static_cast<const T*>(boost::get<1>((*iter).second)));
-
     if((iter!=tagNumMap.end()) && ((((*iter).second).contentType)==evioUtil<T>::evioContentType())) {
       *pLen=((*iter).second).dataLength;
       return(static_cast<const T*>(((*iter).second).data));
@@ -126,9 +118,6 @@ public:
    * @return Pointer to data, NULL on bad type
    */
   template <typename T> const T* getData(const bankIndex &bi, int *pLen) throw (evioException) {
-    // if(boost::get<0>(bi)==evioUtil<T>::evioContentType()) {
-    //   *pLen=boost::get<2>(bi);
-    //   return(static_cast<const T*>(boost::get<1>(bi)));
 
     if(bi.contentType==evioUtil<T>::evioContentType()) {
       *pLen=(bi.dataLength);

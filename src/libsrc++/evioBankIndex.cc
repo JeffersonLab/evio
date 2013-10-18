@@ -28,7 +28,7 @@ public:
 
     // don't index beyond specified depth
     // Note...maxDepth 0 means index all levels, 1 means just include children level, etc.
-    // Note...current depth 0 means you are at children level, 1 means grandchildren level, etc.
+    // Note...current depth 1 means you are at children level, 2 means grandchildren level, etc.
     if((maxDepth>0)&&(depth>maxDepth))return(userArg);
 
 
@@ -38,6 +38,7 @@ public:
     bankIndex b;
     b.containerType=containerType;
     b.contentType=contentType;
+    b.depth=depth;
     b.bankPointer=bankPointer;
     b.bankLength=bankLength;
     b.data=data;
@@ -56,24 +57,23 @@ public:
     
     // don't index beyond specified depth
     // Note...maxDepth 0 means index all levels, 1 means just include children level, etc.
-    // Note...current depth 0 means you are at children level, 1 means grandchildren level, etc.
+    // Note...current depth 1 means you are at children level, 2 means grandchildren level, etc.
     if((maxDepth>0)&&(depth>maxDepth))return(userArg);
 
 
     // adds bank index to map
     evioBankIndex *bi = static_cast<evioBankIndex*>(userArg);
-    //    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),boost::make_tuple(contentType,data,length)));
 
     bankIndex b;
     b.containerType=containerType;
     b.contentType=contentType;
+    b.depth=depth;
     b.bankPointer=bankPointer;
     b.bankLength=bankLength;
     b.data=data;
     b.dataLength=dataLength;
     bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
 
-    //    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),bankIndex(contentType,data,length)));
     return(userArg);
   }
 
@@ -131,8 +131,6 @@ bool evioBankIndex::parseBuffer(const uint32_t *buffer, int maxDepth) {
   evioStreamParser p;
   myHandler h(maxDepth);
   p.parse(buffer,h,((void*)this));
-  // pair<evioBankIndex*,int> pr(this,BANK);
-  // p.parse(buffer,h,((void*)&pr));
 
   return(true);
 }

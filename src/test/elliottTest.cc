@@ -24,6 +24,7 @@
 
 
 
+#include <stdio.h>
 #include "evioUtil.hxx"
 #include "evioBufferChannel.hxx"
 
