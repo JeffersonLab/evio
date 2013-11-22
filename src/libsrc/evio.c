@@ -132,8 +132,8 @@
 /** In version 4, default max number of events per block */
 #define EV_EVENTS_MAX_DEF 10000
 
-/** In version 4, if splitting file, default split size in bytes (1GB) */
-#define EV_SPLIT_SIZE 1000000000L
+/** In version 4, if splitting file, default split size in bytes (2GB) */
+#define EV_SPLIT_SIZE 2000000000L
 
 /**
  * @file
@@ -327,6 +327,7 @@
 
 
 /* Prototypes for static routines */
+static  int      fileExists(char *filename);
 static  int      evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, int *handle);
 static  int      evGetNewBuffer(EVFILE *a);
 static  char *   evTrim(char *s, int skip);
@@ -779,6 +780,23 @@ static char *evTrim(char *s, int skip) {
     return s;
 }
 
+
+/**
+ * Does the file exist or not?
+ * @param filename the file's name
+ * @return 1 if it exists, else 0
+ */
+static int fileExists(char *filename) {
+    FILE *fp = fopen("filename","r");
+    if (fp) {
+        /* exists */
+        fclose(fp);
+        return 1;
+    }
+    return 0;
+}
+
+
 /**
  * This routine substitutes a given string for a specified substring.
  * Free the result if non-NULL.
@@ -925,7 +943,7 @@ char *evStrReplaceEnvVar(const char *orig) {
  * @return resulting string which is NULL if there is a problem
  *         and needs to be freed if not NULL.
  */
-char *evStrReplaceSpecifier(const char *orig, int *specifierCount) {
+char *evStrFindSpecifiers(const char *orig, int *specifierCount) {
     
     char *start;            /* place of % */
     char digits[20];        /* digits of format specifier after % */
@@ -934,7 +952,7 @@ char *evStrReplaceSpecifier(const char *orig, int *specifierCount) {
     char c, *result;
     int i, debug=0;
     int count=0;            /* number of valid specifiers in orig */
-    int digitCount;       /* number of digits in a specifier between % and x/d */
+    int digitCount;         /* number of digits in a specifier between % and x/d */
     
 
     /* Check args */
@@ -975,6 +993,7 @@ char *evStrReplaceSpecifier(const char *orig, int *specifierCount) {
             /* This is not an acceptable C integer format specifier and
              * may generate a seg fault later, so just return an error. */
             if (debug) printf("         bad ending char = %c, return\n", c);
+            free(result);
             return NULL;            
         }
         
@@ -1011,6 +1030,88 @@ char *evStrReplaceSpecifier(const char *orig, int *specifierCount) {
     
     return result;    
 }
+
+
+/**
+ * This routine checks a string for C-style printing integer format specifiers.
+ * More specifically, it checks for %nd and %nx where n can be multiple digits.
+ * It removes all such specifiers and returns the modified string or NULL
+ * if error. Free the result if non-NULL.
+ *
+ * @param orig string to be checked/modified
+ *
+ * @return resulting string which is NULL if there is a problem
+ *         and needs to be freed if not NULL.
+ */
+char *evStrRemoveSpecifiers(const char *orig) {
+    
+    char *pStart;           /* pointer to start of string */
+    char *pChar;            /* pointer to char somewhere in string */
+    char c, *result, *pSpec;
+    int i, startIndex, endIndex, debug=0;
+    int specLen;           /* number of chars in valid specifier in orig */
+    int digitCount;        /* number of digits in a specifier between % and x/d */
+    
+
+    /* Check args */
+    if (!orig) return NULL;
+    
+    /* Duplicate orig for convenience */
+    pChar = pStart = result = strdup(orig);
+    if (!result) return NULL;
+
+    /* Look for C integer printing specifiers (starting with % and using x & d) */
+    while (pChar = strstr(pChar, "%")) {
+        /* remember where specifier starts */
+        pSpec = pChar;
+        
+        c = *(++pChar);
+        if (debug) printf("evStrRemoveSpecifiers found %, first char = %c\n", c);
+        
+        /* Read all digits between the % and the first non-digit char */
+        digitCount = 0;
+        while (isdigit(c)) {
+            digitCount++;
+            c = *(++pChar);
+            if (debug) printf("         next char = %c\n", c);
+        }
+        
+        /* What is the ending char? */
+
+        /* - skip over any %s specifiers */
+        if (c == 's' && digitCount == 0) {
+            pChar++;
+            if (debug) printf("         skip over %%s\n");
+            continue;
+        }
+
+        /* - any thing besides x & d are forbidden */
+        if (c != 'x' && c != 'd') {
+            /* This is not an acceptable C integer format specifier and
+            * may generate a seg fault later, so just return an error. */
+            if (debug) printf("         bad ending char = %c, return\n", c);
+            free(result);
+            return NULL;
+        }
+        
+        pChar++;
+
+        /* # of chars in specifier */
+        specLen = pChar - pSpec;
+        if (debug) printf("         spec len = %d\n", specLen);
+
+        /* shift chars to eliminate specifier */
+        startIndex = pSpec-pStart;
+        endIndex = strlen(result) + 1 - specLen - startIndex; /* include NULL in move */
+        for (i=0; i < endIndex; i++) {
+            result[i+startIndex] = result[i+startIndex+specLen];
+        }
+        if (debug) printf("         resulting string = %s\n", result);
+    }
+    
+    return result;
+}
+
 
 
 /**
@@ -1063,7 +1164,7 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
 
     /* Check/fix C-style int specifiers in baseFileName.
      * How many specifiers are there? */
-    name = evStrReplaceSpecifier(tmp, &specifierCount);
+    name = evStrFindSpecifiers(tmp, &specifierCount);
     if (name == NULL) {
         free(tmp);
         /* out-of-mem or bad specifier */ 
@@ -1158,19 +1259,15 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         /* For no specifiers: tack split # on end of base file name */
         if (specifierCount < 1) {
             /* Create space for filename */
-            fileName = (char *)calloc(1, strlen(a->baseFileName) + 11);
+            fileName = (char *)calloc(1, strlen(a->baseFileName) + 12);
             if (!fileName) return(NULL); /* S_FAILURE */
             
             /* Create a printing format specifier for split # */
-            specifier = (char *)calloc(1, strlen(a->baseFileName) + 5); 
+            specifier = (char *)calloc(1, strlen(a->baseFileName) + 6);
             if (!specifier) return(NULL); /* S_FAILURE */
-            if (splitNumber < 1000000) {
-                sprintf(specifier, "%s%s", a->baseFileName, "%06d");
-            }
-            else {
-                sprintf(specifier, "%s%s", a->baseFileName, "%d");
-            }
-      
+            
+            sprintf(specifier, "%s.%s", a->baseFileName, "%d");
+
             /* Create the filename */
             sprintf(fileName, specifier, splitNumber);
             free(specifier);
@@ -1179,21 +1276,17 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         /* For 1 specifier: insert run # at specified location, then tack split # on end */
         else if (specifierCount == 1) {
             /* Create space for filename */
-            fileName = (char *)calloc(1, strlen(a->baseFileName) + 21);
+            fileName = (char *)calloc(1, strlen(a->baseFileName) + 22);
             if (!fileName) return(NULL); /* S_FAILURE */
             
             /* The first printfing format specifier is in a->filename already */
             
             /* Create a printing format specifier for split # */
-            specifier = (char *)calloc(1, strlen(a->baseFileName) + 5); 
+            specifier = (char *)calloc(1, strlen(a->baseFileName) + 6);
             if (!specifier) return(NULL); /* S_FAILURE */
-            if (splitNumber < 1000000) {
-                sprintf(specifier, "%s%s", a->baseFileName, "%06d");
-            }
-            else {
-                sprintf(specifier, "%s%s", a->baseFileName, "%d");
-            }
             
+            sprintf(specifier, "%s.%s", a->baseFileName, "%d");
+
             /* Create the filename */
             sprintf(fileName, specifier, runNumber, splitNumber);
             free(specifier);
@@ -1211,19 +1304,33 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
             sprintf(fileName, a->baseFileName, runNumber, splitNumber);
         }
     }
-    /* If we're not splitting files, still insert runNumber if requested */
-    else if (specifierCount == 1) {
-       /* Create space for filename */
-        fileName = (char *)calloc(1, strlen(a->baseFileName) + 11);
-        if (!fileName) return(NULL); /* S_FAILURE */
-            
-        /* The printfing format specifier is in a->filename already */
-                        
-        /* Create the filename */
-        sprintf(fileName, a->baseFileName, runNumber);
-    }
+    /* If we're not splitting files ... */
     else {
-        fileName = strdup(a->baseFileName);
+        /* Still insert runNumber if requested */
+        if (specifierCount == 1) {
+            /* Create space for filename */
+            fileName = (char *)calloc(1, strlen(a->baseFileName) + 11);
+            if (!fileName) return(NULL); /* S_FAILURE */
+            
+            /* The printfing format specifier is in a->filename already */
+                        
+            /* Create the filename */
+            sprintf(fileName, a->baseFileName, runNumber);
+        }
+        /* For 2 specifiers: insert run # and remove split # specifier */
+        else if (specifierCount == 2) {
+            fileName = (char *)calloc(1, strlen(a->baseFileName) + 11);
+            if (!fileName) return(NULL); /* S_FAILURE */
+            sprintf(fileName, a->baseFileName, runNumber);
+
+            /* Get rid of remaining int specifiers */
+            name = evStrRemoveSpecifiers(fileName);
+            free(fileName);
+            fileName = name;
+        }
+        else {
+            fileName = strdup(a->baseFileName);
+        }
     }
 
     return fileName;
@@ -1376,7 +1483,7 @@ int evOpenSocket(int sockFd, char *flags, int *handle)
     return(evOpenImpl((char *)NULL, 0, sockFd, flag, handle));
 }
 
-/* For test purposes only ... 
+/* For test purposes only ... */
 int evOpenFake(char *filename, char *flags, int *handle, char **evf)
 {
     EVFILE *a;
@@ -1400,7 +1507,7 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
     
     return(S_SUCCESS);
 }
-*/
+/**/
     
 /**
  * This function opens a file, socket, or buffer for either reading or writing
@@ -1868,7 +1975,7 @@ if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                     return(S_EVFILE_BADFILE);
                 }
             }
-            else if (splitting) {
+            else {
                 err = evGenerateBaseFileName(filename, &baseName, &specifierCount);
                 if (err != S_SUCCESS) {
                     *handle = 0;
@@ -1876,20 +1983,11 @@ if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                     free(filename);
                     return(err);
                 }
-                a->splitting      = 1;
+                if (splitting) a->splitting = 1;
                 a->baseFileName   = baseName;
                 a->specifierCount = specifierCount;
             }
-            else {
-                a->file = fopen(filename,"w");
-            }
 #endif
-            if (!splitting && a->file == NULL) {
-                *handle = 0;
-                free(a);
-                free(filename);
-                return(errno);
-            }
         }
         else if (useSocket) {
             a->sockFd = sockFd;
@@ -4105,12 +4203,14 @@ if (debug) {
  * It writes data in evio version 4 format and returns a status.
  * If writing to a file, it always places an empty block
  * at the end - marked as the last block. If more events are written, the
- * last block is overwritten.
+ * last block is overwritten.<p>
+ * This will not overwrite an existing file if splitting is enabled.
  *
  * @param a  pointer to data structure
  *
  * @return S_SUCCESS  if successful
  * @return S_FAILURE  if file could not be opened for writing;
+ *                    if file exists already and splitting;
  *                    if file name could not be generated;
  *                    if error writing event;
  */
@@ -4172,6 +4272,14 @@ if (debug) printf("    evFlush: generate first file name = %s\n", a->fileName);
                 }
 
 if (debug) printf("    evFlush: create file = %s\n", a->fileName);
+
+                /* If splitting, don't overwrite a file ... */
+                if (a->splitting) {
+                    if (fileExists(a->fileName)) {
+if (1) printf("    evFlush: will not overwrite file = %s\n", a->fileName);
+                        return(S_FAILURE);
+                    }
+                }
         
                 a->file = fopen(a->fileName,"w");
                 if (a->file == NULL) {
@@ -4497,7 +4605,7 @@ int evioctl_
  *
  * It changes the number of bytes at which to split a file
  * being written to if request = "S". If unset with this function,
- * it defaults to EV_SPLIT_SIZE (1GB). NOTE: argp must point to
+ * it defaults to EV_SPLIT_SIZE (2GB). NOTE: argp must point to
  * 64 bit integer (not 32 bit)!
  * Used only in version 4.<p>
  *

@@ -22,7 +22,7 @@ int main (int argc, char **argv)
     int err, handle, specifierCount=-1;
     EVFILE *a;
    
-    char *orig = "My_%s_%3d_$(BLAH)_%4x";
+    char *orig = "My_%s_%3d_$(BLAH)_";
     char *replace = "X";
     char *with = "$(BLAH)";
     
@@ -31,6 +31,10 @@ int main (int argc, char **argv)
     if (argc > 1) orig = argv[1];
     
     printf("String = %s\n", orig);
+
+    printf("Remove specs : %s\n", evStrRemoveSpecifiers(orig));
+
+    
     printf("OUT    = %s\n", result);
 
     /* Replace environmental variables */
@@ -40,9 +44,9 @@ int main (int argc, char **argv)
     free(result);
 
     /* Fix specifiers and fix 'em */
-    result = evStrReplaceSpecifier(orig, &specifierCount);
+    result = evStrFindSpecifiers(orig, &specifierCount);
     if (result == NULL) {
-        printf("error in evStrReplaceSpecifier routine\n");
+        printf("error in evStrFindSpecifiers routine\n");
     }
     else {
         printf("SPEC    = %s, count = %d\n", result, specifierCount);
@@ -70,7 +74,7 @@ int main (int argc, char **argv)
     a->baseFileName   = baseName;
     a->specifierCount = specifierCount;
     a->runNumber = 7;
-    a->split = 100;
+    a->split = 0;
     a->splitNumber = 666;
     a->runType = "runType";
 

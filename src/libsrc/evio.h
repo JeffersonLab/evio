@@ -225,7 +225,8 @@ void  evPrintBuffer(uint32_t *p, uint32_t len, int swap);
 
 char *evStrReplace(char *orig, const char *replace, const char *with);
 char *evStrReplaceEnvVar(const char *orig);
-char *evStrReplaceSpecifier(const char *orig, int *specifierCount);
+char *evStrFindSpecifiers(const char *orig, int *specifierCount);
+char *evStrRemoveSpecifiers(const char *orig);
 int   evGenerateBaseFileName(char *origName, char **baseName, int *count);
 char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
                          int split, int splitNumber, char *runType);
