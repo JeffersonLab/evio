@@ -1366,7 +1366,15 @@ int evopen_
  * Works with all versions of evio for reading, but only writes version 4
  * format. A handle is returned for use with calling other evio routines.
  *
- * @param filename  name of file
+ * @param filename  name of file. Constructs of the form $(env) will be substituted
+ *                  with the given environmental variable or removed if nonexistent.
+ *                  Constructs of the form %s will be substituted with the run type
+ *                  if specified in {@link evIoctl} or removed if nonexistent.
+ *                  Up to 2, C-style int format specifiers are allowed. The first is
+ *                  replaced with the run number (set in {@link evIoctl}). If splitting,
+ *                  the second is replaced by the split number, otherwise it's removed.
+ *                  If splitting and no second int specifier exists, a "." and split
+ *                  number are automatically appended to the end of the file name.
  * @param flags     pointer to case-independent string of "w" for writing,
  *                  "r" for reading, "a" for appending, "ra" for random
  *                  access reading of a file, or "s" for splitting a file
