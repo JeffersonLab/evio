@@ -367,7 +367,9 @@ template <typename T> void evioDOMNode::append(const vector<T> &tVec) throw(evio
   if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
   evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
-  copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.end()));
+  int siz = l->data.size();
+  l->data.resize(siz+tVec.size());
+  memcpy((void*)&(l->data[siz]),(void*)(&tVec[0]),tVec.size()*sizeof(T));
 }
 
 
@@ -384,7 +386,9 @@ template <typename T> void evioDOMNode::append(const T* tBuf, int len) throw(evi
   if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::append...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
   evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
-  for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
+  int siz = l->data.size();
+  l->data.resize(siz+len);
+  memcpy((void*)&(l->data[siz]),(void*)tBuf,len*sizeof(T));
 }
 
 
@@ -400,8 +404,8 @@ template <typename T> void evioDOMNode::replace(const vector<T> &tVec) throw(evi
   if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::replace...not correctl leaf node",__FILE__,__FUNCTION__,__LINE__));
   evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
-  l->data.clear();
-  copy(tVec.begin(),tVec.end(),inserter(l->data,l->data.begin()));
+  l->data.resize(tVec.size());
+  memcpy((void*)&(l->data[0]),(void*)&(tVec[0]),tVec.size()*sizeof(T));
 }
 
 
@@ -418,8 +422,8 @@ template <typename T> void evioDOMNode::replace(const T* tBuf, int len) throw(ev
   if(contentType!=evioUtil<T>::evioContentType())
     throw(evioException(0,"?evioDOMNode::replace...not appropriate node",__FILE__,__FUNCTION__,__LINE__));
   evioDOMLeafNode<T> *l = static_cast<evioDOMLeafNode<T>*>(this);
-  l->data.clear();
-  for(int i=0; i<len; i++) l->data.push_back(tBuf[i]);
+  l->data.resize(len);
+  memcpy((void*)&(l->data[0]),(void*)tBuf,len*sizeof(T));
 }
 
 
@@ -509,9 +513,9 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint
  * @param v vector<T> of data
  */
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const vector<T> &v)
-  throw(evioException) : evioDOMNode(par,tag,num,evioUtil<T>::evioContentType()) {
+  throw(evioException) : evioDOMNode(par,tag,num,evioUtil<T>::evioContentType()), data(v.size()) {
   
-  copy(v.begin(),v.end(),inserter(data,data.begin()));
+  memcpy((void*)&data[0],(void*)&v[0],v.size()*sizeof(T));
 }
 
 
@@ -527,10 +531,9 @@ template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint
  * @param ndata Length of array
  */
 template <typename T> evioDOMLeafNode<T>::evioDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, const T* p, int ndata) 
-  throw(evioException) : evioDOMNode(par,tag,num,evioUtil<T>::evioContentType()) {
+  throw(evioException) : evioDOMNode(par,tag,num,evioUtil<T>::evioContentType()), data(ndata) {
   
-  // fill vector with data
-  for(int i=0; i<ndata; i++) data.push_back(p[i]);
+  memcpy((void*)&data[0],(void*)p,(size_t)(ndata*sizeof(T)));
 }
 
 

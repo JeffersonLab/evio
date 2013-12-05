@@ -20,7 +20,7 @@ using namespace evio;
 
 
 /**
- * Constructor opens file for reading or writing.
+ * Constructor opens channel for reading or writing.
  * @param f File name
  * @param m I/O mode, "r" or "ra" or "w" or "a"
  * @param size Internal buffer size
@@ -43,7 +43,7 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
 
 
 /**
- * Constructor opens file for reading or writing, dictionary specified.
+ * Constructor opens channel for reading or writing, dictionary specified.
  * @param f File name
  * @param dict Dictionary
  * @param m I/O mode, "r" or "ra" or "w" or "a"
