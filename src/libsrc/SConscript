@@ -1,11 +1,11 @@
 # scons build file for evio
-Import('env', 'libDir', 'incDir', 'archIncDir', 'debugSuffix')
+Import('env', 'libInstallDir', 'incInstallDir', 'archIncInstallDir', 'debugSuffix')
 import os
 from os import sep
 
 headerList = ['evio.h']
 
-linkList = [archIncDir + sep + 'evio.h']
+linkList = [archIncInstallDir + sep + 'evio.h']
 
 fileList = ['evio.c',
             'evioswap.c',
@@ -15,7 +15,7 @@ fileList = ['evio.c',
 env.AppendUnique(CPPPATH = ['.'])
 evioLib = env.SharedLibrary(target = 'evio'+debugSuffix, source = fileList)
 
-env.Alias("install", env.Install(target = incDir, source = headerList))
-env.Alias("install", env.Install(target = libDir, source = evioLib))
+env.Alias("install", env.Install(target = incInstallDir, source = headerList))
+env.Alias("install", env.Install(target = libInstallDir, source = evioLib))
 # create symbolic links to installed header files
-env.Alias("install", env.CreateSymbolicLinks(target = linkList, source = env.Install(target = incDir, source = headerList)))
+env.Alias("install", env.CreateSymbolicLinks(target = linkList, source = env.Install(target = incInstallDir, source = headerList)))

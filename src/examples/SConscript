@@ -1,5 +1,5 @@
 # scons build file for evio
-Import('env', 'incDir', 'binDir', 'archDir', 'execLibs', 'debugSuffix')
+Import('env', 'incInstallDir', 'binInstallDir', 'archDir', 'execLibs', 'debugSuffix')
 import re
 import os
 from os import sep
@@ -17,8 +17,8 @@ for fileName in cfileList:
     compiledFile = env.Program(source  = fileName,
                                LIBS    = ['evio'+debugSuffix] + execLibs,
                                LIBPATH = ['#src/libsrc/'+archDir],
-                               CPPPATH = ['.', '#src/libsrc', incDir])
-    env.Alias('examples', env.Install(target = binDir, source = compiledFile))
+                               CPPPATH = ['.', '#src/libsrc', incInstallDir])
+    env.Alias('examples', env.Install(target = binInstallDir, source = compiledFile))
 
 
 # If we store all compiled programs in a list and then
@@ -37,5 +37,5 @@ for fileName in ccfileList:
     compiledFile = env.Program(source  = fileName,
                                LIBS    = libList,
                                LIBPATH = libpList,
-                               CPPPATH = ['.', '#src/libsrc', '#src/libsrc++', incDir])
-    env.Alias('examples', env.Install(target = binDir, source = compiledFile))
+                               CPPPATH = ['.', '#src/libsrc', '#src/libsrc++', incInstallDir])
+    env.Alias('examples', env.Install(target = binInstallDir, source = compiledFile))

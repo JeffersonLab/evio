@@ -1,5 +1,5 @@
 # scons build file for evio
-Import('env', 'libDir', 'binDir', 'archDir', 'execLibs', 'debugSuffix')
+Import('env', 'libInstallDir', 'binInstallDir', 'archDir', 'execLibs', 'debugSuffix')
 import re
 import os
 
@@ -12,9 +12,9 @@ ccfileList = Glob('*.cc', strings=True)
 for fileName in cfileList:
     compiledFile = env.Program(source  = fileName,
                                LIBS    = ['evio'+debugSuffix] + execLibs,
-                               LIBPATH = ['#src/libsrc/'+archDir, libDir],
+                               LIBPATH = ['#src/libsrc/'+archDir, libInstallDir],
                                CPPPATH = ['.', '#src/libsrc'])
-    env.Alias('install', env.Install(target = binDir, source = compiledFile))
+    env.Alias('install', env.Install(target = binInstallDir, source = compiledFile))
 
 
 # If we store all compiled programs in a list and then
@@ -27,12 +27,12 @@ for fileName in ccfileList:
     if(os.getenv('ETROOT')!=None):
         compiledFile = env.Program(source  = fileName,
                                    LIBS    = ['evio'+debugSuffix,'evioxx'+debugSuffix, 'et'+debugSuffix] + execLibs,
-                                   LIBPATH = ['#src/libsrc/'+archDir,'#src/libsrc++/'+archDir, libDir],
+                                   LIBPATH = ['#src/libsrc/'+archDir,'#src/libsrc++/'+archDir, libInstallDir],
                                    CPPPATH = ['.', '#src/libsrc', '#src/libsrc++'])
     else:
         compiledFile = env.Program(source  = fileName,
                                    LIBS    = ['evio'+debugSuffix,'evioxx'+debugSuffix] + execLibs,
-                                   LIBPATH = ['#src/libsrc/'+archDir,'#src/libsrc++/'+archDir, libDir],
+                                   LIBPATH = ['#src/libsrc/'+archDir,'#src/libsrc++/'+archDir, libInstallDir],
                                    CPPPATH = ['.', '#src/libsrc', '#src/libsrc++'])
-    env.Alias('install', env.Install(target = binDir, source = compiledFile))
+    env.Alias('install', env.Install(target = binInstallDir, source = compiledFile))
         
