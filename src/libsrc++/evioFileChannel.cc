@@ -87,7 +87,7 @@ void evioFileChannel::open(void) throw(evioException) {
   int stat;
 
   if(buf==NULL)throw(evioException(0,"evioFileChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if((stat=evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle))<0)
+  if((stat=evOpen(const_cast<char*>(filename.c_str()),const_cast<char*>(mode.c_str()),&handle))!=S_SUCCESS)
     throw(evioException(stat,"?evioFileChannel::open...unable to open file: " + string(evPerror(stat)),
                         __FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"?evioFileChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));

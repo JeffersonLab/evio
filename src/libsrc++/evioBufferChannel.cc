@@ -89,7 +89,7 @@ void evioBufferChannel::open(void) throw(evioException) {
 
   int stat;
   if(buf==NULL)throw(evioException(0,"evioBufferChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if((stat=evOpenBuffer((char*)streamBuf,streamBufSize,const_cast<char*>(mode.c_str()),&handle))<0)
+  if((stat=evOpenBuffer((char*)streamBuf,streamBufSize,const_cast<char*>(mode.c_str()),&handle))!=S_SUCCESS)
     throw(evioException(stat,"?evioBufferChannel::open...unable to open buffer: " + string(evPerror(stat)),
                         __FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"?evioBufferChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));

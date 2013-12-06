@@ -85,7 +85,7 @@ void evioSocketChannel::open(void) throw(evioException) {
 
   int stat;
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::open...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  if((stat=evOpenSocket(sockFD,const_cast<char*>(mode.c_str()),&handle))<0)
+  if((stat=evOpenSocket(sockFD,const_cast<char*>(mode.c_str()),&handle))!=S_SUCCESS)
     throw(evioException(stat,"?evioSocketChannel::open...unable to open socket: " + string(evPerror(stat)),
                         __FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"?evioSocketChannel::open...zero handle",__FILE__,__FUNCTION__,__LINE__));
