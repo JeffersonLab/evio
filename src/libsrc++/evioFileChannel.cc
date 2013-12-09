@@ -137,7 +137,7 @@ bool evioFileChannel::read(void) throw(evioException) {
   } else if(stat==EOF) {
     return(false);
   } else {
-    throw(evioException(stat,"evioFileChannel::read...read error",__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(stat,"evioFileChannel::read...read error" + string(evPerror(stat)),__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
@@ -161,7 +161,7 @@ bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
   } else if(stat==EOF) {
     return(false);
   } else {
-    throw(evioException(stat,"evioFileChannel::read...read error",__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(stat,"evioFileChannel::read...read error" + string(evPerror(stat)),__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
