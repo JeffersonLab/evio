@@ -1131,7 +1131,7 @@ char *evStrRemoveSpecifiers(const char *orig) {
  * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
  * it will be added automatically in order to avoid spaces in the final, generated
  * file name.
- * In the {@link #generateFileName(String, int, int, int, int)} routine, the first
+ * In the {@link #evGenerateFileName(String, int, int, int, int)} routine, the first
  * occurrence will be substituted with the given runNumber value.
  * If the file is being split, the second will be substituted with the split number.<p>
  *
@@ -1195,7 +1195,7 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
 
 /**
  * This method generates a complete file name from the previously determined baseFileName
- * obtained from calling {@link #generateBaseFileName} and stored in the evOpen handle.<p>
+ * obtained from calling {@link #evGenerateBaseFileName} and stored in the evOpen handle.<p>
  *
  * All occurrences of the string "%s" in the baseFileName will be substituted with the
  * value of the runType arg or nothing if the runType is null.<p>
@@ -4278,7 +4278,8 @@ if (debug) printf("    evFlush: write %u events to FILE\n", a->eventsToBuf);
                 if (a->fileName == NULL) {
                     /* Generate actual file name from base name */
                     char *fname = evGenerateFileName(a, a->specifierCount, a->runNumber,
-                                                     a->split, a->splitNumber++, a->runType);
+                                                     (a->splitting? a->split : 0),
+                                                      a->splitNumber++, a->runType);
                     if (fname == NULL) {
                         return(S_FAILURE);
                     }
