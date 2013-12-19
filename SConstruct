@@ -308,9 +308,12 @@ if useVxworks:
 else:
     # platform dependent quantities
     execLibs = ['pthread', 'expat', 'z', 'dl', 'm']  # default to standard Linux libs
-    env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
     env.AppendUnique(CPPPATH = ['/usr/include', '/usr/local/include'])
-    
+    if is64bits:
+        env.AppendUnique(LIBPATH = ['/usr/lib64', '/usr/local/lib64', '/usr/lib', '/usr/local/lib'])
+    else:
+        env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
+  
     if platform == 'SunOS':
         env.Append(CCFLAGS = '-mt')
         env.Append(CPPDEFINES = ['_GNU_SOURCE', '_REENTRANT', '_POSIX_PTHREAD_SEMANTICS', 'SunOS'])
