@@ -13,8 +13,6 @@ headerList = ['evioException.hxx',
               'evioBankIndex.hxx',
               'evioUtil.hxx',
               'evioUtilTemplates.hxx']
-if(os.getenv('ETROOT')!=None):
-        headerList.append('evioETChannel.hxx')
 
 
 linkList = [archIncInstallDir + sep + 'evioException.hxx',
@@ -27,13 +25,9 @@ linkList = [archIncInstallDir + sep + 'evioException.hxx',
             archIncInstallDir + sep + 'evioBankIndex.hxx',
             archIncInstallDir + sep + 'evioUtil.hxx',
             archIncInstallDir + sep + 'evioUtilTemplates.hxx']
-if(os.getenv('ETROOT')!=None):
-        linkList.append(archIncInstallDir + sep + 'evioETChannel.hxx')
 
 
 fileList = ['evioException.cc', 'evioDictionary.cc', 'evioFileChannel.cc', 'evioBufferChannel.cc', 'evioSocketChannel.cc', 'evioBankIndex.cc', 'evioUtil.cc']
-if(os.getenv('ETROOT')!=None):
-        fileList.append('evioETChannel.cc')
 
 
 env.AppendUnique(CPPPATH = ['.', '#src/libsrc', incInstallDir])
