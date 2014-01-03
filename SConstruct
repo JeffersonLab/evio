@@ -370,11 +370,11 @@ if not installingStuff:
     archIncInstallDir = "dummy2"
 
 else:
-# The installation directory is the user-specified "prefix"
-# by first choice, "CODA" secondly.
-# Any user specified command line installation path overrides default
+    # The installation directory is the user-specified "prefix"
+    # by first choice, "CODA" secondly.
+    # Any user specified command line installation path overrides default
     if (prefix == None) or (prefix == ''):
-# prefix not defined try CODA env var
+        # prefix not defined try CODA env var
         codaHomeEnv = os.getenv('CODA',"")
         if codaHomeEnv == "":
             if (incdir == None) or (libdir == None) or (bindir == None):
@@ -390,13 +390,13 @@ else:
         print 'Cmdline install directory = ', prefix
 
 
-# set our install directories
+    # set our install directories
     if incdir != None:
         incDir = incdir
         archIncDir = incdir
     else:
         archIncDir = prefix + "/" + osname + '/include'
-        incDir = prefix + '/include'
+        incDir = prefix + '/common/include'
 
     if libdir != None:
         libDir = libdir
@@ -409,7 +409,7 @@ else:
         binDir = prefix + "/" + osname + '/bin'
 
 
-# func to determine absolute path
+    # func to determine absolute path
     def make_abs_path(d):
         if not d[0] in [sep,'#','/','.']:
             if d[1] != ':':
@@ -424,7 +424,7 @@ else:
     libInstallDir     = make_abs_path(libDir)
     binInstallDir     = make_abs_path(binDir)
 
-# print our install directories
+    # print our install directories
     print 'bin install dir  = ', binInstallDir
     print 'lib install dir  = ', libInstallDir
     print 'inc install dirs = ', incInstallDir, ", ", archIncInstallDir
@@ -484,26 +484,27 @@ Help('doc                 create doxygen docs (in ./doc)\n')
 # Tar file
 #########################
 
-# Function that does the tar. Note that tar on Solaris is different
-# (more primitive) than tar on Linux and MacOS. Solaris tar has no -z option
-# and the exclude file does not allow wildcards. Thus, stick to Linux for
-# creating the tar file.
-def tarballer(target, source, env):
-    if platform == 'SunOS':
-        print '\nMake tar file from Linux or MacOS please\n'
-        return
-    dirname = os.path.basename(os.path.abspath('.'))
-    cmd = 'tar -X tar/tarexclude -C .. -c -z -f ' + str(target[0]) + ' ./' + dirname
-    p = os.popen(cmd)
-    return p.close()
+if 'tar' in COMMAND_LINE_TARGETS:
+    # Function that does the tar. Note that tar on Solaris is different
+    # (more primitive) than tar on Linux and MacOS. Solaris tar has no -z option
+    # and the exclude file does not allow wildcards. Thus, stick to Linux for
+    # creating the tar file.
+    def tarballer(target, source, env):
+        if platform == 'SunOS':
+            print '\nMake tar file from Linux or MacOS please\n'
+            return
+        dirname = os.path.basename(os.path.abspath('.'))
+        cmd = 'tar -X tar/tarexclude -C .. -c -z -f ' + str(target[0]) + ' ./' + dirname
+        p = os.popen(cmd)
+        return p.close()
 
-# name of tarfile (software package dependent)
-tarfile = 'tar/evio-' + versionMajor + '.' + versionMinor + '.tgz'
+    # name of tarfile (software package dependent)
+    tarfile = 'tar/evio-' + versionMajor + '.' + versionMinor + '.tgz'
 
-# tarfile builder
-tarBuild = Builder(action = tarballer)
-env.Append(BUILDERS = {'Tarball' : tarBuild})
-env.Alias('tar', env.Tarball(target = tarfile, source = None))
+    # tarfile builder
+    tarBuild = Builder(action = tarballer)
+    env.Append(BUILDERS = {'Tarball' : tarBuild})
+    env.Alias('tar', env.Tarball(target = tarfile, source = None))
 
 # use "tar" on command line to create tar file
 Help('tar                 create tar file (in ./tar)\n')
