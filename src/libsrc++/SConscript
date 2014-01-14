@@ -2,7 +2,7 @@
 Import('env', 'libInstallDir', 'incInstallDir', 'archIncInstallDir', 'debugSuffix')
 
 # Headers to install
-headerList = Glob('*.h',  strings=True)
+headerList = Glob('*.h*',  strings=True)
 
 # Files to compile
 fileList = Glob('*.cc',  strings=True)
