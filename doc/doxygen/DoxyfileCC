@@ -23,7 +23,7 @@ PROJECT_NAME           = "evio"
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = "4.0"
+PROJECT_NUMBER         = "4.1"
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
@@ -494,7 +494,7 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories 
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = *.svn* *evioUtilTemplates.hxx*
+EXCLUDE_PATTERNS       = */.* *evioUtilTemplates.hxx*
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or 
 # directories that contain example code fragments that are included (see 
