@@ -1,39 +1,15 @@
 # scons build file for evio
 Import('env', 'libInstallDir', 'incInstallDir', 'archIncInstallDir', 'debugSuffix')
-import os
-from os import sep
 
-headerList = ['evioException.hxx',
-              'evioTypedefs.hxx',
-              'evioDictionary.hxx',
-              'evioChannel.hxx',
-              'evioFileChannel.hxx',
-              'evioBufferChannel.hxx',
-              'evioSocketChannel.hxx',
-              'evioBankIndex.hxx',
-              'evioUtil.hxx',
-              'evioUtilTemplates.hxx']
+# Headers to install
+headerList = Glob('*.h',  strings=True)
 
+# Files to compile
+fileList = Glob('*.cc',  strings=True)
 
-linkList = [archIncInstallDir + sep + 'evioException.hxx',
-            archIncInstallDir + sep + 'evioTypedefs.hxx',
-            archIncInstallDir + sep + 'evioDictionary.hxx',
-            archIncInstallDir + sep + 'evioChannel.hxx',
-            archIncInstallDir + sep + 'evioFileChannel.hxx',
-            archIncInstallDir + sep + 'evioBufferChannel.hxx',
-            archIncInstallDir + sep + 'evioSocketChannel.hxx',
-            archIncInstallDir + sep + 'evioBankIndex.hxx',
-            archIncInstallDir + sep + 'evioUtil.hxx',
-            archIncInstallDir + sep + 'evioUtilTemplates.hxx']
-
-
-fileList = ['evioException.cc', 'evioDictionary.cc', 'evioFileChannel.cc', 'evioBufferChannel.cc', 'evioSocketChannel.cc', 'evioBankIndex.cc', 'evioUtil.cc']
-
-
-env.AppendUnique(CPPPATH = ['.', '#src/libsrc', incInstallDir])
+env.AppendUnique(CPPPATH = ['.', '#src/libsrc'])
 evioxxLib = env.SharedLibrary(target = 'evioxx'+debugSuffix, source = fileList)
     
-env.Alias("install", env.Install(target = incInstallDir, source = headerList))
-env.Alias("install", env.Install(target = libInstallDir, source = evioxxLib))
-# create symbolic links to installed header files
-env.Alias("install", env.CreateSymbolicLinks(target = linkList, source = env.Install(target = incInstallDir, source = headerList)))
+if 'install' in COMMAND_LINE_TARGETS:
+    env.Alias("install", env.Install(target = [incInstallDir, archIncInstallDir], source = headerList))
+    env.Alias("install", env.Install(target = libInstallDir, source = evioxxLib))
