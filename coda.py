@@ -15,8 +15,12 @@ from SCons.Builder import Builder
 
 def recursiveDirs(root) :
     """Return a list of all subdirectories of root, top down,
-       including root, but without .svn directories"""
-    return filter( (lambda a : a.rfind( ".svn")==-1 ),  [ a[0] for a in os.walk(root)]  )
+       including root, but without .svn and .<arch> directories"""
+    return filter( (lambda a : (a.rfind( ".svn")==-1) and \
+                               (a.rfind( ".Linux")==-1) and \
+                               (a.rfind( ".SunOS")==-1) and \
+                               (a.rfind( ".Darwin")==-1) and \
+                               (a.rfind( ".vxworks")==-1)),  [ a[0] for a in os.walk(root)]  )
 
 
 
