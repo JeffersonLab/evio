@@ -412,10 +412,121 @@ EVFILE *handle_list[MAXHANDLES] = {
         PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
         PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER
     };
+    
+#elif defined VXWORKS_5
+
+    /** Implementation of strdup for vxWorks. */
+    static char *strdup(const char *s1) {
+        char *s;
+        if (s1 == NULL) return NULL;
+        if ((s = (char *) malloc(strlen(s1)+1)) == NULL) return NULL;
+        return strcpy(s, s1);
+    }
+    
+    /** Implementation of strndup for vxWorks. */
+    static char *strndup(const char *s1, size_t count) {
+        int len;
+        char *s;
+        if (s1 == NULL) return NULL;
+    
+        len = strlen(s1) > count ? count : strlen(s1);
+        if ((s = (char *) malloc(len+1)) == NULL) return NULL;
+        s[len] = '\0';
+        return strncpy(s, s1, len);
+    }
+    
+    /** Implementation of strcasecmp for vxWorks. */
+    static int strcasecmp(const char *s1, const char *s2) {
+        int i, len1, len2;
+      
+        /* handle NULL's */
+        if (s1 == NULL && s2 == NULL) {
+            return 0;
+        }
+        else if (s1 == NULL) {
+            return -1;
+        }
+        else if (s2 == NULL) {
+            return 1;
+        }
+      
+        len1 = strlen(s1);
+        len2 = strlen(s2);
+      
+        /* handle different lengths */
+        if (len1 < len2) {
+            for (i=0; i<len1; i++) {
+                if (toupper((int) s1[i]) < toupper((int) s2[i])) {
+                    return -1;
+                }
+                else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
+                    return 1;
+                }
+            }
+            return -1;
+        }
+        else if (len1 > len2) {
+            for (i=0; i<len2; i++) {
+                if (toupper((int) s1[i]) < toupper((int) s2[i])) {
+                    return -1;
+                }
+                else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
+                    return 1;
+                }
+            }
+            return 1;
+        }
+      
+        /* handle same lengths */
+        for (i=0; i<len1; i++) {
+            if (toupper((int) s1[i]) < toupper((int) s2[i])) {
+                return -1;
+            }
+            else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
+                return 1;
+            }
+        }
+      
+        return 0;
+    }
+    
+    /** Implementation of strncasecmp for vxWorks. */
+    static int strncasecmp(const char *s1, const char *s2, size_t n) {
+        int i, len1, len2;
+      
+        /* handle NULL's */
+        if (s1 == NULL && s2 == NULL) {
+            return 0;
+        }
+        else if (s1 == NULL) {
+            return -1;
+        }
+        else if (s2 == NULL) {
+            return 1;
+        }
+      
+        len1 = strlen(s1);
+        len2 = strlen(s2);
+        
+        /* handle short lengths */
+        if (len1 < n || len2 < n) {
+            return strcasecmp(s1, s2);
+        }
+       
+        /* both lengths >= n, but compare only n chars */
+        for (i=0; i<n; i++) {
+            if (toupper((int) s1[i]) < toupper((int) s2[i])) {
+                return -1;
+            }
+            else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
+                return 1;
+            }
+        }
+      
+        return 0;
+    }
+
 #endif
-
-
-
 
 /*-----------------------------------------------------------------------------*/
 
@@ -1958,7 +2069,7 @@ printf("ERROR retrieving DICTIONARY, status = %#.8x\n", status);
 
         if (useFile) {
 #if defined  VXWORKS || defined _MSC_VER
-            a->filename = strdup(filename);
+            a->fileName = strdup(filename);
             a->file = fopen(filename,"w");
             a->rw = EV_WRITEFILE;
 #else
@@ -2203,6 +2314,7 @@ static void localClose(EVFILE *a)
  */
 static int memoryMapFile(EVFILE *a, const char *fileName)
 {
+#ifndef VXWORKS
     int        fd;
     uint32_t   *pmem;
     size_t      fileSize;
@@ -2234,7 +2346,7 @@ static int memoryMapFile(EVFILE *a, const char *fileName)
   
     a->mmapFile = pmem;
     a->mmapFileSize = fileSize;
-
+#endif
     return(S_SUCCESS);
 }
 
@@ -3630,7 +3742,7 @@ int evWrite(int handle, const uint32_t *buffer)
 static int expandBuffer(EVFILE *a, uint32_t newSize)
 {
     int debug = 0;
-
+    uint32_t *biggerBuf = NULL;
     
     /* No need to increase it. */
     if (newSize <= 4*a->bufSize) {
@@ -3644,7 +3756,7 @@ if (debug) printf("    expandBuffer: expand, but memory already there\n");
         return(S_SUCCESS);
     }
     
-    uint32_t *biggerBuf = (uint32_t *) malloc(newSize);
+    biggerBuf = (uint32_t *) malloc(newSize);
     if (!biggerBuf) {
         return(S_EVFILE_ALLOCFAIL);
     }
@@ -3959,6 +4071,8 @@ printf("evWrite: too many events in block, already have %u\n", a->blkEvCount );
     /* Are we splitting files in general? */
     while (a->splitting) {
         int headerCount=0;
+        uint64_t totalSize;
+        
         /* If all that is written so far is a dictionary, don't split after writing it */
         if (a->wroteDictionary && (a->blknum - 1) == 1 && a->eventsToBuf < 2) {
 if (debug) printf("evWrite: don't split file cause only dictionary written so far\n");
@@ -3967,7 +4081,7 @@ if (debug) printf("evWrite: don't split file cause only dictionary written so fa
         
         /* Is this event (together with the current buffer, current file,
          * and various block headers) large enough to split the file? */
-        uint64_t totalSize = a->bytesToFile + 4*nToWrite + a->bytesToBuf;
+        totalSize = a->bytesToFile + 4*nToWrite + a->bytesToBuf;
 
         /* If we have to add another block header, account for it.
          * But only if it doesn't write over an existing ending block.*/
@@ -5000,7 +5114,7 @@ printf("DEcreasing internal buffer size to %u words\n", bufferSize);
             }
             /* If this is a 64 bit operating system or higher ... */
             else {
-                uint64_t max = 0xffffffffffffffff;
+                uint64_t max = UINT64_MAX;
                 if (splitSize > max - 32) {
                     splitSize = max - 32;
                 }
