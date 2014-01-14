@@ -24,23 +24,6 @@
 
 #define MIN(a,b) ( (a) < (b) ? (a) : (b) )
 
-#define SWAP64(x) ( (((x) & 0x00000000000000ff) << 56) | \
-                    (((x) & 0x000000000000ff00) << 40) | \
-                    (((x) & 0x0000000000ff0000) << 24) | \
-                    (((x) & 0x00000000ff000000) <<  8) | \
-                    (((x) & 0x000000ff00000000) >>  8) | \
-                    (((x) & 0x0000ff0000000000) >> 24) | \
-                    (((x) & 0x00ff000000000000) >> 40) | \
-                    (((x) & 0xff00000000000000) >> 56) )
-
-#define SWAP32(x) ( (((x) & 0x000000ff) << 24) | \
-                    (((x) & 0x0000ff00) <<  8) | \
-                    (((x) & 0x00ff0000) >>  8) | \
-                    (((x) & 0xff000000) >> 24) )
-
-#define SWAP16(x) ( (((x) & 0x00ff) << 8) | \
-                    (((x) & 0xff00) >> 8) )
-
 typedef struct {
     int left;    /* index of ifmt[] element containing left parenthesis */
     int nrepeat; /* how many times format in parenthesis must be repeated */
@@ -76,7 +59,7 @@ typedef struct {
  * @return  0 if success
  * @return -1 if nwrd or nfmt arg(s) < 0
  */
-int eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal) {
+int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal) {
 
     int      imt, ncnf, kcnf, lev, iterm;
     int64_t *b64, *b64end;
@@ -153,7 +136,7 @@ int eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolo
                     /* get # of repeats from data (watch out for endianness) */
                     b32 = (int32_t *)b8;
                     if (!tolocal) ncnf = *b32;
-                    *b32 = SWAP32(*b32);
+                    *b32 = EVIO_SWAP32(*b32);
                     if (tolocal) ncnf = *b32;
                     b8 += 4;
 #ifdef DEBUG
@@ -213,7 +196,7 @@ int eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolo
             /* get # of repeats from data (watch out for endianness) */
             b32 = (int32_t *)b8;
             if (!tolocal) ncnf = *b32;
-            *b32 = SWAP32(*b32);
+            *b32 = EVIO_SWAP32(*b32);
             if (tolocal) ncnf = *b32;
             b8 += 4;
 #ifdef DEBUG
@@ -236,7 +219,7 @@ int eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolo
             b64 = (int64_t *)b8;
             b64end = b64 + ncnf;
             if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
-            while (b64 < b64end) *b64++ = SWAP64(*b64);
+            while (b64 < b64end) *b64++ = EVIO_SWAP64(*b64);
             b8 = (int8_t *)b64;
 #ifdef DEBUG
             printf("64bit: %d elements\n",ncnf);
@@ -247,7 +230,7 @@ int eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolo
             b32 = (int32_t *)b8;
             b32end = b32 + ncnf;
             if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
-            while (b32 < b32end) *b32++ = SWAP32(*b32);
+            while (b32 < b32end) *b32++ = EVIO_SWAP32(*b32);
             b8 = (int8_t *)b32;
 #ifdef DEBUG
             printf("32bit: %d elements, b8 = 0x%08x\n",ncnf, b8);
@@ -258,7 +241,7 @@ int eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolo
             b16 = (int16_t *)b8;
             b16end = b16 + ncnf;
             if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
-            while (b16 < b16end) *b16++ = SWAP16(*b16);
+            while (b16 < b16end) *b16++ = EVIO_SWAP16(*b16);
             b8 = (int8_t *)b16;
 #ifdef DEBUG
             printf("16bit: %d elements\n",ncnf);

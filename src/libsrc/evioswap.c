@@ -73,12 +73,12 @@
 /* include files */
 #include <stdlib.h>
 #include <stdio.h>
-#include <evio.h>
+#include "evio.h"
 
 
-// from Sergey's composite swap library
-int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
-int eviofmtswap(int *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal);
+/* from Sergey's composite swap library */
+extern int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
+extern int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal);
 
 
 
