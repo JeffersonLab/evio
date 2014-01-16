@@ -6,7 +6,7 @@
     <property environment="env"/>
     
     <!-- Version -->
-    <property name="jevio.version" value="4.3" />
+    <property name="evio.version" value="4.3" />
     
     <!-- Debug -->
     <property name="javac.debug" value="on" />
@@ -17,7 +17,7 @@
     <property name="build.classes" value="${build.dir}/classes" />
     <property name="build.lib"     value="${build.dir}/lib" />
     <property name="doc.dir"       value="doc/javadoc" />
-    <property name="jarName"       value="jevio-${jevio.version}.jar" />
+    <property name="jarName"       value="jevio-${evio.version}.jar" />
     <property name="allJarNames"   value="jevio-*.jar" />
     <property name="jarPath"       value="${build.lib}/${jarName}" />
 
