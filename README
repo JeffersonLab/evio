@@ -1,5 +1,10 @@
 evio Software Package
 
+Evio stands for event input/output. It is mainly a C
+library which reads and writes data in it own unique format.
+The C++ library is a wrapper around the C library.
+There are a few utility programs included.
+
 
 1) Getting & Installing evio
 
