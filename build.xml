@@ -101,10 +101,15 @@
         <mkdir dir="${build.classes}" />
         <mkdir dir="${build.lib}" />
         <antcall target="preparePrefixDir"/>
+        <antcall target="prepareCodaDir"/>
     </target>
 
     <target name="preparePrefixDir" if="prefixDefined">
         <mkdir dir="${prefix}/jar" />
+    </target>
+
+    <target name="prepareCodaDir" if="codaDefined">
+        <mkdir dir="${env.CODA}/common/jar" />
     </target>
 
 
