@@ -85,7 +85,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <evio.h>
+#include "evio.h"
 
 
 /* A few items to make the code more readable */
@@ -371,47 +371,21 @@ static  int      toAppendPosition(EVFILE *a);
 static  int      memoryMapFile(EVFILE *a, const char *fileName);
 static  int      generatePointerTable(EVFILE *a);
 
-/** Maximum number of structures we can keep track of at once. */
-#define MAXHANDLES 100
-EVFILE *handle_list[MAXHANDLES] = {
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
-
+/* Array that holds all pointers to structures created with evOpen().
+ * Space in the array is allocated as needed, beginning with 100
+ * and adding 50% every time more are needed. */
+static EVFILE **handleList = NULL;
+/* The number of handles available for use. */
+static int handleCount = 0;
 
 #ifndef VXWORKS
-    /** Pthread mutex for serializing calls to get and free handles. */
+    /* Pthread mutex for serializing calls to get and free handles. */
     static pthread_mutex_t getHandleMutex = PTHREAD_MUTEX_INITIALIZER;
     /*static pthread_rwlock_t handleLock = PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP;*/
   
-    /** Pthread mutexes for preventing simultaneous
-     *  calls to evClose and read/write routines.
-     *  Need one for each evOpen() call. */
-    static pthread_rwlock_t handleLocks[MAXHANDLES] = {
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER,
-        PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER, PTHREAD_RWLOCK_INITIALIZER
-    };
+    /* Array of pthread read-write lock pointers for preventing simultaneous calls
+     * to evClose and read/write routines. Need 1 for each evOpen() call. */
+    static pthread_rwlock_t **handleLocks = NULL;
     
 #elif defined VXWORKS_5
 
@@ -705,8 +679,8 @@ static void getHandleUnlock(void)
  *  calls to evClose and read/write routines. */
 static void handleReadLock(int handle) {
 #ifndef VXWORKS
-    pthread_rwlock_t handleLock = handleLocks[handle-1];
-    int status = pthread_rwlock_rdlock(&handleLock);
+    pthread_rwlock_t *handleLock = handleLocks[handle-1];
+    int status = pthread_rwlock_rdlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle read lock");
     }
@@ -718,8 +692,8 @@ static void handleReadLock(int handle) {
  *  calls to evClose and read/write routines. */
 static void handleReadUnlock(int handle) {
 #ifndef VXWORKS
-    pthread_rwlock_t handleLock = handleLocks[handle-1];
-    int status = pthread_rwlock_unlock(&handleLock);
+    pthread_rwlock_t *handleLock = handleLocks[handle-1];
+    int status = pthread_rwlock_unlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle read unlock");
     }
@@ -731,8 +705,8 @@ static void handleReadUnlock(int handle) {
  *  calls to evClose and read/write routines. */
 static void handleWriteLock(int handle) {
 #ifndef VXWORKS
-    pthread_rwlock_t handleLock = handleLocks[handle-1];
-    int status = pthread_rwlock_wrlock(&handleLock);
+    pthread_rwlock_t *handleLock = handleLocks[handle-1];
+    int status = pthread_rwlock_wrlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle write lock");
     }
@@ -744,13 +718,100 @@ static void handleWriteLock(int handle) {
  *  calls to evClose and read/write routines. */
 static void handleWriteUnlock(int handle) {
 #ifndef VXWORKS
-    pthread_rwlock_t handleLock = handleLocks[handle-1];
-    int status = pthread_rwlock_unlock(&handleLock);
+    pthread_rwlock_t *handleLock = handleLocks[handle-1];
+    int status = pthread_rwlock_unlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle write unlock");
     }
 #endif
 }
+
+
+/**
+ * Routine to expand existing storage space for EVFILE structures
+ * (one for each evOpen() call).
+ * 
+ * @return S_SUCCESS if success
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
+ */
+static int expandHandles()
+{
+    /* If this is the first initialization, add 100 places for 100 evOpen()'s */
+    if (handleCount < 1 || handleList == NULL) {
+        int i;
+        
+        handleCount = 100;
+
+        handleList = (EVFILE **) calloc(handleCount, sizeof(EVFILE *));
+        if (handleList == NULL) {
+            return S_EVFILE_ALLOCFAIL;
+        }
+
+/* Take all the read-write locks out of vxWorks */
+#ifndef VXWORKS
+        handleLocks = (pthread_rwlock_t **) calloc(handleCount, sizeof(pthread_rwlock_t *));
+        if (handleLocks == NULL) {
+            return S_EVFILE_ALLOCFAIL;
+        }
+        /* Initialize new array of mutexes */
+        for (i=0; i < handleCount; i++) {
+            pthread_rwlock_t *plock = (pthread_rwlock_t *) calloc(1, sizeof(pthread_rwlock_t));
+            pthread_rwlock_init(plock, NULL);
+            handleLocks[i] = plock;
+        }
+#endif
+    }
+    /* We're expanding the exiting arrays */
+    else {
+        /* Create new, 50% larger arrays */
+        int i, newCount = handleCount * 1.5;
+        EVFILE **newHandleList;
+#ifndef VXWORKS
+        pthread_rwlock_t **newHandleLocks;
+
+        newHandleLocks = (pthread_rwlock_t **) calloc(newCount, sizeof(pthread_rwlock_t *));
+        if (newHandleLocks == NULL) {
+            return S_EVFILE_ALLOCFAIL;
+        }
+#endif
+        
+        newHandleList = (EVFILE **) calloc(newCount, sizeof(EVFILE *));
+        if (newHandleList == NULL) {
+            return S_EVFILE_ALLOCFAIL;
+        }
+
+        /* Copy old into new */
+        for (i=0; i < handleCount; i++) {
+            newHandleList[i]  = handleList[i];
+#ifndef VXWORKS
+            newHandleLocks[i] = handleLocks[i];
+#endif
+        }
+
+#ifndef VXWORKS
+        /* Initialize the rest */
+        for (i=handleCount; i < newCount; i++) {
+            pthread_rwlock_t *plock = (pthread_rwlock_t *) calloc(1, sizeof(pthread_rwlock_t));
+            pthread_rwlock_init(plock, NULL);
+            newHandleLocks[i] = plock;
+        }
+        
+        /* Free the unused arrays */
+        free((void *)handleLocks);
+#endif
+        free((void *)handleList);
+
+        /* Update variables */
+        handleCount = newCount;
+        handleList  = newHandleList;
+#ifndef VXWORKS
+        handleLocks = newHandleLocks;
+#endif
+    }
+
+    return S_SUCCESS;
+}
+
 
 
 /**
@@ -1505,8 +1566,6 @@ int evopen_
  * @return S_EVFILE_ALLOCFAIL if memory allocation failed
  * @return S_EVFILE_BADFILE   if error reading file, unsupported version,
  *                            or contradictory data in file
- * @return S_EVFILE_BADHANDLE if no memory available to store handle structure
- *                            (increase MAXHANDLES in evio.c and recompile)
  * @return errno              if file could not be opened (handle = 0)
  */
 int evOpen(char *filename, char *flags, int *handle)
@@ -1541,8 +1600,6 @@ int evOpen(char *filename, char *flags, int *handle)
  * @return S_EVFILE_ALLOCFAIL if memory allocation failed
  * @return S_EVFILE_BADFILE   if error reading buffer, unsupported version,
  *                            or contradictory data
- * @return S_EVFILE_BADHANDLE if no memory available to store handle structure
- *                            (increase MAXHANDLES in evio.c and recompile)
  */
 int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle)
 {
@@ -1586,8 +1643,6 @@ int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle)
  * @return S_EVFILE_ALLOCFAIL if memory allocation failed
  * @return S_EVFILE_BADFILE   if error reading socket, unsupported version,
  *                            or contradictory data
- * @return S_EVFILE_BADHANDLE if no memory available to store handle structure
- *                            (increase MAXHANDLES in evio.c and recompile)
  * @return errno              if socket read error
  */
 int evOpenSocket(int sockFd, char *flags, int *handle)
@@ -1619,9 +1674,9 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
     a = (EVFILE *)calloc(1, sizeof(EVFILE));
     structInit(a);
 
-     for (ihandle=0; ihandle < MAXHANDLES; ihandle++) {
-        if (handle_list[ihandle] == 0) {
-            handle_list[ihandle] = a;
+     for (ihandle=0; ihandle < handleCount; ihandle++) {
+        if (handleList[ihandle] == 0) {
+            handleList[ihandle] = a;
             *handle = ihandle+1;
             break;
         }
@@ -1666,8 +1721,6 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
  * @return S_EVFILE_BADFILE   if error reading file, unsupported version,
  *                            or contradictory data in file
  * @return S_EVFILE_UNXPTDEOF if reading buffer which is too small
- * @return S_EVFILE_BADHANDLE if no memory available to store handle structure
- *                            (increase MAXHANDLES in evio.c and recompile)
  * @return errno              for file opening or socket reading problems
  */
 static int evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, int *handle)
@@ -2243,38 +2296,49 @@ if (debug) printf("File must be evio version %d (not %d) for append mode, quit\n
     /* Store general info in handle structure */
     if (!randomAccess) a->blknum = a->buf[EV_HD_BLKNUM];
 
-    /* Don't let no one else get no "a" while we're opening somethin' */
+    /* Don't let no one else get no "a" while we're openin' somethin' */
     getHandleLock();
 
-    for (ihandle=0; ihandle < MAXHANDLES; ihandle++) {
-        /* If a slot is available ... */
-        if (handle_list[ihandle] == 0) {
-            handle_list[ihandle] = a;
+    /* Do the first-time initialization */
+    if (handleCount < 1 || handleList == NULL) {
+        expandHandles();
+    }
+
+    {
+        int gotHandle = 0;
+        
+        for (ihandle=0; ihandle < handleCount; ihandle++) {
+            /* If a slot is available ... */
+            if (handleList[ihandle] == NULL) {
+                handleList[ihandle] = a;
+                *handle = ihandle + 1;
+                /* store handle in structure for later convenience */
+                a->handle = ihandle + 1;
+                gotHandle = 1;
+                break;
+            }
+        }
+    
+        /* If no available handles left ... */
+        if (!gotHandle) {
+            /* Remember old handle count */
+            int oldHandleLimit = handleCount;
+            /* Create 50% more handles (and increase handleCount) */
+            expandHandles();
+
+            /* Use a newly created handle */
+            ihandle = oldHandleLimit;
+            handleList[ihandle] = a;
             *handle = ihandle + 1;
-            /* store handle in structure for later convenience */
             a->handle = ihandle + 1;
-            
-            getHandleUnlock();
-            if (useFile) free(filename);
-            return(S_SUCCESS);
         }
     }
     
     getHandleUnlock();
-
-    /* No slots left */
-    *handle = 0;
-    if (useFile) {
-        localClose(a);
-        free(filename);
-    }
-    if (a->buf != NULL && !useBuffer)  free(a->buf);
-    if (a->pTable != NULL)     free(a->pTable);
-    if (a->dictionary != NULL) free(a->dictionary);
-    structDestroy(a);
-    free(a);
     
-    return(S_EVFILE_BADHANDLE);        /* A better error code would help */
+    if (useFile) free(filename);
+    
+    return(S_SUCCESS);
 }
 
 
@@ -2972,7 +3036,7 @@ int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen)
     int status;
 
     
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     
@@ -2980,7 +3044,7 @@ int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen)
     handleReadLock(handle);
 
     /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     if (a == NULL) {
         handleReadUnlock(handle);
@@ -3037,7 +3101,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
     uint32_t *temp_buffer, *temp_ptr=NULL;
 
 
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     
@@ -3049,7 +3113,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
     handleReadLock(handle);
 
     /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
@@ -3190,7 +3254,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
     uint32_t  nleft;
 
 
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     
@@ -3202,7 +3266,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
     handleReadLock(handle);
 
     /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
@@ -3304,7 +3368,7 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t
         return(S_EVFILE_BADARG);
     }
 
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     
@@ -3312,7 +3376,7 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t
     handleReadLock(handle);
 
     /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
@@ -3988,7 +4052,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
     int fileActuallySplit = 0;
 
     
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     
@@ -4000,7 +4064,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
     if (useMutex) handleReadLock(handle);
 
     /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
@@ -4560,7 +4624,7 @@ int evClose(int handle)
     int nBytes, bytesToWrite;
     
 
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
 
@@ -4569,7 +4633,7 @@ if (debug) printf("evClose: try to grab evClose() mutex\n");
     handleWriteLock(handle);
 
     /* Look up file struct from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check arg */
     if (a == NULL) {
@@ -4642,7 +4706,7 @@ if (debug) printf("    evClose: didn't write all bytes, err = %s\n", strerror(er
     
     /* Remove this handle from the list */
     getHandleLock();
-    handle_list[handle-1] = 0;    
+    handleList[handle-1] = 0;
     getHandleUnlock();
 
     handleWriteUnlock(handle);
@@ -4673,7 +4737,7 @@ int evGetBufferLength(int handle, uint32_t *length)
     EVFILE *a;
 
     
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
 
@@ -4681,7 +4745,7 @@ int evGetBufferLength(int handle, uint32_t *length)
     handleReadLock(handle);
 
     /* Look up file struct (which contains block buffer) from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check arg */
     if (a == NULL) {
@@ -4815,7 +4879,7 @@ int evIoctl(int handle, char *request, void *argp)
     uint64_t  splitSize;
 
     
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     
@@ -4823,7 +4887,7 @@ int evIoctl(int handle, char *request, void *argp)
     handleWriteLock(handle);
 
     /* Look up file struct from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
@@ -5225,14 +5289,14 @@ int evGetRandomAccessTable(int handle, const uint32_t ***table, uint32_t *len) {
     EVFILE *a;
 
     
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
     handleReadLock(handle);
 
     /* Look up file struct from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
@@ -5285,14 +5349,14 @@ int evGetDictionary(int handle, char **dictionary, uint32_t *len) {
     char *dictCpy;
 
     
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
     handleReadLock(handle);
 
     /* Look up file struct from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
@@ -5364,14 +5428,14 @@ int evWriteDictionary(int handle, char *xmlDictionary)
     int       i, status, dictionaryLen, padSize, bufSize, pads[] = {4,3,2,1};
 
     
-    if (handle < 1 || handle > MAXHANDLES) {
+    if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
     /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
     handleReadLock(handle);
 
     /* Look up file struct from handle */
-    a = handle_list[handle-1];
+    a = handleList[handle-1];
 
     /* Check args */
     if (a == NULL) {
