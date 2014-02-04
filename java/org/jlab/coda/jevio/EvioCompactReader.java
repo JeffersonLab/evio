@@ -494,9 +494,9 @@ public class EvioCompactReader {
 
                 // For each event in block, store its location
                 for (int i=0; i < blockNode.count; i++) {
-                    EvioNode node = extractNode(byteBuffer, blockNode,
-                                                null, DataType.BANK, position,
-                                                eventCount + i, true);
+                    EvioNode node = extractEventNode(byteBuffer, blockNode,
+                                                     DataType.BANK, position,
+                                                     eventCount + i, true);
     //System.out.println("genTable event "+i+" w/ pos = " + node.pos + ", dataPos = " + node.dataPos);
                     eventNodes.add(node);
 
@@ -666,14 +666,14 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
 
     /**
-     * This method extracts an EvioNode object from a given buffer, a
+     * This method extracts an EvioNode object representing an
+     * evio event (top level evio bank) from a given buffer, a
      * location in the buffer, and a few other things. An EvioNode
      * object represents an evio container - either a bank, segment,
      * or tag segment.
      *
      * @param buffer    buffer to examine
      * @param blockNode object holding data about block header
-     * @param eventNode object holding data about containing event (null if isEvent = true)
      * @param type      type of evio structure to extract
      * @param position  position in buffer
      * @param place     place of event in buffer (starting at 0)
@@ -682,9 +682,9 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
      * @return          EvioNode object containing evio event information
      * @throws EvioException if file/buffer not in evio format
      */
-    private EvioNode extractNode(ByteBuffer buffer, BlockNode blockNode,
-                                 EvioNode eventNode, DataType type,
-                                 int position, int place, boolean isEvent)
+    private EvioNode extractEventNode(ByteBuffer buffer, BlockNode blockNode,
+                                      DataType type,
+                                      int position, int place, boolean isEvent)
             throws EvioException {
 
         // Store current evio info without de-serializing
@@ -692,7 +692,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
         node.pos = position;
         node.place = place; // Which # event from beginning am I?
         node.blockNode = blockNode;  // Block associated with this event
-        node.eventNode = eventNode;
+        node.buffer  = buffer;
         node.isEvent = isEvent;
         node.type = type.getValue();
 

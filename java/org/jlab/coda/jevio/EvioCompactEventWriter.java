@@ -18,6 +18,8 @@ import java.nio.*;
  * around EventWriter. Maintain this class only for backward compatibility.
  *
  * @author timmer
+ * @deprecated use EvioWriter instead (warning: the constructor arguments are slightly
+ *             different in EvioWriter).
  */
 public class EvioCompactEventWriter {
 
@@ -273,29 +275,7 @@ public class EvioCompactEventWriter {
      * @return duplicated byte buffer.
      */
     public ByteBuffer getByteBuffer() {
-        // It does NOT make sense to give the caller the internal buffer
-        // used in writing to files. That buffer may contain nothing and
-        // most probably won't contain the full file contents.
-        if (writer.toFile()) return null;
-
-        // We synchronize here so writer does not write/close in the middle
-        // of our messing with the buffer.
-        ByteBuffer buf;
-        synchronized (writer) {
-            buf = writer.getBuffer().duplicate();
-
-            // If the writer is not closed, then the position is just before the
-            // last empty block. Otherwise it is at the actual end.
-            // Make sure we don't throw an exception.
-            if (!writer.isClosed() && (buf.position() < buf.capacity() - EventWriter.headerBytes)) {
-                buf.position(buf.position() + EventWriter.headerBytes);
-            }
-        }
-
-        // Get buffer ready for reading
-        buf.flip();
-
-        return buf;
+        return writer.getByteBuffer();
     }
 
 }

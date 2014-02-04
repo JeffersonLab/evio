@@ -1,5 +1,8 @@
 package org.jlab.coda.jevio;
 
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
+
 /**
  * This class is used to store relevant info about an evio container
  * (bank, segment, or tag segment), without having
@@ -37,6 +40,9 @@ public final class EvioNode {
     /** Block containing this node. */
     BlockNode blockNode;
 
+    /** ByteBuffer that this node is associated with. */
+    ByteBuffer buffer;
+
     //-------------------------------
     // For event-level node
     //-------------------------------
@@ -57,9 +63,14 @@ public final class EvioNode {
     // For sub event-level node
     //-------------------------------
 
-    /** Include node of event containing this node if possible.
-     *  Is null if this is an event node. */
+    /** Node of event containing this node. Is null if this is an event node. */
     EvioNode eventNode;
+
+    /** Node containing this node. Is null if this is an event node. */
+    EvioNode parentNode;
+
+    /** List of child nodes ordered according to placement in buffer. */
+    LinkedList<EvioNode> childNodes;
 
     //-------------------------------
     // Methods
@@ -90,10 +101,13 @@ public final class EvioNode {
         dataLen = 0;
         dataPos = 0;
         dataType = 0;
-        isEvent  = false;
-        scanned  = false;
+
+        isEvent   = false;
+        scanned   = false;
+        buffer    = null;
         blockNode = null;
         eventNode = null;
+        if (childNodes != null) childNodes.clear();
     }
 
     //-------------------------------
@@ -197,6 +211,7 @@ public final class EvioNode {
      * @return event number if representing an event, else -1
      */
     public int getEventNumber() {
+        // TODO: This does not seems right as place defaults to a value of 0!!!
         return (place + 1);
     }
 

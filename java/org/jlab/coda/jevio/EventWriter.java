@@ -1004,10 +1004,52 @@ public class EventWriter {
      * Get the buffer being written into.
      * If writing to a buffer, this was initially supplied by user in constructor.
      * If writing to a file, this is the internal buffer.
+     * Although this method may seems useful, it requires a detailed knowledge of
+     * this class's internals. The {@link #getByteBuffer()} method is much more
+     * useful to the user.
      *
-     * @return buffer being written into.
+     * @return buffer being written into
      */
-    public ByteBuffer getBuffer() {return buffer;}
+    private ByteBuffer getBuffer() {return buffer;}
+
+
+    /**
+     * If writing to a file, return null.
+     * If writing to a buffer, get a duplicate of the user-given buffer
+     * being written into. The buffer's position will be 0 and its
+     * limit will be the size of the valid data. Basically, it's
+     * ready to be read from. The returned buffer shares data with the
+     * original buffer but has separate limit, position, and mark.
+     * Useful if trying to send buffer over the network.
+     *
+     * @return buffer being written into, made ready for reading;
+     *         null if writing to file
+     */
+    public ByteBuffer getByteBuffer() {
+        // It does NOT make sense to give the caller the internal buffer
+        // used in writing to files. That buffer may contain nothing and
+        // most probably won't contain the full file contents.
+        if (toFile()) return null;
+
+        // We synchronize here so we do not write/close in the middle
+        // of our messing with the buffer.
+        ByteBuffer buf;
+        synchronized (this) {
+            buf = buffer.duplicate();
+
+            // If this writer is not closed, then the position is just before the
+            // last empty block. Otherwise it is at the actual end.
+            // Make sure we don't throw an exception.
+            if (!closed && (buf.position() < buf.capacity() - EventWriter.headerBytes)) {
+                buf.position(buf.position() + EventWriter.headerBytes);
+            }
+        }
+
+        // Get buffer ready for reading
+        buf.flip();
+
+        return buf;
+    }
 
 
     /**
