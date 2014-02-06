@@ -227,22 +227,6 @@ public class EventBuilder {
 
 
     /**
-     * Appends int data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the int data to append, or set if there is no existing data.
-     * @throws EvioException
-     */
-    public void appendIntData(BaseStructure structure, int data[]) throws EvioException {
-        if (structure == null) {
-            throw new EvioException("Tried to append int data to a null structure.");
-        }
-        structure.appendIntData(data);
-        setAllHeaderLengths();
-    }
-
-
-    /**
      * Set float data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
@@ -265,7 +249,7 @@ public class EventBuilder {
      * @param data the double data to write.
      * @throws EvioException if structure arg is null
      */
-    public void setIntData(BaseStructure structure, double data[]) throws EvioException {
+    public void setDoubleData(BaseStructure structure, double data[]) throws EvioException {
         if (structure == null) {
             throw new EvioException("Tried to set double data to a null structure.");
         }
@@ -286,6 +270,22 @@ public class EventBuilder {
             throw new EvioException("Tried to set string data to a null structure.");
         }
         structure.setStringData(data);
+        setAllHeaderLengths();
+    }
+
+
+    /**
+     * Appends int data to the structure. If the structure has no data, then this
+     * is the same as setting the data.
+     * @param structure the structure to receive the data, which is appended.
+     * @param data the int data to append, or set if there is no existing data.
+     * @throws EvioException
+     */
+    public void appendIntData(BaseStructure structure, int data[]) throws EvioException {
+        if (structure == null) {
+            throw new EvioException("Tried to append int data to a null structure.");
+        }
+        structure.appendIntData(data);
         setAllHeaderLengths();
     }
 
