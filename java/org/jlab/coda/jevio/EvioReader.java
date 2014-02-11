@@ -1279,11 +1279,10 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Version   4: once here, we are assured the entire next event is in this block.
         // Version 1-3: no matter what, we can get the length of the next event.
-        // A non positive length indicates eof;
         int length;
         length = byteBuffer.getInt();
         if (length < 1) {
-            return null;
+            throw new EvioException("non-positive length (0x" + Integer.toHexString(length) + ")");
         }
 
         header.setLength(length);
