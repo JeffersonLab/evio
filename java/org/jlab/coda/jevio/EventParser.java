@@ -212,7 +212,7 @@ public class EventParser {
 
         // Does the length make sense?
         int len = ByteDataTransformer.toInt(bytes, byteOrder, offset);
-        if ((len < 1) || (4*len + 4 + offset < bytes.length)) {
+        if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
             throw new EvioException("bad length in bank header (0x" + Integer.toHexString(len) + ")");
         }
 
@@ -298,7 +298,7 @@ public class EventParser {
             // Does the length make sense?
             int len = ByteDataTransformer.shortBitsToInt(
                           ByteDataTransformer.toShort(bytes, byteOrder, offset));
-            if ((len < 1) || (4*len + 4 + offset < bytes.length)) {
+            if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
                 throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
             }
 
@@ -308,7 +308,7 @@ public class EventParser {
             // Does the length make sense?
             int len = ByteDataTransformer.shortBitsToInt(
                           ByteDataTransformer.toShort(bytes, byteOrder, offset));
-            if ((len < 1) || (4*len + 4 + offset < bytes.length)) {
+            if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
                 throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
             }
 
@@ -363,7 +363,7 @@ public class EventParser {
                 // Does the length make sense?
                 int len = ByteDataTransformer.shortBitsToInt(
                         ByteDataTransformer.toShort(bytes, byteOrder, offset));
-                if ((len < 1) || (4*len + 4 + offset < bytes.length)) {
+                if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
                     throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
                 }
 
@@ -373,7 +373,7 @@ public class EventParser {
                 // Does the length make sense?
                 int len = ByteDataTransformer.shortBitsToInt(
                         ByteDataTransformer.toShort(bytes, byteOrder, offset));
-                if ((len < 1) || (4*len + 4 + offset < bytes.length)) {
+                if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
                     throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
                 }
 
