@@ -998,7 +998,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 return null;
             }
 
-            unpackRawBytesToStrings();
+            int stringCount = unpackRawBytesToStrings();
+            if (stringCount < 1) return null;
 
             return stringsList.toArray(new String[stringsList.size()]);
 
@@ -1208,10 +1209,11 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     /**
      * Extract string data from rawBytes array. Make sure rawBytes is in the
      * proper jevio 4.0 format.
+     * @return number of strings extracted from bytes
      */
-    private void unpackRawBytesToStrings() {
+    private int unpackRawBytesToStrings() {
 
-        if (rawBytes == null) return;
+        if (rawBytes == null || rawBytes.length < 4) return 0;
 
         try {
             // stringData contains all elements of rawBytes
@@ -1299,6 +1301,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             }
             catch (UnsupportedEncodingException e) { /* will never happen */ }
         }
+
+        return stringsList.size();
     }
 
     /**
