@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.util.IllegalFormatException;
 import java.util.regex.Matcher;
@@ -223,5 +224,37 @@ public class Utilities {
         fileChannel.close();
         buf.limit(limit).position(position);
     }
+
+
+    /**
+     * This method takes a byte buffer and prints out the desired number of words
+     * from the given position.
+     *
+     * @param buf            buffer to print out
+     * @param position       position of data (bytes) in buffer to start printing
+     * @param words          number of 32 bit words to print in hex
+     * @param label          a label to print as header
+     */
+    public static void printBuffer(ByteBuffer buf, int position, int words, String label) {
+
+        if (buf == null) {
+            System.out.println("printBuffer: buf arg is null");
+            return;
+        }
+
+        int origPos = buf.position();
+        buf.position(position);
+
+        if (label != null) System.out.println(label + ":");
+
+        IntBuffer ibuf = buf.asIntBuffer();
+        words = words > ibuf.capacity() ? ibuf.capacity() : words;
+        for (int i=0; i < words; i++) {
+            System.out.println("  Buf(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
+        }
+        System.out.println();
+
+        buf.position(origPos);
+   }
 
 }
