@@ -645,16 +645,16 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 //        sb.append("  len=");
 //        sb.append(header.length);
-//        if (header.padding != 0) {
-//            sb.append("  padding=0");
-//        }
-
         if (rawBytes == null) {
             sb.append("  dataLen=" + header.padding);
         }
         else {
             sb.append("  dataLen=");
             sb.append(rawBytes.length/4);
+        }
+
+        if (header.padding != 0) {
+            sb.append("  pad="+header.padding);
         }
 
         int numChildren = (children == null) ? 0 : children.size();
