@@ -630,6 +630,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             sb.append(header.tag);
             sb.append("(0x");
             sb.append(Integer.toHexString(header.tag));
+
             sb.append(")");
             if (this instanceof EvioBank) {
                 sb.append("  num=");
@@ -644,9 +645,12 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 //        sb.append("  len=");
 //        sb.append(header.length);
+//        if (header.padding != 0) {
+//            sb.append("  padding=0");
+//        }
 
         if (rawBytes == null) {
-            sb.append("  dataLen=0");
+            sb.append("  dataLen=" + header.padding);
         }
         else {
             sb.append("  dataLen=");
@@ -998,7 +1002,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 return null;
             }
 
-            unpackRawBytesToStrings();
+            int stringCount = unpackRawBytesToStrings();
+            if (stringCount < 1) return null;
 
             return stringsList.toArray(new String[stringsList.size()]);
 
@@ -1010,7 +1015,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
     /**
      * This method returns the number of bytes in a raw
-     * evio format of the given string array.
+     * evio format of the given string array, not including header.
      *
      * @param strings array of String objects to size
      * @return the number of bytes in a raw evio format of the given string array
@@ -1039,7 +1044,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 
     /**
-     * This method transforms an array of Strings into raw evio format data.
+     * This method transforms an array of Strings into raw evio format data,
+     * not including header.
      *
      * @param strings array of String objects to transform
      * @return byte array containing evio format string array
@@ -1208,10 +1214,11 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     /**
      * Extract string data from rawBytes array. Make sure rawBytes is in the
      * proper jevio 4.0 format.
+     * @return number of strings extracted from bytes
      */
-    private void unpackRawBytesToStrings() {
+    private int unpackRawBytesToStrings() {
 
-        if (rawBytes == null) return;
+        if (rawBytes == null || rawBytes.length < 4) return 0;
 
         try {
             // stringData contains all elements of rawBytes
@@ -1222,7 +1229,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         // Each string is terminated with a null (char val = 0)
         // and in addition, the end is padded by ASCII 4's (char val = 4).
         // However, in the legacy versions of evio, there is only one
-        // null-terminated string and anything as padding. To accomodate legacy evio, if
+        // null-terminated string and anything as padding. To accommodate legacy evio, if
         // there is not an ending ASCII value 4, anything past the first null is ignored.
         // After doing so, split at the nulls. Do not use the String
         // method "split" as any empty trailing strings are unfortunately discarded.
@@ -1299,6 +1306,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             }
             catch (UnsupportedEncodingException e) { /* will never happen */ }
         }
+
+        return stringsList.size();
     }
 
     /**
