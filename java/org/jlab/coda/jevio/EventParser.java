@@ -298,8 +298,13 @@ public class EventParser {
             // Does the length make sense?
             int len = ByteDataTransformer.shortBitsToInt(
                           ByteDataTransformer.toShort(bytes, byteOrder, offset));
-            if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
-                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
+
+            // Remember, offset has been advanced here, thus the + 2 instead of + 4
+            if ((len < 1) || (4*len + 2 + offset > bytes.length)) {
+System.out.println("Type = " + DataType.getDataType(type) + ", offset = " + offset +
+                   ", len = " + len);
+                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")," +
+                "4(len + 1) + off = " + (4*len + 4 + offset) + " > limit = " + (bytes.length));
             }
 
             header.setLength(len);
@@ -363,7 +368,7 @@ public class EventParser {
                 // Does the length make sense?
                 int len = ByteDataTransformer.shortBitsToInt(
                         ByteDataTransformer.toShort(bytes, byteOrder, offset));
-                if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
+                if ((len < 1) || (4*len + 2 + offset > bytes.length)) {
                     throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
                 }
 
