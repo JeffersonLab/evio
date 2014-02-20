@@ -74,7 +74,6 @@ public final class SegmentHeader extends BaseStructureHeader {
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written, which for a SegmentHeader is 4.
 	 */
-	@Override
 	public int write(ByteBuffer byteBuffer) {
         if (byteBuffer.order() == ByteOrder.BIG_ENDIAN) {
             byteBuffer.put((byte)tag);
