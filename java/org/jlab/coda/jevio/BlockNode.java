@@ -1,5 +1,7 @@
 package org.jlab.coda.jevio;
 
+import java.util.LinkedList;
+
 /**
  * This class is used to store relevant info about an evio block
  * along with its position in a buffer, without having to de-serialize anything.
@@ -19,4 +21,27 @@ final class BlockNode {
      * Useful for appending banks to EvioEvent object.
      */
     int place;
+
+    /** Next block in file/buffer (simple linked list). */
+    BlockNode nextBlock;
+
+    /** List of all event nodes in block. */
+    LinkedList<EvioNode> allEventNodes;
+
+    //----------------------------------
+    // Constructor (package accessible)
+    //----------------------------------
+
+    /** Constructor which creates list containing all events in this block. */
+    BlockNode() {
+        allEventNodes = new LinkedList<EvioNode>();
+    }
+
+    //-------------------------------
+    // Methods
+    //-------------------------------
+
+    public void clearLists() {
+        allEventNodes.clear();
+    }
 }
