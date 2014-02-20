@@ -140,4 +140,24 @@ public enum DataType {
 			return false;
 		}
 	}
+
+    /**
+   	 * Convenience routine to see if the given integer arg represents a data type which
+     * is a structure (a container).
+   	 * @return <code>true</code> if the data type corresponds to one of the structure
+   	 * types: BANK, SEGMENT, or TAGSEGMENT.
+   	 */
+   	static public boolean isStructure(int dataType) {
+   		switch (getDataType(dataType)) {
+   		case BANK:
+   		case SEGMENT:
+   		case TAGSEGMENT:
+   		case ALSOBANK:
+   		case ALSOSEGMENT:
+   			return true;
+   		default:
+   			return false;
+   		}
+   	}
+
 }
