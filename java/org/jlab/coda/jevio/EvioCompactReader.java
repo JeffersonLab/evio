@@ -1436,7 +1436,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
         int pos = byteBuffer.position();
         int lim = byteBuffer.limit();
-        byteBuffer.position(node.dataPos).limit(node.dataPos + 4*node.dataLen);
+        byteBuffer.position(node.dataPos).limit(node.dataPos + 4*node.dataLen - node.pad);
 
         if (copy) {
             ByteBuffer newBuf = ByteBuffer.allocate(4 * node.dataLen);
