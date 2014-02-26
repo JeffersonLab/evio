@@ -370,8 +370,9 @@ public class EvioCompactStructureHandler {
 //System.out.println("scanStructure: start at pos " + position + " < end " + endingPos + " ?");
 
 //System.out.println("scanStructure: buf is at pos " + buffer.position() +
-//                           ", limit =  " + buffer.limit() + ", remaning = " + buffer.remaining() +
-//                           ", capacity = " + buffer.capacity());
+//                           ", limit =  " + buffer.limit() + ", remaining = " + buffer.remaining() +
+//                           ", capacity = " + buffer.capacity() +
+//                           ", position = " + position);
                     // Read first header word
                     len = buffer.getInt(position);
                     dataLen = len - 1; // Len of data (no header) for a bank
@@ -625,6 +626,8 @@ public class EvioCompactStructureHandler {
             scannedStructures.add(node);
         }
 
+        node.scanned = true;
+
         // Return results of this or a previous scan
 //System.out.println("scanStructure: ev index = " + (eventNumber-1) + ", list size = " + list.size());
         return scannedStructures;
@@ -746,7 +749,7 @@ public class EvioCompactStructureHandler {
 
         // If we're adding nothing, then DO nothing
 //System.out.println("addStructure: addBuffer = " + addBuffer);
-//if (addBuffer != null) System.out.println("   remaining = " + addBuffer.remaining());
+//if (addBuffer != null) System.out.println("addStructure: addBuffer remaining = " + addBuffer.remaining());
 
         if (addBuffer == null || addBuffer.remaining() < 4) {
             throw new EvioException("null, empty, or non-evio format buffer arg");
@@ -786,17 +789,24 @@ public class EvioCompactStructureHandler {
         //--------------------------------------------------------
 
         // Create a new buffer
+//System.out.println("addStructure: create new buf of size " + (endPos - initialPosition + appendDataLen));
         ByteBuffer newBuffer = ByteBuffer.allocate(endPos - initialPosition + appendDataLen);
         newBuffer.order(byteOrder);
         // Copy existing buffer into new buffer
         byteBuffer.position(initialPosition).limit(endPos);
         newBuffer.put(byteBuffer);
+//System.out.println("addStructure: copied old buf data, new buf pos = " + newBuffer.position() +
+//                           ", lim = " + newBuffer.limit());
         // Remember position where we put new data into new buffer
         int newDataPos = newBuffer.position();
         // Copy new structure into new buffer
         newBuffer.put(addBuffer);
+//System.out.println("addStructure: copied new data, new buf pos = " + newBuffer.position() +
+//                                   ", lim = " + newBuffer.limit());
         // Get new buffer ready for reading
         newBuffer.flip();
+//System.out.println("addStructure: new buf pos = " + newBuffer.position() +
+//                           ", lim = " + newBuffer.limit());
         // Restore original positions of buffers
         byteBuffer.position(initialPosition);
         addBuffer.position(origAddBufPos);
@@ -811,7 +821,7 @@ public class EvioCompactStructureHandler {
         if (initialPosition != 0) {
             // If event has been scanned, adjust it and all its sub-nodes
             if (scannedStructures != null) {
-//System.out.println("Scanned node " + (i+1) +":");
+//System.out.println("Scanned node:");
                 for (EvioNode evNode : scannedStructures) {
 //System.out.println("      pos = " + evNode.pos + ", dataPos = " + evNode.dataPos);
                     evNode.pos     -= initialPosition;
@@ -824,7 +834,7 @@ public class EvioCompactStructureHandler {
             // Deal with the event node unless we did it already above.
             // This would happen only if the top level bank was a bank of primitive types.
             if (!didEventNode) {
-//System.out.println("Modify node " + (i+1) + ", pos = " + eNode.pos + ", dataPos = " + eNode.dataPos);
+//System.out.println("Modify node: pos = " + node.pos + ", dataPos = " + node.dataPos);
                 node.pos     -= initialPosition;
                 node.dataPos -= initialPosition;
             }
