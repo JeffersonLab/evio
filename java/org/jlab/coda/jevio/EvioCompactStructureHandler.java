@@ -625,6 +625,8 @@ public class EvioCompactStructureHandler {
             scannedStructures.add(node);
         }
 
+        node.scanned = true;
+
         // Return results of this or a previous scan
 //System.out.println("scanStructure: ev index = " + (eventNumber-1) + ", list size = " + list.size());
         return scannedStructures;
