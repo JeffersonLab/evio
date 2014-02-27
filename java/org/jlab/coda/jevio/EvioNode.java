@@ -11,6 +11,8 @@
 
 package org.jlab.coda.jevio;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.LinkedList;
 
 /**
@@ -53,6 +55,9 @@ public final class EvioNode implements Cloneable {
     /** ByteBuffer that this node is associated with. */
     BufferNode bufferNode;
 
+    /** List of child nodes ordered according to placement in buffer. */
+    LinkedList<EvioNode> childNodes;
+
     //-------------------------------
     // For event-level node
     //-------------------------------
@@ -69,7 +74,11 @@ public final class EvioNode implements Cloneable {
      */
     boolean scanned;
 
-    /** List of all nodes in the event including this (top level) object. */
+    /** List of all nodes in the event including the top-level object
+     *  ordered according to placement in buffer.
+     *  Only created at the top-level (with constructor). All lower-level
+     *  nodes are created with clone() so all nodes have a reference to
+     *  the top-level allNodes object. */
     LinkedList<EvioNode> allNodes;
 
     //-------------------------------
@@ -82,9 +91,6 @@ public final class EvioNode implements Cloneable {
     /** Node containing this node. Is null if this is an event node. */
     EvioNode parentNode;
 
-    /** List of child nodes ordered according to placement in buffer. */
-    LinkedList<EvioNode> childNodes;
-
     //----------------------------------
     // Constructors (package accessible)
     //----------------------------------
@@ -95,27 +101,7 @@ public final class EvioNode implements Cloneable {
 
     /**
      * Constructor which creates an EvioNode associated with
-     * an event (top) from scratch in the CompactBuilder.
-     *
-     * @param tag      the tag for the event (or bank) header.
-   	 * @param dataType the data type contained in the event.
-   	 * @param num      the num for the event (or bank) header.
-     */
-    EvioNode(int tag, DataType dataType, int num) {
-        this.tag = tag;
-        this.num = num;
-        this.dataType = dataType.getValue();
-
-        // Put this node in list of all nodes (evio banks, segs, or tagsegs)
-        // contained in this event.
-        allNodes = new LinkedList<EvioNode>();
-        allNodes.addFirst(this);
-    }
-
-
-    /**
-     * Constructor which creates an EvioNode associated with
-     * an event (top) level evio container when parsing buffers
+     * an event (top level) evio container when parsing buffers
      * for evio data.
      *
      * @param pos        position of event in buffer (number of bytes)
@@ -138,6 +124,31 @@ public final class EvioNode implements Cloneable {
         allNodes = new LinkedList<EvioNode>();
         allNodes.addFirst(this);
     }
+
+
+    /**
+     * Constructor which creates an EvioNode in the CompactEventBuilder.
+     *
+     * @param tag        the tag for the event (or bank) header.
+   	 * @param dataType   the data type contained in the event.
+   	 * @param num        the num for the event (or bank) header.
+     * @param pos        position of event in buffer (number of bytes)
+     * @param bufferNode buffer containing this event
+     */
+    EvioNode(int tag, int num, int pos, int dataPos,
+             DataType type, DataType dataType,
+             BufferNode bufferNode) {
+
+        this.tag = tag;
+        this.num = num;
+        this.pos = pos;
+        this.dataPos = dataPos;
+
+        this.type = type.getValue();
+        this.dataType = dataType.getValue();
+        this.bufferNode = bufferNode;
+    }
+
 
     //-------------------------------
     // Methods
@@ -193,7 +204,8 @@ public final class EvioNode implements Cloneable {
     //-------------------------------
 
     /**
-     * Add a child node to the end of the child list.
+     * Add a child node to the end of the child list and
+     * to the list of all events.
      * @param childNode child node to add to the end of the child list.
      */
     synchronized public void addChild(EvioNode childNode) {
@@ -202,20 +214,22 @@ public final class EvioNode implements Cloneable {
         }
         childNodes.addLast(childNode);
 
-        if (eventNode != null && allNodes != null) allNodes.addLast(childNode);
+        if (allNodes != null) allNodes.addLast(childNode);
     }
 
-    /**
-     * Remove a node from this child list.
-     * @param childNode node to remove from child list.
-     */
-    synchronized public void removeChild(EvioNode childNode) {
-        if (childNodes != null) {
-            childNodes.remove(childNode);
-        }
 
-        if (eventNode != null && allNodes != null) allNodes.remove(childNode);
-    }
+
+//    /**
+//     * Remove a node from this child list.
+//     * @param childNode node to remove from child list.
+//     */
+//    synchronized public void removeChild(EvioNode childNode) {
+//        if (childNodes != null) {
+//            childNodes.remove(childNode);
+//        }
+//
+//        if (allNodes != null) allNodes.remove(childNode);
+//    }
 
     //-------------------------------
     // Getters
@@ -228,6 +242,50 @@ public final class EvioNode implements Cloneable {
 //    public BlockNode getBlockNode() {
 //        return blockNode;
 //    }
+
+    /**
+     * Get the list of all nodes that this node contains,
+     * always including itself. This is meaningful only if this
+     * node has been scanned, otherwise it contains only itself.
+     *
+     * @return list of all nodes that this node contains
+     */
+    public LinkedList<EvioNode> getAllNodes() {
+        return allNodes;
+    }
+
+    /**
+     * Get the list of all child nodes that this node contains.
+     * This is meaningful only if this node has been scanned,
+     * otherwise it is null.
+     *
+     * @return list of all child nodes that this node contains;
+     *         null if not scanned or no children
+     */
+    public LinkedList<EvioNode> getChildNodes() {
+        return childNodes;
+    }
+
+    /**
+     * Get the number all children that this node contains.
+     * This is meaningful only if this node has been scanned,
+     * otherwise it returns 0.
+     *
+     * @return number of children that this node contains;
+     *         0 if not scanned
+     */
+    public int getChildCount() {
+        if (childNodes == null) return 0;
+        return childNodes.size();
+    }
+
+    /**
+     * Get the object containing the buffer that this node is associated with.
+     * @return object containing the buffer that this node is associated with.
+     */
+    public BufferNode getBufferNode() {
+        return bufferNode;
+    }
 
     /**
      * Get the length of this evio structure (not including length word itself)
@@ -333,6 +391,7 @@ public final class EvioNode implements Cloneable {
         return DataType.getDataType(dataType);
     }
 
+
     /**
      * If this object represents an event (top-level, evio bank),
      * then returns its number (place in file or buffer) starting
@@ -344,6 +403,7 @@ public final class EvioNode implements Cloneable {
         return (place + 1);
     }
 
+
     /**
      * Does this object represent an event?
      * @return <code>true</code> if this object represents and event,
@@ -353,6 +413,157 @@ public final class EvioNode implements Cloneable {
         return isEvent;
     }
 
+
+    /**
+     * Update, in the buffer, the tag of the structure header this object represents.
+     * Sometimes it's necessary to go back and change the tag of an evio
+     * structure that's already been written. This will do that
+     * .
+     * @param newTag new tag value
+     */
+    public void updateTag(int newTag) {
+
+        ByteBuffer buffer = bufferNode.buffer;
+        int pos = buffer.position();
+        buffer.position(pos);
+
+        switch (DataType.getDataType(type)) {
+            case BANK:
+            case ALSOBANK:
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    buffer.putShort(pos+4, (short) newTag);
+                }
+                else {
+                    buffer.putShort(pos+6, (short) newTag);
+                }
+                return;
+
+            case SEGMENT:
+            case ALSOSEGMENT:
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    buffer.putShort(pos, (byte)newTag);
+                }
+                else {
+                    buffer.putShort(pos+3, (byte)newTag);
+                }
+                return;
+
+            case TAGSEGMENT:
+                short compositeWord = (short) ((tag << 4) | (dataType & 0xf));
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    buffer.putShort(pos, compositeWord);
+                }
+                else {
+                    buffer.putShort(pos+2, compositeWord);
+                }
+                return;
+
+            default:
+        }
+    }
+
+
+    /**
+     * Update, in the buffer, the num of the bank header this object represents.
+     * Sometimes it's necessary to go back and change the num of an evio
+     * structure that's already been written. This will do that
+     * .
+     * @param newNum new num value
+     */
+    public void updateNum(int newNum) {
+
+        ByteBuffer buffer = bufferNode.buffer;
+        int pos = buffer.position();
+        buffer.position(pos);
+
+        switch (DataType.getDataType(type)) {
+            case BANK:
+            case ALSOBANK:
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    buffer.put(pos+7, (byte) newNum);
+                }
+                else {
+                    buffer.putShort(pos+4, (byte)newNum);
+                }
+                return;
+
+            default:
+        }
+    }
+
+
+    /**
+     * Get the data associated with this node in ByteBuffer form.
+     * Depending on the copy argument, the returned buffer will either be
+     * a copy of or a view into this node's buffer.
+     * Position and limit are set for reading.<p>
+     * This method is not synchronized.
+     *
+     * @param copy if <code>true</code>, then return a copy as opposed to a
+     *             view into this node's buffer.
+     * @return ByteBuffer containing data.
+     *         Position and limit are set for reading.
+     */
+    public ByteBuffer getByteData(boolean copy) {
+
+        ByteBuffer buffer = bufferNode.buffer;
+
+        int pos = buffer.position();
+        int lim = buffer.limit();
+        buffer.position(dataPos).limit(dataPos + 4*dataLen - pad);
+
+        if (copy) {
+            ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen);
+            // Relative get and put changes position in both buffers
+            newBuf.put(buffer);
+            newBuf.order(buffer.order());
+            newBuf.flip();
+            buffer.position(pos).limit(lim);
+            return newBuf;
+        }
+
+        ByteBuffer buf = buffer.slice();
+        buf.order(buffer.order());
+        buffer.position(pos).limit(lim);
+        return buf;
+    }
+
+
+    /**
+     * Get this node's entire evio structure in ByteBuffer form.
+     * Depending on the copy argument, the returned buffer will either be
+     * a copy of or a view into the data of this node's buffer.
+     * Position and limit are set for reading.<p>
+     * This method is not synchronized.
+     *
+     * @param copy if <code>true</code>, then return a copy as opposed to a
+     *        view into this node's buffer.
+     * @return ByteBuffer object containing evio structure's bytes.
+     *         Position and limit are set for reading.
+     */
+    public ByteBuffer getStructureBuffer(boolean copy)  {
+
+        ByteBuffer buffer = bufferNode.buffer;
+
+        int pos = buffer.position();
+        int lim = buffer.limit();
+        buffer.position(pos).limit(dataPos + 4*dataLen);
+
+        if (copy) {
+            ByteBuffer newBuf = ByteBuffer.allocate(getTotalBytes());
+            // Relative get and put changes position in both buffers
+            newBuf.put(buffer);
+            newBuf.order(buffer.order());
+            newBuf.flip();
+            buffer.position(pos).limit(lim);
+            return newBuf;
+        }
+
+        ByteBuffer buf = buffer.slice();
+        buf.order(buffer.order());
+        buffer.position(pos).limit(lim);
+        return buf;
+    }
 
 
 }
