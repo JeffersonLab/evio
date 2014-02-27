@@ -26,6 +26,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
      * @return the raw bytes converted into an int array.
+     * @deprecated
      */
     public static int[] getAsIntArray(byte bytes[], ByteOrder byteOrder) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -46,6 +47,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
      * @return the raw bytes converted into an int array.
+     * @deprecated
      */
     public static short[] getAsShortArray(byte bytes[], ByteOrder byteOrder) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -67,6 +69,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into an int array.
+     * @deprecated
 	 */
 	public static short[] getAsShortArray(byte bytes[], int padding, ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -90,6 +93,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into a long array.
+     * @deprecated
 	 */
 	public static long[] getAsLongArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -109,6 +113,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into a double array.
+     * @deprecated
 	 */
 	public static double[] getAsDoubleArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -128,6 +133,7 @@ public class ByteDataTransformer {
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into a float array.
+     * @deprecated
 	 */
 	public static float[] getAsFloatArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
@@ -287,6 +293,21 @@ public class ByteDataTransformer {
         double array[] = new double[size];
         dbuf.get(array, 0, size);
         return array;
+    }
+
+
+    /**
+     * Converts an ByteBuffer object containing evio String data into a String array.
+     *
+     * @param byteBuffer the buffer to convert.
+     * @return the ByteBuffer converted into a String array; null if bad format.
+     */
+    public static String[] toStringArray(ByteBuffer byteBuffer) {
+        if (byteBuffer == null) return null;
+
+        return BaseStructure.unpackRawBytesToStrings(byteBuffer,
+                                                     byteBuffer.position(),
+                                                     byteBuffer.limit() - byteBuffer.position());
     }
 
 
@@ -2036,7 +2057,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;
      */
-    private static void swapData(DataType type, ByteBuffer srcBuffer,
+    static void swapData(DataType type, ByteBuffer srcBuffer,
                                  ByteBuffer destBuffer, int srcPos, int destPos,
                                  int len, boolean inPlace)
                 throws EvioException {
@@ -2116,7 +2137,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;
      */
-    private static void swapStructure(DataType dataType, ByteBuffer srcBuffer,
+    static void swapStructure(DataType dataType, ByteBuffer srcBuffer,
                                       ByteBuffer destBuffer, int srcPos, int destPos,
                                       int length, boolean inPlace, List<EvioNode> nodeList)
              throws EvioException {
