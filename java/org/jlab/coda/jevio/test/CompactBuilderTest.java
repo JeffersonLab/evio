@@ -26,14 +26,16 @@ public class CompactBuilderTest {
      int runLoops = 2;
      int bufferLoops = 20000;
      int dataElementCount = 3;
+      int skip = 1;
 
      boolean oldEvio = false;
      boolean useBuf = false;
 
     ByteBuffer buffer;
 
-         // files for input & output
+     // files for input & output
      String writeFileName1 = "/daqfs/home/timmer/coda/compactEvioBuild.ev";
+     String writeFileName0 = "/daqfs/home/timmer/coda/compactEvioBuildOld.ev";
      String writeFileName2 = "/daqfs/home/timmer/coda/compactEvioNode.ev";
      ByteOrder order = ByteOrder.BIG_ENDIAN;
 
@@ -63,6 +65,10 @@ public class CompactBuilderTest {
                 runLoops = Integer.parseInt(args[i + 1]);
                 i++;
             }
+            else if (args[i].equalsIgnoreCase("-skip")) {
+                skip = Integer.parseInt(args[i + 1]);
+                i++;
+            }
             else if (args[i].equalsIgnoreCase("-little")) {
                 order = ByteOrder.LITTLE_ENDIAN;
             }
@@ -89,6 +95,7 @@ public class CompactBuilderTest {
             "        [-count <elements>]  number of data elements of each type\n"+
             "        [-loops <loops>]     number of times to loop\n" +
             "        [-runs <runs>]       number of runs\n" +
+            "        [-skip <skip>]       number of runs to skip before finding avg\n" +
             "        [-little]            use little endian buffer\n" +
             "        [-old]               use old (orig) evio interface\n" +
             "        [-buf]               use buffer (not array) in new interface\n" +
@@ -104,23 +111,43 @@ public class CompactBuilderTest {
         byte[] array = new byte[bufSize];
         buffer = ByteBuffer.wrap(array);
         buffer.order(order);
-        //ByteBuffer buffer = ByteBuffer.allocateDirect(bufSize);
 
         decodeCommandLine(args);
 
-        setDataSize(dataElementCount);
 
-        EvioNode node = readFile(writeFileName1, 2, 2);
-        if (node != null) {
-            insertEvioNode(node, tag, num, useBuf);
-            return;
-        }
+        System.out.println("Running with:");
+        System.out.println("  arraySize = " + dataElementCount);
+        System.out.println("      loops = " + bufferLoops);
+        System.out.println("       runs = " + runLoops);
+        System.out.println("     useBuf = " + useBuf);
+        System.out.println("   old evio = " + oldEvio);
+
+
+//        writeFileName2 = "/daqfs/home/timmer/coda/compactEvioBuild." + dataElementCount;
+//        EvioNode node = readFile(writeFileName2, 1, 1);
+//        if (node != null) {
+//            insertEvioNode(node, tag, num, useBuf);
+//            return;
+//        }
+//        else if (node == null) {
+//            System.out.println("FAIL!");
+//            return;
+//        }
+
+        setDataSize(dataElementCount);
 
         if (oldEvio) {
             createObjectEvents(tag, num);
         }
         else {
             createCompactEvents(tag, num, useBuf);
+//            runLoops = bufferLoops = 1;
+//            int[] arraySizes = new int[] {1,5,10,20,50,100,200,300,500,750,1000};
+//            for ( int i=0; i < arraySizes.length; i++) {
+//                setDataSize(arraySizes[i]);
+//                writeFileName1 = "/daqfs/home/timmer/coda/compactEvioBuild." + arraySizes[i];
+//                createCompactEvents(tag, num, useBuf);
+//            }
         }
     }
 
@@ -162,6 +189,14 @@ public class CompactBuilderTest {
         try {
             EvioCompactReader reader = new EvioCompactReader(filename);
 
+            ByteBuffer mappedBuf = reader.getByteBuffer();
+            ByteBuffer arrayBuf = ByteBuffer.allocate(mappedBuf.capacity());
+            arrayBuf.put(mappedBuf);
+            arrayBuf.clear();
+            System.out.println("arrayBuf has array = " + arrayBuf.hasArray());
+
+            EvioCompactReader reader2 = new EvioCompactReader(arrayBuf);
+
             // search event 1 for struct with tag, num
             returnList = reader.searchEvent(1, tag, num);
             if (returnList.size() < 1) {
@@ -173,7 +208,8 @@ public class CompactBuilderTest {
                 System.out.println("Found " + returnList.size() + " structs");
             }
 
-            return returnList.get(0);
+            node = returnList.get(0);
+            return node;
 
         }
         catch (IOException e) {
@@ -189,13 +225,13 @@ public class CompactBuilderTest {
     /** Writing to a buffer using new interface. */
     public  void insertEvioNode(EvioNode node, int tag, int num, boolean useBuf) {
         try {
-
+            long total=0L;
             for (int j=0; j<runLoops; j++) {
                 long t2, t1 = System.currentTimeMillis();
 
                 for (int i=0; i< bufferLoops; i++) {
-
-                    CompactEventBuilder builder = new CompactEventBuilder(buffer, useBuf);
+//System.out.println(".");
+                    CompactEventBuilder builder = new CompactEventBuilder(buffer);
 
                     // add top/event level bank of banks
                     builder.openBank(tag, num, DataType.BANK);
@@ -248,8 +284,14 @@ public class CompactBuilderTest {
 
                 t2 = System.currentTimeMillis();
                 System.out.println("Time = " + (t2-t1) + " milliseconds");
+                if (j >= skip) {
+                    total += t2-t1;
+                    System.out.println("Total Time = " + (total) + " milliseconds");
+                }
             }
 
+            System.out.println("Avg Time = " + (total/(runLoops-skip)) + " milliseconds");
+            System.out.println("runs used = " + (runLoops-skip));
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -267,7 +309,7 @@ public class CompactBuilderTest {
 
                 for (int i=0; i< bufferLoops; i++) {
 
-                    CompactEventBuilder builder = new CompactEventBuilder(buffer, useBuf);
+                    CompactEventBuilder builder = new CompactEventBuilder(buffer);
 
                     // add top/event level bank of banks
                     builder.openBank(tag, num, DataType.BANK);
@@ -469,10 +511,7 @@ public class CompactBuilderTest {
 
 //                    // bank of strings
 //                    EvioBank bankStrings = new EvioBank(tag+7, DataType.CHARSTAR8, num+7);
-//                    for (String s : string1)
-//                        bankStrings.appendStringData(s);
-//                    //for (String s : string1)
-//                    //    bankStrings.appendStringData(s);
+//                    bankStrings.appendStringData(string1);
 //                    builder.addChild(bankBanks, bankStrings);
 
 
@@ -517,12 +556,9 @@ public class CompactBuilderTest {
                     //segDoubles.appendDoubleData(double1);
                     builder.addChild(bankSegs, segDoubles);
 
-//                    // seg of strings
+                    // seg of strings
 //                    EvioSegment segStrings = new EvioSegment(tag+13, DataType.CHARSTAR8);
-//                    for (String s : string1)
-//                        segStrings.appendStringData(s);
-//                    //for (String s : string1)
-//                    //    segStrings.appendStringData(s);
+//                    segStrings.appendStringData(string1);
 //                    builder.addChild(bankSegs, segStrings);
 
 
@@ -567,32 +603,18 @@ public class CompactBuilderTest {
                     //tsegDoubles.appendDoubleData(double1);
                     builder.addChild(bankTsegs, tsegDoubles);
 
-//                    // tagsegments of strings
+                    // tagsegments of strings
 //                    EvioTagSegment tsegStrings = new EvioTagSegment(tag+21, DataType.CHARSTAR8);
-//                    for (String s : string1)
-//                        tsegStrings.appendStringData(s);
-//                    //for (String s : string1)
-//                    //    tsegStrings.appendStringData(s);
+//                    tsegStrings.appendStringData(string1);
 //                    builder.addChild(bankTsegs, tsegStrings);
-
-
-//
-//                    // bank of segments
-//                    EvioBank bankSegs2 = new EvioBank(tag+30, DataType.SEGMENT, num+30);
-//                    builder.addChild(event, bankSegs2);
-//
-//                    // seg of tagsegments
-//                    EvioSegment segTsegs = new EvioSegment(tag+31, DataType.TAGSEGMENT);
-//                    builder.addChild(bankSegs2, segTsegs);
-//
-//                    // tagsegments of doubles
-//                    EvioTagSegment tsegDoubles2 = new EvioTagSegment(tag+32, DataType.DOUBLE64);
-//                    tsegDoubles2.appendDoubleData(double1);
-//                    builder.addChild(segTsegs, tsegDoubles2);
-//
 
                     // Take objects & write them into buffer
                     event.write(buffer);
+//                    try {
+//                        buffer.flip();
+//                        if (i==0) Utilities.bufferToFile(writeFileName0, buffer, true, true);
+//                    }
+//                    catch (IOException e) { }
                     buffer.clear();
                 }
 
