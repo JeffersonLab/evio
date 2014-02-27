@@ -456,7 +456,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
             else {
                 long t2, t1 = System.currentTimeMillis();
@@ -491,7 +491,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
 
         }
@@ -842,7 +842,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
             else {
                 long t2, t1 = System.currentTimeMillis();
@@ -871,7 +871,7 @@ public class CompactReaderTest {
 
                 buffie.flip();
 
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true);
+                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
 
         }
