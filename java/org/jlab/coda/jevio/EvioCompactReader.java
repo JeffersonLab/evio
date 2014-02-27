@@ -430,6 +430,23 @@ public class EvioCompactReader {
 
 
     /**
+     * Get the EvioNode object associated with a particular event number
+     * which has been scanned so all substructures are contained in the
+     * node.allNodes list.
+     * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @return  EvioNode object associated with a particular event number,
+     *          or null if there is none.
+     */
+    public EvioNode getScannedEvent(int eventNumber) {
+        try {
+            return scanStructure(eventNumber - 1);
+        }
+        catch (IndexOutOfBoundsException e) { }
+        return null;
+    }
+
+
+    /**
      * Generate a table (ArrayList) of positions of events in file/buffer.
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Uses only absolute gets so byteBuffer position
@@ -860,16 +877,9 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
                     // Create the tree structure
                     kidNode.isEvent = false;
                     kidNode.parentNode = node;
-                    node.addChild(kidNode);
 
-                    // Add this to list of all nodes in the event.
-                    // If this is an event ...
-                    if (node.eventNode == null) {
-                        node.allNodes.addLast(kidNode);
-                    }
-                    else {
-                        node.eventNode.allNodes.addLast(kidNode);
-                    }
+                    // Add this to list of children and to list of all nodes in the event
+                    node.addChild(kidNode);
 
 //System.out.println("scanStructure: kid bank at pos = " + kidNode.pos +
 //                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
@@ -934,15 +944,8 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
                     kidNode.isEvent = false;
                     kidNode.parentNode = node;
+
                     node.addChild(kidNode);
-
-                    if (node.eventNode == null) {
-                        node.allNodes.addLast(kidNode);
-                    }
-                    else {
-                        node.eventNode.allNodes.addLast(kidNode);
-                    }
-
 
 // System.out.println("scanStructure: kid seg at pos = " + kidNode.pos +
 //                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
@@ -995,14 +998,8 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
                     kidNode.isEvent = false;
                     kidNode.parentNode = node;
-                    node.addChild(kidNode);
 
-                    if (node.eventNode == null) {
-                        node.allNodes.addLast(kidNode);
-                    }
-                    else {
-                        node.eventNode.allNodes.addLast(kidNode);
-                    }
+                    node.addChild(kidNode);
 
 // System.out.println("scanStructure: kid tagseg at pos = " + kidNode.pos +
 //                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
@@ -1023,13 +1020,14 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
     /**
      * This method scans the given event number in the buffer.
-     * It returns a list of EvioNode
-     * objects representing all evio structures (banks, segs, tagsegs).
+     * It returns an EvioNode object representing the event.
+     * All the event's substructures, as EvioNode objects, are
+     * contained in the node.allNodes list (including the event itself).
      *
      * @param eventNumber number of the event to be scanned starting at 1
-     * @return the list of objects (evio structures) obtained from the scan
+     * @return the EvioNode object corresponding to the given event number
      */
-    private LinkedList<EvioNode> scanStructure(int eventNumber) {
+    private EvioNode scanStructure(int eventNumber) {
 
         // Node corresponding to event
         EvioNode node = eventNodes.get(eventNumber - 1);
@@ -1047,7 +1045,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
 
         scanStructure(node);
 
-        return node.allNodes;
+        return node;
     }
 
 
@@ -1079,7 +1077,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
         LinkedList<EvioNode> returnList = new LinkedList<EvioNode>();
 
         // Scan the node
-        LinkedList<EvioNode> list = scanStructure(eventNumber);
+        LinkedList<EvioNode> list = scanStructure(eventNumber).allNodes;
 //System.out.println("searchEvent: ev# = " + eventNumber + ", list size = " + list.size() +
 //" for tag/num = " + tag + "/" + num);
 
@@ -1384,35 +1382,14 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
-     *        view into this reader object's buffer.
+     *             view into this reader object's buffer.
      * @throws EvioException if object closed
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
     public synchronized ByteBuffer getData(EvioNode node, boolean copy)
                             throws EvioException {
-        if (closed) {
-            throw new EvioException("object closed");
-        }
-
-        int pos = byteBuffer.position();
-        int lim = byteBuffer.limit();
-        byteBuffer.position(node.dataPos).limit(node.dataPos + 4*node.dataLen);
-
-        if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(4 * node.dataLen);
-            // Relative get and put changes position in both buffers
-            newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
-            newBuf.flip();
-            byteBuffer.position(pos).limit(lim);
-            return newBuf;
-        }
-
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
-        byteBuffer.position(pos).limit(lim);
-        return buf;
+        return node.getByteData(copy);
     }
 
 
@@ -1467,24 +1444,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             throw new EvioException("event " + eventNumber + " does not exist");
         }
 
-        int pos = byteBuffer.position();
-        int lim = byteBuffer.limit();
-        byteBuffer.position(node.pos).limit(node.dataPos + 4*node.dataLen);
-
-        if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(node.dataPos + 4*node.dataLen - node.pos);
-            // Relative get and put changes position in both buffers
-            newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
-            newBuf.flip();
-            byteBuffer.position(pos).limit(lim);
-            return newBuf;
-        }
-
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
-        byteBuffer.position(pos).limit(lim);
-        return buf;
+        return node.getStructureBuffer(copy);
     }
 
 
@@ -1529,24 +1489,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             throw new EvioException("object closed");
         }
 
-        int pos = byteBuffer.position();
-        int lim = byteBuffer.limit();
-        byteBuffer.position(node.pos).limit(node.dataPos + 4*node.dataLen);
-
-        if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(node.dataPos + 4*node.dataLen - node.pos);
-            // Relative get and put changes position in both buffers
-            newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
-            newBuf.flip();
-            byteBuffer.position(pos).limit(lim);
-            return newBuf;
-        }
-
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
-        byteBuffer.position(pos).limit(lim);
-        return buf;
+        return node.getStructureBuffer(copy);
     }
 
 
