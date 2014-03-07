@@ -435,11 +435,12 @@ public class EvioCompactReader {
      * node.allNodes list.
      * @param eventNumber number of event (place in file/buffer) starting at 1.
      * @return  EvioNode object associated with a particular event number,
-     *          or null if there is none.
+     *
+     *         or null if there is none.
      */
     public EvioNode getScannedEvent(int eventNumber) {
         try {
-            return scanStructure(eventNumber - 1);
+            return scanStructure(eventNumber);
         }
         catch (IndexOutOfBoundsException e) { }
         return null;
