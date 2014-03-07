@@ -23,10 +23,14 @@ import java.util.LinkedList;
  * and their substructures while minimizing use of Java objects.
  * Evio format data of a single event is written directly,
  * and sequentially, into a buffer. The buffer contains
- * only the single event, not the full file format.
+ * only the single event, not the full, evio file format.<p>
+ *
+ * The methods of this class are not synchronized so it is NOT
+ * theadsafe. This is done for speed. The buffer is kept in a
+ * state which is ready to read if retrieved by {@link #getBuffer()}.
  *
  * @author timmer
- * Feb 6 2014
+ * (Feb 6 2014)
  */
 public class CompactEventBuilder {
 
@@ -209,19 +213,27 @@ public class CompactEventBuilder {
 
 
 
+//    /**
+//   	 * Get the underlying event.
+//   	 * @return the underlying event.
+//   	 */
+//   	public EvioNode getEvent() {return null;}
+
+
     /**
-   	 * Get the underlying event.
-   	 * @return the underlying event.
-   	 */
-   	public EvioNode getEvent() {
-   		return null;
-   	}
+     * Get the total number of bytes written into the buffer.
+     * @return total number of bytes written into the buffer.
+     */
+    public int getTotalBytes() {return position;}
 
     /**
      * Get the buffer being written into.
+     * The buffer is ready to read.
      * @return buffer being written into.
      */
     public ByteBuffer getBuffer() {
+        buffer.position(0);
+        buffer.limit(position);
         return buffer;
     }
 
@@ -283,8 +295,15 @@ public class CompactEventBuilder {
         if (currentStructure != null &&
                 (currentStructure.dataType != DataType.SEGMENT &&
                  currentStructure.dataType != DataType.ALSOSEGMENT)) {
-            throw new EvioException("may NOT add segment type");
+            throw new EvioException("may NOT add segment type, expecting " +
+                                            currentStructure.dataType);
         }
+
+        // Make sure we can use all of the buffer in case external changes
+        // were made to it (e.g. by doing buffer.flip() in order to read).
+        // All this does is set pos = 0, limit = capacity, it does NOT
+        // clear the data.
+        buffer.clear();
 
         if (buffer.remaining() < 4) {
             throw new EvioException("no room in buffer");
@@ -345,7 +364,6 @@ public class CompactEventBuilder {
         }
 
         position += 4;
-        buffer.position(position);
 
         return node;
     }
@@ -373,8 +391,15 @@ public class CompactEventBuilder {
         // Tagsegments not allowed if parent holds different type
         if (currentStructure != null &&
             currentStructure.dataType != DataType.TAGSEGMENT) {
-            throw new EvioException("may NOT add tagsegment type");
+            throw new EvioException("may NOT add tagsegment type, expecting " +
+                                            currentStructure.dataType);
         }
+
+        // Make sure we can use all of the buffer in case external changes
+        // were made to it (e.g. by doing buffer.flip() in order to read).
+        // All this does is set pos = 0, limit = capacity, it does NOT
+        // clear the data.
+        buffer.clear();
 
         if (buffer.remaining() < 4) {
             throw new EvioException("no room in buffer");
@@ -440,7 +465,6 @@ public class CompactEventBuilder {
         }
 
         position += 4;
-        buffer.position(position);
 
         return node;
     }
@@ -465,8 +489,15 @@ public class CompactEventBuilder {
         if (currentStructure != null &&
                 (currentStructure.dataType != DataType.BANK &&
                  currentStructure.dataType != DataType.ALSOBANK)) {
-            throw new EvioException("may NOT add bank type");
+            throw new EvioException("may NOT add bank type, expecting " +
+                                            currentStructure.dataType);
         }
+
+        // Make sure we can use all of the buffer in case external changes
+        // were made to it (e.g. by doing buffer.flip() in order to read).
+        // All this does is set pos = 0, limit = capacity, it does NOT
+        // clear the data.
+        buffer.clear();
 
         if (buffer.remaining() < 8) {
             throw new EvioException("no room in buffer");
@@ -475,7 +506,7 @@ public class CompactEventBuilder {
         // Write bank header into buffer, assuming padding = 0
         if (useByteBuffer) {
             // Bank w/ no data has len = 1
-            buffer.putInt(1);
+            buffer.putInt(position, 1);
 
             if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                 buffer.putShort(position + 4, (short)tag);
@@ -539,7 +570,6 @@ public class CompactEventBuilder {
         }
 
         position += 8;
-        buffer.position(position);
 
         return node;
     }
@@ -843,8 +873,6 @@ public class CompactEventBuilder {
 
             default:
         }
-
-        buffer.position(position);
     }
 
 
@@ -892,14 +920,17 @@ public class CompactEventBuilder {
                     int oldLimit = nodeBuf.limit();
                     nodeBuf.position(node.getDataPosition());
                     nodeBuf.limit(node.getPosition() + node.getTotalBytes());
-                    buffer.put(nodeBuf);
+
+                    buffer.position(position);
+                    buffer.put(nodeBuf); // this method is relative to position
+                    buffer.position(0);  // get ready for external reading
+
                     nodeBuf.position(oldPos);
                     nodeBuf.limit(oldLimit);
                 }
             }
 
             position += 4*node.dataLen;
-            buffer.position(position);
         }
     }
 
@@ -927,6 +958,9 @@ public class CompactEventBuilder {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
 
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
+
         int len = node.getTotalBytes();
         if (buffer.remaining() < len) {
             throw new EvioException("no room in buffer");
@@ -951,13 +985,16 @@ System.out.println("\n\nEfficient node to array\n");
                 int oldLimit = buf.limit();
                 buf.position(node.getPosition());
                 buf.limit(node.getPosition() + node.getTotalBytes());
-                buffer.put(buf);
+
+                buffer.position(position);
+                buffer.put(buf); // this method is relative to position
+                buffer.position(0);  // get ready for external reading
+
                 buf.position(oldPos);
                 buf.limit(oldLimit);
             }
 
             position += len;
-            buffer.position(position);
         }
         else {
             // If node is opposite endian as this buffer,
@@ -987,9 +1024,13 @@ System.out.println("addEvioNode: write swapped headers");
             throw new EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure.dataType != DataType.CHAR8) {
+        if (currentStructure.dataType != DataType.CHAR8  &&
+            currentStructure.dataType != DataType.UCHAR8)  {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
 
         int len = data.length;
         if (buffer.remaining() < len) {
@@ -1020,7 +1061,9 @@ System.out.println("addEvioNode: write swapped headers");
 
         // Copy the data in one chunk
         if (useByteBuffer) {
+            buffer.position(position);
             buffer.put(data);
+            buffer.position(0);
         }
         else {
             System.arraycopy(data, 0, array, position, len);
@@ -1031,7 +1074,6 @@ System.out.println("addEvioNode: write swapped headers");
 
         // Advance buffer position
         position += len + currentStructure.padding;
-        buffer.position(position);
     }
 
 
@@ -1053,9 +1095,13 @@ System.out.println("addEvioNode: write swapped headers");
             throw new EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure.dataType != DataType.INT32) {
+        if (currentStructure.dataType != DataType.INT32  &&
+            currentStructure.dataType != DataType.UINT32)  {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
 
         int len = data.length;
         if (buffer.remaining() < 4*len) {
@@ -1090,7 +1136,6 @@ System.out.println("addEvioNode: write swapped headers");
         }
 
         position += 4*len;     // # bytes
-        buffer.position(position);
     }
 
 
@@ -1114,9 +1159,13 @@ System.out.println("addEvioNode: write swapped headers");
             throw new EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure.dataType != DataType.SHORT16) {
+        if (currentStructure.dataType != DataType.SHORT16  &&
+            currentStructure.dataType != DataType.USHORT16)  {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
 
         int len = data.length;
         if (buffer.remaining() < 2*len) {
@@ -1171,9 +1220,8 @@ System.out.println("addEvioNode: write swapped headers");
 
         currentStructure.padding = 2*(currentStructure.dataLen % 2);
 //System.out.println("short padding = " + currentStructure.padding);
-        // Advance buffer position
+        // Advance position
         position += 2*len + currentStructure.padding;
-        buffer.position(position);
 //System.out.println("set pos = " + position);
 //System.out.println("");
     }
@@ -1197,9 +1245,13 @@ System.out.println("addEvioNode: write swapped headers");
             throw new EvioException("add a bank, segment, or tagsegment first");
         }
 
-        if (currentStructure.dataType != DataType.LONG64) {
+        if (currentStructure.dataType != DataType.LONG64  &&
+            currentStructure.dataType != DataType.ULONG64)  {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
 
         int len = data.length;
         if (buffer.remaining() < 8*len) {
@@ -1241,7 +1293,6 @@ System.out.println("addEvioNode: write swapped headers");
         }
 
         position += 8*len;       // # bytes
-        buffer.position(position);
     }
 
 
@@ -1266,6 +1317,9 @@ System.out.println("addEvioNode: write swapped headers");
         if (currentStructure.dataType != DataType.FLOAT32) {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
 
         int len = data.length;
         if (buffer.remaining() < 4*len) {
@@ -1301,7 +1355,6 @@ System.out.println("addEvioNode: write swapped headers");
         }
 
         position += 4*len;     // # bytes
-        buffer.position(position);
     }
 
 
@@ -1328,6 +1381,9 @@ System.out.println("addEvioNode: write swapped headers");
         if (currentStructure.dataType != DataType.DOUBLE64) {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
 
         int len = data.length;
         if (buffer.remaining() < 8*len) {
@@ -1372,7 +1428,6 @@ System.out.println("addEvioNode: write swapped headers");
         }
 
         position += 8*len;     // # bytes
-        buffer.position(position);
     }
 
 
@@ -1403,6 +1458,9 @@ System.out.println("addEvioNode: write swapped headers");
         // Convert strings into byte array (already padded)
         byte[] data = BaseStructure.stringsToRawBytes(strings);
 
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
+
         int len = data.length;
         if (buffer.remaining() < len) {
             throw new EvioException("no room in buffer");
@@ -1415,7 +1473,9 @@ System.out.println("addEvioNode: write swapped headers");
         }
 
         if (useByteBuffer) {
+            buffer.position(position);
             buffer.put(data);
+            buffer.position(0);
         }
         else {
             System.arraycopy(data, 0, array, position, len);
@@ -1424,7 +1484,6 @@ System.out.println("addEvioNode: write swapped headers");
         addToAllLengths(len/4);
 
         position += len;
-        buffer.position(position);
     }
 
 
@@ -1497,6 +1556,9 @@ System.out.println("addEvioNode: write swapped headers");
         catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Reset position & limit
+        buffer.clear();
     }
 
 }
