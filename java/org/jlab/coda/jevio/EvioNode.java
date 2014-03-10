@@ -250,9 +250,7 @@ public final class EvioNode implements Cloneable {
      *
      * @return list of all nodes that this node contains
      */
-    public LinkedList<EvioNode> getAllNodes() {
-        return allNodes;
-    }
+    public LinkedList<EvioNode> getAllNodes() {return allNodes;}
 
     /**
      * Get the list of all child nodes that this node contains.
@@ -264,6 +262,19 @@ public final class EvioNode implements Cloneable {
      */
     public LinkedList<EvioNode> getChildNodes() {
         return childNodes;
+    }
+
+    /**
+     * Get the child node at the given index (starts at 0).
+     * This is meaningful only if this node has been scanned,
+     * otherwise it is null.
+     *
+     * @return child node at the given index;
+     *         null if not scanned or no child at that index
+     */
+    public EvioNode getChildAt(int index) {
+        if ((childNodes == null) || (childNodes.size() < index+1)) return null;
+        return childNodes.get(index);
     }
 
     /**
@@ -508,8 +519,8 @@ public final class EvioNode implements Cloneable {
 
         ByteBuffer buffer = bufferNode.buffer;
 
-        int pos = buffer.position();
-        int lim = buffer.limit();
+        int oldPos = buffer.position();
+        int oldLim = buffer.limit();
         buffer.position(dataPos).limit(dataPos + 4*dataLen - pad);
 
         if (copy) {
@@ -518,13 +529,13 @@ public final class EvioNode implements Cloneable {
             newBuf.put(buffer);
             newBuf.order(buffer.order());
             newBuf.flip();
-            buffer.position(pos).limit(lim);
+            buffer.position(oldPos).limit(oldLim);
             return newBuf;
         }
 
         ByteBuffer buf = buffer.slice();
         buf.order(buffer.order());
-        buffer.position(pos).limit(lim);
+        buffer.position(oldPos).limit(oldLim);
         return buf;
     }
 
@@ -545,8 +556,8 @@ public final class EvioNode implements Cloneable {
 
         ByteBuffer buffer = bufferNode.buffer;
 
-        int pos = buffer.position();
-        int lim = buffer.limit();
+        int oldPos = buffer.position();
+        int oldLim = buffer.limit();
         buffer.position(pos).limit(dataPos + 4*dataLen);
 
         if (copy) {
@@ -555,13 +566,13 @@ public final class EvioNode implements Cloneable {
             newBuf.put(buffer);
             newBuf.order(buffer.order());
             newBuf.flip();
-            buffer.position(pos).limit(lim);
+            buffer.position(oldPos).limit(oldLim);
             return newBuf;
         }
 
         ByteBuffer buf = buffer.slice();
         buf.order(buffer.order());
-        buffer.position(pos).limit(lim);
+        buffer.position(oldPos).limit(oldLim);
         return buf;
     }
 
