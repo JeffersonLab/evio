@@ -5,7 +5,8 @@ package org.jlab.coda.jevio;
  * type with value 0xe corresponds to the enum BANK. Mostly this is used for printing.
  * 
  * @author heddle
- * 
+ * @author timmer
+ *
  */
 public enum StructureType {
 
@@ -16,48 +17,52 @@ public enum StructureType {
 
 	private int value;
 
-	private StructureType(int value) {
-		this.value = value;
-	}
+    /** Fast way to convert integer values into StructureType objects. */
+    private static StructureType[] typeToInt;
 
-	/**
-	 * Get the enum's value.
-	 * 
-	 * @return the value, e.g., 0xe for a BANK
-	 */
-	public int getValue() {
-		return value;
-	}
 
-	/**
-	 * Obtain the name from the value.
-	 * 
-	 * @param value the value to match.
-	 * @return the name, or "UNKNOWN".
-	 */
-	public static String getName(int value) {
-		StructureType structuretypes[] = StructureType.values();
-		for (StructureType dt : structuretypes) {
-			if (dt.value == value) {
-				return dt.name();
-			}
-		}
-		return "UNKNOWN";
-	}
+    // Fill array after all enum objects created
+    static {
+        typeToInt = new StructureType[0xe + 1];
+        for (StructureType type : values()) {
+            typeToInt[type.value] = type;
+        }
+    }
 
-	/**
-	 * Obtain the enum from the value.
-	 * 
-	 * @param value the value to match.
-	 * @return the matching enum, or <code>null</code>.
-	 */
-	public static StructureType getStructureType(int value) {
-		StructureType structuretypes[] = StructureType.values();
-		for (StructureType dt : structuretypes) {
-			if (dt.value == value) {
-				return dt;
-			}
-		}
-		return null;
-	}
+
+    private StructureType(int value) {
+        this.value = value;
+    }
+
+    /**
+     * Get the enum's value.
+     *
+     * @return the value, e.g., 0xe for a BANK
+     */
+    public int getValue() {
+        return value;
+    }
+
+    /**
+     * Obtain the name from the value.
+     *
+     * @param val the value to match.
+     * @return the name, or "UNKNOWN".
+     */
+    public static String getName(int val) {
+        if (val > 0xe || val < 0) return "UNKNOWN";
+        StructureType type = getStructureType(val);
+        if (type == null) return "UNKNOWN";
+        return type.name();
+    }
+
+    /**
+     * Obtain the enum from the value.
+     *
+     * @param val the value to match.
+     * @return the matching enum, or <code>null</code>.
+     */
+    public static StructureType getStructureType(int val) {
+        return typeToInt[val];
+    }
 }
