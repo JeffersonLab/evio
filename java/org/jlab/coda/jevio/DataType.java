@@ -1,8 +1,6 @@
 package org.jlab.coda.jevio;
 
 
-import java.util.HashMap;
-
 /**
  * This an enum used to convert data type numerical values to a more meaningful name.
  * For example, the data type with value 0x20 corresponds to the enum BANK.
@@ -51,14 +49,14 @@ public enum DataType {
 
 
     /** Fast way to convert integer values into DataType objects. */
-    private static DataType[] typeToInt;
+    private static DataType[] intToType;
 
 
     // Fill array after all enum objects created
     static {
-        typeToInt = new DataType[0x42 + 1];
+        intToType = new DataType[0x42 + 1];
         for (DataType type : values()) {
-            typeToInt[type.value] = type;
+            intToType[type.value] = type;
         }
     }
 
@@ -70,7 +68,7 @@ public enum DataType {
 	 * @return the matching enum, or <code>null</code>.
 	 */
     public static DataType getDataType(int val) {
-        return typeToInt[val];
+        return intToType[val];
     }
 
 

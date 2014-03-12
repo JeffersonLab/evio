@@ -18,14 +18,14 @@ public enum StructureType {
 	private int value;
 
     /** Fast way to convert integer values into StructureType objects. */
-    private static StructureType[] typeToInt;
+    private static StructureType[] intToType;
 
 
     // Fill array after all enum objects created
     static {
-        typeToInt = new StructureType[0xe + 1];
+        intToType = new StructureType[0xe + 1];
         for (StructureType type : values()) {
-            typeToInt[type.value] = type;
+            intToType[type.value] = type;
         }
     }
 
@@ -63,6 +63,6 @@ public enum StructureType {
      * @return the matching enum, or <code>null</code>.
      */
     public static StructureType getStructureType(int val) {
-        return typeToInt[val];
+        return intToType[val];
     }
 }
