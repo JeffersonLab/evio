@@ -63,6 +63,7 @@ public enum StructureType {
      * @return the matching enum, or <code>null</code>.
      */
     public static StructureType getStructureType(int val) {
+        if (val > 0xe || val < 0) return null;
         return intToType[val];
     }
 }

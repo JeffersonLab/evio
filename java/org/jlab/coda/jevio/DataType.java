@@ -68,6 +68,7 @@ public enum DataType {
 	 * @return the matching enum, or <code>null</code>.
 	 */
     public static DataType getDataType(int val) {
+        if (val > 0x42 || val < 0) return null;
         return intToType[val];
     }
 
