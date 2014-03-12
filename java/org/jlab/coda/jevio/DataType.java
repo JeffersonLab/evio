@@ -45,22 +45,20 @@ public enum DataType {
     HOLLERIT       (0x41),
     NVALUE         (0x42);
 
+
     /** Each name is associated with a specific evio integer value. */
     private int value;
 
 
-    /** Faster way to convert integer values into names. */
-    private static HashMap<Integer, String> names = new HashMap<Integer, String>(32);
-
-    /** Faster way to convert integer values into DataType objects. */
-    private static HashMap<Integer, DataType> dataTypes = new HashMap<Integer, DataType>(32);
+    /** Fast way to convert integer values into DataType objects. */
+    private static DataType[] typeToInt;
 
 
-    // Fill static hashmaps after all enum objects created
+    // Fill array after all enum objects created
     static {
-        for (DataType item : DataType.values()) {
-            dataTypes.put(item.value, item);
-            names.put(item.value, item.name());
+        typeToInt = new DataType[0x42 + 1];
+        for (DataType type : values()) {
+            typeToInt[type.value] = type;
         }
     }
 
@@ -72,7 +70,7 @@ public enum DataType {
 	 * @return the matching enum, or <code>null</code>.
 	 */
     public static DataType getDataType(int val) {
-        return dataTypes.get(val);
+        return typeToInt[val];
     }
 
 
@@ -83,9 +81,10 @@ public enum DataType {
      * @return the name, or "UNKNOWN".
      */
     public static String getName(int val) {
-        String n = names.get(val);
-        if (n != null) return n;
-        return "UNKNOWN";
+        if (val > 0x42 || val < 0) return "UNKNOWN";
+        DataType type = getDataType(val);
+        if (type == null) return "UNKNOWN";
+        return type.name();
     }
 
 
