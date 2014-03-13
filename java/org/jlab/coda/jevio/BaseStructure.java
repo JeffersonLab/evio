@@ -141,7 +141,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * Holds the children of this structure. This is used for creating trees for a variety of purposes
      * (not necessarily graphical.)
 	 */
-	protected Vector<BaseStructure> children;
+	protected ArrayList<BaseStructure> children;
 
     /**
      * Keep track of whether header length data is up-to-date or not.
@@ -199,7 +199,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             children.clear();
         }
         else {
-            children = new Vector<BaseStructure>(10);
+            children = new ArrayList<BaseStructure>(10);
         }
 
         // copy over some stuff from other structure
@@ -383,7 +383,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 case SEGMENT:
                 case TAGSEGMENT:
                     // Create kid storage since we're a container type
-                    bs.children = new Vector<BaseStructure>(10);
+                    bs.children = new ArrayList<BaseStructure>(10);
 
                     // Clone kids
                     for (BaseStructure kid : children) {
@@ -1359,7 +1359,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 		if (children == null) {
 			return DefaultMutableTreeNode.EMPTY_ENUMERATION;
 		}
-		return children.elements();
+        return Collections.enumeration(children);
 	}
 
 	/**
@@ -1370,7 +1370,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 */
 	public void insert(MutableTreeNode child, int index) {
 		if (children == null) {
-			children = new Vector<BaseStructure>(10);
+			children = new ArrayList<BaseStructure>(10);
 		}
 		children.add(index, (BaseStructure) child);
         child.setParent(this);
@@ -1386,7 +1386,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 */
 	public void insert(MutableTreeNode child) {
 		if (children == null) {
-			children = new Vector<BaseStructure>(10);
+			children = new ArrayList<BaseStructure>(10);
 		}
 		//add to end
 		insert(child, children.size());
@@ -1546,7 +1546,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
         BaseStructure b = null;
         try {
-            b = children.elementAt(index);
+            b = children.get(index);
         }
         catch (ArrayIndexOutOfBoundsException e) { }
         return b;
@@ -1832,14 +1832,24 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 	}
 
-	/**
-	 * Get the children of this structure.
-	 * 
-	 * @return the children of this structure.
-	 */
-	public Vector<BaseStructure> getChildren() {
-		return children;
-	}
+    /**
+   	 * Get the children of this structure.
+     * Use {@link #getChildrenList()} instead.
+   	 *
+     * @deprecated child structures are no longer keep in a Vector
+   	 * @return the children of this structure.
+   	 */
+   	public Vector<BaseStructure> getChildren() {
+        if (children == null) return null;
+        return new Vector<BaseStructure>(children);
+    }
+
+    /**
+   	 * Get the children of this structure.
+   	 *
+   	 * @return the children of this structure.
+   	 */
+   	public List<BaseStructure> getChildrenList() {return children;}
 
     /**
      * Get whether the lengths of all header fields for this structure
