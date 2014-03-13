@@ -1505,7 +1505,8 @@ System.out.println("addEvioNode: write swapped headers");
             boolean writeLastBlock = false;
 
             // Get buffer ready to read
-            buffer.flip();
+            buffer.position(0);
+            buffer.limit(position);
 
             // Write beginning 8 word header
             // total length
