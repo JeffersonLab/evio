@@ -350,7 +350,10 @@ public class EventParser {
 
             // Remember, offset has been advanced here, thus the + 2 instead of + 4
             if ((len < 1) || (4*len + 2 + offset > bytes.length)) {
-                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
+                //throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
+System.out.println("bad seg header len:");
+System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
+                   ") > bytes.len (" + bytes.length + ")");
             }
 
             header.setLength(len);
@@ -360,7 +363,10 @@ public class EventParser {
             int len = ByteDataTransformer.shortBitsToInt(
                           ByteDataTransformer.toShort(bytes, byteOrder, offset));
             if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
-                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
+//                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
+System.out.println("bad seg header len:");
+System.out.println("   4*len + 4 + off (" +  (4*len + 2 + offset) +
+                   ") > bytes.len (" + bytes.length + ")");
             }
 
             header.setLength(len);
@@ -461,7 +467,7 @@ public class EventParser {
                 int len = ByteDataTransformer.shortBitsToInt(
                         ByteDataTransformer.toShort(bytes, byteOrder, offset));
                 if ((len < 1) || (4*len + 2 + offset > bytes.length)) {
-                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
+//                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
                 }
 
                 header.setLength(len);
@@ -471,7 +477,7 @@ public class EventParser {
                 int len = ByteDataTransformer.shortBitsToInt(
                         ByteDataTransformer.toShort(bytes, byteOrder, offset));
                 if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
-                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
+//                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
                 }
 
                 header.setLength(len);
