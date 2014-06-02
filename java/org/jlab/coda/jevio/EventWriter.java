@@ -643,7 +643,7 @@ public class EventWriter {
         // If we can't overwrite or append and file exists, throw exception
         if (!overWriteOK && !append && (currentFile.exists() && currentFile.isFile())) {
             throw new EvioException("File exists but user requested no over-writing or appending, "
-                    + currentFile.getPath());
+                    + currentFile.getAbsolutePath());
         }
 
         // Create internal storage buffer
@@ -690,11 +690,11 @@ public class EventWriter {
 		}
         catch (FileNotFoundException e) {
             throw new EvioException("File could not be opened for writing, " +
-                    currentFile.getPath(), e);
+                    currentFile.getAbsolutePath(), e);
         }
         catch (IOException e) {
             throw new EvioException("File could not be positioned for appending, " +
-                    currentFile.getPath(), e);
+                    currentFile.getAbsolutePath(), e);
         }
 
         // Write out the beginning block header
@@ -1033,7 +1033,7 @@ public class EventWriter {
      */
     public String getCurrentFilename() {
         if (currentFile != null) {
-            return currentFile.getName();
+            return currentFile.getAbsolutePath();
         }
         return null;
     }
@@ -2082,14 +2082,14 @@ if (debug) System.out.println("    flushToFile(): try writing " + eventsWrittenT
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
 if (debug) System.out.println("    flushToFile(): create file!");
-if (debug) System.out.println("\nCreating file " + currentFile.getName());
+if (debug) System.out.println("\nCreating file " + currentFile.getAbsolutePath());
             try {
                 fileOutputStream = new FileOutputStream(currentFile, false);  // no appending
                 fileChannel = fileOutputStream.getChannel();
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
-                        currentFile.getPath(), e);
+                        currentFile.getAbsolutePath(), e);
             }
         }
         // If appending to existing data, write over last block header (back up 32 bytes)
@@ -2156,7 +2156,7 @@ if (debug) System.out.println("    flushToFile(): after write, remaining = " + b
         // If we can't overwrite and file exists, throw exception
         if (!overWriteOK && (currentFile.exists() && currentFile.isFile())) {
             throw new EvioException("File exists but user requested no over-writing, "
-                    + currentFile.getPath());
+                    + currentFile.getAbsolutePath());
         }
 
 if (debug) System.out.println("splitFile: generated file name = " + fileName);
