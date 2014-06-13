@@ -26,10 +26,10 @@ public class EventTreeMenu {
     //----------------------
 
     /** A button for selecting "next" event. */
-    JButton nextButton;
+    protected JButton nextButton;
 
     /** A button for selecting "previous" event. */
-    JButton prevButton;
+    protected JButton prevButton;
 
 	/** Menu item for exporting file to XML. */
 	private JMenuItem xmlExportItem;
@@ -122,11 +122,19 @@ public class EventTreeMenu {
                 // If we're looking at a file, there are multiple events contained in it
                 if (evioFileReader != null) {
                     try {
-                        EvioEvent event = evioFileReader.parseEvent(++eventIndex);
-                        if (event != null) {
-                            eventTreePanel.setEvent(event);
+                        // If we've reached the upper limit, do nothing
+                        if (eventIndex + 1 <= evioFileReader.getEventCount()) {
+                            EvioEvent event = evioFileReader.parseEvent(++eventIndex);
+                            if (event != null) {
+                                eventTreePanel.setEvent(event);
+                            }
+                            if (eventIndex > 1) {
+                                prevButton.setEnabled(true);
+                            }
+                            if (eventIndex >= evioFileReader.getEventCount()) {
+                                nextButton.setEnabled(false);
+                            }
                         }
-                        if (eventIndex > 1) prevButton.setEnabled(true);
                     }
                     catch (IOException e1) {
                         eventIndex--;
@@ -157,6 +165,9 @@ public class EventTreeMenu {
                             EvioEvent event = evioFileReader.parseEvent(--eventIndex);
                             if (event != null) {
                                 eventTreePanel.setEvent(event);
+                            }
+                            if (eventIndex < evioFileReader.getEventCount()) {
+                                nextButton.setEnabled(true);
                             }
                             if (eventIndex < 2) {
                                 prevButton.setEnabled(false);
@@ -192,6 +203,20 @@ public class EventTreeMenu {
                             EvioEvent event = evioFileReader.gotoEventNumber(eventIndex);
                             if (event != null) {
                                 eventTreePanel.setEvent(event);
+                            }
+
+                            if (eventIndex > 1) {
+                                prevButton.setEnabled(true);
+                            }
+                            else {
+                                prevButton.setEnabled(false);
+                            }
+
+                            if (eventIndex >= evioFileReader.getEventCount()) {
+                                nextButton.setEnabled(false);
+                            }
+                            else {
+                                nextButton.setEnabled(true);
                             }
                         }
                         else {
@@ -333,7 +358,7 @@ public class EventTreeMenu {
     /**
      * Select and open an event file.
      */
-    private void doOpenEventFile() {
+    protected void doOpenEventFile() {
         EvioReader eFile    = evioFileReader;
         EvioReader evioFile = openEventFile();
         // handle cancel button properly
