@@ -32,54 +32,54 @@ public class EventTreeMenu {
     protected JButton prevButton;
 
 	/** Menu item for exporting file to XML. */
-	private JMenuItem xmlExportItem;
+    protected JMenuItem xmlExportItem;
 
     /** Menu item for opening event file. */
-    private JMenuItem openEventFile;
+    protected JMenuItem openEventFile;
 
     /** Menu item setting the number of the event (from a file) to be displayed. */
-    private JTextField eventNumberInput;
+    protected JTextField eventNumberInput;
 
     /** The panel that holds the tree and all associated widgets. */
-	private EventTreePanel eventTreePanel;
+    protected EventTreePanel eventTreePanel;
 
     /** Number of event currently being displayed. */
-    private int eventIndex;
+    protected int eventIndex;
 
     //----------------------
     // file stuff
     //----------------------
 
-     /** Last selected data file. */
-    private String dataFilePath;
+    /** Last selected data file. */
+    protected String dataFilePath;
 
     /** Last selected dictionary file. */
-    private String dictionaryFilePath;
+    protected String dictionaryFilePath;
 
     /** Last selected xml file to export event file into. */
-    private String xmlFilePath;
+    protected String xmlFilePath;
 
     /** Filter so only files with specified extensions are seen in file viewer. */
-    private FileNameExtensionFilter evioFileFilter;
+    protected FileNameExtensionFilter evioFileFilter;
 
     /** The reader object for the currently viewed evio file. */
-    private EvioReader evioFileReader;
+    protected EvioReader evioFileReader;
 
     //----------------------
     // dictionary stuff
     //----------------------
 
     /** Is the user-selected or file-embedded dictionary currently used? */
-    private boolean isUserDictionary;
+    protected boolean isUserDictionary;
 
     /** User-selected dictionary file. */
-    private INameProvider userDictionary;
+    protected INameProvider userDictionary;
 
     /** Dictionary embedded with opened evio file. */
-    private INameProvider fileDictionary;
+    protected INameProvider fileDictionary;
 
     /** Dictionary currently in use. */
-    private INameProvider currentDictionary;
+    protected INameProvider currentDictionary;
 
 
     //----------------------------
@@ -88,7 +88,7 @@ public class EventTreeMenu {
 	/**
 	 * Listener list for structures (banks, segments, tagsegments) encountered while processing an event.
 	 */
-	private EventListenerList evioListenerList;
+    protected EventListenerList evioListenerList;
 
 
 
@@ -112,7 +112,7 @@ public class EventTreeMenu {
     /**
      * Create a panel to change events in viewer.
      */
-    void addEventControlPanel() {
+    protected void addEventControlPanel() {
 
         nextButton = new JButton("next >");
 
@@ -566,7 +566,7 @@ public class EventTreeMenu {
             }
         }
         connectEvioListeners();     // Connect Listeners to the parser.
-        
+
         return evioFileReader;
     }
 
@@ -702,19 +702,19 @@ public class EventTreeMenu {
 	/**
 	 * Connect the listeners in the evioListenerList to the EventParser
 	 */
-	private void connectEvioListeners(){
-		
+    protected void connectEvioListeners(){
+
 		if (evioListenerList == null) {
 			return;
 		}
 
 		EventParser parser = getEvioFileReader().getParser();
-		
+
 		EventListener listeners[] = evioListenerList.getListeners(IEvioListener.class);
 
 		for (int i = 0; i < listeners.length; i++) {
 			parser.addEvioListener((IEvioListener)listeners[i]);
-		}		
+		}
 	}
 
 }
