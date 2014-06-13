@@ -17,5 +17,5 @@ jevio-4.3.2.jar differences from previous jars :
     2) fix bug in which the "next" button in graphical viewer did silly things when
        at max event number
 
-    3) made certain members of EventTreeMenu protected instead of package or private
+    3) made members of EventTreeMenu protected instead of package or private
        scope for subclassing purposes
