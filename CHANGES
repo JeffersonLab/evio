@@ -1,13 +1,13 @@
 jevio-4.3.1.jar differences from jevio-4.3.jar :
 
-	1) check lengths when parsing evio so bad values are caught if possible
+    1) check lengths when parsing evio so bad values are caught if possible
 
-	2) fix bug if trying to unpack strings from rawbytes with too few bytes
+    2) fix bug if trying to unpack strings from rawbytes with too few bytes
 
-	3) fix bug which did not take padding into account when getting data buffer of EvioNode
+    3) fix bug which did not take padding into account when getting data buffer of EvioNode
 
-	4) fix bug in which after adding a structure with EvioCompactStructureHandler,
-		the node list was not updated
+    4) fix bug in which after adding a structure with EvioCompactStructureHandler,
+       the node list was not updated
 
 jevio-4.3.2.jar differences from previous jars :
 
