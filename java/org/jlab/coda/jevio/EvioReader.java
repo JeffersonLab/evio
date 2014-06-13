@@ -1120,14 +1120,12 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("object closed");
         }
 
-        index--;
-
         EvioEvent event = new EvioEvent();
         BaseStructureHeader header = event.getHeader();
 
         int length, eventDataSizeBytes = 0;
 
-        ByteBuffer buf = mappedMemoryHandler.getByteBuffer(index);
+        ByteBuffer buf = mappedMemoryHandler.getByteBuffer(index-1);
         length = buf.getInt();
 
         if (length < 1) {
@@ -1184,7 +1182,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
             event.setRawBytes(bytes);
             event.setByteOrder(byteOrder);
-            event.setEventNumber(++eventNumber);
+            event.setEventNumber(index);
 
         }
         catch (OutOfMemoryError e) {
