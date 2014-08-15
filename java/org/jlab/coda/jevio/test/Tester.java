@@ -314,14 +314,14 @@ System.out.println("Tag, int = " + tag + ", str = " + tagStr + ", bad entry = " 
 //
 //        for (int j=0; j < LOOPS; j++) {
 //            pos = 0;
-//            srcBuffer.position(pos).limit(endPos);
+//            srcBuffer.limit(endPos).position(pos);
 //            LongBuffer db = srcBuffer.asLongBuffer();
-//            destBuffer.position(pos).limit(endPos);
+//            destBuffer.limit(endPos).position(pos);
 //            LongBuffer db2 = destBuffer.asLongBuffer();
 //            db2.put(db);
 //        }
-//        destBuffer.position(position).limit(limit);
-//        srcBuffer.position(position).limit(limit);
+//        destBuffer.limit(limit).position(position);
+//        srcBuffer.limit(limit).position(position);
 //
 //        t2 = System.currentTimeMillis();
 //        deltaT = t2 - t1;
