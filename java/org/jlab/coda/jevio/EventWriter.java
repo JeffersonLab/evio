@@ -979,6 +979,40 @@ public class EventWriter {
 
 
     /**
+     * If writing to a buffer, get the number of bytes written to it
+     * including the ending header.
+     * @return number of bytes written to buffer
+     */
+    public long getBytesWrittenToBuffer() {
+        return bytesWrittenToBuffer;
+    }
+
+
+    /**
+     * Set the buffer being written into (initially set in constructor).
+     * This method allows the user to avoid having to create a new EventWriter
+     * each time a bank needs to be written to a different buffer.
+     * This does nothing if writing to a file.<p>
+     * Do <b>not</b> use this method unless you know what you are doing.
+     *
+     * @param buf the buffer to write to.
+     * @param bitInfo        set of bits to include in first block header.
+     * @throws EvioException if this object was not closed prior to resetting the buffer,
+     *                       or buffer arg is null.
+     */
+    public void setBuffer(ByteBuffer buf, BitSet bitInfo) throws EvioException {
+        if (toFile) return;
+        if (!closed) {
+            throw new EvioException("close EventWriter before changing buffers");
+        }
+        this.bitInfo = bitInfo;
+
+        initializeBuffer(buf, blockSizeMax, blockCountMax,
+                         xmlDictionary, bitInfo, reserved1, append);
+    }
+
+
+    /**
      * Set the buffer being written into (initially set in constructor).
      * This method allows the user to avoid having to create a new EventWriter
      * each time a bank needs to be written to a different buffer.
@@ -1737,12 +1771,12 @@ if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = 
         // If we wrote a dictionary and it's the first block,
         // don't count dictionary in block header's event count
         if (wroteDictionary && (blockNumber == 2) && (currentBlockEventCount > 1)) {
-if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in dictionary's blk");
+if (debug)  System.out.println("  writeEventToBuffer: subtract ev cnt since in dictionary's blk");
             buffer.putInt(currentHeaderPosition + EventWriter.EVENT_COUNT_OFFSET,
                           currentBlockEventCount - 1);
         }
 
-        if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
+if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
                 bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount = " +
                 currentBlockEventCount);
 
@@ -1774,6 +1808,19 @@ if (debug)  System.out.println("  writeEventToBuffer: substract ev cnt since in 
             System.out.println("         bytes-to-file = " + bytesWrittenToFile);
             System.out.println("         block # = " + blockNumber);
         }
+    }
+
+
+    /**
+     * Is there room to write this many bytes to an output buffer as a single event?
+     * Will always return true when writing to a file.
+     * @param bytes number of bytes to write
+     * @return {@code true} if there still room in the output buffer, else {@code false}.
+     */
+    public boolean hasRoom(int bytes) {
+//System.out.println("Buffer size = " + bufferSize + ", bytesWritten = " + bytesWrittenToBuffer +
+//        ", <? " + (bytes + headerBytes));
+        return toFile() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
     }
 
 
@@ -1953,6 +2000,10 @@ if (debug) System.out.println("evWrite: bufSize = " + bufferSize +
         // Internal buffer needs room for first block header, event, and ending empty block.
         if (bufferSize < currentEventBytes + 2*headerBytes) {
             if (!toFile) {
+                System.out.println("evWrite: bufSize = " + bufferSize +
+                   " <? current event bytes = " + currentEventBytes +
+                   " + 2 headers (64), total = " + (currentEventBytes + 64) +
+                   ", room = " + (bufferSize - bytesWrittenToBuffer - headerBytes) );
                 throw new EvioException("Buffer too small to write event");
             }
             roomInBuffer = false;
@@ -2082,7 +2133,7 @@ if (debug) System.out.println("evWrite: did NOT write new block header");
         writeEventToBuffer(bank, bankBuffer, currentEventBytes);
     }
 
-
+// TODO: make this private????
     /**
      * Flush everything in buffer to file.
      * Does nothing if object already closed.<p>
