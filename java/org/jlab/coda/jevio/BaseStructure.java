@@ -89,7 +89,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     /**
      * Used if raw data should be interpreted as a string.
      */
-    protected LinkedList<String> stringsList;
+    protected ArrayList<String> stringsList;
 
     /**
      * Keep track of end of the last string added to stringData (including null but not padding).
@@ -261,7 +261,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
             case CHARSTAR8:
                 if (structure.stringsList != null) {
-                    stringsList = new LinkedList<String>();
+                    stringsList = new ArrayList<String>(structure.stringsList.size());
                     stringsList.addAll(structure.stringsList);
                     stringData = new StringBuilder(structure.stringData);
                     stringEnd = structure.stringEnd;
@@ -360,7 +360,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
                 case CHARSTAR8:
                     if (stringsList != null) {
-                        bs.stringsList = new LinkedList<String>();
+                        bs.stringsList = new ArrayList<String>(stringsList.size());
                         bs.stringsList.addAll(stringsList);
                         bs.stringData = new StringBuilder(stringData);
                         bs.stringEnd  = stringEnd;
@@ -1138,7 +1138,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         if (buffer == null || pos < 0 || length < 1) return null;
 
         ByteBuffer stringBuf = buffer.duplicate();
-        stringBuf.position(pos).limit(pos+length);
+        stringBuf.limit(pos+length).position(pos);
 
         StringBuilder stringData = null;
         try {
@@ -1176,7 +1176,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         catch (CharacterCodingException e) {/* should not happen */}
 
         String[] strs = stringBuilderToStrings(stringData);
-        buffer.position(oldPos).limit(oldLim);
+        buffer.limit(oldLim).position(oldPos);
 
         return  strs;
     }
@@ -1204,8 +1204,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
 
         char c;
-        LinkedList<String> stringsList = new LinkedList<String>();
-        LinkedList<Integer> nullIndexList = new LinkedList<Integer>();
+        ArrayList<String> stringsList = new ArrayList<String>(20);
+        ArrayList<Integer> nullIndexList = new ArrayList<Integer>(20);
 
         for (int i=0; i < stringData.length(); i++) {
             c = stringData.charAt(i);
@@ -1270,8 +1270,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
 
         char c;
-        stringsList = new LinkedList<String>();
-        LinkedList<Integer> nullIndexList = new LinkedList<Integer>();
+        stringsList = new ArrayList<String>(20);
+        ArrayList<Integer> nullIndexList = new ArrayList<Integer>(20);
 
         for (int i=0; i < stringData.length(); i++) {
             c = stringData.charAt(i);
@@ -2586,7 +2586,7 @@ System.err.println("Non leaf with null children!");
 		    // if no raw data, things are easy
             if (rawBytes == null) {
                 // create some storage
-                stringsList = new LinkedList<String>();
+                stringsList = new ArrayList<String>(s.length > 20 ? s.length + 20 : 20);
                 int len = 3; // max padding
                 for (int i=0; i < s.length; i++) {
                     len += s.length + 1;
@@ -2610,7 +2610,7 @@ System.err.println("Non leaf with null children!");
 
         for (int i=0; i < s.length; i++) {
             // store string
-            stringsList.addLast(s[i]);
+            stringsList.add(s[i]);
 
             // add string
             stringData.append(s[i]);
