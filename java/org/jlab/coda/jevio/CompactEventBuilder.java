@@ -16,7 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.*;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * This class is used for creating events
@@ -26,8 +26,8 @@ import java.util.LinkedList;
  * only the single event, not the full, evio file format.<p>
  *
  * The methods of this class are not synchronized so it is NOT
- * theadsafe. This is done for speed. The buffer is kept in a
- * state which is ready to read if retrieved by {@link #getBuffer()}.
+ * threadsafe. This is done for speed. The buffer retrieved by
+ * {@link #getBuffer()} is ready to read.
  *
  * @author timmer
  * (Feb 6 2014)
@@ -46,7 +46,7 @@ public class CompactEventBuilder {
     /** Byte order of the buffer, convenience variable. */
     private ByteOrder order;
 
-    /** Test 2 alternate way of writing data, one which is direct to the
+    /** Two alternate ways of writing data, one which is direct to the
      *  backing array and the other using ByteBuffer object methods. */
     private boolean useByteBuffer = false;
 
@@ -59,7 +59,7 @@ public class CompactEventBuilder {
 
     /** If {@link #generateNodes} is {@code true}, then store
      *  generated node objects in this list (in buffer order. */
-    private LinkedList<EvioNode> nodes;
+    private ArrayList<EvioNode> nodes;
 
     /** Maximum allowed evio structure levels in buffer. */
     private static final int MAX_LEVELS = 100;
@@ -93,9 +93,15 @@ public class CompactEventBuilder {
         }
     }
 
-    /** The top of the stack is parent of the current structure
-     *  and the next one down is the parent of the parent, etc. */
-    private LinkedList<StructureContent> stack;
+//    /** The top of the stack is parent of the current structure
+//     *  and the next one down is the parent of the parent, etc. */
+//    private LinkedBlockingDeque<StructureContent> stack;
+
+    /** The top (first element) of the stack is parent of the current structure
+     *  and the next one down is the parent of the parent, etc.
+     *  Actually, the first (0th) element is unused, and things start with the
+     *  second element. */
+    private StructureContent[] stackArray;
 
     /** Each element of the array is the total length of all evio
      *  data in a structure including the full length of that
@@ -162,17 +168,19 @@ public class CompactEventBuilder {
         position = 0;
 
         // Init variables
-        stack = new LinkedList<StructureContent>();
-        totalLengths = new int[MAX_LEVELS];
+        nodes = null;
         currentLevel = -1;
-        currentStructure = null;
         createdBuffer = true;
+        currentStructure = null;
+        totalLengths = new int[MAX_LEVELS];
+        stackArray = new StructureContent[MAX_LEVELS];
    	}
 
 
     /**
      * This is the constructor to use for building a new event
-     * (just the event in a buffer, not the full evio file format).
+     * (just the event in a buffer, not the full evio file format)
+     * with a user-given buffer.
      *
      * @param buffer the byte buffer to write into.
      *
@@ -181,10 +189,56 @@ public class CompactEventBuilder {
      */
     public CompactEventBuilder(ByteBuffer buffer)
                     throws EvioException {
+        this(buffer,false);
+   	}
+
+
+    /**
+     * This is the constructor to use for building a new event
+     * (just the event in a buffer, not the full evio file format)
+     * with a user-given buffer.
+     *
+     * @param buffer the byte buffer to write into.
+     * @param generateNodes generate and store an EvioNode object
+     *                      for each evio structure created.
+     *
+     * @throws EvioException if arg is null;
+     *                       if buffer is too small
+     */
+    public CompactEventBuilder(ByteBuffer buffer, boolean generateNodes)
+                    throws EvioException {
+
+        setBuffer(buffer, generateNodes);
+   	}
+
+
+    /**
+     * Set the buffer to be written into.
+     * @param buffer buffer to be written into.
+     * @throws EvioException if arg is null;
+     *                       if buffer is too small
+     */
+    public void setBuffer(ByteBuffer buffer) throws EvioException {
+        setBuffer(buffer, false);
+    }
+
+
+    /**
+     * Set the buffer to be written into.
+     * @param buffer buffer to be written into.
+     * @param generateNodes generate and store an EvioNode object
+     *                      for each evio structure created.
+     * @throws EvioException if arg is null;
+     *                       if buffer is too small
+     */
+    public void setBuffer(ByteBuffer buffer, boolean generateNodes)
+                          throws EvioException {
 
         if (buffer == null) {
             throw new EvioException("null arg(s)");
         }
+
+        this.generateNodes = generateNodes;
 
         // Prepare buffer
         this.buffer = buffer;
@@ -192,8 +246,8 @@ public class CompactEventBuilder {
         order = buffer.order();
         position = 0;
 
-        if (buffer.limit() < 2) {
-            throw new EvioException("buffer too small");
+        if (buffer.limit() < 8) {
+            throw new EvioException("compact buffer too small");
         }
 
         if (buffer.hasArray()) {
@@ -204,20 +258,25 @@ public class CompactEventBuilder {
         }
 
         // Init variables
-        stack = new LinkedList<StructureContent>();
-        totalLengths = new int[MAX_LEVELS];
+        nodes = null;
         currentLevel = -1;
+        createdBuffer = false;
         currentStructure = null;
-   	}
+        totalLengths = new int[MAX_LEVELS];
+        stackArray = new StructureContent[MAX_LEVELS];
+    }
 
 
-
-
-//    /**
-//   	 * Get the underlying event.
-//   	 * @return the underlying event.
-//   	 */
-//   	public EvioNode getEvent() {return null;}
+    /**
+     * Get the buffer being written into.
+     * The buffer is ready to read.
+     * @return buffer being written into.
+     */
+    public ByteBuffer getBuffer() {
+        buffer.limit(position);
+        buffer.position(0);
+        return buffer;
+    }
 
 
     /**
@@ -226,16 +285,6 @@ public class CompactEventBuilder {
      */
     public int getTotalBytes() {return position;}
 
-    /**
-     * Get the buffer being written into.
-     * The buffer is ready to read.
-     * @return buffer being written into.
-     */
-    public ByteBuffer getBuffer() {
-        buffer.position(0);
-        buffer.limit(position);
-        return buffer;
-    }
 
     /**
      * Double the buffer size if more room is needed and this object
@@ -282,7 +331,7 @@ public class CompactEventBuilder {
      * @throws EvioException if containing structure does not hold segments;
      *                       if no room in buffer for segment header;
      *                       if too many nested evio structures;
-     *                       if top-level bank has not been added first;
+     *                       if top-level bank has not been added first.
      */
     public EvioNode openSegment(int tag, DataType dataType)
         throws EvioException {
@@ -292,9 +341,8 @@ public class CompactEventBuilder {
         }
 
         // Segments not allowed if parent holds different type
-        if (currentStructure != null &&
-                (currentStructure.dataType != DataType.SEGMENT &&
-                 currentStructure.dataType != DataType.ALSOSEGMENT)) {
+        if (currentStructure.dataType != DataType.SEGMENT &&
+            currentStructure.dataType != DataType.ALSOSEGMENT) {
             throw new EvioException("may NOT add segment type, expecting " +
                                             currentStructure.dataType);
         }
@@ -302,17 +350,18 @@ public class CompactEventBuilder {
         // Make sure we can use all of the buffer in case external changes
         // were made to it (e.g. by doing buffer.flip() in order to read).
         // All this does is set pos = 0, limit = capacity, it does NOT
-        // clear the data.
+        // clear the data. We're keep track of the position to write at
+        // in our own variable, "position".
         buffer.clear();
 
-        if (buffer.remaining() < 4) {
+        if (buffer.limit() - position < 4) {
             throw new EvioException("no room in buffer");
         }
 
         // For now, assume length and padding = 0
         if (useByteBuffer) {
             if (order == ByteOrder.BIG_ENDIAN) {
-                buffer.put(position, (byte)tag);
+                buffer.put(position,   (byte)tag);
                 buffer.put(position+1, (byte)(dataType.getValue() & 0x3f));
             }
             else {
@@ -331,16 +380,15 @@ public class CompactEventBuilder {
             }
         }
 
-        // Put current structure, if any, onto stack as it's now a parent
-        if (currentStructure != null) {
-            stack.addFirst(currentStructure);
-        }
-
         // Since we're adding a structure, we're going down a level (like push)
         currentLevel++;
         if (currentLevel >= MAX_LEVELS) {
             throw new EvioException("too many nested evio structures, increase MAX_LEVELS");
         }
+
+        // Put current structure onto stack as it's now a parent
+//            stack.addFirst(currentStructure);
+        stackArray[currentLevel] = currentStructure;
 
         // We just wrote a segment header so this and all
         // containing levels increase in length by 1.
@@ -353,14 +401,14 @@ public class CompactEventBuilder {
         EvioNode node = null;
         if (generateNodes) {
             if (nodes == null) {
-                nodes = new LinkedList<EvioNode>();
+                nodes = new ArrayList<EvioNode>(100);
             }
 
             // This constructor does not have lengths or create allNodes list, blockNode
             node = new EvioNode(tag, 0, position, position+4,
                                          DataType.SEGMENT, dataType,
                                          new BufferNode(buffer));
-            nodes.addLast(node);
+            nodes.add(node);
         }
 
         position += 4;
@@ -379,7 +427,7 @@ public class CompactEventBuilder {
      * @throws EvioException if containing structure does not hold tagsegments;
      *                       if no room in buffer for tagsegment header;
      *                       if too many nested evio structures;
-     *                       if top-level bank has not been added first;
+     *                       if top-level bank has not been added first.
      */
     public EvioNode openTagSegment(int tag, DataType dataType)
             throws EvioException {
@@ -389,8 +437,7 @@ public class CompactEventBuilder {
         }
 
         // Tagsegments not allowed if parent holds different type
-        if (currentStructure != null &&
-            currentStructure.dataType != DataType.TAGSEGMENT) {
+        if (currentStructure.dataType != DataType.TAGSEGMENT) {
             throw new EvioException("may NOT add tagsegment type, expecting " +
                                             currentStructure.dataType);
         }
@@ -398,10 +445,11 @@ public class CompactEventBuilder {
         // Make sure we can use all of the buffer in case external changes
         // were made to it (e.g. by doing buffer.flip() in order to read).
         // All this does is set pos = 0, limit = capacity, it does NOT
-        // clear the data.
+        // clear the data. We're keep track of the position to write at
+        // in our own variable, "position".
         buffer.clear();
 
-        if (buffer.remaining() < 4) {
+        if (buffer.limit() - position < 4) {
             throw new EvioException("no room in buffer");
         }
 
@@ -424,17 +472,12 @@ public class CompactEventBuilder {
         else {
             if (order == ByteOrder.BIG_ENDIAN) {
                 array[position]   = (byte) (compositeWord >> 8);
-                array[position+1] = (byte) compositeWord;
+                array[position+1] = (byte)  compositeWord;
             }
             else {
-                array[position+2] = (byte) compositeWord;
+                array[position+2] = (byte)  compositeWord;
                 array[position+3] = (byte) (compositeWord >> 8);
             }
-        }
-
-        // Put current structure, if any, onto stack as it's now a parent
-        if (currentStructure != null) {
-            stack.addFirst(currentStructure);
         }
 
         // Since we're adding a structure, we're going down a level (like push)
@@ -442,6 +485,10 @@ public class CompactEventBuilder {
         if (currentLevel >= MAX_LEVELS) {
             throw new EvioException("too many nested evio structures, increase MAX_LEVELS");
         }
+
+        // Put current structure onto stack as it's now a parent
+//            stack.addFirst(currentStructure);
+        stackArray[currentLevel] = currentStructure;
 
         // We just wrote a tagsegment header so this and all
         // containing levels increase in length by 1.
@@ -454,14 +501,14 @@ public class CompactEventBuilder {
         EvioNode node = null;
         if (generateNodes) {
             if (nodes == null) {
-                nodes = new LinkedList<EvioNode>();
+                nodes = new ArrayList<EvioNode>(100);
             }
 
             // This constructor does not have lengths or create allNodes list, blockNode
             node = new EvioNode(tag, 0, position, position+4,
                                          DataType.TAGSEGMENT, dataType,
                                          new BufferNode(buffer));
-            nodes.addLast(node);
+            nodes.add(node);
         }
 
         position += 4;
@@ -496,10 +543,11 @@ public class CompactEventBuilder {
         // Make sure we can use all of the buffer in case external changes
         // were made to it (e.g. by doing buffer.flip() in order to read).
         // All this does is set pos = 0, limit = capacity, it does NOT
-        // clear the data.
+        // clear the data. We're keep track of the position to write at
+        // in our own variable, "position".
         buffer.clear();
 
-        if (buffer.remaining() < 8) {
+        if (buffer.limit() - position < 8) {
             throw new EvioException("no room in buffer");
         }
 
@@ -510,8 +558,8 @@ public class CompactEventBuilder {
 
             if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                 buffer.putShort(position + 4, (short)tag);
-                buffer.put(position + 6,(byte)(dataType.getValue() & 0x3f));
-                buffer.put(position + 7,(byte)num);
+                buffer.put(position + 6, (byte)(dataType.getValue() & 0x3f));
+                buffer.put(position + 7, (byte)num);
             }
             else {
                 buffer.put(position + 4, (byte)num);
@@ -537,16 +585,17 @@ public class CompactEventBuilder {
             }
         }
 
-        // Put current structure, if any, onto stack as it's now a parent
-        if (currentStructure != null) {
-            stack.addFirst(currentStructure);
-        }
-
         // Since we're adding a structure, we're going down a level (like push)
         currentLevel++;
         if (currentLevel >= MAX_LEVELS) {
             throw new EvioException("too many nested evio structures, increase MAX_LEVELS");
         }
+
+        // Put current structure, if any, onto stack as it's now a parent
+//        if (currentStructure != null) {
+//            stack.addFirst(currentStructure);
+            stackArray[currentLevel] = currentStructure;
+//        }
 
         // We just wrote a bank header so this and all
         // containing levels increase in length by 2.
@@ -559,14 +608,14 @@ public class CompactEventBuilder {
         EvioNode node = null;
         if (generateNodes) {
             if (nodes == null) {
-                nodes = new LinkedList<EvioNode>();
+                nodes = new ArrayList<EvioNode>(100);
             }
 
             // This constructor does not have lengths or create allNodes list, blockNode
             node = new EvioNode(tag, 0, position, position+8,
                                          DataType.BANK, dataType,
                                          new BufferNode(buffer));
-            nodes.addLast(node);
+            nodes.add(node);
         }
 
         position += 8;
@@ -601,11 +650,16 @@ public class CompactEventBuilder {
         // Clear out old data
         totalLengths[currentLevel] = 0;
 
+        // The new current structure is ..
+//        currentStructure = stack.poll();
+//        if (currentStructure != stackArray[currentLevel]) {
+//            System.out.println("OOOOPPPPPPPPS");
+//            System.exit(-1);
+//        }
+        currentStructure = stackArray[currentLevel];
+
         // Go up a level
         currentLevel--;
-
-        // The new current structure is ..
-        currentStructure = stack.poll();
 
         // If structure is null, we've reached the top and we're done
         return (currentStructure == null);
@@ -706,7 +760,7 @@ public class CompactEventBuilder {
             case ALSOBANK:
                 if (useByteBuffer) {
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        buffer.put(currentStructure.pos+6,b);
+                        buffer.put(currentStructure.pos+6, b);
                     }
                     else {
                         buffer.put(currentStructure.pos+5, b);
@@ -728,7 +782,7 @@ public class CompactEventBuilder {
 
                 if (useByteBuffer) {
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        buffer.put(currentStructure.pos+1,b);
+                        buffer.put(currentStructure.pos+1, b);
                     }
                     else {
                         buffer.put(currentStructure.pos+2, b);
@@ -816,7 +870,7 @@ public class CompactEventBuilder {
                         buffer.putShort(position+2, (short)node.len);
                     }
                     else {
-                        buffer.putShort(position,   (short)node.len);
+                        buffer.putShort(position,(short)node.len);
                         buffer.put(position + 1, (byte) ((node.dataType & 0x3f) | (node.pad << 6)));
                         buffer.put(position + 2, (byte) node.tag);
                     }
@@ -892,7 +946,7 @@ public class CompactEventBuilder {
         // Is node a container?
         if (node.getTypeObj().isStructure()) {
             // Iterate through list of children
-            LinkedList<EvioNode> kids = node.getChildNodes();
+            ArrayList<EvioNode> kids = node.getChildNodes();
             for (EvioNode child : kids) {
                 writeNode(child, swapData);
             }
@@ -918,15 +972,14 @@ public class CompactEventBuilder {
                 else {
                     int oldPos   = nodeBuf.position();
                     int oldLimit = nodeBuf.limit();
-                    nodeBuf.position(node.getDataPosition());
-                    nodeBuf.limit(node.getPosition() + node.getTotalBytes());
+
+                    nodeBuf.limit(node.getPosition() + node.getTotalBytes()).position(node.getDataPosition());
 
                     buffer.position(position);
                     buffer.put(nodeBuf); // this method is relative to position
                     buffer.position(0);  // get ready for external reading
 
-                    nodeBuf.position(oldPos);
-                    nodeBuf.limit(oldLimit);
+                    nodeBuf.limit(oldLimit).position(oldPos);
                 }
             }
 
@@ -962,13 +1015,13 @@ public class CompactEventBuilder {
         buffer.clear();
 
         int len = node.getTotalBytes();
-        if (buffer.remaining() < len) {
+        if (buffer.limit() - position < len) {
             throw new EvioException("no room in buffer");
         }
 
         addToAllLengths(len/4);  // # 32-bit words
 
-        ByteBuffer buf = node.bufferNode.getBuffer();
+        ByteBuffer buf = node.bufferNode.getBuffer().duplicate();
         boolean sameEndian = true;
         if (buf.order() != buffer.order()) {
             sameEndian = false;
@@ -976,22 +1029,23 @@ public class CompactEventBuilder {
 
         if (sameEndian) {
             if (!useByteBuffer && buf.hasArray() && buffer.hasArray()) {
-System.out.println("\n\nEfficient node to array\n");
+//System.out.println("\n\nEfficient node to array\n");
                 System.arraycopy(buf.array(), node.getPosition(), array, position, node.getTotalBytes());
             }
             else {
                 // Better performance not to slice/duplicate buffer (5 - 10% faster)
                 int oldPos = buf.position();
                 int oldLimit = buf.limit();
-                buf.position(node.getPosition());
-                buf.limit(node.getPosition() + node.getTotalBytes());
+                buf.limit(node.getPosition() + node.getTotalBytes()).position(node.getPosition());
 
+//                if (position > buffer.limit()) {
+//System.out.println("addEvioNode: limit = " + buffer.limit() + ", set to pos = " + position);
+//                }
                 buffer.position(position);
                 buffer.put(buf); // this method is relative to position
                 buffer.position(0);  // get ready for external reading
 
-                buf.position(oldPos);
-                buf.limit(oldLimit);
+                buf.limit(oldLimit).position(oldPos);
             }
 
             position += len;
@@ -1033,7 +1087,7 @@ System.out.println("addEvioNode: write swapped headers");
         buffer.clear();
 
         int len = data.length;
-        if (buffer.remaining() < len) {
+        if (buffer.limit() - position < len) {
             throw new EvioException("no room in buffer");
         }
 
@@ -1104,7 +1158,7 @@ System.out.println("addEvioNode: write swapped headers");
         buffer.clear();
 
         int len = data.length;
-        if (buffer.remaining() < 4*len) {
+        if (buffer.limit() - position < 4*len) {
             throw new EvioException("no room in buffer");
         }
 
@@ -1168,7 +1222,7 @@ System.out.println("addEvioNode: write swapped headers");
         buffer.clear();
 
         int len = data.length;
-        if (buffer.remaining() < 2*len) {
+        if (buffer.limit() - position < 2*len) {
             throw new EvioException("no room in buffer");
         }
 
@@ -1254,7 +1308,7 @@ System.out.println("addEvioNode: write swapped headers");
         buffer.clear();
 
         int len = data.length;
-        if (buffer.remaining() < 8*len) {
+        if (buffer.limit() - position < 8*len) {
             throw new EvioException("no room in buffer");
         }
 
@@ -1322,7 +1376,7 @@ System.out.println("addEvioNode: write swapped headers");
         buffer.clear();
 
         int len = data.length;
-        if (buffer.remaining() < 4*len) {
+        if (buffer.limit() - position < 4*len) {
             throw new EvioException("no room in buffer");
         }
 
@@ -1386,7 +1440,7 @@ System.out.println("addEvioNode: write swapped headers");
         buffer.clear();
 
         int len = data.length;
-        if (buffer.remaining() < 8*len) {
+        if (buffer.limit() - position < 8*len) {
             throw new EvioException("no room in buffer");
         }
 
@@ -1462,7 +1516,7 @@ System.out.println("addEvioNode: write swapped headers");
         buffer.clear();
 
         int len = data.length;
-        if (buffer.remaining() < len) {
+        if (buffer.limit() - position < len) {
             throw new EvioException("no room in buffer");
         }
 
@@ -1505,8 +1559,8 @@ System.out.println("addEvioNode: write swapped headers");
             boolean writeLastBlock = false;
 
             // Get buffer ready to read
-            buffer.position(0);
             buffer.limit(position);
+            buffer.position(0);
 
             // Write beginning 8 word header
             // total length
