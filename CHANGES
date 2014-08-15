@@ -1,0 +1,26 @@
+jevio-4.3.1.jar differences from jevio-4.3.jar :
+
+    1) check lengths when parsing evio so bad values are caught if possible
+
+    2) fix bug if trying to unpack strings from rawbytes with too few bytes
+
+    3) fix bug which did not take padding into account when getting data buffer of EvioNode
+
+    4) fix bug in which after adding a structure with EvioCompactStructureHandler,
+       the node list was not updated
+
+jevio-4.3.2.jar differences from previous jars :
+
+    1) fix bug in which the displayed event # in graphical viewer did not correspond
+       to the actual event number (bug was in EvioReader)
+
+    2) fix bug in which the "next" button in graphical viewer did silly things when
+       at max event number
+
+    3) made members of EventTreeMenu protected instead of package or private
+       scope for subclassing purposes
+
+jevio-4.4.jar
+
+    improve performance
+        - replace LinkedLists with ArrayLists or arrays
