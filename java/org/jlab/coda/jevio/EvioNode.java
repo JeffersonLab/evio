@@ -13,7 +13,7 @@ package org.jlab.coda.jevio;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * This class is used to store relevant info about an evio container
@@ -22,7 +22,6 @@ import java.util.LinkedList;
  *
  * @author timmer
  * Date: 11/13/12
- * Time: 11:06 AM
  */
 public final class EvioNode implements Cloneable {
 
@@ -56,7 +55,7 @@ public final class EvioNode implements Cloneable {
     BufferNode bufferNode;
 
     /** List of child nodes ordered according to placement in buffer. */
-    LinkedList<EvioNode> childNodes;
+    ArrayList<EvioNode> childNodes;
 
     //-------------------------------
     // For event-level node
@@ -79,7 +78,7 @@ public final class EvioNode implements Cloneable {
      *  Only created at the top-level (with constructor). All lower-level
      *  nodes are created with clone() so all nodes have a reference to
      *  the top-level allNodes object. */
-    LinkedList<EvioNode> allNodes;
+    ArrayList<EvioNode> allNodes;
 
     //-------------------------------
     // For sub event-level node
@@ -121,8 +120,8 @@ public final class EvioNode implements Cloneable {
 
         // Put this node in list of all nodes (evio banks, segs, or tagsegs)
         // contained in this event.
-        allNodes = new LinkedList<EvioNode>();
-        allNodes.addFirst(this);
+        allNodes = new ArrayList<EvioNode>(100);
+        allNodes.add(this);
     }
 
 
@@ -191,10 +190,10 @@ public final class EvioNode implements Cloneable {
             allNodes.clear();
             // Remember to add event's node into list
             if (eventNode == null) {
-                allNodes.addFirst(this);
+                allNodes.add(this);
             }
             else {
-                allNodes.addFirst(eventNode);
+                allNodes.add(eventNode);
             }
         }
     }
@@ -210,11 +209,11 @@ public final class EvioNode implements Cloneable {
      */
     synchronized public void addChild(EvioNode childNode) {
         if (childNodes == null) {
-            childNodes = new LinkedList<EvioNode>();
+            childNodes = new ArrayList<EvioNode>(100);
         }
-        childNodes.addLast(childNode);
+        childNodes.add(childNode);
 
-        if (allNodes != null) allNodes.addLast(childNode);
+        if (allNodes != null) allNodes.add(childNode);
     }
 
 
@@ -250,7 +249,7 @@ public final class EvioNode implements Cloneable {
      *
      * @return list of all nodes that this node contains
      */
-    public LinkedList<EvioNode> getAllNodes() {return allNodes;}
+    public ArrayList<EvioNode> getAllNodes() {return allNodes;}
 
     /**
      * Get the list of all child nodes that this node contains.
@@ -260,7 +259,7 @@ public final class EvioNode implements Cloneable {
      * @return list of all child nodes that this node contains;
      *         null if not scanned or no children
      */
-    public LinkedList<EvioNode> getChildNodes() {
+    public ArrayList<EvioNode> getChildNodes() {
         return childNodes;
     }
 
@@ -435,8 +434,6 @@ public final class EvioNode implements Cloneable {
     public void updateTag(int newTag) {
 
         ByteBuffer buffer = bufferNode.buffer;
-        int pos = buffer.position();
-        buffer.position(pos);
 
         switch (DataType.getDataType(type)) {
             case BANK:
@@ -484,8 +481,6 @@ public final class EvioNode implements Cloneable {
     public void updateNum(int newNum) {
 
         ByteBuffer buffer = bufferNode.buffer;
-        int pos = buffer.position();
-        buffer.position(pos);
 
         switch (DataType.getDataType(type)) {
             case BANK:
@@ -517,25 +512,33 @@ public final class EvioNode implements Cloneable {
      */
     public ByteBuffer getByteData(boolean copy) {
 
-        ByteBuffer buffer = bufferNode.buffer;
+        // The tricky thing to keep in mind is that the buffer
+        // which this node uses may also be used by other nodes.
+        // That means setting its limit and position may interfere
+        // with other operations being done to it.
+        // So even though it is less efficient, use a duplicate of the
+        // buffer which gives us our own limit and position.
 
-        int oldPos = buffer.position();
-        int oldLim = buffer.limit();
-        buffer.position(dataPos).limit(dataPos + 4*dataLen - pad);
+        ByteBuffer buffer = bufferNode.buffer.duplicate();
+
+//        try {
+            buffer.limit(dataPos + 4*dataLen - pad).position(dataPos);
+//        }
+//        catch (Exception e) {
+//            System.out.println("setting buf to pos " + dataPos +
+//            ", lim to " + (dataPos + 4*dataLen - pad) + ", cap = " + buffer.capacity());
+//        }
 
         if (copy) {
             ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen);
-            // Relative get and put changes position in both buffers
             newBuf.put(buffer);
             newBuf.order(buffer.order());
             newBuf.flip();
-            buffer.position(oldPos).limit(oldLim);
             return newBuf;
         }
 
         ByteBuffer buf = buffer.slice();
         buf.order(buffer.order());
-        buffer.position(oldPos).limit(oldLim);
         return buf;
     }
 
@@ -554,25 +557,26 @@ public final class EvioNode implements Cloneable {
      */
     public ByteBuffer getStructureBuffer(boolean copy)  {
 
-        ByteBuffer buffer = bufferNode.buffer;
+        // The tricky thing to keep in mind is that the buffer
+        // which this node uses may also be used by other nodes.
+        // That means setting its limit and position may interfere
+        // with other operations being done to it.
+        // So even though it is less efficient, use a duplicate of the
+        // buffer which gives us our own limit and position.
 
-        int oldPos = buffer.position();
-        int oldLim = buffer.limit();
-        buffer.position(pos).limit(dataPos + 4*dataLen);
+        ByteBuffer buffer = bufferNode.buffer.duplicate();
+        buffer.limit(dataPos + 4*dataLen).position(pos);
 
         if (copy) {
             ByteBuffer newBuf = ByteBuffer.allocate(getTotalBytes());
-            // Relative get and put changes position in both buffers
             newBuf.put(buffer);
             newBuf.order(buffer.order());
             newBuf.flip();
-            buffer.position(oldPos).limit(oldLim);
             return newBuf;
         }
 
         ByteBuffer buf = buffer.slice();
         buf.order(buffer.order());
-        buffer.position(oldPos).limit(oldLim);
         return buf;
     }
 
