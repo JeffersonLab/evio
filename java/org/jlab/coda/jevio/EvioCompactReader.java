@@ -5,7 +5,6 @@ import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -56,7 +55,7 @@ public class EvioCompactReader {
 
     /** Mask to get version number from 6th int in block. */
     private static final int VERSION_MASK = 0xff;
-
+// TODO: this may be too much
     /** Stores info of all the (top-level) events. */
     public final ArrayList<EvioNode> eventNodes = new ArrayList<EvioNode>(200000);
 
@@ -126,6 +125,7 @@ public class EvioCompactReader {
 
     /** Is this object currently closed? */
     private boolean closed;
+
 
     //------------------------
     // File specific members
@@ -451,7 +451,8 @@ public class EvioCompactReader {
      * Generate a table (ArrayList) of positions of events in file/buffer.
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Uses only absolute gets so byteBuffer position
-     * does not change. Called only in constructors and setBuffer.
+     * does not change. Called only in constructors and
+     * {@link #setBuffer(java.nio.ByteBuffer)}.
      *
      * @throws EvioException if bytes not in evio format
      */
@@ -477,7 +478,6 @@ public class EvioCompactReader {
         try {
 
             while (!curLastBlock) {
-
                 // File is now positioned before block header.
                 // Look at block header to get info.
                 blockNode = new BlockNode();
@@ -499,6 +499,13 @@ public class EvioCompactReader {
                 ver             = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_VERSION);
                 blockHdrSize    = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
                 blockNode.count = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
+//System.out.println("    block len = " + blockNode.len + ", ver = " + ver +
+//", blk Hdr size = " + blockHdrSize + ", block cnt = " + blockNode.count);
+
+                if (blockNode.len < 8 || blockHdrSize < 8) {
+                    throw new EvioException("File/buffer bad format (block: len = " +
+                                             blockNode.len + ", blk header len = " + blockHdrSize + ")" );
+                }
 
                 blockNode.place = blockCount++;
                 validDataWords += blockNode.len;
@@ -521,21 +528,21 @@ public class EvioCompactReader {
 
                     // Skip over dictionary
                     position  += byteLen;
-    //System.out.println("    hopped dict, pos = " + position);
+//System.out.println("    hopped dict, pos = " + position);
                 }
 
                 // For each event in block, store its location
                 for (int i=0; i < blockNode.count; i++) {
                     EvioNode node = extractEventNode(bufferNode, blockNode,
                                                      position, eventCount + i);
-    //System.out.println("genTable event "+i+" w/ pos = " + node.pos + ", dataPos = " + node.dataPos);
+//System.out.println("      event "+i+" in block: pos = " + node.pos + ", dataPos = " + node.dataPos);
                     eventNodes.add(node);
                     blockNode.allEventNodes.add(node);
 
                     // Hop over header + data
                     len = 8 + 4*node.dataLen;
                     position  += len;
-    //System.out.println("    hopped event, pos = " + position + "\n");
+//System.out.println("      hopped event, pos = " + position + "\n");
                 }
 
                 eventCount += blockNode.count;
@@ -736,6 +743,8 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
         // Make sure there is enough data to read full event
         // even though it is NOT completely read at this time.
         if (buffer.remaining() < 4*(node.len + 1)) {
+//System.out.println("ERROR: remaining = " + buffer.remaining() +
+//            ", node len bytes = " + ( 4*(node.len + 1)));
             throw new EvioException("buffer underflow");
         }
 
@@ -780,7 +789,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
     /**
      * This method recursively stores, in the given list, all the information
      * about an evio structure's children found in the given ByteBuffer object.
-     * It uses absolute gets so buffer's position does <b>not</> change.
+     * It uses absolute gets so buffer's position does <b>not</b> change.
      *
      * @param node node being scanned
      */
@@ -1075,10 +1084,10 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             throw new EvioException("object closed");
         }
 
-        LinkedList<EvioNode> returnList = new LinkedList<EvioNode>();
+        ArrayList<EvioNode> returnList = new ArrayList<EvioNode>(100);
 
         // Scan the node
-        LinkedList<EvioNode> list = scanStructure(eventNumber).allNodes;
+        ArrayList<EvioNode> list = scanStructure(eventNumber).allNodes;
 //System.out.println("searchEvent: ev# = " + eventNumber + ", list size = " + list.size() +
 //" for tag/num = " + tag + "/" + num);
 
@@ -1243,14 +1252,14 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
         ByteBuffer newBuffer = ByteBuffer.allocate(4*validDataWords + appendDataLen);
         newBuffer.order(byteOrder);
         // Copy beginning part of existing buffer into new buffer
-        byteBuffer.position(initialPosition).limit(endPos);
+        byteBuffer.limit(endPos).position(initialPosition);
         newBuffer.put(byteBuffer);
         // Remember position where we put new data into new buffer
         int newDataPos = newBuffer.position();
         // Copy new structure into new buffer
         newBuffer.put(addBuffer);
         // Copy ending part of existing buffer into new buffer
-        byteBuffer.position(endPos).limit(4*validDataWords + initialPosition);
+        byteBuffer.limit(4*validDataWords + initialPosition).position(endPos);
         newBuffer.put(byteBuffer);
         // Get new buffer ready for reading
         newBuffer.flip();
