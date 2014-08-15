@@ -1,6 +1,6 @@
 package org.jlab.coda.jevio;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * This class is used to store relevant info about an evio block
@@ -26,7 +26,7 @@ final class BlockNode {
     BlockNode nextBlock;
 
     /** List of all event nodes in block. */
-    LinkedList<EvioNode> allEventNodes;
+    ArrayList<EvioNode> allEventNodes;
 
     //----------------------------------
     // Constructor (package accessible)
@@ -34,7 +34,7 @@ final class BlockNode {
 
     /** Constructor which creates list containing all events in this block. */
     BlockNode() {
-        allEventNodes = new LinkedList<EvioNode>();
+        allEventNodes = new ArrayList<EvioNode>(1000);
     }
 
     //-------------------------------

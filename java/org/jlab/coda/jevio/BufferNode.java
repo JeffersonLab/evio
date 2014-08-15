@@ -1,7 +1,7 @@
 package org.jlab.coda.jevio;
 
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * This class is used to store relevant info about an
@@ -16,7 +16,7 @@ public final class BufferNode {
     ByteBuffer buffer;
 
     /** Blocks contained in the buffer. */
-    LinkedList<BlockNode> blockNodes;
+    ArrayList<BlockNode> blockNodes;
 
     /**
      * If top-level event node, was I scanned and all my blocks
@@ -35,7 +35,7 @@ public final class BufferNode {
      */
     BufferNode(ByteBuffer buffer) {
         this.buffer = buffer;
-        blockNodes = new LinkedList<BlockNode>();
+        blockNodes = new ArrayList<BlockNode>(1000);
     }
 
     //-------------------------------
