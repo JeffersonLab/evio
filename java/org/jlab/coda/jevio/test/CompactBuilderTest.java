@@ -15,29 +15,31 @@ import java.util.List;
  */
 public class CompactBuilderTest {
 
-     int[]    int1;
-     byte[]   byte1;
-     short[]  short1;
-     long[]   long1;
-     float[]  float1;
-     double[] double1;
-     String[] string1;
+    int[]    int1;
+    byte[]   byte1;
+    short[]  short1;
+    long[]   long1;
+    float[]  float1;
+    double[] double1;
+    String[] string1;
 
-     int runLoops = 2;
-     int bufferLoops = 20000;
-     int dataElementCount = 3;
-      int skip = 1;
+    int runLoops = 2;
+    int bufferLoops = 20000;
+    int dataElementCount = 3;
+    int skip = 0;
+    int bufSize = 200000;
 
-     boolean oldEvio = false;
-     boolean useBuf = false;
+    boolean oldEvio = false;
+    boolean useBuf = false;
 
     ByteBuffer buffer;
 
-     // files for input & output
-     String writeFileName1 = "/daqfs/home/timmer/coda/compactEvioBuild.ev";
-     String writeFileName0 = "/daqfs/home/timmer/coda/compactEvioBuildOld.ev";
-     String writeFileName2 = "/daqfs/home/timmer/coda/compactEvioNode.ev";
-     ByteOrder order = ByteOrder.BIG_ENDIAN;
+    // files for input & output
+    String writeFileName;
+    String writeFileName1 = "/daqfs/home/timmer/coda/evioTestFiles/compactEvioBuild.ev";
+    String writeFileName0 = "/daqfs/home/timmer/coda/evioTestFiles/compactEvioBuildOld.ev";
+    String writeFileName2 = "/daqfs/home/timmer/coda/evioTestFiles/compactEvioNode.ev";
+    ByteOrder order = ByteOrder.BIG_ENDIAN;
 
 
     /**
@@ -61,12 +63,21 @@ public class CompactBuilderTest {
                 bufferLoops = Integer.parseInt(args[i + 1]);
                 i++;
             }
+            else if (args[i].equalsIgnoreCase("-size")) {
+                bufSize = Integer.parseInt(args[i + 1]);
+System.out.println("SET buf size to " + bufSize);
+                i++;
+            }
             else if (args[i].equalsIgnoreCase("-runs")) {
                 runLoops = Integer.parseInt(args[i + 1]);
                 i++;
             }
             else if (args[i].equalsIgnoreCase("-skip")) {
                 skip = Integer.parseInt(args[i + 1]);
+                i++;
+            }
+            else if (args[i].equalsIgnoreCase("-f")) {
+                writeFileName = args[i + 1];
                 i++;
             }
             else if (args[i].equalsIgnoreCase("-little")) {
@@ -94,8 +105,10 @@ public class CompactBuilderTest {
             "   java CompactBuilderTest\n" +
             "        [-count <elements>]  number of data elements of each type\n"+
             "        [-loops <loops>]     number of times to loop\n" +
+            "        [-size <buf size>]   use buffer of this size (bytes)\n" +
             "        [-runs <runs>]       number of runs\n" +
             "        [-skip <skip>]       number of runs to skip before finding avg\n" +
+            "        [-f <file>]          output to file\n" +
             "        [-little]            use little endian buffer\n" +
             "        [-old]               use old (orig) evio interface\n" +
             "        [-buf]               use buffer (not array) in new interface\n" +
@@ -107,23 +120,25 @@ public class CompactBuilderTest {
 
     public CompactBuilderTest(String args[]) {
 
-        int tag=1, num=1, bufSize=200000;
+        decodeCommandLine(args);
+
+
+        int tag=1, num=1;
         byte[] array = new byte[bufSize];
         buffer = ByteBuffer.wrap(array);
         buffer.order(order);
 
-        decodeCommandLine(args);
-
 
         System.out.println("Running with:");
         System.out.println("  arraySize = " + dataElementCount);
+        System.out.println("    bufSize = " + bufSize);
         System.out.println("      loops = " + bufferLoops);
         System.out.println("       runs = " + runLoops);
         System.out.println("     useBuf = " + useBuf);
         System.out.println("   old evio = " + oldEvio);
 
 
-//        writeFileName2 = "/daqfs/home/timmer/coda/compactEvioBuild." + dataElementCount;
+//        writeFileName2 = "/daqfs/home/timmer/coda/evioTestFiles/compactEvioBuild." + dataElementCount;
 //        EvioNode node = readFile(writeFileName2, 1, 1);
 //        if (node != null) {
 //            insertEvioNode(node, tag, num, useBuf);
@@ -140,6 +155,7 @@ public class CompactBuilderTest {
             createObjectEvents(tag, num);
         }
         else {
+//            createLittleCompactEvent(tag, num, false);
             createCompactEvents(tag, num, useBuf);
 //            runLoops = bufferLoops = 1;
 //            int[] arraySizes = new int[] {1,5,10,20,50,100,200,300,500,750,1000};
@@ -236,50 +252,11 @@ public class CompactBuilderTest {
                     // add top/event level bank of banks
                     builder.openBank(tag, num, DataType.BANK);
 
-//                    // add bank of banks
-//                    builder.openBank(tag+1, num+1, DataType.BANK);
-//
-//                    // add bank of ints
-//                    builder.openBank(tag+2, num+2, DataType.INT32);
-//                    builder.addIntData(int1);
-//                    builder.closeStructure();
-//
-//                    // add bank of bytes
-//                    builder.openBank(tag + 3, num + 3, DataType.CHAR8);
-//                    builder.addByteData(byte1);
-//                    builder.closeStructure();
-//
-//                    // add bank of shorts
-//                    builder.openBank(tag + 4, num + 4, DataType.SHORT16);
-//                    builder.addShortData(short1);
-//                    builder.closeStructure();
-//
-//                    // add bank of longs
-//                    builder.openBank(tag + 40, num + 40, DataType.LONG64);
-//                    builder.addLongData(long1);
-//                    builder.closeStructure();
-//
-//                    // add bank of floats
-//                    builder.openBank(tag+5, num+5, DataType.FLOAT32);
-//                    builder.addFloatData(float1);
-//                    builder.closeStructure();
-//
-//                    // add bank of doubles
-//                    builder.openBank(tag+6, num+6, DataType.DOUBLE64);
-//                    builder.addDoubleData(double1);
-//                    builder.closeStructure();
-//
-//                    // add bank of strings
-//                    builder.openBank(tag+7, num+7, DataType.CHARSTAR8);
-//                    builder.addStringData(string1);
-//                    builder.closeStructure();
-//
-//                    builder.closeStructure();
-
                     builder.addEvioNode(node);
 
                     builder.closeAll();
-//                    if (i == 0) builder.toFile(writeFileName2);
+
+                    if (i == 0 && writeFileName != null) builder.toFile(writeFileName);
                 }
 
                 t2 = System.currentTimeMillis();
@@ -436,7 +413,7 @@ public class CompactBuilderTest {
 //                    builder.closeStructure();
 
                     builder.closeAll();
-//                    if (i == 0) builder.toFile(writeFileName1);
+                    if (i == 0 && writeFileName != null) builder.toFile(writeFileName);
                 }
 
                 t2 = System.currentTimeMillis();
@@ -448,6 +425,34 @@ public class CompactBuilderTest {
             e.printStackTrace();
         }
     }
+
+
+    /** Writing to a buffer using new interface. */
+    public  void createLittleCompactEvent(int tag, int num, boolean useBuf) {
+        try {
+            CompactEventBuilder builder = new CompactEventBuilder(buffer);
+
+            // add top/event level bank of banks
+            builder.openBank(tag, num, DataType.BANK);
+
+            // add bank of banks
+            builder.openBank(tag+1, num+1, DataType.BANK);
+
+            // add bank of ints
+            builder.openBank(tag+2, num+2, DataType.INT32);
+            builder.addIntData(int1);
+            builder.closeStructure();
+
+            builder.closeAll();
+
+            System.out.println("DONE");
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 
     /** Writing to a buffer using original evio interface. */
@@ -610,11 +615,11 @@ public class CompactBuilderTest {
 
                     // Take objects & write them into buffer
                     event.write(buffer);
-//                    try {
-//                        buffer.flip();
-//                        if (i==0) Utilities.bufferToFile(writeFileName0, buffer, true, true);
-//                    }
-//                    catch (IOException e) { }
+                    try {
+                        buffer.flip();
+                        if (i==0 && writeFileName != null) Utilities.bufferToFile(writeFileName, buffer, true, true);
+                    }
+                    catch (IOException e) { }
                     buffer.clear();
                 }
 
