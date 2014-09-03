@@ -39,7 +39,7 @@ import java.util.BitSet;
  *
  *
  *      Block Length       = number of ints in block (including this one).
- *      Block Number       = id number (starting at 1)
+ *      Block Number       = id number (starting at 0)
  *      Header Length      = number of ints in this header (8)
  *      Event Count        = number of events in this block (always an integral #).
  *                           NOTE: this value should not be used to parse the following

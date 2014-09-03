@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
  *
  *      Block Length  = number of ints in block (including this one).
  *                      This is fixed for versions 1-3, generally at 8192 (32768 bytes)
- *      Block Number  = id number
+ *      Block Number  = id number (starting at 0)
  *      Header Length = number of ints in this header (always 8)
  *      Start         = offset to first event header in block relative to start of block
  *      End           = # of valid words (header + data) in block (normally = block size)
