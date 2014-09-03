@@ -618,7 +618,7 @@ public class EventWriter {
         this.xmlDictionary = xmlDictionary;
 
         toFile = true;
-        blockNumber = 1;
+        blockNumber = 0;
 
         if (bitInfo != null) {
             this.bitInfo = (BitSet)bitInfo.clone();
@@ -783,6 +783,7 @@ public class EventWriter {
 
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
      * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
@@ -822,16 +823,19 @@ public class EventWriter {
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
      *                       NOTE: only CODA (i.e. EMU) software should use this.
+     * @param blockNumber    number at which to start block number counting.
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits; if buf arg is null
      */
     public EventWriter(ByteBuffer buf, int blockSizeMax, int blockCountMax,
-                       String xmlDictionary, BitSet bitInfo, int reserved1) throws EvioException {
+                       String xmlDictionary, BitSet bitInfo, int reserved1, int blockNumber) throws EvioException {
 
-        this(buf, blockSizeMax, blockCountMax, xmlDictionary, bitInfo, reserved1, false);
+        initializeBuffer(buf, blockSizeMax, blockCountMax, xmlDictionary,
+                         bitInfo, reserved1, blockNumber, false);
     }
 
     /**
      * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
      * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
@@ -856,7 +860,7 @@ public class EventWriter {
                         boolean append) throws EvioException {
 
         initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, append);
+                         xmlDictionary, bitInfo, reserved1, 0, append);
     }
 
     /**
@@ -874,6 +878,7 @@ public class EventWriter {
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
      *                       NOTE: only CODA (i.e. EMU) software should use this.
+     * @param blockNumber    number at which to start block number counting.
      * @param append         if <code>true</code>, all events to be written will be
      *                       appended to the end of the buffer.
      *
@@ -883,7 +888,7 @@ public class EventWriter {
      */
     private void initializeBuffer(ByteBuffer buf, int blockSizeMax, int blockCountMax,
                                   String xmlDictionary, BitSet bitInfo, int reserved1,
-                                  boolean append) throws EvioException {
+                                  int blockNumber, boolean append) throws EvioException {
 
         if (blockSizeMax < MIN_BLOCK_SIZE) {
             throw new EvioException("Max block size arg (" + blockSizeMax + ") must be >= " +
@@ -917,6 +922,7 @@ public class EventWriter {
         this.buffer        = buf;
         this.byteOrder     = buf.order();
         this.reserved1     = reserved1;
+        this.blockNumber   = blockNumber;
         this.blockSizeMax  = blockSizeMax;
         this.blockCountMax = blockCountMax;
         this.xmlDictionary = xmlDictionary;
@@ -925,7 +931,6 @@ public class EventWriter {
         split  = 0L;
         toFile = false;
         closed = false;
-        blockNumber = 1;
         eventsWrittenTotal = 0;
         eventsWrittenToBuffer = 0;
         bytesWrittenToBuffer = 0;
@@ -997,10 +1002,11 @@ public class EventWriter {
      *
      * @param buf the buffer to write to.
      * @param bitInfo        set of bits to include in first block header.
+     * @param blockNumber    number at which to start block number counting.
      * @throws EvioException if this object was not closed prior to resetting the buffer,
      *                       or buffer arg is null.
      */
-    public void setBuffer(ByteBuffer buf, BitSet bitInfo) throws EvioException {
+    public void setBuffer(ByteBuffer buf, BitSet bitInfo, int blockNumber) throws EvioException {
         if (toFile) return;
         if (!closed) {
             throw new EvioException("close EventWriter before changing buffers");
@@ -1008,7 +1014,7 @@ public class EventWriter {
         this.bitInfo = bitInfo;
 
         initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, append);
+                         xmlDictionary, bitInfo, reserved1, blockNumber, append);
     }
 
 
@@ -1030,7 +1036,7 @@ public class EventWriter {
         }
 
         initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, append);
+                         xmlDictionary, bitInfo, reserved1, 1, append);
     }
 
 
@@ -2011,12 +2017,14 @@ if (debug) System.out.println("evWrite: bufSize = " + bufferSize +
 if(debug) System.out.println("  NEED another buffer & block for 1 big event, bufferSize = " + bufferSize);
         }
         // Is this event, in combination with events previously written
-        // to the current internal buffer, too big for it? Remember, if we're here,
-        // events were previously written to this block and therefore an ending
-        // empty block has already been written and included in bytesWrittenToBuffer.
-        // Also, if we're here, this event is not a dictionary.
+        // to the current internal buffer, too big for it?
         else if ((!writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes)) ||
                  ( writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + headerBytes)))  {
+
+            // If we're here, events were previously written to this block and therefore an ending
+            // empty block has already been written and included in bytesWrittenToBuffer.
+            // Also, if we're here, this event is not a dictionary.
+
             if (!toFile) {
                 throw new EvioException("Buffer too small to write event");
             }
@@ -2036,6 +2044,11 @@ System.out.println("evWrite: # events written to buf so far = " + eventsWrittenT
             }
             roomInBuffer = false;
         }
+//        else if (currentBlockEventCount < 1) {
+//            // If we're here, there is room to add event into existing buffer.
+//            // As we're the very first event, we need to set blockNumber.
+//            blockNumber = 1;
+//        }
 
 
         // If there is no room in the buffer for this event ...
@@ -2121,7 +2134,7 @@ if (debug) System.out.println("evWrite: wrote new block header, bytesToBuf = " +
             // Write over last empty block ... only if not first write
             int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
             if (!BlockHeaderV4.isLastBlock(headerInfoWord)) {
-if (debug) System.out.println("evWrite: no block header, WRITE OVER LAST EMPTY BLOCK");
+if (debug) System.out.println("evWrite: no block header, WRITE OVER LAST EMPTY BLOCK, block#="+blockNumber);
                 bytesWrittenToBuffer -= headerBytes;
             }
             else {
