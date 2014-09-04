@@ -427,8 +427,8 @@ public final class EvioNode implements Cloneable {
     /**
      * Update, in the buffer, the tag of the structure header this object represents.
      * Sometimes it's necessary to go back and change the tag of an evio
-     * structure that's already been written. This will do that
-     * .
+     * structure that's already been written. This will do that.
+     *
      * @param newTag new tag value
      */
     public void updateTag(int newTag) {
@@ -518,27 +518,21 @@ public final class EvioNode implements Cloneable {
         // with other operations being done to it.
         // So even though it is less efficient, use a duplicate of the
         // buffer which gives us our own limit and position.
-
+        ByteOrder order   = bufferNode.buffer.order();
         ByteBuffer buffer = bufferNode.buffer.duplicate();
-
-//        try {
-            buffer.limit(dataPos + 4*dataLen - pad).position(dataPos);
-//        }
-//        catch (Exception e) {
-//            System.out.println("setting buf to pos " + dataPos +
-//            ", lim to " + (dataPos + 4*dataLen - pad) + ", cap = " + buffer.capacity());
-//        }
+        buffer.order(order);
+        buffer.limit(dataPos + 4*dataLen - pad).position(dataPos);
 
         if (copy) {
             ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen);
+            newBuf.order(order);
             newBuf.put(buffer);
-            newBuf.order(buffer.order());
             newBuf.flip();
             return newBuf;
         }
 
         ByteBuffer buf = buffer.slice();
-        buf.order(buffer.order());
+        buf.order(order);
         return buf;
     }
 
@@ -564,19 +558,21 @@ public final class EvioNode implements Cloneable {
         // So even though it is less efficient, use a duplicate of the
         // buffer which gives us our own limit and position.
 
+        ByteOrder order   = bufferNode.buffer.order();
         ByteBuffer buffer = bufferNode.buffer.duplicate();
+        buffer.order(order);
         buffer.limit(dataPos + 4*dataLen).position(pos);
 
         if (copy) {
             ByteBuffer newBuf = ByteBuffer.allocate(getTotalBytes());
+            newBuf.order(order);
             newBuf.put(buffer);
-            newBuf.order(buffer.order());
             newBuf.flip();
             return newBuf;
         }
 
         ByteBuffer buf = buffer.slice();
-        buf.order(buffer.order());
+        buf.order(order);
         return buf;
     }
 
