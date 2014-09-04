@@ -905,17 +905,15 @@ public class EvioCompactStructureHandler {
         byteBuffer.limit(node.dataPos + 4*node.dataLen).position(node.dataPos);
 
         if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(4 * node.dataLen);
+            ByteBuffer newBuf = ByteBuffer.allocate(4 * node.dataLen).order(byteOrder);
             // Relative get and put changes position in both buffers
             newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
             newBuf.flip();
             byteBuffer.limit(lim).position(pos);
             return newBuf;
         }
 
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
+        ByteBuffer buf = byteBuffer.slice().order(byteOrder);
         byteBuffer.limit(lim).position(pos);
         return buf;
     }
@@ -966,17 +964,15 @@ public class EvioCompactStructureHandler {
         byteBuffer.limit(node.dataPos + 4*node.dataLen).position(node.pos);
 
         if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(node.dataPos + 4*node.dataLen - node.pos);
+            ByteBuffer newBuf = ByteBuffer.allocate(node.dataPos + 4*node.dataLen - node.pos).order(byteOrder);
             // Relative get and put changes position in both buffers
             newBuf.put(byteBuffer);
-            newBuf.order(byteOrder);
             newBuf.flip();
             byteBuffer.limit(lim).position(pos);
             return newBuf;
         }
 
-        ByteBuffer buf = byteBuffer.slice();
-        buf.order(byteOrder);
+        ByteBuffer buf = byteBuffer.slice().order(byteOrder);
         byteBuffer.limit(lim).position(pos);
         return buf;
     }

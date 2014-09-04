@@ -1075,7 +1075,7 @@ public class EventWriter {
         // of our messing with the buffer.
         ByteBuffer buf;
         synchronized (this) {
-            buf = buffer.duplicate();
+            buf = buffer.duplicate().order(buffer.order());
 
             // If this writer is not closed, then the position is just before the
             // last empty block. Otherwise it is at the actual end.

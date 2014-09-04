@@ -1021,9 +1021,11 @@ public class CompactEventBuilder {
 
         addToAllLengths(len/4);  // # 32-bit words
 
+        ByteOrder nodeBufOrder = node.bufferNode.getBuffer().order();
         ByteBuffer buf = node.bufferNode.getBuffer().duplicate();
+        buf.order(nodeBufOrder);
         boolean sameEndian = true;
-        if (buf.order() != buffer.order()) {
+        if (nodeBufOrder != buffer.order()) {
             sameEndian = false;
         }
 

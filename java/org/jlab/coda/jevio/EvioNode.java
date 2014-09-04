@@ -519,20 +519,17 @@ public final class EvioNode implements Cloneable {
         // So even though it is less efficient, use a duplicate of the
         // buffer which gives us our own limit and position.
         ByteOrder order   = bufferNode.buffer.order();
-        ByteBuffer buffer = bufferNode.buffer.duplicate();
-        buffer.order(order);
+        ByteBuffer buffer = bufferNode.buffer.duplicate().order(order);
         buffer.limit(dataPos + 4*dataLen - pad).position(dataPos);
 
         if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen);
-            newBuf.order(order);
+            ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen).order(order);
             newBuf.put(buffer);
             newBuf.flip();
             return newBuf;
         }
 
-        ByteBuffer buf = buffer.slice();
-        buf.order(order);
+        ByteBuffer buf = buffer.slice().order(order);
         return buf;
     }
 
@@ -559,20 +556,17 @@ public final class EvioNode implements Cloneable {
         // buffer which gives us our own limit and position.
 
         ByteOrder order   = bufferNode.buffer.order();
-        ByteBuffer buffer = bufferNode.buffer.duplicate();
-        buffer.order(order);
+        ByteBuffer buffer = bufferNode.buffer.duplicate().order(order);
         buffer.limit(dataPos + 4*dataLen).position(pos);
 
         if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(getTotalBytes());
-            newBuf.order(order);
+            ByteBuffer newBuf = ByteBuffer.allocate(getTotalBytes()).order(order);
             newBuf.put(buffer);
             newBuf.flip();
             return newBuf;
         }
 
-        ByteBuffer buf = buffer.slice();
-        buf.order(order);
+        ByteBuffer buf = buffer.slice().order(order);
         return buf;
     }
 
