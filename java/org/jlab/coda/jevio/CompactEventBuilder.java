@@ -943,10 +943,11 @@ public class CompactEventBuilder {
         // Write header in endianness of buffer
         writeHeader(node);
 
-        // Is node a container?
-        if (node.getTypeObj().isStructure()) {
+        // Does this node contain other containers?
+        if (node.getDataTypeObj().isStructure()) {
             // Iterate through list of children
             ArrayList<EvioNode> kids = node.getChildNodes();
+            if (kids == null) return;
             for (EvioNode child : kids) {
                 writeNode(child, swapData);
             }
