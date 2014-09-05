@@ -590,11 +590,11 @@ public class EvioCompactReader {
 
                 if (byteOrder == ByteOrder.BIG_ENDIAN) {
                     byteOrder = ByteOrder.LITTLE_ENDIAN;
-System.out.println("Byte order = little endian");
+//System.out.println("Byte order = little endian");
                 }
                 else {
                     byteOrder = ByteOrder.BIG_ENDIAN;
-System.out.println("Byte order = big endian");
+//System.out.println("Byte order = big endian");
                 }
                 byteBuffer.order(byteOrder);
 
@@ -606,7 +606,7 @@ System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right
                 }
             }
 
-            Utilities.printBuffer(byteBuffer,0, 21, "ev");
+//            Utilities.printBuffer(byteBuffer,0, 21, "ev");
 
             fileByteOrder = byteOrder;
 
