@@ -1057,7 +1057,7 @@ public class CompactEventBuilder {
             // If node is opposite endian as this buffer,
             // rewrite all evio header data, but leave
             // primitive data alone.
-System.out.println("addEvioNode: write swapped headers");
+//System.out.println("addEvioNode: write swapped headers");
             writeNode(node, false);
         }
     }
