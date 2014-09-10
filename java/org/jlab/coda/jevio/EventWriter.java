@@ -1150,6 +1150,13 @@ public class EventWriter {
 
 
     /**
+     * Get the byte order of the buffer/file being written into.
+     * @return byte order of the buffer/file being written into.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+
+    /**
      * Set the number with which to start block numbers.
      * This method does nothing if events have already been written.
      * @param startingBlockNumber  the number with which to start block numbers.
