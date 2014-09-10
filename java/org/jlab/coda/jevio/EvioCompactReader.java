@@ -292,6 +292,12 @@ public class EvioCompactReader {
     public synchronized boolean isClosed() {return closed;}
 
     /**
+     * Get the byte order of the file/buffer being read.
+     * @return byte order of the file/buffer being read.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+    /**
      * Get the evio version number.
      * @return evio version number.
      */
@@ -632,6 +638,7 @@ System.out.println("Unsupported evio version (" + evioVersion + ") for EvioCompa
             blockHeader.setVersion(evioVersion);
             blockHeader.setReserved2(0);  // not used
             blockHeader.setMagicNumber(magicNumber);
+            blockHeader.setByteOrder(byteOrder);
         }
         catch (EvioException a) {
             byteBuffer.clear();

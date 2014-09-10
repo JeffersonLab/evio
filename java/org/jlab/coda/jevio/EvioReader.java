@@ -576,16 +576,20 @@ public class EvioReader {
      *
      * @return {@code true} if this object closed, else {@code false}.
      */
-    public synchronized boolean isClosed() {return closed;}
+    public synchronized boolean isClosed() { return closed; }
 
     /**
      * Is this reader checking the block number sequence and
      * throwing an exception is it's not sequential and starting with 1?
      * @return <code>true</code> if checking block number sequence, else <code>false</code>
      */
-    public boolean checkBlockNumberSequence() {
-        return checkBlockNumberSequence;
-    }
+    public boolean checkBlockNumberSequence() { return checkBlockNumberSequence; }
+
+    /**
+     * Get the byte order of the file/buffer being read.
+     * @return byte order of the file/buffer being read.
+     */
+    public ByteOrder getByteOrder() { return byteOrder; }
 
     /**
      * Get the evio version number.
@@ -758,6 +762,7 @@ System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right
             lastBlock = blockHeader4.getBitInfo(1);
             blockHeader4.setReserved2(headerBuf.getInt());
             blockHeader4.setMagicNumber(headerBuf.getInt());
+            blockHeader4.setByteOrder(byteOrder);
             blockHeader = blockHeader4;
             firstBlockHeader = new BlockHeaderV4(blockHeader4);
 
@@ -794,6 +799,7 @@ System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right
             blockHeader2.setVersion(evioVersion);
             blockHeader2.setReserved1(   headerBuf.getInt());
             blockHeader2.setMagicNumber( headerBuf.getInt());
+            blockHeader2.setByteOrder(byteOrder);
             blockHeader = blockHeader2;
 
             firstBlockHeader = new BlockHeaderV2(blockHeader2);

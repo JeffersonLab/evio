@@ -1,6 +1,7 @@
 package org.jlab.coda.jevio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.BitSet;
 
 /**
@@ -136,9 +137,11 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     /** Bit information. Bit one: is the first event a dictionary? */
     private BitSet bitInfo = new BitSet(24);
 
-
 	/** This is the magic word, 0xc0da0100, used to check endianness. */
 	private int magicNumber;
+
+    /** This is the byte order of the data being read. */
+    private ByteOrder byteOrder;
 
 	/**
 	 * This is not part of the block header proper. It is a position in a memory buffer
@@ -657,6 +660,18 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 		}
 		this.magicNumber = magicNumber;
 	}
+
+    /** {@inheritDoc} */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+    /**
+   	 * Sets the byte order of data being read.
+   	 *
+   	 * @param byteOrder the new value for data's byte order.
+   	 */
+   	public void setByteOrder(ByteOrder byteOrder) {
+   		this.byteOrder = byteOrder;
+   	}
 
 	/**
 	 * Obtain a string representation of the block (physical record) header.

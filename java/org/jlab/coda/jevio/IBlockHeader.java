@@ -1,6 +1,7 @@
 package org.jlab.coda.jevio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Make a common interface for different versions of the BlockHeader.
@@ -48,6 +49,13 @@ public interface IBlockHeader {
      * @return the magic number in the block (physical record).
      */
     int getMagicNumber();
+
+    /**
+	 * Get the byte order of the data being read.
+     *
+     * @return the byte order of the data being read.
+     */
+    ByteOrder getByteOrder();
 
     /**
      * Get the position in the buffer (in bytes) of this block's last data word.<br>

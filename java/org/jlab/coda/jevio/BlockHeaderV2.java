@@ -1,6 +1,7 @@
 package org.jlab.coda.jevio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * This holds a evio block header, also known as a physical record header.
@@ -109,6 +110,9 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * This is the magic word: 0xc0da0100 (formerly reserved2). Used to check endianness.
 	 */
 	private int magicNumber;
+
+    /** This is the byte order of the data being read. */
+    private ByteOrder byteOrder;
 
 	/**
 	 * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
@@ -402,6 +406,18 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 		}
 		this.magicNumber = magicNumber;
 	}
+
+    /** {@inheritDoc} */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+    /**
+   	 * Sets the byte order of data being read.
+   	 *
+   	 * @param byteOrder the new value for data's byte order.
+   	 */
+   	public void setByteOrder(ByteOrder byteOrder) {
+   		this.byteOrder = byteOrder;
+   	}
 
 	/**
 	 * Obtain a string representation of the block (physical record) header.
