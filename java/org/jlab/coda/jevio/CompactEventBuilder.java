@@ -1153,7 +1153,8 @@ public class CompactEventBuilder {
         }
 
         if (currentStructure.dataType != DataType.INT32  &&
-            currentStructure.dataType != DataType.UINT32)  {
+            currentStructure.dataType != DataType.UINT32 &&
+            currentStructure.dataType != DataType.UNKNOWN32)  {
             throw new EvioException("may only add " + currentStructure.dataType + " data");
         }
 
