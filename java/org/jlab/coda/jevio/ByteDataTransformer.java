@@ -1717,6 +1717,40 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                                  int srcPos, int destPos, List<EvioNode> nodeList)
             throws EvioException {
 
+        swapEvent(srcBuffer, destBuffer, srcPos, destPos, true, nodeList);
+    }
+
+
+    /**
+     * This method swaps the byte order of an entire evio event or bank.
+     * The byte order of the swapped buffer will be opposite to the byte order
+     * of the the source buffer argument. If the swap is done in place, the
+     * byte order of the source buffer will be switched upon completion and
+     * the destPos arg will be set equal to the srcPos arg.
+     * A ByteBuffer's current byte order can be found by calling
+     * {@link java.nio.ByteBuffer#order()}.<p>
+     *
+     * The data to be swapped must <b>not</b> be in the evio file format (with
+     * block headers). Data must only consist of bytes representing a single event/bank.
+     * Position and limit of neither buffer is changed.
+     *
+     * @param srcBuffer  buffer containing event to swap.
+     * @param destBuffer buffer in which to placed the swapped event.
+     *                   If null, or identical to srcBuffer, the data is swapped in place.
+     * @param srcPos     position in srcBuffer to start reading event
+     * @param destPos    position in destBuffer to start writing swapped event
+     * @param swapData   if false, do NOT swap data, else swap data too
+     * @param nodeList   if not null, generate & store node objects here -
+     *                   one for each swapped evio structure in destBuffer.
+     *
+     * @throws EvioException if srcBuffer arg is null;
+     *                       if any buffer position is not zero
+     */
+    public static void swapEvent(ByteBuffer srcBuffer, ByteBuffer destBuffer,
+                                 int srcPos, int destPos, boolean swapData,
+                                 List<EvioNode> nodeList)
+            throws EvioException {
+
         if (srcBuffer == null) {
             throw new EvioException("Null event in parseEvent.");
         }
@@ -1764,7 +1798,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 
         // The event is an evio bank so recursively swap it as such
         swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                      srcPos + 8, destPos + 8, node.dataLen, inPlace, nodeList);
+                      srcPos + 8, destPos + 8, node.dataLen, inPlace, swapData, nodeList);
 
         if (inPlace) {
             srcBuffer.order(destOrder);
@@ -2129,6 +2163,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      * @param destPos    position in destBuffer to start writing swapped structure
      * @param length     length of structure in 32-bit words
      * @param inPlace    if true, data is swapped in srcBuffer
+     * @param swapData   if false, data is NOT swapped, else it is
      * @param nodeList   if not null, store all node objects here -
      *                   one for each swapped evio structure in destBuffer.
      *
@@ -2138,14 +2173,15 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      *                       if bad values for srcPos and/or destPos;
      */
     static void swapStructure(DataType dataType, ByteBuffer srcBuffer,
-                                      ByteBuffer destBuffer, int srcPos, int destPos,
-                                      int length, boolean inPlace, List<EvioNode> nodeList)
+                              ByteBuffer destBuffer, int srcPos, int destPos,
+                              int length, boolean inPlace, boolean swapData,
+                              List<EvioNode> nodeList)
              throws EvioException {
 
         // If not a structure of structures, swap the data and return - no more recursion.
         if (!dataType.isStructure()) {
             // swap raw data here
-            swapData(dataType, srcBuffer, destBuffer, srcPos, destPos, length, inPlace);
+            if (swapData) swapData(dataType, srcBuffer, destBuffer, srcPos, destPos, length, inPlace);
 //System.out.println("HIT END_OF_LINE");
             return;
         }
@@ -2174,7 +2210,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 //System.out.println("Create bank node for struct holding " + node.getDataTypeObj());
 
                     swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+8, dPos+8, node.dataLen, inPlace, nodeList);
+                                  sPos+8, dPos+8, node.dataLen, inPlace, swapData, nodeList);
 
                     // Position offset to start of next header
                     offset += 4 * (node.len + 1); // plus 1 for length word
@@ -2204,7 +2240,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 
 //System.out.println("Create seg node for struct holding " + node.getDataTypeObj());
                     swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+4, dPos+4, node.dataLen, inPlace, nodeList);
+                                  sPos+4, dPos+4, node.dataLen, inPlace, swapData, nodeList);
 
                     offset += 4 * (node.len + 1);
                     sPos = srcPos  + offset;
@@ -2235,7 +2271,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 //System.out.println("Create tagseg node for struct holding " + node.getDataTypeObj());
 
                     swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+4, dPos+4, node.dataLen, inPlace, nodeList);
+                                  sPos+4, dPos+4, node.dataLen, inPlace, swapData, nodeList);
 
                     offset += 4 * (node.len + 1);
                     sPos = srcPos  + offset;
