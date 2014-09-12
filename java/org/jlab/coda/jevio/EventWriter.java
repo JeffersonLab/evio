@@ -1122,6 +1122,19 @@ public class EventWriter {
 
 
     /**
+     * Get the full name or path of the current file being written to.
+     * Returns null if no file.
+     * @return the full name or path of the current file being written to.
+     */
+    public String getCurrentFilePath() {
+        if (currentFile != null) {
+            return currentFile.getPath();
+        }
+        return null;
+    }
+
+
+    /**
      * Get the current split count which is the number of files
      * created by this object. Warning, this value may be changing.
      * @return the current split count which is the number of files created by this object.
