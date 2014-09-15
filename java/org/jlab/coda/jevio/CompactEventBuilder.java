@@ -1016,9 +1016,9 @@ public class CompactEventBuilder {
         buffer.clear();
 
         int len = node.getTotalBytes();
-System.out.println("addEvioNode: buf lim = " + buffer.limit() +
-                           " - pos = " + position + " = (" + (buffer.limit() - position) +
-                           ") must be >= " + node.getTotalBytes() + " node total bytes");
+//System.out.println("addEvioNode: buf lim = " + buffer.limit() +
+//                           " - pos = " + position + " = (" + (buffer.limit() - position) +
+//                           ") must be >= " + node.getTotalBytes() + " node total bytes");
         if (buffer.limit() - position < len) {
             throw new EvioException("no room in buffer");
         }
@@ -1035,11 +1035,11 @@ System.out.println("addEvioNode: buf lim = " + buffer.limit() +
 
         if (sameEndian) {
             if (!useByteBuffer && buf.hasArray() && buffer.hasArray()) {
-System.out.println("addEvioNode: arraycopy node (same endian)");
+//System.out.println("addEvioNode: arraycopy node (same endian)");
                 System.arraycopy(buf.array(), node.getPosition(), array, position, node.getTotalBytes());
             }
             else {
-System.out.println("addEvioNode: less efficient node copy (same endian)");
+//System.out.println("addEvioNode: less efficient node copy (same endian)");
                 // Better performance not to slice/duplicate buffer (5 - 10% faster)
                 int oldPos = buf.position();
                 int oldLimit = buf.limit();
@@ -1061,7 +1061,7 @@ System.out.println("addEvioNode: less efficient node copy (same endian)");
             // If node is opposite endian as this buffer,
             // rewrite all evio header data, but leave
             // primitive data alone.
-System.out.println("addEvioNode: write swapped headers");
+//System.out.println("addEvioNode: write swapped headers");
             writeNode(node, false);
         }
     }
