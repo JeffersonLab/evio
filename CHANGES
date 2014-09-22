@@ -19,3 +19,6 @@ jevio-4.3.2.jar differences from previous jars :
 
     3) made members of EventTreeMenu protected instead of package or private
        scope for subclassing purposes
+
+evio-4.3.3   9/22/2014
+    - fix flags for Mac OSX compilation
