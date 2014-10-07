@@ -24,3 +24,8 @@ jevio-4.4.jar
 
     improve performance
         - replace LinkedLists with ArrayLists or arrays
+
+evio-4.4
+	- fix flags for Mac OSX compilation
+	- fix performance problem writing files in java & C.
+	  No longer force a written event to physical disk. (10/7/14)
