@@ -4492,7 +4492,9 @@ if (debug) printf("    evFlush: write %d bytes\n", bytesToWrite);
 
         /* Write block to file */
         nBytes = fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
-        fflush(a->file);
+
+// I suspect this line kills performance so just remove it for now.
+//        fflush(a->file);
         
         /* Return for error condition of file stream */
         if (ferror(a->file)) return(S_FAILURE);
