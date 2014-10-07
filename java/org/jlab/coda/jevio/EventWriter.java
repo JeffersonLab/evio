@@ -2228,8 +2228,8 @@ if (debug) System.out.println("    flushToFile(): at pos " + fileChannel.positio
         // Write everything in internal buffer out to file
         int bytesWritten = buffer.remaining();
         fileChannel.write(buffer);
-        // Make sure it writes to the physical file on disk
-        fileChannel.force(true);
+        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 17x slower)
+        //fileChannel.force(true);
 if (debug) System.out.println("    flushToFile(): after write, remaining = " + buffer.remaining());
 
         // Go back to the beginning of the buffer & set limit
