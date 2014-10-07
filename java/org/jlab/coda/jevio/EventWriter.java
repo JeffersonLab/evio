@@ -1934,7 +1934,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         }
         else if (bankBuffer != null) {
             if (bankBuffer.order() != byteOrder) {
-                throw new EvioException("event is in wrong byte order");
+                throw new EvioException("event buf is " + bankBuffer.order() + ", and writer is " + byteOrder);
             }
 
             // Event size in bytes (from buffer ready to read)
