@@ -2022,7 +2022,8 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
 
         // Are we splitting files in general?
         while (split > 0) {
-            int headerCount=0;
+//            int headerCount=0;
+
             // If all that is written so far is a dictionary, don't split after writing it
             if (wroteDictionary && (blockNumber - 1) == 1 && eventsWrittenToBuffer < 2) {
 //if (debug) System.out.println("evWrite: don't split file cause only dictionary written so far");
@@ -2037,7 +2038,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             // But only if it doesn't write over an existing ending block.
             if (writeNewBlockHeader && bytesWrittenToFile < 1) {
                 totalSize += headerBytes;
-                headerCount++;
+//                headerCount++;
 //if (debug) System.out.println("evWrite: account for another block header when splitting");
             }
 
@@ -2045,7 +2046,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
             if (BlockHeaderV4.isLastBlock(headerInfoWord)) {
                 totalSize += headerBytes;
-                headerCount++;
+//                headerCount++;
 //if (debug) System.out.println("evWrite: account for adding empty last block when splitting");
             }
 
@@ -2325,9 +2326,6 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         // Close existing file which will also flush remaining data
         if (raf != null) {
             raf.close();
-        }
-        else if (fileChannel != null) {
-            fileChannel.close();
         }
 
         // Right now no file is open for writing
