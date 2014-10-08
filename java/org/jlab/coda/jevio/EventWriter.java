@@ -1899,7 +1899,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
      * If the internal buffer is full, it will be flushed to the file if
      * writing to a file. Otherwise an exception will be thrown.<p>
      * Be warned that injudicious use of the 2nd arg, the force flag, will
-     * kill performance.
+     * <b>kill</b> performance.
      *
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
@@ -1926,7 +1926,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
      * and may contain multiple blocks. Dictionary is never written with
      * this method.<p>
      * Be warned that injudicious use of the 2nd arg, the force flag, will
-     * kill performance.
+     * <b>kill</b> performance.
      *
      * @param bank   the bank to write.
      * @param force  if writing to disk, force it to write event to the disk.
@@ -1949,7 +1949,9 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
      * The first is as an EvioBank object and the second is as a ByteBuffer
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
-     * The first non-null of the bank arguments will be written.
+     * The first non-null of the bank arguments will be written.<p>
+     * Be warned that injudicious use of the 2nd arg, the force flag, will
+     *<b>kill</b> performance.
      *
      * @param bank the bank (as an EvioBank object) to write.
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
@@ -2169,7 +2171,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         // existing dictionary as the first event & block in the new file
         // before we write the event.
         //********************************************************************
-        if (splittingFile && xmlDictionary != null) {
+        if (xmlDictionary != null && splittingFile) {
             // Memory needed to write: dictionary + 3 block headers
             // (beginning, after dict, and ending) + event
             int neededBytes = dictionaryBankBytes + 3*headerBytes + currentEventBytes;
@@ -2218,10 +2220,12 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
 
         // If caller wants to flush the event to disk (say, prestart event) ...
         if (force && toFile) {
+            // This will kill performance!
             flushToFile(true);
             resetBuffer(false);
         }
     }
+
 
     /**
      * Flush everything in buffer to file.
@@ -2282,9 +2286,13 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
 
         // Write everything in internal buffer out to file
         int bytesWritten = buffer.remaining();
-        fileChannel.write(buffer);
-        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 17x slower)
-        if (force) fileChannel.force(true);
+        while (buffer.hasRemaining()) {
+            fileChannel.write(buffer);
+        }
+
+        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
+        // but don't bother writing the metdata (arg to force()).
+        if (force) fileChannel.force(false);
 //if (debug) System.out.println("    flushToFile(): after write, remaining = " + buffer.remaining());
 
         // Go back to the beginning of the buffer & set limit
@@ -2314,11 +2322,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         bytesWrittenToFile  = 0;
         eventsWrittenToFile = 0;
 
-        // Make sure it writes to the physical file on disk
-        // TODO: This may not be necessary!
-        fileChannel.force(true);
-
-        // Close existing file
+        // Close existing file which will also flush remaining data
         if (fileOutputStream != null) {
             fileOutputStream.close();
         }
