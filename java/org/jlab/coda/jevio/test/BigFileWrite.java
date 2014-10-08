@@ -4,7 +4,6 @@ import org.jlab.coda.jevio.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -205,7 +204,7 @@ if (debug) System.out.println("buf: pos = " + buf.position() + ", cap = " + buf.
                     t1 = System.currentTimeMillis();
 
                     for (int j=0; j < loops; j++) {
-                        eventWriter.writeEvent(buf);
+                        eventWriter.writeEvent(buf, forceToDisk);
                         buf.clear();
                     }
 
