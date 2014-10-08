@@ -219,10 +219,10 @@ public class EventWriter {
 
     private File currentFile;
 
-    /** The output stream used for writing a file. */
-    private FileOutputStream fileOutputStream;
+    /** The object used for writing a file. */
+    private RandomAccessFile raf;
 
-    /** The file channel, used for writing a file, derived from fileOutputStream. */
+    /** The file channel, used for writing a file, derived from raf. */
     private FileChannel fileChannel;
 
     /** Running count of split output files. */
@@ -661,7 +661,7 @@ public class EventWriter {
 
 		try {
             if (append) {
-                RandomAccessFile raf = new RandomAccessFile(currentFile, "rw");
+                raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
 
                 // If we have an empty file, that's OK.
@@ -1204,8 +1204,8 @@ if(debug) System.out.println("close: flush what we have to file");
 
         // Close everything including its associated channel
         try {
-            if (toFile && fileOutputStream != null) {
-                fileOutputStream.close();
+            if (toFile && raf != null) {
+                raf.close();
             }
         }
         catch (IOException e) {}
@@ -2269,8 +2269,8 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         if (bytesWrittenToFile < 1) {
 //if (debug) System.out.println("    flushToFile(): create file " + currentFile.getName());
             try {
-                fileOutputStream = new FileOutputStream(currentFile, false);  // no appending
-                fileChannel = fileOutputStream.getChannel();
+                raf = new RandomAccessFile(currentFile, "rw");
+                fileChannel = raf.getChannel();
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
@@ -2323,15 +2323,15 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         eventsWrittenToFile = 0;
 
         // Close existing file which will also flush remaining data
-        if (fileOutputStream != null) {
-            fileOutputStream.close();
+        if (raf != null) {
+            raf.close();
         }
-        else {
+        else if (fileChannel != null) {
             fileChannel.close();
         }
 
         // Right now no file is open for writing
-        fileOutputStream = null;
+        raf = null;
 
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
