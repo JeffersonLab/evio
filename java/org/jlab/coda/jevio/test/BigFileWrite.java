@@ -2,8 +2,7 @@ package org.jlab.coda.jevio.test;
 
 import org.jlab.coda.jevio.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -18,7 +17,7 @@ import java.nio.channels.FileChannel;
  */
 public class BigFileWrite {
 
-    private boolean debug, writeEvioFile, forceToDisk;
+    private boolean debug, writeEvioFile, forceToDisk, random;
     private int bufferBytes = 15000;    // Write data in 15k byte chunks by default
     private long fileBytes = 2000000000; // 2GB file by default
     private int repeat = 3;
@@ -71,6 +70,9 @@ public class BigFileWrite {
             }
             else if (args[i].equalsIgnoreCase("-debug")) {
                 debug = true;
+            }
+            else if (args[i].equalsIgnoreCase("-raf")) {
+                random = true;
             }
             else if (args[i].equalsIgnoreCase("-force")) {
                 forceToDisk = true;
@@ -138,45 +140,93 @@ public class BigFileWrite {
 
         if (!writeEvioFile) {
 
-            try {
-                File f;
-                for (int i=0; i < repeat; i++) {
-                    FileOutputStream fileOutputStream = new FileOutputStream(filename, false);  // no appending
-                    FileChannel fileChannel = fileOutputStream.getChannel();
+            if (random) {
+                // Use data output stream
+                try {
+                    File f;
+                    for (int i=0; i < repeat; i++) {
+                        RandomAccessFile raf = new RandomAccessFile(filename, "rw");
 
-                    // keep track of time
-                    t1 = System.currentTimeMillis();
+                        // keep track of time
+                        t1 = System.currentTimeMillis();
 
-                    for (int j=0; j < loops; j++) {
-                        fileChannel.write(dataBuf);
-                        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 17x slower)
-                        if (forceToDisk) fileChannel.force(true);
-                        dataBuf.clear();
+                        for (int j=0; j < loops; j++) {
+                            raf.write(dataBuf.array(), 0, dataBuf.limit());
+                            // Force it to write to physical disk (KILLS PERFORMANCE!!!, 17x slower)
+                            if (forceToDisk) {
+                                raf.getFD().sync();
+                            }
+                            dataBuf.clear();
+                        }
+
+                        // all done writing
+                        raf.close();
+
+                        // all done
+                        t2 = System.currentTimeMillis();
+
+                        // calculate the data writing rate
+                        time = t2 - t1;
+                        rate = (loops * bufferBytes) / time / 1000.; // MBytes/sec
+                        totalCount += loops * bufferBytes;
+                        totalT += time;
+                        avgRate = ((double) totalCount) / totalT / 1000.;
+                        System.out.println("rate = " + String.format("%.3g", rate) +
+                                                   ",  avg = " + String.format("%.3g", avgRate) + " MB/sec");
+                        System.out.println("time = " + (time) + " milliseconds");
+
+                        // clean up
+                        f = new File(filename);
+                        if (i < repeat-1) f.delete();
                     }
-
-                    // all done writing
-                    fileOutputStream.close();
-
-                    // all done
-                    t2 = System.currentTimeMillis();
-
-                    // calculate the data writing rate
-                    time = t2 - t1;
-                    rate = (loops * bufferBytes) / time / 1000.; // MBytes/sec
-                    totalCount += loops * bufferBytes;
-                    totalT += time;
-                    avgRate = ((double) totalCount) / totalT / 1000.;
-                    System.out.println("rate = " + String.format("%.3g", rate) +
-                                               ",  avg = " + String.format("%.3g", avgRate) + " MB/sec");
-                    System.out.println("time = " + (time) + " milliseconds");
-
-                    // clean up
-                    f = new File(filename);
-                    if (i < repeat-1) f.delete();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-            catch (Exception e) {
-                e.printStackTrace();
+            else {
+                // Use channels
+                try {
+                    File f;
+                    for (int i=0; i < repeat; i++) {
+                        FileOutputStream fileOutputStream = new FileOutputStream(filename, false);  // no appending
+                        FileChannel fileChannel = fileOutputStream.getChannel();
+
+                        // keep track of time
+                        t1 = System.currentTimeMillis();
+
+                        for (int j=0; j < loops; j++) {
+                            fileChannel.write(dataBuf);
+                            // Force it to write to physical disk (KILLS PERFORMANCE!!!, 17x slower)
+                            if (forceToDisk) fileChannel.force(true);
+                            dataBuf.clear();
+                        }
+
+                        // all done writing
+                        fileOutputStream.close();
+
+                        // all done
+                        t2 = System.currentTimeMillis();
+
+                        // calculate the data writing rate
+                        time = t2 - t1;
+                        rate = (loops * bufferBytes) / time / 1000.; // MBytes/sec
+                        totalCount += loops * bufferBytes;
+                        totalT += time;
+                        avgRate = ((double) totalCount) / totalT / 1000.;
+                        System.out.println("rate = " + String.format("%.3g", rate) +
+                                                   ",  avg = " + String.format("%.3g", avgRate) + " MB/sec");
+                        System.out.println("time = " + (time) + " milliseconds");
+
+                        // clean up
+                        f = new File(filename);
+                        if (i < repeat-1) f.delete();
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         }
 
