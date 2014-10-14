@@ -254,6 +254,30 @@ public class EventWriter {
      * all split files. */
     private int eventsWrittenToFile;
 
+
+    class CloseFileThread extends Thread {
+        private RandomAccessFile raf;
+
+        void closeFile(RandomAccessFile raf) {
+            this.raf = raf;
+            start();
+        }
+
+        public void run() {
+            try {
+                raf.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /** Object used to close files in a separate thread when splitting
+     *  so as to allow writing speed not to dip so low. */
+    private CloseFileThread closeFileThread;
+
+
     //---------------------------------------------
     // FILE Constructors
     //---------------------------------------------
@@ -658,6 +682,9 @@ public class EventWriter {
 
         // Keep track of how many 32 bit words in current block (after writing header below)
         currentBlockSize = 8;
+
+        // Object to close files in a separate thread when splitting, to speed things up
+        closeFileThread = new CloseFileThread();
 
 		try {
             if (append) {
@@ -2292,7 +2319,8 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         }
 
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
-        // but don't bother writing the metdata (arg to force()).
+        // but don't bother writing the metdata (arg to force()) since that slows it
+        // down too.
         if (force) fileChannel.force(false);
 //if (debug) System.out.println("    flushToFile(): after write, remaining = " + buffer.remaining());
 
@@ -2323,9 +2351,10 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         bytesWrittenToFile  = 0;
         eventsWrittenToFile = 0;
 
-        // Close existing file which will also flush remaining data
+        // Close existing file (in separate thread for speed)
+        // which will also flush remaining data.
         if (raf != null) {
-            raf.close();
+            closeFileThread.closeFile(raf);
         }
 
         // Right now no file is open for writing
@@ -2344,5 +2373,4 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
 
 if (debug) System.out.println("splitFile: generated file name = " + fileName);
     }
-
 }
