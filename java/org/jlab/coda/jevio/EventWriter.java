@@ -254,7 +254,8 @@ public class EventWriter {
      * all split files. */
     private int eventsWrittenToFile;
 
-
+    /** Class used to close file in its own thread
+     *  to avoid slowing down while file splitting. */
     class CloseFileThread extends Thread {
         private RandomAccessFile raf;
 
@@ -270,6 +271,10 @@ public class EventWriter {
             catch (IOException e) {
                 e.printStackTrace();
             }
+
+            // It's not legal to start the same thread more than
+            // once so use a new instantiation for next round.
+            closeFileThread = new CloseFileThread();
         }
     }
 
