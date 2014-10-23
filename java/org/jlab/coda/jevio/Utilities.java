@@ -253,7 +253,7 @@ public class Utilities {
      * @param words          number of 32 bit words to print in hex
      * @param label          a label to print as header
      */
-    public static void printBuffer(ByteBuffer buf, int position, int words, String label) {
+    synchronized public static void printBuffer(ByteBuffer buf, int position, int words, String label) {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
