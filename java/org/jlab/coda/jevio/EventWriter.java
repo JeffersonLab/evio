@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.BitSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * An EventWriter object is used for writing events to a file or to a byte buffer.
@@ -254,33 +256,52 @@ public class EventWriter {
      * all split files. */
     private int eventsWrittenToFile;
 
-    /** Class used to close file in its own thread
+
+    /** Class used to close files in order received, each in its own thread,
      *  to avoid slowing down while file splitting. */
-    class CloseFileThread extends Thread {
-        private RandomAccessFile raf;
+    private final class FileCloser {
 
+        /** Thread pool with 1 thread. */
+        private final ExecutorService threadPool;
+
+        FileCloser() {
+            threadPool = Executors.newSingleThreadExecutor();
+        }
+
+        /**
+         * Close the given file, in the order received, in a separate thread.
+         * @param raf file to close
+         */
         void closeFile(RandomAccessFile raf) {
-            this.raf = raf;
-            start();
+            threadPool.submit(new CloseThd(raf));
         }
 
-        public void run() {
-            try {
-                raf.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+        /** Close the thread pool in this object while executing all existing tasks. */
+        void close() {
+            threadPool.shutdown();
+        }
+
+        private class CloseThd implements Runnable {
+            private RandomAccessFile raf;
+
+            CloseThd(RandomAccessFile raf) {
+                this.raf = raf;
             }
 
-            // It's not legal to start the same thread more than
-            // once so use a new instantiation for next round.
-            closeFileThread = new CloseFileThread();
-        }
+            public void run() {
+                try {
+                    raf.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 
     /** Object used to close files in a separate thread when splitting
      *  so as to allow writing speed not to dip so low. */
-    private CloseFileThread closeFileThread;
+    private FileCloser fileCloser;
 
 
     //---------------------------------------------
@@ -689,7 +710,7 @@ public class EventWriter {
         currentBlockSize = 8;
 
         // Object to close files in a separate thread when splitting, to speed things up
-        closeFileThread = new CloseFileThread();
+        if (split > 0) fileCloser = new FileCloser();
 
 		try {
             if (append) {
@@ -1237,7 +1258,10 @@ if(debug) System.out.println("close: flush what we have to file");
         // Close everything including its associated channel
         try {
             if (toFile && raf != null) {
+                // Close current file
                 raf.close();
+                // Close all the split files
+                if (fileCloser != null) fileCloser.close();
             }
         }
         catch (IOException e) {}
@@ -2359,7 +2383,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
         if (raf != null) {
-            closeFileThread.closeFile(raf);
+            fileCloser.closeFile(raf);
         }
 
         // Right now no file is open for writing
