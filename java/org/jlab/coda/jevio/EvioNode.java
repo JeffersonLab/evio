@@ -529,8 +529,7 @@ public final class EvioNode implements Cloneable {
             return newBuf;
         }
 
-        ByteBuffer buf = buffer.slice().order(order);
-        return buf;
+        return  buffer.slice().order(order);
     }
 
 
@@ -566,8 +565,7 @@ public final class EvioNode implements Cloneable {
             return newBuf;
         }
 
-        ByteBuffer buf = buffer.slice().order(order);
-        return buf;
+        return buffer.slice().order(order);
     }
 
 
