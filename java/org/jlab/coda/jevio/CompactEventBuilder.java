@@ -953,7 +953,7 @@ public class CompactEventBuilder {
             }
         }
         else {
-            ByteBuffer nodeBuf = node.getBufferNode().getBuffer();
+            ByteBuffer nodeBuf = node.bufferNode.buffer;
 
             if (swapData) {
                 try {
@@ -971,16 +971,12 @@ public class CompactEventBuilder {
                                      array, position, 4*node.dataLen);
                 }
                 else {
-                    int oldPos   = nodeBuf.position();
-                    int oldLimit = nodeBuf.limit();
-
-                    nodeBuf.limit(node.getPosition() + node.getTotalBytes()).position(node.getDataPosition());
+                    ByteBuffer duplicateBuf = nodeBuf.duplicate();
+                    duplicateBuf.limit(node.dataPos + 4*node.dataLen).position(node.dataPos);
 
                     buffer.position(position);
-                    buffer.put(nodeBuf); // this method is relative to position
-                    buffer.position(0);  // get ready for external reading
-
-                    nodeBuf.limit(oldLimit).position(oldPos);
+                    buffer.put(duplicateBuf); // this method is relative to position
+                    buffer.position(0);       // get ready for external reading
                 }
             }
 
@@ -1025,34 +1021,23 @@ public class CompactEventBuilder {
 
         addToAllLengths(len/4);  // # 32-bit words
 
-        ByteOrder nodeBufOrder = node.bufferNode.getBuffer().order();
-        ByteBuffer buf = node.bufferNode.getBuffer().duplicate();
-        buf.order(nodeBufOrder);
-        boolean sameEndian = true;
-        if (nodeBufOrder != buffer.order()) {
-            sameEndian = false;
-        }
+        ByteBuffer nodeBuf = node.bufferNode.buffer;
 
-        if (sameEndian) {
-            if (!useByteBuffer && buf.hasArray() && buffer.hasArray()) {
+        if (nodeBuf.order() == buffer.order()) {
+            if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray()) {
 //System.out.println("addEvioNode: arraycopy node (same endian)");
-                System.arraycopy(buf.array(), node.getPosition(), array, position, node.getTotalBytes());
+                System.arraycopy(nodeBuf.array(), node.pos,
+                                 array, position, node.getTotalBytes());
             }
             else {
 //System.out.println("addEvioNode: less efficient node copy (same endian)");
                 // Better performance not to slice/duplicate buffer (5 - 10% faster)
-                int oldPos = buf.position();
-                int oldLimit = buf.limit();
-                buf.limit(node.getPosition() + node.getTotalBytes()).position(node.getPosition());
+                ByteBuffer duplicateBuf = nodeBuf.duplicate();
+                duplicateBuf.limit(node.pos + node.getTotalBytes()).position(node.pos);
 
-//                if (position > buffer.limit()) {
-//System.out.println("addEvioNode: limit = " + buffer.limit() + ", set to pos = " + position);
-//                }
                 buffer.position(position);
-                buffer.put(buf); // this method is relative to position
-                buffer.position(0);  // get ready for external reading
-
-                buf.limit(oldLimit).position(oldPos);
+                buffer.put(duplicateBuf); // this method is relative to position
+                buffer.position(0);       // get ready for external reading
             }
 
             position += len;
@@ -1061,7 +1046,6 @@ public class CompactEventBuilder {
             // If node is opposite endian as this buffer,
             // rewrite all evio header data, but leave
             // primitive data alone.
-//System.out.println("addEvioNode: write swapped headers");
             writeNode(node, false);
         }
     }
