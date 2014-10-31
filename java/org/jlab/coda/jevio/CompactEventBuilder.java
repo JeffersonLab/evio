@@ -934,11 +934,10 @@ public class CompactEventBuilder {
      * Take the node object and write its data into buffer in the
      * proper endian while also swapping primitive data if desired.
      *
-     * @param node node to be written
+     * @param node node to be written (is never null)
      * @param swapData do we swap the primitive data or not?
      */
     private void writeNode(EvioNode node, boolean swapData) {
-        if (node == null) return;
 
         // Write header in endianness of buffer
         writeHeader(node);
