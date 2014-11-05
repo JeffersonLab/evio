@@ -3652,7 +3652,7 @@ if (debug) printf("HEADER IS TOO BIG, reading an extra %lu bytes\n", bytesToRead
  * Calculates the sixth word of the block header which has the version number
  * in the lowest 8 bits. The arg hasDictionary is set in the 9th bit and
  * isEnd is set in the 10th bit.
- * Four bits of an int (event type) are set in bits 10-13.
+ * Four bits of an int (event type) are set in bits 11-14.
  *
  * @param version evio version number
  * @param hasDictionary does this block include an evio xml dictionary as the first event?
@@ -3664,7 +3664,7 @@ static int generateSixthWord(int version, int hasDictionary, int isEnd, int even
 {
     version  =  hasDictionary ? (version | EV_DICTIONARY_MASK) : version;
     version  =  isEnd         ? (version | EV_LASTBLOCK_MASK)  : version;
-    version |= ((eventType & 0xf) << 10);
+    version |= ((eventType & 0xf) << 11);
 
     return version;
 }
