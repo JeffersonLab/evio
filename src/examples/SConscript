@@ -18,7 +18,7 @@ for fileName in cfileList:
 # Compile C++ files and install
 for fileName in ccfileList:
     compiledFile = env.Program(source  = fileName,
-                               LIBS    = ['evio'+debugSuffix, 'evioxx'+debugSuffix] + execLibs,
+                               LIBS    = ['evioxx'+debugSuffix, 'evio'+debugSuffix] + execLibs,
                                LIBPATH = ['#src/libsrc/'+archDir, '#src/libsrc++/'+archDir],
                                CPPPATH = ['.', '#src/libsrc', '#src/libsrc++'])
     
