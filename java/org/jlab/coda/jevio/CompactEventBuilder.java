@@ -1157,6 +1157,7 @@ public class CompactEventBuilder {
 
         if (useByteBuffer) {
             IntBuffer db = buffer.asIntBuffer();
+            db.position(position);
             db.put(data, 0, len);
         }
         else {
@@ -1245,6 +1246,7 @@ public class CompactEventBuilder {
 
         if (useByteBuffer) {
             ShortBuffer db = buffer.asShortBuffer();
+            db.position(position);
             db.put(data, 0, len);
         }
         else {
@@ -1307,6 +1309,7 @@ public class CompactEventBuilder {
 
         if (useByteBuffer) {
             LongBuffer db = buffer.asLongBuffer();
+            db.position(position);
             db.put(data, 0, len);
         }
         else {
@@ -1375,6 +1378,7 @@ public class CompactEventBuilder {
 
         if (useByteBuffer) {
             FloatBuffer db = buffer.asFloatBuffer();
+            db.position(position);
             db.put(data, 0, len);
         }
         else {
@@ -1439,6 +1443,7 @@ public class CompactEventBuilder {
 
         if (useByteBuffer) {
             DoubleBuffer db = buffer.asDoubleBuffer();
+            db.position(position);
             db.put(data, 0, len);
         }
         else {
