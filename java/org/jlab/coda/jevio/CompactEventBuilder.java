@@ -1156,9 +1156,10 @@ public class CompactEventBuilder {
         addToAllLengths(len);  // # 32-bit words
 
         if (useByteBuffer) {
+            buffer.position(position);
             IntBuffer db = buffer.asIntBuffer();
-            db.position(position);
             db.put(data, 0, len);
+            buffer.position(0);
         }
         else {
             int pos = position;
@@ -1245,9 +1246,10 @@ public class CompactEventBuilder {
         addToAllLengths(totalWordLen - lastWordLen);
 
         if (useByteBuffer) {
+            buffer.position(position);
             ShortBuffer db = buffer.asShortBuffer();
-            db.position(position);
             db.put(data, 0, len);
+            buffer.position(0);
         }
         else {
             int pos = position;
@@ -1308,9 +1310,10 @@ public class CompactEventBuilder {
         addToAllLengths(2*len);  // # 32-bit words
 
         if (useByteBuffer) {
+            buffer.position(position);
             LongBuffer db = buffer.asLongBuffer();
-            db.position(position);
             db.put(data, 0, len);
+            buffer.position(0);
         }
         else {
             int pos = position;
@@ -1377,9 +1380,10 @@ public class CompactEventBuilder {
         addToAllLengths(len);  // # 32-bit words
 
         if (useByteBuffer) {
+            buffer.position(position);
             FloatBuffer db = buffer.asFloatBuffer();
-            db.position(position);
             db.put(data, 0, len);
+            buffer.position(0);
         }
         else {
             int aData, pos = position;
@@ -1442,9 +1446,10 @@ public class CompactEventBuilder {
         addToAllLengths(2*len);  // # 32-bit words
 
         if (useByteBuffer) {
+            buffer.position(position);
             DoubleBuffer db = buffer.asDoubleBuffer();
-            db.position(position);
             db.put(data, 0, len);
+            buffer.position(0);
         }
         else {
             long aData;
