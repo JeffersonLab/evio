@@ -523,7 +523,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Calculates the sixth word of this header which has the version number
      * in the lowest 8 bits. The arg hasDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-     * (event type) are set in bits 10-13.
+     * (event type) are set in bits 11-14.
      *
      * @param version evio version number
      * @param hasDictionary does this block include an evio xml dictionary as the first event?
@@ -542,7 +542,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
       * Calculates the sixth word of this header which has the version number (4)
       * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
       * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-      * (event type) are set in bits 10-13.
+      * (event type) are set in bits 11-14.
       *
       * @param bSet Bitset containing all bits to be set
       * @param version evio version number
