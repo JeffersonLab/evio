@@ -578,7 +578,29 @@ public class EventWriter {
      * append these events to an existing file is <code>true</code>,
      * in which case everything is fine. If the file doesn't exist,
      * it will be created. Byte order defaults to big endian if arg is null.
-     * File can be split while writing.
+     * File can be split while writing.<p>
+     *
+     * The base file name may contain up to 2, C-style integer format specifiers using
+     * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
+     * If more than 2 are found, an exception will be thrown.
+     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
+     * it will be added automatically in order to avoid spaces in the file name.
+     * The first specifier will be substituted with the given runNumber value.
+     * If the file is being split, the second will be substituted with the split number
+     * which starts at 0.
+     * If 2 specifiers exist and the file is not being split, no substitutions are made.
+     * If no specifier for the splitNumber exists, it is tacked onto the end of the file
+     * name after a dot (.).
+     * <p>
+     *
+     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
+     * which will be substituted with the value of the associated environmental
+     * variable or a blank string if none is found.<p>
+     *
+     * The base file name may also contain occurrences of the string "%s"
+     * which will be substituted with the value of the runType arg or nothing if
+     * the runType is null.<p>
+     *
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
