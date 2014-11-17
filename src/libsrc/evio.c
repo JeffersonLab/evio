@@ -224,7 +224,7 @@
  *      Magic #            = magic number (0xc0da0100) used to check endianness
  *
  *
- *   Bit info (24 bits) has the following bits defined:
+ *   Bit info (24 bits) has the following bits defined (starting at 1):
  * 
  *   Bit  9     = true if dictionary is included (relevant for first block only)
  *   Bit  10    = true if this block is the last block in file or network transmission
@@ -3650,7 +3650,7 @@ if (debug) printf("HEADER IS TOO BIG, reading an extra %lu bytes\n", bytesToRead
 
 /**
  * Calculates the sixth word of the block header which has the version number
- * in the lowest 8 bits. The arg hasDictionary is set in the 9th bit and
+ * in the lowest 8 bits (1-8). The arg hasDictionary is set in the 9th bit and
  * isEnd is set in the 10th bit.
  * Four bits of an int (event type) are set in bits 11-14.
  *
@@ -3664,7 +3664,7 @@ static int generateSixthWord(int version, int hasDictionary, int isEnd, int even
 {
     version  =  hasDictionary ? (version | EV_DICTIONARY_MASK) : version;
     version  =  isEnd         ? (version | EV_LASTBLOCK_MASK)  : version;
-    version |= ((eventType & 0xf) << 11);
+    version |= ((eventType & 0xf) << 10);
 
     return version;
 }
