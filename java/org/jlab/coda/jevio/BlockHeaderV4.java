@@ -40,7 +40,7 @@ import java.util.BitSet;
  *
  *
  *      Block Length       = number of ints in block (including this one).
- *      Block Number       = id number (starting at 0)
+ *      Block Number       = id number (starting at 1)
  *      Header Length      = number of ints in this header (8)
  *      Event Count        = number of events in this block (always an integral #).
  *                           NOTE: this value should not be used to parse the following
@@ -56,7 +56,7 @@ import java.util.BitSet;
  *
  *
  *
- * Bit info has the following bits defined:
+ * Bit info has the following bits defined (bit #s start with 1):
  *   Bit  9     = true if dictionary is included (relevant for first block only)
  *
  *   Bit  10    = true if this block is the last block in file or network transmission
@@ -92,7 +92,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /** Position of word for size of block in 32-bit words. */
     public static final int EV_BLOCKSIZE = 0;
-    /** Position of word for block number, starting at 0. */
+    /** Position of word for block number, starting at 1. */
     public static final int EV_BLOCKNUM = 1;
     /** Position of word for size of header in 32-bit words (=8). */
     public static final int EV_HEADERSIZE = 2;
@@ -159,11 +159,11 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	}
 
 	/**
-	 * Null constructor initializes all fields to zero.
+	 * Null constructor initializes all fields to zero, except block# = 1.
 	 */
 	public BlockHeaderV4() {
 		size = 0;
-		number = 0;
+		number = 1;
 		headerLength = 0;
 		version = 0;
 		eventCount = 0;
@@ -263,7 +263,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
 	/**
-	 * Get the block number for this block (physical record). In a file, this is usually sequential.
+	 * Get the block number for this block (physical record).
+     * In a file, this is usually sequential, starting at 1.
 	 *
 	 * @return the block number for this block (physical record).
 	 */
@@ -273,8 +274,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
 	/**
 	 * Set the block number for this block (physical record).
-     * In a file, this is usually sequential. This is not
-	 * checked.
+     * In a file, this is usually sequential starting at 1.
+     * This is not checked.
 	 *
 	 * @param number the number of the block (physical record).
 	 */
@@ -774,7 +775,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	}
 
 	/**
-	 * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.
+	 * Write myself out a byte buffer. This write is relative--i.e.,
+     * it uses the current position of the buffer.
 	 *
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written, which for a BlockHeader is 32.
