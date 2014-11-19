@@ -449,10 +449,10 @@ public final class EvioNode implements Cloneable {
             case SEGMENT:
             case ALSOSEGMENT:
                 if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                    buffer.putShort(pos, (byte)newTag);
+                    buffer.put(pos, (byte)newTag);
                 }
                 else {
-                    buffer.putShort(pos+3, (byte)newTag);
+                    buffer.put(pos+3, (byte)newTag);
                 }
                 return;
 
@@ -489,7 +489,7 @@ public final class EvioNode implements Cloneable {
                     buffer.put(pos+7, (byte) newNum);
                 }
                 else {
-                    buffer.putShort(pos+4, (byte)newNum);
+                    buffer.put(pos+4, (byte)newNum);
                 }
                 return;
 
