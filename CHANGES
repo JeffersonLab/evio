@@ -31,3 +31,4 @@ evio-4.4
 	  No longer force a written event to physical disk. (10/7/14)
     - fix bug in C lib that miswrites 6th word of block header - event type (11/5/14)
     - fix bug in Java CompactEventBuilder class that miswrites data into direct ByteBuffers (11/13/14)
+    - fix bug in Java CompactEventBuilder class that miswrites segment header (11/19/14)
