@@ -2348,7 +2348,6 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         if (bytesWrittenToFile < 1) {
 //if (debug) System.out.println("    flushToFile(): create file " + currentFile.getName());
             try {
-                currentFile.mkdir();
                 raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
             }
