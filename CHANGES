@@ -24,11 +24,13 @@ jevio-4.4.jar
 
     improve performance
         - replace LinkedLists with ArrayLists or arrays
+    -fix bug in EvioCompactStructureHandler.getNodes() throwing NullPointerException (12/8/14)
+    -add constructor to EvioCompactStructureHandler with EvioNode argument (12/8/14)
 
 evio-4.4
-	- fix flags for Mac OSX compilation
-	- fix performance problem writing files in java & C.
-	  No longer force a written event to physical disk. (10/7/14)
+    - fix flags for Mac OSX compilation
+    - fix performance problem writing files in java & C.
+      No longer force a written event to physical disk. (10/7/14)
     - fix bug in C lib that miswrites 6th word of block header - event type (11/5/14)
     - fix bug in Java CompactEventBuilder class that miswrites data into direct ByteBuffers (11/13/14)
     - fix bug in Java CompactEventBuilder class that miswrites segment header (11/19/14)
