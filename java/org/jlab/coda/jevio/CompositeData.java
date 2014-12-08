@@ -1118,6 +1118,13 @@ public final class CompositeData {
 
 
     /**
+     * This method gets the format string.
+     * @return format string.
+     */
+    public String getFormat() { return format; }
+
+
+    /**
      * This method gets the raw data byte order.
      * @return raw data byte order.
      */
