@@ -95,7 +95,12 @@ public final class EvioNode implements Cloneable {
     //----------------------------------
 
     /** Constructor when fancy features not needed. */
-    EvioNode() {}
+    EvioNode() {
+        // Put this node in list of all nodes (evio banks, segs, or tagsegs)
+        // contained in this event.
+        allNodes = new ArrayList<EvioNode>(100);
+        allNodes.add(this);
+    }
 
 
     /**
