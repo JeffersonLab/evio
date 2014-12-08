@@ -37,6 +37,41 @@ public class EvioCompactStructureHandler {
 
 
     /**
+     * Constructor for reading an EvioNode object.
+     *
+     * @param node the node to be analyzed.
+     * @throws EvioException if node arg is null;
+     *                       if byteBuffer not in proper format;
+     */
+    public EvioCompactStructureHandler(EvioNode node) throws EvioException {
+
+        if (node == null) {
+            throw new EvioException("node arg is null");
+        }
+
+        ByteBuffer byteBuffer = node.getBufferNode().getBuffer();
+
+        if (byteBuffer.remaining() < 1) {
+            throw new EvioException("Buffer has too little data");
+        }
+        else if ( (node.getTypeObj() == DataType.BANK || node.getTypeObj() == DataType.ALSOBANK) &&
+                   byteBuffer.remaining() < 2 ) {
+            throw new EvioException("Buffer has too little data");
+        }
+
+        this.node = node;
+        this.byteBuffer = byteBuffer;
+        initialPosition = byteBuffer.position();
+        byteOrder = byteBuffer.order();
+
+        // See if the length given in header is consistent with buffer size
+        if (node.len + 1 > byteBuffer.remaining()/4) {
+            throw new EvioException("Buffer has too little data");
+        }
+    }
+
+
+    /**
      * Constructor for reading a buffer that contains 1 structure only (no block headers).
      *
      * @param byteBuffer the buffer to be read that contains 1 structure only (no block headers).
