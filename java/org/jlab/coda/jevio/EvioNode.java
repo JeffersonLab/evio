@@ -252,7 +252,7 @@ public final class EvioNode implements Cloneable {
      * always including itself. This is meaningful only if this
      * node has been scanned, otherwise it contains only itself.
      *
-     * @return list of all nodes that this node contains
+     * @return list of all nodes that this node contains; null if not top-level node
      */
     public ArrayList<EvioNode> getAllNodes() {return allNodes;}
 
