@@ -55,12 +55,12 @@ public class EvioCompactReader {
 
     /** Mask to get version number from 6th int in block. */
     private static final int VERSION_MASK = 0xff;
-// TODO: this may be too much
+
     /** Stores info of all the (top-level) events. */
-    public final ArrayList<EvioNode> eventNodes = new ArrayList<EvioNode>(200000);
+    public final ArrayList<EvioNode> eventNodes = new ArrayList<EvioNode>(1000);
 
     /** Store info of all block headers. */
-    private final HashMap<Integer, BlockNode> blockNodes = new HashMap<Integer, BlockNode>(1000);
+    private final HashMap<Integer, BlockNode> blockNodes = new HashMap<Integer, BlockNode>(20);
 
 
     /**
@@ -125,6 +125,9 @@ public class EvioCompactReader {
 
     /** Is this object currently closed? */
     private boolean closed;
+
+    /** Skip things like keeping track of blocks for the sake of speed? */
+    private boolean fast = true;
 
 
     //------------------------
@@ -258,7 +261,21 @@ public class EvioCompactReader {
      * @throws EvioException if arg is null;
      *                       if failure to read first block header
      */
-    public synchronized void setBuffer(ByteBuffer buf) throws EvioException {
+    public void setBuffer(ByteBuffer buf) throws EvioException {
+        setBuffer(buf, true);
+    }
+
+    /**
+     * This method can be used to avoid creating additional EvioCompactReader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.
+     *
+     * @param buf ByteBuffer to be read
+     * @param fast ignore things like tracking block info for the sake of speed
+     * @throws EvioException if arg is null;
+     *                       if failure to read first block header
+     */
+    synchronized void setBuffer(ByteBuffer buf, boolean fast) throws EvioException {
 
         if (buf == null) {
             throw new EvioException("arg is null");
@@ -266,14 +283,18 @@ public class EvioCompactReader {
 
         close();
 
-        blockNodes.clear();
+        this.fast = fast;
+
+        if (!fast) {
+            blockNodes.clear();
+        }
         eventNodes.clear();
 
-        blockCount          = -1;
-        eventCount          = -1;
-        dictionaryXML       = null;
-        initialPosition     = buf.position();
-        this.byteBuffer     = buf;
+        blockCount      = -1;
+        eventCount      = -1;
+        dictionaryXML   = null;
+        initialPosition = buf.position();
+        this.byteBuffer = buf;
 
         if (readFirstHeader() != ReadStatus.SUCCESS) {
             throw new EvioException("Failed reading first block header/dictionary");
@@ -464,7 +485,7 @@ public class EvioCompactReader {
      */
     private void generateEventPositionTable() throws EvioException {
 
-        int      ver, len, byteLen, blockHdrSize, position;
+        int      ver, len, byteLen, blockHdrSize, position, wordsInBlock, eventsInBlock;
         boolean  curLastBlock=false, firstBlock=true, hasDictionary=false;
 
 //        long t2, t1 = System.currentTimeMillis();
@@ -479,42 +500,50 @@ public class EvioCompactReader {
         blockCount = 0;
         eventCount = 0;
         validDataWords = 0;
-        BlockNode blockNode, previousBlockNode=null;
+        BlockNode blockNode=null, previousBlockNode=null;
 
         try {
 
             while (!curLastBlock) {
-                // File is now positioned before block header.
-                // Look at block header to get info.
-                blockNode = new BlockNode();
-                blockNodes.put(blockCount, blockNode);
-                blockNode.pos = position;
-                bufferNode.blockNodes.add(blockNode);
+                // Swapping is taken care of
+                wordsInBlock  = byteBuffer.getInt(position);
+                ver           = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_VERSION);
+                blockHdrSize  = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
+                eventsInBlock = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
+//System.out.println("    block len = " + wordsInBlock + ", ver = " + ver +
+//", blk Hdr size = " + blockHdrSize + ", block cnt = " + eventsInBlock);
 
-                // Make linked list of blocks
-                if (previousBlockNode != null) {
-                    previousBlockNode.nextBlock = blockNode;
+                if (wordsInBlock < 8 || blockHdrSize < 8) {
+                    throw new EvioException("File/buffer bad format (block: len = " +
+                                                    wordsInBlock + ", blk header len = " + blockHdrSize + ")" );
                 }
-                else {
-                    previousBlockNode = blockNode;
+
+                if (!fast) {
+                    // File is now positioned before block header.
+                    // Look at block header to get info.
+                    blockNode = new BlockNode();
+
+                    blockNode.pos = position;
+                    blockNode.len   = wordsInBlock;
+                    blockNode.count = eventsInBlock;
+
+                    blockNodes.put(blockCount, blockNode);
+                    bufferNode.blockNodes.add(blockNode);
+
+                    blockNode.place = blockCount++;
+
+                    // Make linked list of blocks
+                    if (previousBlockNode != null) {
+                        previousBlockNode.nextBlock = blockNode;
+                    }
+                    else {
+                        previousBlockNode = blockNode;
+                    }
                 }
+
 //System.out.println("generateEventPositionTable: goto buf pos = " + position);
 
-                // Swapping is taken care of
-                blockNode.len   = byteBuffer.getInt(position);
-                ver             = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_VERSION);
-                blockHdrSize    = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
-                blockNode.count = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
-//System.out.println("    block len = " + blockNode.len + ", ver = " + ver +
-//", blk Hdr size = " + blockHdrSize + ", block cnt = " + blockNode.count);
-
-                if (blockNode.len < 8 || blockHdrSize < 8) {
-                    throw new EvioException("File/buffer bad format (block: len = " +
-                                             blockNode.len + ", blk header len = " + blockHdrSize + ")" );
-                }
-
-                blockNode.place = blockCount++;
-                validDataWords += blockNode.len;
+                validDataWords += wordsInBlock;
                 curLastBlock    = BlockHeaderV4.isLastBlock(ver);
                 if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(ver);
 
@@ -538,13 +567,13 @@ public class EvioCompactReader {
                 }
 
                 // For each event in block, store its location
-                for (int i=0; i < blockNode.count; i++) {
+                for (int i=0; i < eventsInBlock; i++) {
                     EvioNode node = extractEventNode(bufferNode, blockNode,
                                                      position, eventCount + i);
 //System.out.println("      event "+i+" in block: pos = " + node.pos +
 //                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
                     eventNodes.add(node);
-                    blockNode.allEventNodes.add(node);
+                    if (!fast) blockNode.allEventNodes.add(node);
 
                     // Hop over header + data
                     len = 8 + 4*node.dataLen;
@@ -552,8 +581,7 @@ public class EvioCompactReader {
 //System.out.println("      hopped event, pos = " + position + "\n");
                 }
 
-                eventCount += blockNode.count;
-
+                eventCount += eventsInBlock;
             }
         }
         catch (IndexOutOfBoundsException e) {
