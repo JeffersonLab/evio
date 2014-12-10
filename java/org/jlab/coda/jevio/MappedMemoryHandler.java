@@ -48,25 +48,25 @@ public class MappedMemoryHandler {
      * Get the number of evio events in the file/buffer.
      * @return number of evio events in the file/buffer.
      */
-    int getEventCount() {return eventCount;}
+    public int getEventCount() {return eventCount;}
 
     /**
      * Get the number of evio blocks in the file/buffer.
      * @return number of evio blocks in the file/buffer.
      */
-    int getBlockCount() {return blockCount;}
+    public int getBlockCount() {return blockCount;}
 
     /**
      * Get the number of memory maps used to fully map file.
      * @return number of memory maps used to fully map file.
      */
-    int getMapCount() {return regionCount;}
+    public int getMapCount() {return regionCount;}
 
     /**
      * Get the first memory map - used to map the beginning of the file.
      * @return first memory map - used to map the beginning of the file.
      */
-    ByteBuffer getFirstMap() {return regions.get(0);}
+    public ByteBuffer getFirstMap() {return regions.get(0);}
 
 
     /**
@@ -76,7 +76,7 @@ public class MappedMemoryHandler {
      * @param eventNumber number of the desired event (starting at 0)
      * @return the ByteBuffer object containing the event of interest.
      */
-    ByteBuffer getByteBuffer(int eventNumber) {
+    public ByteBuffer getByteBuffer(int eventNumber) {
         int[] evData = eventPositions.get(eventNumber);
         ByteBuffer buf = regions.get(evData[0]);
         // Even though the position is set here, it's not a problem as
@@ -93,7 +93,7 @@ public class MappedMemoryHandler {
      * @throws IOException   if could not map file
      * @throws EvioException if bad file format
      */
-    MappedMemoryHandler (FileChannel channel, ByteOrder byteOrder) throws  EvioException, IOException {
+    public MappedMemoryHandler (FileChannel channel, ByteOrder byteOrder) throws  EvioException, IOException {
 
         // Divide the memory into chunks or regions
         long remainingSize = channel.size();
@@ -157,7 +157,7 @@ public class MappedMemoryHandler {
      * @param evioBuf buffer to analyze
      * @throws EvioException if bad buffer format
      */
-    MappedMemoryHandler (ByteBuffer evioBuf) throws EvioException {
+    public MappedMemoryHandler (ByteBuffer evioBuf) throws EvioException {
         regionCount = 1;
         // Generate position info
         generateEventPositions(evioBuf, 0);
@@ -192,7 +192,6 @@ public class MappedMemoryHandler {
         position  = 0;
         bytesLeft = byteBuffer.limit();
 
-//while (!curLastBlock && bytesLeft > 0)
         while (bytesLeft > 0) {
             // Check to see if enough data to read block header.
             // If not return the amount of memory we've used/read.
@@ -209,6 +208,14 @@ public class MappedMemoryHandler {
             blockEventCount = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
             magicNum        = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_MAGIC);
 
+//            System.out.println("    genEvTablePos: region "+ regionNumber + ", pos " + position +
+//                               ", blk ev count = " + blockEventCount +
+//                               ", blockSize = " + blockSize +
+//                               ", blockHdrSize = " + blockHdrSize +
+//                               ", byteInfo  = 0x" + Integer.toHexString(byteInfo) +
+//                               ", magic #   = 0x" + Integer.toHexString(magicNum)
+//            );
+
             // If magic # is not right, file is not in proper format
             if (magicNum != BlockHeaderV4.MAGIC_NUMBER) {
                 throw new EvioException("Bad evio format: block header magic # incorrect");
@@ -219,11 +226,6 @@ public class MappedMemoryHandler {
                 throw new EvioException("Bad evio format: (block: total len = " +
                                                 blockSize + ", header len = " + blockHdrSize + ")" );
             }
-
-//System.out.println("    genEvTablePos: blk ev count = " + blockEventCount +
-//                   ", blockSize = " + blockSize +
-//                   ", blockHdrSize = " + blockHdrSize +
-//                   ", byteInfo  = " + byteInfo);
 
             // Check to see if the whole block is within the mapped memory.
             // If not return the amount of memory we've used/read.
@@ -286,16 +288,17 @@ public class MappedMemoryHandler {
 
                 // Get length of current event (including full header)
                 byteLen = 4*(byteBuffer.getInt(position) + 1);
-
-                if (byteLen < 8) {
-                    throw new EvioException("Bad evio format: bad bank length");
-                }
-
                 position  += byteLen;
                 bytesLeft -= byteLen;
 
+                if (byteLen < 8 || bytesLeft < 0) {
+                    throw new EvioException("Bad evio format: bad bank length");
+                }
+
 //System.out.println("    hopped event " + (i+1) + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
             }
+
+
         }
 
         return position;
