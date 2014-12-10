@@ -606,14 +606,14 @@ public class EvioCompactReader {
 
                     // Hop over header + data
                     byteLen = 8 + 4*node.dataLen;
+                    position  += byteLen;
+                    bytesLeft -= byteLen;
 
-                    if (byteLen < 8) {
+                    if (byteLen < 8 || bytesLeft < 0) {
                         throw new EvioException("Bad evio format: bad bank length");
                     }
 
-                    position  += byteLen;
-                    bytesLeft -= byteLen;
-//System.out.println("      hopped event, pos = " + position + "\n");
+//System.out.println("    hopped event " + (i+1) + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
                 }
 
                 eventCount += blockEventCount;
