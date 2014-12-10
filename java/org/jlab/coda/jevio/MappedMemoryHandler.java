@@ -98,6 +98,7 @@ public class MappedMemoryHandler {
         // Divide the memory into chunks or regions
         long remainingSize = channel.size();
         long sz, bytesUsed, prevBytesUsed=-1L, offset = 0L;
+        boolean smallFile = remainingSize <= Integer.MAX_VALUE;
 
         regionCount = 0;
         ByteBuffer memoryMapBuf;
@@ -123,15 +124,17 @@ public class MappedMemoryHandler {
             // to and including the last full block of what was just mapped. The next
             // map will start at the following block.
             bytesUsed = generateEventPositions(memoryMapBuf, regionCount);
+//System.out.println("  bytesUsed in map = " + bytesUsed + ", prev used = " + prevBytesUsed);
 
             // If there is a corrupted file in which the last events are not written,
             // it ends in the middle of the last block. This algorithm will try to
-            // read that block again and fail. Catch this corrupted file.
-            if (bytesUsed == prevBytesUsed) {
+            // read that block again and fail. If it's a small file, all data should
+            // have been mapped. Catch this corrupted file.
+            if ((smallFile && bytesUsed < remainingSize) ||
+                (bytesUsed == prevBytesUsed)) {
                 throw new EvioException("Bad evio format: likely last block not completely written");
             }
             prevBytesUsed = bytesUsed;
-//System.out.println("  bytesUsed in map = " + bytesUsed);
 //System.out.println("  eventCount = " + eventCount);
 //System.out.println("  blockCount = " + blockCount);
 
@@ -183,7 +186,7 @@ public class MappedMemoryHandler {
         int      blockSize, blockHdrSize, blockEventCount, magicNum;
         int      byteInfo, byteLen, bytesLeft, position;
         boolean  firstBlock=true, hasDictionary=false;
-        //boolean  curLastBlock;
+//        boolean  curLastBlock;
 
         // Start at the beginning of byteBuffer
         position  = 0;
@@ -210,15 +213,21 @@ public class MappedMemoryHandler {
             if (magicNum != BlockHeaderV4.MAGIC_NUMBER) {
                 throw new EvioException("Bad evio format: block header magic # incorrect");
             }
+
+            // Check lengths in block header
+            if (blockSize < 8 || blockHdrSize < 8) {
+                throw new EvioException("Bad evio format: (block: total len = " +
+                                                blockSize + ", header len = " + blockHdrSize + ")" );
+            }
+
 //System.out.println("    genEvTablePos: blk ev count = " + blockEventCount +
 //                   ", blockSize = " + blockSize +
 //                   ", blockHdrSize = " + blockHdrSize +
 //                   ", byteInfo  = " + byteInfo);
 
             // Check to see if the whole block is within the mapped memory.
-            // Also check for proper length value.
             // If not return the amount of memory we've used/read.
-            if (4*blockSize > bytesLeft || blockSize < 8) {
+            if (4*blockSize > bytesLeft) {
 //System.out.println("    4*blockSize = " + (4*blockSize) + " >? bytesLeft = " + bytesLeft +
 //                   ", pos = " + position);
 //System.out.println("return, not enough to read all block data");
@@ -227,7 +236,7 @@ public class MappedMemoryHandler {
 
             blockCount++;
             eventCount  += blockEventCount;
-            //curLastBlock = BlockHeaderV4.isLastBlock(byteInfo);
+//            curLastBlock = BlockHeaderV4.isLastBlock(byteInfo);
             if (regionNumber == 0 && firstBlock) {
                 hasDictionary = BlockHeaderV4.hasDictionary(byteInfo);
             }
@@ -253,6 +262,10 @@ public class MappedMemoryHandler {
 
                 // Get its length - bank's len does not include itself
                 byteLen = 4*(byteBuffer.getInt(position) + 1);
+
+                if (byteLen < 8) {
+                    throw new EvioException("Bad evio format: bad bank length");
+                }
 
                 // Skip over dictionary
                 position  += byteLen;
@@ -281,9 +294,6 @@ public class MappedMemoryHandler {
                 position  += byteLen;
                 bytesLeft -= byteLen;
 
-                if (position < 0) {
-                    throw new EvioException("Bad evio format: not enough data to read event (bad bank len?)");
-                }
 //System.out.println("    hopped event " + (i+1) + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
             }
         }
