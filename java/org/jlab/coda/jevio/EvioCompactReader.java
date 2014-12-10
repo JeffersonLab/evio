@@ -485,8 +485,9 @@ public class EvioCompactReader {
      */
     private void generateEventPositionTable() throws EvioException {
 
-        int      ver, len, byteLen, blockHdrSize, position, wordsInBlock, eventsInBlock;
-        boolean  curLastBlock=false, firstBlock=true, hasDictionary=false;
+        int      byteInfo, byteLen, blockHdrSize, blockSize, blockEventCount, magicNum;
+        boolean  firstBlock=true, hasDictionary=false;
+        //boolean  curLastBlock=false;
 
 //        long t2, t1 = System.currentTimeMillis();
 
@@ -494,7 +495,8 @@ public class EvioCompactReader {
 
         // Start at the beginning of byteBuffer without changing
         // its current position. Do this with absolute gets.
-        position = initialPosition;
+        int position  = initialPosition;
+        int bytesLeft = byteBuffer.limit() - position;
 
         // Keep track of the # of blocks, events, and valid words in file/buffer
         blockCount = 0;
@@ -504,18 +506,40 @@ public class EvioCompactReader {
 
         try {
 
-            while (!curLastBlock) {
-                // Swapping is taken care of
-                wordsInBlock  = byteBuffer.getInt(position);
-                ver           = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_VERSION);
-                blockHdrSize  = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
-                eventsInBlock = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
-//System.out.println("    block len = " + wordsInBlock + ", ver = " + ver +
-//", blk Hdr size = " + blockHdrSize + ", block cnt = " + eventsInBlock);
+            while (bytesLeft > 0) {
+                // Need enough data to at least read 1 block header (32 bytes)
+                if (bytesLeft < 32) {
+                    throw new EvioException("Bad evio format: extra " + bytesLeft +
+                                                    " bytes at file end");
+                }
 
-                if (wordsInBlock < 8 || blockHdrSize < 8) {
-                    throw new EvioException("File/buffer bad format (block: len = " +
-                                                    wordsInBlock + ", blk header len = " + blockHdrSize + ")" );
+                // Swapping is taken care of
+                blockSize       = byteBuffer.getInt(position);
+                byteInfo        = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_VERSION);
+                blockHdrSize    = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
+                blockEventCount = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
+                magicNum        = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_MAGIC);
+
+//                System.out.println("    genEvTablePos: blk ev count = " + blockEventCount +
+//                                           ", blockSize = " + blockSize +
+//                                           ", blockHdrSize = " + blockHdrSize +
+//                                           ", byteInfo  = " + byteInfo);
+
+                // If magic # is not right, file is not in proper format
+                if (magicNum != BlockHeaderV4.MAGIC_NUMBER) {
+                    throw new EvioException("Bad evio format: block header magic # incorrect");
+                }
+
+                if (blockSize < 8 || blockHdrSize < 8) {
+                    throw new EvioException("Bad evio format (block: len = " +
+                                                    blockSize + ", blk header len = " + blockHdrSize + ")" );
+                }
+
+                // Check to see if the whole block is there
+                if (4*blockSize > bytesLeft) {
+//System.out.println("    4*blockSize = " + (4*blockSize) + " >? bytesLeft = " + bytesLeft +
+//                   ", pos = " + position);
+                    throw new EvioException("Bad evio format: not enough data to read block");
                 }
 
                 if (!fast) {
@@ -524,8 +548,8 @@ public class EvioCompactReader {
                     blockNode = new BlockNode();
 
                     blockNode.pos = position;
-                    blockNode.len   = wordsInBlock;
-                    blockNode.count = eventsInBlock;
+                    blockNode.len   = blockSize;
+                    blockNode.count = blockEventCount;
 
                     blockNodes.put(blockCount, blockNode);
                     bufferNode.blockNodes.add(blockNode);
@@ -541,14 +565,13 @@ public class EvioCompactReader {
                     }
                 }
 
-//System.out.println("generateEventPositionTable: goto buf pos = " + position);
-
-                validDataWords += wordsInBlock;
-                curLastBlock    = BlockHeaderV4.isLastBlock(ver);
-                if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(ver);
+                validDataWords += blockSize;
+//                curLastBlock    = BlockHeaderV4.isLastBlock(byteInfo);
+                if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(byteInfo);
 
                 // Hop over block header to events
-                position += 4*blockHdrSize;
+                position  += 4*blockHdrSize;
+                bytesLeft -= 4*blockHdrSize;
 
 //System.out.println("    hopped blk hdr, pos = " + position + ", is last blk = " + curLastBlock);
 
@@ -563,11 +586,17 @@ public class EvioCompactReader {
 
                     // Skip over dictionary
                     position  += byteLen;
+                    bytesLeft -= byteLen;
 //System.out.println("    hopped dict, pos = " + position);
                 }
 
                 // For each event in block, store its location
-                for (int i=0; i < eventsInBlock; i++) {
+                for (int i=0; i < blockEventCount; i++) {
+                    // Sanity check - must have at least 1 header's amount left
+                    if (bytesLeft < 8) {
+                        throw new EvioException("Bad evio format: not enough data to read event (bad bank len?)");
+                    }
+
                     EvioNode node = extractEventNode(bufferNode, blockNode,
                                                      position, eventCount + i);
 //System.out.println("      event "+i+" in block: pos = " + node.pos +
@@ -576,17 +605,23 @@ public class EvioCompactReader {
                     if (!fast) blockNode.allEventNodes.add(node);
 
                     // Hop over header + data
-                    len = 8 + 4*node.dataLen;
-                    position  += len;
+                    byteLen = 8 + 4*node.dataLen;
+
+                    if (byteLen < 8) {
+                        throw new EvioException("Bad evio format: bad bank length");
+                    }
+
+                    position  += byteLen;
+                    bytesLeft -= byteLen;
 //System.out.println("      hopped event, pos = " + position + "\n");
                 }
 
-                eventCount += eventsInBlock;
+                eventCount += blockEventCount;
             }
         }
         catch (IndexOutOfBoundsException e) {
             bufferNode = null;
-            throw new EvioException("File/buffer bad format", e);
+            throw new EvioException("Bad evio format", e);
         }
 
 //        t2 = System.currentTimeMillis();
