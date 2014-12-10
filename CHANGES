@@ -26,6 +26,8 @@ jevio-4.4.jar
         - replace LinkedLists with ArrayLists or arrays
     -fix bug in EvioCompactStructureHandler.getNodes() throwing NullPointerException (12/8/14)
     -add constructor to EvioCompactStructureHandler with EvioNode argument (12/8/14)
+    -in EvioReader, bomb proof against bad format files, fix bug in which last block's events
+     are not indexed, reduce initial memory usage (12/10/14)
 
 evio-4.4
     - fix flags for Mac OSX compilation
