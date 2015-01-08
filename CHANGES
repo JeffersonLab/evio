@@ -27,9 +27,14 @@ jevio-4.4.jar
     -add constructor to EvioCompactStructureHandler with EvioNode argument (12/8/14)
     -in EvioReader, bomb proof against bad format files, fix bug in which last block's events
      are not indexed, reduce initial memory usage (12/10/14)
+
+jevio-4.4.1.jar
+
     -fix major bug in ByteDataTransformer.toByteArray(). If arg is a ByteBuffer obtained from
      slice(), its backing array cannot be used to copy into byte array since it copies wrong
      data! (1/8/2015)
+    -fix major bug in EvioCompactStructureHandler.getData() which did not account for padding
+     in byte and short data (1/8/2015)
 
 evio-4.4
     - fix flags for Mac OSX compilation
