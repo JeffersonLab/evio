@@ -22,12 +22,14 @@ jevio-4.3.2.jar differences from previous jars :
 
 jevio-4.4.jar
 
-    improve performance
-        - replace LinkedLists with ArrayLists or arrays
+    -improve performance including replacing LinkedLists with ArrayLists or arrays
     -fix bug in EvioCompactStructureHandler.getNodes() throwing NullPointerException (12/8/14)
     -add constructor to EvioCompactStructureHandler with EvioNode argument (12/8/14)
     -in EvioReader, bomb proof against bad format files, fix bug in which last block's events
      are not indexed, reduce initial memory usage (12/10/14)
+    -fix major bug in ByteDataTransformer.toByteArray(). If arg is a ByteBuffer obtained from
+     slice(), its backing array cannot be used to copy into byte array since it copies wrong
+     data! (1/8/2015)
 
 evio-4.4
     - fix flags for Mac OSX compilation
