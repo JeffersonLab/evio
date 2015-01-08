@@ -188,13 +188,17 @@ public class ByteDataTransformer {
      */
     public static byte[] toByteArray(ByteBuffer byteBuffer) {
         if (byteBuffer == null) return null;
-
         int size = byteBuffer.remaining();
         byte array[] = new byte[size];
 
-        if (byteBuffer.hasArray()) {
-            byte[] ba = byteBuffer.array();
-            System.arraycopy(ba, byteBuffer.position(), array, 0, byteBuffer.remaining());
+        // Avoid potential disaster if byteBuffer is a slice.
+        // In that case, it's backing array can be bigger than its capacity
+        // with no way to tell what the proper offset is. In this case do NOT
+        // do the arraycopy.
+
+        if (byteBuffer.hasArray() && (byteBuffer.array().length == byteBuffer.capacity())) {
+            System.arraycopy(byteBuffer.array(), byteBuffer.position(),
+                             array, 0, byteBuffer.remaining());
         }
         else {
             int pos = byteBuffer.position();
@@ -979,78 +983,6 @@ public class ByteDataTransformer {
         buf.position(off);
         DoubleBuffer ib = buf.asDoubleBuffer();
         ib.put(data, 0, data.length);
-
-        return;
-    }
-
-    /**
-     * Turn double array into byte array.
-     * Slower than {@link #toBytes(double[], ByteOrder)}.
-     * Keep this around for completeness purposes - a record
-     * of what was already tried and found wanting. Tried this
-     * for all data types.
-     *
-     * @param data double array to convert
-     * @param byteOrder byte order of returned bytes (big endian if null)
-     * @return byte array representing double array or null if data is null
-     * @throws EvioException if data array has too many elements to
-     *                       convert to a byte array
-     */
-    public static byte[] toBytes2(double[] data, ByteOrder byteOrder) throws EvioException {
-
-        if (data == null) return null;
-        if (data.length > Integer.MAX_VALUE/8) {
-            throw new EvioException("double array has too many elements to convert to byte array");
-        }
-
-        byte[] stor = new byte[8];
-        byte[] byts = new byte[data.length*8];
-
-        try {
-            for (int i = 0; i < data.length; i++) {
-                toBytes(data[i], byteOrder, stor, 0);
-                System.arraycopy(stor, 0, byts, i*8, 8);
-            }
-        }
-        catch (EvioException e) {/* never happen */}
-
-        return byts;
-    }
-
-    /**
-     * Turn double array into byte array.
-     * Avoids creation of new byte array with each call.
-     * Slower than {@link #toBytes(double[], ByteOrder, byte[], int)}.
-     * Keep this around for completeness purposes - a record
-     * of what was already tried and found wanting. Tried this
-     * for all data types.
-     *
-     * @param data double array to convert
-     * @param byteOrder byte order of returned bytes (big endian if null)
-     * @param dest array in which to store returned bytes
-     * @param off offset into dest array where returned bytes are placed
-     * @throws EvioException if data is null, dest is null or too small, or offset negative;
-     *                       if data array has too many elements to convert to a byte array
-     */
-    public static void toBytes2(double[] data, ByteOrder byteOrder, byte[] dest, int off)
-            throws EvioException{
-
-        if (data == null || dest == null || dest.length < 8*data.length+off || off < 0) {
-            throw new EvioException("bad arg(s)");
-        }
-        if (data.length > Integer.MAX_VALUE/8) {
-            throw new EvioException("double array has too many elements to convert to byte array");
-        }
-
-        byte[] stor = new byte[8];
-
-        try {
-            for (int i = 0; i < data.length; i++) {
-                toBytes(data[i], byteOrder, stor, 0);
-                System.arraycopy(stor, 0, dest, off + i*8, 8);
-            }
-        }
-        catch (EvioException e) {/* never happen */}
 
         return;
     }
