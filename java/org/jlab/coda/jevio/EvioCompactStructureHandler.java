@@ -937,10 +937,10 @@ public class EvioCompactStructureHandler {
 
         int pos = byteBuffer.position();
         int lim = byteBuffer.limit();
-        byteBuffer.limit(node.dataPos + 4*node.dataLen).position(node.dataPos);
+        byteBuffer.limit(node.dataPos + 4*node.dataLen - node.pad).position(node.dataPos);
 
         if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(4 * node.dataLen).order(byteOrder);
+            ByteBuffer newBuf = ByteBuffer.allocate(4*node.dataLen - node.pad).order(byteOrder);
             // Relative get and put changes position in both buffers
             newBuf.put(byteBuffer);
             newBuf.flip();
