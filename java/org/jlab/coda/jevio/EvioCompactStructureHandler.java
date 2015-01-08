@@ -885,8 +885,8 @@ public class EvioCompactStructureHandler {
             EvioNode newNode = extractNode(newBuffer, node.blockNode, node,
                                            eventDataType, newDataPos, 0, false);
 
-            System.out.println("   new node: pos = " + newNode.pos + ", type = " +  newNode.getDataTypeObj() +
-                        ", data pos = " + newNode.dataPos);
+//System.out.println("   new node: pos = " + newNode.pos + ", type = " +  newNode.getDataTypeObj() +
+//                        ", data pos = " + newNode.dataPos);
 
             // Add to the new node to the list
             node.allNodes.add(newNode);
