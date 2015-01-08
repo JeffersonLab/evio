@@ -528,7 +528,7 @@ public final class EvioNode implements Cloneable {
         buffer.limit(dataPos + 4*dataLen - pad).position(dataPos);
 
         if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen).order(order);
+            ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen - pad).order(order);
             newBuf.put(buffer);
             newBuf.flip();
             return newBuf;
