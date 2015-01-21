@@ -49,6 +49,11 @@ public class EventParser {
 			throw new EvioException("Null event in parseEvent.");
 		}
 
+        if (evioEvent.parsed) {
+            System.out.println("Event already parsed");
+            return;
+        }
+
         //let listeners know we started
         notifyStart(evioEvent);
 
@@ -56,8 +61,10 @@ public class EventParser {
 		// parse it as such. The recursive drill down will take care of the rest.
 		parseStructure(evioEvent, evioEvent);
 
-        //let listeners know we stopped
-        notifyStop(evioEvent);        
+        evioEvent.parsed = true;
+
+        // let listeners know we stopped
+        notifyStop(evioEvent);
 	}
 
 	/**
