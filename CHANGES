@@ -36,6 +36,12 @@ jevio-4.4.1.jar
     -fix major bug in EvioCompactStructureHandler.getData() which did not account for padding
      in byte and short data (1/8/2015)
 
+jevio-4.4.2.jar
+
+    -fix bug in EventParser & EvioEvent that add other evio structures when EvioReader.parseEvent()
+     or EventParser.parseEvent() are called more than once on an event.
+
+
 evio-4.4
     - fix flags for Mac OSX compilation
     - fix performance problem writing files in java & C.
