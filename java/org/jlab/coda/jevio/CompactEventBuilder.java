@@ -250,7 +250,8 @@ public class CompactEventBuilder {
             throw new EvioException("compact buffer too small");
         }
 
-        if (buffer.hasArray()) {
+        // Protect against using the backing array of slices
+        if (buffer.hasArray() && buffer.array().length == buffer.capacity()) {
             array = buffer.array();
         }
         else {
@@ -965,7 +966,8 @@ public class CompactEventBuilder {
                 }
             }
             else {
-                if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray()) {
+                if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray() &&
+                        nodeBuf.array().length == nodeBuf.capacity()) {
                     System.arraycopy(nodeBuf.array(), node.dataPos,
                                      array, position, 4*node.dataLen);
                 }
@@ -1023,7 +1025,8 @@ public class CompactEventBuilder {
         ByteBuffer nodeBuf = node.bufferNode.buffer;
 
         if (nodeBuf.order() == buffer.order()) {
-            if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray()) {
+            if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray() &&
+                    nodeBuf.array().length == nodeBuf.capacity()) {
 //System.out.println("addEvioNode: arraycopy node (same endian)");
                 System.arraycopy(nodeBuf.array(), node.pos,
                                  array, position, node.getTotalBytes());
