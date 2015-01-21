@@ -134,10 +134,12 @@ public final class EvioNode implements Cloneable {
      * Constructor which creates an EvioNode in the CompactEventBuilder.
      *
      * @param tag        the tag for the event (or bank) header.
-   	 * @param dataType   the data type contained in the event.
    	 * @param num        the num for the event (or bank) header.
-     * @param pos        position of event in buffer (number of bytes)
-     * @param bufferNode buffer containing this event
+     * @param pos        position of event in buffer (bytes).
+     * @param dataPos    position of event's data in buffer (bytes.)
+     * @param type       the type of this evio structure.
+     * @param dataType   the data type contained in this evio event.
+     * @param bufferNode buffer containing this event.
      */
     EvioNode(int tag, int num, int pos, int dataPos,
              DataType type, DataType dataType,
