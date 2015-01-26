@@ -40,8 +40,8 @@ public enum DataType {
 
     // These 2 types are only used when dealing with COMPOSITE data.
     // They are never transported independently and are stored in integers.
-    HOLLERIT       (0x41),
-    NVALUE         (0x42);
+    HOLLERIT       (0x21),
+    NVALUE         (0x22);
 
 
     /** Each name is associated with a specific evio integer value. */
