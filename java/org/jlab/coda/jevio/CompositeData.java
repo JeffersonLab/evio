@@ -2518,6 +2518,13 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
+                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
+                            iterm = imt-1;
+                            while (formatInts.get(imt-1) != 0) {
+                                imt++;
+                            }
+                            continue;
+                        }
                         // store formatInts[] index
                         lv[lev].left = imt;
                         // how many time will repeat format code inside parenthesis
@@ -2931,14 +2938,24 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
-                        lv[lev].left = imt;
-                        lv[lev].nrepeat = ncnf;
-                        lv[lev].irepeat = 0;
-
                         xmlWriter.writeCharacters("\n");
                         xmlWriter.writeCharacters(bs.xmlIndent);
                         xmlWriter.writeStartElement("repeat");
                         xmlWriter.writeAttribute("count",""+ncnf);
+                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
+                            iterm = imt-1;
+                            while (formatInts.get(imt-1) != 0) {
+                                imt++;
+                            }
+                            xmlWriter.writeCharacters("\n");
+                            xmlWriter.writeCharacters(bs.xmlIndent);
+                            xmlWriter.writeEndElement();// </repeat>
+                            continue;
+                        }
+                        lv[lev].left = imt;
+                        lv[lev].nrepeat = ncnf;
+                        lv[lev].irepeat = 0;
+
                         bs.increaseXmlIndent();
 
                         lev++;
@@ -3362,6 +3379,13 @@ if (debug) System.out.println("write byte " + bytes[i]);
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
+                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
+                            iterm = imt-1;
+                            while (formatInts.get(imt-1) != 0) {
+                                imt++;
+                            }
+                            continue;
+                        }
                         lv[lev].left = imt;
                         lv[lev].nrepeat = ncnf;
                         lv[lev].irepeat = 0;
