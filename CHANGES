@@ -1,4 +1,4 @@
-jevio-4.3.1.jar differences from jevio-4.3.jar :
+jevio-4.3.1.jar differences from previous jar :
 
     1) check lengths when parsing evio so bad values are caught if possible
 
@@ -9,7 +9,7 @@ jevio-4.3.1.jar differences from jevio-4.3.jar :
     4) fix bug in which after adding a structure with EvioCompactStructureHandler,
        the node list was not updated
 
-jevio-4.3.2.jar differences from previous jars :
+jevio-4.3.2.jar
 
     1) fix bug in which the displayed event # in graphical viewer did not correspond
        to the actual event number (bug was in EvioReader)
@@ -20,9 +20,14 @@ jevio-4.3.2.jar differences from previous jars :
     3) made members of EventTreeMenu protected instead of package or private
        scope for subclassing purposes
 
+jevio-4.3.3.jar
+    -same as the previous jar
+
 jevio-4.4.jar
 
     -improve performance including replacing LinkedLists with ArrayLists or arrays
+    -fix bug in Java CompactEventBuilder class that miswrites data into direct ByteBuffers (11/13/14)
+    -fix bug in Java CompactEventBuilder class that miswrites segment header (11/19/14)
     -fix bug in EvioCompactStructureHandler.getNodes() throwing NullPointerException (12/8/14)
     -add constructor to EvioCompactStructureHandler with EvioNode argument (12/8/14)
     -in EvioReader, bomb proof against bad format files, fix bug in which last block's events
@@ -41,15 +46,18 @@ jevio-4.4.2.jar
     -fix bug in EventParser & EvioEvent that add other evio structures when EvioReader.parseEvent()
      or EventParser.parseEvent() are called more than once on an event.
 
-future jevio-4.4.3.jar
+jevio-4.4.3.jar
     -fix bug in parsing composite data in which N=0 acts as N=1.
     -add EventWriter.writeEvent() method for EvioNode object
 
 
+C CODE
+
+
+evio-4.3.3
+    - fix flags for Mac OSX compilation (9/22/2014)
+
 evio-4.4
-    - fix flags for Mac OSX compilation
     - fix performance problem writing files in java & C.
       No longer force a written event to physical disk. (10/7/14)
     - fix bug in C lib that miswrites 6th word of block header - event type (11/5/14)
-    - fix bug in Java CompactEventBuilder class that miswrites data into direct ByteBuffers (11/13/14)
-    - fix bug in Java CompactEventBuilder class that miswrites segment header (11/19/14)
