@@ -41,6 +41,10 @@ jevio-4.4.2.jar
     -fix bug in EventParser & EvioEvent that add other evio structures when EvioReader.parseEvent()
      or EventParser.parseEvent() are called more than once on an event.
 
+future jevio-4.4.3.jar
+    -fix bug in parsing composite data in which N=0 acts as N=1.
+    -add EventWriter.writeEvent() method for EvioNode object
+
 
 evio-4.4
     - fix flags for Mac OSX compilation
