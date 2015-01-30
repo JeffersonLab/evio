@@ -248,11 +248,11 @@ public class EventWriter {
     /** Is it OK to overwrite a previously existing file? */
     private boolean overWriteOK;
 
-    /** Number of bytes flushed to the current file (including ending header),
+    /** Number of bytes written to the current file (including ending header),
      *  not the total in all split files. */
     private long bytesWrittenToFile;
 
-    /** Number of events flushed to the current file - not the total in
+    /** Number of events written to the current file - not the total in
      * all split files. */
     private int eventsWrittenToFile;
 
@@ -1947,7 +1947,8 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             throws EvioException, IOException {
 
         // Duplicate buffer so we can set pos & limit without messing others up
-        ByteBuffer eventBuffer = node.getBufferNode().getBuffer().duplicate();
+        ByteBuffer bb = node.getBufferNode().getBuffer();
+        ByteBuffer eventBuffer = bb.duplicate().order(bb.order());
         int pos = node.getPosition();
         eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
         writeEvent(null, eventBuffer, force);
@@ -2114,14 +2115,14 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             writeNewBlockHeader = false;
 //if (debug) System.out.println("evWrite: do NOT need a new blk header");
         }
-        else {
+//        else {
 //if (debug) System.out.println("evWrite: DO need a new blk header: blkTarget = " +
 //                    targetBlockSize + " will use " +
 //                    (currentEventBytes + 4*currentBlockSize + headerBytes) + " (bytes)" );
-            if (currentBlockEventCount >= blockCountMax) {
+//            if (currentBlockEventCount >= blockCountMax) {
 //if (debug) System.out.println("evWrite: too many events in block, already have " + currentBlockEventCount );
-            }
-        }
+//            }
+//        }
 
         // Are we splitting files in general?
         while (split > 0) {
