@@ -9,7 +9,7 @@ jevio-4.3.1.jar differences from jevio-4.3.jar :
     4) fix bug in which after adding a structure with EvioCompactStructureHandler,
        the node list was not updated
 
-jevio-4.3.2.jar differences from previous jars :
+jevio-4.3.2.jar differences from previous jar :
 
     1) fix bug in which the displayed event # in graphical viewer did not correspond
        to the actual event number (bug was in EvioReader)
@@ -19,6 +19,9 @@ jevio-4.3.2.jar differences from previous jars :
 
     3) made members of EventTreeMenu protected instead of package or private
        scope for subclassing purposes
+
+jevio-4.3.3.jar is the same as previous jar
+
 
 evio-4.3.3   9/22/2014
     - fix flags for Mac OSX compilation
