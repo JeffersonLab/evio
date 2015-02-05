@@ -19,6 +19,14 @@ jevio-4.3.3.jar
 
     -same as the previous jar
 
+jevio-4.3.4.jar
+
+    -fix bug EvioCompactReader in which parsing fails
+     when bank/seg/tagseg has last child with data len = 0
+     (back ported from 4.4.4)
+
+******** NEW VERSION MINOR VERSION *********
+
 jevio-4.4.jar
 
     -improve performance including replacing LinkedLists with ArrayLists or arrays
@@ -46,6 +54,11 @@ jevio-4.4.3.jar
 
     -fix bug in parsing composite data in which N=0 acts as N=1.
     -add EventWriter.writeEvent() method for EvioNode object
+
+jevio-4.4.4.jar
+
+    -fix bug EvioCompactReader in which parsing fails
+     when bank/seg/tagseg has last child with data len = 0
 
 
 C CODE
