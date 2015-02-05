@@ -22,6 +22,11 @@ jevio-4.3.2.jar differences from previous jar :
 
 jevio-4.3.3.jar is the same as previous jar
 
+jevio-4.3.4.jar
+
+    -fix bug EvioCompactReader in which parsing fails
+     when bank/seg/tagseg has last child with data len = 0
+     (back ported from 4.4.4)
 
 evio-4.3.3   9/22/2014
     - fix flags for Mac OSX compilation
