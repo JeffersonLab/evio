@@ -896,7 +896,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 
                 // Extract all the banks from this bank of banks.
                 // Make allowance for reading header (2 ints).
-                while (position < endingPos - 8) {
+                while (position <= endingPos - 8) {
 //System.out.println("scanStructure: buf is at pos " + buffer.position() +
 //                   ", limit =  " + buffer.limit() + ", remaining = " + buffer.remaining() +
 //                   ", capacity = " + buffer.capacity());
@@ -982,7 +982,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 
                 // Extract all the segments from this bank of segments.
                 // Make allowance for reading header (1 int).
-                while (position < endingPos - 4) {
+                while (position <= endingPos - 4) {
 
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                         tag = buffer.get(position++) & 0xff;
@@ -1044,7 +1044,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 
                 // Extract all the tag segments from this bank of tag segments.
                 // Make allowance for reading header (1 int).
-                while (position < endingPos - 4) {
+                while (position <= endingPos - 4) {
 
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                         int temp = buffer.getShort(position) & 0xffff;
