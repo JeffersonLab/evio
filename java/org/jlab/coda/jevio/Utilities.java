@@ -266,7 +266,7 @@ public class Utilities {
         if (label != null) System.out.println(label + ":");
 
         IntBuffer ibuf = buf.asIntBuffer();
-        words = words > ibuf.capacity()/4 ? ibuf.capacity()/4 : words;
+        words = words > ibuf.capacity() ? ibuf.capacity() : words;
         for (int i=0; i < words; i++) {
             System.out.println("  Buf(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
         }
