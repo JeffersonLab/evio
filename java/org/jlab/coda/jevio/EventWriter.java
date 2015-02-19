@@ -1044,17 +1044,17 @@ public class EventWriter {
         // (size & count words are updated when writing events).
         // currentHeaderPosition is set in writeNewHeader() below.
         if (xmlDictionary == null) {
-            writeNewHeader(8,0,blockNumber++,bitInfo,false,false,true, false);
+            writeNewHeader(8,0,this.blockNumber++,bitInfo,false,false,true, false);
         }
         else {
-            writeNewHeader(8,0,blockNumber++,bitInfo,true,false,true,false);
+            writeNewHeader(8,0,this.blockNumber++,bitInfo,true,false,true,false);
 
             // Write dictionary (currentBlockSize updated)
             writeDictionary();
         }
 
         // Write out the ending block header so buffer is in proper evio 4 format
-        writeEmptyLastBlockHeader(blockNumber);
+        writeEmptyLastBlockHeader(this.blockNumber);
     }
 
 
@@ -1674,6 +1674,7 @@ System.err.println("ERROR endOfBuffer " + a);
 //        System.out.println("EventWriter (header): words = " + words +
 //                ", block# = " + blockNumber + ", ev Cnt = " + eventCount +
 //                ", 6th wd = " + sixthWord);
+//        System.out.println("Evio header: block# = " + blockNumber + ", last = " + isLast);
 
         // Write header words, some of which will be
         // overwritten later when the values are determined.
