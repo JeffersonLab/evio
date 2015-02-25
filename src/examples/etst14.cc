@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     
 
     // check out random access table
-    const uint32_t **table;
+    uint32_t **table;
     uint32_t len;
     chan->getRandomAccessTable(&table,&len);
     cout << "random access table length is: " << len << endl;

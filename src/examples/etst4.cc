@@ -55,9 +55,9 @@ int main(int argc, char **argv) {
 
 
     // hang leaf nodes off cn1, note dereferencing of pointer cn1
-    *cn1 << ln2
-         << evioDOMNode::createEvioDOMNode(tag=8, num=1, dBuf, 10) 
-         << evioDOMNode::createEvioDOMNode(tag=8, num=2, lVec);
+    evioDOMNodeP ln3 = evioDOMNode::createEvioDOMNode(tag=8, num=1, dBuf, 10);
+    evioDOMNodeP ln4 = evioDOMNode::createEvioDOMNode(tag=8, num=2, lVec);
+    *cn1 << ln2 << ln3 << ln4;
     
     
     // add some more data to ln2
@@ -66,11 +66,12 @@ int main(int argc, char **argv) {
     
     // create another sub-tree
     evioDOMNodeP cn3 = evioDOMNode::createEvioDOMNode(tag=30, num=35);
-    *cn3 << evioDOMNode::createEvioDOMNode(tag=31, num=36, uVec1)
-         << evioDOMNode::createEvioDOMNode(tag=32, num=37, lVec)
-         << evioDOMNode::createEvioDOMNode(tag=10, num=20, iBuf, 10)
-         << evioDOMNode::createEvioDOMNode(tag=11, num=21, dBuf, 5)
-         << evioDOMNode::createEvioDOMNode(tag=12, num=22, lVec);
+    ln2 = evioDOMNode::createEvioDOMNode(tag=31, num=36, uVec1);
+    ln3 = evioDOMNode::createEvioDOMNode(tag=32, num=37, lVec);
+    ln4 = evioDOMNode::createEvioDOMNode(tag=10, num=20, iBuf, 10);
+    evioDOMNodeP ln5 = evioDOMNode::createEvioDOMNode(tag=11, num=21, dBuf, 5);
+    evioDOMNodeP ln6 = evioDOMNode::createEvioDOMNode(tag=12, num=22, lVec);
+    *cn3 << ln2 << ln3 << ln4 << ln5 << ln6;
 
 
     // hang sub-tree off cn1

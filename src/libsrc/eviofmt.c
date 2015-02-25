@@ -88,7 +88,7 @@ int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen) {
 #endif
 
     /* loop over format string */
-    for (l=0; l < strlen(fmt); l++) {
+    for (l=0; l < (int)strlen(fmt); l++) {
         ch = fmt[l];
         if (ch == ' ') continue;
 #ifdef DEBUG

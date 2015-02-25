@@ -237,7 +237,7 @@ static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest) {
  */
 static void swap_data(uint32_t *data, int type, int length, int tolocal, uint32_t *dest) {
     uint32_t fraglen;
-    uint32_t l=0;
+    int l=0;
 
 
     /* Swap the data or call swap_fragment */
@@ -450,7 +450,7 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
  */
 uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest) {
 
-    int i;
+    unsigned int i;
 
     if (dest == NULL) {
         dest = data;

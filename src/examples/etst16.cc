@@ -20,7 +20,7 @@ using namespace evio;
 int main(int argc, char **argv) {
   
 
-  int bufferCount = 0;
+  // int bufferCount = 0;
   evioFileChannel *chan;
 
 

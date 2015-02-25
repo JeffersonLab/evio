@@ -59,7 +59,7 @@ public:
   const uint32_t *getNoCopyBuffer(void) const throw(evioException);
 
   const uint32_t *getRandomBuffer(void) const throw(evioException);
-  void getRandomAccessTable(const uint32_t ***table, uint32_t *len) const throw(evioException);
+  void getRandomAccessTable(uint32_t *** const table, uint32_t *len) const throw(evioException);
 
 
   const uint32_t *getStreamBuffer(void) const throw(evioException);

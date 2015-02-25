@@ -219,7 +219,10 @@ int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tol
             b64 = (int64_t *)b8;
             b64end = b64 + ncnf;
             if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
-            while (b64 < b64end) *b64++ = EVIO_SWAP64(*b64);
+            while (b64 < b64end) {
+                *b64 = EVIO_SWAP64(*b64);
+                b64++;
+            }
             b8 = (int8_t *)b64;
 #ifdef DEBUG
             printf("64bit: %d elements\n",ncnf);
@@ -230,7 +233,10 @@ int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tol
             b32 = (int32_t *)b8;
             b32end = b32 + ncnf;
             if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
-            while (b32 < b32end) *b32++ = EVIO_SWAP32(*b32);
+            while (b32 < b32end) {
+                *b32 = EVIO_SWAP32(*b32);
+                b32++;
+            }
             b8 = (int8_t *)b32;
 #ifdef DEBUG
             printf("32bit: %d elements, b8 = 0x%08x\n",ncnf, b8);
@@ -241,7 +247,10 @@ int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tol
             b16 = (int16_t *)b8;
             b16end = b16 + ncnf;
             if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
-            while (b16 < b16end) *b16++ = EVIO_SWAP16(*b16);
+            while (b16 < b16end) {
+                *b16 = EVIO_SWAP16(*b16);
+                b16++;
+            }
             b8 = (int8_t *)b16;
 #ifdef DEBUG
             printf("16bit: %d elements\n",ncnf);

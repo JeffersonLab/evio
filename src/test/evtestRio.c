@@ -63,7 +63,7 @@ static void printFile(char *fileName) {
 
 static void createFile(char *fileName) {
 
-    int nBytes, i=0, intdata, len1=54, len2=13, len3=9, len4=18;
+    int nBytes, len1=54 /*, len2=13, len3=9, len4=18 */;
     
     /*
        3 block headers (first 2 have 2 extra words each, last has 1 extra word).
@@ -135,6 +135,7 @@ static void createFile(char *fileName) {
     };
     
     /* one block header with 1 event */
+    /*
     uint32_t data2[] = {
         0x0000000d,
         0x00000001,
@@ -151,8 +152,10 @@ static void createFile(char *fileName) {
         0x00000002,
         0x00000003
     };
+    */
 
     /* one block header with extra int, no events */
+    /*
     uint32_t data3[] = {
         0x00000009,
         0x00000001,
@@ -164,8 +167,10 @@ static void createFile(char *fileName) {
         0xc0da0100,
         0x00000004,
     };
+    */
 
     /* 2 block headers, both empty & each with extra int */
+    /*
     uint32_t data4[] = {
         0x00000009,
         0x00000001,
@@ -187,7 +192,8 @@ static void createFile(char *fileName) {
         0xc0da0100,
         0x00000004,
     };
-
+    */
+    
     FILE *file = fopen(fileName,"w");
     if (file == NULL) {
         printf("Cannot open file %s\n", fileName);
@@ -204,8 +210,8 @@ static void createFile(char *fileName) {
 
 
 int main() {
-    int i, handle, status;
-    uint32_t *bank, *bank2, bufLen, blkSize=1024+8,  blkNum=2, buffie[15000];
+    int handle, status;
+    uint32_t *bank, *bank2, bufLen, blkSize=1024+8, /* blkNum=2, */ buffie[15000];
     
     bank2 = (uint32_t *) calloc(3, sizeof(uint32_t));
     bank2[0] = 2;                      /* event length = 2 */
@@ -266,14 +272,13 @@ int main() {
 
 int main11() {
     printFile("./mydata");
-    
+    return 0;
 }
 
 int main12() {
     int i, handle, status, nevents, nwords;
     const uint32_t *ip;
-    uint32_t evCount, len = 0L;
-    uint32_t *buffer, bufLen;
+    uint32_t evCount, *buffer, bufLen;
 
     createFile("./mydata");
     printFile("./mydata");
@@ -315,15 +320,14 @@ int main12() {
     
     status = evClose(handle);
     printf ("    Closed file for reading, status = %d\n\n", status);
-
+    return 0;
 }
 
 
 int main111() {
     int i, handle, status, nevents, nwords;
     const uint32_t *ip;
-    uint32_t evCount, len = 0L;
-    uint32_t buffer[2048];
+    uint32_t evCount, buffer[2048];
 
     memset(buffer, 0, 2048);
 
@@ -364,14 +368,13 @@ int main111() {
     }
     status = evClose(handle);
     printf ("    Closed file for reading, status = %d\n\n", status);
-
+    return 0;
 }
 
 int main22() {
     int i, handle, status, nevents, nwords;
     const uint32_t *ip;
-    uint32_t evCount, len = 0L;
-    uint32_t buffer[2048];
+    uint32_t evCount, buffer[2048];
 
     uint32_t data[] = {
         0x0000000f,
@@ -452,7 +455,7 @@ int main22() {
     }
     status = evClose(handle);
     printf ("    Closed file for reading, status = %d\n\n", status);
-
+    return 0;
 }
 
 
@@ -461,7 +464,7 @@ int main4() {
     int i, handle, status, nevents, nwords;
     const uint32_t *ip;
     uint32_t evCount, len = 0L, bufLen;
-    const uint32_t **pTable;
+    uint32_t **pTable;
 
     createFile("./mydata");
     printFile("./mydata");
@@ -534,9 +537,9 @@ int main4() {
 
 
 int main1() {
-    int i, j, handle, status, nevents, nwords;
+    int i, handle, status, nevents, nwords;
     const uint32_t *ip = NULL;
-    const uint32_t **pTable;
+    uint32_t **pTable;
     uint32_t evCount, len = 0L, bufLen;
 
     char *dictionary =
@@ -622,13 +625,14 @@ int main1() {
 
     free(pTable);
     evClose(handle);
+    return 0;
 }
 
 int main2() {
     
     int handle, status, nevents, nwords;
     uint32_t *ip, *pBuf, buffer[2048];
-    int i, maxEvBlk = 2;
+    int i;
 
     memset(buffer, 0, 2048);
 
@@ -756,7 +760,7 @@ int main2() {
     
 
         status = evOpen("./mydata", "r", &handle);
-        printf ("    Opened file for reading AGAIN, status = %\n", status);
+        printf ("    Opened file for reading AGAIN, status = 0x%x\n", status);
         nevents = 0;
         while ((status = evRead(handle, buffer, 2048)) == S_SUCCESS) {
             nevents++;
@@ -786,7 +790,6 @@ int main2() {
 
     }
 
-    
-
     free(pBuf);
+    return 0;
 }

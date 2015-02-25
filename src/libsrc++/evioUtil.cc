@@ -1178,7 +1178,7 @@ string evioDOMContainerNode::getHeader(int depth, const evioToStringConfig *conf
   if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
     map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
     if(iter!=config->toStringDictionary->getNameMap.end()) {
-      tagNum t=(*iter).first;
+      //tagNum t=(*iter).first;
       name=(*iter).second;
     }
   }
@@ -2349,11 +2349,11 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
     break;
   case 0xd:
   case 0x20:
+    buf[0]|=(padding<<22);
   case 0xc:
   case 0x40:
     if((bankLen-1)>0xffff)throw(evioException(0,"?evioDOMTree::toEVIOBuffer...length too big for segment type",__FILE__,__FUNCTION__,__LINE__));
     buf[0]|=(bankLen-1);
-    buf[0]!=(padding<<22);
     break;
   default: 
     ostringstream ss;

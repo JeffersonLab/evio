@@ -39,9 +39,9 @@ char *dictionary =
 int main()
 {
     int handle, status, nevents, nwords;
-    int buffer[2048], i, maxEvBlk = 2;
-    int *ip, *pBuf, *dict, dictLen, bufLen;
-    char eventBuffer[4*4096];
+    int i, maxEvBlk = 2, *pBuf;
+    uint32_t *ip, buffer[2048], bufLen, dictLen;
+    char eventBuffer[4*4096], *dict;
 
     memset(eventBuffer, 0, 4*4096);
 
