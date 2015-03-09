@@ -57,9 +57,9 @@ static int     recvFd;
 
 
 static void *receiverThread(void *arg) {
-    int listenfd=0, handle, status, nevents, nwords, *ip;
+    int listenfd=0, handle, status, nevents, nwords;
     int i;
-    uint32_t dictLen, buffer[2048];
+    uint32_t dictLen, buffer[2048], *ip;
     char *dict;
     struct sockaddr_in cliaddr;
     socklen_t len = sizeof(cliaddr);
@@ -133,6 +133,7 @@ printf("\nReceiver thread: Last read, status = %x\n", status);
     
     status = evClose(handle);
     printf ("Receiver thread: Closed socket, status = %#x\n\n", status);
+    return(0);
 }
 
 

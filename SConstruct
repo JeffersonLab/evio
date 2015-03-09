@@ -167,8 +167,9 @@ else:
 
     elif platform == 'Darwin':
         execLibs = ['pthread', 'dl', 'expat', 'z']
-        env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-flat_namespace', 'suppress'])
+        env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined','suppress','-undefined','dynamic_lookup'])
         env.Append(CCFLAGS = ['-fmessage-length=0'])
+
 
 
 if is64bits and use32bits and not useVxworks:

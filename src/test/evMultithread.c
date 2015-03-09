@@ -236,5 +236,5 @@ static void *closeThread(void *arg) {
     printf ("    *** Call evClose() in close thread\n");
     status = evClose(handle);
     printf ("    \"Closed\" buffer, status = %#x\n\n", status);
-
+    return(0);
 }

@@ -20,8 +20,8 @@
 
 int main (int argc, char **argv)
 {
-    int i, handle, nevents, status, bufLen, nWords, version;
-    uint32_t *buf, *ip, dLen;
+    int i, handle, nevents, status, nWords, version;
+    uint32_t *buf, *ip, dLen, bufLen;
     char *dictionary = NULL;
 
 
