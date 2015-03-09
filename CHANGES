@@ -78,3 +78,6 @@ evio-4.4
 evio-4.4.4
     - fix bug in C++ that does not set padding correctly
     - fix lots of compiler warnings
+
+evio-4.4.5
+    - fix problems compiling on Mac
