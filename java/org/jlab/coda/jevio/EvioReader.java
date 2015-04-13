@@ -443,14 +443,20 @@ public class EvioReader {
         // For the new version, memory map the file - even the big ones
         else {
 //System.out.println("Memory Map version 4");
-            sequentialRead = false;
-            mappedMemoryHandler = new MappedMemoryHandler(fileChannel, byteOrder);
-            if (blockHeader4.hasDictionary()) {
-                ByteBuffer buf = mappedMemoryHandler.getFirstMap();
-                // Jump to the first event
-                prepareForBufferRead(buf);
-                // Dictionary is the first event
-                readDictionary(buf);
+            if (sequentialRead) {
+                dataStream = new DataInputStream(fileInputStream);
+//System.out.println("Reading sequentially for evio versions 4");
+                prepareForSequentialRead();
+            }
+            else {
+                mappedMemoryHandler = new MappedMemoryHandler(fileChannel, byteOrder);
+                if (blockHeader4.hasDictionary()) {
+                    ByteBuffer buf = mappedMemoryHandler.getFirstMap();
+                    // Jump to the first event
+                    prepareForBufferRead(buf);
+                    // Dictionary is the first event
+                    readDictionary(buf);
+                }
             }
         }
 
