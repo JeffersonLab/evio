@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 
 def is64BitMachine(env, platform, machine):
     """Determine if machine has 64 or 32 bit architecture"""
-    if platform == 'Linux'and machine == 'x86_64':
+    if platform == 'Linux' and machine == 'x86_64':
             return True
     else:
         ccflags = ''
@@ -101,8 +101,8 @@ def is64BitMachine(env, platform, machine):
         ret = conf.CheckBits(ccflags)
         env = conf.Finish()
         if ret < 1:
-            print 'Cannot run test, assume 32 bit system'
-            return False
+            print 'Cannot run test, assume 64 bit system'
+            return True
         elif ret == 64:
             # Test shows 64 bit system'
             return True
