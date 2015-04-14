@@ -390,6 +390,7 @@ public class EvioReader {
         this.file = file;
 
         checkBlockNumberSequence = checkBlkNumSeq;
+        sequentialRead = sequential;
         initialPosition = 0;
 
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -411,8 +412,6 @@ public class EvioReader {
         // use sequential reading instead.
         if (evioVersion < 4) {
             // Remember, no dictionaries exist for these early versions
-
-            sequentialRead = sequential;
 
             // Got a big file? If so we cannot use a memory mapped file.
             if (fileSize > Integer.MAX_VALUE) {
@@ -442,10 +441,10 @@ public class EvioReader {
         }
         // For the new version, memory map the file - even the big ones
         else {
-//System.out.println("Memory Map version 4");
+System.out.println("Memory Map version 4");
             if (sequentialRead) {
+                System.out.println("Reading sequentially for evio versions 4");
                 dataStream = new DataInputStream(fileInputStream);
-//System.out.println("Reading sequentially for evio versions 4");
                 prepareForSequentialRead();
             }
             else {
@@ -1249,7 +1248,7 @@ System.err.println("ERROR endOfBuffer " + a);
      */
     public synchronized EvioEvent nextEvent() throws IOException, EvioException {
 
-        if (evioVersion > 3) {
+        if (!sequentialRead && evioVersion > 3) {
             return getEvent(eventNumber+1);
         }
 
