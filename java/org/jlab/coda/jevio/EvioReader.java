@@ -441,9 +441,8 @@ public class EvioReader {
         }
         // For the new version, memory map the file - even the big ones
         else {
-System.out.println("Memory Map version 4");
             if (sequentialRead) {
-                System.out.println("Reading sequentially for evio versions 4");
+System.out.println("Reading sequentially for evio versions 4");
                 dataStream = new DataInputStream(fileInputStream);
                 prepareForSequentialRead();
             }
@@ -553,6 +552,7 @@ System.out.println("Memory Map version 4");
         dictionaryXML       =  null;
         initialPosition     =  buf.position();
         byteBuffer          =  buf.slice();
+        sequentialRead      = false;
 
         parseFirstHeader(byteBuffer);
         byteBuffer.position(0);
@@ -841,7 +841,6 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
             blockBuffer.order(byteOrder);
         }
         blockBuffer.clear().limit(4*blkSize);
-//System.out.println("prepareForSequentialRead: created new ByteBuffer of size = " + 4*blkSize + " bytes");
 
         // Read the entire first block of data
         fileChannel.read(blockBuffer);
@@ -852,7 +851,6 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
 
         // Position buffer properly
         prepareForBufferRead(byteBuffer);
-//System.out.println("prepareForSequentialRead: fileChannel pos = " + fileChannel.position());
     }
 
 
@@ -861,11 +859,14 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
      * @param buffer buffer to prepare
      */
     private void prepareForBufferRead(ByteBuffer buffer) {
-         // Position after header
+        // Position after header
         int pos = 32;
         buffer.position(pos);
 
-        // Deal with non-standard first header length
+        // Deal with non-standard first header length.
+        // No non-standard header lengths in evio version 2 & 3 files.
+        if (evioVersion < 4) return;
+
         int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
         // Hop over any extra header words
         if (headerLenDiff > 0) {
@@ -922,9 +923,11 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                 if (blockBuffer != null && blockBuffer.capacity() >= 4*blkSize) {
                     blockBuffer.clear();
                     blockBuffer.limit(4*blkSize);
+//System.out.println("nextBlockHeader: reset buffer limit -> " + (4 * blkSize));
                 }
                 else {
                     // Make this bigger than necessary so we're not constantly reallocating
+//System.out.println("nextBlockHeader: make the buffer bigger -> 10000 + " + (4*blkSize));
                     blockBuffer = ByteBuffer.allocate(4*blkSize + 10000);
                     blockBuffer.limit(4*blkSize);
                     blockBuffer.order(byteOrder);
@@ -1096,13 +1099,13 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("index arg starts at 1");
         }
 
-        // Versions 2 & 3
-        if (evioVersion < 4) {
-            // Do not fully parse
+        //  Versions 2 & 3 || sequential
+        if (sequentialRead || evioVersion < 4) {
+            // Do not fully parse events up to final event
             return gotoEventNumber(index, false);
         }
 
-        // Version 4 and up
+        //  Version 4 and up && non sequential
         return getEventV4(index);
     }
 
@@ -1112,7 +1115,8 @@ System.err.println("ERROR endOfBuffer " + a);
      * It is only valid for evio versions 4+.
      * As useful as this sounds, most applications will probably call
      * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.<p>
+     * since it combines combines getting an event with parsing it.
+     * Only called if not sequential reading.<p>
      *
      * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
      * @return the event in the file/buffer at the given index or null if none
@@ -1263,6 +1267,8 @@ System.err.println("ERROR endOfBuffer " + a);
         // How many bytes remain in this block until we reach the next block header?
         // Must see if we have to deal with crossing physical record boundaries (< version 4).
         int bytesRemaining = blockBytesRemaining();
+//System.out.println("nextEvent: pos = " + currentPosition + ", lim = " + byteBuffer.limit() +
+//                   ", remaining = " + bytesRemaining);
         if (bytesRemaining < 0) {
             throw new EvioException("Number of block bytes remaining is negative.");
         }
@@ -1476,20 +1482,19 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("object closed");
         }
 
-        if (evioVersion < 4) {
-            if (sequentialRead) {
-                fileChannel.position(initialPosition);
-                prepareForSequentialRead();
-            }
-            else {
-                byteBuffer.position(initialPosition);
-                prepareForBufferRead(byteBuffer);
-            }
+        if (sequentialRead) {
+            fileChannel.position(initialPosition);
+            prepareForSequentialRead();
+        }
+        else if (evioVersion < 4) {
+            byteBuffer.position(initialPosition);
+            prepareForBufferRead(byteBuffer);
         }
 
         lastBlock = false;
-		eventNumber = 0;
+        eventNumber = 0;
         blockNumberExpected = 1;
+        blockHeader = firstBlockHeader;
         blockHeader.setBufferStartingPosition(initialPosition);
 	}
 
@@ -1498,14 +1503,15 @@ System.err.println("ERROR endOfBuffer " + a);
      * What it actually does is return the position of the buffer. This
      * method, along with the <code>rewind()</code>, <code>position(int)</code>
      * and the <code>close()</code> method, allows applications to treat files
-     * in a normal random access manner. Only meaningful to evio versions 1-3.
+     * in a normal random access manner. Only meaningful to evio versions 1-3
+     * and for sequential reading.<p>
 	 *
 	 * @return the position of the buffer; -1 if version 4+
      * @throws IOException   if error accessing file
      * @throws EvioException if object closed
      */
 	public synchronized long position() throws IOException, EvioException {
-        if (evioVersion > 3) return -1L;
+        if (!sequentialRead && evioVersion > 3) return -1L;
 
         if (closed) {
             throw new EvioException("object closed");
@@ -1521,7 +1527,8 @@ System.err.println("ERROR endOfBuffer " + a);
 	 * This method sets the current position in the file or buffer. This
      * method, along with the <code>rewind()</code>, <code>position()</code>
      * and the <code>close()</code> method, allows applications to treat files
-     * in a normal random access manner. Only meaningful to evio versions 1-3.<p>
+     * in a normal random access manner. Only meaningful to evio versions 1-3
+     * and for sequential reading.<p>
      *
      * <b>HOWEVER</b>, using this method is not necessary for random access of
      * events and is no longer recommended because it interferes with the sequential
@@ -1533,7 +1540,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws EvioException if object closed
      */
 	public synchronized void position(long position) throws IOException, EvioException  {
-        if (evioVersion > 3) return;
+        if (!sequentialRead && evioVersion > 3) return;
 
         if (closed) {
             throw new EvioException("object closed");
@@ -1560,7 +1567,7 @@ System.err.println("ERROR endOfBuffer " + a);
             return;
         }
 
-        if (evioVersion > 3) {
+        if (!sequentialRead && evioVersion > 3) {
             if (byteBuffer != null) byteBuffer.position(initialPosition);
             mappedMemoryHandler = null;
 
@@ -1580,6 +1587,7 @@ System.err.println("ERROR endOfBuffer " + a);
         else {
             byteBuffer.position(initialPosition);
         }
+
         closed = true;
     }
 
@@ -1613,9 +1621,10 @@ System.err.println("ERROR endOfBuffer " + a);
     /**
      * Go to a specific event in the file. The events are numbered 1..N.
      * This number is transient--it is not part of the event as stored in the evio file.
-     * In versions 4 and up this is just a wrapper on {@link #getEvent(int)}.
+     * Before version 4, this does the work for {@link #getEvent(int)}.
      *
      * @param  evNumber the event number in a 1,2,..N counting sense, from beginning of file/buffer.
+     * @param  parse if {@code true}, parse the desired event
      * @return the specified event in file or null if there's an error or nothing at that event #.
      * @throws IOException if failed file access
      * @throws EvioException if object closed
@@ -1631,9 +1640,14 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("object closed");
         }
 
-        if (evioVersion > 3) {
+        if (!sequentialRead && evioVersion > 3) {
             try {
-                return parseEvent(evNumber);
+                if (parse) {
+                    return parseEvent(evNumber);
+                }
+                else {
+                    return getEvent(evNumber);
+                }
             }
             catch (EvioException e) {
                 return null;
@@ -1788,7 +1802,7 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("object closed");
         }
 
-        if (evioVersion > 3) {
+        if (!sequentialRead && evioVersion > 3) {
             return mappedMemoryHandler.getEventCount();
         }
 
@@ -1840,7 +1854,7 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("object closed");
         }
 
-        if (evioVersion > 3) {
+        if (!sequentialRead && evioVersion > 3) {
             return mappedMemoryHandler.getBlockCount();
         }
 
