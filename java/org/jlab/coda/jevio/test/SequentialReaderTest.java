@@ -31,9 +31,50 @@ public class SequentialReaderTest {
             // Read sequentially
             EvioReader fileReader = new EvioReader(fileName, false, true);
 
+            System.out.println("count events ...");
+            int eventCount = fileReader.getEventCount();
+            System.out.println("done counting events");
+
+            System.out.println("get ev #1");
+            EvioEvent event = fileReader.getEvent(1);
+
+            System.out.println("get ev #" + (eventCount/2));
+            event = fileReader.getEvent(eventCount/2);
+
+            System.out.println("get ev #" + eventCount);
+            event = fileReader.getEvent(eventCount);
+
+            System.out.println("rewind file");
+            fileReader.rewind();
+
+            System.out.println("goto ev #1");
+            event = fileReader.gotoEventNumber(1);
+
+            System.out.println("goto ev #" + (eventCount/2));
+            event = fileReader.gotoEventNumber(eventCount / 2);
+
+            System.out.println("goto ev #" + eventCount);
+            event = fileReader.gotoEventNumber(eventCount);
+
+            System.out.println("rewind file");
+            fileReader.rewind();
+
+            System.out.println("parse ev #1");
+            event = fileReader.parseEvent(1);
+
+            System.out.println("parse ev #" + (eventCount/2));
+            event = fileReader.parseEvent(eventCount / 2);
+
+            System.out.println("parse ev #" + eventCount);
+            event = fileReader.parseEvent(eventCount);
+
+            System.out.println("rewind file");
+            fileReader.rewind();
+
             while (fileReader.parseNextEvent() != null) {
-                System.out.println("read ev # " + counter++);
+                System.out.println("parseNextEvent # " + counter++);
             }
+
         }
         catch (Exception e) {
             e.printStackTrace();
