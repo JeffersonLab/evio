@@ -98,7 +98,7 @@ public final class EvioNode implements Cloneable {
     EvioNode() {
         // Put this node in list of all nodes (evio banks, segs, or tagsegs)
         // contained in this event.
-        allNodes = new ArrayList<EvioNode>(100);
+        allNodes = new ArrayList<EvioNode>(5);
         allNodes.add(this);
     }
 
@@ -125,7 +125,7 @@ public final class EvioNode implements Cloneable {
 
         // Put this node in list of all nodes (evio banks, segs, or tagsegs)
         // contained in this event.
-        allNodes = new ArrayList<EvioNode>(100);
+        allNodes = new ArrayList<EvioNode>(5);
         allNodes.add(this);
     }
 
