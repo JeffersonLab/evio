@@ -62,6 +62,7 @@ jevio-4.4.4.jar
 
 jevio-4.4.5.jar
     - same as previous
+    - cut way back on EvioNode default memory usage (6/17/2015)
 
 C CODE
 
