@@ -64,6 +64,10 @@ jevio-4.4.5.jar
     - same as previous
     - cut way back on EvioNode default memory usage (6/17/2015)
 
+jevio-4.4.6.jar
+    - add getMap() method to iterate through EvioXMLDictionary contents.
+      Add EvioDictionaryEntry class to help accomplish that. (8/18/2015)
+
 C CODE
 
 
