@@ -143,8 +143,9 @@ public class DictTest {
         Set<Map.Entry<String, EvioDictionaryEntry>> set = map.entrySet();
         for (Map.Entry<String, EvioDictionaryEntry> entry : set) {
             String entryName =  entry.getKey();
+            EvioDictionaryEntry entryData = entry.getValue();
             System.out.println("entry " + (++i) + ": name = " + entryName + ", tag = " +
-                                       dict.getTag(entryName) + ", num = " + dict.getTag(entryName));
+                                       entryData.getTag() + ", num = " + entryData.getTag());
         }
 
 
