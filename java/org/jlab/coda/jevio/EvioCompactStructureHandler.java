@@ -456,6 +456,7 @@ public class EvioCompactStructureHandler {
 
                     // Add this to list of children and to list of all nodes in the event
                     node.addChild(kidNode);
+//System.out.println("scanStructure: kid bank, scanned val = " + kidNode.scanned);
 
 //System.out.println("scanStructure: kid bank at pos = " + kidNode.pos +
 //                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
@@ -522,6 +523,7 @@ public class EvioCompactStructureHandler {
                     kidNode.parentNode = node;
 
                     node.addChild(kidNode);
+//System.out.println("scanStructure: kid bank, scanned val = " + kidNode.scanned);
 
 // System.out.println("scanStructure: kid seg at pos = " + kidNode.pos +
 //                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
@@ -576,6 +578,7 @@ public class EvioCompactStructureHandler {
                     kidNode.parentNode = node;
 
                     node.addChild(kidNode);
+//System.out.println("scanStructure: kid bank, scanned val = " + kidNode.scanned);
 
 // System.out.println("scanStructure: kid tagseg at pos = " + kidNode.pos +
 //                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
@@ -623,11 +626,19 @@ public class EvioCompactStructureHandler {
 //            node.clearLists();
 //        }
 
+
         if (!node.scanned) {
+            // Do this before actual scan so clone() sets all "scanned" fields
+            // of child nodes to "true" as well.
+            node.scanned = true;
+
+//System.out.println("scanStructure: not scanned do so now");
             scanStructure(node);
         }
-
-        node.scanned = true;
+//        else {
+//            System.out.println("scanStructure: already scanned, skip it");
+//            scanStructure(node);
+//        }
 
         // Return results of this or a previous scan
         return node.allNodes;
