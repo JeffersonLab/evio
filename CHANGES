@@ -62,6 +62,8 @@ jevio-4.4.4.jar
 
 jevio-4.4.5.jar
     - same as previous
+    - implement sequential reading instead of ignoring the
+      flag in EvioReader constructor.
     - cut way back on EvioNode default memory usage (6/17/2015)
 
 jevio-4.4.6.jar
