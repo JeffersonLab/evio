@@ -6,7 +6,7 @@
     <property environment="env"/>
     
     <!-- Version -->
-    <property name="evio.version" value="4.4.5" />
+    <property name="evio.version" value="4.4.6" />
     
     <!-- Debug -->
     <property name="javac.debug" value="on" />
