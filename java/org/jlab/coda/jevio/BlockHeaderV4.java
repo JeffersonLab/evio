@@ -5,7 +5,7 @@ import java.nio.ByteOrder;
 import java.util.BitSet;
 
 /**
- * This holds a evio block header, also known as a physical record header.
+ * This holds an evio block header, also known as a physical record header.
  * Unfortunately, in versions 1, 2 & 3, evio files impose an anachronistic
  * block structure. The complication that arises is that logical records
  * (events) will sometimes cross physical record boundaries. This block structure
