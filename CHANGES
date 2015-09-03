@@ -69,6 +69,7 @@ jevio-4.4.5.jar
 jevio-4.4.6.jar
     - add getMap() method to iterate through EvioXMLDictionary contents.
       Add EvioDictionaryEntry class to help accomplish that. (8/18/2015)
+    - fix bug which started block header number at 0 instead of 1 (9/3/2015)
 
 C CODE
 
