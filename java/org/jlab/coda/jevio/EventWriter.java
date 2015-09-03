@@ -188,9 +188,9 @@ public class EventWriter {
 
     /**
      * Total number of events written to buffer or file (although may not be flushed yet).
-     * Will be the same as eventsWrittenToBuffer if writing to buffer. If the file being
-     * written to is split, this value refers to all split files taken together.
-     * Does NOT include dictionary(ies).
+     * Will be the same as eventsWrittenToBuffer (- dictionary) if writing to buffer.
+     * If the file being written to is split, this value refers to all split files
+     * taken together. Does NOT include dictionary(ies).
      */
     private int eventsWrittenTotal;
 
@@ -200,7 +200,7 @@ public class EventWriter {
     /** Size in 32-bit words of the currently-being-used block (includes entire block header). */
     private int currentBlockSize;
 
-    /** Number of events written to the currently-being-used block (not counting dictionary). */
+    /** Number of events written to the currently-being-used block (including dictionary if first blk). */
     private int currentBlockEventCount;
 
     /** Total size of the buffer in bytes. */
@@ -690,7 +690,7 @@ public class EventWriter {
         this.xmlDictionary = xmlDictionary;
 
         toFile = true;
-        blockNumber = 0;
+        blockNumber = 1;
 
         if (bitInfo != null) {
             this.bitInfo = (BitSet)bitInfo.clone();
@@ -1876,14 +1876,15 @@ if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = 
         // If we wrote a dictionary and it's the first block,
         // don't count dictionary in block header's event count
         if (wroteDictionary && (blockNumber == 2) && (currentBlockEventCount > 1)) {
-if (debug)  System.out.println("  writeEventToBuffer: subtract ev cnt since in dictionary's blk");
+if (debug)  System.out.println("  writeEventToBuffer: subtract ev cnt since in dictionary's blk, cnt = " +
+                                      (currentBlockEventCount - 1));
             buffer.putInt(currentHeaderPosition + EventWriter.EVENT_COUNT_OFFSET,
                           currentBlockEventCount - 1);
         }
 
 if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
-                bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount = " +
-                currentBlockEventCount);
+                bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount (w/ dict) = " +
+                currentBlockEventCount + ", blk # = " + blockNumber + ", wrote Dict = " + wroteDictionary);
 
         // If we're writing over the last empty block header, clear last block bit
         int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
@@ -1908,7 +1909,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             System.out.println("         cnt total (no dict) = " + eventsWrittenTotal);
             System.out.println("         file cnt total = " + eventsWrittenToFile);
             System.out.println("         internal buffer cnt = " + eventsWrittenToBuffer);
-            System.out.println("         block cnt = " + currentBlockEventCount);
+            System.out.println("         block cnt (w/ dict) = " + currentBlockEventCount);
             System.out.println("         bytes-to-buf  = " + bytesWrittenToBuffer);
             System.out.println("         bytes-to-file = " + bytesWrittenToFile);
             System.out.println("         block # = " + blockNumber);
