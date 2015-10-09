@@ -253,7 +253,7 @@ static void swap_data(uint32_t *data, int type, int length, int tolocal, uint32_
         case 0x1:
         case 0x2:
         case 0xb:
-            swap_int32_t(data, length, dest);
+            swap_int32_t(data, (unsigned int)length, dest);
             break;
 
 
@@ -282,7 +282,7 @@ static void swap_data(uint32_t *data, int type, int length, int tolocal, uint32_
 
         /* Composite type */
         case 0xf:
-            swap_composite_t((uint32_t*)data, tolocal, (uint32_t*)dest);
+            swap_composite_t(data, tolocal, dest);
             break;
             
 
@@ -408,14 +408,14 @@ static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
     /* swap data bank header words */
     pData = &data[formatLen+1];
     if (tolocal) {
-        pData = swap_int32_t(&data[formatLen+1], 2, &dest[formatLen+1]);
+        pData = swap_int32_t(&data[formatLen+1], 2, &d[formatLen+1]);
     }
                               
     /* get length of composite data (bank's len - 1)*/
     dataLen = pData[0] - 1;
 
     if (!tolocal) {
-        swap_int32_t(&data[formatLen+1], 2, &dest[formatLen+1]);
+        swap_int32_t(&data[formatLen+1], 2, &d[formatLen+1]);
     }
 
     /* copy if needed */
@@ -505,7 +505,7 @@ static void swap_short(uint16_t *data, int length, uint16_t *dest) {
     }
 
     for (i=0; i < length; i++) {
-        dest[i] = EVIO_SWAP16(data[i]);
+        dest[i] = (uint16_t) EVIO_SWAP16(data[i]);
     }
 }
 
