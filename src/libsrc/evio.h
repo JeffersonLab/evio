@@ -138,7 +138,7 @@ typedef struct evfilestruct {
   int       blkNumDiff;    /**< When reading, the difference between blknum read in and
                             *   the expected (sequential) value. Used in debug message. */
   uint32_t  blkSizeTarget; /**< target size of block in 32 bit words (including block header). */
-  uint32_t  blkEvCount;    /**< number of events written to block so far. */
+  uint32_t  blkEvCount;    /**< number of events written to block so far (including dictionary). */
   uint32_t  bufSize;       /**< When reading, size of block buffer (buf) in 32 bit words.
                             *   When writing file/sock/pipe, size of buffer being written to
                             *   that is actually being used (must be <= bufRealSize). */
@@ -189,11 +189,23 @@ typedef struct evfilestruct {
   uint32_t  *mmapFile;     /**< pointer to memory mapped file. */
   uint32_t  **pTable;      /**< array of pointers to events in memory mapped file or buffer. */
 
+
   /* dictionary */
-  int   wroteDictionary;   /**< dictionary already written out to a single (split fragment) file? */
-  uint32_t dictLength;     /**< length of dictionary bank in bytes. */
-  uint32_t *dictBuf;       /**< buffer containing dictionary bank. */
-  char *dictionary;        /**< xml format dictionary to either read or write. */
+  int   hasAppendDictionary;  /**< if appending, does existing file/buffer have dictionary? */
+  int   wroteDictionary;      /**< dictionary already written out to a single (split fragment) file? */
+  uint32_t dictLength;        /**< length of dictionary bank in bytes (including entire header). */
+  uint32_t *dictBuf;          /**< buffer containing dictionary bank. */
+  char *dictionary;           /**< xml format dictionary to either read or write. */
+
+  /* first event */
+  int   wroteFirstEvent;      /**< first event already defined and written out? */
+  uint32_t firstEventLength;  /**< length of dictionary bank in bytes (including entire header). */
+  uint32_t *firstEventBuf;    /**< buffer containing dictionary bank. */
+
+  /* Common block is first block in file/buf with dictionary and firstEvent */
+  int   wroteCommonBlock;     /**< common block written out? */
+  uint32_t commonBlkCount;    /**< Number of events written into common block.
+                               *   This can be 2 at the most, dictionary + first event. */
 
   /* synchronization */
   pthread_mutex_t lock;   /**< lock for multithreaded reads & writes. */
@@ -255,6 +267,7 @@ int evGetBufferLength(int handle, uint32_t *length);
 
 int evGetDictionary(int handle, char **dictionary, uint32_t *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
+int evWriteFirstEvent(int handle, const uint32_t *firstEvent);
 
 int evIsContainer(int type);
 const char *evGetTypename(int type);

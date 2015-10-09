@@ -339,14 +339,14 @@ static  int      tcpRead(int fd, void *vptr, int n);
 static  int      evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen);
 static  void     localClose(EVFILE *a);
 static  int      getEventCount(EVFILE *a, uint32_t *count);
-static  int      evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isDictionary);
+static  int      evWriteImpl(int handle, const uint32_t *buffer, int useMutex);
 static  int      evFlush(EVFILE *a);
 static  int      splitFile(EVFILE *a);
-static  int      evWriteDictImpl(EVFILE *a, const uint32_t *buffer);
 static  int      generateSixthWord(int version, int hasDictionary, int isEnd, int eventType);
 static  void     resetBuffer(EVFILE *a);
 static  int      expandBuffer(EVFILE *a, uint32_t newSize);
-static  int      evWriteDictImpl(EVFILE *a, const uint32_t *buffer);
+static  int      evWriteDictImpl(EVFILE *a);
+static  int      evWriteCommonBlock(EVFILE *a);
 static  void     writeEventToBuffer(EVFILE *a, const uint32_t *buffer,
                                     uint32_t wordsToWrite, int isDictionary);
 static  int      writeEmptyLastBlockHeader(EVFILE *a, int blockNumber);
@@ -602,10 +602,20 @@ static void structInit(EVFILE *a)
     a->pTable   = NULL;
 
     /* dictionary */
+    a->hasAppendDictionary = 0;
     a->wroteDictionary = 0;
     a->dictLength = 0;
     a->dictBuf    = NULL;
     a->dictionary = NULL;
+
+    /* first event */
+    a->wroteFirstEvent  = 0;
+    a->firstEventLength = 0;
+    a->firstEventBuf    = NULL;
+
+    /* common block */
+    a->wroteCommonBlock = 0;
+    a->commonBlkCount   = 0;
 
     /* synchronization */
     pthread_mutex_init(&a->lock, NULL);
@@ -2240,6 +2250,9 @@ if (debug) printf("File must be evio version %d (not %d) for append mode, quit\n
                 free(a);
                 return(S_EVFILE_BADFILE);
             }
+
+            /* Is there a dictionary? */
+            a->hasAppendDictionary = headerInfo & EV_DICTIONARY_MASK ? 1 : 0;
         }
         
         /* Allocate memory for a block only if we are not writing to a buffer. */
@@ -2687,17 +2700,16 @@ static int generatePointerTable(EVFILE *a)
  *                            while reading data (perhaps bad block header)
  * @return errno              if any file seeking/writing errors
  */
-static int toAppendPosition(EVFILE *a)
-{
-    int         debug=0, usingBuffer=0;
-    uint32_t    nBytes, bytesToWrite;
-    uint32_t   *pmem, sixthWord, header[EV_HDSIZ], *pHeader;
-    uint32_t    blockBitInfo, blockEventCount, blockSize, blockHeaderSize, blockNumber=1;
-    
-    
+static int toAppendPosition(EVFILE *a) {
+    int debug = 0, usingBuffer = 0;
+    uint32_t nBytes, bytesToWrite;
+    uint32_t *pmem, sixthWord, header[EV_HDSIZ], *pHeader;
+    uint32_t blockBitInfo, blockEventCount, blockSize, blockHeaderSize, blockNumber = 1;
+
+
     /* Only for append mode */
     if (!a->append) {
-        return(S_SUCCESS);
+        return (S_SUCCESS);
     }
 
     if (a->rw == EV_WRITEBUF) {
@@ -2706,11 +2718,11 @@ static int toAppendPosition(EVFILE *a)
 
     if (usingBuffer) {
         /* Go to back to beginning of buffer */
-        a->rwBytesOut  = 0;  /* # bytes written to rwBuf so far (after each evWrite) */
+        a->rwBytesOut = 0;  /* # bytes written to rwBuf so far (after each evWrite) */
     }
     else {
         /* Go to back to beginning of file */
-        if (fseek(a->file, 0L, SEEK_SET) < 0) return(errno);
+        if (fseek(a->file, 0L, SEEK_SET) < 0) return (errno);
     }
 
     while (1) {
@@ -2719,45 +2731,45 @@ static int toAppendPosition(EVFILE *a)
             /* Is there enough data to read in header? */
             if (a->rwBufSize - a->rwBytesOut < sizeof(header)) {
                 /* unexpected EOF or end-of-buffer in this case */
-                return(S_EVFILE_UNXPTDEOF);
+                return (S_EVFILE_UNXPTDEOF);
             }
 
             /* Look for block header info here */
             a->buf = pHeader = (uint32_t *) (a->rwBuf + a->rwBytesOut);
 
-            blockBitInfo    = pHeader[EV_HD_VER];
-            blockSize       = pHeader[EV_HD_BLKSIZ];
+            blockBitInfo = pHeader[EV_HD_VER];
+            blockSize = pHeader[EV_HD_BLKSIZ];
             blockHeaderSize = pHeader[EV_HD_HDSIZ];
             blockEventCount = pHeader[EV_HD_COUNT];
-            
+
             /* Swap header if necessary */
             if (a->byte_swapped) {
-                blockBitInfo    = EVIO_SWAP32(blockBitInfo);
-                blockSize       = EVIO_SWAP32(blockSize);
+                blockBitInfo = EVIO_SWAP32(blockBitInfo);
+                blockSize = EVIO_SWAP32(blockSize);
                 blockHeaderSize = EVIO_SWAP32(blockHeaderSize);
                 blockEventCount = EVIO_SWAP32(blockEventCount);
             }
         }
         else {
-            nBytes = sizeof(header)*fread(header, sizeof(header), 1, a->file);
-                
+            nBytes = (uint32_t) (sizeof(header) * fread(header, sizeof(header), 1, a->file));
+
             /* Check to see if we read the whole header */
             if (nBytes != sizeof(header)) {
-                return(S_EVFILE_BADFILE);
+                return (S_EVFILE_BADFILE);
             }
-            
+
             /* Swap header if necessary */
             if (a->byte_swapped) {
                 swap_int32_t(header, EV_HDSIZ, NULL);
             }
 
             /* Look at block header to get info */
-            blockBitInfo    = header[EV_HD_VER];
-            blockSize       = header[EV_HD_BLKSIZ];
+            blockBitInfo = header[EV_HD_VER];
+            blockSize = header[EV_HD_BLKSIZ];
             blockHeaderSize = header[EV_HD_HDSIZ];
             blockEventCount = header[EV_HD_COUNT];
         }
-        
+
         /* Add to the number of events */
         a->eventCount += blockEventCount;
 
@@ -2772,15 +2784,22 @@ static int toAppendPosition(EVFILE *a)
         /* Hop to next block header */
         if (usingBuffer) {
             /* Is there enough buffer space to hop over block? */
-            if (a->rwBufSize - a->rwBytesOut < 4*blockSize) {
+            if (a->rwBufSize - a->rwBytesOut < 4 * blockSize) {
                 /* unexpected EOF or end-of-buffer in this case */
-                return(S_EVFILE_UNXPTDEOF);
+                return (S_EVFILE_UNXPTDEOF);
             }
-            a->rwBytesOut += 4*blockSize;
+            a->rwBytesOut += 4 * blockSize;
         }
         else {
-            if (fseek(a->file, 4*(blockSize-EV_HDSIZ), SEEK_CUR) < 0) return(errno);
+            if (fseek(a->file, 4 * (blockSize - EV_HDSIZ), SEEK_CUR) < 0) return (errno);
         }
+    }
+
+    if (a->hasAppendDictionary) {
+        a->eventsToFile = a->eventsToBuf = a->eventCount + 1;
+    }
+    else {
+        a->eventsToFile = a->eventsToBuf = a->eventCount;
     }
 
     /* If we're here, we've just read the last block header (at least EV_HDSIZ words of it).
@@ -2871,7 +2890,7 @@ if (debug) printf("toAppendPosition: last block had no data, back up 1 header to
         /* Clear EOF and error indicators for file stream */
         clearerr(a->file);
         /* This last block is always EV_HDSIZ ints long. */
-        nBytes = fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
+        nBytes = (uint32_t) fwrite((const void *)a->buf, 1, bytesToWrite, a->file);
         /* Return any error condition of file stream */
         if (ferror(a->file)) return(ferror(a->file));
 
@@ -3700,7 +3719,7 @@ static int writeNewHeader(EVFILE *a, uint32_t wordSize,
     
     /* If no room left for a header to be written in buffer ... */
     if ((a->bufSize - a->bytesToBuf/4) < 8) {
-if (debug) printf("writeNewHeader(): no room in buffer, return, buf size = %u, bytes to buf = %u\n",
+if (debug) printf("writeNewHeader: no room in buffer, return, buf size = %u, bytes to buf = %u\n",
                a->bufSize, a->bytesToBuf/4);
         return (S_FAILURE);
     }
@@ -3711,7 +3730,7 @@ if (debug) printf("writeNewHeader(): no room in buffer, return, buf size = %u, b
         a->currentHeader = a->next;
     }
 
-/*if (debug) printf("writeNewHeader(): words = %d, block# = %d, ev Cnt = %d, 6th wd = 0x%x\n",
+/*if (debug) printf("writeNewHeader: words = %d, block# = %d, ev Cnt = %d, 6th wd = 0x%x\n",
     wordSize, blockNumber, eventCount, generateSixthWord(4, hasDictionary, isLast, 0)); */
 
     /* Write header words, some of which will be
@@ -3736,6 +3755,7 @@ if (debug) printf("writeNewHeader(): no room in buffer, return, buf size = %u, b
     
     a->bytesToBuf += 4*EV_HDSIZ;
 
+if (debug) printf("writeNewHeader: add hdr to bytesToBuf = %u\n", a->bytesToBuf);
     return (S_SUCCESS);
 }
 
@@ -3793,7 +3813,7 @@ int evwrite_
  */
 int evWrite(int handle, const uint32_t *buffer)
 {
-    return evWriteImpl(handle, buffer, 1, 0);
+    return evWriteImpl(handle, buffer, 1);
 }
 
 
@@ -3869,6 +3889,7 @@ if (debug) printf("  writeEventToBuffer: before write, bytesToBuf = %u\n",
     /* Update the current block header's size, event count, ... */
     a->blksiz     +=   wordsToWrite;
     a->bytesToBuf += 4*wordsToWrite;
+if (debug) printf("  writeEventToBuffer: add %u bytes, bytesToBuf = %u\n", (4*wordsToWrite), a->bytesToBuf);
     a->next       +=   wordsToWrite;
     a->left       -=   wordsToWrite;
     a->blkEvCount++;
@@ -3883,14 +3904,16 @@ if (debug) printf("  writeEventToBuffer: before write, bytesToBuf = %u\n",
         /* Do not include dictionary in header event count.
          * Dictionaries are written in their own block. */
         a->currentHeader[EV_HD_COUNT] = 0;
+if (debug) printf("  writeEventToBuffer: writing dict, set block cnt = 0, a->blkEvCount = %u\n", a->blkEvCount);
     }
     else {
         a->eventCount++;
         a->currentHeader[EV_HD_COUNT] = a->blkEvCount;
         /* If we wrote a dictionary and it's the first block, don't count dictionary ... */
         if (a->wroteDictionary && a->blknum == 2 && (a->blkEvCount - 1 > 0)) {
-if (debug) printf("  writeEventToBuffer: substract ev cnt since in dictionary's block\n");
             a->currentHeader[EV_HD_COUNT]--;
+if (debug) printf("  writeEventToBuffer: substract ev cnt since in dictionary's block, cur header block cnt = %u, a->blkEvCount = %u\n",
+                  a->currentHeader[EV_HD_COUNT],  a->blkEvCount);
         }
         
         /* Signifies that we wrote an event. Used in evIoctl
@@ -3915,12 +3938,22 @@ if (debug) printf("  writeEventToBuffer: after write,  bytesToBuf = %u, blksiz =
     /* (Re)Write the last, empty block header so it can be
      * flushed at any time and still create a valid file. */
     writeEmptyLastBlockHeader(a, a->blknum);
+
+    if (debug) {
+        printf("writeEventToBuffer: after last header written, Events written to:\n");
+        printf("                    cnt total (no dict) = %u\n", a->eventCount);
+        printf("                    file cnt total (dict) = %u\n", a->eventsToFile);
+        printf("                    internal buffer cnt (dict) = %u\n", a->eventsToBuf);
+        printf("                    block cnt (dict) = %u\n", a->blkEvCount);
+        printf("                    bytes-to-buf = %u\n", a->bytesToBuf);
+        printf("                    block # = %u\n", a->blknum);
+    }
 }
 
 
 /**
  * This routine writes a dictionary to the internal buffer.
- * It's a simpified version of {@link #evWriteImpl()}.
+ * It's a simplified version of {@link #evWriteImpl()}.
  *
  * @param handle   evio handle
  * @param buffer   pointer to buffer containing event to write
@@ -3929,18 +3962,17 @@ if (debug) printf("  writeEventToBuffer: after write,  bytesToBuf = %u, blksiz =
  * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
  * @return S_EVFILE_ALLOCFAIL if cannot allocate memory
  */
-static int evWriteDictImpl(EVFILE *a, const uint32_t *buffer)
+static int evWriteDictImpl(EVFILE *a)
 {
     uint32_t nToWrite, size;
     int status, debug=0;
 
-
     /* Number of words left to write = full event size + bank header */
-    nToWrite = buffer[0] + 1;
-    
+    nToWrite =  a->dictBuf[0] + 1;
+
 if (debug) printf("evWriteDict: bufSize = %u <? bytesToWrite = (dict) %u + (2 hdr) 64 = %u \n",
     (4*a->bufSize), (4*nToWrite), (4*nToWrite + 64));
-    
+
     /* Is this event (by itself) too big for the current internal buffer?
      * Internal buffer needs room for first block header, event, and ending empty block. */
     if (4*a->bufSize < 4*(nToWrite + 2*EV_HDSIZ)) {
@@ -3961,7 +3993,7 @@ if (debug) printf("evWriteDict: buf size (bytes) = %d, needed for event + header
         if (status != S_SUCCESS) {
             return status;
         }
-        
+
         /* Init buffer with last empty block -
          * just like when initially calling evOpen() */
         resetBuffer(a);
@@ -3971,7 +4003,10 @@ if (debug) printf("evWriteDict: buf size (bytes) = %d, needed for event + header
     /* Now we have enough room for the event in the buffer. */
     /* So write the event to the internal buffer.           */
     /********************************************************/
-    writeEventToBuffer(a, buffer, nToWrite, 1);
+    writeEventToBuffer(a, a->dictBuf, nToWrite, 1);
+
+    /* dictionary defined and written into common (first) block */
+    a->commonBlkCount++;
 
 if (debug) {
         printf("evWriteDictImpl: after last header written, Events written to:\n");
@@ -3986,6 +4021,90 @@ if (debug) {
     return(S_SUCCESS);
 }
 
+
+/**
+ * This routine writes a dictionary and the first event to the beginning of the internal buffer.
+ * Before this routine is called in {@link #evWrite()} the buffer is already increased in size,
+ * if necessary, to accommodate the dictionary, first event, and 3 block headers.
+ *
+ * @param handle   evio handle
+ * @param buffer   pointer to buffer containing event to write
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
+ * @return S_EVFILE_ALLOCFAIL if cannot allocate memory
+ */
+static int evWriteCommonBlock(EVFILE *a)
+{
+    int status, debug=0;
+
+
+    /* Words in 2 block headers */
+    uint32_t numWordsToWrite = 2*EV_HDSIZ;
+
+    /* Number of words to write dict */
+    if (a->dictBuf != NULL) {
+        numWordsToWrite = a->dictBuf[0] + 1;
+    }
+
+    /* Number of words to write first event */
+    if (a->firstEventBuf != NULL) {
+        numWordsToWrite += a->firstEventBuf[0] + 1;
+    }
+
+    if (debug) printf("evWriteCommonBlock: bufSize = %u <? bytesToWrite = (dict) %u + (2 hdr) 64 = %u \n",
+                      a->bufSize, numWordsToWrite, (4*numWordsToWrite));
+
+    /* Make sure there is enough space in buffer for dict + first event + 2 block headers */
+    if (a->bufSize < numWordsToWrite) {
+
+        /* Cannot increase size of user-given buffer */
+        if (a->rw == EV_WRITEBUF) {
+            return(S_EVFILE_TRUNC);
+        }
+
+        if (debug) printf("evWriteCommonBlock: buf size (bytes) = %d, needed for event + headers = %d\n",
+                          (4*a->bufSize), (4*numWordsToWrite));
+
+        /* Increase buffer size and DON"T copy first header from old to new */
+        status = expandBuffer(a, 4*numWordsToWrite);
+        if (status != S_SUCCESS) {
+            return status;
+        }
+
+        /* Init buffer with last empty block - just like when initially calling evOpen() */
+        resetBuffer(a);
+    }
+
+    if (a->dictBuf != NULL) {
+        /* Number of words to write = data + full bank header = a->dictBuf[0] + 1 */
+        writeEventToBuffer(a, a->dictBuf, a->dictBuf[0] + 1, 1);
+    }
+
+    if (a->firstEventBuf != NULL) {
+        /* If a dictionary was written along with its last empty block, and since we write
+         * over that last empty block, subtract the header's length we added in writeEventToBuffer(). */
+        if (a->dictBuf != NULL) {
+            a->bytesToBuf -= 4 * EV_HDSIZ;
+        }
+        /* Number of words to write = data + full bank header = a->firstEventBuf[0] + 1 */
+        writeEventToBuffer(a, a->firstEventBuf, a->firstEventBuf[0] + 1, 0);
+    }
+
+    a->wroteCommonBlock = 1;
+
+    if (debug) {
+        printf("evWriteCommonBlock: after last header written, Events written to:\n");
+        printf("                    cnt total (no dict) = %u\n", a->eventCount);
+        printf("                    file cnt total = %u\n", a->eventsToFile);
+        printf("                    internal buffer cnt = %u\n", a->eventsToBuf);
+        printf("                    block cnt = %u\n", a->blkEvCount);
+        printf("                    bytes-to-buf = %u\n", a->bytesToBuf);
+        printf("                    block # = %u\n", a->blknum);
+    }
+
+    return(S_SUCCESS);
+}
 
 
 /**
@@ -4033,7 +4152,6 @@ static void resetBuffer(EVFILE *a) {
  * @param handle   evio handle
  * @param buffer   pointer to buffer containing event to write
  * @param useMutex if != 0, use mutex locking, else no locking
- * @param isDictionary if != 0, bank being written is the dictionary
  *
  * @return S_SUCCESS          if successful
  * @return S_FAILURE          if internal programming error writing block header, or
@@ -4044,17 +4162,13 @@ static void resetBuffer(EVFILE *a) {
  * @return S_EVFILE_BADHANDLE if bad handle arg
  * @return S_EVFILE_ALLOCFAIL if cannot allocate memory
  */
-static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isDictionary)
+static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
 {
     EVFILE   *a;
-    uint32_t nToWrite, size;
+    uint32_t wordsToWrite, bytesToWrite, size;
     int status, debug=0, headerBytes = 4*EV_HDSIZ, splittingFile=0;
-    int doFlush = 0;
-    int roomInBuffer = 1;
-    int needBiggerBuffer = 0;
-    int writeNewBlockHeader = 1;
-    int fileActuallySplit = 0;
-
+    int doFlush = 0, roomInBuffer = 1, needBiggerBuffer = 0;
+    int writeNewBlockHeader = 1, fileActuallySplit = 0;
     
     if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
@@ -4081,15 +4195,6 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
         if (useMutex) handleReadUnlock(handle);
         return(S_EVFILE_BADMODE);
     }
-    
-    /* Special case when writing directly to buffer (no block buffer) */
-    /*
-    if (a->rw == EV_WRITEBUF) {
-        status = evWriteBuffer(a, buffer, useMutex);
-        if (useMutex) handleReadUnlock(handle);
-        return status;
-    }
-    */
 
     /* Need to be open for writing not reading */
     if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEBUF &&
@@ -4098,38 +4203,29 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex, int isD
         return(S_EVFILE_BADMODE);
     }
 
-    /* Number of words left to write = full event size + bank header */
-    nToWrite = buffer[0] + 1;
+    /* Number of words/bytes left to write = full event size + bank header */
+    wordsToWrite = buffer[0] + 1;
+    bytesToWrite = 4 * wordsToWrite;
 
     /* Lock mutex for multithreaded reads/writes/access */
     if (useMutex) mutexLock(a);
 
-    /* Use other function to write dictionary */
-    if (isDictionary) {
-        status = evWriteDictImpl(a, a->dictBuf);
-        if (useMutex) {
-            mutexUnlock(a);
-            handleReadUnlock(handle);
-        }
-        return (status);
-    }
-    
     if (debug && a->splitting) {
-printf("evWrite: splitting, bytesToFile = %llu (bytes), event bytes = %u, bytesToBuf = %u, split = %llu\n",
-               a->bytesToFile, (4*nToWrite), a->bytesToBuf, a->split );
+printf("evWrite: splitting, bytesToFile = %lu (bytes), event bytes = %u, bytesToBuf = %u, split = %lu\n",
+               a->bytesToFile, bytesToWrite, a->bytesToBuf, a->split);
     }
     
     /* If we have enough room in the current block and have not exceeded
-     * the number of allowed events, or this is the first event,
-     * write it in the current block. */
-    if ( ( ((nToWrite + a->blksiz) <= a->blkSizeTarget) &&
-             a->blkEvCount < a->blkEvMax) || a->blkEvCount < 1) {
+     * the number of allowed events, then write it in the current block.
+     * Worry about memory later. */
+    if ( ((wordsToWrite + a->blksiz) <= a->blkSizeTarget) &&
+          (a->blkEvCount < a->blkEvMax)) {
 if (debug) printf("evWrite: do NOT need a new blk header\n");
         writeNewBlockHeader = 0;
     }
     else if (debug) {
 printf("evWrite: DO need a new blk header: blkTarget = %u, will use %u (words)\n",
-                 a->blkSizeTarget, (nToWrite + a->blksiz + EV_HDSIZ) );
+                 a->blkSizeTarget, (wordsToWrite + a->blksiz + EV_HDSIZ) );
         if (a->blkEvCount >= a->blkEvMax) {
 printf("evWrite: too many events in block, already have %u\n", a->blkEvCount );
         }
@@ -4140,16 +4236,20 @@ printf("evWrite: too many events in block, already have %u\n", a->blkEvCount );
     while (a->splitting) {
         int headerCount=0;
         uint64_t totalSize;
-        
-        /* If all that is written so far is a dictionary, don't split after writing it */
-        if (a->wroteDictionary && (a->blknum - 1) == 1 && a->eventsToBuf < 2) {
-if (debug) printf("evWrite: don't split file cause only dictionary written so far\n");
+
+        /* If all that is written so far is the common block, don't split after writing it */
+        //if (a->wroteCommonBlock && (a->blknum - 1) == 1 && a->eventsToBuf <= a->commonBlkCount)
+
+        /* If it's the first block and all that is written so far are the dictionary and first event,
+         * don't split after writing it. */
+        if ((a->blknum - 1) == 1 && a->eventsToBuf <= a->commonBlkCount) {
+if (debug) printf("evWrite: don't split file cause only common block written so far\n");
             break;
         }
         
         /* Is this event (together with the current buffer, current file,
          * and various block headers) large enough to split the file? */
-        totalSize = a->bytesToFile + 4*nToWrite + a->bytesToBuf;
+        totalSize = a->bytesToFile + bytesToWrite + a->bytesToBuf;
 
         /* If we have to add another block header, account for it.
          * But only if it doesn't write over an existing ending block.*/
@@ -4174,7 +4274,7 @@ if (debug) printf("evWrite: splitting = %s: total size = %llu >? split = %llu\n"
                           totalSize, a->split);
 
 if (debug) printf("evWrite: total size components: bytesToFile = %llu, bytesToBuf = %u, ev bytes = %u, additional headers = %d * 32, dictlen = %u\n",
-        a->bytesToFile, a->bytesToBuf, 4*nToWrite, headerCount, a->dictLength);
+        a->bytesToFile, a->bytesToBuf, bytesToWrite, headerCount, a->dictLength);
 
         /* If we're going to split the file ... */
         if (totalSize > a->split) {
@@ -4193,12 +4293,12 @@ if (debug) printf("evWrite: total size components: bytesToFile = %llu, bytesToBu
 
     
 if (debug) printf("evWrite: bufSize = %u <? bytesToWrite = %u + 64 = %u \n",
-                        (4*a->bufSize), (4*nToWrite), (4*nToWrite + 64));
+                        (4*a->bufSize), bytesToWrite, (bytesToWrite + 64));
 
     
     /* Is this event (by itself) too big for the current internal buffer?
      * Internal buffer needs room for first block header, event, and ending empty block. */
-    if (4*a->bufSize < 4*nToWrite + 2*headerBytes) {
+    if (4*a->bufSize < bytesToWrite + 2*headerBytes) {
         /* Not enough room in user-supplied buffer for this event */
         if (a->rw == EV_WRITEBUF) {
             if (useMutex) {
@@ -4218,8 +4318,8 @@ if (debug) printf("evWrite: NEED another buffer & block for 1 big event, bufferS
      * events were previously written to this block and therefore an ending
      * empty block has already been written and included in a->bytesToBuf.
      * Also, if we're here, this event is not a dictionary. */
-    else if ((!writeNewBlockHeader && ((4*a->bufSize - a->bytesToBuf) < 4*nToWrite)) ||
-             ( writeNewBlockHeader && ((4*a->bufSize - a->bytesToBuf) < 4*nToWrite + headerBytes)))  {
+    else if ((!writeNewBlockHeader && ((4*a->bufSize - a->bytesToBuf) < bytesToWrite)) ||
+             ( writeNewBlockHeader && ((4*a->bufSize - a->bytesToBuf) < bytesToWrite + headerBytes)))  {
         /* Not enough room in user-supplied buffer for this event */
         if (a->rw == EV_WRITEBUF) {
             if (useMutex) {
@@ -4232,10 +4332,10 @@ if (debug) printf("evWrite: NEED another buffer & block for 1 big event, bufferS
         if (debug) {
 printf("evWrite: NEED to flush buffer and re-use, ");
             if (writeNewBlockHeader) {
-printf(" buf room = %d, needed = %d\n", (4*a->bufSize - a->bytesToBuf), (4*nToWrite + headerBytes));
+printf(" buf room = %d, needed = %d\n", (4*a->bufSize - a->bytesToBuf), (bytesToWrite + headerBytes));
             }
             else {
-printf(" buf room = %d, needed = %d\n", (4*a->bufSize - a->bytesToBuf), (4*nToWrite));
+printf(" buf room = %d, needed = %d\n", (4*a->bufSize - a->bytesToBuf), bytesToWrite);
             }
         }
         roomInBuffer = 0;
@@ -4247,7 +4347,7 @@ printf(" buf room = %d, needed = %d\n", (4*a->bufSize - a->bytesToBuf), (4*nToWr
         if (needBiggerBuffer) {
             /* We're here because there is not enough room in the internal buffer
              * to write this single large event. Increase buffer to match. */
-            size = 4*(nToWrite + 2*EV_HDSIZ);
+            size = 4*(wordsToWrite + 2*EV_HDSIZ);
 if (debug) printf("         must expand, bytes needed for 1 big ev + 2 hdrs = %d\n", size);
         }
         
@@ -4308,15 +4408,15 @@ if (debug) printf("         must expand, bytes needed for 1 big ev + 2 hdrs = %d
     /*********************************************************************/
     /* Before we go on, if the file was actually split, we must add any
      * existing dictionary as the first event & block in the new file
-     * before we write the event. */
+     * followed by the first event before we write the given event. */
     /*********************************************************************/
-    if (fileActuallySplit && a->dictionary != NULL) {
-        /* Memory needed to write: dictionary + 3 block headers
-         * (beginning, after dict, and ending) + event */
-        uint32_t neededBytes = a->dictLength + 3*4*EV_HDSIZ + 4*nToWrite;
-if (debug) printf("evWrite: write DICTIONARY after splitting, needed bytes = %u\n", neededBytes);
+    if (fileActuallySplit && (a->dictionary != NULL || a->firstEventBuf != NULL)) {
+        /* Memory needed to write: dictionary + first event + 3 block headers
+         * (beginning, after dict &/or first event, and ending) + event */
+        uint32_t neededBytes = a->dictLength + a->firstEventLength + 3*4*EV_HDSIZ + bytesToWrite;
+if (debug) printf("evWrite: write DICTIONARY & FIRST EVENT after splitting, needed bytes = %u\n", neededBytes);
 
-        /* Write block header after dictionary */
+        /* Write block header after dictionary and/or first event */
         writeNewBlockHeader = 1;
 
         /* Give us more buffer memory if we need it. */
@@ -4331,8 +4431,9 @@ if (debug) printf("evWrite: write DICTIONARY after splitting, needed bytes = %u\
 
         resetBuffer(a);
 
-        /* Write dictionary to the internal buffer */
-        status = evWriteDictImpl(a, a->dictBuf);
+        /* Write common block (dict + first event) to the internal buffer */
+//        status = evWriteDictImpl(a);
+        status = evWriteCommonBlock(a);
         if (status != S_SUCCESS) {
             if (useMutex) {
                 mutexUnlock(a);
@@ -4355,23 +4456,24 @@ if (debug) printf("evWrite: write DICTIONARY after splitting, needed bytes = %u\
              return(status);
          }
          a->bytesToBuf -= 4*EV_HDSIZ; /* write over last empty block */
-if (debug) printf("evWrite: wrote new block header, bytesToBuf = %u\n", a->bytesToBuf);
+if (debug) printf("evWrite: wrote new block header, bytesToBuf (write over last empty block) = %u\n", a->bytesToBuf);
     }
     else {
-if (debug) printf("evWrite: did NOT write new block header, current header info word = 0x%x\n",
-                          a->currentHeader[EV_HD_VER]);
-        
-        /* Write over last empty block ... only if not first write */
-        if (!isLastBlock(a->currentHeader)) {
-if (debug) printf("evWrite: no block header WRITE OVER LAST EMPTY BLOCK\n");
+        /* If we're here, we are writing over the last empty block just past the
+         * current (previous to last) block.  The last empty block is placed after
+         * every written event so file format is always proper. */
+
+//        if (!isLastBlock(a->currentHeader)) {
             a->bytesToBuf -= 4*EV_HDSIZ;
-        }
+//if (debug) printf("evWrite: no block header WRITE OVER LAST EMPTY BLOCK\n");
+//        }
+if (debug) printf("evWrite: did NOT write new block header, bytesToBuf = %u\n", a->bytesToBuf);
     }
 
     /******************************************/
     /* Write the event to the internal buffer */
     /******************************************/
-    writeEventToBuffer(a, buffer, nToWrite, isDictionary);
+    writeEventToBuffer(a, buffer, wordsToWrite, 0);
 
 if (debug) {
         printf("evWrite: after last header written, Events written to:\n");
@@ -4380,7 +4482,7 @@ if (debug) {
         printf("         internal buffer cnt = %u\n", a->eventsToBuf);
         printf("         block cnt = %u\n", a->blkEvCount);
         printf("         bytes-to-buf  = %u\n", a->bytesToBuf);
-        printf("         bytes-to-file = %llu\n", a->bytesToFile);
+        printf("         bytes-to-file = %lu\n", a->bytesToFile);
         printf("         block # = %u\n", a->blknum);
 }
 
@@ -4512,8 +4614,16 @@ if (debug) printf("    evFlush: did NOT write all bytes!!!\n");
 
     a->bytesToFile  += bytesToWrite;
     a->eventsToFile += a->eventsToBuf;
-    
-if (debug) printf("    evFlush: file cnt total = %u\n", a->eventsToFile);
+
+    if (debug) {
+        printf("evFlush: after last header written, Events written to:\n");
+        printf("         cnt total (no dict) = %u\n", a->eventCount);
+        printf("         file cnt total (dict) = %u\n", a->eventsToFile);
+        printf("         internal buffer cnt (dict) = %u\n", a->eventsToBuf);
+        printf("         block cnt (dict) = %u\n", a->blkEvCount);
+        printf("         bytes-to-buf = %u\n", a->bytesToBuf);
+        printf("         block # = %u\n", a->blknum);
+    }
 
     return(S_SUCCESS);
 }
@@ -4546,6 +4656,7 @@ static int splitFile(EVFILE *a) {
     a->blknum = 1;
     a->bytesToFile  = 0;
     a->eventsToFile = 0;
+    a->wroteCommonBlock = 0;
 
     /* Close file */
     if (a->rw == EV_WRITEFILE) {
@@ -5190,16 +5301,16 @@ printf("DEcreasing internal buffer size to %u words\n", bufferSize);
             }
 
             /* Smallest possible evio format file = 18 32-bit ints.
-             * Must also be bigger than a single buffer. */
-            if (splitSize < 4*18 || splitSize < 4*a->bufSize) {
-if (debug) printf("evIoctl: split file size is too small! (%llu bytes), must be min %u\n",
-                  splitSize, 4*a->bufSize);
+             * Must also be bigger than a single buffer? */
+            if (splitSize < 4*18) {
+if (debug) printf("evIoctl: split file size is too small! (%lu bytes), must be min %u\n",
+                  splitSize, 4*18);
                 handleWriteUnlock(handle);
                 return(S_EVFILE_BADSIZEREQ);
             }
             
             a->split = splitSize;
-if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, splitSize);
+if (debug) printf("evIoctl: split file at %lu (0x%lx) bytes\n", splitSize, splitSize);
             break;
 
         /************************************************/
@@ -5533,13 +5644,113 @@ int evWriteDictionary(int handle, char *xmlDictionary)
     a->dictLength = bufSize;
 
     /* Write dictionary */
-    status = evWriteDictImpl(a, dictBuf);
+    status = evWriteDictImpl(a);
 
     mutexUnlock(a);
     handleReadUnlock(handle);
 
     return status;
 }
+
+
+/**
+ * This routine writes an optional "first event" after any dictionary in
+ * an evio file/socket/buffer. This is only useful when writing files however.
+ * In that case all split files also have the first event written immediately
+ * after any dictionary. If writing to a buffer or socket, one could just as
+ * easily write the first event in the normal way.
+ *
+ * @param handle  evio handle
+ * @param buffer  buffer containing first event,
+ *                or NULL to remove previously specified first event
+ *
+ * @return S_SUCCESS           if successful
+ * @return S_FAILURE           if already written first event
+ * @return S_EVFILE_BADMODE    if reading or appending
+ * @return S_EVFILE_ALLOCFAIL  if cannot allocate memory
+ * @return S_EVFILE_BADHANDLE  if bad handle arg
+ * @return errno               if file/socket write error
+ * @return stream error        if file stream error
+ */
+int evWriteFirstEvent(int handle, const uint32_t *firstEvent)
+{
+    EVFILE   *a;
+    int       status;
+    uint32_t  bytesToWrite;
+
+    if (handle < 1 || handle > handleCount) {
+        return(S_EVFILE_BADHANDLE);
+    }
+    /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
+    handleReadLock(handle);
+
+    /* Look up file struct from handle */
+    a = handleList[handle-1];
+
+    /* Check args */
+    if (a == NULL) {
+        handleReadUnlock(handle);
+        return(S_EVFILE_BADHANDLE);
+    }
+
+    /* Need to be writing not reading */
+    if (a->rw != EV_WRITEFILE && a->rw != EV_WRITEPIPE &&
+        a->rw != EV_WRITEBUF  && a->rw != EV_WRITESOCK) {
+        handleReadUnlock(handle);
+        return(S_EVFILE_BADMODE);
+    }
+
+    /* Lock mutex for multithreaded reads/writes/access */
+    mutexLock(a);
+
+    /* Cannot have already written first event */
+    if (a->wroteFirstEvent) {
+        mutexUnlock(a);
+        handleReadUnlock(handle);
+        return(S_FAILURE);
+    }
+
+    /* Clear any previously specified first event */
+    if (a->firstEventBuf != NULL) {
+        free(a->firstEventBuf);
+    }
+
+    /* Clear first event */
+    if (firstEvent == NULL) {
+        a->firstEventBuf = NULL;
+        a->firstEventLength = 0;
+
+        mutexUnlock(a);
+        handleReadUnlock(handle);
+        return(S_SUCCESS);
+    }
+
+    /* Number of bytes to write = full event size + bank header */
+    bytesToWrite = 4*(firstEvent[0] + 1);
+
+    /* Store first event */
+    a->firstEventBuf = (uint32_t *) calloc(1, bytesToWrite);
+    a->firstEventLength = bytesToWrite;
+    if (a->firstEventBuf == NULL) {
+        mutexUnlock(a);
+        handleReadUnlock(handle);
+        return(S_EVFILE_ALLOCFAIL);
+    }
+    memcpy(a->firstEventBuf, firstEvent, bytesToWrite);
+
+    /* Write first event, without grabbing mutex, is not a dictionary */
+    status = evWriteImpl(handle, firstEvent, 0);
+
+    /* First event defined and written. From here on common block will increase by 1. */
+    a->commonBlkCount++;
+    a->wroteFirstEvent = 1;
+
+    mutexUnlock(a);
+    handleReadUnlock(handle);
+
+    return status;
+}
+
 
 
 /**
