@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "evio.h"
 
 #define MAX(a,b)  ( (a) > (b) ? (a) : (b) )
 
@@ -97,7 +96,7 @@ int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen) {
         /* if digit, following before komma will be repeated 'number' times */
         if (isdigit(ch)) {
             if (nr < 0) return(-1);
-            nr = 10*MAX(0,nr) + atoi((char *)&ch);
+            nr = 10*MAX(0,nr) + atoi(&ch);
             if (nr > 15) return(-2);
 #ifdef DEBUG
             printf("the number of repeats nr=%d\n",nr);
@@ -112,7 +111,7 @@ int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen) {
             printf("111: nn=%d nr=%d\n",nn,nr);
 #endif
             if (nn == 0) ifmt[n++] = 15; /*special case: if #repeats is in data, use code '15'*/
-            else         ifmt[n++] = 16*MAX(nn,nr);
+            else         ifmt[n++] = (unsigned char) (16*MAX(nn,nr));
 
             nn = 1;
             nr = 0;
@@ -168,7 +167,7 @@ int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen) {
 #ifdef DEBUG
                 printf("222: nn=%d nr=%d\n",nn,nr);
 #endif
-                ifmt[n++] = 16*MAX(nn,nr) + kf;
+                ifmt[n++] = (unsigned char) (16*MAX(nn,nr) + kf);
                 nn=1;
 #ifdef DEBUG
                 debugprint(n-1);
