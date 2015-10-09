@@ -71,8 +71,13 @@ jevio-4.4.6.jar
       Add EvioDictionaryEntry class to help accomplish that. (8/18/2015)
     - fix bug which started block header number at 0 instead of 1 (9/3/2015)
 
-C CODE
+******** NEW VERSION MAJOR VERSION *********
+jevio-5.0.jar
+    - add capability to add 1 "first event" to beginning of each file including splits
+    - fix small bugs
 
+
+C CODE
 
 evio-4.3.3
 
@@ -91,3 +96,11 @@ evio-4.4.4
 
 evio-4.4.5
     - fix problems compiling on Mac
+
+
+******** NEW VERSION MAJOR VERSION *********
+evio-5.0
+    - allow smaller split files
+    - add capability to add 1 "first event" to beginning of each file including splits
+    - fix small bugs
+
