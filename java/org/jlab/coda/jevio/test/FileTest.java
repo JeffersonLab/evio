@@ -87,7 +87,7 @@ public class FileTest {
     /** For WRITING a local file. */
     public static void main(String args[]) {
 
-        String fileName  = "/daqfs/home/timmer/coda/jevio-4.3/testdata/fileTestSmall.ev";
+        String fileName  = "/tmp/fileTestSmallBigEndian.ev";
         File file = new File(fileName);
 
         String xmlDictionary = null;
@@ -98,20 +98,20 @@ public class FileTest {
         // Do we overwrite or append?
         boolean append = false;
 
-        // Do we write to file or buffer?
-        boolean useFile = true;
-
-        // Top level event
-        EvioEvent event = null;
-
         try {
             // Create an event writer to write out the test events to file
+
+            // Create a local endian file
             EventWriter writer = new EventWriter(file, xmlDictionary, append);
+
+            // Create big endian file
+            //EventWriter writer = new EventWriter(file, 1256000, 10000, ByteOrder.BIG_ENDIAN,
+            //            xmlDictionary, null, true);
 
 
             // Build event (bank of banks) with EventBuilder object
             EventBuilder builder = new EventBuilder(1, DataType.BANK, 1);
-            event = builder.getEvent();
+            EvioEvent event = builder.getEvent();
 
             // bank of int
             EvioBank bankInts = new EvioBank(2, DataType.INT32, 2);
