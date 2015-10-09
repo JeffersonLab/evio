@@ -281,7 +281,7 @@ char *evStrFindSpecifiers(const char *orig, int *specifierCount);
 char *evStrRemoveSpecifiers(const char *orig);
 int   evGenerateBaseFileName(char *origName, char **baseName, int *count);
 char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
-                         int split, int splitNumber, char *runType);
+                         int splitting, int splitNumber, char *runType);
 
 #ifdef __cplusplus
 }
