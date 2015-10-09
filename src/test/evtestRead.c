@@ -24,10 +24,10 @@
 
 int main()
 {
-    int handle, status, nevents, nwords /* , i */;
+    int handle, status, nevents, nwords, i;
     uint32_t  buffer[204800], *ip;
 
-    status = evOpen("/daqfs/home/timmer/coda/output-evio4.ev", "r", &handle);
+    status = evOpen("/tmp/fileTestSmallBigEndian.ev", "r", &handle);
     nevents = 0;
     
     while ((status = evRead(handle, buffer, 204800)) == S_SUCCESS) {
@@ -37,7 +37,7 @@ int main()
 
         ip = buffer;
         nwords = buffer[0] + 1;
-        /*
+
         printf("      Header words\n");
         printf("        %#10.8x\n", *ip++);
         printf("        %#10.8x\n\n", *ip++);
@@ -52,7 +52,7 @@ int main()
             printf("\n");
         }
         printf("\n");
-        */
+
         
 //        printf("Hit Enter to continue:\n");
 //        getchar();
