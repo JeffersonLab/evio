@@ -17,7 +17,6 @@
  */
  
 
-#include <stdio.h>
 #include "evio.h"
 
 #undef DEBUG
@@ -248,7 +247,7 @@ int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tol
             b16end = b16 + ncnf;
             if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
             while (b16 < b16end) {
-                *b16 = EVIO_SWAP16(*b16);
+                *b16 = (int16_t)EVIO_SWAP16(*b16);
                 b16++;
             }
             b8 = (int8_t *)b16;
