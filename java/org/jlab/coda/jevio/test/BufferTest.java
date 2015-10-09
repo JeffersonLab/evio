@@ -151,7 +151,7 @@ public class BufferTest {
             // Evio event = bank of int data
             EventBuilder eb = new EventBuilder(1, DataType.INT32, 1);
             EvioEvent ev = eb.getEvent();
-            int[] dat = new int[242];
+            int[] dat = new int[] {1, 2, 3, 4};
             ev.appendIntData(dat);
 
             // create writer with max block size of 256 ints
