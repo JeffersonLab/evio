@@ -97,7 +97,7 @@ void evioSocketChannel::open(void) throw(evioException) {
   if(mode=="r") {
     char *d;
     uint32_t len;
-    int stat=evGetDictionary(handle,&d,&len);
+    stat=evGetDictionary(handle,&d,&len);
     if((stat==S_SUCCESS)&&(d!=NULL)&&(len>0))socketXMLDictionary = string(d);
 
     if(dictionary==NULL) {
@@ -129,7 +129,7 @@ bool evioSocketChannel::read(void) throw(evioException) {
   noCopyBuf=NULL;
   if(buf==NULL)throw(evioException(0,"evioSocketChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  return(evRead(handle,&buf[0],bufSize)==0);
+  return(evRead(handle,&buf[0],(uint32_t)bufSize)==0);
 }
 
 
@@ -146,7 +146,7 @@ bool evioSocketChannel::read(uint32_t *myBuf, int length) throw(evioException) {
   noCopyBuf=NULL;
   if(myBuf==NULL)throw(evioException(0,"evioSocketChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioSocketChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  return(evRead(handle,&myBuf[0],length)==0);
+  return(evRead(handle,&myBuf[0],(uint32_t)length)==0);
 }
 
 

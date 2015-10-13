@@ -239,7 +239,7 @@ void *evioStreamParser::parse(const uint32_t *buf,
                               evioStreamParserHandler &handler, void *userArg) throw(evioException) {
   
   if(buf==NULL)throw(evioException(0,"?evioStreamParser::parse...null buffer",__FILE__,__FUNCTION__,__LINE__));
-  return((void*)parseBank(buf,BANK,0,handler,userArg));
+  return(parseBank(buf,BANK,0,handler,userArg));
 }
 
 

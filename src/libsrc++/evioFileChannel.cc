@@ -99,7 +99,7 @@ void evioFileChannel::open(void) throw(evioException) {
   if((mode=="r")||(mode=="ra")) {
     char *d;
     uint32_t len;
-    int stat=evGetDictionary(handle,&d,&len);
+    stat=evGetDictionary(handle,&d,&len);
     if((stat==S_SUCCESS)&&(d!=NULL)&&(len>0))fileXMLDictionary = string(d);
 
     if(dictionary==NULL) {
@@ -131,7 +131,7 @@ bool evioFileChannel::read(void) throw(evioException) {
   noCopyBuf=NULL;
   if(buf==NULL)throw(evioException(0,"evioFileChannel::read...null buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  int stat=evRead(handle,&buf[0],bufSize);
+  int stat=evRead(handle,&buf[0], (uint32_t)bufSize);
   if(stat==S_SUCCESS) {
     return(true);
   } else if(stat==EOF) {
@@ -155,7 +155,7 @@ bool evioFileChannel::read(uint32_t *myBuf, int length) throw(evioException) {
   noCopyBuf=NULL;
   if(myBuf==NULL)throw(evioException(0,"evioFileChannel::read...null user buffer",__FILE__,__FUNCTION__,__LINE__));
   if(handle==0)throw(evioException(0,"evioFileChannel::read...0 handle",__FILE__,__FUNCTION__,__LINE__));
-  int stat=evRead(handle,&myBuf[0],length);
+  int stat=evRead(handle,&myBuf[0], (uint32_t)length);
   if(stat==S_SUCCESS) {
     return(true);
   } else if(stat==EOF) {

@@ -6,7 +6,6 @@
 
 
 #include "evioDictionary.hxx"
-#include <iostream>
 #include <fstream>
 
 
@@ -100,7 +99,7 @@ bool evioDictionary::parseDictionary(const string &dictionaryXML) {
       
 
   // parse XML dictionary
-  bool ok = XML_Parse(xmlParser,dictionaryXML.c_str(),dictionaryXML.size(),true)!=0;
+  bool ok = XML_Parse(xmlParser,dictionaryXML.c_str(),(int)dictionaryXML.size(),true)!=0;
   if(!ok) {
     cerr << endl << "  ?evioDictionary::parseDictionary...parse error"
          << endl << endl << XML_ErrorString(XML_GetErrorCode(xmlParser));
@@ -172,7 +171,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
   
 
   // add tag/num pair and full (hierarchical) name to both maps, first check for duplicates
-  tagNum tn = tagNum(tag,num);
+  tagNum tn = tagNum((uint16_t)tag, (uint8_t)num);
   if((d->getNameMap.find(tn)==d->getNameMap.end())&&(d->getTagNumMap.find(fullName)==d->getTagNumMap.end())) {
     d->getNameMap[tn]         = fullName;
     d->getTagNumMap[fullName] = tn;
