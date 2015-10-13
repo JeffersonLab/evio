@@ -22,7 +22,7 @@ using namespace evio;
 /**
  * Constructor opens channel for reading or writing.
  * @param f File name
- * @param m I/O mode, "r" or "ra" or "w" or "a"
+ * @param m I/O mode, "r", "ra", "w", "a", or "s"
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
