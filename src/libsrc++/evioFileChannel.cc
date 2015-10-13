@@ -32,7 +32,6 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
   // lowercase mode
   std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
   
-
   // allocate internal event buffer
   buf = new uint32_t[bufSize];
   if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
@@ -46,12 +45,39 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  * Constructor opens channel for reading or writing, dictionary specified.
  * @param f File name
  * @param dict Dictionary
- * @param m I/O mode, "r" or "ra" or "w" or "a"
+ * @param m I/O mode, "r", "ra", "w", "a", or "s"
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const string &m, int size) throw(evioException) 
   : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL),
     fileXMLDictionary(""), createdFileDictionary(false) {
+
+  // lowercase mode
+  std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
+
+  // allocate internal event buffer
+  buf = new uint32_t[bufSize];
+  if(buf==NULL)throw(evioException(0,"?evioFileChannel constructor...unable to allocate buffer",__FILE__,__FUNCTION__,__LINE__));
+}
+
+
+//-----------------------------------------------------------------------
+
+
+/**
+ * Constructor opens channel for reading or writing to file with dictionary specified,
+ * If writing, the first event (an event which gets written once in each split file)
+ * may also be specified.
+ * @param f File name
+ * @param dict Dictionary
+ * @param firstEvent buffer containing first event
+ * @param m I/O mode, "r", "ra", "w", "a", or "s"
+ * @param size Internal buffer size
+ */
+evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const uint32_t *firstEvent,
+                                 const string &m, int size) throw(evioException)
+        : evioChannel(dict), firstEvent(firstEvent), filename(f), mode(m), handle(0), bufSize(size),
+          noCopyBuf(NULL), randomBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
 
   // lowercase mode
   std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
@@ -112,9 +138,22 @@ void evioFileChannel::open(void) throw(evioException) {
     } else {
       cout << "evioFileChannel::open...user-supplied dictionary overrides dictionary in file" << endl;
     }
+  // else if writing, splitting, or appending ...
+  } else {
+    // If writing or splitting when writing, dictionary must be written first.
+    // If appending, dictionary cannot be written.
+    if((dictionary!=NULL) && ((mode=="w") || (mode=="s"))) {
+      stat=evWriteDictionary(handle,const_cast<char*>(dictionary->getDictionaryXML().c_str()));
+      if(stat!=S_SUCCESS)throw(evioException(stat,"?evioFileChannel::open...error writing dictionary in file: " + string(evPerror(stat)),
+                                             __FILE__,__FUNCTION__,__LINE__));
+    }
 
-  } else if((dictionary!=NULL) && (mode=="w")) {
-    evWriteDictionary(handle,const_cast<char*>(dictionary->getDictionaryXML().c_str()));
+    // If writing, splitting when writing, or appending, write first event now
+    if(firstEvent!=NULL) {
+      stat=evWriteFirstEvent(handle,firstEvent);
+      if(stat!=S_SUCCESS)throw(evioException(stat,"?evioFileChannel::open...error writing first event in file: " + string(evPerror(stat)),
+                                             __FILE__,__FUNCTION__,__LINE__));
+    }
   }
 
 }
