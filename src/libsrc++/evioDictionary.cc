@@ -49,7 +49,7 @@ evioDictionary::evioDictionary(ifstream &dictIFS, const string &sep) : separator
       string s;
       while((dictIFS.good())&&(!dictIFS.eof())) {
         getline(dictIFS,s);
-        if(s.size()>0)dictionaryXML += s + '\n';
+        if(s.size()>0)dictionaryXML += s + "\n";
       }
       dictIFS.close();
     } else {

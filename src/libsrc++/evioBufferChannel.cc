@@ -98,7 +98,7 @@ void evioBufferChannel::open(void) throw(evioException) {
   // on read check if buffer has dictionary, warn if conflict with user dictionary
   // store buffer XML just in case
   // set dictionary on write
-  if(mode=="r") {
+  if((mode=="r")||(mode=="ra")) {
     char *d;
     uint32_t len;
     stat=evGetDictionary(handle,&d,&len);
