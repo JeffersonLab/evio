@@ -23,7 +23,7 @@ using namespace evio;
  * Constructor opens buffer for reading or writing.
  * @param streamBuf Stream buffer specified by the user
  * @param bufLen size of the stream buffer
- * @param m I/O mode, "r" or "ra" or "w" or "a"
+ * @param m I/O mode, "r", "ra", "w", or "a"
  * @param size Internal event buffer size
  */
 evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const string &m, int size) throw(evioException) 
@@ -48,7 +48,7 @@ evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, const stri
  * @param streamBuf Stream buffer specified by the user
  * @param bufLen size of the stream buffer
  * @param dict Dictionary
- * @param m I/O mode, "r" or "ra" or "w" or "a"
+ * @param m I/O mode, "r", "ra", "w", or "a"
  * @param size Internal event buffer size
  */
 evioBufferChannel::evioBufferChannel(uint32_t *streamBuf, int bufLen, evioDictionary *dict, const string &m, int size) throw(evioException) 
