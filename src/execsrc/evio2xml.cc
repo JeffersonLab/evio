@@ -22,7 +22,6 @@ using namespace evio;
 
 string filename;
 string dictFileName;
-string dictFileXML;
 evioDictionary *dictFile = NULL;
 
 bool debug          = false;
@@ -168,7 +167,8 @@ int main(int argc, char **argv) {
   } catch (...) {
     cerr << "?unknown exception" << endl;
   }
-  
+
+  return 0;
 }
 
 
