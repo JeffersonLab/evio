@@ -21,7 +21,7 @@
 #ifndef __EVIO_h__
 #define __EVIO_h__
 
-#define EV_VERSION 4
+#define EV_VERSION 5
 
 /** Size of block header in 32 bit words.
  *  Must never be smaller than 8, but can be set larger.*/
