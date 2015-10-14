@@ -2229,6 +2229,41 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
 
     /**
      * Write an event (bank) to the buffer in evio version 4 format.
+     * If the internal buffer is full, it will be flushed to the file if writing to a file.
+     * Otherwise an exception will be thrown.
+     *
+     * @param node       object representing the event to write in buffer form
+     * @param force      if writing to disk, force it to write event to the disk.
+     * @param duplicate  if true, duplicate node's buffer so its position and limit
+     *                   can be changed without issue.
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
+     */
+    public void writeEvent(EvioNode node, boolean force, boolean duplicate)
+            throws EvioException, IOException {
+
+        ByteBuffer eventBuffer, bb = node.getBufferNode().getBuffer();
+
+        // Duplicate buffer so we can set pos & limit without messing others up
+        if (duplicate) {
+            eventBuffer = bb.duplicate().order(bb.order());
+        }
+        else {
+            eventBuffer = bb;
+        }
+
+        int pos = node.getPosition();
+        eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
+        writeEvent(null, eventBuffer, force);
+    }
+
+    /**
+     * Write an event (bank) to the buffer in evio version 4 format.
      * The given event buffer must contain only the event's data (event header
      * and event data) and must <b>not</b> be in complete evio file format.
      * If the internal buffer is full, it will be flushed to the file if writing to a file.
