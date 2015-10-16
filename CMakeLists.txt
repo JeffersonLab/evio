@@ -2,37 +2,19 @@ cmake_minimum_required(VERSION 3.2)
 project(evio_5_0)
 
 include_directories($ENV{CODA}/common/include)
+#include_directories(/daqfs/home/timmer/coda/evio-5.0/src/libsrc /daqfs/home/timmer/coda/evio-5.0/src/libsrc++)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-    src/examples/dana.cc
-    src/examples/etst1.cc
-    src/examples/etst2.cc
-    src/examples/etst3.cc
-    src/examples/etst4.cc
-    src/examples/etst5.cc
-    src/examples/etst6.cc
-    src/examples/etst7.cc
-    src/examples/etst8.cc
-    src/examples/etst9.cc
-    src/examples/etst10.cc
-    src/examples/etst11.cc
-    src/examples/etst12.cc
-    src/examples/etst13.cc
-    src/examples/etst14.cc
-    src/examples/etst15.cc
-    src/examples/etst16.cc
-    src/examples/etst17.cc
+    src/libsrc/evio.h
+    src/libsrc/msinttypes.h
 
     src/execsrc/evio2xml.cc
     src/execsrc/evioCat.cc
     src/execsrc/eviocopy.c
     src/execsrc/old.evio2xml.c
     src/execsrc/xml2evio.c
-
-    src/libsrc/evio.h
-    src/libsrc/msinttypes.h
 
     src/libsrc/evio.c
     src/libsrc/eviofmt.c
@@ -58,6 +40,25 @@ set(SOURCE_FILES
     src/libsrc++/evioException.cc
     src/libsrc++/evioUtil.cc
 
+    src/examples/dana.cc
+    src/examples/etst1.cc
+    src/examples/etst2.cc
+    src/examples/etst3.cc
+    src/examples/etst4.cc
+    src/examples/etst5.cc
+    src/examples/etst6.cc
+    src/examples/etst7.cc
+    src/examples/etst8.cc
+    src/examples/etst9.cc
+    src/examples/etst10.cc
+    src/examples/etst11.cc
+    src/examples/etst12.cc
+    src/examples/etst13.cc
+    src/examples/etst14.cc
+    src/examples/etst15.cc
+    src/examples/etst16.cc
+    src/examples/etst17.cc
+
     src/test/elliottTest.cc
     src/test/evMultithread.c
     src/test/evReadPipe.c
@@ -74,5 +75,6 @@ set(SOURCE_FILES
     src/test/evWritePipe.c
     src/test/splitTest.c
     src/test/stringTest.c)
+
 
 add_executable(evio_5_0 ${SOURCE_FILES})
