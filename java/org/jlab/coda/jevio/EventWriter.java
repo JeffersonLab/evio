@@ -2200,7 +2200,6 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         return toFile() || (bufferSize - bytesWrittenToBuffer) >= bytes + headerBytes;
     }
 
-   // TODO: ER does NOT care about pos & limit, so NO duplication is necessary !!!
     /**
      * Write an event (bank) to the buffer in evio version 4 format.
      * If the internal buffer is full, it will be flushed to the file if writing to a file.
@@ -2220,11 +2219,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             throws EvioException, IOException {
 
         // Duplicate buffer so we can set pos & limit without messing others up
-        ByteBuffer bb = node.getBufferNode().getBuffer();
-        ByteBuffer eventBuffer = bb.duplicate().order(bb.order());
-        int pos = node.getPosition();
-        eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
-        writeEvent(null, eventBuffer, force);
+        writeEvent(node, force, true);
     }
 
     /**
@@ -2239,7 +2234,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
-     *                       if bad eventBuffer format;
+     *                      775822 if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
