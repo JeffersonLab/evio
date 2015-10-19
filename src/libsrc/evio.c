@@ -326,8 +326,6 @@
     (a)[EV_HD_MAGIC]  = EV_MAGIC; \
 } \
 
-/* Prototypes for swap routine in evioswap.c */
-uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest);
 
 /* Prototypes for static routines */
 static  int      fileExists(char *filename);
@@ -505,6 +503,97 @@ static size_t handleCount = 0;
 
 #endif
 
+
+/*-----------------*
+ *     FORTRAN     *
+ *-----------------*/
+
+/**
+ * @defgroup fortran FORTRAN routines
+ * These routines handle limited evio operations for FORTRAN programs.
+ * @{
+ */
+
+/** Fortran interface to {@link #evOpen}. */
+#ifdef AbsoftUNIXFortran
+int evopen
+#else
+int evopen_
+#endif
+        (char *filename, char *flags, int *handle, int fnlen, int flen)
+{
+    char *fn, *fl;
+    int status;
+    fn = (char *) malloc((size_t )fnlen+1);
+    strncpy(fn,filename, (size_t )fnlen);
+    fn[fnlen] = 0;      /* insure filename is null terminated */
+    fl = (char *) malloc((size_t )flen+1);
+    strncpy(fl,flags,(size_t )flen);
+    fl[flen] = 0;           /* insure flags is null terminated */
+    status = evOpen(fn,fl,handle);
+    free(fn);
+    free(fl);
+    return(status);
+}
+
+
+/** Fortran interface to {@link #evRead}. */
+#ifdef AbsoftUNIXFortran
+int evread
+#else
+int evread_
+#endif
+        (int *handle, uint32_t *buffer, uint32_t *buflen)
+{
+    return(evRead(*handle, buffer, *buflen));
+}
+
+
+/** Fortran interface to {@link #evWrite}. */
+#ifdef AbsoftUNIXFortran
+int evwrite
+#else
+int evwrite_
+#endif
+        (int *handle, const uint32_t *buffer)
+{
+    return(evWrite(*handle, buffer));
+}
+
+
+/** Fortran interface to {@link #evClose}. */
+#ifdef AbsoftUNIXFortran
+int evclose
+#else
+int evclose_
+#endif
+        (int *handle)
+{
+    return(evClose(*handle));
+}
+
+
+/** Fortran interface to {@link #evIoctl}. */
+#ifdef AbsoftUNIXFortran
+int evioctl
+#else
+int evioctl_
+#endif
+        (int *handle, char *request, void *argp, int reqlen)
+{
+    char *req;
+    int32_t status;
+    req = (char *)malloc((size_t)reqlen+1);
+    strncpy(req,request,(size_t)reqlen);
+    req[reqlen]=0;		/* insure request is null terminated */
+    status = evIoctl(*handle,req,argp);
+    free(req);
+    return(status);
+}
+
+/** @} */
+
+/*-----------------------------------------------------------------------------*/
 /*-----------------------------------------------------------------------------*/
 
 
@@ -1534,29 +1623,11 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
 }
 
 
-/** Fortran interface to {@link evOpen}. */
-#ifdef AbsoftUNIXFortran
-int evopen
-#else
-int evopen_
-#endif
-(char *filename, char *flags, int *handle, int fnlen, int flen)
-{
-    char *fn, *fl;
-    int status;
-    fn = (char *) malloc((size_t )fnlen+1);
-    strncpy(fn,filename, (size_t )fnlen);
-    fn[fnlen] = 0;      /* insure filename is null terminated */
-    fl = (char *) malloc((size_t )flen+1);
-    strncpy(fl,flags,(size_t )flen);
-    fl[flen] = 0;           /* insure flags is null terminated */
-    status = evOpen(fn,fl,handle);
-    free(fn);
-    free(fl);
-    return(status);
-}
-
-
+/**
+ * @defgroup open open & close routines
+ * These routines handle opening & closing the ev lib for reading or writing to a file, buffer, or socket.
+ * @{
+ */
 
 /**
  * This function opens a file for either reading or writing evio format data.
@@ -1566,9 +1637,9 @@ int evopen_
  * @param filename  name of file. Constructs of the form $(env) will be substituted
  *                  with the given environmental variable or removed if nonexistent.
  *                  Constructs of the form %s will be substituted with the run type
- *                  if specified in {@link evIoctl} or removed if nonexistent.
+ *                  if specified in {@link #evIoctl} or removed if nonexistent.
  *                  Up to 2, C-style int format specifiers are allowed. The first is
- *                  replaced with the run number (set in {@link evIoctl}). If splitting,
+ *                  replaced with the run number (set in {@link #evIoctl}). If splitting,
  *                  the second is replaced by the split number, otherwise it's removed.
  *                  If splitting and no second int specifier exists, a "." and split
  *                  number are automatically appended to the end of the file name.
@@ -1682,6 +1753,10 @@ int evOpenSocket(int sockFd, char *flags, int *handle)
     return(evOpenImpl((char *)NULL, 0, sockFd, flag, handle));
 }
 
+
+/** @} */
+
+
 /* For test purposes only ... */
 int evOpenFake(char *filename, char *flags, int *handle, char **evf)
 {
@@ -1706,7 +1781,7 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
     
     return(S_SUCCESS);
 }
-/**/
+
     
 /**
  * This function opens a file, socket, or buffer for either reading or writing
@@ -2691,7 +2766,7 @@ static int generatePointerTable(EVFILE *a)
 }
 
 /**
- * This function positions a file or buffer for the first {@link evWrite}
+ * This function positions a file or buffer for the first {@link #evWrite}
  * in append mode. It makes sure that the last block header is an empty one
  * with its "last block" bit set.
  *
@@ -2918,8 +2993,8 @@ if (debug) printf("toAppendPosition: prepare to write, back up 1 header to pos =
 
 /**
  * This routine reads an evio bank from an evio format file/socket/buffer
- * opened with routines {@link evOpen}, {@link evOpenBuffer}, or
- * {@link evOpenSocket}, allocates a buffer and fills it with the bank.
+ * opened with routines {@link #evOpen}, {@link #evOpenBuffer}, or
+ * {@link #evOpenSocket}, allocates a buffer and fills it with the bank.
  * Works with all versions of evio. A status is returned. Caller will need
  * to free buffer to avoid a memory leak.
  *
@@ -3035,72 +3110,15 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 
 
 /**
- * This routine reads an evio bank from an evio format file/socket/buffer
- * opened with routines {@link evOpen}, {@link evOpenBuffer}, or
- * {@link evOpenSocket}, allocates a buffer and fills it with the bank.
- * Works with all versions of evio. A status is returned.
- *
- * @param handle evio handle
- * @param buffer pointer to pointer to buffer gets filled with
- *               pointer to allocated buffer (caller must free)
- * @param buflen pointer to int gets filled with length of buffer in 32 bit words
- *               including the full (8 byte) bank header
- *
- * @return S_SUCCESS          if successful
- * @return S_EVFILE_BADMODE   if opened for writing or random-access reading
- * @return S_EVFILE_BADARG    if buffer or buflen is NULL
- * @return S_EVFILE_BADHANDLE if bad handle arg
- * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
- * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
- *                            while reading data (perhaps bad block header)
- * @return EOF                if end-of-file or end-of-valid-data reached
- * @return errno              if file/socket read error
- * @return stream error       if file stream error
+ * @defgroup read read routines
+ * These routines handle opening the ev lib for reading from a file, buffer, or socket.
+ * @{
  */
-int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen)
-{
-    EVFILE *a;
-    int status;
-
-    
-    if (handle < 1 || handle > handleCount) {
-        return(S_EVFILE_BADHANDLE);
-    }
-    
-    /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
-    handleReadLock(handle);
-
-    /* Look up file struct (which contains block buffer) from handle */
-    a = handleList[handle-1];
-
-    if (a == NULL) {
-        handleReadUnlock(handle);
-        return(S_EVFILE_BADHANDLE);
-    }
-
-    status = evReadAllocImpl(a, buffer, buflen);
-    
-    handleReadUnlock(handle);
-
-    return status;
-}
-
-
-/** Fortran interface to {@link evRead}. */
-#ifdef AbsoftUNIXFortran
-int evread
-#else
-int evread_
-#endif
-(int *handle, uint32_t *buffer, uint32_t *buflen)
-{
-    return(evRead(*handle, buffer, *buflen));
-}
 
 
 /**
  * This routine reads from an evio format file/socket/buffer opened with routines
- * {@link evOpen}, {@link evOpenBuffer}, or {@link evOpenSocket} and returns the
+ * {@link #evOpen}, {@link #evOpenBuffer}, or {@link #evOpenSocket} and returns the
  * next event in the buffer arg. Works with all versions of evio. A status is
  * returned.
  *
@@ -3247,8 +3265,60 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 
 
 /**
+ * This routine reads an evio bank from an evio format file/socket/buffer
+ * opened with routines {@link #evOpen}, {@link #evOpenBuffer}, or
+ * {@link #evOpenSocket}, allocates a buffer and fills it with the bank.
+ * Works with all versions of evio. A status is returned.
+ *
+ * @param handle evio handle
+ * @param buffer pointer to pointer to buffer gets filled with
+ *               pointer to allocated buffer (caller must free)
+ * @param buflen pointer to int gets filled with length of buffer in 32 bit words
+ *               including the full (8 byte) bank header
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADMODE   if opened for writing or random-access reading
+ * @return S_EVFILE_BADARG    if buffer or buflen is NULL
+ * @return S_EVFILE_BADHANDLE if bad handle arg
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
+ * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
+ *                            while reading data (perhaps bad block header)
+ * @return EOF                if end-of-file or end-of-valid-data reached
+ * @return errno              if file/socket read error
+ * @return stream error       if file stream error
+ */
+int evReadAlloc(int handle, uint32_t **buffer, uint32_t *buflen)
+{
+    EVFILE *a;
+    int status;
+
+
+    if (handle < 1 || handle > handleCount) {
+        return(S_EVFILE_BADHANDLE);
+    }
+
+    /* Don't allow simultaneous calls to evClose(), but do allow reads & writes. */
+    handleReadLock(handle);
+
+    /* Look up file struct (which contains block buffer) from handle */
+    a = handleList[handle-1];
+
+    if (a == NULL) {
+        handleReadUnlock(handle);
+        return(S_EVFILE_BADHANDLE);
+    }
+
+    status = evReadAllocImpl(a, buffer, buflen);
+
+    handleReadUnlock(handle);
+
+    return status;
+}
+
+
+/**
  * This routine reads from an evio format file/buffer/socket opened with routines
- * {@link evOpen}, {@link evOpenBuffer}, or {@link evOpenSocket} and returns a
+ * {@link #evOpen}, {@link #evOpenBuffer}, or {@link #evOpenSocket} and returns a
  * pointer to the next event residing in an internal buffer.
  * If the data needs to be swapped, it is swapped in place. Any other
  * calls to read routines may cause the data to be overwritten.
@@ -3258,7 +3328,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
  * @param handle evio handle
  * @param buffer pointer to pointer to buffer gets filled with pointer to location in
  *               internal buffer which is guaranteed to be valid only until the next
- *               {@link evRead}, {@link evReadNoAlloc}, or {@link evReadNoCopy} call.
+ *               {@link #evRead}, {@link #evReadNoAlloc}, or {@link #evReadNoCopy} call.
  * @param buflen pointer to int gets filled with length of buffer in 32 bit words
  *               including the full (8 byte) bank header
  *
@@ -3363,7 +3433,7 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
 
 /**
  * This routine does a random access read from an evio format file/buffer opened
- * with routines {@link evOpen} or {@link evOpenBuffer}. It returns a
+ * with routines {@link #evOpen} or {@link #evOpenBuffer}. It returns a
  * pointer to the desired event residing in either a
  * memory mapped file or buffer when opened in random access mode.
  * 
@@ -3464,6 +3534,9 @@ int evReadRandom(int handle, const uint32_t **pEvent, uint32_t *buflen, uint32_t
 
     return(S_SUCCESS);
 }
+
+
+/** @} */
 
 
 /**
@@ -3784,43 +3857,6 @@ static int writeEmptyLastBlockHeader(EVFILE *a, uint32_t blockNumber)
 }
 
 
-/** Fortran interface to {@link evWrite}. */
-#ifdef AbsoftUNIXFortran
-int evwrite
-#else
-int evwrite_
-#endif
-(int *handle, const uint32_t *buffer)
-{
-    return(evWrite(*handle, buffer));
-}
-
-
-/**
- * This routine writes an evio event to an internal buffer containing evio data.
- * If that internal buffer is full, it is flushed to the final destination
- * file/socket/buffer/pipe opened with routines {@link evOpen}, {@link evOpenBuffer},
- * or {@link evOpenSocket}.
- * It writes data in evio version 4 format and returns a status.
- *
- * @param handle evio handle
- * @param buffer pointer to buffer containing event to write
- *
- * @return S_SUCCESS          if successful
- * @return S_EVFILE_BADMODE   if opened for reading or appending to opposite endian file/buffer.
- * @return S_EVFILE_TRUNC     if not enough room writing to a user-supplied buffer
- * @return S_EVFILE_BADARG    if buffer is NULL
- * @return S_EVFILE_BADHANDLE if bad handle arg
- * @return S_EVFILE_ALLOCFAIL if cannot allocate memory
- * @return errno              if file/socket write error
- * @return stream error       if file stream error
- */
-int evWrite(int handle, const uint32_t *buffer)
-{
-    return evWriteImpl(handle, buffer, 1);
-}
-
-
 /**
  * This routine expands the size of the internal buffer used when
  * writing to files/sockets/pipes. Some variables are updated.
@@ -3963,7 +3999,7 @@ if (debug) printf("  writeEventToBuffer: after write,  bytesToBuf = %u, blksiz =
  * @param buffer   pointer to buffer containing event to write
  *
  * @return S_SUCCESS          if successful
- * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
+ * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link #evOpen}
  * @return S_EVFILE_ALLOCFAIL if cannot allocate memory
  */
 static int evWriteDictImpl(EVFILE *a)
@@ -4035,7 +4071,7 @@ if (debug) {
  * @param buffer   pointer to buffer containing event to write
  *
  * @return S_SUCCESS          if successful
- * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
+ * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link #evOpen}
  * @return S_EVFILE_ALLOCFAIL if cannot allocate memory
  */
 static int evWriteCommonBlock(EVFILE *a)
@@ -4145,8 +4181,8 @@ static void resetBuffer(EVFILE *a) {
 /**
  * This routine writes an evio event to an internal buffer containing evio data.
  * If the internal buffer is full, it is flushed to the final destination
- * file/socket/buffer/pipe opened with routines {@link evOpen}, {@link evOpenBuffer},
- * or {@link evOpenSocket}. The file will possibly be split into multiple files if
+ * file/socket/buffer/pipe opened with routines {@link #evOpen}, {@link #evOpenBuffer},
+ * or {@link #evOpenSocket}. The file will possibly be split into multiple files if
  * a split size was given by calling evIoctl. Note that the split file size may be
  * <b>bigger</b> than the given limit by 32 bytes using the algorithm below.
  * It writes data in evio version 4 format and returns a status.
@@ -4498,9 +4534,44 @@ if (debug) {
 
 
 /**
+ * @defgroup write write routines
+ * These routines handle opening the ev lib for writing to a file, buffer, or socket.
+ * @{
+ */
+
+
+/**
+ * This routine writes an evio event to an internal buffer containing evio data.
+ * If that internal buffer is full, it is flushed to the final destination
+ * file/socket/buffer/pipe opened with routines {@link #evOpen}, {@link #evOpenBuffer},
+ * or {@link #evOpenSocket}.
+ * It writes data in evio version 4 format and returns a status.
+ *
+ * @param handle evio handle
+ * @param buffer pointer to buffer containing event to write
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADMODE   if opened for reading or appending to opposite endian file/buffer.
+ * @return S_EVFILE_TRUNC     if not enough room writing to a user-supplied buffer
+ * @return S_EVFILE_BADARG    if buffer is NULL
+ * @return S_EVFILE_BADHANDLE if bad handle arg
+ * @return S_EVFILE_ALLOCFAIL if cannot allocate memory
+ * @return errno              if file/socket write error
+ * @return stream error       if file stream error
+ */
+int evWrite(int handle, const uint32_t *buffer)
+{
+    return evWriteImpl(handle, buffer, 1);
+}
+
+
+/** @} */
+
+
+/**
  * This routine writes any existing evio format data in an internal buffer
- * (written to with {@link evWrite}) to the final destination
- * file/socket opened with routines {@link evOpen} or {@link evOpenSocket}.
+ * (written to with {@link #evWrite}) to the final destination
+ * file/socket opened with routines {@link #evOpen} or {@link #evOpenSocket}.
  * It writes data in evio version 4 format and returns a status.
  * If writing to a file, it always places an empty block
  * at the end - marked as the last block. If more events are written, the
@@ -4706,25 +4777,19 @@ if (debug) printf("    splitFile: generate next file name = %s\n", a->fileName);
 }
 
 
-/** Fortran interface to {@link evClose}. */
-#ifdef AbsoftUNIXFortran
-int evclose
-#else
-int evclose_
-#endif
-(int *handle)
-{
-    return(evClose(*handle));
-}
+/**
+ * @addtogroup open
+ * @{
+ */
 
 
 /**
  * This routine flushes any existing evio format data in an internal buffer
- * (written to with {@link evWrite}) to the final destination
- * file/socket/buffer opened with routines {@link evOpen}, {@link evOpenBuffer},
- * or {@link evOpenSocket}.
+ * (written to with {@link #evWrite}) to the final destination
+ * file/socket/buffer opened with routines {@link #evOpen}, {@link #evOpenBuffer},
+ * or {@link #evOpenSocket}.
  * It also frees up the handle so it cannot be used any more without calling
- * {@link evOpen} again.
+ * {@link #evOpen} again.
  * Any data written is in evio version 4 format and any opened file is closed.
  * If reading, nothing is done.
  *
@@ -4732,7 +4797,7 @@ int evclose_
  *
  * @return S_SUCCESS          if successful
  * @return S_FAILURE          if mapped memory does not unmap or pclose() failed
- * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link evOpen}
+ * @return S_EVFILE_TRUNC     if not enough room writing to a user-given buffer in {@link #evOpen}
  * @return S_EVFILE_BADHANDLE if bad handle arg
  * @return fclose error       if fclose error
  */
@@ -4839,9 +4904,18 @@ if (debug) printf("evClose: release close mutex\n");
 }
 
 
+/** @} */
+
+
+/**
+ * @defgroup getAndSet get and set routines
+ * These routines handle getting and setting evio parameters.
+ * @{
+ */
+
 /**
  * This routine returns the number of bytes written into a buffer so
- * far when given a handle provided by calling {@link evOpenBuffer}.
+ * far when given a handle provided by calling {@link #evOpenBuffer}.
  * After the handle is closed, this no longer returns anything valid.
  *
  * @param handle evio handle
@@ -4882,25 +4956,6 @@ int evGetBufferLength(int handle, uint32_t *length)
 }
 
 
-/** Fortran interface to {@link evIoctl}. */
-#ifdef AbsoftUNIXFortran
-int evioctl
-#else
-int evioctl_
-#endif
-(int *handle, char *request, void *argp, int reqlen)
-{
-    char *req;
-    int32_t status;
-    req = (char *)malloc((size_t)reqlen+1);
-    strncpy(req,request,(size_t)reqlen);
-    req[reqlen]=0;		/* insure request is null terminated */
-    status = evIoctl(*handle,req,argp);
-    free(req);
-    return(status);
-}
-
-
 /**
  * This routine changes various evio parameters used in reading and writing.<p>
  *
@@ -4934,7 +4989,7 @@ int evioctl_
  * 
  * It returns the total number of events in a file/buffer
  * opened for reading or writing if request = "E". Includes any
- * event added with {@link evWrite} call. Used only in version 4.<p>
+ * event added with {@link #evWrite} call. Used only in version 4.<p>
  * 
  * It returns a pointer to the EV_HDSIZ block header ints if request = "H".
  * This pointer must be freed by the caller to avoid a memory leak.<p>
@@ -5520,6 +5575,15 @@ int evGetDictionary(int handle, char **dictionary, uint32_t *len) {
 }
 
 
+/** @} */
+
+
+/**
+ * @addtogroup write
+ * @{
+ */
+
+
 /**
  * This routine writes an optional dictionary as the first event of an
  * evio file/socket/buffer. The dictionary is <b>not</b> included in
@@ -5755,6 +5819,13 @@ int evWriteFirstEvent(int handle, const uint32_t *firstEvent)
 }
 
 
+/** @} */
+
+
+/**
+ * @addtogroup getAndSet
+ * @{
+ */
 
 /**
  * This routine returns a string representation of an evio type.
@@ -5843,7 +5914,7 @@ const char *evGetTypename(int type) {
 /**
  * This routine return true (1) if given type is a container, else returns false (0).
  *
- * @param type numerical value of an evio type
+ * @param type numerical value of an evio type (eg. type = 0x10 = bank, returns 1)
  * @return 1 if given type is a container, else 0.
  */
 int evIsContainer(int type) {
@@ -5939,5 +6010,6 @@ char *evPerror(int error) {
 }
 
 
+/** @} */
 
 

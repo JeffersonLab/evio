@@ -53,10 +53,17 @@
 #define S_EVFILE_BADARG     0x80730007  /**< Invalid function argument */
 #define S_EVFILE_BADMODE    0x80730008  /**< Wrong mode used in evOpen for this operation */
 
+/**
+ * @addtogroup swap
+ * @{
+ */
+
 /* macros for swapping ints of various sizes */
 #ifdef VXWORKS
 
 #define UINT64_MAX 0xffffffffffffffffULL
+
+
 #define EVIO_SWAP64(x) ( (((x) >> 56) & 0x00000000000000FFULL) | \
                          (((x) >> 40) & 0x000000000000FF00ULL) | \
                          (((x) >> 24) & 0x0000000000FF0000ULL) | \
@@ -84,6 +91,8 @@
 
 #define EVIO_SWAP16(x) ( (((x) >> 8) & 0x00FF) | \
                          (((x) << 8) & 0xFF00) )
+
+/** @} */
 
 #include <stdio.h>
 #include <pthread.h>
@@ -249,6 +258,11 @@ extern "C" {
 
 void set_user_frag_select_func( int32_t (*f) (int32_t tag) );
 void evioswap(uint32_t *buffer, int tolocal, uint32_t *dest);
+uint16_t *swap_int16_t(uint16_t *data, unsigned int length, uint16_t *dest);
+uint32_t *swap_int32_t(uint32_t *data, unsigned int length, uint32_t *dest);
+uint64_t *swap_int64_t(uint64_t *data, unsigned int length, uint64_t *dest);
+/* do we need this for backwards compatibility???
+int32_t swap_int32_t_value(int32_t val); */
 
 int evOpen(char *filename, char *flags, int *handle);
 int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle);
