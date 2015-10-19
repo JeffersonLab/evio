@@ -102,5 +102,7 @@ evio-4.4.5
 evio-5.0
     - allow smaller split files
     - add capability to add 1 "first event" to beginning of each file including splits
+    - make more swapping routines & macros available
+    - better doxygen doc
     - fix small bugs
 
