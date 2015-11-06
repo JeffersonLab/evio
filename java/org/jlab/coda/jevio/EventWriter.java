@@ -2095,7 +2095,7 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
     private void expandBuffer(int newSize) {
         // No need to increase it
         if (newSize <= bufferSize) {
-if (debug) System.out.println("    expandBuffer: buffer is big enough");
+System.out.println("    expandBuffer: buffer is big enough");
             return;
         }
 
@@ -2104,7 +2104,7 @@ if (debug) System.out.println("    expandBuffer: buffer is big enough");
         buffer.order(byteOrder);
         bufferSize = newSize;
 
-if (debug) System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
+System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
         return;
     }
 
@@ -2498,7 +2498,8 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             }
             roomInBuffer = false;
             needBiggerBuffer = true;
-//if(debug) System.out.println("  NEED another buffer & block for 1 big event, bufferSize = " + bufferSize);
+System.out.println("evWrite: NEED bigger internal buffer for 1 big ev, current size = " +
+                           bufferSize + ", ev + blk hdrs size = " + (currentEventBytes + 2*headerBytes) );
         }
         // Is this event, in combination with events previously written
         // to the current internal buffer, too big for it?
@@ -2512,19 +2513,19 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
                 throw new EvioException("Buffer too small to write event");
             }
 
-//            if (debug) {
-//System.out.println("evWrite: # events written to buf so far = " + eventsWrittenToBuffer +
-//", bytes to buf so far = " + bytesWrittenToBuffer);
-//                System.out.println("evWrite: NEED to flush buffer and re-use, ");
-//                if (writeNewBlockHeader) {
-//                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
-//                                       ", needed = "  + (currentEventBytes + headerBytes));
-//                }
-//                else {
-//                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
-//                            ", needed = "  + currentEventBytes);
-//                }
-//            }
+            if (debug) {
+System.out.println("evWrite: # events written to buf so far = " + eventsWrittenToBuffer +
+", bytes to buf so far = " + bytesWrittenToBuffer);
+                System.out.println("evWrite: NEED to flush buffer and re-use, ");
+                if (writeNewBlockHeader) {
+                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
+                                       ", needed = "  + (currentEventBytes + headerBytes));
+                }
+                else {
+                    System.out.println(" buf room = " + (bufferSize - bytesWrittenToBuffer) +
+                            ", needed = "  + currentEventBytes);
+                }
+            }
             roomInBuffer = false;
         }
 //        else if (currentBlockEventCount < 1) {
