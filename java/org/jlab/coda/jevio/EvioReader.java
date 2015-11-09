@@ -442,7 +442,6 @@ public class EvioReader {
         // For the new version, memory map the file - even the big ones
         else {
             if (sequentialRead) {
-System.out.println("Reading sequentially for evio versions 4");
                 dataStream = new DataInputStream(fileInputStream);
                 prepareForSequentialRead();
             }
