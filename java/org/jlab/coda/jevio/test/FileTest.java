@@ -17,60 +17,50 @@ import java.util.List;
 public class FileTest {
 
 
-
-    /** For testing the speed difference in writeEvent algorithms.
-     *  Want about 1000 little events/block.  */
-    public static void main11(String args[]) {
+    /** For finding the bug in which the EventWriter.bytesWrittenToBuffer is 32 bytes too small.  */
+    public static void main(String args[]) {
 
         // Create an event writer to write out the test events.
-        String fileName  = "/daqfs/home/timmer/coda/jevio-4.3/testdata/speedTest.ev";
-        File file = new File(fileName);
+        String fileName  = "/tmp/hallDTest.ev";
 
-        // data
-        byte[] byteData1 = new byte[499990];
-
-        int num, count = 0;
-        long t1=0, t2=0, time, totalT=0, totalCount=0;
-        double rate, avgRate;
+        EvioEvent littleEv, bigEv;
 
         try {
-            // 1MB max block size, 2 max # events/block
-            EventWriter eventWriter = new EventWriter(file, 1000000, 2,
-                                                      ByteOrder.BIG_ENDIAN, null, null);
-
-            // event -> bank of bytes
-            // each event (including header) is 100 bytes
+            // Little event
+            byte[] byteData1 = new byte[1992];
+            // each event (including header) is 2kB
             EventBuilder eventBuilder = new EventBuilder(1, DataType.CHAR8, 1);
-            EvioEvent ev = eventBuilder.getEvent();
-            ev.appendByteData(byteData1);
+            littleEv = eventBuilder.getEvent();
+            littleEv.appendByteData(byteData1);
 
-            // keep track of time
-            t1 = System.currentTimeMillis();
+            // BIG event
+            byte[] byteData2 = new byte[450000];
+            // each event is about 450kB
+            eventBuilder = new EventBuilder(1, DataType.CHAR8, 1);
+            bigEv = eventBuilder.getEvent();
+            bigEv.appendByteData(byteData2);
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+            return;
+        }
 
+        try {
+            // Use same constructor as in emu file output channel
+            EventWriter eventWriter = new EventWriter(fileName, null, null,
+                                                      1, 200000000, null,
+                                                      null, true);
 
-            for (int j=0; j < 10; j++) {
-// 10 MB file with 10 block headers
-                for (int i=0; i < 2; i++) {
-                    eventWriter.writeEvent(ev);
-                    count++;
+            int littleEventCount = 250;
+
+            while (true) {
+                for (int j=0; j < littleEventCount; j++) {
+                    eventWriter.writeEvent(littleEv);
                 }
+                System.out.println("Wrote Little " + littleEventCount);
+                System.out.println("Write BIG new ...");
+                eventWriter.writeEvent(bigEv);
             }
-
-            // all done writing
-            eventWriter.close();
-
-            // calculate the event rate
-            t2 = System.currentTimeMillis();
-            time = t2 - t1;
-            rate = 1000.0 * ((double) count) / time;
-            totalCount += count;
-            totalT += time;
-            avgRate = 1000.0 * ((double) totalCount) / totalT;
-            System.out.println("rate = " + String.format("%.3g", rate) +
-                                       " Hz,  avg = " + String.format("%.3g", avgRate));
-            System.out.println("time = " + (time) + " milliseconds");
-            count = 0;
-            t1 = System.currentTimeMillis();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -79,13 +69,12 @@ public class FileTest {
             e.printStackTrace();
         }
 
-
     }
 
 
 
     /** For WRITING a local file. */
-    public static void main(String args[]) {
+    public static void main23(String args[]) {
 
         String fileName  = "/tmp/fileTestSmallBigEndian.ev";
         File file = new File(fileName);
