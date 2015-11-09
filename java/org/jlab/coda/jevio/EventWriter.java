@@ -1937,7 +1937,7 @@ System.err.println("ERROR endOfBuffer " + a);
         }
 
         bytesWrittenToBuffer += headerBytes;
-if (debug) System.out.println("writeNewHeader: set bytesWrittenToBuffer to " + bytesWrittenToBuffer);
+//if (debug) System.out.println("writeNewHeader: set bytesWrittenToBuffer to " + bytesWrittenToBuffer);
     }
 
 
@@ -1989,8 +1989,8 @@ if (debug) System.out.println("writeNewHeader: set bytesWrittenToBuffer to " + b
             resetBuffer(true);
         }
 
-if (debug) System.out.println("writeDictionary: write common block with bank bytes = " +
-                                      commonBlockByteSize + ", remaining = " + buffer.remaining());
+//if (debug) System.out.println("writeDictionary: write common block with bank bytes = " +
+//                                      commonBlockByteSize + ", remaining = " + buffer.remaining());
 
         if (xmlDictionary != null) {
             // Write bank header
@@ -2062,13 +2062,13 @@ if (debug) System.out.println("writeDictionary: write common block with bank byt
 
         try {
             if (beforeDictionary) {
-if (debug) System.out.println("      resetBuffer: as in constructor");
+//if (debug) System.out.println("      resetBuffer: as in constructor");
                 blockNumber = 1;
                 writeNewHeader(8, 0, blockNumber++, null, (xmlDictionary != null),
                                false, true, false);
             }
             else {
-if (debug) System.out.println("      resetBuffer: NOTTTT as in constructor");
+//if (debug) System.out.println("      resetBuffer: NOTTTT as in constructor");
                 writeNewHeader(8, 0, blockNumber++, null, false, true, true, false);
             }
         }
@@ -2095,7 +2095,7 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
     private void expandBuffer(int newSize) {
         // No need to increase it
         if (newSize <= bufferSize) {
-System.out.println("    expandBuffer: buffer is big enough");
+//System.out.println("    expandBuffer: buffer is big enough");
             return;
         }
 
@@ -2103,8 +2103,7 @@ System.out.println("    expandBuffer: buffer is big enough");
         buffer = ByteBuffer.allocateDirect(newSize);
         buffer.order(byteOrder);
         bufferSize = newSize;
-
-System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
+//System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
         return;
     }
 
@@ -2118,8 +2117,8 @@ System.out.println("    expandBuffer: increased buf size to " + newSize + " byte
     private void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes)
                                             throws EvioException{
 
-if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = " +
-                bytesWrittenToBuffer);
+//if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = " +
+//                bytesWrittenToBuffer);
 
         // Write event to internal buffer
         if (bank != null) {
@@ -2147,15 +2146,15 @@ if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = 
         // If we wrote a dictionary and it's the first block,
         // don't count dictionary in block header's event count
         if (wroteDictionary && (blockNumber == 2) && (currentBlockEventCount > 1)) {
-if (debug)  System.out.println("  writeEventToBuffer: subtract ev cnt since in dictionary's blk, cnt = " +
-                                      (currentBlockEventCount - 1));
+//if (debug)  System.out.println("  writeEventToBuffer: subtract ev cnt since in dictionary's blk, cnt = " +
+//                                      (currentBlockEventCount - 1));
             buffer.putInt(currentHeaderPosition + EventWriter.EVENT_COUNT_OFFSET,
                           currentBlockEventCount - 1);
         }
 
-if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
-                bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount (w/ dict) = " +
-                currentBlockEventCount + ", blk # = " + blockNumber + ", wrote Dict = " + wroteDictionary);
+//if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = " +
+//                bytesWrittenToBuffer + ", blksiz = " + currentBlockSize + ", blkEvCount (w/ dict) = " +
+//                currentBlockEventCount + ", blk # = " + blockNumber + ", wrote Dict = " + wroteDictionary);
 
         // If we're writing over the last empty block header, clear last block bit
         int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
@@ -2175,16 +2174,16 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         // of catastrophe, the file/buf is still good.
         writeEmptyLastBlockHeader(blockNumber);
 
-        if (debug) {
-            System.out.println("evWrite: after last header written, Events written to:");
-            System.out.println("         cnt total (no dict) = " + eventsWrittenTotal);
-            System.out.println("         file cnt total (dict) = " + eventsWrittenToFile);
-            System.out.println("         internal buffer cnt (dict) = " + eventsWrittenToBuffer);
-            System.out.println("         block cnt (dict) = " + currentBlockEventCount);
-            System.out.println("         bytes-to-buf  = " + bytesWrittenToBuffer);
-            System.out.println("         bytes-to-file = " + bytesWrittenToFile);
-            System.out.println("         block # = " + blockNumber);
-        }
+//        if (debug) {
+//            System.out.println("evWrite: after last header written, Events written to:");
+//            System.out.println("         cnt total (no dict) = " + eventsWrittenTotal);
+//            System.out.println("         file cnt total (dict) = " + eventsWrittenToFile);
+//            System.out.println("         internal buffer cnt (dict) = " + eventsWrittenToBuffer);
+//            System.out.println("         block cnt (dict) = " + currentBlockEventCount);
+//            System.out.println("         bytes-to-buf  = " + bytesWrittenToBuffer);
+//            System.out.println("         bytes-to-file = " + bytesWrittenToFile);
+//            System.out.println("         block # = " + blockNumber);
+//        }
     }
 
 
@@ -2424,7 +2423,7 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         // Are we splitting files in general?
         while (split > 0) {
 //            int headerCount=0;
-
+//
 //            // If all that is written so far is a common block, don't split after writing it
 //            if (wroteCommonBlock && (blockNumber - 1) == 1 &&
 //                eventsWrittenToBuffer <= commonBlockCount) {
@@ -2483,8 +2482,8 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
         }
 
 //if (debug) System.out.println("evWrite: bufSize = " + bufferSize +
-//                              " <? bytesToWrite = " + currentEventBytes +
-//                              " + 64 = " + (currentEventBytes + 64));
+//                              " <? bytesToWrite = " + (bytesWrittenToBuffer + currentEventBytes) +
+//                              " + 64 = " + (bytesWrittenToBuffer + currentEventBytes + 64));
 
         // Is this event (by itself) too big for the current internal buffer?
         // Internal buffer needs room for first block header, event, and ending empty block.
@@ -2498,8 +2497,8 @@ if (debug) System.out.println("  writeEventToBuffer: after write,  bytesToBuf = 
             }
             roomInBuffer = false;
             needBiggerBuffer = true;
-System.out.println("evWrite: NEED bigger internal buffer for 1 big ev, current size = " +
-                           bufferSize + ", ev + blk hdrs size = " + (currentEventBytes + 2*headerBytes) );
+//System.out.println("evWrite: NEED bigger internal buffer for 1 big ev, current size = " +
+//                           bufferSize + ", ev + blk hdrs size = " + (currentEventBytes + 2*headerBytes) );
         }
         // Is this event, in combination with events previously written
         // to the current internal buffer, too big for it?
@@ -2614,18 +2613,18 @@ System.out.println("evWrite: NEED bigger internal buffer for 1 big ev, current s
 //                               bytesWrittenToBuffer);
         }
         else {
-            // If we're here, we are writing over the last empty block just past the
-            // current (previous to last) block.  The last empty block is placed after
-            // every written event so file format is always proper.
-
-//            int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
-//            if (!BlockHeaderV4.isLastBlock(headerInfoWord)) {
-//if (debug) System.out.println("\n\nevWrite: no new blk hdr, WRITE OVER LAST EMPTY BLOCK, current blk# = "+
-//                                     (blockNumber - 1) + "\n\n");
+            int headerInfoWord = buffer.getInt(currentHeaderPosition + EventWriter.BIT_INFO_OFFSET);
+            if (!BlockHeaderV4.isLastBlock(headerInfoWord)) {
+                // If we're here, we are writing over the last empty block just past the
+                // current (previous to last) block.  The last empty block is placed after
+                // every written event so file format is always proper.
+//if (debug) System.out.println("evWrite: no new blk hdr, WRITE OVER LAST EMPTY BLOCK, current blk# = "+
+//                                     (blockNumber - 1));
                 bytesWrittenToBuffer -= headerBytes;
-//            }
+            }
 //            else {
-//if (debug) System.out.println("\n\nevWrite: no new blk hdr, current is last block ???, current blk# = "+
+//                // We're the first block and am not writing over the last block
+//if (debug) System.out.println("\n\nevWrite: no new blk hdr, current is first block, current blk# = "+
 //                                                     (blockNumber - 1) + "\n\n");
 //            }
         }
@@ -2771,6 +2770,6 @@ System.out.println("evWrite: NEED bigger internal buffer for 1 big ev, current s
                     + currentFile.getPath());
         }
 
-if (debug) System.out.println("splitFile: generated file name = " + fileName);
+//if (debug) System.out.println("splitFile: generated file name = " + fileName);
     }
 }
