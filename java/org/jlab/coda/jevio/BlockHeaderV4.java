@@ -62,12 +62,14 @@ import java.util.BitSet;
  *   Bit  10    = true if this block is the last block in file or network transmission
  *
  *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
- *                DisentangledPhysics = 3, User = 4, Control = 5, Prestart = 6, Go = 7,
- *                Pause = 8, End = 9, Other = 15).
+ *                DisentangledPhysics = 3, User = 4, Control = 5, Other = 15).
  *
- *                This is useful ONLY for the CODA online use of evio.
+ *   Bit 15     = true if event is a "first event" to be placed at the beginning of each
+ *                written file and its splits.
+ *
+ *                Bits 11-15 are useful ONLY for the CODA online use of evio.
  *                That's because only a single CODA event type is placed into
- *                a single ET buffer. That ET buffer then is parsed by an EvioReader or
+ *                a single (ET, cMsg) buffer. That buffer then is parsed by an EvioReader or
  *                EvioCompactReader object. Thus all events will be of a single CODA type.
  *
  *
@@ -89,6 +91,12 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /** "Last block" is 10th bit in version/info word */
     public static final int EV_LASTBLOCK_MASK  = 0x200;
+
+    /** "Event type" is 11-14th bits` in version/info word */
+    public static final int EV_EVENTTYPE_MASK  = 0x3C00;
+
+    /** "First event" is 15th bit in version/info word */
+    public static final int EV_FIRSTEVENT_MASK  = 0x4000;
 
     /** Position of word for size of block in 32-bit words. */
     public static final int EV_BLOCKSIZE = 0;
@@ -395,6 +403,16 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
             if (bitSet) type |= 1 << i;
         }
         return type;
+    }
+
+    /**
+     * Does this the block in the file contain the "first event" (first event
+     * to be written to each file split)?
+     *
+     * @return <code>true</code> if this is the first event, else <code>false</code>
+     */
+    public boolean hasFirstEvent() {
+        return bitInfo.get(6);
     }
 
     /**
