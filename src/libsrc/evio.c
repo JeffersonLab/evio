@@ -4501,11 +4501,11 @@ if (debug) printf("evWrite: wrote new block header, bytesToBuf (write over last 
          * current (previous to last) block.  The last empty block is placed after
          * every written event so file format is always proper. */
 
-//        if (!isLastBlock(a->currentHeader)) {
+        if (!isLastBlock(a->currentHeader)) {
             a->bytesToBuf -= 4*EV_HDSIZ;
 //if (debug) printf("evWrite: no block header WRITE OVER LAST EMPTY BLOCK\n");
-//        }
-if (debug) printf("evWrite: did NOT write new block header, bytesToBuf = %u\n", a->bytesToBuf);
+        }
+//if (debug) printf("evWrite: did NOT write new block header, bytesToBuf = %u\n", a->bytesToBuf);
     }
 
     /******************************************/
