@@ -144,13 +144,31 @@ public class EventWriter {
     /** True if wrote dictionary to a single file (not all splits taken together). */
     private boolean wroteDictionary;
 
+    /** Byte array containing dictionary in evio format but <b>without</b> block header. */
+    private byte[] dictionaryByteArray;
+
     /** The number of bytes it takes to hold the dictionary
      *  in a bank of evio format. Basically the size of
-     *  {@link #dictionaryBytes} with the length of a bank header added. */
+     *  {@link #dictionaryByteArray} with the length of a bank header added. */
+    private int dictionaryBytes;
+
+    /** Has a first event been defined? */
+    private boolean haveFirstEvent;
+
+    /** Byte array containing firstEvent in evio format but <b>without</b> block header. */
+    private byte[] firstEventByteArray;
+
+    /** The number of bytes it takes to hold the first event
+     *  in a bank of evio format. Basically the size of
+     *  {@link #firstEventByteArray} with the length of a bank header added. */
+    private int firstEventBytes;
+
+    /** The number of bytes it takes to hold both the dictionary and the first event
+     *  in banks of evio format (evio headers included). */
     private int commonBlockByteSize;
 
-    /** Byte array containing dictionary in evio format but <b>without</b> block header. */
-    byte[] dictionaryBytes;
+    /** Number of events in the common block. At most 2 - dictionary & firstEvent. */
+    private int commonBlockCount;
 
     /**
      * Bit information in the block headers:<p>
@@ -217,19 +235,6 @@ public class EventWriter {
 
     /** The byte order in which to write a file or buffer. */
     private ByteOrder byteOrder;
-
-    /** The first event to be added to each file, including all split files,
-     *  after any dictionary. A common event to all splits. */
-    private EvioBank firstEvent;
-
-    /** Byte array containing firstEvent in evio format but <b>without</b> block header. */
-    byte[] firstEventBytes;
-
-    /** Number of events in the common block. At most 2 - dictionary & firstEvent. */
-    private int commonBlockCount;
-
-    /** True if wrote common block to current file (not all splits taken together). */
-    private boolean wroteCommonBlock;
 
     //-----------------------
     // File related members
@@ -761,17 +766,6 @@ public class EventWriter {
             throw new EvioException("blockCountMax arg must be smaller");
         }
 
-        if (xmlDictionary != null) {
-            if (append) {
-                throw new EvioException("Cannot specify dictionary when appending");
-            }
-
-            // 56 is the minimum number of characters for a valid xml dictionary
-            if (xmlDictionary.length() < 56) {
-                throw new EvioException("Dictionary improper format");
-            }
-        }
-
         if (split > 0 && append) {
             throw new EvioException("Cannot specify split when appending");
         }
@@ -784,12 +778,30 @@ public class EventWriter {
             byteOrder = ByteOrder.BIG_ENDIAN;
         }
 
+        if (xmlDictionary != null) {
+            if (append) {
+                throw new EvioException("Cannot specify dictionary when appending");
+            }
+
+            // 56 is the minimum number of characters for a valid xml dictionary
+            if (xmlDictionary.length() < 56) {
+                throw new EvioException("Dictionary improper format");
+            }
+
+            // Turn dictionary data into bytes
+            dictionaryByteArray = BaseStructure.stringsToRawBytes(new String[]{xmlDictionary});
+            // Dictionary length in bytes including bank header of 8 bytes
+            dictionaryBytes = dictionaryByteArray.length + 8;
+            // Common block has dictionary
+            commonBlockByteSize = dictionaryBytes;
+            commonBlockCount = 1;
+        }
+
         // Store arguments
         this.split         = split;
         this.append        = append;
         this.runNumber     = runNumber;
         this.byteOrder     = byteOrder;   // byte order may be overwritten if appending
-        this.firstEvent    = firstEvent;
         this.bufferSize    = bufferSize;
         this.overWriteOK   = overWriteOK;
         this.blockSizeMax  = blockSizeMax;
@@ -881,6 +893,18 @@ public class EventWriter {
         catch (IOException e) {
             throw new EvioException("File could not be positioned for appending, " +
                                             currentFile.getPath(), e);
+        }
+
+        // Convert first event into bytes
+        if (firstEvent != null) {
+            firstEventBytes = firstEvent.getTotalBytes();
+            ByteBuffer firstEventBuf = ByteBuffer.allocate(firstEventBytes);
+            firstEventBuf.order(buffer.order());
+            firstEvent.write(firstEventBuf);
+            firstEventByteArray = firstEventBuf.array();
+            commonBlockByteSize += firstEventBytes;
+            commonBlockCount++;
+            haveFirstEvent = true;
         }
 
         // Write out the beginning block header
@@ -1151,13 +1175,20 @@ public class EventWriter {
             if (xmlDictionary.length() < 56) {
                 throw new EvioException("Dictionary improper format");
             }
+
+            // Turn dictionary data into bytes
+            dictionaryByteArray = BaseStructure.stringsToRawBytes(new String[] {xmlDictionary});
+            // Dictionary length in bytes including bank header of 8 bytes
+            dictionaryBytes = dictionaryByteArray.length + 8;
+            // Common block has dictionary
+            commonBlockByteSize = dictionaryBytes;
+            commonBlockCount = 1;
         }
 
         this.append        = append;
         this.buffer        = buf;
         this.byteOrder     = buf.order();
         this.reserved1     = reserved1;
-        this.firstEvent    = firstEvent;
         this.blockNumber   = blockNumber;
         this.blockSizeMax  = blockSizeMax;
         this.blockCountMax = blockCountMax;
@@ -1203,6 +1234,73 @@ public class EventWriter {
             throw new EvioException("Buffer could not be positioned for appending", e);
         }
 
+        // Convert first event into bytes
+        if (firstEvent != null) {
+            firstEventBytes = firstEvent.getTotalBytes();
+            ByteBuffer firstEventBuf = ByteBuffer.allocate(firstEventBytes);
+            firstEventBuf.order(buffer.order());
+            firstEvent.write(firstEventBuf);
+            firstEventByteArray = firstEventBuf.array();
+            commonBlockByteSize += firstEventBytes;
+            commonBlockCount++;
+            haveFirstEvent = true;
+        }
+
+        // Write first block header into buffer
+        // (size & count words are updated when writing events).
+        // currentHeaderPosition is set in writeNewHeader() below.
+        if (xmlDictionary == null) {
+            writeNewHeader(8,0,this.blockNumber++,bitInfo,false,false,true, false);
+        }
+        else {
+            writeNewHeader(8, 0, this.blockNumber++, bitInfo, true, false, true, false);
+        }
+
+        // Write out any dictionary & firstEvent (currentBlockSize updated)
+        writeCommonBlock();
+
+        // Write out the ending block header so buffer is in proper evio 4 format
+        writeEmptyLastBlockHeader(this.blockNumber);
+    }
+
+
+    /**
+     * Initialization new buffer (not from constructor).
+     * The buffer's position is set to 0 before writing.
+     *
+     * @param buf            the buffer to write to.
+     * @param bitInfo        set of bits to include in first block header.
+     * @param blockNumber    number at which to start block number counting.
+     *
+     * @throws EvioException not enough memory in buf for writing.
+     */
+    private void reInitializeBuffer(ByteBuffer buf, BitSet bitInfo, int blockNumber)
+            throws EvioException {
+
+        this.buffer      = buf;
+        this.byteOrder   = buf.order();
+        this.blockNumber = blockNumber;
+
+        // Init variables
+        split  = 0L;
+        toFile = false;
+        closed = false;
+        eventsWrittenTotal = 0;
+        eventsWrittenToBuffer = 0;
+        bytesWrittenToBuffer = 0;
+        // Keep track of how many 32 bit words in
+        // current block (after writing header below)
+        currentBlockSize = 8;
+        currentBlockEventCount = 0;
+
+        // Get buffer ready for writing
+        buffer.position(0);
+        bufferSize = buf.capacity();
+
+        if (bitInfo != null) {
+            this.bitInfo = (BitSet)bitInfo.clone();
+        }
+
         // Write first block header into buffer
         // (size & count words are updated when writing events).
         // currentHeaderPosition is set in writeNewHeader() below.
@@ -1235,24 +1333,29 @@ public class EventWriter {
      * Set the buffer being written into (initially set in constructor).
      * This method allows the user to avoid having to create a new EventWriter
      * each time a bank needs to be written to a different buffer.
-     * This does nothing if writing to a file.<p>
+     * This does nothing if writing to a file. Not for use if appending.<p>
      * Do <b>not</b> use this method unless you know what you are doing.
      *
      * @param buf the buffer to write to.
      * @param bitInfo        set of bits to include in first block header.
      * @param blockNumber    number at which to start block number counting.
      * @throws EvioException if this object was not closed prior to resetting the buffer,
-     *                       or buffer arg is null.
+     *                       buffer arg is null, or in appending mode.
      */
     public void setBuffer(ByteBuffer buf, BitSet bitInfo, int blockNumber) throws EvioException {
         if (toFile) return;
+        if (buf == null) {
+            throw new EvioException("Buffer arg null");
+        }
+        if (append) {
+            throw new EvioException("Method not for use if appending");
+        }
         if (!closed) {
-            throw new EvioException("close EventWriter before changing buffers");
+            throw new EvioException("Close EventWriter before changing buffers");
         }
         this.bitInfo = bitInfo;
 
-        initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, blockNumber, append, firstEvent);
+        reInitializeBuffer(buf, bitInfo, blockNumber);
     }
 
 
@@ -1260,21 +1363,26 @@ public class EventWriter {
      * Set the buffer being written into (initially set in constructor).
      * This method allows the user to avoid having to create a new EventWriter
      * each time a bank needs to be written to a different buffer.
-     * This does nothing if writing to a file.<p>
+     * This does nothing if writing to a file. Not for use if appending.<p>
      * Do <b>not</b> use this method unless you know what you are doing.
      *
      * @param buf the buffer to write to.
      * @throws EvioException if this object was not closed prior to resetting the buffer,
-     *                       or buffer arg is null.
+     *                       buffer arg is null, or in appending mode.
      */
     public void setBuffer(ByteBuffer buf) throws EvioException {
         if (toFile) return;
+        if (buf == null) {
+            throw new EvioException("Buffer arg null");
+        }
+        if (append) {
+            throw new EvioException("Method not for use if appending");
+        }
         if (!closed) {
-            throw new EvioException("close EventWriter before changing buffers");
+            throw new EvioException("Close EventWriter before changing buffers");
         }
 
-        initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, 1, append, firstEvent);
+        reInitializeBuffer(buf, bitInfo, 1);
     }
 
 
@@ -1443,6 +1551,78 @@ public class EventWriter {
      * only gets called when synchronized. So synchronizing this method will
      * make sure firstEvent only gets set while nothing is being written.
      *
+     * @param node node representing event to be placed first in each file written
+     *             including all splits. If null, no more first events are written
+     *             to any files.
+     */
+    synchronized public void setFirstEvent(EvioNode node)
+            throws EvioException, IOException {
+
+        // If getting rid of the first event ...
+        if (node == null) {
+            if (xmlDictionary != null) {
+                commonBlockCount = 1;
+                commonBlockByteSize = dictionaryBytes;
+            }
+            else {
+                commonBlockCount = 0;
+                commonBlockByteSize = 0;
+            }
+            firstEventBytes = 0;
+            firstEventByteArray = null;
+            haveFirstEvent = false;
+            return;
+        }
+
+        // Find the first event's bytes and the memory size needed
+        // to contain the common events (dictionary + first event).
+        if (xmlDictionary != null) {
+            commonBlockCount = 1;
+            commonBlockByteSize = dictionaryBytes;
+        }
+        else {
+            commonBlockCount = 0;
+            commonBlockByteSize = 0;
+        }
+
+        ByteBuffer firstEventBuf = node.getStructureBuffer(true);
+        firstEventBytes = node.getTotalBytes();
+        firstEventByteArray = firstEventBuf.array();
+        commonBlockByteSize += firstEventBytes;
+        commonBlockCount++;
+        haveFirstEvent = true;
+
+        // Write it to the file/buffer now. In this case it may not be the
+        // first event written and some splits may not even have it
+        // (depending on how many events have been written so far).
+        writeEvent(null, firstEventBuf, false);
+    }
+
+
+    /**
+     * Set an event which will be written to the file/buffer as
+     * well as to all split files. It's called the "first event" as it will be the
+     * first event written to each split file (after the dictionary) if this method
+     * is called early enough or the first event was defined in the constructor.<p>
+     *
+     * Since this method is always called after the constructor, the common block will
+     * have already been written with a dictionary and firstEvent if either was
+     * defined in the constructor. The event given here will be written
+     * immediately somewhere in the body of the file, with the forth-coming split
+     * files having that event in the first block along with any dictionary.<p>
+     *
+     * This means that if the firstEvent is given in the constructor, then the
+     * caller may end up with 2 copies of it in a single file (if this method
+     * is called once). It's also possible to get 2 copies in a file if this
+     * method is called immediately prior to the file splitting.<p>
+     *
+     * By its nature this method is not useful for writing to a buffer since
+     * it is never split and the event can be written to it as any other.<p>
+     *
+     * The method {@link #writeEvent} calls writeCommonBlock() which, in turn,
+     * only gets called when synchronized. So synchronizing this method will
+     * make sure firstEvent only gets set while nothing is being written.
+     *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
      */
@@ -1453,38 +1633,43 @@ public class EventWriter {
         if (bank == null) {
             if (xmlDictionary != null) {
                 commonBlockCount = 1;
-                commonBlockByteSize = dictionaryBytes.length + 8;
+                commonBlockByteSize = dictionaryBytes;
             }
             else {
                 commonBlockCount = 0;
                 commonBlockByteSize = 0;
             }
-            firstEvent = null;
-            firstEventBytes = null;
+            firstEventBytes = 0;
+            firstEventByteArray = null;
+            haveFirstEvent = false;
             return;
         }
 
-        // If it's already been defined, we'll need to recalculate
-        // the first event's bytes and the memory size needed to contain
-        // the common events (dictionary + this first event).
-        if (firstEvent != null) {
-            if (xmlDictionary != null) {
-                commonBlockCount = 1;
-                commonBlockByteSize = dictionaryBytes.length + 8;
-            }
-            else {
-                commonBlockCount = 0;
-                commonBlockByteSize = 0;
-            }
-            firstEventBytes = null;
+        // Find the first event's bytes and the memory size needed
+        // to contain the common events (dictionary + first event).
+        if (xmlDictionary != null) {
+            commonBlockCount = 1;
+            commonBlockByteSize = dictionaryBytes;
+        }
+        else {
+            commonBlockCount = 0;
+            commonBlockByteSize = 0;
         }
 
-        firstEvent = bank;
+        firstEventBytes = bank.getTotalBytes();
+        ByteBuffer firstEventBuf = ByteBuffer.allocate(firstEventBytes);
+        firstEventBuf.order(buffer.order());
+        bank.write(firstEventBuf);
+        firstEventBuf.flip();
+        firstEventByteArray = firstEventBuf.array();
+        commonBlockByteSize += firstEventBytes;
+        commonBlockCount++;
+        haveFirstEvent = true;
 
         // Write it to the file/buffer now. In this case it may not be the
         // first event written and some splits may not even have it
         // (depending on how many events have been written so far).
-        writeEvent(bank);
+        writeEvent(null, firstEventBuf, false);
     }
 
 
@@ -1954,28 +2139,7 @@ System.err.println("ERROR endOfBuffer " + a);
     private void writeCommonBlock() throws EvioException {
 
         // No common events to write
-        if (xmlDictionary == null && firstEvent == null) return;
-
-        // If not done yet, turn dictionary data into bytes
-        if (xmlDictionary != null && dictionaryBytes == null) {
-            dictionaryBytes = BaseStructure.stringsToRawBytes(new String[] {xmlDictionary});
-            // dictionary bank header adds 8 bytes
-            commonBlockByteSize = dictionaryBytes.length + 8;
-            commonBlockCount++;
-        }
-
-        // If not done yet (firstEvent may be (re)set at some random time),
-        // turn firstEvent into bytes.
-        int firstEventByteSize = 0;
-        if (firstEvent != null && firstEventBytes == null) {
-            firstEventByteSize = firstEvent.getTotalBytes();
-            ByteBuffer firstEventBuf = ByteBuffer.allocate(firstEventByteSize);
-            firstEventBuf.order(buffer.order());
-            firstEvent.write(firstEventBuf);
-            firstEventBytes = firstEventBuf.array();
-            commonBlockByteSize += firstEventByteSize;
-            commonBlockCount++;
-        }
+        if (xmlDictionary == null && !haveFirstEvent) return;
 
         // Check to see if there is room in buffer for everything
         if (commonBlockByteSize > buffer.remaining()) {
@@ -1994,7 +2158,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
         if (xmlDictionary != null) {
             // Write bank header
-            buffer.putInt(dictionaryBytes.length / 4 + 1);
+            buffer.putInt(dictionaryByteArray.length / 4 + 1);
 
             if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                 buffer.putShort((short) 0);
@@ -2008,7 +2172,7 @@ System.err.println("ERROR endOfBuffer " + a);
             }
 
             // Write dictionary characters
-            buffer.put(dictionaryBytes);
+            buffer.put(dictionaryByteArray);
 
             // Book keeping
             // evensWrittenTotal is NOT increased here since
@@ -2018,9 +2182,9 @@ System.err.println("ERROR endOfBuffer " + a);
             currentBlockEventCount++;
         }
 
-        if (firstEvent != null) {
+        if (haveFirstEvent) {
             // Write first event
-            buffer.put(firstEventBytes);
+            buffer.put(firstEventByteArray);
 
             // Book keeping
             eventsWrittenTotal++;
@@ -2030,8 +2194,6 @@ System.err.println("ERROR endOfBuffer " + a);
             // One event in this block (dictionary gets ignored)
             buffer.putInt(currentHeaderPosition + EVENT_COUNT_OFFSET, 1);
         }
-
-        wroteCommonBlock = true;
 
         // Update header's # of 32 bit words written to current block/buffer
         currentBlockSize     += commonBlockByteSize /4;
@@ -2237,9 +2399,14 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
+     *                       if null node arg;
      */
     public void writeEvent(EvioNode node, boolean force, boolean duplicate)
             throws EvioException, IOException {
+
+        if (node == null) {
+            throw new EvioException("null node arg");
+        }
 
         ByteBuffer eventBuffer, bb = node.getBufferNode().getBuffer();
 
@@ -2580,7 +2747,7 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
         // existing common block (dictionary & first event & block) in the
         // new file before we write the event.
         //********************************************************************
-        if (splittingFile && (xmlDictionary != null || firstEvent != null)) {
+        if (splittingFile && (xmlDictionary != null || haveFirstEvent)) {
             // Memory needed to write: dictionary + first event + 3 block headers
             // (beginning, after dict & first event, and ending) + event
             int neededBytes = commonBlockByteSize + 3*headerBytes + currentEventBytes;
@@ -2748,7 +2915,6 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
         bytesWrittenToFile  = 0;
         eventsWrittenToFile = 0;
         wroteDictionary     = false;
-        wroteCommonBlock    = false;
 
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
