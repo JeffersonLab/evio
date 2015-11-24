@@ -75,6 +75,9 @@ jevio-4.4.6.jar
 jevio-5.0.jar
     - add capability to add 1 "first event" to beginning of each file including splits
     - fix small bugs
+    - make switching buffers in EventWriter more efficient
+
+
 
 
 C CODE
@@ -89,14 +92,12 @@ evio-4.4
       No longer force a written event to physical disk. (10/7/14)
     - fix bug in C lib that miswrites 6th word of block header - event type (11/5/14)
 
-
 evio-4.4.4
     - fix bug in C++ that does not set padding correctly
     - fix lots of compiler warnings
 
 evio-4.4.5
     - fix problems compiling on Mac
-
 
 ******** NEW VERSION MAJOR VERSION *********
 evio-5.0
@@ -105,4 +106,5 @@ evio-5.0
     - make more swapping routines & macros available
     - better doxygen doc
     - fix small bugs
+    - make EventWriter.setBuffer() more efficient
 
