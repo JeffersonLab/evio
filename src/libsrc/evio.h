@@ -21,7 +21,8 @@
 #ifndef __EVIO_h__
 #define __EVIO_h__
 
-#define EV_VERSION 5
+/** Evio format verion, not the evio package version #. */
+#define EV_VERSION 4
 
 /** Size of block header in 32 bit words.
  *  Must never be smaller than 8, but can be set larger.*/
@@ -45,7 +46,7 @@
 #define S_EVFILE_TRUNC		0x40730001	/**< Event truncated on read/write */
 #define S_EVFILE_BADBLOCK	0x40730002	/**< Bad block number encountered */
 #define S_EVFILE_BADHANDLE	0x80730001	/**< Bad handle (file/stream not open) */
-#define S_EVFILE_ALLOCFAIL	0x80730002	/**< Failed to allocate event I/O structure */
+#define S_EVFILE_ALLOCFAIL	0x80730002	/**< Failed to allocate memory */
 #define S_EVFILE_BADFILE	0x80730003	/**< File format error */
 #define S_EVFILE_UNKOPTION	0x80730004	/**< Unknown option specified */
 #define S_EVFILE_UNXPTDEOF	0x80730005	/**< Unexpected end of file while reading event */
@@ -282,6 +283,7 @@ int evGetBufferLength(int handle, uint32_t *length);
 int evGetDictionary(int handle, char **dictionary, uint32_t *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
 int evWriteFirstEvent(int handle, const uint32_t *firstEvent);
+int evCreateFirstEventBlock(const uint32_t *firstEvent, int localEndian, void **block, uint32_t *words);
 
 int evIsContainer(int type);
 const char *evGetTypename(int type);
