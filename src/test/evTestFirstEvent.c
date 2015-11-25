@@ -45,30 +45,66 @@ static uint32_t *makeEvent()
     return(bank);
 }
 
-static uint32_t *makeFirstEvent()
-{
-    uint32_t *bank;
+static uint32_t *makeFirstEvent(int localEndian) {
+    uint32_t *bank = (uint32_t *) calloc(1, 9 * sizeof(int32_t));
 
-    bank = (uint32_t *) calloc(1, 9*sizeof(int32_t));
-    bank[0] = 8;                         /* event length = 8 */
-    bank[1] = 2 << 16 | 0x01 << 8 | 2;   /* tag = 2, num = 2, bank 1 contains 32 bit unsigned ints */
-    bank[2] = 1;
-    bank[3] = 2;
-    bank[4] = 3;
-    bank[5] = 4;
-    bank[6] = 5;
-    bank[7] = 6;
-    bank[8] = 7;
+    if (localEndian) {
+        /* event length = 8 */
+        bank[0] = 8;
+        /* tag = 2, num = 2, bank 1 contains 32 bit unsigned ints */
+        bank[1] = 2 << 16 | 0x01 << 8 | 2;
+        bank[2] = 1;
+        bank[3] = 2;
+        bank[4] = 3;
+        bank[5] = 4;
+        bank[6] = 5;
+        bank[7] = 6;
+        bank[8] = 7;
+    }
+    else {
+        /* event length = 8 */
+        bank[0] = EVIO_SWAP32(8);
+        /* tag = 2, num = 2, bank 1 contains 32 bit unsigned ints */
+        bank[1] = EVIO_SWAP16(2) | 0x01 << 16 | 2 << 24;
+        bank[2] = EVIO_SWAP32(1);
+        bank[3] = EVIO_SWAP32(2);
+        bank[4] = EVIO_SWAP32(3);
+        bank[5] = EVIO_SWAP32(4);
+        bank[6] = EVIO_SWAP32(5);
+        bank[7] = EVIO_SWAP32(6);
+        bank[8] = EVIO_SWAP32(7);
+    }
 
     return(bank);
 }
 
 int main()
 {
+    int i, status, localEndian=1;
+    uint32_t *pBuf, *block, len;
+
+
+    pBuf = makeFirstEvent(localEndian);
+    printf ("    Created first event, pBuf = %p\n",pBuf);
+
+    status = evCreateFirstEventBlock(pBuf, localEndian, (void **)(&block), &len);
+    printf ("    Created first event block, status = %d\n", status);
+
+    for (i=0; i < len; i++) {
+        printf ("buf[%d] = 0x%x\n", i, block[i]);
+    }
+
+
+    free(pBuf);
+    free(block);
+}
+
+int main1()
+{
     int handle, status;
     uint32_t *ip, *pBuf;
     uint32_t maxEvBlk = 4;
-   // uint64_t split = 230;
+    // uint64_t split = 230;
     uint64_t split = 100;
 
 
@@ -85,7 +121,7 @@ int main()
     printf ("    Write dictionary, status = %d\n",status);
     status = evWriteDictionary(handle, dictionary);
 
-    pBuf = makeFirstEvent();
+    pBuf = makeFirstEvent(1);
 
     printf ("    Write first event, status = %d\n",status);
     status = evWriteFirstEvent(handle, pBuf);
