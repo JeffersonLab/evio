@@ -127,6 +127,9 @@
 /** In version 4, "last block" is 10th bit in version/info word */
 #define EV_LASTBLOCK_MASK 0x200
 
+/** In version 4, "first event" is 15th bit in version/info word */
+#define EV_FIRSTEVENT_MASK 0x4000
+
 /** In version 4, maximum max number of events per block */
 #define EV_EVENTS_MAX 100000
 
@@ -5727,9 +5730,9 @@ int evWriteDictionary(int handle, char *xmlDictionary)
  * after any dictionary. If writing to a buffer or socket, one could just as
  * easily write the first event in the normal way.
  *
- * @param handle  evio handle
- * @param buffer  buffer containing first event,
- *                or NULL to remove previously specified first event
+ * @param handle      evio handle
+ * @param firstEvent  buffer containing first event,
+ *                    or NULL to remove previously specified first event
  *
  * @return S_SUCCESS           if successful
  * @return S_FAILURE           if already written first event
@@ -5771,6 +5774,7 @@ int evWriteFirstEvent(int handle, const uint32_t *firstEvent)
     mutexLock(a);
 
     /* Cannot have already written first event */
+// TODO: get rid of this restriction !!!
     if (a->wroteFirstEvent) {
         mutexUnlock(a);
         handleReadUnlock(handle);
@@ -5817,6 +5821,83 @@ int evWriteFirstEvent(int handle, const uint32_t *firstEvent)
 
     return status;
 }
+
+
+/**
+ * This routine takes the given "first event" (evio bank) and places it into a properly
+ * formatted evio block (evio file format) with the proper bit set in the block
+ * header labeling content as a first event. The returned buffer has been
+ * malloced and needs to be freed by the caller.<p>
+ * The localEndian arg tells this routine the endianness of the data in the
+ * firstEvent buffer. No swapping is done in this routine.
+ *
+ * @param firstEvent  pointer to evio bank defining the first event
+ * @param localEndian true (not 0) if first event and containing block
+ *                    are same as local endian, else false (0)
+ * @param block       pointer which gets set to malloced block
+ * @param words       int pointer which gets filled with length of
+ *                    returned data in 32-bit words
+ *
+ * @return S_SUCCESS           if successful
+ * @return S_EVFILE_BADARG     if firstEvent, block, or words args are NULL
+ * @return S_EVFILE_ALLOCFAIL  if cannot allocate memory
+ */
+int evCreateFirstEventBlock(const uint32_t *firstEvent, int localEndian, void **block, uint32_t *words) {
+
+    int      i;
+    uint32_t blockWords, *mem;
+
+    /* Check arg */
+    if (firstEvent == NULL || block == NULL || words == NULL) {
+        return(S_EVFILE_BADARG);
+    }
+
+    if (localEndian) {
+        blockWords = firstEvent[0] + 1 + 8;
+    }
+    else {
+        blockWords = EVIO_SWAP32(firstEvent[0]) + 1 + 8;
+    }
+
+    mem = (uint32_t *) calloc(1, 4*blockWords);
+    if (mem == NULL) {
+        return(S_EVFILE_ALLOCFAIL);
+    }
+
+    /* Create the block header */
+
+    /* Total block len inclusive in 32-bit words */
+    mem[0] = blockWords;
+    /* Block # starts at 1 */
+    mem[1] = 1;
+    /* Words in header */
+    mem[2] = 8;
+    /* Events in block */
+    mem[3] = 1;
+    /* Reserved */
+    mem[4] = 0;
+    /* Bit info word: version in lowest byte, is last block, & contains first event. */
+    mem[5] = (EV_VERSION & 0xff) | EV_LASTBLOCK_MASK | EV_FIRSTEVENT_MASK;
+    /* Reserved */
+    mem[6] = 0;
+    /* Magic int */
+    mem[7] = 0xc0da0100;
+
+    /* Get the endian right */
+    if (!localEndian) {
+        for (i=0; i < 8; i++) mem[i] = EVIO_SWAP32(mem[i]);
+    }
+
+    /* Copy in the event */
+    memcpy((void *)(mem+8), (const void *)firstEvent, 4*blockWords);
+
+    /* Return to caller */
+    *block = (void *)mem;
+    *words = blockWords;
+
+    return(S_SUCCESS);
+}
+
 
 
 /** @} */
