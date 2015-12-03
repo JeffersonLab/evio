@@ -76,6 +76,10 @@ jevio-5.0.jar
     - add capability to add 1 "first event" to beginning of each file including splits
     - fix small bugs
     - make switching buffers in EventWriter more efficient
+    - make EventWriter.setBuffer() more efficient
+    - fixed EventReader throwing exception when segment or tagsegment had data length of 0
+    - fix bug in which swapping UNKNOWN32 type data will not copy it
+    - fix bug which did not set the correct length in header if no data
 
 
 
@@ -103,8 +107,14 @@ evio-4.4.5
 evio-5.0
     - allow smaller split files
     - add capability to add 1 "first event" to beginning of each file including splits
+    - add a routine, evCreateFirstEventBlock, to create an evio file format block
+      containing a first event. Added to facilitate an evio C lib user sending an ET
+      event or cMsg msg containing this block to the ER which would, in turn, properly
+      understand it to be a first event to be included in each split file.
     - make more swapping routines & macros available
     - better doxygen doc
+    - fix bug in which the version # was improperly set to 5 (set back to 4) since
+      that version number refers to the evio file format version and not the package
+      version
     - fix small bugs
-    - make EventWriter.setBuffer() more efficient
 
