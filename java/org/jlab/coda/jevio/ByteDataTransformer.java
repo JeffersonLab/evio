@@ -1732,8 +1732,8 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 //System.out.println("Created top node containing " + node.getDataTypeObj());
 
         // The event is an evio bank so recursively swap it as such
-        swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                      srcPos + 8, destPos + 8, node.dataLen, inPlace, swapData, nodeList);
+        swapStructure(node, srcBuffer, destBuffer,
+                      srcPos + 8, destPos + 8, inPlace, swapData, nodeList);
 
         if (inPlace) {
             srcBuffer.order(destOrder);
@@ -1975,13 +1975,11 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      * Swap an evio structure. If it is a structure of structures,
      * such as a bank of banks, swap recursively.
      *
-     * @param dataType   the type of evio data contained in structure to swap
-     *                   (bank, segment, double, int, ...).
+     * @param node       info from parsed header
      * @param srcBuffer  buffer containing structure to swap.
      * @param destBuffer buffer in which to place the swapped structure.
      * @param srcPos     position in srcBuffer to start reading structure
      * @param destPos    position in destBuffer to start writing swapped structure
-     * @param length     length of structure in 32-bit words
      * @param inPlace    if true, data is swapped in srcBuffer
      * @param swapData   if false, data is NOT swapped, else it is
      * @param nodeList   if not null, store all node objects here -
@@ -1992,11 +1990,16 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;
      */
-    static void swapStructure(DataType dataType, ByteBuffer srcBuffer,
+    static void swapStructure(EvioNode node, ByteBuffer srcBuffer,
                               ByteBuffer destBuffer, int srcPos, int destPos,
-                              int length, boolean inPlace, boolean swapData,
+                              boolean inPlace, boolean swapData,
                               List<EvioNode> nodeList)
              throws EvioException {
+
+        // Pass in header info through node object.
+        // Reuse this node object if not storing in a list of all nodes.
+        DataType dataType = node.getDataTypeObj();
+        int length = node.dataLen;
 
         // If not a structure of structures, swap the data and return - no more recursion.
         if (!dataType.isStructure()) {
@@ -2007,13 +2010,11 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
         }
 
         int offset = 0, sPos = srcPos, dPos = destPos;
-        EvioNode node = new EvioNode();
 
         EvioNode firstNode = null;
         if (nodeList != null) {
             firstNode = nodeList.get(0);
-            node.scanned   = true;
-            node.eventNode = firstNode;
+            node = new EvioNode(firstNode);
         }
 
         // change 32-bit words to bytes
@@ -2025,15 +2026,15 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
             case ALSOBANK:
                 // Swap all banks contained in this structure
                 while (offset < length) {
-//System.out.println("bank A: offset = " + offset + ", len = " + length);
                     swapBankHeader(node, srcBuffer, destBuffer, sPos, dPos);
-//System.out.println("Create bank node for struct holding " + node.getDataTypeObj());
-
-                    swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+8, dPos+8, node.dataLen, inPlace, swapData, nodeList);
 
                     // Position offset to start of next header
                     offset += 4 * (node.len + 1); // plus 1 for length word
+
+                    // Recursive call, reuse node object if not storing
+                    swapStructure(node, srcBuffer, destBuffer,
+                                  sPos+8, dPos+8, inPlace, swapData, nodeList);
+
                     sPos = srcPos  + offset;
                     dPos = destPos + offset;
 
@@ -2042,12 +2043,9 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                         node.type = DataType.BANK.getValue();
                         nodeList.add(node);
                         if (offset < length) {
-                            node = new EvioNode();
-                            node.scanned   = true;
-                            node.eventNode = firstNode;
+                            node = new EvioNode(firstNode);
                         }
                     }
-//System.out.println("bank B: offset = " + offset + ", len = " + length);
                 }
                 break;
 
@@ -2055,14 +2053,13 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
             case ALSOSEGMENT:
                 // extract all the segments from this bank.
                 while (offset < length) {
-//System.out.println("seg A: offset = " + offset + ", len = " + length);
                     swapSegmentHeader(node, srcBuffer, destBuffer, sPos, dPos);
 
-//System.out.println("Create seg node for struct holding " + node.getDataTypeObj());
-                    swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+4, dPos+4, node.dataLen, inPlace, swapData, nodeList);
-
                     offset += 4 * (node.len + 1);
+
+                    swapStructure(node, srcBuffer, destBuffer,
+                                  sPos+4, dPos+4, inPlace, swapData, nodeList);
+
                     sPos = srcPos  + offset;
                     dPos = destPos + offset;
 
@@ -2071,12 +2068,9 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                         node.type = DataType.SEGMENT.getValue();
                         nodeList.add(node);
                         if (offset < length) {
-                            node = new EvioNode();
-                            node.scanned   = true;
-                            node.eventNode = firstNode;
+                            node = new EvioNode(firstNode);
                         }
                     }
-//System.out.println("seg B: offset = " + offset + ", len = " + length);
                 }
 
                 break;
@@ -2085,15 +2079,14 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
          // case ALSOTAGSEGMENT:
                 // extract all the tag segments from this bank.
                 while (offset < length) {
-//System.out.println("tagseg A: offset = " + offset + ", len = " + length);
 
                     swapTagSegmentHeader(node, srcBuffer, destBuffer, sPos, dPos);
-//System.out.println("Create tagseg node for struct holding " + node.getDataTypeObj());
-
-                    swapStructure(node.getDataTypeObj(), srcBuffer, destBuffer,
-                                  sPos+4, dPos+4, node.dataLen, inPlace, swapData, nodeList);
 
                     offset += 4 * (node.len + 1);
+
+                    swapStructure(node, srcBuffer, destBuffer,
+                                  sPos+4, dPos+4, inPlace, swapData, nodeList);
+
                     sPos = srcPos  + offset;
                     dPos = destPos + offset;
 
@@ -2101,12 +2094,9 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                         node.type = DataType.TAGSEGMENT.getValue();
                         nodeList.add(node);
                         if (offset < length) {
-                            node = new EvioNode();
-                            node.scanned   = true;
-                            node.eventNode = firstNode;
+                            node = new EvioNode(firstNode);
                         }
                     }
-//System.out.println("tagseg B: offset = " + offset + ", len = " + length);
                 }
 
                 break;
