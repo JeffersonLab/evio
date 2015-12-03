@@ -723,6 +723,10 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     divisor = 8; break;
                 case CHARSTAR8:
                     String[] s = getStringData();
+                    if (s ==  null) {
+                        numberDataItems = 0;
+                        break;
+                    }
                     numberDataItems = s.length;
                     break;
                 case COMPOSITE:
@@ -1810,12 +1814,22 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 			case SHORT16:
 			case USHORT16:
-			    datalen = 1 + (getNumberDataItems() - 1) / 2;
+                int items = getNumberDataItems();
+                if (items == 0) {
+                    datalen = 0;
+                    break;
+                }
+                datalen = 1 + (items - 1) / 2;
 				break;
 
             case CHAR8:
             case UCHAR8:
-                datalen = 1 + (getNumberDataItems() - 1) / 4;
+                items = getNumberDataItems();
+                if (items == 0) {
+                    datalen = 0;
+                    break;
+                }
+                datalen = 1 + (items - 1) / 4;
                 break;
 
             case CHARSTAR8: // rawbytes contain ascii, already padded
@@ -1828,8 +1842,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             default:
             } // switch
 		} // isleaf
-		return datalen;
 
+		return datalen;
 	}
 
     /**
@@ -1878,45 +1892,6 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
     }
 
-	/**
-	 * Compute and set length of all header fields for this structure and all its descendants.
-     * For writing events, this will be crucial for setting the values in the headers.
-	 * 
-	 * @return the length that would go in the header field (for a leaf).
-	 */
-	public int setAllHeaderLengthsSemiOrig() throws EvioException {
-        // if length info is current, don't bother to recalculate it
-        if (lengthsUpToDate) {
-            return header.getLength();
-        }
-
-		int datalen;
-
-		if (isLeaf()) {
-            // # of 32 bit ints for leaves, 0 for empty containers (also considered leaves)
-			datalen = dataLength();
-		}
-		else {
-			datalen = 0;
-
-			if (children == null) {
-System.err.println("Non leaf with null children!");
-				System.exit(1);
-			}
-			for (BaseStructure child : children) {
-				datalen += child.setAllHeaderLengths();
-				datalen++; // for the length word of each child
-			}
-		}
-
-        datalen += header.getHeaderLength() - 1; // length header word
-
-		// set the datalen for the header
-		header.setLength(datalen);
-        lengthsUpToDate(true);
-		return datalen;
-	}
-
     /**
      * Compute and set length of all header fields for this structure and all its descendants.
      * For writing events, this will be crucial for setting the values in the headers.
@@ -1959,7 +1934,7 @@ System.err.println("Non leaf with null children!");
         }
 
         datalen += len;
-//System.out.println("len = " + datalen);
+
         // set the datalen for the header
         header.setLength(datalen);
         lengthsUpToDate(true);
