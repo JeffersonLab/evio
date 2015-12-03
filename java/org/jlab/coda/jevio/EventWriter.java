@@ -2395,7 +2395,7 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
      * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
-     *                      775822 if bad eventBuffer format;
+     *                       if bad eventBuffer format;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
