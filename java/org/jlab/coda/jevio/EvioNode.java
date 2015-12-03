@@ -102,6 +102,14 @@ public final class EvioNode implements Cloneable {
         allNodes.add(this);
     }
 
+    /** Constructor used when swapping data. */
+    EvioNode(EvioNode firstNode) {
+        allNodes = new ArrayList<EvioNode>(5);
+        allNodes.add(this);
+        scanned = true;
+        eventNode = firstNode;
+    }
+
 
     /**
      * Constructor which creates an EvioNode associated with
