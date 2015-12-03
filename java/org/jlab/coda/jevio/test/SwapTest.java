@@ -5,8 +5,10 @@ import org.jlab.coda.jevio.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,13 +57,30 @@ public class SwapTest {
 
 
     // data
-    static      byte[]   byteData   = new byte[]   {1,2,3};
-    static      short[]  shortData  = new short[]  {1,2,3};
-    static      int[]    intData    = new int[]    {1,2,3};
-    static      long[]   longData   = new long[]   {1,2,3};
-    static      float[]  floatData  = new float[]  {1,2,3};
-    static      double[] doubleData = new double[] {1.,2.,3.};
-    static      String[] stringData = new String[] {"123", "456", "789"};
+    static      byte[]   byteData   = new byte[]   {};
+    static      short[]  shortData  = new short[]  {};
+    static      int[]    intData    = new int[]    {};
+    static      long[]   longData   = new long[]   {};
+    static      float[]  floatData  = new float[]  {};
+    static      double[] doubleData = new double[] {};
+    static      String[] stringData = new String[] {};
+
+//    static      byte[]   byteData   = new byte[]   {1};
+//    static      short[]  shortData  = new short[]  {1};
+//    static      int[]    intData    = new int[]    {1};
+//    static      long[]   longData   = new long[]   {1};
+//    static      float[]  floatData  = new float[]  {1.F};
+//    static      double[] doubleData = new double[] {1.};
+//    static      String[] stringData = new String[] {"1"};
+
+//    static      byte[]   byteData   = new byte[]   {1,2,3};
+//    static      short[]  shortData  = new short[]  {1,2,3};
+//    static      int[]    intData    = new int[]    {1,2,3};
+//    static      long[]   longData   = new long[]   {1L,2L,3L};
+//    static      float[]  floatData  = new float[]  {1.F,2.F,3.F};
+//    static      double[] doubleData = new double[] {1.,2.,3.};
+//    static      String[] stringData = new String[] {"123", "456", "789"};
+
 
     static ByteBuffer firstBlockHeader = ByteBuffer.allocate(32);
     static ByteBuffer emptyLastHeader  = ByteBuffer.allocate(32);
@@ -90,11 +109,22 @@ public class SwapTest {
     }
 
 
+    static void swapBlockHeader(ByteBuffer buf, int index) {
+        buf.putInt(index,    Integer.reverseBytes(buf.getInt(index)));
+        buf.putInt(index+4,  Integer.reverseBytes(buf.getInt(index + 4)));
+        buf.putInt(index+8,  Integer.reverseBytes(buf.getInt(index + 8)));
+        buf.putInt(index+12, Integer.reverseBytes(buf.getInt(index + 12)));
+        buf.putInt(index+16, Integer.reverseBytes(buf.getInt(index + 16)));
+        buf.putInt(index+20, Integer.reverseBytes(buf.getInt(index + 20)));
+        buf.putInt(index+24, Integer.reverseBytes(buf.getInt(index + 24)));
+        buf.putInt(index+28, Integer.reverseBytes(buf.getInt(index + 28)));
+    }
+
+
     static EvioEvent createSingleEvent(int tag) {
 
         // Top level event
         EvioEvent event = null;
-
 
         try {
 
@@ -102,42 +132,97 @@ public class SwapTest {
             EventBuilder builder = new EventBuilder(tag, DataType.BANK, 1);
             event = builder.getEvent();
 
+
                 // bank of banks
                 EvioBank bankBanks = new EvioBank(tag+1, DataType.BANK, 2);
                 builder.addChild(event, bankBanks);
 
                     // bank of ints
                     EvioBank bankInts = new EvioBank(tag+2, DataType.INT32, 3);
-                    bankInts.appendIntData(intData);
+                    //bankInts.appendIntData(intData);
+                    builder.setIntData(bankInts, intData);
                     builder.addChild(bankBanks, bankInts);
+
+                    // bank of bytes
+                    EvioBank bankBytes = new EvioBank(tag+1, DataType.UCHAR8, 2);
+                    //bankBytes.appendByteData(byteData);
+                    builder.setByteData(bankBytes, byteData);
+                    builder.addChild(bankBanks, bankBytes);
+
+                    // bank of shorts
+                    EvioBank bankShorts = new EvioBank(tag+2, DataType.USHORT16, 3);
+                    bankShorts.appendShortData(shortData);
+                    builder.addChild(bankBanks, bankShorts);
+
+                    // bank of longs
+                    EvioBank bankLongs = new EvioBank(tag+4, DataType.LONG64, 5);
+                    bankLongs.appendLongData(longData);
+                    builder.addChild(bankBanks, bankLongs);
+
+                    // bank of floats
+                    EvioBank bankFloats = new EvioBank(tag+5, DataType.FLOAT32, 6);
+                    bankFloats.appendFloatData(floatData);
+                    builder.addChild(bankBanks, bankFloats);
+
+                    // bank of doubles
+                    EvioBank bankDoubles = new EvioBank(tag+5, DataType.DOUBLE64, 6);
+                    bankDoubles.appendDoubleData(doubleData);
+                    builder.addChild(bankBanks, bankDoubles);
+
+                    // bank of strings
+                    EvioBank bankStrings = new EvioBank(tag+5, DataType.CHARSTAR8, 6);
+                    bankStrings.appendStringData(stringData);
+                    builder.addChild(bankBanks, bankStrings);
+
 
                 // Bank of segs
                 EvioBank bankBanks2 = new EvioBank(tag+3, DataType.SEGMENT, 4);
                 builder.addChild(event, bankBanks2);
 
                     // segment of shorts
-                    EvioSegment bankShorts = new EvioSegment(tag+4, DataType.SHORT16);
-                    bankShorts.appendShortData(shortData);
-                    builder.addChild(bankBanks2, bankShorts);
+                    EvioSegment segShorts = new EvioSegment(tag+4, DataType.SHORT16);
+                    segShorts.appendShortData(shortData);
+                    builder.addChild(bankBanks2, segShorts);
+
+                    // segment of ints
+                    EvioSegment segInts = new EvioSegment(tag+5, DataType.INT32);
+                    segInts.appendIntData(intData);
+                    builder.addChild(bankBanks2, segInts);
+
 
                     // segment of segments
-                    EvioSegment bankBanks3 = new EvioSegment(tag+5, DataType.SEGMENT);
-                    builder.addChild(bankBanks2, bankBanks3);
+                    EvioSegment segSegments = new EvioSegment(tag+5, DataType.SEGMENT);
+                    builder.addChild(bankBanks2, segSegments);
+
+                        // segment of bytes
+                        EvioSegment segBytes = new EvioSegment(tag+6, DataType.CHAR8);
+                        segBytes.appendByteData(byteData);
+                        builder.addChild(segSegments, segBytes);
 
                         // segment of doubles
-                        EvioSegment bankDoubles = new EvioSegment(tag+6, DataType.DOUBLE64);
-                        bankDoubles.appendDoubleData(doubleData);
-                        builder.addChild(bankBanks3, bankDoubles);
+                        EvioSegment segDoubles = new EvioSegment(tag+6, DataType.DOUBLE64);
+                        segDoubles.appendDoubleData(doubleData);
+                        builder.addChild(segSegments, segDoubles);
+
 
                 // Bank of tag segs
                 EvioBank bankBanks4 = new EvioBank(tag+7, DataType.TAGSEGMENT, 8);
                 builder.addChild(event, bankBanks4);
 
                     // tag segment of bytes
-                    EvioTagSegment bankBytes = new EvioTagSegment(tag+8, DataType.CHAR8);
-                    bankBytes.appendByteData(byteData);
-                    builder.addChild(bankBanks4, bankBytes);
+                    EvioTagSegment tagSegBytes = new EvioTagSegment(tag+8, DataType.CHAR8);
+                    tagSegBytes.appendByteData(byteData);
+                    builder.addChild(bankBanks4, tagSegBytes);
 
+                    // tag segment of shorts
+                    EvioTagSegment tagSegShorts = new EvioTagSegment(tag+9, DataType.SHORT16);
+                    tagSegShorts.appendShortData(shortData);
+                    builder.addChild(bankBanks4, tagSegShorts);
+
+                    // tag seg of longs
+                    EvioTagSegment tagsegLongs = new EvioTagSegment(tag+4, DataType.LONG64);
+                    tagsegLongs.appendLongData(longData);
+                    builder.addChild(bankBanks4, tagsegLongs);
 
         }
         catch (EvioException e) {
@@ -226,23 +311,70 @@ public class SwapTest {
 
 
     /** For testing only */
-    public static void main(String args[]) {
+    public static void main1(String args[]) {
 
         try {
-            //vioEvent bank = createSimpleEvent(1);
             EvioEvent bank = createSingleEvent(1);
             int byteSize = bank.getTotalBytes();
 
-            ByteBuffer bb1 = ByteBuffer.allocate(2*byteSize + 2*(32));
-            ByteBuffer bb2 = ByteBuffer.allocate(2*byteSize + 2*(32));
+            ByteBuffer bb1 = ByteBuffer.allocate(byteSize);
+            ByteBuffer bb2 = ByteBuffer.allocate(byteSize);
+
+            // Write events
+            bank.write(bb1);
+
+            // Get ready to read buffer
+            bb1.flip();
+
+            // Get JIT compiler to speed things up first
+            for (int i=0; i < 2000000; i++) {
+                ByteDataTransformer.swapEvent(bb1, bb2, 0, 0);
+                ByteDataTransformer.swapEvent(bb2, bb1, 0, 0);
+            }
+
+
+            long t1 = System.currentTimeMillis();
+
+            for (int i=0; i < 2000000; i++) {
+                ByteDataTransformer.swapEvent(bb1, bb2, 0, 0);
+                ByteDataTransformer.swapEvent(bb2, bb1, 0, 0);
+            }
+
+            long t2 = System.currentTimeMillis();
+
+            System.out.println("Time = " + (t2 - t1) + " millisec");
+
+//            List<EvioNode> nodeList =  new ArrayList<EvioNode>(20);
+//            ByteDataTransformer.swapEvent(bb1, bb2, 0, 0, nodeList);
+//
+//            for (EvioNode node : nodeList) {
+//                System.out.println("node: " + node.getDataTypeObj());
+//            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    /** For testing only */
+    public static void main(String args[]) {
+
+        try {
+            EvioEvent bank = createSingleEvent(1);
+            int byteSize = bank.getTotalBytes();
+
+            ByteBuffer bb1 = ByteBuffer.allocate(byteSize + 2*(32));
+            ByteBuffer bb2 = ByteBuffer.allocate(byteSize + 2*(32));
+            ByteBuffer bb3 = ByteBuffer.allocate(byteSize + 2*(32));
 
             // Write first block header
-            setFirstBlockHeader(2 * byteSize / 4, 2);
+            setFirstBlockHeader(byteSize/4, 1);
             bb1.put(firstBlockHeader);
             firstBlockHeader.position(0);
 
-            // Write event
-            bank.write(bb1);
+            // Write events
             bank.write(bb1);
 
             // Write last block header
@@ -251,42 +383,73 @@ public class SwapTest {
 
             // Get ready to read buffer
             bb1.flip();
-            bb2.put(bb1);
-            bb1.flip();
-            bb2.flip();
 
-//            printBuffer(bb1, 1000);
-
-//            ByteBuffer srcBuffer  = bb;
-//            ByteBuffer destBuffer = ByteBuffer.allocate(bb.capacity());
+            System.out.println("bb1 limit = " + bb1.limit() + ", pos = " + bb1.position() + ", cap = " + bb1.capacity());
 
             System.out.println("XML:\n" + bank.toXML());
 
-            LinkedList<EvioNode> list = new LinkedList<EvioNode>();
-
-            ByteDataTransformer.swapEvent(bb1, bb2, 32, 32);
             System.out.println("\n*************\n");
-//            bb.order(ByteOrder.BIG_ENDIAN);
-            ByteDataTransformer.swapEvent(bb2, bb2, 32, 32, list);
 
-            System.out.println("Node list size = " + list.size());
+//            // Change byte buffer back into an event
+//            EvioReader reader = new EvioReader(bb1);
+//            EvioEvent ev = reader.parseEvent(1);
+//            bb1.position(0);
 //
-//            for (int i=0; i < list.size(); i++) {
-//                DataType typ = DataType.getDataType(list.get(i).getType());
-//                System.out.println("node " + i + ": " + typ + " containing " + list.get(i).getDataTypeObj() + ", pos = " +
-//                list.get(i).getPosition());
-//            }
+//            System.out.println("\n\n reconstituted XML:\n" + ev.toXML());
+
+            // Take buffer and swap it
+            ByteDataTransformer.swapEvent(bb1, bb2, 32, 32);
+
+            // Be sure to get evio block headers right so we
+            // can read swapped event with an EvioReader
+            bb2.position(0);
+            bb2.put(firstBlockHeader);
+            firstBlockHeader.position(0);
+            swapBlockHeader(bb2, 0);
+
+            bb2.position(32 + byteSize);
+            bb2.put(emptyLastHeader);
+            emptyLastHeader.position(0);
+            swapBlockHeader(bb2, 32 + byteSize);
+
+//            // Change byte buffer back into an event
+//            EvioReader reader = new EvioReader(bb2);
+//            EvioEvent ev = reader.parseEvent(1);
+//            bb2.position(0);
+//
+//            System.out.println("\n\n reconstituted XML:\n" + ev.toXML());
+
+
+            // Take swapped buffer and swap it again
+            ByteDataTransformer.swapEvent(bb2, bb3, 32, 32);
+
+            // Be sure to get evio block headers right so we
+            // can read swapped event with an EvioReader
+            bb3.position(0);
+            bb3.put(firstBlockHeader);
+            firstBlockHeader.position(0);
+            swapBlockHeader(bb3, 0);
+            swapBlockHeader(bb3, 0);
+
+            bb3.position(32 + byteSize);
+            bb3.put(emptyLastHeader);
+            emptyLastHeader.position(0);
+            swapBlockHeader(bb3, 32 + byteSize);
+            swapBlockHeader(bb3, 32 + byteSize);
 
             // Change byte buffer back into an event
-            EvioReader reader = new EvioReader(bb2);
+            EvioReader reader = new EvioReader(bb3);
             EvioEvent ev = reader.parseEvent(1);
+            bb3.position(0);
 
 
             System.out.println("\n\n reconstituted XML:\n" + ev.toXML());
-//            printBuffer(bb1, 1000);
+
+            System.out.println("bb1 limit = " + bb1.limit() + ", pos = " + bb1.position() + ", cap = " + bb1.capacity());
+            System.out.println("bb3 limit = " + bb3.limit() + ", pos = " + bb3.position() + ", cap = " + bb3.capacity());
 
             IntBuffer ibuf1 = bb1.asIntBuffer();
-            IntBuffer ibuf2 = bb2.asIntBuffer();
+            IntBuffer ibuf2 = bb3.asIntBuffer();
             int lenInInts = ibuf1.limit() < ibuf1.capacity() ? ibuf1.limit() : ibuf1.capacity();
             System.out.println("ibuf1 limit = " + ibuf1.limit() + ", cap = " + ibuf1.capacity());
             System.out.println("ibuf2 limit = " + ibuf2.limit() + ", cap = " + ibuf2.capacity());
@@ -294,7 +457,7 @@ public class SwapTest {
             for (int i=0; i < lenInInts; i++) {
                 if (ibuf1.get(i) != ibuf2.get(i)) {
                     System.out.println("index " + i + ": 0x" + Integer.toHexString(ibuf1.get(i)) +
-                                               " swapped to 0x" +Integer.toHexString(ibuf1.get(i)));
+                                               " swapped to 0x" +Integer.toHexString(ibuf2.get(i)));
                 }
 //                System.out.println("0x" + Integer.toHexString(ibuf1.get(i)) +
 //                                           "    0x" + Integer.toHexString(ibuf1.get(i)));
@@ -306,7 +469,6 @@ public class SwapTest {
 
 
     }
-
 
 
 }
