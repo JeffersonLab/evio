@@ -1598,6 +1598,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      * of the the source buffer argument. If the swap is done in place, the
      * byte order of the source buffer will be switched upon completion and
      * the destPos arg will be set equal to the srcPos arg.
+     * The positions of the source and destination buffers are not changed.
      * A ByteBuffer's current byte order can be found by calling
      * {@link java.nio.ByteBuffer#order()}.<p>
      *
@@ -1627,6 +1628,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      * of the the source buffer argument. If the swap is done in place, the
      * byte order of the source buffer will be switched upon completion and
      * the destPos arg will be set equal to the srcPos arg.
+     * The positions of the source and destination buffers are not changed.
      * A ByteBuffer's current byte order can be found by calling
      * {@link java.nio.ByteBuffer#order()}.<p>
      *
@@ -1659,6 +1661,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
      * of the the source buffer argument. If the swap is done in place, the
      * byte order of the source buffer will be switched upon completion and
      * the destPos arg will be set equal to the srcPos arg.
+     * The positions of the source and destination buffers are not changed.
      * A ByteBuffer's current byte order can be found by calling
      * {@link java.nio.ByteBuffer#order()}.<p>
      *
@@ -1758,74 +1761,34 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                 throws EvioException {
 
         try {
-            int dt, type, pad, tag, num, length;
-            ByteOrder srcOrder = srcBuffer.order();
-
-            if (node != null) node.pos = destPos;
-
             // Read & swap first bank header word
-            length = srcBuffer.getInt(srcPos);
+            int length = srcBuffer.getInt(srcPos);
             destBuffer.putInt(destPos, length);
             srcPos  += 4;
             destPos += 4;
-//System.out.println("  BH: len = " + length);
 
-            // Read second bank header word
-            if (srcOrder == ByteOrder.BIG_ENDIAN) {
-                tag = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
+            // Read & swap second bank header word
+            int word = srcBuffer.getInt(srcPos);
+            destBuffer.putInt(destPos, word);
 
-                dt = srcBuffer.get(srcPos++) & 0x000000ff;
-                type = dt & 0x3f;
-                pad  = dt >>> 6;
-                // If only 7th bit set, that can only be the legacy tagsegment type
-                // with no padding information - convert it properly.
-                if (dt == 0x40) {
-                    type = DataType.TAGSEGMENT.getValue();
-                    pad = 0;
-                }
+            // node is never null
+            node.tag = word >>> 16;
 
-                num = srcBuffer.get(srcPos++) & 0x000000ff;
-            }
-            else {
-                num = srcBuffer.get(srcPos++) & 0x000000ff;
-
-                dt = srcBuffer.get(srcPos++) & 0x000000ff;
-                type = dt & 0x3f;
-                pad  = dt >>> 6;
-                if (dt == 0x40) {
-                    type = DataType.TAGSEGMENT.getValue();
-                    pad = 0;
-                }
-
-                tag = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
-            }
-//System.out.println("  BH: type/tag/num/pad = " + type + "/" + tag + "/" + num + "/" + pad);
-
-            // Swap second bank header word
-            if (srcOrder == ByteOrder.BIG_ENDIAN) {
-                destBuffer.put(destPos++, (byte)num);
-                destBuffer.put(destPos++, (byte)dt);
-                destBuffer.putShort(destPos, (short)tag);
-                destPos += 2;
-            }
-            else {
-                destBuffer.putShort(destPos, (short)tag);
-                destPos += 2;
-                destBuffer.put(destPos++, (byte)dt);
-                destBuffer.put(destPos++, (byte)num);
+            int dt = (word >>> 8) & 0xff;
+            node.dataType = dt & 0x3f;
+            node.pad = dt >>> 6;
+            // If only 7th bit set, that can only be the legacy tagsegment type
+            // with no padding information - convert it properly.
+            if (dt == 0x40) {
+                node.dataType = DataType.TAGSEGMENT.getValue();
+                node.pad = 0;
             }
 
-            if (node != null) {
-                node.len = length;
-                node.num = num;
-                node.tag = tag;
-                node.pad = pad;
-                node.dataPos = destPos;
-                node.dataLen = length - 1;
-                node.dataType = type;
-            }
+            node.num     = word & 0xff;
+            node.len     = length;
+            node.pos     = destPos - 4;
+            node.dataPos = destPos + 4;
+            node.dataLen = length - 1;
         }
         catch (BufferOverflowException e) {
             throw new EvioException("destBuffer too small to hold swapped data");
@@ -1856,66 +1819,28 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                 throws EvioException {
 
         try {
-            int dt, type, pad, tag, len;
-            ByteOrder srcOrder = srcBuffer.order();
+            // Read & swap segment header word
+            int word = srcBuffer.getInt(srcPos);
+            destBuffer.putInt(destPos, word);
 
-            if (node != null) node.pos = destPos;
+            // node is never null
+            node.tag = word >>> 24;
 
-            // Read segment header word
-            if (srcOrder == ByteOrder.BIG_ENDIAN) {
-                tag = srcBuffer.get(srcPos++) & 0x000000ff;
-                dt  = srcBuffer.get(srcPos++) & 0x000000ff;
-                type = dt & 0x3f;
-                pad  = dt >>> 6;
-                // If only 7th bit set, that can only be the legacy tagsegment type
-                // with no padding information - convert it properly.
-                if (dt == 0x40) {
-                    type = DataType.TAGSEGMENT.getValue();
-                    pad = 0;
-                }
-
-                len = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
-            }
-            else {
-                len = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
-
-                dt = srcBuffer.get(srcPos++) & 0x000000ff;
-                type = dt & 0x3f;
-                pad  = dt >>> 6;
-                if (dt == 0x40) {
-                    type = DataType.TAGSEGMENT.getValue();
-                    pad = 0;
-                }
-
-                tag = srcBuffer.get(srcPos++) & 0x000000ff;
-            }
-//System.out.println("found tag/num = " + tag + ", " + num);
-
-            // Swap segment header word
-            if (srcOrder == ByteOrder.BIG_ENDIAN) {
-                destBuffer.putShort(destPos, (short)len);
-                destPos += 2;
-                destBuffer.put(destPos++, (byte)dt);
-                destBuffer.put(destPos++, (byte)tag);
-            }
-            else {
-                destBuffer.put(destPos++, (byte)tag);
-                destBuffer.put(destPos++, (byte)((type & 0x3f) | (pad << 6)));
-                destBuffer.putShort(destPos, (short)len);
-                destPos += 2;
+            int dt = (word >>> 16) & 0xff;
+            node.dataType = dt & 0x3f;
+            node.pad = dt >>> 6;
+            // If only 7th bit set, that can only be the legacy tagsegment type
+            // with no padding information - convert it properly.
+            if (dt == 0x40) {
+                node.dataType = DataType.TAGSEGMENT.getValue();
+                node.pad = 0;
             }
 
-            if (node != null) {
-                node.len = len;
-                node.num = 0;
-                node.tag = tag;
-                node.pad = pad;
-                node.dataPos = destPos;
-                node.dataLen = len;
-                node.dataType = type;
-            }
+            node.len     = word & 0xffff;
+            node.num     = 0;
+            node.pos     = destPos;
+            node.dataPos = destPos + 4;
+            node.dataLen = node.len;
         }
         catch (BufferOverflowException e) {
             throw new EvioException("destBuffer too small to hold swapped data");
@@ -1946,57 +1871,19 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                 throws EvioException {
 
         try {
-            int type, tag, len, temp;
-            ByteOrder srcOrder = srcBuffer.order();
+            // Read & swap tagsegment header word
+            int word = srcBuffer.getInt(srcPos);
+            destBuffer.putInt(destPos, word);
 
-            if (node != null) node.pos = destPos;
-
-            // Read segment header word
-            if (srcOrder == ByteOrder.BIG_ENDIAN) {
-                temp = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
-
-                tag  = temp >>> 4;
-                type = temp & 0xf;
-
-                len = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
-            }
-            else {
-                len = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
-
-                temp = srcBuffer.getShort(srcPos) & 0x0000ffff;
-                srcPos += 2;
-
-                tag  = temp >>> 4;
-                type = temp & 0xf;
-            }
-//System.out.println("found tag/num = " + tag + ", " + num);
-
-            // Swap segment header word
-            if (srcOrder == ByteOrder.BIG_ENDIAN) {
-                destBuffer.putShort(destPos, (short)len);
-                destPos += 2;
-                destBuffer.putShort(destPos, (short)temp);
-                destPos += 2;
-            }
-            else {
-                destBuffer.putShort(destPos, (short)temp);
-                destPos += 2;
-                destBuffer.putShort(destPos, (short)len);
-                destPos += 2;
-            }
-
-            if (node != null) {
-                node.len = len;
-                node.num = 0;
-                node.tag = tag;
-                node.pad = 0;
-                node.dataPos = destPos;
-                node.dataLen = len;
-                node.dataType = type;
-            }
+            // node is never null
+            node.tag      = word >>> 20;
+            node.dataType = (word >>> 16) & 0xf;
+            node.len      = word & 0xffff;
+            node.num      = 0;
+            node.pad      = 0;
+            node.pos      = destPos;
+            node.dataPos  = destPos + 4;
+            node.dataLen  = node.len;
         }
         catch (BufferOverflowException e) {
             throw new EvioException("destBuffer too small to hold swapped data");
@@ -2063,7 +1950,8 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 				break;
 
             // 8 bit swap - no swap needed, but need to copy if destBuf != srcBuf
-			case CHAR8:
+            case UNKNOWN32:
+            case CHAR8:
 			case UCHAR8:
             case CHARSTAR8:
                 if (!inPlace) {
