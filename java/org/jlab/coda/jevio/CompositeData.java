@@ -3292,6 +3292,495 @@ if (debug) System.out.println("write byte " + bytes[i]);
 
 
     /**
+     * This method writes an xml string representation of this CompositeData object
+     * into the xmlWriter given. This is called by methods operating on an EvioNode
+     * object.
+     *
+     * @param xmlWriter the writer used to write the events to XML.
+     * @param xmlIndent indentation for writing XML.
+     * @param hex if <code>true</code> then print integers in hexadecimal
+     */
+    public void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
+                        throws XMLStreamException {
+
+        boolean debug = false;
+
+        // size of int list
+        int nfmt = formatInts.size();
+
+        boolean swap = false;
+        if (byteOrder != ByteOrder.BIG_ENDIAN) {
+            swap = true;
+        }
+
+        LV[] lv = new LV[10];
+        for (int i=0; i < lv.length; i++) {
+            lv[i] = new LV();
+        }
+
+        int imt   = 0;  // formatInts[] index
+        int ncnf  = 0;  // how many times must repeat a format
+        int lev   = 0;  // parenthesis level
+        int iterm = 0;
+        int kcnf;
+        int rowNumber = 2;
+
+        // start of data, index into data array
+        int dataIndex = 0;
+        // just past end of data -> size of data in bytes
+        int endIndex = dataBytes;
+
+        //---------------------------------
+        // First we have the format string
+        //---------------------------------
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeStartElement("composite");
+
+        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeStartElement("string");
+        xmlWriter.writeAttribute("data_type","0x3");
+        xmlWriter.writeAttribute("tag",""+tsHeader.tag);
+        xmlWriter.writeAttribute("length",""+tsHeader.length);
+        xmlWriter.writeAttribute("ndata","1");
+
+        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeCharacters(format);
+
+        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeEndElement();
+
+        //---------------------------------
+        // Next the data
+        //---------------------------------
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeStartElement("data");
+
+        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeStartElement("row");
+        xmlWriter.writeAttribute("num","1");
+
+        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+
+        while (dataIndex < endIndex) {
+            // get next format code
+            while (true) {
+                imt++;
+                // end of format statement reached, back to format beginning
+                if (imt > nfmt) {
+                    imt = 0;
+
+                    xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                    xmlWriter.writeCharacters("\n");
+                    xmlWriter.writeCharacters(xmlIndent);
+                    xmlWriter.writeEndElement();   // </row>
+
+                    xmlWriter.writeCharacters("\n");
+                    xmlWriter.writeCharacters(xmlIndent);
+                    xmlWriter.writeStartElement("row");
+                    xmlWriter.writeAttribute("num",""+rowNumber++);
+
+                    xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+                }
+                // right parenthesis, so we're finished processing format(s) in parenthesis
+                else if (formatInts.get(imt-1) == 0) {
+                    lv[lev-1].irepeat++;
+                    // if format in parenthesis was processed
+                    if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
+                        iterm = lv[lev-1].left - 1;
+                        lev--;
+
+                        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                        xmlWriter.writeEndElement();// </repeat>
+                    }
+                    // go for another round of processing by setting 'imt' to the left parenthesis
+                    else {
+                        imt = lv[lev-1].left;
+                        xmlWriter.writeCharacters("\n");
+                    }
+                }
+                else {
+                    // how many times to repeat format code
+                    ncnf = formatInts.get(imt-1)/16;
+                    // format code
+                    kcnf = formatInts.get(imt-1) - 16*ncnf;
+
+                    // left parenthesis, SPECIAL case: #repeats must be taken from data
+                    if (kcnf == 15) {
+                        kcnf = 0;
+                        // read "N" value from buffer
+                        int i = dataBuffer.getInt(dataIndex);
+                        if (swap) {
+                            i = Integer.reverseBytes(i);
+                        }
+                        ncnf = i;
+                        dataIndex += 4;
+                    }
+
+                    // left parenthesis - set new lv[]
+                    if (kcnf == 0) {
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                        xmlWriter.writeStartElement("repeat");
+                        xmlWriter.writeAttribute("count",""+ncnf);
+                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
+                            iterm = imt-1;
+                            while (formatInts.get(imt-1) != 0) {
+                                imt++;
+                            }
+                            xmlWriter.writeCharacters("\n");
+                            xmlWriter.writeCharacters(xmlIndent);
+                            xmlWriter.writeEndElement();// </repeat>
+                            continue;
+                        }
+                        lv[lev].left = imt;
+                        lv[lev].nrepeat = ncnf;
+                        lv[lev].irepeat = 0;
+                        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+
+                        lev++;
+                    }
+                    // single format (e.g. F, I, etc.)
+                    else {
+                        if ((lev == 0) ||
+                            (imt != (nfmt-1)) ||
+                            (imt != lv[lev-1].left+1)) {
+                        }
+                        else {
+                            // If none of above, we are in the end of format
+                            // so set format repeat to a big number.
+                            ncnf = 999999999;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // if 'ncnf' is zero, get "N" from data (always in 'int' format)
+            if (ncnf == 0) {
+                // read "N" value from buffer
+                int i = dataBuffer.getInt(dataIndex);
+                if (swap) {
+                    i = Integer.reverseBytes(i);
+                }
+                ncnf = i;
+                dataIndex += 4;
+            }
+
+            // If 64-bit
+            if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
+                long lng;
+                double d;
+                int count=1, itemsOnLine=2;
+                boolean oneLine = (ncnf <= itemsOnLine);
+
+                xmlWriter.writeCharacters("\n");
+                xmlWriter.writeCharacters(xmlIndent);
+                if (kcnf ==  8) {
+                    xmlWriter.writeStartElement("double");
+                }
+                else if (kcnf ==  9) {
+                    xmlWriter.writeStartElement("int64");
+                }
+                else if (kcnf == 10) {
+                    xmlWriter.writeStartElement("uint64");
+                }
+                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (!oneLine) {
+                    xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+                    xmlWriter.writeCharacters("\n");
+                }
+                else {
+                    xmlWriter.writeCharacters(" ");
+                }
+
+                int b64EndIndex = dataIndex + 8*ncnf;
+                if (b64EndIndex > endIndex) b64EndIndex = endIndex;
+
+                while (dataIndex < b64EndIndex) {
+                    lng = dataBuffer.getLong(dataIndex);
+                    if (swap) lng = Long.reverseBytes(lng);
+
+                    if (!oneLine && count % itemsOnLine == 1) {
+                        xmlWriter.writeCharacters(xmlIndent);
+                    }
+
+                    // double
+                    if (kcnf == 8) {
+                        d = Double.longBitsToDouble(lng);
+if (debug) System.out.println("write double " + d);
+                        xmlWriter.writeCharacters(String.format("%23.16g ",d));
+                    }
+                    // 64 bit int/uint
+                    else {
+if (debug) System.out.println("write long " + lng);
+                        if (hex) xmlWriter.writeCharacters(String.format("0x%016x ",lng));
+                        else     xmlWriter.writeCharacters(String.format("%18d ",lng));
+                    }
+
+                    if (count++ % itemsOnLine == 0) {
+                        xmlWriter.writeCharacters("\n");
+                    }
+                    dataIndex += 8;
+                }
+
+                if (!oneLine) {
+                    xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                    if ((count - 1) % itemsOnLine != 0) {
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                    }
+                }
+                xmlWriter.writeEndElement();
+            }
+            // 32-bit
+            else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
+                float f;
+                int count=1, itemsOnLine=4;
+                boolean oneLine = (ncnf <= itemsOnLine);
+
+                xmlWriter.writeCharacters("\n");
+                xmlWriter.writeCharacters(xmlIndent);
+                if (kcnf ==  2) {
+                    xmlWriter.writeStartElement("float");
+                }
+                else if (kcnf ==  1) {
+                    xmlWriter.writeStartElement("uint32");
+                }
+                else if (kcnf == 11) {
+                    xmlWriter.writeStartElement("int32");
+                }
+                else {
+                    xmlWriter.writeStartElement("Hollerit");
+                }
+                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (!oneLine) {
+                    xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+                    xmlWriter.writeCharacters("\n");
+                }
+                else {
+                    xmlWriter.writeCharacters(" ");
+                }
+
+                int i, b32EndIndex = dataIndex + 4*ncnf;
+                if (b32EndIndex > endIndex) b32EndIndex = endIndex;
+
+                while (dataIndex < b32EndIndex) {
+                    i = dataBuffer.getInt(dataIndex);
+                    if (swap) i = Integer.reverseBytes(i);
+
+                    if (!oneLine && count % itemsOnLine == 1) {
+                        xmlWriter.writeCharacters(xmlIndent);
+                    }
+
+                    // float
+                    if (kcnf == 2) {
+                        f = Float.intBitsToFloat(i) ;
+if (debug) System.out.println("write float " + f);
+                        xmlWriter.writeCharacters(String.format("%14.8g ",f));
+                    }
+                    // Hollerit, 32 bit int/uint
+                    else {
+if (debug) System.out.println("write int " + i);
+                        if (hex) xmlWriter.writeCharacters(String.format("0x%08x ",i));
+                        else     xmlWriter.writeCharacters(String.format("%10d ",i));
+                    }
+
+                    if (count++ % itemsOnLine == 0) {
+                        xmlWriter.writeCharacters("\n");
+                    }
+                    dataIndex += 4;
+                }
+
+                if (!oneLine) {
+                    xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                    if ((count - 1) % itemsOnLine != 0) {
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                    }
+                }
+                xmlWriter.writeEndElement();
+            }
+            // 16 bits
+            else if (kcnf == 4 || kcnf == 5) {
+                short s;
+                int count=1, itemsOnLine=6;
+                boolean oneLine = (ncnf <= itemsOnLine);
+
+
+                xmlWriter.writeCharacters("\n");
+                xmlWriter.writeCharacters(xmlIndent);
+                if (kcnf ==  4) {
+                    xmlWriter.writeStartElement("int16");
+                }
+                else if (kcnf ==  5) {
+                    xmlWriter.writeStartElement("uint16");
+                }
+                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (!oneLine) {
+                    xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+                    xmlWriter.writeCharacters("\n");
+                }
+                else {
+                    xmlWriter.writeCharacters(" ");
+                }
+
+                int b16EndIndex = dataIndex + 2*ncnf;
+                if (b16EndIndex > endIndex) b16EndIndex = endIndex;
+
+                // swap all 16 bit items
+                while (dataIndex < b16EndIndex) {
+                    s = dataBuffer.getShort(dataIndex);
+                    if (swap) s = Short.reverseBytes(s);
+if (debug) System.out.println("write short " + s);
+
+                    if (!oneLine && count % itemsOnLine == 1) {
+                        xmlWriter.writeCharacters(xmlIndent);
+                    }
+
+                    if (hex) xmlWriter.writeCharacters(String.format("0x%04x ", s));
+                    else     xmlWriter.writeCharacters(String.format("%6d ", s));
+
+                    if (count++ % itemsOnLine == 0) {
+                        xmlWriter.writeCharacters("\n");
+                    }
+                    dataIndex += 2;
+                }
+
+                if (!oneLine) {
+                    xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                    if ((count - 1) % itemsOnLine != 0) {
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                    }
+                }
+                xmlWriter.writeEndElement();
+            }
+            // 8 bits
+            else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
+                dataBuffer.position(dataIndex);
+                byte[] bytes = new byte[ncnf];
+                // relative read
+                dataBuffer.get(bytes);
+
+                // string array
+                if (kcnf == 3) {
+                    xmlWriter.writeCharacters("\n");
+                    xmlWriter.writeCharacters(xmlIndent);
+                    xmlWriter.writeStartElement("string");
+                    xmlWriter.writeAttribute("count",""+ncnf);
+
+                    xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+                    xmlWriter.writeCharacters("\n");
+
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    for (String s: strs) {
+                        xmlWriter.writeCharacters(xmlIndent);
+                        xmlWriter.writeCharacters(s);
+                        xmlWriter.writeCharacters("\n");
+                    }
+
+                    xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                    xmlWriter.writeCharacters(xmlIndent);
+                    xmlWriter.writeEndElement();
+                }
+                // char & unsigned char ints
+                else {
+                    int count=1, itemsOnLine=8;
+                    boolean oneLine = (ncnf <= itemsOnLine);
+
+                    xmlWriter.writeCharacters("\n");
+                    xmlWriter.writeCharacters(xmlIndent);
+                    if (kcnf == 6) {
+                        xmlWriter.writeStartElement("int8");
+                    }
+                    else if (kcnf == 7) {
+                        xmlWriter.writeStartElement("uint8");
+                    }
+                    xmlWriter.writeAttribute("count",""+ncnf);
+
+                    if (!oneLine) {
+                        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+                        xmlWriter.writeCharacters("\n");
+                    }
+                    else {
+                        xmlWriter.writeCharacters(" ");
+                    }
+
+                    for (int i=0; i < ncnf; i++) {
+                        if (!oneLine && count % itemsOnLine == 1) {
+                            xmlWriter.writeCharacters(xmlIndent);
+                        }
+if (debug) System.out.println("write byte " + bytes[i]);
+
+                        if (hex) {
+                            xmlWriter.writeCharacters(String.format("0x%02x ", bytes[i]));
+                        }
+                        else {
+                            xmlWriter.writeCharacters(String.format("%4d ", bytes[i]));
+                        }
+
+                        if (count++ % itemsOnLine == 0) {
+                            xmlWriter.writeCharacters("\n");
+                        }
+                    }
+
+                    if (!oneLine) {
+                        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                        if ((count - 1) % itemsOnLine != 0) {
+                            xmlWriter.writeCharacters("\n");
+                            xmlWriter.writeCharacters(xmlIndent);
+                        }
+                    }
+                    xmlWriter.writeEndElement();
+                }
+
+                // reset position
+                dataBuffer.position(0);
+
+                dataIndex += ncnf;
+            }
+        } //while
+
+        // row TODO: may need more than one of these
+        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeEndElement();
+
+        // data
+        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeEndElement();
+
+        // composite
+        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeCharacters(xmlIndent);
+        xmlWriter.writeEndElement();
+    }
+
+
+    /**
      * This method returns a string representation of this CompositeData object
      * suitable for displaying in {@docRoot org.jlab.coda.jevio.graphics.EventTreeFrame}
      * gui. Each data item is separated from those before and after by a line.
