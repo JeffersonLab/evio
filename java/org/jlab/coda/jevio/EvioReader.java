@@ -1124,7 +1124,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if out of memory;
      *                       if object closed
      */
-    private synchronized EvioEvent getEventV4(int index) throws IOException, EvioException {
+    private synchronized EvioEvent getEventV4(int index) throws EvioException {
 
         if (index > mappedMemoryHandler.getEventCount()) {
             return null;
@@ -1149,48 +1149,27 @@ System.err.println("ERROR endOfBuffer " + a);
         }
         header.setLength(length);
 
+        // Read and parse second header word
+        int word = buf.getInt();
+        header.setTag(word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        int type = dt & 0x3f;
+        int padding = dt >>> 6;
+        // If only 7th bit set, that can only be the legacy tagsegment type
+        // with no padding information - convert it properly.
+        if (dt == 0x40) {
+            type = DataType.TAGSEGMENT.getValue();
+            padding = 0;
+        }
+        header.setDataType(type);
+        header.setPadding(padding);
+        header.setNumber(word & 0xff);
+
+        // Once we know what the data type is, let the no-arg constructed
+        // event know what type it is holding so xml names are set correctly.
+        event.setXmlNames();
+
         try {
-            // Read second header word
-            if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                // Interested in bit pattern, not negative numbers
-                int dt;
-                header.setTag(ByteDataTransformer.shortBitsToInt(buf.getShort()));
-                dt = ByteDataTransformer.byteBitsToInt(buf.get());
-
-                int type = dt & 0x3f;
-                int padding = dt >>> 6;
-                // If only 7th bit set, that can only be the legacy tagsegment type
-                // with no padding information - convert it properly.
-                if (dt == 0x40) {
-                    type = DataType.TAGSEGMENT.getValue();
-                    padding = 0;
-                }
-                header.setDataType(type);
-                header.setPadding(padding);
-
-                // Once we know what the data type is, let the no-arg constructed
-                // event know what type it is holding so xml names are set correctly.
-                event.setXmlNames();
-                header.setNumber(ByteDataTransformer.byteBitsToInt(buf.get()));
-            }
-            else {
-                int dt;
-                header.setNumber(ByteDataTransformer.byteBitsToInt(buf.get()));
-                dt = ByteDataTransformer.byteBitsToInt(buf.get());
-
-                int type = dt & 0x3f;
-                int padding = dt >>> 6;
-                if (dt == 0x40) {
-                    type = DataType.TAGSEGMENT.getValue();
-                    padding = 0;
-                }
-                header.setDataType(type);
-                header.setPadding(padding);
-
-                event.setXmlNames();
-                header.setTag(ByteDataTransformer.shortBitsToInt(buf.getShort()));
-            }
-
             // Read the raw data
             eventDataSizeBytes = 4*(length - 1);
             byte bytes[] = new byte[eventDataSizeBytes];
@@ -1199,7 +1178,6 @@ System.err.println("ERROR endOfBuffer " + a);
             event.setRawBytes(bytes);
             event.setByteOrder(byteOrder);
             event.setEventNumber(++eventNumber);
-
         }
         catch (OutOfMemoryError e) {
             throw new EvioException("Out Of Memory: (event size = " + eventDataSizeBytes + ")", e);
@@ -1322,43 +1300,23 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Now should be good to go, except data may cross block boundary.
         // In any case, should be able to read the rest of the header.
-        if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            // interested in bit pattern, not negative numbers
-            header.setTag(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-            int dt = ByteDataTransformer.byteBitsToInt(byteBuffer.get());
 
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            // If only 7th bit set, that can only be the legacy tagsegment type
-            // with no padding information - convert it properly.
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-
-            // Once we know what the data type is, let the no-arg constructed
-            // event know what type it is holding so xml names are set correctly.
-            event.setXmlNames();
-            header.setNumber(ByteDataTransformer.byteBitsToInt(byteBuffer.get()));
+        // Read and parse second header word
+        int word = byteBuffer.getInt();
+        header.setTag(word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        int type = dt & 0x3f;
+        int padding = dt >>> 6;
+        // If only 7th bit set, that can only be the legacy tagsegment type
+        // with no padding information - convert it properly.
+        if (dt == 0x40) {
+            type = DataType.TAGSEGMENT.getValue();
+            padding = 0;
         }
-        else {
-            header.setNumber(ByteDataTransformer.byteBitsToInt(byteBuffer.get()));
-            int dt = ByteDataTransformer.byteBitsToInt(byteBuffer.get());
+        header.setDataType(type);
+        header.setPadding(padding);
+        header.setNumber(word & 0xff);
 
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-
-            event.setXmlNames();
-            header.setTag(ByteDataTransformer.shortBitsToInt(byteBuffer.getShort()));
-        }
         bytesRemaining -= 4; // just read in 4 bytes
 
         // get the raw data
@@ -1866,135 +1824,5 @@ System.err.println("ERROR endOfBuffer " + a);
         return blockCount;
     }
 
-
-	/**
-	 * Method used for diagnostics. It compares two event files. It checks the following (in order):<br>
-	 * <ol>
-	 * <li> That neither file is null.
-	 * <li> That both files exist.
-	 * <li> That neither file is a directory.
-	 * <li> That both files can be read.
-	 * <li> That both files are the same size.
-	 * <li> That both files contain the same number of events.
-	 * <li> Finally, that they are the same in a byte-by-byte comparison.
-	 * </ol>
-     * NOTE: Two files with the same events but different physical record size will be reported as different.
-     *       They will fail the same size test.
-     * @param evFile1 first file to be compared
-     * @param evFile2 second file to be compared
-	 * @return <code>true</code> if the files are, byte-by-byte, identical.
-	 */
-	public static boolean compareEventFiles(File evFile1, File evFile2) {
-
-		if ((evFile1 == null) || (evFile2 == null)) {
-			System.out.println("In compareEventFiles, one or both files are null.");
-			return false;
-		}
-
-		if (!evFile1.exists() || !evFile2.exists()) {
-			System.out.println("In compareEventFiles, one or both files do not exist.");
-			return false;
-		}
-
-		if (evFile1.isDirectory() || evFile2.isDirectory()) {
-			System.out.println("In compareEventFiles, one or both files is a directory.");
-			return false;
-		}
-
-		if (!evFile1.canRead() || !evFile2.canRead()) {
-			System.out.println("In compareEventFiles, one or both files cannot be read.");
-			return false;
-		}
-
-		String name1 = evFile1.getName();
-		String name2 = evFile2.getName();
-
-		long size1 = evFile1.length();
-		long size2 = evFile2.length();
-
-		if (size1 == size2) {
-			System.out.println(name1 + " and " + name2 + " have the same length: " + size1);
-		}
-		else {
-			System.out.println(name1 + " and " + name2 + " have the different lengths.");
-			System.out.println(name1 + ": " + size1);
-			System.out.println(name2 + ": " + size2);
-			return false;
-		}
-
-		try {
-			EvioReader evioFile1 = new EvioReader(evFile1);
-			EvioReader evioFile2 = new EvioReader(evFile2);
-			int evCount1 = evioFile1.getEventCount();
-			int evCount2 = evioFile2.getEventCount();
-			if (evCount1 == evCount2) {
-				System.out.println(name1 + " and " + name2 + " have the same #events: " + evCount1);
-			}
-			else {
-				System.out.println(name1 + " and " + name2 + " have the different #events.");
-				System.out.println(name1 + ": " + evCount1);
-				System.out.println(name2 + ": " + evCount2);
-				return false;
-			}
-		}
-        catch (EvioException e) {
-            e.printStackTrace();
-            return false;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-
-		System.out.print("Byte by byte comparison...");
-		System.out.flush();
-
-		int onetenth = (int)(1 + size1/10);
-
-		//now a byte-by-byte comparison
-		try {
-			FileInputStream fis1 = new FileInputStream(evFile1);
-			FileInputStream fis2 = new FileInputStream(evFile1);
-
-			for (int i = 0; i < size1; i++) {
-				try {
-					int byte1 = fis1.read();
-					int byte2 = fis2.read();
-
-					if (byte1 != byte2) {
-						System.out.println(name1 + " and " + name2 + " different at byte offset: " + i);
-						return false;
-					}
-
-					if ((i % onetenth) == 0) {
-						System.out.print(".");
-						System.out.flush();
-					}
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-					return false;
-				}
-			}
-
-			System.out.println("");
-
-			try {
-				fis1.close();
-				fis2.close();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
-
-		System.out.println("files " + name1 + " and " + evFile2.getPath() + " are identical.");
-		return true;
-	}
 
 }
