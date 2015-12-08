@@ -431,7 +431,7 @@ public final class EvioNode implements Cloneable {
 
     /**
      * Does this object represent an event?
-     * @return <code>true</code> if this object represents and event,
+     * @return <code>true</code> if this object represents an event,
      *         else <code>false</code>
      */
     public boolean isEvent() {
