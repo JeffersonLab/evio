@@ -823,36 +823,21 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         // Hop over length word
         position += 4;
 
-        // Read second header word
-        if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-            node.tag = buffer.getShort(position) & 0xffff;
-            position += 2;
-
-            int dt = buffer.get(position++) & 0xff;
-            node.dataType = dt & 0x3f;
-            node.pad  = dt >>> 6;
-            // If only 7th bit set, that can only be the legacy tagsegment type
-            // with no padding information - convert it properly.
-            if (dt == 0x40) {
-                node.dataType = DataType.TAGSEGMENT.getValue();
-                node.pad = 0;
-            }
-
-            node.num = buffer.get(position) & 0xff;
+        // Read and parse second header word
+        int word = buffer.getInt(position);
+        node.tag = (word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        int type = dt & 0x3f;
+        int padding = dt >>> 6;
+        // If only 7th bit set, that can only be the legacy tagsegment type
+        // with no padding information - convert it properly.
+        if (dt == 0x40) {
+            type = DataType.TAGSEGMENT.getValue();
+            padding = 0;
         }
-        else {
-            node.num = buffer.get(position++) & 0xff;
-
-            int dt = buffer.get(position++) & 0xff;
-            node.dataType = dt & 0x3f;
-            node.pad  = dt >>> 6;
-            if (dt == 0x40) {
-                node.dataType = DataType.TAGSEGMENT.getValue();
-                node.pad = 0;
-            }
-
-            node.tag = buffer.getShort(position) & 0xffff;
-        }
+        node.dataType = type;
+        node.pad = padding;
+        node.num = word & 0xff;
 
         return node;
     }
@@ -887,7 +872,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 //System.out.println("scanStructure: pos = " + position + ", ending pos = " + endingPos +
 //", lim = " + buffer.limit() + ", cap = " + buffer.capacity());
 
-        int dt, dataType, dataLen, len, pad, tag, num;
+        int dt, dataType, dataLen, len, pad, tag, num, word;
 
         // Do something different depending on what node contains
         switch (type) {
@@ -907,37 +892,20 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
                     dataLen = len - 1;
                     position += 4;
 
-                    // Read & parse second header word
-                    if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        tag = buffer.getShort(position) & 0xffff;
-                        position += 2;
-
-                        dt = buffer.get(position++) & 0xff;
-                        dataType = dt & 0x3f;
-                        pad  = dt >>> 6;
-                        // If only 7th bit set, that can only be the legacy tagsegment type
-                        // with no padding information - convert it properly.
-                        if (dt == 0x40) {
-                            dataType = DataType.TAGSEGMENT.getValue();
-                            pad = 0;
-                        }
-
-                        num = buffer.get(position++) & 0xff;
+                    // Read and parse second header word
+                    word = buffer.getInt(position);
+                    position += 4;
+                    tag = (word >>> 16);
+                    dt = (word >> 8) & 0xff;
+                    dataType = dt & 0x3f;
+                    pad = dt >>> 6;
+                    // If only 7th bit set, that can only be the legacy tagsegment type
+                    // with no padding information - convert it properly.
+                    if (dt == 0x40) {
+                        dataType = DataType.TAGSEGMENT.getValue();
+                        pad = 0;
                     }
-                    else {
-                        num = buffer.get(position++) & 0xff;
-
-                        dt = buffer.get(position++) & 0xff;
-                        dataType = dt & 0x3f;
-                        pad  = dt >>> 6;
-                        if (dt == 0x40) {
-                            dataType = DataType.TAGSEGMENT.getValue();
-                            pad = 0;
-                        }
-
-                        tag = buffer.getShort(position) & 0xffff;
-                        position += 2;
-                    }
+                    num = word & 0xff;
 
                     // Cloning is a fast copy that eliminates the need
                     // for setting stuff that's the same as the parent.
@@ -984,30 +952,19 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
                 // Make allowance for reading header (1 int).
                 while (position <= endingPos - 4) {
 
-                    if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        tag = buffer.get(position++) & 0xff;
-                        dt = buffer.get(position++) & 0xff;
-                        dataType = dt & 0x3f;
-                        pad = dt >>> 6;
-                        if (dt == 0x40) {
-                            dataType = DataType.TAGSEGMENT.getValue();
-                            pad = 0;
-                        }
-                        len = buffer.getShort(position) & 0xffff;
-                        position += 2;
+                    word = buffer.getInt(position);
+                    position += 4;
+                    tag = word >>> 24;
+                    dt = (word >>> 16) & 0xff;
+                    dataType = dt & 0x3f;
+                    pad = dt >>> 6;
+                    // If only 7th bit set, that can only be the legacy tagsegment type
+                    // with no padding information - convert it properly.
+                    if (dt == 0x40) {
+                        dataType = DataType.TAGSEGMENT.getValue();
+                        pad = 0;
                     }
-                    else {
-                        len = buffer.getShort(position) & 0xffff;
-                        position += 2;
-                        dt = buffer.get(position++) & 0xff;
-                        dataType = dt & 0x3f;
-                        pad = dt >>> 6;
-                        if (dt == 0x40) {
-                            dataType = DataType.TAGSEGMENT.getValue();
-                            pad = 0;
-                        }
-                        tag = buffer.get(position++) & 0xff;
-                    }
+                    len = word & 0xffff;
 
                     EvioNode kidNode = (EvioNode)node.clone();
 
@@ -1046,22 +1003,11 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
                 // Make allowance for reading header (1 int).
                 while (position <= endingPos - 4) {
 
-                    if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        int temp = buffer.getShort(position) & 0xffff;
-                        position += 2;
-                        tag = temp >>> 4;
-                        dataType = temp & 0xf;
-                        len = buffer.getShort(position) & 0xffff;
-                        position += 2;
-                    }
-                    else {
-                        len = buffer.getShort(position) & 0xffff;
-                        position += 2;
-                        int temp = buffer.getShort(position) & 0xffff;
-                        position += 2;
-                        tag = temp >>> 4;
-                        dataType = temp & 0xf;
-                    }
+                    word = buffer.getInt(position);
+                    position += 4;
+                    tag      = word >>> 20;
+                    dataType = (word >>> 16) & 0xf;
+                    len      = word & 0xffff;
 
                     EvioNode kidNode = (EvioNode)node.clone();
 
