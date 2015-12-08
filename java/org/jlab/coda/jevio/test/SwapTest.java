@@ -2,13 +2,11 @@ package org.jlab.coda.jevio.test;
 
 import org.jlab.coda.jevio.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.channels.FileChannel;
 
 /**
  * Created by IntelliJ IDEA.
@@ -57,13 +55,13 @@ public class SwapTest {
 
 
     // data
-    static      byte[]   byteData   = new byte[]   {};
-    static      short[]  shortData  = new short[]  {};
-    static      int[]    intData    = new int[]    {};
-    static      long[]   longData   = new long[]   {};
-    static      float[]  floatData  = new float[]  {};
-    static      double[] doubleData = new double[] {};
-    static      String[] stringData = new String[] {};
+//    static      byte[]   byteData   = new byte[]   {};
+//    static      short[]  shortData  = new short[]  {};
+//    static      int[]    intData    = new int[]    {};
+//    static      long[]   longData   = new long[]   {};
+//    static      float[]  floatData  = new float[]  {};
+//    static      double[] doubleData = new double[] {};
+//    static      String[] stringData = new String[] {};
 
 //    static      byte[]   byteData   = new byte[]   {1};
 //    static      short[]  shortData  = new short[]  {1};
@@ -73,13 +71,13 @@ public class SwapTest {
 //    static      double[] doubleData = new double[] {1.};
 //    static      String[] stringData = new String[] {"1"};
 
-//    static      byte[]   byteData   = new byte[]   {1,2,3};
-//    static      short[]  shortData  = new short[]  {1,2,3};
-//    static      int[]    intData    = new int[]    {1,2,3};
-//    static      long[]   longData   = new long[]   {1L,2L,3L};
-//    static      float[]  floatData  = new float[]  {1.F,2.F,3.F};
-//    static      double[] doubleData = new double[] {1.,2.,3.};
-//    static      String[] stringData = new String[] {"123", "456", "789"};
+    static      byte[]   byteData   = new byte[]   {1,2,3};
+    static      short[]  shortData  = new short[]  {1,2,3};
+    static      int[]    intData    = new int[]    {1,2,3};
+    static      long[]   longData   = new long[]   {1L,2L,3L};
+    static      float[]  floatData  = new float[]  {1.F,2.F,3.F};
+    static      double[] doubleData = new double[] {1.,2.,3.};
+    static      String[] stringData = new String[] {"123", "456", "789"};
 
 
     static ByteBuffer firstBlockHeader = ByteBuffer.allocate(32);
@@ -144,83 +142,83 @@ public class SwapTest {
                     builder.addChild(bankBanks, bankInts);
 
                     // bank of bytes
-                    EvioBank bankBytes = new EvioBank(tag+1, DataType.UCHAR8, 2);
+                    EvioBank bankBytes = new EvioBank(tag+3, DataType.UCHAR8, 4);
                     //bankBytes.appendByteData(byteData);
                     builder.setByteData(bankBytes, byteData);
                     builder.addChild(bankBanks, bankBytes);
 
                     // bank of shorts
-                    EvioBank bankShorts = new EvioBank(tag+2, DataType.USHORT16, 3);
+                    EvioBank bankShorts = new EvioBank(tag+4, DataType.USHORT16, 5);
                     bankShorts.appendShortData(shortData);
                     builder.addChild(bankBanks, bankShorts);
 
                     // bank of longs
-                    EvioBank bankLongs = new EvioBank(tag+4, DataType.LONG64, 5);
+                    EvioBank bankLongs = new EvioBank(tag+5, DataType.LONG64, 6);
                     bankLongs.appendLongData(longData);
                     builder.addChild(bankBanks, bankLongs);
 
                     // bank of floats
-                    EvioBank bankFloats = new EvioBank(tag+5, DataType.FLOAT32, 6);
+                    EvioBank bankFloats = new EvioBank(tag+6, DataType.FLOAT32, 7);
                     bankFloats.appendFloatData(floatData);
                     builder.addChild(bankBanks, bankFloats);
 
                     // bank of doubles
-                    EvioBank bankDoubles = new EvioBank(tag+5, DataType.DOUBLE64, 6);
+                    EvioBank bankDoubles = new EvioBank(tag+7, DataType.DOUBLE64, 8);
                     bankDoubles.appendDoubleData(doubleData);
                     builder.addChild(bankBanks, bankDoubles);
 
                     // bank of strings
-                    EvioBank bankStrings = new EvioBank(tag+5, DataType.CHARSTAR8, 6);
+                    EvioBank bankStrings = new EvioBank(tag+8, DataType.CHARSTAR8, 9);
                     bankStrings.appendStringData(stringData);
                     builder.addChild(bankBanks, bankStrings);
 
 
                 // Bank of segs
-                EvioBank bankBanks2 = new EvioBank(tag+3, DataType.SEGMENT, 4);
+                EvioBank bankBanks2 = new EvioBank(tag+9, DataType.SEGMENT, 10);
                 builder.addChild(event, bankBanks2);
 
-                    // segment of shorts
-                    EvioSegment segShorts = new EvioSegment(tag+4, DataType.SHORT16);
-                    segShorts.appendShortData(shortData);
-                    builder.addChild(bankBanks2, segShorts);
-
                     // segment of ints
-                    EvioSegment segInts = new EvioSegment(tag+5, DataType.INT32);
+                    EvioSegment segInts = new EvioSegment(tag+10, DataType.INT32);
                     segInts.appendIntData(intData);
                     builder.addChild(bankBanks2, segInts);
 
+                    // segment of shorts
+                    EvioSegment segShorts = new EvioSegment(tag+11, DataType.SHORT16);
+                    segShorts.appendShortData(shortData);
+                    builder.addChild(bankBanks2, segShorts);
+
 
                     // segment of segments
-                    EvioSegment segSegments = new EvioSegment(tag+5, DataType.SEGMENT);
+                    EvioSegment segSegments = new EvioSegment(tag+12, DataType.SEGMENT);
                     builder.addChild(bankBanks2, segSegments);
 
                         // segment of bytes
-                        EvioSegment segBytes = new EvioSegment(tag+6, DataType.CHAR8);
+                        EvioSegment segBytes = new EvioSegment(tag+13, DataType.CHAR8);
                         segBytes.appendByteData(byteData);
                         builder.addChild(segSegments, segBytes);
 
                         // segment of doubles
-                        EvioSegment segDoubles = new EvioSegment(tag+6, DataType.DOUBLE64);
+                        EvioSegment segDoubles = new EvioSegment(tag+14, DataType.DOUBLE64);
                         segDoubles.appendDoubleData(doubleData);
                         builder.addChild(segSegments, segDoubles);
 
 
                 // Bank of tag segs
-                EvioBank bankBanks4 = new EvioBank(tag+7, DataType.TAGSEGMENT, 8);
+                EvioBank bankBanks4 = new EvioBank(tag+15, DataType.TAGSEGMENT, 16);
                 builder.addChild(event, bankBanks4);
 
                     // tag segment of bytes
-                    EvioTagSegment tagSegBytes = new EvioTagSegment(tag+8, DataType.CHAR8);
+                    EvioTagSegment tagSegBytes = new EvioTagSegment(tag+16, DataType.CHAR8);
                     tagSegBytes.appendByteData(byteData);
                     builder.addChild(bankBanks4, tagSegBytes);
 
                     // tag segment of shorts
-                    EvioTagSegment tagSegShorts = new EvioTagSegment(tag+9, DataType.SHORT16);
+                    EvioTagSegment tagSegShorts = new EvioTagSegment(tag+17, DataType.SHORT16);
                     tagSegShorts.appendShortData(shortData);
                     builder.addChild(bankBanks4, tagSegShorts);
 
                     // tag seg of longs
-                    EvioTagSegment tagsegLongs = new EvioTagSegment(tag+4, DataType.LONG64);
+                    EvioTagSegment tagsegLongs = new EvioTagSegment(tag+18, DataType.LONG64);
                     tagsegLongs.appendLongData(longData);
                     builder.addChild(bankBanks4, tagsegLongs);
 
@@ -358,8 +356,71 @@ public class SwapTest {
 
 
 
-    /** For testing only */
+    /** Write event to one file and it swapped version to another file. */
     public static void main(String args[]) {
+
+        try {
+            EvioEvent bank = createSingleEvent(1);
+            int byteSize = bank.getTotalBytes();
+
+            ByteBuffer bb1 = ByteBuffer.allocate(byteSize + 2*(32));
+            ByteBuffer bb2 = ByteBuffer.allocate(byteSize + 2*(32));
+
+            // Write first block header
+            setFirstBlockHeader(byteSize/4, 1);
+            bb1.put(firstBlockHeader);
+            firstBlockHeader.position(0);
+
+            // Write events
+            bank.write(bb1);
+
+            // Write last block header
+            bb1.put(emptyLastHeader);
+            emptyLastHeader.position(0);
+
+            // Get ready to read buffer
+            bb1.flip();
+
+            // Take buffer and swap it
+            ByteDataTransformer.swapEvent(bb1, bb2, 32, 32);
+
+            // Be sure to get evio block headers right so we
+            // can read swapped event with an EvioReader
+            bb2.position(0);
+            bb2.put(firstBlockHeader);
+            firstBlockHeader.position(0);
+            swapBlockHeader(bb2, 0);
+
+            bb2.position(32 + byteSize);
+            bb2.put(emptyLastHeader);
+            emptyLastHeader.position(0);
+            swapBlockHeader(bb2, 32 + byteSize);
+
+            bb2.position(0);
+
+            File evFile = new File("/dev/shm/regularEvent.evio");
+            FileOutputStream fileOutputStream = new FileOutputStream(evFile);
+            FileChannel fileChannel = fileOutputStream.getChannel();
+            fileChannel.write(bb1);
+            fileChannel.close();
+
+            File evFile2 = new File("/dev/shm/swappedEvent.evio");
+            fileOutputStream = new FileOutputStream(evFile2);
+            fileChannel = fileOutputStream.getChannel();
+            fileChannel.write(bb2);
+            fileChannel.close();
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    /** For testing only */
+    public static void main2(String args[]) {
 
         try {
             EvioEvent bank = createSingleEvent(1);
@@ -469,6 +530,5 @@ public class SwapTest {
 
 
     }
-
 
 }
