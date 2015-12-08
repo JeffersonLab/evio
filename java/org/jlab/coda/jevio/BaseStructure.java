@@ -252,6 +252,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 }
                 break;
 
+            case UNKNOWN32:
             case CHAR8:
             case UCHAR8:
                 if (structure.charData != null) {
@@ -351,6 +352,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     }
                     break;
 
+                case UNKNOWN32:
                 case CHAR8:
                 case UCHAR8:
                     if (charData != null) {
@@ -500,10 +502,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 xmlElementName = "string"; break;
             case COMPOSITE:
                 xmlElementName = "composite"; break;
-
             case UNKNOWN32:
-                holdingStructureType = true;
-                xmlContentAttributeName = "unknown32";
+                xmlElementName = "unknown32";
                 break;
 
             case TAGSEGMENT:
@@ -684,7 +684,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * Get the number of stored data items like number of banks, ints, floats, etc.
      * (not the size in ints or bytes). Some items may be padded such as shorts
      * and bytes. This will tell the meaningful number of such data items.
-     * In the case of containers, returns number of bytes not in header.
+     * In the case of containers, returns number of 32-bit words not in header.
      *
      * @return number of stored data items (not size or length),
      *         or number of bytes if container
@@ -705,6 +705,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             DataType type = header.getDataType();
 
             switch (type) {
+                case UNKNOWN32:
                 case CHAR8:
                 case UCHAR8:
                     padding = header.getPadding();
@@ -1153,36 +1154,6 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         catch (CharacterCodingException e) {/* should not happen */}
 
         return stringBuilderToStrings(stringData);
-    }
-
-     // TODO: try this for performance reasons
-    /**
-     * This method extracts an array of strings from buffer containing raw evio string data.
-     *
-     * @param buffer  buffer containing evio string data
-     * @param pos     position of string data in buffer
-     * @param length  length of string data in buffer in bytes
-     * @return array of Strings or null if processing error
-     */
-    static String[] unpackRawBytesToStringsNew(ByteBuffer buffer, int pos, int length) {
-
-        if (buffer == null || pos < 0 || length < 1) return null;
-
-        int oldPos = buffer.position();
-        int oldLim = buffer.limit();
-
-        StringBuilder stringData = null;
-        try {
-            Charset charset = Charset.forName("US-ASCII");
-            CharsetDecoder decoder = charset.newDecoder();
-            stringData = new StringBuilder(decoder.decode(buffer));
-        }
-        catch (CharacterCodingException e) {/* should not happen */}
-
-        String[] strs = stringBuilderToStrings(stringData);
-        buffer.limit(oldLim).position(oldPos);
-
-        return  strs;
     }
 
 
@@ -1731,6 +1702,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 }
 				break;
 
+            case UNKNOWN32:
 			case CHAR8:
 			case UCHAR8:
 				byte bytedata[] = getByteData();
@@ -1822,6 +1794,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 datalen = 1 + (items - 1) / 2;
 				break;
 
+            case UNKNOWN32:
             case CHAR8:
             case UCHAR8:
                 items = getNumberDataItems();
@@ -2067,6 +2040,7 @@ System.err.println("Non leaf with null children!");
 				}
 				break;
 
+            case UNKNOWN32:
 			case CHAR8:
 			case UCHAR8:
                 if (rawBytes != null) {
