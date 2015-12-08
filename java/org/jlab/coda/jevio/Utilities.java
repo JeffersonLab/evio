@@ -1,11 +1,15 @@
 package org.jlab.coda.jevio;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import java.io.StringWriter;
+import java.nio.*;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.IllegalFormatException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -274,5 +278,531 @@ public class Utilities {
 
         buf.position(origPos);
    }
+
+
+    /**
+     * This method takes an EvioNode object and converts it to an EvioEvent object.
+     * @param node EvioNode object to EvioEvent
+     * @throws EvioException if node is not a bank or cannot parse node's buffer
+     */
+    public static EvioEvent nodeToEvent(EvioNode node) throws EvioException {
+
+        if (node == null) {
+            return null;
+        }
+
+        if (node.getTypeObj() != DataType.ALSOBANK &&
+            node.getTypeObj() != DataType.BANK) {
+            throw new EvioException("node is not a bank");
+        }
+
+        // Easiest way to do this is have a reader parse the node's backing buffer.
+        // First create a buffer with space for event and an evio block header.
+        int totalLen = node.len + 1 + 8;
+        ByteBuffer buf = ByteBuffer.allocate(4*totalLen);
+
+        // Get copy of node's backing buffer (evio bank header and data)
+        ByteBuffer eventBuf = node.getStructureBuffer(true);
+
+        // Make sure all data in buf is the same endian
+        buf.order(eventBuf.order());
+
+        // Fill in block header
+        buf.putInt(totalLen);
+        buf.putInt(1);
+        buf.putInt(8);
+        buf.putInt(1);
+        buf.putInt(0);
+        buf.putInt(0x204);
+        buf.putInt(0);
+        buf.putInt(0xc0da0100);
+
+        // Fill in event bytes.
+        buf.put(eventBuf);
+        buf.flip();
+
+        EvioEvent event;
+
+        try {
+            EvioReader reader = new EvioReader(buf);
+            event = reader.parseEvent(1);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            throw new EvioException("cannot parse node's buffer");
+        }
+
+        return event;
+    }
+
+
+    /*---------------------------------------------------------------------------
+     *  EvioNode XML output
+     *--------------------------------------------------------------------------*/
+
+
+    /**
+     * This method takes an EvioNode object and converts it to a readable, XML String.
+     * @param node EvioNode object to print out
+     * @throws EvioException if node is not a bank or cannot parse node's buffer
+     */
+    public static String toXML(EvioNode node) throws EvioException {
+
+        if (node == null) {
+            return null;
+        }
+
+        StringWriter sWriter = null;
+        XMLStreamWriter xmlWriter = null;
+        try {
+            sWriter = new StringWriter();
+            xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sWriter);
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+
+        String xmlIndent = "";
+        nodeToString(node, xmlIndent, xmlWriter);
+
+        return sWriter.toString();
+    }
+
+
+    /**
+     * Increase the indentation of the given XML indentation.
+     * @param xmlIndent String of spaces to increase.
+     * @return increased indentation String
+     */
+    static String increaseXmlIndent(String xmlIndent) {
+        xmlIndent += "   ";
+        return xmlIndent;
+    }
+
+
+    /**
+     * Decrease the indentation of the given XML indentation.
+     * @param xmlIndent String of spaces to increase.
+     * @return Decreased indentation String
+     */
+    static String decreaseXmlIndent(String xmlIndent) {
+        xmlIndent = xmlIndent.substring(0, xmlIndent.length() - 3);
+        return xmlIndent;
+    }
+
+
+    /**
+     * All structures have a common start to their xml writing
+     * @param xmlWriter the writer used to write the node.
+     * @param xmlElementName name of xml element to start.
+     * @param xmlIndent String of spaces.
+     */
+    static private void commonXMLStart(XMLStreamWriter xmlWriter, String xmlElementName,
+                                       String xmlIndent) {
+        try {
+            xmlWriter.writeCharacters("\n");
+            xmlWriter.writeCharacters(xmlIndent);
+            xmlWriter.writeStartElement(xmlElementName);
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * All structures close their xml writing.
+     * @param xmlWriter the writer used to write the node.
+     * @param xmlIndent String of spaces.
+     */
+    static private void commonXMLClose(XMLStreamWriter xmlWriter, String xmlIndent) {
+        try {
+            xmlWriter.writeCharacters("\n");
+            xmlWriter.writeCharacters(xmlIndent);
+            xmlWriter.writeEndElement();
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * This recursive method takes an EvioNode object and
+     * converts it to a readable, XML format String.
+     * @param node EvioNode object to print out.
+     * @param xmlIndent String of spaces.
+     * @param xmlWriter the writer used to write the node.
+     */
+    static private void nodeToString(EvioNode node, String xmlIndent,
+                                     XMLStreamWriter xmlWriter) {
+
+        DataType nodeType = node.getTypeObj();
+        DataType dataType = node.getDataTypeObj();
+
+        try {
+            // If top level ...
+            if (node.isEvent) {
+                int totalLen = node.getLength() + 1;
+                xmlIndent = increaseXmlIndent(xmlIndent);
+                xmlWriter.writeCharacters(xmlIndent);
+                xmlWriter.writeComment(" Buffer " + node.getEventNumber() + " contains " + totalLen + " words (" + 4*totalLen + " bytes)");
+                commonXMLStart(xmlWriter, "event", xmlIndent);
+                xmlWriter.writeAttribute("format", "evio");
+                xmlWriter.writeAttribute("count", "" + node.getEventNumber());
+                if (node.getDataTypeObj().isStructure()) {
+                    xmlWriter.writeAttribute("content", getTypeName(dataType));
+                }
+                xmlWriter.writeAttribute("data_type", String.format("0x%x", node.getDataType()));
+                xmlWriter.writeAttribute("tag", "" + node.getTag());
+                xmlWriter.writeAttribute("num", "" + node.getNum());
+                xmlWriter.writeAttribute("length", "" + node.getLength());
+                xmlIndent = increaseXmlIndent(xmlIndent);
+
+                for (EvioNode n : node.childNodes) {
+                    // Recursive call
+                    nodeToString(n, xmlIndent, xmlWriter);
+                }
+
+                xmlIndent = decreaseXmlIndent(xmlIndent);
+                commonXMLClose(xmlWriter, xmlIndent);
+                xmlWriter.writeCharacters("\n");
+                xmlIndent = decreaseXmlIndent(xmlIndent);
+            }
+
+            // If bank, segment, or tagsegment ...
+            else if (dataType.isStructure()) {
+                xmlWriter.writeCharacters("\n");
+                xmlWriter.writeCharacters(xmlIndent);
+                xmlWriter.writeStartElement(getTypeName(nodeType));
+
+                if (node.getDataTypeObj().isStructure()) {
+                    xmlWriter.writeAttribute("content",  getTypeName(dataType));
+                }
+                xmlWriter.writeAttribute("data_type", String.format("0x%x", node.getDataType()));
+                xmlWriter.writeAttribute("tag", "" + node.getTag());
+                if (nodeType == DataType.BANK || nodeType == DataType.ALSOBANK) {
+                    xmlWriter.writeAttribute("num", "" + node.getNum());
+                }
+                xmlWriter.writeAttribute("length", "" + node.getLength());
+                xmlWriter.writeAttribute("ndata", "" + getNumberDataItems(node));
+
+                ArrayList<EvioNode> childNodes = node.getChildNodes();
+                if (childNodes != null) {
+                    xmlIndent = increaseXmlIndent(xmlIndent);
+
+                    for (EvioNode n : childNodes) {
+                        // Recursive call
+                        nodeToString(n, xmlIndent, xmlWriter);
+                    }
+
+                    xmlIndent = decreaseXmlIndent(xmlIndent);
+                }
+                commonXMLClose(xmlWriter, xmlIndent);
+            }
+
+            // If structure containing data ...
+            else {
+                int count;
+                xmlWriter.writeCharacters("\n");
+                xmlWriter.writeCharacters(xmlIndent);
+                xmlWriter.writeStartElement(getTypeName(dataType));
+                xmlWriter.writeAttribute("data_type", String.format("0x%x", node.getDataType()));
+                xmlWriter.writeAttribute("tag", "" + node.getTag());
+                if (nodeType == DataType.BANK || nodeType == DataType.ALSOBANK) {
+                    xmlWriter.writeAttribute("num", "" + node.getNum());
+                }
+                xmlWriter.writeAttribute("length", "" + node.getLength());
+                count = getNumberDataItems(node);
+                xmlWriter.writeAttribute("ndata", "" + count);
+
+                xmlIndent = increaseXmlIndent(xmlIndent);
+                writeXmlData(node, count, xmlIndent, xmlWriter);
+                xmlIndent = decreaseXmlIndent(xmlIndent);
+
+                commonXMLClose(xmlWriter, xmlIndent);
+            }
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Get the number of stored data items like number of banks, ints, floats, etc.
+     * (not the size in ints or bytes). Some items may be padded such as shorts
+     * and bytes. This will tell the meaningful number of such data items.
+     * In the case of containers, returns number of 32-bit words not in header.
+     *
+     * @param node node to examine
+     * @return number of stored data items (not size or length),
+     *         or number of bytes if container
+     */
+    static private int getNumberDataItems(EvioNode node) {
+        int numberDataItems = 0;
+
+        if (node.getDataTypeObj().isStructure()) {
+            numberDataItems = node.getDataLength();
+        }
+        else {
+            // We can figure out how many data items
+            // based on the size of the raw data
+            DataType type = node.getDataTypeObj();
+
+            switch (type) {
+                case UNKNOWN32:
+                case CHAR8:
+                case UCHAR8:
+                    numberDataItems = (4*node.getDataLength() - node.getPad());
+                    break;
+                case SHORT16:
+                case USHORT16:
+                    numberDataItems = (4*node.getDataLength() - node.getPad())/2;
+                    break;
+                case INT32:
+                case UINT32:
+                case FLOAT32:
+                    numberDataItems = node.getDataLength();
+                    break;
+                case LONG64:
+                case ULONG64:
+                case DOUBLE64:
+                    numberDataItems = node.getDataLength()/2;
+                    break;
+                case CHARSTAR8:
+                    String[] s = BaseStructure.unpackRawBytesToStrings(
+                                    node.bufferNode.buffer, node.dataPos, 4*node.dataLen);
+
+                    if (s == null) {
+                        numberDataItems = 0;
+                        break;
+                    }
+                    numberDataItems = s.length;
+                    break;
+                case COMPOSITE:
+                    // For this type, numberDataItems is NOT used to
+                    // calculate the data length so we're OK returning
+                    // any reasonable value here.
+                    numberDataItems = 1;
+                    CompositeData[] compositeData = null;
+                    try {
+                        // Data needs to be in a byte array
+                        byte[] rawBytes = new byte[4*(node.len + 1)];
+                        // Wrap array with ByteBuffer for easy transfer of data
+                        ByteBuffer rawBuffer = ByteBuffer.wrap(rawBytes);
+
+                        // The node's backing buffer may or may not have a backing array.
+                        // Just assume it doesn't and proceed from there.
+                        ByteBuffer buf = node.getStructureBuffer(true);
+
+                        // Write data into array
+                        rawBuffer.put(buf);
+
+                        compositeData = CompositeData.parse(rawBytes, buf.order());
+                    }
+                    catch (EvioException e) {
+                        e.printStackTrace();
+                    }
+                    if (compositeData != null) numberDataItems = compositeData.length;
+                    break;
+                default:
+            }
+        }
+
+        return numberDataItems;
+    }
+
+
+    /**
+     * This method returns an XML element name given an evio data type.
+     * @param type evio data type
+     * @return XML element name used in evio event xml output
+     */
+    static private String getTypeName(DataType type) {
+
+        if (type == null) return null;
+
+        switch (type) {
+            case CHAR8:
+                return "int8";
+            case UCHAR8:
+                return "uint8";
+            case SHORT16:
+                return "int16";
+            case USHORT16:
+                return "uint16";
+            case INT32:
+                return "int32";
+            case UINT32:
+                return "uint32";
+            case LONG64:
+                return "int64";
+            case ULONG64:
+                return "uint64";
+            case FLOAT32:
+                return "float32";
+            case DOUBLE64:
+                return "float64";
+            case CHARSTAR8:
+                return "string";
+            case COMPOSITE:
+                return "composite";
+            case UNKNOWN32:
+                return "unknown32";
+
+            case TAGSEGMENT:
+                return "tagsegment";
+
+            case SEGMENT:
+            case ALSOSEGMENT:
+                return "segment";
+
+            case BANK:
+            case ALSOBANK:
+                return "bank";
+
+            default:
+                return "unknown";
+        }
+    }
+
+
+    /**
+  	 * Write data as XML output for EvioNode.
+  	 * @param node the EvioNode object whose data is to be converted to String form.
+     * @param count number of data items (shorts, longs, doubles, etc.) in this node
+     *              (not children)
+     * @param xmlIndent String of spaces.
+     * @param xmlWriter the writer used to write the node.
+  	 */
+  	static private void writeXmlData(EvioNode node, int count, String xmlIndent,
+                                     XMLStreamWriter xmlWriter) {
+
+  		// Only leaves write data
+  		if (node.getDataTypeObj().isStructure()) {
+  			return;
+  		}
+
+        try {
+            String s;
+            String indent = String.format("\n%s", xmlIndent);
+
+            ByteBuffer buf = node.getByteData(true);
+
+  			switch (node.getDataTypeObj()) {
+  			case DOUBLE64:
+  				DoubleBuffer dbuf = buf.asDoubleBuffer();
+                for (int i=0; i < count; i++) {
+                    if (i%2 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+                    s = String.format("%24.16e  ", dbuf.get(i));
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case FLOAT32:
+                FloatBuffer fbuf = buf.asFloatBuffer();
+                for (int i=0; i < count; i++) {
+                    if (i%2 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+                    s = String.format("%14.7e  ", fbuf.get(i));
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case LONG64:
+  			case ULONG64:
+                LongBuffer lbuf = buf.asLongBuffer();
+                for (int i=0; i < count; i++) {
+                    if (i%2 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+                    s = String.format("%20d  ", lbuf.get(i));
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case INT32:
+  			case UINT32:
+                IntBuffer ibuf = buf.asIntBuffer();
+                for (int i=0; i < count; i++) {
+                    if (i%5 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+                    s = String.format("%11d  ", ibuf.get(i));
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case SHORT16:
+  			case USHORT16:
+                ShortBuffer sbuf = buf.asShortBuffer();
+                for (int i=0; i < count; i++) {
+                    if (i%5 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+                    s = String.format("%6d  ", sbuf.get(i));
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+            case UNKNOWN32:
+  			case CHAR8:
+  			case UCHAR8:
+                for (int i=0; i < count; i++) {
+                    if (i%5 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+                    s = String.format("%4d  ", buf.get(i));
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case CHARSTAR8:
+                String[] stringdata = BaseStructure.unpackRawBytesToStrings(
+                        node.bufferNode.buffer, node.dataPos, 4 * node.dataLen);
+
+                if (stringdata == null) {
+                    break;
+                }
+
+                for (String str : stringdata) {
+                    xmlWriter.writeCharacters("\n");
+                    xmlWriter.writeCData(str);
+                }
+  				break;
+
+              case COMPOSITE:
+                  CompositeData[] compositeData;
+                  // Data needs to be in a byte array
+                  byte[] rawBytes = new byte[4*(node.len + 1)];
+                  // Wrap array with ByteBuffer for easy transfer of data
+                  ByteBuffer rawBuffer = ByteBuffer.wrap(rawBytes);
+
+                  // The node's backing buffer may or may not have a backing array.
+                  // Just assume it doesn't and proceed from there.
+                  ByteBuffer compBuf = node.getStructureBuffer(true);
+
+                  // Write data into array
+                  rawBuffer.put(compBuf);
+
+                  compositeData = CompositeData.parse(rawBytes, compBuf.order());
+                  if (compositeData != null) {
+                      for (CompositeData cd : compositeData) {
+                          cd.toXML(xmlWriter, xmlIndent, true);
+                      }
+                  }
+                  break;
+
+              default:
+              }
+  		}
+  		catch (Exception e) {
+  			e.printStackTrace();
+  		}
+  	}
 
 }
