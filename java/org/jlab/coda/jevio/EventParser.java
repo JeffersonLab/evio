@@ -79,14 +79,13 @@ public class EventParser {
 	private void parseStructure(EvioEvent evioEvent, BaseStructure structure) throws EvioException {
 
 		// update the tree
-		BaseStructure child = structure;
-		BaseStructure parent = child.getParent();
+		BaseStructure parent = structure.getParent();
 
 		if (parent == null) { // start of event
 			evioEvent.treeModel = new DefaultTreeModel(evioEvent);
 		}
 		else {
-			evioEvent.insert(child, parent);
+			evioEvent.insert(structure, parent);
 		}
 
 		// if it is not a structure of structures, we are done. That will leave the raw bytes in
@@ -105,9 +104,7 @@ public class EventParser {
         ByteOrder byteOrder = structure.getByteOrder();
 
         if (bytes == null) {
-            if (evioEvent == null) {
-                throw new EvioException("Null data in parseStructure (Bank).");
-            }
+            throw new EvioException("Null data in parseStructure (Bank).");
         }
 
         int length = bytes.length;
@@ -226,41 +223,21 @@ public class EventParser {
         header.setLength(len);
         offset += 4;
 
-        if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            // interested in bit pattern, not negative numbers
-            header.setTag(ByteDataTransformer.shortBitsToInt(
-                    ByteDataTransformer.toShort(bytes, byteOrder, offset)));
-            offset += 2;
-            int dt = ByteDataTransformer.byteBitsToInt(bytes[offset]);
-            offset++;
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            // If only 7th bit set, that can only be the legacy tagsegment type
-            // with no padding information - convert it properly.
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-            header.setNumber(ByteDataTransformer.byteBitsToInt(bytes[offset]));
+        // Read and parse second header word
+        int word = ByteDataTransformer.toInt(bytes, byteOrder, offset);
+        header.setTag(word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        int type = dt & 0x3f;
+        int padding = dt >>> 6;
+        // If only 7th bit set, that can only be the legacy tagsegment type
+        // with no padding information - convert it properly.
+        if (dt == 0x40) {
+            type = DataType.TAGSEGMENT.getValue();
+            padding = 0;
         }
-        else {
-            header.setNumber(ByteDataTransformer.byteBitsToInt(bytes[offset]));
-            offset++;
-            int dt = ByteDataTransformer.byteBitsToInt(bytes[offset]);
-            offset++;
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-            header.setTag(ByteDataTransformer.shortBitsToInt(
-                    ByteDataTransformer.toShort(bytes, byteOrder, offset)));
-        }
+        header.setDataType(type);
+        header.setPadding(padding);
+        header.setNumber(word & 0xff);
 
         return header;
     }
@@ -281,62 +258,32 @@ public class EventParser {
 
         SegmentHeader header = new SegmentHeader();
 
-         // Can we read at least 1 seg header?
+        // Can we read at least 1 seg header?
         if (offset + 4 > bytes.length) {
             throw new EvioException("bad evio format");
         }
 
-        if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            header.setTag(ByteDataTransformer.byteBitsToInt(bytes[offset]));
-            offset++;
-            int dt = ByteDataTransformer.byteBitsToInt(bytes[offset]);
-            offset++;
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            // If only 7th bit set, that can only be the legacy tagsegment type
-            // with no padding information - convert it properly.
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
+        // Read and parse header word
+        int word = ByteDataTransformer.toInt(bytes, byteOrder, offset);
 
-            // Does the length make sense?
-            int len = ByteDataTransformer.shortBitsToInt(
-                          ByteDataTransformer.toShort(bytes, byteOrder, offset));
-            // Remember, offset has been advanced here, thus the + 2 instead of + 4
-            if ((len < 0) || (4*len + 2 + offset > bytes.length)) {
-System.out.println("Type = " + DataType.getDataType(type) + ", offset = " + offset +
-                   ", len = " + len);
-                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")," +
-                "4(len + 1) + off = " + (4*len + 4 + offset) + " > limit = " + (bytes.length));
-            }
-
-            header.setLength(len);
+        int len = word & 0xffff;
+        if ((len < 0) || (4*len + 4 + offset > bytes.length)) {
+            throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
         }
-        else {
-            // Does the length make sense?
-            int len = ByteDataTransformer.shortBitsToInt(
-                          ByteDataTransformer.toShort(bytes, byteOrder, offset));
-            if ((len < 0) || (4*len + 4 + offset > bytes.length)) {
-                throw new EvioException("bad length in seg header (0x" + Integer.toHexString(len) + ")");
-            }
+        header.setLength(len);
 
-            header.setLength(len);
-            offset += 2;
-            int dt = ByteDataTransformer.byteBitsToInt(bytes[offset]);
-            offset++;
-            int type = dt & 0x3f;
-            int padding = dt >>> 6;
-            if (dt == 0x40) {
-                type = DataType.TAGSEGMENT.getValue();
-                padding = 0;
-            }
-            header.setDataType(type);
-            header.setPadding(padding);
-            header.setTag(ByteDataTransformer.byteBitsToInt(bytes[offset]));
+        int dt = (word >>> 16) & 0xff;
+        int type = dt & 0x3f;
+        int padding = dt >>> 6;
+        // If only 7th bit set, that can only be the legacy tagsegment type
+        // with no padding information - convert it properly.
+        if (dt == 0x40) {
+            type = DataType.TAGSEGMENT.getValue();
+            padding = 0;
         }
+        header.setDataType(type);
+        header.setPadding(padding);
+        header.setTag(word >>> 24);
 
         return header;
     }
@@ -363,40 +310,17 @@ System.out.println("Type = " + DataType.getDataType(type) + ", offset = " + offs
             throw new EvioException("bad evio format");
         }
 
-        try {
-            if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                temp = ByteDataTransformer.shortBitsToInt(
-                        ByteDataTransformer.toShort(bytes, byteOrder, offset));
-                offset += 2;
-                header.setTag(temp >>> 4);
-                header.setDataType(temp & 0xF);
+         // Read and parse header word
+        int word = ByteDataTransformer.toInt(bytes, byteOrder, offset);
 
-                // Does the length make sense?
-                int len = ByteDataTransformer.shortBitsToInt(
-                        ByteDataTransformer.toShort(bytes, byteOrder, offset));
-                if ((len < 0) || (4*len + 2 + offset > bytes.length)) {
-                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
-                }
-
-                header.setLength(len);
-            }
-            else {
-                // Does the length make sense?
-                int len = ByteDataTransformer.shortBitsToInt(
-                        ByteDataTransformer.toShort(bytes, byteOrder, offset));
-                if ((len < 0) || (4*len + 4 + offset > bytes.length)) {
-                    throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
-                }
-
-                header.setLength(len);
-                offset += 2;
-                temp = ByteDataTransformer.shortBitsToInt(
-                        ByteDataTransformer.toShort(bytes, byteOrder, offset));
-                header.setTag(temp >>> 4);
-                header.setDataType(temp & 0xF);
-            }
+        int len = word & 0xffff;
+        if ((len < 0) || (4*len + 4 + offset > bytes.length)) {
+            throw new EvioException("bad length in tagseg header (0x" + Integer.toHexString(len) + ")");
         }
-        catch (EvioException e) {/* never happen */}
+        header.setLength(len);
+
+        header.setDataType((word >>> 16) & 0xf);
+        header.setTag(word >>> 20);
 
         return header;
 	}
