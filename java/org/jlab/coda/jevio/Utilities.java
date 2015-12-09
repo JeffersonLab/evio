@@ -588,18 +588,18 @@ public class Utilities {
                     CompositeData[] compositeData = null;
                     try {
                         // Data needs to be in a byte array
-                        byte[] rawBytes = new byte[4*(node.len + 1)];
+                        byte[] rawBytes = new byte[4*node.dataLen];
                         // Wrap array with ByteBuffer for easy transfer of data
                         ByteBuffer rawBuffer = ByteBuffer.wrap(rawBytes);
 
                         // The node's backing buffer may or may not have a backing array.
                         // Just assume it doesn't and proceed from there.
-                        ByteBuffer buf = node.getStructureBuffer(true);
+                        ByteBuffer buf = node.getByteData(true);
 
                         // Write data into array
-                        rawBuffer.put(buf);
+                        rawBuffer.put(buf).order(buf.order());
 
-                        compositeData = CompositeData.parse(rawBytes, buf.order());
+                        compositeData = CompositeData.parse(rawBytes, rawBuffer.order());
                     }
                     catch (EvioException e) {
                         e.printStackTrace();
@@ -778,18 +778,14 @@ public class Utilities {
               case COMPOSITE:
                   CompositeData[] compositeData;
                   // Data needs to be in a byte array
-                  byte[] rawBytes = new byte[4*(node.len + 1)];
+                  byte[] rawBytes = new byte[4*node.dataLen];
                   // Wrap array with ByteBuffer for easy transfer of data
                   ByteBuffer rawBuffer = ByteBuffer.wrap(rawBytes);
 
-                  // The node's backing buffer may or may not have a backing array.
-                  // Just assume it doesn't and proceed from there.
-                  ByteBuffer compBuf = node.getStructureBuffer(true);
-
                   // Write data into array
-                  rawBuffer.put(compBuf);
+                  rawBuffer.put(buf).order(buf.order());
 
-                  compositeData = CompositeData.parse(rawBytes, compBuf.order());
+                  compositeData = CompositeData.parse(rawBytes, buf.order());
                   if (compositeData != null) {
                       for (CompositeData cd : compositeData) {
                           cd.toXML(xmlWriter, xmlIndent, true);
