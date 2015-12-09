@@ -303,7 +303,6 @@ public class EventParser {
             throws EvioException {
 
         TagSegmentHeader header = new TagSegmentHeader();
-		int temp;
 
         // Can we read at least 1 tagseg header?
         if (offset + 4 > bytes.length) {
