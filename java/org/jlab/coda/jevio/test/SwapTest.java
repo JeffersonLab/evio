@@ -119,6 +119,64 @@ public class SwapTest {
     }
 
 
+    static CompositeData[] createCompositeData() {
+           // Create a CompositeData object ...
+
+        // Format 1 to write a N shorts, 1 float, 1 double a total of N times
+        String format1 = "N(NS,F,D)";
+
+        // Now create some data
+        CompositeData.Data myData1 = new CompositeData.Data();
+        myData1.addN(2);
+        myData1.addN(3);
+        myData1.addShort(new short[]{1, 2, 3}); // use array for convenience
+        myData1.addFloat(1.0F);
+        myData1.addDouble(Math.PI);
+        myData1.addN(1);
+        myData1.addShort((short) 4); // use array for convenience
+        myData1.addFloat(2.0F);
+        myData1.addDouble(2. * Math.PI);
+
+        // Format 2 to write an unsigned int, unsigned char, and N number of
+        // M (int to be found) ascii characters & 1 64-bit int. We need to
+        // wait before we can create this format string because we don't know
+        // yet how many String characters (M) we have to determine the "Ma" term.
+        // String format2 = "i,c,N(Ma,L)";
+
+        // Now create some data
+        CompositeData.Data myData2 = new CompositeData.Data();
+        myData2.addUint(21);
+        myData2.addUchar((byte) 22);
+        myData2.addN(1);
+        // Define our ascii data
+        String s[] = new String[2];
+        s[0] = "str1";
+        s[1] = "str2";
+        // Find out how what the composite format representation of this string is
+        String asciiFormat = CompositeData.stringsToFormat(s);
+        // Format to write an unsigned int, unsigned char, and N number of
+        // M ascii characters & 1 64-bit int.
+        System.out.println("ascii format = " + asciiFormat);
+        String format2 = "i,c,N(" + asciiFormat + ",L)";
+        myData2.addString(s);
+        myData2.addLong(24L);
+
+        // Create CompositeData array
+        CompositeData[] cData = new CompositeData[2];
+        try {
+            cData[0] = new CompositeData(format1, 1, myData1, 1, 1);
+            cData[1] = new CompositeData(format2, 2, myData2, 2 ,2);
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        return cData;
+    }
+
+
+
     static EvioEvent createSingleEvent(int tag) {
 
         // Top level event
@@ -171,6 +229,12 @@ public class SwapTest {
                     EvioBank bankStrings = new EvioBank(tag+8, DataType.CHARSTAR8, 9);
                     bankStrings.appendStringData(stringData);
                     builder.addChild(bankBanks, bankStrings);
+
+                    // bank of composite data array
+                    CompositeData[] cdata = createCompositeData();
+                    EvioBank bankComps = new EvioBank(tag+9, DataType.COMPOSITE, 10);
+                    bankComps.appendCompositeData(cdata);
+                    builder.addChild(bankBanks, bankComps);
 
 
                 // Bank of segs
