@@ -271,7 +271,7 @@ System.out.println("Call CompositeData.swapAll()");
 
         // Create a CompositeData object ...
 
-        // Format to write a N shorts, 1 float, 1 double a total of N times
+        // Format to write 1 int and 1 float a total of N times
         String format = "N(I,F)";
 
 System.out.println("format = " + format);
