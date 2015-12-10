@@ -723,6 +723,10 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     divisor = 8; break;
                 case CHARSTAR8:
                     String[] s = getStringData();
+                    if (s ==  null) {
+                        numberDataItems = 0;
+                        break;
+                    }
                     numberDataItems = s.length;
                     break;
                 case COMPOSITE:
@@ -1810,12 +1814,22 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 			case SHORT16:
 			case USHORT16:
-			    datalen = 1 + (getNumberDataItems() - 1) / 2;
+                int items = getNumberDataItems();
+                if (items == 0) {
+                    datalen = 0;
+                    break;
+                }
+                datalen = 1 + (items - 1) / 2;
 				break;
 
             case CHAR8:
             case UCHAR8:
-                datalen = 1 + (getNumberDataItems() - 1) / 4;
+                items = getNumberDataItems();
+                if (items == 0) {
+                    datalen = 0;
+                    break;
+                }
+                datalen = 1 + (items - 1) / 4;
                 break;
 
             case CHARSTAR8: // rawbytes contain ascii, already padded
