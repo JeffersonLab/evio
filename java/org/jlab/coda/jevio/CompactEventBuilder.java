@@ -1546,6 +1546,64 @@ public class CompactEventBuilder {
 
 
     /**
+     * Appends CompositeData objects to the structure.
+     *
+     * @param data the CompositeData objects to append, or set if there is no existing data.
+     * @throws EvioException if data is null or empty;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+	public void addCompositeData(CompositeData data[]) throws EvioException {
+
+        if (data == null || data.length < 1) {
+            throw new EvioException("no data to add");
+        }
+
+        if (currentStructure == null) {
+            throw new EvioException("add a bank, segment, or tagsegment first");
+        }
+
+        if (currentStructure.dataType != DataType.COMPOSITE) {
+            throw new EvioException("may only add " + currentStructure.dataType + " data");
+        }
+
+        // Composite data is always in the local (in this case, BIG) endian
+        // because if generated in JVM that's true, and if read in, it is
+        // swapped to local if necessary. Either case it's big endian.
+
+        // Convert composite data into byte array (already padded)
+        byte[] rawBytes = CompositeData.generateRawBytes(data);
+
+        // Sets pos = 0, limit = capacity, & does NOT clear data
+        buffer.clear();
+
+        int len = rawBytes.length;
+        if (buffer.limit() - position < len) {
+            throw new EvioException("no room in buffer");
+        }
+
+        // This method cannot be called multiple times in succession.
+        if (currentStructure.dataLen > 0) {
+            throw new EvioException("addCompositeData() may only be called once per structure");
+        }
+
+        if (useByteBuffer) {
+            buffer.position(position);
+            buffer.put(rawBytes);
+            buffer.position(0);
+        }
+        else {
+            System.arraycopy(rawBytes, 0, array, position, len);
+        }
+        currentStructure.dataLen += len;
+        addToAllLengths(len/4);
+
+        position += len;
+	}
+
+
+    /**
      * This method writes a file in proper evio format with block header
      * containing the single event constructed by this object. This is
      * useful as a test to see if event is being properly constructed.
