@@ -176,14 +176,13 @@ public class SwapTest {
     }
 
 
-
+    /** Build an event with an EventBuilder. */
     static EvioEvent createSingleEvent(int tag) {
 
         // Top level event
         EvioEvent event = null;
 
         try {
-
             // Build event (bank of banks) with EventBuilder object
             EventBuilder builder = new EventBuilder(tag, DataType.BANK, 1);
             event = builder.getEvent();
@@ -199,13 +198,13 @@ public class SwapTest {
                     builder.setIntData(bankInts, intData);
                     builder.addChild(bankBanks, bankInts);
 
-                    // bank of bytes
+                    // bank of unsigned bytes
                     EvioBank bankBytes = new EvioBank(tag+3, DataType.UCHAR8, 4);
                     //bankBytes.appendByteData(byteData);
                     builder.setByteData(bankBytes, byteData);
                     builder.addChild(bankBanks, bankBytes);
 
-                    // bank of shorts
+                    // bank of unsigned shorts
                     EvioBank bankShorts = new EvioBank(tag+4, DataType.USHORT16, 5);
                     bankShorts.appendShortData(shortData);
                     builder.addChild(bankBanks, bankShorts);
@@ -238,51 +237,51 @@ public class SwapTest {
 
 
                 // Bank of segs
-                EvioBank bankBanks2 = new EvioBank(tag+9, DataType.SEGMENT, 10);
+                EvioBank bankBanks2 = new EvioBank(tag+10, DataType.SEGMENT, 11);
                 builder.addChild(event, bankBanks2);
 
                     // segment of ints
-                    EvioSegment segInts = new EvioSegment(tag+10, DataType.INT32);
+                    EvioSegment segInts = new EvioSegment(tag+11, DataType.INT32);
                     segInts.appendIntData(intData);
                     builder.addChild(bankBanks2, segInts);
 
                     // segment of shorts
-                    EvioSegment segShorts = new EvioSegment(tag+11, DataType.SHORT16);
+                    EvioSegment segShorts = new EvioSegment(tag+12, DataType.SHORT16);
                     segShorts.appendShortData(shortData);
                     builder.addChild(bankBanks2, segShorts);
 
 
                     // segment of segments
-                    EvioSegment segSegments = new EvioSegment(tag+12, DataType.SEGMENT);
+                    EvioSegment segSegments = new EvioSegment(tag+13, DataType.SEGMENT);
                     builder.addChild(bankBanks2, segSegments);
 
                         // segment of bytes
-                        EvioSegment segBytes = new EvioSegment(tag+13, DataType.CHAR8);
+                        EvioSegment segBytes = new EvioSegment(tag+14, DataType.CHAR8);
                         segBytes.appendByteData(byteData);
                         builder.addChild(segSegments, segBytes);
 
                         // segment of doubles
-                        EvioSegment segDoubles = new EvioSegment(tag+14, DataType.DOUBLE64);
+                        EvioSegment segDoubles = new EvioSegment(tag+15, DataType.DOUBLE64);
                         segDoubles.appendDoubleData(doubleData);
                         builder.addChild(segSegments, segDoubles);
 
 
                 // Bank of tag segs
-                EvioBank bankBanks4 = new EvioBank(tag+15, DataType.TAGSEGMENT, 16);
+                EvioBank bankBanks4 = new EvioBank(tag+16, DataType.TAGSEGMENT, 17);
                 builder.addChild(event, bankBanks4);
 
                     // tag segment of bytes
-                    EvioTagSegment tagSegBytes = new EvioTagSegment(tag+16, DataType.CHAR8);
+                    EvioTagSegment tagSegBytes = new EvioTagSegment(tag+17, DataType.CHAR8);
                     tagSegBytes.appendByteData(byteData);
                     builder.addChild(bankBanks4, tagSegBytes);
 
                     // tag segment of shorts
-                    EvioTagSegment tagSegShorts = new EvioTagSegment(tag+17, DataType.SHORT16);
+                    EvioTagSegment tagSegShorts = new EvioTagSegment(tag+18, DataType.SHORT16);
                     tagSegShorts.appendShortData(shortData);
                     builder.addChild(bankBanks4, tagSegShorts);
 
                     // tag seg of longs
-                    EvioTagSegment tagsegLongs = new EvioTagSegment(tag+18, DataType.LONG64);
+                    EvioTagSegment tagsegLongs = new EvioTagSegment(tag+19, DataType.LONG64);
                     tagsegLongs.appendLongData(longData);
                     builder.addChild(bankBanks4, tagsegLongs);
 
@@ -292,83 +291,125 @@ public class SwapTest {
         }
 
         return event;
-
     }
 
-    static EvioEvent createSimpleEvent(int tag) {
 
-        // Top level event
-        EvioEvent event = null;
+    /** Build the same event as above but with a CompactEventBuilder instead of an EventBuilder. */
+    static ByteBuffer createCompactSingleEvent(int tag) {
+
+        // Buffer to fill
+        ByteBuffer buffer = ByteBuffer.allocate(1048);
+        CompactEventBuilder builder = null;
+        int num = tag;
 
         try {
-            // Build event (bank of banks) with EventBuilder object
-            EventBuilder builder = new EventBuilder(tag, DataType.BANK, 1);
-            event = builder.getEvent();
+            builder = new CompactEventBuilder(buffer);
 
-//            // bank of bytes
-//            EvioBank bankBytes = new EvioBank(tag+1, DataType.UCHAR8, 2);
-//            bankBytes.appendByteData(byteData);
-//            builder.addChild(event, bankBytes);
-//
-//            // bank of shorts
-//            EvioBank bankShorts = new EvioBank(tag+2, DataType.USHORT16, 3);
-//            bankShorts.appendShortData(shortData);
-//            builder.addChild(event, bankShorts);
-//
-//            // bank of ints
-//            EvioBank bankInts = new EvioBank(tag+3, DataType.INT32, 4);
-//            bankInts.appendIntData(intData);
-//            builder.addChild(event, bankInts);
-//
-//            // bank of longs
-//            EvioBank bankLongs = new EvioBank(tag+4, DataType.LONG64, 5);
-//            bankLongs.appendLongData(longData);
-//            builder.addChild(event, bankLongs);
-//
-//            // bank of floats
-//            EvioBank bankFloats = new EvioBank(tag+5, DataType.FLOAT32, 6);
-//            bankFloats.appendFloatData(floatData);
-//            builder.addChild(event, bankFloats);
+            // add top/event level bank of banks
+            builder.openBank(tag, num, DataType.BANK);
 
-            // bank of doubles
-            EvioBank bankDoubles = new EvioBank(tag+6, DataType.DOUBLE64, 7);
-            bankDoubles.appendDoubleData(doubleData);
-            builder.addChild(event, bankDoubles);
+                // add bank of banks
+                builder.openBank(tag+1, num+1, DataType.BANK);
 
-//            // bank of string array
-//            EvioBank bankStrings = new EvioBank(tag+7, DataType.CHARSTAR8, 8);
-//            for (int i=0; i < stringData.length; i++) {
-//                bankStrings.appendStringData(stringData[i]);
-//            }
-//            builder.addChild(event, bankStrings);
+                    // add bank of ints
+                    builder.openBank(tag+2, num+2, DataType.INT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
 
-            // bank of composite data
-            CompositeData.Data cData = new CompositeData.Data();
-            cData.addShort((short) 1);
-            cData.addInt(1);
-            cData.addLong(1L);
-            cData.addFloat(1);
-            cData.addDouble(1.);
+                    // add bank of unsigned bytes
+                    builder.openBank(tag+3, num+3, DataType.UCHAR8);
+                    builder.addByteData(byteData);
+                    builder.closeStructure();
 
-            cData.addShort((short) 2);
-            cData.addInt(2);
-            cData.addLong(2L);
-            cData.addFloat(2);
-            cData.addDouble(2.);
+                    // add bank of unsigned shorts
+                    builder.openBank(tag+4, num+4, DataType.USHORT16);
+                    builder.addShortData(shortData);
+                    builder.closeStructure();
 
-            CompositeData cd = new CompositeData("S,I,L,F,D", 1, cData, 2, 3);
-            System.out.println("CD:\n" +  cd.toString());
+                    // add bank of longs
+                    builder.openBank(tag+5, num+5, DataType.LONG64);
+                    builder.addLongData(longData);
+                    builder.closeStructure();
 
-            EvioBank bankComposite = new EvioBank(tag+8, DataType.COMPOSITE, 9);
-            bankComposite.appendCompositeData(new CompositeData[]{cd});
-            builder.addChild(event, bankComposite);
+                    // add bank of floats
+                    builder.openBank(tag+6, num+6, DataType.FLOAT32);
+                    builder.addFloatData(floatData);
+                    builder.closeStructure();
 
+                    // add bank of doubles
+                    builder.openBank(tag+7, num+7, DataType.DOUBLE64);
+                    builder.addDoubleData(doubleData);
+                    builder.closeStructure();
+
+                    // add bank of strings
+                    builder.openBank(tag+8, num+8, DataType.CHARSTAR8);
+                    builder.addStringData(stringData);
+                    builder.closeStructure();
+
+                    // bank of composite data array
+                    CompositeData[] cdata = createCompositeData();
+                    builder.openBank(tag+9, num+9, DataType.COMPOSITE);
+                    builder.addCompositeData(cdata);
+                    builder.closeStructure();
+
+                builder.closeStructure();
+
+
+                // add bank of segs
+                builder.openBank(tag+10, num+10, DataType.SEGMENT);
+
+                    // add seg of ints
+                    builder.openSegment(tag+11, DataType.INT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
+
+                    // add seg of shorts
+                    builder.openSegment(tag+12, DataType.SHORT16);
+                    builder.addShortData(shortData);
+                    builder.closeStructure();
+
+                    // add seg of segs
+                    builder.openSegment(tag+13, DataType.SEGMENT);
+
+                        // add seg of bytes
+                        builder.openSegment(tag+14, DataType.CHAR8);
+                        builder.addByteData(byteData);
+                        builder.closeStructure();
+
+                        // add seg of doubles
+                        builder.openSegment(tag+15, DataType.DOUBLE64);
+                        builder.addDoubleData(doubleData);
+                        builder.closeStructure();
+
+                    builder.closeStructure();
+                builder.closeStructure();
+
+
+            // add bank of tagsegs
+            builder.openBank(tag+16, num+16, DataType.TAGSEGMENT);
+
+                // add tagseg of bytes
+                builder.openTagSegment(tag+17, DataType.CHAR8);
+                builder.addByteData(byteData);
+                builder.closeStructure();
+
+                // add tagseg of shorts
+                builder.openTagSegment(tag+18, DataType.SHORT16);
+                builder.addShortData(shortData);
+                builder.closeStructure();
+
+                // add tagseg of longs
+                builder.openTagSegment(tag+19, DataType.LONG64);
+                builder.addLongData(longData);
+                builder.closeStructure();
+
+            builder.closeAll();
         }
         catch (EvioException e) {
             e.printStackTrace();
         }
 
-        return event;
+        return builder.getBuffer();
     }
 
 
@@ -422,21 +463,43 @@ public class SwapTest {
 
     /** Write event to one file and it swapped version to another file. */
     public static void main(String args[]) {
+        boolean useEventBuilder = false;
+        ByteBuffer bb1, bb2;
+        int byteSize = 0;
 
         try {
-            EvioEvent bank = createSingleEvent(1);
-            int byteSize = bank.getTotalBytes();
 
-            ByteBuffer bb1 = ByteBuffer.allocate(byteSize + 2*(32));
-            ByteBuffer bb2 = ByteBuffer.allocate(byteSize + 2*(32));
+            if (useEventBuilder) {
+                EvioEvent bank = createSingleEvent(1);
+                byteSize = bank.getTotalBytes();
 
-            // Write first block header
-            setFirstBlockHeader(byteSize/4, 1);
-            bb1.put(firstBlockHeader);
-            firstBlockHeader.position(0);
+                bb1 = ByteBuffer.allocate(byteSize + 2 * (32));
+                bb2 = ByteBuffer.allocate(byteSize + 2 * (32));
 
-            // Write events
-            bank.write(bb1);
+                // Write first block header
+                setFirstBlockHeader(byteSize / 4, 1);
+                bb1.put(firstBlockHeader);
+                firstBlockHeader.position(0);
+
+                // Write events
+                bank.write(bb1);
+            }
+            // if using CompactEventBuilder ...
+            else {
+                ByteBuffer buffie = createCompactSingleEvent(1);
+                byteSize = buffie.limit();
+
+                bb1 = ByteBuffer.allocate(byteSize + 2 * (32));
+                bb2 = ByteBuffer.allocate(byteSize + 2 * (32));
+
+                // Write first block header
+                setFirstBlockHeader(byteSize / 4, 1);
+                bb1.put(firstBlockHeader);
+                firstBlockHeader.position(0);
+
+                // Write events
+                bb1.put(buffie);
+            }
 
             // Write last block header
             bb1.put(emptyLastHeader);
@@ -478,8 +541,6 @@ public class SwapTest {
         catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
 
