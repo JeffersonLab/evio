@@ -2063,6 +2063,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 				break;
 
             // 8 bit swap - no swap needed, but need to copy if destBuf != srcBuf
+            case UNKNOWN32:
 			case CHAR8:
 			case UCHAR8:
             case CHARSTAR8:
