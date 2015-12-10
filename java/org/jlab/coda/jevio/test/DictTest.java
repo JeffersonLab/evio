@@ -145,7 +145,7 @@ public class DictTest {
             String entryName =  entry.getKey();
             EvioDictionaryEntry entryData = entry.getValue();
             System.out.println("entry " + (++i) + ": name = " + entryName + ", tag = " +
-                                       entryData.getTag() + ", num = " + entryData.getTag());
+                                       entryData.getTag() + ", num = " + entryData.getNum());
         }
 
 
