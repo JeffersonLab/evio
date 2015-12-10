@@ -71,6 +71,12 @@ jevio-4.4.6.jar
       Add EvioDictionaryEntry class to help accomplish that. (8/18/2015)
     - fix bug which started block header number at 0 instead of 1 (9/3/2015)
 
+jevio-4.4.7.jar
+    - fixed EventReader throwing exception when segment or tagsegment had data length of 0
+    - fix bug in which swapping UNKNOWN32 type data will not copy it
+    - fix bug which did not set the correct length in header if no data
+
+
 C CODE
 
 
