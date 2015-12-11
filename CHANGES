@@ -82,6 +82,8 @@ jevio-5.0.jar
     - fix bug which did not set the correct length in header if no data
     - add Utilities class methods to convert EvioNode object to XML and to EvioEvent object
     - make handling evio header words more efficient
+    - handle the CompositeData data type in CompactEventBuilder
+    - add sections on CompositeData to User's Guide
 
 
 
