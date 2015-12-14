@@ -209,8 +209,8 @@ typedef struct evfilestruct {
 
   /* first event */
   int   wroteFirstEvent;      /**< first event already defined and written out? */
-  uint32_t firstEventLength;  /**< length of dictionary bank in bytes (including entire header). */
-  uint32_t *firstEventBuf;    /**< buffer containing dictionary bank. */
+  uint32_t firstEventLength;  /**< length of first event bank in bytes (including entire header). */
+  uint32_t *firstEventBuf;    /**< buffer containing firstEvent bank. */
 
   /* Common block is first block in file/buf with dictionary and firstEvent */
   int   wroteCommonBlock;     /**< common block written out? */
