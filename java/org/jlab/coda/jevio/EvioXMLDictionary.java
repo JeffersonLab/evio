@@ -247,6 +247,7 @@ public class EvioXMLDictionary implements INameProvider {
                 !node.getNodeName().equalsIgnoreCase(ENTRY_ALT)) {
                 continue;
             }
+
             if (node.hasAttributes()) {
                 tag = num = 0;
                 badEntry = false;
@@ -258,6 +259,15 @@ public class EvioXMLDictionary implements INameProvider {
                 Node attrNode = map.getNamedItem(NAME);
                 if (attrNode != null) {
                     name = attrNode.getNodeValue();
+                }
+
+                // Check to see if name conflicts with strings
+                // set aside to describe evio as xml.
+                if (Utilities.getDataType(name) != null ||
+                    name.equalsIgnoreCase("event") ||
+                    name.equalsIgnoreCase("evio-data")) {
+System.out.println("IGNORING entry whose name conflicts with reserved strings: " + name);
+                    continue;
                 }
 
                 // Get the tag
@@ -382,6 +392,15 @@ public class EvioXMLDictionary implements INameProvider {
         addHierachicalDictEntries(kidList, null);
 
 	} // end Constructor
+
+
+    /**
+     * Get the number of entries in this dictionary.
+     * @return number of entries in this dictionary.
+     */
+    public int size() {
+        return dictMap.size();
+    }
 
 
     /**
