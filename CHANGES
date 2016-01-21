@@ -85,6 +85,15 @@ jevio-5.0.jar
     - handle the CompositeData data type in CompactEventBuilder
     - add sections on CompositeData to User's Guide
 
+    - fix bugs handling string data (certain non-printing ascii characters)
+    - improve xml representation of event - especially the composite data type
+    - add capability to parse xml representation of multiple events into list of EvioEvents,
+      including those with composite data
+    - add program which converts a file of xml format evio data into an evio binary format file.
+      This is a replacement for xml2evio.c which did not handle composite data.
+
+
+
 
 
 
