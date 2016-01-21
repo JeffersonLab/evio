@@ -3,12 +3,13 @@ package org.jlab.coda.jevio.apps;
 import org.jlab.coda.jevio.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
 /**
+ * This program takes an xml format file containing evio data
+ * and saves it into a binary evio format file.
  * Created by timmer on 1/15/16.
  */
 public class Xml2evio {
@@ -87,7 +88,6 @@ public class Xml2evio {
             }
         }
 
-
         try {
             String xml = new String(Files.readAllBytes(Paths.get(xmlFile)));
             List<EvioEvent> evList = Utilities.toEvents(xml, max, skip, dictionary, debug);
@@ -99,10 +99,7 @@ public class Xml2evio {
             }
             writer.close();
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (EvioException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
