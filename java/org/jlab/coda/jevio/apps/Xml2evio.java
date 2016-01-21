@@ -1,0 +1,110 @@
+package org.jlab.coda.jevio.apps;
+
+import org.jlab.coda.jevio.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
+/**
+ * Created by timmer on 1/15/16.
+ */
+public class Xml2evio {
+
+    /** Method to print out correct program command line usage. */
+    private static void usage() {
+
+        System.out.println("\nUsage: java Xml2evio -x <xml file>  -f <evio file>\n" +
+                             "                     [-v] [-d <dictionary file>]\n" +
+                             "                     [-max <count>] [-skip <count>]\n\n" +
+
+        "          -h    help\n" +
+        "          -v    verbose output\n" +
+        "          -x    xml input file name\n" +
+        "          -f    evio output file name\n" +
+        "          -d    xml dictionary file name\n" +
+        "          -max  maximum number of events to convert to evio\n" +
+        "          -skip number of initial events to skip in xml file\n" +
+
+        "          This program takes evio events in xml representation and\n" +
+        "          converts it to the binary evio file format.\n");
+    }
+
+
+    public Xml2evio() {
+    }
+
+    public static void main(String[] args) {
+        int max=0, skip=0;
+        boolean debug = false;
+        String xmlFile=null, evioFile=null, dictFile=null;
+        EvioXMLDictionary dictionary=null;
+
+        // loop over all args
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equalsIgnoreCase("-max")) {
+                max = Integer.parseInt(args[i + 1]);
+                i++;
+            }
+            else if (args[i].equalsIgnoreCase("-skip")) {
+                skip = Integer.parseInt(args[i + 1]);
+                i++;
+            }
+            else if (args[i].equalsIgnoreCase("-f")) {
+                evioFile = args[i + 1];
+                i++;
+            }
+            else if (args[i].equalsIgnoreCase("-x")) {
+                xmlFile = args[i + 1];
+                i++;
+            }
+            else if (args[i].equalsIgnoreCase("-d")) {
+                dictFile = args[i + 1];
+                i++;
+            }
+            else if (args[i].equalsIgnoreCase("-v")) {
+                debug = true;
+            }
+            else {
+                usage();
+                System.exit(-1);
+            }
+        }
+
+        if (evioFile == null || xmlFile == null) {
+                System.out.println("No xml or evio file defined");
+                usage();
+                System.exit(-1);
+        }
+
+        if (dictFile != null) {
+            // Any failure in the following line results in an empty dictionary
+            dictionary = new EvioXMLDictionary(new File(dictFile));
+            if (dictionary.size() < 1) {
+                dictionary = null;
+            }
+        }
+
+
+        try {
+            String xml = new String(Files.readAllBytes(Paths.get(xmlFile)));
+            List<EvioEvent> evList = Utilities.toEvents(xml, max, skip, dictionary, debug);
+            EventWriter writer = new EventWriter(evioFile);
+
+            for (EvioEvent ev : evList) {
+                writer.writeEvent(ev);
+                //System.out.println("Event:\n" + ev.toXML());
+            }
+            writer.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
