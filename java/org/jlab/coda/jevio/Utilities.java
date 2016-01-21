@@ -446,8 +446,8 @@ if (debug) System.out.println("START_ELEMENT " + name + ":");
                                 inDictionary = true;
                                 level.tag = tagNum[0];
                                 level.num = tagNum[1];
-                                System.out.println("FOUND dict entry(" + name + "): tag = " + level.tag +
-                                                           ", num = " + level.num);
+if (debug) System.out.println("FOUND dict entry(" + name + "): tag = " + level.tag +
+                              ", num = " + level.num);
                             }
                             level.dataTypeObj = dictionary.getType(name);
                         }
@@ -528,13 +528,13 @@ if (debug) System.out.println("START_ELEMENT " + name + ":");
 
                             // If we've hit our max, we're done
                             if ((maxEvents > 0) && (eventCount >= maxEvents + skip)) {
-System.out.println("Hit max # events, quitting");
+if (debug) System.out.println("Hit max # events, quitting");
                                 return eventList;
                             }
 
                             // Skip over this event since first "skip" # of events are ignored
                             if (skip > eventCount++) {
-System.out.println("Skipping event #" + eventCount);
+if (debug) System.out.println("Skipping event #" + eventCount);
                                 level = null;
                                 skipEvent = true;
                                 fileBeginning = false;
