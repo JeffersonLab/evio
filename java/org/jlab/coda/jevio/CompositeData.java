@@ -38,8 +38,10 @@
 package org.jlab.coda.jevio;
 
 
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -107,6 +109,22 @@ public final class CompositeData {
 
     /** Zero arg constructor used for cloning. */
     private CompositeData() {}
+
+
+
+    /**
+     * Constructor used for creating this object from scratch.
+     *
+     * @param format format String defining data
+     * @param data data in given format
+     *
+     * @throws EvioException data or format arg = null;
+     *                       if improper format string
+     */
+    public CompositeData(String format, CompositeData.Data data)
+                                throws EvioException {
+        this(format, data.formatTag, data, data.dataTag, data.dataNum);
+    }
 
 
     /**
@@ -551,11 +569,68 @@ public final class CompositeData {
          *  of being part of the format string. */
         private ArrayList<Integer>  nList = new ArrayList<Integer>(100);
 
+        /** Though currently not used, this is the tag in the segment containing format string. */
+        private int formatTag;
+
+        /** Though currently not used, this is the tag in the bank containing data. */
+        private int dataTag;
+
+        /** Though currently not used, this is the num in the bank containing data. */
+        private int dataNum;
+
 
 
         /** Constructor. */
         public Data() {}
 
+
+        /**
+         * This method sets the tag in the segment containing the format string.
+         * @param tag tag in segment containing the format string.
+         */
+        public void setFormatTag(int tag) {
+            this.formatTag = tag;
+        }
+
+        /**
+         * This method sets the tag in the bank containing the data.
+         * @param tag tag in bank containing the data.
+         */
+        public void setDataTag(int tag) {
+            this.dataTag = tag;
+        }
+
+        /**
+         * This method sets the num in the bank containing the data.
+         * @param num num in bank containing the data.
+         */
+        public void setDataNum(int num) {
+            this.dataNum = num;
+        }
+
+        /**
+         * This method gets the tag in the segment containing the format string.
+         * @return tag in segment containing the format string.
+         */
+        public int getFormatTag() {
+            return formatTag;
+        }
+
+        /**
+         * This method gets the tag in the bank containing the data.
+         * @return tag in bank containing the data.
+         */
+        public int getDataTag() {
+            return dataTag;
+        }
+
+        /**
+         * This method gets the num in the bank containing the data.
+         * @return num in bank containing the data.
+         */
+        public int getDataNum() {
+            return dataNum;
+        }
 
         /**
          * This method keeps track of the raw data size in bytes.
@@ -1100,6 +1175,11 @@ public final class CompositeData {
      * This method helps the CompositeData object creator by
      * finding the proper format string parameter for putting
      * this array of Strings into its data.
+     * The format is in the form "Ma" where M is an actual integer.
+     * Warning, in this case, M may not be greater than 15.
+     * If you want a longer string or array of strings, use the
+     * format "Na" with a literal N. The N value can be added
+     * through {@link org.jlab.coda.jevio.CompositeData.Data#addN(int)}
      *
      * @param strings array of strings to eventually put into a
      *                CompositeData object.
@@ -1337,14 +1417,14 @@ public final class CompositeData {
      *       #     7           #'c'   unsigned char
      *       #     8           #'D'   double (64-bit float)
      *       #     9           #'L'   long long (64-bit int)
-     *       #    10           #'l'   unsigned long long (64-bit int)
+     *       #    10           #'l'   unsigned long long (64-bit int)`
      *       #    11           #'I'   int
      *       #    12           #'A'   hollerit (4-byte char with int ending)
      *
      *   NOTES:
      *    1. If format ends but end of data did not reach, format in last parenthesis
      *       will be repeated until all data processed; if there are no parenthesis
-     *       in format, data processing will be started from the beginnig of the format
+     *       in format, data processing will be started from the beginning of the format
      *       (FORTRAN agreement)
      *    2. The number of repeats '#' must be a number between 2 and 15; if the number
      *       of repeats is symbol 'N' instead of the number, it will be taken from data
@@ -1442,7 +1522,7 @@ public final class CompositeData {
                 if (nr >= 0) throw new EvioException("cannot repeat comma");
                 nr = 0;
                 if (debug)
-                    System.out.println(String.format("komma, nr=%d",nr));
+                    System.out.println(String.format("comma, nr=%d",nr));
 
             }
             // variable length format
@@ -1487,7 +1567,7 @@ public final class CompositeData {
                     }
                 }
                 else {
-                    throw new EvioException("illegal character");
+                    throw new EvioException("illegal character (value " + (byte)ch + ")");
                 }
                 nr = -1;
             }
@@ -1963,10 +2043,13 @@ public final class CompositeData {
                     }
                 }
                 else {
-                    // how many times to repeat format code
-                    ncnf = ifmt.get(imt-1)/16;
-                    // format code
-                    kcnf = ifmt.get(imt-1) - 16*ncnf;
+                    // how many times to repeat format code (higher 4 bits). Is 0 for N
+                    // ncnf = ifmt.get(imt-1)/16;
+                    ncnf = ifmt.get(imt-1) >>> 4;
+
+                    // format code (lower 4 bits)
+                    // kcnf = ifmt.get(imt-1) - 16*ncnf;
+                    kcnf = ifmt.get(imt-1) & 0xf;
 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
@@ -2215,10 +2298,13 @@ public final class CompositeData {
                     }
                 }
                 else {
-                    // how many times to repeat format code
-                    ncnf = ifmt.get(imt-1)/16;
-                    // format code
-                    kcnf = ifmt.get(imt-1) - 16*ncnf;
+                    // how many times to repeat format code (higher 4 bits). Is 0 for N
+                    // ncnf = ifmt.get(imt-1)/16;
+                    ncnf = ifmt.get(imt-1) >>> 4;
+
+                    // format code (lower 4 bits)
+                    // kcnf = ifmt.get(imt-1) - 16*ncnf;
+                    kcnf = ifmt.get(imt-1) & 0xf;
 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
@@ -2296,7 +2382,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 case 8:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.DOUBLE64) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting DOUBLE64, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putDouble((Double)data.dataItems.get(itemIndex++));
                     }
@@ -2305,7 +2392,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 case 9:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.LONG64) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting LONG64, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putLong((Long)data.dataItems.get(itemIndex++));
                     }
@@ -2314,7 +2402,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 case 10:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.ULONG64) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting ULONG64, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putLong((Long)data.dataItems.get(itemIndex++));
                     }
@@ -2324,7 +2413,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 case 11:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting INT32, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putInt((Integer)data.dataItems.get(itemIndex++));
                     }
@@ -2333,7 +2423,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 case 1:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.UINT32) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting UINT32, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putInt((Integer)data.dataItems.get(itemIndex++));
                     }
@@ -2342,7 +2433,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 case 2:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.FLOAT32) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting FLOAT32, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putFloat((Float)data.dataItems.get(itemIndex++));
                     }
@@ -2351,7 +2443,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 case 12:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.HOLLERIT) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting HOLLERIT, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putInt((Integer)data.dataItems.get(itemIndex++));
                     }
@@ -2359,10 +2452,10 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 // 16 bits
                 case 4:
-if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting SHORT16, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putShort((Short)data.dataItems.get(itemIndex++));
                     }
@@ -2371,7 +2464,8 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                 case 5:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.USHORT16) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting USHORT16, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.putShort((Short)data.dataItems.get(itemIndex++));
                     }
@@ -2381,7 +2475,8 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                 case 6:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting CHAR8, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.put((Byte)data.dataItems.get(itemIndex++));
                     }
@@ -2390,7 +2485,8 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                 case 7:
                     for (int j=0; j < ncnf; j++) {
                         if (data.dataTypes.get(itemIndex) != DataType.UCHAR8) {
-                            throw new EvioException("Data type mismatch");
+                            throw new EvioException("Data type mismatch, expecting UCHAR8, got " +
+                                                     data.dataTypes.get(itemIndex));
                         }
                         rawBuf.put((Byte)data.dataItems.get(itemIndex++));
                     }
@@ -2399,7 +2495,8 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                 // String array
                 case 3:
                     if (data.dataTypes.get(itemIndex) != DataType.CHARSTAR8) {
-                        throw new EvioException("Data type mismatch");
+                        throw new EvioException("Data type mismatch, expecting string, got " +
+                                                 data.dataTypes.get(itemIndex));
                     }
 
                     // Convert String array into evio byte representation
@@ -2500,10 +2597,13 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                     }
                 }
                 else {
-                    // how many times to repeat format code
-                    ncnf = formatInts.get(imt-1)/16;
-                    // format code
-                    kcnf = formatInts.get(imt-1) - 16*ncnf;
+                    // how many times to repeat format code (higher 4 bits). Is 0 for N
+                    // ncnf = formatInts.get(imt-1)/16;
+                    ncnf = formatInts.get(imt-1) >>> 4;
+
+                    // format code (lower 4 bits)
+                    // kcnf = formatInts.get(imt-1) - 16*ncnf;
+                    kcnf = formatInts.get(imt-1) & 0xf;
 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
@@ -2775,31 +2875,32 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
     }
 
 
+    /**
+     * This method writes an xml string representation of this CompositeData object.
+     * @param hex if <code>true</code> then print integers in hexadecimal
+     */
+    public String toXML(boolean hex) {
+        StringWriter sWriter = null;
+        XMLStreamWriter xmlWriter = null;
+        try {
+            sWriter = new StringWriter();
+            xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sWriter);
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
 
-//    /** Give the XML output proper indentation. */
-//    private String xmlIndent = "";
-//
-//    /**
-//     * Set the indentation (string of spaces) for more pleasing XML output.
-//     * @param s the indentation (string of spaces) for more pleasing XML output
-//     */
-//    private void setXmlIndent(String s) {
-//        xmlIndent = s;
-//    }
-//
-//    /**
-//     * Increase the indentation (string of spaces) of the XML output.
-//     */
-//    private void increaseXmlIndent() {
-//        xmlIndent += "   ";
-//    }
-//
-//    /**
-//     * Decrease the indentation (string of spaces) of the XML output.
-//     */
-//    private void decreaseXmlIndent() {
-//        xmlIndent = xmlIndent.substring(0, xmlIndent.length() - 3);
-//    }
+        String xmlIndent = "";
+
+        try {
+            toXML(xmlWriter, xmlIndent, hex);
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+
+        return sWriter.toString();
+    }
 
 
     /**
@@ -2811,7 +2912,7 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
      *           some convenient methods.
      * @param hex if <code>true</code> then print integers in hexadecimal
      */
-    public void toXML(XMLStreamWriter xmlWriter, BaseStructure bs, boolean hex)
+    void toXML(XMLStreamWriter xmlWriter, BaseStructure bs, boolean hex)
                         throws XMLStreamException {
 
         boolean debug = false;
@@ -2840,19 +2941,21 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
         int dataIndex = 0;
         // just past end of data -> size of data in bytes
         int endIndex = dataBytes;
+        // track repeat xml element so it can be ended properly
+        int repeat = 0;
 
         //---------------------------------
         // First we have the format string
         //---------------------------------
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(bs.xmlIndent);
-        xmlWriter.writeStartElement("composite");
+        xmlWriter.writeStartElement("comp");
 
         bs.increaseXmlIndent();
 
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(bs.xmlIndent);
-        xmlWriter.writeStartElement("string");
+        xmlWriter.writeStartElement("format");
         xmlWriter.writeAttribute("data_type","0x3");
         xmlWriter.writeAttribute("tag",""+tsHeader.tag);
         xmlWriter.writeAttribute("length",""+tsHeader.length);
@@ -2876,6 +2979,8 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(bs.xmlIndent);
         xmlWriter.writeStartElement("data");
+        xmlWriter.writeAttribute("tag", "" + bHeader.tag);
+        xmlWriter.writeAttribute("num", "" + bHeader.number);
 
         bs.increaseXmlIndent();
 
@@ -2886,9 +2991,15 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
 
         bs.increaseXmlIndent();
 
+        // Keep track if repeat value if from reading N or
+        // is a specific  int embedded in the format statement.
+        boolean repeatFromN;
+
         while (dataIndex < endIndex) {
+
             // get next format code
             while (true) {
+                repeatFromN = false;
                 imt++;
                 // end of format statement reached, back to format beginning
                 if (imt > nfmt) {
@@ -2917,19 +3028,37 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                         bs.decreaseXmlIndent();
                         xmlWriter.writeCharacters("\n");
                         xmlWriter.writeCharacters(bs.xmlIndent);
+                        xmlWriter.writeEndElement();// </paren>
+
+                        bs.decreaseXmlIndent();
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(bs.xmlIndent);
                         xmlWriter.writeEndElement();// </repeat>
+                        repeat--;
                     }
                     // go for another round of processing by setting 'imt' to the left parenthesis
                     else {
                         imt = lv[lev-1].left;
+
+                        bs.decreaseXmlIndent();
                         xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(bs.xmlIndent);
+                        xmlWriter.writeEndElement();// </paren>
+
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(bs.xmlIndent);
+                        xmlWriter.writeStartElement("paren");
+                        bs.increaseXmlIndent();
                     }
                 }
                 else {
-                    // how many times to repeat format code
-                    ncnf = formatInts.get(imt-1)/16;
-                    // format code
-                    kcnf = formatInts.get(imt-1) - 16*ncnf;
+                    // how many times to repeat format code (higher 4 bits). Is 0 for N
+                    // ncnf = formatInts.get(imt-1)/16;
+                    ncnf = formatInts.get(imt-1) >>> 4;
+
+                    // format code (lower 4 bits)
+                    // kcnf = formatInts.get(imt-1) - 16*ncnf;
+                    kcnf = formatInts.get(imt-1) & 0xf;
 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
@@ -2941,6 +3070,7 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                         }
                         ncnf = i;
                         dataIndex += 4;
+                        repeatFromN = true;
                     }
 
                     // left parenthesis - set new lv[]
@@ -2948,7 +3078,20 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                         xmlWriter.writeCharacters("\n");
                         xmlWriter.writeCharacters(bs.xmlIndent);
                         xmlWriter.writeStartElement("repeat");
-                        xmlWriter.writeAttribute("count",""+ncnf);
+
+                        if (repeatFromN) {
+                            xmlWriter.writeAttribute("n", ""+ncnf);
+                        }
+                        else {
+                            xmlWriter.writeAttribute("count", ""+ncnf);
+                        }
+                        repeat++;
+
+                        bs.increaseXmlIndent();
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(bs.xmlIndent);
+                        xmlWriter.writeStartElement("paren");
+
                         if (ncnf == 0) { //special case: if N=0, skip to the right paren
                             iterm = imt-1;
                             while (formatInts.get(imt-1) != 0) {
@@ -2956,7 +3099,13 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                             }
                             xmlWriter.writeCharacters("\n");
                             xmlWriter.writeCharacters(bs.xmlIndent);
+                            xmlWriter.writeEndElement();// </paren>
+
+                            bs.decreaseXmlIndent();
+                            xmlWriter.writeCharacters("\n");
+                            xmlWriter.writeCharacters(bs.xmlIndent);
                             xmlWriter.writeEndElement();// </repeat>
+                            repeat--;
                             continue;
                         }
                         lv[lev].left = imt;
@@ -2991,6 +3140,7 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                 }
                 ncnf = i;
                 dataIndex += 4;
+                repeatFromN = true;
             }
 
             // If 64-bit
@@ -3003,7 +3153,7 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                 xmlWriter.writeCharacters("\n");
                 xmlWriter.writeCharacters(bs.xmlIndent);
                 if (kcnf ==  8) {
-                    xmlWriter.writeStartElement("double");
+                    xmlWriter.writeStartElement("float64");
                 }
                 else if (kcnf ==  9) {
                     xmlWriter.writeStartElement("int64");
@@ -3011,7 +3161,13 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                 else if (kcnf == 10) {
                     xmlWriter.writeStartElement("uint64");
                 }
-                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (repeatFromN) {
+                    xmlWriter.writeAttribute("n", ""+ncnf);
+                }
+                else {
+                    xmlWriter.writeAttribute("count", ""+ncnf);
+                }
 
                 if (!oneLine) {
                     bs.increaseXmlIndent();
@@ -3036,16 +3192,16 @@ if (debug) System.out.println("Putting " + ncnf + " shorts into raw buffer");
                     if (kcnf == 8) {
                         d = Double.longBitsToDouble(lng);
 if (debug) System.out.println("write double " + d);
-                        xmlWriter.writeCharacters(String.format("%23.16g ",d));
+                        xmlWriter.writeCharacters(String.format("%23.16g  ",d));
                     }
                     // 64 bit int/uint
                     else {
 if (debug) System.out.println("write long " + lng);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%016x ",lng));
-                        else     xmlWriter.writeCharacters(String.format("%18d ",lng));
+                        if (hex) xmlWriter.writeCharacters(String.format("0x%016x  ",lng));
+                        else     xmlWriter.writeCharacters(String.format("%18d  ",lng));
                     }
 
-                    if (count++ % itemsOnLine == 0) {
+                    if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
                     }
                     dataIndex += 8;
@@ -3069,7 +3225,7 @@ if (debug) System.out.println("write long " + lng);
                 xmlWriter.writeCharacters("\n");
                 xmlWriter.writeCharacters(bs.xmlIndent);
                 if (kcnf ==  2) {
-                    xmlWriter.writeStartElement("float");
+                    xmlWriter.writeStartElement("float32");
                 }
                 else if (kcnf ==  1) {
                     xmlWriter.writeStartElement("uint32");
@@ -3080,7 +3236,13 @@ if (debug) System.out.println("write long " + lng);
                 else {
                     xmlWriter.writeStartElement("Hollerit");
                 }
-                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (repeatFromN) {
+                    xmlWriter.writeAttribute("n", ""+ncnf);
+                }
+                else {
+                    xmlWriter.writeAttribute("count", ""+ncnf);
+                }
 
                 if (!oneLine) {
                     bs.increaseXmlIndent();
@@ -3105,16 +3267,16 @@ if (debug) System.out.println("write long " + lng);
                     if (kcnf == 2) {
                         f = Float.intBitsToFloat(i) ;
 if (debug) System.out.println("write float " + f);
-                        xmlWriter.writeCharacters(String.format("%14.8g ",f));
+                        xmlWriter.writeCharacters(String.format("%14.8g  ",f));
                     }
                     // Hollerit, 32 bit int/uint
                     else {
 if (debug) System.out.println("write int " + i);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%08x ",i));
-                        else     xmlWriter.writeCharacters(String.format("%10d ",i));
+                        if (hex) xmlWriter.writeCharacters(String.format("0x%08x  ",i));
+                        else     xmlWriter.writeCharacters(String.format("%10d  ",i));
                     }
 
-                    if (count++ % itemsOnLine == 0) {
+                    if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
                     }
                     dataIndex += 4;
@@ -3144,7 +3306,13 @@ if (debug) System.out.println("write int " + i);
                 else if (kcnf ==  5) {
                     xmlWriter.writeStartElement("uint16");
                 }
-                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (repeatFromN) {
+                    xmlWriter.writeAttribute("n", ""+ncnf);
+                }
+                else {
+                    xmlWriter.writeAttribute("count", ""+ncnf);
+                }
 
                 if (!oneLine) {
                     bs.increaseXmlIndent();
@@ -3167,10 +3335,10 @@ if (debug) System.out.println("write short " + s);
                         xmlWriter.writeCharacters(bs.xmlIndent);
                     }
 
-                    if (hex) xmlWriter.writeCharacters(String.format("0x%04x ", s));
-                    else     xmlWriter.writeCharacters(String.format("%6d ", s));
+                    if (hex) xmlWriter.writeCharacters(String.format("0x%04x  ", s));
+                    else     xmlWriter.writeCharacters(String.format("%6d  ", s));
 
-                    if (count++ % itemsOnLine == 0) {
+                    if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
                     }
                     dataIndex += 2;
@@ -3197,7 +3365,13 @@ if (debug) System.out.println("write short " + s);
                     xmlWriter.writeCharacters("\n");
                     xmlWriter.writeCharacters(bs.xmlIndent);
                     xmlWriter.writeStartElement("string");
-                    xmlWriter.writeAttribute("count",""+ncnf);
+
+                    if (repeatFromN) {
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    }
+                    else {
+                        xmlWriter.writeAttribute("count", ""+ncnf);
+                    }
 
                     bs.increaseXmlIndent();
                     xmlWriter.writeCharacters("\n");
@@ -3205,7 +3379,7 @@ if (debug) System.out.println("write short " + s);
                     String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
                     for (String s: strs) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
-                        xmlWriter.writeCharacters(s);
+                        xmlWriter.writeCData(s);
                         xmlWriter.writeCharacters("\n");
                     }
 
@@ -3226,7 +3400,13 @@ if (debug) System.out.println("write short " + s);
                     else if (kcnf == 7) {
                         xmlWriter.writeStartElement("uint8");
                     }
-                    xmlWriter.writeAttribute("count",""+ncnf);
+
+                    if (repeatFromN) {
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    }
+                    else {
+                        xmlWriter.writeAttribute("count", ""+ncnf);
+                    }
 
                     if (!oneLine) {
                         bs.increaseXmlIndent();
@@ -3243,13 +3423,13 @@ if (debug) System.out.println("write short " + s);
 if (debug) System.out.println("write byte " + bytes[i]);
 
                         if (hex) {
-                            xmlWriter.writeCharacters(String.format("0x%02x ", bytes[i]));
+                            xmlWriter.writeCharacters(String.format("0x%02x  ", bytes[i]));
                         }
                         else {
-                            xmlWriter.writeCharacters(String.format("%4d ", bytes[i]));
+                            xmlWriter.writeCharacters(String.format("%4d  ", bytes[i]));
                         }
 
-                        if (count++ % itemsOnLine == 0) {
+                        if (!oneLine && count++ % itemsOnLine == 0) {
                             xmlWriter.writeCharacters("\n");
                         }
                     }
@@ -3271,7 +3451,20 @@ if (debug) System.out.println("write byte " + bytes[i]);
             }
         } //while
 
-        // row TODO: may need more than one of these
+        // There may be 1 "<repeat" left to close
+        if (repeat > 0) {
+            bs.decreaseXmlIndent();
+            xmlWriter.writeCharacters("\n");
+            xmlWriter.writeCharacters(bs.xmlIndent);
+            xmlWriter.writeEndElement();// </paren>
+
+            bs.decreaseXmlIndent();
+            xmlWriter.writeCharacters("\n");
+            xmlWriter.writeCharacters(bs.xmlIndent);
+            xmlWriter.writeEndElement();// </repeat>
+        }
+
+        // row
         bs.decreaseXmlIndent();
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(bs.xmlIndent);
@@ -3300,7 +3493,7 @@ if (debug) System.out.println("write byte " + bytes[i]);
      * @param xmlIndent indentation for writing XML.
      * @param hex if <code>true</code> then print integers in hexadecimal
      */
-    public void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
+    void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
                         throws XMLStreamException {
 
         boolean debug = false;
@@ -3329,19 +3522,21 @@ if (debug) System.out.println("write byte " + bytes[i]);
         int dataIndex = 0;
         // just past end of data -> size of data in bytes
         int endIndex = dataBytes;
+        // track repeat xml element so it can be ended properly
+        int repeat = 0;
 
         //---------------------------------
         // First we have the format string
         //---------------------------------
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(xmlIndent);
-        xmlWriter.writeStartElement("composite");
+        xmlWriter.writeStartElement("comp");
 
         xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
 
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(xmlIndent);
-        xmlWriter.writeStartElement("string");
+        xmlWriter.writeStartElement("format");
         xmlWriter.writeAttribute("data_type","0x3");
         xmlWriter.writeAttribute("tag",""+tsHeader.tag);
         xmlWriter.writeAttribute("length",""+tsHeader.length);
@@ -3365,6 +3560,8 @@ if (debug) System.out.println("write byte " + bytes[i]);
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(xmlIndent);
         xmlWriter.writeStartElement("data");
+        xmlWriter.writeAttribute("tag", "" + bHeader.tag);
+        xmlWriter.writeAttribute("num",""+bHeader.number);
 
         xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
 
@@ -3375,9 +3572,15 @@ if (debug) System.out.println("write byte " + bytes[i]);
 
         xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
 
+        // Keep track if repeat value if from reading N or
+        // is a specific  int embedded in the format statement.
+        boolean repeatFromN;
+
         while (dataIndex < endIndex) {
+
             // get next format code
             while (true) {
+                repeatFromN = false;
                 imt++;
                 // end of format statement reached, back to format beginning
                 if (imt > nfmt) {
@@ -3406,20 +3609,39 @@ if (debug) System.out.println("write byte " + bytes[i]);
                         xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
                         xmlWriter.writeCharacters("\n");
                         xmlWriter.writeCharacters(xmlIndent);
+                        xmlWriter.writeEndElement();// </paren>
+
+                        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
                         xmlWriter.writeEndElement();// </repeat>
+                        repeat--;
                     }
                     // go for another round of processing by setting 'imt' to the left parenthesis
                     else {
                         imt = lv[lev-1].left;
+
+                        xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
                         xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                        xmlWriter.writeEndElement();// </paren>
+
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                        xmlWriter.writeStartElement("paren");
+                        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
                     }
                 }
                 else {
-                    // how many times to repeat format code
-                    ncnf = formatInts.get(imt-1)/16;
-                    // format code
-                    kcnf = formatInts.get(imt-1) - 16*ncnf;
+                    // how many times to repeat format code (higher 4 bits). Is 0 for N
+                    // ncnf = formatInts.get(imt-1)/16;
+                    ncnf = formatInts.get(imt-1) >>> 4;
 
+                    // format code (lower 4 bits)
+                    // kcnf = formatInts.get(imt-1) - 16*ncnf;
+                    kcnf = formatInts.get(imt-1) & 0xf;
+
+//System.out.println("REPEAT = " + ncnf + ", formatInt = " + formatInts.get(imt-1) +", kcnf = " + kcnf);
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
                         kcnf = 0;
@@ -3430,6 +3652,7 @@ if (debug) System.out.println("write byte " + bytes[i]);
                         }
                         ncnf = i;
                         dataIndex += 4;
+                        repeatFromN = true;
                     }
 
                     // left parenthesis - set new lv[]
@@ -3437,15 +3660,35 @@ if (debug) System.out.println("write byte " + bytes[i]);
                         xmlWriter.writeCharacters("\n");
                         xmlWriter.writeCharacters(xmlIndent);
                         xmlWriter.writeStartElement("repeat");
-                        xmlWriter.writeAttribute("count",""+ncnf);
+
+                        if (repeatFromN) {
+                            xmlWriter.writeAttribute("n", ""+ncnf);
+                        }
+                        else {
+                            xmlWriter.writeAttribute("count", ""+ncnf);
+                        }
+                        repeat++;
+
+                        xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
+                        xmlWriter.writeCharacters("\n");
+                        xmlWriter.writeCharacters(xmlIndent);
+                        xmlWriter.writeStartElement("paren");
+
                         if (ncnf == 0) { //special case: if N=0, skip to the right paren
                             iterm = imt-1;
                             while (formatInts.get(imt-1) != 0) {
                                 imt++;
                             }
+
+                            xmlWriter.writeCharacters("\n");
+                            xmlWriter.writeCharacters(xmlIndent);
+                            xmlWriter.writeEndElement();// </paren>
+
+                            xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
                             xmlWriter.writeCharacters("\n");
                             xmlWriter.writeCharacters(xmlIndent);
                             xmlWriter.writeEndElement();// </repeat>
+                            repeat--;
                             continue;
                         }
                         lv[lev].left = imt;
@@ -3480,6 +3723,7 @@ if (debug) System.out.println("write byte " + bytes[i]);
                 }
                 ncnf = i;
                 dataIndex += 4;
+                repeatFromN = true;
             }
 
             // If 64-bit
@@ -3492,7 +3736,7 @@ if (debug) System.out.println("write byte " + bytes[i]);
                 xmlWriter.writeCharacters("\n");
                 xmlWriter.writeCharacters(xmlIndent);
                 if (kcnf ==  8) {
-                    xmlWriter.writeStartElement("double");
+                    xmlWriter.writeStartElement("float64");
                 }
                 else if (kcnf ==  9) {
                     xmlWriter.writeStartElement("int64");
@@ -3500,7 +3744,13 @@ if (debug) System.out.println("write byte " + bytes[i]);
                 else if (kcnf == 10) {
                     xmlWriter.writeStartElement("uint64");
                 }
-                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (repeatFromN) {
+                    xmlWriter.writeAttribute("n", ""+ncnf);
+                }
+                else {
+                    xmlWriter.writeAttribute("count", ""+ncnf);
+                }
 
                 if (!oneLine) {
                     xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
@@ -3525,16 +3775,16 @@ if (debug) System.out.println("write byte " + bytes[i]);
                     if (kcnf == 8) {
                         d = Double.longBitsToDouble(lng);
 if (debug) System.out.println("write double " + d);
-                        xmlWriter.writeCharacters(String.format("%23.16g ",d));
+                        xmlWriter.writeCharacters(String.format("%23.16g  ",d));
                     }
                     // 64 bit int/uint
                     else {
 if (debug) System.out.println("write long " + lng);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%016x ",lng));
-                        else     xmlWriter.writeCharacters(String.format("%18d ",lng));
+                        if (hex) xmlWriter.writeCharacters(String.format("0x%016x  ",lng));
+                        else     xmlWriter.writeCharacters(String.format("%18d  ",lng));
                     }
 
-                    if (count++ % itemsOnLine == 0) {
+                    if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
                     }
                     dataIndex += 8;
@@ -3558,7 +3808,7 @@ if (debug) System.out.println("write long " + lng);
                 xmlWriter.writeCharacters("\n");
                 xmlWriter.writeCharacters(xmlIndent);
                 if (kcnf ==  2) {
-                    xmlWriter.writeStartElement("float");
+                    xmlWriter.writeStartElement("float32");
                 }
                 else if (kcnf ==  1) {
                     xmlWriter.writeStartElement("uint32");
@@ -3569,7 +3819,13 @@ if (debug) System.out.println("write long " + lng);
                 else {
                     xmlWriter.writeStartElement("Hollerit");
                 }
-                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (repeatFromN) {
+                    xmlWriter.writeAttribute("n", ""+ncnf);
+                }
+                else {
+                    xmlWriter.writeAttribute("count", ""+ncnf);
+                }
 
                 if (!oneLine) {
                     xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
@@ -3594,16 +3850,16 @@ if (debug) System.out.println("write long " + lng);
                     if (kcnf == 2) {
                         f = Float.intBitsToFloat(i) ;
 if (debug) System.out.println("write float " + f);
-                        xmlWriter.writeCharacters(String.format("%14.8g ",f));
+                        xmlWriter.writeCharacters(String.format("%14.8g  ",f));
                     }
                     // Hollerit, 32 bit int/uint
                     else {
 if (debug) System.out.println("write int " + i);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%08x ",i));
-                        else     xmlWriter.writeCharacters(String.format("%10d ",i));
+                        if (hex) xmlWriter.writeCharacters(String.format("0x%08x  ",i));
+                        else     xmlWriter.writeCharacters(String.format("%10d  ",i));
                     }
 
-                    if (count++ % itemsOnLine == 0) {
+                    if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
                     }
                     dataIndex += 4;
@@ -3633,7 +3889,13 @@ if (debug) System.out.println("write int " + i);
                 else if (kcnf ==  5) {
                     xmlWriter.writeStartElement("uint16");
                 }
-                xmlWriter.writeAttribute("count",""+ncnf);
+
+                if (repeatFromN) {
+                    xmlWriter.writeAttribute("n", ""+ncnf);
+                }
+                else {
+                    xmlWriter.writeAttribute("count", ""+ncnf);
+                }
 
                 if (!oneLine) {
                     xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
@@ -3656,10 +3918,10 @@ if (debug) System.out.println("write short " + s);
                         xmlWriter.writeCharacters(xmlIndent);
                     }
 
-                    if (hex) xmlWriter.writeCharacters(String.format("0x%04x ", s));
-                    else     xmlWriter.writeCharacters(String.format("%6d ", s));
+                    if (hex) xmlWriter.writeCharacters(String.format("0x%04x  ", s));
+                    else     xmlWriter.writeCharacters(String.format("%6d  ", s));
 
-                    if (count++ % itemsOnLine == 0) {
+                    if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
                     }
                     dataIndex += 2;
@@ -3686,7 +3948,13 @@ if (debug) System.out.println("write short " + s);
                     xmlWriter.writeCharacters("\n");
                     xmlWriter.writeCharacters(xmlIndent);
                     xmlWriter.writeStartElement("string");
-                    xmlWriter.writeAttribute("count",""+ncnf);
+
+                    if (repeatFromN) {
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    }
+                    else {
+                        xmlWriter.writeAttribute("count", ""+ncnf);
+                    }
 
                     xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
                     xmlWriter.writeCharacters("\n");
@@ -3694,7 +3962,7 @@ if (debug) System.out.println("write short " + s);
                     String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
                     for (String s: strs) {
                         xmlWriter.writeCharacters(xmlIndent);
-                        xmlWriter.writeCharacters(s);
+                        xmlWriter.writeCData(s);
                         xmlWriter.writeCharacters("\n");
                     }
 
@@ -3715,7 +3983,13 @@ if (debug) System.out.println("write short " + s);
                     else if (kcnf == 7) {
                         xmlWriter.writeStartElement("uint8");
                     }
-                    xmlWriter.writeAttribute("count",""+ncnf);
+
+                    if (repeatFromN) {
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    }
+                    else {
+                        xmlWriter.writeAttribute("count", ""+ncnf);
+                    }
 
                     if (!oneLine) {
                         xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
@@ -3732,13 +4006,13 @@ if (debug) System.out.println("write short " + s);
 if (debug) System.out.println("write byte " + bytes[i]);
 
                         if (hex) {
-                            xmlWriter.writeCharacters(String.format("0x%02x ", bytes[i]));
+                            xmlWriter.writeCharacters(String.format("0x%02x  ", bytes[i]));
                         }
                         else {
-                            xmlWriter.writeCharacters(String.format("%4d ", bytes[i]));
+                            xmlWriter.writeCharacters(String.format("%4d  ", bytes[i]));
                         }
 
-                        if (count++ % itemsOnLine == 0) {
+                        if (!oneLine && count++ % itemsOnLine == 0) {
                             xmlWriter.writeCharacters("\n");
                         }
                     }
@@ -3760,7 +4034,20 @@ if (debug) System.out.println("write byte " + bytes[i]);
             }
         } //while
 
-        // row TODO: may need more than one of these
+        // There may be 1 "<repeat" left to close
+        if (repeat > 0) {
+            xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+            xmlWriter.writeCharacters("\n");
+            xmlWriter.writeCharacters(xmlIndent);
+            xmlWriter.writeEndElement();// </paren>
+
+            xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
+            xmlWriter.writeCharacters("\n");
+            xmlWriter.writeCharacters(xmlIndent);
+            xmlWriter.writeEndElement();// </repeat>
+        }
+
+        // row
         xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(xmlIndent);
