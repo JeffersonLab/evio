@@ -3,6 +3,9 @@ package org.jlab.coda.jevio.test;
 import org.jlab.coda.jevio.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Test program made to work with 2 file produced by the SwapTest (one of the mainN() methods).
@@ -14,13 +17,67 @@ import java.io.IOException;
  */
 public class ReaderTest {
 
-    // These files were written by  SwapTest.java
+    // These files were written by SwapTest.java or by hand
+    static String regularXmlFile = "/dev/shm/regularEvent.xml";
     static String regularFile = "/dev/shm/regularEvent.evio";
+    static String regularFile2 = "/dev/shm/regularEvent2.evio";
+    static String smallXmlFile = "/dev/shm/regularEventSmall.xml";
     static String swappedFile = "/dev/shm/swappedEvent.evio";
 
 
     /** Reading files to get EvioNode objects & print out XML representation. */
     public static void main(String args[]) {
+
+        try {
+
+            String xml = new String(Files.readAllBytes(Paths.get(regularXmlFile)));
+            System.out.println("\nXML:\n" + xml);
+
+            System.out.println("Convert XML to EvioEvent:");
+            List<EvioEvent> evList = Utilities.toEvents(xml);
+
+            for (EvioEvent ev : evList) {
+                System.out.println("\n\nEvioEvent ---> XML:\n" + ev.toXML());
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /** Reading files to get EvioNode objects & print out XML representation. */
+    public static void main3(String args[]) {
+
+        EvioNode node;
+
+        try {
+            EvioCompactReader fileReader = new EvioCompactReader(regularFile);
+
+
+            int evNum = 1;
+            while ( (node = fileReader.getScannedEvent(evNum++)) != null) {
+                String xml = node.toXML();
+                System.out.println("\nXML:\n" + xml);
+
+
+                System.out.println("Convert XML to EvioEvent:");
+                List<EvioEvent> evList = Utilities.toEvents(xml);
+
+                System.out.println("\n\nev to XML:\n" + evList.get(0).toXML());
+
+                System.out.println("\n\n");
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /** Reading files to get EvioNode objects & print out XML representation. */
+    public static void main2(String args[]) {
 
         EvioNode node;
 
@@ -28,7 +85,7 @@ public class ReaderTest {
             EvioCompactReader fileReader = new EvioCompactReader(regularFile);
 
             node = fileReader.getScannedEvent(1);
-            String xml = Utilities.toXML(node);
+            String xml = node.toXML();
             System.out.println("\nXML:\n" + xml);
 
             System.out.println("----------------------------------------------------------");
@@ -37,7 +94,7 @@ public class ReaderTest {
             fileReader = new EvioCompactReader(swappedFile);
 
             node = fileReader.getScannedEvent(1);
-            xml = Utilities.toXML(node);
+            xml = node.toXML();
             System.out.println("\nXML:\n" + xml);
         }
         catch (Exception e) {
