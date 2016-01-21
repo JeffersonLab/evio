@@ -158,4 +158,27 @@ public enum DataType {
    		}
    	}
 
+	/**
+	 * Convenience routine to see if "this" data type is an integer of some kind -
+	 * either 8, 16, 32, or 64 bits worth.
+	 * @return <code>true</code> if the data type corresponds to an integer type
+	 */
+	public boolean isInteger() {
+		switch (this) {
+		case UCHAR8:
+		case CHAR8:
+		case USHORT16:
+		case SHORT16:
+		case UINT32:
+	    case INT32:
+		case ULONG64:
+		case LONG64:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+
+
 }
