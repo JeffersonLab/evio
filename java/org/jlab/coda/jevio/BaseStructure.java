@@ -1240,7 +1240,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * Extract string data from rawBytes array.
      * @return number of strings extracted from bytes
      */
-    public int unpackRawBytesToStrings() {
+    private int unpackRawBytesToStrings() {
 
         badStringFormat = true;
 
