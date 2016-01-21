@@ -1270,6 +1270,8 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
         if (type.equalsIgnoreCase("uint32"))     return DataType.UINT32;
         if (type.equalsIgnoreCase("int64"))      return DataType.LONG64;
         if (type.equalsIgnoreCase("uint64"))     return DataType.ULONG64;
+        if (type.equalsIgnoreCase("long64"))     return DataType.LONG64;
+        if (type.equalsIgnoreCase("ulong64"))    return DataType.ULONG64;
         if (type.equalsIgnoreCase("float32"))    return DataType.FLOAT32;
         if (type.equalsIgnoreCase("float64"))    return DataType.DOUBLE64;
         if (type.equalsIgnoreCase("double64"))   return DataType.DOUBLE64;
