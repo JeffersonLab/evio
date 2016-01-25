@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import com.sun.corba.se.impl.javax.rmi.CORBA.Util;
 import org.jlab.coda.jevio.*;
 
 import java.io.IOException;
@@ -18,15 +19,16 @@ import java.util.List;
 public class ReaderTest {
 
     // These files were written by SwapTest.java or by hand
-    static String regularXmlFile = "/dev/shm/regularEvent.xml";
-    static String regularFile = "/dev/shm/regularEvent.evio";
-    static String regularFile2 = "/dev/shm/regularEvent2.evio";
-    static String smallXmlFile = "/dev/shm/regularEventSmall.xml";
-    static String swappedFile = "/dev/shm/swappedEvent.evio";
+    static String compositeFile =  "/home/timmer/evioTestFiles/xmlTests/composite.evio";
+    static String regularXmlFile = "/home/timmer/evioTestFiles/xmlTests/regularEvent.xml";
+    static String regularFile =    "/home/timmer/evioTestFiles/xmlTests/regularEvent.evio";
+    static String regularFile2 =   "/home/timmer/evioTestFiles/xmlTests/regularEvent2.evio";
+    static String smallXmlFile =   "/home/timmer/evioTestFiles/xmlTests/regularEventSmall.xml";
+    static String swappedFile =    "/home/timmer/evioTestFiles/xmlTests/swappedEvent.evio";
 
 
     /** Reading files to get EvioNode objects & print out XML representation. */
-    public static void main(String args[]) {
+    public static void main4(String args[]) {
 
         try {
 
@@ -52,12 +54,12 @@ public class ReaderTest {
         EvioNode node;
 
         try {
-            EvioCompactReader fileReader = new EvioCompactReader(regularFile);
+            EvioCompactReader fileReader = new EvioCompactReader(compositeFile);
 
 
             int evNum = 1;
             while ( (node = fileReader.getScannedEvent(evNum++)) != null) {
-                String xml = node.toXML();
+                String xml = Utilities.toXML(node);
                 System.out.println("\nXML:\n" + xml);
 
 
@@ -77,7 +79,7 @@ public class ReaderTest {
 
 
     /** Reading files to get EvioNode objects & print out XML representation. */
-    public static void main2(String args[]) {
+    public static void main(String args[]) {
 
         EvioNode node;
 
@@ -85,17 +87,17 @@ public class ReaderTest {
             EvioCompactReader fileReader = new EvioCompactReader(regularFile);
 
             node = fileReader.getScannedEvent(1);
-            String xml = node.toXML();
+            String xml = Utilities.toXML(node);
             System.out.println("\nXML:\n" + xml);
 
-            System.out.println("----------------------------------------------------------");
-            System.out.println("----------------------SWAPPED-----------------------------");
-
-            fileReader = new EvioCompactReader(swappedFile);
-
-            node = fileReader.getScannedEvent(1);
-            xml = node.toXML();
-            System.out.println("\nXML:\n" + xml);
+//            System.out.println("----------------------------------------------------------");
+//            System.out.println("----------------------SWAPPED-----------------------------");
+//
+//            fileReader = new EvioCompactReader(swappedFile);
+//
+//            node = fileReader.getScannedEvent(1);
+//            xml = node.toXML();
+//            System.out.println("\nXML:\n" + xml);
         }
         catch (Exception e) {
             e.printStackTrace();
