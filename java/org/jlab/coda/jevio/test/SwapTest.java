@@ -122,7 +122,7 @@ public class SwapTest {
     static CompositeData[] createCompositeData() {
            // Create a CompositeData object ...
 
-        // Format 1 to write a N shorts, 1 float, 1 double a total of N times
+        // Format to write a N shorts, 1 float, 1 double a total of N times
         String format1 = "N(NS,F,D)";
 
         // Now create some data
@@ -137,11 +137,20 @@ public class SwapTest {
         myData1.addFloat(2.0F);
         myData1.addDouble(2. * Math.PI);
 
-        // Format 2 to write an unsigned int, unsigned char, and N number of
+        // ROW 2
+        myData1.addN(1);
+        myData1.addN(1);
+        myData1.addShort((short)4);
+        myData1.addFloat(4.0F);
+        myData1.addDouble(4.);
+
+        // Format to write an unsigned int, unsigned char, and N number of
         // M (int to be found) ascii characters & 1 64-bit int. We need to
         // wait before we can create this format string because we don't know
         // yet how many String characters (M) we have to determine the "Ma" term.
         // String format2 = "i,c,N(Ma,L)";
+        // If an integer replaces "M", it cannot be greater than 15.
+        // If M is written as "N", it can be any positive integer.
 
         // Now create some data
         CompositeData.Data myData2 = new CompositeData.Data();
@@ -161,11 +170,144 @@ public class SwapTest {
         myData2.addString(s);
         myData2.addLong(24L);
 
+        // Now create some data
+        CompositeData.Data myData3 = new CompositeData.Data();
+        myData3.addUshort((short) 55);
+        myData3.addInt(55);
+        String format3 = "s,I";
+
+//        // Now create some data
+//        CompositeData.Data myData4 = new CompositeData.Data();
+////        myData4.addInt(88);
+////        myData4.addInt(99);
+//         // Define our ascii data
+//        String ss[] = new String[1];
+//        ss[0] = "Reallyreallylongstring";
+//        // Find out how big the evio representation of this string is
+//        int strLen = BaseStructure.stringsToRawSize(ss);
+//        System.out.println("2nd string evio format len = " + strLen);
+//        myData4.addN(strLen);
+//        myData4.addString(ss);
+//        // Format to write a long, and N number of ascii characters.
+//        String format4 = "Na";
+
+        // Format to write a N shorts, 1 float, 1 double a total of N times
+        String format5 = "N(NS,4I)";
+
+        // Now create some data
+        CompositeData.Data myData5 = new CompositeData.Data();
+        myData5.addN(2);
+        myData5.addN(3);
+        myData5.addShort(new short[]{1, 2, 3}); // use array for convenience
+        myData5.addInt(1);
+        myData5.addInt(2);
+        myData5.addInt(3);
+        myData5.addInt(4);
+        myData5.addN(1);
+        myData5.addShort((short) 4); // use array for convenience
+        myData5.addInt(3);
+        myData5.addInt(4);
+        myData5.addInt(5);
+        myData5.addInt(6);
+
+        // ROW 2
+        myData5.addN(1);
+        myData5.addN(1);
+        myData5.addShort((short) 4);
+        myData5.addInt(5);
+        myData5.addInt(6);
+        myData5.addInt(7);
+        myData5.addInt(8);
+
+        // Format to test how values are written on a line
+        String format6 = "D,2D,3D,3F,4F,5F,5S,6S,7S,7C,8C,9C";
+
+        // Now create some data
+        CompositeData.Data myData6 = new CompositeData.Data();
+        myData6.addDouble(1.);
+
+        myData6.addDouble(2.);
+        myData6.addDouble(2.);
+
+        myData6.addDouble(3.);
+        myData6.addDouble(3.);
+        myData6.addDouble(3.);
+
+
+        myData6.addFloat(3.F);
+        myData6.addFloat(3.F);
+        myData6.addFloat(3.F);
+
+        myData6.addFloat(4.F);
+        myData6.addFloat(4.F);
+        myData6.addFloat(4.F);
+        myData6.addFloat(4.F);
+
+        myData6.addFloat(5.F);
+        myData6.addFloat(5.F);
+        myData6.addFloat(5.F);
+        myData6.addFloat(5.F);
+        myData6.addFloat(5.F);
+
+        short sh = 5;
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        sh = 6;
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        sh = 7;
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+        myData6.addShort(sh);
+
+        byte b = 7;
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        b = 8;
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        b = 9;
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+
         // Create CompositeData array
-        CompositeData[] cData = new CompositeData[2];
+        CompositeData[] cData = new CompositeData[5];
         try {
             cData[0] = new CompositeData(format1, 1, myData1, 1, 1);
-            cData[1] = new CompositeData(format2, 2, myData2, 2 ,2);
+            cData[1] = new CompositeData(format2, 2, myData2, 2, 2);
+            cData[2] = new CompositeData(format3, 3, myData3, 3, 3);
+//            cData[3] = new CompositeData(format4, 4, myData4, 4, 4);
+            cData[3] = new CompositeData(format5, 5, myData5, 5, 5);
+            cData[4] = new CompositeData(format6, 6, myData6, 6, 6);
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -285,6 +427,29 @@ public class SwapTest {
                     tagsegLongs.appendLongData(longData);
                     builder.addChild(bankBanks4, tagsegLongs);
 
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+        return event;
+    }
+
+    /** Build an event with an EventBuilder. */
+    static EvioEvent createBabyEvent(int tag) {
+
+        // Top level event
+        EvioEvent event = null;
+
+        try {
+            // Build event (bank of banks) with EventBuilder object
+            EventBuilder builder = new EventBuilder(tag, DataType.BANK, 1);
+            event = builder.getEvent();
+
+                    // bank of ints
+                    EvioBank bankInts = new EvioBank(tag+2, DataType.INT32, 3);
+                    builder.setIntData(bankInts, intData);
+                    builder.addChild(event, bankInts);
         }
         catch (EvioException e) {
             e.printStackTrace();
@@ -413,6 +578,35 @@ public class SwapTest {
     }
 
 
+    /** Build the same event as above but with a CompactEventBuilder instead of an EventBuilder. */
+    static ByteBuffer createCompactBabyEvent(int tag) {
+
+        // Buffer to fill
+        ByteBuffer buffer = ByteBuffer.allocate(1048);
+        CompactEventBuilder builder = null;
+        int num = tag;
+
+        try {
+            builder = new CompactEventBuilder(buffer);
+
+            // add top/event level bank of banks
+            builder.openBank(tag, num, DataType.BANK);
+
+                    // add bank of ints
+                    builder.openBank(tag+2, num+2, DataType.INT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
+
+           builder.closeAll();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+        return builder.getBuffer();
+    }
+
+
     /** For testing only */
     public static void main1(String args[]) {
 
@@ -460,9 +654,76 @@ public class SwapTest {
     }
 
 
+    /** Write 2 events to one file. */
+    public static void main(String args[]) {
+        boolean useEventBuilder = false;
+        ByteBuffer bb;
+        int byteSize, byteSize2;
+
+        try {
+
+            if (useEventBuilder) {
+                EvioEvent bank = createSingleEvent(1);
+                byteSize = bank.getTotalBytes();
+
+                EvioEvent bank2 = createBabyEvent(100);
+                byteSize2 = bank2.getTotalBytes();
+
+                bb = ByteBuffer.allocate(byteSize + byteSize2 + 2 * (32));
+
+                // Write first block header
+                setFirstBlockHeader(byteSize / 4, 2);
+                bb.put(firstBlockHeader);
+                firstBlockHeader.position(0);
+
+                // Write events
+                bank.write(bb);
+                bank2.write(bb);
+            }
+            // if using CompactEventBuilder ...
+            else {
+                ByteBuffer buffie = createCompactSingleEvent(1);
+                byteSize = buffie.limit();
+
+                ByteBuffer buffie2 = createCompactBabyEvent(100);
+                byteSize2 = buffie2.limit();
+
+                bb = ByteBuffer.allocate(byteSize + byteSize2 + 2 * (32));
+
+                // Write first block header
+                setFirstBlockHeader(byteSize / 4, 2);
+                bb.put(firstBlockHeader);
+                firstBlockHeader.position(0);
+
+                // Write events
+                bb.put(buffie);
+                bb.put(buffie2);
+            }
+
+            // Write last block header
+            bb.put(emptyLastHeader);
+            emptyLastHeader.position(0);
+
+            // Get ready to read buffer
+            bb.flip();
+
+            File evFile = new File("/home/timmer/evioTestFiles/xmlTests/regularEvent2.evio");
+            FileOutputStream fileOutputStream = new FileOutputStream(evFile);
+            FileChannel fileChannel = fileOutputStream.getChannel();
+            fileChannel.write(bb);
+            fileChannel.close();
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     /** Write event to one file and it swapped version to another file. */
-    public static void main(String args[]) {
+    public static void main11(String args[]) {
         boolean useEventBuilder = false;
         ByteBuffer bb1, bb2;
         int byteSize = 0;
@@ -525,13 +786,13 @@ public class SwapTest {
 
             bb2.position(0);
 
-            File evFile = new File("/dev/shm/regularEvent.evio");
+            File evFile = new File("/home/timmer/evioTestFiles/xmlTests/regularEvent.evio");
             FileOutputStream fileOutputStream = new FileOutputStream(evFile);
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.write(bb1);
             fileChannel.close();
 
-            File evFile2 = new File("/dev/shm/swappedEvent.evio");
+            File evFile2 = new File("/home/timmer/evioTestFiles/xmlTests/swappedEvent.evio");
             fileOutputStream = new FileOutputStream(evFile2);
             fileChannel = fileOutputStream.getChannel();
             fileChannel.write(bb2);
