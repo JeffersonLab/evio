@@ -27,10 +27,10 @@ public class Xml2evio {
         "          -f    evio output file name\n" +
         "          -d    xml dictionary file name\n" +
         "          -max  maximum number of events to convert to evio\n" +
-        "          -skip number of initial events to skip in xml file\n" +
+        "          -skip number of initial events to skip in xml file\n\n" +
 
-        "          This program takes evio events in xml representation and\n" +
-        "          converts it to the binary evio file format.\n");
+        "          This program takes evio events in an xml file and\n" +
+        "          converts it to a binary evio file.\n");
     }
 
 
@@ -75,9 +75,9 @@ public class Xml2evio {
         }
 
         if (evioFile == null || xmlFile == null) {
-                System.out.println("No xml or evio file defined");
-                usage();
-                System.exit(-1);
+            System.out.println("No xml or evio file defined");
+            usage();
+            System.exit(-1);
         }
 
         if (dictFile != null) {
