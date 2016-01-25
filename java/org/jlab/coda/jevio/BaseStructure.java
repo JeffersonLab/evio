@@ -1772,7 +1772,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 			case CHARSTAR8:
                 String stringdata[] = getStringData();
                 for (String str : stringdata) {
-                    xmlWriter.writeCharacters("\n");
+                    xmlWriter.writeCharacters(indent);
                     xmlWriter.writeCData(str);
                 }
 				break;
@@ -1787,8 +1787,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     }
                 }
 
-                for (int i=0; i < compositeData.length; i++) {
-                    compositeData[i].toXML(xmlWriter, this, true);
+                for (CompositeData cd : compositeData) {
+                    cd.toXML(xmlWriter, this, true);
                 }
                 break;
 
