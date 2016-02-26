@@ -85,7 +85,7 @@ static void swap_segment(uint32_t *buf, int tolocal, uint32_t *dest);
 static void swap_tagsegment(uint32_t *buf, int tolocal, uint32_t *dest);
 static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, uint32_t *dest);
 static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest);
-static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest);
+static int  swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_t length);
 
 
 /**
@@ -277,7 +277,7 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
 
         /* Composite type */
         case 0xf:
-            swap_composite_t(data, tolocal, dest);
+            swap_composite_t(data, tolocal, dest, length);
             break;
             
 
@@ -464,77 +464,103 @@ static void copy_data(uint32_t *data, uint32_t length, uint32_t *dest) {
 
 
 /**
- * This routine swaps a single buffer of composite type.
+ * This routine swaps a single buffer of an array of composite type.
  *
  * @param data    pointer to data to be swapped
  * @param tolocal if 0 data is of same endian as local host,
  *                else data is of opposite endian
  * @param dest    pointer to where swapped data is to be copied to.
  *                If NULL, the data is swapped in place.
+ * @param length  length of evio data in 32 bit words
+ *
+ * @return S_SUCCESS if successful
+ * @return S_FAILURE if error swapping data
  */
-static void swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest) {
+static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_t length) {
 
-    uint32_t formatLen, dataLen;
     char *formatString;
-    uint32_t *d, *pData;
-    int nfmt;
+    uint32_t *d, *pData, formatLen, dataLen;
+    int nfmt, inPlace, wordLen;
     unsigned char ifmt[1024];
 
     /* swap in place or copy ? */
-    d = (dest == NULL) ? data : dest;
+    inPlace = (dest == NULL);
+    d = inPlace ? data : dest;
 
     /* location of incoming data */
     pData = data;
 
-    /* swap format tagsegment header word */
-    if (tolocal) {
-        pData = swap_int32_t(data, 1, dest);
-    }
+    /* The data is actually an array of composite data elements,
+     * so be sure to loop through all of them. */
+    while (length > 0) {
+        /* swap format tagsegment header word */
+        if (tolocal) {
+            pData = swap_int32_t(data, 1, dest);
+        }
 
-    /* get length of format string (in 32 bit words) */
-    formatLen = pData[0] & 0xffff;
+        /* get length of format string (in 32 bit words) */
+        formatLen = pData[0] & 0xffff;
 
-    if (!tolocal) {
-        swap_int32_t(data, 1, dest);
-    }
+        if (!tolocal) {
+            swap_int32_t(data, 1, dest);
+        }
 
-    /* copy if needed */
-    if (dest != NULL) {
-        copy_data(&data[1], formatLen, &dest[1]);
-    }
+        /* copy if needed */
+        if (!inPlace) {
+            copy_data(&data[1], formatLen, &dest[1]);
+        }
 
-    /* set start of format string */
-    formatString = (char*)(&pData[1]);
+        /* set start of format string */
+        formatString = (char*)(&pData[1]);
 
-    /* swap data bank header words */
-    pData = &data[formatLen+1];
-    if (tolocal) {
-        pData = swap_int32_t(&data[formatLen+1], 2, &d[formatLen+1]);
-    }
+        /* swap data bank header words */
+        pData = &data[formatLen+1];
+        if (tolocal) {
+            pData = swap_int32_t(&data[formatLen+1], 2, &d[formatLen+1]);
+        }
 
-    /* get length of composite data (bank's len - 1)*/
-    dataLen = pData[0] - 1;
+        /* get length of composite data (bank's len - 1)*/
+        dataLen = pData[0] - 1;
 
-    if (!tolocal) {
-        swap_int32_t(&data[formatLen+1], 2, &d[formatLen+1]);
-    }
+        if (!tolocal) {
+            swap_int32_t(&data[formatLen+1], 2, &d[formatLen+1]);
+        }
 
-    /* copy if needed */
-    if (dest != NULL) {
-        copy_data(&data[formatLen+3], dataLen, &d[formatLen+3]);
-    }
+        /* copy if needed */
+        if (!inPlace) {
+            copy_data(&data[formatLen+3], dataLen, &d[formatLen+3]);
+        }
 
-    /* get start of composite data, will be swapped in place */
-    pData = &(d[formatLen+3]);
+        /* get start of composite data, will be swapped in place */
+        pData = &(d[formatLen+3]);
 
-    /* swap composite data: convert format string to internal format, then call formatted swap routine */
-    if ((nfmt = eviofmt(formatString, ifmt, 1024)) > 0 ) {
-        if (eviofmtswap(pData, dataLen, ifmt, nfmt, tolocal)) {
-            printf("swap_composite_t: eviofmtswap returned error, bad arg(s)\n");
+        /* swap composite data: convert format string to internal format, then call formatted swap routine */
+        if ((nfmt = eviofmt(formatString, ifmt, 1024)) > 0 ) {
+            if (eviofmtswap(pData, dataLen, ifmt, nfmt, tolocal)) {
+                printf("swap_composite_t: eviofmtswap returned error, bad arg(s)\n");
+                return S_FAILURE;
+            }
+        }
+        else {
+            printf("swap_composite_t: error %d in eviofmt\n", nfmt);
+            return S_FAILURE;
+        }
+
+        /* # of words in this composite data array element */
+        wordLen = 1 + formatLen + 2 + dataLen;
+
+        /* go to the next composite data array element */
+        length -= wordLen;
+        dest += wordLen;
+        pData = data += wordLen;
+        d = inPlace ? data : dest;
+
+        /* oops, things aren't coming out evenly */
+        if (length < 0) {
+            return S_FAILURE;
         }
     }
-    else {
-        printf("swap_composite_t: error %d in eviofmt\n", nfmt);
-    }
+
+    return S_SUCCESS;
 }
 
