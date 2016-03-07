@@ -257,37 +257,48 @@ public class EvioEvent extends EvioBank {
 
 	/**
 	 * Write this event structure out as an XML record.
+     * Integers written in decimal.
 	 * @param xmlWriter the writer used to write the events.
 	 */
 	@Override
 	public void toXML(XMLStreamWriter xmlWriter) {
+        toXML(xmlWriter, false);
+	}
 
-		try {
-			int totalLen = header.length + 1;
+    /**
+     * Write this event structure out as an XML record.
+     * @param xmlWriter the writer used to write the events.
+     * @param hex       if true, ints get displayed in hexadecimal
+     */
+    @Override
+    public void toXML(XMLStreamWriter xmlWriter, boolean hex) {
+
+        try {
+            int totalLen = header.length + 1;
             increaseXmlIndent();
             xmlWriter.writeCharacters(xmlIndent);
-			xmlWriter.writeComment(" Buffer " + getEventNumber() + " contains " + totalLen + " words (" + 4*totalLen + " bytes)");
-			commonXMLStart(xmlWriter);
-			xmlWriter.writeAttribute("format", "evio");
-			xmlWriter.writeAttribute("count", "" + getEventNumber());
+            xmlWriter.writeComment(" Buffer " + getEventNumber() + " contains " + totalLen + " words (" + 4*totalLen + " bytes)");
+            commonXMLStart(xmlWriter);
+            xmlWriter.writeAttribute("format", "evio");
+            xmlWriter.writeAttribute("count", "" + getEventNumber());
             if (header.dataType.isStructure()) {
-			    xmlWriter.writeAttribute("content", xmlContentAttributeName);
+                xmlWriter.writeAttribute("content", xmlContentAttributeName);
             }
-			xmlWriter.writeAttribute("data_type", String.format("0x%x", header.dataType.getValue()));
-			xmlWriter.writeAttribute("tag", "" + header.tag);
-			xmlWriter.writeAttribute("num", "" + header.number);
+            xmlWriter.writeAttribute("data_type", String.format("0x%x", header.dataType.getValue()));
+            xmlWriter.writeAttribute("tag", "" + header.tag);
+            xmlWriter.writeAttribute("num", "" + header.number);
             xmlWriter.writeAttribute("length", "" + header.length);
             increaseXmlIndent();
-			commonXMLDataWrite(xmlWriter);
+            commonXMLDataWrite(xmlWriter, hex);
             decreaseXmlIndent();
-			commonXMLClose(xmlWriter);
+            commonXMLClose(xmlWriter, hex);
             xmlWriter.writeCharacters("\n");
             decreaseXmlIndent();
-		}
-		catch (XMLStreamException e) {
-			e.printStackTrace();
-		}
-	}
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+    }
 
 	/**
 	 * Get the element name for the bank for writing to XML.

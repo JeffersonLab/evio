@@ -61,11 +61,22 @@ public class EvioTagSegment extends BaseStructure {
 	
 	/**
 	 * Write this tag segment structure out as an XML record.
+     * Integers written in decimal.
 	 * @param xmlWriter the writer used to write the events.
 	 */
 	@Override
 	public void toXML(XMLStreamWriter xmlWriter) {
-		
+        toXML(xmlWriter, false);
+	}
+
+    /**
+	 * Write this tag segment structure out as an XML record.
+     * @param xmlWriter the writer used to write the events.
+     * @param hex       if true, ints get displayed in hexadecimal
+     */
+    @Override
+    public void toXML(XMLStreamWriter xmlWriter, boolean hex) {
+
         try {
             commonXMLStart(xmlWriter);
             if (header.dataType.isStructure()) {
@@ -76,9 +87,9 @@ public class EvioTagSegment extends BaseStructure {
             xmlWriter.writeAttribute("length", "" + header.length);
             xmlWriter.writeAttribute("ndata", "" + getNumberDataItems());
             increaseXmlIndent();
-            commonXMLDataWrite(xmlWriter);
+            commonXMLDataWrite(xmlWriter, hex);
             decreaseXmlIndent();
-            commonXMLClose(xmlWriter);
+            commonXMLClose(xmlWriter, hex);
         }
         catch (XMLStreamException e) {
             e.printStackTrace();
