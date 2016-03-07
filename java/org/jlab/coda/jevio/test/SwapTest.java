@@ -71,12 +71,12 @@ public class SwapTest {
 //    static      double[] doubleData = new double[] {1.};
 //    static      String[] stringData = new String[] {"1"};
 
-    static      byte[]   byteData   = new byte[]   {1,2,3};
-    static      short[]  shortData  = new short[]  {1,2,3};
-    static      int[]    intData    = new int[]    {1,2,3};
-    static      long[]   longData   = new long[]   {1L,2L,3L};
-    static      float[]  floatData  = new float[]  {1.F,2.F,3.F};
-    static      double[] doubleData = new double[] {1.,2.,3.};
+    static      byte[]   byteData   = new byte[]   {(byte)0xff, 0, (byte)0x80};
+    static      short[]  shortData  = new short[]  {(short)0xffff, 0, (short)0x8000};
+    static      int[]    intData    = new int[]    {0xffffffff, 0, 0x80000000};
+    static      long[]   longData   = new long[]   {0xffffffffffffffffL, 0L, 0x8000000000000000L};
+    static      float[]  floatData  = new float[]  {Float.MAX_VALUE, 0.F, Float.MIN_VALUE};
+    static      double[] doubleData = new double[] {Double.MAX_VALUE, 0., Double.MIN_VALUE};
     static      String[] stringData = new String[] {"123", "456", "789"};
 
 
@@ -130,12 +130,12 @@ public class SwapTest {
         myData1.addN(2);
         myData1.addN(3);
         myData1.addShort(new short[]{1, 2, 3}); // use array for convenience
-        myData1.addFloat(1.0F);
-        myData1.addDouble(Math.PI);
+        myData1.addFloat(Float.MAX_VALUE);
+        myData1.addDouble(Double.MAX_VALUE);
         myData1.addN(1);
         myData1.addShort((short) 4); // use array for convenience
-        myData1.addFloat(2.0F);
-        myData1.addDouble(2. * Math.PI);
+        myData1.addFloat(Float.MIN_VALUE);
+        myData1.addDouble(Double.MIN_VALUE);
 
         // ROW 2
         myData1.addN(1);
@@ -172,9 +172,40 @@ public class SwapTest {
 
         // Now create some data
         CompositeData.Data myData3 = new CompositeData.Data();
-        myData3.addUshort((short) 55);
-        myData3.addInt(55);
-        String format3 = "s,I";
+
+        myData3.addChar(byteData[0]);
+        myData3.addChar(byteData[1]);
+        myData3.addChar(byteData[2]);
+
+        myData3.addUchar(byteData[0]);
+        myData3.addUchar(byteData[1]);
+        myData3.addUchar(byteData[2]);
+
+        myData3.addShort(shortData[0]);
+        myData3.addShort(shortData[1]);
+        myData3.addShort(shortData[2]);
+
+        myData3.addUshort(shortData[0]);
+        myData3.addUshort(shortData[1]);
+        myData3.addUshort(shortData[2]);
+
+        myData3.addInt(intData[0]);
+        myData3.addInt(intData[1]);
+        myData3.addInt(intData[2]);
+
+        myData3.addUint(intData[0]);
+        myData3.addUint(intData[1]);
+        myData3.addUint(intData[2]);
+
+        myData3.addLong(longData[0]);
+        myData3.addLong(longData[1]);
+        myData3.addLong(longData[2]);
+
+        myData3.addUlong(longData[0]);
+        myData3.addUlong(longData[1]);
+        myData3.addUlong(longData[2]);
+
+        String format3 = "3C,3c,3S,3s,3I,3i,3L,3l";
 
 //        // Now create some data
 //        CompositeData.Data myData4 = new CompositeData.Data();
@@ -224,24 +255,24 @@ public class SwapTest {
 
         // Now create some data
         CompositeData.Data myData6 = new CompositeData.Data();
-        myData6.addDouble(1.);
+        myData6.addDouble(Double.MIN_VALUE);
 
-        myData6.addDouble(2.);
-        myData6.addDouble(2.);
+        myData6.addDouble(0.);
+        myData6.addDouble(Double.MAX_VALUE);
 
         myData6.addDouble(3.);
         myData6.addDouble(3.);
         myData6.addDouble(3.);
 
 
-        myData6.addFloat(3.F);
-        myData6.addFloat(3.F);
-        myData6.addFloat(3.F);
+        myData6.addFloat((float)3.e-10);
+        myData6.addFloat((float)3.e10);
+        myData6.addFloat((float)3.e10);
 
-        myData6.addFloat(4.F);
-        myData6.addFloat(4.F);
-        myData6.addFloat(4.F);
-        myData6.addFloat(4.F);
+        myData6.addFloat(Float.MIN_VALUE);
+        myData6.addFloat((float)0.);
+        myData6.addFloat((float)4.e11);
+        myData6.addFloat(Float.MAX_VALUE);
 
         myData6.addFloat(5.F);
         myData6.addFloat(5.F);
@@ -271,16 +302,7 @@ public class SwapTest {
         myData6.addShort(sh);
         myData6.addShort(sh);
 
-        byte b = 7;
-        myData6.addChar(b);
-        myData6.addChar(b);
-        myData6.addChar(b);
-        myData6.addChar(b);
-        myData6.addChar(b);
-        myData6.addChar(b);
-        myData6.addChar(b);
-        b = 8;
-        myData6.addChar(b);
+        byte b = 8;
         myData6.addChar(b);
         myData6.addChar(b);
         myData6.addChar(b);
@@ -289,6 +311,15 @@ public class SwapTest {
         myData6.addChar(b);
         myData6.addChar(b);
         b = 9;
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        myData6.addChar(b);
+        b = 10;
         myData6.addChar(b);
         myData6.addChar(b);
         myData6.addChar(b);
@@ -340,21 +371,41 @@ public class SwapTest {
                     builder.setIntData(bankInts, intData);
                     builder.addChild(bankBanks, bankInts);
 
-                    // bank of unsigned bytes
-                    EvioBank bankBytes = new EvioBank(tag+3, DataType.UCHAR8, 4);
+                    // bank of unsigned ints
+                    EvioBank bankUInts = new EvioBank(tag+2, DataType.UINT32, 33);
+                    builder.setIntData(bankUInts, intData);
+                    builder.addChild(bankBanks, bankUInts);
+
+                    // bank of bytes
+                    EvioBank bankBytes = new EvioBank(tag+3, DataType.CHAR8, 4);
                     //bankBytes.appendByteData(byteData);
                     builder.setByteData(bankBytes, byteData);
                     builder.addChild(bankBanks, bankBytes);
 
-                    // bank of unsigned shorts
-                    EvioBank bankShorts = new EvioBank(tag+4, DataType.USHORT16, 5);
+                    // bank of unsigned bytes
+                    EvioBank bankUBytes = new EvioBank(tag+3, DataType.UCHAR8, 34);
+                    builder.setByteData(bankUBytes, byteData);
+                    builder.addChild(bankBanks, bankUBytes);
+
+                    // bank of shorts
+                    EvioBank bankShorts = new EvioBank(tag+4, DataType.SHORT16, 5);
                     bankShorts.appendShortData(shortData);
                     builder.addChild(bankBanks, bankShorts);
+
+                    // bank of unsigned shorts
+                    EvioBank bankUShorts = new EvioBank(tag+4, DataType.USHORT16, 35);
+                    bankUShorts.appendShortData(shortData);
+                    builder.addChild(bankBanks, bankUShorts);
 
                     // bank of longs
                     EvioBank bankLongs = new EvioBank(tag+5, DataType.LONG64, 6);
                     bankLongs.appendLongData(longData);
                     builder.addChild(bankBanks, bankLongs);
+
+                    // bank of unsigned longs
+                    EvioBank bankULongs = new EvioBank(tag+5, DataType.ULONG64, 6);
+                    bankULongs.appendLongData(longData);
+                    builder.addChild(bankBanks, bankULongs);
 
                     // bank of floats
                     EvioBank bankFloats = new EvioBank(tag+6, DataType.FLOAT32, 7);
@@ -481,18 +532,38 @@ public class SwapTest {
                     builder.addIntData(intData);
                     builder.closeStructure();
 
-                    // add bank of unsigned bytes
-                    builder.openBank(tag+3, num+3, DataType.UCHAR8);
+                    // add bank of unsigned ints
+                    builder.openBank(tag+2, num+32, DataType.UINT32);
+                    builder.addIntData(intData);
+                    builder.closeStructure();
+
+                    // add bank of bytes
+                    builder.openBank(tag+3, num+3, DataType.CHAR8);
                     builder.addByteData(byteData);
                     builder.closeStructure();
 
+                    // add bank of unsigned bytes
+                    builder.openBank(tag+3, num+33, DataType.UCHAR8);
+                    builder.addByteData(byteData);
+                    builder.closeStructure();
+
+                    // add bank of shorts
+                    builder.openBank(tag+4, num+4, DataType.SHORT16);
+                    builder.addShortData(shortData);
+                    builder.closeStructure();
+
                     // add bank of unsigned shorts
-                    builder.openBank(tag+4, num+4, DataType.USHORT16);
+                    builder.openBank(tag+4, num+34, DataType.USHORT16);
                     builder.addShortData(shortData);
                     builder.closeStructure();
 
                     // add bank of longs
                     builder.openBank(tag+5, num+5, DataType.LONG64);
+                    builder.addLongData(longData);
+                    builder.closeStructure();
+
+                    // add bank of unsigned longs
+                    builder.openBank(tag+5, num+35, DataType.ULONG64);
                     builder.addLongData(longData);
                     builder.closeStructure();
 
@@ -655,7 +726,7 @@ public class SwapTest {
 
 
     /** Write 2 events to one file. */
-    public static void main(String args[]) {
+    public static void main2(String args[]) {
         boolean useEventBuilder = false;
         ByteBuffer bb;
         int byteSize, byteSize2;
@@ -723,7 +794,7 @@ public class SwapTest {
 
 
     /** Write event to one file and it swapped version to another file. */
-    public static void main11(String args[]) {
+    public static void main(String args[]) {
         boolean useEventBuilder = false;
         ByteBuffer bb1, bb2;
         int byteSize = 0;
@@ -806,7 +877,7 @@ public class SwapTest {
 
 
     /** For testing only */
-    public static void main2(String args[]) {
+    public static void main3(String args[]) {
 
         try {
             EvioEvent bank = createSingleEvent(1);
