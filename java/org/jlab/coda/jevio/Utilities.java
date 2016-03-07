@@ -370,7 +370,7 @@ final public class Utilities {
      * @throws EvioException if xml is not in proper format
      */
     final static public List<EvioEvent> toEvents(String xmlString, boolean hex) throws EvioException {
-        return toEvents(xmlString, 0, 0, null, hex, false);
+        return toEvents(xmlString, 0, 0, null, false);
     }
 
 
@@ -379,18 +379,16 @@ final public class Utilities {
      * (each starting with lt; event gt;)
      * and converts them to a list of EvioEvent objects.
      *
-     * @param xmlString      xml format string to parse
-     * @param maxEvents
-     * @param skip
-     * @param dictionary
-     * @param hex
-     * @param debug
+     * @param xmlString   xml format string to parse
+     * @param maxEvents   max number of events to return
+     * @param skip        number of events to initially skip over
+     * @param dictionary  dictionary object
+     * @param debug       true for debug output
      * @return list of EvioEvent objects constructed from arg
      * @throws EvioException if xml is not in proper format
      */
     final static public List<EvioEvent> toEvents(String xmlString, int maxEvents, int skip,
-                                                 EvioXMLDictionary dictionary, boolean hex,
-                                                 boolean debug)
+                                                 EvioXMLDictionary dictionary, boolean debug)
             throws EvioException {
 
         if (xmlString == null) {
@@ -462,6 +460,7 @@ if (debug) System.out.println("FOUND dict entry(" + name + "): tag = " + level.t
                             Attribute attr = (Attribute)it.next();
                             String attrName = attr.getName().getLocalPart();
                             String valStr = attr.getValue();
+                            boolean hex = false;
 
                             // Convert attribute value to integer.
                             // Watch out for hex numbers, they can't be parsed as is.
