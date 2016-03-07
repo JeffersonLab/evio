@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio;
 
+import java.math.BigInteger;
 import java.nio.*;
 import java.nio.charset.*;
 import java.util.*;
@@ -405,8 +406,9 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     }
 
 	/**
-	 * A convenience method use instead of "instanceof" to see what type of structure we have. Note: this returns the
-	 * type of this structure, not the type of data (the content type) this structure holds.
+	 * A convenience method use instead of "instanceof" to see what type
+     * of structure we have. Note: this returns the type of this structure,
+     * not the type of data (the content type) this structure holds.
 	 * 
 	 * @return the <code>StructureType</code> of this structure.
 	 * @see StructureType
@@ -414,15 +416,26 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	public abstract StructureType getStructureType();
 
     /**
-     * This is a method that must be filled in by subclasses. Write this structure out as an XML record.
+     * This is a method that must be filled in by subclasses.
+     * Write this structure out as an XML record.
      *
-     * @param xmlWriter the writer used to write the events. It is tied to an open file.
+     * @param xmlWriter the writer used to write the events.
+     *                  It is tied to an open file.
      */
     public abstract void toXML(XMLStreamWriter xmlWriter);
 
+    /**
+     * This is a method that must be filled in by subclasses.
+     * Write this structure out as an XML record.
+     *
+     * @param xmlWriter the writer used to write the events.
+     *                  It is tied to an open file.
+     * @param hex       if true, ints get displayed in hexadecimal
+     */
+    public abstract void toXML(XMLStreamWriter xmlWriter, boolean hex);
+
 	/**
 	 * Get the element name for the structure for writing to XML.
-	 * 
 	 * @return the element name for the structure for writing to XML.
 	 */
 	public abstract String getXMLElementName();
@@ -431,12 +444,19 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * Write this structure out as an XML format string.
      */
     public String toXML() {
+        return toXML(false);
+    }
 
+    /**
+     * Write this structure out as an XML format string.
+     * @param hex if true, ints get displayed in hexadecimal
+     */
+    public String toXML(boolean hex) {
         try {
             StringWriter sWriter = new StringWriter();
             XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sWriter);
 
-            toXML(xmlWriter);
+            toXML(xmlWriter, hex);
             return sWriter.toString();
         }
         catch (XMLStreamException e) {
@@ -1298,8 +1318,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 //                           Integer.toHexString((int)c) + " at i = " + i);
                 if (nullCount < 1) {
                     // Getting garbage before first null.
-                    //System.out.println("BAD FORMAT 1");
-                    badStringFormat = true;
+//System.out.println("BAD FORMAT 1: garbage char before null");
                     break;
                 }
 
@@ -1312,22 +1331,18 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 if (c == '\004') {
                     // How many more chars are there?
                     int charsLeft = rawLength - (i+1);
-//System.out.println("  found 4, chars left = " + charsLeft);
 
                     // Should be no more than 3 additional 4's before the end
                     if (charsLeft > 3) {
-                        //System.out.println("BAD FORMAT 2");
-                        badStringFormat = true;
+//System.out.println("BAD FORMAT 2: too many chars, " + charsLeft + ", after 4");
                         break;
                     }
                     else {
                         // Check to see if remaining chars are all 4's. If not, bad.
                         for (int j=1; j <= charsLeft; j++) {
                             c = stringData.charAt(i+j);
-//System.out.println("    ending char = 0x" + Integer.toHexString((int)c));
                             if (c != '\004') {
-                                //System.out.println("BAD FORMAT 3");
-                                badStringFormat = true;
+//System.out.println("BAD FORMAT 3: padding chars are not all 4's");
                                 break outerLoop;
                             }
                         }
@@ -1336,18 +1351,18 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     }
                 }
                 else {
-                    //System.out.println("BAD FORMAT 4");
-                    badStringFormat = true;
+//System.out.println("BAD FORMAT 4: got bad char, ascii val = " + c);
                     break;
                 }
             }
         }
 
         // What if the raw bytes are all valid ascii with no null or other non-printing chars?
-        // Then format is bad but everything is added.
+        // Then format is bad so return everything as one string.
 
+        // If error, return everything in one String including possible garbage
         if (badStringFormat) {
-            // Return everything in one String including possible garbage
+//System.out.println("unpackRawBytesToStrings: bad format, return all chars in 1 string");
             stringsList.add(stringData.toString());
             return 1;
         }
@@ -1625,29 +1640,30 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 		return header.getDataType().isStructure();
 	}
 
-	/**
-	 * This calls the xml write for all of a structure's children.
+    /**
+   	 * This calls the xml write for all of a structure's children.
      * It is used for a depth-first traversal through the tree
-	 * when writing an event to xml.
-	 * 
-	 * @param xmlWriter the writer used to write the events. It is tied to an open file.
-	 */
-	protected void childrenToXML(XMLStreamWriter xmlWriter) {
-		if (children == null) {
-			return;
-		}
-        
+   	 * when writing an event to xml.
+   	 *
+   	 * @param xmlWriter the writer used to write the events. It is tied to an open file.
+     * @param hex if true, ints get displayed in hexadecimal
+   	 */
+    protected void childrenToXML(XMLStreamWriter xmlWriter, boolean hex) {
+        if (children == null) {
+            return;
+        }
+
         increaseXmlIndent();
 
-		for (BaseStructure structure : children) {
-			structure.setXmlIndent(xmlIndent);
-            structure.toXML(xmlWriter);
-		}
+        for (BaseStructure structure : children) {
+            structure.setXmlIndent(xmlIndent);
+            structure.toXML(xmlWriter, hex);
+        }
 
         decreaseXmlIndent();
-	}
+    }
 
-	/**
+    /**
 	 * All structures have a common start to their xml writing
 	 * 
 	 * @param xmlWriter the writer used to write the events. It is tied to an open file.
@@ -1667,9 +1683,10 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * All structures close their xml writing the same way, by drilling down to embedded children.
      *
      * @param xmlWriter the writer used to write the events. It is tied to an open file.
+     * @param hex if true, ints get displayed in hexadecimal
      */
-    protected void commonXMLClose(XMLStreamWriter xmlWriter) {
-        childrenToXML(xmlWriter);
+    protected void commonXMLClose(XMLStreamWriter xmlWriter, boolean hex) {
+        childrenToXML(xmlWriter, hex);
         try {
             xmlWriter.writeCharacters("\n");
             xmlWriter.writeCharacters(xmlIndent);
@@ -1681,11 +1698,16 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     }
 
 	/**
-	 * All structures have a common data write for their xml writing
-	 * 
+	 * All structures have a common data write for their xml writing.<p>
+     *
+     * Warning: this is essentially duplicated in
+     * {@link Utilities#writeXmlData(EvioNode, int, String, boolean, XMLStreamWriter)}
+     * so any change here needs to be made there too.
+	 *
 	 * @param xmlWriter the writer used to write the events. It is tied to an open file.
+     * @param hex       if true, ints get displayed in hexadecimal
 	 */
-	protected void commonXMLDataWrite(XMLStreamWriter xmlWriter) {
+	protected void commonXMLDataWrite(XMLStreamWriter xmlWriter, boolean hex) {
 
 		// only leafs write data
 		if (!isLeaf()) {
@@ -1704,7 +1726,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%24.16e  ", doubledata[i]);
+                    s = String.format("%25.17g  ", doubledata[i]);
                     xmlWriter.writeCharacters(s);
                 }
 				break;
@@ -1712,59 +1734,152 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 			case FLOAT32:
 				float floatdata[] = getFloatData();
                 for (int i=0; i < floatdata.length; i++) {
-                    if (i%2 == 0) {
+                    if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%14.7e  ", floatdata[i]);
+                    s = String.format("%15.8g  ", floatdata[i]);
                     xmlWriter.writeCharacters(s);
                 }
 				break;
 
 			case LONG64:
-			case ULONG64:
-				long longdata[] = getLongData();
+				long[] longdata = getLongData();
                 for (int i=0; i < longdata.length; i++) {
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%20d  ", longdata[i]);
+
+                    if (hex) {
+                        s = String.format("0x%016x  ", longdata[i]);
+                    }
+                    else {
+                        s = String.format("%20d  ", longdata[i]);
+                    }
                     xmlWriter.writeCharacters(s);
                 }
 				break;
+
+            case ULONG64:
+                longdata = getLongData();
+                BigInteger bg;
+                for (int i=0; i < longdata.length; i++) {
+                    if (i%2 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%016x  ", longdata[i]);
+                    }
+                    else {
+                        bg = new BigInteger(1, ByteDataTransformer.toBytes(longdata[i], ByteOrder.BIG_ENDIAN));
+                        s = String.format("%20s  ", bg.toString());
+                        // For java version 8+, no BigIntegers necessary:
+                        //s = String.format("%20s  ", Long.toUnsignedString(longdata[i]));
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+                break;
 
 			case INT32:
-			case UINT32:
-				int intdata[] = getIntData();
+                int[] intdata = getIntData();
                 for (int i=0; i < intdata.length; i++) {
-                    if (i%5 == 0) {
+                    if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%11d  ", intdata[i]);
+
+                    if (hex) {
+                        s = String.format("0x%08x  ", intdata[i]);
+                    }
+                    else {
+                        s = String.format("%11d  ", intdata[i]);
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+                break;
+
+			case UINT32:
+				intdata = getIntData();
+                for (int i=0; i < intdata.length; i++) {
+                    if (i%4 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%08x  ", intdata[i]);
+                    }
+                    else {
+                        s = String.format("%11d  ", ((long) intdata[i]) & 0xffffffffL);
+                        //s = String.format("%11s  ", Integer.toUnsignedString(intdata[i]));
+                    }
                     xmlWriter.writeCharacters(s);
                 }
 				break;
 
-			case SHORT16:
-			case USHORT16:
-				short shortdata[] = getShortData();
+            case SHORT16:
+                short[] shortdata = getShortData();
                 for (int i=0; i < shortdata.length; i++) {
-                    if (i%5 == 0) {
+                    if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%6d  ", shortdata[i]);
+
+                    if (hex) {
+                        s = String.format("0x%04x  ", shortdata[i]);
+                    }
+                    else {
+                        s = String.format("%6d  ", shortdata[i]);
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+                break;
+
+            case USHORT16:
+				shortdata = getShortData();
+                for (int i=0; i < shortdata.length; i++) {
+                    if (i%8 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%04x  ", shortdata[i]);
+                    }
+                    else {
+                        s = String.format("%6d  ", ((int) shortdata[i]) & 0xffff);
+                    }
                     xmlWriter.writeCharacters(s);
                 }
 				break;
+
+			case CHAR8:
+                byte[] bytedata = getByteData();
+                for (int i=0; i < bytedata.length; i++) {
+                    if (i%8 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%02x  ", bytedata[i]);
+                    }
+                    else {
+                        s = String.format("%4d  ", bytedata[i]);
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+                break;
 
             case UNKNOWN32:
-			case CHAR8:
 			case UCHAR8:
-				byte bytedata[] = getByteData();
+                bytedata = getByteData();
                 for (int i=0; i < bytedata.length; i++) {
-                    if (i%5 == 0) {
+                    if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%4d  ", bytedata[i]);
+
+                    if (hex) {
+                        s = String.format("0x%02x  ", bytedata[i]);
+                    }
+                    else {
+                        s = String.format("%4d  ", ((short) bytedata[i]) & 0xff);
+                    }
                     xmlWriter.writeCharacters(s);
                 }
 				break;
@@ -1788,7 +1903,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                 }
 
                 for (CompositeData cd : compositeData) {
-                    cd.toXML(xmlWriter, this, true);
+                    cd.toXML(xmlWriter, this, hex);
                 }
                 break;
 
