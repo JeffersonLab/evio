@@ -235,7 +235,7 @@
  *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
  *                DisentangledPhysics = 3, User = 4, Control = 5, Prestart = 6, Go = 7,
  *                Pause = 8, End = 9, Other = 15)
- *
+ *   Bit  15    = true if block contains "first" event which gets written in each file split
  *
  * ################################
  * COMPOSITE DATA:
@@ -3181,7 +3181,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
         handleReadUnlock(handle);
         return(S_EVFILE_BADMODE);
     }
-    
+
     /* Lock mutex for multithreaded reads/writes/access */
     mutexLock(a);
     /* If no more data left to read from current block, get a new block */
@@ -3262,7 +3262,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
         evioswap(temp_ptr, 1, buffer);
         free(temp_ptr);
     }
-    
+
     return(S_SUCCESS);
 }
 
@@ -5512,7 +5512,7 @@ int evGetRandomAccessTable(int handle, uint32_t *** const table, uint32_t *len) 
  *                   Memory for dictionary allocated here, must be freed by
  *                   caller.
  * @param len        pointer to int which gets filled with dictionary
- *                   string length if there is one, else filled with 0.
+ *                   string length (# chars) if there is one, else filled with 0.
  *                   If this arg = NULL, no len is returned.
  *
  * @return S_SUCCESS           if successful
@@ -5899,8 +5899,303 @@ int evCreateFirstEventBlock(const uint32_t *firstEvent, int localEndian, void **
 }
 
 
+/**
+ * This routine writes an array of strings, in evio format, into the given buffer.
+ * This does NOT include any bank, segment, or tagsegment header.
+ * The length of the written data in bytes is returned in the "dataLen" arg.
+ * The written data is endian independent.
+ *
+ * @param buffer      buffer in which to place the evio format string data
+ * @param bufLen      length of available room in which to write data in buffer in bytes
+ * @param strings     array of strings to write as data
+ * @param stringCount number of strings in string array
+ * @param dataLen     pointer to int which gets filled the length of the written data in bytes
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADARG    if buffer or dataLen arg is NULL, bufLen < 4, stringCount < 0,
+ *                            or a string is NULL
+ * @return S_EVFILE_TRUNC     if not enough room in buffer
+ */
+int evStringsToBuf(uint32_t *buffer, int bufLen, char **strings, int stringCount, int *dataLen) {
+
+    size_t len;
+    char *buf = (char *) buffer;
+    int i, size=0, padChars, pads[4] = {4,3,2,1};
+
+    if (buffer == NULL || dataLen == NULL || bufLen < 4 || stringCount < 0) {
+        return(S_EVFILE_BADARG);
+    }
+
+    if (strings == NULL || stringCount == 0) {
+        return(S_SUCCESS);
+    }
+
+    /* Find out how much space we need. */
+    for (i=0; i < stringCount; i++) {
+        if (strings[i] == NULL) {
+            return(S_EVFILE_BADARG);
+        }
+        size += strlen(strings[i]) + 1;
+    }
+    padChars = pads[size%4];
+    size += padChars;
+
+    if (size > bufLen) {
+        return(S_EVFILE_TRUNC);
+    }
+
+    for (i=0; i < stringCount; i++) {
+        len = strlen(strings[i]);
+        memcpy((void *)buf, (const void *)strings[i], len);
+        buf[len] = '\0';
+        buf += len + 1;
+    }
+
+    /* Add any necessary padding to 4 byte boundaries.
+       IMPORTANT: There must be at least one '\004'
+       character at the end. This distinguishes evio
+       string array version from earlier version. */
+    /*fprintf(stderr,"evGetNewBuffer: read %d bytes from file\n", (int)bytesToRead);*/
+    for (i=0; i < padChars; i++) {
+        buf[i]='\4';
+    }
+
+    *dataLen = size;
+
+    return(S_SUCCESS);
+}
+
 
 /** @} */
+
+
+
+/**
+ * @addtogroup read
+ * @{
+ */
+
+
+/**
+ * This routine adds a string to an array of strings.
+ * If no array has been allocated, it's created.
+ * If the existing array is too small, its size is doubled and the pointer is updated.
+ * Existing strings are moved into the newly created array.<p>
+ *
+ * Array pointed to in pArray needs to be freed by the caller.
+ * All strings contained in the array also need to be freed by the caller.
+ *
+ * @param pArray          address of array of strings
+ *                        (array will be changed if more space was needed).
+ * @param str             string to add to array
+ * @param pTotalCount     address of total number of array elements
+ *                        (number of elements will be changed if more space was needed)
+ * @param pvalidStrCount  address of number of array elements with valid strings
+ *                        (number will increase by one if no error)
+ */
+static int addStringToArray(char ***pArray, char *str, int *pTotalCount, int *pvalidStrCount) {
+
+    int i, doubleLen;
+    int totCount = *pTotalCount;
+    int strCount = *pvalidStrCount;
+    char **doubleArray, **oldArray = *pArray;
+
+    if (str == NULL) {
+        return(S_EVFILE_BADARG);
+    }
+
+    /* If first time a string's been added, start with space for 100 strings. */
+    if (oldArray == NULL) {
+        oldArray = (char **)calloc(1, 100*sizeof(char *));
+        if (oldArray == NULL) {
+            return(S_EVFILE_ALLOCFAIL);
+        }
+        *pArray = oldArray;
+        *pTotalCount = 100;
+        strCount = 0;
+        totCount = 100;
+    }
+
+    /* If we don't need more space, place string in existing array and return */
+    if (strCount < totCount) {
+        str = strdup(str);
+        if (str == NULL) {
+            return(S_EVFILE_ALLOCFAIL);
+        }
+        oldArray[strCount] = str;
+        *pvalidStrCount = strCount + 1;
+        return(S_SUCCESS);
+    }
+
+    /* If here, we need more space so double capacity */
+    doubleLen = 2 * strCount;
+    doubleArray = (char **)calloc(1, doubleLen*sizeof(char *));
+    if (doubleArray == NULL) {
+        return(S_EVFILE_ALLOCFAIL);
+    }
+
+    /* Copy over all existing strings into new, larger array */
+    for (i=0; i < strCount; i++) {
+        doubleArray[i] = oldArray[i];
+    }
+
+    /* Add string */
+    str = strdup(str);
+    if (str == NULL) {
+        return(S_EVFILE_ALLOCFAIL);
+    }
+    doubleArray[strCount] = str;
+
+    free(oldArray);
+    *pArray = doubleArray;
+    *pTotalCount = doubleLen;
+    *pvalidStrCount = strCount + 1;
+
+    return(S_SUCCESS);
+}
+
+
+/**
+ * This routine unpacks/parses an evio format buffer containing strings
+ * into an array of strings. Evio string data is endian independent.
+ * The array pointed to in pStrArray is allocated here and needs to be freed by the caller.
+ * All strings contained in the array also need to be freed by the caller.
+ *
+ * @param buffer      buffer containing evio format string data (NOT including header)
+ * @param bufLen      length of string data in bytes
+ * @param pStrArray   address of string array which gets filled parsed strings
+ * @param strCount    address of number of strings in string array
+ * @param dataLen     pointer to int which gets filled the length of the written data in bytes
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADARG    if buffer, pStrArray, or strCount arg is NULL, or if bufLen < 4.
+ * @return S_EVFILE_TRUNC     if not enough room in buffer
+ * @return S_FAILURE          if buffer not in proper evio format
+ */
+int evBufToStrings(char *buffer, int bufLen, char ***pStrArray, int *strCount) {
+
+    int i, j, totalCount, stringCount;
+    int badStringFormat = 1, nullCount = 0, noEnding4 = 0;
+    char c, *strStart = buffer, *pChar = buffer;
+    char **strArray = NULL;
+
+    if (buffer == NULL    || bufLen < 4 ||
+        pStrArray == NULL || strCount == NULL) {
+        return(S_EVFILE_BADARG);
+    }
+
+    /*
+       Each string is terminated with a null (char val = 0)
+       and in addition, the end is padded by ASCII 4's (char val = 4).
+       However, in the legacy versions of evio, there is only one
+       null-terminated string and anything as padding. To accommodate legacy evio, if
+       there is not an ending ASCII value 4, anything past the first null is ignored.
+       After doing so, split at the nulls.
+     */
+
+    if (buffer[bufLen - 1] != '\4') {
+        noEnding4 = 1;
+    }
+
+    for (i=0; i < bufLen; i++) {
+        /* look at each character */
+        c = *pChar++;
+
+        /* If char is a NULL */
+        if (c == '\0') {
+            /* One string for each NULL */
+            nullCount++;
+
+            /* String starts where we started looking from, strStart, and ends at this NULL */
+            addStringToArray(&strArray, strStart, &totalCount, &stringCount);
+/*printf("  add %s\n", strStart);*?
+
+            /* Start looking for next string right after this NULL */
+            strStart = pChar;
+
+            /* If evio v1, 2 or 3, only 1 null terminated string exists
+               and padding is just junk or nonexistent. */
+            if (noEnding4) {
+                badStringFormat = 0;
+                break;
+            }
+        }
+        /* Look for any non-printing/control characters (not including NULL)
+           and end the string there. Allow tab and newline whitespace. */
+        else if ((c < 32 || c > 126) && c != 9 && c != 10) {
+/*printf("unpackRawBytesToStrings: found non-printing char = 0x%x at i = %d\n", c, i);*/
+            if (nullCount < 1) {
+                /* Getting garbage before first NULL */
+/*printf("BAD FORMAT 1, no null when garbage char found\n");*/
+                break;
+            }
+
+            /* Already have at least one NULL & therefore a String.
+               Now we have junk or non-printing ascii which is
+               possibly the ending 4. */
+
+            /* If we have a 4, investigate further to see if format
+               is entirely valid. */
+            if (c == '\4') {
+                /* How many more chars are there? */
+                int charsLeft = bufLen - (i+1);
+
+                /* Should be no more than 3 additional 4's before the end */
+                if (charsLeft > 3) {
+/*printf("BAD FORMAT 2, too many chars, %d, after 4\n", charsLeft);*/
+                    break;
+                }
+                else {
+                    int error = 0;
+                    /* Check to see if remaining chars are all 4's. If not, bad. */
+                    for (j=1; j <= charsLeft; j++) {
+                        c = buffer[i+j];
+                        if (c != '\004') {
+/*printf("BAD FORMAT 3, padding chars are NOT all 4's\n");*/
+                            error = 1;
+                            break;
+                        }
+                    }
+                    if (error) break;
+                    badStringFormat = 0;
+                    break;
+                }
+            }
+            else {
+/*printf("BAD FORMAT 4, got bad char, ascii val = %d\n", c);*/
+                break;
+            }
+        }
+    }
+
+    /* If the format is bad, free any allocated memory and return an error. */
+    if (badStringFormat) {
+        /* Have we allocated anything yet? If so, get rid of it since
+              we ran into a badly formatted  part of the buffer. */
+        if (nullCount > 0) {
+            /* Free strings */
+            for (i=0; i < nullCount; i++) {
+                free(strArray[i]);
+            }
+            /* Free array */
+            free(strArray);
+        }
+
+        *strCount = 0;
+        *pStrArray = NULL;
+        return(S_FAILURE);
+    }
+
+    *strCount  = nullCount;
+    *pStrArray = strArray;
+
+/*printf("  split into %d strings\n", nullCount);*/
+    return(S_SUCCESS);
+}
+
+
+/** @} */
+
 
 
 /**
