@@ -4,6 +4,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.*;
 import javax.xml.stream.events.*;
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
@@ -364,11 +365,12 @@ final public class Utilities {
      * and converts them to a list of EvioEvent objects.
      *
      * @param xmlString      xml format string to parse
+     * @param hex
      * @return list of EvioEvent objects constructed from arg
      * @throws EvioException if xml is not in proper format
      */
-    final static public List<EvioEvent> toEvents(String xmlString) throws EvioException {
-        return toEvents(xmlString, 0, 0, null, false);
+    final static public List<EvioEvent> toEvents(String xmlString, boolean hex) throws EvioException {
+        return toEvents(xmlString, 0, 0, null, hex, false);
     }
 
 
@@ -381,12 +383,14 @@ final public class Utilities {
      * @param maxEvents
      * @param skip
      * @param dictionary
+     * @param hex
      * @param debug
      * @return list of EvioEvent objects constructed from arg
      * @throws EvioException if xml is not in proper format
      */
     final static public List<EvioEvent> toEvents(String xmlString, int maxEvents, int skip,
-                                                 EvioXMLDictionary dictionary, boolean debug)
+                                                 EvioXMLDictionary dictionary, boolean hex,
+                                                 boolean debug)
             throws EvioException {
 
         if (xmlString == null) {
@@ -458,7 +462,6 @@ if (debug) System.out.println("FOUND dict entry(" + name + "): tag = " + level.t
                             Attribute attr = (Attribute)it.next();
                             String attrName = attr.getName().getLocalPart();
                             String valStr = attr.getValue();
-                            boolean hex = false;
 
                             // Convert attribute value to integer.
                             // Watch out for hex numbers, they can't be parsed as is.
@@ -991,8 +994,25 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
         try {
             switch (level.dataTypeObj) {
                 case UCHAR8:
-                case CHAR8:
                     byte[] bArray = new byte[values.length];
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            bArray[i] = (byte)Short.parseShort(val, 16);
+                        }
+                        else {
+                            bArray[i] = (byte)Short.parseShort(val);
+                        }
+                    }
+
+                    try {level.bs.appendByteData(bArray);}
+                    catch (EvioException e) {/* never happen */}
+
+                    break;
+
+                case CHAR8:
+                    bArray = new byte[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1010,8 +1030,25 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                     break;
 
                 case USHORT16:
-                case SHORT16:
                     short[] sArray = new short[values.length];
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            sArray[i] = (short)Integer.parseInt(val, 16);
+                        }
+                        else {
+                            sArray[i] = (short)Integer.parseInt(val);
+                        }
+                    }
+
+                    try {level.bs.appendShortData(sArray);}
+                    catch (EvioException e) {/* never happen */}
+
+                    break;
+
+                case SHORT16:
+                    sArray = new short[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1029,8 +1066,25 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                     break;
 
                 case UINT32:
-                case INT32:
                     int[] iArray = new int[values.length];
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            iArray[i] = (int)Long.parseLong(val, 16);
+                        }
+                        else {
+                            iArray[i] = (int)Long.parseLong(val);
+                        }
+                    }
+
+                    try {level.bs.appendIntData(iArray);}
+                    catch (EvioException e) {/* never happen */}
+
+                    break;
+
+                case INT32:
+                    iArray = new int[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1048,8 +1102,29 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                     break;
 
                 case ULONG64:
-                case LONG64:
                     long[] lArray = new long[values.length];
+                    BigInteger bg;
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            bg = new BigInteger(val, 16);
+                        }
+                        else {
+                            bg = new BigInteger(val);
+                        }
+                        lArray[i] = bg.longValue();
+                        // For java version 8+, no BigIntegers necessary:
+                        //lArray[i] = Long.parseUnsignedLong(val, 16);
+                    }
+
+                    try {level.bs.appendLongData(lArray);}
+                    catch (EvioException e) {/* never happen */}
+
+                    break;
+
+                case LONG64:
+                    lArray = new long[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1133,8 +1208,23 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
         try {
             switch (dataType) {
                 case UCHAR8:
-                case CHAR8:
                     byte[] bArray = new byte[values.length];
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            bArray[i] = (byte)Short.parseShort(val, 16);
+                        }
+                        else {
+                            bArray[i] = (byte)Short.parseShort(val);
+                        }
+                    }
+                    cData.addUchar(bArray);
+
+                    break;
+
+                case CHAR8:
+                    bArray = new byte[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1145,19 +1235,28 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                             bArray[i] = Byte.parseByte(val);
                         }
                     }
-
-                    if (dataType == DataType.CHAR8) {
-                        cData.addChar(bArray);
-                    }
-                    else {
-                        cData.addUchar(bArray);
-                    }
+                    cData.addChar(bArray);
 
                     break;
 
                 case USHORT16:
-                case SHORT16:
                     short[] sArray = new short[values.length];
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            sArray[i] = (short)Integer.parseInt(val, 16);
+                        }
+                        else {
+                            sArray[i] = (short)Integer.parseInt(val);
+                        }
+                    }
+                    cData.addUshort(sArray);
+
+                    break;
+
+                case SHORT16:
+                    sArray = new short[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1168,19 +1267,28 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                             sArray[i] = Short.parseShort(val);
                         }
                     }
-
-                    if (dataType == DataType.SHORT16) {
-                        cData.addShort(sArray);
-                    }
-                    else {
-                        cData.addUshort(sArray);
-                    }
+                    cData.addShort(sArray);
 
                     break;
 
                 case UINT32:
-                case INT32:
                     int[] iArray = new int[values.length];
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            iArray[i] = (int)Long.parseLong(val, 16);
+                        }
+                        else {
+                            iArray[i] = (int)Long.parseLong(val);
+                        }
+                    }
+                    cData.addUint(iArray);
+
+                    break;
+
+                case INT32:
+                    iArray = new int[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1191,19 +1299,32 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                             iArray[i] = Integer.parseInt(val);
                         }
                     }
-
-                    if (dataType == DataType.INT32) {
-                        cData.addInt(iArray);
-                    }
-                    else {
-                        cData.addUint(iArray);
-                    }
+                    cData.addInt(iArray);
 
                     break;
 
                 case ULONG64:
-                case LONG64:
                     long[] lArray = new long[values.length];
+                    BigInteger bg;
+                    for (int i=0; i < values.length; i++) {
+                        val = values[i];
+                        if (val.startsWith("0x") || val.startsWith("0X")) {
+                            val = val.substring(2, val.length());
+                            bg = new BigInteger(val, 16);
+                        }
+                        else {
+                            bg = new BigInteger(val);
+                        }
+                        lArray[i] = bg.longValue();
+                        // For java version 8+, no BigIntegers necessary:
+                        //lArray[i] = Long.parseUnsignedLong(val, 16);
+                    }
+                    cData.addUlong(lArray);
+
+                    break;
+
+                case LONG64:
+                    lArray = new long[values.length];
                     for (int i=0; i < values.length; i++) {
                         val = values[i];
                         if (val.startsWith("0x") || val.startsWith("0X")) {
@@ -1214,13 +1335,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                             lArray[i] = Long.parseLong(val);
                         }
                     }
-
-                    if (dataType == DataType.LONG64) {
-                        cData.addLong(lArray);
-                    }
-                    else {
-                        cData.addUlong(lArray);
-                    }
+                    cData.addLong(lArray);
 
                     break;
 
@@ -1320,9 +1435,10 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
     /**
      * This method takes an EvioNode object and converts it to a readable, XML String.
      * @param node EvioNode object to print out
+     * @param hex  if true, ints get displayed in hexadecimal
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
-    final static public String toXML(EvioNode node) throws EvioException {
+    final static public String toXML(EvioNode node, boolean hex) throws EvioException {
 
         if (node == null) {
             return null;
@@ -1334,7 +1450,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
             sWriter = new StringWriter();
             xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sWriter);
             String xmlIndent = "";
-            nodeToString(node, xmlIndent, xmlWriter);
+            nodeToString(node, xmlIndent, hex, xmlWriter);
             xmlWriter.flush();
         }
         catch (XMLStreamException e) {
@@ -1384,12 +1500,13 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
     /**
      * This recursive method takes an EvioNode object and
      * converts it to a readable, XML format String.
-     * @param node EvioNode object to print out.
+     * @param node      EvioNode object to print out.
      * @param xmlIndent String of spaces.
+     * @param hex       if true, ints get displayed in hexadecimal
      * @param xmlWriter the writer used to write the node.
      */
     final static private void nodeToString(EvioNode node, String xmlIndent,
-                                     XMLStreamWriter xmlWriter) {
+                                           boolean hex, XMLStreamWriter xmlWriter) {
 
         DataType nodeType = node.getTypeObj();
         DataType dataType = node.getDataTypeObj();
@@ -1416,7 +1533,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
 
                 for (EvioNode n : node.childNodes) {
                     // Recursive call
-                    nodeToString(n, xmlIndent, xmlWriter);
+                    nodeToString(n, xmlIndent, hex, xmlWriter);
                 }
 
                 xmlIndent = decreaseXmlIndent(xmlIndent);
@@ -1448,7 +1565,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
 
                     for (EvioNode n : childNodes) {
                         // Recursive call
-                        nodeToString(n, xmlIndent, xmlWriter);
+                        nodeToString(n, xmlIndent, hex, xmlWriter);
                     }
 
                     xmlIndent = decreaseXmlIndent(xmlIndent);
@@ -1472,7 +1589,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                 xmlWriter.writeAttribute("ndata", "" + count);
 
                 xmlIndent = increaseXmlIndent(xmlIndent);
-                writeXmlData(node, count, xmlIndent, xmlWriter);
+                writeXmlData(node, count, xmlIndent, hex, xmlWriter);
                 xmlIndent = decreaseXmlIndent(xmlIndent);
 
                 commonXMLClose(xmlWriter, xmlIndent);
@@ -1624,15 +1741,21 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
 
 
     /**
-  	 * Write data as XML output for EvioNode.
-  	 * @param node the EvioNode object whose data is to be converted to String form.
-     * @param count number of data items (shorts, longs, doubles, etc.) in this node
-     *              (not children)
-     * @param xmlIndent String of spaces.
+  	 * Write data as XML output for EvioNode.<p>
+     *
+     * Warning: this is essentially duplicated in
+     * {@link BaseStructure#commonXMLDataWrite(XMLStreamWriter, boolean)},
+     * so any change here needs to be made there too.
+     *
+  	 * @param node      the EvioNode object whose data is to be converted to String form.
+     * @param count     number of data items (shorts, longs, doubles, etc.) in this node
+     *                  (not children)
+     * @param xmlIndent string of spaces to be used as xml indentation
+     * @param hex       if true, ints get displayed in hexadecimal
      * @param xmlWriter the writer used to write the node.
   	 */
     final static private void writeXmlData(EvioNode node, int count, String xmlIndent,
-                                     XMLStreamWriter xmlWriter) {
+                                           boolean hex, XMLStreamWriter xmlWriter) {
 
   		// Only leaves write data
         DataType dataTypeObj = node.getDataTypeObj();
@@ -1653,7 +1776,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%24.16e  ", dbuf.get(i));
+                    s = String.format("%25.17g  ", dbuf.get(i));
                     xmlWriter.writeCharacters(s);
                 }
   				break;
@@ -1661,58 +1784,150 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
   			case FLOAT32:
                 FloatBuffer fbuf = buf.asFloatBuffer();
                 for (int i=0; i < count; i++) {
-                    if (i%2 == 0) {
+                    if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%14.7e  ", fbuf.get(i));
+                    s = String.format("%15.8g  ", fbuf.get(i));
                     xmlWriter.writeCharacters(s);
                 }
   				break;
 
   			case LONG64:
-  			case ULONG64:
                 LongBuffer lbuf = buf.asLongBuffer();
                 for (int i=0; i < count; i++) {
                     if (i%2 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%20d  ", lbuf.get(i));
+
+                    if (hex) {
+                        s = String.format("0x%016x  ", lbuf.get(i));
+                    }
+                    else {
+                        s = String.format("%20d  ", lbuf.get(i));
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case ULONG64:
+                lbuf = buf.asLongBuffer();
+                BigInteger bg;
+                for (int i=0; i < count; i++) {
+                    if (i%2 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%016x  ", lbuf.get(i));
+                    }
+                    else {
+                        bg = new BigInteger(1, ByteDataTransformer.toBytes(lbuf.get(i), ByteOrder.BIG_ENDIAN));
+                        s = String.format("%20s  ", bg.toString());
+                        // For java version 8+, no BigIntegers necessary:
+                        //s = String.format("%20s  ", Long.toUnsignedString(lbuf.get(i)));
+                    }
                     xmlWriter.writeCharacters(s);
                 }
   				break;
 
   			case INT32:
-  			case UINT32:
                 IntBuffer ibuf = buf.asIntBuffer();
                 for (int i=0; i < count; i++) {
-                    if (i%5 == 0) {
+                    if (i%4 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%11d  ", ibuf.get(i));
+
+                    if (hex) {
+                        s = String.format("0x%08x  ", ibuf.get(i));
+                    }
+                    else {
+                        s = String.format("%11d  ", ibuf.get(i));
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case UINT32:
+                ibuf = buf.asIntBuffer();
+                for (int i=0; i < count; i++) {
+                    if (i%4 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%08x  ", ibuf.get(i));
+                    }
+                    else {
+                        s = String.format("%11d  ", ((long) ibuf.get(i)) & 0xffffffffL);
+                        //s = String.format("%11s  ", Integer.toUnsignedString(ibuf.get(i)));
+                    }
                     xmlWriter.writeCharacters(s);
                 }
   				break;
 
   			case SHORT16:
-  			case USHORT16:
                 ShortBuffer sbuf = buf.asShortBuffer();
                 for (int i=0; i < count; i++) {
-                    if (i%5 == 0) {
+                    if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%6d  ", sbuf.get(i));
+
+                    if (hex) {
+                        s = String.format("0x%04x  ", sbuf.get(i));
+                    }
+                    else {
+                        s = String.format("%6d  ", sbuf.get(i));
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case USHORT16:
+                sbuf = buf.asShortBuffer();
+                for (int i=0; i < count; i++) {
+                    if (i%8 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%04x  ", sbuf.get(i));
+                    }
+                    else {
+                        s = String.format("%6d  ", ((int) sbuf.get(i)) & 0xffff);
+                    }
+                    xmlWriter.writeCharacters(s);
+                }
+  				break;
+
+  			case CHAR8:
+                for (int i=0; i < count; i++) {
+                    if (i%8 == 0) {
+                        xmlWriter.writeCharacters(indent);
+                    }
+
+                    if (hex) {
+                        s = String.format("0x%02x  ", buf.get(i));
+                    }
+                    else {
+                        s = String.format("%4d  ", buf.get(i));
+                    }
                     xmlWriter.writeCharacters(s);
                 }
   				break;
 
             case UNKNOWN32:
-  			case CHAR8:
   			case UCHAR8:
                 for (int i=0; i < count; i++) {
-                    if (i%5 == 0) {
+                    if (i%8 == 0) {
                         xmlWriter.writeCharacters(indent);
                     }
-                    s = String.format("%4d  ", buf.get(i));
+
+                    if (hex) {
+                        s = String.format("0x%02x  ", buf.get(i));
+                    }
+                    else {
+                        s = String.format("%4d  ", ((short) buf.get(i)) & 0xff);
+                    }
                     xmlWriter.writeCharacters(s);
                 }
   				break;
@@ -1726,7 +1941,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                 }
 
                 for (String str : stringdata) {
-                    xmlWriter.writeCharacters("\n");
+                    xmlWriter.writeCharacters(indent);
                     xmlWriter.writeCData(str);
                 }
   				break;
@@ -1744,7 +1959,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                   compositeData = CompositeData.parse(rawBytes, buf.order());
                   if (compositeData != null) {
                       for (CompositeData cd : compositeData) {
-                          cd.toXML(xmlWriter, xmlIndent, true);
+                          cd.toXML(xmlWriter, xmlIndent, hex);
                       }
                   }
                   break;
