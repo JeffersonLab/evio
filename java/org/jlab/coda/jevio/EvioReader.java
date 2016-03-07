@@ -1636,20 +1636,35 @@ System.err.println("ERROR endOfBuffer " + a);
 		return null;
 	}
 
-	/**
+    /**
      * Rewrite the file to XML (not including dictionary).
-	 *
-	 * @param path the path to the XML file.
-	 * @return the status of the write.
+     *
+     * @param path the path to the XML file.
+     *
+     * @return the status of the write.
      * @throws IOException   if failed file access
      * @throws EvioException if object closed
-	 */
-	public WriteStatus toXMLFile(String path) throws IOException, EvioException {
-		return toXMLFile(path, null);
-	}
+     */
+    public WriteStatus toXMLFile(String path) throws IOException, EvioException {
+        return toXMLFile(path, false);
+    }
 
-	/**
-	 * Rewrite the file to XML (not including dictionary).
+    /**
+     * Rewrite the file to XML (not including dictionary).
+     *
+     * @param path the path to the XML file.
+     * @param hex if true, ints get displayed in hexadecimal
+     *
+     * @return the status of the write.
+     * @throws IOException   if failed file access
+     * @throws EvioException if object closed
+     */
+    public WriteStatus toXMLFile(String path, boolean hex) throws IOException, EvioException {
+        return toXMLFile(path, null, hex);
+    }
+
+    /**
+     * Rewrite the file to XML (not including dictionary).
 	 *
 	 * @param path the path to the XML file.
 	 * @param progressListener and optional progress listener, can be <code>null</code>.
@@ -1658,7 +1673,26 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws EvioException if object closed
      * @see IEvioProgressListener
 	 */
-	public synchronized WriteStatus toXMLFile(String path, IEvioProgressListener progressListener)
+	public WriteStatus toXMLFile(String path, IEvioProgressListener progressListener)
+                throws IOException, EvioException {
+        return toXMLFile(path, progressListener, false);
+    }
+
+    /**
+     * Rewrite the file to XML (not including dictionary).
+	 *
+	 * @param path the path to the XML file.
+	 * @param progressListener and optional progress listener, can be <code>null</code>.
+     * @param hex if true, ints get displayed in hexadecimal
+     *
+	 * @return the status of the write.
+     * @throws IOException   if failed file access
+     * @throws EvioException if object closed
+     * @see IEvioProgressListener
+	 */
+	public synchronized WriteStatus toXMLFile(String path,
+                                              IEvioProgressListener progressListener,
+                                              boolean hex)
                 throws IOException, EvioException {
 
         if (closed) {
@@ -1699,7 +1733,7 @@ System.err.println("ERROR endOfBuffer " + a);
 			EvioEvent event;
 			try {
 				while ((event = parseNextEvent()) != null) {
-					event.toXML(xmlWriter);
+					event.toXML(xmlWriter, hex);
 					// anybody interested in progress?
 					if (progressListener != null) {
 						progressListener.completed(event.getEventNumber(), getEventCount());
