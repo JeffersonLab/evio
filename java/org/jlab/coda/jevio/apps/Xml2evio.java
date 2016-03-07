@@ -39,7 +39,7 @@ public class Xml2evio {
 
     public static void main(String[] args) {
         int max=0, skip=0;
-        boolean debug=false, verbose=false;
+        boolean debug=false, verbose=false, hex=false;
         String xmlFile=null, evioFile=null, dictFile=null;
         EvioXMLDictionary dictionary=null;
 
@@ -51,6 +51,10 @@ public class Xml2evio {
             }
             else if (args[i].equalsIgnoreCase("-skip")) {
                 skip = Integer.parseInt(args[i + 1]);
+                i++;
+            }
+            else if (args[i].equalsIgnoreCase("-hex")) {
+                hex = true;
                 i++;
             }
             else if (args[i].equalsIgnoreCase("-f")) {
@@ -103,7 +107,7 @@ public class Xml2evio {
                 }
 
                 if (verbose) {
-                    System.out.println("Event:\n" + ev.toXML(true));
+                    System.out.println("Event:\n" + ev.toXML(hex));
                 }
             }
 
