@@ -42,6 +42,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -340,7 +341,7 @@ public final class CompositeData {
         // How many unused bytes are left in the given rawBytes array?
         int rawBytesLeft = rawBytes.length;
 
-        if (debug) System.out.println("    raw byte count = " + rawBytesLeft);
+        if (debug) System.out.println("    CD raw byte count = " + rawBytesLeft);
 
         // Parse while we still have bytes to read ...
         while (rawBytesLeft > 0) {
@@ -402,7 +403,9 @@ public final class CompositeData {
 
             if (debug) {
                 System.out.println("    bank: type = " + cd.bHeader.getDataType() +
-                                    ", tag = " + cd.bHeader.getTag() + ", num = " + cd.bHeader.getNumber());
+                                    ", tag = " + cd.bHeader.getTag() +
+                                    ", num = " + cd.bHeader.getNumber() +
+                                    ", pad = " + cd.dataPadding);
                 System.out.println("    bank: len (words) = " + cd.bHeader.getLength() +
                                    ", data len - padding (bytes) = " + cd.dataBytes);
             }
@@ -425,8 +428,8 @@ public final class CompositeData {
 
             // Offset into rawBytes of next CompositeData object
             rawBytesOffset += byteCount;
-            if (debug) System.out.println("    raw byte count = " + rawBytesLeft + ", raw byte offset = " +
-                                            rawBytesOffset);
+            if (debug) System.out.println("    CD raw byte count = " + rawBytesLeft +
+                                          ", raw byte offset = " + rawBytesOffset);
         }
 
         int size = list.size();
@@ -2915,8 +2918,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
     void toXML(XMLStreamWriter xmlWriter, BaseStructure bs, boolean hex)
                         throws XMLStreamException {
 
-        boolean debug = false;
-
         // size of int list
         int nfmt = formatInts.size();
 
@@ -3053,11 +3054,9 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 }
                 else {
                     // how many times to repeat format code (higher 4 bits). Is 0 for N
-                    // ncnf = formatInts.get(imt-1)/16;
                     ncnf = formatInts.get(imt-1) >>> 4;
 
                     // format code (lower 4 bits)
-                    // kcnf = formatInts.get(imt-1) - 16*ncnf;
                     kcnf = formatInts.get(imt-1) & 0xf;
 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
@@ -3191,14 +3190,23 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     // double
                     if (kcnf == 8) {
                         d = Double.longBitsToDouble(lng);
-if (debug) System.out.println("write double " + d);
-                        xmlWriter.writeCharacters(String.format("%23.16g  ",d));
+                        xmlWriter.writeCharacters(String.format("%25.17g  ",d));
                     }
-                    // 64 bit int/uint
+                    // hex
+                    else if (hex) {
+                        xmlWriter.writeCharacters(String.format("0x%016x  ", lng));
+                    }
+                    // 64 bit int
+                    else if (kcnf == 9) {
+                        xmlWriter.writeCharacters(String.format("%20d  ",lng));
+                    }
+                    // 64 bit uint
                     else {
-if (debug) System.out.println("write long " + lng);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%016x  ",lng));
-                        else     xmlWriter.writeCharacters(String.format("%18d  ",lng));
+                        BigInteger bg = new BigInteger(1, ByteDataTransformer.toBytes(lng, ByteOrder.BIG_ENDIAN));
+                        String s = String.format("%20s  ", bg.toString());
+                        // For java version 8+, no BigIntegers necessary:
+                        //String s = String.format("%20s  ", Long.toUnsignedString(lng));
+                        xmlWriter.writeCharacters(s);
                     }
 
                     if (!oneLine && count++ % itemsOnLine == 0) {
@@ -3266,14 +3274,18 @@ if (debug) System.out.println("write long " + lng);
                     // float
                     if (kcnf == 2) {
                         f = Float.intBitsToFloat(i) ;
-if (debug) System.out.println("write float " + f);
-                        xmlWriter.writeCharacters(String.format("%14.8g  ",f));
+                        xmlWriter.writeCharacters(String.format("%15.8g  ",f));
                     }
-                    // Hollerit, 32 bit int/uint
+                    else if (hex) {
+                        xmlWriter.writeCharacters(String.format("0x%08x  ",i));
+                    }
+                    // uint
+                    else if (kcnf == 1) {
+                        xmlWriter.writeCharacters(String.format("%11d  ", ((long) i) & 0xffffffffL));
+                    }
+                    // int, Hollerit
                     else {
-if (debug) System.out.println("write int " + i);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%08x  ",i));
-                        else     xmlWriter.writeCharacters(String.format("%10d  ",i));
+                        xmlWriter.writeCharacters(String.format("%11d  ",i));
                     }
 
                     if (!oneLine && count++ % itemsOnLine == 0) {
@@ -3294,7 +3306,7 @@ if (debug) System.out.println("write int " + i);
             // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
                 short s;
-                int count=1, itemsOnLine=6;
+                int count=1, itemsOnLine=8;
                 boolean oneLine = (ncnf <= itemsOnLine);
 
 
@@ -3329,14 +3341,19 @@ if (debug) System.out.println("write int " + i);
                 while (dataIndex < b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
                     if (swap) s = Short.reverseBytes(s);
-if (debug) System.out.println("write short " + s);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
                     }
-
-                    if (hex) xmlWriter.writeCharacters(String.format("0x%04x  ", s));
-                    else     xmlWriter.writeCharacters(String.format("%6d  ", s));
+                    else if (hex) {
+                        xmlWriter.writeCharacters(String.format("0x%04x  ", s));
+                    }
+                    else if (kcnf ==  4) {
+                        xmlWriter.writeCharacters(String.format("%6d  ", s));
+                    }
+                    else {
+                        xmlWriter.writeCharacters(String.format("%6d  ", ((int)s & 0xffff)));
+                    }
 
                     if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
@@ -3420,13 +3437,15 @@ if (debug) System.out.println("write short " + s);
                         if (!oneLine && count % itemsOnLine == 1) {
                             xmlWriter.writeCharacters(bs.xmlIndent);
                         }
-if (debug) System.out.println("write byte " + bytes[i]);
 
                         if (hex) {
                             xmlWriter.writeCharacters(String.format("0x%02x  ", bytes[i]));
                         }
-                        else {
+                        else if (kcnf == 6) {
                             xmlWriter.writeCharacters(String.format("%4d  ", bytes[i]));
+                        }
+                        else {
+                            xmlWriter.writeCharacters(String.format("%4d  ", ((short) bytes[i]) & 0xff));
                         }
 
                         if (!oneLine && count++ % itemsOnLine == 0) {
@@ -3476,7 +3495,7 @@ if (debug) System.out.println("write byte " + bytes[i]);
         xmlWriter.writeCharacters(bs.xmlIndent);
         xmlWriter.writeEndElement();
 
-        // composite
+        // comp
         bs.decreaseXmlIndent();
         xmlWriter.writeCharacters("\n");
         xmlWriter.writeCharacters(bs.xmlIndent);
@@ -3495,8 +3514,6 @@ if (debug) System.out.println("write byte " + bytes[i]);
      */
     void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
                         throws XMLStreamException {
-
-        boolean debug = false;
 
         // size of int list
         int nfmt = formatInts.size();
@@ -3634,11 +3651,9 @@ if (debug) System.out.println("write byte " + bytes[i]);
                 }
                 else {
                     // how many times to repeat format code (higher 4 bits). Is 0 for N
-                    // ncnf = formatInts.get(imt-1)/16;
                     ncnf = formatInts.get(imt-1) >>> 4;
 
                     // format code (lower 4 bits)
-                    // kcnf = formatInts.get(imt-1) - 16*ncnf;
                     kcnf = formatInts.get(imt-1) & 0xf;
 
 //System.out.println("REPEAT = " + ncnf + ", formatInt = " + formatInts.get(imt-1) +", kcnf = " + kcnf);
@@ -3774,14 +3789,23 @@ if (debug) System.out.println("write byte " + bytes[i]);
                     // double
                     if (kcnf == 8) {
                         d = Double.longBitsToDouble(lng);
-if (debug) System.out.println("write double " + d);
-                        xmlWriter.writeCharacters(String.format("%23.16g  ",d));
+                        xmlWriter.writeCharacters(String.format("%25.17g  ", d));
                     }
-                    // 64 bit int/uint
+                    // hex
+                    else if (hex) {
+                        xmlWriter.writeCharacters(String.format("0x%016x  ", lng));
+                    }
+                    // 64 bit int
+                    else if (kcnf == 9) {
+                        xmlWriter.writeCharacters(String.format("%20d  ",lng));
+                    }
+                    // 64 bit uint
                     else {
-if (debug) System.out.println("write long " + lng);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%016x  ",lng));
-                        else     xmlWriter.writeCharacters(String.format("%18d  ",lng));
+                        BigInteger bg = new BigInteger(1, ByteDataTransformer.toBytes(lng, ByteOrder.BIG_ENDIAN));
+                        String s = String.format("%20s  ", bg.toString());
+                        // For java version 8+, no BigIntegers necessary:
+                        //String s = String.format("%20s  ", Long.toUnsignedString(lng));
+                        xmlWriter.writeCharacters(s);
                     }
 
                     if (!oneLine && count++ % itemsOnLine == 0) {
@@ -3849,14 +3873,18 @@ if (debug) System.out.println("write long " + lng);
                     // float
                     if (kcnf == 2) {
                         f = Float.intBitsToFloat(i) ;
-if (debug) System.out.println("write float " + f);
-                        xmlWriter.writeCharacters(String.format("%14.8g  ",f));
+                        xmlWriter.writeCharacters(String.format("%15.8g  ",f));
                     }
-                    // Hollerit, 32 bit int/uint
+                    else if (hex) {
+                        xmlWriter.writeCharacters(String.format("0x%08x  ",i));
+                    }
+                    // uint
+                    else if (kcnf == 1) {
+                        xmlWriter.writeCharacters(String.format("%11d  ", ((long) i) & 0xffffffffL));
+                    }
+                    // int, Hollerit
                     else {
-if (debug) System.out.println("write int " + i);
-                        if (hex) xmlWriter.writeCharacters(String.format("0x%08x  ",i));
-                        else     xmlWriter.writeCharacters(String.format("%10d  ",i));
+                        xmlWriter.writeCharacters(String.format("%11d  ",i));
                     }
 
                     if (!oneLine && count++ % itemsOnLine == 0) {
@@ -3877,7 +3905,7 @@ if (debug) System.out.println("write int " + i);
             // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
                 short s;
-                int count=1, itemsOnLine=6;
+                int count=1, itemsOnLine=8;
                 boolean oneLine = (ncnf <= itemsOnLine);
 
 
@@ -3912,14 +3940,19 @@ if (debug) System.out.println("write int " + i);
                 while (dataIndex < b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
                     if (swap) s = Short.reverseBytes(s);
-if (debug) System.out.println("write short " + s);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(xmlIndent);
                     }
-
-                    if (hex) xmlWriter.writeCharacters(String.format("0x%04x  ", s));
-                    else     xmlWriter.writeCharacters(String.format("%6d  ", s));
+                    else if (hex) {
+                        xmlWriter.writeCharacters(String.format("0x%04x  ", s));
+                    }
+                    else if (kcnf ==  4) {
+                        xmlWriter.writeCharacters(String.format("%6d  ", s));
+                    }
+                    else {
+                        xmlWriter.writeCharacters(String.format("%6d  ", ((int)s & 0xffff)));
+                    }
 
                     if (!oneLine && count++ % itemsOnLine == 0) {
                         xmlWriter.writeCharacters("\n");
@@ -4003,13 +4036,15 @@ if (debug) System.out.println("write short " + s);
                         if (!oneLine && count % itemsOnLine == 1) {
                             xmlWriter.writeCharacters(xmlIndent);
                         }
-if (debug) System.out.println("write byte " + bytes[i]);
 
                         if (hex) {
                             xmlWriter.writeCharacters(String.format("0x%02x  ", bytes[i]));
                         }
-                        else {
+                        else if (kcnf == 6) {
                             xmlWriter.writeCharacters(String.format("%4d  ", bytes[i]));
+                        }
+                        else {
+                            xmlWriter.writeCharacters(String.format("%4d  ", ((short) bytes[i]) & 0xff));
                         }
 
                         if (!oneLine && count++ % itemsOnLine == 0) {
