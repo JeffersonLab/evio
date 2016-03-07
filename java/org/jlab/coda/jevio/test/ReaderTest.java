@@ -1,6 +1,5 @@
 package org.jlab.coda.jevio.test;
 
-import com.sun.corba.se.impl.javax.rmi.CORBA.Util;
 import org.jlab.coda.jevio.*;
 
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class ReaderTest {
             System.out.println("\nXML:\n" + xml);
 
             System.out.println("Convert XML to EvioEvent:");
-            List<EvioEvent> evList = Utilities.toEvents(xml);
+            List<EvioEvent> evList = Utilities.toEvents(xml, false);
 
             for (EvioEvent ev : evList) {
                 System.out.println("\n\nEvioEvent ---> XML:\n" + ev.toXML());
@@ -52,6 +51,7 @@ public class ReaderTest {
     public static void main3(String args[]) {
 
         EvioNode node;
+        boolean hex = false;
 
         try {
             EvioCompactReader fileReader = new EvioCompactReader(compositeFile);
@@ -59,12 +59,12 @@ public class ReaderTest {
 
             int evNum = 1;
             while ( (node = fileReader.getScannedEvent(evNum++)) != null) {
-                String xml = Utilities.toXML(node);
+                String xml = Utilities.toXML(node, hex);
                 System.out.println("\nXML:\n" + xml);
 
 
                 System.out.println("Convert XML to EvioEvent:");
-                List<EvioEvent> evList = Utilities.toEvents(xml);
+                List<EvioEvent> evList = Utilities.toEvents(xml, false);
 
                 System.out.println("\n\nev to XML:\n" + evList.get(0).toXML());
 
@@ -82,13 +82,20 @@ public class ReaderTest {
     public static void main(String args[]) {
 
         EvioNode node;
+        boolean hex=false, compact=true;
 
         try {
-            EvioCompactReader fileReader = new EvioCompactReader(regularFile);
-
-            node = fileReader.getScannedEvent(1);
-            String xml = Utilities.toXML(node);
-            System.out.println("\nXML:\n" + xml);
+            if (!compact) {
+                EvioReader reader = new EvioReader(regularFile);
+                EvioEvent event = reader.parseEvent(1);
+                System.out.println("\nXML:\n" + event.toXML(hex));
+            }
+            else {
+                EvioCompactReader fileReader = new EvioCompactReader(regularFile);
+                node = fileReader.getScannedEvent(1);
+                String xml = Utilities.toXML(node, hex);
+                System.out.println("\nXML:\n" + xml);
+            }
 
 //            System.out.println("----------------------------------------------------------");
 //            System.out.println("----------------------SWAPPED-----------------------------");
