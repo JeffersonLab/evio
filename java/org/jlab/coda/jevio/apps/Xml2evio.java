@@ -39,7 +39,7 @@ public class Xml2evio {
 
     public static void main(String[] args) {
         int max=0, skip=0;
-        boolean debug = false;
+        boolean debug=false, verbose=false;
         String xmlFile=null, evioFile=null, dictFile=null;
         EvioXMLDictionary dictionary=null;
 
@@ -67,6 +67,7 @@ public class Xml2evio {
             }
             else if (args[i].equalsIgnoreCase("-v")) {
                 debug = true;
+                verbose = true;
             }
             else {
                 usage();
@@ -74,8 +75,8 @@ public class Xml2evio {
             }
         }
 
-        if (evioFile == null || xmlFile == null) {
-            System.out.println("No xml or evio file defined");
+        if (xmlFile == null) {
+            System.out.println("No xml file defined");
             usage();
             System.exit(-1);
         }
@@ -91,13 +92,24 @@ public class Xml2evio {
         try {
             String xml = new String(Files.readAllBytes(Paths.get(xmlFile)));
             List<EvioEvent> evList = Utilities.toEvents(xml, max, skip, dictionary, debug);
-            EventWriter writer = new EventWriter(evioFile);
+            EventWriter writer = null;
+            if (evioFile != null) {
+                writer = new EventWriter(evioFile);
+            }
 
             for (EvioEvent ev : evList) {
-                writer.writeEvent(ev);
-                //System.out.println("Event:\n" + ev.toXML());
+                if (evioFile != null) {
+                    writer.writeEvent(ev);
+                }
+
+                if (verbose) {
+                    System.out.println("Event:\n" + ev.toXML(true));
+                }
             }
-            writer.close();
+
+            if (evioFile != null) {
+                writer.close();
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
