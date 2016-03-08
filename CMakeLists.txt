@@ -10,7 +10,7 @@ set(SOURCE_FILES
     src/libsrc/evio.h
     src/libsrc/msinttypes.h
 
-    src/execsrc/evio2xml.cc
+    src/execsrc/evio2xml.c
     src/execsrc/evioCat.cc
     src/execsrc/eviocopy.c
 
