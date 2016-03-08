@@ -6064,8 +6064,7 @@ static int addStringToArray(char ***pArray, char *str, int *pTotalCount, int *pv
  * @param buffer      buffer containing evio format string data (NOT including header)
  * @param bufLen      length of string data in bytes
  * @param pStrArray   address of string array which gets filled parsed strings
- * @param strCount    address of number of strings in string array
- * @param dataLen     pointer to int which gets filled the length of the written data in bytes
+ * @param strCount    pointer to int which get filled with the number of strings in string array
  *
  * @return S_SUCCESS          if successful
  * @return S_EVFILE_BADARG    if buffer, pStrArray, or strCount arg is NULL, or if bufLen < 4.
