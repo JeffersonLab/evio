@@ -18,7 +18,7 @@ public class Xml2evio {
     private static void usage() {
 
         System.out.println("\nUsage: java Xml2evio -x <xml file>  -f <evio file>\n" +
-                             "                     [-v] [-d <dictionary file>]\n" +
+                             "                     [-v] [-hex] [-d <dictionary file>]\n" +
                              "                     [-max <count>] [-skip <count>]\n\n" +
 
         "          -h    help\n" +
@@ -26,6 +26,7 @@ public class Xml2evio {
         "          -x    xml input file name\n" +
         "          -f    evio output file name\n" +
         "          -d    xml dictionary file name\n" +
+        "          -hex  display ints in hex with verbose option\n" +
         "          -max  maximum number of events to convert to evio\n" +
         "          -skip number of initial events to skip in xml file\n\n" +
 
@@ -55,7 +56,6 @@ public class Xml2evio {
             }
             else if (args[i].equalsIgnoreCase("-hex")) {
                 hex = true;
-                i++;
             }
             else if (args[i].equalsIgnoreCase("-f")) {
                 evioFile = args[i + 1];
