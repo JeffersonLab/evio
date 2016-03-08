@@ -89,8 +89,8 @@ jevio-5.0.jar
     - improve xml representation of event - especially the composite data type
     - add capability to parse xml representation of multiple events into list of EvioEvents,
       including those with composite data
-    - add program which converts a file of xml format evio data into an evio binary format file.
-      This is a replacement for xml2evio.c which did not handle composite data.
+    - add program (apps.Xml2evio) which converts a file of xml format evio data into an evio
+      binary format file. This is a replacement for xml2evio.c which did not handle composite data.
     - fix a host of bugs in printing to and parsing from xml. Can now handle all unsigned
       types properly as well as print in hex or decimal. New methods to handle choice of hex.
       Handling of xml made consistent with C/C++ lib.
