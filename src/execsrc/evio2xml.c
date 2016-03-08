@@ -102,13 +102,6 @@ static int n8           = 8;
 static int n16          = 8;
 static int n32          = 4;
 static int n64          = 2;
-static int w8           = 4;
-static int w16          = 9;
-/* These values print out all available precision */
-static int w32          = 15;
-static int p32          = 8;
-static int w64          = 24;
-static int p64          = 16;
 
 
 /*  misc variables */
@@ -188,6 +181,7 @@ static int (*USER_FRAG_SELECT_FUNC) (int tag) = NULL;
 /* From C lib */
 extern int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
                 int nextrabytes, int numIndent, int hex, char *xmlStringx);
+extern int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
 
 /* evio2xml.c prototypes */
 void decode_command_line(int argc, char **argv);
@@ -210,10 +204,6 @@ int set_n8(int val);
 int set_n16(int val);
 int set_n32(int val);
 int set_n64(int val);
-int set_w8(int val);
-int set_w16(int val);
-int set_w32(int val);
-int set_w64(int val);
 int set_xtod(int val);
 int set_max_depth(int val);
 int set_no_typename(int val);
@@ -396,8 +386,6 @@ void decode_command_line(int argc, char**argv) {
                     "           [-dict dictfilename] [-dtag dtag]\n"
                     "           [-ev evtag] [-noev evtag] [-frag frag] [-nofrag frag] [-max_depth max_depth]\n"
                     "           [-n8 n8] [-n16 n16] [-n32 n32] [-n64 n64]\n"
-                    "           [-w8 w8] [-w16 w16] [-w32 w32] [-w64 w64]\n"
-                    "           [-p32 p32] [-p64 p64]\n"
                     "           [-verbose] [-brief] [-no_data] [-xtod] [-m main_tag] [-e event_tag]\n"
                     "           [-indent indent_size] [-no_typename] [-maxbuf maxbuf] [-debug]\n"
                     "           [-out outfilenema] [-gz] filename\n";
@@ -525,30 +513,6 @@ void decode_command_line(int argc, char**argv) {
 
         } else if (strncasecmp(argv[i],"-n64",4)==0) {
             set_n64(atoi(argv[i+1]));
-            i=i+2;
-
-        } else if (strncasecmp(argv[i],"-w8",3)==0) {
-            set_w8(atoi(argv[i+1]));
-            i=i+2;
-
-        } else if (strncasecmp(argv[i],"-w16",4)==0) {
-            set_w16(atoi(argv[i+1]));
-            i=i+2;
-
-        } else if (strncasecmp(argv[i],"-w32",4)==0) {
-            set_w32(atoi(argv[i+1]));
-            i=i+2;
-
-        } else if (strncasecmp(argv[i],"-p32",4)==0) {
-            set_p32(atoi(argv[i+1]));
-            i=i+2;
-
-        } else if (strncasecmp(argv[i],"-w64",4)==0) {
-            set_w64(atoi(argv[i+1]));
-            i=i+2;
-
-        } else if (strncasecmp(argv[i],"-p64",4)==0) {
-            set_p64(atoi(argv[i+1]));
             i=i+2;
 
         } else if (strncasecmp(argv[i],"-m",2)==0) {
@@ -1026,12 +990,16 @@ static void dump_data(unsigned int *data, int type, int length, int padding, int
     char *c, *start;
     unsigned char *uc;
     char format[132];
-    int fLen,fTag,dLen,dTag;
-
 
     /* dump data if no expansion, even if this is a container */
     if (noexpand) {
-        sprintf(format,"%%#%d%s  ",w32,(xtod==0)?"x":"d");
+        if (xtod) {
+            sprintf(format,"%%11d  ");
+        }
+        else {
+            sprintf(format,"0x%%08x  ");
+        }
+
         for(i=0; i<length; i+=n32) {
             indent();
             for(j=i; j<min((i+n32),length); j++) {
@@ -1320,7 +1288,13 @@ static void dump_data(unsigned int *data, int type, int length, int padding, int
         default:
             if(!no_data) {
                 increaseIndent();
-                sprintf(format,"%%#%d%s ",w32,(xtod==0)?"x":"d");
+                if (xtod) {
+                    sprintf(format,"%%11u  ");
+                }
+                else {
+                    sprintf(format,"0x%%08x  ");
+                }
+
                 for(i=0; i<length; i+=n32) {
                     indent();
                     for(j=i; j<min(i+n32,length); j++) {
@@ -1457,10 +1431,7 @@ static const char *get_matchname() {
 
 
 /*---------------------------------------------------------------- */
-
-
 void evio_xmldump_done(char *string, int len) {
-
     sprintf(string," ");
     return;
 }
@@ -1472,197 +1443,75 @@ void evio_xmldump_done(char *string, int len) {
 
 
 int set_event_tag(char *tag) {
-
     event_tag=tag;
     return(0);
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_bank2_tag(char *tag) {
-
     bank2_tag=tag;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_n8(int val) {
-
     n8=val;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_n16(int val) {
-
     n16=val;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_n32(int val) {
-
     n32=val;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_n64(int val) {
-
     n64=val;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-int set_w8(int val) {
-
-    w8=val;
-    return(0);
-
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-int set_w16(int val) {
-
-    w16=val;
-    return(0);
-
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-int set_w32(int val) {
-
-    w32=val;
-    return(0);
-
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-int set_p32(int val) {
-
-    p32=val;
-    return(0);
-
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-int set_w64(int val) {
-
-    w64=val;
-    return(0);
-
-}
-
-
-/*---------------------------------------------------------------- */
-
-
-int set_p64(int val) {
-
-    p64=val;
-    return(0);
-
-}
-
-
-/*---------------------------------------------------------------- */
-
-
 int set_xtod(int val) {
-
     xtod=val;
     return(0);
-
 }
 
-
-
 /*---------------------------------------------------------------- */
-
-
 int set_max_depth(int val) {
-
     max_depth=val;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_no_typename(int val) {
-
     no_typename=val;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_verbose(int val) {
-
     verbose=val;
     return(0);
-
 }
 
-
 /*---------------------------------------------------------------- */
-
-
 int set_brief(int val) {
-
     brief=val;
     return(0);
-
 }
-
 
 /*---------------------------------------------------------------- */
-
 int set_no_data(int val) {
-
     no_data=val;
     return(0);
-
 }
-
 
 /*---------------------------------------------------------------- */
 
