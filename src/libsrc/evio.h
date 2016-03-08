@@ -284,6 +284,8 @@ int evGetDictionary(int handle, char **dictionary, uint32_t *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
 int evWriteFirstEvent(int handle, const uint32_t *firstEvent);
 int evCreateFirstEventBlock(const uint32_t *firstEvent, int localEndian, void **block, uint32_t *words);
+int evStringsToBuf(uint32_t *buffer, int bufLen, char **strings, int stringCount, int *dataLen);
+int evBufToStrings(char *buffer, int bufLen, char ***pStrArray, int *strCount);
 
 int evIsContainer(int type);
 const char *evGetTypename(int type);
