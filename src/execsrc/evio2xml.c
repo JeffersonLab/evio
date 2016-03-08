@@ -1252,10 +1252,12 @@ static void dump_data(unsigned int *data, int type, int length, int padding, int
 
             /* composite array */
         case 0xf:
-            while (compLen < length) {
-                increaseIndent();
-                compLen += dump_composite(&data[compLen]);
-                decreaseIndent();
+            if(!no_data) {
+                while (compLen < length) {
+                    increaseIndent();
+                    compLen += dump_composite(&data[compLen]);
+                    decreaseIndent();
+                }
             }
             break;
 
