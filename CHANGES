@@ -73,8 +73,8 @@ jevio-4.4.6.jar
 
 ******** NEW VERSION MAJOR VERSION *********
 jevio-5.0.jar
-    - add capability to add 1 "first event" to beginning of each file including splits
     - fix small bugs
+    - add capability to add 1 "first event" to beginning of each file including splits
     - make switching buffers in EventWriter more efficient
     - make EventWriter.setBuffer() more efficient
     - fixed EventReader throwing exception when segment or tagsegment had data length of 0
@@ -91,12 +91,14 @@ jevio-5.0.jar
       including those with composite data
     - add program which converts a file of xml format evio data into an evio binary format file.
       This is a replacement for xml2evio.c which did not handle composite data.
+    - fix a host of bugs in printing to and parsing from xml. Can now handle all unsigned
+      types properly as well as print in hex or decimal. New methods to handle choice of hex.
+      Handling of xml made consistent with C/C++ lib.
 
 
 
 
-
-
+*********************************************************************************
 C CODE
 
 evio-4.3.3
@@ -118,9 +120,10 @@ evio-4.4.5
 
 ******** NEW VERSION MAJOR VERSION *********
 evio-5.0
+    - fix small bugs
     - allow smaller split files
     - add capability to add 1 "first event" to beginning of each file including splits
-    - add a routine, evCreateFirstEventBlock, to create an evio file format block
+    - add a routine, evCreateFirstEventBlock(), to create an evio file format block
       containing a first event. Added to facilitate an evio C lib user sending an ET
       event or cMsg msg containing this block to the ER which would, in turn, properly
       understand it to be a first event to be included in each split file.
@@ -129,5 +132,14 @@ evio-5.0
     - fix bug in which the version # was improperly set to 5 (set back to 4) since
       that version number refers to the evio file format version and not the package
       version
-    - fix small bugs
+
+   - improve xml representation of event - especially the composite data type
+   - fix a host of bugs in printing to xml. Can now handle all unsigned
+      types properly as well as print in hex or decimal. Made consistent with Java.
+      Now treats structure of CompositeData as an array!
+    - add a routine, evBufToStrings(), to enable users to unpack evio string data
+      into an array of strings
+    - add a routine, evStringsToBuf(), to enable users to take an array of strings
+      and write it into an evio format buffer
+
 
