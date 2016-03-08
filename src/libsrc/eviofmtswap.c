@@ -88,7 +88,7 @@ int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tol
         /* get next format code */
         while (1) {
             imt++;
-            /* end of format statement reached, back to iterm - last parenthesis or format begining */
+            /* end of format statement reached, back to iterm - last parenthesis or format beginning */
             if (imt > nfmt) {
                 imt = iterm;
 #ifdef DEBUG
@@ -98,12 +98,10 @@ int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tol
             /* meet right parenthesis, so we're finished processing format(s) in parenthesis */
             else if (ifmt[imt-1] == 0) {
                 /* increment counter */
-                lv[lev-1].irepeat ++;
+                lv[lev-1].irepeat++;
                 
-                /* if format in parenthesis was processed */
-                if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
-                    /* required number of times */
-                    
+                /* if format in parenthesis was processed required number of times */
+                if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {                    
                     /* store left parenthesis index minus 1
                        (if will meet end of format, will start from format index imt=iterm;
                        by default we continue from the beginning of the format (iterm=0)) */
