@@ -75,4 +75,4 @@ set(SOURCE_FILES
     src/test/stringTest.c)
 
 
-add_executable(evio_5_0 ${SOURCE_FILES} src/execsrc/xml2evio4.c src/libsrc/eviofmtdump.c)
+add_executable(evio_5_0 ${SOURCE_FILES} src/execsrc/evio2xml.c src/execsrc/eviocopy.c src/execsrc/evioCat.cc )
