@@ -46,8 +46,8 @@ enum {
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <evio.h>
 #include <expat.h>
+#include "evio.h"
 
 
 /*  misc variables from orig evio2xml.c */
