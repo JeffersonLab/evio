@@ -66,7 +66,9 @@ set(SOURCE_FILES
     src/test/evtest3.c
     src/test/evtestBuf.c
     src/test/evtestBuf2.c
+    src/test/evtestAppend.c
     src/test/evTestHandles.c
+    src/test/evTestFirstEvent.c
     src/test/evtestRead.c
     src/test/evtestRio.c
     src/test/evtestSock.c
