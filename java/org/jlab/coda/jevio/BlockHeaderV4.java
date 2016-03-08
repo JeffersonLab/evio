@@ -46,12 +46,13 @@ import java.util.BitSet;
  *                           NOTE: this value should not be used to parse the following
  *                           events since the first block may have a dictionary whose
  *                           presence is not included in this count.
- *      Reserved 1         = If bits 2-5 in bit info are RocRaw (1), then (in the first block)
+ *      Reserved 1         = If bits 11-14 in bit info are RocRaw (1), then (in the first block)
  *                           this contains the CODA id of the source
  *      Bit info & Version = Lowest 8 bits are the version number (4).
  *                           Upper 24 bits contain bit info.
  *                           If a dictionary is included as the first event, bit #9 is set (=1)
  *                           If a last block, bit #10 is set (=1)
+ *      Reserved 2         = unused
  *      Magic Int          = magic number (0xc0da0100) used to check endianness
  *
  *
@@ -64,12 +65,13 @@ import java.util.BitSet;
  *   Bits 11-14 = type of events following (ROC Raw = 0, Physics = 1, PartialPhysics = 2,
  *                DisentangledPhysics = 3, User = 4, Control = 5, Other = 15).
  *
- *   Bit 15     = true if event is a "first event" to be placed at the beginning of each
- *                written file and its splits.
+ *   Bit 15     = true if next (non-dictionary) event in this block is a "first event" to
+ *                be placed at the beginning of each written file and its splits.
  *
  *                Bits 11-15 are useful ONLY for the CODA online use of evio.
  *                That's because only a single CODA event type is placed into
- *                a single (ET, cMsg) buffer. That buffer then is parsed by an EvioReader or
+ *                a single (ET, cMsg) buffer, and each user or control event has its own
+ *                buffer as well. That buffer then is parsed by an EvioReader or
  *                EvioCompactReader object. Thus all events will be of a single CODA type.
  *
  *
