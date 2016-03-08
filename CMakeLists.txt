@@ -13,11 +13,10 @@ set(SOURCE_FILES
     src/execsrc/evio2xml.cc
     src/execsrc/evioCat.cc
     src/execsrc/eviocopy.c
-    src/execsrc/old.evio2xml.c
-    src/execsrc/xml2evio.c
 
     src/libsrc/evio.c
     src/libsrc/eviofmt.c
+    src/libsrc/eviofmtdump.c
     src/libsrc/eviofmtswap.c
     src/libsrc/evioswap.c
 
@@ -68,7 +67,6 @@ set(SOURCE_FILES
     src/test/evtestBuf.c
     src/test/evtestBuf2.c
     src/test/evTestHandles.c
-    src/test/evTestHandles.c
     src/test/evtestRead.c
     src/test/evtestRio.c
     src/test/evtestSock.c
@@ -77,4 +75,4 @@ set(SOURCE_FILES
     src/test/stringTest.c)
 
 
-add_executable(evio_5_0 ${SOURCE_FILES})
+add_executable(evio_5_0 ${SOURCE_FILES} src/execsrc/xml2evio4.c src/libsrc/eviofmtdump.c)
