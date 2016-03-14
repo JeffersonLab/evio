@@ -126,9 +126,6 @@ public class EvioCompactReader {
     /** Is this object currently closed? */
     private boolean closed;
 
-    /** Skip things like keeping track of blocks for the sake of speed? */
-    private boolean fast = true;
-
 
     //------------------------
     // File specific members
@@ -262,32 +259,13 @@ public class EvioCompactReader {
      *                       if failure to read first block header
      */
     public void setBuffer(ByteBuffer buf) throws EvioException {
-        setBuffer(buf, true);
-    }
-
-    /**
-     * This method can be used to avoid creating additional EvioCompactReader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
-     *
-     * @param buf ByteBuffer to be read
-     * @param fast ignore things like tracking block info for the sake of speed
-     * @throws EvioException if arg is null;
-     *                       if failure to read first block header
-     */
-    synchronized void setBuffer(ByteBuffer buf, boolean fast) throws EvioException {
-
         if (buf == null) {
             throw new EvioException("arg is null");
         }
 
         close();
 
-        this.fast = fast;
-
-        if (!fast) {
-            blockNodes.clear();
-        }
+        blockNodes.clear();
         eventNodes.clear();
 
         blockCount      = -1;
@@ -542,27 +520,25 @@ public class EvioCompactReader {
                     throw new EvioException("Bad evio format: not enough data to read block");
                 }
 
-                if (!fast) {
-                    // File is now positioned before block header.
-                    // Look at block header to get info.
-                    blockNode = new BlockNode();
+                // File is now positioned before block header.
+                // Look at block header to get info.
+                blockNode = new BlockNode();
 
-                    blockNode.pos = position;
-                    blockNode.len   = blockSize;
-                    blockNode.count = blockEventCount;
+                blockNode.pos = position;
+                blockNode.len   = blockSize;
+                blockNode.count = blockEventCount;
 
-                    blockNodes.put(blockCount, blockNode);
-                    bufferNode.blockNodes.add(blockNode);
+                blockNodes.put(blockCount, blockNode);
+                bufferNode.blockNodes.add(blockNode);
 
-                    blockNode.place = blockCount++;
+                blockNode.place = blockCount++;
 
-                    // Make linked list of blocks
-                    if (previousBlockNode != null) {
-                        previousBlockNode.nextBlock = blockNode;
-                    }
-                    else {
-                        previousBlockNode = blockNode;
-                    }
+                // Make linked list of blocks
+                if (previousBlockNode != null) {
+                    previousBlockNode.nextBlock = blockNode;
+                }
+                else {
+                    previousBlockNode = blockNode;
                 }
 
                 validDataWords += blockSize;
@@ -602,7 +578,7 @@ public class EvioCompactReader {
 //System.out.println("      event "+i+" in block: pos = " + node.pos +
 //                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
                     eventNodes.add(node);
-                    if (!fast) blockNode.allEventNodes.add(node);
+                    blockNode.allEventNodes.add(node);
 
                     // Hop over header + data
                     byteLen = 8 + 4*node.dataLen;
