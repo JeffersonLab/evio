@@ -1120,8 +1120,8 @@ public class EventWriter {
      *                       and <= {@link #MAX_BLOCK_SIZE} ints.
      *                       The size of the block will not be larger than this size
      *                       unless a single event itself is larger.
-     * @param blockCountMax the max number of events (including dictionary) in a single block
-     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     * @param blockCountMax  the max number of events (including dictionary) in a single block
+     *                       which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param bitInfo        set of bits to include in first block header.
      * @param reserved1      set the value of the first "reserved" int in first block header.
