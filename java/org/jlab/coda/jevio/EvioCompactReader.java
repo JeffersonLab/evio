@@ -753,6 +753,72 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      }
 
 
+//    /**
+//     * This method extracts an EvioNode object representing an
+//     * evio event (top level evio bank) from a given buffer, a
+//     * location in the buffer, and a few other things. An EvioNode
+//     * object represents an evio container - either a bank, segment,
+//     * or tag segment.
+//     *
+//     * @param bufferNode buffer to examine
+//     * @param blockNode  object holding data about block header
+//     * @param position   position in buffer
+//     * @param place      place of event in buffer (starting at 0)
+//     *
+//     * @return EvioNode object containing evio event information
+//     * @throws EvioException if file/buffer too small
+//     */
+//    static private EvioNode extractEventNodeOrig(BufferNode bufferNode, BlockNode blockNode,
+//                                             int position, int place)
+//            throws EvioException {
+//
+//        // Make sure there is enough data to at least read evio header
+//        ByteBuffer buffer = bufferNode.buffer;
+//        if (buffer.remaining() < 8) {
+//            throw new EvioException("buffer underflow");
+//        }
+//
+//        // Store evio event info, without de-serializing, into EvioNode object
+//        EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
+//
+//        // Get length of current event
+//        node.len = buffer.getInt(position);
+//        // Position of data for a bank
+//        node.dataPos = position + 8;
+//        // Len of data for a bank
+//        node.dataLen = node.len - 1;
+//
+//        // Make sure there is enough data to read full event
+//        // even though it is NOT completely read at this time.
+//        if (buffer.remaining() < 4*(node.len + 1)) {
+////System.out.println("ERROR: remaining = " + buffer.remaining() +
+////            ", node len bytes = " + ( 4*(node.len + 1)));
+//            throw new EvioException("buffer underflow");
+//        }
+//
+//        // Hop over length word
+//        position += 4;
+//
+//        // Read and parse second header word
+//        int word = buffer.getInt(position);
+//        node.tag = (word >>> 16);
+//        int dt = (word >> 8) & 0xff;
+//        int type = dt & 0x3f;
+//        int padding = dt >>> 6;
+//        // If only 7th bit set, that can only be the legacy tagsegment type
+//        // with no padding information - convert it properly.
+//        if (dt == 0x40) {
+//            type = DataType.TAGSEGMENT.getValue();
+//            padding = 0;
+//        }
+//        node.dataType = type;
+//        node.pad = padding;
+//        node.num = word & 0xff;
+//
+//        return node;
+//    }
+
+
     /**
      * This method extracts an EvioNode object representing an
      * evio event (top level evio bank) from a given buffer, a
@@ -781,14 +847,41 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         // Store evio event info, without de-serializing, into EvioNode object
         EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
 
-        // Get length of current event
+        return extractNode(node, position);
+    }
+
+
+    /**
+     * This method populates an EvioNode object representing an
+     * evio bank from a node object containing a reference to the
+     * backing buffer and given a position in that buffer.
+     *
+     * @param node       EvioNode containing, at least, reference to backing buffer
+     * @param position   position in backing buffer
+     *
+     * @return EvioNode object containing complete evio bank information
+     * @throws EvioException if file/buffer too small
+     */
+    static private EvioNode extractNode(EvioNode node, int position)
+            throws EvioException {
+
+        // Make sure there is enough data to at least read evio header
+        ByteBuffer buffer = node.bufferNode.buffer;
+        if (buffer.remaining() < 8) {
+            throw new EvioException("buffer underflow");
+        }
+
+        // Get length of current bank
         node.len = buffer.getInt(position);
+        node.pos = position;
+        node.type = DataType.BANK.getValue();
+
         // Position of data for a bank
         node.dataPos = position + 8;
         // Len of data for a bank
         node.dataLen = node.len - 1;
 
-        // Make sure there is enough data to read full event
+        // Make sure there is enough data to read full bank
         // even though it is NOT completely read at this time.
         if (buffer.remaining() < 4*(node.len + 1)) {
 //System.out.println("ERROR: remaining = " + buffer.remaining() +
@@ -1168,33 +1261,16 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * defining the limits of the data to copy.
      * This method is synchronized due to the bulk, relative puts.
      *
-     * @param eventNumber number of event to which addBuffer is to be added
-     * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,
-     *                  i.e. no block headers)
+     * @param eventNumber number of event from which structure is to be removed
      * @return a new ByteBuffer object which is created and filled with all the data
      *         including what was just added.
      * @throws EvioException if eventNumber < 1;
-     *                       if addBuffer is null;
-     *                       if addBuffer arg is empty or has non-evio format;
-     *                       if addBuffer is opposite endian to current event buffer;
      *                       if added data is not the proper length (i.e. multiple of 4 bytes);
      *                       if the event number does not correspond to an existing event;
      *                       if there is an internal programming error;
      *                       if object closed
      */
-    public synchronized ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
-
-        // If we're adding nothing, then DO nothing
-//System.out.println("addStructure: addBuffer = " + addBuffer);
-//if (addBuffer != null) System.out.println("   remaining = " + addBuffer.remaining());
-
-        if (addBuffer == null || addBuffer.remaining() < 8) {
-            throw new EvioException("null, empty, or non-evio format buffer arg");
-        }
-
-        if (addBuffer.order() != byteOrder) {
-            throw new EvioException("trying to add wrong endian buffer");
-        }
+    public synchronized ByteBuffer removeEvent(int eventNumber) throws EvioException {
 
         if (eventNumber < 1) {
             throw new EvioException("event number must be > 0");
@@ -1212,154 +1288,463 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             throw new EvioException("event " + eventNumber + " does not exist", e);
         }
 
-        // Position in byteBuffer just past end of event
-        int endPos = eventNode.dataPos + 4*eventNode.dataLen;
+        return removeStructure(eventNode);
+    }
 
-        // Original position of buffer being added
-        int origAddBufPos = addBuffer.position();
 
-        // How many bytes are we adding?
-        int appendDataLen = addBuffer.remaining();
+    /**
+     * This method removes the given bank, segment, or tag segment from the buffer.
+     * If the buffer is the mapped memory of a file, then a new ByteBuffer
+     * object is created with the new data in it. Any existing file is not changed.
+     *
+     * A note about files here. If the constructor of this reader read in data
+     * from a file, it will now switch to using a new, internal buffer which
+     * is returned by this method or can be retrieved by calling
+     * {@link #getByteBuffer()}. It will <b>not</b> expand the file originally used.
+     * A new file can be created by calling either the {@link #toFile(String)} or
+     * {@link #toFile(java.io.File)} methods.<p>
+     * The given buffer argument must be ready to read with its position and limit
+     * defining the limits of the data to copy.
+     * This method is synchronized due to the bulk, relative puts.
+     *
+     * @param removeNode  evio structure to remove from event
+     * @return a new ByteBuffer object which is created and filled with all the data
+     *         including what was just added.
+     * @throws EvioException if eventNumber < 1;
+     *                       if added data is not the proper length (i.e. multiple of 4 bytes);
+     *                       if the event number does not correspond to an existing event;
+     *                       if there is an internal programming error;
+     *                       if object closed
+     */
+    public synchronized ByteBuffer removeStructure(EvioNode removeNode) throws EvioException {
 
-        // Make sure it's a multiple of 4
-        if (appendDataLen % 4 != 0) {
-            throw new EvioException("data added is not in evio format");
+        // If we're removing nothing, then DO nothing
+        if (removeNode == null) {
+            return byteBuffer;
         }
 
-        // Data length in 32-bit words
-        int appendDataWordLen = appendDataLen / 4;
+        if (closed) {
+            throw new EvioException("object closed");
+        }
 
-        // Event contains structures of this type
-        DataType eventDataType = DataType.getDataType(eventNode.dataType);
+        int eventNumber = 0;
+        EvioNode eventNode = null;
+        boolean isEvent = false, foundNode = false;
+        // Place of the removed event in allNodes list.
+        // 0 means event itself (top level).
+        int removeNodePlace = 0;
 
-//System.out.println("APPENDING " + appendDataWordLen + " words to buf " + byteBuffer);
-        //--------------------------------------------
-        // Add new structure to end of specified event
-        //--------------------------------------------
+        // Locate the node to be removed ...
+        for (EvioNode ev : eventNodes) {
+            eventNumber++;
 
-        // Create a new buffer
-        ByteBuffer newBuffer = ByteBuffer.allocate(4*validDataWords + appendDataLen);
-        newBuffer.order(byteOrder);
+            // See if it's an event ...
+            if (removeNode == ev) {
+                eventNode = ev;
+                isEvent = true;
+                foundNode = true;
+                break;
+            }
 
-        // Copy beginning part of existing buffer into new buffer
-        byteBuffer.limit(endPos).position(initialPosition);
-        newBuffer.put(byteBuffer);
-
-        // Copy new structure into new buffer
-        newBuffer.put(addBuffer);
-
-        // Copy ending part of existing buffer into new buffer
-        byteBuffer.limit(4*validDataWords + initialPosition).position(endPos);
-        newBuffer.put(byteBuffer);
-
-        // Get new buffer ready for reading
-        newBuffer.flip();
-
-        // Restore original positions of buffers
-        byteBuffer.position(initialPosition);
-        addBuffer.position(origAddBufPos);
-
-        //-------------------------------------
-        // By inserting a structure, we've definitely changed the positions of all
-        // structures that follow. Everything downstream gets shifted by appendDataLen
-        // bytes.
-        // And, if initialPosition was not 0 (in the new buffer it always is),
-        // then ALL nodes need their position members shifted by initialPosition
-        // bytes upstream.
-        //-------------------------------------
-        EvioNode eNode;
-
-        for (int i=0; i < eventCount; i++) {
-// TODO: this looks like a bug, not only event nodes, but all nodes need shifting right???
-            eNode = eventNodes.get(i);
-
-            // Deal with the event node unless we did it already above
-//System.out.println("Event node " + (i+1) + ", pos = " + eNode.pos + ", dataPos = " + eNode.dataPos);
-            eNode.pos     -= initialPosition;
-            eNode.dataPos -= initialPosition;
-            if (i > eventNode.place) {
-                eNode.pos     += appendDataLen;
-                eNode.dataPos += appendDataLen;
-//System.out.println("      pos -> " + eNode.pos + ", dataPos -> " + eNode.dataPos);
+            for (EvioNode n : ev.allNodes) {
+                if (removeNode == n) {
+                    eventNode = ev;
+                    foundNode = true;
+                    break;
+                }
+                // Keep track of where inside the event it is
+                removeNodePlace++;
             }
         }
 
-        BlockNode bNode;
-        for (int i=0; i < blockCount; i++) {
-            bNode = blockNodes.get(i);
-//System.out.println("Modify block " + (i+1) + ", pos = " + bNode.pos + ", initPos = " + initialPosition);
-            bNode.pos -= initialPosition;
-            if (i > eventNode.blockNode.place) {
-                bNode.pos += appendDataLen;
-//System.out.println("      pos -> " + bNode.pos);
-            }
+        if (!foundNode) {
+            throw new EvioException("removeNode not found in any event");
         }
 
-        // At this point all EvioNode objects (including those in
-        // user's possession) should be updated.
-
-        // This reader object is NOW using the new buffer
-        byteBuffer      = newBuffer;
-        initialPosition = newBuffer.position();
-
-        // If we started out by reading a file, now we are using the new buffer.
+        // If we started out by reading a file, now we switch to using a buffer
         if (isFile) {
             isFile = false;
             mappedByteBuffer = null;
+
+            // Create a new buffer by duplicating existing one
+            ByteBuffer newBuffer = ByteBuffer.allocate(byteBuffer.capacity());
+            newBuffer.order(byteOrder).position(byteBuffer.position()).limit(byteBuffer.limit());
+
+            // Copy data into new buffer
+            newBuffer.put(byteBuffer);
+            newBuffer.position(initialPosition);
+
+            // Use new buffer from now on
+            byteBuffer = newBuffer;
+
+            // All nodes need to use this new buffer
+            for (EvioNode ev : eventNodes) {
+                for (EvioNode n : ev.allNodes) {
+                    n.bufferNode.setBuffer(byteBuffer);
+                }
+            }
         }
 
-        // Position in new byteBuffer of block header
-        // (and therefore the length word)
-System.out.println("eventNode = " + eventNode + ", blkNode = " +eventNode.blockNode);
-        int blockLenPos = eventNode.blockNode.pos;
+        //---------------------------------------------------
+        // Remove structure. Keep using current buffer.
+        // We'll move all data that came after removed node
+        // to where removed node used to be.
+        //---------------------------------------------------
 
-        // Position in new byteBuffer of event
-        int eventLenPos = eventNode.pos;
+        // Number of bytes being removed
+        int removeDataLen = removeNode.getTotalBytes();
+        // Just after removed node (start pos of data being moved)
+        int startPos = removeNode.pos + removeDataLen;
+        // Length of data to move in bytes
+        int moveLen = 4*validDataWords - startPos;
+
+        // Duplicate backing buffer
+        ByteBuffer moveBuffer = byteBuffer.duplicate().order(byteBuffer.order());
+        // Prepare to move data currently sitting past the removed node
+        moveBuffer.position(startPos).limit(startPos + moveLen);
+
+        // Set place to put the data being moved - where removed node starts
+        byteBuffer.position(removeNode.pos);
+        // Copy it over
+        byteBuffer.put(moveBuffer);
+
+        // Reset some buffer values
+        validDataWords -= removeDataLen/4;
+        byteBuffer.position(initialPosition);
+        byteBuffer.limit(4*validDataWords + initialPosition);
+
+        //-------------------------------------
+        // By removing a structure, we need to shift the POSITIONS of all
+        // structures that follow by the size of the deleted chunk.
+        //-------------------------------------
+        ArrayList<EvioNode> nodeList;
+        int place = eventNode.place;
+
+        for (int i=0; i < eventCount; i++) {
+            int level = 0;
+            nodeList = eventNodes.get(i).allNodes;
+
+            for (EvioNode n : nodeList) {
+//System.out.println("Event node " + (i+1) + ", pos = " + n.pos + ", dataPos = " + n.dataPos);
+                // For events that come after, move all contained nodes
+                if (i > place) {
+                    n.pos -= removeDataLen;
+                    n.dataPos -= removeDataLen;
+//System.out.println("      pos -> " + n.pos + ", dataPos -> " + n.dataPos);
+                }
+                // For the event in which the removed node existed ...
+                else if (i == place) {
+                    // There may be structures that came after the removed node,
+                    // but within the same event. They need to be moved too.
+                    if (level > removeNodePlace) {
+                        n.pos -= removeDataLen;
+                        n.dataPos -= removeDataLen;
+                    }
+                }
+                level++;
+            }
+        }
+
+        place = eventNode.blockNode.place;
+        for (int i=0; i < blockCount; i++) {
+            if (i > place) {
+                blockNodes.get(i).pos -= removeDataLen;
+            }
+        }
 
         //--------------------------------------------
-        // Adjust event and block header sizes in both
-        // block/node objects and in new buffer.
+        // We need to update the lengths of all the
+        // removed node's parent structures as well as
+        // the length of the block containing it.
         //--------------------------------------------
 
         // Increase block size
-//System.out.println("block object len = " +  eventNode.blockNode.len +
-//                   ", set to " + (eventNode.blockNode.len + appendDataWordLen));
+System.out.println("block object len = " +  eventNode.blockNode.len +
+                   ", set to " + (eventNode.blockNode.len - removeDataLen));
+        eventNode.blockNode.len -= removeDataLen;
+        byteBuffer.putInt(eventNode.blockNode.pos, eventNode.blockNode.len);
 
-        eventNode.blockNode.len += appendDataWordLen;
-        newBuffer.putInt(blockLenPos, eventNode.blockNode.len);
+        // Position of parent in new byteBuffer of event
+        int parentPos;
+        EvioNode parent = removeNode.parentNode;
 
-        // Increase event size
-        eventNode.len     += appendDataWordLen;
-        eventNode.dataLen += appendDataWordLen;
+        while (parent != null) {
+            // Update event size
+            parent.len     -= removeDataLen;
+            parent.dataLen -= removeDataLen;
+            parentPos = parent.pos;
 
-        switch (eventDataType) {
-            case BANK:
-            case ALSOBANK:
-//System.out.println("event pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
-//                   ", set to " + (eventNode.len));
+            // Parent contains data of this type
+            switch (parent.getDataTypeObj()) {
+                case BANK:
+                case ALSOBANK:
+//System.out.println("parent bank pos = " + parentPos + ", len was = " + (parent.len + removeDataLen) +
+//                   ", now set to " + parent.len);
 
-                newBuffer.putInt(eventLenPos, eventNode.len);
-                break;
+                    byteBuffer.putInt(parentPos, parent.len);
+                    break;
 
-            case SEGMENT:
-            case ALSOSEGMENT:
-            case TAGSEGMENT:
-//System.out.println("event SEG/TAGSEG pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
-//                   ", set to " + (eventNode.len));
-                if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                    newBuffer.putShort(eventLenPos+2, (short)(eventNode.len));
-                }
-                else {
-                    newBuffer.putShort(eventLenPos,   (short)(eventNode.len));
-                }
-                break;
+                case SEGMENT:
+                case ALSOSEGMENT:
+                case TAGSEGMENT:
+//System.out.println("parent seg/tagseg pos = " + parentPos + ", len was = " + (parent.len + removeDataLen) +
+//                   ", now set to " + parent.len);
+                    if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                        byteBuffer.putShort(parentPos + 2, (short) (parent.len));
+                    }
+                    else {
+                        byteBuffer.putShort(parentPos, (short) (parent.len));
+                    }
+                    break;
 
-            default:
-                throw new EvioException("internal programming error");
+                default:
+                    throw new EvioException("internal programming error");
+            }
+
+            parent = parent.parentNode;
         }
 
-        return newBuffer;
+        // Remove node's existence in lists
+        removeNode.parentNode.removeChild(removeNode);
+
+        return byteBuffer;
     }
+
+
+    /**
+     * This method adds an evio container (bank, segment, or tag segment) as the last
+     * structure contained in an event. It is the responsibility of the caller to make
+     * sure that the buffer argument contains valid evio data (only data representing
+     * the structure to be added - not in file format with block header and the like)
+     * which is compatible with the type of data stored in the given event.<p>
+     *
+     * To produce such an evio data use {@link EvioBank#write(java.nio.ByteBuffer)},
+     * {@link EvioSegment#write(java.nio.ByteBuffer)} or
+     * {@link EvioTagSegment#write(java.nio.ByteBuffer)} depending on whether
+     * a bank, seg, or tagseg is being added.<p>
+     *
+     * A note about files here. If the constructor of this reader read in data
+     * from a file, it will now switch to using a new, internal buffer which
+     * is returned by this method or can be retrieved by calling
+     * {@link #getByteBuffer()}. It will <b>not</b> expand the file originally used.
+     * A new file can be created by calling either the {@link #toFile(String)} or
+     * {@link #toFile(java.io.File)} methods.<p>
+     *
+     * The given buffer argument must be ready to read with its position and limit
+     * defining the limits of the data to copy.
+     * This method is synchronized due to the bulk, relative puts.
+     *
+     * @param eventNumber number of event to which addBuffer is to be added
+     * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,
+     *                  i.e. no block headers)
+     * @return a new ByteBuffer object which is created and filled with all the data
+     *         including what was just added.
+     * @throws EvioException if eventNumber < 1;
+     *                       if addBuffer is null;
+     *                       if addBuffer arg is empty or has non-evio format;
+     *                       if addBuffer is opposite endian to current event buffer;
+     *                       if added data is not the proper length (i.e. multiple of 4 bytes);
+     *                       if the event number does not correspond to an existing event;
+     *                       if there is an internal programming error;
+     *                       if object closed
+     */
+    public synchronized ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
+
+         if (addBuffer == null || addBuffer.remaining() < 8) {
+             throw new EvioException("null, empty, or non-evio format buffer arg");
+         }
+
+         if (addBuffer.order() != byteOrder) {
+             throw new EvioException("trying to add wrong endian buffer");
+         }
+
+         if (eventNumber < 1) {
+             throw new EvioException("event number must be > 0");
+         }
+
+         if (closed) {
+             throw new EvioException("object closed");
+         }
+
+         EvioNode eventNode;
+         try {
+             eventNode = eventNodes.get(eventNumber - 1);
+         }
+         catch (IndexOutOfBoundsException e) {
+             throw new EvioException("event " + eventNumber + " does not exist", e);
+         }
+
+         // Position in byteBuffer just past end of event
+         int endPos = eventNode.dataPos + 4*eventNode.dataLen;
+
+         // Original position of buffer being added
+         int origAddBufPos = addBuffer.position();
+
+         // How many bytes are we adding?
+         int appendDataLen = addBuffer.remaining();
+
+         // Make sure it's a multiple of 4
+         if (appendDataLen % 4 != 0) {
+             throw new EvioException("data added is not in evio format");
+         }
+
+         // Data length in 32-bit words
+         int appendDataWordLen = appendDataLen / 4;
+
+         // Event contains structures of this type
+         DataType eventDataType = eventNode.getDataTypeObj();
+
+ //System.out.println("APPENDING " + appendDataWordLen + " words to buf " + byteBuffer);
+         //--------------------------------------------
+         // Add new structure to end of specified event
+         //--------------------------------------------
+
+         // Create a new buffer
+         ByteBuffer newBuffer = ByteBuffer.allocate(4*validDataWords + appendDataLen);
+         newBuffer.order(byteOrder);
+
+         // Copy beginning part of existing buffer into new buffer
+         byteBuffer.limit(endPos).position(initialPosition);
+         newBuffer.put(byteBuffer);
+
+         // Copy new structure into new buffer
+         int newBankBufPos = newBuffer.position();
+         newBuffer.put(addBuffer);
+
+         // Copy ending part of existing buffer into new buffer
+         byteBuffer.limit(4*validDataWords + initialPosition).position(endPos);
+         newBuffer.put(byteBuffer);
+
+         // Get new buffer ready for reading
+         newBuffer.flip();
+
+         // Restore original positions of buffers
+         byteBuffer.position(initialPosition);
+         addBuffer.position(origAddBufPos);
+
+         //-------------------------------------
+         // By inserting a structure, we've definitely changed the positions of all
+         // structures that follow. Everything downstream gets shifted by appendDataLen
+         // bytes.
+         // And, if initialPosition was not 0 (in the new buffer it always is),
+         // then ALL nodes need their position members shifted by initialPosition
+         // bytes upstream.
+         //-------------------------------------
+         int place = eventNode.place;
+
+         for (int i=0; i < eventCount; i++) {
+             for (EvioNode n : eventNodes.get(i).allNodes) {
+                 // Make sure nodes are using the new buffer
+                 n.bufferNode.setBuffer(newBuffer);
+
+ //System.out.println("Event node " + (i+1) + ", pos = " + n.pos + ", dataPos = " + n.dataPos);
+                 if (i > place) {
+                     n.pos     += appendDataLen - initialPosition;
+                     n.dataPos += appendDataLen - initialPosition;
+ //System.out.println("      pos -> " + n.pos + ", dataPos -> " + n.dataPos);
+                 }
+                 else {
+                     n.pos     -= initialPosition;
+                     n.dataPos -= initialPosition;
+                 }
+             }
+         }
+
+         place = eventNode.blockNode.place;
+         for (int i=0; i < blockCount; i++) {
+             if (i > place) {
+                 blockNodes.get(i).pos += appendDataLen - initialPosition;
+             }
+             else {
+                 blockNodes.get(i).pos -= initialPosition;
+             }
+         }
+
+         // At this point all EvioNode objects (including those in
+         // user's possession) should be updated.
+
+         // This reader object is NOW using the new buffer
+         byteBuffer      = newBuffer;
+         initialPosition = newBuffer.position();
+         validDataWords += appendDataWordLen;
+
+         // If we started out by reading a file, now we are using the new buffer.
+         if (isFile) {
+             isFile = false;
+             mappedByteBuffer = null;
+         }
+
+         //--------------------------------------------
+         // Adjust event and block header sizes in both
+         // block/event node objects and in new buffer.
+         //--------------------------------------------
+
+         // Position in new byteBuffer of event
+         int eventLenPos = eventNode.pos;
+
+         // Increase block size
+ //System.out.println("block object len = " +  eventNode.blockNode.len +
+ //                   ", set to " + (eventNode.blockNode.len + appendDataWordLen));
+         eventNode.blockNode.len += appendDataWordLen;
+         newBuffer.putInt(eventNode.blockNode.pos, eventNode.blockNode.len);
+
+         // Increase event size
+         eventNode.len     += appendDataWordLen;
+         eventNode.dataLen += appendDataWordLen;
+
+         switch (eventDataType) {
+             case BANK:
+             case ALSOBANK:
+ //System.out.println("event pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
+ //                   ", set to " + (eventNode.len));
+
+                 newBuffer.putInt(eventLenPos, eventNode.len);
+                 break;
+
+             case SEGMENT:
+             case ALSOSEGMENT:
+             case TAGSEGMENT:
+ //System.out.println("event SEG/TAGSEG pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
+ //                   ", set to " + (eventNode.len));
+                 if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                     newBuffer.putShort(eventLenPos+2, (short)(eventNode.len));
+                 }
+                 else {
+                     newBuffer.putShort(eventLenPos,   (short)(eventNode.len));
+                 }
+                 break;
+
+             default:
+                 throw new EvioException("internal programming error");
+         }
+
+         // Since the event's values (positions and lengths) have now been set properly,
+         // we can now rescan the event to update all the sub-structure info, thereby
+         // including the newly add structure. Problem is, that invalidates all existing
+         // node objects for this event and users may try to continue using those - BAD.
+         //
+         // Instead, create a single new node by cloning the event object and resetting
+         // all its internal values by parsing (or extracting from) the buffer.
+         if (eventNode.scanned) {
+             // Clone() will give us an empty childNodes list
+             EvioNode newNode = (EvioNode) eventNode.clone();
+             newNode.isEvent = false;
+             newNode.eventNode = newNode.parentNode = eventNode;
+             // Extract data from buffer (not children data)
+             extractNode(newNode, newBankBufPos);
+
+             // Now that we have this new node, we must place it in the correct order
+             // in both the child & allNodes lists. This is easy since we are inserting
+             // the bank as the last bank of this event.
+             eventNode.addChild(newNode);
+
+             // This node may contain other nodes. Find those by scanning this one.
+             // This will add all nodes in this tree to all lists.
+             scanStructure(newNode);
+         }
+
+         return newBuffer;
+     }
 
 
     /**
