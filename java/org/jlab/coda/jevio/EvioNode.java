@@ -223,32 +223,78 @@ public final class EvioNode implements Cloneable {
     //-------------------------------
 
     /**
-     * Add a child node to the end of the child list and
-     * to the list of all events.
-     * @param childNode child node to add to the end of the child list.
+     * Add a node to the end of the list of all nodes contained in event.
+     * Recursively adds node's children, grandchildren, etc.
+     * @param node child node to add to the list of all nodes
      */
-    final synchronized public void addChild(EvioNode childNode) {
-        if (childNodes == null) {
-            childNodes = new ArrayList<EvioNode>(100);
+    final private void addToAllNodes(EvioNode node) {
+        if (allNodes == null || node == null) {
+            return;
         }
-        childNodes.add(childNode);
 
-        if (allNodes != null) allNodes.add(childNode);
+        allNodes.add(node);
+        // Add all children, etc.
+        ArrayList<EvioNode> kids = node.getChildNodes();
+        for (EvioNode n : kids) {
+            addToAllNodes(n);
+        }
     }
 
 
+    /**
+     * Remove a node from the list of all nodes contained in event.
+     * Recursively removes node's children, grandchildren, etc.
+     * @param node node to remove from the list of all nodes
+     */
+    final private void removeFromAllNodes(EvioNode node) {
+        if (allNodes == null || node == null) {
+            return;
+        }
 
-//    /**
-//     * Remove a node from this child list.
-//     * @param childNode node to remove from child list.
-//     */
-//    synchronized public void removeChild(EvioNode childNode) {
-//        if (childNodes != null) {
-//            childNodes.remove(childNode);
-//        }
-//
-//        if (allNodes != null) allNodes.remove(childNode);
-//    }
+        allNodes.remove(node);
+        // Remove all children, etc.
+        ArrayList<EvioNode> kids = node.getChildNodes();
+        for (EvioNode n : kids) {
+            removeFromAllNodes(n);
+        }
+    }
+
+
+    /**
+     * Add a child node to the end of the child list and
+     * to the list of all nodes contained in event.
+     * @param childNode child node to add to the end of the child list.
+     */
+    final synchronized void addChild(EvioNode childNode) {
+        if (childNode == null) {
+            return;
+        }
+
+        if (childNodes == null) {
+            childNodes = new ArrayList<EvioNode>(100);
+        }
+
+        childNodes.add(childNode);
+        addToAllNodes(childNode);
+    }
+
+
+    /**
+     * Remove a node from this child list and
+     * from the list of all nodes contained in event.
+     * @param childNode node to remove from child list.
+     */
+    final synchronized void removeChild(EvioNode childNode) {
+        if (childNode == null) {
+            return;
+        }
+
+        if (childNodes != null) {
+            childNodes.remove(childNode);
+        }
+
+        removeFromAllNodes(childNode);
+    }
 
     //-------------------------------
     // Getters
