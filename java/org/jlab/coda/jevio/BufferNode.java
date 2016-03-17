@@ -47,7 +47,7 @@ public final class BufferNode {
     }
 
     //-------------------------------
-    // Getters
+    // Getters & Setters
     //-------------------------------
 
     /**
@@ -58,5 +58,10 @@ public final class BufferNode {
         return buffer;
     }
 
+    /**
+     * set the byte buffer.
+     * @param buf new byte buffer.
+     */
+    void setBuffer(ByteBuffer buf) { buffer = buf; }
 
 }
