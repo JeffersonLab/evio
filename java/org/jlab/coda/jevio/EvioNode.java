@@ -228,7 +228,6 @@ public final class EvioNode implements Cloneable {
 
     /**
      * Add a node to the end of the list of all nodes contained in event.
-     * Recursively adds node's children, grandchildren, etc.
      * @param node child node to add to the list of all nodes
      */
     final private void addToAllNodes(EvioNode node) {
@@ -237,13 +236,11 @@ public final class EvioNode implements Cloneable {
         }
 
         allNodes.add(node);
-        // Add all descendants
-        ArrayList<EvioNode> kids = node.getChildNodes();
-        if (kids != null) {
-            for (EvioNode n : kids) {
-                addToAllNodes(n);
-            }
-        }
+        // NOTE: do not have to do this recursively for all descendants.
+        // That's because when events are scanned and EvioNode objects are created,
+        // they are done so by using clone(). This means that all descendants have
+        // references to the event level node's allNodes object and not their own
+        // complete copy.
     }
 
     /**
@@ -257,13 +254,11 @@ public final class EvioNode implements Cloneable {
         }
 
         allNodes.remove(node);
-        // Remove all descendants
-        ArrayList<EvioNode> kids = node.getChildNodes();
-        if (kids != null) {
-            for (EvioNode n : kids) {
-                removeFromAllNodes(n);
-            }
-        }
+        // NOTE: do not have to do this recursively for all descendants.
+        // That's because when events are scanned and EvioNode objects are created,
+        // they are done so by using clone(). This means that all descendants have
+        // references to the event level node's allNodes object and not their own
+        // complete copy.
     }
 
     /**
@@ -281,7 +276,7 @@ public final class EvioNode implements Cloneable {
         }
 
         childNodes.add(childNode);
-        addToAllNodes(childNode);
+        if (allNodes != null) allNodes.add(childNode);
     }
 
     /**
@@ -298,7 +293,7 @@ public final class EvioNode implements Cloneable {
             childNodes.remove(childNode);
         }
 
-        removeFromAllNodes(childNode);
+        if (allNodes != null) allNodes.remove(childNode);
     }
 
     /**
