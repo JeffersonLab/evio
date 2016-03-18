@@ -44,4 +44,16 @@ final class BlockNode {
     public void clearLists() {
         allEventNodes.clear();
     }
+
+
+    final public String toString() {
+        StringBuilder builder = new StringBuilder(100);
+        builder.append("len = ");     builder.append(len);
+        builder.append(", count = "); builder.append(count);
+        builder.append(", pos = ");   builder.append(pos);
+        builder.append(", place = "); builder.append(place);
+
+        return builder.toString();
+    }
+
 }
