@@ -53,8 +53,12 @@ public final class EvioNode implements Cloneable {
     /** Does this node represent an event (top-level bank)? */
     boolean isEvent;
 
+    /** If the data this node represents is removed from the buffer,
+     *  then this object is obsolete. */
+    boolean obsolete;
+
     /** Block containing this node. */
-    BlockNode blockNode;
+    public BlockNode blockNode;
 
     /** ByteBuffer that this node is associated with. */
     BufferNode bufferNode;
@@ -189,14 +193,14 @@ public final class EvioNode implements Cloneable {
 
     final public String toString() {
         StringBuilder builder = new StringBuilder(100);
-        builder.append("tag = ");   builder.append(tag);
-        builder.append(", num = "); builder.append(num);
-        builder.append(", type = "); builder.append(type);
-        builder.append(", dataType = "); builder.append(dataType);
-        builder.append(", pos = "); builder.append(pos);
-        builder.append(", dataPos = "); builder.append(dataPos);
-        builder.append(", len = "); builder.append(len);
-        builder.append(", dataLen = "); builder.append(dataLen);
+        builder.append("tag = ");        builder.append(tag);
+        builder.append(", num = ");      builder.append(num);
+        builder.append(", type = ");     builder.append(getTypeObj());
+        builder.append(", dataType = "); builder.append(getDataTypeObj());
+        builder.append(", pos = ");      builder.append(pos);
+        builder.append(", dataPos = ");  builder.append(dataPos);
+        builder.append(", len = ");      builder.append(len);
+        builder.append(", dataLen = ");  builder.append(dataLen);
 
         return builder.toString();
     }
@@ -219,7 +223,7 @@ public final class EvioNode implements Cloneable {
     }
 
     //-------------------------------
-    // Setters
+    // Setters & Getters
     //-------------------------------
 
     /**
@@ -233,13 +237,14 @@ public final class EvioNode implements Cloneable {
         }
 
         allNodes.add(node);
-        // Add all children, etc.
+        // Add all descendants
         ArrayList<EvioNode> kids = node.getChildNodes();
-        for (EvioNode n : kids) {
-            addToAllNodes(n);
+        if (kids != null) {
+            for (EvioNode n : kids) {
+                addToAllNodes(n);
+            }
         }
     }
-
 
     /**
      * Remove a node from the list of all nodes contained in event.
@@ -252,13 +257,14 @@ public final class EvioNode implements Cloneable {
         }
 
         allNodes.remove(node);
-        // Remove all children, etc.
+        // Remove all descendants
         ArrayList<EvioNode> kids = node.getChildNodes();
-        for (EvioNode n : kids) {
-            removeFromAllNodes(n);
+        if (kids != null) {
+            for (EvioNode n : kids) {
+                removeFromAllNodes(n);
+            }
         }
     }
-
 
     /**
      * Add a child node to the end of the child list and
@@ -278,7 +284,6 @@ public final class EvioNode implements Cloneable {
         addToAllNodes(childNode);
     }
 
-
     /**
      * Remove a node from this child list and
      * from the list of all nodes contained in event.
@@ -296,17 +301,38 @@ public final class EvioNode implements Cloneable {
         removeFromAllNodes(childNode);
     }
 
-    //-------------------------------
-    // Getters
-    //-------------------------------
+    /**
+     * Get the object representing the block header.
+     * @return object representing the block header.
+     */
+    final BlockNode getBlockNode() {
+        return blockNode;
+    }
 
-//    /**
-//     * Get the object representing the block header.
-//     * @return object representing the block header.
-//     */
-//    public BlockNode getBlockNode() {
-//        return blockNode;
-//    }
+    /**
+     * Has the data this node represents in the buffer been removed?
+     * @return true if node no longer represents valid buffer data, else false.
+     */
+    final public boolean isObsolete() {
+        return obsolete;
+    }
+
+    /**
+     * Set whether this node & descendants are now obsolete because the
+     * data they represent in the buffer has been removed.
+     * @param obsolete true if node & descendants no longer represent valid
+     *                 buffer data, else false.
+     */
+    final void setObsolete(boolean obsolete) {
+        this.obsolete = obsolete;
+
+        // Set for all descendants.
+        if (childNodes != null) {
+            for (EvioNode n : childNodes) {
+                n.setObsolete(obsolete);
+            }
+        }
+    }
 
     /**
      * Get the list of all nodes that this node contains,
