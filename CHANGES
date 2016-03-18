@@ -95,6 +95,23 @@ jevio-5.0.jar
       types properly as well as print in hex or decimal. New methods to handle choice of hex.
       Handling of xml made consistent with C/C++ lib.
 
+    - remove the EvioCompactReader.setBuffer(ByteBuffer buf, boolean fast) method.
+      The fast = true setting created a null pointer exception in the addStructure
+      method. I don't think this was used by anyone anyway.
+
+jevio-5.1.jar
+    - fix bugs in EvioCompactReader in which:
+            1) addStructure() method did not update all EvioNode objects,
+               only those associated with events (top level banks)
+            2) validDataWords variable was not updated
+            3) if the event-being-added-to was scanned, the added structure was not
+               scanned and therefore no EvioNodes created and placed in child and
+               allNodes lists
+    - added removeEvent() and removeStructure() methods to EvioCompactReader
+    - added setBuffer() method to BufferNode
+    - added toString to BlockNode
+    - added removeChild(), removeFromAllNodes(), addToAllNodes() methods to EvioNode
+    - added getBlockNode(), isObsolete() and setObsolete() methods to EvioNode
 
 
 
