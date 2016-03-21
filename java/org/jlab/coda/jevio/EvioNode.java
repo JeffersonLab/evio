@@ -11,12 +11,6 @@
 
 package org.jlab.coda.jevio;
 
-import com.sun.prism.PixelFormat;
-
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.StringWriter;
 import java.nio.*;
 import java.util.ArrayList;
 
