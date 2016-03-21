@@ -95,6 +95,10 @@ jevio-5.0.jar
       types properly as well as print in hex or decimal. New methods to handle choice of hex.
       Handling of xml made consistent with C/C++ lib.
 
+    - remove the EvioCompactReader.setBuffer(ByteBuffer buf, boolean fast) method.
+      The fast = true setting created a null pointer exception in the addStructures
+      method. I don't think this was used by anyone anyway.
+
 
 
 
