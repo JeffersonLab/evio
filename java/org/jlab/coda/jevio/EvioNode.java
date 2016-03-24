@@ -18,6 +18,7 @@ import java.util.ArrayList;
  * This class is used to store relevant info about an evio container
  * (bank, segment, or tag segment), without having
  * to de-serialize it into many objects and arrays.
+ * It is not thread-safe and is designed for speed.
  *
  * @author timmer
  * Date: 11/13/12
@@ -260,7 +261,7 @@ public final class EvioNode implements Cloneable {
      * to the list of all nodes contained in event.
      * @param childNode child node to add to the end of the child list.
      */
-    final synchronized void addChild(EvioNode childNode) {
+    final void addChild(EvioNode childNode) {
         if (childNode == null) {
             return;
         }
@@ -278,7 +279,7 @@ public final class EvioNode implements Cloneable {
      * from the list of all nodes contained in event.
      * @param childNode node to remove from child list.
      */
-    final synchronized void removeChild(EvioNode childNode) {
+    final void removeChild(EvioNode childNode) {
         if (childNode == null) {
             return;
         }
