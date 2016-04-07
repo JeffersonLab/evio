@@ -109,7 +109,7 @@ jevio-5.1.jar
                allNodes lists
     - added removeEvent() and removeStructure() methods to EvioCompactReader
     - added setBuffer() method to BufferNode
-    - added toString to BlockNode
+    - added toString() to BlockNode
     - added removeChild(), removeFromAllNodes(), addToAllNodes() methods to EvioNode
     - added getBlockNode(), isObsolete() and setObsolete() methods to EvioNode
 
@@ -152,11 +152,11 @@ evio-5.0
 
    - improve xml representation of event - especially the composite data type
    - fix a host of bugs in printing to xml. Can now handle all unsigned
-      types properly as well as print in hex or decimal. Made consistent with Java.
-      Now treats structure of CompositeData as an array!
-    - add a routine, evBufToStrings(), to enable users to unpack evio string data
-      into an array of strings
-    - add a routine, evStringsToBuf(), to enable users to take an array of strings
-      and write it into an evio format buffer
-
-
+     types properly as well as print in hex or decimal. Made consistent with Java.
+     Now treats structure of CompositeData as an array!
+   - add a routine, evBufToStrings(), to enable users to unpack evio string data
+     into an array of strings
+   - add a routine, evStringsToBuf(), to enable users to take an array of strings
+     and write it into an evio format buffer
+   - got rid of vxworks and solaris dependencies
+   - fixed SConstruct python
