@@ -382,129 +382,14 @@ static EVFILE **handleList = NULL;
 /* The number of handles available for use. */
 static size_t handleCount = 0;
 
-#ifndef VXWORKS
-    /* Pthread mutex for serializing calls to get and free handles. */
-    static pthread_mutex_t getHandleMutex = PTHREAD_MUTEX_INITIALIZER;
-    /*static pthread_rwlock_t handleLock = PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP;*/
-  
-    /* Array of pthread read-write lock pointers for preventing simultaneous calls
-     * to evClose and read/write routines. Need 1 for each evOpen() call. */
-    static pthread_rwlock_t **handleLocks = NULL;
-    
-#elif defined VXWORKS_5
+/* Pthread mutex for serializing calls to get and free handles. */
+static pthread_mutex_t getHandleMutex = PTHREAD_MUTEX_INITIALIZER;
+/*static pthread_rwlock_t handleLock = PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP;*/
 
-    /** Implementation of strdup for vxWorks. */
-    static char *strdup(const char *s1) {
-        char *s;
-        if (s1 == NULL) return NULL;
-        if ((s = (char *) malloc(strlen(s1)+1)) == NULL) return NULL;
-        return strcpy(s, s1);
-    }
-    
-    /** Implementation of strndup for vxWorks. */
-    static char *strndup(const char *s1, size_t count) {
-        int len;
-        char *s;
-        if (s1 == NULL) return NULL;
-    
-        len = strlen(s1) > count ? count : strlen(s1);
-        if ((s = (char *) malloc(len+1)) == NULL) return NULL;
-        s[len] = '\0';
-        return strncpy(s, s1, len);
-    }
-    
-    /** Implementation of strcasecmp for vxWorks. */
-    static int strcasecmp(const char *s1, const char *s2) {
-        int i, len1, len2;
-      
-        /* handle NULL's */
-        if (s1 == NULL && s2 == NULL) {
-            return 0;
-        }
-        else if (s1 == NULL) {
-            return -1;
-        }
-        else if (s2 == NULL) {
-            return 1;
-        }
-      
-        len1 = strlen(s1);
-        len2 = strlen(s2);
-      
-        /* handle different lengths */
-        if (len1 < len2) {
-            for (i=0; i<len1; i++) {
-                if (toupper((int) s1[i]) < toupper((int) s2[i])) {
-                    return -1;
-                }
-                else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
-                    return 1;
-                }
-            }
-            return -1;
-        }
-        else if (len1 > len2) {
-            for (i=0; i<len2; i++) {
-                if (toupper((int) s1[i]) < toupper((int) s2[i])) {
-                    return -1;
-                }
-                else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
-                    return 1;
-                }
-            }
-            return 1;
-        }
-      
-        /* handle same lengths */
-        for (i=0; i<len1; i++) {
-            if (toupper((int) s1[i]) < toupper((int) s2[i])) {
-                return -1;
-            }
-            else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
-                return 1;
-            }
-        }
-      
-        return 0;
-    }
-    
-    /** Implementation of strncasecmp for vxWorks. */
-    static int strncasecmp(const char *s1, const char *s2, size_t n) {
-        int i, len1, len2;
-      
-        /* handle NULL's */
-        if (s1 == NULL && s2 == NULL) {
-            return 0;
-        }
-        else if (s1 == NULL) {
-            return -1;
-        }
-        else if (s2 == NULL) {
-            return 1;
-        }
-      
-        len1 = strlen(s1);
-        len2 = strlen(s2);
-        
-        /* handle short lengths */
-        if (len1 < n || len2 < n) {
-            return strcasecmp(s1, s2);
-        }
-       
-        /* both lengths >= n, but compare only n chars */
-        for (i=0; i<n; i++) {
-            if (toupper((int) s1[i]) < toupper((int) s2[i])) {
-                return -1;
-            }
-            else if (toupper((int) s1[i]) > toupper((int) s2[i])) {
-                return 1;
-            }
-        }
-      
-        return 0;
-    }
+/* Array of pthread read-write lock pointers for preventing simultaneous calls
+ * to evClose and read/write routines. Need 1 for each evOpen() call. */
+static pthread_rwlock_t **handleLocks = NULL;
 
-#endif
 
 
 /*-----------------*
@@ -718,8 +603,8 @@ static void structInit(EVFILE *a)
  * Routine to destroy an EVFILE structure.
  * @param a   pointer to structure being inititalized
  */
-static void structDestroy(EVFILE *a)
-{   /* If it doesn't work, so what? */
+static void structDestroy(EVFILE *a) {
+    /* If it doesn't work, so what? */
     pthread_mutex_destroy(&a->lock);
 }
 
@@ -728,8 +613,7 @@ static void structDestroy(EVFILE *a)
  * Routine to lock the pthread mutex in an EVFILE structure.
  * @param a pointer to EVFILE structure
  */
-static void mutexLock(EVFILE *a)
-{
+static void mutexLock(EVFILE *a) {
     int status = pthread_mutex_lock(&a->lock);
     if (status != 0) {
         evio_err_abort(status, "Failed mutex lock");
@@ -741,8 +625,7 @@ static void mutexLock(EVFILE *a)
  * Routine to unlock the pthread mutex in an EVFILE structure.
  * @param a pointer to EVFILE structure
  */
-static void mutexUnlock(EVFILE *a)
-{
+static void mutexUnlock(EVFILE *a) {
     int status = pthread_mutex_unlock(&a->lock);
     if (status != 0) {
         evio_err_abort(status, "Failed mutex unlock");
@@ -754,15 +637,12 @@ static void mutexUnlock(EVFILE *a)
  * Routine to lock the pthread mutex used for getting and releasing handles.
  * @param a pointer to EVFILE structure
  */
-static void getHandleLock(void)
-{
-#ifndef VXWORKS
+static void getHandleLock(void) {
     int status;
     status = pthread_mutex_lock(&getHandleMutex);
     if (status != 0) {
         evio_err_abort(status, "Failed get handle lock");
     }
-#endif
 }
 
 
@@ -770,67 +650,56 @@ static void getHandleLock(void)
  * Routine to unlock the pthread mutex used for getting and releasing handles.
  * @param a pointer to EVFILE structure
  */
-static void getHandleUnlock(void)
-{
-#ifndef VXWORKS
+static void getHandleUnlock(void) {
     int status;
     status = pthread_mutex_unlock(&getHandleMutex);
     if (status != 0) {
         evio_err_abort(status, "Failed get handle unlock");
     }
-#endif
 }
 
 
 /** Routine to grab read lock used to prevent simultaneous
  *  calls to evClose and read/write routines. */
 static void handleReadLock(int handle) {
-#ifndef VXWORKS
     pthread_rwlock_t *handleLock = handleLocks[handle-1];
     int status = pthread_rwlock_rdlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle read lock");
     }
-#endif
 }
 
 
 /** Routine to release read lock used to prevent simultaneous
  *  calls to evClose and read/write routines. */
 static void handleReadUnlock(int handle) {
-#ifndef VXWORKS
     pthread_rwlock_t *handleLock = handleLocks[handle-1];
     int status = pthread_rwlock_unlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle read unlock");
     }
-#endif
 }
 
 
 /** Routine to grab write lock used to prevent simultaneous
  *  calls to evClose and read/write routines. */
 static void handleWriteLock(int handle) {
-#ifndef VXWORKS
     pthread_rwlock_t *handleLock = handleLocks[handle-1];
     int status = pthread_rwlock_wrlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle write lock");
     }
-#endif
 }
 
 
 /** Routine to release write lock used to prevent simultaneous
  *  calls to evClose and read/write routines. */
 static void handleWriteUnlock(int handle) {
-#ifndef VXWORKS
     pthread_rwlock_t *handleLock = handleLocks[handle-1];
     int status = pthread_rwlock_unlock(handleLock);
     if (status != 0) {
         evio_err_abort(status, "Failed handle write unlock");
     }
-#endif
 }
 
 
@@ -841,8 +710,7 @@ static void handleWriteUnlock(int handle) {
  * @return S_SUCCESS if success
  * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
  */
-static int expandHandles()
-{
+static int expandHandles() {
     /* If this is the first initialization, add 100 places for 100 evOpen()'s */
     if (handleCount < 1 || handleList == NULL) {
         int i;
@@ -854,8 +722,6 @@ static int expandHandles()
             return S_EVFILE_ALLOCFAIL;
         }
 
-/* Take all the read-write locks out of vxWorks */
-#ifndef VXWORKS
         handleLocks = (pthread_rwlock_t **) calloc(handleCount, sizeof(pthread_rwlock_t *));
         if (handleLocks == NULL) {
             return S_EVFILE_ALLOCFAIL;
@@ -866,7 +732,6 @@ static int expandHandles()
             pthread_rwlock_init(plock, NULL);
             handleLocks[i] = plock;
         }
-#endif
     }
     /* We're expanding the exiting arrays */
     else {
@@ -875,15 +740,13 @@ static int expandHandles()
         size_t newCount = handleCount * 3 / 2;
 
         EVFILE **newHandleList;
-#ifndef VXWORKS
         pthread_rwlock_t **newHandleLocks;
 
         newHandleLocks = (pthread_rwlock_t **) calloc(newCount, sizeof(pthread_rwlock_t *));
         if (newHandleLocks == NULL) {
             return S_EVFILE_ALLOCFAIL;
         }
-#endif
-        
+
         newHandleList = (EVFILE **) calloc(newCount, sizeof(EVFILE *));
         if (newHandleList == NULL) {
             return S_EVFILE_ALLOCFAIL;
@@ -892,12 +755,9 @@ static int expandHandles()
         /* Copy old into new */
         for (i=0; i < handleCount; i++) {
             newHandleList[i]  = handleList[i];
-#ifndef VXWORKS
             newHandleLocks[i] = handleLocks[i];
-#endif
         }
 
-#ifndef VXWORKS
         /* Initialize the rest */
         for (i= (int)handleCount; i < newCount; i++) {
             pthread_rwlock_t *plock = (pthread_rwlock_t *) calloc(1, sizeof(pthread_rwlock_t));
@@ -907,15 +767,12 @@ static int expandHandles()
         
         /* Free the unused arrays */
         free((void *)handleLocks);
-#endif
         free((void *)handleList);
 
         /* Update variables */
         handleCount = newCount;
         handleList  = newHandleList;
-#ifndef VXWORKS
         handleLocks = newHandleLocks;
-#endif
     }
 
     return S_SUCCESS;
@@ -1812,7 +1669,7 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
  *                            if srcDest arg is NULL when using file or buffer;
  *                            if unrecognizable flags;
  *                            if buffer size too small when using buffer;
- *                            if specifying random access on vxWorks or Windows
+ *                            if specifying random access on Windows
  * @return S_EVFILE_ALLOCFAIL if memory allocation failed
  * @return S_EVFILE_BADFILE   if error reading file, unsupported version,
  *                            or contradictory data in file
@@ -1857,8 +1714,8 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
         else if (strcasecmp(flags,  "s") == 0) splitting = 1;
         else if (strcasecmp(flags, "ra") == 0) randomAccess = 1;
 
-#if defined VXWORKS || defined _MSC_VER
-        /* No random access support in vxWorks or Windows */
+#if defined _MSC_VER
+        /* No random access support in Windows */
         if (randomAccess) {
             return(S_EVFILE_BADARG);
         }
@@ -1934,8 +1791,8 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
     if (reading) {
         
         if (useFile) {
-#if defined VXWORKS || defined _MSC_VER
-            /* No pipe or zip/unzip support in vxWorks */
+#if defined _MSC_VER
+            /* No pipe or zip/unzip support in Windows */
             a->file = fopen(filename,"r");
             a->rw = EV_READFILE;
             a->randomAccess = randomAccess = 0;
@@ -2217,7 +2074,7 @@ printf("ERROR retrieving DICTIONARY, status = %#.8x\n", status);
         a->append = append;
 
         if (useFile) {
-#if defined  VXWORKS || defined _MSC_VER
+#if defined _MSC_VER
             a->fileName = strdup(filename);
             a->file = fopen(filename,"w");
             a->rw = EV_WRITEFILE;
@@ -2475,9 +2332,7 @@ static void localClose(EVFILE *a)
  * @return S_SUCCESS   if successful
  * @return S_FAILURE   if failure to open or memory map file (errno is set)
  */
-static int memoryMapFile(EVFILE *a, const char *fileName)
-{
-#ifndef VXWORKS
+static int memoryMapFile(EVFILE *a, const char *fileName) {
     int        fd;
     uint32_t   *pmem;
     size_t      fileSize;
@@ -2509,7 +2364,7 @@ static int memoryMapFile(EVFILE *a, const char *fileName)
   
     a->mmapFile = pmem;
     a->mmapFileSize = fileSize;
-#endif
+
     return(S_SUCCESS);
 }
 

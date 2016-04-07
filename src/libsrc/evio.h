@@ -21,7 +21,7 @@
 #ifndef __EVIO_h__
 #define __EVIO_h__
 
-/** Evio format verion, not the evio package version #. */
+/** Evio format version, not the evio package version #. */
 #define EV_VERSION 4
 
 /** Size of block header in 32 bit words.
@@ -60,21 +60,6 @@
  */
 
 /* macros for swapping ints of various sizes */
-#ifdef VXWORKS
-
-#define UINT64_MAX 0xffffffffffffffffULL
-
-
-#define EVIO_SWAP64(x) ( (((x) >> 56) & 0x00000000000000FFULL) | \
-                         (((x) >> 40) & 0x000000000000FF00ULL) | \
-                         (((x) >> 24) & 0x0000000000FF0000ULL) | \
-                         (((x) >> 8)  & 0x00000000FF000000ULL) | \
-                         (((x) << 8)  & 0x000000FF00000000ULL) | \
-                         (((x) << 24) & 0x0000FF0000000000ULL) | \
-                         (((x) << 40) & 0x00FF000000000000ULL) | \
-                         (((x) << 56) & 0xFF00000000000000ULL) )
-#else
-
 #define EVIO_SWAP64(x) ( (((x) >> 56) & 0x00000000000000FFL) | \
                          (((x) >> 40) & 0x000000000000FF00L) | \
                          (((x) >> 24) & 0x0000000000FF0000L) | \
@@ -83,7 +68,6 @@
                          (((x) << 24) & 0x0000FF0000000000L) | \
                          (((x) << 40) & 0x00FF000000000000L) | \
                          (((x) << 56) & 0xFF00000000000000L) )
-#endif
 
 #define EVIO_SWAP32(x) ( (((x) >> 24) & 0x000000FF) | \
                          (((x) >> 8)  & 0x0000FF00) | \
@@ -97,20 +81,15 @@
 
 #include <stdio.h>
 #include <pthread.h>
+#include <stddef.h>
 
-#ifdef sun
-    #include <sys/param.h>
+#ifdef _MSC_VER
+    typedef __int64 int64_t;	// Define it from MSVC's internal type
+    #include "msinttypes.h"
+    #define strcasecmp _stricmp
+    #define strncasecmp strnicmp
 #else
-    #include <stddef.h>
-
-    #ifdef _MSC_VER
-        typedef __int64 int64_t;	// Define it from MSVC's internal type
-        #include "msinttypes.h"
-        #define strcasecmp _stricmp
-        #define strncasecmp strnicmp
-    #elif !defined VXWORKS
-        #include <stdint.h>		  // Use the C99 official header
-    #endif   
+    #include <stdint.h>		  // Use the C99 official header
 #endif
 
         
