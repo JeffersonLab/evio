@@ -1514,7 +1514,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             parent = parent.parentNode;
         }
 
-        // Remove node's existence in lists
+        // Remove node and node's children from lists
         if (removeParent != null) {
             removeParent.removeChild(removeNode);
         }
