@@ -160,12 +160,8 @@ public class CompactReaderAddSubtractTest {
 
         try {
 
-            String hostAddress = InetAddress.getByName(".local").getHostAddress();
-
-            System.out.println("hostAddress = " + hostAddress);
-
             boolean useFile = false;
-            EvioCompactReader reader = null;
+            EvioCompactReader reader;
 
 
             if (useFile) {
@@ -211,6 +207,11 @@ public class CompactReaderAddSubtractTest {
 
 //            if (!useFile) reader.toFile("/tmp/removeTest.evio");
 
+            System.out.println("node 1 has all-node-count = " + node1.getAllNodes().size());
+
+            EvioNode node1_1 = node1.getChildAt(0);
+            EvioNode node1_1_1 = node1.getChildAt(0).getChildAt(0);
+            EvioNode node1_2 = node1.getChildAt(1);
 
             // Remove 3rd bank structure here (1st bank of ints)
 //System.out.println("removing node = " + node1.getAllNodes().get(2));
@@ -221,6 +222,7 @@ System.out.println("removing node = " + node1.getAllNodes().get(1));
 //            ByteBuffer newBuf = reader.removeStructure(node2.getAllNodes().get(2));
 //System.out.println("Using file (after node removal) = " + reader.isFile());
 
+            System.out.println("node 1 now has all-node-count = " + node1.getAllNodes().size());
 
             //System.out.println("\n\n ******************* removing event # 2\n");
             //ByteBuffer newBuf = reader.removeEvent(2);
@@ -230,6 +232,10 @@ System.out.println("removing node = " + node1.getAllNodes().get(1));
 //
 //            node1 = reader2.getScannedEvent(1);
 //            node2 = reader2.getScannedEvent(2);
+
+            System.out.println("Node1_1 obsolete = " + node1_1.isObsolete());
+            System.out.println("Node1_1_1 obsolete = " + node1_1_1.isObsolete());
+            System.out.println("Node1_2 obsolete = " + node1_2.isObsolete());
 
             i=0;
             if (node1.isObsolete()) {
