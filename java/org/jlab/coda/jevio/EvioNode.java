@@ -239,9 +239,9 @@ public final class EvioNode implements Cloneable {
     }
 
     /**
-     * Remove a node from the list of all nodes contained in event.
-     * Recursively removes node's children, grandchildren, etc.
-     * @param node node to remove from the list of all nodes
+     * Remove a node & all of its descendants from the list of all nodes
+     * contained in event.
+     * @param node node & descendants to remove from the list of all nodes
      */
     final private void removeFromAllNodes(EvioNode node) {
         if (allNodes == null || node == null) {
@@ -249,20 +249,29 @@ public final class EvioNode implements Cloneable {
         }
 
         allNodes.remove(node);
-        // NOTE: do not have to do this recursively for all descendants.
-        // That's because when events are scanned and EvioNode objects are created,
-        // they are done so by using clone(). This means that all descendants have
-        // references to the event level node's allNodes object and not their own
-        // complete copy.
+
+        // Remove descendants also
+        if (node.childNodes != null) {
+            for (EvioNode n : node.childNodes) {
+                removeFromAllNodes(n);
+            }
+        }
+
+        // NOTE: only one "allNodes" exists - at event/top level
     }
 
     /**
      * Add a child node to the end of the child list and
      * to the list of all nodes contained in event.
-     * @param childNode child node to add to the end of the child list.
+     * This is called internally in sequence so every node ends up in the right
+     * place in allNodes. When the user adds a structure by calling
+     * {@link EvioCompactReader#addStructure(int, ByteBuffer)}, the structure or node
+     * gets added at the very end - as the last child of the event.
+     *
+     * @param node child node to add to the end of the child list.
      */
-    final void addChild(EvioNode childNode) {
-        if (childNode == null) {
+    final void addChild(EvioNode node) {
+        if (node == null) {
             return;
         }
 
@@ -270,25 +279,31 @@ public final class EvioNode implements Cloneable {
             childNodes = new ArrayList<EvioNode>(100);
         }
 
-        childNodes.add(childNode);
-        if (allNodes != null) allNodes.add(childNode);
+        childNodes.add(node);
+
+        if (allNodes != null) allNodes.add(node);
     }
 
     /**
-     * Remove a node from this child list and
+     * Remove a node from this child list and, along with its descendants,
      * from the list of all nodes contained in event.
-     * @param childNode node to remove from child list.
+     * If not a child, do nothing.
+     * @param node node to remove from child & allNodes lists.
      */
-    final void removeChild(EvioNode childNode) {
-        if (childNode == null) {
+    final void removeChild(EvioNode node) {
+        if (node == null) {
             return;
         }
 
+        boolean isChild = false;
+
         if (childNodes != null) {
-            childNodes.remove(childNode);
+            isChild = childNodes.remove(node);
         }
 
-        if (allNodes != null) allNodes.remove(childNode);
+        if (isChild) {
+            removeFromAllNodes(node);
+        }
     }
 
     /**
