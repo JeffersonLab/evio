@@ -35,7 +35,7 @@ public class ReaderTest {
             System.out.println("\nXML:\n" + xml);
 
             System.out.println("Convert XML to EvioEvent:");
-            List<EvioEvent> evList = Utilities.toEvents(xml, false);
+            List<EvioEvent> evList = Utilities.toEvents(xml);
 
             for (EvioEvent ev : evList) {
                 System.out.println("\n\nEvioEvent ---> XML:\n" + ev.toXML());
@@ -64,7 +64,7 @@ public class ReaderTest {
 
 
                 System.out.println("Convert XML to EvioEvent:");
-                List<EvioEvent> evList = Utilities.toEvents(xml, false);
+                List<EvioEvent> evList = Utilities.toEvents(xml);
 
                 System.out.println("\n\nev to XML:\n" + evList.get(0).toXML());
 
