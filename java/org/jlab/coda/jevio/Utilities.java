@@ -364,12 +364,11 @@ final public class Utilities {
      * (each starting with lt; event gt;)
      * and converts them to a list of EvioEvent objects.
      *
-     * @param xmlString      xml format string to parse
-     * @param hex
+     * @param xmlString xml format string to parse
      * @return list of EvioEvent objects constructed from arg
      * @throws EvioException if xml is not in proper format
      */
-    final static public List<EvioEvent> toEvents(String xmlString, boolean hex) throws EvioException {
+    final static public List<EvioEvent> toEvents(String xmlString) throws EvioException {
         return toEvents(xmlString, 0, 0, null, false);
     }
 
