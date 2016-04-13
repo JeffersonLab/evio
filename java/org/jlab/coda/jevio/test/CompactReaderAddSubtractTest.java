@@ -57,7 +57,7 @@ public class CompactReaderAddSubtractTest {
         Arrays.fill(intData, tag);
 
         int[] intData2 = new int[2];
-        Arrays.fill(intData, tag*10);
+        Arrays.fill(intData2, tag*10);
 
          try {
 
@@ -174,9 +174,11 @@ public class CompactReaderAddSubtractTest {
             }
 
             System.out.println("Using file = " + reader.isFile());
+            System.out.println("# of events = " + reader.getEventCount());
 
             EvioNode node1 = reader.getScannedEvent(1);
             EvioNode node2 = reader.getScannedEvent(2);
+            reader.toFile("/tmp/junk1");
 
             int i=0;
             System.out.println("1st event all:");
@@ -209,10 +211,6 @@ public class CompactReaderAddSubtractTest {
 
             System.out.println("node 1 has all-node-count = " + node1.getAllNodes().size());
 
-            EvioNode node1_1 = node1.getChildAt(0);
-            EvioNode node1_1_1 = node1.getChildAt(0).getChildAt(0);
-            EvioNode node1_2 = node1.getChildAt(1);
-
             // Remove 3rd bank structure here (1st bank of ints)
 //System.out.println("removing node = " + node1.getAllNodes().get(2));
 //            ByteBuffer newBuf = reader.removeStructure(node1.getAllNodes().get(2));
@@ -233,59 +231,76 @@ System.out.println("removing node = " + node1.getAllNodes().get(1));
 //            node1 = reader2.getScannedEvent(1);
 //            node2 = reader2.getScannedEvent(2);
 
-            System.out.println("Node1_1 obsolete = " + node1_1.isObsolete());
-            System.out.println("Node1_1_1 obsolete = " + node1_1_1.isObsolete());
-            System.out.println("Node1_2 obsolete = " + node1_2.isObsolete());
+            System.out.println("REMOVE node 1");
+            newBuf = reader.removeEvent(1);
+            System.out.println("Re-get scanned events 1 & 2");
+            node1 = reader.getScannedEvent(1);
+            reader.removeStructure(node1.getChildAt(0));
+            node2 = reader.getScannedEvent(2);
+
+            reader.toFile("/tmp/junk2");
 
             i=0;
-            if (node1.isObsolete()) {
-                System.out.println("OBSOLETE event 1");
+            if (node1 == null) {
+                System.out.println("event 1 = null");
             }
             else {
-                System.out.println("1st event after:");
-                for (EvioNode n : node1.getAllNodes()) {
-                    i++;
-                    if (n.isObsolete()) {
-                        System.out.println("OBSOLETE node " + i + ": " + n);
+
+                if (node1.isObsolete()) {
+                    System.out.println("OBSOLETE event 1");
+                }
+                else {
+                    System.out.println("1st event after:");
+                    for (EvioNode n : node1.getAllNodes()) {
+                        i++;
+                        if (n.isObsolete()) {
+                            System.out.println("OBSOLETE node " + i + ": " + n);
+                        }
+                        else {
+                            System.out.println("node " + i + ": " + n);
+                        }
                     }
-                    else {
+                    System.out.println("1st event children after:");
+                    i = 0;
+                    kids = node1.getChildNodes();
+                    if (kids != null) {
+                        for (EvioNode n : kids) {
+                            i++;
+                            System.out.println("child node: " + i + ": " + n);
+                        }
+                    }
+                }
+            }
+
+
+            i=0;
+            if (node2 == null) {
+                System.out.println("event 2 = null");
+            }
+            else {
+                if (node2.isObsolete()) {
+                    System.out.println("OBSOLETE event 2");
+                }
+                else {
+                    System.out.println("2nd event after:");
+                    for (EvioNode n : node2.getAllNodes()) {
+                        i++;
                         System.out.println("node " + i + ": " + n);
                     }
                 }
-                System.out.println("1st event children after:");
-                i=0;
-                kids = node1.getChildNodes();
-                if (kids != null) {
-                    for (EvioNode n : kids) {
-                        i++;
-                        System.out.println("child node: " + i + ": " + n);
-                    }
-                }
             }
 
-
-            i=0;
-            if (node2.isObsolete()) {
-                System.out.println("OBSOLETE event 2");
-            }
-            else {
-                System.out.println("2nd event after:");
-                for (EvioNode n : node2.getAllNodes()) {
-                    i++;
-                    System.out.println("node " + i + ": " + n);
-                }
-            }
-
-            System.out.println("\nBlock 1 after: " + node1.blockNode + "\n");
-            System.out.println("\nBlock 2 after: " + node2.blockNode + "\n");
+            if (node1 != null) System.out.println("\nBlock 1 after: " + node1.blockNode + "\n");
+            if (node2 != null) System.out.println("\nBlock 2 after: " + node2.blockNode + "\n");
 
 
             System.out.println("\n\n\nReanalyze");
+            System.out.println("# of events = " + reader.getEventCount());
 
             // Reanalyze the buffer and compare
             EvioCompactReader reader2 = new EvioCompactReader(newBuf);
 
-             node1 = reader2.getScannedEvent(1);
+            node1 = reader2.getScannedEvent(1);
             node2 = reader2.getScannedEvent(2);
 
             i=0;
