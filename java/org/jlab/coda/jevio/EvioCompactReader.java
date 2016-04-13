@@ -44,7 +44,7 @@ public class EvioCompactReader {
     /** Offset to get block number from start of block. */
     private static final int BLOCK_NUMBER = 4;
 
-    /** Offset to get block size from start of block. */
+    /** Offset to get block header size from start of block. */
     private static final int BLOCK_HEADER_SIZE_OFFSET = 8;
 
     /** Offset to get block size from start of block. */
@@ -1462,11 +1462,13 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         // the length of the block containing it.
         //--------------------------------------------
 
-        // Increase block size
 //System.out.println("block object len = " +  eventNode.blockNode.len +
 //                   ", set to " + (eventNode.blockNode.len - removeWordLen));
+        // If removing entire event ...
         if (isEvent) {
-            // Decrease block count if removing entire event
+            // Decrease total event count
+            eventCount--;
+            // Decrease block count
             eventNode.blockNode.count--;
             // Skip over 3 ints to update the block header's event count
             byteBuffer.putInt(eventNode.blockNode.pos + 12, eventNode.blockNode.count);
