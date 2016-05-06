@@ -672,7 +672,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             }
 
             // Does this file/buffer have a dictionary?
-            hasDictionary = BlockHeaderV4.bitInfoHasDictionary(bitInfo);
+            hasDictionary = BlockHeaderV4.hasDictionary(bitInfo);
 
             // # of words in first block header
             firstBlockHeaderWords = byteBuffer.getInt(pos + BLOCK_HEADER_SIZE_OFFSET);
