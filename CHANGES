@@ -112,6 +112,7 @@ jevio-5.1.jar
     - added toString() to BlockNode
     - added removeChild(), removeFromAllNodes(), addToAllNodes() methods to EvioNode
     - added getBlockNode(), isObsolete() and setObsolete() methods to EvioNode
+    - added a few methods to deal with first event bit in block header bit info word
 
 
 
