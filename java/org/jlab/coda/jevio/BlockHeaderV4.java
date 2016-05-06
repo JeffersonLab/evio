@@ -338,14 +338,14 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Does this integer indicate that there is an evio dictionary
      * (assuming it's the header's sixth word)?
      *
-     * @return <code>true</code> if this int's indicates an evio dictionary, else <code>false</code>
+     * @return <code>true</code> if this int indicates an evio dictionary, else <code>false</code>
      */
     static public boolean hasDictionary(int i) {
         return ((i & EV_DICTIONARY_MASK) > 0);
     }
 
     /**
-     * Is this block's first event is an evio dictionary?
+     * Is this block's first event an evio dictionary?
      *
      * @return <code>true</code> if this block's first event is an evio dictionary, else <code>false</code>
      */
@@ -354,7 +354,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
     /**
-     * Is this the last block in the file or being sent over the network?
+     * Is this the last block in the file/buffer or being sent over the network?
      *
      * @return <code>true</code> if this is the last block in the file or being sent
      *         over the network, else <code>false</code>
@@ -364,10 +364,18 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
     /**
+     * Does this block in the file contain the "first event" (first event
+     * to be written to each file split)?
+     *
+     * @return <code>true</code> if this is the first event, else <code>false</code>
+     */
+    public boolean hasFirstEvent() { return bitInfo.get(6); }
+
+    /**
      * Does this integer indicate that this is the last block
      * (assuming it's the header's sixth word)?
      *
-     * @return <code>true</code> if this int's indicates the last block, else <code>false</code>
+     * @return <code>true</code> if this int indicates the last block, else <code>false</code>
      */
     static public boolean isLastBlock(int i) {
         return ((i & EV_LASTBLOCK_MASK) > 0);
@@ -383,7 +391,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
     /**
-     * Clear the last-block bit in the given arg to indicate it is NOT the last block.
+     * Clear the bit in the given arg to indicate it is NOT the last block.
      * @param i integer in which to clear the last-block bit
      * @return arg with last-block bit cleared
      */
@@ -391,6 +399,35 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         return (i &= ~EV_LASTBLOCK_MASK);
     }
 
+    /**
+     * Does this integer indicate that block has the first event
+     * (assuming it's the header's sixth word)? Only makes sense if the
+     * integer arg comes from the first block header of a file or buffer.
+     *
+     * @return <code>true</code> if this int indicates the block has a first event,
+     *         else <code>false</code>
+     */
+    static public boolean hasFirstEvent(int i) {
+        return ((i & EV_FIRSTEVENT_MASK) > 0);
+    }
+
+    /**
+     * Set the bit in the given arg which indicates this block has a first event.
+     * @param i integer in which to set the last-block bit
+     * @return  arg with first event bit set
+     */
+    static public int setFirstEventBit(int i)   {
+        return (i |= EV_FIRSTEVENT_MASK);
+    }
+
+    /**
+     * Clear the bit in the given arg to indicate this block does NOT have a first event.
+     * @param i integer in which to clear the first event bit
+     * @return arg with first event bit cleared
+     */
+    static public int clearFirstEventBit(int i) {
+        return (i &= ~EV_FIRSTEVENT_MASK);
+    }
 
     /**
      * Get the value of bits 2-5. It represents the type of event being sent.
@@ -408,13 +445,34 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
     /**
-     * Does this the block in the file contain the "first event" (first event
-     * to be written to each file split)?
+     * Encode the "is first event" into the bit info word
+     * which will be in evio block header.
      *
-     * @return <code>true</code> if this is the first event, else <code>false</code>
+     * @param bSet bit set which will become part of the bit info word
      */
-    public boolean hasFirstEvent() {
-        return bitInfo.get(6);
+    static public void setFirstEvent(BitSet bSet) {
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+
+        // Encoding bit #15 (#6 since first is bit #9)
+        bSet.set(6, true);
+    }
+
+
+    /**
+     * Encode the "is NOT first event" into the bit info word
+     * which will be in evio block header.
+     *
+     * @param bSet bit set which will become part of the bit info word
+     */
+    static public void unsetFirstEvent(BitSet bSet) {
+        if (bSet == null || bSet.size() < 7) {
+            return;
+        }
+
+        // Encoding bit #15 (#6 since first is bit #9)
+        bSet.set(6, false);
     }
 
     /**
@@ -608,20 +666,6 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         }
     }
 
-    /**
-     * Parses the argument into the bit info fields and looks to see
-     * if the the "has dictionary" bit is set.
-     *
-     * @param word integer to parse into bit info fields
-     * @return <code>true</code> if word's "has dictionary" bit is set
-     */
-    public static boolean bitInfoHasDictionary(int word) {
-        BitSet bitInfo = new BitSet(24);
-        for (int i=0; i < 24; i++) {
-            bitInfo.set(i, ((word >>> 8+i) & 0x1) > 0);
-        }
-        return bitInfo.get(0);
-    }
 
     /**
      * Get the first reserved word.
