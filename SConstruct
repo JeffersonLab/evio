@@ -36,7 +36,22 @@ osname   = os.getenv('CODA_OSNAME', platform + '-' +  machine)
 
 # Create an environment while importing the user's PATH & LD_LIBRARY_PATH.
 # This allows us to get to other compilers for example.
-env = Environment(ENV = {'PATH' : os.environ['PATH'], 'LD_LIBRARY_PATH' : os.environ['LD_LIBRARY_PATH']})
+path = os.getenv('PATH', '')
+ldLibPath = os.getenv('LD_LIBRARY_PATH', '')
+
+if path == '':
+    print
+    print "Error: set PATH environmental variable"
+    print
+    raise SystemExit
+
+if ldLibPath == '':
+    print
+    print "Warning: LD_LIBRARY_PATH environmental variable not defined"
+    print
+    env = Environment(ENV = {'PATH' : os.environ['PATH']})
+else:
+    env = Environment(ENV = {'PATH' : os.environ['PATH'], 'LD_LIBRARY_PATH' : os.environ['LD_LIBRARY_PATH']})
 
 
 ################################
