@@ -1685,7 +1685,7 @@ static int evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, i
     uint32_t rwBufSize=0, bytesToRead;
 
     int err, version, ihandle;
-    size_t nBytes=0;
+    int64_t nBytes=0;
     int debug=0, useFile=0, useBuffer=0, useSocket=0;
     int reading=0, randomAccess=0, append=0, splitting=0, specifierCount=0;
 
@@ -1826,8 +1826,8 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
 #endif
             if (randomAccess) {
                 /* Read (copy) in header */
-                nBytes = sizeof(header);
-                memcpy((void *)header, (const void *)a->mmapFile, nBytes);
+                nBytes = (int64_t )sizeof(header);
+                memcpy((void *)header, (const void *)a->mmapFile, (size_t)nBytes);
             }
             else {
                 if (a->file == NULL) {
@@ -1838,7 +1838,7 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
                 }
 
                 /* Read in header */
-                nBytes = fread(header, 1, sizeof(header), a->file);
+                nBytes = (int64_t)fread(header, 1, sizeof(header), a->file);
             }
         }
         else if (useSocket) {
@@ -1846,7 +1846,7 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
             a->rw = EV_READSOCK;
             
             /* Read in header */
-            nBytes = (size_t) tcpRead(sockFd, header, sizeof(header));
+            nBytes = (int64_t)tcpRead(sockFd, header, sizeof(header));
             if (nBytes < 0) return(errno);
         }
         else if (useBuffer) {
@@ -1855,9 +1855,9 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
             a->rwBufSize = rwBufSize;
             
             /* Read (copy) in header */
-            nBytes = sizeof(header);
+            nBytes = (int64_t)sizeof(header);
 //TODO: get rid of this copy!
-            memcpy((void *)header, (const void *)(a->rwBuf), nBytes);
+            memcpy((void *)header, (const void *)(a->rwBuf), (size_t)nBytes);
             a->rwBytesIn += nBytes;
         }
 
@@ -2001,10 +2001,10 @@ if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
             /*********************************************************/
             bytesToRead = 4*(blk_size - EV_HDSIZ);
             if (useFile) {
-                nBytes = fread(a->buf+EV_HDSIZ, 1, bytesToRead, a->file);
+                nBytes = (int64_t)fread(a->buf+EV_HDSIZ, 1, bytesToRead, a->file);
             }
             else if (useSocket) {
-                nBytes = (size_t) tcpRead(sockFd, a->buf+EV_HDSIZ, bytesToRead);
+                nBytes = (int64_t)tcpRead(sockFd, a->buf+EV_HDSIZ, bytesToRead);
                 if (nBytes < 0) {
                     free(a->buf);
                     free(a);
@@ -2013,7 +2013,7 @@ if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
             }
             else if (useBuffer) {
                 nBytes = bytesToRead;
-                memcpy(a->buf+EV_HDSIZ, (a->rwBuf + a->rwBytesIn), bytesToRead);
+                memcpy(a->buf+EV_HDSIZ, (a->rwBuf + a->rwBytesIn), (size_t)bytesToRead);
                 a->rwBytesIn += bytesToRead;
             }
     
@@ -2096,7 +2096,7 @@ if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                 a->file = fopen(filename,"r+");
                 
                 /* Read in header */
-                nBytes = sizeof(header)*fread(header, sizeof(header), 1, a->file);
+                nBytes = (int64_t)(sizeof(header)*fread(header, sizeof(header), 1, a->file));
                 
                 /* Check to see if read the whole header */
                 if (nBytes != sizeof(header)) {
@@ -2139,7 +2139,7 @@ if (debug) printf("evOpen: writing to pipe %s\n", filename + 1);
                     return(S_EVFILE_UNXPTDEOF);
                 }
                 /* Read (copy) in header */
-                memcpy(header, a->rwBuf, nBytes);
+                memcpy(header, a->rwBuf, (size_t)nBytes);
             }
         }
 
@@ -4107,7 +4107,7 @@ static int evWriteImpl(int handle, const uint32_t *buffer, int useMutex)
     if (useMutex) mutexLock(a);
 
     if (debug && a->splitting) {
-printf("evWrite: splitting, bytesToFile = %lu (bytes), event bytes = %u, bytesToBuf = %u, split = %lu\n",
+printf("evWrite: splitting, bytesToFile = %llu (bytes), event bytes = %u, bytesToBuf = %u, split = %llu\n",
                a->bytesToFile, bytesToWrite, a->bytesToBuf, a->split);
     }
     
@@ -4165,11 +4165,11 @@ if (debug) printf("evWrite: account for adding empty last block when splitting\n
 /* If dictionary was written, do NOT include that when deciding to split */
 /* totalSize -= a->dictLength; */
 
-if (debug) printf("evWrite: splitting = %s: total size = %lu >? split = %lu\n",
+if (debug) printf("evWrite: splitting = %s: total size = %llu >? split = %llu\n",
                           (totalSize > a->split ? "True" : "False"),
                           totalSize, a->split);
 
-if (debug) printf("evWrite: total size components: bytesToFile = %lu, bytesToBuf = %u, ev bytes = %u, additional headers = %d * 32, dictlen = %u\n",
+if (debug) printf("evWrite: total size components: bytesToFile = %llu, bytesToBuf = %u, ev bytes = %u, additional headers = %d * 32, dictlen = %u\n",
         a->bytesToFile, a->bytesToBuf, bytesToWrite, headerCount, a->dictLength);
 
         /* If we're going to split the file ... */
@@ -4378,7 +4378,7 @@ if (debug) {
         printf("         internal buffer cnt = %u\n", a->eventsToBuf);
         printf("         block cnt = %u\n", a->blkEvCount);
         printf("         bytes-to-buf  = %u\n", a->bytesToBuf);
-        printf("         bytes-to-file = %lu\n", a->bytesToFile);
+        printf("         bytes-to-file = %llu\n", a->bytesToFile);
         printf("         block # = %u\n", a->blknum);
 }
 
@@ -5218,14 +5218,14 @@ printf("DEcreasing internal buffer size to %u words\n", bufferSize);
             /* Smallest possible evio format file = 18 32-bit ints.
              * Must also be bigger than a single buffer? */
             if (splitSize < 4*18) {
-if (debug) printf("evIoctl: split file size is too small! (%lu bytes), must be min %u\n",
+if (debug) printf("evIoctl: split file size is too small! (%llu bytes), must be min %u\n",
                   splitSize, 4*18);
                 handleWriteUnlock(handle);
                 return(S_EVFILE_BADSIZEREQ);
             }
             
             a->split = splitSize;
-if (debug) printf("evIoctl: split file at %lu (0x%lx) bytes\n", splitSize, splitSize);
+if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, splitSize);
             break;
 
         /************************************************/
@@ -5962,7 +5962,7 @@ int evBufToStrings(char *buffer, int bufLen, char ***pStrArray, int *strCount) {
 
             /* String starts where we started looking from, strStart, and ends at this NULL */
             addStringToArray(&strArray, strStart, &totalCount, &stringCount);
-/*printf("  add %s\n", strStart);*?
+/*printf("  add %s\n", strStart);*/
 
             /* Start looking for next string right after this NULL */
             strStart = pChar;
