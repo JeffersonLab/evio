@@ -273,8 +273,6 @@ public class EvioCompactReader {
             throw new EvioException("arg is null");
         }
 
-        close();
-
         blockNodes.clear();
         eventNodes.clear();
 
@@ -717,7 +715,8 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 
     /**
      * This method is only called if the user wants to look at the dictionary.
-     * This method is synchronized because of its use of a bulk, relative get method.
+     * This method is called by synchronized code because of its use of a bulk,
+     * relative get method.
      *
      * @throws EvioException if failed read due to bad buffer format
      */
