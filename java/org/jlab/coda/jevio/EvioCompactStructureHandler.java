@@ -632,13 +632,15 @@ public class EvioCompactStructureHandler {
      * the buffer argument contains valid evio data (only data representing
      * the bank or structure to be added - not in file format with bank
      * header and the like) which is compatible with the type of data
-     * structure stored in the given event. This means it is not possible to
-     * add to structures which contain only a primitive data type.<p>
+     * structure stored in the parent structure. This means it is not
+     * possible to add to structures which contain only a primitive data type.<p>
+     *
      * To produce properly formatted evio data, use
      * {@link EvioBank#write(java.nio.ByteBuffer)},
      * {@link EvioSegment#write(java.nio.ByteBuffer)} or
      * {@link EvioTagSegment#write(java.nio.ByteBuffer)} depending on whether
      * a bank, seg, or tagseg is being added.<p>
+     *
      * A note about files here. If the constructor of this reader read in data
      * from a file, it will now switch to using a new, internal buffer which
      * is returned by this method or can be retrieved by calling
@@ -663,6 +665,10 @@ public class EvioCompactStructureHandler {
         // If we're adding nothing, then DO nothing
 //System.out.println("addStructure: addBuffer = " + addBuffer);
 //if (addBuffer != null) System.out.println("   remaining = " + addBuffer.remaining());
+
+        if (!node.getDataTypeObj().isStructure()) {
+            throw new EvioException("cannot add structure to bank of primitive type");
+        }
 
         if (addBuffer == null || addBuffer.remaining() < 4) {
             throw new EvioException("null, empty, or non-evio format buffer arg");
