@@ -113,7 +113,8 @@ jevio-5.1.jar
     - added removeChild(), removeFromAllNodes(), addToAllNodes() methods to EvioNode
     - added getBlockNode(), isObsolete() and setObsolete() methods to EvioNode
     - added a few methods to deal with first event bit in block header bit info word
-
+    - remove close() call from EvioCompactReader.setBuffer() which was completely
+      unnecessary and led to multi-threading conflict issues in the emu. (5/27/2016)
 
 
 *********************************************************************************
