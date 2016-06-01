@@ -234,10 +234,10 @@ int main (int argc, char **argv)
     char *xml = malloc(maxbuf*sizeof(unsigned int)*EVIO2XML);
 
     if((buf==NULL)||(xml==NULL)) {
-        int sz=maxbuf*sizeof(unsigned int);
+        int sz = (int)(maxbuf*sizeof(unsigned int));
         printf("\n   *** Unable to allocate buffers ***\n\n");
-        printf("\n buf size=%d bytes, addr=0x%x     xml size=%d bytes, addr=0x%x\n\n",sz,buf,
-               sz*EVIO2XML,xml);
+        printf("\n buf size=%d bytes, addr=0x%p     xml size=%d bytes, addr=0x%p\n\n",sz, (void *)buf,
+               sz*EVIO2XML, (void *)xml);
         exit(EXIT_FAILURE);
     }
 
