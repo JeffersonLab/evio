@@ -2408,6 +2408,7 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
             throw new EvioException("null node arg");
         }
 
+//        int origLim=0,origPos=0;
         ByteBuffer eventBuffer, bb = node.getBufferNode().getBuffer();
 
         // Duplicate buffer so we can set pos & limit without messing others up
@@ -2416,11 +2417,25 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
         }
         else {
             eventBuffer = bb;
+//            origLim = bb.limit();
+//            origPos = bb.position();
         }
 
         int pos = node.getPosition();
         eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
         writeEvent(null, eventBuffer, force);
+
+        // Shouldn't the pos & lim be reset for non-duplicate?
+        // It don't think it matters since node knows where to
+        // go inside the buffer.
+//        if (!duplicate) {
+//            if (pos > origLim) {
+//                bb.position(origPos).limit(origLim);
+//            }
+//            else {
+//                bb.limit(origLim).position(origPos);
+//            }
+//        }
     }
 
     /**
@@ -2581,7 +2596,7 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
         // If we have enough room in the current block and have not exceeded
         // the number of allowed events, write it in the current block.
         // Worry about memory later.
-            if ( ((currentEventBytes + 4*currentBlockSize) <= targetBlockSize) &&
+        if ( ((currentEventBytes + 4*currentBlockSize) <= targetBlockSize) &&
                   (currentBlockEventCount < blockCountMax)) {
             writeNewBlockHeader = false;
 //if (debug) System.out.println("evWrite: do NOT need a new blk header");
