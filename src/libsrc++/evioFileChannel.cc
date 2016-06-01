@@ -26,8 +26,8 @@ using namespace evio;
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, const string &m, int size) throw(evioException) 
-  : evioChannel(), firstEvent(NULL), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL),
-    fileXMLDictionary(""), createdFileDictionary(false) {
+  : evioChannel(), filename(f), mode(m), handle(0), bufSize(size), firstEvent(NULL), noCopyBuf(NULL),
+    randomBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
 
   // lowercase mode
   std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
@@ -49,8 +49,8 @@ evioFileChannel::evioFileChannel(const string &f, const string &m, int size) thr
  * @param size Internal buffer size
  */
 evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const string &m, int size) throw(evioException) 
-  : evioChannel(dict), firstEvent(NULL), filename(f), mode(m), handle(0), bufSize(size), noCopyBuf(NULL), randomBuf(NULL),
-    fileXMLDictionary(""), createdFileDictionary(false) {
+  : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), firstEvent(NULL), noCopyBuf(NULL),
+    randomBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
 
   // lowercase mode
   std::transform(mode.begin(), mode.end(), mode.begin(), (int(*)(int)) tolower);  // magic
@@ -76,7 +76,7 @@ evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const st
  */
 evioFileChannel::evioFileChannel(const string &f, evioDictionary* dict, const uint32_t *firstEvent,
                                  const string &m, int size) throw(evioException)
-        : evioChannel(dict), firstEvent(firstEvent), filename(f), mode(m), handle(0), bufSize(size),
+        : evioChannel(dict), filename(f), mode(m), handle(0), bufSize(size), firstEvent(firstEvent),
           noCopyBuf(NULL), randomBuf(NULL), fileXMLDictionary(""), createdFileDictionary(false) {
 
   // lowercase mode
