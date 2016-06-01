@@ -162,3 +162,8 @@ evio-5.0
       and write it into an evio format buffer
     - got rid of vxworks and solaris dependencies
     - fixed SConstruct python
+
+
+evio-5.1
+    - fixed bug in evOpenImpl in which an unsigned int was treated as signed
+    - fixed compiler warnings on MacOS
