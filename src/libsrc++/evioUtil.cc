@@ -1266,7 +1266,7 @@ int evioDOMContainerNode::getSize(void) const {
 evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
                                                    uint16_t formatTag, const string &formatString, 
                                                    uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &v) throw(evioException)
-  : formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum), evioDOMLeafNode<uint32_t>(par,tg,num,v) {
+  : evioDOMLeafNode<uint32_t>(par,tg,num,v), formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum) {
   contentType=0xf;
 }
 
@@ -1283,7 +1283,7 @@ evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg
 evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
                                                    uint16_t formatTag, const string &formatString, 
                                                    uint16_t dataTag, uint8_t dataNum, const uint32_t *p, int ndata) throw(evioException)
-  : formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum), evioDOMLeafNode<uint32_t>(par,tg,num,p,ndata) {
+  : evioDOMLeafNode<uint32_t>(par,tg,num,p,ndata), formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum) {
   contentType=0xf;
 }
 
