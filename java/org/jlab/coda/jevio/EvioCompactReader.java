@@ -1302,7 +1302,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * {@link #toFile(String)} or {@link #toFile(java.io.File)} methods.<p>
      *
      * @param removeNode  evio structure to remove from buffer
-     * @return new ByteBuffer created and updated to reflect the node removal
+     * @return new ByteBuffer (perhaps created) and updated to reflect the node removal
      * @throws EvioException if object closed;
      *                       if node was not found in any event;
      *                       if internal programming error
@@ -1401,7 +1401,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         // Just after removed node (start pos of data being moved)
         int startPos = removeNode.pos + removeDataLen;
         // Length of data to move in bytes
-        int moveLen = 4*validDataWords - startPos;
+        int moveLen = initialPosition + 4*validDataWords - startPos;
 
         // Duplicate backing buffer
         ByteBuffer moveBuffer = byteBuffer.duplicate().order(byteBuffer.order());
@@ -1414,7 +1414,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         byteBuffer.put(moveBuffer);
 
         // Reset some buffer values
-        validDataWords -= removeDataLen/4;
+        validDataWords -= removeWordLen;
         byteBuffer.position(initialPosition);
         byteBuffer.limit(4*validDataWords + initialPosition);
 
@@ -1535,7 +1535,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * the structure to be added - not in file format with block header and the like)
      * which is compatible with the type of data stored in the given event.<p>
      *
-     * To produce such an evio data use {@link EvioBank#write(java.nio.ByteBuffer)},
+     * To produce such evio data use {@link EvioBank#write(java.nio.ByteBuffer)},
      * {@link EvioSegment#write(java.nio.ByteBuffer)} or
      * {@link EvioTagSegment#write(java.nio.ByteBuffer)} depending on whether
      * a bank, seg, or tagseg is being added.<p>
