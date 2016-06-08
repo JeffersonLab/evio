@@ -13,6 +13,7 @@ package org.jlab.coda.jevio;
 
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to store relevant info about an evio container
@@ -358,6 +359,24 @@ public final class EvioNode implements Cloneable {
      */
     final public ArrayList<EvioNode> getChildNodes() {
         return childNodes;
+    }
+
+    /**
+     * Get the list of all descendant nodes that this node contains -
+     * not only the immediate children.
+     * This is meaningful only if this node has been scanned,
+     * otherwise nothing is added to the given list.
+     *
+     * @param descendants list to be filled with EvioNodes of all descendants
+     */
+    final public void getAllDescendants(List<EvioNode> descendants) {
+        if (childNodes == null || descendants == null) return;
+
+        // Add children recursively
+        for (EvioNode n : childNodes) {
+            descendants.add(n);
+            n.getAllDescendants(descendants);
+        }
     }
 
     /**
