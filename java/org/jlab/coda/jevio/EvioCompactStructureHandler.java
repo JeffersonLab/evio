@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * This class is used to read the bytes of just an evio structure (<b>NOT</b>
  * a full evio version 4 formatted file or buffer). It is also capable of
- * adding a structure to an event.
+ * adding another structure to or removing it from that structure.
  * The {@link EvioCompactReader} class is similar but reads files and buffers
  * in the complete evio version 4 format.
  * It is theoretically thread-safe.
@@ -26,9 +26,6 @@ public class EvioCompactStructureHandler {
     /** The byte order of the buffer being read. */
     private ByteOrder byteOrder;
 
-    /** Initial position of buffer. */
-    private int initialPosition;
-
     /** Is this object currently closed? */
     private boolean closed;
 
@@ -38,10 +35,12 @@ public class EvioCompactStructureHandler {
 
     /**
      * Constructor for reading an EvioNode object.
+     * The data represented by the given EvioNode object will be copied to a new
+     * buffer (obtainable by calling {@link #getByteBuffer()}) and the node and
+     * all of its descendants will switch to that new buffer.
      *
      * @param node the node to be analyzed.
-     * @throws EvioException if node arg is null;
-     *                       if byteBuffer not in proper format;
+     * @throws EvioException if node arg is null
      */
     public EvioCompactStructureHandler(EvioNode node) throws EvioException {
 
@@ -49,30 +48,24 @@ public class EvioCompactStructureHandler {
             throw new EvioException("node arg is null");
         }
 
+        // Node's backing buffer
         ByteBuffer byteBuffer = node.getBufferNode().getBuffer();
 
-        if (byteBuffer.remaining() < 1) {
-            throw new EvioException("Buffer has too little data");
-        }
-        else if ( (node.getTypeObj() == DataType.BANK || node.getTypeObj() == DataType.ALSOBANK) &&
-                   byteBuffer.remaining() < 2 ) {
-            throw new EvioException("Buffer has too little data");
-        }
-
-        this.node = node;
-        this.byteBuffer = byteBuffer;
-        initialPosition = byteBuffer.position();
+        // Duplicate backing buf cause we'll be changing pos & lim
+        // and don't want to mess it up for someone else.
         byteOrder = byteBuffer.order();
+        this.byteBuffer = byteBuffer.duplicate().order(byteOrder);
 
-        // See if the length given in header is consistent with buffer size
-        if (node.len + 1 > byteBuffer.remaining()/4) {
-            throw new EvioException("Buffer has too little data");
-        }
+        // Copy data into a new internal buffer to allow modifications
+        // to it without affecting the original buffer.
+        bufferInit(node);
     }
 
 
     /**
      * Constructor for reading a buffer that contains 1 structure only (no block headers).
+     * The data in the given ByteBuffer object will be copied to a new
+     * buffer (obtainable by calling {@link #getByteBuffer()}).
      *
      * @param byteBuffer the buffer to be read that contains 1 structure only (no block headers).
      * @param type the type of outermost structure contained in buffer, may be {@link DataType#BANK},
@@ -82,41 +75,13 @@ public class EvioCompactStructureHandler {
      *                       if byteBuffer not in proper format;
      */
     public EvioCompactStructureHandler(ByteBuffer byteBuffer, DataType type) throws EvioException {
-
-        if (byteBuffer == null) {
-            throw new EvioException("Buffer arg is null");
-        }
-
-        if (type == null || !type.isStructure()) {
-            throw new EvioException("type arg is null or is not an evio structure");
-        }
-
-        if (byteBuffer.remaining() < 1) {
-            throw new EvioException("Buffer has too little data");
-        }
-        else if ( (type == DataType.BANK || type == DataType.ALSOBANK) &&
-                   byteBuffer.remaining() < 2 ) {
-            throw new EvioException("Buffer has too little data");
-        }
-
-        initialPosition = byteBuffer.position();
-        this.byteBuffer = byteBuffer;
-        byteOrder = byteBuffer.order();
-
-        // Pull out all header info & place into EvioNode object
-        node = extractNode(byteBuffer, null, null, type, initialPosition, 0, false);
-
-        // See if the length given in header is consistent with buffer size
-        if (node.len + 1 > byteBuffer.remaining()/4) {
-            throw new EvioException("Buffer has too little data");
-        }
+        setBuffer(byteBuffer, type);
     }
 
 
     /**
      * This method can be used to avoid creating additional EvioCompactEventReader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
+     * objects by reusing this one with another buffer.
      *
      * @param buf the buffer to be read that contains 1 structure only (no block headers).
      * @param type the type of outermost structure contained in buffer, may be {@link DataType#BANK},
@@ -128,37 +93,120 @@ public class EvioCompactStructureHandler {
     public synchronized void setBuffer(ByteBuffer buf, DataType type) throws EvioException {
 
         if (buf == null) {
-            throw new EvioException("Buffer arg is null");
+            throw new EvioException("buffer arg is null");
         }
 
         if (type == null || !type.isStructure()) {
             throw new EvioException("type arg is null or is not an evio structure");
         }
 
-        if (byteBuffer.remaining() < 1) {
-            throw new EvioException("Buffer has too little data");
+        if (buf.remaining() < 1) {
+            throw new EvioException("buffer has too little data");
         }
         else if ( (type == DataType.BANK || type == DataType.ALSOBANK) &&
-                   byteBuffer.remaining() < 2 ) {
-            throw new EvioException("Buffer has too little data");
+                   buf.remaining() < 2 ) {
+            throw new EvioException("buffer has too little data");
         }
 
-        close();
+        closed = true;
 
-        initialPosition  = buf.position();
-        byteBuffer       = buf;
-        byteOrder        = byteBuffer.order();
+        // Duplicate buf cause we'll be changing pos & lim and
+        // don't want to mess up the original for someone else.
+        byteOrder  = buf.order();
+        byteBuffer = buf.duplicate().order(byteOrder);
 
         // Pull out all header info & place into EvioNode object
-        node = extractNode(byteBuffer, null, null, type, initialPosition, 0, false);
+        node = extractNode(byteBuffer, null, null, type, byteBuffer.position(), 0, true);
 
         // See if the length given in header is consistent with buffer size
         if (node.len + 1 > byteBuffer.remaining()/4) {
-            throw new EvioException("Buffer has too little data");
+            throw new EvioException("buffer has too little data");
         }
+
+        // Copy data into a new internal buffer to allow modifications
+        // to it without affecting the original buffer.
+        bufferInit(node);
 
         closed = false;
     }
+
+
+    /**
+     * This method takes the EvioNode object representing the evio data of interest
+     * and uses it to copy that data into a new local buffer. This allows changes to
+     * be made to the data without affecting the original buffer. The new buffer is
+     * 25% larger to accommodate any future additions to the data.
+     *
+     * @param node the node representing evio data.
+     */
+    private void bufferInit(EvioNode node) {
+
+        // Position of evio structure in byteBuffer
+        int endPos   = node.dataPos + 4*node.dataLen;
+        int startPos = node.pos;
+
+        // Copy data so we're not tied to byteBuffer arg.
+        // Since this handler is often used to add banks to the node structure,
+        // make the new buffer 25% bigger in anticipation.
+        ByteBuffer newBuffer = ByteBuffer.allocate(5*(endPos - startPos)/4).order(byteOrder);
+
+        // Copy evio data into new buffer
+        byteBuffer.limit(endPos).position(startPos);
+        newBuffer.put(byteBuffer);
+        newBuffer.position(0).limit((endPos - startPos));
+
+        // Update node & descendants
+
+        // Can call the top node an "event", even if it isn't a bank,
+        // and things should still work fine.
+        node.isEvent    = true;
+        node.allNodes   = new ArrayList<>();
+        node.allNodes.add(node);
+        node.parentNode = null;
+        node.dataPos   -= startPos;
+        node.pos       -= startPos;
+        node.bufferNode.buffer = newBuffer;
+
+        // Doing scan after above adjustments
+        // will make other nodes come out right.
+        scanStructure(node);
+        node.scanned = true;
+
+        byteBuffer = newBuffer;
+        this.node = node;
+    }
+
+
+    /**
+     * This method expands the data buffer, copies the data into it,
+     * and updates all associated EvioNode objects.
+     *
+     * @param byteSize the number of bytes needed in new buffer.
+     */
+    private void expandBuffer(int byteSize) {
+        // Since private method, forget about bounds checking of arg
+
+        // Since this handler is often used to add banks to the node structure,
+        // make the new buffer 25% bigger in anticipation.
+        ByteBuffer newBuffer = ByteBuffer.allocate(5*byteSize/4).order(byteOrder);
+
+        // Ending position of data in byteBuffer
+        int endPos = node.dataPos + 4*node.dataLen;
+
+        // Copy existing data into new buffer
+        byteBuffer.position(0).limit(endPos);
+        newBuffer.put(byteBuffer);
+        newBuffer.position(0).limit(endPos);
+
+        // Update node & descendants
+        for (EvioNode n : node.allNodes) {
+            // Using a new buffer now
+            n.bufferNode.buffer = newBuffer;
+        }
+
+        byteBuffer = newBuffer;
+    }
+
 
 
     /**
@@ -218,7 +266,7 @@ public class EvioCompactStructureHandler {
      * @return          EvioNode object containing evio structure information
      * @throws          EvioException if file/buffer not in evio format
      */
-    private EvioNode extractNode(ByteBuffer buffer, BlockNode blockNode,
+    static private EvioNode extractNode(ByteBuffer buffer, BlockNode blockNode,
                                  EvioNode eventNode, DataType type,
                                  int position, int place, boolean isEvent)
             throws EvioException {
@@ -232,6 +280,7 @@ public class EvioCompactStructureHandler {
         node.isEvent    = isEvent;
         node.type       = type.getValue();
         node.bufferNode = new BufferNode(buffer);
+        if (eventNode != null) node.allNodes = eventNode.allNodes;
 
         try {
 
@@ -571,7 +620,7 @@ public class EvioCompactStructureHandler {
             throw new EvioException("object closed");
         }
 
-        ArrayList<EvioNode> returnList = new ArrayList<EvioNode>(100);
+        ArrayList<EvioNode> returnList = new ArrayList<>(100);
 
         // If event has been previously scanned we get that list,
         // otherwise we scan the node and store the results for future use.
@@ -641,10 +690,6 @@ public class EvioCompactStructureHandler {
      * {@link EvioTagSegment#write(java.nio.ByteBuffer)} depending on whether
      * a bank, seg, or tagseg is being added.<p>
      *
-     * A note about files here. If the constructor of this reader read in data
-     * from a file, it will now switch to using a new, internal buffer which
-     * is returned by this method or can be retrieved by calling
-     * {@link #getByteBuffer()}. It will <b>not</b> expand the file originally used.
      * The given buffer argument must be ready to read with its position and limit
      * defining the limits of the data to copy.
      * This method is synchronized due to the bulk, relative puts.
@@ -661,10 +706,6 @@ public class EvioCompactStructureHandler {
      *                       if object closed
      */
     public synchronized ByteBuffer addStructure(ByteBuffer addBuffer) throws EvioException {
-
-        // If we're adding nothing, then DO nothing
-//System.out.println("addStructure: addBuffer = " + addBuffer);
-//if (addBuffer != null) System.out.println("   remaining = " + addBuffer.remaining());
 
         if (!node.getDataTypeObj().isStructure()) {
             throw new EvioException("cannot add structure to bank of primitive type");
@@ -683,7 +724,7 @@ public class EvioCompactStructureHandler {
         }
 
         // Position in byteBuffer just past end of event
-        int endPos = node.dataPos + 4* node.dataLen;
+        int endPos = node.dataPos + 4*node.dataLen;
 
         // Original position of buffer being added
         int origAddBufPos = addBuffer.position();
@@ -702,70 +743,32 @@ public class EvioCompactStructureHandler {
         // Event contains structures of this type
         DataType eventDataType = node.getDataTypeObj();
 
-//System.out.println("APPENDING " + appendDataWordLen + " words to buf " + byteBuffer);
+        // Is there enough space to fit it?
+        if ((byteBuffer.capacity() - byteBuffer.limit()) < appendDataLen) {
+            // Not enough room so expand the buffer to fit + 25%.
+            // Data copy and node adjustments too.
+            expandBuffer(byteBuffer.limit() + appendDataLen);
+        }
+
         //--------------------------------------------------------
         // Add new structure to end of event (nothing comes after)
         //--------------------------------------------------------
 
-        // Create a new buffer
-        ByteBuffer newBuffer = ByteBuffer.allocate(endPos - initialPosition + appendDataLen);
-        newBuffer.order(byteOrder);
-        // Copy existing buffer into new buffer
-        byteBuffer.limit(endPos).position(initialPosition);
-        newBuffer.put(byteBuffer);
-        // Remember position where we put new data into new buffer
-        int newDataPos = newBuffer.position();
-        // Copy new structure into new buffer
-        newBuffer.put(addBuffer);
-        // Get new buffer ready for reading
-        newBuffer.flip();
-        // Restore original positions of buffers
-        byteBuffer.position(initialPosition);
+        // Position existing buffer at very end
+        byteBuffer.limit(byteBuffer.capacity()).position(endPos);
+        // Copy new data into buffer
+        byteBuffer.put(addBuffer);
+        // Get buffer ready for reading
+        byteBuffer.flip();
+        // Restore original position of add buffer
         addBuffer.position(origAddBufPos);
 
-        //-------------------------------------
-        // If initialPosition was not 0 (in the new buffer it always is),
-        // then ALL nodes need their position members shifted by initialPosition
-        // bytes upstream.
-        //-------------------------------------
-        boolean didEventNode = false;
+        //--------------------------------------------------------
+        // Adjust event sizes in both node object and buffer.
+        //--------------------------------------------------------
 
-        if (initialPosition != 0) {
-            // If event has been scanned, adjust it and all its sub-nodes
-            if (node.allNodes != null) {
-//System.out.println("Scanned node " + (i+1) +":");
-                for (EvioNode evNode : node.allNodes) {
-//System.out.println("      pos = " + evNode.pos + ", dataPos = " + evNode.dataPos);
-                    evNode.pos     -= initialPosition;
-                    evNode.dataPos -= initialPosition;
-                    // remember if the event's node object is in the scanned list
-                    if (evNode == node) didEventNode = true;
-                }
-            }
-
-            // Deal with the event node unless we did it already above.
-            // This would happen only if the top level bank was a bank of primitive types.
-            if (!didEventNode) {
-//System.out.println("Modify node " + (i+1) + ", pos = " + eNode.pos + ", dataPos = " + eNode.dataPos);
-                node.pos     -= initialPosition;
-                node.dataPos -= initialPosition;
-            }
-        }
-
-        // At this point all EvioNode objects (including those in
-        // user's possession) are updated.
-
-        // This reader object is NOW using the new buffer
-        byteBuffer      = newBuffer;
-        initialPosition = newBuffer.position();
-
-        // Position in new byteBuffer of event
-        int eventLenPos = node.pos;
-
-        //--------------------------------------------
-        // Adjust event sizes in both
-        // node object and in new buffer.
-        //--------------------------------------------
+        // Position in byteBuffer of top level evio structure (event)
+        int eventLenPos = 0;
 
         // Increase event size
         node.len     += appendDataWordLen;
@@ -774,22 +777,21 @@ public class EvioCompactStructureHandler {
         switch (eventDataType) {
             case BANK:
             case ALSOBANK:
-//System.out.println("event pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
-//                   ", set to " + (eventNode.len));
-
-                newBuffer.putInt(eventLenPos, node.len);
+//System.out.println("event pos = " + eventLenPos + ", len = " + (node.len - appendDataWordLen) +
+//                   ", set to " + (node.len));
+                byteBuffer.putInt(eventLenPos, node.len);
                 break;
 
             case SEGMENT:
             case ALSOSEGMENT:
             case TAGSEGMENT:
-//System.out.println("event SEG/TAGSEG pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
-//                   ", set to " + (eventNode.len));
+//System.out.println("event SEG/TAGSEG pos = " + eventLenPos + ", len = " + (node.len - appendDataWordLen) +
+//                   ", set to " + (node.len));
                 if (byteBuffer.order() == ByteOrder.BIG_ENDIAN) {
-                    newBuffer.putShort(eventLenPos+2, (short)(node.len));
+                    byteBuffer.putShort(eventLenPos+2, (short)(node.len));
                 }
                 else {
-                    newBuffer.putShort(eventLenPos,   (short)(node.len));
+                    byteBuffer.putShort(eventLenPos,   (short)(node.len));
                 }
                 break;
 
@@ -797,26 +799,179 @@ public class EvioCompactStructureHandler {
                 throw new EvioException("internal programming error");
         }
 
-        // Scan new structure -if & only if- its containing event has already been scanned.
-        if (node.scanned) {
-//System.out.println("Extracting new node: at pos = " + newDataPos + ", type = " +  eventDataType);
-            // Create a node object from the data we just added to the byteBuffer
-            EvioNode newNode = extractNode(newBuffer, node.blockNode, node,
-                                           eventDataType, newDataPos, 0, false);
+        // Create a node object from the data we just added to the byteBuffer
+        EvioNode newNode = extractNode(byteBuffer, null, node,
+                                       eventDataType, endPos, 0, false);
 
-//System.out.println("   new node: pos = " + newNode.pos + ", type = " +  newNode.getDataTypeObj() +
-//                        ", data pos = " + newNode.dataPos);
+        // Add this new node to child and allNodes lists
+        node.addChild(newNode);
 
-            // Add to the new node to the list
-            node.allNodes.add(newNode);
+        // Add its children into those lists too
+        scanStructure(newNode);
 
-            // Add its kids too
-            scanStructure(newNode);
-            node.childNodes.addAll(newNode.childNodes);
+        return byteBuffer;
+    }
+
+
+    /**
+     * This method removes the data, represented by the given node, from the buffer.
+     * It also marks the node and its descendants as obsolete. They must not be used
+     * anymore.<p>
+     *
+     * @param removeNode  evio structure to remove from buffer
+     * @return backing buffer updated to reflect the node removal
+     * @throws EvioException if object closed;
+     *                       if node was not found in any event;
+     *                       if internal programming error
+     */
+    public synchronized ByteBuffer removeStructure(EvioNode removeNode) throws EvioException {
+
+        // If we're removing nothing, then DO nothing
+        if (removeNode == null) {
+            return byteBuffer;
         }
 
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+        else if (removeNode.isObsolete()) {
+            return byteBuffer;
+        }
 
-        return newBuffer;
+        boolean foundNode = false;
+        // Place of the removed node in allNodes list. 0 means top level.
+        int removeNodePlace = 0;
+
+        // Locate the node to be removed ...
+        for (EvioNode n : node.allNodes) {
+            // The first node in allNodes is the event node,
+            // so do not increment removeNodePlace now.
+
+            if (removeNode == n) {
+//System.out.println("removeStruct: found node to remove in struct, " + removeNodePlace);
+                foundNode = true;
+                break;
+            }
+
+            // Keep track of where inside the event it is
+            removeNodePlace++;
+        }
+
+        if (!foundNode) {
+            throw new EvioException("removeNode not found");
+        }
+
+        // The data these nodes represent will be removed from the buffer,
+        // so the node will be obsolete along with all its descendants.
+        removeNode.setObsolete(true);
+
+        //---------------------------------------------------
+        // Move all data that came after removed
+        // node to where removed node used to be.
+        //---------------------------------------------------
+
+        // Amount of data being removed
+        int removeDataLen = removeNode.getTotalBytes();
+        int removeWordLen = removeDataLen / 4;
+
+        // Copy existing data from after the node being removed,
+        int copyFromPos = removeNode.pos + removeDataLen;
+        // To the beginning of the node to be removed
+        int copyToPos = removeNode.pos;
+
+        // If it's the last structure, things are real easy
+        if (copyFromPos == byteBuffer.limit()) {
+            // Just reset the limit
+            byteBuffer.limit(copyToPos);
+        }
+        else {
+            // Duplicate buffer to use a data source,
+            // (limit is already set to end of valid data).
+            ByteBuffer srcBuf = byteBuffer.duplicate().order(byteOrder);
+            srcBuf.position(copyFromPos);
+
+            // Get buffer ready to receiving data
+            byteBuffer.limit(byteBuffer.capacity()).position(copyToPos);
+
+            // Copy
+            byteBuffer.put(srcBuf);
+            byteBuffer.flip();
+        }
+
+        // Reset some buffer position & limit values
+
+        //-------------------------------------
+        // By removing a structure, we need to shift the POSITIONS of all
+        // structures that follow by the size of the deleted chunk.
+        //-------------------------------------
+        int i=0;
+
+        for (EvioNode n : node.allNodes) {
+            // Removing one node may remove others, skip them all
+            if (n.obsolete) {
+                i++;
+                continue;
+            }
+
+            // For events that come after, move all contained nodes
+            if (i > removeNodePlace) {
+                n.pos     -= removeDataLen;
+                n.dataPos -= removeDataLen;
+            }
+            i++;
+        }
+
+        //--------------------------------------------
+        // We need to update the lengths of all the
+        // removed node's parent structures as well.
+        //--------------------------------------------
+
+        // Position of parent in new byteBuffer of event
+        int parentPos;
+        EvioNode removeParent, parent;
+        removeParent = parent = removeNode.parentNode;
+
+        while (parent != null) {
+            // Update event size
+            parent.len     -= removeWordLen;
+            parent.dataLen -= removeWordLen;
+            parentPos = parent.pos;
+
+            // Parent contains data of this type
+            switch (parent.getDataTypeObj()) {
+                case BANK:
+                case ALSOBANK:
+//System.out.println("parent bank pos = " + parentPos + ", len was = " + (parent.len + removeWordLen) +
+//                   ", now set to " + parent.len);
+                    byteBuffer.putInt(parentPos, parent.len);
+                    break;
+
+                case SEGMENT:
+                case ALSOSEGMENT:
+                case TAGSEGMENT:
+//System.out.println("parent seg/tagseg pos = " + parentPos + ", len was = " + (parent.len + removeWordLen) +
+//                   ", now set to " + parent.len);
+                    if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                        byteBuffer.putShort(parentPos + 2, (short) (parent.len));
+                    }
+                    else {
+                        byteBuffer.putShort(parentPos, (short) (parent.len));
+                    }
+                    break;
+
+                default:
+                    throw new EvioException("internal programming error");
+            }
+
+            parent = parent.parentNode;
+        }
+
+        // Remove node and node's children from lists
+        if (removeParent != null) {
+            removeParent.removeChild(removeNode);
+        }
+
+        return byteBuffer;
     }
 
 
@@ -854,7 +1009,6 @@ public class EvioCompactStructureHandler {
             throw new EvioException("object closed");
         }
 
-        int pos = byteBuffer.position();
         int lim = byteBuffer.limit();
         byteBuffer.limit(node.dataPos + 4*node.dataLen - node.pad).position(node.dataPos);
 
@@ -863,12 +1017,12 @@ public class EvioCompactStructureHandler {
             // Relative get and put changes position in both buffers
             newBuf.put(byteBuffer);
             newBuf.flip();
-            byteBuffer.limit(lim).position(pos);
+            byteBuffer.limit(lim).position(0);
             return newBuf;
         }
 
         ByteBuffer buf = byteBuffer.slice().order(byteOrder);
-        byteBuffer.limit(lim).position(pos);
+        byteBuffer.limit(lim).position(0);
         return buf;
     }
 
@@ -913,21 +1067,20 @@ public class EvioCompactStructureHandler {
             throw new EvioException("object closed");
         }
 
-        int pos = byteBuffer.position();
         int lim = byteBuffer.limit();
         byteBuffer.limit(node.dataPos + 4*node.dataLen).position(node.pos);
 
         if (copy) {
-            ByteBuffer newBuf = ByteBuffer.allocate(node.dataPos + 4*node.dataLen - node.pos).order(byteOrder);
+            ByteBuffer newBuf = ByteBuffer.allocate(node.getTotalBytes()).order(byteOrder);
             // Relative get and put changes position in both buffers
             newBuf.put(byteBuffer);
             newBuf.flip();
-            byteBuffer.limit(lim).position(pos);
+            byteBuffer.limit(lim).position(0);
             return newBuf;
         }
 
         ByteBuffer buf = byteBuffer.slice().order(byteOrder);
-        byteBuffer.limit(lim).position(pos);
+        byteBuffer.limit(lim).position(0);
         return buf;
     }
 
@@ -967,7 +1120,7 @@ public class EvioCompactStructureHandler {
 	 * This only sets the position to its initial value.
 	 */
     public synchronized void close() {
-        byteBuffer.position(initialPosition);
+        byteBuffer.position(0);
         closed = true;
 	}
 
