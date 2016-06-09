@@ -18,13 +18,6 @@ public final class BufferNode {
     /** Blocks contained in the buffer. */
     ArrayList<BlockNode> blockNodes;
 
-    /**
-     * If top-level event node, was I scanned and all my blocks
-     * already placed into lists?
-     */
-    boolean scanned;
-
-
     //----------------------------------
     // Constructor (package accessible)
     //----------------------------------
