@@ -160,6 +160,83 @@ public class CompactReaderAddSubtractTest {
 
         try {
 
+            EvioCompactReader reader;
+
+            // ready-to-read buf with 2 events
+            ByteBuffer buf = createComplexBuffer();
+            reader = new EvioCompactReader(buf);
+
+            System.out.println("# of events = " + reader.getEventCount());
+
+            EvioNode node1 = reader.getScannedEvent(1);
+            EvioNode node2 = reader.getScannedEvent(2);
+
+            int i=0;
+            System.out.println("1st event all:");
+            for (EvioNode n : node1.getAllNodes()) {
+                i++;
+                System.out.println("node " + i + ": " + n);
+            }
+
+            System.out.println("1st event children:");
+            i=0;
+            ArrayList<EvioNode> kids = node1.getChildNodes();
+            if (kids != null) {
+                for (EvioNode n : kids) {
+                    i++;
+                    System.out.println("child node " + i + ": " + n);
+                }
+            }
+
+            i=0;
+            System.out.println("2nd event all:");
+            for (EvioNode n : node2.getAllNodes()) {
+                i++;
+                System.out.println("node " + i + ": " + n);
+            }
+
+            System.out.println("\nBlock 1: " + node1.blockNode);
+            System.out.println("Block 2: " + node2.blockNode + "\n");
+
+            System.out.println("node 1 has all-node-count = " + node1.getAllNodes().size());
+
+            // Add bank of ints to node 1
+            int data1[] = {
+                    0x00000002,
+                    0x00060b06,
+                    0x1,
+            };
+            ByteBuffer newBuf = ByteBuffer.wrap(ByteDataTransformer.toBytes(data1, ByteOrder.BIG_ENDIAN));
+            reader.addStructure(1, newBuf);
+
+            System.out.println("1st event after:");
+            for (EvioNode n : node1.getAllNodes()) {
+                i++;
+                System.out.println("node " + i + ": " + n);
+                System.out.println("nodeBB = " + n.getBufferNode().getBuffer());
+            }
+
+            System.out.println("reader.byteBuffer = " + reader.getByteBuffer());
+
+            if (reader.getByteBuffer() == node1.getBufferNode().getBuffer()) {
+                System.out.println("reader and node have same buffer");
+            }
+            else {
+                System.out.println("reader and node have DIFFERENT buffer");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    /** Test for addStructure() */
+    public static void main2(String args[]) {
+
+        try {
+
             boolean useFile = false;
             EvioCompactReader reader;
 
@@ -354,6 +431,8 @@ System.out.println("removing node = " + node1.getAllNodes().get(1));
         }
 
     }
+
+
 
 
 
