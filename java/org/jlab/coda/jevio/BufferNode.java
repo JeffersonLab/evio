@@ -28,7 +28,7 @@ public final class BufferNode {
      */
     BufferNode(ByteBuffer buffer) {
         this.buffer = buffer;
-        blockNodes = new ArrayList<BlockNode>(1000);
+        blockNodes = new ArrayList<>(10);
     }
 
     //-------------------------------
