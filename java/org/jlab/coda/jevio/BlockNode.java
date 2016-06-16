@@ -34,7 +34,7 @@ final class BlockNode {
 
     /** Constructor which creates list containing all events in this block. */
     BlockNode() {
-        allEventNodes = new ArrayList<EvioNode>(1000);
+        allEventNodes = new ArrayList<>(100);
     }
 
     //-------------------------------
