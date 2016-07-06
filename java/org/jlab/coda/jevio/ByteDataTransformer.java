@@ -181,7 +181,8 @@ public class ByteDataTransformer {
 
     /**
      * Converts an ByteBuffer object into a byte array.
-     * Copy is made of the data.
+     * Copy is made of the data. Does change the position
+     * of the byteBuffer arg temporarily.
      *
      * @param byteBuffer the buffer to convert.
      * @return the ByteBuffer converted into a byte array.
@@ -191,14 +192,9 @@ public class ByteDataTransformer {
         int size = byteBuffer.remaining();
         byte array[] = new byte[size];
 
-        // Avoid potential disaster if byteBuffer is a slice.
-        // In that case, it's backing array can be bigger than its capacity
-        // with no way to tell what the proper offset is. In this case do NOT
-        // do the arraycopy.
-
-        if (byteBuffer.hasArray() && (byteBuffer.array().length == byteBuffer.capacity())) {
-            System.arraycopy(byteBuffer.array(), byteBuffer.position(),
-                             array, 0, byteBuffer.remaining());
+        if (byteBuffer.hasArray()) {
+            System.arraycopy(byteBuffer.array(), byteBuffer.arrayOffset(),
+                             array, 0, size);
         }
         else {
             int pos = byteBuffer.position();
