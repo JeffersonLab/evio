@@ -6,7 +6,7 @@
     <property environment="env"/>
     
     <!-- Version -->
-    <property name="evio.version" value="5.1" />
+    <property name="evio.version" value="5.2" />
     
     <!-- Debug -->
     <property name="javac.debug" value="on" />
@@ -20,6 +20,7 @@
     <property name="jarName"       value="jevio-${evio.version}.jar" />
     <property name="allJarNames"   value="jevio-*.jar" />
     <property name="jarPath"       value="${build.lib}/${jarName}" />
+    <property name="local.jars"    value="${src.dir}/jars" />
 
 
     <!-- Set Classpath, ignore caller's classpath -->
@@ -96,6 +97,31 @@
     <!-- ************************************************************* -->
 
 
+    <!-- if $CODA is set, use that for classpath -->
+    <target name="CODA_cp" depends="installCheck,CODA_nocp" if="codaDefined">
+        <path id="classpath">
+            <fileset dir="${env.CODA}/common/jar" >
+                <include name="*.jar" />
+            </fileset>
+            <!-- however, use jars from this distribution if necessary -->
+            <fileset dir="${local.jars}" >
+                <include name="*.jar" />
+            </fileset>
+        </path>
+        <echo message="Compile with jars in $CODA/common/jar" />
+    </target>
+
+    <!-- if $CODA is NOT set, use jars provided with this distribution -->
+    <target name="CODA_nocp" unless="codaDefined">
+        <path id="classpath">
+            <fileset dir="${local.jars}" >
+                <include name="*.jar" />
+            </fileset>
+        </path>
+        <echo message="Compile with jars in ${local.jars}" />
+    </target>
+    <!-- ************************************************************* -->
+
     <!-- Prepare things by creating directories -->
     <target name="prepare" depends="installCheck" >
         <mkdir dir="${build.dir}" />
@@ -129,7 +155,7 @@
     </target>
     
     <!-- Compile all source -->
-    <target name="compile" depends="prepare" description="Compiles all source code.">
+    <target name="compile" depends="CODA_cp,prepare" description="Compiles all source code.">
         <javac destdir="${build.classes}" debug="${javac.debug}" optimize="yes" >
             <src path="${src.dir}" />
             <classpath refid="classpath" />
