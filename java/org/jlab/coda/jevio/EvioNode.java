@@ -11,6 +11,7 @@
 
 package org.jlab.coda.jevio;
 
+
 import java.nio.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
  * @author timmer
  * Date: 11/13/12
  */
-public final class EvioNode implements Cloneable {
+public class EvioNode implements Cloneable {
 
     /** Header's length value (32-bit words). */
     int len;
@@ -95,21 +96,22 @@ public final class EvioNode implements Cloneable {
     /** Node containing this node. Is null if this is an event node. */
     EvioNode parentNode;
 
+
     //----------------------------------
     // Constructors (package accessible)
     //----------------------------------
 
     /** Constructor when fancy features not needed. */
-    EvioNode() {
+    public EvioNode() {
         // Put this node in list of all nodes (evio banks, segs, or tagsegs)
         // contained in this event.
-        allNodes = new ArrayList<EvioNode>(5);
+        allNodes = new ArrayList<>(5);
         allNodes.add(this);
     }
 
     /** Constructor used when swapping data. */
     EvioNode(EvioNode firstNode) {
-        allNodes = new ArrayList<EvioNode>(5);
+        allNodes = new ArrayList<>(5);
         allNodes.add(this);
         scanned = true;
         eventNode = firstNode;
@@ -126,7 +128,7 @@ public final class EvioNode implements Cloneable {
      * @param bufferNode buffer containing this event
      * @param blockNode  block containing this event
      */
-    EvioNode(int pos, int place, BufferNode bufferNode, BlockNode blockNode) {
+    public EvioNode(int pos, int place, BufferNode bufferNode, BlockNode blockNode) {
         this.pos = pos;
         this.place = place;
         this.blockNode = blockNode;
@@ -138,7 +140,7 @@ public final class EvioNode implements Cloneable {
 
         // Put this node in list of all nodes (evio banks, segs, or tagsegs)
         // contained in this event.
-        allNodes = new ArrayList<EvioNode>(5);
+        allNodes = new ArrayList<>(5);
         allNodes.add(this);
     }
 
@@ -202,6 +204,10 @@ public final class EvioNode implements Cloneable {
     }
 
 
+    /**
+     * Clear the childNode it is exists.
+     * Place only this or eventNode object into the allNodes list if it exists.
+     */
     final public void clearLists() {
         if (childNodes != null) childNodes.clear();
 
@@ -218,9 +224,122 @@ public final class EvioNode implements Cloneable {
         }
     }
 
+
+    /**
+     * Clear all data in this object.
+     */
+    final public void clear() {
+        if (allNodes   != null)   allNodes.clear();
+        if (childNodes != null) childNodes.clear();
+
+        len = tag = num = pad = pos = type = dataLen = dataPos = dataType = place = 0;
+        isEvent = obsolete = scanned = false;
+
+        blockNode  = null;
+        bufferNode = null;
+        eventNode  = null;
+        parentNode = null;
+    }
+
+
+    /**
+     * Empty all lists and remove all other objects from this object.
+     */
+    final public void clearObjects() {
+        if (childNodes != null) childNodes.clear();
+
+        isEvent = obsolete = scanned = false;
+        blockNode  = null;
+        bufferNode = null;
+        eventNode  = null;
+        parentNode = null;
+    }
+
+    final public void clearAll() {
+        allNodes = null;
+        if (childNodes != null) childNodes.clear();
+
+        isEvent = obsolete = scanned = false;
+        blockNode  = null;
+        bufferNode = null;
+        eventNode  = null;
+        parentNode = null;
+    }
+
+
     //-------------------------------
     // Setters & Getters
     //-------------------------------
+
+
+    void setAsEvent(int position, int place,
+                    BufferNode bufferNode, BlockNode blockNode) {
+        this.bufferNode = bufferNode;
+        this.blockNode  = blockNode;
+        this.pos = position;
+        this.place = place;
+        allNodes = new ArrayList<>(5);
+        allNodes.add(this);
+    }
+
+    void setData(BufferNode bufferNode, BlockNode blockNode,
+                 EvioNode eventNode, ArrayList<EvioNode> allNodes,
+                 boolean obsolete) {
+
+        this.bufferNode = bufferNode;
+        this.blockNode  = blockNode;
+        this.eventNode  = eventNode;
+        this.allNodes   = allNodes;
+        this.obsolete   = obsolete;
+    }
+
+
+    void setData(BufferNode bufferNode, BlockNode blockNode,
+                 EvioNode eventNode, EvioNode parentNode,
+                 ArrayList<EvioNode> allNodes,
+                 int len, int tag, int num, int pad,
+                 int pos, int type, int dataLen,
+                 int dataPos, int dataType) {
+
+        this.bufferNode = bufferNode;
+        this.blockNode  = blockNode;
+        this.eventNode  = eventNode;
+        this.parentNode = parentNode;
+        this.allNodes   = allNodes;
+        this.len = len;
+        this.tag = tag;
+        this.num = num;
+        this.pad = pad;
+        this.pos = pos;
+        this.type = type;
+        this.dataLen = dataLen;
+        this.dataPos = dataPos;
+        this.dataType = dataType;
+    }
+
+    void setData(EvioNode parentNode,
+                 int len, int tag, int num, int pad,
+                 int pos, int type, int dataLen,
+                 int dataPos, int dataType) {
+
+        this.bufferNode = parentNode.bufferNode;
+        this.blockNode  = parentNode.blockNode;
+        this.eventNode  = parentNode.eventNode;
+        this.allNodes   = parentNode.allNodes;
+        this.parentNode = parentNode;
+
+        this.len = len;
+        this.tag = tag;
+        this.num = num;
+        this.pad = pad;
+        this.pos = pos;
+        this.type = type;
+        this.dataLen = dataLen;
+        this.dataPos = dataPos;
+        this.dataType = dataType;
+    }
+
+
 
     /**
      * Add a node to the end of the list of all nodes contained in event.
@@ -277,7 +396,7 @@ public final class EvioNode implements Cloneable {
         }
 
         if (childNodes == null) {
-            childNodes = new ArrayList<EvioNode>(100);
+            childNodes = new ArrayList<>(5);
         }
 
         childNodes.add(node);
@@ -645,7 +764,28 @@ public final class EvioNode implements Cloneable {
             return newBuf;
         }
 
-        return  buffer.slice().order(order);
+        //return  buffer.slice().order(order);
+        return  buffer;
+    }
+
+
+    /**
+     * Get the data associated with this node as an 32-bit integer array.
+     * Note: if data is of a type less than 32 bits, the last int will be junk.
+     *
+     * This method is not synchronized.
+     *
+     * @return integer array containing data.
+     */
+    final public int[] getIntData() {
+        int array[] = new int[dataLen];
+        ByteBuffer buf = bufferNode.buffer;
+
+        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
+            array[(i-dataPos)/4] = buf.getInt(i);
+        }
+
+        return array;
     }
 
 
@@ -681,7 +821,8 @@ public final class EvioNode implements Cloneable {
             return newBuf;
         }
 
-        return buffer.slice().order(order);
+        //return buffer.slice().order(order);
+        return buffer;
     }
 
 
