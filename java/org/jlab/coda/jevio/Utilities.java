@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2016, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ */
+
 package org.jlab.coda.jevio;
 
 import javax.xml.namespace.QName;
@@ -254,7 +265,7 @@ final public class Utilities {
      * @param words          number of 32 bit words to print in hex
      * @param label          a label to print as header
      */
-    final static synchronized public void printBuffer(ByteBuffer buf, int position, int words, String label) {
+    final static public void printBuffer(ByteBuffer buf, int position, int words, String label) {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
@@ -1557,7 +1568,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                 xmlWriter.writeAttribute("length", "" + node.getLength());
                 xmlWriter.writeAttribute("ndata", "" + getNumberDataItems(node));
 
-                ArrayList<EvioNode> childNodes = node.getChildNodes();
+                List<EvioNode> childNodes = node.getChildNodes();
                 if (childNodes != null) {
                     xmlIndent = increaseXmlIndent(xmlIndent);
 
