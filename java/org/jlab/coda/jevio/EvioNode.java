@@ -203,7 +203,7 @@ public class EvioNode implements Cloneable {
         return builder.toString();
     }
 
-
+ //TODO: figure out which clears are needed
     /**
      * Clear the childNode it is exists.
      * Place only this or eventNode object into the allNodes list if it exists.
