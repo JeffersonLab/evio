@@ -117,7 +117,7 @@ jevio-5.1.jar
       unnecessary and led to multi-threading conflict issues in the emu. (5/27/2016)
 
  jevio-5.2.jar
-    - make CompactEventBuilder generate much less garbage
+    - make CompactEventBuilder generate much less garbage. Big win for event builder.
     - EvioNode's getByteData() and getStructureBuffer() return buffer instead of buffer.slice()
       to reduce garbage. Add new method getIntData() to efficiently transform bytes to int array.
     - unsynchronize Utilities.printBuffer()
