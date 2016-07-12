@@ -116,6 +116,16 @@ jevio-5.1.jar
     - remove close() call from EvioCompactReader.setBuffer() which was completely
       unnecessary and led to multi-threading conflict issues in the emu. (5/27/2016)
 
+ jevio-5.2.jar
+    - make CompactEventBuilder generate much less garbage
+    - EvioNode's getByteData and getStructureBuffer return buffer instead of buffer.slice()
+      to reduce garbage. Add new method getIntData to efficiently transform bytes to int array.
+    - unsynchronize Utilities.printBuffer()
+    - add EvioCompactReaderUnsync class for parsing evio format buffers without synchronization.
+      Has ability to be supplied an EvioNodeSupply object to avoid construction
+      of so many EvioNode objects when parsing
+    - make EvioCompactReader(Unsync).scanStructure() method more efficient
+    - eliminate unused parts of BlockNode class
 
 *********************************************************************************
 C CODE
