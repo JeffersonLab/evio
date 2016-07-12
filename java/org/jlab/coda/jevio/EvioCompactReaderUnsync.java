@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2016, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ */
+
 package org.jlab.coda.jevio;
 
 import java.io.File;
@@ -122,6 +133,8 @@ public class EvioCompactReaderUnsync {
     /** Is this object currently closed? */
     private boolean closed;
 
+    private EvioNodeSupply nodeSupply;
+
 
     //------------------------
 
@@ -143,6 +156,37 @@ public class EvioCompactReaderUnsync {
 
         initialPosition = byteBuffer.position();
         this.byteBuffer = byteBuffer;
+
+        // Read first block header and find the file's endianness & evio version #.
+        // If there's a dictionary, read that too.
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new EvioException("Failed reading first block header/dictionary");
+        }
+
+        // Generate a table of all event positions in buffer for random access.
+        generateEventPositionTable();
+    }
+
+
+    /**
+     * Constructor for reading a buffer.
+     *
+     * @param byteBuffer the buffer that contains events.
+     *
+     * @see EventWriter
+     * @throws EvioException if buffer arg is null;
+     *                       failure to read first block header
+     */
+    public EvioCompactReaderUnsync(ByteBuffer byteBuffer, EvioNodeSupply supply)
+            throws EvioException {
+
+        if (byteBuffer == null) {
+            throw new EvioException("Buffer arg is null");
+        }
+
+        initialPosition = byteBuffer.position();
+        this.byteBuffer = byteBuffer;
+        nodeSupply = supply;
 
         // Read first block header and find the file's endianness & evio version #.
         // If there's a dictionary, read that too.
@@ -635,7 +679,27 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         }
 
         // Store evio event info, without de-serializing, into EvioNode object
-        EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
+        EvioNode node;
+        if (nodeSupply != null) {
+            node = nodeSupply.get();
+            node.childNodes = null;
+            node.allNodes.clear();
+            node.allNodes.add(node);
+            node.eventNode  = null;
+            node.parentNode = null;
+            node.obsolete   = false;
+            node.scanned    = true;
+            node.isEvent    = true;
+            node.type       = DataType.BANK.getValue();
+
+            node.pos        = position;
+            node.place      = place;
+            node.bufferNode = bufferNode;
+            node.blockNode  = blockNode;
+        }
+        else {
+            node = new EvioNode(position, place, bufferNode, blockNode);
+        }
 
         return extractNode(node, position);
     }
@@ -662,20 +726,21 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         }
 
         // Get length of current bank
-        node.len = buffer.getInt(position);
+        int len = buffer.getInt(position);
+        node.len = len;
         node.pos = position;
         node.type = DataType.BANK.getValue();
 
         // Position of data for a bank
         node.dataPos = position + 8;
         // Len of data for a bank
-        node.dataLen = node.len - 1;
+        node.dataLen = len - 1;
 
         // Make sure there is enough data to read full bank
         // even though it is NOT completely read at this time.
-        if (buffer.remaining() < 4*(node.len + 1)) {
+        if (buffer.remaining() < 4*(len + 1)) {
 //System.out.println("ERROR: remaining = " + buffer.remaining() +
-//            ", node len bytes = " + ( 4*(node.len + 1)));
+//            ", node len bytes = " + ( 4*(len + 1)));
             throw new EvioException("buffer underflow");
         }
 
@@ -686,16 +751,14 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         int word = buffer.getInt(position);
         node.tag = (word >>> 16);
         int dt = (word >> 8) & 0xff;
-        int type = dt & 0x3f;
-        int padding = dt >>> 6;
+        node.dataType = dt & 0x3f;
+        node.pad = dt >>> 6;
         // If only 7th bit set, that can only be the legacy tagsegment type
         // with no padding information - convert it properly.
         if (dt == 0x40) {
-            type = DataType.TAGSEGMENT.getValue();
-            padding = 0;
+            node.dataType = DataType.TAGSEGMENT.getValue();
+            node.pad = 0;
         }
-        node.dataType = type;
-        node.pad = padding;
         node.num = word & 0xff;
 
         return node;
@@ -711,15 +774,12 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      */
     private void scanStructure(EvioNode node) {
 
-        // Type of evio structure being scanned
-        DataType type = node.getDataTypeObj();
+        int dType = node.dataType;
 
         // If node does not contain containers, return since we can't drill any further down
-        if (!type.isStructure()) {
+        if (!DataType.isStructure(dType)) {
             return;
         }
- //System.out.println("scanStructure: scanning evio struct with len = " + node.dataLen);
- //System.out.println("scanStructure: data type of node to be scanned = " + type);
 
         // Start at beginning position of evio structure being scanned
         int position = node.dataPos;
@@ -728,182 +788,192 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         int endingPos = position + 4*node.dataLen;
         // Buffer we're using
         ByteBuffer buffer = node.bufferNode.buffer;
-//System.out.println("scanStructure: pos = " + position + ", ending pos = " + endingPos +
-//", lim = " + buffer.limit() + ", cap = " + buffer.capacity());
 
-        int dt, dataType, dataLen, len, pad, tag, num, word;
+        int dt, dataType, dataLen, len, word;
 
         // Do something different depending on what node contains
-        switch (type) {
-            case BANK:
-            case ALSOBANK:
+        if (DataType.isBank(dType)) {
+            // Extract all the banks from this bank of banks.
+            // Make allowance for reading header (2 ints).
+            endingPos -= 8;
+            while (position <= endingPos) {
 
-                // Extract all the banks from this bank of banks.
-                // Make allowance for reading header (2 ints).
-                while (position <= endingPos - 8) {
-//System.out.println("scanStructure: buf is at pos " + buffer.position() +
-//                   ", limit =  " + buffer.limit() + ", remaining = " + buffer.remaining() +
-//                   ", capacity = " + buffer.capacity());
-
-                    // Read first header word
-                    len = buffer.getInt(position);
-                    // Len of data (no header) for a bank
-                    dataLen = len - 1;
-                    position += 4;
-
-                    // Read and parse second header word
-                    word = buffer.getInt(position);
-                    position += 4;
-                    tag = (word >>> 16);
-                    dt = (word >> 8) & 0xff;
-                    dataType = dt & 0x3f;
-                    pad = dt >>> 6;
-                    // If only 7th bit set, that can only be the legacy tagsegment type
-                    // with no padding information - convert it properly.
-                    if (dt == 0x40) {
-                        dataType = DataType.TAGSEGMENT.getValue();
-                        pad = 0;
-                    }
-                    num = word & 0xff;
-
-                    // Cloning is a fast copy that eliminates the need
-                    // for setting stuff that's the same as the parent.
-                    EvioNode kidNode = (EvioNode) node.clone();
-                    kidNode.isEvent = false;
-
-                    kidNode.len = len;
-                    kidNode.pos = position - 8;
-                    kidNode.type = DataType.BANK.getValue();  // This is a bank
-
-                    kidNode.dataLen = dataLen;
-                    kidNode.dataPos = position;
-                    kidNode.dataType = dataType;
-
-                    kidNode.pad = pad;
-                    kidNode.tag = tag;
-                    kidNode.num = num;
-
-                    // Create the tree structure
-                    kidNode.parentNode = node;
-
-                    // Add this to list of children and to list of all nodes in the event
-                    node.addChild(kidNode);
-
-//System.out.println("scanStructure: kid bank at pos = " + kidNode.pos +
-//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
-//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
-
-                    // Only scan through this child if it's a container
-                    if (DataType.isStructure(dataType)) {
-                        scanStructure(kidNode);
-                    }
-
-                    // Set position to start of next header (hop over kid's data)
-                    position += 4*dataLen;
+                // Cloning is a fast copy that eliminates the need
+                // for setting stuff that's the same as the parent.
+                EvioNode kidNode;
+                if (nodeSupply != null) {
+                    kidNode = nodeSupply.get();
+                    kidNode.childNodes = null;
+                    kidNode.allNodes = node.allNodes;
+                    kidNode.eventNode = node.eventNode;
+                    kidNode.bufferNode = node.bufferNode;
+                    kidNode.blockNode = node.blockNode;
+                    kidNode.obsolete = false;
+                    kidNode.scanned = true;
+                    kidNode.place = 0;
+                }
+                else {
+                    kidNode = (EvioNode) node.clone();
                 }
 
-                break; // structure contains banks
+                //EvioNode kidNode = (EvioNode) node.clone();
 
-            case SEGMENT:
-            case ALSOSEGMENT:
+                // Read first header word
+                len = buffer.getInt(position);
+                kidNode.pos = position;
 
-                // Extract all the segments from this bank of segments.
-                // Make allowance for reading header (1 int).
-                while (position <= endingPos - 4) {
+                // Len of data (no header) for a bank
+                dataLen = len - 1;
+                position += 4;
 
-                    word = buffer.getInt(position);
-                    position += 4;
-                    tag = word >>> 24;
-                    dt = (word >>> 16) & 0xff;
-                    dataType = dt & 0x3f;
-                    pad = dt >>> 6;
-                    // If only 7th bit set, that can only be the legacy tagsegment type
-                    // with no padding information - convert it properly.
-                    if (dt == 0x40) {
-                        dataType = DataType.TAGSEGMENT.getValue();
-                        pad = 0;
-                    }
-                    len = word & 0xffff;
-
-                    // Cloning is a fast copy that eliminates the need
-                    // for setting stuff that's the same as the parent.
-                    EvioNode kidNode = (EvioNode) node.clone();
-                    kidNode.isEvent = false;
-
-                    kidNode.len  = len;
-                    kidNode.pos  = position - 4;
-                    kidNode.type = DataType.SEGMENT.getValue();  // This is a segment
-
-                    kidNode.dataLen  = len;
-                    kidNode.dataPos  = position;
-                    kidNode.dataType = dataType;
-
-                    kidNode.pad = pad;
-                    kidNode.tag = tag;
-                    kidNode.num = 0;
-
-                    kidNode.parentNode = node;
-
-                    node.addChild(kidNode);
-
-// System.out.println("scanStructure: kid seg at pos = " + kidNode.pos +
-//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
-//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
-                    if (DataType.isStructure(dataType)) {
-                        scanStructure(kidNode);
-                    }
-
-                    position += 4*len;
-                }
-
-                break; // structure contains segments
-
-            case TAGSEGMENT:
-
-                // Extract all the tag segments from this bank of tag segments.
-                // Make allowance for reading header (1 int).
-                while (position <= endingPos - 4) {
-
-                    word = buffer.getInt(position);
-                    position += 4;
-                    tag      = word >>> 20;
-                    dataType = (word >>> 16) & 0xf;
-                    len      = word & 0xffff;
-
-                    // Cloning is a fast copy that eliminates the need
-                    // for setting stuff that's the same as the parent.
-                    EvioNode kidNode = (EvioNode) node.clone();
-                    kidNode.isEvent = false;
-
-                    kidNode.len  = len;
-                    kidNode.pos  = position - 4;
-                    kidNode.type = DataType.TAGSEGMENT.getValue();  // This is a tag segment
-
-                    kidNode.dataLen  = len;
-                    kidNode.dataPos  = position;
-                    kidNode.dataType = dataType;
-
+                // Read and parse second header word
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = (word >>> 16);
+                dt = (word >> 8) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, that can only be the legacy tagsegment type
+                // with no padding information - convert it properly.
+                if (dt == 0x40) {
+                    dataType = DataType.TAGSEGMENT.getValue();
                     kidNode.pad = 0;
-                    kidNode.tag = tag;
-                    kidNode.num = 0;
+                }
+                kidNode.num = word & 0xff;
 
-                    kidNode.parentNode = node;
 
-                    node.addChild(kidNode);
+                kidNode.len = len;
+                kidNode.type = DataType.BANK.getValue();  // This is a bank
+                kidNode.dataLen = dataLen;
+                kidNode.dataPos = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent = false;
 
-// System.out.println("scanStructure: kid tagseg at pos = " + kidNode.pos +
-//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
-//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
-                   if (DataType.isStructure(dataType)) {
-                        scanStructure(kidNode);
-                    }
+                // Create the tree structure
+                kidNode.parentNode = node;
+                // Add this to list of children and to list of all nodes in the event
+                node.addChild(kidNode);
 
-                    position += 4*len;
+                // Only scan through this child if it's a container
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode);
                 }
 
-                break;
+                // Set position to start of next header (hop over kid's data)
+                position += 4 * dataLen;
+            }
+        }
+        else if (DataType.isSegment(dType)) {
 
-            default:
+            // Extract all the segments from this bank of segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+                EvioNode kidNode;
+                if (nodeSupply != null) {
+                    kidNode = nodeSupply.get();
+                    kidNode.childNodes = null;
+                    kidNode.allNodes   = node.allNodes;
+                    kidNode.eventNode  = node.eventNode;
+                    kidNode.bufferNode = node.bufferNode;
+                    kidNode.blockNode  = node.blockNode;
+                    kidNode.obsolete   = false;
+                    kidNode.scanned    = true;
+                    kidNode.place      = 0;
+                }
+                else {
+                    kidNode = (EvioNode) node.clone();
+                }
+
+                //EvioNode kidNode = (EvioNode) node.clone();
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = word >>> 24;
+                dt = (word >>> 16) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, that can only be the legacy tagsegment type
+                // with no padding information - convert it properly.
+                if (dt == 0x40) {
+                    dataType = DataType.TAGSEGMENT.getValue();
+                    kidNode.pad = 0;
+                }
+                len = word & 0xffff;
+
+
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.SEGMENT.getValue();  // This is a segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode);
+                }
+
+                position += 4*len;
+            }
+        }
+        // Only one type of structure left - tagsegment
+        else {
+
+            // Extract all the tag segments from this bank of tag segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+
+                EvioNode kidNode;
+                if (nodeSupply != null) {
+                    kidNode = nodeSupply.get();
+                    kidNode.childNodes = null;
+                    kidNode.allNodes   = node.allNodes;
+                    kidNode.eventNode  = node.eventNode;
+                    kidNode.bufferNode = node.bufferNode;
+                    kidNode.blockNode  = node.blockNode;
+                    kidNode.obsolete   = false;
+                    kidNode.scanned    = true;
+                    kidNode.place      = 0;
+                }
+                else {
+                    kidNode = (EvioNode) node.clone();
+                }
+
+                //EvioNode kidNode = (EvioNode) node.clone();
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag =  word >>> 20;
+                dataType    = (word >>> 16) & 0xf;
+                len         =  word & 0xffff;
+
+                kidNode.pad      = 0;
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.TAGSEGMENT.getValue();  // This is a tag segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode);
+                }
+
+                position += 4*len;
+            }
         }
     }
 
