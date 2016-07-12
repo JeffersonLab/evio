@@ -118,8 +118,8 @@ jevio-5.1.jar
 
  jevio-5.2.jar
     - make CompactEventBuilder generate much less garbage
-    - EvioNode's getByteData and getStructureBuffer return buffer instead of buffer.slice()
-      to reduce garbage. Add new method getIntData to efficiently transform bytes to int array.
+    - EvioNode's getByteData() and getStructureBuffer() return buffer instead of buffer.slice()
+      to reduce garbage. Add new method getIntData() to efficiently transform bytes to int array.
     - unsynchronize Utilities.printBuffer()
     - add EvioCompactReaderUnsync class for parsing evio format buffers without synchronization.
       Has ability to be supplied an EvioNodeSupply object to avoid construction
