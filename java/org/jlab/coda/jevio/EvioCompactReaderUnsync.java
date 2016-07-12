@@ -21,11 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * This class is used to read an evio version 4 formatted file or buffer
+ * This class is used to read an evio format version 4 formatted file or buffer
  * and extract specific evio containers (bank, seg, or tagseg)
- * with actual data in them given a tag/num pair. It is theoretically thread-safe.
- * It is designed to be fast and does <b>NOT</b> do a full deserialization
- * on each event examined.<p>
+ * with actual data in them given a tag/num pair. It is NOT thread-safe since
+ * all synchronization is removed in order to gain speed.<p>
  *
  * @author timmer
  */
