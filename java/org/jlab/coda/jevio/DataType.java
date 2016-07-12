@@ -139,24 +139,41 @@ public enum DataType {
 		}
 	}
 
-    /**
-   	 * Convenience routine to see if the given integer arg represents a data type which
+	/**
+	 * Convenience routine to see if the given integer arg represents a data type which
      * is a structure (a container).
-   	 * @return <code>true</code> if the data type corresponds to one of the structure
-   	 * types: BANK, SEGMENT, or TAGSEGMENT.
-   	 */
-   	static public boolean isStructure(int dataType) {
-   		switch (getDataType(dataType)) {
-   		case BANK:
-   		case SEGMENT:
-   		case TAGSEGMENT:
-   		case ALSOBANK:
-   		case ALSOSEGMENT:
-   			return true;
-   		default:
-   			return false;
-   		}
-   	}
+	 * @return <code>true</code> if the data type corresponds to one of the structure
+	 * types: BANK, SEGMENT, or TAGSEGMENT.
+	 */
+	static public boolean isStructure(int dataType) {
+		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
+				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
+				dataType == TAGSEGMENT.value;
+	}
+
+	/**
+	 * Convenience routine to see if the given integer arg represents a BANK.
+	 * @return <code>true</code> if the data type corresponds to a BANK.
+	 */
+	static public boolean isBank(int dataType) {
+		return BANK.value == dataType || ALSOBANK.value == dataType;
+	}
+
+	/**
+	 * Convenience routine to see if the given integer arg represents a SEGMENT.
+	 * @return <code>true</code> if the data type corresponds to a SEGMENT.
+	 */
+	static public boolean isSegment(int dataType) {
+		return SEGMENT.value == dataType || ALSOSEGMENT.value == dataType;
+	}
+
+	/**
+	 * Convenience routine to see if the given integer arg represents a TAGSEGMENT.
+	 * @return <code>true</code> if the data type corresponds to a TAGSEGMENT.
+	 */
+	static public boolean isTagSegment(int dataType) {
+		return TAGSEGMENT.value == dataType;
+	}
 
 	/**
 	 * Convenience routine to see if "this" data type is an integer of some kind -
