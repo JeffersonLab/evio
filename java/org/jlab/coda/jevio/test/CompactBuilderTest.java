@@ -444,6 +444,7 @@ System.out.println("SET buf size to " + bufSize);
             builder.closeStructure();
 
             builder.closeAll();
+            if (writeFileName != null) builder.toFile(writeFileName);
 
             System.out.println("DONE");
         }
