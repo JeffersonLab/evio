@@ -737,6 +737,9 @@ public class EvioCompactStructureHandler {
             throw new EvioException("data added is not in evio format");
         }
 
+        // Since we're changing node's data, get rid of stored data in int[] format
+        node.clearIntArray();
+
         // Data length in 32-bit words
         int appendDataWordLen = appendDataLen / 4;
 
@@ -936,6 +939,8 @@ public class EvioCompactStructureHandler {
             parent.len     -= removeWordLen;
             parent.dataLen -= removeWordLen;
             parentPos = parent.pos;
+            // Since we're changing parent's data, get rid of stored data in int[] format
+            parent.clearIntArray();
 
             // Parent contains data of this type
             switch (parent.getDataTypeObj()) {
