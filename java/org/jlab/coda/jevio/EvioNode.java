@@ -47,6 +47,9 @@ public class EvioNode implements Cloneable {
     /** Type of data stored in node. */
     int dataType;
 
+    /** Store data in int array form if calculated. */
+    int[] data;
+
     /** Does this node represent an event (top-level bank)? */
     boolean isEvent;
 
@@ -182,6 +185,7 @@ public class EvioNode implements Cloneable {
             // copy references to the node & buffer object.
             // However, we do need a new list ...
             result.childNodes = null;
+            result.data = null;
             return result;
         }
         catch (CloneNotSupportedException ex) {
@@ -264,6 +268,11 @@ public class EvioNode implements Cloneable {
         bufferNode = null;
         eventNode  = null;
         parentNode = null;
+    }
+
+
+    final public void clearIntArray() {
+        if (data != null) data = null;
     }
 
 
@@ -771,21 +780,69 @@ public class EvioNode implements Cloneable {
 
     /**
      * Get the data associated with this node as an 32-bit integer array.
-     * Note: if data is of a type less than 32 bits, the last int will be junk.
-     *
+     * Store it for future 2nd gets (like in event builder).
+     * If data is of a type less than 32 bits, the last int will be junk.
+     * Call this to avoid calling {@link #getByteData(boolean)} and converting
+     * it to an int array which involves creating additional objects and calling
+     * additional methods.
      * This method is not synchronized.
      *
      * @return integer array containing data.
      */
     final public int[] getIntData() {
-        int array[] = new int[dataLen];
+        if (data != null) {
+            return data;
+        }
+
+        data = new int[dataLen];
         ByteBuffer buf = bufferNode.buffer;
 
         for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
-            array[(i-dataPos)/4] = buf.getInt(i);
+            data[(i-dataPos)/4] = buf.getInt(i);
         }
+        return data;
+    }
 
-        return array;
+
+    /**
+     * Get the data associated with this node as an 64-bit integer array.
+     * If data is of a type less than 64 bits, the last long will be junk.
+     * Call this to avoid calling {@link #getByteData(boolean)} and converting
+     * it to a long array which involves creating additional objects and calling
+     * additional methods.
+     * This method is not synchronized.
+     *
+     * @return long array containing data.
+     */
+    final public long[] getLongData() {
+        long[] data = new long[dataLen/2];
+        ByteBuffer buf = bufferNode.buffer;
+
+        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 8) {
+            data[(i-dataPos)/8] = buf.getLong(i);
+        }
+        return data;
+    }
+
+
+    /**
+     * Get the data associated with this node as an 16-bit integer array.
+     * If data is of a type less than 16 bits, the last int will be junk.
+     * Call this to avoid calling {@link #getByteData(boolean)} and converting
+     * it to a short array which involves creating additional objects and calling
+     * additional methods.
+     * This method is not synchronized.
+     *
+     * @return short array containing data.
+     */
+    final public short[] getShortData() {
+        short[] data = new short[2*dataLen];
+        ByteBuffer buf = bufferNode.buffer;
+
+        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 2) {
+            data[(i-dataPos)/2] = buf.getShort(i);
+        }
+        return data;
     }
 
 
