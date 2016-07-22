@@ -139,6 +139,18 @@ public enum DataType {
 		}
 	}
 
+//	/**
+//	 * Convenience routine to see if the given integer arg represents a data type which
+//     * is a structure (a container).
+//	 * @return <code>true</code> if the data type corresponds to one of the structure
+//	 * types: BANK, SEGMENT, or TAGSEGMENT.
+//	 */
+//	static public boolean isStructure(int dataType) {
+//		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
+//				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
+//				dataType == TAGSEGMENT.value;
+//	}
+
 	/**
 	 * Convenience routine to see if the given integer arg represents a data type which
      * is a structure (a container).
@@ -146,9 +158,7 @@ public enum DataType {
 	 * types: BANK, SEGMENT, or TAGSEGMENT.
 	 */
 	static public boolean isStructure(int dataType) {
-		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
-				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
-				dataType == TAGSEGMENT.value;
+		return  ((dataType > 0xb && dataType < 0x11) || dataType == 0x20);
 	}
 
 	/**
