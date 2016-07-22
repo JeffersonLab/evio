@@ -132,8 +132,6 @@ public class EvioCompactReaderUnsync {
     /** Is this object currently closed? */
     private boolean closed;
 
-    private EvioNodeSupply nodeSupply;
-
 
     //------------------------
 
@@ -155,37 +153,6 @@ public class EvioCompactReaderUnsync {
 
         initialPosition = byteBuffer.position();
         this.byteBuffer = byteBuffer;
-
-        // Read first block header and find the file's endianness & evio version #.
-        // If there's a dictionary, read that too.
-        if (readFirstHeader() != ReadStatus.SUCCESS) {
-            throw new EvioException("Failed reading first block header/dictionary");
-        }
-
-        // Generate a table of all event positions in buffer for random access.
-        generateEventPositionTable();
-    }
-
-
-    /**
-     * Constructor for reading a buffer.
-     *
-     * @param byteBuffer the buffer that contains events.
-     *
-     * @see EventWriter
-     * @throws EvioException if buffer arg is null;
-     *                       failure to read first block header
-     */
-    public EvioCompactReaderUnsync(ByteBuffer byteBuffer, EvioNodeSupply supply)
-            throws EvioException {
-
-        if (byteBuffer == null) {
-            throw new EvioException("Buffer arg is null");
-        }
-
-        initialPosition = byteBuffer.position();
-        this.byteBuffer = byteBuffer;
-        nodeSupply = supply;
 
         // Read first block header and find the file's endianness & evio version #.
         // If there's a dictionary, read that too.
@@ -678,27 +645,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         }
 
         // Store evio event info, without de-serializing, into EvioNode object
-        EvioNode node;
-        if (nodeSupply != null) {
-            node = nodeSupply.get();
-            node.childNodes = null;
-            node.allNodes.clear();
-            node.allNodes.add(node);
-            node.eventNode  = null;
-            node.parentNode = null;
-            node.obsolete   = false;
-            node.scanned    = true;
-            node.isEvent    = true;
-            node.type       = DataType.BANK.getValue();
-
-            node.pos        = position;
-            node.place      = place;
-            node.bufferNode = bufferNode;
-            node.blockNode  = blockNode;
-        }
-        else {
-            node = new EvioNode(position, place, bufferNode, blockNode);
-        }
+        EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
 
         return extractNode(node, position);
     }
@@ -799,23 +746,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 
                 // Cloning is a fast copy that eliminates the need
                 // for setting stuff that's the same as the parent.
-                EvioNode kidNode;
-                if (nodeSupply != null) {
-                    kidNode = nodeSupply.get();
-                    kidNode.childNodes = null;
-                    kidNode.allNodes = node.allNodes;
-                    kidNode.eventNode = node.eventNode;
-                    kidNode.bufferNode = node.bufferNode;
-                    kidNode.blockNode = node.blockNode;
-                    kidNode.obsolete = false;
-                    kidNode.scanned = true;
-                    kidNode.place = 0;
-                }
-                else {
-                    kidNode = (EvioNode) node.clone();
-                }
-
-                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = (EvioNode) node.clone();
 
                 // Read first header word
                 len = buffer.getInt(position);
@@ -868,23 +799,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             // Make allowance for reading header (1 int).
             endingPos -= 4;
             while (position <= endingPos) {
-                EvioNode kidNode;
-                if (nodeSupply != null) {
-                    kidNode = nodeSupply.get();
-                    kidNode.childNodes = null;
-                    kidNode.allNodes   = node.allNodes;
-                    kidNode.eventNode  = node.eventNode;
-                    kidNode.bufferNode = node.bufferNode;
-                    kidNode.blockNode  = node.blockNode;
-                    kidNode.obsolete   = false;
-                    kidNode.scanned    = true;
-                    kidNode.place      = 0;
-                }
-                else {
-                    kidNode = (EvioNode) node.clone();
-                }
-
-                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = (EvioNode) node.clone();
 
                 kidNode.pos = position;
 
@@ -929,23 +844,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             endingPos -= 4;
             while (position <= endingPos) {
 
-                EvioNode kidNode;
-                if (nodeSupply != null) {
-                    kidNode = nodeSupply.get();
-                    kidNode.childNodes = null;
-                    kidNode.allNodes   = node.allNodes;
-                    kidNode.eventNode  = node.eventNode;
-                    kidNode.bufferNode = node.bufferNode;
-                    kidNode.blockNode  = node.blockNode;
-                    kidNode.obsolete   = false;
-                    kidNode.scanned    = true;
-                    kidNode.place      = 0;
-                }
-                else {
-                    kidNode = (EvioNode) node.clone();
-                }
-
-                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = (EvioNode) node.clone();
 
                 kidNode.pos = position;
 
@@ -1315,6 +1214,8 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             parent.len     -= removeWordLen;
             parent.dataLen -= removeWordLen;
             parentPos = parent.pos;
+            // Since we're changing parent's data, get rid of stored data in int[] format
+            parent.clearIntArray();
 
             // Parent contains data of this type
             switch (parent.getDataTypeObj()) {
@@ -1397,196 +1298,199 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      */
     public  ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
 
-         if (addBuffer == null || addBuffer.remaining() < 8) {
-             throw new EvioException("null, empty, or non-evio format buffer arg");
-         }
+        if (addBuffer == null || addBuffer.remaining() < 8) {
+            throw new EvioException("null, empty, or non-evio format buffer arg");
+        }
 
-         if (addBuffer.order() != byteOrder) {
-             throw new EvioException("trying to add wrong endian buffer");
-         }
+        if (addBuffer.order() != byteOrder) {
+            throw new EvioException("trying to add wrong endian buffer");
+        }
 
-         if (eventNumber < 1) {
-             throw new EvioException("event number must be > 0");
-         }
+        if (eventNumber < 1) {
+            throw new EvioException("event number must be > 0");
+        }
 
-         if (closed) {
-             throw new EvioException("object closed");
-         }
+        if (closed) {
+            throw new EvioException("object closed");
+        }
 
-         EvioNode eventNode;
-         try {
-             eventNode = eventNodes.get(eventNumber - 1);
-         }
-         catch (IndexOutOfBoundsException e) {
-             throw new EvioException("event " + eventNumber + " does not exist", e);
-         }
+        EvioNode eventNode;
+        try {
+            eventNode = eventNodes.get(eventNumber - 1);
+        }
+        catch (IndexOutOfBoundsException e) {
+            throw new EvioException("event " + eventNumber + " does not exist", e);
+        }
 
-         // Position in byteBuffer just past end of event
-         int endPos = eventNode.dataPos + 4*eventNode.dataLen;
+        // Position in byteBuffer just past end of event
+        int endPos = eventNode.dataPos + 4*eventNode.dataLen;
 
-         // Original position of buffer being added
-         int origAddBufPos = addBuffer.position();
+        // Original position of buffer being added
+        int origAddBufPos = addBuffer.position();
 
-         // How many bytes are we adding?
-         int appendDataLen = addBuffer.remaining();
+        // How many bytes are we adding?
+        int appendDataLen = addBuffer.remaining();
 
-         // Make sure it's a multiple of 4
-         if (appendDataLen % 4 != 0) {
-             throw new EvioException("data added is not in evio format");
-         }
+        // Make sure it's a multiple of 4
+        if (appendDataLen % 4 != 0) {
+            throw new EvioException("data added is not in evio format");
+        }
 
-         // Data length in 32-bit words
-         int appendDataWordLen = appendDataLen / 4;
+        // Since we're changing node's data, get rid of stored data in int[] format
+        eventNode.clearIntArray();
 
-         // Event contains structures of this type
-         DataType eventDataType = eventNode.getDataTypeObj();
+        // Data length in 32-bit words
+        int appendDataWordLen = appendDataLen / 4;
 
-         //--------------------------------------------
-         // Add new structure to end of specified event
-         //--------------------------------------------
+        // Event contains structures of this type
+        DataType eventDataType = eventNode.getDataTypeObj();
 
-         // Create a new buffer
-         ByteBuffer newBuffer = ByteBuffer.allocate(4*validDataWords + appendDataLen);
-         newBuffer.order(byteOrder);
+        //--------------------------------------------
+        // Add new structure to end of specified event
+        //--------------------------------------------
 
-         // Copy beginning part of existing buffer into new buffer
-         byteBuffer.limit(endPos).position(initialPosition);
-         newBuffer.put(byteBuffer);
+        // Create a new buffer
+        ByteBuffer newBuffer = ByteBuffer.allocate(4*validDataWords + appendDataLen);
+        newBuffer.order(byteOrder);
 
-         // Copy new structure into new buffer
-         int newBankBufPos = newBuffer.position();
-         newBuffer.put(addBuffer);
+        // Copy beginning part of existing buffer into new buffer
+        byteBuffer.limit(endPos).position(initialPosition);
+        newBuffer.put(byteBuffer);
 
-         // Copy ending part of existing buffer into new buffer
-         byteBuffer.limit(4*validDataWords + initialPosition).position(endPos);
-         newBuffer.put(byteBuffer);
+        // Copy new structure into new buffer
+        int newBankBufPos = newBuffer.position();
+        newBuffer.put(addBuffer);
 
-         // Get new buffer ready for reading
-         newBuffer.flip();
+        // Copy ending part of existing buffer into new buffer
+        byteBuffer.limit(4*validDataWords + initialPosition).position(endPos);
+        newBuffer.put(byteBuffer);
 
-         // Restore original positions of buffers
-         byteBuffer.position(initialPosition);
-         addBuffer.position(origAddBufPos);
+        // Get new buffer ready for reading
+        newBuffer.flip();
 
-         //-------------------------------------
-         // By inserting a structure, we've definitely changed the positions of all
-         // structures that follow. Everything downstream gets shifted by appendDataLen
-         // bytes.
-         // And, if initialPosition was not 0 (in the new buffer it always is),
-         // then ALL nodes need their position members shifted by initialPosition
-         // bytes upstream.
-         //-------------------------------------
-         int place = eventNode.place;
+        // Restore original positions of buffers
+        byteBuffer.position(initialPosition);
+        addBuffer.position(origAddBufPos);
 
-         for (int i=0; i < eventCount; i++) {
-             for (EvioNode n : eventNodes.get(i).allNodes) {
-                 // Make sure nodes are using the new buffer
-                 n.bufferNode.setBuffer(newBuffer);
+        //-------------------------------------
+        // By inserting a structure, we've definitely changed the positions of all
+        // structures that follow. Everything downstream gets shifted by appendDataLen
+        // bytes.
+        // And, if initialPosition was not 0 (in the new buffer it always is),
+        // then ALL nodes need their position members shifted by initialPosition
+        // bytes upstream.
+        //-------------------------------------
+        int place = eventNode.place;
 
- //System.out.println("Event node " + (i+1) + ", pos = " + n.pos + ", dataPos = " + n.dataPos);
-                 if (i > place) {
-                     n.pos     += appendDataLen - initialPosition;
-                     n.dataPos += appendDataLen - initialPosition;
- //System.out.println("      pos -> " + n.pos + ", dataPos -> " + n.dataPos);
-                 }
-                 else {
-                     n.pos     -= initialPosition;
-                     n.dataPos -= initialPosition;
-                 }
-             }
-         }
+        for (int i=0; i < eventCount; i++) {
+            for (EvioNode n : eventNodes.get(i).allNodes) {
+                // Make sure nodes are using the new buffer
+                n.bufferNode.setBuffer(newBuffer);
 
-         place = eventNode.blockNode.place;
-         for (int i=0; i < blockCount; i++) {
-             if (i > place) {
-                 blockNodes.get(i).pos += appendDataLen - initialPosition;
-             }
-             else {
-                 blockNodes.get(i).pos -= initialPosition;
-             }
-         }
+                //System.out.println("Event node " + (i+1) + ", pos = " + n.pos + ", dataPos = " + n.dataPos);
+                if (i > place) {
+                    n.pos     += appendDataLen - initialPosition;
+                    n.dataPos += appendDataLen - initialPosition;
+                    //System.out.println("      pos -> " + n.pos + ", dataPos -> " + n.dataPos);
+                }
+                else {
+                    n.pos     -= initialPosition;
+                    n.dataPos -= initialPosition;
+                }
+            }
+        }
 
-         // At this point all EvioNode objects (including those in
-         // user's possession) should be updated.
+        place = eventNode.blockNode.place;
+        for (int i=0; i < blockCount; i++) {
+            if (i > place) {
+                blockNodes.get(i).pos += appendDataLen - initialPosition;
+            }
+            else {
+                blockNodes.get(i).pos -= initialPosition;
+            }
+        }
 
-         // This reader object is NOW using the new buffer
-         byteBuffer      = newBuffer;
-         initialPosition = newBuffer.position();
-         validDataWords += appendDataWordLen;
+        // At this point all EvioNode objects (including those in
+        // user's possession) should be updated.
 
-         //--------------------------------------------
-         // Adjust event and block header sizes in both
-         // block/event node objects and in new buffer.
-         //--------------------------------------------
+        // This reader object is NOW using the new buffer
+        byteBuffer      = newBuffer;
+        initialPosition = newBuffer.position();
+        validDataWords += appendDataWordLen;
 
-         // Position in new byteBuffer of event
-         int eventLenPos = eventNode.pos;
+        //--------------------------------------------
+        // Adjust event and block header sizes in both
+        // block/event node objects and in new buffer.
+        //--------------------------------------------
 
-         // Increase block size
- //System.out.println("block object len = " +  eventNode.blockNode.len +
- //                   ", set to " + (eventNode.blockNode.len + appendDataWordLen));
-         eventNode.blockNode.len += appendDataWordLen;
-         newBuffer.putInt(eventNode.blockNode.pos, eventNode.blockNode.len);
+        // Position in new byteBuffer of event
+        int eventLenPos = eventNode.pos;
 
-         // Increase event size
-         eventNode.len     += appendDataWordLen;
-         eventNode.dataLen += appendDataWordLen;
+        // Increase block size
+        //System.out.println("block object len = " +  eventNode.blockNode.len +
+        //                   ", set to " + (eventNode.blockNode.len + appendDataWordLen));
+        eventNode.blockNode.len += appendDataWordLen;
+        newBuffer.putInt(eventNode.blockNode.pos, eventNode.blockNode.len);
 
-         switch (eventDataType) {
-             case BANK:
-             case ALSOBANK:
- //System.out.println("event pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
- //                   ", set to " + (eventNode.len));
+        // Increase event size
+        eventNode.len     += appendDataWordLen;
+        eventNode.dataLen += appendDataWordLen;
 
-                 newBuffer.putInt(eventLenPos, eventNode.len);
-                 break;
+        switch (eventDataType) {
+            case BANK:
+            case ALSOBANK:
+                //System.out.println("event pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
+                //                   ", set to " + (eventNode.len));
 
-             case SEGMENT:
-             case ALSOSEGMENT:
-             case TAGSEGMENT:
- //System.out.println("event SEG/TAGSEG pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
- //                   ", set to " + (eventNode.len));
-                 if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                     newBuffer.putShort(eventLenPos+2, (short)(eventNode.len));
-                 }
-                 else {
-                     newBuffer.putShort(eventLenPos,   (short)(eventNode.len));
-                 }
-                 break;
+                newBuffer.putInt(eventLenPos, eventNode.len);
+                break;
 
-             default:
-                 throw new EvioException("internal programming error");
-         }
+            case SEGMENT:
+            case ALSOSEGMENT:
+            case TAGSEGMENT:
+                //System.out.println("event SEG/TAGSEG pos = " + eventLenPos + ", len = " + (eventNode.len - appendDataWordLen) +
+                //                   ", set to " + (eventNode.len));
+                if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                    newBuffer.putShort(eventLenPos+2, (short)(eventNode.len));
+                }
+                else {
+                    newBuffer.putShort(eventLenPos,   (short)(eventNode.len));
+                }
+                break;
 
-         // Since the event's values (positions and lengths) have now been set properly,
-         // we can now rescan the event to update all the sub-structure info, thereby
-         // including the newly add structure. Problem is, that invalidates all existing
-         // node objects for this event and users may try to continue using those - BAD.
-         //
-         // Instead, create a single new node by cloning the event object and resetting
-         // all its internal values by parsing (or extracting from) the buffer.
-         if (eventNode.scanned) {
+            default:
+                throw new EvioException("internal programming error");
+        }
 
-             // Cloning is a fast copy & an empty childNodes list
-             EvioNode newNode = (EvioNode) eventNode.clone();
-             newNode.isEvent = false;
-             newNode.eventNode = newNode.parentNode = eventNode;
+        // Since the event's values (positions and lengths) have now been set properly,
+        // we can now rescan the event to update all the sub-structure info, thereby
+        // including the newly add structure. Problem is, that invalidates all existing
+        // node objects for this event and users may try to continue using those - BAD.
+        //
+        // Instead, create a single new node by cloning the event object and resetting
+        // all its internal values by parsing (or extracting from) the buffer.
+        if (eventNode.scanned) {
 
-             // Extract data from buffer (not children data)
-             extractNode(newNode, newBankBufPos);
+            // Cloning is a fast copy & an empty childNodes list
+            EvioNode newNode = (EvioNode) eventNode.clone();
+            newNode.isEvent = false;
+            newNode.eventNode = newNode.parentNode = eventNode;
 
-             // Now that we have this new node, we must place it in the correct order
-             // in both the child & allNodes lists. This is easy since we are inserting
-             // the bank as the last bank of this event.
-             eventNode.addChild(newNode);
+            // Extract data from buffer (not children data)
+            extractNode(newNode, newBankBufPos);
 
-             // This node may contain other nodes. Find those by scanning this one.
-             // This will add all nodes in this tree to all lists.
-             scanStructure(newNode);
-         }
+            // Now that we have this new node, we must place it in the correct order
+            // in both the child & allNodes lists. This is easy since we are inserting
+            // the bank as the last bank of this event.
+            eventNode.addChild(newNode);
 
-         return newBuffer;
-     }
+            // This node may contain other nodes. Find those by scanning this one.
+            // This will add all nodes in this tree to all lists.
+            scanStructure(newNode);
+        }
+
+        return newBuffer;
+    }
 
 
     /**
