@@ -1033,7 +1033,6 @@ public final class CompactEventBuilder {
             else {
 //System.out.println("addEvioNode: less efficient node copy (same endian)");
                 // Better performance not to slice/duplicate buffer (5 - 10% faster)
-// TODO: IS THIS NECESSARY?????
                 ByteBuffer duplicateBuf = nodeBuf.duplicate();
                 duplicateBuf.limit(node.pos + node.getTotalBytes()).position(node.pos);
 
