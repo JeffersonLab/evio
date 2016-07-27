@@ -26,6 +26,12 @@
     <!-- Package code into jar file -->
     <packaging>jar</packaging>
 
+    <properties>
+        <!-- Make java version 7 jar -->
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+
     <!-- build customization -->
     <build>
         <!-- copy jar into external directory -->
