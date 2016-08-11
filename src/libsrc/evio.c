@@ -107,16 +107,15 @@
 /** Version 3's fixed block size in 32 bit words */
 #define EV_BLOCKSIZE_V3 8192
 
-/** Version 4's target block size in 32 bit words (256kB) */
-#define EV_BLOCKSIZE_V4 64000
+/** Version 4's target block size in 32 bit words (16MB) */
+#define EV_BLOCKSIZE_V4 500000
 
-/** Minimum block size allowed if size reset */
-#define EV_BLOCKSIZE_MIN 256
-/*#define EV_BLOCKSIZE_MIN 16*/
+/** Minimum block size allowed if size reset (32kB) */
+#define EV_BLOCKSIZE_MIN 1000
 
 /** Maximum block size allowed if size reset. Need to play nice with jevio.
- * Can be a max of (2^31 - 1 - 2headers) = 2147483583 , but set it to 100MB. */
-#define EV_BLOCKSIZE_MAX 25600000
+ * Can be a max of (2^31 - 1 - 2headers) = 2147483583 , but set it to 96MB. */
+#define EV_BLOCKSIZE_MAX 3000000
 
 /** In version 4, lowest 8 bits are version, rest is bit info */
 #define EV_VERSION_MASK 0xFF
