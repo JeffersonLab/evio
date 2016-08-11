@@ -78,7 +78,7 @@ uint32_t *evioUtilities::appendToBuffer(const uint32_t *buffer, ContainerType bu
   if(bufferType==BANK) {
     bufferLength = buffer[0]+1;
   } else {
-    bufferLength = buffer[0]&0xffff + 1;
+    bufferLength = (buffer[0] & 0xffff) + 1;
   }
 
 
@@ -87,7 +87,7 @@ uint32_t *evioUtilities::appendToBuffer(const uint32_t *buffer, ContainerType bu
   if(structureType==BANK) {
     structureLength=structure[0]+1;
   } else {
-    structureLength=(buffer[0]&0xffff)+1;
+    structureLength=(buffer[0] & 0xffff) + 1;
   }
 
 

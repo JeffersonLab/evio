@@ -193,8 +193,8 @@ void evioDictionary::endElementHandler(void *userData, const char *xmlname) {
   if((strcasecmp(xmlname,"bank")==0)||(strcasecmp(xmlname,"leaf")==0)) {
     evioDictionary *d = reinterpret_cast<evioDictionary*>(userData);
     d->parentIsLeaf = false;
-    int spos = d->parentPrefix.rfind(d->separator);
-    if(spos==d->parentPrefix.npos) {
+    unsigned long spos = d->parentPrefix.rfind(d->separator);
+    if(spos == d->parentPrefix.npos) {
       d->parentPrefix.clear();
     } else {
       d->parentPrefix.erase(spos);
