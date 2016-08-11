@@ -87,7 +87,7 @@ class myHandler : public evioStreamParserHandler {
     case 0x9:
     case 0xa:
       ll=(int64_t*)data;
-      printf("%lld %lld\n",ll[0],ll[1]);
+      printf("%lld %lld\n", (long long)ll[0], (long long)ll[1]);
       break;
 
     }  
