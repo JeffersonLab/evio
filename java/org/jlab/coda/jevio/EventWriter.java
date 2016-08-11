@@ -81,40 +81,38 @@ public class EventWriter {
 
     /**
      * The default maximum size for a single block used for writing, in ints.
-     * This gives block sizes of about 256kB. It is a soft limit since a single
+     * This gives block sizes of about 16MB. It is a soft limit since a single
      * event larger than this limit may need to be written.
      */
-    static int DEFAULT_BLOCK_SIZE = 64000;
+    static final int DEFAULT_BLOCK_SIZE = 500000;
 
     /** The default maximum event count for a single block used for writing. */
-    static int DEFAULT_BLOCK_COUNT = 10000;
+    static final int DEFAULT_BLOCK_COUNT = 10000;
 
     /**
      * The upper limit of maximum size for a single block used for writing,
-     * in ints. This gives block sizes of about 100MB. It is a soft limit since
+     * in ints. This gives block sizes of about 96MB. It is a soft limit since
      * a single event larger than this limit may need to be written.
      */
-    static int MAX_BLOCK_SIZE = 25600000;
+    static final int MAX_BLOCK_SIZE = 3000000;
 
     /** The upper limit of maximum event count for a single block used for writing. */
-    static int MAX_BLOCK_COUNT = 100000;
+    static final int MAX_BLOCK_COUNT = 100000;
 
     /**
      * The lower limit of maximum size for a single block used for writing,
-     * in ints. This gives block sizes of about 1k bytes. It is a soft limit since
-     * a single event larger than this limit may need to be written.
+     * in ints. This gives block sizes of about 32k bytes.
      */
-    static int MIN_BLOCK_SIZE = 256;
+    static final int MIN_BLOCK_SIZE = 1000;
 
     /** The lower limit of maximum event count for a single block used for writing. */
-    static int MIN_BLOCK_COUNT = 1;
-
-    /** Turn on or off the debug printout. */
-    static boolean debug;
+    static final int MIN_BLOCK_COUNT = 1; //TODO: make this 10,000 but still need to write single events
 
     /** Size of block header in bytes. */
     static final int headerBytes = 32;
 
+    /** Turn on or off the debug printout. */
+    static final boolean debug = false;
 
 
 
