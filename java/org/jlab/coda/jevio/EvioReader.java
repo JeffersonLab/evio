@@ -16,6 +16,11 @@ import java.nio.channels.FileChannel;
  * {@link #parseEvent(int)} to get new events and to stream the embedded structures
  * to an IEvioListener.<p>
  *
+ * A word to the wise, constructors for reading a file in random access mode
+ * (by setting "sequential" arg to false), will memory map the file. This is
+ * <b>not</b> a good idea if the file is not on a local disk. Due to java
+ * restrictions, files over 2.1GB will require multiple memory maps.<p>
+ *
  * The streaming effect of parsing an event is that the parser will read the event and hand off structures,
  * such as banks, to any IEvioListeners. For those familiar with XML, the event is processed SAX-like.
  * It is up to the listener to decide what to do with the structures.
@@ -345,15 +350,16 @@ public class EvioReader {
 
     /**
      * Constructor for reading an event file.
+     * Do <b>not</b> set sequential to false for remote files.
      *
      * @param path the full path to the file that contains events.
      *             For writing event files, use an <code>EventWriter</code> object.
      * @param checkBlkNumSeq if <code>true</code> check the block number sequence
      *                       and throw an exception if it is not sequential starting
      *                       with 1
-     * @param sequential     if <code>true</code> read the file sequentially and not
-     *                       using a memory mapped buffer. If file > 2.1 GB, then reads
-     *                       are always sequential for older evio format.
+     * @param sequential     if <code>true</code> read the file sequentially,
+     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       reads are always sequential for the older evio format.
      * @see EventWriter
      * @throws IOException   if read failure
      * @throws EvioException if file arg is null;
@@ -367,14 +373,15 @@ public class EvioReader {
 
     /**
      * Constructor for reading an event file.
+     * Do <b>not</b> set sequential to false for remote files.
      *
      * @param file the file that contains events.
      * @param checkBlkNumSeq if <code>true</code> check the block number sequence
      *                       and throw an exception if it is not sequential starting
      *                       with 1
-     * @param sequential     if <code>true</code> read the file sequentially and not
-     *                       using a memory mapped buffer. If file > 2.1 GB, then reads
-     *                       are always sequential for older evio format.
+     * @param sequential     if <code>true</code> read the file sequentially,
+     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       reads are always sequential for the older evio format.
      *
      * @see EventWriter
      * @throws IOException   if read failure
