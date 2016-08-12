@@ -353,7 +353,7 @@ public class EvioReader {
      *                       with 1
      * @param sequential     if <code>true</code> read the file sequentially and not
      *                       using a memory mapped buffer. If file > 2.1 GB, then reads
-     *                       are always sequential
+     *                       are always sequential for older evio format.
      * @see EventWriter
      * @throws IOException   if read failure
      * @throws EvioException if file arg is null;
@@ -374,7 +374,7 @@ public class EvioReader {
      *                       with 1
      * @param sequential     if <code>true</code> read the file sequentially and not
      *                       using a memory mapped buffer. If file > 2.1 GB, then reads
-     *                       are always sequential
+     *                       are always sequential for older evio format.
      *
      * @see EventWriter
      * @throws IOException   if read failure
@@ -404,7 +404,11 @@ public class EvioReader {
 
         // Look at the first block header to get various info like endianness and version.
         // Store it for later reference in blockHeader2,4 and in other variables.
-        ByteBuffer headerBuf = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0L, 32L);
+        ByteBuffer headerBuf = ByteBuffer.allocate(32);
+        int bytesRead = 0;
+        while (bytesRead < 32) {
+            bytesRead += fileChannel.read(headerBuf);
+        }
         parseFirstHeader(headerBuf);
 
         // What we do from here depends on the evio format version.
@@ -439,13 +443,14 @@ public class EvioReader {
 //System.out.println("Memory Map versions 2,3");
             }
         }
-        // For the new version, memory map the file - even the big ones
+        // For the new version ...
         else {
             if (sequentialRead) {
                 dataStream = new DataInputStream(fileInputStream);
                 prepareForSequentialRead();
             }
             else {
+                // Memory map the file - even the big ones
                 mappedMemoryHandler = new MappedMemoryHandler(fileChannel, byteOrder);
                 if (blockHeader4.hasDictionary()) {
                     ByteBuffer buf = mappedMemoryHandler.getFirstMap();
