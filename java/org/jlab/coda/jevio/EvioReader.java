@@ -75,6 +75,9 @@ public class EvioReader {
     /** Root element tag for XML file */
     private static final String ROOT_ELEMENT = "evio-data";
 
+    /** Default size for a single file read in bytes when reading
+     *  evio format 1-3. Equivalent to 500, 32,768 byte blocks. */
+    private static final int DEFAULT_READ_BYTES = 32768 * 500; // 16384000 bytes
 
 
 
@@ -114,10 +117,12 @@ public class EvioReader {
     /** The current block header for evio version 4. */
     private BlockHeaderV4 blockHeader4 = new BlockHeaderV4();
 
-    /** Reference to current block header, any version, through interface. */
+    /** Reference to current block header, any version, through interface.
+     *  This must be the same object as either blockHeader2 or blockHeader4
+     *  depending on which evio format version the data is in. */
     private IBlockHeader blockHeader;
 
-    /** Reference to first block header if version 4. */
+    /** Reference to first block header. */
     private IBlockHeader firstBlockHeader;
 
     /** Block number expected when reading. Used to check sequence of blocks. */
@@ -150,9 +155,6 @@ public class EvioReader {
 
     /** Use this object to handle files > 2.1 GBytes but still use memory mapping. */
     private MappedMemoryHandler mappedMemoryHandler;
-
-    /** The buffer containing an entire block when in sequential reading mode. */
-    private ByteBuffer blockBuffer;
 
     /** Absolute path of the underlying file. */
     private String path;
@@ -257,6 +259,7 @@ public class EvioReader {
         }
         else {
             if (byteBuffer != null) {
+                byteBuffer.limit(state.byteBufferLimit);
                 byteBuffer.position(state.byteBufferPosition);
             }
         }
@@ -319,6 +322,7 @@ public class EvioReader {
 
     /**
      * Constructor for reading an event file.
+     * Sequential reading and not memory-mapped buffer.
      *
      * @param file the file that contains events.
      * @see EventWriter
@@ -332,6 +336,7 @@ public class EvioReader {
 
     /**
      * Constructor for reading an event file.
+     * Sequential reading and not memory-mapped buffer.
      *
      * @param file the file that contains events.
      * @param checkBlkNumSeq if <code>true</code> check the block number sequence
@@ -344,7 +349,7 @@ public class EvioReader {
      */
     public EvioReader(File file, boolean checkBlkNumSeq)
                                         throws EvioException, IOException {
-        this(file, checkBlkNumSeq, false);
+        this(file, checkBlkNumSeq, true);
     }
 
 
@@ -417,6 +422,7 @@ public class EvioReader {
             bytesRead += fileChannel.read(headerBuf);
         }
         parseFirstHeader(headerBuf);
+        fileChannel.position(0);
 
         // What we do from here depends on the evio format version.
         // If we've got the old version, don't memory map big (> 2.1 GB) files,
@@ -673,7 +679,7 @@ public class EvioReader {
 
     /**
      * Get the byte buffer being read directly or corresponding to the event file.
-     * Not a very useful method. For files, it works only for evio versions 2,3 and
+     * Not a very useful method. For files, it works only for evio format versions 2,3 and
      * returns the internal buffer containing an evio block if using sequential access
      * (for example files > 2.1 GB). It returns the memory mapped buffer otherwise.
      * For reading buffers it returns the buffer being read.
@@ -844,23 +850,34 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
      * @throws IOException if file access problems
      */
     private void prepareForSequentialRead() throws IOException {
-        // Create a buffer to hold the entire first block of data.
-        // Make this bigger than necessary so we're not constantly reallocating.
-        int blkSize = firstBlockHeader.getSize();
-        if (blockBuffer == null || blockBuffer.capacity() < 4*blkSize) {
-            blockBuffer = ByteBuffer.allocate(4*blkSize + 10000);
-            blockBuffer.order(byteOrder);
+        // Create a buffer to hold a chunk of data.
+        int bytesToRead;
+
+        // Evio format version 4 or greater has a large enough default block size
+        // so that reading a single block at a time is not inefficient.
+        if (evioVersion > 3) {
+            bytesToRead = 4*firstBlockHeader.getSize();
         }
-        blockBuffer.clear().limit(4*blkSize);
+        // Reading data by 32768 byte blocks in older versions is inefficient,
+        // so read in 500 block (16MB) chunks.
+        else {
+            long bytesLeftInFile = fileSize - fileChannel.position();
+            bytesToRead = DEFAULT_READ_BYTES < bytesLeftInFile ?
+                          DEFAULT_READ_BYTES : (int) bytesLeftInFile;
+        }
 
-        // Read the entire first block of data
-        fileChannel.read(blockBuffer);
-        // Get it ready for reading
-        blockBuffer.flip();
-        // Convenience variable
-        byteBuffer = blockBuffer;
+        if (byteBuffer == null || byteBuffer.capacity() < bytesToRead) {
+            byteBuffer = ByteBuffer.allocate(bytesToRead);
+            byteBuffer.order(byteOrder);
+        }
+        byteBuffer.clear().limit(bytesToRead);
 
-        // Position buffer properly
+        // Read the first chunk of data from file
+        fileChannel.read(byteBuffer);
+        // Get it ready for reading from internal buffer
+        byteBuffer.flip();
+
+        // Position buffer properly (past block header)
         prepareForBufferRead(byteBuffer);
     }
 
@@ -891,10 +908,19 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
 
 
     /**
-     * Reads the block (physical record) header. Assumes the mapped buffer or file is positioned
-     * at the start of the next block header (physical record.) By the time this is called,
+     * Reads the block (physical record) header.
+     * Assumes mapped buffer or file is positioned at start of the next block header.
+     * If a sequential file:
+     *   version 4,   Read the entire next block into internal buffer.
+     *   version 1-3, If unused data still exists in internal buffer, don't
+     *                read anymore in right now as there is at least 1 block there
+     *                (integral # of blocks read in).
+     *                If no data in internal buffer read DEFAULT_READ_BYTES or the
+     *                rest of the file, whichever is smaller, into the internal buffer.
+     *
+     * By the time this is called,
      * the version # and byte order have already been determined. Not necessary to do that
-     * for each block header that's read. Called from synchronized method.<br>
+     * for each block header that's read. Called from synchronized method.<p>
      *
      * A Bank header is 8, 32-bit ints. The first int is the size of the block in ints
      * (not counting the length itself, i.e., the number of ints to follow).
@@ -903,56 +929,98 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
      * care about the block (physical record) header.
      *
      * @return status of read attempt
-     * @throws IOException if file access problems
+     * @throws IOException if file access problems, evio format problems
      */
-    protected ReadStatus nextBlockHeader() throws IOException {
+    protected ReadStatus processNextBlock() throws IOException {
 
         // We already read the last block header
         if (lastBlock) {
             return ReadStatus.END_OF_FILE;
         }
 
-        // Have enough remaining bytes to read header?
-        if (sequentialRead) {
-            if (fileSize - fileChannel.position() < 32L) {
-                return ReadStatus.END_OF_FILE;
-            }
-        }
-        else {
-            if (byteBuffer.remaining() < 32) {
-                byteBuffer.clear();
-                return ReadStatus.END_OF_FILE;
-            }
-        }
         try {
 
             if (sequentialRead) {
-                // Read len of block
-                int blkSize = dataStream.readInt();
-                if (swap) blkSize = Integer.reverseBytes(blkSize);
-                // Create a buffer to hold the entire first block of data
-                if (blockBuffer != null && blockBuffer.capacity() >= 4*blkSize) {
-                    blockBuffer.clear();
-                    blockBuffer.limit(4*blkSize);
-//System.out.println("nextBlockHeader: reset buffer limit -> " + (4 * blkSize));
+
+                if (evioVersion < 4) {
+
+                    int bytesInBuf = bufferBytesRemaining();
+                    if (bytesInBuf == 0) {
+
+                        // How much of the file is left to read?
+                        long bytesLeftInFile = fileSize - fileChannel.position();
+                        if (bytesLeftInFile < 32L) {
+                            return ReadStatus.END_OF_FILE;
+                        }
+
+                        // The block size is 32kB which is on the small side.
+                        // We want to read in 16MB (DEFAULT_READ_BYTES) or so
+                        // at once for efficiency.
+                        int bytesToRead = DEFAULT_READ_BYTES < bytesLeftInFile ?
+                                          DEFAULT_READ_BYTES : (int) bytesLeftInFile;
+
+                        // Reset buffer
+                        byteBuffer.position(0).limit(bytesToRead);
+
+                        // Read the entire chunk of data
+                        int bytesActuallyRead = fileChannel.read(byteBuffer);
+                        while (bytesActuallyRead < bytesToRead) {
+                            fileChannel.read(byteBuffer);
+                        }
+
+                        byteBuffer.flip();
+                        // Now keeping track of pos in this new blockBuffer
+                        blockHeader.setBufferStartingPosition(0);
+                    }
+                    else if (bytesInBuf % 32768 == 0) {
+                        // Next block header starts at this position in buffer
+                        blockHeader.setBufferStartingPosition(byteBuffer.position());
+                    }
+                    else {
+                        throw new IOException("file contains non-integral # of 32768 byte blocks");
+                    }
                 }
                 else {
-                    // Make this bigger than necessary so we're not constantly reallocating
-//System.out.println("nextBlockHeader: make the buffer bigger -> 10000 + " + (4*blkSize));
-                    blockBuffer = ByteBuffer.allocate(4*blkSize + 10000);
-                    blockBuffer.limit(4*blkSize);
-                    blockBuffer.order(byteOrder);
+                    // Enough data left in file?
+                    if (fileSize - fileChannel.position() < 32L) {
+                        return ReadStatus.END_OF_FILE;
+                    }
+
+                    // Read len of block
+                    int blkSize = dataStream.readInt();
+                    if (swap) blkSize = Integer.reverseBytes(blkSize);
+                    // Create a buffer to hold the entire first block of data
+                    if (byteBuffer.capacity() >= 4 * blkSize) {
+                        byteBuffer.clear();
+                        byteBuffer.limit(4 * blkSize);
+                    }
+                    else {
+                        // Make this bigger than necessary so we're not constantly reallocating
+                        byteBuffer = ByteBuffer.allocate(4 * blkSize + 10000);
+                        byteBuffer.limit(4 * blkSize);
+                        byteBuffer.order(byteOrder);
+                    }
+
+                    // Read the entire block of data.
+                    // First put in length we just read.
+                    byteBuffer.putInt(blkSize);
+
+                    // Now the rest of the block
+                    int bytesActuallyRead = fileChannel.read(byteBuffer);
+                    while (bytesActuallyRead < blkSize) {
+                        fileChannel.read(byteBuffer);
+                    }
+
+                    byteBuffer.flip();
+                    // Now keeping track of pos in this new blockBuffer
+                    blockHeader.setBufferStartingPosition(0);
                 }
-                // Read the entire first block of data
-                blockBuffer.putInt(blkSize);
-                fileChannel.read(blockBuffer);
-                blockBuffer.flip();
-                // Convenience variable
-                byteBuffer = blockBuffer;
-                // Now keeping track of pos in this new blockBuffer (should be 0)
-                blockHeader.setBufferStartingPosition(blockBuffer.position());
             }
             else {
+                if (byteBuffer.remaining() < 32) {
+                    byteBuffer.clear();
+                    return ReadStatus.END_OF_FILE;
+                }
                 // Record starting position
                 blockHeader.setBufferStartingPosition(byteBuffer.position());
             }
@@ -986,7 +1054,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                 }
             }
             else if (evioVersion < 4) {
-                // read the header data.
+                // read the header data
                 blockHeader2.setSize(byteBuffer.getInt());
                 blockHeader2.setNumber(byteBuffer.getInt());
                 blockHeader2.setHeaderLength(byteBuffer.getInt());
@@ -1032,7 +1100,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
     /**
      * This method is only called once at the very beginning if buffer is known to have
-     * a dictionary. It then reads that dictionary. Only called in versions 4 & up.
+     * a dictionary. It then reads that dictionary. Only called in format versions 4 & up.
      * Position buffer after dictionary. Called from synchronized method or constructor.
      *
      * @since 4.0
@@ -1110,9 +1178,8 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("index arg starts at 1");
         }
 
-        //  Versions 2 & 3 || sequential
         if (sequentialRead || evioVersion < 4) {
-            // Do not fully parse events up to final event
+            // Do not fully parse events up to index_TH event
             return gotoEventNumber(index, false);
         }
 
@@ -1254,17 +1321,21 @@ System.err.println("ERROR endOfBuffer " + a);
         long currentPosition = byteBuffer.position();
 
         // How many bytes remain in this block until we reach the next block header?
-        // Must see if we have to deal with crossing physical record boundaries (< version 4).
-        int bytesRemaining = blockBytesRemaining();
-//System.out.println("nextEvent: pos = " + currentPosition + ", lim = " + byteBuffer.limit() +
-//                   ", remaining = " + bytesRemaining);
-        if (bytesRemaining < 0) {
+        int blockBytesRemaining = blockBytesRemaining();
+
+        if (blockBytesRemaining < 0) {
             throw new EvioException("Number of block bytes remaining is negative.");
         }
 
-        // Are we exactly at the end of the block (physical record)?
-        if (bytesRemaining == 0) {
-            ReadStatus status = nextBlockHeader();
+        // Are we at the block boundary? If so, read/skip-over next header.
+        // Read in more blocks of data if necessary.
+        //
+        // version 1-3:
+        // We now read in bigger chunks that are integral multiples of a single block
+        // (32768 bytes). Must see if we have to deal with an event crossing physical
+        // record boundaries. Previously, java evio only read 1 block at a time.
+        if (blockBytesRemaining == 0) {
+            ReadStatus status = processNextBlock();
             if (status == ReadStatus.SUCCESS) {
                 return nextEvent();
             }
@@ -1283,30 +1354,32 @@ System.err.println("ERROR endOfBuffer " + a);
             return null;
         }
 
-        // Version   4: once here, we are assured the entire next event is in this block.
-        // Version 1-3: no matter what, we can get the length of the next event.
+        // Version   4: Once here, we are assured the entire next event is in this block.
+        //
+        // Version 1-3: No matter what, we can get the length of the next event.
+        //              This is because we read in multiples of blocks each with
+        //              an integral number of 32 bit words.
         int length;
         length = byteBuffer.getInt();
         if (length < 1) {
             throw new EvioException("non-positive length (0x" + Integer.toHexString(length) + ")");
         }
-
         header.setLength(length);
-        bytesRemaining -= 4; // just read in 4 bytes
+        blockBytesRemaining -= 4; // just read in 4 bytes
 
         // Versions 1-3: if we were unlucky, after reading the length
         //               there are no bytes remaining in this bank.
         // Don't really need the "if (version < 4)" here except for clarity.
         if (evioVersion < 4) {
-            if (bytesRemaining == 0) {
-                ReadStatus status = nextBlockHeader();
+            if (bufferBytesRemaining() == 0) {
+                ReadStatus status = processNextBlock();
                 if (status == ReadStatus.END_OF_FILE) {
                     return null;
                 }
                 else if (status != ReadStatus.SUCCESS) {
                     throw new EvioException("Failed reading block header in nextEvent.");
                 }
-                bytesRemaining = blockBytesRemaining();
+                blockBytesRemaining = blockBytesRemaining();
             }
         }
 
@@ -1329,7 +1402,7 @@ System.err.println("ERROR endOfBuffer " + a);
         header.setPadding(padding);
         header.setNumber(word & 0xff);
 
-        bytesRemaining -= 4; // just read in 4 bytes
+        blockBytesRemaining -= 4; // just read in 4 bytes
 
         // get the raw data
         int eventDataSizeBytes = 4*(length - 1);
@@ -1342,24 +1415,35 @@ System.err.println("ERROR endOfBuffer " + a);
 
             // Don't really need the "if (version < 4)" here except for clarity.
             if (evioVersion < 4) {
-                // be in while loop if have to cross block boundary[ies].
-                while (bytesToGo > bytesRemaining) {
-                    byteBuffer.get(bytes, offset, bytesRemaining);
 
-                    ReadStatus status = nextBlockHeader();
-                    if (status == ReadStatus.END_OF_FILE) {
-                        return null;
+                // Be in while loop if have to cross block boundary[ies].
+                while (bytesToGo > 0) {
+
+                    // Don't read more than what left in current block
+                    int bytesToReadNow = bytesToGo > blockBytesRemaining ?
+                                         blockBytesRemaining : bytesToGo;
+
+                    // Read in bytes remaining in internal buffer
+                    byteBuffer.get(bytes, offset, bytesToReadNow);
+                    offset               += bytesToReadNow;
+                    bytesToGo            -= bytesToReadNow;
+                    blockBytesRemaining  -= bytesToReadNow;
+
+                    if (blockBytesRemaining == 0) {
+                        ReadStatus status = processNextBlock();
+                        if (status == ReadStatus.END_OF_FILE) {
+                            return null;
+                        }
+                        else if (status != ReadStatus.SUCCESS) {
+                            throw new EvioException("Failed reading block header after crossing boundary in nextEvent.");
+                        }
+
+                        blockBytesRemaining  = blockBytesRemaining();
                     }
-                    else if (status != ReadStatus.SUCCESS) {
-                        throw new EvioException("Failed reading block header after crossing boundary in nextEvent.");
-                    }
-                    bytesToGo -= bytesRemaining;
-                    offset += bytesRemaining;
-                    bytesRemaining = blockBytesRemaining();
                 }
             }
 
-            // last (perhaps only) read
+            // Last (perhaps only) read
             byteBuffer.get(bytes, offset, bytesToGo);
             event.setRawBytes(bytes);
             event.setByteOrder(byteOrder); // add this to track endianness, timmer
@@ -1370,7 +1454,7 @@ System.err.println("ERROR endOfBuffer " + a);
         catch (OutOfMemoryError ome) {
             System.out.println("Out Of Memory\n" +
                                        "eventDataSizeBytes = " + eventDataSizeBytes + "\n" +
-                                       "bytes Remaining = " + bytesRemaining + "\n" +
+                                       "bytes Remaining = " + blockBytesRemaining + "\n" +
                                        "event Count: " + eventCount);
             return null;
         }
@@ -1418,22 +1502,32 @@ System.err.println("ERROR endOfBuffer " + a);
 		parser.parseEvent(evioEvent);
 	}
 
-	/**
-	 * Get the number of bytes remaining in the current block (physical record).
+    /**
+   	 * Get the number of bytes remaining in the internal byte buffer.
+     * Called only by {@link #nextEvent()}.
+   	 *
+   	 * @return the number of bytes remaining in the current block (physical record).
+        */
+   	private int bufferBytesRemaining() {
+        return byteBuffer.remaining();
+   	}
+
+    /**
+   	 * Get the number of bytes remaining in the current block (physical record).
      * This is used for pathology checks like crossing the block boundary.
      * Called only by {@link #nextEvent()}.
-	 *
-	 * @return the number of bytes remaining in the current block (physical record).
-     */
-	private int blockBytesRemaining() {
-		try {
-            return blockHeader.bytesRemaining(byteBuffer.position());
-		}
-		catch (EvioException e) {
-			e.printStackTrace();
-			return -1;
-		}
-	}
+   	 *
+   	 * @return the number of bytes remaining in the current block (physical record).
+        */
+   	private int blockBytesRemaining() {
+   		try {
+               return blockHeader.bytesRemaining(byteBuffer.position());
+   		}
+   		catch (EvioException e) {
+   			e.printStackTrace();
+   			return -1;
+   		}
+   	}
 
 	/**
 	 * The equivalent of rewinding the file. What it actually does
@@ -1463,7 +1557,14 @@ System.err.println("ERROR endOfBuffer " + a);
         lastBlock = false;
         eventNumber = 0;
         blockNumberExpected = 1;
-        blockHeader = firstBlockHeader;
+
+        if (evioVersion < 4) {
+            blockHeader = blockHeader2 = new BlockHeaderV2((BlockHeaderV2) firstBlockHeader);
+        }
+        else {
+            blockHeader = blockHeader4 = new BlockHeaderV4((BlockHeaderV4) firstBlockHeader);
+        }
+
         blockHeader.setBufferStartingPosition(initialPosition);
 	}
 
@@ -1818,7 +1919,7 @@ System.err.println("ERROR endOfBuffer " + a);
             rewind();
             eventCount = 0;
 
-            while ((nextEvent()) != null) {
+            while (nextEvent() != null) {
                 eventCount++;
             }
 
