@@ -115,6 +115,7 @@ jevio-5.1.jar
     - added a few methods to deal with first event bit in block header bit info word
     - remove close() call from EvioCompactReader.setBuffer() which was completely
       unnecessary and led to multi-threading conflict issues in the emu. (5/27/2016)
+    - fix bug in EvioReader.rewind() which gets propagated to getEventCount() (8/17/2016)
 
  jevio-5.2.jar
     - make CompactEventBuilder generate much less garbage. Big win for event builder.
@@ -127,6 +128,9 @@ jevio-5.1.jar
     - add EvioCompactReaderUnsync class for parsing evio format buffers without synchronization.
     - make EvioCompactReader(Unsync).scanStructure() method more efficient
     - eliminate unused parts of BlockNode class
+    - for evio format ver 1-3 files:
+        sequential access will be default,
+        files read in chunks of 500 blocks (previously 1) at a time.
 
 *********************************************************************************
 C CODE
@@ -174,7 +178,10 @@ evio-5.0
     - got rid of vxworks and solaris dependencies
     - fixed SConstruct python
 
-
 evio-5.1
     - fixed bug in evOpenImpl in which an unsigned int was treated as signed
     - fixed compiler warnings on MacOS
+
+evio-5.2
+    - when writing, by default, make blocks 16MB or 10,000 events (whichever comes first).
+      Previously blocks were 256kB or 10,000 events.
