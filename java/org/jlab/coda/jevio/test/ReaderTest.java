@@ -88,7 +88,7 @@ public class ReaderTest {
 
         try {
             if (!compact) {
-                EvioReader reader = new EvioReader(ver2File);
+                EvioReader reader = new EvioReader(ver4File, false, true);
                 int evNum = 1;
                 EvioEvent event;
 
@@ -102,6 +102,8 @@ public class ReaderTest {
 //                    System.out.println("XML event #" + evNum);
 //                    evNum++;
 //                }
+//
+//                reader.rewind();
 
                 while (  (event = reader.parseNextEvent()) != null) {
                     //System.out.println("\nXML event #" + evNum + ":\n" + event.toXML(hex));
