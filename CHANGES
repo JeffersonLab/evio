@@ -115,7 +115,7 @@ jevio-5.1.jar
     - added a few methods to deal with first event bit in block header bit info word
     - remove close() call from EvioCompactReader.setBuffer() which was completely
       unnecessary and led to multi-threading conflict issues in the emu. (5/27/2016)
-
+    - fix bug in EvioReader.rewind() which gets propagated to getEventCount()
 
 *********************************************************************************
 C CODE
