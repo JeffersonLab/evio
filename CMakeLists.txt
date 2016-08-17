@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
-project(evio_5_1)
+project(evio_5_2)
 
 #include_directories($ENV{CODA}/common/include)
-include_directories(/daqfs/home/timmer/coda/evio-5.1/src/libsrc /daqfs/home/timmer/coda/evio-5.1/src/libsrc++)
+include_directories(/daqfs/home/timmer/coda/evio-5.2/src/libsrc /daqfs/home/timmer/coda/evio-5.2/src/libsrc++)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -77,4 +77,4 @@ set(SOURCE_FILES
     src/test/stringTest.c)
 
 
-add_executable(evio_5_1 ${SOURCE_FILES} src/execsrc/evio2xml.c src/execsrc/eviocopy.c src/execsrc/evioCat.cc )
+add_executable(evio_5_2 ${SOURCE_FILES} src/execsrc/evio2xml.c src/execsrc/eviocopy.c src/execsrc/evioCat.cc )
