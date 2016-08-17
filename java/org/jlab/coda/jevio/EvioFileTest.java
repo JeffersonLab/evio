@@ -2,8 +2,6 @@ package org.jlab.coda.jevio;
 
 import org.jlab.coda.jevio.EvioReader.ReadStatus;
 
-import java.io.IOException;
-
 
 /**
  * A set of static functions that test evio files. It also has some other diagnostic methods for getting counts.
@@ -35,7 +33,7 @@ public class EvioFileTest {
         try {
             reader.rewind();
             while (status == ReadStatus.SUCCESS) {
-                status = reader.nextBlockHeader();
+                status = reader.processNextBlock();
                 if (status == ReadStatus.SUCCESS) {
                     reader.position((int)reader.getCurrentBlockHeader().nextBufferStartingPosition());
                     count++;
@@ -67,7 +65,7 @@ public class EvioFileTest {
             reader.rewind();
 
             while (status == ReadStatus.SUCCESS) {
-                status = reader.nextBlockHeader();
+                status = reader.processNextBlock();
                 if (status == ReadStatus.SUCCESS) {
                     reader.position((int)reader.getCurrentBlockHeader().nextBufferStartingPosition());
                     blockCount++;
