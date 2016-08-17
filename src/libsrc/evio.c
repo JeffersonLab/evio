@@ -3296,7 +3296,11 @@ int evReadNoCopy(int handle, const uint32_t **buffer, uint32_t *buflen)
  * This routine does a random access read from an evio format file/buffer opened
  * with routines {@link #evOpen} or {@link #evOpenBuffer}. It returns a
  * pointer to the desired event residing in either a
- * memory mapped file or buffer when opened in random access mode.
+ * memory mapped file or buffer when opened in random access mode.<p>
+ *
+ * If reading a file from a remote machine, it is not wise to use
+ * the "ra" flag in evOpen. This memory maps the file which is not
+ * ideal over the network.<p>
  * 
  * If the data needs to be swapped, it is swapped in place.
  * No writing to the returned pointer is allowed.
