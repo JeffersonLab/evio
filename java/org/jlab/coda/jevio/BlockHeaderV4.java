@@ -224,6 +224,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         eventCount   = blkHeader.eventCount;
         reserved1    = blkHeader.reserved1;
         reserved2    = blkHeader.reserved2;
+        byteOrder    = blkHeader.byteOrder;
         magicNumber  = blkHeader.magicNumber;
         bitInfo      = (BitSet)  blkHeader.bitInfo.clone();
         bufferStartingPosition = blkHeader.bufferStartingPosition;
@@ -326,7 +327,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /**
      * Sets the evio version. Should be 4 but no check is performed here, see
-     * {@link EvioReader#nextBlockHeader()}.
+     * {@link EvioReader#processNextBlock()}.
      *
      * @param version the evio version of evio.
      */

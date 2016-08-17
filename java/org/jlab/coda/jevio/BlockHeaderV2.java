@@ -186,7 +186,8 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
         end          = blkHeader.end;
         start        = blkHeader.start;
         reserved1    = blkHeader.reserved1;
-        magicNumber  = blkHeader.magicNumber;
+		byteOrder    = blkHeader.byteOrder;
+		magicNumber  = blkHeader.magicNumber;
         bufferStartingPosition = blkHeader.bufferStartingPosition;
     }
 
@@ -513,7 +514,6 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 		}
 
 		long nextBufferStart = nextBufferStartingPosition();
-//System.out.println("bytesRemaining: position = " + position + ", next buffer start = " + nextBufferStart);
 		if (position > nextBufferStart) {
 			throw new EvioException("Provided position beyond buffer end position.");
 		}
