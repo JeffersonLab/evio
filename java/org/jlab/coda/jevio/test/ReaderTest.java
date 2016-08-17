@@ -24,6 +24,8 @@ public class ReaderTest {
     static String regularFile2 =   "/home/timmer/evioTestFiles/xmlTests/regularEvent2.evio";
     static String smallXmlFile =   "/home/timmer/evioTestFiles/xmlTests/regularEventSmall.xml";
     static String swappedFile =    "/home/timmer/evioTestFiles/xmlTests/swappedEvent.evio";
+    static String ver2File =       "/home/timmer/evioTestFiles/evioV2format.ev";
+    static String ver4File =       "/home/timmer/evioTestFiles/evioV4format.ev";
 
 
     /** Reading files to get EvioNode objects & print out XML representation. */
@@ -82,16 +84,31 @@ public class ReaderTest {
     public static void main(String args[]) {
 
         EvioNode node;
-        boolean hex=false, compact=true;
+        boolean hex=false, compact=false;
 
         try {
             if (!compact) {
-                EvioReader reader = new EvioReader(regularFile);
-                EvioEvent event = reader.parseEvent(1);
-                System.out.println("\nXML:\n" + event.toXML(hex));
+                EvioReader reader = new EvioReader(ver2File);
+                int evNum = 1;
+                EvioEvent event;
+
+                // This call to parseEvent does a rewind for sequential reading
+                // since it is pseudo-random access.
+
+                while (  (event = reader.parseEvent(evNum)) != null) {
+                    System.out.println("\nXML event #" + evNum + ":\n" + event.toXML(hex));
+                    //System.out.println("XML event #" + evNum);
+                    evNum++;
+                }
+
+//                while (  (event = reader.parseNextEvent()) != null) {
+//                    System.out.println("\nXML event #" + evNum + ":\n" + event.toXML(hex));
+//                    //System.out.println("XML event #" + evNum);
+//                    evNum++;
+//                }
             }
             else {
-                EvioCompactReader fileReader = new EvioCompactReader(regularFile);
+                EvioCompactReader fileReader = new EvioCompactReader(ver2File);
                 node = fileReader.getScannedEvent(1);
                 String xml = Utilities.toXML(node, hex);
                 System.out.println("\nXML:\n" + xml);
