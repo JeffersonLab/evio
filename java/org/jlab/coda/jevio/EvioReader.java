@@ -1451,7 +1451,13 @@ System.err.println("ERROR endOfBuffer " + a);
         lastBlock = false;
         eventNumber = 0;
         blockNumberExpected = 1;
-        blockHeader = firstBlockHeader;
+
+        if (evioVersion < 4) {
+            blockHeader = blockHeader2 = (BlockHeaderV2) firstBlockHeader;
+        }
+        else {
+            blockHeader = blockHeader4 = (BlockHeaderV4)firstBlockHeader;
+        }
         blockHeader.setBufferStartingPosition(initialPosition);
 	}
 
