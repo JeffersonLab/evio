@@ -76,7 +76,8 @@ public class EvioReader {
     private static final String ROOT_ELEMENT = "evio-data";
 
     /** Default size for a single file read in bytes when reading
-     *  evio format 1-3. Equivalent to 500, 32,768 byte blocks. */
+     *  evio format 1-3. Equivalent to 500, 32,768 byte blocks.
+     *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
     private static final int DEFAULT_READ_BYTES = 32768 * 500; // 16384000 bytes
 
 
