@@ -92,20 +92,22 @@ public class ReaderTest {
                 int evNum = 1;
                 EvioEvent event;
 
+//                System.out.println("GET ev count = " + reader.getEventCount() );
+
                 // This call to parseEvent does a rewind for sequential reading
                 // since it is pseudo-random access.
 
-                while (  (event = reader.parseEvent(evNum)) != null) {
-                    System.out.println("\nXML event #" + evNum + ":\n" + event.toXML(hex));
-                    //System.out.println("XML event #" + evNum);
-                    evNum++;
-                }
-
-//                while (  (event = reader.parseNextEvent()) != null) {
-//                    System.out.println("\nXML event #" + evNum + ":\n" + event.toXML(hex));
-//                    //System.out.println("XML event #" + evNum);
+//                while (  (event = reader.parseEvent(evNum)) != null) {
+//                    //System.out.println("\nXML event #" + evNum + ":\n" + event.toXML(hex));
+//                    System.out.println("XML event #" + evNum);
 //                    evNum++;
 //                }
+
+                while (  (event = reader.parseNextEvent()) != null) {
+                    //System.out.println("\nXML event #" + evNum + ":\n" + event.toXML(hex));
+                    System.out.println("XML event #" + evNum);
+                    evNum++;
+                }
             }
             else {
                 EvioCompactReader fileReader = new EvioCompactReader(ver2File);
