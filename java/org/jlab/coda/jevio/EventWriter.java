@@ -91,7 +91,7 @@ public class EventWriter {
 
     /**
      * The upper limit of maximum size for a single block used for writing,
-     * in ints. This gives block sizes of about 96MB. It is a soft limit since
+     * in ints (words). This gives block sizes of about 96MB. It is a soft limit since
      * a single event larger than this limit may need to be written.
      */
     static final int MAX_BLOCK_SIZE = 3000000;
@@ -101,9 +101,9 @@ public class EventWriter {
 
     /**
      * The lower limit of maximum size for a single block used for writing,
-     * in ints. This gives block sizes of about 32k bytes.
+     * in ints (words). This gives block sizes of about 32k bytes.
      */
-    static final int MIN_BLOCK_SIZE = 1000;
+    static final int MIN_BLOCK_SIZE = 1024;
 
     /** The lower limit of maximum event count for a single block used for writing. */
     static final int MIN_BLOCK_COUNT = 1; //TODO: make this 10,000 but still need to write single events
