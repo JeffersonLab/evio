@@ -365,6 +365,10 @@ static  int      writeNewHeader(EVFILE *a, uint32_t wordSize,
                           uint32_t eventCount, uint32_t blockNumber,
                           int hasDictionary,   int isLast,
                           int isCurrentHeader, int absoluteMode);
+static int       evGetNewBufferFileV3(EVFILE *a);
+static int       evReadAllocImplFileV3(EVFILE *a, uint32_t **buffer, uint32_t *buflen);
+static int       evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen);
+
 
 /* Dealing with EVFILE struct */
 static void      structInit(EVFILE *a);
@@ -2964,6 +2968,107 @@ if (debug) printf("toAppendPosition: prepare to write, back up 1 header to pos =
 
 
 /**
+ * This routine reads an evio bank from an evio format file
+ * opened with routine {@link #evOpen}, allocates a buffer and fills it with the bank.
+ * Works with versions 1-3 of evio. A status is returned. Caller will need
+ * to free buffer to avoid a memory leak.
+ *
+ * @param a      pointer to handle structure
+ * @param buffer pointer to pointer to buffer gets filled with
+ *               pointer to allocated buffer (caller must free)
+ * @param buflen pointer to int gets filled with length of buffer in 32 bit words
+ *               including the full (8 byte) header
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADMODE   if opened for writing or random-access reading
+ * @return S_EVFILE_BADARG    if buffer or buflen is NULL
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
+ * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
+ *                            while reading data (perhaps bad     block header)
+ * @return EOF                if end-of-file or end-of-valid-data reached
+ * @return errno              if file/socket read error
+ * @return stream error       if file stream error
+ */
+static int evReadAllocImplFileV3(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
+{
+    uint32_t *buf, *pBuf;
+    int       status;
+    uint32_t  nleft, ncopy, len;
+
+
+    /* Lock mutex for multithreaded reads/writes/access */
+    mutexLock(a);
+
+    /* If no more data left to read from current block, get a new block */
+    if (a->left < 1) {
+        status = evGetNewBufferFileV3(a);
+        if (status != S_SUCCESS) {
+            mutexUnlock(a);
+            return(status);
+        }
+    }
+
+    /* Find number of words to read in next event (including header) */
+    if (a->byte_swapped) {
+        /* Value at pointer to next event (bank) header = length of bank - 1 */
+        nleft = EVIO_SWAP32(*(a->next)) + 1;
+    }
+    else {
+        /* Length of next bank, including header, in 32 bit words */
+        nleft = *(a->next) + 1;
+    }
+
+    /* Allocate buffer for event */
+    len = nleft;
+    buf = pBuf = (uint32_t *)malloc(4*len);
+    if (buf == NULL) {
+        mutexUnlock(a);
+        return(S_EVFILE_ALLOCFAIL);
+    }
+
+    /* While there is more event data left to read ... */
+    while (nleft > 0) {
+
+        /* If no more data left to read from current block, get a new block */
+        if (a->left < 1) {
+            status = evGetNewBufferFileV3(a);
+            if (status != S_SUCCESS) {
+                if (buf != NULL) free(buf);
+                mutexUnlock(a);
+                return(status);
+            }
+        }
+
+        /* If # words left to read in event <= # words left in block,
+         * copy # words left to read in event to buffer, else
+         * copy # left in block to buffer.*/
+        ncopy = (nleft <= a->left) ? nleft : a->left;
+
+        memcpy(pBuf, a->next, ncopy*4);
+
+        pBuf    += ncopy;
+        nleft   -= ncopy;
+        a->next += ncopy;
+        a->left -= ncopy;
+    }
+
+    /* Unlock mutex for multithreaded reads/writes/access */
+    mutexUnlock(a);
+
+    /* Swap event in place if necessary */
+    if (a->byte_swapped) {
+        evioswap(buf, 1, NULL);
+    }
+
+    /* Return allocated buffer with event inside and its inclusive len (with full header) */
+    *buffer = buf;
+    *buflen = len;
+
+    return(S_SUCCESS);
+}
+
+
+/**
  * This routine reads an evio bank from an evio format file/socket/buffer
  * opened with routines {@link #evOpen}, {@link #evOpenBuffer}, or
  * {@link #evOpenSocket}, allocates a buffer and fills it with the bank.
@@ -3008,6 +3113,12 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
     if (a->randomAccess) {
         return(S_EVFILE_BADMODE);
     }
+
+
+    if (a->version < 4 && a->rw == EV_READFILE) {
+        return evReadAllocImplFileV3(a, buffer, buflen);
+    }
+
 
     /* Lock mutex for multithreaded reads/writes/access */
     mutexLock(a);
@@ -3079,6 +3190,9 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
     
     return(S_SUCCESS);
 }
+
+
+
 
 
 /**
