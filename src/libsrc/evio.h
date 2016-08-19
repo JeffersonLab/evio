@@ -104,12 +104,12 @@ typedef struct evfilestruct {
   int      rw;           /**< are we reading, writing, piping? */
   int      magic;        /**< magic number. */
   int      byte_swapped; /**< bytes do NOT need swapping = 0 else 1 */
-  int      version;      /**< evio version number. */
+  int      version;      /**< evio FORMAT version number. */
   int      append;       /**< open buffer or file for writing in append mode = 1, else 0.
                               If append = 2, then an event was already been appended. */
   uint32_t eventCount;   /**< current number of events in (or written to) file/buffer
-                          * NOT including dictionary(ies). If the file being written to is split,
-                          * this value refers to all split files taken together. */
+                          *   NOT including dictionary(ies). If the file being written to is split,
+                          *   this value refers to all split files taken together. */
 
   /* block stuff */
   uint32_t *buf;           /**< For files, sockets, and reading buffers = pointer to
@@ -118,7 +118,12 @@ typedef struct evfilestruct {
                             *   contain multiple blocks.
                             *   When writing to buffer, this points to block header
                             *   in block currently being written to (no separate
-                            *   block buffer exists). */
+                            *   block buffer exists).
+                            *   For reading ver 1-3 files, this points to block being
+                            *   parsed (multiple block are read in at once) and pBuf
+                            *   points to the beginning of actual buffer in memory. */
+  uint32_t *pBuf;          /**< For reading ver 1-3 files, this points to the beginning
+                            *   of actual buffer in memory. */
   uint32_t  *next;         /**< pointer to next word in block to be read/written. */
   uint32_t  left;          /**< # of valid 32 bit unread/unwritten words in block. */
   uint32_t  blksiz;        /**< size of block in 32 bit words - v3 or
@@ -136,6 +141,7 @@ typedef struct evfilestruct {
                             *   be used). */
   uint32_t  blkEvMax;      /**< max number of events per block. */
   int       isLastBlock;   /**< 1 if buf contains last block of file/sock/buf, else 0. */
+  uint32_t  blocksToParse; /**< reading file verions 1-3, # of blocks yet to be parsed. */
 
 
   /* file stuff: splitting, auto naming, internal buffer */
@@ -157,7 +163,9 @@ typedef struct evfilestruct {
   uint32_t  splitNumber;    /**< number of next split file (used in auto naming). */
   uint64_t  split;          /**< # of bytes at which to split file when writing
                              *  (defaults to EV_SPLIT_SIZE, 1GB). */
-  uint64_t  fileSize;       /**< size of file being written to, in bytes. */
+
+  uint64_t  fileSize;       /**< size of file being read from, in bytes. */
+  uint64_t  filePosition;   /**< how far into the file have we read, in bytes. */
 
 
   /* buffer stuff */
