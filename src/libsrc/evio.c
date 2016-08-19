@@ -146,6 +146,7 @@
  *  Equivalent to 500, 32,768 byte blocks.
  *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
 #define EV_READ_BYTES_V3 16384000
+//#define EV_READ_BYTES_V3 (32768)
 
 
 /**
