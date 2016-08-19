@@ -145,8 +145,7 @@
 /** In versions 1-3, default size for a single file read in bytes.
  *  Equivalent to 500, 32,768 byte blocks.
  *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
-//#define EV_READ_BYTES_V3 16384000
-#define EV_READ_BYTES_V3 (32768)
+#define EV_READ_BYTES_V3 16384000
 
 
 /**
