@@ -112,10 +112,10 @@
  * this limit may need to be written. */
 #define EV_BLOCKSIZE_V4 500000
 
-/** Minimum block size allowed if size reset (32kB) */
-#define EV_BLOCKSIZE_MIN 1000
+/** Minimum block size in 32 bit words allowed if size reset (32kB) */
+#define EV_BLOCKSIZE_MIN 1024
 
-/** Maximum block size allowed if size reset. Need to play nice with jevio.
+/** Maximum block size in 32 bit words allowed if size reset. Need to play nice with jevio.
  * Can be a max of (2^31 - 1 - 2headers) = 2147483583 , but set it to 96MB.
  * It is a soft limit since a single event larger than
  * this limit may need to be written. */
@@ -141,6 +141,13 @@
 
 /** In version 4, if splitting file, default split size in bytes (2GB) */
 #define EV_SPLIT_SIZE 2000000000L
+
+/** In versions 1-3, default size for a single file read in bytes.
+ *  Equivalent to 500, 32,768 byte blocks.
+ *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
+//#define EV_READ_BYTES_V3 16384000
+#define EV_READ_BYTES_V3 (32768)
+
 
 /**
  * @file
@@ -531,9 +538,11 @@ static void structInit(EVFILE *a)
 
     /* block stuff */
     a->buf           = NULL;
+    a->pBuf          = NULL;
     a->next          = NULL;
     /* Space in number of words, not in header, left for writing */
     a->left          = EV_BLOCKSIZE_V4 - EV_HDSIZ;
+    a->blocksToParse = 0; /* for reading version 1-3 files */
     /* Total data written = block header size so far */
     a->blksiz        = EV_HDSIZ;
     a->blknum        = 1;
@@ -563,6 +572,9 @@ static void structInit(EVFILE *a)
     a->eventsToBuf    = 0;
     a->eventsToFile   = 0;
     a->currentHeader  = NULL;
+
+    a->fileSize       = 0L;
+    a->filePosition   = 0L;
 
     /* buffer stuff */
     a->rwBuf        = NULL;
@@ -1841,8 +1853,46 @@ if (debug) printf("evOpen: reading from pipe %s\n", filename + 1);
                 }
 
                 /* Read in header */
-                nBytes = (int64_t)fread(header, 1, sizeof(header), a->file);
+                int bytesRead = 0, headerSize = sizeof(header);
+                char *pHead = (char *)header;
+                while (bytesRead < headerSize) {
+                    nBytes = (int64_t)fread((void *)(pHead + bytesRead), 1,
+                                            (size_t)(headerSize - bytesRead), a->file);
+                    if (nBytes < 1) {
+                        if (feof(a->file)) {
+                            free(a);
+                            *handle = 0;
+                            free(filename);
+                            return(EOF);
+                        }
+                        else if (ferror(a->file)) {
+                            /* errno is not set for ferror */
+                            free(a);
+                            *handle = 0;
+                            free(filename);
+                            return(S_FAILURE);
+                        }
+                    }
+                    bytesRead += nBytes;
+                }
+
+                a->filePosition += headerSize;
             }
+
+            {
+                /* Find the size of the file just opened for reading */
+                int fd = fileno(a->file);
+                struct stat fstatBuf;
+                err = fstat(fd, &fstatBuf);
+                if (err != 0) {
+                    free(a);
+                    *handle = 0;
+                    free(filename);
+                    return(errno);
+                }
+                a->fileSize = (uint64_t) fstatBuf.st_size;
+            }
+
         }
         else if (useSocket) {
             a->sockFd = sockFd;
@@ -1976,9 +2026,16 @@ if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
             }
             a->blksiz = blk_size;
 
-            /* How big do we make this buffer? Use a minimum size. */
-            a->bufSize = blk_size < EV_BLOCKSIZE_MIN ? EV_BLOCKSIZE_MIN : blk_size;
-            a->buf = (uint32_t *)malloc(4*a->bufSize);
+            if (useFile && version < 4) {
+                // Read early version files in big chunks, integral multiples of a block
+                a->bufSize = EV_READ_BYTES_V3;
+                a->pBuf = a->buf = (uint32_t *) malloc(EV_READ_BYTES_V3);
+            }
+            else {
+                /* How big do we make this buffer? Use a minimum size. */
+                a->bufSize = blk_size < EV_BLOCKSIZE_MIN ? EV_BLOCKSIZE_MIN : blk_size;
+                a->buf = (uint32_t *) malloc(4 * a->bufSize);
+            }
     
             /* Error if can't allocate buffer memory */
             if (a->buf == NULL) {
@@ -2003,8 +2060,62 @@ if (debug) printf("Header size is too small (%u), return error\n", blkHdrSize);
             /* Read rest of block & any remaining, over-sized header */
             /*********************************************************/
             bytesToRead = 4*(blk_size - EV_HDSIZ);
+
             if (useFile) {
-                nBytes = (int64_t)fread(a->buf+EV_HDSIZ, 1, bytesToRead, a->file);
+                if (version > 3) {
+                    nBytes = (int64_t) fread(a->buf + EV_HDSIZ, 1, bytesToRead, a->file);
+                }
+                else {
+                    // We already read in the header. Take that into account when
+                    // reading in next blocks.
+                    long bytesLeftInFile = a->fileSize - a->filePosition;
+                    bytesToRead = (EV_READ_BYTES_V3 - 32) < bytesLeftInFile ?
+                                  (EV_READ_BYTES_V3 - 32) : (uint32_t) bytesLeftInFile;
+
+                    if ( (a->fileSize % 32768) != 0) {
+fprintf(stderr,"evOpenImpl: file is NOT integral # of 32K blocks!\n");
+                        localClose(a);
+                        free(filename);
+                        structDestroy(a);
+                        free(a->buf);
+                        free(a);
+                        return (S_FAILURE);
+                    }
+
+                    uint32_t bytesRead = 0;
+                    char *pBuf = (char *)a->buf;
+
+                    while (bytesRead < bytesToRead) {
+                        nBytes = (int64_t) fread((void *)(pBuf + 32 + bytesRead), 1,
+                                                 (size_t) (bytesToRead - bytesRead), a->file);
+                        if (nBytes < 1) {
+                            if (feof(a->file)) {
+                                localClose(a);
+                                free(filename);
+                                structDestroy(a);
+                                free(a->buf);
+                                free(a);
+                                return (EOF);
+                            }
+                            else if (ferror(a->file)) {
+                                /* errno is not set for ferror */
+                                localClose(a);
+                                free(filename);
+                                structDestroy(a);
+                                free(a->buf);
+                                free(a);
+                                return (S_FAILURE);
+                            }
+                        }
+                        bytesRead += nBytes;
+                    }
+
+                    a->filePosition += bytesRead;
+
+                    // Set blocks just read in that are not being parsed right now.
+                    // We're parsing the very first hence the "- 1".
+                    a->blocksToParse = (bytesRead + 32)/32768 - 1;
+                }
             }
             else if (useSocket) {
                 nBytes = (int64_t)tcpRead(sockFd, a->buf+EV_HDSIZ, bytesToRead);
@@ -2978,6 +3089,242 @@ static int evReadAllocImpl(EVFILE *a, uint32_t **buffer, uint32_t *buflen)
 
 
 /**
+ * Routine to get the next block if reading version 1-3 files.
+ *
+ * @param a pointer to file structure
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
+ *                            while reading data (perhaps bad block header
+ *                            or reading from a too-small buffer)
+ * @return EOF                if end-of-file or end-of-valid-data reached
+ * @return errno              if file/socket read error
+ * @return S_FAILURE          if file reading error
+ */
+static int evGetNewBufferFileV3(EVFILE *a)
+{
+    uint32_t  blkHdrSize;
+    size_t    nBytes=0;
+    int       status = S_SUCCESS;
+
+
+    /* If no data left in the internal buffer ... */
+    if (a->blocksToParse < 1) {
+
+        /* Bytes left to read in file */
+        uint64_t bytesLeftInFile = a->fileSize - a->filePosition;
+        if (bytesLeftInFile < 32L) {
+            return(EOF);
+        }
+
+        /* The block size is a fixed 32kB which is on the small side.
+         * We want to read in 16MB (EV_READ_BYTES_V3) or so at once
+         * for efficiency. */
+        uint32_t fileBytesToRead = EV_READ_BYTES_V3 < bytesLeftInFile ?
+                                   EV_READ_BYTES_V3 : (int) bytesLeftInFile;
+
+        /* Read data */
+        uint32_t bytesRead = 0;
+        char *pBuf = (char *)a->pBuf;
+        while (bytesRead < fileBytesToRead) {
+            nBytes = fread((void *)(pBuf + bytesRead), 1,
+                           (size_t)(fileBytesToRead - bytesRead), a->file);
+            if (nBytes < 1) {
+                if (feof(a->file)) {
+                    return(EOF);
+                }
+                else if (ferror(a->file)) {
+                    /* errno is not set for ferror */
+                    return(S_FAILURE);
+                }
+            }
+            bytesRead += nBytes;
+        }
+
+        /* How many blocks beyond the one we're doing right now? */
+        a->blocksToParse = fileBytesToRead / 32768 - 1;
+
+        /* Keep track of where were are in internal buffer */
+        a->buf = a->pBuf;
+
+        /* Keep track of where were are in reading the file */
+        a->filePosition += bytesRead;
+    }
+    /* We have more data (whole blocks) in the internal buffer */
+    else {
+        /* Move to next block */
+        a->buf += 8192;
+        a->blocksToParse--;
+    }
+
+    /* Swap header in place if necessary */
+    if (a->byte_swapped) {
+        swap_int32_t(a->buf, EV_HDSIZ, NULL);
+    }
+
+    /* For ver 1-3 all block headers are same size - 8 words. */
+    blkHdrSize = a->buf[EV_HD_HDSIZ];
+    if (blkHdrSize != 8) {
+#ifdef DEBUG
+        fprintf(stderr,"evGetNewBufferSeqV3: block header != 8 words\n");
+#endif
+        /* Although technically OK to have larger block headers, they were always 8 words */
+        return(S_FAILURE);
+    }
+
+    /* Each block is same size. */
+    a->blksiz = a->buf[EV_HD_BLKSIZ];
+    if (a->blksiz != 8192) {
+#ifdef DEBUG
+        fprintf(stderr,"evGetNewBufferSeqV3: block size != 8192 words\n");
+#endif
+        /* Although technically OK to have a different block size, they were always 8192 words */
+        return(S_FAILURE);
+    }
+
+    /* Keep track of the # of blocks read */
+    a->blknum++;
+
+    /* Is our block # consistent with block header's? */
+    if (a->buf[EV_HD_BLKNUM] != a->blknum + a->blkNumDiff) {
+        /* Record the difference so we don't print out a message
+        * every single time if things get out of sync. */
+        a->blkNumDiff = a->buf[EV_HD_BLKNUM] - a->blknum;
+#ifdef DEBUG
+        fprintf(stderr,"evGetNewBuffer: block # read(%d) is different than expected(%d)\n",
+                a->buf[EV_HD_BLKNUM], a->blknum);
+#endif
+    }
+
+    /* Start out pointing to the data right after the block header.
+     * If we're in the middle of reading an event, this will allow
+     * us to continue reading it. If we've looking to read a new
+     * event, this should point to the next one. */
+    a->next = a->buf + blkHdrSize;
+
+    /* Number of valid words left to read in block */
+    a->left = (a->buf)[EV_HD_USED] - blkHdrSize;
+
+    /* If there are no valid data left in block ... */
+    if (a->left < 1) {
+       return(S_EVFILE_UNXPTDEOF);
+    }
+
+    return(status);
+}
+
+
+/**
+ * This routine reads from an evio format file opened with  {@link #evOpen}
+ * and returns the next event in the buffer arg. Works with all versions 1-3
+ * evio format. A status is returned.
+ *
+ * @param handle evio handle
+ * @param buffer pointer to buffer
+ * @param buflen length of buffer in 32 bit words
+ *
+ * @return S_SUCCESS          if successful
+ * @return S_EVFILE_BADMODE   if opened for writing or random-access reading
+ * @return S_EVFILE_TRUNC     if buffer provided by caller is too small for event read
+ * @return S_EVFILE_BADARG    if buffer is NULL or buflen < 3
+ * @return S_EVFILE_BADHANDLE if bad handle arg
+ * @return S_EVFILE_ALLOCFAIL if memory cannot be allocated
+ * @return S_EVFILE_UNXPTDEOF if unexpected EOF or end-of-valid-data
+ *                            while reading data (perhaps bad block header)
+ * @return EOF                if end-of-file or end-of-valid-data reached
+ * @return errno              if file/socket read error
+ * @return stream error       if file stream error
+ */
+static int evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen)
+{
+    int       status,  swap;
+    uint32_t  nleft, ncopy;
+    uint32_t *temp_buffer=NULL, *temp_ptr=NULL;
+
+
+    /* Lock mutex for multithreaded reads/writes/access */
+    mutexLock(a);
+
+    /* If no more data left to read from current BLOCK, get a new block */
+    if (a->left < 1) {
+        status = evGetNewBufferFileV3(a);
+        if (status != S_SUCCESS) {
+            mutexUnlock(a);
+            return(status);
+        }
+    }
+
+    /* Find number of words to read in next event (including header) */
+    if (a->byte_swapped) {
+        /* Create temp buffer for swapping */
+        temp_ptr = temp_buffer = (uint32_t *) malloc(buflen*sizeof(uint32_t));
+        if (temp_ptr == NULL) return(S_EVFILE_ALLOCFAIL);
+        /* Value at pointer to next event (bank) header = length of bank - 1 */
+        nleft = EVIO_SWAP32(*(a->next)) + 1;
+    }
+    else {
+        /* Length of next bank, including header, in 32 bit words */
+        nleft = *(a->next) + 1;
+    }
+
+    /* Is there NOT enough room in buffer to store whole event? */
+    if (nleft > buflen) {
+        /* Buffer too small, just return error.
+         * Previous evio lib tried to swap truncated event!? */
+        if (temp_ptr != NULL) free(temp_ptr);
+        mutexUnlock(a);
+        return(S_EVFILE_TRUNC);
+    }
+
+    /* While there is more event data left to read ... */
+    while (nleft > 0) {
+
+        /* If no more data left to read from current block, get a new block */
+        if (a->left < 1) {
+            status = evGetNewBufferFileV3(a);
+            if (status != S_SUCCESS) {
+                if (temp_ptr != NULL) free(temp_ptr);
+                mutexUnlock(a);
+                return(status);
+            }
+        }
+
+        /* If # words left to read in event <= # words left in block,
+         * copy # words left to read in event to buffer, else
+         * copy # left in block to buffer.*/
+        ncopy = (nleft <= a->left) ? nleft : a->left;
+
+        if (a->byte_swapped) {
+            memcpy(temp_buffer, a->next, ncopy*4);
+            temp_buffer += ncopy;
+        }
+        else{
+            memcpy(buffer, a->next, ncopy*4);
+            buffer += ncopy;
+        }
+        
+        nleft   -= ncopy;
+        a->next += ncopy;
+        a->left -= ncopy;
+    }
+
+    /* Store value locally so we can release lock before swapping. */
+    swap = a->byte_swapped;
+    
+    /* Unlock mutex for multithreaded reads/writes/access */
+    mutexUnlock(a);
+
+    /* Swap event if necessary */
+    if (swap) {
+        evioswap(temp_ptr, 1, buffer);
+        free(temp_ptr);
+    }
+
+    return(S_SUCCESS);
+}
+
+
+/**
  * This routine reads from an evio format file/socket/buffer opened with routines
  * {@link #evOpen}, {@link #evOpenBuffer}, or {@link #evOpenSocket} and returns the
  * next event in the buffer arg. Works with all versions of evio. A status is
@@ -3010,7 +3357,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
     if (handle < 1 || handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
-    
+
     if (buffer == NULL || buflen < 3) {
         return(S_EVFILE_BADARG);
     }
@@ -3033,11 +3380,18 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
         handleReadUnlock(handle);
         return(S_EVFILE_BADMODE);
     }
-    
+
     /* Cannot be random access reading */
     if (a->randomAccess) {
         handleReadUnlock(handle);
         return(S_EVFILE_BADMODE);
+    }
+
+
+    if (a->rw == EV_READFILE && a->version < 4) {
+        int err = evReadFileV3(a, buffer, buflen);
+        handleReadUnlock(handle);
+        return (err);
     }
 
     /* Lock mutex for multithreaded reads/writes/access */
@@ -3102,7 +3456,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
             memcpy(buffer, a->next, ncopy*4);
             buffer += ncopy;
         }
-        
+
         nleft   -= ncopy;
         a->next += ncopy;
         a->left -= ncopy;
@@ -3110,7 +3464,7 @@ int evRead(int handle, uint32_t *buffer, uint32_t buflen)
 
     /* Store value locally so we can release lock before swapping. */
     swap = a->byte_swapped;
-    
+
     /* Unlock mutex for multithreaded reads/writes/access */
     mutexUnlock(a);
     handleReadUnlock(handle);
@@ -4744,12 +5098,20 @@ if (debug) printf("    evClose: didn't write all bytes, err = %s\n", strerror(er
     }
 
     /* Free up resources */
-    if (a->buf != NULL && a->rw != EV_WRITEBUF) free((void *)(a->buf));
+    if (a->buf != NULL && a->rw != EV_WRITEBUF) {
+        if (a->pBuf != NULL) {
+            free((void *)(a->pBuf));
+        }
+        else {
+            free((void *) (a->buf));
+        }
+    }
     if (a->dictBuf      != NULL) free(a->dictBuf);
     if (a->dictionary   != NULL) free(a->dictionary);
     if (a->fileName     != NULL) free(a->fileName);
     if (a->baseFileName != NULL) free(a->baseFileName);
     if (a->runType      != NULL) free(a->runType);
+
     structDestroy(a);
     free((void *)a);
     
