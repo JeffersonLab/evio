@@ -15,53 +15,96 @@
  *
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include "evio.h"
 
 #define MIN(a,b) (a<b)? a : b
 
 
-int main()
-{
-    int handle, status, nevents, nwords, i;
-    uint32_t  buffer[50000], *ip;
+    int main()
+    {
+        int handle, status, nevents, nwords, i;
+        uint32_t  *buffer, *ip, bufLen;
 
-    status = evOpen("/home/timmer/evioTestFiles/evioV2format.ev", "r", &handle);
-    nevents = 0;
+        status = evOpen("/home/timmer/evioTestFiles/evioV2format.ev", "r", &handle);
+        nevents = 0;
 
-    while ((status = evRead(handle, buffer, 50000)) == S_SUCCESS) {
-        nevents++;
+        while ((status = evReadAlloc(handle, &buffer, &bufLen)) == S_SUCCESS) {
+            nevents++;
 
-        printf("    Event #%d,  len = %d data bytes\n", nevents, 4*(buffer[0] - 1));
+            printf("    Event #%d,  len = %d data bytes\n", nevents, 4*(buffer[0] - 1));
 
-        ip = buffer;
-        nwords = buffer[0] + 1;
+            ip = buffer;
+            nwords = buffer[0] + 1;
 
-        printf("      Header words\n");
-        printf("        %#10.8x\n", *ip++);
-        printf("        %#10.8x\n\n", *ip++);
-        printf("      Data words\n");
+            printf("      Header words\n");
+            printf("        %#10.8x\n", *ip++);
+            printf("        %#10.8x\n\n", *ip++);
+            printf("      Data words\n");
 
-        nwords -= 2;
+            nwords -= 2;
+
+            free(buffer);
 
 
 //        printf("Hit Enter to continue:\n");
 //        getchar();
+        }
+
+        if (status == EOF) {
+            printf("    Last read, reached EOF!\n");
+        }
+        else {
+            printf ("    Last evRead status = %d, %s\n", status, evPerror(status));
+        }
+
+        status = evClose(handle);
+        printf ("    Closed /home/timmer/evioTestFiles/evioV2format.ev again, status = %d\n\n", status);
     }
 
-    if (status == EOF) {
-        printf("    Last read, reached EOF!\n");
+
+    int main2()
+    {
+        int handle, status, nevents, nwords, i;
+        uint32_t  buffer[50000], *ip;
+
+        status = evOpen("/home/timmer/evioTestFiles/evioV4format.ev", "r", &handle);
+        nevents = 0;
+
+        while ((status = evRead(handle, buffer, 50000)) == S_SUCCESS) {
+            nevents++;
+
+            printf("    Event #%d,  len = %d data bytes\n", nevents, 4*(buffer[0] - 1));
+
+            ip = buffer;
+            nwords = buffer[0] + 1;
+
+            printf("      Header words\n");
+            printf("        %#10.8x\n", *ip++);
+            printf("        %#10.8x\n\n", *ip++);
+            printf("      Data words\n");
+
+            nwords -= 2;
+
+
+//        printf("Hit Enter to continue:\n");
+//        getchar();
+        }
+
+        if (status == EOF) {
+            printf("    Last read, reached EOF!\n");
+        }
+        else {
+            printf ("    Last evRead status = %d, %s\n", status, evPerror(status));
+        }
+
+        status = evClose(handle);
+        printf ("    Closed /home/timmer/evioTestFiles/evioV2format.ev again, status = %d\n\n", status);
     }
-    else {
-        printf ("    Last evRead status = %d, %s\n", status, evPerror(status));
-    }
-
-    status = evClose(handle);
-    printf ("    Closed /home/timmer/evioTestFiles/evioV2format.ev again, status = %d\n\n", status);
-}
 
 
-int main1()
+    int main1()
 {
     int handle, status, nevents, nwords, i;
     uint32_t  buffer[204800], *ip;
