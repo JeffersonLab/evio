@@ -22,7 +22,7 @@
 #define MIN(a,b) (a<b)? a : b
 
 
-    int main()
+    int main2()
     {
         int handle, status, nevents, nwords, i;
         uint32_t  *buffer, *ip, bufLen;
@@ -64,12 +64,12 @@
     }
 
 
-    int main2()
+    int main()
     {
         int handle, status, nevents, nwords, i;
         uint32_t  buffer[50000], *ip;
 
-        status = evOpen("/home/timmer/evioTestFiles/evioV4format.ev", "r", &handle);
+        status = evOpen("/home/timmer/evioTestFiles/evioV2format.ev", "r", &handle);
         nevents = 0;
 
         while ((status = evRead(handle, buffer, 50000)) == S_SUCCESS) {
