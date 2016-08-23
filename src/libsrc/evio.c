@@ -133,7 +133,7 @@
 /** In version 4, "first event" is 15th bit in version/info word */
 #define EV_FIRSTEVENT_MASK 0x4000
 
-/** In version 4, maximum max number of events per block */
+/** In version 4, upper limit on maximum max number of events per block */
 #define EV_EVENTS_MAX 100000
 
 /** In version 4, default max number of events per block */
