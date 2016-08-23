@@ -106,7 +106,7 @@ public class EventWriter {
     static final int MIN_BLOCK_SIZE = 1024;
 
     /** The lower limit of maximum event count for a single block used for writing. */
-    static final int MIN_BLOCK_COUNT = 1; //TODO: make this 10,000 but still need to write single events
+    static final int MIN_BLOCK_COUNT = 1;
 
     /** Size of block header in bytes. */
     static final int headerBytes = 32;
