@@ -568,6 +568,7 @@ static void structInit(EVFILE *a)
     a->runNumber      = 1;
     a->specifierCount = 0;
     a->splitting      = 0;
+    a->streamId       = 0;
     a->splitNumber    = 0;
     a->split          = EV_SPLIT_SIZE;
     a->fileSize       = 0L;
@@ -1365,7 +1366,13 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
  * If the file is being split, the second will be substituted with the splitNumber.
  * If 2 specifiers exist and the file is not being split, no substitutions are made.
  * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
- * It returns the final file name or NULL if error. Free the result if non-NULL.
+ * It returns the final file name or NULL if error. Free the result if non-NULL.<p>
+ *
+ * If multiple streams of data, each writing a file, end up with the same file name,
+ * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
+ * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
+ * This is done after the run and split numbers have been inserted into the file name.
+ *
  *
  * @param handle         evio handle (contains file name to use as a basis for the
  *                       generated file name)
@@ -1374,35 +1381,38 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
  * @param split          is file being split (split > 0)? 1 - yes, 0 - no
  * @param splitNumber    number of the split file
  * @param runType        run type name
+ * @param streamId       streamId number (100 > id > -1)
  *
  * @return NULL if error
  * @return generated file name (free if non-NULL)
  */
 char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
-                         int splitting, int splitNumber, char *runType) {
+                         int splitting, int splitNumber, char *runType,
+                         uint32_t streamId) {
 
     char   *fileName, *name, *specifier;
 
     
     /* Check args */
     if ( (splitting && splitNumber < 0) || (runNumber < 1) ||
+         (streamId > 99) ||
          (specifierCount < 0) || (specifierCount > 2)) {
-        return(NULL); /* S_EVFILE_BADARG */
+        return(NULL);
     }
 
     /* Check handle arg */
     if (a == NULL) {
-        return(NULL); /* S_EVFILE_BADHANDLE */
+        return(NULL);
     }
 
     /* Need to be writing to a file */
     if (a->rw != EV_WRITEFILE) {
-        return(NULL); /* S_EVFILE_BADMODE */
+        return(NULL);
     }
 
     /* Internal programming bug */
     if (a->baseFileName == NULL) {
-        return(NULL); /* S_FAILURE */
+        return(NULL);
     }
     
     /* Replace all %s occurrences with run type ("" if NULL).
@@ -1410,7 +1420,7 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
     name = evStrReplace(a->baseFileName, "%s", runType);
     if (name == NULL) {
         /* out-of-mem */
-        return(NULL); /* S_FAILURE */
+        return(NULL);
     }
     free(a->baseFileName);
     a->baseFileName = name;
@@ -1425,11 +1435,11 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         if (specifierCount < 1) {
             /* Create space for filename */
             fileName = (char *)calloc(1, strlen(a->baseFileName) + 12);
-            if (!fileName) return(NULL); /* S_FAILURE */
+            if (!fileName) return(NULL);
             
             /* Create a printing format specifier for split # */
             specifier = (char *)calloc(1, strlen(a->baseFileName) + 6);
-            if (!specifier) return(NULL); /* S_FAILURE */
+            if (!specifier) return(NULL);
             
             sprintf(specifier, "%s.%s", a->baseFileName, "%d");
 
@@ -1442,13 +1452,13 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         else if (specifierCount == 1) {
             /* Create space for filename */
             fileName = (char *)calloc(1, strlen(a->baseFileName) + 22);
-            if (!fileName) return(NULL); /* S_FAILURE */
+            if (!fileName) return(NULL);
             
             /* The first printfing format specifier is in a->filename already */
             
             /* Create a printing format specifier for split # */
             specifier = (char *)calloc(1, strlen(a->baseFileName) + 6);
-            if (!specifier) return(NULL); /* S_FAILURE */
+            if (!specifier) return(NULL);
             
             sprintf(specifier, "%s.%s", a->baseFileName, "%d");
 
@@ -1461,7 +1471,7 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         else {
             /* Create space for filename */
             fileName = (char *)calloc(1, strlen(a->baseFileName) + 21);
-            if (!fileName) return(NULL); /* S_FAILURE */
+            if (!fileName) return(NULL);
             
             /* Both printfing format specifiers are in a->filename already */
                         
@@ -1475,7 +1485,7 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         if (specifierCount == 1) {
             /* Create space for filename */
             fileName = (char *)calloc(1, strlen(a->baseFileName) + 11);
-            if (!fileName) return(NULL); /* S_FAILURE */
+            if (!fileName) return(NULL);
             
             /* The printfing format specifier is in a->filename already */
                         
@@ -1485,7 +1495,7 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         /* For 2 specifiers: insert run # and remove split # specifier */
         else if (specifierCount == 2) {
             fileName = (char *)calloc(1, strlen(a->baseFileName) + 11);
-            if (!fileName) return(NULL); /* S_FAILURE */
+            if (!fileName) return(NULL);
             sprintf(fileName, a->baseFileName, runNumber);
 
             /* Get rid of remaining int specifiers */
@@ -1496,6 +1506,28 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
         else {
             fileName = strdup(a->baseFileName);
         }
+    }
+
+    /* If we have a valid stream id number, append ".strm#" to end of file name */
+    if (streamId > 0) {
+        char *fName;
+        size_t idDigits, len = strlen(fileName);
+
+        if (streamId < 10) {
+            idDigits = 1 + 5;
+        }
+        else {
+            idDigits = 2 + 5;
+        }
+
+        /* Create space for filename */
+        fName = (char *)calloc(1, len + 1 + idDigits);
+        if (!fName) return(NULL);
+
+        sprintf(fName, "%s.strm%u", fileName, streamId);
+
+        free(fileName);
+        fileName = fName;
     }
 
     return fileName;
@@ -4969,7 +5001,8 @@ if (debug) printf("    evFlush: write %u events to FILE\n", a->eventsToBuf);
                 if (a->fileName == NULL) {
                     /* Generate actual file name from base name */
                     char *fname = evGenerateFileName(a, a->specifierCount, a->runNumber,
-                                                     a->splitting, a->splitNumber++, a->runType);
+                                                     a->splitting, a->splitNumber++,
+                                                     a->runType, a->streamId);
                     if (fname == NULL) {
                         return(S_FAILURE);
                     }
@@ -5093,7 +5126,8 @@ if (debug) printf("splitFile: error closing file, %s\n", strerror(errno));
 
     /* Create the next file's name */
     fname = evGenerateFileName(a, a->specifierCount, a->runNumber,
-                               a->splitting, a->splitNumber++, a->runType);
+                               a->splitting, a->splitNumber++,
+                               a->runType, a->streamId);
     if (fname == NULL) {
         return(-1);
     }
@@ -5326,6 +5360,9 @@ int evGetBufferLength(int handle, uint32_t *length)
  * being written to if request = "T".
  * Used only in version 4.<p>
  *
+ * It sets the stream id used when auto naming files being written to if request = "M".
+ * Used only in version 4.<p>
+ *
  * It returns the version number if request = "V".<p>
  * 
  * It returns the total number of events in a file/buffer
@@ -5346,6 +5383,7 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI>  "N"  for setting max # of events/block
  * <LI>  "R"  for setting run number (used in file splitting)
  * <LI>  "T"  for setting run type   (used in file splitting)
+ * <LI>  "M"  for setting stream id  (used in auto file naming)
  * <LI>  "S"  for setting file split size in bytes
  * <LI>  "V"  for getting evio version #
  * <LI>  "H"  for getting 8 ints of block header info
@@ -5359,6 +5397,7 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI> pointer to uin32_t containing new max # of events/block if request = N, or
  * <LI> pointer to uin32_t containing run number if request = R, or
  * <LI> pointer to character containing run type if request = T, or
+ * <LI> pointer to uin32_t containing stream id if request = M, or
  * <LI> pointer to int32_t returning version # if request = V, or
  * <LI> pointer to <b>uint64_t</b> containing max size in bytes of split file if request = S, or
  * <LI> address of pointer to uint32_t returning pointer to 8
@@ -5389,7 +5428,7 @@ int evIoctl(int handle, char *request, void *argp)
     uint32_t *newBuf, *pHeader;
     int       err, debug=0;
     char     *runType;
-    uint32_t  eventsMax, blockSize, bufferSize, runNumber;
+    uint32_t  eventsMax, blockSize, bufferSize, runNumber, strId;
     uint64_t  splitSize;
 
     
@@ -5727,7 +5766,7 @@ if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, spl
                 handleWriteUnlock(handle);
                 return(S_EVFILE_BADSIZEREQ);
             }
-            
+
             a->runNumber = runNumber;
             break;
 
@@ -5751,7 +5790,21 @@ if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, spl
             a->runType = runType;
             break;
 
-        /****************************/
+            /************************************************/
+            /* Setting stream id for file naming            */
+            /************************************************/
+        case 'm':
+        case 'M':
+            /* Need to specify stream id */
+            if (argp == NULL) {
+                handleWriteUnlock(handle);
+                return(S_EVFILE_BADARG);
+            }
+
+            a->streamId = *(uint32_t *) argp;
+            break;
+
+            /****************************/
         /* Getting number of events */
         /****************************/
         case 'e':

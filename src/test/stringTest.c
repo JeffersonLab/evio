@@ -139,7 +139,7 @@ int main2 (int argc, char **argv) {
     printf("BASE   = %s, count = %d\n", baseName, specifierCount);
 
     result = evGenerateFileName(a, a->specifierCount, a->runNumber,
-                                a->split, a->splitNumber, a->runType);
+                                a->split, a->splitNumber, a->runType, a->streamId);
     if (result == NULL) {
         printf("Error in evGenerateFileName()\n");
         exit(0);

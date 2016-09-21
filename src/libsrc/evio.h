@@ -159,6 +159,7 @@ typedef struct evfilestruct {
                              * currently being written to. */
   uint64_t  bytesToFile;    /**< # bytes flushed to the current file (including ending
                              *   empty block & dictionary), not the total in all split files. */
+  uint32_t  streamId;       /**< stream id # used in auto naming of files. */
   uint32_t  runNumber;      /**< run # used in auto naming of split files. */
   uint32_t  splitNumber;    /**< number of next split file (used in auto naming). */
   uint64_t  split;          /**< # of bytes at which to split file when writing
@@ -286,7 +287,7 @@ char *evStrFindSpecifiers(const char *orig, int *specifierCount);
 char *evStrRemoveSpecifiers(const char *orig);
 int   evGenerateBaseFileName(char *origName, char **baseName, int *count);
 char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
-                         int splitting, int splitNumber, char *runType);
+                         int splitting, int splitNumber, char *runType, uint32_t streamId);
 
 #ifdef __cplusplus
 }

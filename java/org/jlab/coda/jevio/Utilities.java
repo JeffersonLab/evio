@@ -57,7 +57,7 @@ final public class Utilities {
      *                        if baseName or newNameBuilder arg is null
      */
     final static public int generateBaseFileName(String baseName, String runType,
-                                           StringBuilder newNameBuilder)
+                                                 StringBuilder newNameBuilder)
             throws EvioException {
 
         String baseFileName;
@@ -149,7 +149,45 @@ final public class Utilities {
      *                                and interfere with formatting
      */
     final static public String generateFileName(String baseFileName, int specifierCount,
-                                          int runNumber, long split, int splitNumber)
+                                                int runNumber, long split, int splitNumber)
+                        throws IllegalFormatException {
+
+       return generateFileName(baseFileName, specifierCount, runNumber, split, splitNumber, 0);
+    }
+
+
+    /**
+     * This method generates a complete file name from the previously determined baseFileName
+     * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
+     * If evio data is to be split up into multiple files (split > 0), numbers are used to
+     * distinguish between the split files with splitNumber.
+     * If baseFileName contains C-style int format specifiers (specifierCount > 0), then
+     * the first occurrence will be substituted with the given runNumber value.
+     * If the file is being split, the second will be substituted with the splitNumber.
+     * If 2 specifiers exist and the file is not being split, no substitutions are made.
+     * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.<p>
+     *
+     * If multiple streams of data, each writing a file, end up with the same file name,
+     * they can be differentiated by a stream id number. If the id is not 0, the string, ".strm"
+     * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
+     * This is done after the run and split numbers have been inserted into the file name.
+     *
+     * @param baseFileName   file name to use as a basis for the generated file name
+     * @param specifierCount number of C-style int format specifiers in baseFileName arg
+     * @param runNumber      CODA run number
+     * @param split          number of bytes at which to split off evio file
+     * @param splitNumber    number of the split file
+     * @param streamId       number of the stream id
+     *
+     * @return generated file name
+     *
+     * @throws IllegalFormatException if the baseFileName arg contains printing format
+     *                                specifiers which are not compatible with integers
+     *                                and interfere with formatting
+     */
+    final static public String generateFileName(String baseFileName, int specifierCount,
+                                                int runNumber, long split, int splitNumber,
+                                                int streamId)
                         throws IllegalFormatException {
 
         String fileName = baseFileName;
@@ -195,6 +233,10 @@ final public class Utilities {
                 // Insert runNumber into first specifier
                 fileName = String.format(fileName, runNumber);
             }
+        }
+
+        if (streamId > 0) {
+            fileName += ".strm" + streamId;
         }
 
         return fileName;
