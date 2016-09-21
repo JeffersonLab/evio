@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 project(evio_5_2)
 
 #include_directories($ENV{CODA}/common/include)
-include_directories(/daqfs/home/timmer/coda/evio-5.2/src/libsrc /daqfs/home/timmer/coda/evio-5.2/src/libsrc++)
+include_directories(/daqfs/home/timmer/coda/evio-5.2.GIT/src/libsrc /daqfs/home/timmer/coda/evio-5.2.GIT/src/libsrc++)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
