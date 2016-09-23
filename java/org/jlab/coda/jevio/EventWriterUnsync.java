@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * An EventWriter object is used for writing events to a file or to a byte buffer.
- * This class is NOT threadsafe since all synchronization has been removed for
+ * An EventWriterUnsync object is used for writing events to a file or to a byte buffer.
+ * This class is NOT thread-safe since all synchronization has been removed for
  * performance reasons.
  *
  * @author heddle
@@ -32,7 +32,7 @@ public class EventWriterUnsync {
      * CANNOT_OPEN_FILE  that we cannot write because the destination file cannot be opened.<br>
 	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
 	 */
-	public static enum IOStatus {
+	public enum IOStatus {
 		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, CANNOT_OPEN_FILE, UNKNOWN_ERROR
 	}
 
@@ -333,7 +333,7 @@ public class EventWriterUnsync {
     //---------------------------------------------
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an <code>EventWriterUnsync</code> for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -345,7 +345,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an <code>EventWriterUnsync</code> for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -362,7 +362,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an <code>EventWriterUnsync</code> for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -380,7 +380,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an <code>EventWriterUnsync</code> for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -392,7 +392,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in native byte order.
+     * Creates an <code>EventWriterUnsync</code> for writing to a file in native byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
@@ -409,7 +409,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Creates an <code>EventWriter</code> for writing to a file in the
+     * Creates an <code>EventWriterUnsync</code> for writing to a file in the
      * specified byte order.
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
@@ -428,7 +428,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
      * If the file already exists, its contents will be overwritten.
      * If it doesn't exist, it will be created.
      *
@@ -455,7 +455,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. If it doesn't exist,
@@ -487,7 +487,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -530,7 +530,7 @@ public class EventWriterUnsync {
 
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
      * This constructor is useful when splitting and automatically naming
      * the split files. If any of the generated files already exist,
      * it will <b>NOT</b> be overwritten. Byte order defaults to big endian.
@@ -562,7 +562,40 @@ public class EventWriterUnsync {
 
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
+     * This constructor is useful when splitting and automatically naming
+     * the split files. If any of the generated files already exist,
+     * it will <b>NOT</b> be overwritten. Byte order defaults to big endian.
+     *
+     * @param baseName      base file name used to generate complete file name (may not be null)
+     * @param directory     directory in which file is to be placed
+     * @param runType       name of run type configuration to be used in naming files
+     * @param runNumber     number of the CODA run, used in naming files
+     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     *                      Else this is max size in bytes to make a file
+     *                      before closing it and starting writing another.
+     * @param byteOrder     the byte order in which to write the file.
+     *                      Defaults to big endian if null.
+     * @param xmlDictionary dictionary in xml format or null if none.
+     * @param streamId      streamId number (100 > id > -1) for file name
+     *
+     * @throws EvioException if baseName arg is null;
+     *                       if file could not be opened, positioned, or written to;
+     *                       if file exists.
+     */
+    public EventWriterUnsync(String baseName, String directory, String runType,
+                             int runNumber, long split, ByteOrder byteOrder,
+                             String xmlDictionary, int streamId)
+            throws EvioException {
+
+        this(baseName, directory, runType, runNumber, split,
+             DEFAULT_BLOCK_SIZE, DEFAULT_BLOCK_COUNT, 0,
+             byteOrder, xmlDictionary, null, false, false, null, streamId);
+    }
+
+
+    /**
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
      * This constructor is useful when splitting and automatically naming
      * the split files. Byte order defaults to big endian.
      *
@@ -595,7 +628,7 @@ public class EventWriterUnsync {
 
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -668,12 +701,11 @@ public class EventWriterUnsync {
 
         this(baseName, directory, runType, runNumber, split,
              blockSizeMax, blockCountMax, bufferSize,
-             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, null);
+             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, null, 0);
     }
 
-
     /**
-     * Create an <code>EventWriter</code> for writing events to a file.
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
      * If the file already exists, its contents will be overwritten
      * unless the "overWriteOK" argument is <code>false</code> in
      * which case an exception will be thrown. Unless ..., the option to
@@ -746,6 +778,94 @@ public class EventWriterUnsync {
                              ByteOrder byteOrder, String xmlDictionary,
                              BitSet bitInfo, boolean overWriteOK, boolean append,
                              EvioBank firstEvent)
+            throws EvioException {
+
+        this(baseName, directory, runType, runNumber, split,
+             blockSizeMax, blockCountMax, bufferSize,
+             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, firstEvent, 0);
+    }
+
+
+    /**
+     * Create an <code>EventWriterUnsync</code> for writing events to a file.
+     * If the file already exists, its contents will be overwritten
+     * unless the "overWriteOK" argument is <code>false</code> in
+     * which case an exception will be thrown. Unless ..., the option to
+     * append these events to an existing file is <code>true</code>,
+     * in which case everything is fine. If the file doesn't exist,
+     * it will be created. Byte order defaults to big endian if arg is null.
+     * File can be split while writing.<p>
+     *
+     * The base file name may contain up to 2, C-style integer format specifiers using
+     * "d" and "x" (such as <b>%03d</b>, or <b>%x</b>).
+     * If more than 2 are found, an exception will be thrown.
+     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
+     * it will be added automatically in order to avoid spaces in the file name.
+     * The first specifier will be substituted with the given runNumber value.
+     * If the file is being split, the second will be substituted with the split number
+     * which starts at 0.
+     * If 2 specifiers exist and the file is not being split, no substitutions are made.
+     * If no specifier for the splitNumber exists, it is tacked onto the end of the file
+     * name after a dot (.).
+     * <p>
+     *
+     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
+     * which will be substituted with the value of the associated environmental
+     * variable or a blank string if none is found.<p>
+     *
+     * The base file name may also contain occurrences of the string "%s"
+     * which will be substituted with the value of the runType arg or nothing if
+     * the runType is null.<p>
+     *
+     * If multiple streams of data, each writing a file, end up with the same file name,
+     * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
+     * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
+     * This is done after the run type, run number, split numbers, and env vars have been inserted
+     * into the file name.<p>
+     *
+     * @param baseName      base file name used to generate complete file name (may not be null)
+     * @param directory     directory in which file is to be placed
+     * @param runType       name of run type configuration to be used in naming files
+     * @param runNumber     number of the CODA run, used in naming files
+     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     *                      Else this is max size in bytes to make a file
+     *                      before closing it and starting writing another.
+     * @param blockSizeMax  the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
+     *                      and <= {@link #MAX_BLOCK_SIZE} ints.
+     *                      The size of the block will not be larger than this size
+     *                      unless a single event itself is larger.
+     * @param blockCountMax the max number of events (including dictionary) in a single block
+     *                      which must be >= {@link #MIN_BLOCK_COUNT} and <= {@link #MAX_BLOCK_COUNT}.
+     * @param bufferSize    number of bytes to make the internal buffer which will
+     *                      be storing events before writing them to a file. Must be at least
+     *                      4*blockSizeMax + 32. If not, it is set to that.
+     * @param byteOrder     the byte order in which to write the file. This is ignored
+     *                      if appending to existing file.
+     * @param xmlDictionary dictionary in xml format or null if none.
+     * @param bitInfo       set of bits to include in first block header.
+     * @param overWriteOK   if <code>false</code> and the file already exists,
+     *                      an exception is thrown rather than overwriting it.
+     * @param append        if <code>true</code> and the file already exists,
+     *                      all events to be written will be appended to the
+     *                      end of the file.
+     * @param firstEvent    the first event written into each file (after any dictionary)
+     *                      including all split files; may be null. Useful for adding
+     *                      common, static info into each split file.
+     * @param streamId      streamId number (100 > id > -1) for file name
+     *
+     * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
+     *                       if defined dictionary while appending;
+     *                       if splitting file while appending;
+     *                       if file name arg is null;
+     *                       if file could not be opened, positioned, or written to;
+     *                       if file exists but user requested no over-writing or appending.
+     */
+    public EventWriterUnsync(String baseName, String directory, String runType,
+                             int runNumber, long split,
+                             int blockSizeMax, int blockCountMax, int bufferSize,
+                             ByteOrder byteOrder, String xmlDictionary,
+                             BitSet bitInfo, boolean overWriteOK, boolean append,
+                             EvioBank firstEvent, int streamId)
             throws EvioException {
 
 
@@ -829,7 +949,8 @@ public class EventWriterUnsync {
         baseFileName   = builder.toString();
         // Also create the first file's name with more substitutions
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
-                                                     runNumber, split, splitCount++);
+                                                     runNumber, split, splitCount++,
+                                                     streamId);
         //System.out.println("EventWriter const: filename = " + fileName);
         //System.out.println("                   basename = " + baseName);
         currentFile = new File(fileName);
@@ -934,7 +1055,7 @@ public class EventWriterUnsync {
 
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      * Uses the default number and size of blocks in buffer.
      * Will overwrite any existing data in buffer!
      *
@@ -947,7 +1068,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      * Uses the default number and size of blocks in buffer.
      *
      * @param buf            the buffer to write to.
@@ -961,7 +1082,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      * Uses the default number and size of blocks in buffer.
      *
      * @param buf            the buffer to write to.
@@ -976,7 +1097,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      * Will overwrite any existing data in buffer!
      *
      * @param buf            the buffer to write to.
@@ -997,7 +1118,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
@@ -1024,7 +1145,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      * Will overwrite any existing data in buffer!
      *
      * @param buf            the buffer to write to.
@@ -1050,7 +1171,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      * Block number starts at 0.
      *
      * @param buf            the buffer to write to.
@@ -1080,7 +1201,7 @@ public class EventWriterUnsync {
     }
 
     /**
-     * Create an <code>EventWriter</code> for writing events to a ByteBuffer.
+     * Create an <code>EventWriterUnsync</code> for writing events to a ByteBuffer.
      *
      * @param buf            the buffer to write to.
      * @param blockSizeMax   the max blocksize to use which must be >= {@link #MIN_BLOCK_SIZE}
@@ -1334,7 +1455,7 @@ public class EventWriterUnsync {
 
     /**
      * Set the buffer being written into (initially set in constructor).
-     * This method allows the user to avoid having to create a new EventWriter
+     * This method allows the user to avoid having to create a new EventWriterUnsync
      * each time a bank needs to be written to a different buffer.
      * This does nothing if writing to a file. Not for use if appending.<p>
      * Do <b>not</b> use this method unless you know what you are doing.
@@ -1354,7 +1475,7 @@ public class EventWriterUnsync {
             throw new EvioException("Method not for use if appending");
         }
         if (!closed) {
-            throw new EvioException("Close EventWriter before changing buffers");
+            throw new EvioException("Close EventWriterUnsync before changing buffers");
         }
         this.bitInfo = bitInfo;
 
@@ -1364,7 +1485,7 @@ public class EventWriterUnsync {
 
     /**
      * Set the buffer being written into (initially set in constructor).
-     * This method allows the user to avoid having to create a new EventWriter
+     * This method allows the user to avoid having to create a new EventWriterUnsync
      * each time a bank needs to be written to a different buffer.
      * This does nothing if writing to a file. Not for use if appending.<p>
      * Do <b>not</b> use this method unless you know what you are doing.
@@ -1382,7 +1503,7 @@ public class EventWriterUnsync {
             throw new EvioException("Method not for use if appending");
         }
         if (!closed) {
-            throw new EvioException("Close EventWriter before changing buffers");
+            throw new EvioException("Close EventWriterUnsync before changing buffers");
         }
 
         reInitializeBuffer(buf, bitInfo, 1);
@@ -2090,7 +2211,7 @@ System.err.println("ERROR endOfBuffer " + a);
         int sixthWord = BlockHeaderV4.generateSixthWord(bitInfo, 4,
                                                         hasDictionary, isLast, 0);
 
-//        System.out.println("EventWriter (header): words = " + words +
+//        System.out.println("EventWriterUnsync (header): words = " + words +
 //                ", block# = " + blockNumber + ", ev Cnt = " + eventCount +
 //                ", 6th wd = " + sixthWord);
 //        System.out.println("Evio header: block# = " + blockNumber + ", last = " + isLast);
