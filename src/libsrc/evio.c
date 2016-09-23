@@ -1371,8 +1371,8 @@ int evGenerateBaseFileName(char *origName, char **baseName, int *count) {
  * If multiple streams of data, each writing a file, end up with the same file name,
  * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
  * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
- * This is done after the run and split numbers have been inserted into the file name.
- *
+ * This is done after the run type, run number, split numbers, and env vars have been inserted
+ * into the file name.<p>
  *
  * @param handle         evio handle (contains file name to use as a basis for the
  *                       generated file name)
