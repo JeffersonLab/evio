@@ -1,25 +1,51 @@
+# To use this, do the following the first time:
+#   % mkdir build
+#   % mkdir build/cmake
+#   % cd build/cmake
+#   % cmake ../..
+#   % make (install)
+#
+#
+# After doing this once can do the following to recompile
+#  % cd <top level evio dir>
+#  % cmake --build build/cmake (--target install)
+#
+#
+# Set the path in which to install.
+# This can be overridden on command line (in build/cmake dir) with:
+#   % cmake -DCMAKE_INSTALL_PREFIX=<my_dir> ../..
+#   % make install
+# (This call must be placed BEFORE "project" command).
+set(CMAKE_INSTALL_PREFIX ./)
+
 cmake_minimum_required(VERSION 3.2)
+
 project(evio_5_2)
 
-#include_directories($ENV{CODA}/common/include)
-include_directories(/daqfs/home/timmer/coda/evio-5.2.GIT/src/libsrc /daqfs/home/timmer/coda/evio-5.2.GIT/src/libsrc++)
+# Find include files here
+include_directories(src/libsrc src/libsrc++)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
+set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/allBinaries)
 
-set(SOURCE_FILES
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -lpthread -lexpat -ldl -lz -lm")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread -lexpat -ldl -lz -lm")
+
+set(C_HEADER_FILES
     src/libsrc/evio.h
     src/libsrc/msinttypes.h
+)
 
-    src/execsrc/evio2xml.c
-    src/execsrc/evioCat.cc
-    src/execsrc/eviocopy.c
-
+set(C_LIB_FILES
     src/libsrc/evio.c
     src/libsrc/eviofmt.c
     src/libsrc/eviofmtdump.c
     src/libsrc/eviofmtswap.c
     src/libsrc/evioswap.c
+)
 
+set(CPP_HEADER_FILES
     src/libsrc++/evioBankIndex.hxx
     src/libsrc++/evioBufferChannel.hxx
     src/libsrc++/evioFileChannel.hxx
@@ -30,7 +56,9 @@ set(SOURCE_FILES
     src/libsrc++/evioTypedefs.hxx
     src/libsrc++/evioUtil.hxx
     src/libsrc++/evioUtilTemplates.hxx
+)
 
+set(CPP_LIB_FILES
     src/libsrc++/evioBankIndex.cc
     src/libsrc++/evioBufferChannel.cc
     src/libsrc++/evioFileChannel.cc
@@ -38,43 +66,57 @@ set(SOURCE_FILES
     src/libsrc++/evioDictionary.cc
     src/libsrc++/evioException.cc
     src/libsrc++/evioUtil.cc
-
-    src/examples/dana.cc
-    src/examples/etst1.cc
-    src/examples/etst2.cc
-    src/examples/etst3.cc
-    src/examples/etst4.cc
-    src/examples/etst5.cc
-    src/examples/etst6.cc
-    src/examples/etst7.cc
-    src/examples/etst8.cc
-    src/examples/etst9.cc
-    src/examples/etst10.cc
-    src/examples/etst11.cc
-    src/examples/etst12.cc
-    src/examples/etst13.cc
-    src/examples/etst14.cc
-    src/examples/etst15.cc
-    src/examples/etst16.cc
-    src/examples/etst17.cc
-
-    src/test/elliottTest.cc
-    src/test/evMultithread.c
-    src/test/evReadPipe.c
-    src/test/evtest.c
-    src/test/evtest2.c
-    src/test/evtest3.c
-    src/test/evtestBuf.c
-    src/test/evtestBuf2.c
-    src/test/evtestAppend.c
-    src/test/evTestHandles.c
-    src/test/evTestFirstEvent.c
-    src/test/evtestRead.c
-    src/test/evtestRio.c
-    src/test/evtestSock.c
-    src/test/evWritePipe.c
-    src/test/splitTest.c
-    src/test/stringTest.c)
+)
 
 
-add_executable(evio_5_2 ${SOURCE_FILES} src/execsrc/evio2xml.c src/execsrc/eviocopy.c src/execsrc/evioCat.cc )
+file(GLOB TEST_FILES src/test/*.c src/test/*.cc)
+
+file(GLOB EXAMPLE_FILES src/examples/*.c src/examples/*.cc)
+
+
+# Shared evio C library
+add_library(evio SHARED ${C_LIB_FILES})
+target_include_directories(evio PUBLIC src/libsrc)
+
+# Shared evio C++ library
+add_library(evioxx SHARED ${CPP_LIB_FILES})
+target_include_directories(evioxx PUBLIC src/libsrc src/libsrc++)
+
+
+# Main Executables
+add_executable(evio2xml src/execsrc/evio2xml.c)
+target_link_libraries(evio2xml pthread expat z evio)
+
+add_executable(eviocopy src/execsrc/eviocopy.c)
+target_link_libraries(eviocopy pthread evio)
+
+add_executable(evioCat  src/execsrc/evioCat.cc)
+target_link_libraries(evioCat evio evioxx)
+
+
+# Test programs
+foreach(fileName ${TEST_FILES})
+    # Get file name with no directory or extension as executable name
+    get_filename_component(execName ${fileName} NAME_WE)
+    # Create executable from file
+    add_executable(${execName} ${fileName})
+    # Needs these libs
+    target_link_libraries(${execName} evio evioxx)
+    # Install into bin/test dir
+    install(TARGETS ${execName} DESTINATION bin/test)
+endforeach(fileName)
+
+
+# Example programs
+foreach(fileName ${EXAMPLE_FILES})
+    get_filename_component(execName ${fileName} NAME_WE)
+    add_executable(${execName} ${fileName})
+    target_link_libraries(${execName} evio evioxx)
+    install(TARGETS ${execName} DESTINATION bin/examples)
+endforeach(fileName)
+
+
+# Installation relative to build/cmake
+install(TARGETS evio evioxx DESTINATION lib)
+install(TARGETS evio2xml eviocopy evioCat DESTINATION bin)
+install(FILES ${C_HEADER_FILES} ${CPP_HEADER_FILES} DESTINATION inc)
