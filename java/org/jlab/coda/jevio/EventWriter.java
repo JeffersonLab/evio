@@ -2369,7 +2369,6 @@ if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
     /**
      * This method expands the size of the internal buffer used when
      * writing to files. Some variables are updated.
-     * Assumes 1 block header of space has been (or shortly will be) used.
      *
      * @param newSize size in bytes to make the new buffer
      */
