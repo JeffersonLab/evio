@@ -36,7 +36,7 @@
 #define _evioDictionary_hxx
 
 
-#include "evioDictEntry.hxx"
+//#include "evioDictEntry.hxx"
 #include "evioTypedefs.hxx"
 #include "evioException.hxx"
 
@@ -55,7 +55,7 @@ using namespace evio;
 const string dictEntryTag = "dictentry";
 const string oldDictEntryTag = "xmldumpdictdntry";
 
-
+class evioDictEntry;
 
 /**
  * This class parses XML dictionary string and contains maps for looking up dictionary information.
@@ -72,7 +72,7 @@ public:
 public:
     bool parseDictionary(const string &dictionaryXML);
     evioDictEntry getEntry(const string &name) const throw(evioException);
-    string getName(evioDictEntry entry) const throw(evioException);
+    string getName(evioDictEntry &entry) const throw(evioException);
     string getName(uint16_t tag, uint8_t num, uint16_t tagEnd=0, bool haveParent=false,
                    uint16_t parentTag=0, uint8_t parentNum=0, uint16_t parentTagEnd=0) const throw(evioException);
 
@@ -81,14 +81,16 @@ public:
     string getSeparator(void) const;
     string toString(void) const throw(evioException);
 
-    static DataType getDataType(const char *type) ;
 
-
-private:
+public:
+    // It's necessary to make these public so they can be friend methods to evioDictEntry,
+    // which in turn allows them access to private methods that set format and description.
     static void startElementHandler(void *userData, const char *xmlname, const char **atts);
     static void endElementHandler(void *userData, const char *xmlname);
     static void charDataHandler(void *userData, const char *s, int len);
 
+
+private:
     /** String containing the xml dictionary. */
     string dictionaryXML;
     /** Separator to use between elements of hierarchical names. Currently a period. */

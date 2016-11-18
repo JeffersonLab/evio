@@ -235,5 +235,24 @@ bool evioDictEntry::inRange(uint16_t tagArg) {
 
 
 
+//-----------------------------------------------------------------------
+
+
+/**
+ * Given a string data type, return the equivalent DataType enum.
+ *
+ * @parm type data type string of "unknown32", "uint32", ... "bank", "segment".
+ * @return DataType enum equivalent of arg.
+ */
+DataType evioDictEntry::getDataType(const char *type) {
+    for (int i=0; i < 18; i++) {
+        if (strcasecmp(type, DataTypeNames[i]) == 0) {
+            return DataTypes[i];
+        }
+    }
+    return EVIO_UNKNOWN32;
+}
+
+
 
 

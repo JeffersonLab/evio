@@ -17,11 +17,11 @@
 #include <string>
 #include <iostream>
 #include "evioException.hxx"
+#include "evioDictionary.hxx"
 
 namespace evio {
 
     using namespace std;
-
 
 
     /** An entry in the dictionary can be either a tag/num pair, a tag only, or a range of tags. */
@@ -69,6 +69,10 @@ namespace evio {
     class evioDictEntry {
 
     public:
+        // These methods need to call setFormat and setDescription which should be private
+        friend  void evioDictionary::startElementHandler(void *userData, const char *xmlname, const char **atts);
+        friend  void evioDictionary::charDataHandler(void *userData, const char *s, int len);
+
         evioDictEntry();
         evioDictEntry(uint16_t tag);
         evioDictEntry(uint16_t tag, uint8_t num, uint16_t tagEnd);
@@ -95,14 +99,8 @@ namespace evio {
         bool isNumUndefined(void) const;
         DataType getType(void) const;
         DictEntryType getEntryType(void) const;
-
         string getFormat(void) const;
-        void setFormat(const string &format);
-        void setFormat(const char *format);
-
         string getDescription(void) const;
-        void setDescription(const string &description);
-        void setDescription(const char *description);
 
         // Parent entry methods
 
@@ -113,12 +111,18 @@ namespace evio {
 
         // General
 
+        static DataType getDataType(const char *type);
         string toString(void) const throw(evioException);
         bool inRange(uint16_t tagArg);
 
+    private:
+        void setFormat(const string &format);
+        void setFormat(const char *format);
+
+        void setDescription(const string &description);
+        void setDescription(const char *description);
 
     private:
-
         /** Tag value or low end of a tag range of an evio container. */
         uint16_t tag;
 
@@ -165,7 +169,6 @@ namespace evio {
         /** Num value of parent evio container which is 0 if not given in xml entry.
          *  @since 5.2 */
         uint8_t parentNum;
-
 
 
     public:

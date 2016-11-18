@@ -6,6 +6,7 @@
 */
 
 
+#include "evioDictEntry.hxx"
 #include "evioDictionary.hxx"
 #include <fstream>
 #include <cstring>
@@ -449,7 +450,7 @@ void evioDictionary::startElementHandler(void *userData, const char *xmlname, co
             numIsDefined = true;
         }
         else if (strcasecmp(atts[i], "type")==0) {
-            type = getDataType(atts[i+1]);
+            type = evioDictEntry::getDataType(atts[i+1]);
             typeIsDefined = true;
             cout << "type = " << type << endl;
         }
@@ -706,25 +707,6 @@ void evioDictionary::endElementHandler(void *userData, const char *xmlname) {
 
 
 /**
- * Given a string data type, return the equivalent DataType enum.
- *
- * @parm type data type string of "unknown32", "uint32", ... "bank", "segment".
- * @return DataType enum equivalent of arg.
- */
-DataType evioDictionary::getDataType(const char *type) {
-    for (int i=0; i < 18; i++) {
-        if (strcasecmp(type, DataTypeNames[i]) == 0) {
-            return DataTypes[i];
-        }
-    }
-    return EVIO_UNKNOWN32;
-}
-
-
-//-----------------------------------------------------------------------
-
-
-/**
  * Gets the dictionary entry (evioDictEntry) for a given name.
  *
  * @param name name of dictionary entry
@@ -753,7 +735,7 @@ evioDictEntry evioDictionary::getEntry(const string &name) const throw(evioExcep
  * @return name associated with entry
  * @throws evioException if entry not found
  */
-string evioDictionary::getName(evioDictEntry entry) const throw(evioException) {
+string evioDictionary::getName(evioDictEntry &entry) const throw(evioException) {
     // First, see if there is an exact match in map which contains all entries
     map<evioDictEntry, string>::const_iterator iter = getNameMap.find(entry);
     if (iter != getNameMap.end()) {
