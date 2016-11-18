@@ -17,60 +17,6 @@ import java.util.List;
 public class FileTest {
 
 
-    /** For finding the bug in which the EventWriter.bytesWrittenToBuffer is 32 bytes too small.  */
-    public static void main(String args[]) {
-
-        // Create an event writer to write out the test events.
-        String fileName  = "/tmp/hallDTest.ev";
-
-        EvioEvent littleEv, bigEv;
-
-        try {
-            // Little event
-            byte[] byteData1 = new byte[1992];
-            // each event (including header) is 2kB
-            EventBuilder eventBuilder = new EventBuilder(1, DataType.CHAR8, 1);
-            littleEv = eventBuilder.getEvent();
-            littleEv.appendByteData(byteData1);
-
-            // BIG event
-            byte[] byteData2 = new byte[450000];
-            // each event is about 450kB
-            eventBuilder = new EventBuilder(1, DataType.CHAR8, 1);
-            bigEv = eventBuilder.getEvent();
-            bigEv.appendByteData(byteData2);
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        try {
-            // Use same constructor as in emu file output channel
-            EventWriter eventWriter = new EventWriter(fileName, null, null,
-                                                      1, 200000000, null,
-                                                      null, true);
-
-            int littleEventCount = 250;
-
-            while (true) {
-                for (int j=0; j < littleEventCount; j++) {
-                    eventWriter.writeEvent(littleEv);
-                }
-                System.out.println("Wrote Little " + littleEventCount);
-                System.out.println("Write BIG new ...");
-                eventWriter.writeEvent(bigEv);
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-
-    }
-
 
 
     /** For WRITING a local file. */
@@ -116,10 +62,7 @@ public class FileTest {
             // All done writing
             writer.close();
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (EvioException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
 
