@@ -9,16 +9,18 @@
 #include <algorithm>
 
 
-#ifdef vxworks
-#include <iostream.h>
-#else
 #include <iostream>
 #include <iomanip>
-#endif
 
 #include <evio.h>
 
 
+/**
+ * Old "tagNum" typedef for pair<uint16_t,uint8_t> has changed to be a
+ * #define for evioDictEntry since that is now used instead of tagNum.
+ * This is a hack in order to help backwards compatibility.
+ */
+#define tagNum evioDictEntry
 
 
 //-----------------------------------------------------------------------------
@@ -58,13 +60,11 @@ typedef auto_ptr<evioDOMNodeList> evioDOMNodeListP;  /**<auto-ptr of list of evi
 
 
 /** Defines the container bank types.*/
-typedef enum {
+enum ContainerType {
   BANK       = 0xe,  /**<2-word header, 16-bit tag, 8-bit num, 8-bit type.*/
   SEGMENT    = 0xd,  /**<1-word header,  8-bit tag,    no num, 8-bit type.*/
   TAGSEGMENT = 0xc   /**<1-word header, 12-bit tag,    no num, 4-bit type.*/
-} ContainerType;
-
-typedef pair<uint16_t,uint8_t> tagNum;     /**<STL pair of tag,num.*/
+};
 
 }
 

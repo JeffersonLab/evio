@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * A Factory class for generating an appropriate INameProvider. It makes its decisions based on the dictionary file that
  * it gets handed in its only public method, <code>createNameProvider</code>. For example, if it is given an xml file
- * (based on a ".xml" extension) it guesses that you want a reader that can handle the xml diction file developed for
+ * (based on a ".xml" extension) it guesses that you want a reader that can handle the xml dictionary file developed for
  * GEMC.
  * 
  * @author heddle

@@ -36,20 +36,20 @@ typedef struct {
 
 // compares tagNums to each other, first by tag, then by num
 struct tagNumComp {
-  bool operator() (const tagNum &lhs, const tagNum &rhs) const {
-    if(lhs.first<rhs.first) {
+  bool operator() (const evioDictEntry &lhs, const evioDictEntry &rhs) const {
+    if(lhs.getTag()<rhs.getTag()) {
       return(true);
-    } else if(lhs.first>rhs.first) {
+    } else if(lhs.getTag()>rhs.getTag()) {
       return(false);
     } else {
-      return(lhs.second<rhs.second);
+      return(lhs.getNum()<rhs.getNum());
     }    
   }
 };
 
 
 // bank index map and range
-typedef multimap<tagNum,bankIndex,tagNumComp> bankIndexMap;
+typedef multimap<evioDictEntry,bankIndex,tagNumComp> bankIndexMap;
 typedef pair< bankIndexMap::const_iterator, bankIndexMap::const_iterator > bankIndexRange;
 
 
@@ -74,10 +74,10 @@ public:
 
 public:
   bool parseBuffer(const uint32_t *buffer, int maxDepth);
-  bool tagNumExists(const tagNum& tn) const;
-  int tagNumCount(const tagNum& tn) const;
-  bankIndexRange getRange(const tagNum& tn) const;
-  bankIndex getBankIndex(const tagNum &tn) const throw(evioException);
+  bool tagNumExists(const evioDictEntry & tn) const;
+  int tagNumCount(const evioDictEntry & tn) const;
+  bankIndexRange getRange(const evioDictEntry & tn) const;
+  bankIndex getBankIndex(const evioDictEntry &tn) const throw(evioException);
   int getMaxDepth();
 
 
@@ -90,13 +90,13 @@ private:
 
 public:
   /**
-   * Returns length and pointer to data, NULL if container bank, bad tagNum or wrong data type.
+   * Returns length and pointer to data, NULL if container bank, bad evioDictEntry or wrong data type.
    *
-   * @param tn tagNum
+   * @param tn evioDictEntry
    * @param pLen Pointer to int to receive data length, set to 0 upon error
    * @return Pointer to data, NULL on error
    */
-  template <typename T> const T* getData(const tagNum &tn, int *pLen) throw (evioException) {
+  template <typename T> const T* getData(const evioDictEntry &tn, int *pLen) throw (evioException) {
 
     bankIndexMap::const_iterator iter = tagNumMap.find(tn);
 

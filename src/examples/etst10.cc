@@ -29,10 +29,11 @@ int main(int argc, char **argv) {
 
 
     string dictXML = "<dict>\n"
-      "<dictEntry name=\"fred\"   tag=\"1\" num=\"0\"/> \n"
-      "<dictEntry name=\"wilma\"  tag=\"4\" num=\"11\"/>\n"
-      "<dictEntry name=\"barney\" tag=\"5\" num=\"12\"/>\n"
-      "<dictEntry name=\"betty\"  tag=\"6\" num=\"13\"/>\n"
+      "<dictEntry name=\"fred\"   tag=\"3\" num=\"3\"/> \n"
+      "<dictEntry name=\"wilma\"  tag=\"4\" num=\"4\"/>\n"
+      "<dictEntry name=\"barney\" tag=\"5\" num=\"5\"/>\n"
+      "<dictEntry name=\"betty\"  tag=\"6\" num=\"6\"/>\n"
+      "<dictEntry name=\"dino\"   tag=\"7\" num=\"7\"/>\n"
       "</dict>\n";
     evioDictionary dict(dictXML);
 

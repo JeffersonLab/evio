@@ -56,6 +56,7 @@ set(CPP_HEADER_FILES
     src/libsrc++/evioTypedefs.hxx
     src/libsrc++/evioUtil.hxx
     src/libsrc++/evioUtilTemplates.hxx
+    src/libsrc++/evioDictEntry.hxx
 )
 
 set(CPP_LIB_FILES
@@ -66,6 +67,7 @@ set(CPP_LIB_FILES
     src/libsrc++/evioDictionary.cc
     src/libsrc++/evioException.cc
     src/libsrc++/evioUtil.cc
+    src/libsrc++/evioDictEntry.cc
 )
 
 

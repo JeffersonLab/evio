@@ -1,6 +1,6 @@
 // evioDictionary.hxx
 //
-// parses XML and creates a pair of name<-->tagNum maps
+// parses XML and creates a pair of name<-->evioDictEntry maps
 //
 // probably not thread-safe due to static expat handlers
 //
@@ -28,6 +28,7 @@
 //
 //
 //  Author:  Elliott Wolin, JLab, 13-apr-2012
+//           Carl Timmer, JLab, 27-oct-2016  extend dictionary capabilities
 
 
 
@@ -35,9 +36,11 @@
 #define _evioDictionary_hxx
 
 
+#include "evioDictEntry.hxx"
 #include "evioTypedefs.hxx"
 #include "evioException.hxx"
 
+#include <stack>
 #include <expat.h>
 
 
@@ -48,45 +51,115 @@ using namespace std;
 using namespace evio;
 
 
-// xml tag holding straight dictionary entries
+// xml tags holding straight dictionary entries
 const string dictEntryTag = "dictentry";
+const string oldDictEntryTag = "xmldumpdictdntry";
 
 
 
 /**
- * Parses XML dictionary string and holds two maps, one for each lookup direction.
+ * This class parses XML dictionary string and contains maps for looking up dictionary information.
  */
 class evioDictionary {
 
 public:
-  evioDictionary();
-  evioDictionary(const string &dictXML, const string &sep=".");
-  evioDictionary(ifstream &dictIFS, const string &sep=".");
-  virtual ~evioDictionary();
+    evioDictionary();
+    evioDictionary(const string &dictXML, const string &sep=".");
+    evioDictionary(ifstream &dictIFS, const string &sep=".");
+    virtual ~evioDictionary();
 
 
 public:
-  bool parseDictionary(const string &dictionaryXML);
-  tagNum getTagNum(const string &name) const throw(evioException);
-  string getName(tagNum tn) const throw(evioException);
-  string getDictionaryXML(void) const;
-  void setSeparator(const string &sep);
-  string getSeparator(void) const;
-  string toString(void) const throw(evioException);
+    bool parseDictionary(const string &dictionaryXML);
+    evioDictEntry getEntry(const string &name) const throw(evioException);
+    string getName(evioDictEntry entry) const throw(evioException);
+    string getName(uint16_t tag, uint8_t num, uint16_t tagEnd=0, bool haveParent=false,
+                   uint16_t parentTag=0, uint8_t parentNum=0, uint16_t parentTagEnd=0) const throw(evioException);
+
+    string getDictionaryXML(void) const;
+    void setSeparator(const string &sep);
+    string getSeparator(void) const;
+    string toString(void) const throw(evioException);
+
+    static DataType getDataType(const char *type) ;
 
 
 private:
-  static void startElementHandler(void *userData, const char *xmlname, const char **atts);
-  static void endElementHandler(void *userData, const char *xmlname);
-  string dictionaryXML;
-  string separator;
-  string parentPrefix;
-  bool parentIsLeaf;
+    static void startElementHandler(void *userData, const char *xmlname, const char **atts);
+    static void endElementHandler(void *userData, const char *xmlname);
+    static void charDataHandler(void *userData, const char *s, int len);
+
+    /** String containing the xml dictionary. */
+    string dictionaryXML;
+    /** Separator to use between elements of hierarchical names. Currently a period. */
+    string separator;
+    /** Temporary storage when creating hierarchical names of dictionary entries. */
+    string parentPrefix;
+
+    /** Flag, if true, indicates currently reading an XML element named "description". */
+    bool readingDescription;
+    /** Flag, if true, indicates currently reading an XML element named "leaf".
+     *  Used to catch error condition in which leaf is parent of a container.*/
+    bool parentIsLeaf;
 
 
 public:
-  map<tagNum,string> getNameMap;     /**<Gets node name given tag/num.*/
-  map<string,tagNum> getTagNumMap;   /**<Gets tag/num given node name.*/
+    // Unfortunately these maps were made public ...
+
+    /**
+     * This is the heart of the dictionary in which a key is composed of a tag/num
+     * pair and other entry data and its corresponding value is a name.
+     * This map contains all entries whether tag/num, tag-only, or tag-range.
+     */
+    map<evioDictEntry, string> getNameMap;     /**<Gets node name given tag/num.*/
+
+    /**
+     * This is a map in which the key is a name and the value is its
+     * corresponding dictionary entry. It's the reverse of the getNameMap map.
+     * This map contains all entries whether tag/num, tag-only, or tag-range.
+     */
+    map<string, evioDictEntry> getTagNumMap;   /**<Gets tag/num given node name.*/
+
+private:
+
+    /**
+     * This stack is a place to store entry & name when going thru xml hierarchy.
+     * Used to deal with description xml element.
+     * @since 5.2
+     */
+    stack< pair<evioDictEntry, string> > entryStack;
+
+    /**
+     * This is a map in which the key is a name and the value is the entry
+     * of a corresponding tag/num pair. It's the reverse of the tagNumMap map.
+     * @since 5.2
+     */
+    map<string, evioDictEntry> tagNumReverseMap;   /**<Gets tag/num given node name.*/
+
+
+    /**
+     * This is a map in which the key is composed of a tag/num
+     * pair and its corresponding value is a name. Contains only tag/num pair entries.
+     * @since 5.2
+     */
+    map<evioDictEntry, string> tagNumMap;
+
+    /**
+     * Contains dictionary entries which have only a tag and no num.
+     * It matches a tag/num pair if there is no exact match in tagNumMap,
+     * but does match a tag in this map.
+     * @since 5.2
+     */
+    map<evioDictEntry, string> tagOnlyMap;
+
+    /**
+     * Contains dictionary entries which have only a tag range and no num.
+     * It matches a tag/num pair if there is no exact match in tagNumMap
+     * or in the tagOnlyMap but the tag is within the specified range of an entry.
+     * @since 5.2
+     */
+    map<evioDictEntry, string> tagRangeMap;
+
 };
 
 

@@ -12,16 +12,14 @@
 package org.jlab.coda.jevio;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -34,21 +32,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 
 
 /**
  * This was developed to read the xml dictionary that Maurizio uses for GEMC.
- * It implements INameProvider, just like all other dictionary readers.
+ * It implements INameProvider, just like all other dictionary readers.<p>
  *
- * An assumption in the following class is that each unique tag/num pair
+ * <b>An assumption in the following class is that each unique tag/num/tagEnd group
  * corresponds to an equally unique name. In other words, 2 different
- * tag/numm pairs cannot have the same name.
+ * groups cannot have the same name. And 2 different names cannot map to the
+ * same group.</b><p>
  *
- * Entries with only a tag value and no num are allowed. They will match
- * a tag/num pair if no exact match exists but the tag matches. For such
- * entries, no additional existence of type, format, or description is allowed.
+ * An entry with only a tag value and no num is allowed. It will match
+ * a tag/num pair if no exact match exists but the tag matches. For such an
+ * entry, no additional existence of type, format, or description is allowed.<p>
+ *
+ * Similarly, an entry with a range of tags is also allowed. In this case,
+ * no num & type is allowed. It will match
+ * a tag/num pair if no exact match exists but the tag is in the range
+ * (inclusive).
  * 
  * @author heddle
  * @author timmer
@@ -107,6 +110,13 @@ public class EvioXMLDictionary implements INameProvider {
     /** The "num" attribute string. */
     private static String NUM = "num";
 
+    /**
+     * Use regular expressions to parse a tag since it may be of the form:
+     * tag="num" or tag="num1 - num2". Allow spaces on either side of minus.
+     * @since 5.2
+     */
+    private static Pattern pattern = Pattern.compile("(\\d+)([ ]*-[ ]*(\\d+))?");
+
 
 
     /**
@@ -121,25 +131,38 @@ public class EvioXMLDictionary implements INameProvider {
      * Using a hashmap ensures entries are unique.
      * @since 4.0
      */
-    private LinkedHashMap<EvioDictionaryEntry,String> dictMap =
-            new LinkedHashMap<EvioDictionaryEntry,String>(100);
+    public LinkedHashMap<EvioDictionaryEntry,String> tagNumMap = new LinkedHashMap<>(100);
 
     /**
-     * Some dictionary entries have only a tag and no num. These entries
-     * are used only for pretty printing. It matches a tag num pair if
-     * there is no exact match in dictMap, but does match a tag in this map.
+     * Some dictionary entries have only a tag and no num.
+     * It matches a tag/num pair if there is no exact match in tagNumMap,
+     * but does match a tag in this map.
      * @since 4.1
      */
-    private LinkedHashMap<Integer,String> tagOnlyMap = new LinkedHashMap<Integer,String>(100);
+    public LinkedHashMap<EvioDictionaryEntry,String> tagOnlyMap = new LinkedHashMap<>(20);
 
     /**
-     * This is a hashmap in which the key is a name and the value is composed
-     * of a corresponding tag/num pair and other entry data.
-     * It's the reverse of the dictMap mapping.
+     * Some dictionary entries have only a tag range and no num.
+     * It matches a tag/num pair if there is no exact match in tagNumMap
+     * or in the tagOnlyMap but the tag is within the specified range of an entry.
+     * @since 5.2
+     */
+    public LinkedHashMap<EvioDictionaryEntry,String> tagRangeMap = new LinkedHashMap<>(20);
+
+    /**
+     * This is a hashmap in which the key is a name and the value is its
+     * corresponding dictionary entry. This map contains all entries whether
+     * tag/num, tag-only, or tag-range.
+     * @since 5.2
+     */
+    private LinkedHashMap<String,EvioDictionaryEntry> reverseMap = new LinkedHashMap<>(100);
+
+    /**
+     * This is a hashmap in which the key is a name and the value is the entry
+     * of a corresponding tag/num pair. It's the reverse of the tagNumMap map.
      * @since 4.0
      */
-    private LinkedHashMap<String,EvioDictionaryEntry> reverseMap =
-            new LinkedHashMap<String,EvioDictionaryEntry>(100);
+    private LinkedHashMap<String,EvioDictionaryEntry> tagNumReverseMap = new LinkedHashMap<>(100);
 
     /**
      * Top level xml Node object of xml DOM representation of dictionary.
@@ -233,9 +256,9 @@ public class EvioXMLDictionary implements INameProvider {
         NodeList kidList = topNode.getChildNodes();
         if (kidList.getLength() < 1) return;
 
-        int tag, num;
-        boolean badEntry;
-        String name, tagStr, numStr, type, format, description;
+        Integer tag, tagEnd, num, numEnd;
+        boolean badEntry, isTagRange, isNumRange;
+        String name, tagStr, tagEndStr, numStr, numEndStr, type, format, description;
 
         // Pick out elements that are both old & new direct entry elements
         for (int index = 0; index < kidList.getLength(); index++) {
@@ -249,8 +272,8 @@ public class EvioXMLDictionary implements INameProvider {
             }
 
             if (node.hasAttributes()) {
-                tag = num = 0;
-                badEntry = false;
+                tag = tagEnd = num = numEnd = null;
+                badEntry = isTagRange = isNumRange = false;
                 name = numStr = tagStr = type = format = description = null;
 
                 NamedNodeMap map = node.getAttributes();
@@ -261,8 +284,11 @@ public class EvioXMLDictionary implements INameProvider {
                     name = attrNode.getNodeValue();
                 }
 
-                // Check to see if name conflicts with strings
-                // set aside to describe evio as xml.
+                // Check to see if name conflicts with strings set aside to
+                // describe evio as xml. There can be substitutions in the name
+                // such as %n for num and %t for tag which will be done later,
+                // but these will not affect the following check for conflicts
+                // with reserved names.
                 if (Utilities.getDataType(name) != null ||
                     name.equalsIgnoreCase("event") ||
                     name.equalsIgnoreCase("evio-data")) {
@@ -270,32 +296,106 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     continue;
                 }
 
-                // Get the tag
-                attrNode = map.getNamedItem(TAG);
+                // Get the num or num range as the case may be
+                attrNode = map.getNamedItem(NUM);
                 if (attrNode != null) {
-                    tagStr = attrNode.getNodeValue();
-                    try {
-                        tag = Integer.decode(tagStr);
-                        if (tag < 0) badEntry = true;
-//System.out.println("Tag, dec = " + tag);
+                    // Use regular expressions to parse num
+                    Matcher matcher = pattern.matcher(attrNode.getNodeValue());
+
+                    if (matcher.matches()) {
+                        // First num may be null, is always >= 0 if existing.
+                        // Since we're here, it does exist.
+                        numStr = matcher.group(1);
+                        try {
+                            num = Integer.decode(numStr);
+                        }
+                        catch (NumberFormatException e) {
+                            badEntry = true;
+                        }
+
+                        // Ending num
+                        numEndStr = matcher.group(3);
+                        if (numEndStr != null) {
+                            try {
+                                numEnd = Integer.decode(numEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                if (numEnd > 0 && !numEnd.equals(num)) {
+                                    isNumRange = true;
+                                }
+                            }
+                            catch (NumberFormatException e) {
+                                badEntry = true;
+                            }
+                        }
+                        else {
+                            // Set for later convenience in for loop
+                            numEnd = num;
+                        }
                     }
-                    catch (NumberFormatException e) {
+                    else {
                         badEntry = true;
                     }
                 }
 
-                // Get the num
-                attrNode = map.getNamedItem(NUM);
+                // If no num defined, substitute "" for each %n
+                if (numStr == null) {
+                    name = name.replaceAll("%n", "");
+                }
+
+                // Get the tag or tag range as the case may be
+                attrNode = map.getNamedItem(TAG);
                 if (attrNode != null) {
-                    numStr = attrNode.getNodeValue();
-                    try {
-                        num = Integer.decode(numStr);
-                        if (num < 0) badEntry = true;
-//System.out.println("Num, dec = " + num);
+                    // Use regular expressions to parse tag
+                    Matcher matcher = pattern.matcher(attrNode.getNodeValue());
+
+                    if (matcher.matches()) {
+                        // First tag, never null, always >= 0, or no match occurs
+                        tagStr = matcher.group(1);
+                        try {
+                            tag = Integer.decode(tagStr);
+                            //System.out.println("Tag, dec = " + tag);
+                        }
+                        catch (NumberFormatException e) {
+                            badEntry = true;
+                        }
+
+                        // Ending tag
+                        tagEndStr = matcher.group(3);
+                        if (tagEndStr != null) {
+                            try {
+                                tagEnd = Integer.decode(tagEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                if (tagEnd > 0 && !tagEnd.equals(tag)) {
+                                    isTagRange = true;
+                                    //System.out.println("Tag end, dec = " + tagEnd);
+                                }
+                            }
+                            catch (NumberFormatException e) {
+                                badEntry = true;
+                            }
+                        }
                     }
-                    catch (NumberFormatException e) {
+                    else {
                         badEntry = true;
                     }
+                }
+
+                // Scan name for the string "%t".
+                // If the tag exists, substitute it for the %t.
+                // If tag range defined, substitute "".
+                if (isTagRange) {
+                    if (num != null) {
+                        // Cannot define num (or num range) and tag range at the same time ...
+                        badEntry = true;
+                    }
+                    else {
+                        name = name.replaceAll("%t", "");
+                    }
+                }
+                else {
+                    name = name.replaceAll("%t", tagStr);
                 }
 
                 // Get the type, if any
@@ -319,7 +419,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                         }
 
                         description = childNode.getTextContent();
-//System.out.println("FOUND DESCRIPTION: = " + description);
+//System.out.println("FOUND DESCRIPTION H: = " + description);
 
                         // See if there's a format attribute
                         if (childNode.hasAttributes()) {
@@ -329,7 +429,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                             attrNode = map.getNamedItem(FORMAT);
                             if (attrNode != null) {
                                 format = attrNode.getNodeValue();
-//System.out.println("FOUND FORMAT: = " + format);
+//System.out.println("FOUND FORMAT H: = " + format);
                             }
                         }
                         break;
@@ -342,46 +442,85 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     continue;
                 }
 
-                if (numStr == null && (type != null || description != null || format != null)) {
-                    System.out.println("IGNORING badly formatted dictionary entry 2: name = " + name);
-                    continue;
+                if (numStr == null && type != null) {
+                    System.out.println("IGNORING bad type for this dictionary entry: type = " + type);
+                    type = null;
                 }
 
-                // If no num defined, put in different hashmap
-                if (numStr == null) {
-                    // Only consider it if not already in tag only map ...
-                    if (!tagOnlyMap.containsKey(tag)) {
-                        // See if this tag exists among the regular entries as well
-                        boolean forgetIt = false;
-                        for (EvioDictionaryEntry data : dictMap.keySet()) {
-                            if (data.getTag() == tag) {
-                                forgetIt = true;
-                                break;
+
+                // If the num or num range is defined ...
+                if (numStr != null) {
+                    // Make sure num < numEnd
+                    if (isNumRange && (num > numEnd)) {
+                        int tmp = num;
+                        num = numEnd;
+                        numEnd = tmp;
+                    }
+
+                    String nameOrig = name;
+
+                    // Range of nums (num == numEnd for no range)
+                    for (int n = num; n <= numEnd; n++) {
+                        // Scan name for the string "%n" and substitute num for it
+                        name = nameOrig.replaceAll("%n", n + "");
+
+                        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, n, tagEnd, type,
+                                                                          description, format);
+                        boolean entryAlreadyExists = true;
+
+                        if (reverseMap.containsKey(name)) {
+                            System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                        }
+                        else {
+                            // Only add to dictionary if both name and tag/num pair are unique
+                            // This works due to overloaded equals method.
+                            if (!tagNumMap.containsKey(key) && !tagNumReverseMap.containsKey(name)) {
+                                 tagNumMap.put(key, name);
+                                 tagNumReverseMap.put(name, key);
+                                 entryAlreadyExists = false;
+                            }
+                            else {
+                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                            }
+
+                            if (!entryAlreadyExists) {
+                                reverseMap.put(name, key);
+                            }
+                        }
+                    }
+                }
+                // If no num defined ...
+                else {
+                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, null, tagEnd,
+                                                                     type, description, format);
+                    boolean entryAlreadyExists = true;
+
+                    if (reverseMap.containsKey(name)) {
+                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                    }
+                    else {
+                        if (isTagRange) {
+                            if (!tagRangeMap.containsKey(key)) {
+                                tagRangeMap.put(key, name);
+                                entryAlreadyExists = false;
+                            }
+                            else {
+                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                            }
+                        }
+                        else {
+                            if (!tagOnlyMap.containsKey(key)) {
+                                tagOnlyMap.put(key, name);
+                                entryAlreadyExists = false;
+                            }
+                            else {
+                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
                             }
                         }
 
-                        if (!forgetIt) {
-                            tagOnlyMap.put(tag, name);
+                        if (!entryAlreadyExists) {
+                            reverseMap.put(name, key);
                         }
-                        else {
-                            System.out.println("IGNORING duplicate dictionary entry: name = " + name);
-                        }
-                    }
-                    else {
-                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
-                    }
-                }
-                else {
-                    // Transform tag/num pair into single object
-                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, type, description, format);
-
-                    // Only add to dictionary if both name and tag/num pair are unique
-                    if (!dictMap.containsKey(key) && !reverseMap.containsKey(name))  {
-                        dictMap.put(key, name);
-                        reverseMap.put(name, key);
-                    }
-                    else {
-                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
                     }
                 }
             }
@@ -389,7 +528,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
         // Look at the (new) hierarchical entry elements,
         // recursively, and add all existing entries.
-        addHierachicalDictEntries(kidList, null);
+        addHierarchicalDictEntries(kidList, null);
 
 	} // end Constructor
 
@@ -399,7 +538,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * @return number of entries in this dictionary.
      */
     public int size() {
-        return dictMap.size();
+        return tagNumMap.size();
     }
 
 
@@ -416,19 +555,20 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
     /**
      * Takes a list of the children of an xml node, selects the new
-     * hierachical elements and converts them into a number of dictionary
+     * hierarchical elements and converts them into a number of dictionary
      * entries which are added to this object.
      * This method acts recursively since any node may contain children.
      *
      * @param kidList a list of the children of an xml node.
      */
-    private void addHierachicalDictEntries(NodeList kidList, String parentName) {
+    private void addHierarchicalDictEntries(NodeList kidList, String parentName) {
 
         if (kidList == null || kidList.getLength() < 1) return;
 
-        int tag, num;
-        boolean isLeaf, badEntry;
-        String name, tagStr, numStr, type, format, description;
+
+        Integer tag, tagEnd, num, numEnd;
+        boolean isLeaf, badEntry, isTagRange, isNumRange;
+        String name, tagStr, tagEndStr, numStr, numEndStr, type, format, description;
 
         for (int i = 0; i < kidList.getLength(); i++) {
 
@@ -443,8 +583,8 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
             }
 
             if (node.hasAttributes()) {
-                tag = num = 0;
-                badEntry = false;
+                tag = tagEnd = num = numEnd = null;
+                badEntry = isTagRange = isNumRange = false;
                 name = numStr = tagStr = type = format = description = null;
 
                 NamedNodeMap map = node.getAttributes();
@@ -455,30 +595,106 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     name = attrNode.getNodeValue();
                 }
 
-                // Get the tag
-                Node tagNode = map.getNamedItem(TAG);
-                if (tagNode != null) {
-                    tagStr = tagNode.getNodeValue();
-                    try {
-                        tag = Integer.decode(tagStr);
-                        if (tag < 0) badEntry = true;
+                // Get the num or num range as the case may be
+                attrNode = map.getNamedItem(NUM);
+                if (attrNode != null) {
+                    // Use regular expressions to parse num
+                    Matcher matcher = pattern.matcher(attrNode.getNodeValue());
+
+                    if (matcher.matches()) {
+                        // First num may be null, is always >= 0 if existing.
+                        // Since we're here, it does exist.
+                        numStr = matcher.group(1);
+                        try {
+                            num = Integer.decode(numStr);
+                        }
+                        catch (NumberFormatException e) {
+                            badEntry = true;
+                        }
+
+                        // Ending num
+                        numEndStr = matcher.group(3);
+                        if (numEndStr != null) {
+                            try {
+                                numEnd = Integer.decode(numEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // When tagEnd == 0 or tag == tagEnd, no range is defined.
+                                if (numEnd > 0 && !numEnd.equals(num)) {
+                                    isNumRange = true;
+                                }
+                            }
+                            catch (NumberFormatException e) {
+                                badEntry = true;
+                            }
+                        }
+                        else {
+                            // Set for later convenience in for loop
+                            numEnd = num;
+                        }
                     }
-                    catch (NumberFormatException e) {
+                    else {
                         badEntry = true;
                     }
                 }
 
-                // Get the num
-                Node numNode = map.getNamedItem(NUM);
-                if (numNode != null) {
-                    numStr = numNode.getNodeValue();
-                    try {
-                        num = Integer.decode(numStr);
-                        if (num < 0) badEntry = true;
+                // If no num defined, substitute "" for each %n
+                if (numStr == null) {
+                    name = name.replaceAll("%n", "");
+                }
+
+                // Get the tag or tag range as the case may be
+                attrNode = map.getNamedItem(TAG);
+                if (attrNode != null) {
+                    // Use regular expressions to parse tag
+                    Matcher matcher = pattern.matcher(attrNode.getNodeValue());
+
+                    if (matcher.matches()) {
+                        // First tag, never null, always >= 0, or no match occurs
+                        tagStr = matcher.group(1);
+                        try {
+                            tag = Integer.decode(tagStr);
+                            //System.out.println("Tag, dec = " + tag);
+                        }
+                        catch (NumberFormatException e) {
+                            badEntry = true;
+                        }
+
+                        // Ending tag
+                        tagEndStr = matcher.group(3);
+                        if (tagEndStr != null) {
+                            try {
+                                tagEnd = Integer.decode(tagEndStr);
+                                // The regexp matching only allows values >= 0 for tagEnd.
+                                // Value of 0 means no range defined.
+                                if (tagEnd > 0) {
+                                    isTagRange = true;
+                                    //System.out.println("Tag end, dec = " + tagEnd);
+                                }
+                            }
+                            catch (NumberFormatException e) {
+                                badEntry = true;
+                            }
+                        }
                     }
-                    catch (NumberFormatException e) {
+                    else {
                         badEntry = true;
                     }
+                }
+
+                // Scan name for the string "%t".
+                // If the tag exists, substitute it for the %t.
+                // If tag range defined, substitute "".
+                if (isTagRange) {
+                    if (num != null) {
+                        // Cannot define num and tag range at the same time ...
+                        badEntry = true;
+                    }
+                    else {
+                        name = name.replaceAll("%t", "");
+                    }
+                }
+                else {
+                    name = name.replaceAll("%t", tagStr);
                 }
 
                 // Get the type, if any
@@ -525,55 +741,119 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                     continue;
                 }
 
-                if (numStr == null && (type != null || description != null || format != null)) {
-                    System.out.println("IGNORING badly formatted dictionary entry 4: name = " + name);
-                    continue;
+                if (numStr == null && type != null) {
+                    System.out.println("IGNORING bad type for this dictionary entry: type = " + type);
+                    type = null;
                 }
 
-                // Create hierarchical name
-                if (parentName != null) name = parentName + delimiter + name;
 
-                // If no num defined, put in different hashmap
-                if (numStr == null) {
-                    // Only consider it if not already in tag only map ...
-                    if (!tagOnlyMap.containsKey(tag)) {
-                        // See if this tag exists among the regular entries as well
-                        boolean forgetIt = false;
-                        for (EvioDictionaryEntry data : dictMap.keySet()) {
-                            if (data.getTag() == tag) {
-                                forgetIt = true;
-                                break;
+                // If the num or num range is defined ...
+                if (numStr != null) {
+                    // Make sure num < numEnd
+                    if (isNumRange && (num > numEnd)) {
+                        int tmp = num;
+                        num = numEnd;
+                        numEnd = tmp;
+                    }
+
+                    String nameOrig = name;
+
+                    // Range of nums (num == numEnd for no range)
+                    for (int n = num; n <= numEnd; n++) {
+                        // Scan name for the string "%n" and substitute num for it
+                        name = nameOrig.replaceAll("%n", n + "");
+
+                        // Create hierarchical name
+                        if (parentName != null) name = parentName + delimiter + name;
+
+                        // Find the parent entry if any
+                        EvioDictionaryEntry parentEntry = null;
+                        Node parentNode = node.getParentNode();
+                        // A genuine parent can only be a "bank" xml element
+                        if (parentNode != null && parentNode.getNodeName().equals("bank")) {
+                            parentEntry = (EvioDictionaryEntry)(parentNode.getUserData("entry"));
+                        }
+
+                        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, n, tagEnd, type,
+                                                                          description, format,
+                                                                          parentEntry);
+
+                        boolean entryAlreadyExists = true;
+
+                        if (reverseMap.containsKey(name)) {
+                            System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                        }
+                        else {
+                            // Only add to dictionary if both name and tag/num pair are unique
+                            // This works due to overloaded equals method.
+                            if (!tagNumMap.containsKey(key) && !tagNumReverseMap.containsKey(name)) {
+                                 tagNumMap.put(key, name);
+                                 tagNumReverseMap.put(name, key);
+                                 entryAlreadyExists = false;
+                            }
+                            else {
+                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                            }
+
+                            if (!entryAlreadyExists) {
+                                // Store info here so children can get at tag/num/tagEnd
+                                node.setUserData("entry", key, null);
+                                reverseMap.put(name, key);
+                            }
+                        }
+                    }
+                }
+                // If no num defined ...
+                else {
+                    if (parentName != null) name = parentName + delimiter + name;
+
+                    // Find the parent entry if any
+                    EvioDictionaryEntry parentEntry = null;
+                    Node parentNode = node.getParentNode();
+                    // A genuine parent can only be a "bank" xml element
+                    if (parentNode != null && parentNode.getNodeName().equals("bank")) {
+                        parentEntry = (EvioDictionaryEntry)(parentNode.getUserData("entry"));
+                    }
+
+                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, null, tagEnd, type,
+                                                                      description, format,
+                                                                      parentEntry);
+
+                   boolean entryAlreadyExists = true;
+
+                    if (reverseMap.containsKey(name)) {
+                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                    }
+                    else {
+                        if (isTagRange) {
+                            if (!tagRangeMap.containsKey(key)) {
+                                tagRangeMap.put(key, name);
+                                entryAlreadyExists = false;
+                            }
+                            else {
+                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
+                            }
+                        }
+                        else {
+                            if (!tagOnlyMap.containsKey(key)) {
+                                tagOnlyMap.put(key, name);
+                                entryAlreadyExists = false;
+                            }
+                            else {
+                                System.out.println("IGNORING duplicate dictionary entry: name = " + name);
                             }
                         }
 
-                        if (!forgetIt) {
-                            tagOnlyMap.put(tag, name);
+                        if (!entryAlreadyExists) {
+                            node.setUserData("entry", key, null);
+                            reverseMap.put(name, key);
                         }
-                        else {
-                            System.out.println("IGNORING duplicate dictionary entry: name = " + name);
-                        }
-                    }
-                    else {
-                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
-                    }
-                }
-                else {
-                    // Transform tag/num pair into single object
-                    EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, type, description, format);
-
-                    // Only add to dictionary if both name and tag/num pair are unique
-                    if (!dictMap.containsKey(key) && !reverseMap.containsKey(name))  {
-                        dictMap.put(key, name);
-                        reverseMap.put(name, key);
-                    }
-                    else {
-                        System.out.println("IGNORING duplicate dictionary entry: name = " + name);
                     }
                 }
 
                 // Look at this node's children recursively but skip a leaf's kids
                 if (!isLeaf) {
-                    addHierachicalDictEntries(node.getChildNodes(), name);
+                    addHierarchicalDictEntries(node.getChildNodes(), name);
                 }
                 else if (node.hasChildNodes()) {
                     System.out.println("IGNORING children of \"leaf\" element " + name);
@@ -585,68 +865,363 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
     /**
      * Returns the name of a given evio structure.
+     * This is the method used in BaseStructure.toString() (and therefore
+     * also in JEventViewer), to assign a dictionary entry to a particular
+     * evio structure.
      *
      * @param structure the structure to find the name of.
      * @return a descriptive name or ??? if none found
      */
     public String getName(BaseStructure structure) {
-        int tag = structure.getHeader().getTag();
-        int num = structure.getHeader().getNumber();
+        Integer tag = structure.getHeader().getTag();
+        Integer num = structure.getHeader().getNumber();
+
+        // Make sure dictionary knows this is a segment or tagsegment
+        if (structure instanceof EvioSegment ||
+            structure instanceof EvioTagSegment) {
+            num = null;
+        }
+
         return getName(tag, num);
 	}
 
 
     /**
-     * Returns the name associated with the given tag and num.
+     * Returns the name associated with the given tag, num, and tagEnd.
+     * If a valid tag and num are given (>= 0) a search is made for:
+     * <ol>
+     * <li>an entry of a tag/num pair. If that fails,<p>
+     * <li>an entry of a tag only. If that fails,<p>
+     * <li>an entry of a tag range.<p>
+     * </ol><p>
      *
-     * @param tag to find the name of
-     * @param num to find the name of
-     * @return a descriptive name or ??? if none found
+     * If only a valid tag is given, a search is made for:
+     * <ol>
+     * <li>an entry of a tag only. If that fails,<p>
+     * <li>an entry of a tag range.<p>
+     * </ol><p>
+     *
+     * All other argument values result in ??? being returned.
+     *
+     * @param tag  tag of dictionary entry to find
+     * @param num  num of dictionary entry to find
+     * @return descriptive name or ??? if none found
      */
-    public String getName(int tag, int num) {
-        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
+    public String getName(Integer tag, Integer num) {
+        return getName(tag, num, null);
+	}
 
-        String name = dictMap.get(key);
-        if (name == null) {
-            // Check to see if tag matches anything in tagOnlyMap
-            name = tagOnlyMap.get(tag);
-            if (name == null) {
-                return INameProvider.NO_NAME_STRING;
-            }
+
+    /**
+     * Returns the name associated with the given tag, num, and tagEnd.
+     * If a valid tag and num are given (>= 0) a search is made for:
+     * <ol>
+     * <li>an entry of a tag/num pair. If that fails,<p>
+     * <li>an entry of a tag only. If that fails,<p>
+     * <li>an entry of a tag range.<p>
+     * </ol><p>
+     *
+     * If only a valid tag is given, a search is made for:
+     * <ol>
+     * <li>an entry of a tag only. If that fails,<p>
+     * <li>an entry of a tag range.<p>
+     * </ol><p>
+     *
+     * If a valid tag range is given (different valid tag and tagEnd with no num),
+     * a search is made for an entry of a tag range. Note: tag and tagEnd being the
+     * same value or tagEnd being 0 mean that no range is defined - it's equivalent
+     * to only specifying a tag.<p>
+     *
+     * Argument values which have no match result in "???" being returned.<p>
+     *
+     * Things are actually more complicated due to parent structures. Duplicate
+     * entries (same tag, num, and tagEnd) are permitted only as long their
+     * parent entries are different. Say, for example, that this dictionary is
+     * defined as follows:<p>
+     * <pre>
+     *
+     *      &lt;bank name="B1" tag="1" num="1" &gt;
+     *           &lt;bank name="sub1" tag="5" num="5" /&gt;
+     *           &lt;bank name="sub2" tag="5" num="5" /&gt;
+     *           &lt;leaf name="tagNum"   tag="10" num="10" /&gt;
+     *           &lt;leaf name="tagOnly"  tag="20" /&gt;
+     *           &lt;leaf name="tagRange" tag="30-40" /&gt;
+     *      &lt;/bank&gt;
+     *      &lt;bank name="B2" tag="2" num="2" &gt;
+     *           &lt;leaf name="tagNum"   tag="10" num="10" /&gt;
+     *           &lt;leaf name="tagOnly"  tag="20" /&gt;
+     *           &lt;leaf name="tagRange" tag="30-40" /&gt;
+     *      &lt;/bank&gt;
+     *
+     * </pre>
+     *
+     * You can see that the leaf entries under bank "B1" are identical to those under "B2".
+     * This is permitted since B1 and B2 have different tag & num values so there
+     * is a way to tell the difference between the 2 instances of tagNum, tagOnly and
+     * tagRange.<p>
+     *
+     * It is not possible to specify parents using the "dictEntry" XML element and
+     * consequently duplicates are not allowed if using this form of dictionary
+     * definition. Think of things like this: no parents = no duplicates.
+     *
+     *
+     * @param tag       tag of dictionary entry to find
+     * @param num       num of dictionary entry to find
+     * @param tagEnd tagEnd of dictionary entry to find
+     * @return descriptive name or "???" if none found
+     */
+    public String getName(Integer tag,  Integer num,  Integer tagEnd,
+                          Integer pTag, Integer pNum, Integer pTagEnd) {
+        // Check tag arg
+        if (tag == null) return INameProvider.NO_NAME_STRING;
+
+        // Need to at least define parent's tag. If not defined,
+        // we cannot use parent info at all.
+        if (pTag == null) {
+            return getName(tag, num, tagEnd);
+        }
+
+        // The generated key below is equivalent (equals() overridden)
+        // to the key existing in the map. Use it to find the value.
+        EvioDictionaryEntry parentKey = new EvioDictionaryEntry(pTag, pNum, pTagEnd, null);
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, tagEnd,
+                                                          null, null, null, parentKey);
+
+        return getName(key);
+	}
+
+
+    /**
+     * Returns the name associated with the given tag, num, and tagEnd.
+     * If a valid tag and num are given (>= 0) a search is made for:
+     * <ol>
+     * <li>an entry of a tag/num pair. If that fails,<p>
+     * <li>an entry of a tag only. If that fails,<p>
+     * <li>an entry of a tag range.<p>
+     * </ol><p>
+     *
+     * If only a valid tag is given, a search is made for:
+     * <ol>
+     * <li>an entry of a tag only. If that fails,<p>
+     * <li>an entry of a tag range.<p>
+     * </ol><p>
+     *
+     * If a valid tag range is given (different valid tag and tagEnd with no num),
+     * a search is made for an entry of a tag range. Note: tag and tagEnd being the
+     * same value or tagEnd being 0 mean that no range is defined - it's equivalent
+     * to only specifying a tag.<p>
+     *
+     * All other argument values result in ??? being returned.
+     *
+     * @param tag       tag of dictionary entry to find
+     * @param num       num of dictionary entry to find
+     * @param tagEnd tagEnd of dictionary entry to find
+     * @return descriptive name or ??? if none found
+     */
+    public String getName(Integer tag, Integer num, Integer tagEnd) {
+        // Check tag arg
+        if (tag == null) return INameProvider.NO_NAME_STRING;
+
+        // The generated key below is equivalent (equals() overridden)
+        // to the key existing in the map. Use it to find the value.
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, tagEnd, null);
+        return getName(key);
+	}
+
+
+    /**
+     * Implementation of getName().
+     * @param key dictionary entry to look up name for.
+     * @return name associated with key or "???" if none.
+     */
+    private String getName(EvioDictionaryEntry key) {
+        int tag = key.getTag();
+        EvioDictionaryEntryType entryType = key.getEntryType();
+
+        // name = ???
+        String name = INameProvider.NO_NAME_STRING;
+
+        outer:
+        switch (entryType) {
+            case TAG_NUM:
+                // If a tag/num pair was specified ...
+                // There may be multiple entries with the same tag/tagEnd/num values
+                // but having parents with differing values. Since we don't specify
+                // the parent info, we just get the first match found in the map.
+                name = tagNumMap.get(key);
+                if (name != null) {
+                    break;
+                }
+                // Create tag-only key and try to find tag-only match
+                key = new EvioDictionaryEntry(tag);
+
+            case TAG_ONLY:
+                // If only a tag was specified or a tag/num pair was specified
+                // but there was no exact match for the pair ...
+                name = tagOnlyMap.get(key);
+                if (name != null) {
+                    break;
+                }
+                // Create tag-range key and try to find tag-range match
+                key = new EvioDictionaryEntry(tag, null, key.getTagEnd(), null);
+
+            case TAG_RANGE:
+                // If a range was specified in the args, check to see if
+                // there's an exact match first ...
+                name = tagRangeMap.get(key);
+                if (name != null) {
+                    break;
+                }
+                // If a tag/num pair or only a tag was specified in the args,
+                // see if either falls in a range of tags.
+                else if (entryType != EvioDictionaryEntryType.TAG_RANGE) {
+                    // Additional check to see if tag fits in a range
+                    for (Map.Entry<EvioDictionaryEntry, String> item : tagRangeMap.entrySet()) {
+                        EvioDictionaryEntry entry = item.getKey();
+                        if (entry.inRange(tag)) {
+                            name = item.getValue();
+                            break outer;
+                        }
+                    }
+                }
+
+            default:
+                System.out.println("no dictionary entry for tag = " + tag +
+                                   ", tagEnd = " + key.getTagEnd() + ", num = " + key.getNum());
         }
 
         return name;
 	}
 
 
+
+
+    /**
+     * Returns the dictionary entry, if any, associated with the given tag, num, and tagEnd.
+     *
+     * @param tag       tag of dictionary entry to find
+     * @param num       num of dictionary entry to find
+     * @param tagEnd tagEnd of dictionary entry to find
+     * @return entry or null if none found
+     */
+    private EvioDictionaryEntry entryLookupByData(Integer tag, Integer num, Integer tagEnd) {
+        // Given data, find the entry in dictionary that corresponds to it.
+        //
+        // The generated key below is equivalent (equals() overridden) to the key existing
+        // in the map. Use it to find the value, then use the value to find the
+        // original key which contains other data besides tag, tagEnd, and num.
+        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num, tagEnd, null);
+        EvioDictionaryEntryType entryType = key.getEntryType();
+
+        String name;
+        EvioDictionaryEntry entry = null;
+
+        outer:
+        switch (entryType) {
+            case TAG_NUM:
+                name = tagNumMap.get(key);
+                if (name != null) {
+                    entry = tagNumReverseMap.get(name);
+                    break;
+                }
+
+                // Create tag-only key and try to find tag-only match
+                key = new EvioDictionaryEntry(tag);
+
+            case TAG_ONLY:
+                name = tagOnlyMap.get(key);
+                if (name != null) {
+                    // Found value, but now use value (name) to get the original key.
+                    for (Map.Entry<EvioDictionaryEntry, String> item : tagOnlyMap.entrySet()) {
+                        String n = item.getValue();
+                        if (n.equals(name)) {
+                            entry = item.getKey();
+                            break outer;
+                        }
+                    }
+                }
+
+                // Create tag-range key and try to find tag-range match
+                key = new EvioDictionaryEntry(tag, null, tagEnd, null);
+
+            case TAG_RANGE:
+                name = tagRangeMap.get(key);
+                if (name != null) {
+                    for (Map.Entry<EvioDictionaryEntry, String> item : tagRangeMap.entrySet()) {
+                        String n = item.getValue();
+                        if (n.equals(name)) {
+                            entry = item.getKey();
+                            break outer;
+                        }
+                    }
+                }
+                // If a tag/num pair or only a tag was specified in the args,
+                // see if either falls in a range of tags.
+                else if (entryType != EvioDictionaryEntryType.TAG_RANGE) {
+                    // See if tag fits in a range
+                    for (Map.Entry<EvioDictionaryEntry, String> item : tagRangeMap.entrySet()) {
+                        EvioDictionaryEntry entry2 = item.getKey();
+                        if (entry2.inRange(tag)) {
+                            entry = entry2;
+                            break outer;
+                        }
+                    }
+                }
+
+            default:
+                System.out.println("no dictionary entry for tag = " + tag +
+                                   ", tagEnd = " + tagEnd + ", num = " + num);
+        }
+
+        return entry;
+    }
+
+
+    /**
+     * Returns the dictionary entry, if any, associated with the given name.
+     *
+     * @param name name associated with entry
+     * @return entry or null if none found
+     */
+    private EvioDictionaryEntry entryLookupByName(String name) {
+        // Check all entries
+        EvioDictionaryEntry entry = reverseMap.get(name);
+        if (entry != null) {
+            return entry;
+        }
+
+        System.out.println("entryLookup: no entry for name = " + name);
+        return null;
+    }
+
+
     /**
      * Returns the description, if any, associated with the given tag and num.
      *
-     * @param tag to find the description of
-     * @param num to find the description of
-     * @return the description or null if none found
+     * @param tag    to find the description of
+     * @param num    to find the description of
+     * @return description or null if none found
      */
-    public String getDescription(int tag, int num) {
-        // Need to find the description associated with given tag/num.
-        // First create an EntryData object to get associated name.
-        // (This works because of overriding the equals() method).
-        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
+    public String getDescription(Integer tag, Integer num) {
+        return getDescription(tag, num, null);
+	}
 
-        String name = dictMap.get(key);
-        if (name == null) {
-            System.out.println("getDescription: no entry for that key (tag/num)");
+
+    /**
+     * Returns the description, if any, associated with the given tag, num, and tagEnd.
+     *
+     * @param tag    to find the description of
+     * @param num    to find the description of
+     * @param tagEnd to find the description of
+     * @return description or null if none found
+     */
+    public String getDescription(Integer tag, Integer num, Integer tagEnd) {
+        EvioDictionaryEntry entry = entryLookupByData(tag, num, tagEnd);
+        if (entry == null) {
             return null;
         }
 
-        // Now that we have the name, use that to find the
-        // original EntryData object with the description in it.
-        EvioDictionaryEntry origKey = reverseMap.get(name);
-        if (origKey == null) {
-            System.out.println("getDescription: no orig entry for that key (tag/num)");
-            return null;
-        }
-
-        return origKey.getDescription();
+        return entry.getDescription();
 	}
 
 
@@ -657,7 +1232,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * @return description; null if name or is unknown or no description is associated with it
      */
     public String getDescription(String name) {
-        EvioDictionaryEntry entry = reverseMap.get(name);
+        EvioDictionaryEntry entry = entryLookupByName(name);
         if (entry == null) {
             return null;
         }
@@ -674,23 +1249,26 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * @return the format or null if none found
      */
     public String getFormat(int tag, int num) {
-        // Need to find the format associated with given tag/num.
-        // First create an EntryData object to get associated name.
-        // (This works because of overriding the equals() method).
-        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
+        return getFormat(tag, num, null);
+    }
 
-        String name = dictMap.get(key);
-        if (name == null) return null;
 
-        // Now that we have the name, use that to find the
-        // original EntryData object with the format in it.
-        EvioDictionaryEntry origKey = reverseMap.get(name);
-        if (origKey == null) {
+    /**
+     * Returns the format, if any, associated with the given tag, num, and tagEnd.
+     *
+     * @param tag    to find the format of
+     * @param num    to find the format of
+     * @param tagEnd to find the format of
+     * @return  format or null if none found
+     */
+    public String getFormat(Integer tag, Integer num, Integer tagEnd) {
+        EvioDictionaryEntry entry = entryLookupByData(tag, num, tagEnd);
+        if (entry == null) {
             return null;
         }
 
-        return origKey.getFormat();
-	}
+        return entry.getFormat();
+    }
 
 
     /**
@@ -700,12 +1278,12 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * @return format; null if name or is unknown or no format is associated with it
      */
     public String getFormat(String name) {
-        EvioDictionaryEntry data = reverseMap.get(name);
-        if (data == null) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
             return null;
         }
 
-        return data.getFormat();
+        return entry.getFormat();
 	}
 
 
@@ -714,25 +1292,28 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      *
      * @param tag to find the type of
      * @param num to find the type of
-     * @return the type or null if none found
+     * @return type or null if none found
      */
-    public DataType getType(int tag, int num) {
-        // Need to find the type associated with given tag/num.
-        // First create an EntryData object to get associated name.
-        // (This works because of overriding the equals() method).
-        EvioDictionaryEntry key = new EvioDictionaryEntry(tag, num);
+    public DataType getType(Integer tag, Integer num) {
+        return getType(tag, num, null);
+	}
 
-        String name = dictMap.get(key);
-        if (name == null) return null;
 
-        // Now that we have the name, use that to find the
-        // original EntryData object with the type in it.
-        EvioDictionaryEntry origKey = reverseMap.get(name);
-        if (origKey == null) {
+    /**
+     * Returns the type, if any, associated with the given tag, num, and tagEnd.
+     *
+     * @param tag    to find the type of
+     * @param num    to find the type of
+     * @param tagEnd to find the type of
+     * @return type or null if none found
+     */
+    public DataType getType(Integer tag, Integer num, Integer tagEnd) {
+        EvioDictionaryEntry entry = entryLookupByData(tag, num, tagEnd);
+        if (entry == null) {
             return null;
         }
 
-        return origKey.getType();
+        return entry.getType();
 	}
 
 
@@ -743,53 +1324,72 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * @return type; null if name or is unknown or no type is associated with it
      */
     public DataType getType(String name) {
-        EvioDictionaryEntry data = reverseMap.get(name);
-        if (data == null) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
             return null;
         }
 
-        return data.getType();
+        return entry.getType();
 	}
 
 
     /**
-     * Returns the tag/num pair, in an int array,
-     * corresponding to the name of a dictionary entry.
+     * Returns the tag/num/tagEnd values, in an Integer object array,
+     * corresponding to the name of a dictionary entry.<p>
      *
+     * If there is an exact match with a tag and num pair, it is returned
+     * (last element is null).
+     * If not, but there is a match with a tag-only entry, that is returned
+     * (last 2 elements are null).
+     * If no tag-only match exits, but there is a match with a tag range,
+     * that is returned (i.e. second element, the num, is null).
+     *
+     * @since 5.2 now returns 3 Integer objects instead of
+     *            2 ints (tag, num) as in previous versions.
      * @param name dictionary name
-     * @return an integer array in which the first element is the tag
-     *         and the second is the num; null if name is unknown
+     * @return an Integer object array in which the first element is the tag,
+     *         the second is the num, and the third is the end of a tag range;
+     *         null if name is unknown
      */
-    public int[] getTagNum(String name) {
-        // Get the tag/num pair
-        EvioDictionaryEntry pair = reverseMap.get(name);
-        if (pair == null) {
-            return null;
+    public Integer[] getTagNum(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry != null) {
+            return new Integer[] {entry.getTag(), entry.getNum(), entry.getTagEnd()};
         }
 
-        return new int[] {pair.getTag(), pair.getNum()};
-	}
+        return null;
+    }
 
 
     /**
      * Returns the tag corresponding to the name of a dictionary entry.
      *
      * @param name dictionary name
-     * @return tag; -1 if name unknown
+     * @return tag or null if name unknown
      */
-    public int getTag(String name) {
-        // Get the data
-        EvioDictionaryEntry data = reverseMap.get(name);
-        if (data == null) {
-            for (Map.Entry<Integer, String> entry : tagOnlyMap.entrySet()) {
-                if (entry.getValue().equals(name)) {
-                    return entry.getKey();
-                }
-            }
-            return -1;
+    public Integer getTag(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
+            return null;
         }
 
-        return data.getTag();
+        return entry.getTag();
+	}
+
+
+    /**
+     * Returns the tagEnd corresponding to the name of a dictionary entry.
+     *
+     * @param name dictionary name
+     * @return tagEnd or null if name unknown
+     */
+    public Integer getTagEnd(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
+            return null;
+        }
+
+        return entry.getTagEnd();
 	}
 
 
@@ -797,16 +1397,15 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * Returns the num corresponding to the name of a dictionary entry.
      *
      * @param name dictionary name
-     * @return num; -1 if name unknown
+     * @return num or null if name unknown
      */
-    public int getNum(String name) {
-        // Get the data
-        EvioDictionaryEntry data = reverseMap.get(name);
-        if (data == null) {
-            return -1;
+    public Integer getNum(String name) {
+        EvioDictionaryEntry entry = entryLookupByName(name);
+        if (entry == null) {
+            return null;
         }
 
-        return data.getNum();
+        return entry.getNum();
 	}
 
 
@@ -827,15 +1426,6 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
 			// parse using builder to get DOM representation of the XML file
 			dom = db.parse(file);
-		}
-		catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		catch (SAXException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
 		}
         catch (Exception e) {
             e.printStackTrace();
@@ -863,15 +1453,6 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
             // parse using builder to get DOM representation of the XML string
             ByteArrayInputStream bais = new ByteArrayInputStream(xmlString.getBytes());
             dom = db.parse(bais);
-        }
-        catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-        catch (SAXException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -922,14 +1503,34 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
     public String toString() {
         if (stringRepresentation != null) return stringRepresentation;
 
-        EvioDictionaryEntry pair;
+        int row=1;
+        EvioDictionaryEntry entry;
         StringBuilder sb = new StringBuilder(4096);
-        sb.append("-- Dictionary --\n");
+        sb.append("-- Dictionary --\n\n");
 
         for (String name : reverseMap.keySet()) {
-            // Get the tag/num pair
-            pair = reverseMap.get(name);
-            sb.append(String.format("tag: %-15s num: %-15s name: %s\n", pair.getTag(), pair.getNum(), name));
+            // Get the entry
+            entry = reverseMap.get(name);
+            Integer num = entry.getNum();
+            Integer tag = entry.getTag();
+            Integer tagEnd = entry.getTagEnd();
+
+            switch (entry.getEntryType()) {
+                case TAG_RANGE:
+                    sb.append(String.format("%-30s: tag range %d-%d\n", name, tag, tagEnd));
+                    break;
+                case TAG_ONLY:
+                    sb.append(String.format("%-30s: tag %d\n", name, tag));
+                    break;
+                case TAG_NUM:
+                    sb.append(String.format("%-30s: tag %d, num %d\n", name, tag, num));
+                    break;
+                default:
+            }
+
+            if (row++ % 4 == 0) {
+                sb.append("\n");
+            }
 
         }
 

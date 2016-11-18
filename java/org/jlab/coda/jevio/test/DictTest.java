@@ -2,12 +2,6 @@ package org.jlab.coda.jevio.test;
 
 import org.jlab.coda.jevio.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
-import java.nio.IntBuffer;
 import java.util.Map;
 import java.util.Set;
 
@@ -93,6 +87,109 @@ public class DictTest {
             ;
 
 
+    static String xmlDict7 =
+            "<xmlDict>\n" +
+                    "  <bank name=\"HallD\"          tag=\"6-8\" type=\"booger\" >\n" +
+//                    "  <bank name=\"HallD\"          tag=\"6-8\"  >\n" +
+                    "      <description format=\"blah\" >"  +
+                    "          hall_d_tag_range"  +
+                    "      </description>" +
+                    "      <bank name=\"TAG7\"       tag=\"7\"  />\n" +
+                    "      <bank name=\"DC(%t)\"     tag=\"6\" num=\"0\" description=\"dc(typ)(num)\" >\n" +
+                    "          <leaf name=\"xpos(%n)\"   tag=\"6\" num=\"1\" />\n" +
+                    "          <bank name=\"ypos(%n)\"   tag=\"8\" num=\"2\" />\n" +
+                    "          <bank name=\"zpos(%n)\"   tag=\"6\" num=\"3\" />\n" +
+                    "          <bank name=\"zpos(%n)\"   tag=\"6\" num=\"4\" />\n" +
+                    "      </bank >\n" +
+                    "      <bank name=\"TOF\"        tag=\"8\" num=\"0\"  type=\"blah\" >\n" +
+                    "          <leaf name=\"xpos\"   tag=\"8\" num=\"1\" />\n" +
+                    "          <bank name=\"ypos\"   tag=\"8\" num=\"2\" />\n" +
+                    "      </bank >\n" +
+                    "  </bank >\n" +
+                    "  <dictEntry name=\"TaggiesOnly\" tag=\"5\" >\n" +
+                    "       <description format=\"My Format\" >tag 5 description</description>" +
+                    "  </dictEntry>\n" +
+                    "  <dictEntry name=\"Rangy_Small\" tag=\"75 - 76\"  />\n" +
+                    "  <dictEntry name=\"Rangy\"       tag=\"75 - 78\"  />\n" +
+                    "  <dictEntry name=\"TAG1\"        tag=\"1\" />\n" +
+//                    "  <dictEntry name=\"TAG7\"        tag=\"7\"  />\n" +
+//                    "  <dictEntry name=\"TAG7\"        tag=\"77\"  />\n" +
+                    "  <dictEntry name=\"num=(%t-%n)\"    tag=\"123\" num=\"1-7\" />\n" +
+//                    "  <dictEntry name=\"num=(7)\"     tag=\"123\" num=\"7\" />\n" +
+                    "  <dictEntry name=\"num=(%n)\"     tag=\"123\" />\n" +
+            "</xmlDict>"
+            ;
+
+
+    public static void main(String args[]) {
+
+        EvioXMLDictionary dict = new EvioXMLDictionary(xmlDict7);
+
+        Map<String, EvioDictionaryEntry> map = dict.getMap();
+        Set<String> keys = map.keySet();
+        for (String key : keys) {
+            System.out.println("key = " + key + ", tag = " + dict.getTag(key) +
+                               ", tagEnd = " + dict.getTagEnd(key) +
+                                       ", num = " + dict.getNum(key));
+        }
+        System.out.println();
+
+        Integer tag = 8;
+        Integer num = 2;
+        Integer tagEnd = 0;
+
+        String n = dict.getName(tag, num, tagEnd);
+        System.out.println("getName(tag = " + tag + ", num = " + num +
+                           ", tagEnd = " + tagEnd + ") = " + n);
+
+        EvioDictionaryEntry e = new EvioDictionaryEntry(tag, num, tagEnd, null);
+        String name = dict.tagNumMap.get(e);
+
+        System.out.println("1 name = " + name + ", for tag = " + tag + ", num = " + num +
+                           ", tagEnd = " + tagEnd);
+
+        EvioDictionaryEntry pEntry = new EvioDictionaryEntry(6, 0, 0, null);
+        EvioDictionaryEntry newEntry = new EvioDictionaryEntry(tag, num, tagEnd, null, null, null, pEntry);
+        name = dict.tagNumMap.get(newEntry);
+
+        System.out.println("2 name = " + name + ", for tag = " + tag + ", num = " + num +
+                           ", tagEnd = " + tagEnd + " and parent = 6/0/0");
+
+
+
+
+        Integer pTag = 8;
+        Integer pNum = 0;
+        Integer pTagEnd = 0;
+        String nm = dict.getName(tag, num, tagEnd, pTag, pNum, pTagEnd);
+        System.out.println("name for tag = " + tag + ", num = " + num +
+                           ", tagEnd = " + tagEnd + ", pTag = " + pTag +
+                                   ", pNum = " + pNum + ", pTagEnd = " + pTagEnd +
+                                   " IS " + nm);
+
+
+//        System.out.println("description for tag = " + tag + ", num = " + num +
+//                           ", tagEnd = " + tagEnd + " IS \"" +
+//                           dict.getDescription(tag, num, tagEnd) + "\"");
+//        System.out.println("format for tag = " + tag + ", num = " + num +
+//                           ", tagEnd = " + tagEnd + " IS \"" +
+//                           dict.getFormat(tag, num, tagEnd) + "\"");
+
+        System.out.println();
+
+        int i=0;
+        Set<Map.Entry<String, EvioDictionaryEntry>> set = map.entrySet();
+        for (Map.Entry<String, EvioDictionaryEntry> entry : set) {
+            String entryName =  entry.getKey();
+            EvioDictionaryEntry entryData = entry.getValue();
+            System.out.println("entry " + (++i) + ": name = " + entryName + ", tag = " +
+                                       entryData.getTag() + ", num = " + entryData.getNum());
+        }
+
+        System.out.println();
+        System.out.println("Dictionary.toString() gives:\n" + dict.toString());
+    }
+
     public static void main1(String args[]) {
 
         EvioXMLDictionary dict = new EvioXMLDictionary(xmlDict5);
@@ -129,7 +226,7 @@ public class DictTest {
     }
 
 
-    public static void main(String args[]) {
+    public static void main6(String args[]) {
 
         EvioXMLDictionary dict = new EvioXMLDictionary(xmlDict4);
         Map<String, EvioDictionaryEntry> map = dict.getMap();
@@ -208,7 +305,7 @@ public class DictTest {
 
 
         System.out.println("TEST NEW FEATURE:");
-        int[] tn = dict.getTagNum("b1.b2.l1");
+        Integer[] tn = dict.getTagNum("b1.b2.l1");
         if (tn != null) {
             System.out.println("Dict entry of b1.b2.l1 has tag = " + tn[0] +
                             " and num = " + tn[1]);

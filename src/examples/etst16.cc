@@ -59,9 +59,9 @@ int main(int argc, char **argv) {
 
       // check if some tag,num's exist
       bankIndex b;
-      b = b0.getBankIndex(tagNum(12,22));
-      cout << "12,22:             " << b0.tagNumExists(tagNum(12,22)) << endl;
-      cout << "12,22 count:       " << b0.tagNumCount(tagNum(12,22)) << endl;
+      b = b0.getBankIndex(evioDictEntry(12,22));
+      cout << "12,22:             " << b0.tagNumExists(evioDictEntry(12,22)) << endl;
+      cout << "12,22 count:       " << b0.tagNumCount(evioDictEntry(12,22)) << endl;
       cout << "12,22 container:   " << b.containerType << endl;
       cout << "12,22 content:     " << b.contentType << endl;
       cout << "12,22 bank length: " << b.bankLength << endl;
@@ -77,9 +77,9 @@ int main(int argc, char **argv) {
       cout << endl;
 
 
-      b = b0.getBankIndex(tagNum(30,35));
-      cout << "30,35:             " << b0.tagNumExists(tagNum(30,35)) << endl;
-      cout << "30,35 count:       " << b0.tagNumCount(tagNum(30,35)) << endl;
+      b = b0.getBankIndex(evioDictEntry(30,35));
+      cout << "30,35:             " << b0.tagNumExists(evioDictEntry(30,35)) << endl;
+      cout << "30,35 count:       " << b0.tagNumCount(evioDictEntry(30,35)) << endl;
       cout << "30,35 container:   " << b.containerType << endl;
       cout << "30,35 content:     " << b.contentType << endl;
       cout << "30,35 bank length: " << b.bankLength << endl;
@@ -95,9 +95,9 @@ int main(int argc, char **argv) {
       cout << endl;
 
 
-      b = b0.getBankIndex(tagNum(11,21));
-      cout << "11,21:             " << b0.tagNumExists(tagNum(11,21)) << endl;
-      cout << "11,21 count:       " << b0.tagNumCount(tagNum(11,21)) << endl;
+      b = b0.getBankIndex(evioDictEntry(11,21));
+      cout << "11,21:             " << b0.tagNumExists(evioDictEntry(11,21)) << endl;
+      cout << "11,21 count:       " << b0.tagNumCount(evioDictEntry(11,21)) << endl;
       cout << "11,21 container:   " << b.containerType << endl;
       cout << "11,21 content:     " << b.contentType << endl;
       cout << "11,21 bank length: " << b.bankLength << endl;
@@ -113,8 +113,8 @@ int main(int argc, char **argv) {
       cout << endl;
 
 
-      cout << "12,99: "       << b0.tagNumExists(tagNum(12,99)) << endl;
-      cout << "12,99 count: " << b0.tagNumCount(tagNum(12,99)) << endl;
+      cout << "12,99: "       << b0.tagNumExists(evioDictEntry(12,99)) << endl;
+      cout << "12,99 count: " << b0.tagNumCount(evioDictEntry(12,99)) << endl;
       cout << endl;
 
 

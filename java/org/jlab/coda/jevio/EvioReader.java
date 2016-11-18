@@ -193,7 +193,7 @@ public class EvioReader {
      * This class stores the state of this reader so it can be recovered
      * after a state-changing method has been called -- like {@link #rewind()}.
      */
-    private class ReaderState {
+    private static final class ReaderState {
         private boolean lastBlock;
         private int eventNumber;
         private long filePosition;
@@ -424,6 +424,7 @@ public class EvioReader {
         }
         parseFirstHeader(headerBuf);
         fileChannel.position(0);
+        parser = new EventParser();
 
         // What we do from here depends on the evio format version.
         // If we've got the old version, don't memory map big (> 2.1 GB) files,
@@ -462,6 +463,14 @@ public class EvioReader {
             if (sequentialRead) {
                 dataStream = new DataInputStream(fileInputStream);
                 prepareForSequentialRead();
+                if (blockHeader4.hasDictionary()) {
+                    // Dictionary is always the first event
+                    EvioEvent dict = parseNextEvent();
+                    if (dict != null) {
+                        String[] strs = dict.getStringData();
+                        dictionaryXML = strs[0];
+                    }
+                }
             }
             else {
                 // Memory map the file - even the big ones
@@ -470,13 +479,12 @@ public class EvioReader {
                     ByteBuffer buf = mappedMemoryHandler.getFirstMap();
                     // Jump to the first event
                     prepareForBufferRead(buf);
-                    // Dictionary is the first event
+                    // Dictionary is always the first event
                     readDictionary(buf);
                 }
             }
         }
 
-        parser = new EventParser();
     }
 
 
@@ -905,6 +913,10 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                 buffer.position(pos);
             }
         }
+
+        // When reading files sequentially, the file is read into this buffer.
+        // If there's a dictionary present, skip over it now.
+
     }
 
 
@@ -966,7 +978,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                         // Read the entire chunk of data
                         int bytesActuallyRead = fileChannel.read(byteBuffer);
                         while (bytesActuallyRead < bytesToRead) {
-                            fileChannel.read(byteBuffer);
+                            bytesActuallyRead += fileChannel.read(byteBuffer);
                         }
 
                         byteBuffer.flip();
@@ -987,18 +999,20 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                         return ReadStatus.END_OF_FILE;
                     }
 
-                    // Read len of block
+                    // Read len of block in 32 bit words
                     int blkSize = dataStream.readInt();
                     if (swap) blkSize = Integer.reverseBytes(blkSize);
+                    // Change to bytes
+                    int blkBytes = 4 * blkSize;
                     // Create a buffer to hold the entire first block of data
-                    if (byteBuffer.capacity() >= 4 * blkSize) {
+                    if (byteBuffer.capacity() >= blkBytes) {
                         byteBuffer.clear();
-                        byteBuffer.limit(4 * blkSize);
+                        byteBuffer.limit(blkBytes);
                     }
                     else {
                         // Make this bigger than necessary so we're not constantly reallocating
-                        byteBuffer = ByteBuffer.allocate(4 * blkSize + 10000);
-                        byteBuffer.limit(4 * blkSize);
+                        byteBuffer = ByteBuffer.allocate(blkBytes + 10000);
+                        byteBuffer.limit(blkBytes);
                         byteBuffer.order(byteOrder);
                     }
 
@@ -1006,10 +1020,10 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                     // First put in length we just read.
                     byteBuffer.putInt(blkSize);
 
-                    // Now the rest of the block
-                    int bytesActuallyRead = fileChannel.read(byteBuffer);
-                    while (bytesActuallyRead < blkSize) {
-                        fileChannel.read(byteBuffer);
+                    // Now the rest of the block (already put int, 4 bytes, in)
+                    int bytesActuallyRead = fileChannel.read(byteBuffer) + 4;
+                    while (bytesActuallyRead < blkBytes) {
+                        bytesActuallyRead += fileChannel.read(byteBuffer);
                     }
 
                     byteBuffer.flip();
@@ -1369,7 +1383,7 @@ System.err.println("ERROR endOfBuffer " + a);
         blockBytesRemaining -= 4; // just read in 4 bytes
 
         // Versions 1-3: if we were unlucky, after reading the length
-        //               there are no bytes remaining in this bank.
+        //               there are no bytes remaining in this block.
         // Don't really need the "if (version < 4)" here except for clarity.
         if (evioVersion < 4) {
             if (bufferBytesRemaining() == 0) {
@@ -1384,7 +1398,7 @@ System.err.println("ERROR endOfBuffer " + a);
             }
         }
 
-        // Now should be good to go, except data may cross block boundary.
+        // Now we should be good to go, except data may cross block boundary.
         // In any case, should be able to read the rest of the header.
 
         // Read and parse second header word
@@ -1420,7 +1434,7 @@ System.err.println("ERROR endOfBuffer " + a);
                 // Be in while loop if have to cross block boundary[ies].
                 while (bytesToGo > 0) {
 
-                    // Don't read more than what left in current block
+                    // Don't read more than what is left in current block
                     int bytesToReadNow = bytesToGo > blockBytesRemaining ?
                                          blockBytesRemaining : bytesToGo;
 
@@ -1567,6 +1581,12 @@ System.err.println("ERROR endOfBuffer " + a);
         }
 
         blockHeader.setBufferStartingPosition(initialPosition);
+
+        if (sequentialRead && hasDictionaryXML()) {
+            // Dictionary is always the first event so skip over it.
+            // For sequential reads, do this after each rewind.
+            nextEvent();
+        }
 	}
 
 	/**
@@ -1929,6 +1949,12 @@ System.err.println("ERROR endOfBuffer " + a);
             // is useless without also restoring/re-reading the data.
             if (sequentialRead) {
                 rewind();
+
+                // Skip dictionary
+                if (hasDictionaryXML()) {
+                    nextEvent();
+                }
+
                 // Go back to original event # & therefore buffer data
                 for (int i=1; i < state.eventNumber; i++) {
                     nextEvent();

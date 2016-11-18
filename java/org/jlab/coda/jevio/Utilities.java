@@ -458,7 +458,7 @@ final public class Utilities {
         ArrayList<EvioEvent> eventList = new ArrayList<EvioEvent>();
         DataType dataType;
         int eventCount=0;
-        int[] tagNum;
+        Integer[] tagNum;
         boolean eventBeginning=true, fileBeginning=true;
         boolean skipEvent=false, inDictionary, haveDictionary=(dictionary != null);
 

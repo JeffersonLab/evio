@@ -3,7 +3,7 @@
 // builds a tree from selected nodes
 // builds an index to banks in the event, searches index for particular banks
 
-// in principle more than one bank may have the same tagNum,
+// in principle more than one bank may have the same evioDictEntry,
 //   in this case must use the getRange() method to get them all, see Doxygen doc
 
 
@@ -91,33 +91,33 @@ int main(int argc, char **argv) {
       evioBankIndex bi(chan->getNoCopyBuffer());
 
 
-      // query the index and get <double> data for some tagNum
+      // query the index and get <double> data for some evioDictEntry
       int len;
-      tagNum tn(11,21);
+      evioDictEntry tn(11,21);
 
-      cout << endl << endl << "Count of banks with tagNum " << tn.first << "," << (int)tn.second << " is: " << bi.tagNumCount(tn) << endl;
+      cout << endl << endl << "Count of banks with evioDictEntry " << tn.getTag() << "," << (int)tn.getNum() << " is: " << bi.tagNumCount(tn) << endl;
       const double *d = bi.getData<double>(tn,&len);
       if(d!=NULL) {
         cout << "data length: " << len << endl;
-        cout << "some data <double> for tagNum " << tn.first << "," << (int)tn.second<< ":  " << endl; 
+        cout << "some data <double> for evioDictEntry " << tn.getTag() << "," << (int)tn.getNum()<< ":  " << endl;
         for(int i=0; i<min(len,10); i++) cout << d[i] << "  ";
         cout << endl;
       } else {
-        cout << "?cannot find <double> data for: " << tn.first << "," << (int)tn.second << endl;
+        cout << "?cannot find <double> data for: " << tn.getTag() << "," << (int)tn.getNum() << endl;
       }
     
 
-      // query the index and get <int32_t> data for some tagNum
-      tagNum tn2(32,37);
-      cout << endl << endl << "Count of banks with tagNum " << tn2.first << "," << (int)tn2.second << " is: " << bi.tagNumCount(tn2) << endl;
+      // query the index and get <int32_t> data for some evioDictEntry
+      evioDictEntry tn2(32,37);
+      cout << endl << endl << "Count of banks with evioDictEntry " << tn2.getTag() << "," << (int)tn2.getNum() << " is: " << bi.tagNumCount(tn2) << endl;
       const int32_t *ii = bi.getData<int32_t>(tn2,&len);
       if(ii!=NULL) {
         cout << "data length: " << len << endl;
-        cout << "some data <int32_t> for tagNum " << tn2.first << "," << (int)tn2.second<< ":  " << endl; 
+        cout << "some data <int32_t> for evioDictEntry " << tn2.getTag() << "," << (int)tn2.getNum()<< ":  " << endl;
         for(int i=0; i<min(len,10); i++) cout << ii[i] << "  ";
         cout << endl;
       } else {
-        cout << "?cannot find <int32_t> data for: " << tn2.first << "," << (int)tn2.second << endl;
+        cout << "?cannot find <int32_t> data for: " << tn2.getTag() << "," << (int)tn2.getNum() << endl;
       }
     }    
     

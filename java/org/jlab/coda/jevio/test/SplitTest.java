@@ -2,9 +2,7 @@ package org.jlab.coda.jevio.test;
 
 import org.jlab.coda.jevio.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
@@ -18,7 +16,8 @@ public class SplitTest {
     // xml dictionary
     static String xmlDictionary =
                     "<xmlDict>\n" +
-                    "  <dictEntry name=\"TAG1_NUM1\" tag=\"1\"  num=\"1\"/>\n" +
+                            "  <dictEntry name=\"TAG1_NUM1\" tag=\"1\"  num=\"1\"/>\n" +
+                            "  <dictEntry name=\"TAG1\"      tag=\"1\"  />\n" +
                     "</xmlDict>";
 
 

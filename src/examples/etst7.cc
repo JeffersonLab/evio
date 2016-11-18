@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     } else {
       cerr << endl << "test *ln2==2 failed" << endl << endl;
     }
-    if(*ln2==tagNum(2,6)) {
+    if(*ln2== evioDictEntry(2,6)) {
       cout << endl << "test *ln2==(2,6) succeeded" << endl << endl;
     } else {
       cerr << endl << "test *ln2==(2,6) failed" << endl << endl;

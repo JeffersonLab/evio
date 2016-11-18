@@ -17,7 +17,7 @@ using namespace std;
 //--------------------------------------------------------------
 
 
-// used internally to stream-parse the event and fill the tagNum map
+// used internally to stream-parse the event and fill the evioDictEntry map
 class myHandler : public evioStreamParserHandler {
   
 public:
@@ -43,7 +43,7 @@ public:
     b.bankLength=bankLength;
     b.data=data;
     b.dataLength=dataLength;
-    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
+    bi->tagNumMap.insert(bankIndexMap::value_type(evioDictEntry(tag,num),b));
     
     return(userArg);
   }
@@ -72,7 +72,7 @@ public:
     b.bankLength=bankLength;
     b.data=data;
     b.dataLength=dataLength;
-    bi->tagNumMap.insert(bankIndexMap::value_type(tagNum(tag,num),b));
+    bi->tagNumMap.insert(bankIndexMap::value_type(evioDictEntry(tag,num),b));
 
     return(userArg);
   }
@@ -140,11 +140,11 @@ bool evioBankIndex::parseBuffer(const uint32_t *buffer, int maxDepth) {
 
 
 /**
- * True if tagNum is in map at least once.
- * @param tn tagNum
- * @return true if tagNum is in map
+ * True if evioDictEntry is in map at least once.
+ * @param tn evioDictEntry
+ * @return true if evioDictEntry is in map
  */
-bool evioBankIndex::tagNumExists(const tagNum& tn) const {
+bool evioBankIndex::tagNumExists(const evioDictEntry & tn) const {
   bankIndexMap::const_iterator iter = tagNumMap.find(tn);
   return(iter!=tagNumMap.end());
 }
@@ -154,11 +154,11 @@ bool evioBankIndex::tagNumExists(const tagNum& tn) const {
 
 
 /**
- * Returns count of tagNum in map.
- * @param tn tagNum
- * @return Count of tagNum in map.
+ * Returns count of evioDictEntry in map.
+ * @param tn evioDictEntry
+ * @return Count of evioDictEntry in map.
  */
-int evioBankIndex::tagNumCount(const tagNum& tn) const {
+int evioBankIndex::tagNumCount(const evioDictEntry & tn) const {
   return((int)tagNumMap.count(tn));
 }
 
@@ -168,10 +168,10 @@ int evioBankIndex::tagNumCount(const tagNum& tn) const {
 
 /**
  * Returns pair of iterators defining range of equal keys in tagNumMap.
- * @param tn tagNum
+ * @param tn evioDictEntry
  * @return Pair of iterators defining range
  */
-bankIndexRange evioBankIndex::getRange(const tagNum& tn) const {
+bankIndexRange evioBankIndex::getRange(const evioDictEntry & tn) const {
   return(tagNumMap.equal_range(tn));
 }
 
@@ -180,17 +180,17 @@ bankIndexRange evioBankIndex::getRange(const tagNum& tn) const {
 
 
 /**
- * Returns bankIndex given tagNum, throws exception if no entry found
- * @param tn tagNum
- * @return bankIndex for tagNum
+ * Returns bankIndex given evioDictEntry, throws exception if no entry found
+ * @param tn evioDictEntry
+ * @return bankIndex for evioDictEntry
  */
-bankIndex evioBankIndex::getBankIndex(const tagNum &tn) const throw(evioException) {
+bankIndex evioBankIndex::getBankIndex(const evioDictEntry &tn) const throw(evioException) {
 
   bankIndexMap::const_iterator iter = tagNumMap.find(tn);
   if(iter!=tagNumMap.end()) {
     return((*iter).second);
   } else {
-    throw(evioException(0,"?evioBankIndex::getBankIndex...tagNum not found",__FILE__,__FUNCTION__,__LINE__));
+    throw(evioException(0,"?evioBankIndex::getBankIndex...evioDictEntry not found",__FILE__,__FUNCTION__,__LINE__));
   }
 }
 
