@@ -20,7 +20,6 @@
     <property name="jarName"       value="jevio-${evio.version}.jar" />
     <property name="allJarNames"   value="jevio-*.jar" />
     <property name="jarPath"       value="${build.lib}/${jarName}" />
-    <property name="local.jars"    value="${src.dir}/jars" />
 
 
     <!-- Set Classpath, ignore caller's classpath -->
@@ -98,28 +97,16 @@
 
 
     <!-- if $CODA is set, use that for classpath -->
-    <target name="CODA_cp" depends="installCheck,CODA_nocp" if="codaDefined">
+    <target name="CODA_cp" depends="installCheck" if="codaDefined">
         <path id="classpath">
             <fileset dir="${env.CODA}/common/jar" >
-                <include name="*.jar" />
-            </fileset>
-            <!-- however, use jars from this distribution if necessary -->
-            <fileset dir="${local.jars}" >
                 <include name="*.jar" />
             </fileset>
         </path>
         <echo message="Compile with jars in $CODA/common/jar" />
     </target>
 
-    <!-- if $CODA is NOT set, use jars provided with this distribution -->
-    <target name="CODA_nocp" unless="codaDefined">
-        <path id="classpath">
-            <fileset dir="${local.jars}" >
-                <include name="*.jar" />
-            </fileset>
-        </path>
-        <echo message="Compile with jars in ${local.jars}" />
-    </target>
+
     <!-- ************************************************************* -->
 
     <!-- Prepare things by creating directories -->
