@@ -71,10 +71,10 @@ public class FileTest {
 
 
     /** For WRITING a local file. */
-    public static void mainww(String args[]) {
+    public static void main(String args[]) {
 
         // String fileName  = "./myData.ev";
-        String fileName  = "/daqfs/home/timmer/coda/jevio-4.3/testdata/fileTestSmall.ev";
+        String fileName  = "/tmp/fileTestSmall.ev";
         File file = new File(fileName);
         ByteBuffer myBuf = null;
 
@@ -82,20 +82,20 @@ public class FileTest {
         String xmlDictionary =
             "<xmlDict>\n" +
             "  <bank name=\"My Event\"       tag=\"1\"   num=\"1\">\n" +
-            "     <bank name=\"Segments\"    tag=\"2\"   num=\"2\">\n" +
+            "     <bank name=\"Ints\"    tag=\"2\"   num=\"2\">\n" +
             "       <leaf name=\"My Shorts\" tag=\"3\"   />\n" +
             "     </bank>\n" +
-            "     <bank name=\"Banks\"       tag=\"1\"   num=\"1\">\n" +
+            "     <bank name=\"Banks\"       tag=\"4\"   num=\"4\">\n" +
             "       <leaf name=\"My chars\"  tag=\"5\"   num=\"5\"/>\n" +
             "     </bank>\n" +
             "  </bank>\n" +
             "  <dictEntry name=\"Last Bank\" tag=\"33\"  num=\"66\"/>\n" +
             "  <dictEntry name=\"Test Bank\" tag=\"1\" />\n" +
             "</xmlDict>";
-        xmlDictionary = null;
+        //xmlDictionary = null;
         // data
         byte[]  byteData1 = new byte[]  {1,2,3,4,5};
-        int[]   intData1  = new int[]   {4,5,6};
+        int[]   intData1  = new int[]   {1,2,3,4};
         int[]   intData2  = new int[]   {7,8,9};
         short[] shortData = new short[] {11,22,33};
         double[] doubleData = new double[] {1.1,2.2,3.3};
@@ -113,91 +113,76 @@ public class FileTest {
             // Create an event writer to write out the test events to file
             EventWriter writer;
 
-            if (useFile) {
-                writer = new EventWriter(file, xmlDictionary, append);
-            }
-            else {
-                // Create an event writer to write to buffer
-                myBuf = ByteBuffer.allocate(10000);
-                myBuf.order(ByteOrder.LITTLE_ENDIAN);
-                writer = new EventWriter(myBuf, xmlDictionary, append);
-            }
-
-//            // Build event (bank of banks) without an EventBuilder
-//            event = new EvioEvent(1, DataType.BANK, 1);
-//
-//            // bank of segments
-//            EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
-//            event.insert(bankSegs);
-//
-//            // segment of 3 shorts
-//            EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
-//            segShorts.setShortData(shortData);
-//            bankSegs.insert(segShorts);
-//            bankSegs.remove(segShorts);
-//
-//            // another bank of banks
-//            EvioBank bankBanks = new EvioBank(4, DataType.BANK, 4);
-//            event.insert(bankBanks);
-//
-//            // bank of chars
-//            EvioBank charBank = new EvioBank(5, DataType.CHAR8, 5);
-//            charBank.setByteData(byteData1);
-//            bankBanks.insert(charBank);
-//
-//            event.setAllHeaderLengths();
-
             // Build event (bank of banks) with EventBuilder object
             EventBuilder builder = new EventBuilder(1, DataType.BANK, 1);
             event = builder.getEvent();
 
-            // bank of doubles
-            EvioBank bankDoubles = new EvioBank(1, DataType.DOUBLE64, 2);
-            bankDoubles.appendDoubleData(doubleData);
-            builder.addChild(event, bankDoubles);
+            // bank of ints
+            EvioBank bankInts = new EvioBank(2, DataType.INT32, 2);
+            bankInts.appendIntData(intData1);
+            builder.addChild(event, bankInts);
 
-            // bank of segments
-            EvioBank bankSegs = new EvioBank(2, DataType.SEGMENT, 2);
-            builder.addChild(event, bankSegs);
+            if (useFile) {
+                writer = new EventWriter(file, 16, 1000, ByteOrder.nativeOrder(),
+                                                   xmlDictionary, null, true, append);
 
-            // segment of 3 shorts
-            EvioSegment segShorts = new EvioSegment(3, DataType.SHORT16);
-            segShorts.appendShortData(shortData);
-            builder.addChild(bankSegs, segShorts);
-            //builder.remove(segShorts);
+// Include first event
+                writer = new EventWriter(file.getPath(), null, null, 0, 0,
+                                                 16, 1000, 95,
+                                                 ByteOrder.nativeOrder(), null,
+                                                 null, true, append, null);
+            }
+            else {
+                // Create an event writer to write to buffer
+                myBuf = ByteBuffer.allocate(10000);
+                //myBuf.order(ByteOrder.LITTLE_ENDIAN);
+                writer = new EventWriter(myBuf, xmlDictionary, append);
+            }
 
-            // another bank of banks
-            EvioBank bankBanks = new EvioBank(4, DataType.BANK, 4);
-            builder.addChild(event, bankBanks);
 
-            // bank of chars
-            EvioBank charBank = new EvioBank(5, DataType.CHAR8, 5);
-            charBank.appendByteData(byteData1);
-            builder.addChild(bankBanks, charBank);
+            // Build bigger event
+            EventBuilder builder2 = new EventBuilder(10, DataType.BANK, 10);
+            EvioEvent event2 = builder2.getEvent();
 
-            // event - ban
-            // of banks
-            EvioEvent lastEvent = new EvioEvent(33, DataType.INT32, 66);
-            // Call this BEFORE appending data!
-            lastEvent.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            lastEvent.appendIntData(intData1);
-            lastEvent.setIntData(intData2);
-            lastEvent.appendIntData(intData2);
+            // bank of int
+            int[] intData = new int[5];
+            for (int i=0; i < intData.length; i++) {
+                intData[i] = i;
+            }
+            EvioBank bankInts2 = new EvioBank(20, DataType.INT32, 20);
+            bankInts2.appendIntData(intData);
+            builder2.addChild(event2, bankInts2);
 
-            for (int i=0; i < 1; i++) {
+
+//            // Write event to file
+//            writer.writeEvent(event);
+//            System.out.println("Event #1, Block #" + writer.getBlockNumber());
+//
+//            writer.writeEvent(event2);
+//            System.out.println("Event #2, Block #" + writer.getBlockNumber());
+//
+//            writer.writeEvent(event);
+//            System.out.println("Event #3, Block #" + writer.getBlockNumber());
+
+
+
+            for (int i=0; i < 6; i++) {
                 // Write event to file
                 writer.writeEvent(event);
 
                 // Write last event to file
                 //writer.writeEvent(lastEvent);
 
-                System.out.println("Block # = " + writer.getBlockNumber());
+                System.out.println("Event #" + (i+1) + ", Block #" + writer.getBlockNumber());
 
                 // How much room do I have left in the buffer now?
                 if (!useFile) {
                     System.out.println("Buffer has " + myBuf.remaining() + " bytes left");
                 }
             }
+
+            writer.writeEvent(event2);
+            System.out.println("Event #7, Block #" + writer.getBlockNumber());
 
             // All done writing
             writer.close();
@@ -241,10 +226,12 @@ public class FileTest {
                     }
 
                     public void startEventParse(BaseStructure structure) {
+
                         System.out.println("Starting event parse");
                     }
 
                     public void endEventParse(BaseStructure structure) {
+
                         System.out.println("Ended event parse");
                     }
                 };
