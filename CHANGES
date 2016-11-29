@@ -131,6 +131,19 @@ jevio-5.1.jar
     - for evio format ver 1-3 files:
         sequential access will be default,
         files read in chunks of 500 blocks (previously 1) at a time.
+    - add ability to add stream id to end of generated file name to
+      differentiate between multiple streams of data to multiple files
+    - fix bug in dictionary in which an entry for tag-only (no num defined)
+      is discarded if an entry already exists for the same tag and a defined num. (9/28/16)
+    - fix bug reading format 4 files sequentially in which a full block may not be
+      read in at one time (11/4/16)
+    - fix bug in which reading format 4 sequentially will process dictionary event as
+      a regular event instead of reading it specially.
+
+    - MAJOR CHANGE: when writing, an ending block header is NOT written with each
+      event and then overwritten in the next write. This removes the possibility that
+      a disk head wastes a whole revolution getting into position for the backwards
+      file access.
 
 *********************************************************************************
 C CODE
@@ -185,3 +198,5 @@ evio-5.1
 evio-5.2
     - when writing, by default, make blocks 16MB or 10,000 events (whichever comes first).
       Previously blocks were 256kB or 10,000 events.
+    - add ability to add stream id to end of generated file name to
+      differentiate between multiple streams of data to multiple files
