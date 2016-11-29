@@ -244,8 +244,6 @@ public class EventWriter {
 
     private File currentFile;
 
-    private DataOutputStream outStream;
-
     /** The object used for writing a file. */
     private RandomAccessFile raf;
 
@@ -295,10 +293,10 @@ public class EventWriter {
 
         /**
          * Close the given file, in the order received, in a separate thread.
-         * @param stream file stream to close
+         * @param raf file to close
          */
-        void closeFile(DataOutputStream stream) {
-            threadPool.submit(new CloseThd(stream));
+        void closeFile(RandomAccessFile raf) {
+            threadPool.submit(new CloseThd(raf));
         }
 
         /** Close the thread pool in this object while executing all existing tasks. */
@@ -307,15 +305,15 @@ public class EventWriter {
         }
 
         private class CloseThd implements Runnable {
-            private DataOutputStream stream;
+            private RandomAccessFile raf;
 
-            CloseThd(DataOutputStream stream) {
-                this.stream = stream;
+            CloseThd(RandomAccessFile raf) {
+                this.raf = raf;
             }
 
             public void run() {
                 try {
-                    stream.close();
+                    raf.close();
                 }
                 catch (IOException e) {
                     e.printStackTrace();
@@ -1002,23 +1000,13 @@ public class EventWriter {
 
                     // Prepare for appending by moving file position to end of last block
                     toAppendPosition();
-                    // flush
-                    fileChannel.force(false);
 
                     // File position is now after the last event written.
 
                     // Reset the buffer which has been used to read the header
                     // and to prepare the file for event writing.
                     buffer.clear();
-
-                    // Open file stream in append mode
-                    FileOutputStream fos = new FileOutputStream(currentFile, true);
-                    // In order to optimize writes to a raid disk / Lustre, use 16MB buffer
-                    BufferedOutputStream bos = new BufferedOutputStream(fos, 16777216);
-                    outStream = new DataOutputStream(bos);
                 }
-
-                raf.close();
             }
             // If not appending, file is created when data is flushed for the first time
         }
@@ -1836,7 +1824,7 @@ public class EventWriter {
         try {
             if (toFile) {
                 // Close current file
-                if (outStream != null)  outStream.close();
+                if (raf != null) raf.close();
                 // Close split file handler thread pool
                 if (fileCloser != null) fileCloser.close();
             }
@@ -2956,11 +2944,8 @@ System.err.println("ERROR endOfBuffer " + a);
         if (bytesWrittenToFile < 1) {
 //if (debug) System.out.println("    flushToFile(): create file " + currentFile.getName());
             try {
-                // Open file stream
-                FileOutputStream fos = new FileOutputStream(currentFile);
-                // In order to optimize writes to a raid disk / Lustre, use 16MB buffer
-                BufferedOutputStream bos = new BufferedOutputStream(fos, 16777216);
-                outStream = new DataOutputStream(bos);
+                raf = new RandomAccessFile(currentFile, "rw");
+                fileChannel = raf.getChannel();
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
@@ -2970,14 +2955,14 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Write everything in internal buffer out to file
         int bytesWritten = buffer.remaining();
-        outStream.write(buffer.array(), 0, bytesWritten);
+        while (buffer.hasRemaining()) {
+            fileChannel.write(buffer);
+        }
 
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
         // but don't bother writing the metadata (arg to force()) since that slows it
         // down too.
-        if (force) {
-            outStream.flush();
-        }
+        if (force) fileChannel.force(false);
 
         // Set buf position to 0 and set limit to capacity
         buffer.clear();
@@ -3019,12 +3004,12 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
-        if (outStream != null) {
-            fileCloser.closeFile(outStream);
+        if (raf != null) {
+            fileCloser.closeFile(raf);
         }
 
         // Right now no file is open for writing
-        outStream = null;
+        raf = null;
 
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
