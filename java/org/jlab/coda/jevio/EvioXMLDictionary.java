@@ -1086,8 +1086,8 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 }
 
             default:
-                System.out.println("no dictionary entry for tag = " + tag +
-                                   ", tagEnd = " + key.getTagEnd() + ", num = " + key.getNum());
+//                System.out.println("no dictionary entry for tag = " + tag +
+//                                   ", tagEnd = " + key.getTagEnd() + ", num = " + key.getNum());
         }
 
         return name;
@@ -1169,8 +1169,8 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
                 }
 
             default:
-                System.out.println("no dictionary entry for tag = " + tag +
-                                   ", tagEnd = " + tagEnd + ", num = " + num);
+//                System.out.println("no dictionary entry for tag = " + tag +
+//                                   ", tagEnd = " + tagEnd + ", num = " + num);
         }
 
         return entry;
