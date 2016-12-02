@@ -2,7 +2,6 @@ package org.jlab.coda.jevio;
 
 
 import java.io.*;
-import java.io.DataOutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -1198,7 +1197,7 @@ public class EventWriter {
                                  boolean append) throws EvioException {
 
         initializeBuffer(buf, blockSizeMax, blockCountMax,
-                         xmlDictionary, bitInfo, reserved1, 0, append, null);
+                         xmlDictionary, bitInfo, reserved1, 1, append, null);
     }
 
     /**
@@ -1547,13 +1546,6 @@ public class EventWriter {
         ByteBuffer buf;
         synchronized (this) {
             buf = buffer.duplicate().order(buffer.order());
-
-            // If this writer is not closed, then the position is just before the
-            // last empty block. Otherwise it is at the actual end.
-            // Make sure we don't throw an exception.
-            if (!closed && (buf.position() < buf.capacity() - EventWriter.headerBytes)) {
-                buf.position(buf.position() + EventWriter.headerBytes);
-            }
         }
 
         // Get buffer ready for reading
@@ -1798,6 +1790,33 @@ public class EventWriter {
     }
 
 
+    /** This method flushes any remaining internally buffered data to file.
+     *  Calling {@link #close()} automatically does this so it isn't necessary
+     *  to call before closing. This method should only be used when writing
+     *  events at such a low rate that it takes an inordinate amount of time
+     *  for internally buffered data to be written to the file.<p>
+     *
+     *  Calling this can kill performance.
+     */
+    synchronized public void flush() {
+        if (closed || !toFile) {
+            return;
+        }
+
+        // Write any remaining data
+        try {
+            // This will kill performance!
+            if (flushToFile(true)) {
+                // If we actually wrote some data, start a new block.
+                resetBuffer(false);
+            }
+        }
+        catch (EvioException e) {}
+        catch (IOException e)   {}
+    }
+
+
+
     /** This method flushes any remaining data to file and disables this object. */
     synchronized public void close() {
         if (closed) {
@@ -1812,9 +1831,8 @@ public class EventWriter {
                 flushToFile(true);
             }
             else {
-                // Data is written, but current position is
-                // before the empty last header, so hop over it.
-                buffer.position(buffer.position() + headerBytes);
+                // Data is written, but need to write empty last header
+                writeNewHeader(8, 0, blockNumber, null, false, true, false, false);
             }
         }
         catch (EvioException e) {}
@@ -2327,6 +2345,7 @@ System.err.println("ERROR endOfBuffer " + a);
     /**
      * This method initializes the internal buffer
      * as if the constructor was just called and resets some variables.
+     * It starts a new block.
      * @param beforeDictionary is this to reset buffer as it was before the
      *                         writing of the dictionary?
      */
@@ -2848,6 +2867,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // If we either flushed events or split the file, reset the
         // internal buffer to prepare it for writing another event.
+        // Start a new block.
         if (doFlush || splittingFile) {
             resetBuffer(false);
             // We have a newly initialized buffer ready to write
@@ -2902,6 +2922,7 @@ System.err.println("ERROR endOfBuffer " + a);
         if (force && toFile) {
             // This will kill performance!
             flushToFile(true);
+            // Start a new block
             resetBuffer(false);
         }
     }
@@ -2913,26 +2934,27 @@ System.err.println("ERROR endOfBuffer " + a);
      * Only called by synchronized methods.<p>
      *
      * @param force force it to write event to the disk.
+     * @return {@code false} if no data written, else {@code true}
      *
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
      */
-    private void flushToFile(boolean force) throws EvioException, IOException {
+    private boolean flushToFile(boolean force) throws EvioException, IOException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
 
         // If not writing to file, just return
         if (!toFile ) {
-            return;
+            return false;
         }
 
         // If nothing to write ...
         if (eventsWrittenToBuffer < 1) {
-//if (debug) System.out.println("    flushToFile(): nothing to write, return");
-            return;
+//System.out.println("    flushToFile(): nothing to write, return");
+            return false;
         }
 //if (debug) System.out.println("    flushToFile(): try writing " + eventsWrittenToBuffer + " events");
 
@@ -2981,6 +3003,7 @@ System.err.println("ERROR endOfBuffer " + a);
 //            System.out.println("             bytes-to-file = " + bytesWrittenToFile);
 //            System.out.println("             block # = " + blockNumber);
 //        }
+        return true;
     }
 
 
