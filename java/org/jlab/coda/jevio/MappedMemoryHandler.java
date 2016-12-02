@@ -228,7 +228,7 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
             // Check to see if enough data to read block header.
             // If not return the amount of memory we've used/read.
             if (bytesLeft < 32) {
-//System.out.println("return, not enough to read header");
+//System.out.println("return, not enough to read header, bytes left = " + bytesLeft);
                 return position;
             }
 
@@ -244,8 +244,8 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
 //                               ", blk ev count = " + blockEventCount +
 //                               ", blockSize = " + blockSize +
 //                               ", blockHdrSize = " + blockHdrSize +
-//                               ", byteInfo  = 0x" + Integer.toHexString(byteInfo) +
-//                               ", magic #   = 0x" + Integer.toHexString(magicNum)
+//                               ", byteInfo = 0x" + Integer.toHexString(byteInfo) +
+//                               ", magic # = 0x" + Integer.toHexString(magicNum)
 //            );
 
             // If magic # is not right, file is not in proper format
@@ -269,17 +269,16 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
             }
 
             blockCount++;
-//            eventCount  += blockEventCount;
 //            curLastBlock = BlockHeaderV4.isLastBlock(byteInfo);
             if (regionNumber == 0 && firstBlock) {
                 hasDictionary = BlockHeaderV4.hasDictionary(byteInfo);
             }
 
 //            System.out.println("    genEvTablePos: blk count = " + blockCount +
-//                               ", total ev count = " + eventCount +
+//                               ", total ev count = " + (eventCount +  blockEventCount) +
 //                               "\n                   firstBlock = " + firstBlock +
 //                               ", isLastBlock = " + curLastBlock +
-//                               ", hasDict  = " + hasDictionary +
+//                               ", hasDict = " + hasDictionary +
 //                               ", pos = " + position);
 
             // Hop over block header to data
@@ -291,9 +290,7 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
             // Check for a dictionary - the first event in the first block.
             // It's not included in the header block count, but we must take
             // it into account by skipping over it.
-            if (regionNumber == 0 && firstBlock && hasDictionary) {
-                firstBlock = false;
-
+            if (firstBlock && regionNumber == 0 && hasDictionary) {
                 // Get its length - bank's len does not include itself
                 byteLen = 4*(byteBuffer.getInt(position) + 1);
 
@@ -307,6 +304,8 @@ System.out.println("MappedMemoryHandler: bad evio format, likely last block not 
 //System.out.println("    hopped dict, dic bytes = " + byteLen + ", bytesLeft = " + bytesLeft +
 //                   ", pos = " + position);
             }
+
+            firstBlock = false;
 
             // For each event in block, store its location
             for (int i=0; i < blockEventCount; i++) {
