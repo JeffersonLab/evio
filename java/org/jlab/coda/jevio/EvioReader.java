@@ -994,8 +994,8 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                     }
                 }
                 else {
-                    // Enough data left in file?
-                    if (fileSize - fileChannel.position() < 32L) {
+                    // Enough data left to read len?
+                    if (fileSize - fileChannel.position() < 4L) {
                         return ReadStatus.END_OF_FILE;
                     }
 
@@ -1004,6 +1004,12 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                     if (swap) blkSize = Integer.reverseBytes(blkSize);
                     // Change to bytes
                     int blkBytes = 4 * blkSize;
+
+                    // Enough data left to read rest of block?
+                    if (fileSize - fileChannel.position() < blkBytes-4) {
+                        return ReadStatus.END_OF_FILE;
+                    }
+
                     // Create a buffer to hold the entire first block of data
                     if (byteBuffer.capacity() >= blkBytes) {
                         byteBuffer.clear();
