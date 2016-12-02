@@ -145,6 +145,12 @@ jevio-5.1.jar
       a disk head wastes a whole revolution getting into position for the backwards
       file access.
 
+    - fix bug in which reading a file sequentially, in which the last event is not fully
+      written, can cause an infinite read loop
+
+    - fix bug in which writing events to a buffer can cause the block headers to start
+      numbering at 0, not 1.
+
 *********************************************************************************
 C CODE
 
