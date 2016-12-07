@@ -58,7 +58,7 @@ public class FileTest {
         boolean append = false;
 
         // Do we write to file or buffer?
-        boolean useFile = false;
+        boolean useFile = true;
 
         // Top level event
         EvioEvent event = null;
@@ -154,12 +154,18 @@ public class FileTest {
             writer.writeEvent(event2);
             System.out.println("Event #7, Block #" + writer.getBlockNumber());
 
-            writer.writeEvent(event);
-            System.out.println("Event #8, Block #" + writer.getBlockNumber());
+//            writer.writeEvent(event);
+//            System.out.println("Event #8, Block #" + writer.getBlockNumber());
+            System.out.println("FileTest, call flush()");
+//            writer.flush();
+//            writer.flush();
+//            writer.flush();
+//            writer.flush();
             writer.flush();
 
-            if (true) {
+            if (false) {
                 // All done writing
+                System.out.println("FileTest, call close()");
                 writer.close();
             }
 
@@ -171,10 +177,11 @@ public class FileTest {
             if (useFile) {
                 // Mess with the file by removing bytes off the end
                 // to simulate incomplete writes due to crashes.
-                removeBytesFromFileEnd(fileName, 5);
+                //removeBytesFromFileEnd(fileName, 5);
 
                 boolean useSequentialRead = false;
-                readWrittenData(fileName+"out", useSequentialRead);
+                //readWrittenData(fileName+"out", useSequentialRead);
+                readWrittenData(fileName, useSequentialRead);
             }
             else {
                 ByteBuffer buf = writer.getByteBuffer();
@@ -183,6 +190,14 @@ public class FileTest {
                 Utilities.bufferToFile(fileName+"out", buf, true, false);
                 readWrittenData(buf);
             }
+
+            // Append a few more events and reread
+            System.out.println("call appendEvents");
+            appendEvents(fileName, event, 3);
+
+            readWrittenData(fileName, false);
+
+
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -267,7 +282,7 @@ public class FileTest {
         //
         // In the writing example, the data for this event was set to
         // be little endian so we need to read it in that way too
-        ev.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        //ev.setByteOrder(ByteOrder.LITTLE_ENDIAN);
         int[] intData = ev.getIntData();
         if (intData != null) {
             for (int i=0; i < 4; i++) {
@@ -279,6 +294,23 @@ public class FileTest {
 //        while ( (ev = evioReader.parseNextEvent()) != null) {
 //            System.out.println("Event = " + ev.toString());
 //        }
+    }
+
+
+    private static void appendEvents(String fileName, EvioEvent ev, int count)
+            throws IOException, EvioException {
+
+        File file = new File(fileName);
+        EventWriter writer = new EventWriter(file, 16, 1000, ByteOrder.nativeOrder(),
+                                             null, null, true, true);
+
+        for (int i=0; i < count; i++) {
+            // append event to file
+            writer.writeEvent(ev);
+            System.out.println("Appended event #" + (i+1) + ", Block #" + writer.getBlockNumber());
+        }
+
+        writer.close();
     }
 
 

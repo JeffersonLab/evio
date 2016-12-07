@@ -142,14 +142,18 @@ jevio-5.1.jar
 
     - MAJOR CHANGE: when writing, an ending block header is NOT written with each
       event and then overwritten in the next write. This removes the possibility that
-      a disk head wastes a whole revolution getting into position for the backwards
-      file access.
+      a hard drive head wastes a whole disk revolution getting into position for the
+      backwards file access.
 
     - fix bug in which reading a file sequentially, in which the last event is not fully
       written, can cause an infinite read loop
 
     - fix bug in which writing events to a buffer can cause the block headers to start
       numbering at 0, not 1.
+
+    - fix bug in which reads and writes to file can be incomplete and throw exceptions
+    - fix bug in which appending to a file can cause a problem if file was originally
+      written without ending block header
 
 *********************************************************************************
 C CODE
