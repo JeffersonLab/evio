@@ -106,7 +106,7 @@ public class EventWriter {
      * The lower limit of maximum size for a single block used for writing,
      * in ints (words). This gives block sizes of about 32k bytes.
      */
-    static final int MIN_BLOCK_SIZE = 8192;
+    static final int MIN_BLOCK_SIZE = 16;
 
     /** The lower limit of maximum event count for a single block used for writing. */
     static final int MIN_BLOCK_COUNT = 1;
@@ -277,6 +277,13 @@ public class EventWriter {
     /** Number of events actually written to the current file - not the total in
      * all split files - including dictionary. */
     private int eventsWrittenToFile;
+
+    /** <code>True</code> if internal buffer has the last empty block header
+     * written and buffer position is immediately after it, else <code>false</code>. */
+    private boolean lastEmptyBlockHeaderExists;
+
+
+    //-----------------------
 
 
     /** Class used to close files in order received, each in its own thread,
@@ -939,7 +946,6 @@ public class EventWriter {
 
         // Split file number starts at 0
         splitCount = 0;
-
         // The following may not be backwards compatible.
         // Make substitutions in the baseName to create the base file name.
         if (directory != null) baseName = directory + "/" + baseName;
@@ -1034,10 +1040,10 @@ public class EventWriter {
         // (size & count words are updated when writing event)
 
         if (xmlDictionary == null) {
-            writeNewHeader(8,0,blockNumber++,bitInfo,false,false,true,false);
+            writeNewHeader(8,0,blockNumber++,bitInfo,false,false);
         }
         else {
-            writeNewHeader(8,0,blockNumber++,bitInfo,true,false,true,false);
+            writeNewHeader(8,0,blockNumber++,bitInfo,true,false);
         }
 
         // Write out dictionary & firstEvent if any (currentBlockSize updated)
@@ -1374,10 +1380,10 @@ public class EventWriter {
         // (size & count words are updated when writing events).
         // currentHeaderPosition is set in writeNewHeader() below.
         if (xmlDictionary == null) {
-            writeNewHeader(8,0,this.blockNumber++,bitInfo,false,false,true, false);
+            writeNewHeader(8,0,this.blockNumber++,bitInfo,false,false);
         }
         else {
-            writeNewHeader(8, 0, this.blockNumber++, bitInfo, true, false, true, false);
+            writeNewHeader(8, 0, this.blockNumber++, bitInfo, true, false);
         }
 
         // Write out any dictionary & firstEvent (currentBlockSize updated)
@@ -1429,10 +1435,10 @@ public class EventWriter {
         // (size & count words are updated when writing events).
         // currentHeaderPosition is set in writeNewHeader() below.
         if (xmlDictionary == null) {
-            writeNewHeader(8,0,this.blockNumber++,bitInfo,false,false,true, false);
+            writeNewHeader(8,0,this.blockNumber++,bitInfo,false,false);
         }
         else {
-            writeNewHeader(8, 0, this.blockNumber++, bitInfo, true, false, true, false);
+            writeNewHeader(8, 0, this.blockNumber++, bitInfo, true, false);
         }
 
         // Write out any dictionary & firstEvent (currentBlockSize updated)
@@ -1799,7 +1805,11 @@ public class EventWriter {
      *  Calling this can kill performance.
      */
     synchronized public void flush() {
-        if (closed || !toFile) {
+        // If lastEmptyBlockHeaderExists is true, then resetBuffer
+        // has been called and no events have been written into buffer yet.
+        // In other words, no need to flush an empty, last block header.
+        // That is only done in close().
+        if (closed || !toFile || lastEmptyBlockHeaderExists) {
             return;
         }
 
@@ -1826,13 +1836,18 @@ public class EventWriter {
         // Write any remaining data
         try {
             if (toFile) {
-//System.out.println("close(): free bytes In Buffer = " + (bufferSize - bytesWrittenToBuffer));
-                writeNewHeader(8, 0, blockNumber, null, false, true, false, false);
+                // We need to end the file with an empty block header.
+                // However, if resetBuffer (or flush) was just called,
+                // a last block header will already exist.
+                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
+//System.out.println("close(): write header, free bytes In Buffer = " + (bufferSize - bytesWrittenToBuffer));
+                    writeNewHeader(8, 0, blockNumber, null, false, true);
+                }
                 flushToFile(true);
             }
             else {
                 // Data is written, but need to write empty last header
-                writeNewHeader(8, 0, blockNumber, null, false, true, false, false);
+                writeNewHeader(8, 0, blockNumber, null, false, true);
             }
         }
         catch (EvioException e) {}
@@ -1974,10 +1989,15 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("need to be in append mode");
         }
 
-        boolean lastBlock;
+        boolean lastBlock, readEOF = false;
 //        int blockNum;
         int blockLength, blockEventCount;
         int nBytes, bitInfo, headerLength, currentPosition;
+        long bytesLeftInFile=0L;
+
+        if (toFile) {
+            bytesLeftInFile = fileChannel.size();
+        }
 
         // The file's block #s may be fine or they may be messed up.
         // Assume they start with one and increment from there. That
@@ -1987,19 +2007,32 @@ System.err.println("ERROR endOfBuffer " + a);
         blockNumber = 1;
 
         while (true) {
+            nBytes = 0;
+
             // Read in 8 ints (32 bytes) of block header
             if (toFile) {
                 buffer.clear();
                 buffer.limit(32);
-                // This read advances fileChannel position
 //System.out.println("toAppendPosition: (before read) file pos = " + fileChannel.position());
-//System.out.println("Read buffer: pos = " + buffer.position() +
-//                           ", limit = " + buffer.limit());
-                nBytes = fileChannel.read(buffer);
-//System.out.println("nBytes = " + nBytes);
-                // Check to see if we read the whole header
-                if (nBytes != 32) {
-                    throw new EvioException("bad file format");
+                while (nBytes < 32) {
+                    // This read advances fileChannel position
+                    int partial = fileChannel.read(buffer);
+                    // If EOF ...
+                    if (partial < 0) {
+                        if (nBytes != 0) {
+                            throw new EvioException("bad buffer format");
+                        }
+                        // Missing last empty block header
+                        readEOF = true;
+                        break;
+                    }
+                    nBytes += partial;
+                    bytesLeftInFile -= partial;
+                }
+
+                // If we did not read correct # of bytes or didn't run into EOF right away
+                if (nBytes != 0 && nBytes != 32) {
+                    throw new EvioException("internal file reading error");
                 }
                 currentPosition = 0;
             }
@@ -2033,14 +2066,21 @@ System.err.println("ERROR endOfBuffer " + a);
 
             blockNumber++;
 
-            // Stop at the last block
-            if (lastBlock) {
+            // Stop at the last block. The file may not have a last block if
+            // improperly terminated. Running into an End-Of-File will flag
+            // this condition.
+            if (lastBlock || readEOF) {
                 break;
             }
 
             // Hop to next block header
             if (toFile) {
-                fileChannel.position(fileChannel.position() + 4*blockLength - 32);
+                int bytesToNextBlockHeader = 4*blockLength - 32;
+                if (bytesLeftInFile < bytesToNextBlockHeader) {
+                    throw new EvioException("bad file format");
+                }
+                fileChannel.position(fileChannel.position() + bytesToNextBlockHeader);
+                bytesLeftInFile -=  bytesToNextBlockHeader;
             }
             else {
                 // Is there enough buffer space to hop over block?
@@ -2062,17 +2102,26 @@ System.err.println("ERROR endOfBuffer " + a);
         //-------------------------------------------------------------------------------
         // If we're here, we've just read the last block header (at least 8 words of it).
         // File position is just past header, but buffer position is just before it.
+        // Either that or we ran into end of file (last block header missing).
         //
-        // Check to see if the last block contains data. If it does,
+        // If EOF, last block header missing, we're good.
+        //
+        // Else check to see if the last block contains data. If it does,
         // change a single bit so it's not labeled as the last block,
         // then jump past all data.
         //
-        // If there is no data, position file before it as preparation for writing
+        // Else if there is no data, position file before it as preparation for writing
         // the next block.
         //-------------------------------------------------------------------------------
 
+        // If no last, empty block header in file ...
+        if (readEOF) {
+            // It turns out we need to do nothing. The constructor that
+            // calls this method will write out the next block header.
+            blockNumber--;
+        }
         // If last block has event(s) in it ...
-        if (blockLength > headerLength) {
+        else if (blockLength > headerLength) {
             // Clear last block bit in 6th header word
             bitInfo = BlockHeaderV4.clearLastBlockBit(bitInfo);
 
@@ -2088,9 +2137,8 @@ System.err.println("ERROR endOfBuffer " + a);
                 buffer.clear();
                 buffer.putInt(bitInfo);
                 buffer.flip();
-                nBytes = fileChannel.write(buffer);
-                if (nBytes != 4) {
-                    throw new EvioException("file writing error");
+                while (buffer.hasRemaining()) {
+                    fileChannel.write(buffer);
                 }
 
                 // Hop over the entire block
@@ -2140,60 +2188,9 @@ System.err.println("ERROR endOfBuffer " + a);
 
 
     /**
-     * This routine writes an empty, last block (just the header).
-     * This ensures that if the data taking software crashes in the mean time,
-     * we still have a file in the proper format.
-     * Make sure that the "last block" bit is set. If we're not closing,
-     * the block header simply gets over written in the next write.
-     * The position of the file channel is not changed in preparation
-     * for writing over the last block header.<p>
-     *
-     * This should only be called from toAppendPosition()
-     * after which the buffer will be reset.
-     *
-     * @param blockNumber block number to use in header
-     * @throws IOException if problems writing to file
-     */
-    private void writeEmptyLastBlockHeaderToFile(int blockNumber)
-            throws IOException {
-
-        buffer.clear().position(0);
-        buffer.putInt(8);
-        buffer.putInt(blockNumber);
-        buffer.putInt(8);
-        buffer.putInt(0);
-        buffer.putInt(reserved1);
-        buffer.putInt(BlockHeaderV4.generateSixthWord(4, false, true, 0));
-        buffer.putInt(reserved2);
-        buffer.putInt(IBlockHeader.MAGIC_NUMBER);
-        buffer.flip();
-
-        // leave file position AFTER this last block header
-        fileChannel.write(buffer);
-    }
-
-
-    /**
-     * This method writes an empty, last block (just the header).
-     * This ensures that if the data taking software crashes in the mean time,
-     * we still have a file or buffer in the proper format.
-     * Make sure that the "last block" bit is set. If we're not closing,
-     * the block header simply gets over written in the next write.
-     * The position of the buffer or file channel is not changed in preparation
-     * for writing over the last block header.
-     *
-     * @param blockNumber block number to use in header
-     * @throws EvioException if problems writing to buffer
-     */
-    private void writeEmptyLastBlockHeader(int blockNumber)
-            throws EvioException {
-
-        writeNewHeader(8, 0, blockNumber, null, false, true, false, true);
-    }
-
-
-    /**
      * Write a block header into the given buffer.
+     * After this method is called the buffer position is after the
+     * new block header.
      *
      * @param words         size in number of 32 bit words
      * @param eventCount    number of events in block
@@ -2201,15 +2198,12 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param bitInfo       set of bits to include in first block header
      * @param hasDictionary does this block have a dictionary?
      * @param isLast        is this the last block?
-     * @param currentHeader should this header be considered the current header?
-     * @param absoluteMode  should this header be written so the internal
-     *                      buffer's position does <b></b>not</b> change?
+     *
      * @throws EvioException if no room in buffer to write this block header
      */
     private void writeNewHeader(int words, int eventCount,
                                 int blockNumber, BitSet bitInfo,
-                                boolean hasDictionary, boolean isLast,
-                                boolean currentHeader, boolean absoluteMode)
+                                boolean hasDictionary, boolean isLast)
             throws EvioException {
 
         // If no room left for a header to be written ...
@@ -2219,10 +2213,8 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Record where beginning of header is so we can
         // go back and update block size and event count.
-        if (currentHeader) {
-            currentHeaderPosition = buffer.position();
+        currentHeaderPosition = buffer.position();
 //System.out.println("writeNewHeader: set currentHeaderPos to " + currentHeaderPosition);
-        }
 
         // Calculate the 6th header word (ok if bitInfo == null)
         int sixthWord = BlockHeaderV4.generateSixthWord(bitInfo, 4,
@@ -2234,29 +2226,21 @@ System.err.println("ERROR endOfBuffer " + a);
 //        System.out.println("Evio header: block# = " + blockNumber + ", last = " + isLast);
 
         // Write header words, some of which will be
-        // overwritten later when the values are determined.
-        if (absoluteMode) {
-            int pos =  buffer.position();
-            buffer.putInt(pos,      words);       // actual size in 32-bit words (Ints)
-            buffer.putInt(pos + 4,  blockNumber); // incremental count of blocks
-            buffer.putInt(pos + 8,  8);           // header size always 8
-            buffer.putInt(pos + 12, eventCount);  // number of events in block
-            buffer.putInt(pos + 16, reserved1);   // unused / sourceId for coda event building
-                                                  // version = 4, no event type info
-            buffer.putInt(pos + 20, sixthWord);
-            buffer.putInt(pos + 24, reserved2);                 // unused
-            buffer.putInt(pos + 28, IBlockHeader.MAGIC_NUMBER); // MAGIC_NUMBER
+        // overwritten later when the length/event count are determined.
+        buffer.putInt(words);
+        buffer.putInt(blockNumber);
+        buffer.putInt(8);
+        buffer.putInt(eventCount);
+        buffer.putInt(reserved1);
+        buffer.putInt(sixthWord);
+        buffer.putInt(reserved2);
+        buffer.putInt(IBlockHeader.MAGIC_NUMBER);
+        if (isLast) {
+//System.out.println("writeNewHeader: last empty header added");
+            // Last item in internal buffer is last empty block header
+            lastEmptyBlockHeaderExists = true;
         }
-        else {
-            buffer.putInt(words);
-            buffer.putInt(blockNumber);
-            buffer.putInt(8);
-            buffer.putInt(eventCount);
-            buffer.putInt(reserved1);
-            buffer.putInt(sixthWord);
-            buffer.putInt(reserved2);
-            buffer.putInt(IBlockHeader.MAGIC_NUMBER);
-        }
+//System.out.println("writeNewHeader: buffer pos = " + buffer.position());
 
         bytesWrittenToBuffer += headerBytes;
 //System.out.println("writeNewHeader: set bytesWrittenToBuffer +32 to " + bytesWrittenToBuffer);
@@ -2337,6 +2321,8 @@ System.err.println("ERROR endOfBuffer " + a);
         bytesWrittenToBuffer += commonBlockByteSize;
 
         buffer.putInt(currentHeaderPosition, currentBlockSize);
+        // As soon as we write an event, we need another last empty block
+        lastEmptyBlockHeaderExists = false;
 //if (debug) System.out.println("writeDictionary: done writing dictionary, remaining = " +
 //                              buffer.remaining());
     }
@@ -2364,19 +2350,18 @@ System.err.println("ERROR endOfBuffer " + a);
             if (beforeDictionary) {
 //if (debug) System.out.println("      resetBuffer: as in constructor");
                 blockNumber = 1;
-                writeNewHeader(8, 0, blockNumber++, null, (xmlDictionary != null),
-                               false, true, false);
+                writeNewHeader(8, 0, blockNumber++, null, (xmlDictionary != null), false);
             }
             else {
 //if (debug) System.out.println("      resetBuffer: NOTTTT as in constructor");
-                writeNewHeader(8, 0, blockNumber++, null, false, true, true, false);
+                writeNewHeader(8, 0, blockNumber++, null, false, true);
             }
         }
         catch (EvioException e) {/* never happen */}
 
-//if (debug) System.out.println("      resetBuffer:  wrote header w/ blknum = " +
+//System.out.println("      resetBuffer:  wrote header w/ blknum = " +
 //        (blockNumber - 1) + ", next blknum = " + (blockNumber) +
-//        ", remaining = " + buffer.remaining());
+//        ", remaining = " + buffer.remaining() + ", pos = " + buffer.position());
 
         // Total written size = block header size (words) so far
         currentBlockSize = headerBytes/4;
@@ -2470,6 +2455,9 @@ System.err.println("ERROR endOfBuffer " + a);
             //
             // blockNumber++;
         }
+
+        // As soon as we write an event, we need another last empty block
+        lastEmptyBlockHeaderExists = false;
 
 //        if (debug) {
 //            System.out.println("evWrite: after last header written, Events written to:");
@@ -2911,7 +2899,7 @@ System.err.println("ERROR endOfBuffer " + a);
             currentBlockSize = 8;
             currentBlockEventCount = 0;
             // write over last empty block
-            writeNewHeader(currentBlockSize, 1, blockNumber++, null, false, false, true, false);
+            writeNewHeader(currentBlockSize, 1, blockNumber++, null, false, false);
 //if (debug) System.out.println("evWrite: wrote new blk hdr, bytesToBuf = " + bytesWrittenToBuffer);
         }
 
@@ -2951,20 +2939,21 @@ System.err.println("ERROR endOfBuffer " + a);
             return false;
         }
 
-        // If nothing to write ...
-        if (eventsWrittenToBuffer < 1) {
+        // If nothing to write...
+        if (buffer.position() < 1) {
 //System.out.println("    flushToFile(): nothing to write, return");
             return false;
         }
-//if (debug) System.out.println("    flushToFile(): try writing " + eventsWrittenToBuffer + " events");
 
-        // In general, the byteBuffer position is always just after the last event.
-        // Get buffer ready to write
+        // The byteBuffer position is just after the last event or
+        // the last, empty block header. Get buffer ready to write.
         buffer.flip();
+//System.out.println("    flushToFile(): try writing " + eventsWrittenToBuffer + " events, " +
+//        "bytes to write = " + buffer.remaining() + ", pos = " + buffer.position());
 
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
-//if (debug) System.out.println("    flushToFile(): create file " + currentFile.getName());
+//System.out.println("    flushToFile(): create file " + currentFile.getName());
             try {
                 raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
@@ -2993,7 +2982,7 @@ System.err.println("ERROR endOfBuffer " + a);
         bytesWrittenToFile  += bytesWritten;
         eventsWrittenToFile += eventsWrittenToBuffer;
 
-//        if (false) {
+//        if (true) {
 //            System.out.println("flushToFile: after last header written, Events written to:");
 //            System.out.println("             cnt total (no dict) = " + eventsWrittenTotal);
 //            System.out.println("             file cnt total (dict) = " + eventsWrittenToFile);
