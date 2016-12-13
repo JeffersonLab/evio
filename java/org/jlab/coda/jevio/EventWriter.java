@@ -106,7 +106,7 @@ public class EventWriter {
      * The lower limit of maximum size for a single block used for writing,
      * in ints (words). This gives block sizes of about 32k bytes.
      */
-    static final int MIN_BLOCK_SIZE = 16;
+    static final int MIN_BLOCK_SIZE = 1024;
 
     /** The lower limit of maximum event count for a single block used for writing. */
     static final int MIN_BLOCK_COUNT = 1;
