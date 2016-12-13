@@ -155,6 +155,9 @@ jevio-5.1.jar
     - fix bug in which appending to a file can cause a problem if file was originally
       written without ending block header
 
+    - add EventWriter.flush() method for sending internally buffered data to disk
+
+
 *********************************************************************************
 C CODE
 
@@ -210,3 +213,10 @@ evio-5.2
       Previously blocks were 256kB or 10,000 events.
     - add ability to add stream id to end of generated file name to
       differentiate between multiple streams of data to multiple files
+
+    - add evIsLastBlock, evFlush
+
+    - MAJOR CHANGE: when writing, an ending block header is NOT written with each
+      event and then overwritten in the next write. This removes the possibility that
+      a hard drive head wastes a whole disk revolution getting into position for the
+      backwards file access.
