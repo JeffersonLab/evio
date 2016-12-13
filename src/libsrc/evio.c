@@ -630,6 +630,9 @@ static void structInit(EVFILE *a)
 
     /* common block */
     a->commonBlkCount   = 0;
+
+    /* sync */
+    a->lockingOn = 1;
 }
 
 
@@ -662,6 +665,9 @@ static void getHandleUnlock(void) {
 /** Routine to grab read lock used to prevent simultaneous
  *  calls to evClose and read/write routines. */
 static void handleLock(int handle) {
+    EVFILE *a = handleList[handle-1];
+    if (a == NULL || !a->lockingOn) return;
+
     pthread_mutex_t *lock = handleLocks[handle-1];
     int status = pthread_mutex_lock(lock);
     if (status != 0) {
@@ -673,6 +679,9 @@ static void handleLock(int handle) {
 /** Routine to release read lock used to prevent simultaneous
  *  calls to evClose and read/write routines. */
 static void handleUnlock(int handle) {
+    EVFILE *a = handleList[handle-1];
+    if (a == NULL || !a->lockingOn) return;
+
     pthread_mutex_t *lock = handleLocks[handle-1];
     int status = pthread_mutex_unlock(lock);
     if (status != 0) {
@@ -5223,12 +5232,6 @@ int evGetBufferLength(int handle, uint32_t *length)
  * It only goes up to EV_EVENTS_MAX (100,000).
  * Used only in version 4.<p>
  *
- * It changes the number of bytes at which to split a file
- * being written to if request = "S". If unset with this function,
- * it defaults to EV_SPLIT_SIZE (2GB). NOTE: argp must point to
- * 64 bit integer (not 32 bit)!
- * Used only in version 4.<p>
- *
  * It sets the run number used when auto naming while splitting files
  * being written to if request = "R".
  * Used only in version 4.<p>
@@ -5237,17 +5240,26 @@ int evGetBufferLength(int handle, uint32_t *length)
  * being written to if request = "T".
  * Used only in version 4.<p>
  *
+ * It changes the number of bytes at which to split a file
+ * being written to if request = "S". If unset with this function,
+ * it defaults to EV_SPLIT_SIZE (2GB). NOTE: argp must point to
+ * 64 bit integer (not 32 bit)!
+ * Used only in version 4.<p>
+ *
  * It sets the stream id used when auto naming files being written to if request = "M".
+ * Used only in version 4.<p>
+ *
+ * It turns the mutex locking for routines' thread safety on/off if request = "X".
  * Used only in version 4.<p>
  *
  * It returns the version number if request = "V".<p>
  *
+ * It returns a pointer to the EV_HDSIZ block header ints if request = "H".
+ * This pointer must be freed by the caller to avoid a memory leak.<p>
+ *
  * It returns the total number of events in a file/buffer
  * opened for reading or writing if request = "E". Includes any
  * event added with {@link #evWrite} call. Used only in version 4.<p>
- *
- * It returns a pointer to the EV_HDSIZ block header ints if request = "H".
- * This pointer must be freed by the caller to avoid a memory leak.<p>
  *
  * NOTE: all request strings are case insensitive. All version 4 commands to
  * version 3 files are ignored.
@@ -5260,8 +5272,9 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI>  "N"  for setting max # of events/block
  * <LI>  "R"  for setting run number (used in file splitting)
  * <LI>  "T"  for setting run type   (used in file splitting)
- * <LI>  "M"  for setting stream id  (used in auto file naming)
  * <LI>  "S"  for setting file split size in bytes
+ * <LI>  "M"  for setting stream id  (used in auto file naming)
+ * <LI>  "X"  for turning off/on the mutex locking of routines for thread safety
  * <LI>  "V"  for getting evio version #
  * <LI>  "H"  for getting 8 ints of block header info
  * <LI>  "E"  for getting # of events in file/buffer
@@ -5274,9 +5287,10 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI> pointer to uin32_t containing new max # of events/block if request = N, or
  * <LI> pointer to uin32_t containing run number if request = R, or
  * <LI> pointer to character containing run type if request = T, or
- * <LI> pointer to uin32_t containing stream id if request = M, or
- * <LI> pointer to int32_t returning version # if request = V, or
  * <LI> pointer to <b>uint64_t</b> containing max size in bytes of split file if request = S, or
+ * <LI> pointer to uin32_t containing stream id if request = M, or
+ * <LI> pointer to uin32_t containing 0 (off) or non-zero (on) if request = X, or
+ * <LI> pointer to int32_t returning version # if request = V, or
  * <LI> address of pointer to uint32_t returning pointer to 8
  *              uint32_t's of block header if request = H. This pointer must be
  *              freed by caller since it points to allocated memory
@@ -5675,9 +5689,9 @@ if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, spl
             a->runType = runType;
             break;
 
-            /************************************************/
-            /* Setting stream id for file naming            */
-            /************************************************/
+        /************************************************/
+        /* Setting stream id for file naming            */
+        /************************************************/
         case 'm':
         case 'M':
             /* Need to specify stream id */
@@ -5689,7 +5703,56 @@ if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, spl
             a->streamId = *(uint32_t *) argp;
             break;
 
-            /****************************/
+        /************************************************/
+        /* Turn mutex locking on/off                    */
+        /************************************************/
+        case 'x':
+        case 'X':
+            /* Need to specify stream id */
+            if (argp == NULL) {
+                handleUnlock(handle);
+                return(S_EVFILE_BADARG);
+            }
+            {
+                int lockingOn = *(uint32_t *) argp;
+                /* If we want to turn OFF locking ... */
+                if (lockingOn == 0) {
+                    /* Only do something if locking currently on */
+                    if (a->lockingOn != 0) {
+                        /* A bit tricky here. Since locking is on, a lock was grabbed in calling
+                         * this routine. So we need to release that lock - handleUnlock
+                         * is the only function that can do this - before we can exit
+                         * this routine. Then turn off locking. */
+                        handleUnlock(handle);
+                        /* Should do this while mutex is grabbed, but that's impossible here. */
+//printf("evIoctl: turn OFF locking\n");
+                        a->lockingOn = 0;
+                        return(S_SUCCESS);
+                    }
+//                    else {
+//                        printf("evIoctl: locking already OFF\n");
+//                    }
+                }
+                /* If we want to turn ON locking ... */
+                else {
+                    /* Only do something if locking currently off */
+                    if (a->lockingOn == 0) {
+                        /* A bit tricky here. Since locking is off, a lock was not grabbed in calling
+                         * this routine. So make sure that the lock is not released when exiting
+                         * this routine. Do this by turning locking on but exiting without calling
+                         * handleUnlock. */
+//printf("evIoctl: turn ON locking\n");
+                        a->lockingOn = 1;
+                        return(S_SUCCESS);
+                    }
+//                    else {
+//                        printf("evIoctl: locking already ON\n");
+//                    }
+                }
+            }
+            break;
+
+        /****************************/
         /* Getting number of events */
         /****************************/
         case 'e':
