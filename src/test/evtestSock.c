@@ -60,6 +60,7 @@ static void *receiverThread(void *arg) {
     int listenfd=0, handle, status, nevents, nwords;
     int i;
     uint32_t dictLen, buffer[2048], *ip;
+//    uint32_t *blkHeader;
     char *dict;
     struct sockaddr_in cliaddr;
     socklen_t len = sizeof(cliaddr);
@@ -99,10 +100,17 @@ printf ("Receiver thread: get dictionary, status = %#x\n\n", status);
 
 //printf("Receiver thread: Waiting on evRead\n");
          if ((status = evRead(handle, buffer, 2048)) != S_SUCCESS) {
+//             if (evIoctl(handle, "H", &blkHeader) == S_SUCCESS) {
+//                 free(blkHeader);
+//                 if (evIsLastBlock(blkHeader[5])) {
+//                     printf("Found last block\n");
+//                     break;
+//                 }
+//             }
              printf("Receiver thread: Done reading\n");
              break;
          }
-         
+
          nevents++;
         
          printf("Receiver thread: Read event #%d,  len = %d data words\n", nevents, buffer[0] - 1);
@@ -338,33 +346,35 @@ int main()
     printf ("Sending thd: changed max events/block to %d, status = %d\n", maxEvBlk, status);
     
 
-    /* target block size = 8 header + 16 event words */
-    i = 40;
-    status = evIoctl(handle, "B", &i);
-    if (status == S_EVFILE_BADSIZEREQ) {
-        printf("Sending thd: bad value for target block size given\n");
-        exit(0);
-    }
-    else if (status != S_SUCCESS) {
-        printf("Sending thd: error setting target block size\n");
-        exit(0);
-    }
-    printf ("Sending thd: changed target block size to %d, status = %d\n", i, status);
+//    /* target block size = 8 header + 16 event words. To set this to a low value, like 24,
+//     * first set the value of EV_BLOCKSIZE_MIN in evio,c to something as small or smaller. */
+//    i = 24;
+//    status = evIoctl(handle, "B", &i);
+//    if (status == S_EVFILE_BADSIZEREQ) {
+//        printf("Sending thd: bad value for target block size given\n");
+//        exit(0);
+//    }
+//    else if (status != S_SUCCESS) {
+//        printf("Sending thd: error setting target block size\n");
+//        exit(0);
+//    }
+//    printf ("Sending thd: changed target block size to %d, status = %d\n", i, status);
 
 
     /* buffer size = 2-8 headers + 16 event words or */
-    
-    i = 48;
-    status = evIoctl(handle, "W", &i);
-    if (status == S_EVFILE_BADSIZEREQ) {
-        printf("Sending thd: bad value for buffer size given\n");
-        exit(0);
-    }
-    else if (status != S_SUCCESS) {
-        printf("Sending thd: error setting buffer size\n");
-        exit(0);
-    }
-    printf ("Sending thd: changed buffer size to %d, status = %d\n", i, status);
+    /* Buffer size must be at least block size (set above) + 1 header. */
+
+//    i = 32;
+//    status = evIoctl(handle, "W", &i);
+//    if (status == S_EVFILE_BADSIZEREQ) {
+//        printf("Sending thd: bad value for buffer size given\n");
+//        exit(0);
+//    }
+//    else if (status != S_SUCCESS) {
+//        printf("Sending thd: error setting buffer size\n");
+//        exit(0);
+//    }
+//    printf ("Sending thd: changed buffer size to %d, status = %d\n", i, status);
     
 
     status = evWriteDictionary(handle, dictionary);
@@ -373,10 +383,10 @@ int main()
 //    printf ("Sending thd: will write ** MED (16 word) ** ev to socket, status = %d\n",status);
 //    status = evWrite(handle, evBuf_16);
     for (i=0; i < 4; i++) {
-        printf("\nevtestSock: write little event %d ...\n", (i+1));
+        printf("Sending thd: write little event %d ...\n", (i+1));
         status = evWrite(handle, evBuf_8);
         if (status != S_SUCCESS) {
-            printf("Error in evWrite(), status = %x\n", status);
+            printf("Error in evWrite(), status = 0x%x\n", status);
             exit(0);
         }
 //        printf("\nEnter to continue\n");
