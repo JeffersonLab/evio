@@ -9,7 +9,7 @@
     <property name="evio.version" value="5.2" />
     
     <!-- Debug -->
-    <property name="javac.debug" value="off" />
+    <property name="javac.debug" value="on" />
     
     <!-- Directories/Files -->
     <property name="src.dir"       value="java" />
