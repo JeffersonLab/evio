@@ -150,6 +150,8 @@ typedef struct evfilestruct {
   char     *runType;        /**< run type used in auto naming of split files. */
   int       specifierCount; /**< number of C printing int format specifiers in file name (0, 1, 2). */
   int       splitting;      /**< 0 if not splitting file, else 1. */
+  int       lastEmptyBlockHeaderExists;/**< 1 if internal buffer has the last empty block header
+                                        * written, else 0. */
   uint32_t *currentHeader;  /**< When writing to file/socket/pipe, this points to
                              *   current block header of block being written. */
   uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including ending empty block & dict. */
@@ -201,12 +203,8 @@ typedef struct evfilestruct {
   uint32_t *firstEventBuf;    /**< buffer containing firstEvent bank. */
 
   /* Common block is first block in file/buf with dictionary and firstEvent */
-  int   wroteCommonBlock;     /**< common block written out? */
   uint32_t commonBlkCount;    /**< Number of events written into common block.
                                *   This can be 2 at the most, dictionary + first event. */
-
-  /* synchronization */
-  pthread_mutex_t lock;   /**< lock for multithreaded reads & writes. */
 
 } EVFILE;
 
@@ -265,8 +263,11 @@ int evGetRandomAccessTable(int handle, uint32_t *** const table, uint32_t *len);
 
 int evWrite(int handle, const uint32_t *buffer);
 int evIoctl(int handle, char *request, void *argp);
+int evFlush(int handle);
 int evClose(int handle);
 int evGetBufferLength(int handle, uint32_t *length);
+
+int evIsLastBlock(uint32_t sixthWord);
 
 int evGetDictionary(int handle, char **dictionary, uint32_t *len);
 int evWriteDictionary(int handle, char *xmlDictionary);
