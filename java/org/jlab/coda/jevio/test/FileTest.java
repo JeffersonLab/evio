@@ -153,17 +153,15 @@ public class FileTest {
 
             writer.writeEvent(event2);
             System.out.println("Event #7, Block #" + writer.getBlockNumber());
-
-//            writer.writeEvent(event);
-//            System.out.println("Event #8, Block #" + writer.getBlockNumber());
-            System.out.println("FileTest, call flush()");
-//            writer.flush();
-//            writer.flush();
-//            writer.flush();
-//            writer.flush();
+            writer.flush();
+            writer.flush();
+            writer.flush();
             writer.flush();
 
-            if (false) {
+            writer.writeEvent(event);
+            System.out.println("Event #8, Block #" + writer.getBlockNumber());
+
+            if (true) {
                 // All done writing
                 System.out.println("FileTest, call close()");
                 writer.close();
@@ -174,29 +172,29 @@ public class FileTest {
                 NameProvider.setProvider(dict);
             }
 
-            if (useFile) {
-                // Mess with the file by removing bytes off the end
-                // to simulate incomplete writes due to crashes.
-                //removeBytesFromFileEnd(fileName, 5);
-
-                boolean useSequentialRead = false;
-                //readWrittenData(fileName+"out", useSequentialRead);
-                readWrittenData(fileName, useSequentialRead);
-            }
-            else {
-                ByteBuffer buf = writer.getByteBuffer();
-                // remove header + 1 word if closed, else just 1 word
-                buf.limit(buf.limit() - 84);
-                Utilities.bufferToFile(fileName+"out", buf, true, false);
-                readWrittenData(buf);
-            }
-
-            // Append a few more events and reread
-            System.out.println("call appendEvents");
-            appendEvents(fileName, event, 3);
-
-            readWrittenData(fileName, false);
-
+//            if (useFile) {
+//                // Mess with the file by removing bytes off the end
+//                // to simulate incomplete writes due to crashes.
+//                //removeBytesFromFileEnd(fileName, 5);
+//
+//                boolean useSequentialRead = false;
+//                //readWrittenData(fileName+"out", useSequentialRead);
+//                readWrittenData(fileName, useSequentialRead);
+//            }
+//            else {
+//                ByteBuffer buf = writer.getByteBuffer();
+//                // remove header + 1 word if closed, else just 1 word
+//                buf.limit(buf.limit() - 84);
+//                Utilities.bufferToFile(fileName+"out", buf, true, false);
+//                readWrittenData(buf);
+//            }
+//
+//            // Append a few more events and reread
+//            System.out.println("call appendEvents");
+//            appendEvents(fileName, event, 3);
+//
+//            readWrittenData(fileName, false);
+//
 
         }
         catch (Exception e) {
