@@ -59,14 +59,27 @@ static uint32_t *makeEvent();
  |_____________|              |_______________|
  
  This program can be used in 2 ways:
-    1) at command line, run: evWritePipe "|evReadPipe"
-        This program needs to set filename = "\evReadPipe" internally.
-        And evReadPipe needs to set filename = "-" internally (read from stdin).
- 
-   2) at command line, run: evReadPipe "|evWritePipe"
-      This program will need to set filename = "-"  internally (write to stdout).
+    1) a) at command line, run: evWritePipe "|evReadPipe"
+         evWritePipe needs to set filename = "-" internally.
+         Thus the rest of the cmd line is consumed as the argument to evWritePipe.
+         evReadPipe needs to set filename = "-" internally (read from stdin).
+
+      b) at cmd line, run: evWritePipe
+         evWritePipe needs to set filename = "|evReadPipe" internally.
+         evReadPipe  needs to set filename = "-" internally (read from stdin).
+
+   Make sure the evio lib is not printing stuff to stdout.
+
+   2) a) at command line, run: evReadPipe
+      evWritePipe will need to set filename = "-"  internally (write to stdout).
       And evReadPipe needs to set filename = "|evWritePipe" internally.
       Be sure that this program is NOT printing out anything in this case.
+
+      b) at command line, run: evReadPipe "|evWritePipe"
+      evWritePipe will need to set filename = "|evReadPipe"  internally (write to stdout).
+      evReadPipe needs to set filename = "-" internally.
+      Be sure that this program is NOT printing out anything in this case.
+
 */
 
 
@@ -104,9 +117,9 @@ int main(int argc, char **argv)
 
     /* The beginning "|" tells evio to open a pipe and write to that
      * so it goes to the stdin of evReadPipe. */
-    filename = "|evReadPipe";
     filename = "-";
-    
+    filename = "|evReadPipe";
+
 
     if (debug) printf("Write to program = %s\n", filename+1);
 
