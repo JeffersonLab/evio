@@ -34,7 +34,7 @@ public enum DataType {
 	BANK           (0x10),
 	SEGMENT        (0x20),
 
-    //  Remove ALSOTAGSEGMENT (0x40) since it was never
+    //  Removed ALSOTAGSEGMENT (0x40) since it was never
     //  used and we now need that to store padding data.
     //	ALSOTAGSEGMENT (0x40),
 
@@ -54,7 +54,7 @@ public enum DataType {
 
     // Fill array after all enum objects created
     static {
-        intToType = new DataType[0x42 + 1];
+        intToType = new DataType[0x22 + 1];
         for (DataType type : values()) {
             intToType[type.value] = type;
         }
@@ -68,7 +68,7 @@ public enum DataType {
 	 * @return the matching enum, or <code>null</code>.
 	 */
     public static DataType getDataType(int val) {
-        if (val > 0x42 || val < 0) return null;
+        if (val > 0x22 || val < 0) return null;
         return intToType[val];
     }
 
@@ -80,7 +80,7 @@ public enum DataType {
      * @return the name, or "UNKNOWN".
      */
     public static String getName(int val) {
-        if (val > 0x42 || val < 0) return "UNKNOWN";
+        if (val > 0x22 || val < 0) return "UNKNOWN";
         DataType type = getDataType(val);
         if (type == null) return "UNKNOWN";
         return type.name();
