@@ -106,7 +106,7 @@ public class EventWriter {
      * The lower limit of maximum size for a single block used for writing,
      * in ints (words). This gives block sizes of about 32k bytes.
      */
-    static final int MIN_BLOCK_SIZE = 1024;
+    static final int MIN_BLOCK_SIZE = 16;
 
     /** The lower limit of maximum event count for a single block used for writing. */
     static final int MIN_BLOCK_COUNT = 1;
@@ -201,7 +201,7 @@ public class EventWriter {
     /** Version 4 block header reserved int 2. */
     private int reserved2;
 
-    /** Number of bytes written to the current buffer (include ending header). */
+    /** Number of bytes written to the current buffer. */
     private long bytesWrittenToBuffer;
 
     /** Number of events written to final destination buffer or file's internal buffer
@@ -928,6 +928,7 @@ public class EventWriter {
 
         // Store arguments
         this.split         = split;
+        System.out.println("buffer size = " + bufferSize + ", SPLIT = " + split);
         this.append        = append;
         this.runNumber     = runNumber;
         this.byteOrder     = byteOrder;   // byte order may be overwritten if appending
@@ -2710,6 +2711,11 @@ System.err.println("ERROR endOfBuffer " + a);
             if ((currentEventBytes & 3) != 0) {
                 throw new EvioException("bad bankBuffer format");
             }
+
+            // Check for inconsistent lengths
+            if (currentEventBytes != 4*(bankBuffer.getInt(bankBuffer.position()) + 1)) {
+                throw new EvioException("inconsistent event lengths");
+            }
         }
         else if (bank != null) {
             currentEventBytes = bank.getTotalBytes();
@@ -2718,24 +2724,41 @@ System.err.println("ERROR endOfBuffer " + a);
             return;
         }
 
+//        if (split > 0) {
+//            System.out.println("evWrite: splitting, bytesToFile = " + bytesWrittenToFile +
+//                               ", event bytes = " + currentEventBytes +
+//                               ", bytesToBuf = " + bytesWrittenToBuffer +
+//                               ", split = " + split);
+//
+//            System.out.println("evWrite: blockNum = " + blockNumber +
+//                              ", (blkNum - 1 == 1) = " + (blockNumber - 1 == 1) +
+//                              ", eventsToBuf (" + eventsWrittenToBuffer +
+//                              ")  <=? common blk cnt (" + commonBlockCount);
+//        }
+
         // If we have enough room in the current block and have not exceeded
         // the number of allowed events, write it in the current block.
         // Worry about memory later.
         if ( ((currentEventBytes + 4*currentBlockSize) <= targetBlockSize) &&
                   (currentBlockEventCount < blockCountMax)) {
             writeNewBlockHeader = false;
-//if (debug) System.out.println("evWrite: do NOT need a new blk header");
+//if (true) System.out.println("evWrite: do NOT need a new blk header");
         }
-//        else {
-//if (debug) System.out.println("evWrite: DO need a new blk header");
+//        else if (debug) {
+//            System.out.println("evWrite: DO need a new blk header");
+//            if (currentBlockEventCount >= blockCountMax) {
+//                System.out.println("evWrite: too many events in block, already have " +
+//                                           currentBlockEventCount);
+//            }
 //        }
+
 
         // Are we splitting files in general?
         while (split > 0) {
             // If it's the first block and all that has been written so far are
             // the dictionary and first event, don't split after writing it.
             if ((blockNumber - 1) == 1 && eventsWrittenToBuffer <= commonBlockCount) {
-//if (debug) System.out.println("evWrite: don't split file cause only common block written so far");
+//if (true) System.out.println("evWrite: don't split file cause only common block written so far");
                 break;
             }
 
@@ -2751,13 +2774,12 @@ System.err.println("ERROR endOfBuffer " + a);
 //if (debug) System.out.println("evWrite: account for another block header when splitting");
             }
 
-//if (debug) System.out.println("evWrite: splitting = " + (totalSize > split) +
+//if (true) System.out.println("evWrite: splitting = " + (totalSize > split) +
 //                    ": total size = " + totalSize + " >? split = " + split);
-
-//if (debug) System.out.println("evWrite: total size components: bytesToFile = " +
+//
+//if (true) System.out.println("evWrite: total size components: bytesToFile = " +
 //                bytesWrittenToFile + ", bytesToBuf = " + bytesWrittenToBuffer +
-//                ", ev bytes = " + currentEventBytes + ", additional headers = " +
-//                headerCount + " * 32");
+//                ", event bytes = " + currentEventBytes);
 
             // If we're going to split the file ...
             if (totalSize > split) {
@@ -2768,21 +2790,23 @@ System.err.println("ERROR endOfBuffer " + a);
                 // for a new file (split) to hold the current event.
                 if (eventsWrittenToBuffer > 0) {
                     doFlush = true;
+//if (true) System.out.println("evWrite: eventsToBuf > 0 so doFlush = True");
                 }
             }
 
             break;
         }
 
-//if (debug) System.out.println("evWrite: bufSize = " + bufferSize +
+//if (true) System.out.println("evWrite: bufSize = " + bufferSize +
 //                              " <? bytesToWrite = " + (bytesWrittenToBuffer + currentEventBytes) +
-//                              " + 64 = " + (bytesWrittenToBuffer + currentEventBytes + 64));
+//                              " + 64 = " + (bytesWrittenToBuffer + currentEventBytes + 64) +
+//                              ", events in buf = " + eventsWrittenToBuffer);
 
         // Is this event (by itself) too big for the current internal buffer?
         // Internal buffer needs room for first block header, event, and ending empty block.
         if (bufferSize < currentEventBytes + 2*headerBytes) {
             if (!toFile) {
-                System.out.println("evWrite: bufSize = " + bufferSize +
+                System.out.println("evWrite: error, bufSize = " + bufferSize +
                    " <? current event bytes = " + currentEventBytes +
                    " + 2 headers (64), total = " + (currentEventBytes + 64) +
                    ", room = " + (bufferSize - bytesWrittenToBuffer - headerBytes) );
@@ -2802,7 +2826,7 @@ System.err.println("ERROR endOfBuffer " + a);
                 throw new EvioException("Buffer too small to write event");
             }
 
-//            if (false) {
+//            if (true) {
 //                System.out.println("evWrite: # events written to buf so far = " + eventsWrittenToBuffer +
 //                    ", bytes to buf so far = " + bytesWrittenToBuffer);
 //                System.out.println("evWrite: NEED to flush buffer and re-use, ");
@@ -2832,13 +2856,16 @@ System.err.println("ERROR endOfBuffer " + a);
                 // We're here because there is not enough room in the internal buffer
                 // to write this single large event.
                 newBufSize = currentEventBytes + 2*headerBytes;
+//System.out.println("         must expand, bytes needed for 1 big ev + 2 hdrs = " + newBufSize);
             }
             // Flush what we have to file (if anything)
             doFlush = true;
+//System.out.println(" evWrite: no room in Buf so doFlush = 1\n");
         }
 
         // Do we flush?
         if (doFlush) {
+//System.out.println("evWrite: call flushToFile 1\n");
             flushToFile(false);
         }
 
@@ -2898,9 +2925,8 @@ System.err.println("ERROR endOfBuffer " + a);
         if (writeNewBlockHeader) {
             currentBlockSize = 8;
             currentBlockEventCount = 0;
-            // write over last empty block
             writeNewHeader(currentBlockSize, 1, blockNumber++, null, false, false);
-//if (debug) System.out.println("evWrite: wrote new blk hdr, bytesToBuf = " + bytesWrittenToBuffer);
+//if (true) System.out.println("evWrite: wrote new blk hdr, bytesToBuf = " + bytesWrittenToBuffer);
         }
 
         // Write out the event
@@ -2941,19 +2967,19 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // If nothing to write...
         if (buffer.position() < 1) {
-//System.out.println("    flushToFile(): nothing to write, return");
+//System.out.println("    flushToFile: nothing to write, return");
             return false;
         }
 
         // The byteBuffer position is just after the last event or
         // the last, empty block header. Get buffer ready to write.
         buffer.flip();
-//System.out.println("    flushToFile(): try writing " + eventsWrittenToBuffer + " events, " +
+//System.out.println("    flushToFile: try writing " + eventsWrittenToBuffer + " events, " +
 //        "bytes to write = " + buffer.remaining() + ", pos = " + buffer.position());
 
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
-//System.out.println("    flushToFile(): create file " + currentFile.getName());
+//System.out.println("    flushToFile: create file " + currentFile.getName());
             try {
                 raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
@@ -2983,14 +3009,14 @@ System.err.println("ERROR endOfBuffer " + a);
         eventsWrittenToFile += eventsWrittenToBuffer;
 
 //        if (true) {
-//            System.out.println("flushToFile: after last header written, Events written to:");
-//            System.out.println("             cnt total (no dict) = " + eventsWrittenTotal);
-//            System.out.println("             file cnt total (dict) = " + eventsWrittenToFile);
-//            System.out.println("             internal buffer cnt (dict) = " + eventsWrittenToBuffer);
-//            System.out.println("             block cnt (dict) = " + currentBlockEventCount);
-//            System.out.println("             bytes-to-buf  = " + bytesWrittenToBuffer);
-//            System.out.println("             bytes-to-file = " + bytesWrittenToFile);
-//            System.out.println("             block # = " + blockNumber);
+//            System.out.println("    flushToFile: after last header written, Events written to:");
+//            System.out.println("                 cnt total (no dict) = " + eventsWrittenTotal);
+//            System.out.println("                 file cnt total (dict) = " + eventsWrittenToFile);
+//            System.out.println("                 internal buffer cnt (dict) = " + eventsWrittenToBuffer);
+//            System.out.println("                 block cnt (dict) = " + currentBlockEventCount);
+//            System.out.println("                 bytes-to-buf  = " + bytesWrittenToBuffer);
+//            System.out.println("                 bytes-to-file = " + bytesWrittenToFile);
+//            System.out.println("                 block # = " + blockNumber);
 //        }
         return true;
     }
@@ -3007,16 +3033,24 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException   if error writing file
      */
     private void splitFile() throws EvioException, IOException {
-
-        // Reset file values for reuse
-        blockNumber         = 1;
-        bytesWrittenToFile  = 0;
-        eventsWrittenToFile = 0;
-        wroteDictionary     = false;
-
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
         if (raf != null) {
+            try {
+                // We need to end the file with an empty block header.
+                // However, if resetBuffer (or flush) was just called,
+                // a last block header will already exist.
+                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
+//System.out.println("split file: write last header in old file, buf pos = " + buffer.position());
+                    writeNewHeader(8, 0, blockNumber, null, false, true);
+                }
+//System.out.println("split file: flushToFile in old file");
+                flushToFile(true);
+            }
+            catch (EvioException e) {
+                e.printStackTrace();
+            }
+
             fileCloser.closeFile(raf);
         }
 
@@ -3034,6 +3068,12 @@ System.err.println("ERROR endOfBuffer " + a);
                     + currentFile.getPath());
         }
 
-//if (debug) System.out.println("splitFile: generated file name = " + fileName);
+        // Reset file values for reuse
+        blockNumber         = 1;
+        bytesWrittenToFile  = 0;
+        eventsWrittenToFile = 0;
+        wroteDictionary     = false;
+
+//System.out.println("splitFile: generated file name = " + fileName);
     }
 }
