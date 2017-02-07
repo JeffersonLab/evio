@@ -905,16 +905,14 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         int word = buffer.getInt(position);
         node.tag = (word >>> 16);
         int dt = (word >> 8) & 0xff;
-        int type = dt & 0x3f;
-        int padding = dt >>> 6;
+        node.dataType = dt & 0x3f;
+        node.pad = dt >>> 6;
         // If only 7th bit set, that can only be the legacy tagsegment type
         // with no padding information - convert it properly.
         if (dt == 0x40) {
-            type = DataType.TAGSEGMENT.getValue();
-            padding = 0;
+            node.dataType = DataType.TAGSEGMENT.getValue();
+            node.pad = 0;
         }
-        node.dataType = type;
-        node.pad = padding;
         node.num = word & 0xff;
 
         return node;
