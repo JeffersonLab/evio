@@ -2721,6 +2721,13 @@ System.err.println("ERROR endOfBuffer " + a);
             if ((currentEventBytes & 3) != 0) {
                 throw new EvioException("bad bankBuffer format");
             }
+
+            // Check for inconsistent lengths
+            if (currentEventBytes != 4*(bankBuffer.getInt(bankBuffer.position()) + 1)) {
+                Utilities.printBuffer(bankBuffer, 0, 20, "Inconsistent event");
+                throw new EvioException("inconsistent event lengths: remaining (" + currentEventBytes +
+                ") != first bank word (" + (4*(bankBuffer.getInt(0) + 1)) + ")");
+            }
         }
         else if (bank != null) {
             currentEventBytes = bank.getTotalBytes();
@@ -3017,16 +3024,24 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException   if error writing file
      */
     private void splitFile() throws EvioException, IOException {
-
-        // Reset file values for reuse
-        blockNumber         = 1;
-        bytesWrittenToFile  = 0;
-        eventsWrittenToFile = 0;
-        wroteDictionary     = false;
-
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
         if (raf != null) {
+            try {
+                // We need to end the file with an empty block header.
+                // However, if resetBuffer (or flush) was just called,
+                // a last block header will already exist.
+                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
+//System.out.println("split file: write last header in old file, buf pos = " + buffer.position());
+                    writeNewHeader(8, 0, blockNumber, null, false, true);
+                }
+//System.out.println("split file: flushToFile in old file");
+                flushToFile(true);
+            }
+            catch (EvioException e) {
+                e.printStackTrace();
+            }
+
             fileCloser.closeFile(raf);
         }
 
@@ -3043,6 +3058,12 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("File exists but user requested no over-writing, "
                     + currentFile.getPath());
         }
+
+        // Reset file values for reuse
+        blockNumber         = 1;
+        bytesWrittenToFile  = 0;
+        eventsWrittenToFile = 0;
+        wroteDictionary     = false;
 
 //if (debug) System.out.println("splitFile: generated file name = " + fileName);
     }
