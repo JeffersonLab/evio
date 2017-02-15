@@ -36,7 +36,7 @@ public class FileTest {
             "       <leaf name=\"My chars\"  tag=\"5\"   num=\"5\"/>\n" +
             "     </bank>\n" +
             "  </bank>\n" +
-            "  <dictEntry name=\"Last Bank\" tag=\"33\"  num=\"66\"/>\n" +
+            "  <dictEntry name=\"First Event\" tag=\"100\"  num=\"100\"/>\n" +
             "  <dictEntry name=\"Test Bank\" tag=\"1\" />\n" +
             "</xmlDict>";
         //xmlDictionary = null;
@@ -82,22 +82,38 @@ public class FileTest {
             event.appendIntData(intData1);
 
 
+            // Build first event
+            EventBuilder builder3 = new EventBuilder(100, DataType.INT32, 100);
+            EvioEvent eventFirst = builder3.getEvent();
+
+            // bank of ints
+            int[] intFirstData = new int[6];
+            for (int i=0; i < intFirstData.length; i++) {
+                intFirstData[i] = 0x100*(i+1);
+            }
+            eventFirst.appendIntData(intFirstData);
+
+
+
             if (useFile) {
 //                writer = new EventWriter(file, 16, 1000, ByteOrder.nativeOrder(),
-//                                                   xmlDictionary, null, true, append);
+//                                         xmlDictionary, null, true, append);
 
 // Include first event
-                writer = new EventWriter(file.getPath(), null, null, 0, 0,
-                                                 16, 1000, 95,
-                                                 ByteOrder.nativeOrder(), null,
-                                                 null, true, append, null);
+                int splitBytes = 160;
+                int targetBlockSize = 29;
+                int internalBufSize = 148;
+                writer = new EventWriter(file.getPath(), null, null, 0, splitBytes,
+                                         targetBlockSize, 1000, internalBufSize,
+                                         ByteOrder.nativeOrder(), xmlDictionary,
+                                         null, true, append, eventFirst);
             }
             else {
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
                 //myBuf.order(ByteOrder.LITTLE_ENDIAN);
                 //writer = new EventWriter(myBuf, xmlDictionary, append);
-                writer = new EventWriter(myBuf, 16, 1000, null, null, 0, 1, append, null);
+                writer = new EventWriter(myBuf, 28, 1000, null, null, 0, 1, append, null);
             }
 
 
@@ -153,10 +169,10 @@ public class FileTest {
 
             writer.writeEvent(event2);
             System.out.println("Event #7, Block #" + writer.getBlockNumber());
-            writer.flush();
-            writer.flush();
-            writer.flush();
-            writer.flush();
+         //   writer.flush();
+         //   writer.flush();
+         //   writer.flush();
+         //   writer.flush();
 
             writer.writeEvent(event);
             System.out.println("Event #8, Block #" + writer.getBlockNumber());
