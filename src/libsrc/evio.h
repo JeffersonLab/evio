@@ -128,7 +128,7 @@ typedef struct evfilestruct {
   uint32_t  left;          /**< # of valid 32 bit unread/unwritten words in block. */
   uint32_t  blksiz;        /**< size of block in 32 bit words - v3 or
                             *   size of actual data in block (including header) - v4. */
-  uint32_t  blknum;        /**< block number of block being read/written (block #s start at 1). */
+  uint32_t  blknum;        /**< block number of block being read/written. Next to be used, starting at 1. */
   int       blkNumDiff;    /**< When reading, the difference between blknum read in and
                             *   the expected (sequential) value. Used in debug message. */
   uint32_t  blkSizeTarget; /**< target size of block in 32 bit words (including block header). */
@@ -154,7 +154,7 @@ typedef struct evfilestruct {
                                         * written, else 0. */
   uint32_t *currentHeader;  /**< When writing to file/socket/pipe, this points to
                              *   current block header of block being written. */
-  uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including ending empty block & dict. */
+  uint32_t  bytesToBuf;     /**< # bytes written to internal buffer including dict. */
   uint32_t  eventsToBuf;    /**< # events written to internal buffer including dictionary. */
   uint32_t  eventsToFile;   /**< # of events written to file including dictionary.
                              * If the file is being split, this value refers to the file
@@ -198,7 +198,6 @@ typedef struct evfilestruct {
   char *dictionary;           /**< xml format dictionary to either read or write. */
 
   /* first event */
-  int   wroteFirstEvent;      /**< first event already defined and written out? */
   uint32_t firstEventLength;  /**< length of first event bank in bytes (including entire header). */
   uint32_t *firstEventBuf;    /**< buffer containing firstEvent bank. */
 
