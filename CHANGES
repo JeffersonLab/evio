@@ -221,5 +221,5 @@ evio-5.2
       a hard drive head wastes a whole disk revolution getting into position for the
       backwards file access.
 
-    - fix bug in which the writing of a split file with a first event got a length
+    - fix bug in which the writing of a split file with a dictionary got a length
       and therefore the file format wrong.
