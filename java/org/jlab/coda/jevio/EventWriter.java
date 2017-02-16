@@ -2628,8 +2628,10 @@ System.err.println("ERROR endOfBuffer " + a);
      * containing only the event's data (event header and event data) and must
      * <b>not</b> be in complete evio file format.
      * The first non-null of the bank arguments will be written.<p>
+     *
      * Be warned that injudicious use of a true 2nd arg, the force flag, will
      *<b>kill</b> performance.<p>
+     *
      * This method is not used to write the dictionary or the first event
      * (common block). That is only done with the method {@link #writeCommonBlock}.
      *
