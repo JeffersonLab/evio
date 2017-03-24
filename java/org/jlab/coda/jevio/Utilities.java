@@ -300,12 +300,13 @@ final public class Utilities {
 
     /**
      * This method takes a byte buffer and prints out the desired number of words
-     * from the given position.
+     * from the given position. Will <b>not</b> print out the extra 1, 2, or 3
+     * bytes left at the end of the buffer.
      *
-     * @param buf            buffer to print out
-     * @param position       position of data (bytes) in buffer to start printing
-     * @param words          number of 32 bit words to print in hex
-     * @param label          a label to print as header
+     * @param buf       buffer to print out
+     * @param position  position of data (bytes) in buffer to start printing
+     * @param words     number of 32 bit words to print in hex
+     * @param label     a label to print as header
      */
     final static public void printBuffer(ByteBuffer buf, int position, int words, String label) {
 
@@ -322,9 +323,58 @@ final public class Utilities {
         IntBuffer ibuf = buf.asIntBuffer();
         words = words > ibuf.capacity() ? ibuf.capacity() : words;
         for (int i=0; i < words; i++) {
-            System.out.println("  Buf(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
+            if (i%5 == 0) {
+                System.out.print("\n  Buf(" + (i + 1) + "-" + (i + 5) + ") =  ");
+            }
+
+            System.out.print(String.format("%08x", ibuf.get(i)) + "  ");
         }
         System.out.println();
+        System.out.println();
+
+        buf.position(origPos);
+   }
+
+
+    /**
+     * This method takes a byte buffer and prints out the desired number of byes
+     * from the given position. Prints all bytes.
+     *
+     * @param buf       buffer to print out
+     * @param position  position of data (bytes) in buffer to start printing
+     * @param bytes     number of bytes to print in hex
+     * @param label     a label to print as header
+     */
+    final static public void printBufferBytes(ByteBuffer buf, int position, int bytes, String label) {
+
+        if (buf == null) {
+            System.out.println("printBuffer: buf arg is null");
+            return;
+        }
+
+        int origPos = buf.position();
+        buf.position(position);
+        bytes = bytes > buf.capacity() ? buf.capacity() : bytes;
+
+        if (label != null) System.out.println(label + ":");
+
+        for (int i=0; i < bytes; i++) {
+            if (i%20 == 0) {
+                System.out.print("\n  Buf(" + (i + 1) + "-" + (i + 20) + ") =  ");
+            }
+            else if (i%4 == 0) {
+                System.out.print("  ");
+            }
+
+            System.out.print(String.format("%02x", buf.get(i)) + " ");
+        }
+        System.out.println();
+        System.out.println();
+
+//        for (int i=0; i < bytes; i += 20) {
+//            System.out.println("  Bytes(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
+//        }
+//        System.out.println();
 
         buf.position(origPos);
    }
