@@ -1230,6 +1230,9 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
 
     /**
      * Turn byte array into an int array.
+     * The data array length must be a multiple of 4.
+     * Number of int array elements = number of bytes / 4.
+     * The dest array must be large enough to contain the data.
      *
      * @param data byte array to convert
      * @param byteOrder byte order of supplied bytes (big endian if null)
