@@ -371,11 +371,6 @@ final public class Utilities {
         System.out.println();
         System.out.println();
 
-//        for (int i=0; i < bytes; i += 20) {
-//            System.out.println("  Bytes(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
-//        }
-//        System.out.println();
-
         buf.position(origPos);
    }
 
