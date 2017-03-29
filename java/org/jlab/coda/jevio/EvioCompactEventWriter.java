@@ -21,6 +21,7 @@ import java.nio.*;
  * @deprecated use EvioWriter instead (warning: the constructor arguments are slightly
  *             different in EvioWriter).
  */
+@Deprecated
 public class EvioCompactEventWriter {
 
     /** Wrap this object and use it to do everything. */
