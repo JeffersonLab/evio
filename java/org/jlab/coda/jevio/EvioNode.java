@@ -807,6 +807,7 @@ public class EvioNode implements Cloneable {
     /**
      * Get the data associated with this node as an 64-bit integer array.
      * If data is of a type less than 64 bits, the last long will be junk.
+     * Make sure we don't try to read beyond the end.
      * Call this to avoid calling {@link #getByteData(boolean)} and converting
      * it to a long array which involves creating additional objects and calling
      * additional methods.
@@ -815,10 +816,13 @@ public class EvioNode implements Cloneable {
      * @return long array containing data.
      */
     final public long[] getLongData() {
-        long[] data = new long[dataLen/2];
+        // Make sure we don't read an extra long if odd # of ints
+        int effectiveLen = (dataLen/2)*2;
+
+        long[] data = new long[effectiveLen/2];
         ByteBuffer buf = bufferNode.buffer;
 
-        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 8) {
+        for (int i = dataPos; i < dataPos + 4*effectiveLen; i+= 8) {
             data[(i-dataPos)/8] = buf.getLong(i);
         }
         return data;
