@@ -95,10 +95,9 @@ public final class CompactEventBuilder {
     }
 
 
-    /** The top (first element) of the stack is parent of the current structure
-     *  and the next one down is the parent of the parent, etc.
-     *  Actually, the first (0th) element is unused, and things start with the
-     *  second element. */
+    /** The top (first element) of the stack is the first structure
+     *  created or the event bank.
+     *  Each level is the parent of the next one down (index + 1) */
     private StructureContent[] stackArray;
 
     /** Each element of the array is the total length of all evio
@@ -674,6 +673,37 @@ public final class CompactEventBuilder {
     }
 
 
+    /**
+     * In the emu software package, it's necessary to change the top level
+     * tag after the top level bank has already been created. This method
+     * allows changing it after initially written.
+     * @param tag  new tag value of top-level, event bank.
+     */
+    public void setTopLevelTag(short tag) {
+        // Top level is a bank so skip over length
+        int pos = 4;
+
+        if (useByteBuffer) {
+            if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                buffer.putShort(pos + 4, tag);
+            }
+            else {
+                buffer.putShort(pos + 6, tag);
+            }
+        }
+        else {
+            if (order == ByteOrder.BIG_ENDIAN) {
+                array[pos+4] = (byte)(tag >> 8);
+                array[pos+5] = (byte)tag;
+            }
+            else {
+                array[pos+6] = (byte)tag;
+                array[pos+7] = (byte)(tag >> 8);
+            }
+        }
+    }
+
+    
     /**
      * This method adds the given length to the current structure's existing
      * length and all its ancestors' lengths. Nothing is written into the
