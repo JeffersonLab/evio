@@ -680,25 +680,23 @@ public final class CompactEventBuilder {
      * @param tag  new tag value of top-level, event bank.
      */
     public void setTopLevelTag(short tag) {
-        // Top level is a bank so skip over length
-        int pos = 4;
 
         if (useByteBuffer) {
             if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                buffer.putShort(pos + 4, tag);
+                buffer.putShort(4, tag);
             }
             else {
-                buffer.putShort(pos + 6, tag);
+                buffer.putShort(6, tag);
             }
         }
         else {
             if (order == ByteOrder.BIG_ENDIAN) {
-                array[pos+4] = (byte)(tag >> 8);
-                array[pos+5] = (byte)tag;
+                array[4] = (byte)(tag >> 8);
+                array[5] = (byte)tag;
             }
             else {
-                array[pos+6] = (byte)tag;
-                array[pos+7] = (byte)(tag >> 8);
+                array[6] = (byte)tag;
+                array[7] = (byte)(tag >> 8);
             }
         }
     }
