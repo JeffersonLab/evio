@@ -3157,7 +3157,6 @@ System.err.println("ERROR endOfBuffer " + a);
                     writeNewHeader(0, blockNumber, null, false, true);
                 }
 //System.out.println("    split file: flushToFile for file being closed");
-                flushToFile(true);
             }
             catch (EvioException e) {
                 e.printStackTrace();
