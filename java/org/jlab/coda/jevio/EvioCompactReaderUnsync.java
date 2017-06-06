@@ -487,6 +487,7 @@ public class EvioCompactReaderUnsync {
 
         // Have enough remaining bytes to read header?
         if (byteBuffer.limit() - pos < 32) {
+System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() - pos));
             byteBuffer.clear();
             return ReadStatus.END_OF_FILE;
         }
@@ -514,6 +515,7 @@ public class EvioCompactReaderUnsync {
                 magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
 System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right");
+Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
                     return ReadStatus.EVIO_EXCEPTION;
                 }
             }
@@ -551,7 +553,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             return ReadStatus.EVIO_EXCEPTION;
         }
         catch (BufferUnderflowException a) {
-            System.err.println("ERROR endOfBuffer " + a);
+            System.err.println("EvioCompactReader: end of Buffer: " + a.getMessage());
             byteBuffer.clear();
             return ReadStatus.UNKNOWN_ERROR;
         }
