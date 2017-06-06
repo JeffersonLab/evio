@@ -550,6 +550,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         }
         catch (EvioException a) {
             byteBuffer.clear();
+            Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
             return ReadStatus.EVIO_EXCEPTION;
         }
         catch (BufferUnderflowException a) {
