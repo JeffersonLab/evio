@@ -5,7 +5,7 @@ import org.jlab.coda.jevio.*;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Program for testing speed of writing to disk.
@@ -78,7 +78,7 @@ public class FileWritingSpeedTest {
         try {
             // Create an event writer to write out the test events to file
 
-            long splitBytes = 20000000000L; // 20 GB split
+            long splitBytes = 2000000000L; // 2GB split
 
             if (unsync) {
                 writerUnsync = new EventWriterUnsync(file.getPath(), null, null, 0,
@@ -89,21 +89,40 @@ public class FileWritingSpeedTest {
                                          splitBytes, ByteOrder.BIG_ENDIAN, null);
             }
 
-            ByteBuffer eventBuf = createEventBuffer();
-            int eventSize = eventBuf.remaining();
+//            // Read in 1000 real HallD events and place into ByteBufferSupply
+//
+//            // File containing events (20G)
+//            String dataFilename = "/home/timmer/evioTestFiles/hallD/hd_rawdata_031347_000.evio";
+//
+//            EvioCompactReader reader = new EvioCompactReader(dataFilename);
+//
+//            int evNumber = 1;
+//            EvioNode node = reader.getEvent(evNumber);
+//            ByteBuffer buf = node.getStructureBuffer(true);
+
+
+            int numEvents = 1000;
+            ByteBuffer[] eventBufs = new ByteBuffer[numEvents];
+            for (int i=0; i < numEvents; i++) {
+                eventBufs[i] = createEventBuffer();
+            }
+            int eventSize = eventBufs[0].remaining();
 
             System.out.println("event size = " + eventSize);
 
 
-            int  skip=2, printPeriod = 5000;
+            int  index=0, skip=2, printPeriod = 5000;
             long oldVal=0L, totalT=0L, deltaCount, totalCount=0L;
             long t1, t2, deltaT, counter=0L;
             long byteCountTotal = 0L;
-
+            ByteBuffer eventBuf;
 
             t1 = t2 = System.currentTimeMillis();
 
             while (true) {
+                eventBuf = eventBufs[index];
+                index = (index + 1) % numEvents;
+
                 if (unsync) {
                     writerUnsync.writeEvent(eventBuf);
                 }
@@ -176,7 +195,10 @@ public class FileWritingSpeedTest {
             int EBid = 1;
             int numRocs = 100;
             int numEvents = 20;
-            long startingEventNumber = 2L;
+
+            Random random = new Random(System.currentTimeMillis());
+            long firstTimestamp = random.nextInt(123456789);
+            long startingEventNumber = random.nextInt(2000000000);
 
             /////////////////////////////////////////////////////////////////////
             // Top level event, from PEB, 20 entangled events
@@ -191,33 +213,35 @@ public class FileWritingSpeedTest {
             // 1st segment - unsigned longs
             b.openSegment(EBid, DataType.ULONG64);
 
-            // timestamp for each event starting at 10
+            // timestamp for each event starting at 123456789
             long[] t = new long[numEvents+2];
             for (int i=0; i < numEvents; i++) {
-                t[i+1] = 10 + i;
+                t[i+1] = firstTimestamp + 10*i;
             }
             // first event number
             t[0] = startingEventNumber;
             // run #3, run type 4
-            t[numEvents + 1] = (3L << 32) & 4L;
+            t[numEvents + 1] = (3333L << 32) & 444L;
             b.addLongData(t);
 
             b.closeStructure();
 
-            // 2nd segment - unsigned shorts
+            // 2nd segment - unsigned shorts - event types
             b.openSegment(EBid, DataType.USHORT16);
 
             short[] s = new short[numEvents];
-            Arrays.fill(s, (short)20);  // event types = 20 for all rocs
+            for (int i=0; i < numEvents; i++) {
+                s[i] = (short) random.nextInt(32768);
+            }
             b.addShortData(s);
 
             b.closeStructure();
 
             // Segment for each roc - unsigned ints.
-            // Each roc has one timestamp for each event (10 + i)
+            // Each roc has one timestamp for each event
             int[] rocTS = new int[numEvents];
             for (int i=0; i < numEvents; i++) {
-                rocTS[i] = 10 + i;
+                rocTS[i] = (int)firstTimestamp + 10*i;
             }
 
             for (int i=0; i < numRocs; i++) {
@@ -237,10 +261,9 @@ public class FileWritingSpeedTest {
             // One data bank for each roc
             /////////////////////////////////////////////////////////////////////
 
-            int[] data = new int[50];     // 200 bytes
-            Arrays.fill(data, 0xf0f0f0f0);
+            int[] data = new int[50]; // 200 bytes
             data[0] = (int)startingEventNumber;
-            data[1] = 10; // TS
+            data[1] = (int)firstTimestamp; // TS
 
             for (int i=0; i < numRocs; i++) {
                 int rocId = i;
@@ -250,6 +273,12 @@ public class FileWritingSpeedTest {
                 // Data Block Bank
                 int detectorId = 10*i;
                 b.openBank(detectorId, numEvents, DataType.INT32);
+
+                // change data for each roc
+                for (int j=2; j < 50; j++) {
+                    data[j] = random.nextInt(2147483647);
+                }
+
                 b.addIntData(data);
                 b.closeStructure();
 
