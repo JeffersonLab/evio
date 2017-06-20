@@ -29,31 +29,54 @@ import java.util.BitSet;
  * |_____________________________________|
  * |             Event Count             |
  * |_____________________________________|
- * |             reserved 1              |
+ * |  CODA ID or Compressed Data Length  |
  * |_____________________________________|
- * |          Bit info & Version         |
+ * |          Bit Info & Version         |
  * |_____________________________________|
- * |             reserved 2              |
+ * |              Reserved               |
  * |_____________________________________|
  * |             Magic Int               |
  * |_____________________________________|
+ * |         Indexes to Events           |
+ * |_____________________________________|
  *
  *
- *      Block Length       = number of ints in block (including this one).
- *      Block Number       = id number (starting at 1)
- *      Header Length      = number of ints in this header (8)
+ *      Block Length       = number of uncompressed ints in block (including this one).
+ *
+ *      Block Number       = id number (starting at 1).
+ *
+ *      Header Length      = number of ints in this header (8).
+ *
  *      Event Count        = number of events in this block (always an integral #).
  *                           NOTE: this value should not be used to parse the following
  *                           events since the first block may have a dictionary whose
  *                           presence is not included in this count.
- *      Reserved 1         = If bits 11-14 in bit info are RocRaw (1), then (in the first block)
- *                           this contains the CODA id of the source
+ *
+ *      CODA id /
+ *      compressed length
+ *                         = In CODA online, if bits 11-14 in bit info are RocRaw (0),
+ *                           then (in the first block) this contains the CODA id of the source.
+ *                           
+ *                           When writing to or reading from a file, and bit 16 in bit info is
+ *                           true (lz4 compression is on), this is the number of compressed data
+ *                           BYTES (NOT WORDS!) in this block. Note, this does NOT include the
+ *                           header.
+ *
  *      Bit info & Version = Lowest 8 bits are the version number (4).
  *                           Upper 24 bits contain bit info.
  *                           If a dictionary is included as the first event, bit #9 is set (=1)
- *                           If a last block, bit #10 is set (=1)
- *      Reserved 2         = unused
- *      Magic Int          = magic number (0xc0da0100) used to check endianness
+ *                           If a last block, bit #10 is set.
+ *                           For first block of CODA online, bits #11-14 are CODA id.
+ *                           If dictionary included, bit #15 is set.
+ *                           If data is compressed, bit #16 is set.
+ *                           If event indexes are included, bit #17 is set.
+ *
+ *      Reserved           = unused.
+ *
+ *      Magic Int          = magic number (0xc0da0100) used to check endianness.
+ *
+ *      Optionally, after the Magic Int are indexes pointing to each UNcompressed event
+ *      following the header.
  *
  *
  *
@@ -74,6 +97,9 @@ import java.util.BitSet;
  *                buffer as well. That buffer then is parsed by an EvioReader or
  *                EvioCompactReader object. Thus all events will be of a single CODA type.
  *
+ *   Bit 16     = true if data following this block header is compressed in LZ4 format.
+ *   Bit 17     = true if indexes of events are included in this header. Each index is
+ *                number of uncompressed bytes to event from end of header.
  *
  *
  * </pre></code>
@@ -88,17 +114,20 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     /** The minimum & expected block header size in 32 bit ints. */
     public static final int HEADER_SIZE = 8;
 
-    /** Dictionary presence is 9th bit in version/info word */
+    /** Dictionary presence is 9th bit in version/info word. */
     public static final int EV_DICTIONARY_MASK = 0x100;
 
-    /** "Last block" is 10th bit in version/info word */
+    /** "Last block" is 10th bit in version/info word. */
     public static final int EV_LASTBLOCK_MASK  = 0x200;
 
-    /** "Event type" is 11-14th bits` in version/info word */
+    /** "Event type" is 11-14th bits` in version/info word. */
     public static final int EV_EVENTTYPE_MASK  = 0x3C00;
 
-    /** "First event" is 15th bit in version/info word */
+    /** "First event" is 15th bit in version/info word. */
     public static final int EV_FIRSTEVENT_MASK  = 0x4000;
+
+    /** Data (all except block headers) are compressed in LZ4 format. */
+    public static final int EV_LZ4COMPRESSION_MASK  = 0x8000;
 
     /** Position of word for size of block in 32-bit words. */
     public static final int EV_BLOCKSIZE = 0;
@@ -108,16 +137,28 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     public static final int EV_HEADERSIZE = 2;
     /** Position of word for number of events in block. */
     public static final int EV_COUNT = 3;
-    /** Position of word for reserved. */
-    public static final int EV_RESERVED1 = 4;
+    /** Position of word for CODA id or compressed data length. */
+    public static final int EV_COMPRESSEDLENGTH = 4;
     /** Position of word for version of file format. */
     public static final int EV_VERSION = 5;
     /** Position of word for reserved. */
     public static final int EV_RESERVED2 = 6;
     /** Position of word for magic number for endianness tracking. */
     public static final int EV_MAGIC = 7;
+    /** Position of word for event indexes. */
+    public static final int EV_INDEXES = 8;
 
 
+    /** Index into bitInfo - has Dictionary? */
+    public static final int EV_BIT_DICTIONARY = 0;
+    /** Index into bitInfo - is last block? */
+    public static final int EV_BIT_LASTBLOCK = 1;
+    /** Index into bitInfo - has first event? */
+    public static final int EV_BIT_FIRSTEVENT = 6;
+    /** Index into bitInfo - is data compressed? */
+    public static final int EV_BIT_COMPRESSED = 7;
+    /** Index into bitInfo - has event indexes? */
+    public static final int EV_BIT_INDEXES = 8;
 
 
 	/** The block (physical record) size in 32 bit ints. */
@@ -126,7 +167,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	/** The block number. In a file, this is usually sequential. */
 	private int number;
 
-	/** The block header length which is always 8. */
+	/** The block header length which is usually 8. */
 	private int headerLength;
 
     /**
@@ -138,14 +179,20 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	/** The evio version which is always 4. */
 	private int version;
 
-    /** Value of first reserved word. */
-    private int reserved1;
+    /**
+     * Length of the compressed data in bytes if reading-from / writing-to file.
+     * For CODA online, CODA id.
+     */
+    private int compressedLength;
 
     /** Value of second reserved word. */
     private int reserved2;
 
     /** Bit information. Bit one: is the first event a dictionary? */
     private BitSet bitInfo = new BitSet(24);
+
+    /** Is the data following this block header compressed in LZ4 format? */
+    private boolean isCompressed;
 
 	/** This is the magic word, 0xc0da0100, used to check endianness. */
 	private int magicNumber;
@@ -177,7 +224,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 		headerLength = 0;
 		version = 0;
 		eventCount = 0;
-        reserved1 = 0;
+        compressedLength = 0;
         reserved2 = 0;
 		magicNumber = 0;
 	}
@@ -203,7 +250,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         headerLength = 8;
         version = 4;
         eventCount = 0;
-        reserved1 = 0;
+        compressedLength = 0;
         reserved2 = 0;
         magicNumber = MAGIC_NUMBER;
     }
@@ -217,16 +264,16 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         if (blkHeader == null) {
             return;
         }
-        size         = blkHeader.size;
-        number       = blkHeader.number;
-        headerLength = blkHeader.headerLength;
-        version      = blkHeader.version;
-        eventCount   = blkHeader.eventCount;
-        reserved1    = blkHeader.reserved1;
-        reserved2    = blkHeader.reserved2;
-        byteOrder    = blkHeader.byteOrder;
-        magicNumber  = blkHeader.magicNumber;
-        bitInfo      = (BitSet)  blkHeader.bitInfo.clone();
+        size             = blkHeader.size;
+        number           = blkHeader.number;
+        headerLength     = blkHeader.headerLength;
+        version          = blkHeader.version;
+        eventCount       = blkHeader.eventCount;
+        compressedLength = blkHeader.compressedLength;
+        reserved2        = blkHeader.reserved2;
+        byteOrder        = blkHeader.byteOrder;
+        magicNumber      = blkHeader.magicNumber;
+        bitInfo          = (BitSet)  blkHeader.bitInfo.clone();
         bufferStartingPosition = blkHeader.bufferStartingPosition;
     }
 
@@ -316,6 +363,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 		this.headerLength = headerLength;
 	}
 
+    //----------------------------------------------------------------------------------------
+
     /**
      * Get the evio version of the block (physical record) header.
      *
@@ -334,6 +383,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     public void setVersion(int version) {
         this.version = version;
     }
+
+    //----------------------------------------------------------------------------------------
 
     /**
      * Does this integer indicate that there is an evio dictionary
@@ -354,23 +405,12 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         return bitInfo.get(0);
     }
 
-    /**
-     * Is this the last block in the file/buffer or being sent over the network?
-     *
-     * @return <code>true</code> if this is the last block in the file or being sent
-     *         over the network, else <code>false</code>
-     */
+    //----------------------------------------------------------------------------------------
+
+    /** {@inheritDoc} */
     public boolean isLastBlock() {
         return bitInfo.get(1);
     }
-
-    /**
-     * Does this block in the file contain the "first event" (first event
-     * to be written to each file split)?
-     *
-     * @return <code>true</code> if this is the first event, else <code>false</code>
-     */
-    public boolean hasFirstEvent() { return bitInfo.get(6); }
 
     /**
      * Does this integer indicate that this is the last block
@@ -399,6 +439,16 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     static public int clearLastBlockBit(int i) {
         return (i &= ~EV_LASTBLOCK_MASK);
     }
+
+    //----------------------------------------------------------------------------------------
+
+    /**
+     * Does this block in the file contain the "first event" (first event
+     * to be written to each file split)?
+     *
+     * @return <code>true</code> if this is the first event, else <code>false</code>
+     */
+    public boolean hasFirstEvent() { return bitInfo.get(EV_BIT_FIRSTEVENT); }
 
     /**
      * Does this integer indicate that block has the first event
@@ -429,6 +479,43 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     static public int clearFirstEventBit(int i) {
         return (i &= ~EV_FIRSTEVENT_MASK);
     }
+
+   //----------------------------------------------------------------------------------------
+
+    /** {@inheritDoc} */
+    public boolean isCompressed() { return bitInfo.get(EV_BIT_COMPRESSED); }
+
+    /**
+     * Does this integer indicate that the data following this block header
+     * is compressed in LZ4 format (assuming it's the header's sixth word)?
+     *
+     * @return <code>true</code> if this int indicates that the data
+     *         following this block header is compressed in LZ4 format,
+     *         else <code>false</code>.
+     */
+    static public boolean isCompressed(int i) {
+        return ((i & EV_LZ4COMPRESSION_MASK) > 0);
+    }
+
+    /**
+     * Set the bit in the given arg which indicates this block has compressed data.
+     * @param i integer in which to set the compressed-data bit
+     * @return  arg with compressed-data bit set
+     */
+    static public int setCompressedBit(int i)   {
+        return (i |= EV_LZ4COMPRESSION_MASK);
+    }
+
+    /**
+     * Clear the bit in the given arg to indicate this block does NOT have compressed data.
+     * @param i integer in which to clear the compressed-data bit
+     * @return arg with compressed-data bit cleared
+     */
+    static public int clearCompressedBit(int i) {
+        return (i &= ~EV_LZ4COMPRESSION_MASK);
+    }
+
+    //----------------------------------------------------------------------------------------
 
     /**
      * Get the value of bits 2-5. It represents the type of event being sent.
@@ -557,18 +644,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * @return generated sixth word of this header.
      */
     static public int generateSixthWord(BitSet set) {
-        int v = 4; // version
-
-        for (int i=0; i < set.length(); i++) {
-            if (i > 23) {
-                break;
-            }
-            if (set.get(i)) {
-                v |= (0x1 << (8+i));
-            }
-        }
-
-        return v;
+        return generateSixthWord(set, 4, false,
+                                 false, 0,false);
     }
 
     /**
@@ -582,21 +659,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * @return generated sixth word of this header.
      */
     static public int generateSixthWord(BitSet bSet, boolean hasDictionary, boolean isEnd) {
-        int v = 4; // version
-
-        for (int i=0; i < bSet.length(); i++) {
-            if (i > 23) {
-                break;
-            }
-            if (bSet.get(i)) {
-                v |= (0x1 << (8+i));
-            }
-        }
-
-        v =  hasDictionary ? (v | 0x100) : v;
-        v =  isEnd ? (v | 0x200) : v;
-
-        return v;
+        return generateSixthWord(bSet, 4, hasDictionary,
+                                 isEnd, 0,false);
     }
 
     /**
@@ -614,9 +678,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     static public int generateSixthWord(int version, boolean hasDictionary,
                                         boolean isEnd, int eventType) {
 
-        return generateSixthWord(null, version, hasDictionary, isEnd, eventType);
+        return generateSixthWord(null, version, hasDictionary, isEnd, eventType,false);
     }
-
 
     /**
       * Calculates the sixth word of this header which has the version number (4)
@@ -634,6 +697,28 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      static public int generateSixthWord(BitSet bSet, int version,
                                          boolean hasDictionary,
                                          boolean isEnd, int eventType) {
+         return generateSixthWord(bSet, version, hasDictionary,
+                                  isEnd, eventType,false);
+     }
+
+    /**
+      * Calculates the sixth word of this header which has the version number (4)
+      * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
+      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+      * (event type) are set in bits 11-14.
+      *
+      * @param bSet Bitset containing all bits to be set
+      * @param version evio version number
+      * @param hasDictionary does this block include an evio xml dictionary as the first event?
+      * @param isEnd is this the last block of a file or a buffer?
+      * @param eventType 4 bit type of events header is containing
+      * @param isCompressed is data of this block compressed?
+      * @return generated sixth word of this header.
+      */
+     static public int generateSixthWord(BitSet bSet, int version,
+                                         boolean hasDictionary,
+                                         boolean isEnd, int eventType,
+                                         boolean isCompressed) {
          int v = version; // version
 
          if (bSet != null) {
@@ -647,8 +732,9 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
              }
          }
 
-         v =  hasDictionary ? (v | 0x100) : v;
-         v =  isEnd ? (v | 0x200) : v;
+         v =  hasDictionary ? (v | EV_DICTIONARY_MASK) : v;
+         v =  isEnd ? (v | EV_LASTBLOCK_MASK) : v;
+         v =  isCompressed ? (v | EV_LZ4COMPRESSION_MASK) : v;
          v |= ((eventType & 0xf) << 10);
 
          return v;
@@ -669,19 +755,21 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
 
     /**
-     * Get the first reserved word.
-     * @return the first reserved word.
+     * Get the compressed data length in BYTES if data is compressed.
+     * Get the CODA id if being using in CODA online.
+     * @return compressed data length.
      */
-    public int getReserved1() {
-        return reserved1;
+    public int getCompressedLength() {
+        return compressedLength;
     }
 
     /**
-     * Sets the value of first reserved word.
-     * @param reserved1 the value for first reserved word.
+     * Set the compressed data length in BYTES if data is compressed.
+     * Set the CODA id if being using in CODA online.
+     * @param compressedLength compressed data length.
      */
-    public void setReserved1(int reserved1) {
-        this.reserved1 = reserved1;
+    public void setCompressedLength(int compressedLength) {
+        this.compressedLength = compressedLength;
     }
 
     /**
@@ -751,7 +839,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 		sb.append(String.format("number:         %d\n", number));
 		sb.append(String.format("headerLen:      %d\n", headerLength));
         sb.append(String.format("event count:    %d\n", eventCount));
-        sb.append(String.format("reserved 1:     %d\n", reserved1));
+        sb.append(String.format("compressedLen:  %d\n", compressedLength));
         sb.append(String.format("bit info:       %s\n", bitInfo));
         sb.append(String.format("has dictionary: %b\n", hasDictionary()));
         sb.append(String.format("version:        %d\n", version));
