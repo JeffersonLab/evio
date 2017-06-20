@@ -129,6 +129,13 @@ public interface IBlockHeader {
     public boolean isLastBlock();
 
     /**
+     * Is the data following this block header compressed in LZ4 format or not?
+     *
+     * @return <code>true</code> if this block's data is compressed, else <code>false</code>.
+     */
+    public boolean isCompressed();
+
+    /**
 	 * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.
      *
      * @param byteBuffer the byteBuffer to write to.

@@ -214,8 +214,15 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
      */
     public boolean isLastBlock() {
         return false;
-    }
+	}
 
+	/**
+	 * Is the data following this block header compressed in LZ4 format or not?
+	 * This is not implemented in evio versions 1-3. Just return false.
+	 *
+	 * @return <code>true</code> if this block's data is compressed, else <code>false</code>.
+	 */
+	public boolean isCompressed() { return false; }
 
 	/**
 	 * Set the size of the block (physical record). Some trivial checking is done.
