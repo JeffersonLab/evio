@@ -208,12 +208,26 @@ public class ByteDataTransformer {
 
     /**
      * Converts an ByteBuffer object into an int array.
+     * If length not a multiple of 4 bytes, ignore up to last 3 bytes.
      *
      * @param byteBuffer the buffer to convert.
-     * @return the ByteBuffer converted into an int array.
+     * @return the int array containing byteBuffer's data.
      */
     public static int[] toIntArray(ByteBuffer byteBuffer) {
         if (byteBuffer == null) return null;
+
+        if (byteBuffer.hasArray()) {
+            byte[] backingArray = byteBuffer.array();
+            int backingArrayOffset = byteBuffer.arrayOffset();
+            int len = byteBuffer.remaining()/4;
+            int[] array = new int[len];
+            try {
+                toIntArray(backingArray, backingArrayOffset, byteBuffer.remaining(),
+                           byteBuffer.order(), array, 0);
+            }
+            catch (EvioException e) {/* never happen */}
+            return array;
+        }
 
         IntBuffer ibuf = byteBuffer.asIntBuffer();
 
@@ -221,6 +235,42 @@ public class ByteDataTransformer {
         int array[] = new int[size];
         ibuf.get(array, 0, size);
         return array;
+    }
+
+
+    /**
+     * Writes ByteBuffer data into an int array.
+     * Provide the int array to avoid its allocation.
+     * If length not a multiple of 4 bytes, ignore up to last 3 bytes.
+     *
+     * @param byteBuffer the buffer to convert.
+     * @param dest array in which to put buffer data.
+     * @return number of integers in the dest array filled with valid data.
+     * @throws EvioException if bad args or dest cannot hold all of byteBuffer's data
+     *                       (from position to limit).
+     */
+    public static int toIntArray(ByteBuffer byteBuffer, int[] dest) throws EvioException {
+        if (byteBuffer == null || dest == null ||
+            byteBuffer.remaining() > 4*dest.length) {
+            throw new EvioException("bad arg(s)");
+        }
+
+        int len = byteBuffer.remaining()/4;
+
+        if (byteBuffer.hasArray()) {
+            byte[] backingArray = byteBuffer.array();
+            int backingArrayOffset = byteBuffer.arrayOffset();
+            try {
+                toIntArray(backingArray, backingArrayOffset,
+                           byteBuffer.order(), dest, 0);
+            }
+            catch (EvioException e) {/* never happen */}
+            return len;
+        }
+
+        IntBuffer ibuf = byteBuffer.asIntBuffer();
+        ibuf.get(dest, 0, len);
+        return len;
     }
 
 
@@ -308,6 +358,47 @@ public class ByteDataTransformer {
         return BaseStructure.unpackRawBytesToStrings(byteBuffer,
                                                      byteBuffer.position(),
                                                      byteBuffer.limit() - byteBuffer.position());
+    }
+
+
+    // ==============================
+    // primitive type --> ByteBuffer
+    // ==============================
+
+    /**
+     * Write int array into ByteBuffer.
+     *
+     * @param data       int data to write
+     * @param dataOffset offset into data array
+     * @param dataLen    number of ints to write
+     * @param buffer     buffer in which to write data
+     * @throws EvioException if data is null, buffer is null or too small, or offset out of bounds;
+     */
+    public static void intoByteBuffer(int[] data, int dataOffset, int dataLen, ByteBuffer buffer)
+            throws EvioException{
+
+        if (data == null || dataOffset < 0 || dataOffset >= data.length ||
+            buffer == null || dataLen < 0 || dataLen > (data.length - dataOffset) ||
+            4*dataLen > (buffer.capacity() - buffer.position())) {
+
+            throw new EvioException("bad arg(s)");
+        }
+
+
+        if (buffer.hasArray()) {
+            // Does not change buffer position or limit
+            toBytes(data, dataOffset, dataLen, buffer.order(), buffer.array(),
+                   buffer.arrayOffset() + buffer.position());
+
+            buffer.limit(buffer.position() + 4*dataLen);
+            return;
+        }
+
+        IntBuffer ib = buffer.asIntBuffer();
+        ib.put(data, dataOffset, dataLen);
+        buffer.limit(buffer.position() + 4*dataLen);
+
+        return;
     }
 
 
@@ -514,6 +605,50 @@ public class ByteDataTransformer {
             dest[off+1] = (byte)(data >>  8);
             dest[off+2] = (byte)(data >> 16);
             dest[off+3] = (byte)(data >> 24);
+        }
+    }
+
+
+    /**
+     * Write int array into byte array.
+     * Avoids creation of new byte array with each call.
+     *
+     * @param data      int data to convert
+     * @param dataOff   offset into data array
+     * @param dataLen   number of ints to write
+     * @param byteOrder byte order of returned bytes (big endian if null)
+     * @param dest      array in which to store returned bytes
+     * @param off       offset into dest array where returned bytes are placed
+     * @throws EvioException if data/dest are null or bad offset values
+     */
+    public static void toBytes(int[] data, int dataOff, int dataLen,
+                               ByteOrder byteOrder, byte[] dest, int off)
+            throws EvioException {
+
+        if (data == null || dataOff < 0 || dataOff > data.length - 1 ||
+            dataLen < 0 || dataLen > (data.length - dataOff) ||
+            dest == null || (dest.length - off) < 4*dataLen || off < 0) {
+
+            throw new EvioException("bad arg(s)");
+        }
+
+        int index;
+        boolean bigEndian = (byteOrder == null) || (byteOrder == ByteOrder.BIG_ENDIAN);
+
+        for (int i=dataOff; i < dataOff + dataLen; i++) {
+            index = 4*(i - dataOff);
+            if (bigEndian) {
+                dest[index + off  ] = (byte)(data[i] >> 24);
+                dest[index + off+1] = (byte)(data[i] >> 16);
+                dest[index + off+2] = (byte)(data[i] >>  8);
+                dest[index + off+3] = (byte)(data[i]      );
+            }
+            else {
+                dest[index + off  ] = (byte)(data[i]      );
+                dest[index + off+1] = (byte)(data[i] >>  8);
+                dest[index + off+2] = (byte)(data[i] >> 16);
+                dest[index + off+3] = (byte)(data[i] >> 24);
+            }
         }
     }
 
@@ -1073,7 +1208,7 @@ public class ByteDataTransformer {
      */
     public static short[] toShortArray(byte[] data, int padding, ByteOrder byteOrder) throws EvioException {
         if (data == null || data.length % 2 != 0 || (padding != 0 && padding != 2)) {
-            throw new EvioException("bad data arg");
+            throw new EvioException("bad arg");
         }
 
         short[] sa = new short[(data.length - padding)/2];
@@ -1100,12 +1235,12 @@ public class ByteDataTransformer {
             throws EvioException {
 
         if (data == null || data.length % 2 != 0 || (padding != 0 && padding != 2) ||
-            dest == null || 2*dest.length < data.length-padding+off || off < 0) {
-            throw new EvioException("bad data arg");
+            dest == null || 2*(dest.length - off) < data.length-padding || off < 0) {
+            throw new EvioException("bad arg");
         }
 
         //int len = data.length - padding;
-System.out.println("toShortArray: padding = " + padding + ", data len = " + data.length);
+//System.out.println("toShortArray: padding = " + padding + ", data len = " + data.length);
         for (int i = 0; i < data.length - padding - 1; i+=2) {
             dest[i/2+off] = toShort(data[i],
                                     data[i+1],
@@ -1126,8 +1261,8 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
             throws EvioException {
 
         if (data == null || data.length % 2 != 0 ||
-            dest == null || 2*dest.length < data.length+off || off < 0) {
-            throw new EvioException("bad data arg");
+            dest == null || 2*(dest.length - off) < data.length || off < 0) {
+            throw new EvioException("bad arg");
         }
 
         for (int i = 0; i < data.length-1; i+=2) {
@@ -1137,7 +1272,7 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
         }
     }
 
-	    // =========================
+	// =========================
 
     /**
      * Turn section of byte array into an int.
@@ -1244,8 +1379,8 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
             throws EvioException {
 
         if (data == null || data.length % 4 != 0 ||
-            dest == null || 4*dest.length < data.length+off || off < 0) {
-            throw new EvioException("bad data arg");
+            dest == null || 4*(dest.length - off) < data.length || off < 0) {
+            throw new EvioException("bad arg");
         }
 
         for (int i = 0; i < data.length-3; i+=4) {
@@ -1254,6 +1389,77 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
                                   data[i+2],
                                   data[i+3],
                                   byteOrder);
+        }
+    }
+
+    /**
+     * Turn byte array into an int array.
+     * Unlike the other methods, the data array length
+     * does not have to be a multiple of 4.
+     * Number of int array elements = number of bytes / 4.
+     * The dest array must be large enough to contain the data.
+     *
+     * @param data       byte array to convert
+     * @param dataOffset offset into data array
+     * @param byteOrder  byte order of supplied bytes (big endian if null)
+     * @param dest       array in which to write converted bytes
+     * @param destOffset offset into dest array
+     * @throws EvioException if data is null; dest is null, wrong size, or off < 0
+     */
+    public static void toIntArray(byte[] data, int dataOffset,
+                                   ByteOrder byteOrder, int[] dest, int destOffset)
+            throws EvioException {
+
+        if (data == null ||
+            dataOffset < 0 || dataOffset > data.length - 1 || dest == null ||
+            4*(dest.length - destOffset) < (data.length - dataOffset) ||
+            destOffset < 0) {
+            throw new EvioException("bad arg");
+        }
+
+        for (int i = 0; i < data.length-3; i+=4) {
+            dest[i/4+destOffset] = toInt(data[i   + dataOffset],
+                                         data[i+1 + dataOffset],
+                                         data[i+2 + dataOffset],
+                                         data[i+3 + dataOffset],
+                                         byteOrder);
+        }
+    }
+
+    /**
+     * Turn byte array into an int array.
+     * Unlike the other methods, the data array length
+     * does not have to be a multiple of 4.
+     * Number of int array elements = number of bytes / 4.
+     * The dest array must be large enough to contain the data.
+     *
+     * @param data       byte array to convert.
+     * @param dataOffset offset into data array.
+     * @param dataLen    number of bytes to convert.
+     * @param byteOrder  byte order of supplied bytes (big endian if null).
+     * @param dest       array in which to write converted bytes.
+     * @param destOffset offset into dest array.
+     * @throws EvioException if data is null; dest is null, wrong size, or off < 0
+     */
+    public static void toIntArray(byte[] data, int dataOffset, int dataLen,
+                                   ByteOrder byteOrder, int[] dest, int destOffset)
+            throws EvioException {
+
+        if (data == null ||
+            dataOffset < 0 || dataOffset > data.length - 1 ||
+            dataLen < 0 || dataLen > (data.length - dataOffset) ||
+            dest == null ||
+            4*(dest.length - destOffset) < dataLen ||
+            destOffset < 0) {
+            throw new EvioException("bad arg");
+        }
+
+        for (int i = 0; i < dataLen-3; i+=4) {
+            dest[i/4+destOffset] = toInt(data[i   + dataOffset],
+                                         data[i+1 + dataOffset],
+                                         data[i+2 + dataOffset],
+                                         data[i+3 + dataOffset],
+                                         byteOrder);
         }
     }
 
@@ -1390,8 +1596,8 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
             throws EvioException {
 
         if (data == null || data.length % 8 != 0 ||
-            dest == null || 8*dest.length < data.length+off || off < 0) {
-            throw new EvioException("bad data arg");
+            dest == null || 8*(dest.length - off) < data.length || off < 0) {
+            throw new EvioException("bad arg");
         }
 
         for (int i = 0; i < data.length-7; i+=8) {
@@ -1477,8 +1683,8 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
             throws EvioException {
 
         if (data == null || data.length % 4 != 0 ||
-            dest == null || 4*dest.length < data.length+off || off < 0) {
-            throw new EvioException("bad data arg");
+            dest == null || 4*(dest.length - off) < data.length || off < 0) {
+            throw new EvioException("bad arg");
         }
 
         for (int i = 0; i < data.length-3; i+=4) {
@@ -1568,8 +1774,8 @@ System.out.println("toShortArray: padding = " + padding + ", data len = " + data
             throws EvioException {
 
         if (data == null || data.length % 8 != 0 ||
-            dest == null || 8*dest.length < data.length+off || off < 0) {
-            throw new EvioException("bad data arg");
+            dest == null || 8*(dest.length - off) < data.length || off < 0) {
+            throw new EvioException("bad arg");
         }
 
         for (int i = 0; i < data.length-7; i+=8) {
