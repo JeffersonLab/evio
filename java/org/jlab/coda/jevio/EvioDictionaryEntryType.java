@@ -19,7 +19,7 @@ package org.jlab.coda.jevio;
  * @author timmer.
  */
 enum EvioDictionaryEntryType {
-    /** Valid tag & num, with or without a tagEnd. */
+    /** Valid tag &amp; num, with or without a tagEnd. */
     TAG_NUM,
     /** Valid tag, but no num or tagEnd. */
     TAG_ONLY,
