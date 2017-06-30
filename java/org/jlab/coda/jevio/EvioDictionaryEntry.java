@@ -90,7 +90,7 @@ public class EvioDictionaryEntry {
      * Constructor.
      * @param tag    tag value of evio container.
      * @param num    num value of evio container.
-     * @param tagEnd if > 0, this is the high end of a tag range.
+     * @param tagEnd if &gt; 0, this is the high end of a tag range.
      * @param type   type of data in evio container which may be (case-independent):
      *               unknown32 {@link DataType#UNKNOWN32} ...
      *               composite {@link DataType#COMPOSITE}.
@@ -120,11 +120,11 @@ public class EvioDictionaryEntry {
     /**
      * Constructor containing actual implementation.
      * Caller assumes responsibility of supplying correct arg values.
-     * If tag > tagEnd, these values are switched so tag < tagEnd.
+     * If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.
      *
      * @param tag    tag value or low end of a tag range of an evio container.
      * @param num    num value of evio container.
-     * @param tagEnd if > 0, this is the high end of a tag range.
+     * @param tagEnd if &gt; 0, this is the high end of a tag range.
      * @param type   type of data in evio container which may be (case-independent):
      *             unknown32 {@link DataType#UNKNOWN32} ...
      *             composite {@link DataType#COMPOSITE}.
@@ -141,10 +141,10 @@ public class EvioDictionaryEntry {
     /**
      * Constructor containing actual implementation.
      * Caller assumes responsibility of supplying correct arg values.
-     * If tag > tagEnd, these values are switched so tag < tagEnd.
+     * If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.
      *
      * @param tag    tag value or low end of a tag range of an evio container.
-     * @param tagEnd if > 0, this is the high end of a tag range.
+     * @param tagEnd if &gt; 0, this is the high end of a tag range.
      * @param num    num value of evio container.
      * @param type   type of data in evio container which may be (case-independent):
      *      unknown32 {@link DataType#UNKNOWN32},
@@ -336,7 +336,7 @@ public class EvioDictionaryEntry {
 
     /**
      * Get the tag value.
-     * This is the low end of a tag range if tagEnd > 0.
+     * This is the low end of a tag range if tagEnd &gt; 0.
      * @return tag value.
      */
     public final Integer getTag() {return tag;}
