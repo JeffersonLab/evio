@@ -1742,7 +1742,7 @@ public final class CompositeData {
 
     /**
      * This method converts (swaps) a buffer, containing EVIO composite type,
-     * between big & little endian. It swaps the entire type including the beginning
+     * between big &amp; little endian. It swaps the entire type including the beginning
      * tagsegment header, the following format string it contains, the data's bank header,
      * and finally the data itself.
      *
@@ -1751,6 +1751,7 @@ public final class CompositeData {
      * @param srcPos      position in srcBuffer to beginning swapping
      * @param destPos     position in destBuffer to beginning writing swapped data
      * @param len         length of data in srcBuffer to swap in 32 bit words
+     * @param inPlace     if true, swap data in place (in srcBuffer).
      *
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
@@ -2916,6 +2917,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param bs evio container object that called this method. Allows us to use
      *           some convenient methods.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException  if problems with XML
      */
     void toXML(XMLStreamWriter xmlWriter, BaseStructure bs, boolean hex)
                         throws XMLStreamException {
@@ -3513,6 +3515,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
      * @param xmlWriter the writer used to write the events to XML.
      * @param xmlIndent indentation for writing XML.
      * @param hex if <code>true</code> then print integers in hexadecimal
+     * @throws XMLStreamException  if problems with XML
      */
     void toXML(XMLStreamWriter xmlWriter, String xmlIndent, boolean hex)
                         throws XMLStreamException {
