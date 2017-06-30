@@ -1,6 +1,5 @@
 package org.jlab.coda.jevio;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import javax.swing.event.EventListenerList;
@@ -41,7 +40,7 @@ public class EventParser {
 	 * may be accessed through the event's tree model, i.e., via <code>event.getTreeModel()</code>.
 	 * 
 	 * @param evioEvent the event to parse.
-	 * @throws EvioException
+	 * @throws EvioException if arg is null or not in evio format
 	 */
 	public synchronized void parseEvent(EvioEvent evioEvent) throws EvioException {
 
