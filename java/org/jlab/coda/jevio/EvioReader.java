@@ -364,7 +364,7 @@ public class EvioReader {
      *                       and throw an exception if it is not sequential starting
      *                       with 1
      * @param sequential     if <code>true</code> read the file sequentially,
-     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       else use memory mapped buffers. If file &gt; 2.1 GB,
      *                       reads are always sequential for the older evio format.
      * @see EventWriter
      * @throws IOException   if read failure
@@ -386,7 +386,7 @@ public class EvioReader {
      *                       and throw an exception if it is not sequential starting
      *                       with 1
      * @param sequential     if <code>true</code> read the file sequentially,
-     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       else use memory mapped buffers. If file &gt; 2.1 GB,
      *                       reads are always sequential for the older evio format.
      *
      * @see EventWriter
@@ -406,9 +406,9 @@ public class EvioReader {
         sequentialRead = sequential;
         initialPosition = 0;
 
-        FileInputStream fileInputStream = new FileInputStream(file);
+        FileInputStream fileIn = new FileInputStream(file);
         path = file.getAbsolutePath();
-        fileChannel = fileInputStream.getChannel();
+        fileChannel = fileIn.getChannel();
         fileSize = fileChannel.size();
 
         if (fileSize < 40) {
@@ -423,6 +423,7 @@ public class EvioReader {
             bytesRead += fileChannel.read(headerBuf);
         }
         parseFirstHeader(headerBuf);
+        // TODO: THIS IS A NO-NO !!!! This moves the disk head backwards.
         fileChannel.position(0);
         parser = new EventParser();
 
@@ -447,7 +448,7 @@ public class EvioReader {
                 // So reading from either the dataStream or fileChannel object will
                 // change both positions.
 
-                dataStream = new DataInputStream(fileInputStream);
+                dataStream = new DataInputStream(fileIn);
 //System.out.println("Big file or reading sequentially for evio versions 2,3");
                 prepareForSequentialRead();
             }
@@ -461,7 +462,7 @@ public class EvioReader {
         // For the new version ...
         else {
             if (sequentialRead) {
-                dataStream = new DataInputStream(fileInputStream);
+                dataStream = new DataInputStream(fileIn);
                 prepareForSequentialRead();
                 if (blockHeader4.hasDictionary()) {
                     // Dictionary is always the first event
@@ -690,7 +691,7 @@ public class EvioReader {
      * Get the byte buffer being read directly or corresponding to the event file.
      * Not a very useful method. For files, it works only for evio format versions 2,3 and
      * returns the internal buffer containing an evio block if using sequential access
-     * (for example files > 2.1 GB). It returns the memory mapped buffer otherwise.
+     * (for example files &gt; 2.1 GB). It returns the memory mapped buffer otherwise.
      * For reading buffers it returns the buffer being read.
      * @return the byte buffer being read (in certain cases).
      */
@@ -785,7 +786,7 @@ System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right
             blockHeader4.setNumber(      headerBuf.getInt());
             blockHeader4.setHeaderLength(headerBuf.getInt());
             blockHeader4.setEventCount(  headerBuf.getInt());
-            blockHeader4.setReserved1(   headerBuf.getInt());
+            blockHeader4.setCompressedLength(headerBuf.getInt());
 
             // Use 6th word to set bit info & version
             blockHeader4.parseToBitInfo(headerBuf.getInt());
@@ -896,6 +897,8 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
      * @param buffer buffer to prepare
      */
     private void prepareForBufferRead(ByteBuffer buffer) {
+
+        // TODO: Simplify as in EvioCOmpressedReader!!!
         // Position after header
         int pos = 32;
         buffer.position(pos);
@@ -1052,7 +1055,7 @@ System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
                 blockHeader4.setNumber(byteBuffer.getInt());
                 blockHeader4.setHeaderLength(byteBuffer.getInt());
                 blockHeader4.setEventCount(byteBuffer.getInt());
-                blockHeader4.setReserved1(byteBuffer.getInt());
+                blockHeader4.setCompressedLength(byteBuffer.getInt());
                 // Use 6th word to set bit info
                 blockHeader4.parseToBitInfo(byteBuffer.getInt());
                 blockHeader4.setVersion(evioVersion);
@@ -1189,7 +1192,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException   if failed file access
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if out of memory;
-     *                       if index < 1;
+     *                       if index &lt; 1;
      *                       if object closed
      */
     public EvioEvent getEvent(int index)
@@ -1300,7 +1303,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException if failed file access
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if out of memory;
-     *                       if index < 1;
+     *                       if index &lt; 1;
      *                       if object closed
 	 */
 	public synchronized EvioEvent parseEvent(int index) throws IOException, EvioException {
