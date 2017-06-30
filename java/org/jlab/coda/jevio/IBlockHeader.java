@@ -9,10 +9,30 @@ import java.nio.ByteOrder;
  * @author timmer
  */
 public interface IBlockHeader {
+
+
+    /** The magic number, should be the value of <code>magicNumber</code>. */
+    int MAGIC_NUMBER = 0xc0da0100;
+
+    /** Offset to get block size from start of block. */
+    int BLOCK_SIZE_OFFSET = 0;
+
+    /** Offset in bytes to get magic number from start of file. */
+    int MAGIC_OFFSET = 28;
+
+    /** Offset in bytes to get version number from start of file. */
+    int VERSION_OFFSET = 20;
+
+    /** Mask in bytes to get version number from 6th int in block. */
+    int VERSION_MASK = 0xff;
+
+
     /**
-     * The magic number, should be the value of <code>magicNumber</code>.
+     * Was the data from buffer from which this header was read, swapped?
+     *
+     * @return <code>true</code> if data from buffer was swapped, else <code>false</code>
      */
-    public static final int MAGIC_NUMBER = 0xc0da0100;
+    boolean isSwapped();
 
     /**
 	 * Get the size of the block (physical record).
@@ -109,7 +129,7 @@ public interface IBlockHeader {
      *
      * @param position the absolute current position is a byte buffer.
      * @return the number of bytes remaining in this block (physical record.)
-     * @throws EvioException
+     * @throws EvioException if position arg out of bounds
      */
     int bytesRemaining(long position) throws EvioException;
 
