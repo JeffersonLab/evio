@@ -512,6 +512,7 @@ public class EvioNode implements Cloneable {
      * This is meaningful only if this node has been scanned,
      * otherwise it is null.
      *
+     * @param index index (starting at 0) from which to get the child node
      * @return child node at the given index;
      *         null if not scanned or no child at that index
      */
