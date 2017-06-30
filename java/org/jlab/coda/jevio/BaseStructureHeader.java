@@ -202,6 +202,10 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
     /**
      * Write myself out as a byte array of evio format data
      * into the given byte array in the specified byte order.
+     *
+     * @param bArray   write data into this byte array
+     * @param offset   use this offset into the byte array
+     * @param order    use this byte order when writing
      */
     protected abstract void toArray(byte[] bArray, int offset, ByteOrder order);
 
