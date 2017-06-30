@@ -1018,7 +1018,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      *
      * @param eventNumber number of event to remove from buffer
      * @return new ByteBuffer created and updated to reflect the event removal
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if event number does not correspond to existing event;
      *                       if object closed;
      *                       if node was not found in any event;
@@ -1290,7 +1290,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      *                  i.e. no block headers)
      * @return a new ByteBuffer object which is created and filled with all the data
      *         including what was just added.
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if addBuffer is null;
      *                       if addBuffer arg is empty or has non-evio format;
      *                       if addBuffer is opposite endian to current event buffer;
@@ -1515,7 +1515,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is  due to the bulk, relative gets & puts.
+     * This method is  due to the bulk, relative gets &amp; puts.
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1533,12 +1533,12 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
     /**
      * Get an evio bank or event in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is  due to the bulk, relative gets & puts.
+     * This method is  due to the bulk, relative gets &amp; puts.
      *
      * @param eventNumber number of event of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
      *         set for reading.
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if the event number does not correspond to an existing event;
      *                       if object closed
      */
@@ -1551,14 +1551,14 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Get an evio bank or event in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is  due to the bulk, relative gets & puts.
+     * This method is  due to the bulk, relative gets &amp; puts.
      *
      * @param eventNumber number of event of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
      *        view into this reader object's buffer.
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
      *         set for reading.
-     * @throws EvioException if eventNumber < 1;
+     * @throws EvioException if eventNumber &lt; 1;
      *                       if the event number does not correspond to an existing event;
      *                       if object closed
      */
@@ -1588,7 +1588,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
     /**
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is  due to the bulk, relative gets & puts.
+     * This method is  due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1605,7 +1605,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is  due to the bulk, relative gets & puts.
+     * This method is  due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1669,8 +1669,8 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Save the internal byte buffer to the given file
      * (overwrites existing file).
      *
-     * @param fileName
-     * @throws IOException
+     * @param fileName  name of file to write
+     * @throws IOException if error writing file
      * @throws EvioException if fileName arg is null;
      *                       if object closed
      */
@@ -1686,10 +1686,10 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Save the internal byte buffer to the given file
      * (overwrites existing file).
      *
-     * @param file
+     * @param file  object of file to write
      * @throws EvioException if file arg is null;
      *                       if object closed
-     * @throws IOException
+     * @throws IOException if error writing file
      */
     public  void toFile(File file) throws EvioException, IOException {
         if (file == null) {
