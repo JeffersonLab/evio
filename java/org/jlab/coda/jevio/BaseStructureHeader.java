@@ -109,6 +109,7 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
 	 * Get the data type for the structure.
 	 * 
 	 * @return the data type for the structure.
+     * @see DataType
 	 */
 	public int getDataTypeValue() {
 		return dataType.getValue();
@@ -116,8 +117,10 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
 
     /**
      * Set the numeric data type for the structure.
+	 * If the arg does not correspond to any DataType object, it is set to null.
      *
-     * @param dataType the dataTtype for the structure.
+     * @param dataType int corresponding to the DataType for the structure.
+     * @see DataType
      */
     void setDataType(int dataType) {
         this.dataType = DataType.getDataType(dataType);
@@ -126,7 +129,8 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
     /**
      * Set the numeric data type for the structure.
      *
-     * @param dataType the dataTtype for the structure.
+     * @param dataType the DataType for the structure.
+     * @see DataType
      */
     public void setDataType(DataType dataType) {
         this.dataType = dataType;
