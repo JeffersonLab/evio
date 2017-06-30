@@ -2190,7 +2190,6 @@ public class ByteDataTransformer {
      * @param nodeList   if not null, store all node objects here -
      *                   one for each swapped evio structure in destBuffer.
      *
-     * @throws EvioException
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
      *                       if bad values for srcPos and/or destPos;
