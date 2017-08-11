@@ -193,7 +193,7 @@ public class Record {
         
         byte[] dataBuffer = getDataBuffer();
         byte[] compressedData = Compressor.getCompressedBuffer(compressionType, dataBuffer);
-        System.out.println(" DATA SIZE = " + dataBuffer.length + "  COMPRESSED SIZE = " + compressedData.length);
+        //System.out.println(" DATA SIZE = " + dataBuffer.length + "  COMPRESSED SIZE = " + compressedData.length);
         byte[] recordBuffer = new byte[record_size+compressedData.length];
         
         ByteBuffer byteBuffer = ByteBuffer.wrap(recordBuffer);

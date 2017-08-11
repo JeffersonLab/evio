@@ -78,7 +78,7 @@ public class Reader {
         Long   position = readerRecordEntries.get(index).getPosition();
         Integer    size = readerRecordEntries.get(index).getLength();
         byte[] buffer = new byte[size];
-        System.out.println(" READ RECORD SIZE = " + buffer.length);
+        //System.out.println(" READ RECORD SIZE = " + buffer.length);
         try {
             inputStream.getChannel().position(position);
             inputStream.read(buffer);
@@ -110,8 +110,8 @@ public class Reader {
             Long      inputStreamSize = inputStream.getChannel().size();
             byte[]  recordBuffer = new byte[48];
             readerRecordEntries.clear();
-            System.out.println("--------->  RECORD POSITION " + recordPosition 
-                    + "  FILE SIZE = " + inputStreamSize);
+            //System.out.println("--------->  RECORD POSITION " + recordPosition 
+            //        + "  FILE SIZE = " + inputStreamSize);
             while( (recordPosition + 48) < inputStreamSize ){
                 inputStream.getChannel().position(recordPosition);
                 inputStream.read(recordBuffer);
@@ -123,7 +123,7 @@ public class Reader {
                 readerRecordEntries.add(entry);
                 recordPosition += recordLength;
             }
-            System.out.println(" recovered records = " + readerRecordEntries.size());
+            //System.out.println(" recovered records = " + readerRecordEntries.size());
         } catch (IOException ex) {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
         }
