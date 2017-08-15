@@ -48,6 +48,8 @@ class EvioParserV4Lz4 extends EvioParserAbstract {
         sequentialRead = true;
         initialPosition = 0;
 
+        // If we're here, the EvioReader has already read the first 32 bytes of the first
+        // block header. Prepare to read following block headers into this buffer.
         headerBuf = ByteBuffer.allocate(32);
         headerBuf.order(byteOrder);
 
@@ -56,6 +58,8 @@ class EvioParserV4Lz4 extends EvioParserAbstract {
         // blockHeader object.
         this.blockHeader = blockHeader4 = blockHeader;
         firstBlockHeader = new BlockHeaderV4(blockHeader);
+
+        System.out.println("EvioParserV4Lz4: FIRST block header = \n" + firstBlockHeader);
         // Store this for later regurgitation of blockCount
         firstBlockSize = 4*blockHeader.getSize();
         // Extract a couple things for our use
@@ -135,17 +139,31 @@ class EvioParserV4Lz4 extends EvioParserAbstract {
         int compressedBytes = blockHeader4.getCompressedLength();
 
         // Prepare the ByteBuffer in which to read compressed data
-        int compBufSize = (4*EventWriter.DEFAULT_BLOCK_SIZE > compressedBytes) ?
-                          (4*EventWriter.DEFAULT_BLOCK_SIZE) : compressedBytes;
+        int compBufSize = (4*EventWriter.DEFAULT_BLOCK_SIZE > compressedBytes + 3) ?
+                          (4*EventWriter.DEFAULT_BLOCK_SIZE) : compressedBytes + 3;
         if (compressedBuffer == null || compressedBuffer.capacity() < compBufSize) {
             compressedBuffer = ByteBuffer.allocate(compBufSize);
         }
-        compressedBuffer.clear().limit(compressedBytes);
+
+        // We round the compressed data up to 4 byte boundaries. So be
+        // sure to read it all.
+        int allBytes = (((compressedBytes + 3) >>> 2) << 2);
+
+ System.out.println("prepareForCompressedRead: READING EXTRA bytes = " + (allBytes - compressedBytes));
+        compressedBuffer.clear().limit(allBytes);
 //System.out.println("prepareForCompressedRead: compBuf = " + compBufSize + " bytes, " +
 //                   ", lim (comp bytes) = " + compressedBytes);
 
+        // The EvioReader object has already read in the first 32 bytes
+        // so we are in the correct position to read any index array
+        // that's part of the first block header.
+        if (blockHeader4.hasEventLengths()) {
+            // TODO: something here
+        }
+
         // Position channel after first header
         fileChannel.position(4*blockHeader4.getHeaderLength());
+
         // Read the first chunk of compressed data from file
         // Read the entire block of data
         int bytesActuallyRead = fileChannel.read(compressedBuffer);
@@ -155,6 +173,9 @@ class EvioParserV4Lz4 extends EvioParserAbstract {
 
         // Get it ready to read for decompressing
         compressedBuffer.flip();
+        // Be sure not to read the possible few extra bytes at the end
+        compressedBuffer.limit(compressedBytes);
+
 //System.out.println("prepareForCompressedRead: read in compressed block, header len = " +
 //                   (4*blockHeader4.getHeaderLength()));
 
@@ -210,6 +231,8 @@ class EvioParserV4Lz4 extends EvioParserAbstract {
         }
         bytesLeft -= bytesActuallyRead;
 
+        Utilities.printBuffer(headerBuf, 0, 8, "HEADER");
+
         // Parse the header data. Don't bother setting version or reserved2
         blockHeader4.setSize(headerBuf.getInt(0));
         blockHeader4.setNumber(headerBuf.getInt(4));
@@ -255,20 +278,26 @@ class EvioParserV4Lz4 extends EvioParserAbstract {
             bytesLeft -= bytesActuallyRead;
         }
 
-System.out.println("getNextCompressedBlock: block has " + compressedBytes + " compr bytes, " +
-                   uncompressedBytes + " uncompr data bytes");
+//System.out.println("getNextCompressedBlock: block has " + compressedBytes + " compr bytes, " +
+//                   uncompressedBytes + " uncompr data bytes");
 
         // Is there enough data left to read data in block?
         if (bytesLeft < compressedBytes) {
             throw new IOException("not enough data to read block");
         }
 
-        // Make sure buffer can hold the entire block of compressed data
-        if (compressedBuffer.capacity() < compressedBytes) {
+        // We round the compressed data up to 4 byte boundaries. So be
+        // sure to read it all.
+        int allBytes = (((compressedBytes + 3) >>> 2) << 2);
+
+ System.out.println("READING EXTRA bytes = " + (allBytes - compressedBytes));
+
+        // Make sure buffer can hold the entire block of compressed data.
+        if (compressedBuffer.capacity() < allBytes) {
             // Make this bigger than necessary so we're not constantly reallocating
-            compressedBuffer = ByteBuffer.allocate(compressedBytes + 10000);
+            compressedBuffer = ByteBuffer.allocate(allBytes + 10000);
         }
-        compressedBuffer.clear().limit(compressedBytes);
+        compressedBuffer.clear().limit(allBytes);
 
         // Read the entire block of data
         bytesActuallyRead = fileChannel.read(compressedBuffer);
@@ -277,6 +306,8 @@ System.out.println("getNextCompressedBlock: block has " + compressedBytes + " co
         }
 
         compressedBuffer.flip();
+        // Be sure not to read the possible few extra bytes at the end
+        compressedBuffer.limit(compressedBytes);
 
         // Now for the uncompressed data
         if (byteBuffer.capacity() < uncompressedBytes) {
@@ -443,8 +474,8 @@ System.err.println("ERROR endOfBuffer " + a);
         // How many data bytes remain in this block until we reach the next block header?
         // Remember, for compressed data, the header is not included in byteBuffer.
         int blockBytesRemaining = blockDataBytesRemaining();
-System.out.println("nextEvent: block bytes remaining = " + blockBytesRemaining +
-" cur buf pos = " + currentPosition);
+//System.out.println("nextEvent: block bytes remaining = " + blockBytesRemaining +
+//                   " cur buf pos = " + currentPosition);
 
         if (blockBytesRemaining < 0) {
             throw new EvioException("Number of block bytes remaining is negative.");
@@ -499,8 +530,6 @@ System.out.println("nextEvent: block bytes remaining = " + blockBytesRemaining +
 
         // get the raw data
         int eventDataSizeBytes = 4*(length - 1);
-System.out.println("nextEvent: hdr len word = 0x" + Integer.toHexString(length) +
-                           ", 2nd word = 0x" + Integer.toHexString(word) );
 
         try {
             byte bytes[] = new byte[eventDataSizeBytes];

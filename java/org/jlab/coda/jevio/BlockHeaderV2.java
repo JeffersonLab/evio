@@ -5,18 +5,18 @@ import java.nio.ByteOrder;
 
 /**
  * This holds an evio block header, also known as a physical record header.
- * Unfortunately, in versions 1, 2 & 3, evio files impose an anachronistic
+ * Unfortunately, in versions 1, 2 and 3, evio files impose an anachronistic
  * block structure. The complication that arises is that logical records
  * (events) will sometimes cross physical record boundaries.
  *
  *
- * <code><pre>
- * ####################################
- * Evio block header, versions 1,2 & 3:
- * ####################################
+ * <pre><code>
+ * ######################################
+ * Evio block header, versions 1,2 and 3:
+ * ######################################
  *
  * MSB(31)                          LSB(0)
- * <---  32 bits ------------------------>
+ * &lt;---  32 bits ------------------------&gt;
  * _______________________________________
  * |            Block Length             |
  * |_____________________________________|
@@ -46,20 +46,41 @@ import java.nio.ByteOrder;
  *      Reserved 1    = reserved
  *      Magic #       = magic number (0xc0da0100) used to check endianness
  *
- * </pre></code>
+ * </code></pre>
  *
  *
  * @author heddle
  *
  */
-public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
+class BlockHeaderV2 implements Cloneable, IEvioWriter, IBlockHeader {
 
 	/**
 	 * The maximum block size in 32 bit ints in this implementation of evio.
-     * There is, in actuality, no limit on size; however, the versions 1-3 C
-     * library only used 8192 as the block size.
+	 * There is, in actuality, no limit on size; however, the versions 1-3 C
+	 * library only used 8192 as the block size.
 	 */
 	public static final int MAX_BLOCK_SIZE = 32768;
+
+	/** Position of word for size of block in 32-bit words. */
+	public static final int EV_BLOCKSIZE = 0;
+	/** Position of word for block number, starting at 0. */
+	public static final int EV_BLOCKNUM = 1;
+	/** Position of word for size of header in 32-bit words (=8). */
+	public static final int EV_HEADERSIZE = 2;
+	/** Position of word for offset to first event header in block. */
+	public static final int EV_START = 3;
+	/** Position of word for # of valid words (header + data) in block. */
+	public static final int EV_END = 4;
+	/** Position of word for version of file format. */
+	public static final int EV_VERSION = 5;
+	/** Position of word for reserved. */
+	public static final int EV_RESERVED1 = 6;
+	/** Position of word for magic number for endianness tracking. */
+	public static final int EV_MAGIC = 7;
+
+
+	/** Do we need to swap data from buffer? */
+	private boolean swap;
 
 	/**
 	 * The block (physical record) size in 32 bit ints.
@@ -120,7 +141,16 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 */
 	private long bufferStartingPosition = -1L;
 
-    /**
+
+
+	/**
+	 * Was the data from buffer from which this header was read, swapped?
+	 *
+	 * @return <code>true</code> if data from buffer was swapped, else <code>false</code>
+	 */
+	public boolean isSwapped() {return swap;}
+
+	/**
 	 * Get the size of the block (physical record).
 	 *
 	 * @return the size of the block (physical record) in ints.
@@ -130,18 +160,9 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	}
 
 	/**
-	 * Null constructor initializes all fields to zero.
+	 * Null constructor initializes all fields to zero/false.
 	 */
-	public BlockHeaderV2() {
-		size = 0;
-		number = 0;
-		headerLength = 0;
-		start = 0;
-		end = 0;
-		version = 0;
-		reserved1 = 0;
-		magicNumber = 0;
-	}
+	public BlockHeaderV2() {}
 
     /**
      * Creates a BlockHeader for evio versions 1-3 format. Only the <code>block size</code>
@@ -179,7 +200,8 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
         if (blkHeader == null) {
             return;
         }
-        size         = blkHeader.size;
+		swap         = blkHeader.swap;
+		size         = blkHeader.size;
         number       = blkHeader.number;
         headerLength = blkHeader.headerLength;
         version      = blkHeader.version;
@@ -193,8 +215,20 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 
     /*** {@inheritDoc}  */
     public Object clone() {
-        return new BlockHeaderV2(this);
+        try {
+            return super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+           return null;
+        }
     }
+
+	/**
+     * Set whether the data from buffer from which this header was read was swapped.
+	 *
+	 * @param swap <code>true</code> if data from buffer was swapped, else <code>false</code>
+	 */
+	public void swapped(boolean swap) { this.swap = swap; }
 
     /**
      * Gets whether this block's first event is an evio dictionary.
@@ -228,18 +262,13 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Set the size of the block (physical record). Some trivial checking is done.
 	 *
 	 * @param size the new value for the size, in ints.
-	 * @throws org.jlab.coda.jevio.EvioException
+	 * @throws EvioException if size arg out of bounds
 	 */
 	public void setSize(int size) throws EvioException {
         if ((size < 8) || (size > MAX_BLOCK_SIZE)) {
 			throw new EvioException(String.format("Bad value for size in block (physical record) header: %d", size));
 		}
 
-        // I'm not sure why this restriction is in here - timmer
-        if ((size % 256) != 0) {
-            throw new EvioException(String.format(
-                    "Bad value for size in block (physical record) header: %d (must be multiple of 256 ints)", size));
-        }
         this.size = size;
 	}
 
@@ -268,7 +297,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
      * NOTE: a logical record (event) that spans three blocks (physical records) will have <code>start = 0</code>.
      *
      * @param start the new value for the start.
-     * @throws EvioException
+     * @throws EvioException if start arg out of bounds
      */
     public void setStart(int start) throws EvioException {
         if ((start < 0) || (start > MAX_BLOCK_SIZE)) {
@@ -281,7 +310,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Get the ending position of the block (physical record.) This is the number of valid words (header + data) in the
 	 * block (physical record.) This is normally the same as the block size, except for the last block (physical record)
 	 * in the file.<br>
-	 * NOTE: for evio files, even if end < size (blocksize) for the last block (physical record), the data behind it
+	 * NOTE: for evio files, even if end &lt; size (blocksize) for the last block (physical record), the data behind it
 	 * will be padded with zeroes so that the file size is an integer multiple of the block size.
 	 *
 	 * @return the ending position of the block (physical record.)
@@ -294,11 +323,11 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Set the ending position of the block (physical record.) This is the number of valid words (header + data) in the
 	 * block (physical record.) This is normally the same as the block size, except for the last block (physical record)
 	 * in the file. Some trivial checking is done.<br>
-	 * NOTE: for evio files, even if end < size (blocksize) for the last block (physical record), the data behind it
+	 * NOTE: for evio files, even if end &lt; size (blocksize) for the last block (physical record), the data behind it
 	 * will be padded with zeroes so that the file size is an integer multiple of the block size.
 	 *
 	 * @param end the new value for the end.
-	 * @throws EvioException
+	 * @throws EvioException if end arg out of bounds
 	 */
 	public void setEnd(int end) throws EvioException {
 		if ((end < 8) || (end > MAX_BLOCK_SIZE)) {
@@ -339,8 +368,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Set the block header length, in ints. This should be 8. However, since this is usually read as part of reading
 	 * the physical record header, it is a good check to have a setter rather than just fix its value at 8.
 	 *
-	 * param headerLength the new block header length. This should be 8.
-	 *
+	 * @param headerLength the new block header length. This should be 8.
 	 * @throws EvioException if headerLength is not 8.
 	 */
 	public void setHeaderLength(int headerLength) throws EvioException {
@@ -398,14 +426,16 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	}
 
 	/**
-	 * Sets the value of magicNumber. This should match the constant MAGIC_NUMBER.
+	 * Sets the value of magicNumber. Strictly speaking this method should
+     * have no argument, but it does act as and error check.
+     * It must match the constant MAGIC_NUMBER.
      * If it doesn't, some obvious possibilities: <br>
 	 * 1) The evio data (perhaps from a file) is screwed up.<br>
 	 * 2) The reading algorithm is screwed up. <br>
 	 * 3) The endianess is not being handled properly.
 	 *
 	 * @param magicNumber the new value for magic number.
-	 * @throws EvioException
+	 * @throws EvioException if arg is not equal to {@link #MAGIC_NUMBER}
 	 */
 	public void setMagicNumber(int magicNumber) throws EvioException {
 		if (magicNumber != MAGIC_NUMBER) {
@@ -513,7 +543,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 *
 	 * @param position the absolute current position is a byte buffer.
 	 * @return the number of bytes remaining in this block (physical record.)
-	 * @throws EvioException
+	 * @throws EvioException if position arg out of bounds
 	 */
 	public int bytesRemaining(long position) throws EvioException {
 		if (position < bufferStartingPosition) {
@@ -527,6 +557,16 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 
 		return (int)(nextBufferStart - position);
 	}
+
+    /**
+	 * This method is unused in evio versions 1-3.
+     *
+     * @param position the absolute current position is a byte buffer.
+     * @return 0 since unused.
+     */
+   	public int dataBytesRemaining(long position) {
+   		return 0;
+   	}
 
 	/**
 	 * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.

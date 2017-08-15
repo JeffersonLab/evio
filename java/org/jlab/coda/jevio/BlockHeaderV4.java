@@ -6,20 +6,20 @@ import java.util.BitSet;
 
 /**
  * This holds an evio block header, also known as a physical record header.
- * Unfortunately, in versions 1, 2 & 3, evio files impose an anachronistic
+ * Unfortunately, in versions 1, 2 and 3, evio files impose an anachronistic
  * block structure. The complication that arises is that logical records
  * (events) will sometimes cross physical record boundaries. This block structure
  * is changed in version 4 so that blocks only contain integral numbers of events.
  * The information stored in this block header has also changed.
  *
  *
- * <code><pre>
+ * <pre><code>
  * ################################
  * Evio block header, version 4:
  * ################################
  *
  * MSB(31)                          LSB(0)
- * <---  32 bits ------------------------>
+ * &lt;---  32 bits ------------------------&gt;
  * _______________________________________
  * |            Block Length             |
  * |_____________________________________|
@@ -31,7 +31,7 @@ import java.util.BitSet;
  * |_____________________________________|
  * |  CODA ID or Compressed Data Length  |
  * |_____________________________________|
- * |          Bit Info & Version         |
+ * |        Bit Info &amp; Version       |
  * |_____________________________________|
  * |              Reserved               |
  * |_____________________________________|
@@ -53,8 +53,7 @@ import java.util.BitSet;
  *                           presence is not included in this count.
  *
  *      CODA id /
- *      compressed length
- *                         = In CODA online, if bits 11-14 in bit info are RocRaw (0),
+ *      compressed length  = In CODA online, if bits 11-14 in bit info are RocRaw (0),
  *                           then (in the first block) this contains the CODA id of the source.
  *                           
  *                           When writing to or reading from a file, and bit 16 in bit info is
@@ -62,7 +61,7 @@ import java.util.BitSet;
  *                           BYTES (NOT WORDS!) in this block. Note, this does NOT include the
  *                           header.
  *
- *      Bit info & Version = Lowest 8 bits are the version number (4).
+ *      Bit info &amp; Version = Lowest 8 bits are the version number (4).
  *                           Upper 24 bits contain bit info.
  *                           If a dictionary is included as the first event, bit #9 is set (=1)
  *                           If a last block, bit #10 is set.
@@ -98,11 +97,10 @@ import java.util.BitSet;
  *                EvioCompactReader object. Thus all events will be of a single CODA type.
  *
  *   Bit 16     = true if data following this block header is compressed in LZ4 format.
- *   Bit 17     = true if indexes of events are included in this header. Each index is
- *                number of uncompressed bytes to event from end of header.
+ *   Bit 17     = true if lengths of events are included in this header.
  *
  *
- * </pre></code>
+ * </code></pre>
  *
  *
  * @author heddle
@@ -111,7 +109,7 @@ import java.util.BitSet;
  */
 public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
-    /** The minimum & expected block header size in 32 bit ints. */
+    /** The minimum and expected block header size in 32 bit ints. */
     public static final int HEADER_SIZE = 8;
 
     /** Dictionary presence is 9th bit in version/info word. */
@@ -128,6 +126,9 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /** Data (all except block headers) are compressed in LZ4 format. */
     public static final int EV_LZ4COMPRESSION_MASK  = 0x8000;
+
+    /** Event lengths are included in block headers. */
+    public static final int EV_EVENTLENGTHS_MASK  = 0x10000;
 
     /** Position of word for size of block in 32-bit words. */
     public static final int EV_BLOCKSIZE = 0;
@@ -157,9 +158,12 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     public static final int EV_BIT_FIRSTEVENT = 6;
     /** Index into bitInfo - is data compressed? */
     public static final int EV_BIT_COMPRESSED = 7;
-    /** Index into bitInfo - has event indexes? */
-    public static final int EV_BIT_INDEXES = 8;
+    /** Index into bitInfo - this header has event lengths? */
+    public static final int EV_BIT_EVENTLENGTHS = 8;
 
+
+    /** Do we need to swap data from buffer? */
+   	private boolean swap;
 
 	/** The block (physical record) size in 32 bit ints. */
 	private int size;
@@ -206,27 +210,13 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 	 */
 	private long bufferStartingPosition = -1;
 
-    /**
-	 * Get the size of the block (physical record).
-	 *
-	 * @return the size of the block (physical record) in ints.
-	 */
-	public int getSize() {
-		return size;
-	}
 
+	
 	/**
-	 * Null constructor initializes all fields to zero, except block# = 1.
+	 * Null constructor initializes all fields to zero/false, except block# = 1.
 	 */
 	public BlockHeaderV4() {
-		size = 0;
 		number = 1;
-		headerLength = 0;
-		version = 0;
-		eventCount = 0;
-        compressedLength = 0;
-        reserved2 = 0;
-		magicNumber = 0;
 	}
 
     /**
@@ -264,6 +254,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         if (blkHeader == null) {
             return;
         }
+        swap             = blkHeader.swap;
         size             = blkHeader.size;
         number           = blkHeader.number;
         headerLength     = blkHeader.headerLength;
@@ -277,24 +268,56 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         bufferStartingPosition = blkHeader.bufferStartingPosition;
     }
 
+
+
     /*** {@inheritDoc}  */
     public Object clone() {
-        return new BlockHeaderV4(this);
+        try {
+            BlockHeaderV4 result = (BlockHeaderV4)super.clone();
+            result.bitInfo = (BitSet)bitInfo.clone();
+            return result;
+        }
+        catch (CloneNotSupportedException e) {
+           return null;
+        }
     }
 
-	/**
-	 * Set the size of the block (physical record). Some trivial checking is done.
+    /**
+ 	 * Was the data from buffer from which this header was read, swapped?
+ 	 *
+ 	 * @return <code>true</code> if data from buffer was swapped, else <code>false</code>
+ 	 */
+ 	public boolean isSwapped() {return swap;}
+
+    /**
+     * Set whether the data from buffer from which this header was read was swapped.
+   	 *
+   	 * @param swap <code>true</code> if data from buffer was swapped, else <code>false</code>
+   	 */
+   	public void swapped(boolean swap) { this.swap = swap; }
+
+    /**
+	 * Get the size of the block (physical record).
 	 *
-	 * @param size the new value for the size, in ints.
-	 * @throws EvioException
+	 * @return the size of the block (physical record) in ints.
 	 */
-	public void setSize(int size) throws EvioException {
+	public int getSize() {
+		return size;
+	}
+
+    /**
+   	 * Set the size of the block (physical record). Some trivial checking is done.
+   	 *
+   	 * @param size the new value for the size, in ints.
+     * @throws EvioException if size arg &lt; 8
+     */
+    public void setSize(int size) throws EvioException {
         if (size < 8) {
-			throw new EvioException(String.format("Bad value for size in block (physical record) header: %d", size));
-		}
+            throw new EvioException(String.format("Bad value for size in block (physical record) header: %d", size));
+        }
 
         this.size = size;
-	}
+    }
 
     /**
      * Get the number of events completely contained in the block.
@@ -311,7 +334,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * NOTE: There are no partial events, only complete events stored in one block.
      *
      * @param count the new number of events in the block.
-     * @throws EvioException
+     * @throws EvioException if count arg negative
      */
     public void setEventCount(int count) throws EvioException {
         if (count < 0) {
@@ -352,14 +375,17 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
 	/**
 	 * Set the block header length, in ints. Although technically speaking this value
-     * is variable, it should be 8.
+     * is variable, it must be &gt;= 8. Unless compressed data is used, this should
+     * be exactly 8.
 	 *
-	 * param headerLength the new block header length. This should be 8.
+	 * @param headerLength the new block header length. Normally 8.
+     * @throws EvioException if headerLength arg &lt; 8
 	 */
-	public void setHeaderLength(int headerLength) {
-		if (headerLength != HEADER_SIZE) {
-            System.out.println("Warning: Block Header Length = " + headerLength);
+	public void setHeaderLength(int headerLength) throws EvioException  {
+		if (headerLength < HEADER_SIZE) {
+            throw new EvioException("header length too small (must be >= 8)");
 		}
+
 		this.headerLength = headerLength;
 	}
 
@@ -390,6 +416,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Does this integer indicate that there is an evio dictionary
      * (assuming it's the header's sixth word)?
      *
+     * @param i a block header's sixth word
      * @return <code>true</code> if this int indicates an evio dictionary, else <code>false</code>
      */
     static public boolean hasDictionary(int i) {
@@ -416,6 +443,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Does this integer indicate that this is the last block
      * (assuming it's the header's sixth word)?
      *
+     * @param i a block header's sixth word
      * @return <code>true</code> if this int indicates the last block, else <code>false</code>
      */
     static public boolean isLastBlock(int i) {
@@ -455,6 +483,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * (assuming it's the header's sixth word)? Only makes sense if the
      * integer arg comes from the first block header of a file or buffer.
      *
+     * @param i a block header's sixth word
      * @return <code>true</code> if this int indicates the block has a first event,
      *         else <code>false</code>
      */
@@ -482,6 +511,46 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
    //----------------------------------------------------------------------------------------
 
+    /**
+     * Does this block contain an array of event byte lengths?
+     * @return {@code true} if block contains array of event byte lengths,
+     *         else {@code false}.
+     */
+    public boolean hasEventLengths() { return bitInfo.get(EV_BIT_EVENTLENGTHS); }
+
+    /**
+     * Does this integer indicate that this block contains an array
+     * of event byte lengths (assuming it's the header's sixth word)?
+     * @param i a block header's sixth word
+     * @return {@code true} if this int indicates block contains array of event byte lengths,
+     *         else {@code false}.
+     */
+    static public boolean hasEventLengths(int i) {
+        return ((i & EV_EVENTLENGTHS_MASK) > 0);
+    }
+
+    /**
+     * Set the bit in the given arg which indicates this block contains an array
+     * of event byte lengths.
+     * @param i integer in which to set the events-lengths bit
+     * @return  arg with events-lengths bit set
+     */
+    static public int setEventLengthsBit(int i)   {
+        return (i |= EV_EVENTLENGTHS_MASK);
+    }
+
+    /**
+     * Clear the bit in the given arg to indicate this block does NOT contain an array
+     * of event byte lengths.
+     * @param i integer in which to clear the events-lengths bit
+     * @return arg with events-lengths bit cleared
+     */
+    static public int clearEventLengthsBit(int i) {
+        return (i &= ~EV_EVENTLENGTHS_MASK);
+    }
+
+    //----------------------------------------------------------------------------------------
+
     /** {@inheritDoc} */
     public boolean isCompressed() { return bitInfo.get(EV_BIT_COMPRESSED); }
 
@@ -489,6 +558,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      * Does this integer indicate that the data following this block header
      * is compressed in LZ4 format (assuming it's the header's sixth word)?
      *
+     * @param i a block header's sixth word
      * @return <code>true</code> if this int indicates that the data
      *         following this block header is compressed in LZ4 format,
      *         else <code>false</code>.
@@ -562,6 +632,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         // Encoding bit #15 (#6 since first is bit #9)
         bSet.set(6, false);
     }
+
+
 
     /**
      * Gets a copy of all stored bit information.
@@ -645,7 +717,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      */
     static public int generateSixthWord(BitSet set) {
         return generateSixthWord(set, 4, false,
-                                 false, 0,false);
+                                 false, false, false,
+                                 false, 0);
     }
 
     /**
@@ -660,7 +733,8 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      */
     static public int generateSixthWord(BitSet bSet, boolean hasDictionary, boolean isEnd) {
         return generateSixthWord(bSet, 4, hasDictionary,
-                                 isEnd, 0,false);
+                                 isEnd, false, false,
+                                 false, 0);
     }
 
     /**
@@ -678,7 +752,9 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     static public int generateSixthWord(int version, boolean hasDictionary,
                                         boolean isEnd, int eventType) {
 
-        return generateSixthWord(null, version, hasDictionary, isEnd, eventType,false);
+        return generateSixthWord(null, version, hasDictionary, isEnd,
+                                 false, false,
+                                 false, eventType);
     }
 
     /**
@@ -698,27 +774,31 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
                                          boolean hasDictionary,
                                          boolean isEnd, int eventType) {
          return generateSixthWord(bSet, version, hasDictionary,
-                                  isEnd, eventType,false);
+                                  isEnd, false, false,
+                                  false, eventType);
      }
 
     /**
-      * Calculates the sixth word of this header which has the version number (4)
-      * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
-      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
-      * (event type) are set in bits 11-14.
-      *
-      * @param bSet Bitset containing all bits to be set
-      * @param version evio version number
-      * @param hasDictionary does this block include an evio xml dictionary as the first event?
-      * @param isEnd is this the last block of a file or a buffer?
-      * @param eventType 4 bit type of events header is containing
-      * @param isCompressed is data of this block compressed?
-      * @return generated sixth word of this header.
-      */
+     * Calculates the sixth word of this header which has the version number (4)
+     * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
+     * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+     * (event type) are set in bits 11-14.
+     *
+     * @param bSet Bitset containing all bits to be set
+     * @param version evio version number
+     * @param hasDictionary does this block include an evio xml dictionary as the first event?
+     * @param isEnd is this the last block of a file or a buffer?
+     * @param isCompressed is data of this block compressed?
+     * @param hasFirst does this block include a first event for file splitting?
+     * @param hasEventSizes does this block include an array of event sizes in header?
+     * @param eventType 4 bit type of events header is containing
+     * @return generated sixth word of this header.
+     */
      static public int generateSixthWord(BitSet bSet, int version,
                                          boolean hasDictionary,
-                                         boolean isEnd, int eventType,
-                                         boolean isCompressed) {
+                                         boolean isEnd, boolean hasFirst,
+                                         boolean isCompressed, boolean hasEventSizes,
+                                         int eventType) {
          int v = version; // version
 
          if (bSet != null) {
@@ -732,9 +812,11 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
              }
          }
 
-         v =  hasDictionary ? (v | EV_DICTIONARY_MASK) : v;
-         v =  isEnd ? (v | EV_LASTBLOCK_MASK) : v;
-         v =  isCompressed ? (v | EV_LZ4COMPRESSION_MASK) : v;
+         v =  hasDictionary ? (v | EV_DICTIONARY_MASK)     : v;
+         v =  isEnd ?         (v | EV_LASTBLOCK_MASK)      : v;
+         v =  hasFirst ?      (v | EV_FIRSTEVENT_MASK)     : v;
+         v =  isCompressed ?  (v | EV_LZ4COMPRESSION_MASK) : v;
+         v =  hasEventSizes ? (v | EV_EVENTLENGTHS_MASK)   : v;
          v |= ((eventType & 0xf) << 10);
 
          return v;
@@ -747,7 +829,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
      *
      * @param word integer to parse into bit info fields
      */
-    public void parseToBitInfo(int word) throws EvioException {
+    public void parseToBitInfo(int word) {
         for (int i=0; i < 24; i++) {
             bitInfo.set(i, ((word >>> 8+i) & 0x1) > 0);
         }
@@ -788,28 +870,26 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         this.reserved2 = reserved2;
     }
 
-	/**
-	 * Get the magic number the block (physical record) header which should be 0xc0da0100.
-	 *
-	 * @return the magic number in the block (physical record).
-	 */
+    /**{@inheritDoc} */
 	public int getMagicNumber() {
 		return magicNumber;
 	}
 
-	/**
-	 * Sets the value of magicNumber. This should match the constant MAGIC_NUMBER.
+    /**
+     * Sets the value of magicNumber. Strictly speaking this method should
+     * have no argument, but it does act as and error check.
+     * It must match the constant MAGIC_NUMBER.
      * If it doesn't, some obvious possibilities: <br>
-	 * 1) The evio data (perhaps from a file) is screwed up.<br>
-	 * 2) The reading algorithm is screwed up. <br>
-	 * 3) The endianess is not being handled properly.
-	 *
-	 * @param magicNumber the new value for magic number.
-	 * @throws EvioException
-	 */
+     * 1) The evio data (perhaps from a file) is screwed up.<br>
+     * 2) The reading algorithm is screwed up. <br>
+     * 3) The endianess is not being handled properly.
+     *
+     * @param magicNumber the new value for magic number.
+     * @throws EvioException if arg is not equal to {@link #MAGIC_NUMBER}
+     */
 	public void setMagicNumber(int magicNumber) throws EvioException {
 		if (magicNumber != MAGIC_NUMBER) {
-			throw new EvioException(String.format("Value for magicNumber %8x does not match MAGIC_NUMBER 0xc0da0100.",
+			throw new EvioException(String.format("Value for magicNumber 0x%08x does not match MAGIC_NUMBER 0xc0da0100.",
                                                   magicNumber));
 		}
 		this.magicNumber = magicNumber;
@@ -827,11 +907,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
    		this.byteOrder = byteOrder;
    	}
 
-	/**
-	 * Obtain a string representation of the block (physical record) header.
-	 *
-	 * @return a string representation of the block (physical record) header.
-	 */
+    /**{@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer(512);
@@ -842,6 +918,9 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         sb.append(String.format("compressedLen:  %d\n", compressedLength));
         sb.append(String.format("bit info:       %s\n", bitInfo));
         sb.append(String.format("has dictionary: %b\n", hasDictionary()));
+        sb.append(String.format("has 1st event:  %b\n", hasFirstEvent()));
+        sb.append(String.format("is compressed:  %b\n", isCompressed()));
+        sb.append(String.format("is end:         %b\n", isLastBlock()));
         sb.append(String.format("version:        %d\n", version));
 		sb.append(String.format("magicNumber:    %8x\n", magicNumber));
 		sb.append(String.format(" *buffer start: %d\n", getBufferStartingPosition()));
@@ -849,97 +928,81 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 		return sb.toString();
 	}
 
-    /**
-     * Get the position in the buffer (in bytes) of this block's last data word.<br>
-     *
-     * @return the position in the buffer (in bytes) of this block's last data word.
-     */
+    /**{@inheritDoc} */
     public long getBufferEndingPosition() {
         return bufferStartingPosition + 4*size;
     }
 
-    /**
-     * Get the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
-     * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
-     * (physical record). It is kept for convenience. It is up to the reader to set it.
-     *
-     * @return the starting position in the buffer (in bytes) from which this header was read--if that happened.
-     */
+    /**{@inheritDoc} */
     public long getBufferStartingPosition() {
         return bufferStartingPosition;
     }
 
-	/**
-	 * Set the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
-	 * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
-	 * (physical record). It is kept for convenience. It is up to the reader to set it.
-	 *
-	 * @param bufferStartingPosition the starting position in the buffer from which this header was read--if that
-	 *            happened.
-	 */
+    /**{@inheritDoc} */
 	public void setBufferStartingPosition(long bufferStartingPosition) {
 		this.bufferStartingPosition = bufferStartingPosition;
 	}
 
-	/**
-	 * Determines where the start of the next block (physical record) header in some buffer is located (in bytes).
-     * This assumes the start position has been maintained by the object performing the buffer read.
-	 *
-	 * @return the start of the next block (physical record) header in some buffer is located (in bytes).
-	 */
+    /**{@inheritDoc} */
 	public long nextBufferStartingPosition() {
         return getBufferEndingPosition();
 	}
 
-	/**
-	 * Determines where the start of the first event (logical record) in this block (physical record) is located
-     * (in bytes). This assumes the start position has been maintained by the object performing the buffer read.
-	 *
-	 * @return where the start of the first event (logical record) in this block (physical record) is located
-     *         (in bytes). Returns 0 if start is 0, signaling that this entire physical record is part of a
-     *         logical record that spans at least three physical records.
-	 */
+    /**{@inheritDoc} */
 	public long firstEventStartingPosition() {
 		// first data word is start of first event
         return bufferStartingPosition + 4*headerLength;
 	}
 
-	/**
-	 * Gives the bytes remaining in this block (physical record) given a buffer position. The position is an absolute
-	 * position in a byte buffer. This assumes that the absolute position in <code>bufferStartingPosition</code> is
-	 * being maintained properly by the reader. No block is longer than 2.1GB - 31 bits of length. This is for
-     * practical reasons - so a block can be read into a single byte array.
-	 *
-	 * @param position the absolute current position is a byte buffer.
-	 * @return the number of bytes remaining in this block (physical record.)
-	 * @throws EvioException
-	 */
-	public int bytesRemaining(long position) throws EvioException {
-		if (position < bufferStartingPosition) {
-			throw new EvioException("Provided position is less than buffer starting position.");
-		}
+    /**{@inheritDoc} */
+   	public int bytesRemaining(long position) throws EvioException {
+   		if (position < bufferStartingPosition) {
+   			throw new EvioException("Provided position is less than buffer starting position.");
+   		}
 
-		long nextBufferStart = nextBufferStartingPosition();
-		if (position > nextBufferStart) {
-			throw new EvioException("Provided position beyond buffer end position.");
-		}
+   		long nextBufferStart = nextBufferStartingPosition();
+   		if (position > nextBufferStart) {
+   			throw new EvioException("Provided position beyond buffer end position.");
+   		}
 
-		return (int)(nextBufferStart - position);
-	}
+   		return (int)(nextBufferStart - position);
+   	}
 
-	/**
-	 * Write myself out a byte buffer. This write is relative--i.e.,
-     * it uses the current position of the buffer.
-	 *
-	 * @param byteBuffer the byteBuffer to write to.
-	 * @return the number of bytes written, which for a BlockHeader is 32.
-	 */
+    /**
+	 * Gives the data (not header) bytes remaining in this block given a buffer position.
+     * The position is an absolute position in a byte buffer. However, in the case of
+     * compressed data, no header is contained in this buffer. Therefore this needs
+     * to be accounted for. Otherwise this method is like {@link #bytesRemaining(long)}.
+     *
+     * @param position the absolute current position is a byte buffer.
+     * @return the number of data bytes remaining in this block.
+     * @throws EvioException if position arg out of bounds
+     */
+   	public int dataBytesRemaining(long position) throws EvioException {
+   		if (position < bufferStartingPosition) {
+   			throw new EvioException("Provided position is less than buffer starting position.");
+   		}
+
+   		long nextBufferStart = bufferStartingPosition + 4*(size - headerLength);
+   		if (position > nextBufferStart) {
+   			throw new EvioException("Provided position beyond buffer end position.");
+   		}
+
+   		return (int)(nextBufferStart - position);
+   	}
+
+    /**{@inheritDoc} */
 	public int write(ByteBuffer byteBuffer) {
 		byteBuffer.putInt(size);
 		byteBuffer.putInt(number);
 		byteBuffer.putInt(headerLength); // should always be 8
 		byteBuffer.putInt(eventCount);
-        byteBuffer.putInt(0);            // unused
+		if (isCompressed) {
+            byteBuffer.putInt(compressedLength);
+        }
+        else {
+            byteBuffer.putInt(0);            // unused
+        }
 		byteBuffer.putInt(getSixthWord());
 		byteBuffer.putInt(0);            // unused
 		byteBuffer.putInt(magicNumber);

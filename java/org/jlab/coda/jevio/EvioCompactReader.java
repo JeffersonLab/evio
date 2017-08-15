@@ -316,9 +316,7 @@ public class EvioCompactReader {
       * Get the path to the file.
       * @return path to the file
       */
-     public String getPath() {
-         return path;
-     }
+     public String getPath() { return path; }
 
     /**
      * When reading a file, this method's return value

@@ -1,0 +1,2240 @@
+package org.jlab.coda.jevio;
+
+import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.lz4.LZ4FastDecompressor;
+
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.*;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.nio.channels.FileChannel;
+
+/**
+ * This is a class of interest to the user. It is used to read an evio version 4 or earlier
+ * format file or buffer. Create an <code>EvioReader</code> object corresponding to an event
+ * file or file-formatted buffer, and from this class you can test it
+ * for consistency and, more importantly, you can call {@link #parseNextEvent} or
+ * {@link #parseEvent(int)} to get new events and to stream the embedded structures
+ * to an IEvioListener.<p>
+ *
+ * A word to the wise, constructors for reading a file in random access mode
+ * (by setting "sequential" arg to false), will memory map the file. This is
+ * <b>not</b> a good idea if the file is not on a local disk. Due to java
+ * restrictions, files over 2.1GB will require multiple memory maps.<p>
+ *
+ * The streaming effect of parsing an event is that the parser will read the event and hand off structures,
+ * such as banks, to any IEvioListeners. For those familiar with XML, the event is processed SAX-like.
+ * It is up to the listener to decide what to do with the structures.
+ * <p>
+ *
+ * As an alternative to stream processing, after an event is parsed, the user can use the events treeModel
+ * for access to the structures. For those familiar with XML, the event is processed DOM-like.
+ * <p>
+ *
+ * @author heddle
+ * @author timmer
+ *
+ */
+public class EvioCompressedReader2 {
+
+    /**
+	 * This <code>enum</code> denotes the status of a read. <br>
+	 * SUCCESS indicates a successful read. <br>
+	 * END_OF_FILE indicates that we cannot read because an END_OF_FILE has occurred. Technically this means that what
+	 * ever we are trying to read is larger than the buffer's unread bytes.<br>
+	 * EVIO_EXCEPTION indicates that an EvioException was thrown during a read, possibly due to out of range values,
+	 * such as a negative start position.<br>
+	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
+	 */
+	public static enum ReadStatus {
+		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
+	}
+
+	/**
+	 * This <code>enum</code> denotes the status of a write.<br>
+	 * SUCCESS indicates a successful write. <br>
+	 * CANNOT_OPEN_FILE indicates that we cannot write because the destination file cannot be opened.<br>
+	 * EVIO_EXCEPTION indicates that an EvioException was thrown during a write.<br>
+	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
+	 */
+	public static enum WriteStatus {
+		SUCCESS, CANNOT_OPEN_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
+	}
+
+    /**  Offset to get magic number from start of file. */
+    private static final int MAGIC_OFFSET = 28;
+
+    /** Offset to get version number from start of file. */
+    private static final int VERSION_OFFSET = 20;
+
+    /** Offset to get block size from start of block. */
+    private static final int BLOCK_SIZE_OFFSET = 0;
+
+    /** Mask to get version number from 6th int in block. */
+    private static final int VERSION_MASK = 0xff;
+
+    /** Root element tag for XML file */
+    private static final String ROOT_ELEMENT = "evio-data";
+
+    /** Default size for a single file read in bytes when reading
+     *  evio format 1-3. Equivalent to 500, 32,768 byte blocks.
+     *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
+    private static final int DEFAULT_READ_BYTES = 32768 * 500; // 16384000 bytes
+
+
+
+    /** When doing a sequential read, used to assign a transient
+     * number [1..n] to events as they are being read. */
+    private int eventNumber = 0;
+
+    /**
+     * This is the number of events in the file. It is not computed unless asked for,
+     * and if asked for it is computed and cached in this variable.
+     */
+    private int eventCount = -1;
+
+    /** Evio version number (1-4). Obtain this by reading first block header. */
+    private int evioVersion;
+
+    /**
+     * Endianness of the data being read, either
+     * {@link ByteOrder#BIG_ENDIAN} or
+     * {@link ByteOrder#LITTLE_ENDIAN}.
+     */
+    private ByteOrder byteOrder;
+
+    /** Size of the first block in bytes. */
+    private int firstBlockSize;
+
+    /**
+     * This is the number of blocks in the file including the empty block at the
+     * end of the version 4 files. It is not computed unless asked for,
+     * and if asked for it is computed and cached in this variable.
+     */
+    private int blockCount = -1;
+
+    private ByteBuffer headerBuf;
+    private ByteBuffer indexBuf;
+
+	/** The current block header for evio versions 1-3. */
+    private BlockHeaderV2 blockHeader2 = new BlockHeaderV2();
+
+    /** The current block header for evio version 4. */
+    private BlockHeaderV4 blockHeader4 = new BlockHeaderV4();
+
+    /** Reference to current block header, any version, through interface.
+     *  This must be the same object as either blockHeader2 or blockHeader4
+     *  depending on which evio format version the data is in. */
+    private IBlockHeader blockHeader;
+
+    /** Reference to first block header. */
+    private IBlockHeader firstBlockHeader;
+
+    /** Block number expected when reading. Used to check sequence of blocks. */
+    private int blockNumberExpected = 1;
+
+    /** If true, throw an exception if block numbers are out of sequence. */
+    private boolean checkBlockNumberSequence;
+
+    /** Is this the last block in the file or buffer? */
+    private boolean lastBlock;
+
+    /**
+     * Version 4 files may have an xml format dictionary in the
+     * first event of the first block.
+     */
+    private String dictionaryXML;
+
+    /** The buffer being read. */
+    private ByteBuffer byteBuffer;
+
+    /** The buffer with decompressed data. */
+    private ByteBuffer compressedBuffer;
+
+    /** Parser object for this file/buffer. */
+    private EventParser parser;
+
+    /** Initial position of buffer or mappedByteBuffer when reading a file. */
+    private int initialPosition;
+
+    //------------------------
+    // File specific members
+    //------------------------
+
+    /** Use this object to handle files > 2.1 GBytes but still use memory mapping. */
+    private MappedMemoryHandler mappedMemoryHandler;
+
+    /** Absolute path of the underlying file. */
+    private String path;
+
+    /** File object. */
+    private RandomAccessFile file;
+
+    /** File size in bytes. */
+    private long fileSize;
+
+    /** File channel used to read data and access file position. */
+    private FileChannel fileChannel;
+
+    /** Do we need to swap data from file? */
+    private boolean swap;
+
+    /**
+     * Read this file sequentially and not using a memory mapped buffer.
+     * If the file being read > 2.1 GBytes, then this is always true.
+     */
+    private boolean sequentialRead;
+
+    //-----------------------------
+    // Compression related members
+    //-----------------------------
+
+    // LZ4
+
+    /** If true, write files as compressed evio output. */
+    private boolean compressedInput = false;
+
+    /** Object used to decompress data. */
+    private LZ4FastDecompressor lz4Decomp;
+  //  private LZ4BlockInputStream lz4In;
+
+    /** Stream used to compress data. */
+ //   private FileInputStream fileIn;
+
+    //------------------------
+    // EvioReader's state
+    //------------------------
+
+    /** Is this object currently closed? */
+    private boolean closed;
+
+    /**
+     * This class stores the state of this reader so it can be recovered
+     * after a state-changing method has been called -- like {@link #rewind()}.
+     */
+    private static final class ReaderState {
+        private boolean lastBlock;
+        private int eventNumber;
+        private long filePosition;
+        private int byteBufferLimit;
+        private int byteBufferPosition;
+        private int blockNumberExpected;
+        private BlockHeaderV2 blockHeader2;
+        private BlockHeaderV4 blockHeader4;
+    }
+
+
+    /**
+     * This method saves the current state of this EvioReader object.
+     * @return the current state of this EvioReader object.
+     */
+    private ReaderState getState() {
+        ReaderState currentState = new ReaderState();
+        currentState.lastBlock   = lastBlock;
+        currentState.eventNumber = eventNumber;
+        currentState.blockNumberExpected = blockNumberExpected;
+
+        if (sequentialRead) {
+            try {
+                currentState.filePosition = fileChannel.position();
+                currentState.byteBufferLimit = byteBuffer.limit();
+                currentState.byteBufferPosition = byteBuffer.position();
+            }
+            catch (IOException e) {/* should be OK */}
+        }
+        else {
+            if (byteBuffer != null) {
+                currentState.byteBufferLimit = byteBuffer.limit();
+                currentState.byteBufferPosition = byteBuffer.position();
+            }
+        }
+
+        if (evioVersion > 3) {
+            currentState.blockHeader4 = (BlockHeaderV4)blockHeader4.clone();
+        }
+        else {
+            currentState.blockHeader2 = (BlockHeaderV2)blockHeader2.clone();
+        }
+
+        return currentState;
+    }
+
+
+    /**
+     * This method restores a previously saved state of this EvioReader object.
+     * @param state a previously stored state of this EvioReader object.
+     */
+    private void restoreState(ReaderState state) {
+        lastBlock   = state.lastBlock;
+        eventNumber = state.eventNumber;
+        blockNumberExpected = state.blockNumberExpected;
+
+        if (sequentialRead) {
+            try {
+                fileChannel.position(state.filePosition);
+                byteBuffer.limit(state.byteBufferLimit);
+                byteBuffer.position(state.byteBufferPosition);
+            }
+            catch (IOException e) {/* should be OK */}
+        }
+        else {
+            if (byteBuffer != null) {
+                byteBuffer.limit(state.byteBufferLimit);
+                byteBuffer.position(state.byteBufferPosition);
+            }
+        }
+
+        if (evioVersion > 3) {
+            blockHeader = blockHeader4 = state.blockHeader4;
+        }
+        else {
+            blockHeader = blockHeader2 = state.blockHeader2;
+        }
+    }
+
+
+    /**
+     * This method prints out a portion of a given ByteBuffer object
+     * in hex representation of ints.
+     *
+     * @param buf buffer to be printed out
+     * @param lenInInts length of data in ints to be printed
+     */
+    private void printBuffer(ByteBuffer buf, int lenInInts) {
+        IntBuffer ibuf = buf.asIntBuffer();
+        lenInInts = lenInInts > ibuf.capacity() ? ibuf.capacity() : lenInInts;
+        for (int i=0; i < lenInInts; i++) {
+            System.out.println("  Buf(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
+        }
+    }
+
+    //------------------------
+
+    /**
+     * Constructor for reading an event file.
+     *
+     * @param path the full path to the file that contains events.
+     *             For writing event files, use an <code>EventWriter</code> object.
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null
+     */
+    public EvioCompressedReader2(String path) throws EvioException, IOException {
+        this(new File(path));
+    }
+
+    /**
+     * Constructor for reading an event file.
+     *
+     * @param path the full path to the file that contains events.
+     *             For writing event files, use an <code>EventWriter</code> object.
+     * @param checkBlkNumSeq if <code>true</code> check the block number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null;
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    public EvioCompressedReader2(String path, boolean checkBlkNumSeq) throws EvioException, IOException {
+        this(new File(path), checkBlkNumSeq);
+    }
+
+    /**
+     * Constructor for reading an event file.
+     * Sequential reading and not memory-mapped buffer.
+     *
+     * @param file the file that contains events.
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null
+     */
+    public EvioCompressedReader2(File file) throws EvioException, IOException {
+        this(file, false);
+    }
+
+
+    /**
+     * Constructor for reading an event file.
+     * Sequential reading and not memory-mapped buffer.
+     *
+     * @param file the file that contains events.
+     * @param checkBlkNumSeq if <code>true</code> check the block number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null;
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    public EvioCompressedReader2(File file, boolean checkBlkNumSeq)
+                                        throws EvioException, IOException {
+        this(file, checkBlkNumSeq, true);
+    }
+
+
+    /**
+     * Constructor for reading an event file.
+     * Do <b>not</b> set sequential to false for remote files.
+     *
+     * @param path the full path to the file that contains events.
+     *             For writing event files, use an <code>EventWriter</code> object.
+     * @param checkBlkNumSeq if <code>true</code> check the block number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1
+     * @param sequential     if <code>true</code> read the file sequentially,
+     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       reads are always sequential for the older evio format.
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null;
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    public EvioCompressedReader2(String path, boolean checkBlkNumSeq, boolean sequential)
+            throws EvioException, IOException {
+        this(new File(path), checkBlkNumSeq, sequential);
+    }
+
+
+    /**
+     * Constructor for reading an event file.
+     * Do <b>not</b> set sequential to false for remote files.
+     *
+     * @param ffile the file that contains events.
+     * @param checkBlkNumSeq if <code>true</code> check the block number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1
+     * @param sequential     if <code>true</code> read the file sequentially,
+     *                       else use memory mapped buffers. If file > 2.1 GB,
+     *                       reads are always sequential for the older evio format.
+     *
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null;
+     *                       if file is too small to have valid evio format data
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    public EvioCompressedReader2(File ffile, boolean checkBlkNumSeq, boolean sequential)
+                                        throws EvioException, IOException {
+        if (ffile == null) {
+            throw new EvioException("File arg is null");
+        }
+
+
+        checkBlockNumberSequence = checkBlkNumSeq;
+        sequentialRead = sequential;
+        initialPosition = 0;
+
+        // Find file name's extension if any
+        String[] splits = ffile.getName().split("\\.");
+        String extension = splits[splits.length - 1];
+
+        file = new RandomAccessFile(ffile, "r");
+        path = ffile.getAbsolutePath();
+        fileChannel = file.getChannel();
+        fileSize = fileChannel.size();
+
+        if (fileSize < 40) {
+            throw new EvioException("File too small to have valid evio data");
+        }
+
+        // Is this a compressed file in lz4 format?
+        if (extension.equalsIgnoreCase("lz4")) {
+            compressedInput = true;
+            lz4Decomp = LZ4Factory.fastestInstance().fastDecompressor();
+        }
+System.out.println("EvioCompressedReader: compressedInput = " + compressedInput +
+        ", extension = " + extension);
+
+
+        // Create a ByteBuffer into which data will be read
+        if (sequentialRead) {
+
+
+        // Look at the first block header to get info like endianness and version.
+        // Store it for later reference in blockHeader2,4 and in other variables.
+        headerBuf = ByteBuffer.allocate(32);
+        int bytesRead = 0;
+        while (bytesRead < 32) {
+            bytesRead += fileChannel.read(headerBuf);
+        }
+        parseFirstHeader(headerBuf);
+
+        // TODO: THIS IS A NO-NO !!!! This moves the disk head backwards.
+        fileChannel.position(0);
+        parser = new EventParser();
+System.out.println("EvioCompressedReader: parsed header");
+
+        // What we do from here depends on the evio format version.
+        // If we've got the old version, don't memory map big (> 2.1 GB) files,
+        // use sequential reading instead.
+        if (evioVersion < 4) {
+System.out.println("EvioCompressedReader: version < 4");
+            // Remember, no dictionaries exist for these early versions
+
+            // Got a big file? If so we cannot use a memory mapped file.
+            if (fileSize > Integer.MAX_VALUE) {
+                sequentialRead = true;
+            }
+
+            if (sequentialRead) {
+//System.out.println("Big file or reading sequentially for evio versions 2,3");
+                prepareForSequentialRead();
+            }
+            else {
+                byteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0L, fileSize);
+                byteBuffer.order(byteOrder);
+                prepareForBufferRead(byteBuffer);
+//System.out.println("Memory Map versions 2,3");
+            }
+        }
+
+        // For version 4 & UNcompressed data ...
+        else if (!blockHeader4.isCompressed()) {
+            System.out.println("EvioCompressedReader: version 4, not compressed");
+            if (sequentialRead) {
+                prepareForSequentialRead();
+                if (blockHeader4.hasDictionary()) {
+                    // Dictionary is always the first event
+                    EvioEvent dict = parseNextEvent();
+                    if (dict != null) {
+                        String[] strs = dict.getStringData();
+                        dictionaryXML = strs[0];
+                    }
+                }
+            }
+            else {
+                // Memory map the file - even the big ones
+                mappedMemoryHandler = new MappedMemoryHandler(fileChannel, byteOrder);
+                if (blockHeader4.hasDictionary()) {
+                    ByteBuffer buf = mappedMemoryHandler.getFirstMap();
+                    // Jump to the first event
+                    prepareForBufferRead(buf);
+                    // Dictionary is always the first event
+                    readDictionary(buf);
+                }
+            }
+        }
+
+        // For version 4 & compressed data ...
+        else {
+            System.out.println("EvioCompressedReader: compressed");
+            // Doesn't make any sense to memory map a compressed file
+            sequentialRead = true;
+
+            // Create this for reading large block headers
+            // containing event indexes in the future.
+            indexBuf = ByteBuffer.allocate(4096);
+
+            prepareForCompressedRead();
+            System.out.println("EvioCompressedReader: prepared");
+
+            if (blockHeader4.hasDictionary()) {
+                // Dictionary is always the first event
+                EvioEvent dict = parseNextEvent();
+                if (dict != null) {
+                    String[] strs = dict.getStringData();
+                    dictionaryXML = strs[0];
+                }
+            }
+
+        }
+
+    }
+
+
+    /**
+     * Constructor for reading a buffer.
+     *
+     * @param byteBuffer the buffer that contains events.
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if buffer arg is null
+     */
+    public EvioCompressedReader(ByteBuffer byteBuffer) throws EvioException, IOException {
+        this(byteBuffer, false);
+    }
+
+    /**
+     * Constructor for reading a buffer.
+     *
+     * @param byteBuffer the buffer that contains events.
+     * @param checkBlkNumSeq if <code>true</code> check the block number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if buffer arg is null;
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    public EvioCompressedReader(ByteBuffer byteBuffer, boolean checkBlkNumSeq)
+                                                    throws EvioException, IOException {
+
+        if (byteBuffer == null) {
+            throw new EvioException("Buffer arg is null");
+        }
+
+        checkBlockNumberSequence = checkBlkNumSeq;
+        this.byteBuffer = byteBuffer.slice(); // remove necessity to track initial position
+
+        // Look at the first block header to get various info like endianness and version.
+        // Store it for later reference in blockHeader2,4 and in variables.
+        // Position is moved past header.
+        parseFirstHeader(byteBuffer);
+
+        // Move position back to beginning
+        byteBuffer.position(0);
+
+        // For the latest evio format, generate a table
+        // of all event positions in buffer for random access.
+        if (evioVersion > 3) {
+// System.out.println("EvioReader const: evioVersion = " + evioVersion + ", create mem handler");
+            mappedMemoryHandler = new MappedMemoryHandler(byteBuffer);
+            if (blockHeader4.hasDictionary()) {
+                ByteBuffer buf = mappedMemoryHandler.getFirstMap();
+                // Jump to the first event
+                prepareForBufferRead(buf);
+                // Dictionary is the first event
+                readDictionary(buf);
+            }
+        }
+        else {
+            // Setting the byte order is only necessary if someone hands
+            // this method a buffer in which the byte order is improperly set.
+            byteBuffer.order(byteOrder);
+            prepareForBufferRead(byteBuffer);
+        }
+
+        parser = new EventParser();
+    }
+
+    /**
+     * This method can be used to avoid creating additional EvioReader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.
+     *
+     * @param buf ByteBuffer to be read
+     * @throws IOException   if read failure
+     * @throws EvioException if buf is null;
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    public synchronized void setBuffer(ByteBuffer buf) throws EvioException, IOException {
+
+        if (buf == null) {
+            throw new EvioException("arg is null");
+        }
+
+        close();
+
+        lastBlock           =  false;
+        eventNumber         =  0;
+        blockCount          = -1;
+        eventCount          = -1;
+        blockNumberExpected =  1;
+        dictionaryXML       =  null;
+        initialPosition     =  buf.position();
+        byteBuffer          =  buf.slice();
+        sequentialRead      = false;
+
+        parseFirstHeader(byteBuffer);
+        byteBuffer.position(0);
+
+        if (evioVersion > 3) {
+            mappedMemoryHandler = new MappedMemoryHandler(byteBuffer);
+            if (blockHeader4.hasDictionary()) {
+                ByteBuffer bb = mappedMemoryHandler.getFirstMap();
+                // Jump to the first event
+                prepareForBufferRead(bb);
+                // Dictionary is the first event
+                readDictionary(bb);
+            }
+        }
+        else {
+            byteBuffer.order(byteOrder);
+            prepareForBufferRead(byteBuffer);
+        }
+
+        closed = false;
+    }
+
+    /**
+     * Has {@link #close()} been called (without reopening by calling
+     * {@link #setBuffer(ByteBuffer)})?
+     *
+     * @return {@code true} if this object closed, else {@code false}.
+     */
+    public synchronized boolean isClosed() { return closed; }
+
+    /**
+     * Is this reader checking the block number sequence and
+     * throwing an exception is it's not sequential and starting with 1?
+     * @return <code>true</code> if checking block number sequence, else <code>false</code>
+     */
+    public boolean checkBlockNumberSequence() { return checkBlockNumberSequence; }
+
+    /**
+     * Get the byte order of the file/buffer being read.
+     * @return byte order of the file/buffer being read.
+     */
+    public ByteOrder getByteOrder() { return byteOrder; }
+
+    /**
+     * Get the evio version number.
+     * @return evio version number.
+     */
+    public int getEvioVersion() {
+        return evioVersion;
+    }
+
+    /**
+      * Get the path to the file.
+      * @return path to the file
+      */
+     public String getPath() {
+         return path;
+     }
+
+    /**
+     * Get the file/buffer parser.
+     * @return file/buffer parser.
+     */
+    public EventParser getParser() {
+        return parser;
+    }
+
+    /**
+     * Set the file/buffer parser.
+     * @param parser file/buffer parser.
+     */
+    public void setParser(EventParser parser) {
+        if (parser != null) {
+            this.parser = parser;
+        }
+    }
+
+     /**
+     * Get the XML format dictionary is there is one.
+     *
+     * @return XML format dictionary, else null.
+     */
+    public String getDictionaryXML() {
+        return dictionaryXML;
+    }
+
+    /**
+     * Does this evio file have an associated XML dictionary?
+     *
+     * @return <code>true</code> if this evio file has an associated XML dictionary,
+     *         else <code>false</code>
+     */
+    public boolean hasDictionaryXML() {
+        return dictionaryXML != null;
+    }
+
+    /**
+     * Get the number of events remaining in the file.
+     *
+     * @return number of events remaining in the file
+     * @throws IOException if failed file access
+     * @throws EvioException if failed reading from coda v3 file
+     */
+    public int getNumEventsRemaining() throws IOException, EvioException {
+        return getEventCount() - eventNumber;
+    }
+
+    /**
+     * Get the byte buffer being read directly or corresponding to the event file.
+     * Not a very useful method. For files, it works only for evio format versions 2,3 and
+     * returns the internal buffer containing an evio block if using sequential access
+     * (for example files > 2.1 GB). It returns the memory mapped buffer otherwise.
+     * For reading buffers it returns the buffer being read.
+     * @return the byte buffer being read (in certain cases).
+     */
+    public ByteBuffer getByteBuffer() {
+        return byteBuffer;
+    }
+
+    /**
+     * Get the size of the file being read, in bytes.
+     * For small files, obtain the file size using the memory mapped buffer's capacity.
+     * @return the file size in bytes
+     */
+    public long fileSize() {
+        return fileSize;
+    }
+
+
+    /**
+     * This returns the FIRST block (physical record) header.
+     *
+     * @return the first block header.
+     */
+    public IBlockHeader getFirstBlockHeader() {
+        return firstBlockHeader;
+    }
+
+
+    /**
+     * Reads 8 words of the first block (physical record) header in order to determine
+     * the evio version # and endianness of the file or buffer in question. These things
+     * do <b>not</b> need to be examined in subsequent block headers. Called only by
+     * synchronized methods or constructors.
+     *
+     * @throws EvioException if buffer too small, contains invalid data,
+     *                       or bad block # sequence
+     */
+    protected void parseFirstHeader(ByteBuffer headerBuf)
+            throws EvioException {
+
+        // Check buffer length
+        headerBuf.position(0);
+        if (headerBuf.remaining() < 32) {
+            throw new EvioException("buffer too small");
+        }
+
+        // Get the file's version # and byte order
+        byteOrder = headerBuf.order();
+
+        int magicNumber = headerBuf.getInt(MAGIC_OFFSET);
+
+        if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+            swap = true;
+
+            if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                byteOrder = ByteOrder.LITTLE_ENDIAN;
+            }
+            else {
+                byteOrder = ByteOrder.BIG_ENDIAN;
+            }
+            headerBuf.order(byteOrder);
+
+            // Reread magic number to make sure things are OK
+            magicNumber = headerBuf.getInt(MAGIC_OFFSET);
+            if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right");
+                throw new EvioException("bad magic #");
+            }
+        }
+
+        // Check the version number. This requires peeking ahead 5 ints or 20 bytes.
+        evioVersion = headerBuf.getInt(VERSION_OFFSET) & VERSION_MASK;
+        if (evioVersion < 1 || evioVersion > 4)  {
+            throw new EvioException("bad version # (" + evioVersion + ")");
+        }
+//System.out.println("Evio version# = " + evioVersion);
+
+        if (evioVersion >= 4) {
+            blockHeader4.setBufferStartingPosition(0);
+
+//                    int pos = 0;
+//System.out.println("BlockHeader v4:");
+//System.out.println("   block length  = 0x" + Integer.toHexString(headerBuf.getInt(pos))); pos+=4;
+//System.out.println("   block number  = 0x" + Integer.toHexString(headerBuf.getInt(pos))); pos+=4;
+//System.out.println("   header length = 0x" + Integer.toHexString(headerBuf.getInt(pos))); pos+=4;
+//System.out.println("   event count   = 0x" + Integer.toHexString(headerBuf.getInt(pos))); pos+=8;
+//System.out.println("   version       = 0x" + Integer.toHexString(headerBuf.getInt(pos))); pos+=8;
+//System.out.println("   magic number  = 0x" + Integer.toHexString(headerBuf.getInt(pos))); pos+=4;
+//System.out.println();
+
+            // Read the header data
+            blockHeader4.setSize(headerBuf.getInt());
+            blockHeader4.setNumber(headerBuf.getInt());
+            blockHeader4.setHeaderLength(headerBuf.getInt());
+            blockHeader4.setEventCount(headerBuf.getInt());
+            blockHeader4.setCompressedLength(headerBuf.getInt());
+
+            // Use 6th word to set bit info & version
+            blockHeader4.parseToBitInfo(headerBuf.getInt());
+            blockHeader4.setVersion(evioVersion);
+            lastBlock = blockHeader4.getBitInfo(BlockHeaderV4.EV_BIT_LASTBLOCK);
+            blockHeader4.setReserved2(headerBuf.getInt());
+            blockHeader4.setMagicNumber(headerBuf.getInt());
+            blockHeader4.setByteOrder(byteOrder);
+            blockHeader = blockHeader4;
+            firstBlockHeader = new BlockHeaderV4(blockHeader4);
+
+            // Deal with non-standard header lengths here
+            int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
+            // If too small quit with error since headers have a minimum size
+            if (headerLenDiff < 0) {
+                throw new EvioException("header size too small");
+            }
+
+//System.out.println("BlockHeader v4:");
+//System.out.println("   block length  = " + blockHeader4.getSize() + " ints");
+//System.out.println("   block number  = " + blockHeader4.getNumber());
+//System.out.println("   header length = " + blockHeader4.getHeaderLength() + " ints");
+//System.out.println("   event count   = " + blockHeader4.getEventCount());
+//System.out.println("   version       = " + blockHeader4.getVersion());
+//System.out.println("   has Dict      = " + blockHeader4.getBitInfo(0));
+//System.out.println("   is End        = " + lastBlock);
+//System.out.println("   magic number  = " + Integer.toHexString(blockHeader4.getMagicNumber()));
+//System.out.println();
+        }
+        else {
+            // Cache the starting position
+            blockHeader2.setBufferStartingPosition(0);
+
+            // read the header data.
+            blockHeader2.setSize(        headerBuf.getInt());
+            blockHeader2.setNumber(      headerBuf.getInt());
+            blockHeader2.setHeaderLength(headerBuf.getInt());
+            blockHeader2.setStart(       headerBuf.getInt());
+            blockHeader2.setEnd(         headerBuf.getInt());
+            // skip version
+            headerBuf.getInt();
+            blockHeader2.setVersion(evioVersion);
+            blockHeader2.setReserved1(   headerBuf.getInt());
+            blockHeader2.setMagicNumber( headerBuf.getInt());
+            blockHeader2.setByteOrder(byteOrder);
+            blockHeader = blockHeader2;
+
+            firstBlockHeader = new BlockHeaderV2(blockHeader2);
+        }
+
+        // Store this for later regurgitation of blockCount
+        firstBlockSize = 4*blockHeader.getSize();
+
+        // check block number if so configured
+        if (checkBlockNumberSequence) {
+            if (blockHeader.getNumber() != blockNumberExpected) {
+System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
+                   " expecting " + blockNumberExpected);
+
+                throw new EvioException("bad block # sequence");
+            }
+            blockNumberExpected++;
+        }
+    }
+
+
+    /**
+     * Reads file data into a buffer and gets the buffer ready for first-time read.
+     * @throws IOException if file access problems
+     */
+    private void prepareForSequentialRead() throws IOException {
+        // Create a buffer to hold a chunk of data.
+        int bytesToRead;
+
+        // Evio format version 4 or greater has a large enough default block size
+        // so that reading a single block at a time is not inefficient.
+        if (evioVersion > 3) {
+            bytesToRead = 4*firstBlockHeader.getSize();
+        }
+        // Reading data by 32768 byte blocks in older versions is inefficient,
+        // so read in 500 block (16MB) chunks.
+        else {
+            long bytesLeftInFile = fileSize - fileChannel.position();
+            bytesToRead = DEFAULT_READ_BYTES < bytesLeftInFile ?
+                          DEFAULT_READ_BYTES : (int) bytesLeftInFile;
+        }
+
+        if (byteBuffer == null || byteBuffer.capacity() < bytesToRead) {
+            byteBuffer = ByteBuffer.allocate(bytesToRead);
+            byteBuffer.order(byteOrder);
+        }
+        byteBuffer.clear().limit(bytesToRead);
+
+        // Read the first chunk of data from file
+        fileChannel.read(byteBuffer);
+        // Get it ready for reading from internal buffer
+        byteBuffer.flip();
+
+        // Position buffer properly (past block header)
+        prepareForBufferRead(byteBuffer);
+    }
+
+
+    /**
+     * Reads compressed block of data into a buffer and
+     * gets the buffer ready for first-time read.
+     * 
+     * @throws IOException if file access problems
+     */
+    private void prepareForCompressedRead() throws IOException {
+
+        // When decompressing (only version 4 & later), read in a single block's
+        // data since headers are not compressed.
+
+        // Number of compressed bytes to read
+        int compressedBytes = blockHeader4.getCompressedLength();
+
+        // Prepare the ByteBuffer in which to read compressed data
+        int compBufSize  = (4*EventWriter.DEFAULT_BLOCK_SIZE > compressedBytes) ?
+                           (4*EventWriter.DEFAULT_BLOCK_SIZE) : compressedBytes;
+        compressedBuffer = ByteBuffer.allocate(compBufSize);
+        compressedBuffer.limit(compressedBytes);
+System.out.println("prepareForCompressedRead: compBuf = " + compBufSize + " bytes, " +
+                   ", lim (comp bytes) = " + compressedBytes);
+
+        // Hop over first header
+        fileChannel.position(4*blockHeader4.getHeaderLength());
+        // Read the first chunk of compressed data from file
+        fileChannel.read(compressedBuffer);
+        // Get it ready to read for decompressing
+        compressedBuffer.flip();
+System.out.println("prepareForCompressedRead: read in compressed block, header len = " +
+                   (4*blockHeader4.getHeaderLength()));
+
+        // Get a buffer ready to receive uncompressed data
+        int uncompressedBytes = 4*(blockHeader4.getSize() - blockHeader4.getHeaderLength());
+
+        if (byteBuffer == null || byteBuffer.capacity() < uncompressedBytes) {
+            int bufSize  = (4*EventWriter.DEFAULT_BLOCK_SIZE > uncompressedBytes) ?
+                           (4*EventWriter.DEFAULT_BLOCK_SIZE) : uncompressedBytes;
+
+            byteBuffer = ByteBuffer.allocate(bufSize);
+            byteBuffer.order(byteOrder);
+        }
+        byteBuffer.clear().limit(uncompressedBytes);
+
+        // Do the actual decompression
+        lz4Decomp.decompress(compressedBuffer, byteBuffer);
+
+System.out.println("prepareForCompressedRead: decompressed block into " +
+                                   uncompressedBytes + " bytes");
+        // Position buffer properly for reading
+        byteBuffer.flip();
+    }
+
+
+    /**
+     * Sets the proper buffer position for first-time read AFTER the first header.
+     * @param buffer buffer to prepare
+     */
+    private void prepareForBufferRead(ByteBuffer buffer) {
+        buffer.position(4*blockHeader.getHeaderLength());
+    }
+
+
+    /**
+     * Reads next compressed block of data into a buffer and
+     * gets the buffer ready for more reading.
+     *
+     * @return status of read attempt, SUCCESS or EOF
+     * @throws IOException if file read problems, too little data in file
+     */
+    private ReadStatus getNextCompressedBlock() throws IOException {
+System.out.println("getNextCompressedBlock: in");
+        // Enough data left to read 8 header words?
+        if (fileSize - fileChannel.position() < 32L) {
+            if (fileSize - fileChannel.position() == 0L) {
+                return ReadStatus.END_OF_FILE;
+            }
+            throw new IOException("not enough data to read block header");
+        }
+
+        // Read first 8 words of header
+        headerBuf.clear();
+        int bytesActuallyRead = fileChannel.read(headerBuf);
+        while (bytesActuallyRead < 32) {
+            bytesActuallyRead += fileChannel.read(headerBuf);
+        }
+System.out.println("getNextCompressedBlock: read in header");
+
+        // Read uncompressed len of block in bytes
+        int uncompressedBytes = 4*headerBuf.getInt(0);
+
+        // Read length of header (3rd word) & compressed data (5th word) in bytes
+        int headerWords = headerBuf.getInt(8);
+        int compressedBytes = headerBuf.getInt(16);
+
+System.out.println("getNextCompressedBlock: block has " + compressedBytes + " compr bytes, " +
+                   uncompressedBytes + " uncompr bytes");
+
+        // Read the rest of the header (indexes of events in block) if any
+        if (headerWords > 8) {
+            // Make sure we have room in buffer
+            int bytes = 4*headerWords - 32;
+            if (bytes > indexBuf.capacity()) {
+                // Give it a little extra
+                indexBuf = ByteBuffer.allocate(bytes + 1000);
+            }
+            indexBuf.clear().limit(bytes);
+
+            bytesActuallyRead = fileChannel.read(indexBuf);
+            while (bytesActuallyRead < bytes) {
+                bytesActuallyRead += fileChannel.read(indexBuf);
+            }
+        }
+
+        // Is there enough data left to read rest of block?
+        if (fileSize - fileChannel.position() < compressedBytes) {
+            throw new IOException("not enough data to read block");
+        }
+
+        // Make sure buffer can hold the entire block of compressed data
+        if (compressedBuffer.capacity() < compressedBytes) {
+            // Make this bigger than necessary so we're not constantly reallocating
+            compressedBuffer = ByteBuffer.allocate(compressedBytes + 10000);
+            compressedBuffer.order(byteOrder);
+        }
+        compressedBuffer.clear().limit(compressedBytes);
+
+        // Read the entire block of data.
+        bytesActuallyRead = fileChannel.read(compressedBuffer);
+        while (bytesActuallyRead < compressedBytes) {
+            bytesActuallyRead += fileChannel.read(compressedBuffer);
+        }
+
+        compressedBuffer.flip();
+System.out.println("getNextCompressedBlock: data block has been read in");
+
+        // Now for the uncompressed data
+        if (byteBuffer.capacity() < uncompressedBytes) {
+            byteBuffer = ByteBuffer.allocate(uncompressedBytes + 10000);
+            byteBuffer.order(byteOrder);
+        }
+        byteBuffer.clear().limit(uncompressedBytes);
+
+        // Do the actual decompression
+        lz4Decomp.decompress(compressedBuffer, byteBuffer);
+        System.out.println("getNextCompressedBlock: data block has been decompressed");
+
+        // Now keeping track of pos in this new blockBuffer
+        blockHeader.setBufferStartingPosition(0);
+
+        return ReadStatus.SUCCESS;
+    }
+
+
+
+    /**
+     * Reads the block (physical record).
+     * Assumes mapped buffer or file is positioned at start of the next block header.
+     * If a sequential file:
+     *   version 4,   Read the entire next block into internal buffer.
+     *   version 1-3, If unused data still exists in internal buffer, don't
+     *                read anymore in right now as there is at least 1 block there
+     *                (integral # of blocks read in).
+     *                If no data in internal buffer read DEFAULT_READ_BYTES or the
+     *                rest of the file, whichever is smaller, into the internal buffer.
+     *
+     * By the time this is called, the version #, byte order, and if data is compressed
+     * have already been determined. Not necessary to do that
+     * for each block header that's read. Called from synchronized method.<p>
+     *
+     * A Bank header is usually 8, 32-bit ints. The first int is the size of the block in ints
+     * (not counting the length itself, i.e., the number of ints to follow).
+     *
+     * Most users should have no need for this method, since most applications do not
+     * care about the block (physical record) structure.
+     *
+     * @return status of read attempt
+     * @throws IOException if file access problems, not enough data in file,
+     *                     evio format problems
+     */
+    protected ReadStatus processNextBlock() throws IOException {
+
+        // We already read the last block header
+        if (lastBlock) {
+            return ReadStatus.END_OF_FILE;
+        }
+
+        try {
+
+            if (sequentialRead) {
+
+                if (evioVersion < 4) {
+
+                    int bytesInBuf = bufferBytesRemaining();
+                    if (bytesInBuf == 0) {
+
+                        // How much of the file is left to read?
+                        long bytesLeftInFile = fileSize - fileChannel.position();
+                        if (bytesLeftInFile < 32L) {
+                            return ReadStatus.END_OF_FILE;
+                        }
+
+                        // The block size is 32kB which is on the small side.
+                        // We want to read in 16MB (DEFAULT_READ_BYTES) or so
+                        // at once for efficiency.
+                        int bytesToRead = DEFAULT_READ_BYTES < bytesLeftInFile ?
+                                          DEFAULT_READ_BYTES : (int) bytesLeftInFile;
+
+                        // Reset buffer
+                        byteBuffer.position(0).limit(bytesToRead);
+
+                        // Read the entire chunk of data
+                        int bytesActuallyRead = fileChannel.read(byteBuffer);
+                        while (bytesActuallyRead < bytesToRead) {
+                            bytesActuallyRead += fileChannel.read(byteBuffer);
+                        }
+
+                        byteBuffer.flip();
+                        // Now keeping track of pos in this new blockBuffer
+                        blockHeader.setBufferStartingPosition(0);
+                    }
+                    else if (bytesInBuf % 32768 == 0) {
+                        // Next block header starts at this position in buffer
+                        blockHeader.setBufferStartingPosition(byteBuffer.position());
+                    }
+                    else {
+                        throw new IOException("file contains non-integral # of 32768 byte blocks");
+                    }
+                }
+                else {
+                    // Handle decompressed data here
+                    if (compressedInput) {
+                        if (getNextCompressedBlock() == ReadStatus.END_OF_FILE) {
+                            return ReadStatus.END_OF_FILE;
+                        }
+                    }
+                    else {
+                        // Enough data left to read len?
+                        if (fileSize - fileChannel.position() < 4L) {
+                            return ReadStatus.END_OF_FILE;
+                        }
+
+                        // Read len of block in 32 bit words
+//                        int blkSize = dataStream.readInt();
+                        headerBuf.position(0).limit(4);
+                        int bytesActuallyRead = fileChannel.read(headerBuf);
+                        while (bytesActuallyRead < 4) {
+                            fileChannel.read(headerBuf);
+                        }
+                        int blkSize = headerBuf.getInt();
+
+                        if (swap) blkSize = Integer.reverseBytes(blkSize);
+                        // Change to bytes
+                        int blkBytes = 4 * blkSize;
+
+                        // Enough data left to read rest of block?
+                        if (fileSize - fileChannel.position() < blkBytes - 4) {
+                            return ReadStatus.END_OF_FILE;
+                        }
+
+                        // Make sure buffer can hold the entire block of data
+                        if (byteBuffer.capacity() >= blkBytes) {
+                            byteBuffer.clear();
+                            byteBuffer.limit(blkBytes);
+                        }
+                        else {
+                            // Make this bigger than necessary so we're not constantly reallocating
+                            byteBuffer = ByteBuffer.allocate(blkBytes + 10000);
+                            byteBuffer.limit(blkBytes);
+                            byteBuffer.order(byteOrder);
+                        }
+
+                        // Read the entire block of data.
+                        // First put in length we just read.
+                        byteBuffer.putInt(blkSize);
+
+                        // Now the rest of the block (already put int, 4 bytes, in)
+                        bytesActuallyRead = fileChannel.read(byteBuffer) + 4;
+                        while (bytesActuallyRead < blkBytes) {
+                            bytesActuallyRead += fileChannel.read(byteBuffer);
+                        }
+
+                        byteBuffer.flip();
+                        // Now keeping track of pos in this new blockBuffer
+                        blockHeader.setBufferStartingPosition(0);
+                    }
+                }
+            }
+            // Non-sequential reading
+            else {
+                if (byteBuffer.remaining() < 32) {
+                    byteBuffer.clear();
+                    return ReadStatus.END_OF_FILE;
+                }
+                // Record starting position
+                blockHeader.setBufferStartingPosition(byteBuffer.position());
+            }
+
+
+            if (evioVersion >= 4) {
+                // Read the header data
+                if (compressedInput) {
+                    blockHeader4.setSize(headerBuf.getInt(0));
+                    blockHeader4.setNumber(headerBuf.getInt(1));
+                    blockHeader4.setHeaderLength(headerBuf.getInt(2));
+                    blockHeader4.setEventCount(headerBuf.getInt(3));
+                    blockHeader4.setCompressedLength(headerBuf.getInt(4));
+
+                    // Use 6th word to set bit info
+                    blockHeader4.parseToBitInfo(headerBuf.getInt(5));
+                    blockHeader4.setVersion(evioVersion);
+                    lastBlock = blockHeader4.getBitInfo(1);
+
+                    blockHeader4.setReserved2(headerBuf.getInt(6));
+                    blockHeader4.setMagicNumber(headerBuf.getInt(7));
+                    blockHeader = blockHeader4;
+
+                    // Deal with non-standard header lengths here
+                    int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
+                    // If too small quit with error since headers have a minimum size
+                    if (headerLenDiff < 0) {
+                        return ReadStatus.EVIO_EXCEPTION;
+                    }
+                    // If bigger, read indexes
+                    else if (indexBuf!= null) {
+                        // TODO: Read indexes here
+                    }
+                }
+                else {
+                    blockHeader4.setSize(byteBuffer.getInt());
+                    blockHeader4.setNumber(byteBuffer.getInt());
+                    blockHeader4.setHeaderLength(byteBuffer.getInt());
+                    blockHeader4.setEventCount(byteBuffer.getInt());
+                    blockHeader4.setCompressedLength(byteBuffer.getInt());
+
+                    // Use 6th word to set bit info
+                    blockHeader4.parseToBitInfo(byteBuffer.getInt());
+                    blockHeader4.setVersion(evioVersion);
+                    lastBlock = blockHeader4.getBitInfo(1);
+
+                    blockHeader4.setReserved2(byteBuffer.getInt());
+                    blockHeader4.setMagicNumber(byteBuffer.getInt());
+                    blockHeader = blockHeader4;
+
+                    // Deal with non-standard header lengths here
+                    int headerLenDiff = blockHeader4.getHeaderLength() - BlockHeaderV4.HEADER_SIZE;
+                    // If too small quit with error since headers have a minimum size
+                    if (headerLenDiff < 0) {
+                        return ReadStatus.EVIO_EXCEPTION;
+                    }
+                    // If bigger, read extra ints
+                    else if (headerLenDiff > 0) {
+                        for (int i = 0; i < headerLenDiff; i++) {
+                            byteBuffer.getInt();
+                        }
+                    }
+                }
+            }
+            else if (evioVersion < 4) {
+                // read the header data
+                blockHeader2.setSize(byteBuffer.getInt());
+                blockHeader2.setNumber(byteBuffer.getInt());
+                blockHeader2.setHeaderLength(byteBuffer.getInt());
+                blockHeader2.setStart(byteBuffer.getInt());
+                blockHeader2.setEnd(byteBuffer.getInt());
+                // skip version
+                byteBuffer.getInt();
+                blockHeader2.setVersion(evioVersion);
+                blockHeader2.setReserved1(byteBuffer.getInt());
+                blockHeader2.setMagicNumber(byteBuffer.getInt());
+                blockHeader = blockHeader2;
+            }
+
+            // check block number if so configured
+            if (checkBlockNumberSequence) {
+                if (blockHeader.getNumber() != blockNumberExpected) {
+
+System.out.println("block # out of sequence, got " + blockHeader.getNumber() +
+                   " expecting " + blockNumberExpected);
+
+                    return ReadStatus.EVIO_EXCEPTION;
+                }
+                blockNumberExpected++;
+            }
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+            return ReadStatus.EVIO_EXCEPTION;
+        }
+        catch (BufferUnderflowException a) {
+System.err.println("ERROR endOfBuffer " + a);
+            byteBuffer.clear();
+            return ReadStatus.UNKNOWN_ERROR;
+        }
+
+        return ReadStatus.SUCCESS;
+    }
+
+
+    /**
+     * This method is only called once at the very beginning if buffer is known to have
+     * a dictionary. It then reads that dictionary. Only called in format versions 4 & up.
+     * Position buffer after dictionary. Called from synchronized method or constructor.
+     *
+     * @since 4.0
+     * @param buffer buffer to read to get dictionary
+     * @throws EvioException if failed read due to bad buffer format;
+     *                       if version 3 or earlier
+     */
+     private void readDictionary(ByteBuffer buffer) throws EvioException {
+
+         if (evioVersion < 4) {
+             throw new EvioException("Unsupported version (" + evioVersion + ")");
+         }
+
+         // How many bytes remain in this buffer?
+         int bytesRemaining = buffer.remaining();
+         if (bytesRemaining < 12) {
+             throw new EvioException("Not enough data in buffer");
+         }
+
+         // Once here, we are assured the entire next event is in this buffer.
+         int length;
+         length = buffer.getInt();
+
+         if (length < 1) {
+             throw new EvioException("Bad value for dictionary length");
+         }
+         bytesRemaining -= 4;
+
+         // Since we're only interested in length, read but ignore rest of the header.
+         buffer.getInt();
+         bytesRemaining -= 4;
+
+         // get the raw data
+         int eventDataSizeBytes = 4*(length - 1);
+         if (bytesRemaining < eventDataSizeBytes) {
+             throw new EvioException("Not enough data in buffer");
+         }
+
+         byte bytes[] = new byte[eventDataSizeBytes];
+
+         // Read in dictionary data
+         try {
+            buffer.get(bytes, 0, eventDataSizeBytes);
+         }
+         catch (Exception e) {
+             throw new EvioException("Problems reading buffer");
+         }
+
+         // This is the very first event and must be a dictionary
+         String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+         if (strs == null) {
+             throw new EvioException("Data in bad format");
+         }
+         dictionaryXML = strs[0];
+     }
+
+    /**
+     * Get the event in the file/buffer at a given index (starting at 1).
+     * As useful as this sounds, most applications will probably call
+     * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
+     * since it combines combines getting an event with parsing it.<p>
+     *
+     * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
+     * @return the event in the file/buffer at the given index or null if none
+     * @throws IOException   if failed file access
+     * @throws EvioException if failed read due to bad file/buffer format;
+     *                       if out of memory;
+     *                       if index < 1;
+     *                       if object closed
+     */
+    public EvioEvent getEvent(int index)
+            throws IOException, EvioException {
+
+        if (index < 1) {
+            throw new EvioException("index arg starts at 1");
+        }
+
+        if (sequentialRead || evioVersion < 4) {
+            // Do not fully parse events up to index_TH event
+            return gotoEventNumber(index, false);
+        }
+
+        //  Version 4 and up && non sequential
+        return getEventV4(index);
+    }
+
+
+    /**
+     * Get the event in the file/buffer at a given index (starting at 1).
+     * It is only valid for evio versions 4+.
+     * As useful as this sounds, most applications will probably call
+     * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
+     * since it combines combines getting an event with parsing it.
+     * Only called if not sequential reading.<p>
+     *
+     * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
+     * @return the event in the file/buffer at the given index or null if none
+     * @throws IOException   if failed file access
+     * @throws EvioException if failed read due to bad file/buffer format;
+     *                       if out of memory;
+     *                       if object closed
+     */
+    private synchronized EvioEvent getEventV4(int index) throws EvioException {
+
+        if (index > mappedMemoryHandler.getEventCount()) {
+            return null;
+        }
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        index--;
+
+        EvioEvent event = new EvioEvent();
+        BaseStructureHeader header = event.getHeader();
+
+        int length, eventDataSizeBytes = 0;
+
+        ByteBuffer buf = mappedMemoryHandler.getByteBuffer(index);
+        length = buf.getInt();
+
+        if (length < 1) {
+            throw new EvioException("Bad file/buffer format");
+        }
+        header.setLength(length);
+
+        // Read and parse second header word
+        int word = buf.getInt();
+        header.setTag(word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        int type = dt & 0x3f;
+        int padding = dt >>> 6;
+        // If only 7th bit set, that can only be the legacy tagsegment type
+        // with no padding information - convert it properly.
+        if (dt == 0x40) {
+            type = DataType.TAGSEGMENT.getValue();
+            padding = 0;
+        }
+        header.setDataType(type);
+        header.setPadding(padding);
+        header.setNumber(word & 0xff);
+
+        // Once we know what the data type is, let the no-arg constructed
+        // event know what type it is holding so xml names are set correctly.
+        event.setXmlNames();
+
+        try {
+            // Read the raw data
+            eventDataSizeBytes = 4*(length - 1);
+            byte bytes[] = new byte[eventDataSizeBytes];
+            buf.get(bytes, 0, eventDataSizeBytes);
+
+            event.setRawBytes(bytes);
+            event.setByteOrder(byteOrder);
+            event.setEventNumber(++eventNumber);
+        }
+        catch (OutOfMemoryError e) {
+            throw new EvioException("Out Of Memory: (event size = " + eventDataSizeBytes + ")", e);
+        }
+        catch (Exception e) {
+            throw new EvioException("Error", e);
+        }
+
+        return event;
+    }
+
+
+	/**
+	 * This is a workhorse method. It retrieves the desired event from the file/buffer,
+     * and then parses it SAX-like. It will drill down and uncover all structures
+     * (banks, segments, and tagsegments) and notify any interested listeners.
+	 *
+     * @param  index number of event desired, starting at 1, from beginning of file/buffer
+	 * @return the parsed event at the given index or null if none
+     * @throws IOException if failed file access
+     * @throws EvioException if failed read due to bad file/buffer format;
+     *                       if out of memory;
+     *                       if index < 1;
+     *                       if object closed
+	 */
+	public synchronized EvioEvent parseEvent(int index) throws IOException, EvioException {
+		EvioEvent event = getEvent(index);
+        if (event != null) parseEvent(event);
+		return event;
+	}
+
+
+    /**
+     * Get the next event in the file/buffer. As useful as this sounds, most
+     * applications will probably call {@link #parseNextEvent()} instead, since
+     * it combines getting the next event with parsing the next event.<p>
+     *
+     * Although this method can get events in versions 4+, it now delegates that
+     * to another method. No changes were made to this method from versions 1-3 in order
+     * to read the version 4 format as it is subset of versions 1-3 with variable block
+     * length.
+     *
+     * @return the next event in the file.
+     *         On error it throws an EvioException.
+     *         On end of file, it returns <code>null</code>.
+     * @throws IOException   if failed file access
+     * @throws EvioException if failed read due to bad buffer format;
+     *                       if object closed
+     */
+    public synchronized EvioEvent nextEvent() throws IOException, EvioException {
+
+        if (!sequentialRead && evioVersion > 3) {
+            return getEvent(eventNumber+1);
+        }
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        EvioEvent event = new EvioEvent();
+        BaseStructureHeader header = event.getHeader();
+        long currentPosition = byteBuffer.position();
+
+        // How many bytes remain in this block until we reach the next block header?
+        int blockBytesRemaining = blockBytesRemaining();
+
+        if (blockBytesRemaining < 100) {
+            System.out.println("nextEvent: block bytes remaining = " + blockBytesRemaining);
+        }
+
+        if (blockBytesRemaining < 0) {
+            throw new EvioException("Number of block bytes remaining is negative.");
+        }
+
+        // Are we at the block boundary? If so, read/skip-over next header.
+        // Read in more blocks of data if necessary.
+        //
+        // version 1-3:
+        // We now read in bigger chunks that are integral multiples of a single block
+        // (32768 bytes). Must see if we have to deal with an event crossing physical
+        // record boundaries. Previously, java evio only read 1 block at a time.
+        if (blockBytesRemaining == 0) {
+            ReadStatus status = processNextBlock();
+            if (status == ReadStatus.SUCCESS) {
+                return nextEvent();
+            }
+            else if (status == ReadStatus.END_OF_FILE) {
+                return null;
+            }
+            else {
+                throw new EvioException("Failed reading block header in nextEvent.");
+            }
+        }
+        // Or have we already read in the last event?
+        // If jevio versions 1-3, the last block may not be full.
+        // Thus bytesRemaining may be > 0, but we may have read
+        // in all the existing data. (This should never happen in version 4).
+        else if (blockHeader.getBufferEndingPosition() == currentPosition) {
+            return null;
+        }
+
+        // Version   4: Once here, we are assured the entire next event is in this block.
+        //
+        // Version 1-3: No matter what, we can get the length of the next event.
+        //              This is because we read in multiples of blocks each with
+        //              an integral number of 32 bit words.
+        int length;
+        length = byteBuffer.getInt();
+        if (length < 1) {
+            throw new EvioException("non-positive length (0x" + Integer.toHexString(length) + ")");
+        }
+        header.setLength(length);
+        blockBytesRemaining -= 4; // just read in 4 bytes
+
+        // Versions 1-3: if we were unlucky, after reading the length
+        //               there are no bytes remaining in this block.
+        // Don't really need the "if (version < 4)" here except for clarity.
+        if (evioVersion < 4) {
+            if (bufferBytesRemaining() == 0) {
+                ReadStatus status = processNextBlock();
+                if (status == ReadStatus.END_OF_FILE) {
+                    return null;
+                }
+                else if (status != ReadStatus.SUCCESS) {
+                    throw new EvioException("Failed reading block header in nextEvent.");
+                }
+                blockBytesRemaining = blockBytesRemaining();
+            }
+        }
+
+        // Now we should be good to go, except data may cross block boundary.
+        // In any case, should be able to read the rest of the header.
+
+        // Read and parse second header word
+        int word = byteBuffer.getInt();
+        header.setTag(word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        int type = dt & 0x3f;
+        int padding = dt >>> 6;
+        // If only 7th bit set, that can only be the legacy tagsegment type
+        // with no padding information - convert it properly.
+        if (dt == 0x40) {
+            type = DataType.TAGSEGMENT.getValue();
+            padding = 0;
+        }
+        header.setDataType(type);
+        header.setPadding(padding);
+        header.setNumber(word & 0xff);
+
+        blockBytesRemaining -= 4; // just read in 4 bytes
+
+        // get the raw data
+        int eventDataSizeBytes = 4*(length - 1);
+
+        try {
+            byte bytes[] = new byte[eventDataSizeBytes];
+
+            int bytesToGo = eventDataSizeBytes;
+            int offset = 0;
+
+            // Don't really need the "if (version < 4)" here except for clarity.
+            if (evioVersion < 4) {
+
+                // Be in while loop if have to cross block boundary[ies].
+                while (bytesToGo > 0) {
+
+                    // Don't read more than what is left in current block
+                    int bytesToReadNow = bytesToGo > blockBytesRemaining ?
+                                         blockBytesRemaining : bytesToGo;
+
+                    // Read in bytes remaining in internal buffer
+                    byteBuffer.get(bytes, offset, bytesToReadNow);
+                    offset               += bytesToReadNow;
+                    bytesToGo            -= bytesToReadNow;
+                    blockBytesRemaining  -= bytesToReadNow;
+
+                    if (blockBytesRemaining == 0) {
+                        ReadStatus status = processNextBlock();
+                        if (status == ReadStatus.END_OF_FILE) {
+                            return null;
+                        }
+                        else if (status != ReadStatus.SUCCESS) {
+                            throw new EvioException("Failed reading block header after crossing boundary in nextEvent.");
+                        }
+
+                        blockBytesRemaining  = blockBytesRemaining();
+                    }
+                }
+            }
+
+            // Last (perhaps only) read
+            byteBuffer.get(bytes, offset, bytesToGo);
+            event.setRawBytes(bytes);
+            event.setByteOrder(byteOrder); // add this to track endianness, timmer
+            // Don't worry about dictionaries here as version must be 1-3
+            event.setEventNumber(++eventNumber);
+            return event;
+        }
+        catch (OutOfMemoryError ome) {
+            System.out.println("Out Of Memory\n" +
+                                       "eventDataSizeBytes = " + eventDataSizeBytes + "\n" +
+                                       "bytes Remaining = " + blockBytesRemaining + "\n" +
+                                       "event Count: " + eventCount);
+            return null;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+	/**
+	 * This is a workhorse method. It retrieves the next event from the file/buffer,
+     * and then parses it SAX-like. It will drill down and uncover all structures
+     * (banks, segments, and tagsegments) and notify any interested listeners.
+	 *
+	 * @return the event that was parsed.
+     *         On error it throws an EvioException.
+     *         On end of file, it returns <code>null</code>.
+     * @throws IOException if failed file access
+     * @throws EvioException if read failure or bad format
+     *                       if object closed
+     */
+	public synchronized EvioEvent parseNextEvent() throws IOException, EvioException {
+		EvioEvent event = nextEvent();
+		if (event != null) {
+			parseEvent(event);
+		}
+		return event;
+	}
+
+	/**
+	 * This will parse an event, SAX-like. It will drill down and uncover all structures
+     * (banks, segments, and tagsegments) and notify any interested listeners.<p>
+	 *
+	 * As useful as this sounds, most applications will probably call {@link #parseNextEvent()}
+     * instead, since it combines combines getting the next event with parsing the next event.<p>
+     *
+     * This method is only called by synchronized methods and therefore is not synchronized.
+	 *
+	 * @param evioEvent the event to parse.
+	 * @throws EvioException if bad format
+	 */
+	public void parseEvent(EvioEvent evioEvent) throws EvioException {
+        // This method is synchronized too
+		parser.parseEvent(evioEvent);
+	}
+
+    /**
+   	 * Get the number of bytes remaining in the internal byte buffer.
+     * Called only by {@link #nextEvent()}.
+   	 *
+   	 * @return the number of bytes remaining in the current block (physical record).
+        */
+   	private int bufferBytesRemaining() {
+        return byteBuffer.remaining();
+   	}
+
+    /**
+   	 * Get the number of bytes remaining in the current block (physical record).
+     * This is used for pathology checks like crossing the block boundary.
+     * Called only by {@link #nextEvent()}.
+   	 *
+   	 * @return the number of bytes remaining in the current block (physical record).
+        */
+   	private int blockBytesRemaining() {
+   		try {
+               return blockHeader.bytesRemaining(byteBuffer.position());
+   		}
+   		catch (EvioException e) {
+   			e.printStackTrace();
+   			return -1;
+   		}
+   	}
+
+	/**
+	 * The equivalent of rewinding the file. What it actually does
+     * is set the position of the file/buffer back to where it was
+     * after calling the constructor - after the first header.
+     * This method, along with the two <code>position()</code> and the
+     * <code>close()</code> method, allows applications to treat files
+     * in a normal random access manner.
+     *
+     * @throws IOException   if failed file access or buffer/file read
+     * @throws EvioException if object closed
+	 */
+    public synchronized void rewind() throws IOException, EvioException {
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        if (sequentialRead) {
+            fileChannel.position(initialPosition);
+            prepareForSequentialRead();
+        }
+        else if (evioVersion < 4) {
+            byteBuffer.position(initialPosition);
+            prepareForBufferRead(byteBuffer);
+        }
+
+        lastBlock = false;
+        eventNumber = 0;
+        blockNumberExpected = 1;
+
+        if (evioVersion < 4) {
+            blockHeader = blockHeader2 = new BlockHeaderV2((BlockHeaderV2) firstBlockHeader);
+        }
+        else {
+            blockHeader = blockHeader4 = new BlockHeaderV4((BlockHeaderV4) firstBlockHeader);
+        }
+
+        blockHeader.setBufferStartingPosition(initialPosition);
+
+        if (sequentialRead && hasDictionaryXML()) {
+            // Dictionary is always the first event so skip over it.
+            // For sequential reads, do this after each rewind.
+            nextEvent();
+        }
+	}
+
+	/**
+	 * This is equivalent to obtaining the current position in the file.
+     * What it actually does is return the position of the buffer. This
+     * method, along with the <code>rewind()</code>, <code>position(int)</code>
+     * and the <code>close()</code> method, allows applications to treat files
+     * in a normal random access manner. Only meaningful to evio versions 1-3
+     * and for sequential reading.<p>
+	 *
+	 * @return the position of the buffer; -1 if version 4+
+     * @throws IOException   if error accessing file
+     * @throws EvioException if object closed
+     */
+	public synchronized long position() throws IOException, EvioException {
+        if (!sequentialRead && evioVersion > 3) return -1L;
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        if (sequentialRead) {
+            return fileChannel.position();
+        }
+		return byteBuffer.position();
+	}
+
+	/**
+	 * This method sets the current position in the file or buffer. This
+     * method, along with the <code>rewind()</code>, <code>position()</code>
+     * and the <code>close()</code> method, allows applications to treat files
+     * in a normal random access manner. Only meaningful to evio versions 1-3
+     * and for sequential reading.<p>
+     *
+     * <b>HOWEVER</b>, using this method is not necessary for random access of
+     * events and is no longer recommended because it interferes with the sequential
+     * reading of events. Therefore it is now deprecated.
+     *
+	 * @deprecated
+	 * @param position the new position of the buffer.
+     * @throws IOException   if error accessing file
+     * @throws EvioException if object closed
+     */
+	public synchronized void position(long position) throws IOException, EvioException  {
+        if (!sequentialRead && evioVersion > 3) return;
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        if (sequentialRead) {
+            fileChannel.position(position);
+        }
+        else {
+            byteBuffer.position((int)position);
+        }
+	}
+
+	/**
+	 * This is closes the file, but for buffers it only sets the position to 0.
+     * This method, along with the <code>rewind()</code> and the two
+     * <code>position()</code> methods, allows applications to treat files
+     * in a normal random access manner.
+     *
+     * @throws IOException if error accessing file
+	 */
+    public synchronized void close() throws IOException {
+        if (closed) {
+            return;
+        }
+
+        if (!sequentialRead && evioVersion > 3) {
+            if (byteBuffer != null) byteBuffer.position(initialPosition);
+            mappedMemoryHandler = null;
+
+            if (fileChannel != null) {
+                fileChannel.close();
+                fileChannel = null;
+            }
+
+            closed = true;
+            return;
+        }
+
+        if (sequentialRead) {
+            fileChannel.close();
+        }
+        else {
+            byteBuffer.position(initialPosition);
+        }
+
+        closed = true;
+    }
+
+	/**
+	 * This returns the current (active) block (physical record) header.
+     * Since most users have no interest in physical records, this method
+     * should not be used. Mostly it is used by the test programs in the
+	 * <code>EvioReaderTest</code> class.
+	 *
+	 * @return the current block header.
+	 */
+	public IBlockHeader getCurrentBlockHeader() {
+		return blockHeader;
+	}
+
+    /**
+     * Go to a specific event in the file. The events are numbered 1..N.
+     * This number is transient--it is not part of the event as stored in the evio file.
+     * In versions 4 and up this is just a wrapper on {@link #getEvent(int)}.
+     *
+     * @param evNumber the event number in a 1..N counting sense, from the start of the file.
+     * @return the specified event in file or null if there's an error or nothing at that event #.
+     * @throws IOException if failed file access
+     * @throws EvioException if object closed
+     */
+    public EvioEvent gotoEventNumber(int evNumber) throws IOException, EvioException {
+        return gotoEventNumber(evNumber, true);
+    }
+
+
+    /**
+     * Go to a specific event in the file. The events are numbered 1..N.
+     * This number is transient--it is not part of the event as stored in the evio file.
+     * Before version 4, this does the work for {@link #getEvent(int)}.
+     *
+     * @param  evNumber the event number in a 1,2,..N counting sense, from beginning of file/buffer.
+     * @param  parse if {@code true}, parse the desired event
+     * @return the specified event in file or null if there's an error or nothing at that event #.
+     * @throws IOException if failed file access
+     * @throws EvioException if object closed
+     */
+    private synchronized EvioEvent gotoEventNumber(int evNumber, boolean parse)
+            throws IOException, EvioException {
+
+        if (evNumber < 1) {
+			return null;
+		}
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        if (!sequentialRead && evioVersion > 3) {
+            try {
+                if (parse) {
+                    return parseEvent(evNumber);
+                }
+                else {
+                    return getEvent(evNumber);
+                }
+            }
+            catch (EvioException e) {
+                return null;
+            }
+        }
+
+		rewind();
+		EvioEvent event;
+
+		try {
+			// get the first evNumber - 1 events without parsing
+			for (int i = 1; i < evNumber; i++) {
+				event = nextEvent();
+				if (event == null) {
+					throw new EvioException("Asked to go to event: " + evNumber + ", which is beyond the end of file");
+				}
+			}
+			// get one more event, the evNumber'th event
+            if (parse) {
+			    return parseNextEvent();
+            }
+            else {
+                return nextEvent();
+            }
+		}
+		catch (EvioException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+    /**
+     * Rewrite the file to XML (not including dictionary).
+     *
+     * @param path the path to the XML file.
+     *
+     * @return the status of the write.
+     * @throws IOException   if failed file access
+     * @throws EvioException if object closed
+     */
+    public WriteStatus toXMLFile(String path) throws IOException, EvioException {
+        return toXMLFile(path, false);
+    }
+
+    /**
+     * Rewrite the file to XML (not including dictionary).
+     *
+     * @param path the path to the XML file.
+     * @param hex if true, ints get displayed in hexadecimal
+     *
+     * @return the status of the write.
+     * @throws IOException   if failed file access
+     * @throws EvioException if object closed
+     */
+    public WriteStatus toXMLFile(String path, boolean hex) throws IOException, EvioException {
+        return toXMLFile(path, null, hex);
+    }
+
+    /**
+     * Rewrite the file to XML (not including dictionary).
+	 *
+	 * @param path the path to the XML file.
+	 * @param progressListener and optional progress listener, can be <code>null</code>.
+	 * @return the status of the write.
+     * @throws IOException   if failed file access
+     * @throws EvioException if object closed
+     * @see IEvioProgressListener
+	 */
+	public WriteStatus toXMLFile(String path, IEvioProgressListener progressListener)
+                throws IOException, EvioException {
+        return toXMLFile(path, progressListener, false);
+    }
+
+    /**
+     * Rewrite the file to XML (not including dictionary).
+	 *
+	 * @param path the path to the XML file.
+	 * @param progressListener and optional progress listener, can be <code>null</code>.
+     * @param hex if true, ints get displayed in hexadecimal
+     *
+	 * @return the status of the write.
+     * @throws IOException   if failed file access
+     * @throws EvioException if object closed
+     * @see IEvioProgressListener
+	 */
+	public synchronized WriteStatus toXMLFile(String path,
+                                              IEvioProgressListener progressListener,
+                                              boolean hex)
+                throws IOException, EvioException {
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        FileOutputStream fos;
+
+		try {
+			fos = new FileOutputStream(path);
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return WriteStatus.CANNOT_OPEN_FILE;
+		}
+
+		try {
+			XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(fos);
+			xmlWriter.writeStartDocument();
+			xmlWriter.writeCharacters("\n");
+			xmlWriter.writeComment("Event source file: " + path);
+
+			// start the root element
+			xmlWriter.writeCharacters("\n");
+			xmlWriter.writeStartElement(ROOT_ELEMENT);
+			xmlWriter.writeAttribute("numevents", "" + getEventCount());
+            xmlWriter.writeCharacters("\n");
+
+            // The difficulty is that this method can be called at
+            // any time. So we need to save our state and then restore
+            // it when we're done.
+            ReaderState state = getState();
+
+            // Go to the beginning
+			rewind();
+
+			// now loop through the events
+			EvioEvent event;
+			try {
+				while ((event = parseNextEvent()) != null) {
+					event.toXML(xmlWriter, hex);
+					// anybody interested in progress?
+					if (progressListener != null) {
+						progressListener.completed(event.getEventNumber(), getEventCount());
+					}
+				}
+			}
+			catch (EvioException e) {
+				e.printStackTrace();
+				return WriteStatus.UNKNOWN_ERROR;
+			}
+
+			// done. Close root element, end the document, and flush.
+			xmlWriter.writeEndElement();
+			xmlWriter.writeEndDocument();
+			xmlWriter.flush();
+			xmlWriter.close();
+
+			try {
+				fos.close();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+
+            // Restore our original settings
+            restoreState(state);
+
+		}
+		catch (XMLStreamException e) {
+			e.printStackTrace();
+			return WriteStatus.UNKNOWN_ERROR;
+		}
+        catch (FactoryConfigurationError e) {
+            return WriteStatus.UNKNOWN_ERROR;
+        }
+        catch (EvioException e) {
+            return WriteStatus.EVIO_EXCEPTION;
+        }
+
+		return WriteStatus.SUCCESS;
+	}
+
+
+    /**
+     * This is the number of events in the file. Any dictionary event is <b>not</b>
+     * included in the count. In versions 3 and earlier, it is not computed unless
+     * asked for, and if asked for it is computed and cached.
+     *
+     * @return the number of events in the file.
+     * @throws IOException   if failed file access
+     * @throws EvioException if read failure;
+     *                       if object closed
+     */
+    public synchronized int getEventCount() throws IOException, EvioException {
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        if (!sequentialRead && evioVersion > 3) {
+            return mappedMemoryHandler.getEventCount();
+        }
+
+        if (eventCount < 0) {
+            // The difficulty is that this method can be called at
+            // any time. So we need to save our state and then restore
+            // it when we're done.
+            ReaderState state = getState();
+
+            rewind();
+            eventCount = 0;
+
+            while (nextEvent() != null) {
+                eventCount++;
+            }
+
+            // If sequential access to v2 file, then nextEvent() places
+            // new data into byteBuffer. Restoring the original state
+            // is useless without also restoring/re-reading the data.
+            if (sequentialRead) {
+                rewind();
+
+                // Skip dictionary
+                if (hasDictionaryXML()) {
+                    nextEvent();
+                }
+
+                // Go back to original event # & therefore buffer data
+                for (int i=1; i < state.eventNumber; i++) {
+                    nextEvent();
+                }
+            }
+
+            // Restore our original settings
+            restoreState(state);
+        }
+
+        return eventCount;
+    }
+
+    /**
+     * This is the number of blocks in the file including the empty
+     * block usually at the end of version 4 files/buffers.
+     * For version 3 files, a block size read from the first block is used
+     * to calculate the result.
+     * It is not computed unless in random access mode or is
+     * asked for, and if asked for it is computed and cached.
+     *
+     * @throws EvioException if object closed
+     * @return the number of blocks in the file (estimate for version 3 files)
+     */
+    public synchronized int getBlockCount() throws EvioException{
+
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+
+        if (!sequentialRead && evioVersion > 3) {
+            return mappedMemoryHandler.getBlockCount();
+        }
+
+        if (blockCount < 0) {
+            // Although block size is theoretically adjustable, I believe
+            // that everyone used 8192 words for the block size in version 3.
+            blockCount = (int) (fileSize/firstBlockSize);
+        }
+
+        return blockCount;
+    }
+
+
+}

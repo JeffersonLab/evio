@@ -273,11 +273,116 @@ abstract class EvioParserAbstract implements IEvioParser {
     //------------------------
 
 
+    /**
+     * If reading an extended evio block header, this stores
+     * sizes of all events in block - each as one integer.
+     * Each size is the total number of bytes in the event
+     * (not the length in the evio header which does not include itself).
+     */
+    public int[]  eventSizes;
+
+    /** Number of current, valid entries in eventSizes. */
+    public int eventSizesCount;
+
+    /**
+     * This method doubles the amount of memory available to the eventSizes
+     * array. It also copies the existing valid data over to the new array
+     * which is returned and also assigned to the {@link #eventSizes} variable.
+     */
+    private void expandSizeArray() {
+
+        // Initialize things
+        if (eventSizes == null) {
+            // Start with no valid int data
+            eventSizesCount = 0;
+            // Start with 1k event sizes
+            eventSizes = new int[1000];
+        }
+        else if (eventSizesCount + 1 > eventSizes.length) {
+            // Double the amount of storage
+            int[] newEventSizes = new int[2*eventSizes.length];
+            System.arraycopy(eventSizes, 0,
+                             newEventSizes, 0,
+                             eventSizesCount);
+            eventSizes = newEventSizes;
+        }
+    }
+
+
+    /**
+     * This method takes an array of compacted event sizes and expands
+     * it back into an array of integer lengths.
+     * Besides being returned, the expanded data is also stored in the array
+     * {@link #eventSizes}. If this array is too small to hold the data,
+     * its memory is doubled and the valid data copied over.
+     *
+     * @param sizes array of compacted event sizes.
+     * @param len   number of valid bytes in sizes arg.
+     * @return int array with expanded size data.
+     *         Null if arg null or data format error.
+     */
+    public int[] toIntegerSizes(byte[] sizes, int len) {
+
+        if (sizes == null) {
+            return null;
+        }
+
+        int arrayLen = sizes.length;
+        len = len > arrayLen ? arrayLen : len;
+
+        // Init things
+        expandSizeArray();
+
+        byte b;
+        boolean isLastByte;
+        int size, index = 0;
+        eventSizesCount = 0;
+
+        top:
+        while (index < len) {
+
+            size = 0;
+            isLastByte = false;
+
+            while (!isLastByte) {
+                // If data format error
+                if (index >= arrayLen)  {
+                    return null;
+                }
+
+                // Examine 8 bits at a time, the lower 7 of which contribute to size.
+                // If MSBit = 1, it's the last byte of the size, else if = 0,
+                // read next byte too.
+                b = sizes[index++];
+
+                // 0 marks the end of valid data
+                if (b == 0) {
+ System.out.println("toIntegerSizes: HIT ZERO, ending");
+                    break top;
+                }
+
+                isLastByte = (b & 128) > 0;
+                b = (byte) (b & 127);
+                size = (size << 7) | b;
+            }
+
+            // Expand if necessary
+            expandSizeArray();
+
+            eventSizes[eventSizesCount++] = size;
+        }
+
+        return eventSizes;
+    }
+
+    //--------------------------------
+
+
     /** {@inheritDoc} */
     public void setBuffer(ByteBuffer buf) throws EvioException, IOException {}
 
     /** {@inheritDoc} */
-   public synchronized boolean isClosed() { return closed; }
+    public synchronized boolean isClosed() { return closed; }
 
     /** {@inheritDoc} */
     public boolean checkBlockNumberSequence() { return checkBlockNumberSequence; }

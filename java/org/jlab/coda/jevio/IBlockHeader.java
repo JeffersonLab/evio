@@ -122,16 +122,29 @@ public interface IBlockHeader {
     long firstEventStartingPosition();
 
     /**
-	 * Gives the bytes remaining in this block (physical record) given a buffer position. The position is an absolute
-     * position in a byte buffer. This assumes that the absolute position in <code>bufferStartingPosition</code> is
-     * being maintained properly by the reader. No block is longer than 2.1GB - 31 bits of length. This is for
-     * practical reasons - so a block can be read into a single byte array.
+	 * Gives the bytes remaining in this block (physical record) given a buffer position.
+     * The position is an absolute position in a byte buffer. This assumes that the
+     * absolute position in <code>bufferStartingPosition</code> is being maintained
+     * properly by the reader. No block is longer than 2.1GB - 31 bits of length.
+     * This is for practical reasons - so a block can be read into a single byte array.
      *
      * @param position the absolute current position is a byte buffer.
      * @return the number of bytes remaining in this block (physical record.)
      * @throws EvioException if position arg out of bounds
      */
     int bytesRemaining(long position) throws EvioException;
+
+    /**
+	 * Gives the data (not header) bytes remaining in this block given a buffer position.
+     * The position is an absolute position in a byte buffer. However, in the case of
+     * compressed data, no header is contained in this buffer. Therefore this needs
+     * to be accounted for. Otherwise this method is like {@link #bytesRemaining(long)}.
+     *
+     * @param position the absolute current position is a byte buffer.
+     * @return the number of data bytes remaining in this block.
+     * @throws EvioException if position arg out of bounds
+     */
+    int dataBytesRemaining(long position) throws EvioException;
 
     /**
      * Is this block's first event is an evio dictionary?
@@ -159,7 +172,7 @@ public interface IBlockHeader {
 	 * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.
      *
      * @param byteBuffer the byteBuffer to write to.
-     * @return the number of bytes written, which for a BlockHeader is 32.
+     * @return the number of bytes written, which for a BlockHeader is 32 (except when compressing).
      */
     int write(ByteBuffer byteBuffer);
 
