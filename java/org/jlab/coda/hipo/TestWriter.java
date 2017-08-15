@@ -5,6 +5,11 @@
  */
 package org.jlab.coda.hipo;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author gavalian
@@ -40,7 +45,30 @@ public class TestWriter {
     }
     
     
+    public static void byteStream(){
+        
+        ByteArrayOutputStream stream = new ByteArrayOutputStream(4*1024);
+        
+        System.out.println(" STREAM SIZE = " + stream.size());
+        
+        byte[] array = TestWriter.generateBuffer();
+        System.out.println("ARRAY SIZE = " + array.length);
+        int compression = 2345;
+        stream.write(compression);
+        
+        System.out.println(" STREAM SIZE AFTER WRITE = " + stream.size());
+        
+        byte[] buffer = stream.toByteArray();
+        System.out.println( " OBTAINED ARRAY LENGTH = " + buffer.length + "  " + buffer[0]);
+    }
+    
     public static void main(String[] args){
+        
+        TestWriter.byteStream();
+        
+        
+        
+        /*
         byte[] header = TestWriter.generateBuffer(32);
         
         Writer writer = new Writer("compressed.evio", header,1);
@@ -57,6 +85,9 @@ public class TestWriter {
         reader.show();
         Record record = reader.readRecord(0);
         record.show();
+        */
+        
+        
         /*
         Record record = new Record();
         for(int i = 0; i < 6; i++){
