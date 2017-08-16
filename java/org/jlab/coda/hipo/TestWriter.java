@@ -7,6 +7,7 @@ package org.jlab.coda.hipo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,7 +19,7 @@ public class TestWriter {
     
     public static byte[] generateBuffer(){
         int size =  (int) (Math.random()*35.0);
-        size+= 5;
+        size+= 480;
         byte[] buffer = new byte[size];
         for(int i = 0; i < buffer.length; i++){
             buffer[i] =  (byte) (Math.random()*126.0);
@@ -62,9 +63,39 @@ public class TestWriter {
         System.out.println( " OBTAINED ARRAY LENGTH = " + buffer.length + "  " + buffer[0]);
     }
     
+    public static void streamRecord(){
+        RecordStream stream = new RecordStream();
+        byte[] buffer = TestWriter.generateBuffer();
+        while(true){
+            //byte[] buffer = TestWriter.generateBuffer();
+            boolean flag = stream.addEvent(buffer);
+            if(flag==false){
+                stream.build();
+                stream.reset();
+            }
+        }
+
+    }
+    
+    public static void writerTest(){
+        Writer writer = new Writer("compressed_file.evio",ByteOrder.BIG_ENDIAN);
+        byte[] array = TestWriter.generateBuffer();
+        for(int i = 0; i < 3400000; i++){
+            //byte[] array = TestWriter.generateBuffer();
+            writer.addEvent(array);
+        }
+        writer.close();
+    }
+    
     public static void main(String[] args){
         
-        TestWriter.byteStream();
+        
+        
+        TestWriter.writerTest();
+        
+        //TestWriter.streamRecord();
+        
+        //TestWriter.byteStream();
         
         
         

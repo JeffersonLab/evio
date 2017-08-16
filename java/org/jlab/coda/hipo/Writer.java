@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
@@ -26,24 +27,41 @@ public class Writer {
     /**
      * Internal constants used in the FILE header
      */
-    public final static Integer FILE_HEADER_LENGTH = 72;
-    public final static Integer FILE_UNIQUE_WORD   = 0x4849504F;
-    public final static Integer FILE_VERSION_WORD  = 0x56302E32;
+    public final static int    FILE_HEADER_LENGTH = 72;
+    public final static int    FILE_UNIQUE_WORD   = 0x4849504F;
+    public final static int    FILE_VERSION_WORD  = 0x56302E32;
+    public final static int    VERSION_NUMBER     = 6;
+    public final static int    MAGIC_WORD_LE      = 0xc0da1000;
+    public final static int    MAGIC_WORD_BE      = 0x00a1dac0;
+    
+    /**
+     * BYTE ORDER OF THE FILE
+     */
+    
+    private ByteOrder  byteOrderFile = ByteOrder.LITTLE_ENDIAN;
     /**
      * output stream used for writing binary data to the file.
      */
-    private FileOutputStream  outStream = null;    
-    private Record         outputRecord = null;
+    private       FileOutputStream  outStream = null;
+    private RandomAccessFile  outStreamRandom = null;
+    private       Record         outputRecord = null;
+    private RecordStream   outputRecordStream = null;
     /**
      * header byte buffer is stored when object is created.
      * and all subsequent files will have same header byte buffer.
      * the header is user defined and can be anything.
      */
-    private byte[] writerHeaderBuffer = null;
-    
-    private Integer compressionType = 0;
-    
+    private byte[]  writerHeaderBuffer = null;    
+    private Integer    compressionType = 0;
     private Long    writerBytesWritten = 0L;
+    
+    
+    public Writer(String filename, ByteOrder order){
+        byteOrderFile = order;
+        outputRecordStream = new RecordStream();
+        outputRecordStream.reset();
+        open(filename);
+    }
     
     /**
      * default constructor only the internal record is initialized
@@ -112,8 +130,11 @@ public class Writer {
     public final void open(String filename, byte[] header){
         this.writerBytesWritten = (long) (Writer.FILE_HEADER_LENGTH + header.length);
         try {
-            outStream = new FileOutputStream(new File(filename));
+            //outStream = new FileOutputStream(new File(filename));
+            outStreamRandom = new RandomAccessFile(filename,"rw");
+            
             byte[] headerBuffer = new byte[Writer.FILE_HEADER_LENGTH+header.length];
+            
             ByteBuffer byteBuffer = ByteBuffer.wrap(headerBuffer);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             
@@ -122,10 +143,14 @@ public class Writer {
             byteBuffer.putInt(  8, 0x2);
             byteBuffer.putInt( 12, 0);
             byteBuffer.putInt( 16, header.length);
+            byteBuffer.putInt( 20, VERSION_NUMBER);
+            byteBuffer.putInt( 28, MAGIC_WORD_LE);
+            if(byteOrderFile == ByteOrder.BIG_ENDIAN) byteBuffer.putInt(28, MAGIC_WORD_BE);
             
             System.arraycopy(header, 0, headerBuffer, Writer.FILE_HEADER_LENGTH, header.length);
             
-            outStream.write(headerBuffer);
+            outStreamRandom.write(headerBuffer);
+            
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -158,6 +183,14 @@ public class Writer {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void addEvent(byte[] buffer, int offset, int length){
+        boolean status = outputRecordStream.addEvent(buffer, offset,length);
+        if(status==false){
+            writeOutput();
+            outputRecordStream.addEvent(buffer, offset,length);
+        }
+    }
     /**
      * add an byte buffer to the internal record. if the length of
      * the buffer exceeds the maximum size of the record, the record
@@ -166,12 +199,27 @@ public class Writer {
      * @param buffer array to add to the file.
      */
     public void addEvent(byte[] buffer){
+        addEvent(buffer,0,buffer.length);
+        /*
         boolean status = outputRecord.addEvent(buffer);
         if(status==false){
             //ByteBuffer outbytes = outputRecord.build();
             writeRecord(outputRecord);
             outputRecord.reset();
             outputRecord.addEvent(buffer);
+        }*/
+    }
+    
+    private void writeOutput(){
+        outputRecordStream.build();
+        ByteBuffer buffer = outputRecordStream.getBinaryBuffer();
+        int bufferSize = buffer.getInt(4);
+        
+        try {
+            outStreamRandom.write(buffer.array(), 0, bufferSize);
+            outputRecordStream.reset();
+        } catch (IOException ex) {
+            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     /**
@@ -179,14 +227,24 @@ public class Writer {
      * the events will be flushed out.
      */
     public void close(){
-        if(outputRecord.getEntries()>0){
-            System.out.println("[writer] ---> closing file. flashing " + 
-                    outputRecord.getEntries() + " events.");
-            this.writeRecord(outputRecord);
+        if(outputRecordStream.getEventCount()>0){
+            writeOutput();
         }
+        
         try {
+            outStreamRandom.close();
+            /*
+            if(outputRecord.getEntries()>0){
+            System.out.println("[writer] ---> closing file. flashing " +
+            outputRecord.getEntries() + " events.");
+            this.writeRecord(outputRecord);
+            }
+            try {
             this.outStream.close();
             System.out.println("[writer] ---> bytes written " + this.writerBytesWritten);
+            } catch (IOException ex) {
+            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
+            }*/
         } catch (IOException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -8,8 +8,11 @@ package org.jlab.coda.hipo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import net.jpountz.lz4.LZ4Compressor;
+import net.jpountz.lz4.LZ4Factory;
 
 /**
  *
@@ -18,6 +21,15 @@ import java.util.zip.GZIPOutputStream;
 public class Compressor {
     
     public static final int MTU = 1024*1024;
+    
+    LZ4Factory factory = null; 
+    LZ4Compressor lz4_compressor = null;
+    
+    public Compressor(){
+        factory = LZ4Factory.fastestInstance();
+        lz4_compressor = factory.fastCompressor();
+    }
+    
     /**
      * returns compressed buffer. depends on compression type.
      * @param compressionType type of compression
@@ -84,5 +96,12 @@ public class Compressor {
                     + e.getMessage());
         }
         return ungzipped;
+    }
+    
+    public int compressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize){
+        //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
+        int compressedLength = lz4_compressor.compress(src.array(), 0, 
+                srcSize, dst.array(), 0, maxSize);
+        return compressedLength;
     }
 }
