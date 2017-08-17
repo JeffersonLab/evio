@@ -213,7 +213,7 @@ public class Writer {
     private void writeOutput(){
         outputRecordStream.build();
         ByteBuffer buffer = outputRecordStream.getBinaryBuffer();
-        int bufferSize = buffer.getInt(4);
+        int bufferSize = buffer.getInt(0)*4;
         
         try {
             outStreamRandom.write(buffer.array(), 0, bufferSize);
