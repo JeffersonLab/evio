@@ -28,10 +28,10 @@ public class Writer {
      * Internal constants used in the FILE header
      */
     public final static int    FILE_HEADER_LENGTH = 72;
-    public final static int    FILE_UNIQUE_WORD   = 0x4849504F;
-    public final static int    FILE_VERSION_WORD  = 0x56302E32;
+    public final static int    FILE_UNIQUE_WORD   = 0x4F504948;//0x4849504F;
+    public final static int    FILE_VERSION_WORD  = 0x322E3056;//0x56302E32;
     public final static int    VERSION_NUMBER     = 6;
-    public final static int    MAGIC_WORD_LE      = 0xc0da1000;
+    public final static int    MAGIC_WORD_LE      = 0xc0da0100;
     public final static int    MAGIC_WORD_BE      = 0x00a1dac0;
     
     /**
@@ -69,6 +69,7 @@ public class Writer {
      */
     public Writer(){
         outputRecord = new Record();
+        outputRecordStream = new RecordStream();
     }
     /**
      * constructor with filename, the output file will be initialized.
@@ -77,6 +78,7 @@ public class Writer {
      */
     public Writer(String filename){
         outputRecord = new Record();
+        outputRecordStream = new RecordStream();
         this.open(filename);
     }
     /**
@@ -86,6 +88,7 @@ public class Writer {
      */
     public Writer(String filename, byte[] header){
         outputRecord = new Record();
+        outputRecordStream = new RecordStream();
         this.writerHeaderBuffer = header;
         this.open(filename, header);
     }
@@ -132,7 +135,7 @@ public class Writer {
         try {
             //outStream = new FileOutputStream(new File(filename));
             outStreamRandom = new RandomAccessFile(filename,"rw");
-            
+            /*
             byte[] headerBuffer = new byte[Writer.FILE_HEADER_LENGTH+header.length];
             
             ByteBuffer byteBuffer = ByteBuffer.wrap(headerBuffer);
@@ -148,8 +151,9 @@ public class Writer {
             if(byteOrderFile == ByteOrder.BIG_ENDIAN) byteBuffer.putInt(28, MAGIC_WORD_BE);
             
             System.arraycopy(header, 0, headerBuffer, Writer.FILE_HEADER_LENGTH, header.length);
-            
-            outStreamRandom.write(headerBuffer);
+            */
+            ByteBuffer headerBuffer = this.createHeader(header);
+            outStreamRandom.write(headerBuffer.array());
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
@@ -168,6 +172,38 @@ public class Writer {
         this.outputRecord.setCompressionType(compression);
         this.compressionType = outputRecord.getCompressionType();
         return this;
+    }
+    
+    public ByteBuffer createHeader(byte[] userHeader){
+        
+        int size = userHeader.length;
+        int uhWords = (size)/4;
+        
+        if(userHeader.length%4!=0) uhWords++;
+        
+        System.out.println(" SIZE = " + size + "  words = " + uhWords);
+        byte[]  fileHeader = new byte[64+uhWords*4];
+
+        System.arraycopy(userHeader, 0, fileHeader, 64, userHeader.length);
+        ByteBuffer headerBuffer = ByteBuffer.wrap(fileHeader);
+        headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        
+        headerBuffer.putInt(  0, 16+uhWords);
+        headerBuffer.putInt(  4, 0);
+        headerBuffer.putInt(  8, 16);
+        headerBuffer.putInt( 12, 0);
+        headerBuffer.putInt( 16, 0);
+        headerBuffer.putInt( 20, 6);
+        headerBuffer.putInt( 24, 0);
+        
+        headerBuffer.putInt( 28, MAGIC_WORD_LE);
+        headerBuffer.putInt( 32, Writer.FILE_UNIQUE_WORD);
+        headerBuffer.putInt( 36, Writer.FILE_VERSION_WORD);
+        headerBuffer.putInt( 40, userHeader.length);
+        headerBuffer.putInt( 44, 0);
+        
+
+        return headerBuffer;
     }
     /**
      * Appends the record to the file.
@@ -213,7 +249,7 @@ public class Writer {
     private void writeOutput(){
         outputRecordStream.build();
         ByteBuffer buffer = outputRecordStream.getBinaryBuffer();
-        int bufferSize = buffer.getInt(4);
+        int bufferSize = buffer.getInt(0)*4;
         
         try {
             outStreamRandom.write(buffer.array(), 0, bufferSize);

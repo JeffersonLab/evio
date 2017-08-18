@@ -20,6 +20,12 @@ import net.jpountz.lz4.LZ4Factory;
  */
 public class Compressor {
     
+    
+    public static int         RECORD_UNCOMPRESSED = 0;
+    public static int      RECORD_COMPRESSION_LZ4 = 1;
+    public static int RECORD_COMPRESSION_LZ4_BEST = 2;
+    public static int     RECORD_COMPRESSION_GZIP = 3;
+    
     public static final int MTU = 1024*1024;
     
     LZ4Factory factory = null; 

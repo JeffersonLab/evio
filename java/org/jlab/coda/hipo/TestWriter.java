@@ -7,9 +7,12 @@ package org.jlab.coda.hipo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jlab.coda.jevio.EvioCompactReader;
+import org.jlab.coda.jevio.EvioException;
 
 /**
  *
@@ -79,25 +82,54 @@ public class TestWriter {
     
     public static void writerTest(){
         Writer writer = new Writer("compressed_file.evio",ByteOrder.BIG_ENDIAN);
-        byte[] array = TestWriter.generateBuffer();
-        for(int i = 0; i < 3400000; i++){
-            //byte[] array = TestWriter.generateBuffer();
+        //byte[] array = TestWriter.generateBuffer();
+        for(int i = 0; i < 340000; i++){
+            byte[] array = TestWriter.generateBuffer();
             writer.addEvent(array);
         }
         writer.close();
     }
     
+    
+    public static void convertor() {
+        String filename = "/Users/gavalian/Work/Software/project-1a.0.0/clas_000810.evio.324";
+        try {
+            EvioCompactReader  reader = new EvioCompactReader(filename);
+            int nevents = reader.getEventCount();
+            String userHeader = "File is written with new version=6 format";
+            Writer writer = new Writer("converted_000810.evio",userHeader.getBytes());
+            
+            System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
+            for(int i = 1; i < nevents; i++){
+                ByteBuffer buffer = reader.getEventBuffer(i,true); 
+                writer.addEvent(buffer.array());
+                //System.out.println(" EVENT # " + i + "  size = " + buffer.array().length );                
+            }
+            writer.close();
+        } catch (EvioException ex) {
+            Logger.getLogger(TestWriter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(TestWriter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
     public static void main(String[] args){
         
+        /*Writer writer = new Writer();
         
+        writer.open("new_header_test.evio",new byte[]{'a','b','c','d','e'});
+        writer.close(); */
         
-        TestWriter.writerTest();
+        //writer.createHeader(new byte[17]);
+        
+        TestWriter.convertor();
+        
+        //TestWriter.writerTest();
         
         //TestWriter.streamRecord();
         
         //TestWriter.byteStream();
-        
-        
         
         /*
         byte[] header = TestWriter.generateBuffer(32);
