@@ -47,10 +47,10 @@ public class RecordStream {
      * These words are part of the EVIO header format, and
      * are written into header exactly as it was in EVIO.
      */
-    private int  blockNumber = 0;
-    private int blockVersion = 6;
-    private int blockBitInfo = 0;
-    private int reservedWord = 0;
+    private int        blockNumber = 0;
+    private int       blockVersion = 6;
+    private int       blockBitInfo = 0;
+    private int       reservedWord = 0;
     private int reservedWordSecond = 0;
     /**
      *  UNIQUE identifiers part of the new HIPO Header. There are
@@ -143,10 +143,18 @@ public class RecordStream {
         this.reservedWord = rw;
     }
     /**
+     * sets the value of the second reserved word in the header.
+     * @param rw2 word value (32 bits)
+     */
+    public void setReservedWordSecond(int rw2){
+        reservedWordSecond = rw2;
+    }
+    /**
      * Allocates all buffers for constructing the record stream.
      * @param size 
      */
     private void allocate(int size){
+        
         MAX_BUFFER_SIZE = size;
         
         byte[] ri = new byte[MAX_EVENT_COUNT*4];
@@ -207,16 +215,6 @@ public class RecordStream {
      */
     public boolean addEvent(byte[] event){
         return addEvent(event,0,event.length);
-        /*int  size = event.length;
-        int count = recordIndex.getInt(0);
-        recordIndex.putInt( (count+1)*4,    size);
-        recordIndex.putInt(           0, count+1);
-        
-        try {
-            recordStream.write(event);
-        } catch (IOException ex) {
-            Logger.getLogger(RecordStream.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }
     /**
      * Reset internal buffers. The capacity of the ByteArray stream is set to 0.
@@ -239,7 +237,12 @@ public class RecordStream {
         int word = ((ctype<<24)&0xFF000000)|(csize&0x00FFFFFF);
         return word;
     }
-    
+    /**
+     * Returns the word containing the version number of the record
+     * (lower 8 bits) and bit information that is provided by user
+     * (upper 24 bits)
+     * @return 
+     */
     private int getVersionWord(){
         int versionWord = ((this.blockBitInfo<<8)&(0xFFFFFF00))|blockVersion;
         return versionWord;
@@ -266,10 +269,10 @@ public class RecordStream {
         int nevents = recordIndex.getInt(0)/4;
         
         int recordWordCount = (compressedSize + this.HEADER_SIZE)/4;
-        if( (compressedSize+this.HEADER_SIZE)%4!=0) recordWordCount+=1;
-        
+        if( (compressedSize+this.HEADER_SIZE)%4!=0) recordWordCount+=1;     
         
         recordBinary.position(0);
+        
         recordBinary.putInt(   0, recordWordCount);
         recordBinary.putInt(   4, blockNumber);
         recordBinary.putInt(   8, 16);
@@ -287,38 +290,20 @@ public class RecordStream {
         
         recordBinary.position(HEADER_SIZE);
         recordBinary.put(recordDataCompressed.array(), 0, compressedSize);
-        
-        /*
-        int size = recordIndex.getInt(0)*4 + recordStream.size();
-        byte[] buffer = new byte[size];
-        
-        byte[] indexBuffer = recordIndex.array();
-        byte[]  dataBuffer = recordStream.toByteArray();
-        int     dataOffset = recordIndex.getInt(0)*4;
-        System.arraycopy(  dataBuffer, 0, buffer, dataOffset, dataBuffer.length);
-        System.arraycopy( indexBuffer, 4, buffer,          0, dataOffset);
-        
-        byte[] dataCompressedBuffer = Compressor.getCompressedBuffer(1, buffer);
-        byte[]         recordBuffer = new byte[48+dataCompressedBuffer.length];
-        
-        System.arraycopy(dataCompressedBuffer, 0, recordBuffer, 48, dataCompressedBuffer.length);
-        ByteBuffer byteBuffer = ByteBuffer.wrap(recordBuffer);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        byteBuffer.putInt(  0, RECORD_UID_WORD_LE);
-        byteBuffer.putInt(  4, recordBuffer.length);
-        byteBuffer.putInt(  8, dataBuffer.length);
-        byteBuffer.putInt( 12, dataCompressedBuffer.length);
-        byteBuffer.putInt( 16, recordIndex.getInt(0));
-        byteBuffer.putInt( 20, 0);
-        byteBuffer.putInt( 24, recordIndex.getInt(0)*4);
-                
-        return byteBuffer.array();
-        */
-    }
-    public int getEventCount(){
-        return this.recordIndex.getInt(0)/4;
     }
     
+    /**
+     * returns number of events written so far into the buffer
+     * @return event count
+     */
+    public int getEventCount(){
+        return this.recordIndex.getInt(0)/4 - 1;
+    }
+    /**
+     * returns reference to internal ByteBuffer used to construct
+     * binary representation of the record.
+     * @return 
+     */
     public ByteBuffer getBinaryBuffer(){
         return this.recordBinary;
     }

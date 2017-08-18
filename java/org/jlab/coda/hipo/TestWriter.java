@@ -96,7 +96,9 @@ public class TestWriter {
         try {
             EvioCompactReader  reader = new EvioCompactReader(filename);
             int nevents = reader.getEventCount();
-            Writer writer = new Writer("converted_000810.evio",ByteOrder.LITTLE_ENDIAN);
+            String userHeader = "File is written with new version=6 format";
+            Writer writer = new Writer("converted_000810.evio",userHeader.getBytes());
+            
             System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
             for(int i = 1; i < nevents; i++){
                 ByteBuffer buffer = reader.getEventBuffer(i,true); 
@@ -113,6 +115,13 @@ public class TestWriter {
     }
     
     public static void main(String[] args){
+        
+        /*Writer writer = new Writer();
+        
+        writer.open("new_header_test.evio",new byte[]{'a','b','c','d','e'});
+        writer.close(); */
+        
+        //writer.createHeader(new byte[17]);
         
         TestWriter.convertor();
         
