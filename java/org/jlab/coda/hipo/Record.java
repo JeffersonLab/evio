@@ -96,8 +96,14 @@ public class Record {
      */
     private Integer  compressionType = 0;
     
+    
+    private RecordHeader  recordHeader = null; 
+
+    
     public Record(){
-        
+       recordHeader = new RecordHeader();
+       recordHeader.setVersion(6);
+       recordHeader.setHeaderLength(14);
     }
     /**
      * sets compression type for the record. It will be used when
@@ -174,6 +180,11 @@ public class Record {
             offset+= item.length;
         }
         return dataBuffer;
+    }
+    
+    public void build(ByteBuffer userHeader){
+        int userHeaderSize = userHeader.array().length;
+        //int indexArraySize = 
     }
     /**
      * Builds a byte[] array of the record. The record header, index

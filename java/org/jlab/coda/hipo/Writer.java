@@ -45,7 +45,7 @@ public class Writer {
     private       FileOutputStream  outStream = null;
     private RandomAccessFile  outStreamRandom = null;
     private       Record         outputRecord = null;
-    private RecordStream   outputRecordStream = null;
+    private RecordOutputStream   outputRecordStream = null;
     /**
      * header byte buffer is stored when object is created.
      * and all subsequent files will have same header byte buffer.
@@ -58,7 +58,7 @@ public class Writer {
     
     public Writer(String filename, ByteOrder order){
         byteOrderFile = order;
-        outputRecordStream = new RecordStream();
+        outputRecordStream = new RecordOutputStream();
         outputRecordStream.reset();
         open(filename);
     }
@@ -69,7 +69,7 @@ public class Writer {
      */
     public Writer(){
         outputRecord = new Record();
-        outputRecordStream = new RecordStream();
+        outputRecordStream = new RecordOutputStream();
     }
     /**
      * constructor with filename, the output file will be initialized.
@@ -78,7 +78,7 @@ public class Writer {
      */
     public Writer(String filename){
         outputRecord = new Record();
-        outputRecordStream = new RecordStream();
+        outputRecordStream = new RecordOutputStream();
         this.open(filename);
     }
     /**
@@ -88,7 +88,7 @@ public class Writer {
      */
     public Writer(String filename, byte[] header){
         outputRecord = new Record();
-        outputRecordStream = new RecordStream();
+        outputRecordStream = new RecordOutputStream();
         this.writerHeaderBuffer = header;
         this.open(filename, header);
     }
@@ -247,7 +247,12 @@ public class Writer {
     }
     
     private void writeOutput(){
-        outputRecordStream.build();
+        
+        byte[] header = new byte[233];
+        ByteBuffer userHeader = ByteBuffer.wrap(header);
+        
+        outputRecordStream.build(userHeader,234);
+        
         ByteBuffer buffer = outputRecordStream.getBinaryBuffer();
         int bufferSize = buffer.getInt(0)*4;
         
