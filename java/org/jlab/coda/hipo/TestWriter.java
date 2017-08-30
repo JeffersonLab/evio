@@ -125,8 +125,11 @@ public class TestWriter {
        System.out.println("STRING LENGTH = " + userHeader.length());
        Writer writer = new Writer();
        writer.open("example_file.evio", userHeader.getBytes());
-       byte[] array = TestWriter.generateBuffer(4500);
-       writer.addEvent(array);
+       for(int i = 0; i < 5; i++){
+           byte[] array = TestWriter.generateBuffer();
+           writer.addEvent(array);
+       }
+
        writer.close();
     }
     
