@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  *
  * @author gavalian
  */
-public class RecordStream {
+public class RecordOutputStream {
     
     
     private int      MAX_BUFFER_SIZE = 8*1024*1024;
@@ -60,10 +60,12 @@ public class RecordStream {
     private long recordHeaderUniqueWordFirst  = 0L;
     private long recordHeaderUniqueWordSecond = 0L;
     
+    private RecordHeader  recordHeader = null; 
+    
     /**
      * Default constructor.
      */
-    public RecordStream(){
+    public RecordOutputStream(){
         /*recordStream = new ByteArrayOutputStream(MAX_BUFFER_SIZE);
         byte[] index = new byte[MAX_EVENT_COUNT*4];
         recordIndex  = ByteBuffer.wrap(index);
@@ -71,19 +73,27 @@ public class RecordStream {
         recordIndex.putInt(0, 0);*/
         allocate(this.MAX_BUFFER_SIZE);
         dataCompressor = new Compressor();
+        recordHeader = new RecordHeader();
+        recordHeader.setVersion(6);
+        recordHeader.setHeaderLength(14);
+        compressionType = 1;
     }
     /**
      * creates a record stream object with desired maximum size.
      * @param size 
      */
-    public RecordStream(int size){
+    /*public RecordOutputStream(int size){
         MAX_BUFFER_SIZE = size;
         recordStream = new ByteArrayOutputStream(MAX_BUFFER_SIZE);
         byte[] index = new byte[MAX_EVENT_COUNT*4];
         recordIndex  = ByteBuffer.wrap(index);
         recordIndex.order(ByteOrder.LITTLE_ENDIAN);
         recordIndex.putInt(0, 0);
-    }
+        recordHeader = new RecordHeader();
+        recordHeader.setVersion(6);
+        recordHeader.setHeaderLength(14);
+        compressionType = 1;
+    }*/
     /**
      * sets unique words for the record header, there are two LONG
      * words at the end of each record.
@@ -292,6 +302,53 @@ public class RecordStream {
         recordBinary.put(recordDataCompressed.array(), 0, compressedSize);
     }
     
+    
+    public void build(ByteBuffer userHeader, int recordNumber){
+        
+        int indexSize = recordIndex.getInt(  0) - 4;
+        int eventSize = recordEvents.getInt( 0) - 4;
+        int userhSize = userHeader.array().length;
+        
+        recordHeader.setEntries(indexSize/4);
+        recordHeader.setRecordNumber(recordNumber);
+        recordHeader.setIndexLength(indexSize);
+        recordHeader.setDataLength(eventSize);
+        recordHeader.setUserHeaderLength(userhSize);
+        
+        int indexOffset = 0;
+        int userhOffset = indexOffset + recordHeader.getIndexLength();
+        int databOffset = userhOffset + recordHeader.getUserHeaderLengthWords()*4;
+        
+        //System.out.println("  INDEX = " + indexOffset + " " + userhOffset + "  " + databOffset 
+        //        + "  DIFF " + (databOffset-userhOffset));
+        
+        recordData.position(indexOffset);
+        recordData.put(  recordIndex.array(), 4, indexSize);
+        recordData.position(userhOffset);
+        recordData.put( userHeader.array(), 0, userhSize);
+        recordData.position(databOffset);
+        recordData.put( recordEvents.array(), 4, eventSize);
+        
+        int dataBufferSize = recordHeader.getIndexLength() + 
+                recordHeader.getUserHeaderLengthWords()*4  +
+                recordHeader.getDataLengthWords()*4;
+        
+        //System.out.println(" TOTAL SIZE = " + dataBufferSize);
+        
+        int compressedSize = dataCompressor.compressLZ4(recordData, dataBufferSize, 
+                recordDataCompressed, recordDataCompressed.array().length);
+        
+        recordHeader.setCompressedDataLength(compressedSize);
+        recordHeader.setLength(recordHeader.getCompressedDataLengthWords()*4
+                +recordHeader.getHeaderLength()*4);
+        recordHeader.setCompressionType(this.compressionType);
+        
+        //System.out.println(recordHeader.toString());
+        //recordBinary.position(0);
+        recordHeader.writeHeader(recordBinary);
+        recordBinary.position(recordHeader.getHeaderLength()*4);
+        recordBinary.put(recordDataCompressed.array(), 0, recordHeader.getCompressedDataLengthWords()*4);
+    }
     /**
      * returns number of events written so far into the buffer
      * @return event count
