@@ -11,51 +11,173 @@ import java.nio.ByteOrder;
 
 /**
  * Generic HEADER class to compose a record header or file header
- * with given buffer sizes and paddings and compression types.
+ * with given buffer sizes and paddings and compression types.<p>
+ *
+ * <pre>
+ * RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
+ *
+ *    +----------------------------------+
+ *  1 |         Record Length            | // 32bit words, inclusive
+ *    +----------------------------------+
+ *  2 +         Record Number            |
+ *    +----------------------------------+
+ *  3 +         Header Length            | // 14 (words)
+ *    +----------------------------------+
+ *  4 +       Event (Index) Count        |
+ *    +----------------------------------+
+ *  5 +      Index Array Length          | // bytes
+ *    +-----------------------+---------+
+ *  6 +       Bit Info        | Version  | // version (8 bits)
+ *    +-----------------------+----------+
+ *  7 +      User Header Length          | // bytes
+ *    +----------------------------------+
+ *  8 +          Magic Number            | // 0xc0da0100
+ *    +----------------------------------+
+ *  9 +     Uncompressed Data Length     | // bytes
+ *    +------+---------------------------+
+ * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits)
+ *    +----------------------------------+
+ * 11 +        General Register 1        | // UID 1st (64 bits)
+ *    +--                              --+
+ * 12 +                                  |
+ *    +----------------------------------+
+ * 13 +        General Register 2        | // UID 2nd (64 bits)
+ *    +--                              --+
+ * 14 +                                  |
+ *    +----------------------------------+
+ *
+ * -------------------
+ *   Compression Type
+ * -------------------
+ *     0  = none
+ *     1  = LZ4 fastest
+ *     2  = LZ4 best
+ *     3  = gzip
+ *
+ * -------------------
+ *   Bit Info Word
+ * -------------------
+ *     0-7  = version
+ *     8    = true if dictionary is included (relevant for first record only)
+ *     9    = true if this record is the last in file or stream
+ *    10-13 = type of events contained: 0 = ROC Raw,
+ *                                      1 = Physics
+ *                                      2 = PartialPhysics
+ *                                      3 = DisentangledPhysics
+ *                                      4 = User
+ *                                      5 = Control
+ *                                     15 = Other
+ *    14-19 = reserved
+ *    20-21 = pad 1
+ *    22-23 = pad 2
+ *    24-25 = pad 3
+ *    26-27 = reserved
+ *    28-31 = general header type: 0 = Evio record,
+ *                                 3 = Evio file trailer
+ *                                 4 = HIPO record,
+ *                                 7 = HIPO file trailer
+ *
+ *
+ *
+ * ------------------------------------------------------------
+ * ------------------------------------------------------------
+ *
+ * FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
+ *
+ *    +----------------------------------+
+ *  1 |              ID                  | // HIPO: 0x43455248, Evio: 0x4556494F
+ *    +----------------------------------+
+ *  2 +          File Number             | // split file #
+ *    +----------------------------------+
+ *  3 +         Header Length            | // 14 (words)
+ *    +----------------------------------+
+ *  4 +      Record (Index) Count        |
+ *    +----------------------------------+
+ *  5 +      Index Array Length          | // bytes
+ *    +-----------------------+---------+
+ *  6 +       Bit Info        | Version  | // version (8 bits)
+ *    +-----------------------+----------+
+ *  7 +      User Header Length          | // bytes
+ *    +----------------------------------+
+ *  8 +          Magic Number            | // 0xc0da0100
+ *    +----------------------------------+
+ *  9 +     Uncompressed Data Length     | // 0 (bytes)
+ *    +------+---------------------------+
+ * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits)
+ *    +----------------------------------+
+ * 11 +         Trailer Position         | // File offset to trailer head (64 bits) .
+ *    +--                              --+ // 0 = no offset available or no trailer exists.
+ * 12 +                                  |
+ *    +----------------------------------+
+ * 13 +          User Register 1         |
+ *    +----------------------------------+
+ * 14 +          User Register 2         |
+ *    +----------------------------------+
+ *
+ * -------------------
+ *   Bit Info Word
+ * -------------------
+ *     0-7  = version
+ *     8    = true if dictionary is included (relevant for first record only)
+ *     9    = true if this file has "first" event (in every split file)
+ *    10    = File trailer with index array exists
+ *    11-19 = reserved
+ *    20-21 = pad 1
+ *    22-23 = pad 2
+ *    24-25 = pad 3 (always 0)
+ *    26-27 = reserved
+ *    28-31 = general header type: 1 = Evio file
+ *                                 2 = Evio extended file
+ *                                 5 = HIPO file
+ *                                 6 = HIPO extended file
+ *
+ * </pre>
+ *
  * @author gavalian
  */
 public class RecordHeader {
-            long             position = (long) 0;
-        int          recordLength = 0;
-        int          recordNumber = 0;
-        int               entries = 0;
-        int          headerLength = 0;
-        int      userHeaderLength = 0;
-        int           indexLength = 0;
-        int            dataLength = 0;
-        int  compressedDataLength = 0;
-        int       compressionType = 0;
-        /**
-         * These quantities are updated automatically
-         * when the lengths are set.
-         */
-        int             indexLengthPadding = 0;
-        int        userHeaderLengthPadding = 0;
-        int              dataLengthPadding = 0;
-        int    compressedDataLengthPadding = 0;
-        int            recordLengthPadding = 0;
-        
-        int           dataLengthWords = 0;
-        int compressedDataLengthWords = 0;
-        int     userHeaderLengthWords = 0;
-        int         recordLengthWords = 0;
-        int         headerLengthWords = 0;
-        /**
-         * User registers that will be written at the end of the
-         * header.
-         */
-        long  recordUserRegisterFirst = 0L;
-        long recordUserRegisterSecond = 0L;
-        
+
+        private long            position = 0L;
+        private int          recordLength = 0;
+        private int          recordNumber = 0;
+        private int               entries = 0;
+        private int          headerLength = 0;
+        private int      userHeaderLength = 0;
+        private int           indexLength = 0;
+        private int            dataLength = 0;
+        private int  compressedDataLength = 0;
+        private int       compressionType = 0;
+            /*
+             * These quantities are updated automatically
+             * when the lengths are set.
+             */
+        private int             indexLengthPadding = 0;
+        private int        userHeaderLengthPadding = 0;
+        private int              dataLengthPadding = 0;
+        private int    compressedDataLengthPadding = 0;
+        private int            recordLengthPadding = 0;
+
+        private int           dataLengthWords = 0;
+        private int compressedDataLengthWords = 0;
+        private int     userHeaderLengthWords = 0;
+        private int         recordLengthWords = 0;
+        private int         headerLengthWords = 0;
+            /*
+             * User registers that will be written at the end of the
+             * header.
+             */
+        private long  recordUserRegisterFirst = 0L;
+        private long recordUserRegisterSecond = 0L;
+
         private int         headerVersion = 6;
         private int         headerMagicWord;
-        
+
         private final int   HEADER_MAGIC_LE = 0xc0da0100;
         private final int   HEADER_MAGIC_BE = 0x0010dac0;
-        
-        //private ByteOrder   headerByteOrder = ByteOrder.LITTLE_ENDIAN;        
+
+        //private ByteOrder   headerByteOrder = ByteOrder.LITTLE_ENDIAN;
         //private final int headerMagicWord = 0xc0da0100;
-        
+
         public RecordHeader() {
             headerMagicWord = HEADER_MAGIC_LE;
         }
