@@ -46,7 +46,7 @@ public class Compressor {
      * @return compressed buffer
      */
     public static byte[] getCompressedBuffer(int compressionType, byte[] buffer){
-        if(compressionType==1){
+        if(compressionType == RECORD_COMPRESSION_GZIP){
             return Compressor.compressGZIP(buffer);
         }
         return buffer;
@@ -58,7 +58,7 @@ public class Compressor {
      * @return uncompressed buffer
      */
     public static byte[] getUnCompressedBuffer(int compressionType, byte[] compressedBuffer){
-        if(compressionType==1){
+        if(compressionType == RECORD_COMPRESSION_GZIP){
             return Compressor.uncompressGZIP(compressedBuffer);
         }
         return compressedBuffer;
