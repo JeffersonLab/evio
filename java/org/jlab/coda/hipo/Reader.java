@@ -30,8 +30,8 @@ public class Reader {
      * to read out positions of each record in the file.
      * 
      */
-    private List<RecordEntry>  readerRecordEntries = 
-            new ArrayList<RecordEntry>();
+    private List<RecordHeader>  readerRecordEntries = 
+            new ArrayList<RecordHeader>();
     /**
      * Input binary file stream.
      */
@@ -119,7 +119,7 @@ public class Reader {
                 header.order(ByteOrder.LITTLE_ENDIAN);
                 Integer recordLength = header.getInt(4);
                 Integer   eventCount = header.getInt(16);
-                RecordEntry entry = new RecordEntry(recordPosition,recordLength,eventCount);
+                RecordHeader entry = new RecordHeader(recordPosition,recordLength,eventCount);
                 readerRecordEntries.add(entry);
                 recordPosition += recordLength;
             }
@@ -131,34 +131,34 @@ public class Reader {
     
     public void show(){
         System.out.println("FILE: (info)");
-        for(RecordEntry entry : this.readerRecordEntries){
+        for(RecordHeader entry : this.readerRecordEntries){
             System.out.println(entry);
         }
+    }
+    
+    public static void main(String[] args){
+        RecordHeader header = new RecordHeader();
+        header.setLength(12);
+        
+        header.setCompressedDataLength(3490).setDataLength(83457).setCompressionType(1).setEntries(513);
+        header.setIndexLength(513*4).setUserHeaderLength(234).setRecordNumber(24).setLength(9234);
+        header.setUserRegisterFirst(4587239485L);
+        header.setUserRegisterSecond(1234567889L);
+        System.out.println(header);
+        /*byte[] array = new byte[128];
+        ByteBuffer buffer = ByteBuffer.wrap(array);
+        
+        header.writeHeader(buffer);
+        
+        RecordHeader h2 = new RecordHeader();
+        h2.readHeader(buffer);
+        
+        System.out.println(h2);*/
     }
     /**
      * Internal class to keep track of the records in the file.
      * Each entry keeps record position in the file, length of
      * the record and number of entries contained.
      */
-    public static class RecordEntry {
-        
-        Long     position = (long) 0;
-        Integer    length = 0;
-        Integer   entries = 0;
-        
-        public RecordEntry(long _pos, int _l, int _e){
-            position = _pos; length = _l; entries = _e;
-        }
-        public Long getPosition(){ return position;}
-        public Integer getLength(){ return length;}
-        public Integer getEntries(){return entries;}
-        
-        @Override
-        public String toString(){
-            StringBuilder str = new StringBuilder();
-            str.append(String.format("\t position : %9d, buffer count : %8d, length : %8d",
-                    position,entries,length));
-            return str.toString();
-        }
-    }
+ 
 }

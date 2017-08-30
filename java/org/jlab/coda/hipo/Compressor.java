@@ -13,6 +13,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.lz4.LZ4SafeDecompressor;
 
 /**
  *
@@ -30,10 +31,12 @@ public class Compressor {
     
     LZ4Factory factory = null; 
     LZ4Compressor lz4_compressor = null;
+    LZ4SafeDecompressor lz4_decompressor = null;
     
     public Compressor(){
         factory = LZ4Factory.fastestInstance();
         lz4_compressor = factory.fastCompressor();
+        lz4_decompressor = factory.safeDecompressor();
     }
     
     /**
@@ -109,5 +112,11 @@ public class Compressor {
         int compressedLength = lz4_compressor.compress(src.array(), 0, 
                 srcSize, dst.array(), 0, maxSize);
         return compressedLength;
+    }
+    
+    public int uncompressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst){
+        int cl = lz4_decompressor.decompress(src.array(), 0, 
+                srcSize,dst.array(), 0);
+        return cl;
     }
 }

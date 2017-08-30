@@ -67,7 +67,7 @@ public class TestWriter {
     }
     
     public static void streamRecord(){
-        RecordStream stream = new RecordStream();
+        RecordOutputStream stream = new RecordOutputStream();
         byte[] buffer = TestWriter.generateBuffer();
         while(true){
             //byte[] buffer = TestWriter.generateBuffer();
@@ -100,9 +100,14 @@ public class TestWriter {
             Writer writer = new Writer("converted_000810.evio",userHeader.getBytes());
             
             System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
+            
+            byte[] myHeader = new byte[233];
+            ByteBuffer header = ByteBuffer.wrap(myHeader);
+            
             for(int i = 1; i < nevents; i++){
                 ByteBuffer buffer = reader.getEventBuffer(i,true); 
                 writer.addEvent(buffer.array());
+                
                 //System.out.println(" EVENT # " + i + "  size = " + buffer.array().length );                
             }
             writer.close();
@@ -114,7 +119,23 @@ public class TestWriter {
         
     }
     
+    
+    public static void createEmptyFile(){
+       String userHeader = "Example of creating a new header file.......?";
+       System.out.println("STRING LENGTH = " + userHeader.length());
+       Writer writer = new Writer();
+       writer.open("example_file.evio", userHeader.getBytes());
+       for(int i = 0; i < 5; i++){
+           byte[] array = TestWriter.generateBuffer();
+           writer.addEvent(array);
+       }
+
+       writer.close();
+    }
+    
     public static void main(String[] args){
+        
+        TestWriter.createEmptyFile();
         
         /*Writer writer = new Writer();
         
@@ -123,7 +144,7 @@ public class TestWriter {
         
         //writer.createHeader(new byte[17]);
         
-        TestWriter.convertor();
+        //TestWriter.convertor();
         
         //TestWriter.writerTest();
         
