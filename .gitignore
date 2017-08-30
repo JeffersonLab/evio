@@ -11,3 +11,4 @@ doc/doxygen/C/
 doc/doxygen/CC/
 doc/javadoc/
 doxyerrors.log
+/target/

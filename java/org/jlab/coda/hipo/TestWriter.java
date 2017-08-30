@@ -119,7 +119,20 @@ public class TestWriter {
         
     }
     
+    
+    public static void createEmptyFile(){
+       String userHeader = "Example of creating a new header file.......?";
+       System.out.println("STRING LENGTH = " + userHeader.length());
+       Writer writer = new Writer();
+       writer.open("example_file.evio", userHeader.getBytes());
+       byte[] array = TestWriter.generateBuffer(4500);
+       writer.addEvent(array);
+       writer.close();
+    }
+    
     public static void main(String[] args){
+        
+        TestWriter.createEmptyFile();
         
         /*Writer writer = new Writer();
         
@@ -128,7 +141,7 @@ public class TestWriter {
         
         //writer.createHeader(new byte[17]);
         
-        TestWriter.convertor();
+        //TestWriter.convertor();
         
         //TestWriter.writerTest();
         

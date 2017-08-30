@@ -176,6 +176,26 @@ public class Writer {
     
     public ByteBuffer createHeader(byte[] userHeader){
         
+        int uhsize = userHeader.length;
+        RecordHeader header = new RecordHeader();
+        
+        header.setCompressedDataLength(0).setDataLength(0);
+        header.setCompressionType(0).setIndexLength(0);
+        header.setUserHeaderLength(uhsize);
+        header.setHeaderLength(14);
+        int words = 14 + header.getUserHeaderLengthWords();
+        header.setLength(words);
+        
+        byte[] array = new byte[words*4];
+        ByteBuffer buffer = ByteBuffer.wrap(array);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        
+        header.writeHeader(buffer, 0);
+        System.arraycopy(userHeader, 0, array, 14*4, userHeader.length);
+        
+        buffer.putInt(0, 0x4F495645);
+        
+        /*
         int size = userHeader.length;
         int uhWords = (size)/4;
         
@@ -202,8 +222,8 @@ public class Writer {
         headerBuffer.putInt( 40, userHeader.length);
         headerBuffer.putInt( 44, 0);
         
-
-        return headerBuffer;
+        */
+        return buffer;
     }
     /**
      * Appends the record to the file.
