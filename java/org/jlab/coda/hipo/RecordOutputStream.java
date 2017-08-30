@@ -271,10 +271,14 @@ public class RecordOutputStream {
         recordData.put( recordEvents.array(), 4, eventSize);
         
         int dataBufferSize = indexSize + eventSize;
-        
-        int compressedSize = dataCompressor.compressLZ4(recordData, dataBufferSize, 
-                recordDataCompressed, recordDataCompressed.array().length);
-        
+
+        int compressedSize = 0;
+        try {
+            compressedSize = dataCompressor.compressLZ4(recordData, dataBufferSize,
+                    recordDataCompressed, recordDataCompressed.array().length);
+        }
+        catch (HipoException e) {/* should not happen */}
+
         //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
         int nevents = recordIndex.getInt(0)/4;
         
@@ -334,10 +338,14 @@ public class RecordOutputStream {
                 recordHeader.getDataLengthWords()*4;
         
         //System.out.println(" TOTAL SIZE = " + dataBufferSize);
-        
-        int compressedSize = dataCompressor.compressLZ4(recordData, dataBufferSize, 
-                recordDataCompressed, recordDataCompressed.array().length);
-        
+
+        int compressedSize = 0;
+        try {
+            compressedSize = dataCompressor.compressLZ4(recordData, dataBufferSize,
+                    recordDataCompressed, recordDataCompressed.array().length);
+        }
+        catch (HipoException e) {/* should not happen */}
+
         recordHeader.setCompressedDataLength(compressedSize);
         recordHeader.setLength(recordHeader.getCompressedDataLengthWords()*4
                 +recordHeader.getHeaderLength()*4);

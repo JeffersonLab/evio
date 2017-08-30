@@ -73,9 +73,14 @@ public class RecordInputStream {
             
             file.getChannel().position(position+headerLength*4);
             file.read(recordBuffer.array(), 0, recordLengthWords*4);
-            
-            int uncSize = compressor.uncompressLZ4(recordBuffer, 
-                    header.getCompressedDataLength(), dataBuffer);
+
+            int uncSize = 0;
+            try {
+                uncSize = compressor.uncompressLZ4(recordBuffer,
+                        header.getCompressedDataLength(), dataBuffer);
+            }
+            catch (HipoException e) {/* should not happen */}
+
             int LZ4id = recordBuffer.getInt(0);
             System.out.println("UNCOMPRESSED = " + uncSize +
                     "  HEADER " + header.getDataLength() + 
