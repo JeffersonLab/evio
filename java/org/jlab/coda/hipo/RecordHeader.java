@@ -157,6 +157,7 @@ public class RecordHeader {
         private int        userHeaderLengthPadding = 0;
         private int              dataLengthPadding = 0;
         private int    compressedDataLengthPadding = 0;
+// TODO: Same as dataLengthPadding?
         private int            recordLengthPadding = 0;
 
         private int           dataLengthWords = 0;
@@ -229,8 +230,13 @@ public class RecordHeader {
         public RecordHeader  setPosition(long pos) { position = pos; return this;}
         public RecordHeader  setRecordNumber(int num) { recordNumber = num; return this;}
         public RecordHeader  setVersion(int version) { headerVersion = version; return this;}
-        
-        public RecordHeader  setLength(int length) { 
+
+        /**
+         * Set the record length in bytes & words and the padding.
+         * @param length  length of record in bytes.
+         * @return this object.
+         */
+        public RecordHeader  setLength(int length) {
             recordLength        = length;
             recordLengthWords   = getWords(length);
             recordLengthPadding = getPadding(length);
@@ -284,12 +290,19 @@ public class RecordHeader {
         public RecordHeader setUserRegisterSecond(long reg){
             recordUserRegisterSecond = reg; return this;
         }
-        
+
+        private int getBitInfoWord() {
+            return (userHeaderLengthPadding << 20) |
+                   (dataLengthPadding << 22) |
+                   (compressedDataLengthPadding << 24) |
+                   (headerVersion & 0x000000FF);
+        }
+
         /**
-         * Writes the header information to the byte buffer provided
-         * The offset provides the offset in the byte buffer
-         * @param buffer byte buffer to write header to
-         * @param offset position of first word to be written
+         * Writes the header information to the byte buffer provided.
+         * The offset provides the offset in the byte buffer.
+         * @param buffer byte buffer to write header to.
+         * @param offset position of first word to be written.
          */
         public void writeHeader(ByteBuffer buffer, int offset){
             
@@ -298,38 +311,70 @@ public class RecordHeader {
             buffer.putInt( 2*4 + offset, headerLength);
             buffer.putInt( 3*4 + offset, entries);
             buffer.putInt( 4*4 + offset, indexLength);
-            
-            int versionWord = (headerVersion&0x000000FF);
-            
-            buffer.putInt( 5*4 + offset, versionWord);
+            buffer.putInt( 5*4 + offset, getBitInfoWord());
             buffer.putInt( 6*4 + offset, userHeaderLength);
             buffer.putInt( 7*4 + offset, headerMagicWord); // word number 8
             
-            int compressedWord = ((this.compressedDataLength)&(0x0FFFFFFF))
-                    |( (compressionType&0x000000FF) << 28);
+            int compressedWord = ( compressedDataLengthWords & 0x0FFFFFFF) |
+                                 ((compressionType & 0x0000000F) << 28);
             buffer.putInt( 8*4 + offset, dataLength);
             buffer.putInt( 9*4 + offset, compressedWord);
 
             buffer.putLong( 10*4 + offset, recordUserRegisterFirst);
             buffer.putLong( 12*4 + offset, recordUserRegisterSecond);
         }
-        
+
+        /**
+         * Writes the header information to the byte buffer provided
+         * starting at beginning.
+         * @param buffer byte buffer to write header to.
+         */
         public void writeHeader(ByteBuffer buffer){
             writeHeader(buffer,0);
         }
         
         /**
-         * Reads the header information from a byte buffer. and validates
+         * Reads the header information from a byte buffer and validates
          * it by checking the magic word (which is in position #8, starting 
          * with #1). This magic word determines also the byte order.
          * LITTLE_ENDIAN or BIG_ENDIAN.
-         * @param buffer
-         * @param offset 
+         * @param buffer buffer to read from
+         * @param offset position of first word to be read.
          */
         public void readHeader(ByteBuffer buffer, int offset){
-            
+
+            // First read the magic word to establish endianness
+            headerMagicWord = buffer.getInt( 7*4 + offset);
+
+            // If it's NOT in the proper byte order ...
+            if (headerMagicWord != HEADER_MAGIC_LE) {
+                // If it needs to be switched ...
+                if (headerMagicWord == HEADER_MAGIC_BE) {
+                    ByteOrder bufEndian = buffer.order();
+                    if (bufEndian == ByteOrder.BIG_ENDIAN) {
+                        buffer.order(ByteOrder.LITTLE_ENDIAN);
+                    }
+                    else {
+                        buffer.order(ByteOrder.BIG_ENDIAN);
+                    }
+                }
+                else {
+                    // ERROR condition, bad magic word
+// TODO: Need to throw exception
+                }
+            }
+
+            // Next look at the version #
+            int bitInoWord = buffer.getInt(  5*4 + offset);
+            headerVersion  = (bitInoWord & 0x000000FF);
+            if (headerVersion < 6) {
+                // ERROR condition, wrong version
+// TODO: Need to throw exception
+            }
+
             recordLengthWords   = buffer.getInt(    0 + offset );
             recordLength        = recordLengthWords * 4;
+// TODO: Is this always 0, even in HIPO?
             recordLengthPadding = 0;
             
             recordNumber = buffer.getInt(  1*4 + offset );
@@ -338,27 +383,19 @@ public class RecordHeader {
             
             indexLength  = buffer.getInt( 4*4 + offset);
             setIndexLength(indexLength);
-            
-            int  versionWord = buffer.getInt(  5*4 + offset);
-            
-            headerVersion    = (versionWord&0x000000FF);
-            
+
             userHeaderLength = buffer.getInt( 6*4 + offset);
             setUserHeaderLength(userHeaderLength);
             
-            headerMagicWord  = buffer.getInt( 7*4 + offset);
             dataLength       = buffer.getInt( 8*4 + offset);
             setDataLength(dataLength);
             
-            int compressionWord = buffer.getInt( 9*4 + offset);
-            
-            compressionType = (compressionWord&0xF0000000)>>28;
-            compressedDataLength = (compressionWord&0x0FFFFFFF);
+            int compressionWord   = buffer.getInt( 9*4 + offset);
+            compressionType      = (compressionWord >>> 28);
+            compressedDataLength = (compressionWord & 0x0FFFFFFF);
             setCompressedDataLength(compressedDataLength);
-            
-            //indexLength = entries*4;
-            
-            recordUserRegisterFirst = buffer.getLong(  10*4 + offset);
+                        
+            recordUserRegisterFirst  = buffer.getLong( 10*4 + offset);
             recordUserRegisterSecond = buffer.getLong( 12*4 + offset);
         }
         
@@ -366,14 +403,6 @@ public class RecordHeader {
             readHeader(buffer,0);
         }
         
-        private int getBitInfoWord(){
-            int word = 0x00000000;
-            word = word | (userHeaderLengthPadding<<16);
-            word = word | (dataLengthPadding<<18);
-            word = word | (compressedDataLengthPadding<<20);
-            word = word | (headerVersion&0x000000FF);
-            return word;
-        }
         /**
          * returns string representation of the record data.
          * @return 
@@ -381,31 +410,29 @@ public class RecordHeader {
         @Override
         public String toString(){
             
-            
-            StringBuilder str = new StringBuilder();            
-            str.append(String.format("%24s : %d\n","version",this.headerVersion));
-            str.append(String.format("%24s : %d\n","record #",this.recordNumber));
+            StringBuilder str = new StringBuilder();
+            str.append(String.format("%24s : %d\n","version",headerVersion));
+            str.append(String.format("%24s : %d\n","record #",recordNumber));
             str.append(String.format("%24s : %8d / %8d / %8d\n","user header length",
-                    this.userHeaderLength,this.userHeaderLengthWords, this.userHeaderLengthPadding));
+                    userHeaderLength, userHeaderLengthWords, userHeaderLengthPadding));
             str.append(String.format("%24s : %8d / %8d / %8d\n","   data length",
-                    this.dataLength, this.dataLengthWords,this.dataLengthPadding));
+                    dataLength, dataLengthWords, dataLengthPadding));
             str.append(String.format("%24s : %8d / %8d / %8d\n","record length",
-                    this.recordLength, this.recordLengthWords,this.recordLengthPadding));
+                    recordLength, recordLengthWords, recordLengthPadding));
             str.append(String.format("%24s : %8d / %8d / %8d\n","compressed length",
-                    this.compressedDataLength, this.compressedDataLengthWords,
-                    this.compressedDataLengthPadding));
-            str.append(String.format("%24s : %d\n",
-                    "header length",this.headerLength));
-            str.append(String.format("%24s : %X\n","magic word",this.headerMagicWord));
-            Integer bitInfo = this.getBitInfoWord();
+                    compressedDataLength, compressedDataLengthWords,
+                    compressedDataLengthPadding));
+            str.append(String.format("%24s : %d\n","header length",headerLength));
+            str.append(String.format("%24s : 0x%X\n","magic word",headerMagicWord));
+            Integer bitInfo = getBitInfoWord();
             str.append(String.format("%24s : %s\n","bit info word",Integer.toBinaryString(bitInfo)));
-            str.append(String.format("%24s : %d\n","record entries",this.entries));
-            str.append(String.format("%24s : %d\n","   compression type",this.compressionType));
+            str.append(String.format("%24s : %d\n","record entries",entries));
+            str.append(String.format("%24s : %d\n","   compression type",compressionType));
             
-            str.append(String.format("%24s : %d\n","  index length",this.indexLength));
+            str.append(String.format("%24s : %d\n","  index length",indexLength));
             
-            str.append(String.format("%24s : %d\n","user register #1",this.recordUserRegisterFirst));
-            str.append(String.format("%24s : %d\n","user register #2",this.recordUserRegisterSecond));
+            str.append(String.format("%24s : %d\n","user register #1",recordUserRegisterFirst));
+            str.append(String.format("%24s : %d\n","user register #2",recordUserRegisterSecond));
 
             return str.toString();
         }
