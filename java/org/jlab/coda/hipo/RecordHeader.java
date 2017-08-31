@@ -105,7 +105,7 @@ import java.nio.ByteOrder;
  *    +------+---------------------------+
  * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits)
  *    +----------------------------------+
- * 11 +         Trailer Position         | // File offset to trailer head (64 bits) .
+ * 11 +         Trailer Position         | // File offset to trailer head (64 bits).
  *    +--                              --+ // 0 = no offset available or no trailer exists.
  * 12 +                                  |
  *    +----------------------------------+
@@ -137,6 +137,9 @@ import java.nio.ByteOrder;
  */
 public class RecordHeader {
 
+        /** Help find number of bytes to pad data. */
+        private static int[] padValue = {0,3,2,1};
+
         private long            position = 0L;
         private int          recordLength = 0;
         private int          recordNumber = 0;
@@ -151,7 +154,6 @@ public class RecordHeader {
              * These quantities are updated automatically
              * when the lengths are set.
              */
-        private int             indexLengthPadding = 0;
         private int        userHeaderLengthPadding = 0;
         private int              dataLengthPadding = 0;
         private int    compressedDataLengthPadding = 0;
@@ -186,9 +188,9 @@ public class RecordHeader {
             position = _pos; recordLength = _l; entries = _e;
         }
         /**
-         * Returns padded length of the array for given length in bytes.
-         * @param length
-         * @return 
+         * Returns length padded to 4-byte boundary for given length in bytes.
+         * @param length length in bytes.
+         * @return length padded to 4-byte boundary in bytes.
          */
         private int getWords(int length){
             int padding = getPadding(length);
@@ -197,13 +199,11 @@ public class RecordHeader {
             return words;
         }
         /**
-         * returns padding value for the given length
-         * @param length
-         * @return 
+         * Returns number of bytes needed to pad to 4-byte boundary for the given length.
+         * @param length length in bytes.
+         * @return number of bytes needed to pad to 4-byte boundary.
          */
-        private int getPadding(int length){
-            return length%4;
-        }
+        private int getPadding(int length) {return padValue[length%4];}
         
         public long           getPosition() { return position;}
         public int              getLength() { return recordLength;}
