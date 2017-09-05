@@ -24,15 +24,16 @@ import java.util.logging.Logger;
  */
 
 public class Writer {
-    /**
+    /*
      * Internal constants used in the FILE header
      */
+    // TODO: shouldn't this be 14*4 = 56?
     public final static int    FILE_HEADER_LENGTH = 72;
     public final static int    FILE_UNIQUE_WORD   = 0x4F504948;//0x4849504F;
     public final static int    FILE_VERSION_WORD  = 0x322E3056;//0x56302E32;
     public final static int    VERSION_NUMBER     = 6;
     public final static int    MAGIC_WORD_LE      = 0xc0da0100;
-    public final static int    MAGIC_WORD_BE      = 0x00a1dac0;
+    public final static int    MAGIC_WORD_BE      = 0x0001dac0;
     
     /**
      * BYTE ORDER OF THE FILE
@@ -270,8 +271,9 @@ public class Writer {
         
         byte[] header = new byte[233];
         ByteBuffer userHeader = ByteBuffer.wrap(header);
-        
-        outputRecordStream.build(userHeader,234);
+
+        outputRecordStream.getHeader().setRecordNumber(234);
+        outputRecordStream.build(userHeader);
         
         ByteBuffer buffer = outputRecordStream.getBinaryBuffer();
         int bufferSize = buffer.getInt(0)*4;
