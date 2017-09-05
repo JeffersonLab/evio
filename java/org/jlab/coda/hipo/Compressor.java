@@ -164,6 +164,29 @@ public class Compressor {
     }
 
     /**
+     * Fastest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     */
+    public int compressLZ4(ByteBuffer src, int srcOff, int srcSize,
+                            ByteBuffer dst, int dstOff, int maxSize)
+            throws HipoException {
+        //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
+        if (lz4_compressor.maxCompressedLength(srcSize) > maxSize) {
+            throw new HipoException("maxSize (" + maxSize + ") is < max # of compressed bytes (" +
+                                    lz4_compressor.maxCompressedLength(srcSize) + ")");
+        }
+        return lz4_compressor.compress(src, srcOff, srcSize, dst, dstOff, maxSize);
+    }
+
+    /**
      * LZ4 decompression. Returns original length of decompressed data in bytes.
      *
      * @param src      source of compressed data.
