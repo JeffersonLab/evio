@@ -7,11 +7,8 @@
 package org.jlab.coda.hipo;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -94,6 +91,15 @@ public class RecordOutputStream {
         recordHeader.setHeaderLength(14);
         compressionType = 1;
     }*/
+
+    /**
+     * Get the general header of this record.
+     * @return general header of this record.
+     */
+    public RecordHeader getHeader() {
+        return recordHeader;
+    }
+
     /**
      * sets unique words for the record header, there are two LONG
      * words at the end of each record.
@@ -307,14 +313,13 @@ public class RecordOutputStream {
     }
     
     
-    public void build(ByteBuffer userHeader, int recordNumber){
+    public void build(ByteBuffer userHeader){
         
         int indexSize = recordIndex.getInt(  0) - 4;
         int eventSize = recordEvents.getInt( 0) - 4;
         int userhSize = userHeader.array().length;
         
         recordHeader.setEntries(indexSize/4);
-        recordHeader.setRecordNumber(recordNumber);
         recordHeader.setIndexLength(indexSize);
         recordHeader.setDataLength(eventSize);
         recordHeader.setUserHeaderLength(userhSize);
