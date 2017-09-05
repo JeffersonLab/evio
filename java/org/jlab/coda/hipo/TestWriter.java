@@ -66,6 +66,49 @@ public class TestWriter {
         System.out.println( " OBTAINED ARRAY LENGTH = " + buffer.length + "  " + buffer[0]);
     }
     
+    public static void testStreamRecord(){
+        RecordOutputStream2 stream = new RecordOutputStream2();
+        byte[] buffer = TestWriter.generateBuffer();
+
+        // Variables to track record build rate
+        double freqAvg;
+        long t1, t2, deltaT, totalC=0;
+        // Ignore the first N values found for freq in order
+        // to get better avg statistics. Since the JIT compiler in java
+        // takes some time to analyze & compile code, freq may initially be low.
+        long ignore = 1000;
+        long loops  = 20000000;
+
+        t1 = System.currentTimeMillis();
+
+        while (true) {
+            boolean roomLeft = stream.addEvent(buffer);
+            if (!roomLeft){
+                stream.build();
+                stream.reset();
+            }
+//System.out.println(""+ (20000000 - loops));
+            // Ignore beginning loops to remove JIT compile time
+            if (ignore-- > 0) {
+                t1 = System.currentTimeMillis();
+            }
+            else {
+                totalC++;
+            }
+
+            if (loops-- < 1) break;
+        }
+
+        t2 = System.currentTimeMillis();
+
+        deltaT = t2 - t1; // millisec
+        freqAvg = (double) totalC / deltaT * 1000;
+
+        System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
+
+
+    }
+    
     public static void streamRecord(){
         RecordOutputStream stream = new RecordOutputStream();
         byte[] buffer = TestWriter.generateBuffer();
@@ -79,7 +122,7 @@ public class TestWriter {
         }
 
     }
-    
+
     public static void writerTest(){
         Writer writer = new Writer("compressed_file.evio",ByteOrder.BIG_ENDIAN);
         //byte[] array = TestWriter.generateBuffer();
@@ -134,8 +177,9 @@ public class TestWriter {
     }
     
     public static void main(String[] args){
-        
-        TestWriter.createEmptyFile();
+
+        testStreamRecord();
+       // TestWriter.createEmptyFile();
         
         /*Writer writer = new Writer();
         
