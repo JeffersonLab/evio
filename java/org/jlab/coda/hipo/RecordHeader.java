@@ -14,7 +14,7 @@ import java.nio.ByteOrder;
  * with given buffer sizes and paddings and compression types.<p>
  *
  * <pre>
- * RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
+ * GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
  *    +----------------------------------+
  *  1 |         Record Length            | // 32bit words, inclusive
@@ -143,9 +143,11 @@ public class RecordHeader {
         private long            position = 0L;
         private int          recordLength = 0;
         private int          recordNumber = 0;
+        /** Event or index count. 4th position. */
         private int               entries = 0;
         private int          headerLength = 0;
         private int      userHeaderLength = 0;
+        /** Length of index array in bytes. 5th position. */
         private int           indexLength = 0;
         private int            dataLength = 0;
         private int  compressedDataLength = 0;
@@ -175,8 +177,11 @@ public class RecordHeader {
         private int         headerVersion = 6;
         private int         headerMagicWord;
 
-        private final int   HEADER_MAGIC_LE = 0xc0da0100;
-        private final int   HEADER_MAGIC_BE = 0x0010dac0;
+        final static int   HEADER_SIZE_WORDS = 14;
+        final static int   HEADER_SIZE_BYTES = 56;
+        final static int   HEADER_MAGIC      = 0xc0da0100;
+        final static int   HEADER_MAGIC_LE   = HEADER_MAGIC;
+        final static int   HEADER_MAGIC_BE   = 0x0010dac0;
 
         //private ByteOrder   headerByteOrder = ByteOrder.LITTLE_ENDIAN;
         //private final int headerMagicWord = 0xc0da0100;
@@ -188,6 +193,36 @@ public class RecordHeader {
         public RecordHeader(long _pos, int _l, int _e){
             position = _pos; recordLength = _l; entries = _e;
         }
+
+        /** Reset internal variables. */
+        public void reset(){
+            position = 0L;
+            recordLength = 0;
+            recordNumber = 0;
+            entries = 0;
+
+            headerLength = 0;
+            userHeaderLength = 0;
+            indexLength = 0;
+            dataLength = 0;
+            compressedDataLength = 0;
+            compressionType = 0;
+
+            userHeaderLengthPadding = 0;
+            dataLengthPadding = 0;
+            compressedDataLengthPadding = 0;
+            recordLengthPadding = 0;
+
+            dataLengthWords = 0;
+            compressedDataLengthWords = 0;
+            userHeaderLengthWords = 0;
+            recordLengthWords = 0;
+            headerLengthWords = 0;
+
+            recordUserRegisterFirst = 0L;
+            recordUserRegisterSecond = 0L;
+        }
+
         /**
          * Returns length padded to 4-byte boundary for given length in bytes.
          * @param length length in bytes.
