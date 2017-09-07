@@ -67,7 +67,7 @@ public class TestWriter {
     }
     
     public static void testStreamRecord(){
-        RecordOutputStream2 stream = new RecordOutputStream2();
+        RecordOutputStream stream = new RecordOutputStream();
         byte[] buffer = TestWriter.generateBuffer();
 
         // Variables to track record build rate
