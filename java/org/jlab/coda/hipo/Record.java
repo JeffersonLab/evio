@@ -102,7 +102,7 @@ public class Record {
     
     public Record(){
        recordHeader = new RecordHeader();
-       recordHeader.setVersion(6);
+       //recordHeader.setVersion(6);
        recordHeader.setHeaderLength(14);
     }
     /**
