@@ -6,375 +6,329 @@
  */
 package org.jlab.coda.hipo;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * Class which handles the creation and use of Evio & HIPO Records.<p>
+ *     
+ * <pre>
+ * RECORD STRUCTURE:
  *
+ *               Uncompressed                                      Compressed
+ *
+ *    +----------------------------------+            +----------------------------------+
+ *    |       General Record Header      |            |       General Record Header      |
+ *    +----------------------------------+            +----------------------------------+
+ *
+ *    +----------------------------------+ ---------> +----------------------------------+
+ *    |           Index Array            |            |        Compressed Data           |
+ *    +----------------------------------+            |             Record               |
+ *                                                    |                                  |
+ *    +----------------------------------+            |                                  |
+ *    |           User Header            |            |                  ----------------|
+ *    |                                  |            |                  |    Pad 3      |
+ *    |                  ----------------|            +----------------------------------+
+ *    |                  |    Pad 1      |           ^
+ *    +----------------------------------+          /
+ *                                                 /
+ *    +----------------------------------+       /
+ *    |           Data Record            |     /
+ *    |                                  |    /
+ *    |                  ----------------|   /
+ *    |                  |    Pad 2      | /
+ *    +----------------------------------+
+ *
+ *
+ *
+ *
+ * GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
+ *
+ *    +----------------------------------+
+ *  1 |         Record Length            | // 32bit words, inclusive
+ *    +----------------------------------+
+ *  2 +         Record Number            |
+ *    +----------------------------------+
+ *  3 +         Header Length            | // 14 (words)
+ *    +----------------------------------+
+ *  4 +       Event (Index) Count        |
+ *    +----------------------------------+
+ *  5 +      Index Array Length          | // bytes
+ *    +-----------------------+---------+
+ *  6 +       Bit Info        | Version  | // version (8 bits)
+ *    +-----------------------+----------+
+ *  7 +      User Header Length          | // bytes
+ *    +----------------------------------+
+ *  8 +          Magic Number            | // 0xc0da0100
+ *    +----------------------------------+
+ *  9 +     Uncompressed Data Length     | // bytes
+ *    +------+---------------------------+
+ * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits)
+ *    +----------------------------------+
+ * 11 +        General Register 1        | // UID 1st (64 bits)
+ *    +--                              --+
+ * 12 +                                  |
+ *    +----------------------------------+
+ * 13 +        General Register 2        | // UID 2nd (64 bits)
+ *    +--                              --+
+ * 14 +                                  |
+ *    +----------------------------------+
+ * </pre>
+ *
+ * @version 6.0
+ * @since 6.0 9/6/17
  * @author gavalian
+ * @author timmer
  */
 public class RecordOutputStream {
     
+    /** Maximum number of events per record. */
+    private static final int MAX_EVENT_COUNT = 1024*1024;
+
+    /** Maximum size of some internal buffers in bytes. */
+    private int MAX_BUFFER_SIZE = 8*1024*1024;
+
+    /** This buffer stores event lengths ONLY. */
+    private ByteBuffer recordIndex;
     
-    private int      MAX_BUFFER_SIZE = 8*1024*1024;
-    private int      MAX_EVENT_COUNT = 1024*1024;
-    private final int    HEADER_SIZE = 16*4;
+    /** This buffer stores event data ONLY. */
+    private ByteBuffer recordEvents;
     
-    private final int RECORD_UID_WORD_LE = 0x43455248;
-    private final int RECORD_UID_WORD_BE = 0x48524543;
+    /** This buffer stores data that will be compressed. */
+    private ByteBuffer recordData;
+
+    /** Buffer in which to put constructed (& compressed) binary record. */
+    private ByteBuffer recordBinary;
     
-    ByteArrayOutputStream  recordStream = null;
-    ByteBuffer              recordIndex = null;
+    /** Compression information & type. */
+    private Compressor dataCompressor;
+
+    /** Header of this Record. */
+    private RecordHeader header;
+
+    /** Number of events written to this Record. */
+    private int eventCount;
+
+    /** Number of valid bytes in recordIndex buffer */
+    private int indexSize;
     
+    /** Number of valid bytes in recordEvents buffer. */
+    private int eventSize;
+
+    /** Byte order of record byte arrays to build. */
+    private ByteOrder byteOrder;
+
     
-    ByteBuffer      recordEvents         = null;
-    ByteBuffer      recordData           = null;
-    ByteBuffer      recordDataCompressed = null;
-    ByteBuffer      recordBinary         = null;
-    
-    /**
-     * Compression information. Compression types.
-     */
-    Compressor       dataCompressor = null;
-    private int     compressionType = Compressor.RECORD_COMPRESSION_LZ4;
-    
-    /**
-     * BLOCK INFORMATION to be written to the header
-     * These words are part of the EVIO header format, and
-     * are written into header exactly as it was in EVIO.
-     */
-    private int        blockNumber = 0;
-    private int       blockVersion = 6;
-    private int       blockBitInfo = 0;
-    private int       reservedWord = 0;
-    private int reservedWordSecond = 0;
-    /**
-     *  UNIQUE identifiers part of the new HIPO Header. There are
-     *  Two long words reserved to be used for tagging event records
-     *  for fast search through the file.
-     */
-    private long recordHeaderUniqueWordFirst  = 0L;
-    private long recordHeaderUniqueWordSecond = 0L;
-    
-    private RecordHeader  recordHeader = null; 
-    
-    /**
-     * Default constructor.
-     */
+    /** Default, no-arg constructor. */
     public RecordOutputStream(){
-        /*recordStream = new ByteArrayOutputStream(MAX_BUFFER_SIZE);
-        byte[] index = new byte[MAX_EVENT_COUNT*4];
-        recordIndex  = ByteBuffer.wrap(index);
-        recordIndex.order(ByteOrder.LITTLE_ENDIAN);
-        recordIndex.putInt(0, 0);*/
-        allocate(this.MAX_BUFFER_SIZE);
+        allocate();
         dataCompressor = new Compressor();
-        recordHeader = new RecordHeader();
-        recordHeader.setVersion(6);
-        recordHeader.setHeaderLength(14);
-        compressionType = 1;
+        header = new RecordHeader();
+        header.setCompressionType(Compressor.RECORD_COMPRESSION_LZ4);
+        byteOrder = ByteOrder.LITTLE_ENDIAN;
     }
+
     /**
-     * creates a record stream object with desired maximum size.
-     * @param size 
+     * Constructor with byte order of built record byte arrays.
+     * @param order byte order of built record byte arrays.
      */
-    /*public RecordOutputStream(int size){
-        MAX_BUFFER_SIZE = size;
-        recordStream = new ByteArrayOutputStream(MAX_BUFFER_SIZE);
-        byte[] index = new byte[MAX_EVENT_COUNT*4];
-        recordIndex  = ByteBuffer.wrap(index);
-        recordIndex.order(ByteOrder.LITTLE_ENDIAN);
-        recordIndex.putInt(0, 0);
-        recordHeader = new RecordHeader();
-        recordHeader.setVersion(6);
-        recordHeader.setHeaderLength(14);
-        compressionType = 1;
-    }*/
+    public RecordOutputStream(ByteOrder order){
+        this();
+        byteOrder = order;
+    }
 
     /**
      * Get the general header of this record.
      * @return general header of this record.
      */
-    public RecordHeader getHeader() {
-        return recordHeader;
-    }
+    public RecordHeader getHeader() {return header;}
 
     /**
-     * sets unique words for the record header, there are two LONG
-     * words at the end of each record.
-     * @param uw1 first unique word (LONG)
-     * @param uw2 second unique word (LONG)
+     * Get the number of events written so far into the buffer
+     * @return number of events written so far into the buffer
      */
-    public void setUniqueWords(long uw1, long uw2){
-       recordHeaderUniqueWordFirst  = uw1;
-       recordHeaderUniqueWordSecond = uw2;
-    }
+    public int getEventCount() {return eventCount;}
+
     /**
-     * Sets compression type. Available compressions are:
-     * 0 - uncompressed
-     * 1 - LZ4 fast compression
-     * 2 - LZ4 best compression
-     * 3 - GZIP compression
-     * @param type compression type (0-4)
+     * Get the internal ByteBuffer used to construct binary representation of this record.
+     * @return internal ByteBuffer used to construct binary representation of this record.
      */
-    public void setCompressionType(int type){        
-        compressionType = type;
-        if(compressionType<0||compressionType>3){
-            System.out.println("[WARNING !] unknown compression type "
-            + type + ". using uncompressed buffers.");
-            compressionType = 0;
-        }
+    public ByteBuffer getBinaryBuffer() {return recordBinary;}
+
+    /** Allocates all buffers for constructing the record stream. */
+    private void allocate(){
+
+        recordIndex = ByteBuffer.wrap(new byte[MAX_EVENT_COUNT*4]);
+        recordIndex.order(byteOrder);
+
+        recordEvents = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
+        recordEvents.order(byteOrder);
+
+        recordData = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
+        recordData.order(byteOrder);
+
+        // Trying to compress random data will expand it, so need a cushion
+        recordBinary = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE + (1024*1024)]);
+        recordBinary.order(byteOrder);
     }
+    
     /**
-     * Set the version word for the record. Default is 6
-     * @param version version number
-     */
-    public void setVersion(int version){
-        blockVersion = version;
-    }
-    /**
-     * sets the bit info for the record, this will be written into 
-     * the high 24 bits of the word #6 (starting count from #1), the
-     * lower 8 bits are the version.
-     * @param bitinfo bit information for the record
-     */
-    public void setBitInfo(int bitinfo){
-        blockBitInfo = bitinfo;
-    }
-    /**
-     * set block number, for checking the order of the blocks
-     * that are coming in from DAQ.
-     * @param blkn block number
-     */
-    public void setBlockNumber(int blkn){
-        blockNumber = blkn;
-    }
-    /**
-     * Sets the reserved word for the block header. It is written
-     * to word #7 in the record header (counting from #1). 
-     * @param rw reserved word (32 bits)
-     */
-    public void setReservedWord(int rw){
-        this.reservedWord = rw;
-    }
-    /**
-     * sets the value of the second reserved word in the header.
-     * @param rw2 word value (32 bits)
-     */
-    public void setReservedWordSecond(int rw2){
-        reservedWordSecond = rw2;
-    }
-    /**
-     * Allocates all buffers for constructing the record stream.
-     * @param size 
-     */
-    private void allocate(int size){
-        
-        MAX_BUFFER_SIZE = size;
-        
-        byte[] ri = new byte[MAX_EVENT_COUNT*4];
-        recordIndex = ByteBuffer.wrap(ri);
-        recordIndex.order(ByteOrder.LITTLE_ENDIAN);
-        recordIndex.putInt(0, 4);
-        
-        byte[] re = new byte[size];
-        recordEvents = ByteBuffer.wrap(re);
-        recordEvents.order(ByteOrder.LITTLE_ENDIAN);
-        recordEvents.putInt(0, 4);
-        
-        byte[] rd = new byte[size];
-        recordData = ByteBuffer.wrap(rd);
-        recordData.order(ByteOrder.LITTLE_ENDIAN);
-        
-        byte[] rdc = new byte[size + 1024*1024];
-        recordDataCompressed = ByteBuffer.wrap(rdc);
-        recordDataCompressed.order(ByteOrder.LITTLE_ENDIAN);
-        
-        byte[] rb = new byte[size + 1024*1024];
-        recordBinary = ByteBuffer.wrap(rb);
-        recordBinary.order(ByteOrder.LITTLE_ENDIAN);
-    }
-    /**
-     * adds the byte[] array into the record stream.
-     * @param event
-     * @param position
-     * @param length
-     * @return 
+     * Adds an event's byte[] array into the record.
+     * <b>The byte order of event's byte array must
+     * match the byte order given in constructor!</b>
+     * 
+     * @param event    event's byte array
+     * @param position offset into event byte array from which to begin reading
+     * @param length   number of bytes from byte array to add
+     * @return true if event was added, false if the buffer is full or
+     *         event count limit exceeded
      */
     public boolean addEvent(byte[] event, int position, int length){
-        int  size = length;
-        
-        int indexSize = recordIndex.getInt(0);
-        int eventSize = recordEvents.getInt(0);
-        int combinedSize = indexSize + eventSize + HEADER_SIZE;
-        if( (combinedSize + length)>= this.MAX_BUFFER_SIZE){
-            //System.out.println(" the record is FULL..... INDEX SIZE = " 
+
+        if( (eventCount + 1 > MAX_EVENT_COUNT) ||
+            ((indexSize + eventSize + RecordHeader.HEADER_SIZE_BYTES + length) >= MAX_BUFFER_SIZE)) {
+            //System.out.println(" the record is FULL..... INDEX SIZE = "
             //        + (indexSize/4) + " DATA SIZE = " + eventSize);
             return false;
         }
-        
-        int resultSize = eventSize + length;
-        recordEvents.position(eventSize);
+
+        //recordEvents.position(eventSize);
+
+        // Add event data (position of recordEvents buffer is incremented)
         recordEvents.put(event, position, length);
-        recordEvents.putInt(0, resultSize);
-        
+        eventSize += length;
+
+        // Add 1 more index
         recordIndex.putInt(indexSize, length);
-        recordIndex.putInt(0, indexSize+4);
+        indexSize += 4;
+
+        eventCount++;
+
         return true;
     }
+
     /**
-     * Add byte[] to the output stream. Index array is updated
-     * to include the size of the event, and counter is incremented.
-     * @param event 
-     * @return  true is the event was added, false if the buffer is full.
+     * Adds an event's byte[] array into the record.
+     * <b>The byte order of event's byte array must
+     * match the byte order given in constructor!</b>
+     * 
+     * @param event event's byte array
+     * @return true if event was added, false if the buffer is full.
      */
     public boolean addEvent(byte[] event){
-        return addEvent(event,0,event.length);
+        return addEvent(event,0, event.length);
     }
+
     /**
      * Reset internal buffers. The capacity of the ByteArray stream is set to 0.
      * and the first integer of index array is set to 0. The buffer is ready to 
      * receive new data.
      */
     public void reset(){
-        recordIndex.putInt(   0, 4); // length of the index array is reset
-        recordEvents.putInt(  0, 4); // the length of the data is reset
-        recordBinary.putInt(  4, 0); // set the size of the binary output buffer to 0
+        indexSize  = 0;
+        eventSize  = 0;
+        eventCount = 0;
+
+        recordData.clear();
+        recordIndex.clear();
+        recordEvents.clear();
+        recordBinary.clear();
+
+        header.reset();
     }
+
     /**
-     * constructs the word that describes compression, includes the compression
-     * type (upper 8 bits) and compressed data size (lower 24 bits).
-     * @param ctype compression type
-     * @param csize compressed buffer size
-     * @return word with combined type and size
-     */
-    private int getCompressionWord(int ctype, int csize){
-        int word = ((ctype<<24)&0xFF000000)|(csize&0x00FFFFFF);
-        return word;
-    }
-    /**
-     * Returns the word containing the version number of the record
-     * (lower 8 bits) and bit information that is provided by user
-     * (upper 24 bits)
-     * @return 
-     */
-    private int getVersionWord(){
-        int versionWord = ((this.blockBitInfo<<8)&(0xFFFFFF00))|blockVersion;
-        return versionWord;
-    }
-    /**
-     * Builds the record. First compresses the data buffer.
-     * Then the header is constructed.
+     * Builds the record. Compresses data, header is constructed,
+     * then header & data written into internal buffer.
      */
     public void build(){
-        
-        int indexSize = recordIndex.getInt(  0) - 4;
-        int eventSize = recordEvents.getInt( 0) - 4;
-        
+
+        // Write index & event arrays into a single, temporary buffer
         recordData.position(0);
-        recordData.put(  recordIndex.array(), 4, indexSize);
-        recordData.put( recordEvents.array(), 4, eventSize);
+        recordData.put(  recordIndex.array(), 0, indexSize);
+        recordData.put( recordEvents.array(), 0, eventSize);
         
         int dataBufferSize = indexSize + eventSize;
 
+        // Compress that temporary buffer into destination buffer
+        // (skipping over where record header will be written).
         int compressedSize = 0;
         try {
-            compressedSize = dataCompressor.compressLZ4(recordData, dataBufferSize,
-                    recordDataCompressed, recordDataCompressed.array().length);
+            compressedSize = dataCompressor.compressLZ4(
+                                        recordData.array(), 0, dataBufferSize,
+                                        recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                                        (recordBinary.array().length -
+                                                RecordHeader.HEADER_SIZE_BYTES));
         }
         catch (HipoException e) {/* should not happen */}
-
         //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
-        int nevents = recordIndex.getInt(0)/4;
-        
-        int recordWordCount = (compressedSize + this.HEADER_SIZE)/4;
-        if( (compressedSize+this.HEADER_SIZE)%4!=0) recordWordCount+=1;     
-        
+
+        // Set header values
+        header.setEntries(eventCount);
+        header.setDataLength(eventSize);
+        header.setIndexLength(indexSize);
+        header.setCompressedDataLength(compressedSize);
+        header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES); // record byte length
+
+        // Go back and write header into destination buffer
         recordBinary.position(0);
-        
-        recordBinary.putInt(   0, recordWordCount);
-        recordBinary.putInt(   4, blockNumber);
-        recordBinary.putInt(   8, 16);
-        recordBinary.putInt(  12, nevents);
-        recordBinary.putInt(  16, reservedWord);
-        recordBinary.putInt(  20, getVersionWord());
-        recordBinary.putInt(  24, reservedWordSecond);
-        recordBinary.putInt(  28, RECORD_UID_WORD_LE);
-        recordBinary.putInt(  32, dataBufferSize);
-        recordBinary.putInt(  36, getCompressionWord(compressionType, compressedSize));
-        recordBinary.putInt(  40, 0);
-        recordBinary.putInt(  44, indexSize/4);
-        recordBinary.putLong( 48, recordHeaderUniqueWordFirst);
-        recordBinary.putLong( 56, recordHeaderUniqueWordSecond);
-        
-        recordBinary.position(HEADER_SIZE);
-        recordBinary.put(recordDataCompressed.array(), 0, compressedSize);
+        header.writeHeader(recordBinary);
     }
-    
-    
+
+    /**
+     * Builds the record. Compresses data, header is constructed,
+     * then header & data written into internal buffer.
+     *
+     * @param userHeader user's ByteBuffer which must be ready to read
+     */
     public void build(ByteBuffer userHeader){
+        // TODO: Should the userHeader buffer be saved for more builds?
         
-        int indexSize = recordIndex.getInt(  0) - 4;
-        int eventSize = recordEvents.getInt( 0) - 4;
-        int userhSize = userHeader.array().length;
+        // Arg check
+        if (userHeader == null) {
+            build();
+            return;
+        }
         
-        recordHeader.setEntries(indexSize/4);
-        recordHeader.setIndexLength(indexSize);
-        recordHeader.setDataLength(eventSize);
-        recordHeader.setUserHeaderLength(userhSize);
+        //int userhSize = userHeader.array().length; // May contain unused bytes at end!
+        // How much user-header data do we have?
+        int userHeaderSize = userHeader.remaining();
+
+//        System.out.println("  INDEX = 0 " + indexSize + "  " + (indexSize + userhSize)
+//                + "  DIFF " + userhSize);
         
-        int indexOffset = 0;
-        int userhOffset = indexOffset + recordHeader.getIndexLength();
-        int databOffset = userhOffset + recordHeader.getUserHeaderLengthWords()*4;
+        recordData.position(0);
+        recordData.put(  recordIndex.array(), 0, indexSize);
+        recordData.position(indexSize);
+        recordData.put( userHeader.array(), 0, userHeaderSize);
+        recordData.position(indexSize + userHeaderSize);
+        recordData.put( recordEvents.array(), 0, eventSize);
         
-        //System.out.println("  INDEX = " + indexOffset + " " + userhOffset + "  " + databOffset 
-        //        + "  DIFF " + (databOffset-userhOffset));
-        
-        recordData.position(indexOffset);
-        recordData.put(  recordIndex.array(), 4, indexSize);
-        recordData.position(userhOffset);
-        recordData.put( userHeader.array(), 0, userhSize);
-        recordData.position(databOffset);
-        recordData.put( recordEvents.array(), 4, eventSize);
-        
-        int dataBufferSize = recordHeader.getIndexLength() + 
-                recordHeader.getUserHeaderLengthWords()*4  +
-                recordHeader.getDataLengthWords()*4;
-        
+        int dataBufferSize = indexSize + userHeaderSize + eventSize;
         //System.out.println(" TOTAL SIZE = " + dataBufferSize);
 
+        // Compress that temporary buffer into destination buffer
+        // (skipping over where record header will be written).
         int compressedSize = 0;
         try {
-            compressedSize = dataCompressor.compressLZ4(recordData, dataBufferSize,
-                    recordDataCompressed, recordDataCompressed.array().length);
+            compressedSize = dataCompressor.compressLZ4(
+                                        recordData.array(), 0, dataBufferSize,
+                                        recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                                        (recordBinary.array().length -
+                                                RecordHeader.HEADER_SIZE_BYTES));
         }
         catch (HipoException e) {/* should not happen */}
 
-        recordHeader.setCompressedDataLength(compressedSize);
-        recordHeader.setLength(recordHeader.getCompressedDataLengthWords()*4
-                +recordHeader.getHeaderLength()*4);
-        recordHeader.setCompressionType(this.compressionType);
-        
-        //System.out.println(recordHeader.toString());
-        //recordBinary.position(0);
-        recordHeader.writeHeader(recordBinary);
-        recordBinary.position(recordHeader.getHeaderLength()*4);
-        recordBinary.put(recordDataCompressed.array(), 0, recordHeader.getCompressedDataLengthWords()*4);
-    }
-    /**
-     * returns number of events written so far into the buffer
-     * @return event count
-     */
-    public int getEventCount(){
-        return this.recordIndex.getInt(0)/4 - 1;
-    }
-    /**
-     * returns reference to internal ByteBuffer used to construct
-     * binary representation of the record.
-     * @return 
-     */
-    public ByteBuffer getBinaryBuffer(){
-        return this.recordBinary;
+        // Set header values
+        header.setEntries(eventCount);
+        header.setDataLength(eventSize);
+        header.setIndexLength(indexSize);
+        header.setUserHeaderLength(userHeaderSize);
+        header.setCompressedDataLength(compressedSize);
+        header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+
+        // Go back and write header into destination buffer
+        recordBinary.position(0);
+        header.writeHeader(recordBinary);
     }
 }
