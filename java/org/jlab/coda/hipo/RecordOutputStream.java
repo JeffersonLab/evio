@@ -313,10 +313,11 @@ public class RecordOutputStream {
         // This will find the user header length in words & account for padding.
         header.setUserHeaderLength(userHeaderSize);
         // Hop over padded user header length
-        dataBufferSize += userHeaderSize + 4*header.getUserHeaderLengthWords();
+        dataBufferSize += 4*header.getUserHeaderLengthWords();
+        recordData.position(dataBufferSize);
 
         // 3) data array (hipo/evio data is already padded)
-        recordData.put( recordEvents.array(), 0, eventSize);
+        recordData.put(recordEvents.array(), 0, eventSize);
         dataBufferSize += eventSize;
 
         //System.out.println(" TOTAL SIZE = " + dataBufSize);
