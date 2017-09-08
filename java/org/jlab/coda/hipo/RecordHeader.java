@@ -275,7 +275,7 @@ public class RecordHeader {
         recordNumber = 0;
         entries = 0;
 
-        headerLength = 0;
+        headerLength = HEADER_SIZE_BYTES;
         userHeaderLength = 0;
         indexLength = 0;
         dataLength = 0;
@@ -290,7 +290,7 @@ public class RecordHeader {
         compressedDataLengthWords = 0;
         userHeaderLengthWords = 0;
         recordLengthWords = 0;
-        headerLengthWords = 0;
+        headerLengthWords = HEADER_SIZE_WORDS;
 
         recordUserRegisterFirst = 0L;
         recordUserRegisterSecond = 0L;
