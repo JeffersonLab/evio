@@ -221,13 +221,13 @@ public class RecordHeader {
 
     /** Number of bytes required to bring uncompressed
       * user header to 4-byte boundary. Stored in 6th word. */
-    private int  userHeaderLengthPadding;
+    private int userHeaderPadding;
     /** Number of bytes required to bring uncompressed
       * data to 4-byte boundary. Stored in 6th word. */
-    private int  dataLengthPadding;
+    private int dataPadding;
     /** Number of bytes required to bring compressed
       * data to 4-byte boundary. Stored in 6th word. */
-    private int  compressedDataLengthPadding;
+    private int compressedDataPadding;
 
     
 
@@ -282,9 +282,9 @@ public class RecordHeader {
         compressedDataLength = 0;
         compressionType = 0;
 
-        userHeaderLengthPadding = 0;
-        dataLengthPadding = 0;
-        compressedDataLengthPadding = 0;
+        userHeaderPadding = 0;
+        dataPadding = 0;
+        compressedDataPadding = 0;
 
         dataLengthWords = 0;
         compressedDataLengthWords = 0;
@@ -301,7 +301,7 @@ public class RecordHeader {
      * @param length length in bytes.
      * @return length in bytes padded to 4-byte boundary.
      */
-    private static int getWords(int length){
+    public static int getWords(int length){
         int words = length/4;
         if (getPadding(length) > 0) words++;
         return words;
@@ -312,7 +312,7 @@ public class RecordHeader {
      * @param length length in bytes.
      * @return number of bytes needed to pad to 4-byte boundary.
      */
-    private static int getPadding(int length) {return padValue[length%4];}
+    public static int getPadding(int length) {return padValue[length%4];}
 
     //-----------------------
     // File header related
@@ -475,15 +475,46 @@ public class RecordHeader {
      */
     public HeaderType getHeaderType() {return headerType;}
 
+    // Keep padding and bit info methods out of public hands
+
+    /**
+     * Get the padding associated with compressed data. No need to make public.
+     * @return padding associated with compressed data.
+     */
+    int getCompressedDataPadding() {return compressedDataPadding;}
+
+    /**
+     * Get the padding associated with uncompressed data. No need to make public.
+     * @return padding associated with uncompressed data.
+     */
+    int getDataPadding() {return dataPadding;}
+
+    /**
+     * Get the padding associated with user header. No need to make public.
+     * @return padding associated with user header.
+     */
+    int getUserHeaderPadding() {return userHeaderPadding;}
+
+    /**
+     * When creating a record without padding, this needs to be called
+     * before being built since setting lengths automatically calculates
+     * padding and assumes its use. No need to make public.
+     */
+    void clearPadding() {
+        compressedDataPadding = 0;
+        dataPadding = 0;
+        userHeaderPadding = 0;
+    }
+
     /**
      * Get the bit info word.
      * @return bit info word.
      */
     private int getBitInfoWord() {
         return  (headerType.getValue() << 28) |
-                (compressedDataLengthPadding << 24) |
-                (dataLengthPadding << 22) |
-                (userHeaderLengthPadding << 20) |
+                (compressedDataPadding << 24) |
+                (dataPadding << 22) |
+                (userHeaderPadding << 20) |
                 (headerVersion & 0xFF);
     }
 
@@ -532,7 +563,7 @@ public class RecordHeader {
     public RecordHeader  setDataLength(int length) {
         dataLength = length;
         dataLengthWords = getWords(length);
-        dataLengthPadding = getPadding(length);
+        dataPadding = getPadding(length);
         return this;
     }
 
@@ -544,7 +575,7 @@ public class RecordHeader {
     public RecordHeader  setCompressedDataLength(int length) {
         compressedDataLength = length;
         compressedDataLengthWords = getWords(length);
-        compressedDataLengthPadding = getPadding(length);
+        compressedDataPadding = getPadding(length);
         return this;
     }
 
@@ -587,7 +618,7 @@ public class RecordHeader {
     public RecordHeader  setUserHeaderLength(int length) {
         userHeaderLength = length;
         userHeaderLengthWords   = getWords(length);
-        userHeaderLengthPadding = getPadding(length);
+        userHeaderPadding = getPadding(length);
         return this;
     }
 
@@ -846,15 +877,15 @@ public class RecordHeader {
         StringBuilder str = new StringBuilder();
         str.append(String.format("%24s : %d\n","version",headerVersion));
         str.append(String.format("%24s : %d\n","record #",recordNumber));
-        str.append(String.format("%24s : %8d / %8d / %8d\n","user header length",
-                                 userHeaderLength, userHeaderLengthWords, userHeaderLengthPadding));
-        str.append(String.format("%24s : %8d / %8d / %8d\n","   data length",
-                                 dataLength, dataLengthWords, dataLengthPadding));
+        str.append(String.format("%24s : %8d / %8d / %8d\n", "user header length",
+                                 userHeaderLength, userHeaderLengthWords, userHeaderPadding));
+        str.append(String.format("%24s : %8d / %8d / %8d\n", "   data length",
+                                 dataLength, dataLengthWords, dataPadding));
         str.append(String.format("%24s : %8d / %8d\n","record length",
                                  recordLength, recordLengthWords));
         str.append(String.format("%24s : %8d / %8d / %8d\n","compressed length",
                                  compressedDataLength, compressedDataLengthWords,
-                                 compressedDataLengthPadding));
+                                 compressedDataPadding));
         str.append(String.format("%24s : %d\n","header length",headerLength));
         str.append(String.format("%24s : 0x%X\n","magic word",headerMagicWord));
         Integer bitInfo = getBitInfoWord();

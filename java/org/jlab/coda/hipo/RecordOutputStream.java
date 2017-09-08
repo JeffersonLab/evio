@@ -42,7 +42,7 @@ import java.nio.ByteOrder;
  *
  *
  *
- * GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
+ * GENERAL RECORD HEADER STRUCTURE (see RecordHeader.java for more info)
  *
  *    +----------------------------------+
  *  1 |         Record Length            | // 32bit words, inclusive
@@ -118,8 +118,13 @@ public class RecordOutputStream {
     /** Byte order of record byte arrays to build. */
     private ByteOrder byteOrder;
 
+    /** Build padding into the output array of this record. */
+    private boolean padOutput = true;
+
+
     
-    /** Default, no-arg constructor. */
+    /** Default, no-arg constructor. Use padding, LZ4 fast compression,
+     * and little endian output by default. */
     public RecordOutputStream(){
         allocate();
         dataCompressor = new Compressor();
@@ -131,10 +136,12 @@ public class RecordOutputStream {
     /**
      * Constructor with byte order of built record byte arrays.
      * @param order byte order of built record byte arrays.
+     * @param usePadding if true, Build padding into the output array of this record.
      */
-    public RecordOutputStream(ByteOrder order){
+    public RecordOutputStream(ByteOrder order, boolean usePadding){
         this();
         byteOrder = order;
+        padOutput = usePadding;
     }
 
     /**
@@ -167,7 +174,7 @@ public class RecordOutputStream {
         recordData = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
         recordData.order(byteOrder);
 
-        // Trying to compress random data will expand it, so need a cushion
+        // Trying to compress random data will expand it, so create a cushion
         recordBinary = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE + (1024*1024)]);
         recordBinary.order(byteOrder);
     }
@@ -243,12 +250,20 @@ public class RecordOutputStream {
      */
     public void build(){
 
-        // Write index & event arrays into a single, temporary buffer
+        // Write uncompressed index & event arrays into a single, temporary buffer
         recordData.position(0);
         recordData.put(  recordIndex.array(), 0, indexSize);
         recordData.put( recordEvents.array(), 0, eventSize);
         
         int dataBufferSize = indexSize + eventSize;
+        // This will find the necessary padding as well as set data length
+        header.setDataLength(eventSize);
+
+        // Add padding if requested
+        if (padOutput) {
+            // Include padding bytes in size but don't bother writing anything there
+            dataBufferSize += header.getDataPadding();
+        }
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
@@ -263,12 +278,15 @@ public class RecordOutputStream {
         catch (HipoException e) {/* should not happen */}
         //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
 
-        // Set header values
+        // Set header values (data length already set above)
         header.setEntries(eventCount);
-        header.setDataLength(eventSize);
         header.setIndexLength(indexSize);
         header.setCompressedDataLength(compressedSize);
-        header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES); // record byte length
+        header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+        // If we're not using padding, these values must be set to 0 before writing header
+        if (!padOutput) {
+            header.clearPadding();
+        }
 
         // Go back and write header into destination buffer
         recordBinary.position(0);
@@ -282,8 +300,7 @@ public class RecordOutputStream {
      * @param userHeader user's ByteBuffer which must be ready to read
      */
     public void build(ByteBuffer userHeader){
-        // TODO: Should the userHeader buffer be saved for more builds?
-        
+
         // Arg check
         if (userHeader == null) {
             build();
@@ -291,21 +308,42 @@ public class RecordOutputStream {
         }
         
         //int userhSize = userHeader.array().length; // May contain unused bytes at end!
-        // How much user-header data do we have?
+        // How much user-header data do we actually have?
         int userHeaderSize = userHeader.remaining();
 
-//        System.out.println("  INDEX = 0 " + indexSize + "  " + (indexSize + userhSize)
-//                + "  DIFF " + userhSize);
+//        System.out.println("  INDEX = 0 " + indexSize + "  " + (indexSize + userHeaderSize)
+//                + "  DIFF " + userHeaderSize);
         
+        // Into a single, temporary buffer, place the following:
+
+        // 1) uncompressed index array
         recordData.position(0);
-        recordData.put(  recordIndex.array(), 0, indexSize);
-        recordData.position(indexSize);
-        recordData.put( userHeader.array(), 0, userHeaderSize);
-        recordData.position(indexSize + userHeaderSize);
+        // Note, put() will increment position
+        recordData.put(recordIndex.array(), 0, indexSize);
+        int dataBufferSize = indexSize;
+
+        // 2) user header array
+        recordData.put(userHeader.array(), 0, userHeaderSize);
+        dataBufferSize += userHeaderSize;
+        // This will find the necessary padding as well as set user header length
+        header.setUserHeaderLength(userHeaderSize);
+        // Add padding if requested
+        if (padOutput) {
+            // Hop over padding bytes (don't bother writing anything)
+            dataBufferSize += header.getUserHeaderPadding();
+            recordData.position(dataBufferSize);
+        }
+
+        // 3) data array
         recordData.put( recordEvents.array(), 0, eventSize);
-        
-        int dataBufferSize = indexSize + userHeaderSize + eventSize;
-        //System.out.println(" TOTAL SIZE = " + dataBufferSize);
+        dataBufferSize += eventSize;
+        header.setDataLength(eventSize);
+        if (padOutput) {
+            // Include padding bytes in size but don't bother writing anything there
+            dataBufferSize += header.getDataPadding();
+        }
+
+        //System.out.println(" TOTAL SIZE = " + dataBufSize);
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
@@ -319,13 +357,15 @@ public class RecordOutputStream {
         }
         catch (HipoException e) {/* should not happen */}
 
-        // Set header values
+        // Set header values (data and user header length already set above)
         header.setEntries(eventCount);
-        header.setDataLength(eventSize);
         header.setIndexLength(indexSize);
-        header.setUserHeaderLength(userHeaderSize);
         header.setCompressedDataLength(compressedSize);
         header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+        // If we're not using padding, these values must be set to 0 before writing header
+        if (!padOutput) {
+            header.clearPadding();
+        }
 
         // Go back and write header into destination buffer
         recordBinary.position(0);
