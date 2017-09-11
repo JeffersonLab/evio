@@ -36,6 +36,7 @@ public class Compressor {
     
     private LZ4Factory factory = null;
     private LZ4Compressor lz4_compressor = null;
+    private LZ4Compressor lz4_compressor_best = null;
     private LZ4SafeDecompressor lz4_decompressor = null;
 
 
@@ -43,6 +44,7 @@ public class Compressor {
     public Compressor(){
         factory = LZ4Factory.fastestInstance();
         lz4_compressor = factory.fastCompressor();
+        lz4_compressor_best = factory.highCompressor();
         lz4_decompressor = factory.safeDecompressor();
     }
     
@@ -82,6 +84,26 @@ public class Compressor {
         try {
             final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(bytes);
             gzipOutputStream.write(ungzipped);
+            gzipOutputStream.close();
+        } catch (IOException e) {
+           // LOG.error("Could not gzip " + Arrays.toString(ungzipped));
+            System.out.println("[iG5DataCompressor] ERROR: Could not gzip the array....");
+        }
+        return bytes.toByteArray();
+    }
+
+    /**
+     * GZIP compression. Returns compressed byte array.
+     * @param ungzipped  uncompressed data.
+     * @param offset     offset into ungzipped array
+     * @param length     length of valid data in bytes
+     * @return compressed data.
+     */
+    public static byte[] compressGZIP(byte[] ungzipped, int offset, int length){
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try {
+            final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(bytes);
+            gzipOutputStream.write(ungzipped, offset, length);
             gzipOutputStream.close();
         } catch (IOException e) {
            // LOG.error("Could not gzip " + Arrays.toString(ungzipped));
@@ -184,6 +206,72 @@ public class Compressor {
                                     lz4_compressor.maxCompressedLength(srcSize) + ")");
         }
         return lz4_compressor.compress(src, srcOff, srcSize, dst, dstOff, maxSize);
+    }
+
+    /**
+     * Highest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination buffer.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     */
+    public int compressLZ4Best(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize)
+            throws HipoException {
+        //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
+        if (lz4_compressor_best.maxCompressedLength(srcSize) > maxSize) {
+            throw new HipoException("maxSize (" + maxSize + ") is < max # of compressed bytes (" +
+                                            lz4_compressor_best.maxCompressedLength(srcSize) + ")");
+        }
+        return lz4_compressor_best.compress(src.array(), 0, srcSize, dst.array(), 0, maxSize);
+    }
+
+    /**
+     * Highest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     */
+    public int compressLZ4Best(byte[] src, int srcOff, int srcSize,
+                            byte[] dst, int dstOff, int maxSize)
+            throws HipoException {
+        //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
+        if (lz4_compressor_best.maxCompressedLength(srcSize) > maxSize) {
+            throw new HipoException("maxSize (" + maxSize + ") is < max # of compressed bytes (" +
+                                            lz4_compressor_best.maxCompressedLength(srcSize) + ")");
+        }
+        return lz4_compressor_best.compress(src, srcOff, srcSize, dst, dstOff, maxSize);
+    }
+
+    /**
+     * Highest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     */
+    public int compressLZ4Best(ByteBuffer src, int srcOff, int srcSize,
+                               ByteBuffer dst, int dstOff, int maxSize)
+            throws HipoException {
+        //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
+        if (lz4_compressor_best.maxCompressedLength(srcSize) > maxSize) {
+            throw new HipoException("maxSize (" + maxSize + ") is < max # of compressed bytes (" +
+                                            lz4_compressor_best.maxCompressedLength(srcSize) + ")");
+        }
+        return lz4_compressor_best.compress(src, srcOff, srcSize, dst, dstOff, maxSize);
     }
 
     /**
