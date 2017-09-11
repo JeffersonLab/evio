@@ -155,6 +155,19 @@ public class RecordOutputStream {
      */
     public ByteBuffer getBinaryBuffer() {return recordBinary;}
 
+    /**
+     * Get the byte order of the record to be built.
+     * @return byte order of the record to be built.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+    /**
+     * Set the byte order of the record to be built.
+     * Only use this internally to the package.
+     * @param order byte order of the record to be built.
+     */
+    void setByteOrder(ByteOrder order) {byteOrder = order;}
+
     /** Allocates all buffers for constructing the record stream. */
     private void allocate(){
 
@@ -244,33 +257,82 @@ public class RecordOutputStream {
      */
     public void build(){
 
-        // Write index & event arrays into a single, temporary buffer
-        recordData.position(0);
-        recordData.put(  recordIndex.array(), 0, indexSize);
-        recordData.put( recordEvents.array(), 0, eventSize);
+        int compressionType = header.getCompressionType();
+
+        // Write index & event arrays
+
+        // If compressing data ...
+        if (compressionType > 0) {
+            // Write into a single, temporary buffer
+            recordData.position(0);
+            recordData.put(  recordIndex.array(), 0, indexSize);
+            recordData.put( recordEvents.array(), 0, eventSize);
+        }
+        // If NOT compressing data ...
+        else {
+            // Write directly into final buffer, past where header will go
+            recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+            recordBinary.put(  recordIndex.array(), 0, indexSize);
+            recordBinary.put( recordEvents.array(), 0, eventSize);
+        }
 
         // Since hipo/evio data is padded, all data to be written is already padded
-        int dataBufferSize = indexSize + eventSize;
+        int uncompressedDataSize = indexSize + eventSize;
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
         int compressedSize = 0;
         try {
-            compressedSize = dataCompressor.compressLZ4(
-                                        recordData.array(), 0, dataBufferSize,
-                                        recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
-                                        (recordBinary.array().length -
-                                                RecordHeader.HEADER_SIZE_BYTES));
+            switch (compressionType) {
+                case 1:
+                    // LZ4 fastest compression
+                    compressedSize = dataCompressor.compressLZ4(
+                            recordData.array(), 0, uncompressedDataSize,
+                            recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                            (recordBinary.array().length -
+                                    RecordHeader.HEADER_SIZE_BYTES));
+                    // Length of compressed data in bytes
+                    header.setCompressedDataLength(compressedSize);
+                    // Length of entire record in bytes
+                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    break;
+
+                case 2:
+                    // LZ4 highest compression
+                    compressedSize = dataCompressor.compressLZ4Best(
+                            recordData.array(), 0, uncompressedDataSize,
+                            recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                            (recordBinary.array().length -
+                                    RecordHeader.HEADER_SIZE_BYTES));
+                    header.setCompressedDataLength(compressedSize);
+                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    break;
+
+                case 3:
+                    // GZIP compression
+                    byte[] gzippedData = dataCompressor.compressGZIP(recordData.array(), 0,
+                                                                     uncompressedDataSize);
+                    recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+                    recordBinary.put(gzippedData);
+                    compressedSize = gzippedData.length;
+                    header.setCompressedDataLength(compressedSize);
+                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    break;
+
+                case 0:
+                default:
+                    // No compression
+                    header.setCompressedDataLength(0);
+                    header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
+            }
         }
         catch (HipoException e) {/* should not happen */}
         //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
 
-        // Set header values
+        // Set the rest of the header values
         header.setEntries(eventCount);
         header.setDataLength(eventSize);
         header.setIndexLength(indexSize);
-        header.setCompressedDataLength(compressedSize);
-        header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES); // record byte length
 
         // Go back and write header into destination buffer
         recordBinary.position(0);
@@ -299,26 +361,49 @@ public class RecordOutputStream {
 //        System.out.println("  INDEX = 0 " + indexSize + "  " + (indexSize + userHeaderSize)
 //                + "  DIFF " + userHeaderSize);
 
-        // Into a single, temporary buffer, place the following:
+        int compressionType = header.getCompressionType();
+        int uncompressedDataSize = indexSize;
 
-        // 1) uncompressed index array
-        recordData.position(0);
-        // Note, put() will increment position
-        recordData.put(recordIndex.array(), 0, indexSize);
-        int dataBufferSize = indexSize;
+        // If compressing data ...
+        if (compressionType > 0) {
+            // Write into a single, temporary buffer the following:
 
-        // 2) user header array
-        recordData.put(userHeader.array(), 0, userHeaderSize);
-        // Account for unpadded user header.
-        // This will find the user header length in words & account for padding.
-        header.setUserHeaderLength(userHeaderSize);
-        // Hop over padded user header length
-        dataBufferSize += 4*header.getUserHeaderLengthWords();
-        recordData.position(dataBufferSize);
+            // 1) uncompressed index array
+            recordData.position(0);
+            // Note, put() will increment position
+            recordData.put(recordIndex.array(), 0, indexSize);
 
-        // 3) data array (hipo/evio data is already padded)
-        recordData.put(recordEvents.array(), 0, eventSize);
-        dataBufferSize += eventSize;
+            // 2) uncompressed user header array
+            recordData.put(userHeader.array(), 0, userHeaderSize);
+            // Account for unpadded user header.
+            // This will find the user header length in words & account for padding.
+            header.setUserHeaderLength(userHeaderSize);
+            // Hop over padded user header length
+            uncompressedDataSize += 4*header.getUserHeaderLengthWords();
+            recordData.position(uncompressedDataSize);
+
+            // 3) uncompressed data array (hipo/evio data is already padded)
+            recordData.put(recordEvents.array(), 0, eventSize);
+            uncompressedDataSize += eventSize;
+        }
+        // If NOT compressing data ...
+        else {
+            // Write directly into final buffer, past where header will go
+            recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+
+            // 1) uncompressed index array
+            recordBinary.put(recordIndex.array(), 0, indexSize);
+
+            // 2) uncompressed user header array
+            recordBinary.put(userHeader.array(), 0, userHeaderSize);
+            header.setUserHeaderLength(userHeaderSize);
+            uncompressedDataSize += 4*header.getUserHeaderLengthWords();
+            recordBinary.position(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
+
+            // 3) uncompressed data array (hipo/evio data is already padded)
+            recordBinary.put(recordEvents.array(), 0, eventSize);
+            uncompressedDataSize += eventSize;
+        }
 
         //System.out.println(" TOTAL SIZE = " + dataBufSize);
 
@@ -326,20 +411,56 @@ public class RecordOutputStream {
         // (skipping over where record header will be written).
         int compressedSize = 0;
         try {
-            compressedSize = dataCompressor.compressLZ4(
-                                        recordData.array(), 0, dataBufferSize,
-                                        recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
-                                        (recordBinary.array().length -
-                                                RecordHeader.HEADER_SIZE_BYTES));
+            switch (compressionType) {
+                case 1:
+                    // LZ4 fastest compression
+                    compressedSize = dataCompressor.compressLZ4(
+                            recordData.array(), 0, uncompressedDataSize,
+                            recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                            (recordBinary.array().length -
+                                    RecordHeader.HEADER_SIZE_BYTES));
+                    // Length of compressed data in bytes
+                    header.setCompressedDataLength(compressedSize);
+                    // Length of entire record in bytes
+                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    break;
+
+                case 2:
+                    // LZ4 highest compression
+                    compressedSize = dataCompressor.compressLZ4Best(
+                            recordData.array(), 0, uncompressedDataSize,
+                            recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                            (recordBinary.array().length -
+                                    RecordHeader.HEADER_SIZE_BYTES));
+                    header.setCompressedDataLength(compressedSize);
+                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    break;
+
+                case 3:
+                    // GZIP compression
+                    byte[] gzippedData = dataCompressor.compressGZIP(recordData.array(), 0,
+                                                                     uncompressedDataSize);
+                    recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+                    recordBinary.put(gzippedData);
+                    compressedSize = gzippedData.length;
+                    header.setCompressedDataLength(compressedSize);
+                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    break;
+
+                case 0:
+                default:
+                    // No compression
+                    header.setCompressedDataLength(0);
+                    header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
+            }
         }
         catch (HipoException e) {/* should not happen */}
+        //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
 
         // Set header values (user header length already set above)
         header.setEntries(eventCount);
         header.setDataLength(eventSize);
         header.setIndexLength(indexSize);
-        header.setCompressedDataLength(compressedSize);
-        header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
 
         // Go back and write header into destination buffer
         recordBinary.position(0);
