@@ -6,6 +6,9 @@
  */
 package org.jlab.coda.hipo;
 
+import org.jlab.coda.jevio.ByteDataTransformer;
+import org.jlab.coda.jevio.EvioException;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -156,6 +159,12 @@ public class RecordHeader {
     final static int   HEADER_MAGIC_LE = HEADER_MAGIC;
     /** Magic number for HIPO's big endian uses (byte swapped from HEADER_MAGIC_LE). */
     final static int   HEADER_MAGIC_BE = Integer.reverseBytes(HEADER_MAGIC);
+    /** Number of bytes from beginning of file header to write trailer position. */
+    final static long  TRAILER_POSITION_OFFSET = 40L;
+    /** 9th bit set in bitInfo word in record header means record is last in stream or file. */
+    final static int   LAST_RECORD_BIT = 0x100;
+    /** 10th bit set in bitInfo word in file header means file trailer with index array exists. */
+    final static int   TRAILER_WITH_INDEX = 0x200;
 
 
     /** Type of header this is. Normal evio record by default. */
@@ -628,12 +637,12 @@ public class RecordHeader {
 
         buffer.putInt( 0*4 + offset, recordLengthWords);
         buffer.putInt( 1*4 + offset, recordNumber);
-        buffer.putInt( 2*4 + offset, headerLength);
+        buffer.putInt( 2*4 + offset, headerLengthWords);
         buffer.putInt( 3*4 + offset, entries);
         buffer.putInt( 4*4 + offset, indexLength);
         buffer.putInt( 5*4 + offset, getBitInfoWord());
         buffer.putInt( 6*4 + offset, userHeaderLength);
-        buffer.putInt( 7*4 + offset, headerMagicWord); // word number 8
+        buffer.putInt( 7*4 + offset, headerMagicWord);
 
         int compressedWord = ( compressedDataLengthWords & 0x0FFFFFFF) |
                 ((compressionType & 0x0000000F) << 28);
@@ -653,6 +662,57 @@ public class RecordHeader {
     }
 
     /**
+     * Writes a trailer with an optional index array into the given byte array.
+     * @param array byte array to write trailer into.
+     * @param recordNumber record number of trailer.
+     * @param order byte order of data to be written.
+     * @param index array of record lengths to be written to trailer
+     *              (must be multiple of 4 bytes). Null if no index array.
+     */
+    static public void writeTrailer(byte[] array, int recordNumber,
+                                    ByteOrder order, byte[] index) {
+
+        int indexLength = 0;
+        int totalLength = HEADER_SIZE_BYTES;
+        if (index != null) {
+            indexLength = index.length;
+            totalLength += indexLength;
+        }
+
+        // Check arg
+        if (array == null || array.length < totalLength) {
+            // TODO: ERROR
+            return;
+        }
+
+        // TODO: the header type and "last record" bit are redundant
+        int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | LAST_RECORD_BIT | 6;
+
+        try {
+            // First the general header part
+            ByteDataTransformer.toBytes(totalLength, order, array, 0*4);
+            ByteDataTransformer.toBytes(recordNumber, order, array, 1*4);
+            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 2*4);
+            ByteDataTransformer.toBytes(0, order, array, 3*4);
+            ByteDataTransformer.toBytes(indexLength, order, array, 4*4);
+            ByteDataTransformer.toBytes(bitInfo, order, array, 5*4);
+            ByteDataTransformer.toBytes(0, order, array, 6*4);
+            ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 7*4);
+            ByteDataTransformer.toBytes(0, order, array, 8*4);
+            ByteDataTransformer.toBytes(0, order, array, 9*4);
+
+            ByteDataTransformer.toBytes(0L, order, array, 10*4);
+            ByteDataTransformer.toBytes(0L, order, array, 12*4);
+
+            // Second the index
+            if (indexLength > 0) {
+                System.arraycopy(index, 0, array, 14 * 4, indexLength);
+            }
+        }
+        catch (EvioException e) {/* never happen */}
+    }
+
+   /**
      * Writes the file (not record!) header into the given byte buffer.
      * @param buffer byte buffer to write file header into.
      * @param offset position in buffer to begin writing.
@@ -661,7 +721,7 @@ public class RecordHeader {
 
         buffer.putInt( 0*4 + offset, fileId);
         buffer.putInt( 1*4 + offset, fileNumber);
-        buffer.putInt( 2*4 + offset, headerLength);
+        buffer.putInt( 2*4 + offset, headerLengthWords);
         buffer.putInt( 3*4 + offset, entries);
         buffer.putInt( 4*4 + offset, indexLength);
         buffer.putInt( 5*4 + offset, getBitInfoWord());
@@ -674,8 +734,8 @@ public class RecordHeader {
         buffer.putInt( 9*4 + offset, compressedWord);
 
         buffer.putLong( 10*4 + offset, trailerPosition);
-        buffer.putLong( 12*4 + offset, userIntFirst);
-        buffer.putLong( 13*4 + offset, userIntSecond);
+        buffer.putInt ( 12*4 + offset, userIntFirst);
+        buffer.putInt ( 13*4 + offset, userIntSecond);
     }
 
     /**
@@ -724,11 +784,12 @@ public class RecordHeader {
         }
 
         recordLengthWords = buffer.getInt(    0 + offset );
-        recordLength      = recordLengthWords * 4;
+        recordLength      = 4*recordLengthWords;
 
-        recordNumber = buffer.getInt(  1*4 + offset );
-        headerLength = buffer.getInt(  2*4 + offset);
-        entries      = buffer.getInt(  3*4 + offset);
+        recordNumber      = buffer.getInt(  1*4 + offset );
+        headerLengthWords = buffer.getInt(  2*4 + offset);
+        setHeaderLength(4*headerLengthWords);
+        entries           = buffer.getInt(  3*4 + offset);
 
         indexLength  = buffer.getInt( 4*4 + offset);
         setIndexLength(indexLength);
@@ -800,10 +861,11 @@ public class RecordHeader {
             throw new HipoException("buffer is in evio format version " + version);
         }
 
-        fileId       = buffer.getInt(    0 + offset );
-        fileNumber   = buffer.getInt(  1*4 + offset );
-        headerLength = buffer.getInt(  2*4 + offset);
-        entries      = buffer.getInt(  3*4 + offset);
+        fileId            = buffer.getInt(    0 + offset );
+        fileNumber        = buffer.getInt(  1*4 + offset );
+        headerLengthWords = buffer.getInt(  2*4 + offset);
+        setHeaderLength(4*headerLengthWords);
+        entries           = buffer.getInt(  3*4 + offset);
 
         indexLength  = buffer.getInt( 4*4 + offset);
         setIndexLength(indexLength);
