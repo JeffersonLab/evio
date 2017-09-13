@@ -67,8 +67,6 @@ public class TestWriter {
     }
     
     public static void testStreamRecord(){
-        RecordOutputStream stream = new RecordOutputStream();
-        byte[] buffer = TestWriter.generateBuffer();
 
         // Variables to track record build rate
         double freqAvg;
@@ -76,17 +74,22 @@ public class TestWriter {
         // Ignore the first N values found for freq in order
         // to get better avg statistics. Since the JIT compiler in java
         // takes some time to analyze & compile code, freq may initially be low.
-        long ignore = 1000;
-        long loops  = 20000000;
+        long ignore = 0;
+        long loops  = 2;
+
+        // Create file
+        Writer2 writer = new Writer2();
+        writer.getRecordHeader().setCompressionType(0);
+        writer.open("/daqfs/home/timmer/exampleFile.v6.evio");
 
         t1 = System.currentTimeMillis();
 
+        byte[] buffer = TestWriter.generateBuffer(400);
+
         while (true) {
-            boolean roomLeft = stream.addEvent(buffer);
-            if (!roomLeft){
-                stream.build();
-                stream.reset();
-            }
+            // random data array
+            writer.addEvent(buffer);
+
 //System.out.println(""+ (20000000 - loops));
             // Ignore beginning loops to remove JIT compile time
             if (ignore-- > 0) {
@@ -96,10 +99,21 @@ public class TestWriter {
                 totalC++;
             }
 
-            if (loops-- < 1) break;
+            if (--loops < 1) break;
         }
 
         t2 = System.currentTimeMillis();
+        System.out.println("Finished all loops, count = " + totalC);
+
+        // Create our own record
+        RecordOutputStream myRecord = new RecordOutputStream(writer.getByteOrder());
+        buffer = TestWriter.generateBuffer(200);
+        myRecord.addEvent(buffer);
+        myRecord.addEvent(buffer);
+        writer.writeRecord(myRecord);
+
+        writer.addTrailerWithIndex(true);
+        writer.close();
 
         deltaT = t2 - t1; // millisec
         freqAvg = (double) totalC / deltaT * 1000;
