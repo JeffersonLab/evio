@@ -293,8 +293,9 @@ public class RecordOutputStream {
                                     RecordHeader.HEADER_SIZE_BYTES));
                     // Length of compressed data in bytes
                     header.setCompressedDataLength(compressedSize);
-                    // Length of entire record in bytes
-                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    // Length of entire record in bytes (don't forget padding!)
+                    header.setLength(4*header.getCompressedDataLengthWords() +
+                                             RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
                 case 2:
@@ -305,7 +306,8 @@ public class RecordOutputStream {
                             (recordBinary.array().length -
                                     RecordHeader.HEADER_SIZE_BYTES));
                     header.setCompressedDataLength(compressedSize);
-                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    header.setLength(4*header.getCompressedDataLengthWords() +
+                                             RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
                 case 3:
@@ -316,7 +318,8 @@ public class RecordOutputStream {
                     recordBinary.put(gzippedData);
                     compressedSize = gzippedData.length;
                     header.setCompressedDataLength(compressedSize);
-                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    header.setLength(4*header.getCompressedDataLengthWords() +
+                                             RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
                 case 0:
@@ -421,8 +424,9 @@ public class RecordOutputStream {
                                     RecordHeader.HEADER_SIZE_BYTES));
                     // Length of compressed data in bytes
                     header.setCompressedDataLength(compressedSize);
-                    // Length of entire record in bytes
-                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    // Length of entire record in bytes (don't forget padding!)
+                    header.setLength(4*header.getCompressedDataLengthWords() +
+                                             RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
                 case 2:
@@ -433,7 +437,8 @@ public class RecordOutputStream {
                             (recordBinary.array().length -
                                     RecordHeader.HEADER_SIZE_BYTES));
                     header.setCompressedDataLength(compressedSize);
-                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    header.setLength(4*header.getCompressedDataLengthWords() +
+                                             RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
                 case 3:
@@ -444,7 +449,8 @@ public class RecordOutputStream {
                     recordBinary.put(gzippedData);
                     compressedSize = gzippedData.length;
                     header.setCompressedDataLength(compressedSize);
-                    header.setLength(compressedSize + RecordHeader.HEADER_SIZE_BYTES);
+                    header.setLength(4*header.getCompressedDataLengthWords() +
+                                             RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
                 case 0:
