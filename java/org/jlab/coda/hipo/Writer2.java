@@ -399,14 +399,27 @@ public class Writer2 implements AutoCloseable {
                 // Write the trailer
                 writeTrailer(addTrailerIndex);
 
-                // Find & update file header's trailer position word.
-                // Do this after writing trailer in order to avoid extra seek.
+                // Find & update file header's trailer position word
                 outStream.seek(RecordHeader.TRAILER_POSITION_OFFSET);
                 if (fileByteOrder == ByteOrder.LITTLE_ENDIAN) {
                     outStream.writeLong(Long.reverseBytes(trailerPosition));
                 }
                 else {
                     outStream.writeLong(trailerPosition);
+                }
+
+                // Find & update file header's bit-info word
+                if (addTrailerIndex) {
+                    outStream.seek(RecordHeader.BIT_INFO_OFFSET);
+                    int bitInfo = fileHeader.setBitInfoForFile(false,
+                                                               false,
+                                                               true);
+                    if (fileByteOrder == ByteOrder.LITTLE_ENDIAN) {
+                        outStream.writeInt(Integer.reverseBytes(bitInfo));
+                    }
+                    else {
+                        outStream.writeInt(bitInfo);
+                    }
                 }
             }
 
