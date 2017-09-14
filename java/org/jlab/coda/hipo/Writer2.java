@@ -21,9 +21,7 @@ import java.util.logging.Logger;
 
 /**
  * Class to write Evio/HIPO files.
- * Currently no options exist to add an index array or
- * to compress the file's index array & user header.
- * 
+ *
  * @version 6.0
  * @since 6.0 8/10/17
  * @author gavalian
