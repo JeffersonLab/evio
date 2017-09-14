@@ -41,17 +41,19 @@ public enum HeaderType {
      * Is this an evio file header?
      * @return <code>true</code> if is an evio file header, else <code>false</code>
      */
-    public boolean isEvioFileHeader() {
-        return (this == EVIO_FILE || this == EVIO_FILE_EXTENDED);
-    }
+    public boolean isEvioFileHeader() {return (this == EVIO_FILE || this == EVIO_FILE_EXTENDED);}
 
     /**
      * Is this a HIPO file header?
      * @return <code>true</code> if is an HIPO file header, else <code>false</code>
      */
-    public boolean isHipoFileHeader() {
-        return (this == HIPO_FILE || this == HIPO_FILE_EXTENDED);
-    }
+    public boolean isHipoFileHeader() {return (this == HIPO_FILE || this == HIPO_FILE_EXTENDED);}
+
+    /**
+     * Is this a file header?
+     * @return <code>true</code> if is a file header, else <code>false</code>
+     */
+    public boolean isFileHeader() {return (isEvioFileHeader() | isHipoFileHeader());}
 
     /** Fast way to convert integer values into HeaderType objects. */
     private static HeaderType[] intToType;
