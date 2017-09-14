@@ -159,12 +159,24 @@ public class RecordHeader {
     final static int   HEADER_MAGIC_LE = HEADER_MAGIC;
     /** Magic number for HIPO's big endian uses (byte swapped from HEADER_MAGIC_LE). */
     final static int   HEADER_MAGIC_BE = Integer.reverseBytes(HEADER_MAGIC);
+
+    // Byte offset to header words
+
     /** Number of bytes from beginning of file header to write trailer position. */
-    final static long  TRAILER_POSITION_OFFSET = 40L;
-    /** 9th bit set in bitInfo word in record header means record is last in stream or file. */
-    final static int   LAST_RECORD_BIT = 0x100;
+    final static int   TRAILER_POSITION_OFFSET = 40;
+    /** Number of bytes from beginning of file header to write bit info word. */
+    final static int   BIT_INFO_OFFSET = 20;
+
+    // Bits in bit info word
+    
+    /** 8th bit set in bitInfo word in record/file header means contains dictionary. */
+    final static int   DICTIONARY_BIT = 0x100;
+    /** 9th bit set in bitInfo word in file header means every split file has same first event. */
+    final static int   HAS_FIRST_EVENT_BIT = 0x200;
+    /** 9th bit set in bitInfo word in record header means is last in stream or file. */
+    final static int   LAST_RECORD_BIT = 0x200;
     /** 10th bit set in bitInfo word in file header means file trailer with index array exists. */
-    final static int   TRAILER_WITH_INDEX = 0x200;
+    final static int   TRAILER_WITH_INDEX_BIT = 0x400;
 
 
     /** Type of header this is. Normal evio record by default. */
@@ -196,6 +208,8 @@ public class RecordHeader {
     private int  recordNumber;
     /** Event or index count. 4th word. */
     private int  entries;
+    /** BitInfo & version. 6th word. */
+    private int  bitInfo = -1;
     /** Length of this header (bytes). */
     private int  headerLength;
     /** Length of this header (words). 3rd word. */
@@ -488,15 +502,65 @@ public class RecordHeader {
      * Get the bit info word.
      * @return bit info word.
      */
-    private int getBitInfoWord() {
-        return  (headerType.getValue() << 28) |
-                (compressedDataLengthPadding << 24) |
-                (dataLengthPadding << 22) |
-                (userHeaderLengthPadding << 20) |
-                (headerVersion & 0xFF);
+    public int getBitInfoWord() {
+        // If bitInfo uninitialized, do so now
+        if (bitInfo < 0) {
+            // This will init the same whether file or record header
+            setBitInfoForRecord(false, false);
+        }
+        return bitInfo;
     }
 
     // Setters
+
+    /**
+     * Set the bit info word for a record header.
+     * @param isLastRecord   true if record is last in stream or file.
+     * @param haveDictionary true if record has dictionary in user header.
+     * @return new bit info word.
+     */
+    int  setBitInfoForRecord(boolean isLastRecord,
+                             boolean haveDictionary) {
+        bitInfo = (headerType.getValue() << 28) |
+                  (compressedDataLengthPadding << 24) |
+                  (dataLengthPadding << 22) |
+                  (userHeaderLengthPadding << 20) |
+                  (headerVersion & 0xFF);
+
+        if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
+        if (haveDictionary) bitInfo |= DICTIONARY_BIT;
+
+        return bitInfo;
+    }
+
+    /**
+     * Set the bit info word for a file header.
+     * @param haveFirst  true if file has first event.
+     * @param haveDictionary  true if file has dictionary in user header.
+     * @param haveTrailerWithIndex  true if file has trailer with record length index.
+     * @return new bit info word.
+     */
+    int  setBitInfoForFile(boolean haveFirst,
+                           boolean haveDictionary,
+                           boolean haveTrailerWithIndex) {
+        bitInfo = (headerType.getValue() << 28) |
+                  (compressedDataLengthPadding << 24) |
+                  (dataLengthPadding << 22) |
+                  (userHeaderLengthPadding << 20) |
+                  (headerVersion & 0xFF);
+
+        if (haveFirst) bitInfo |= HAS_FIRST_EVENT_BIT;
+        if (haveDictionary) bitInfo |= DICTIONARY_BIT;
+        if (haveTrailerWithIndex) bitInfo |= TRAILER_WITH_INDEX_BIT;
+
+        return bitInfo;
+    }
+
+    /**
+     * Set the bit info word.
+     * @param word  bit info word.
+     */
+    void  setBitInfoWord(int word) {bitInfo = word;}
 
     /**
      * Set this header's type. Normally done in constructor. Limited access.
