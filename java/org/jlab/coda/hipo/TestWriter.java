@@ -112,6 +112,7 @@ public class TestWriter {
         myRecord.addEvent(buffer);
         writer.writeRecord(myRecord);
 
+        writer.addTrailer(true);
         writer.addTrailerWithIndex(true);
         writer.close();
 
