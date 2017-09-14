@@ -32,10 +32,6 @@ import java.util.logging.Logger;
 
 public class Writer2 implements AutoCloseable {
 
-    // Internal constants used in the FILE header
-    /** File header length in bytes. */
-    public final static int  FILE_HEADER_BYTES = RecordHeader.HEADER_SIZE_BYTES;
-
     /** Byte order of file to write. */
     private ByteOrder fileByteOrder = ByteOrder.LITTLE_ENDIAN;
     /** Object for writing file. */
@@ -58,12 +54,8 @@ public class Writer2 implements AutoCloseable {
     /** Do we add a record index to the trailer? */
     private boolean addTrailerIndex;
 
-    /**
-     * List of offset to records in the file. The array is initialized
-     * at the open() method when the entire file is scanned
-     * to read out positions of each record in the file.
-     */
-    private ArrayList<Integer> recordOffsets = new ArrayList<Integer>();
+    /** List of record lengths to be optionally written in file trailer. */
+    private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
 
     /**
      * Default constructor. Only the internal record is initialized
@@ -263,10 +255,10 @@ public class Writer2 implements AutoCloseable {
         }
 
         // Create the index of record lengths in proper byte order
-        byte[] recordIndex = new byte[4*recordOffsets.size()];
+        byte[] recordIndex = new byte[4* recordLengths.size()];
         try {
-            for (int i = 0; i < recordOffsets.size(); i++) {
-                ByteDataTransformer.toBytes(recordOffsets.get(i), fileByteOrder,
+            for (int i = 0; i < recordLengths.size(); i++) {
+                ByteDataTransformer.toBytes(recordLengths.get(i), fileByteOrder,
                                             recordIndex, 4*i);
 //System.out.println("Writing record length = " + recordOffsets.get(i) +
 //", = 0x" + Integer.toHexString(recordOffsets.get(i)));
@@ -315,7 +307,7 @@ public class Writer2 implements AutoCloseable {
         record.build();
         int bytesToWrite = header.getLength();
         // Record length of this record
-        recordOffsets.add(bytesToWrite);
+        recordLengths.add(bytesToWrite);
         writerBytesWritten += bytesToWrite;
 
         try {
@@ -366,7 +358,7 @@ public class Writer2 implements AutoCloseable {
         outputRecord.build();
         int bytesToWrite = header.getLength();
         // Record length of this record
-        recordOffsets.add(bytesToWrite);
+        recordLengths.add(bytesToWrite);
         writerBytesWritten += bytesToWrite;
 
         try {
