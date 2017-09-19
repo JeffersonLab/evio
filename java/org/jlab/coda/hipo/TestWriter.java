@@ -74,17 +74,18 @@ public class TestWriter {
         // Ignore the first N values found for freq in order
         // to get better avg statistics. Since the JIT compiler in java
         // takes some time to analyze & compile code, freq may initially be low.
-        long ignore = 0;
-        long loops  = 2;
+        long ignore = 10000;
+        long loops  = 2000000;
 
         // Create file
         Writer2 writer = new Writer2();
-        writer.getRecordHeader().setCompressionType(0);
+        writer.getRecordHeader().setCompressionType(1);
         writer.open("/daqfs/home/timmer/exampleFile.v6.evio");
 
-        t1 = System.currentTimeMillis();
 
         byte[] buffer = TestWriter.generateBuffer(400);
+
+        t1 = System.currentTimeMillis();
 
         while (true) {
             // random data array
@@ -103,23 +104,25 @@ public class TestWriter {
         }
 
         t2 = System.currentTimeMillis();
-        System.out.println("Finished all loops, count = " + totalC);
-
-        // Create our own record
-        RecordOutputStream myRecord = new RecordOutputStream(writer.getByteOrder());
-        buffer = TestWriter.generateBuffer(200);
-        myRecord.addEvent(buffer);
-        myRecord.addEvent(buffer);
-        writer.writeRecord(myRecord);
-
-        writer.addTrailer(true);
-        writer.addTrailerWithIndex(true);
-        writer.close();
-
         deltaT = t2 - t1; // millisec
         freqAvg = (double) totalC / deltaT * 1000;
 
         System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
+        
+        System.out.println("Finished all loops, count = " + totalC);
+
+//        // Create our own record
+//        RecordOutputStream myRecord = new RecordOutputStream(writer.getByteOrder());
+//        buffer = TestWriter.generateBuffer(200);
+//        myRecord.addEvent(buffer);
+//        myRecord.addEvent(buffer);
+//        writer.writeRecord(myRecord);
+
+//        writer.addTrailer(true);
+//        writer.addTrailerWithIndex(true);
+        writer.close();
+
+        System.out.println("Finished writing file");
 
 
     }
