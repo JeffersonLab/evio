@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,34 +31,48 @@ import java.util.logging.Logger;
 
 public class Writer2 implements AutoCloseable {
 
-    /** Byte order of file to write. */
-    private ByteOrder fileByteOrder = ByteOrder.LITTLE_ENDIAN;
+    /** Do we write to a file or a buffer? */
+    private boolean toFile = true;
+
+    // If writing to file ...
+
     /** Object for writing file. */
     private RandomAccessFile  outStream;
-    /** Internal Record. */
-    private RecordOutputStream  outputRecord;
+    /** The file channel, used for writing a file, derived from outStream. */
+    private FileChannel  fileChannel;
     /** Header to write to file. */
     private RecordHeader  fileHeader;
 
+    // If writing to buffer ...
+    
+    /** The buffer being written to. */
+    private ByteBuffer buffer;
+
+    // For both files & buffers
+
+    /** Byte order of data to write to file/buffer. */
+    private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+    /** Internal Record. */
+    private RecordOutputStream  outputRecord;
     /** Byte array large enough to hold a header/trailer. */
     private byte[]  headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
     /** Type of compression to use on file. Default is none. */
     private int    compressionType;
-    /** Number of bytes written to file at current moment. */
+    /** Number of bytes written to file/buffer at current moment. */
     private long   writerBytesWritten;
     /** Number which is incremented and stored with each successive written record starting at 1. */
     private int   recordNumber = 1;
-    /** Do we add a last header or trailer to file? */
+    /** Do we add a last header or trailer to file/buffer? */
     private boolean addTrailer;
     /** Do we add a record index to the trailer? */
     private boolean addTrailerIndex;
 
-    /** List of record lengths to be optionally written in file trailer. */
+    /** List of record lengths to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
 
     /**
-     * Default constructor. Only the internal record is initialized
-     * and <b>no</b> file is opened. Any file will have little endian byte order.
+     * Default constructor.
+     * <b>No</b> file is opened. Any file will have little endian byte order.
      */
     public Writer2(){
         outputRecord = new RecordOutputStream();
@@ -65,12 +80,12 @@ public class Writer2 implements AutoCloseable {
     }
 
     /**
-     * Constructor with byte order. Only the internal record is initialized
-     * and <b>no</b> file is opened.
+     * Constructor with byte order.
+     * <b>No</b> file is opened.
      * @param order byte order of written file
      */
     public Writer2(ByteOrder order){
-        fileByteOrder = order;
+        byteOrder = order;
         outputRecord  = new RecordOutputStream(order);
         fileHeader    = new RecordHeader(HeaderType.EVIO_FILE);
     }
@@ -98,10 +113,20 @@ public class Writer2 implements AutoCloseable {
     }
 
     /**
+     * Constructor for writing to a ByteBuffer. Byte order is taken from the buffer.
+     * @param buf buffer in to which to write events and/or records.
+     */
+    public Writer2(ByteBuffer buf){
+        buffer = buf;
+        byteOrder = buf.order();
+        outputRecord = new RecordOutputStream(byteOrder);
+    }
+
+    /**
      * Get the file's byte order.
      * @return file's byte order.
      */
-    public ByteOrder getByteOrder() {return fileByteOrder;}
+    public ByteOrder getByteOrder() {return byteOrder;}
 
     /**
      * Get the file header.
@@ -175,6 +200,7 @@ public class Writer2 implements AutoCloseable {
 
         try {
             outStream = new RandomAccessFile(filename, "rw");
+            fileChannel = outStream.getChannel();
             // Create complete file header here (general file header + index array + user header)
             ByteBuffer headerBuffer = createHeader(userHeader);
             // Write this to file
@@ -223,7 +249,7 @@ public class Writer2 implements AutoCloseable {
 
         byte[] array = new byte[bytes];
         ByteBuffer buffer = ByteBuffer.wrap(array);
-        buffer.order(fileByteOrder);
+        buffer.order(byteOrder);
 
         fileHeader.writeFileHeader(buffer, 0);
         System.arraycopy(userHeader, 0, array,
@@ -233,15 +259,15 @@ public class Writer2 implements AutoCloseable {
     }
 
     /**
-     * Write a general file header as the last "header" or trailer in the file
-     * optionally followed by an index of all record lengths in the file.
+     * Write a general header as the last "header" or trailer in the file
+     * optionally followed by an index of all record lengths.
      * @param writeIndex if true, write an index of all record lengths in trailer.
      */
     public void writeTrailer(boolean writeIndex){
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
-            RecordHeader.writeTrailer(headerArray, recordNumber, fileByteOrder, null);
+            RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
             try {
                 // TODO: not really necessary to keep track here?
                 writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
@@ -256,7 +282,7 @@ public class Writer2 implements AutoCloseable {
         byte[] recordIndex = new byte[4* recordLengths.size()];
         try {
             for (int i = 0; i < recordLengths.size(); i++) {
-                ByteDataTransformer.toBytes(recordLengths.get(i), fileByteOrder,
+                ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
                                             recordIndex, 4*i);
 //System.out.println("Writing record length = " + recordOffsets.get(i) +
 //", = 0x" + Integer.toHexString(recordOffsets.get(i)));
@@ -277,7 +303,7 @@ public class Writer2 implements AutoCloseable {
 
         // Place data into headerArray - both header and index
         RecordHeader.writeTrailer(headerArray, recordNumber,
-                                  fileByteOrder, recordIndex);
+                                  byteOrder, recordIndex);
         try {
             // TODO: not really necessary to keep track here?
             writerBytesWritten += dataBytes;
@@ -300,7 +326,7 @@ public class Writer2 implements AutoCloseable {
         // Make sure given record is consistent with this writer
         header.setCompressionType(compressionType);
         header.setRecordNumber(recordNumber++);
-        record.setByteOrder(fileByteOrder);
+        record.setByteOrder(byteOrder);
 
         record.build();
         int bytesToWrite = header.getLength();
@@ -360,7 +386,13 @@ public class Writer2 implements AutoCloseable {
         writerBytesWritten += bytesToWrite;
 
         try {
-            outStream.write(outputRecord.getBinaryBuffer().array(), 0, bytesToWrite);
+            if (outputRecord.getBinaryBuffer().hasArray()) {
+                outStream.write(outputRecord.getBinaryBuffer().array(), 0, bytesToWrite);
+            }
+            else {
+                // binary buffer is ready to read after build()
+                fileChannel.write(outputRecord.getBinaryBuffer());
+            }
             outputRecord.reset();
         } catch (IOException ex) {
             Logger.getLogger(Writer2.class.getName()).log(Level.SEVERE, null, ex);
@@ -399,7 +431,7 @@ public class Writer2 implements AutoCloseable {
 
                 // Find & update file header's trailer position word
                 outStream.seek(RecordHeader.TRAILER_POSITION_OFFSET);
-                if (fileByteOrder == ByteOrder.LITTLE_ENDIAN) {
+                if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
                     outStream.writeLong(Long.reverseBytes(trailerPosition));
                 }
                 else {
@@ -412,7 +444,7 @@ public class Writer2 implements AutoCloseable {
                     int bitInfo = fileHeader.setBitInfoForFile(false,
                                                                false,
                                                                true);
-                    if (fileByteOrder == ByteOrder.LITTLE_ENDIAN) {
+                    if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
                         outStream.writeInt(Integer.reverseBytes(bitInfo));
                     }
                     else {
