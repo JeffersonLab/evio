@@ -178,11 +178,22 @@ public class RecordHeader {
     /** 10th bit set in bitInfo word in file header means file trailer with index array exists. */
     final static int   TRAILER_WITH_INDEX_BIT = 0x400;
 
+    /** 10-13th bits in bitInfo word in record header for CODA data type, ROC raw = 0. */
+    final static int   DATA_ROC_RAW_BITS = 0x000;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, physics = 1. */
+    final static int   DATA_PHYSICS_BITS = 0x400;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, partial physics = 2. */
+    final static int   DATA_PARTIAL_BITS = 0x800;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, disentangled = 3. */
+    final static int   DATA_DISENTANGLED_BITS = 0xC00;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, user = 4. */
+    final static int   DATA_USER_BITS    = 0x1000;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, control = 5. */
+    final static int   DATA_CONTROL_BITS = 0x1400;
+    /** 10-13th bits in bitInfo word in record header for CODA data type, other = 15. */
+    final static int   DATA_OTHER_BITS   = 0x3C00;
 
-    /** Type of header this is. Normal evio record by default. */
-    private HeaderType headerType = HeaderType.EVIO_RECORD;
-
-    // File header only members
+    // File header only
 
     /** File id for file identification purposes. Defaults to evio file.
       * Only valid if file header. 1st word. */
@@ -195,18 +206,27 @@ public class RecordHeader {
     private int  userIntFirst;
     /** Second user-defined integer in file header. Only valid if file header. 14th word. */
     private int  userIntSecond;
-
-    // Record header members
-
     /** Position of this header in a file. */
     private long position;
+
+    // Record header only
+
     /** Length of the entire record this header is a part of (bytes). */
     private int  recordLength;
     /** Length of the entire record this header is a part of (32-bit words). 1st word. */
     private int  recordLengthWords;
     /** Record number. 2nd word. */
     private int  recordNumber;
-    /** Event or index count. 4th word. */
+    /** First user-defined 64-bit register. 11th and 12th words. */
+    private long recordUserRegisterFirst;
+    /** Second user-defined 64-bit register. 13th and 14th words. */
+    private long recordUserRegisterSecond;
+
+    // All headers
+
+    /** Type of header this is. Normal evio record by default. */
+    private HeaderType headerType = HeaderType.EVIO_RECORD;
+    /** Event or record count. 4th word. */
     private int  entries;
     /** BitInfo & version. 6th word. */
     private int  bitInfo = -1;
@@ -231,10 +251,6 @@ public class RecordHeader {
     /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
       * Highest 4 bits of 10th word. */
     private int  compressionType;
-    /** First user-defined 64-bit register. 11th and 12th words. */
-    private long  recordUserRegisterFirst;
-    /** Second user-defined 64-bit register. 13th and 14th words. */
-    private long recordUserRegisterSecond;
     /** Evio format version number. Lowest byte of 6th word. */
     private int  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
@@ -498,8 +514,10 @@ public class RecordHeader {
      */
     public HeaderType getHeaderType() {return headerType;}
 
+    // Bit info methods
+
     /**
-     * Get the bit info word.
+     * Get the bit info word. Will initialize if not already done.
      * @return bit info word.
      */
     public int getBitInfoWord() {
@@ -511,8 +529,6 @@ public class RecordHeader {
         return bitInfo;
     }
 
-    // Setters
-
     /**
      * Set the bit info word for a record header.
      * @param isLastRecord   true if record is last in stream or file.
@@ -521,6 +537,7 @@ public class RecordHeader {
      */
     int  setBitInfoForRecord(boolean isLastRecord,
                              boolean haveDictionary) {
+
         bitInfo = (headerType.getValue() << 28) |
                   (compressedDataLengthPadding << 24) |
                   (dataLengthPadding << 22) |
@@ -543,6 +560,7 @@ public class RecordHeader {
     int  setBitInfoForFile(boolean haveFirst,
                            boolean haveDictionary,
                            boolean haveTrailerWithIndex) {
+
         bitInfo = (headerType.getValue() << 28) |
                   (compressedDataLengthPadding << 24) |
                   (dataLengthPadding << 22) |
@@ -557,10 +575,43 @@ public class RecordHeader {
     }
 
     /**
+     * Set the bit info of a record header for a specified CODA data type.
+     * Must be called AFTER {@link #setBitInfoForRecord(boolean, boolean)} or
+     * {@link #setBitInfoWord(int)} in order to have change preserved.
+     * @return new bit info word.
+     * @param type data type (0=ROC raw, 1=Physics, 2=Partial Physics,
+     *             3=Disentangled, 4=User, 5=Control, 15=Other,
+     *             else = nothing set).
+     */
+    public int  setBitInfoDataType (int type) {
+        switch(type) {
+            case 0:
+                bitInfo |= DATA_ROC_RAW_BITS; break;
+            case 1:
+                bitInfo |= DATA_PHYSICS_BITS; break;
+            case 2:
+                bitInfo |= DATA_PARTIAL_BITS; break;
+            case 3:
+                bitInfo |= DATA_DISENTANGLED_BITS; break;
+            case 4:
+                bitInfo |= DATA_USER_BITS; break;
+            case 5:
+                bitInfo |= DATA_CONTROL_BITS; break;
+            case 13:
+                bitInfo |= DATA_OTHER_BITS; break;
+            default:
+        }
+
+        return bitInfo;
+    }
+
+    /**
      * Set the bit info word.
      * @param word  bit info word.
      */
     void  setBitInfoWord(int word) {bitInfo = word;}
+
+    // Setters
 
     /**
      * Set this header's type. Normally done in constructor. Limited access.
@@ -694,6 +745,7 @@ public class RecordHeader {
 
     /**
      * Writes this header into the given byte buffer.
+     * Position & limit of given buffer does NOT change.
      * @param buffer byte buffer to write header into.
      * @param offset position in buffer to begin writing.
      */
@@ -719,6 +771,7 @@ public class RecordHeader {
 
     /**
      * Writes this header into the given byte buffer starting at the beginning.
+     * Position & limit of given buffer does NOT change.
      * @param buffer byte buffer to write header into.
      */
     public void writeHeader(ByteBuffer buffer){
