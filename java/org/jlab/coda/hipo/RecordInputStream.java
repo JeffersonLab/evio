@@ -62,43 +62,55 @@ public class RecordInputStream {
         return event;
     }
     
-    public void readRecord(RandomAccessFile file, long position){
+    public void readRecord(RandomAccessFile file, long position, int length){
+        try {
+            file.getChannel().position(position);
+            
+        } catch (IOException ex) {
+            Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void readRecord(RandomAccessFile file, long position) {
         try {
             file.getChannel().position(position);
             file.read(headerBuffer.array());
             header.readHeader(headerBuffer);
-            System.out.println(header);
+            //System.out.println(header);
             int recordLengthWords = header.getLength();
             int headerLength      = header.getHeaderLength();
-            
-            file.getChannel().position(position+headerLength*4);
-            file.read(recordBuffer.array(), 0, recordLengthWords*4);
-
+            //System.out.println(" READIN FROM POSITION " 
+            //        + (position) + "  DATA SIZE = " + (recordLengthWords));
+            file.getChannel().position(position+headerLength);
+            file.read(recordBuffer.array(), 0, recordLengthWords);
+            int cLength = header.getCompressedDataLength();
+            int padding = header.getCompressedDataLengthPadding();
+            //System.out.println(" compressed size = " + cLength + "  padding = " + padding);
             int uncSize = 0;
             try {
                 uncSize = compressor.uncompressLZ4(recordBuffer,
-                        header.getCompressedDataLength(), dataBuffer);
+                        cLength, dataBuffer);
             }
-            catch (HipoException e) {/* should not happen */}
+            catch (HipoException e) {
+                System.out.println("*** something went wrong ***");
+                /* should not happen */
+            }
 
-            int LZ4id = recordBuffer.getInt(0);
-            System.out.println("UNCOMPRESSED = " + uncSize +
-                    "  HEADER " + header.getDataLength() + 
-                    "  UNC SIZE " + header.getCompressedDataLength());
-            System.out.printf("IDENTIFIER = %X\n", LZ4id);
             nEntries = header.getEntries();
             userHeaderOffset = nEntries*4;
             eventsOffset     = userHeaderOffset + header.getUserHeaderLengthWords()*4;
             
-            showIndex();
+            //showIndex();
             int event_pos = 0;
             for(int i = 0; i < nEntries; i++){
                 int   size = dataBuffer.getInt(i*4);
                 event_pos += size;
                 dataBuffer.putInt(i*4, event_pos);
             }
-            showIndex();
+            //showIndex();
         } catch (IOException ex) {
+            Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (HipoException ex) {
             Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

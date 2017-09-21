@@ -376,7 +376,7 @@ public class RecordOutputStream {
     public void build(){
 
         int compressionType = header.getCompressionType();
-
+        //System.out.println(" building ....");
         // Write index & event arrays
 
         // If compressing data ...
@@ -405,6 +405,7 @@ public class RecordOutputStream {
                 case 1:
                     // LZ4 fastest compression
                     if (recordBinary.hasArray() && recordData.hasArray()) {
+                        //System.out.println("1. uncompressed size = " + uncompressedDataSize);
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData.array(), 0, uncompressedDataSize,
                                 recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
@@ -412,6 +413,7 @@ public class RecordOutputStream {
                                         RecordHeader.HEADER_SIZE_BYTES));
                     }
                     else {
+                        //System.out.println("2. uncompressed size = " + uncompressedDataSize);
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData, 0, uncompressedDataSize,
                                 recordBinary, RecordHeader.HEADER_SIZE_BYTES,
@@ -467,14 +469,20 @@ public class RecordOutputStream {
         }
         catch (HipoException e) {/* should not happen */}
         //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
-
+        int LZ4id = recordBinary.getInt(RecordHeader.HEADER_SIZE_BYTES);
+        //System.out.println(String.format("IDENTIFICATION %X", LZ4id));
         // Set the rest of the header values
         header.setEntries(eventCount);
         header.setDataLength(eventSize);
         header.setIndexLength(indexSize);
-
+        // Added this line ------ SEP 21 - gagik
+        header.setCompressedDataLength(compressedSize);
+        //System.out.println(" COMPRESSED = " + compressedSize + "  events size = " + eventSize + "  type = " 
+        //        + compressionType + "  data size = " + uncompressedDataSize 
+        //        + "  compressed size = " + header.getCompressedDataLength());
         // Go back and write header into destination buffer
         recordBinary.position(0);
+        //System.out.println(header.toString());
         header.writeHeader(recordBinary);
 
         // Make ready to read

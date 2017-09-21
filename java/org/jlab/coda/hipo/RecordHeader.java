@@ -479,6 +479,8 @@ public class RecordHeader {
      */
     public int  getCompressedDataLength() {return compressedDataLength;}
 
+    public int getCompressedDataLengthPadding(){ return this.compressedDataLengthPadding;}
+    
     /**
      * Get the length of the compressed data in words (padded).
      * @return length of the compressed data in words (padded).
@@ -741,9 +743,16 @@ public class RecordHeader {
      * @return this object.
      */
     public RecordHeader setUserRegisterSecond(long reg) {recordUserRegisterSecond = reg; return this;}
-
+    /**
+     * decodes the padding words
+     * @param word 
+     */
+    private void decodeBitInfoWord(int word){
+        this.compressedDataLengthPadding = (word >> 24)&0x0003;
+        this.dataLengthPadding           = (word >> 22)&0x0003;
+        this.userHeaderLengthPadding     = (word >> 20)&0x0003;
+    }
     //-------------------------------------------------
-
     /**
      * Writes this header into the given byte buffer.
      * Position & limit of given buffer does NOT change.
@@ -895,8 +904,11 @@ public class RecordHeader {
         }
 
         // Next look at the version #
-        int bitInoWord = buffer.getInt(  5*4 + offset);
-        int version  = (bitInoWord & 0xFF);
+        int bitInfoWord = buffer.getInt(  5*4 + offset);
+        
+        //decodeBitInfoWord(bitInfoWord);
+        
+        int version  = (bitInfoWord & 0xFF);
         if (version < headerVersion) {
             throw new HipoException("buffer is in evio format version " + version);
         }
@@ -921,9 +933,11 @@ public class RecordHeader {
 
         int compressionWord   = buffer.getInt( 9*4 + offset);
         compressionType      = (compressionWord >>> 28);
-        compressedDataLength = (compressionWord & 0x0FFFFFFF);
-        setCompressedDataLength(compressedDataLength);
-
+        compressedDataLengthWords = (compressionWord & 0x0FFFFFFF);
+        // modified on SEP 21 - gagik (the compressed data length was switched to words)
+        // was setCompressedDataLength(compressedDataLength);
+        compressedDataLengthPadding = (bitInfoWord>>24)&0x00000003;
+        compressedDataLength = compressedDataLengthWords*4 - compressedDataLengthPadding;
         recordUserRegisterFirst  = buffer.getLong( 10*4 + offset);
         recordUserRegisterSecond = buffer.getLong( 12*4 + offset);
     }

@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -29,15 +30,16 @@ public class Reader {
      * at the open() method when the entire file is scanned
      * to read out positions of each record in the file.
      * 
-     */
-    private List<RecordHeader>  readerRecordEntries = 
-            new ArrayList<RecordHeader>();
+     */    
+    
+    private final List<RecordPosition>  recordPositions = new ArrayList<RecordPosition>();
     /**
      * Input binary file stream.
      */
     FileInputStream  inputStream = null;
     
-    
+    private RandomAccessFile  inStreamRandom = null;
+    private final RecordInputStream inputRecordStream = new RecordInputStream();
     /**
      * Default constructor. Does nothing. If instance is created
      * with default constructor the open() method has to be used 
@@ -53,6 +55,7 @@ public class Reader {
      */
     public Reader(String filename){
         open(filename);
+        scanFile();
     }
     /**
      * Opens an input stream in binary mode. Scans for
@@ -61,10 +64,25 @@ public class Reader {
      * @param filename input file name
      */
     public final void open(String filename){
+        if(inStreamRandom != null){
+           if( inStreamRandom.getChannel().isOpen() == true) {
+               try {
+                   System.out.println("[READER] ---> closing current file : " + inStreamRandom.getFilePointer());
+                   inStreamRandom.close();
+               } catch (IOException ex) {
+                   Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+               }               
+           }
+        }
         try {
-            inputStream = new FileInputStream(new File(filename));
-            this.scanFile();
+            //inputStream = new FileInputStream(new File(filename));
+            //this.scanFile();
+            System.out.println("[READER] ----> openning current file : " + filename);
+            inStreamRandom = new RandomAccessFile(filename,"r");            
+            System.out.println("[READER] ---> open successfull, size : " + inStreamRandom.length());
         } catch (FileNotFoundException ex) {
+            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -74,8 +92,8 @@ public class Reader {
      * @param index record index
      * @return decoded record from the file
      */
-    public Record readRecord(int index){
-        Long   position = readerRecordEntries.get(index).getPosition();
+    public boolean readRecord(int index){
+        /*Long   position = readerRecordEntries.get(index).getPosition();
         Integer    size = readerRecordEntries.get(index).getLength();
         byte[] buffer = new byte[size];
         //System.out.println(" READ RECORD SIZE = " + buffer.length);
@@ -87,78 +105,116 @@ public class Reader {
         }
         
         Record rec = Record.initBinary(buffer);
-        return rec;
+        return rec;*/
+        if(index>=0&&index<recordPositions.size()){
+            RecordPosition pos = recordPositions.get(index);
+            this.inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
+            return true;
+        }
+        return false;
     }
     /**
      * Returns the number of records recovered from the file.
      * @return 
      */
     public int getRecordCount(){
-        return this.readerRecordEntries.size();
+        return recordPositions.size();
     }
     
     private void scanFile(){
-        byte[]  fileHeader   = new byte[Writer.FILE_HEADER_LENGTH];
+        
+        byte[]     fileHeader = new byte[Writer.FILE_HEADER_LENGTH];
+        RecordHeader   header = new RecordHeader();
         
         try {
-            inputStream.read(fileHeader);
+            
+            inStreamRandom.getChannel().position(0L);
+            inStreamRandom.read(fileHeader);
+            
             ByteBuffer buffer = ByteBuffer.wrap(fileHeader);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
-            Integer    headerLength = buffer.getInt(16);
             
-            Long       recordPosition = (long) Writer.FILE_HEADER_LENGTH + headerLength;
-            Long      inputStreamSize = inputStream.getChannel().size();
-            byte[]  recordBuffer = new byte[48];
-            readerRecordEntries.clear();
-            //System.out.println("--------->  RECORD POSITION " + recordPosition 
-            //        + "  FILE SIZE = " + inputStreamSize);
-            while( (recordPosition + 48) < inputStreamSize ){
-                inputStream.getChannel().position(recordPosition);
-                inputStream.read(recordBuffer);
-                ByteBuffer header = ByteBuffer.wrap(recordBuffer);
-                header.order(ByteOrder.LITTLE_ENDIAN);
-                Integer recordLength = header.getInt(4);
-                Integer   eventCount = header.getInt(16);
-                RecordHeader entry = new RecordHeader(recordPosition,recordLength,eventCount);
-                readerRecordEntries.add(entry);
-                recordPosition += recordLength;
+            header.readFileHeader(buffer);
+            //System.out.println(header.toString());
+            
+            int userHeaderWords = header.getUserHeaderLengthWords();            
+            long recordPosition = header.getHeaderLength() + userHeaderWords*4;
+
+            //System.out.println(" FIRST RECORD POSITION = " + recordPosition);
+            long fileSize = inStreamRandom.length();
+            
+            long    maximumSize = fileSize - RecordHeader.HEADER_SIZE_BYTES;
+            int     numberOfRecords = 0;
+            recordPositions.clear();
+            
+            while(recordPosition < maximumSize){
+                inStreamRandom.getChannel().position(recordPosition);
+                inStreamRandom.read(fileHeader);
+                ByteBuffer recordBuffer = ByteBuffer.wrap(fileHeader);
+                recordBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                header.readHeader(recordBuffer);
+                //System.out.println(">>>>>==============================================");
+                //System.out.println(header.toString());
+                int offset = header.getLength();
+                RecordPosition pos = new RecordPosition(recordPosition);
+                pos.setLength(offset);
+                pos.setCount(header.getEntries());
+                this.recordPositions.add(pos);
+                recordPosition += offset;
+                numberOfRecords++;
             }
+            //System.out.println("NUMBER OF RECORDS " + recordPositions.size());
             //System.out.println(" recovered records = " + readerRecordEntries.size());
         } catch (IOException ex) {
+            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (HipoException ex) {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
     public void show(){
-        System.out.println("FILE: (info)");
-        for(RecordHeader entry : this.readerRecordEntries){
+        System.out.println(" ***** FILE: (info), RECORDS = "
+                + recordPositions.size() + " *****");
+        for(RecordPosition entry : this.recordPositions){
             System.out.println(entry);
         }
     }
     
     public static void main(String[] args){
-        RecordHeader header = new RecordHeader();
-        header.setLength(12);
-        
-        header.setCompressedDataLength(3490).setDataLength(83457).setCompressionType(1).setEntries(513);
-        header.setIndexLength(513*4).setUserHeaderLength(234).setRecordNumber(24).setLength(9234);
-        header.setUserRegisterFirst(4587239485L);
-        header.setUserRegisterSecond(1234567889L);
-        System.out.println(header);
-        /*byte[] array = new byte[128];
-        ByteBuffer buffer = ByteBuffer.wrap(array);
-        
-        header.writeHeader(buffer);
-        
-        RecordHeader h2 = new RecordHeader();
-        h2.readHeader(buffer);
-        
-        System.out.println(h2);*/
+        Reader reader = new Reader("converted_000810.evio");
+        //reader.show();
+        for(int i = 0; i < reader.getRecordCount(); i++){
+            reader.readRecord(i);
+        }
+        //reader.open("test.evio");        
     }
     /**
      * Internal class to keep track of the records in the file.
      * Each entry keeps record position in the file, length of
      * the record and number of entries contained.
      */
- 
+    public static class RecordPosition {
+        
+        private long position;
+        private int  length;
+        private int  count;
+        private int  firstEvent;
+        
+        public RecordPosition(long _pos){
+            position = _pos;
+        }
+        
+        public RecordPosition setPosition(long _pos){ position = _pos; return this; }
+        public RecordPosition setLength(int _len)  { length = _len;   return this; }
+        public RecordPosition setCount( int  _cnt)  { count = _cnt;   return this; }
+        
+        public long getPosition(){ return position;}
+        public int  getLength(){   return   length;}
+        public int  getCount(){    return    count;}
+        
+        @Override
+        public String toString(){
+            return String.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
+        }
+    }
 }

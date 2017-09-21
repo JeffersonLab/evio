@@ -342,6 +342,8 @@ public class Writer2 implements AutoCloseable {
         // Make sure given record is consistent with this writer
         header.setCompressionType(compressionType);
         header.setRecordNumber(recordNumber++);
+        //System.out.println( " set compresstion type = " + compressionType);
+        record.getHeader().setCompressionType(compressionType);
         record.setByteOrder(byteOrder);
 
         record.build();
@@ -395,12 +397,14 @@ public class Writer2 implements AutoCloseable {
     private void writeOutput(){
         RecordHeader header = outputRecord.getHeader();
         header.setRecordNumber(recordNumber++);
+        // --- Added on SEP 21 - gagik
+        outputRecord.getHeader().setCompressionType(compressionType);
         outputRecord.build();
         int bytesToWrite = header.getLength();
         // Record length of this record
         recordLengths.add(bytesToWrite);
         writerBytesWritten += bytesToWrite;
-
+        //System.out.println(" bytes to write = " + bytesToWrite);
         try {
             if (outputRecord.getBinaryBuffer().hasArray()) {
                 outStream.write(outputRecord.getBinaryBuffer().array(), 0, bytesToWrite);
