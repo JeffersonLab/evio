@@ -83,13 +83,17 @@ import java.nio.ByteOrder;
 public class RecordOutputStream {
     
     /** Maximum number of events per record. */
-    private static final int MAX_EVENT_COUNT = 1024*1024;
+    private static final int ONE_MEG = 1024*1024;
+
+
+    /** Maximum number of events per record. */
+    private int MAX_EVENT_COUNT = ONE_MEG;
 
     /** Size of some internal buffers in bytes. */
-    private int BUFFER_SIZE = 8*1024*1024;
+    private int MAX_BUFFER_SIZE = 8*ONE_MEG;
 
     /** Size of buffer holding built record in bytes. */
-    private int RECORD_BUFFER_SIZE = 9*1024*1024;
+    private int RECORD_BUFFER_SIZE = 9*ONE_MEG;
 
     /** This buffer stores event lengths ONLY. */
     private ByteBuffer recordIndex;
@@ -125,20 +129,37 @@ public class RecordOutputStream {
     
     /** Default, no-arg constructor. */
     public RecordOutputStream(){
-        allocate();
         dataCompressor = new Compressor();
         header = new RecordHeader();
         header.setCompressionType(Compressor.RECORD_COMPRESSION_LZ4);
         byteOrder = ByteOrder.LITTLE_ENDIAN;
+        allocate();
     }
 
     /**
-     * Constructor with byte order of built record byte arrays.
+     * Constructor with arguments.
      * @param order byte order of built record byte arrays.
+     * @param maxEventCount max number of events this record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes this record can hold.
+     *                      Value of < 8MB results in default of 8MB.
      */
-    public RecordOutputStream(ByteOrder order){
-        this();
+    public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize) {
+        dataCompressor = new Compressor();
+        header = new RecordHeader();
+        header.setCompressionType(Compressor.RECORD_COMPRESSION_LZ4);
         byteOrder = order;
+
+        if (maxEventCount > 0) {
+            MAX_EVENT_COUNT = maxEventCount;
+        }
+
+        if (maxBufferSize > MAX_BUFFER_SIZE) {
+            MAX_BUFFER_SIZE = maxBufferSize;
+            RECORD_BUFFER_SIZE = maxBufferSize + ONE_MEG;
+        }
+
+        allocate();
     }
 
     /**
@@ -178,11 +199,11 @@ public class RecordOutputStream {
         recordIndex = ByteBuffer.wrap(new byte[MAX_EVENT_COUNT*4]);
         recordIndex.order(byteOrder);
 
-        recordEvents = ByteBuffer.wrap(new byte[BUFFER_SIZE]);
+        recordEvents = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
         recordEvents.order(byteOrder);
 
         // Making this a direct buffer slow it down by 6%
-        recordData = ByteBuffer.wrap(new byte[BUFFER_SIZE]);
+        recordData = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
         recordData.order(byteOrder);
 
         // Trying to compress random data will expand it, so create a cushion
@@ -195,6 +216,9 @@ public class RecordOutputStream {
     
     /**
      * Adds an event's byte[] array into the record.
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated. This is important for an application such as
+     * CODA online in which event building may not fail due to a large event size.
      * <b>The byte order of event's byte array must
      * match the byte order given in constructor!</b>
      * 
@@ -206,10 +230,23 @@ public class RecordOutputStream {
 
         int length = event.remaining();
 
+        // If we receive a single event larger than our memory, we must accommodate this
+        // by increasing our internal buffer size(s). Cannot simply refuse to write an
+        // event during event building for example.
+        if (eventCount < 1 &&
+                ((4 + RecordHeader.HEADER_SIZE_BYTES + length) > MAX_BUFFER_SIZE)) {
+            // Allocate roughly what we need + 1MB
+            MAX_BUFFER_SIZE = length + ONE_MEG;
+            RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
+            allocate();
+            // TODO: Don't think we want to do this
+            reset();
+        }
+
         if ((eventCount + 1 > MAX_EVENT_COUNT) ||
-            ((indexSize + eventSize + RecordHeader.HEADER_SIZE_BYTES + length) >= BUFFER_SIZE)) {
+            ((indexSize + 4 + eventSize + RecordHeader.HEADER_SIZE_BYTES + length) >= MAX_BUFFER_SIZE)) {
             //System.out.println(" the record is FULL..... INDEX SIZE = "
-            //        + (indexSize/4) + " DATA SIZE = " + eventSize);
+            //        + indexSize + ", DATA SIZE = " + eventSize + " bytes");
             return false;
         }
 
@@ -253,7 +290,7 @@ public class RecordOutputStream {
     public boolean addEvent(byte[] event, int position, int length){
 
         if( (eventCount + 1 > MAX_EVENT_COUNT) ||
-            ((indexSize + eventSize + RecordHeader.HEADER_SIZE_BYTES + length) >= BUFFER_SIZE)) {
+            ((indexSize + eventSize + RecordHeader.HEADER_SIZE_BYTES + length) >= MAX_BUFFER_SIZE)) {
             //System.out.println(" the record is FULL..... INDEX SIZE = "
             //        + (indexSize/4) + " DATA SIZE = " + eventSize);
             return false;
@@ -293,6 +330,7 @@ public class RecordOutputStream {
 
     /**
      * Reset internal buffers. The buffer is ready to receive new data.
+     * Also resets the header including removing any compression.
      */
     public void reset() {
         indexSize  = 0;
@@ -304,6 +342,7 @@ public class RecordOutputStream {
         recordEvents.clear();
         recordBinary.clear();
 
+        // TODO: This may do way too much! Think about this more.
         header.reset();
     }
 
