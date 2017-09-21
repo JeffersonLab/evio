@@ -231,9 +231,9 @@ public class RecordHeader {
     /** BitInfo & version. 6th word. */
     private int  bitInfo = -1;
     /** Length of this header (bytes). */
-    private int  headerLength;
+    private int  headerLength = HEADER_SIZE_BYTES;
     /** Length of this header (words). 3rd word. */
-    private int  headerLengthWords;
+    private int  headerLengthWords = HEADER_SIZE_WORDS;
     /** Length of user-defined header (bytes). 7th word. */
     private int  userHeaderLength;
     /** Length of user-defined header when padded (words). 7th word. */
@@ -271,16 +271,13 @@ public class RecordHeader {
     
 
     /** Default, no-arg constructor. */
-    public RecordHeader() {
-        setHeaderLength(HEADER_SIZE_BYTES);
-    }
+    public RecordHeader() {}
 
     /**
      * Constructor which sets the type of header this is.
      * @param type  type of header this is
      */
     public RecordHeader(HeaderType type) {
-        setHeaderLength(HEADER_SIZE_BYTES);
         headerType = type;
         if (type.isEvioFileHeader()) {
             fileId = EVIO_FILE_UNIQUE_WORD;
@@ -302,37 +299,41 @@ public class RecordHeader {
 
     /** Reset internal variables. */
     public void reset(){
-
-        fileId = EVIO_FILE_UNIQUE_WORD;
+        // file header only
+        // Do NOT reset fileId which is only set in constructor!
+        //fileId = EVIO_FILE_UNIQUE_WORD;
         fileNumber = 1;
         trailerPosition = 0L;
         userIntFirst  = 0;
         userIntSecond = 0;
-
         position = 0L;
+
+        // record header only
         recordLength = 0;
         recordNumber = 0;
-        entries = 0;
+        recordLengthWords = 0;
+        recordUserRegisterFirst = 0L;
+        recordUserRegisterSecond = 0L;
 
+        // all headers
+        // Do NOT reset header type which is only set in constructor!
+        //headerType = HeaderType.EVIO_RECORD;
+        entries = 0;
+        bitInfo = -1;
         headerLength = HEADER_SIZE_BYTES;
+        headerLengthWords = HEADER_SIZE_WORDS;
         userHeaderLength = 0;
+        userHeaderLengthWords = 0;
         indexLength = 0;
         dataLength = 0;
+        dataLengthWords = 0;
         compressedDataLength = 0;
+        compressedDataLengthWords = 0;
         compressionType = 0;
 
         userHeaderLengthPadding = 0;
         dataLengthPadding = 0;
         compressedDataLengthPadding = 0;
-
-        dataLengthWords = 0;
-        compressedDataLengthWords = 0;
-        userHeaderLengthWords = 0;
-        recordLengthWords = 0;
-        headerLengthWords = HEADER_SIZE_WORDS;
-
-        recordUserRegisterFirst = 0L;
-        recordUserRegisterSecond = 0L;
     }
 
     /**
