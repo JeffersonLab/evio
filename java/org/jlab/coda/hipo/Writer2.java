@@ -7,8 +7,7 @@
 
 package org.jlab.coda.hipo;
 
-import org.jlab.coda.jevio.ByteDataTransformer;
-import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -82,12 +81,21 @@ public class Writer2 implements AutoCloseable {
     /**
      * Constructor with byte order.
      * <b>No</b> file is opened.
+     * Any dictionary will be placed in the user header which will create a conflict if
+     * user tries to call {@link #open(String, byte[])} with another user header array.
+     *
      * @param order byte order of written file
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
      */
-    public Writer2(ByteOrder order){
-        byteOrder = order;
-        outputRecord  = new RecordOutputStream(order);
-        fileHeader    = new RecordHeader(HeaderType.EVIO_FILE);
+    public Writer2(ByteOrder order, int maxEventCount, int maxBufferSize){
+        if (order != null) {
+            byteOrder = order;
+        }
+        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize);
+        fileHeader   = new RecordHeader(HeaderType.EVIO_FILE);
     }
 
     /**
@@ -104,22 +112,30 @@ public class Writer2 implements AutoCloseable {
     /**
      * Constructor with filename & byte order.
      * The output file will be created with no user header.
-     * @param filename   output file name
-     * @param order      byte order of written file
+     * @param filename      output file name
+     * @param order         byte order of written file or null for default (little endian)
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
      */
-    public Writer2(String filename, ByteOrder order){
-        this(order);
+    public Writer2(String filename, ByteOrder order, int maxEventCount, int maxBufferSize){
+        this(order, maxEventCount, maxBufferSize);
         open(filename);
     }
 
     /**
      * Constructor for writing to a ByteBuffer. Byte order is taken from the buffer.
      * @param buf buffer in to which to write events and/or records.
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
      */
-    public Writer2(ByteBuffer buf){
+    public Writer2(ByteBuffer buf, int maxEventCount, int maxBufferSize) {
         buffer = buf;
         byteOrder = buf.order();
-        outputRecord = new RecordOutputStream(byteOrder);
+        outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize);
     }
 
     /**
