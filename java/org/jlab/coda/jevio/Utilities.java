@@ -376,6 +376,40 @@ final public class Utilities {
 
 
     /**
+     * This method takes a string and turns it into an evio bank in the given byte order.
+     * @param string  string to convert
+     * @param tag     tag of resulting bank
+     * @param num     num of resulting bank
+     * @param order   byte order of evio data in returned array
+     * @return  byte array containing evio bank with string as data
+     */
+    final static public byte[] stringToBank(String string, int tag, int num, ByteOrder order) {
+        // Turn string data into individual bytes (byte order irrelevant)
+        // already padded but NOT including evio header.
+        byte[] rawBytes = BaseStructure.stringsToRawBytes(new String[]{string});
+
+        // Create array in which to store bank
+        byte[] bank = new byte[rawBytes.length + 8];
+
+        // Write evio header into bank
+        try {
+            ByteDataTransformer.toBytes(
+                // Set bank's length, tag, num, content type = string
+                new int[] {rawBytes.length/4 + 1,
+                           (tag << 16) | (DataType.CHARSTAR8.getValue() << 8) | num},
+                order, bank, 0
+            );
+        }
+        catch (EvioException e) {/* never happen */}
+
+        // Write data into bank
+        System.arraycopy(rawBytes, 0, bank, 8, rawBytes.length);
+
+        return bank;
+    }
+
+
+    /**
      * This method takes an EvioNode object and converts it to an EvioEvent object.
      * @param node EvioNode object to EvioEvent
      * @throws EvioException if node is not a bank or cannot parse node's buffer
