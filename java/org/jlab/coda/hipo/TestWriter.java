@@ -171,9 +171,9 @@ public class TestWriter {
             for(int i = 1; i < nevents; i++){
                 ByteBuffer buffer = reader.getEventBuffer(i,true); 
                 writer.addEvent(buffer.array());
-                String data = DataUtils.getStringArray(buffer, 10, 30);
-                System.out.println(data);
-                if(i>10) break;
+                //String data = DataUtils.getStringArray(buffer, 10, 30);
+                //System.out.println(data);
+                //if(i>10) break;
                 //System.out.println(" EVENT # " + i + "  size = " + buffer.array().length );                
             }
             writer.close();
