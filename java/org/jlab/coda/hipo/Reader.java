@@ -130,7 +130,7 @@ public class Reader {
     
     private void scanFile(){
         
-        byte[]     fileHeader = new byte[Writer.FILE_HEADER_LENGTH];
+        byte[]     fileHeader = new byte[RecordHeader.HEADER_SIZE_BYTES];
         RecordHeader   header = new RecordHeader();
         
         try {
