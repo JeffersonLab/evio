@@ -61,56 +61,114 @@ public class RecordInputStream {
         System.arraycopy(dataBuffer.array(), offset, event, 0, event.length);
         return event;
     }
-    
-    public void readRecord(RandomAccessFile file, long position){
+    /**
+     * Writes event with index into a byte buffer, The byte buffer has 
+     * to have proper size.
+     * @param buffer
+     * @param index
+     * @return 
+     * @throws org.jlab.coda.hipo.HipoException 
+     */
+    public boolean getEvent(ByteBuffer buffer, int index) throws HipoException {        
+        int lastPosition  = dataBuffer.getInt(index*4);
+        int firstPosition = 0;
+        if(index>0) firstPosition = dataBuffer.getInt( (index-1)*4 );
+        int length = lastPosition - firstPosition;
+        int offset = eventsOffset + firstPosition;
+        if(buffer.hasArray()==true){
+            if(buffer.array().length>=length){
+                System.arraycopy(dataBuffer.array(), offset, buffer.array(), 0, length);
+                buffer.position(0);
+                buffer.limit(length);
+                return true;
+            } else {
+                throw new HipoException("ByteBuffer is smaller than the event.");
+            }
+        }
+        return false;
+    }
+    /**
+     * Reads the record from the file from given position and given
+     * length.
+     * @param file opened file descriptor
+     * @param position position in the file
+     * @param length the length of the record
+     */
+    public void readRecord(RandomAccessFile file, long position, int length){
+        try {
+            file.getChannel().position(position);
+            
+        } catch (IOException ex) {
+            Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    /**
+     * Reads record from the file from given position. First the header
+     * is read then the length of the record is read from header, then
+     * following bytes are read and decompressed.
+     * @param file opened file descriptor
+     * @param position position in the file
+     */
+    public void readRecord(RandomAccessFile file, long position) {
         try {
             file.getChannel().position(position);
             file.read(headerBuffer.array());
             header.readHeader(headerBuffer);
-            System.out.println(header);
+            //System.out.println(header);
             int recordLengthWords = header.getLength();
             int headerLength      = header.getHeaderLength();
-            
-            file.getChannel().position(position+headerLength*4);
-            file.read(recordBuffer.array(), 0, recordLengthWords*4);
-
+            //System.out.println(" READIN FROM POSITION " 
+            //        + (position) + "  DATA SIZE = " + (recordLengthWords));
+            file.getChannel().position(position+headerLength);
+            file.read(recordBuffer.array(), 0, recordLengthWords);
+            int cLength = header.getCompressedDataLength();
+            int padding = header.getCompressedDataLengthPadding();
+            //System.out.println(" compressed size = " + cLength + "  padding = " + padding);
             int uncSize = 0;
             try {
                 uncSize = compressor.uncompressLZ4(recordBuffer,
-                        header.getCompressedDataLength(), dataBuffer);
+                        cLength, dataBuffer);
             }
-            catch (HipoException e) {/* should not happen */}
+            catch (HipoException e) {
+                System.out.println("*** something went wrong ***");
+                /* should not happen */
+            }
 
-            int LZ4id = recordBuffer.getInt(0);
-            System.out.println("UNCOMPRESSED = " + uncSize +
-                    "  HEADER " + header.getDataLength() + 
-                    "  UNC SIZE " + header.getCompressedDataLength());
-            System.out.printf("IDENTIFIER = %X\n", LZ4id);
             nEntries = header.getEntries();
             userHeaderOffset = nEntries*4;
             eventsOffset     = userHeaderOffset + header.getUserHeaderLengthWords()*4;
-            
-            showIndex();
+            //showIndex();
             int event_pos = 0;
             for(int i = 0; i < nEntries; i++){
                 int   size = dataBuffer.getInt(i*4);
                 event_pos += size;
                 dataBuffer.putInt(i*4, event_pos);
             }
-            showIndex();
+            //showIndex();
         } catch (IOException ex) {
+            Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (HipoException ex) {
             Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+    /**
+     * returns number of the events packed in the record.
+     * @return 
+     */
     public int getEntries(){ return nEntries;}
-    
+    /**
+     * prints on the screen the index array of the record
+     */
     private void showIndex(){
         for(int i = 0; i < nEntries; i++){
             System.out.printf("%3d  ",dataBuffer.getInt(i*4));
         }
         System.out.println();
     }
+    /**
+     * test main program
+     * @param args 
+     */
     public static void main(String[] args){
         
         try {

@@ -158,17 +158,21 @@ public class TestWriter {
             EvioCompactReader  reader = new EvioCompactReader(filename);
             int nevents = reader.getEventCount();
             String userHeader = "File is written with new version=6 format";
-            Writer writer = new Writer("converted_000810.evio",userHeader.getBytes());
+            Writer2 writer = new Writer2("converted_000810.evio",ByteOrder.LITTLE_ENDIAN,
+                    10000,8*1024*1024);
+            writer.setCompressionType(2);
             
             System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
             
             byte[] myHeader = new byte[233];
             ByteBuffer header = ByteBuffer.wrap(myHeader);
-            
+            //nevents = 560;
             for(int i = 1; i < nevents; i++){
                 ByteBuffer buffer = reader.getEventBuffer(i,true); 
                 writer.addEvent(buffer.array());
-                
+                String data = DataUtils.getStringArray(buffer, 10, 30);
+                System.out.println(data);
+                if(i>10) break;
                 //System.out.println(" EVENT # " + i + "  size = " + buffer.array().length );                
             }
             writer.close();
@@ -196,7 +200,7 @@ public class TestWriter {
     
     public static void main(String[] args){
 
-        testStreamRecord();
+       // testStreamRecord();
        // TestWriter.createEmptyFile();
         
         /*Writer writer = new Writer();
@@ -206,7 +210,7 @@ public class TestWriter {
         
         //writer.createHeader(new byte[17]);
         
-        //TestWriter.convertor();
+        TestWriter.convertor();
         
         //TestWriter.writerTest();
         
