@@ -78,7 +78,7 @@ public class TestWriter {
         long loops  = 2000000;
 
         // Create file
-        Writer2 writer = new Writer2();
+        Writer writer = new Writer();
         writer.getRecordHeader().setCompressionType(1);
         writer.open("/daqfs/home/timmer/exampleFile.v6.evio");
 
@@ -142,7 +142,8 @@ public class TestWriter {
     }
 
     public static void writerTest(){
-        Writer writer = new Writer("compressed_file.evio",ByteOrder.BIG_ENDIAN);
+        Writer writer = new Writer("compressed_file.evio",
+                                   ByteOrder.BIG_ENDIAN, 0, 0);
         //byte[] array = TestWriter.generateBuffer();
         for(int i = 0; i < 340000; i++){
             byte[] array = TestWriter.generateBuffer();
@@ -158,7 +159,7 @@ public class TestWriter {
             EvioCompactReader  reader = new EvioCompactReader(filename);
             int nevents = reader.getEventCount();
             String userHeader = "File is written with new version=6 format";
-            Writer2 writer = new Writer2("converted_000810.evio",ByteOrder.LITTLE_ENDIAN,
+            Writer writer = new Writer("converted_000810.evio",ByteOrder.LITTLE_ENDIAN,
                     10000,8*1024*1024);
             writer.setCompressionType(2);
             
