@@ -7,307 +7,474 @@
 
 package org.jlab.coda.hipo;
 
-import java.io.File;
+import org.jlab.coda.jevio.*;
+
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *  Writer class for CODA data files.
+ * Class to write Evio/HIPO files.
+ *
+ * @version 6.0
+ * @since 6.0 8/10/17
  * @author gavalian
- * @date 08/10/2017
+ * @author timmer
  */
 
-public class Writer {
-    /*
-     * Internal constants used in the FILE header
-     */
-    // TODO: shouldn't this be 14*4 = 56?
-    public final static int    FILE_HEADER_LENGTH = 72;
-    public final static int    FILE_UNIQUE_WORD   = 0x4F504948;//0x4849504F;
-    public final static int    FILE_VERSION_WORD  = 0x322E3056;//0x56302E32;
-    public final static int    VERSION_NUMBER     = 6;
-    public final static int    MAGIC_WORD_LE      = 0xc0da0100;
-    public final static int    MAGIC_WORD_BE      = 0x0001dac0;
+public class Writer implements AutoCloseable {
+
+    /** Do we write to a file or a buffer? */
+    private boolean toFile = true;
+
+    // If writing to file ...
+
+    /** Object for writing file. */
+    private RandomAccessFile  outStream;
+    /** The file channel, used for writing a file, derived from outStream. */
+    private FileChannel  fileChannel;
+    /** Header to write to file. */
+    private RecordHeader  fileHeader;
+
+    // If writing to buffer ...
     
+    /** The buffer being written to. */
+    private ByteBuffer buffer;
+
+    // For both files & buffers
+
+    /** Byte order of data to write to file/buffer. */
+    private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+    /** Internal Record. */
+    private RecordOutputStream  outputRecord;
+    /** Byte array large enough to hold a header/trailer. */
+    private byte[]  headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
+    /** Type of compression to use on file. Default is none. */
+    private int    compressionType;
+    /** Number of bytes written to file/buffer at current moment. */
+    private long   writerBytesWritten;
+    /** Number which is incremented and stored with each successive written record starting at 1. */
+    private int   recordNumber = 1;
+    /** Do we add a last header or trailer to file/buffer? */
+    private boolean addTrailer;
+    /** Do we add a record index to the trailer? */
+    private boolean addTrailerIndex;
+
+    /** List of record lengths to be optionally written in trailer. */
+    private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
+
     /**
-     * BYTE ORDER OF THE FILE
-     */
-    
-    private ByteOrder  byteOrderFile = ByteOrder.LITTLE_ENDIAN;
-    /**
-     * output stream used for writing binary data to the file.
-     */
-    private       FileOutputStream  outStream = null;
-    private RandomAccessFile  outStreamRandom = null;
-    private       Record         outputRecord = null;
-    private RecordOutputStream   outputRecordStream = null;
-    /**
-     * header byte buffer is stored when object is created.
-     * and all subsequent files will have same header byte buffer.
-     * the header is user defined and can be anything.
-     */
-    private byte[]  writerHeaderBuffer = null;    
-    private Integer    compressionType = 0;
-    private Long    writerBytesWritten = 0L;
-    
-    
-    public Writer(String filename, ByteOrder order){
-        byteOrderFile = order;
-        outputRecordStream = new RecordOutputStream();
-        outputRecordStream.reset();
-        open(filename);
-    }
-    
-    /**
-     * default constructor only the internal record is initialized
-     * no file will be opened.
+     * Default constructor.
+     * <b>No</b> file is opened. Any file will have little endian byte order.
      */
     public Writer(){
-        outputRecord = new Record();
-        outputRecordStream = new RecordOutputStream();
+        outputRecord = new RecordOutputStream();
+        fileHeader   = new RecordHeader(HeaderType.EVIO_FILE);
     }
+
     /**
-     * constructor with filename, the output file will be initialized.
-     * the header of the file will have zero length.
+     * Constructor with byte order.
+     * <b>No</b> file is opened.
+     * Any dictionary will be placed in the user header which will create a conflict if
+     * user tries to call {@link #open(String, byte[])} with another user header array.
+     *
+     * @param order byte order of written file
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
+     */
+    public Writer(ByteOrder order, int maxEventCount, int maxBufferSize){
+        if (order != null) {
+            byteOrder = order;
+        }
+        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize);
+        fileHeader   = new RecordHeader(HeaderType.EVIO_FILE);
+    }
+
+    /**
+     * Constructor with filename.
+     * The output file will be created with no user header.
+     * File byte order is little endian.
      * @param filename output file name
      */
     public Writer(String filename){
-        outputRecord = new Record();
-        outputRecordStream = new RecordOutputStream();
-        this.open(filename);
+        this();
+        open(filename);
     }
+
     /**
-     * open a file with byte array that represents the header
-     * @param filename output file name
-     * @param header header array
+     * Constructor with filename & byte order.
+     * The output file will be created with no user header.
+     * @param filename      output file name
+     * @param order         byte order of written file or null for default (little endian)
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
      */
-    public Writer(String filename, byte[] header){
-        outputRecord = new Record();
-        outputRecordStream = new RecordOutputStream();
-        this.writerHeaderBuffer = header;
-        this.open(filename, header);
+    public Writer(String filename, ByteOrder order, int maxEventCount, int maxBufferSize){
+        this(order, maxEventCount, maxBufferSize);
+        open(filename);
     }
+
     /**
-     * Open a file with given header and compression type
-     * @param filename output file name
-     * @param header header byte array
-     * @param compression compression type
+     * Constructor for writing to a ByteBuffer. Byte order is taken from the buffer.
+     * @param buf buffer in to which to write events and/or records.
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
      */
-    public Writer(String filename, byte[] header, int compression){
-        outputRecord = new Record();
-        this.writerHeaderBuffer = header;
-        this.open(filename, header);
-        setCompressionType(compression);
+    public Writer(ByteBuffer buf, int maxEventCount, int maxBufferSize) {
+        buffer = buf;
+        byteOrder = buf.order();
+        outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize);
     }
+
     /**
-     * Opens a file for writing with header array initialized from 
-     * string. The header string can be an XML dictionary.
-     * @param filename output file name
-     * @param header string header object 
-     * @param compression compression type
+     * Get the file's byte order.
+     * @return file's byte order.
      */
-    public Writer(String filename, String header, int compression){
-        outputRecord = new Record();
-        this.writerHeaderBuffer = header.getBytes();
-        open(filename, header.getBytes());
-        setCompressionType(compression);
-    }    
+    public ByteOrder getByteOrder() {return byteOrder;}
+
     /**
-     * open a new file with no header.
-     * @param filename output file name
+     * Get the file header.
+     * @return file header.
      */
-    public final void open(String filename){
-        this.open(filename, new byte[]{});
-        
+    public RecordHeader getFileHeader() {return fileHeader;}
+
+    /**
+     * Get the internal record's header.
+     * @return internal record's header.
+     */
+    public RecordHeader getRecordHeader() {return outputRecord.getHeader();}
+
+    /**
+     * Get the internal record used to add events to file.
+     * @return internal record used to add events to file.
+     */
+    public RecordOutputStream getRecord() {return outputRecord;}
+
+    /**
+     * Does this writer add a trailer to the end of the file?
+     * @return true if this writer adds a trailer to the end of the file, else false.
+     */
+    public boolean addTrailer() {return addTrailer;}
+
+    /**
+     * Set whether this writer adds a trailer to the end of the file.
+     * @param addTrailer if true, at the end of file, add an ending header (trailer)
+     *                   with no index of records and no following data.
+     *                   Update the file header to contain a file offset to the trailer.
+     */
+    public void addTrailer(boolean addTrailer) {this.addTrailer = addTrailer;}
+
+    /**
+     * Does this writer add a trailer with a record index to the end of the file?
+     * @return true if this writer adds a trailer with a record index
+     *         to the end of the file, else false.
+     */
+    public boolean addTrailerWithIndex() {return addTrailerIndex;}
+
+    /**
+     * Set whether this writer adds a trailer with a record index to the end of the file.
+     * @param addTrailingIndex if true, at the end of file, add an ending header (trailer)
+     *                         with an index of all records but with no following data.
+     *                         Update the file header to contain a file offset to the trailer.
+     */
+    public void addTrailerWithIndex(boolean addTrailingIndex) {
+        addTrailerIndex = addTrailingIndex;
+        if (addTrailingIndex) {
+            addTrailer = true;
+        }
     }
+
     /**
-     * Open a file with given header byte array.
-     * @param filename disk file name
-     * @param header byte array representing the header
+     * Open a new file and write file header with no user header.
+     * @param filename output file name
      */
-    public final void open(String filename, byte[] header){
-        this.writerBytesWritten = (long) (Writer.FILE_HEADER_LENGTH + header.length);
+    public final void open(String filename) {open(filename, new byte[]{});}
+
+    /**
+     * Open a file and write file header with given user's header.
+     * User header is automatically padded when written.
+     * @param filename disk file name.
+     * @param userHeader byte array representing the optional user's header.
+     */
+    public final void open(String filename, byte[] userHeader){
+
+        if (userHeader == null) {
+            userHeader = new byte[0];
+        }
+
         try {
-            //outStream = new FileOutputStream(new File(filename));
-            outStreamRandom = new RandomAccessFile(filename,"rw");
-            /*
-            byte[] headerBuffer = new byte[Writer.FILE_HEADER_LENGTH+header.length];
-            
-            ByteBuffer byteBuffer = ByteBuffer.wrap(headerBuffer);
-            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            
-            byteBuffer.putInt(  0, Writer.FILE_UNIQUE_WORD);
-            byteBuffer.putInt(  4, Writer.FILE_VERSION_WORD);
-            byteBuffer.putInt(  8, 0x2);
-            byteBuffer.putInt( 12, 0);
-            byteBuffer.putInt( 16, header.length);
-            byteBuffer.putInt( 20, VERSION_NUMBER);
-            byteBuffer.putInt( 28, MAGIC_WORD_LE);
-            if(byteOrderFile == ByteOrder.BIG_ENDIAN) byteBuffer.putInt(28, MAGIC_WORD_BE);
-            
-            System.arraycopy(header, 0, headerBuffer, Writer.FILE_HEADER_LENGTH, header.length);
-            */
-            ByteBuffer headerBuffer = this.createHeader(header);
-            outStreamRandom.write(headerBuffer.array());
-            
+            outStream = new RandomAccessFile(filename, "rw");
+            fileChannel = outStream.getChannel();
+            // Create complete file header here (general file header + index array + user header)
+            ByteBuffer headerBuffer = createHeader(userHeader);
+            // Write this to file
+            outStream.write(headerBuffer.array());
+
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        writerBytesWritten = (long) (fileHeader.getLength());
     }
+    
     /**
-     * sets compression type for the file. The compression type
-     * is also set for internal record. When writing to the file
-     * record data will be compressed according to the type set.
+     * Convenience method that sets compression type for the file.
+     * The compression type is also set for internal record.
+     * When writing to the file, record data will be compressed
+     * according to the given type.
      * @param compression compression type
      * @return this object
      */
     public final Writer setCompressionType(int compression){
-        this.outputRecord.setCompressionType(compression);
-        this.compressionType = outputRecord.getCompressionType();
+        outputRecord.getHeader().setCompressionType(compression);
+        compressionType = outputRecord.getHeader().getCompressionType();
         return this;
     }
-    
-    public ByteBuffer createHeader(byte[] userHeader){
-        
-        int uhsize = userHeader.length;
-        RecordHeader header = new RecordHeader();
-        
-        header.setCompressedDataLength(0).setDataLength(0);
-        header.setCompressionType(0).setIndexLength(0);
-        header.setUserHeaderLength(uhsize);
-        header.setHeaderLength(14);
-        int words = 14 + header.getUserHeaderLengthWords();
-        header.setLength(words);
-        
-        byte[] array = new byte[words*4];
-        ByteBuffer buffer = ByteBuffer.wrap(array);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        
-        header.writeHeader(buffer, 0);
-        System.arraycopy(userHeader, 0, array, 14*4, userHeader.length);
-        
-        buffer.putInt(0, 0x4F495645);
-        
-        /*
-        int size = userHeader.length;
-        int uhWords = (size)/4;
-        
-        if(userHeader.length%4!=0) uhWords++;
-        
-        System.out.println(" SIZE = " + size + "  words = " + uhWords);
-        byte[]  fileHeader = new byte[64+uhWords*4];
 
-        System.arraycopy(userHeader, 0, fileHeader, 64, userHeader.length);
-        ByteBuffer headerBuffer = ByteBuffer.wrap(fileHeader);
-        headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        
-        headerBuffer.putInt(  0, 16+uhWords);
-        headerBuffer.putInt(  4, 0);
-        headerBuffer.putInt(  8, 16);
-        headerBuffer.putInt( 12, 0);
-        headerBuffer.putInt( 16, 0);
-        headerBuffer.putInt( 20, 6);
-        headerBuffer.putInt( 24, 0);
-        
-        headerBuffer.putInt( 28, MAGIC_WORD_LE);
-        headerBuffer.putInt( 32, Writer.FILE_UNIQUE_WORD);
-        headerBuffer.putInt( 36, Writer.FILE_VERSION_WORD);
-        headerBuffer.putInt( 40, userHeader.length);
-        headerBuffer.putInt( 44, 0);
-        
-        */
+    /**
+     * Create and return a byte array containing a general file header
+     * followed by the user header given in the argument.
+     * If user header is not padded to 4-byte boundary, it's done here.
+     * @param userHeader byte array containing a user-defined header
+     * @return byte array containing a file header followed by the user-defined header
+     */
+    public ByteBuffer createHeader(byte[] userHeader){
+        // Amount of user data in bytes
+        int userHeaderBytes = userHeader.length;
+
+        fileHeader.reset();
+        fileHeader.setUserHeaderLength(userHeaderBytes);
+        // Amount of user data in bytes + padding
+        int userHeaderPaddedBytes = 4*fileHeader.getUserHeaderLengthWords();
+        int bytes = RecordHeader.HEADER_SIZE_BYTES + userHeaderPaddedBytes;
+        fileHeader.setLength(bytes);
+
+        byte[] array = new byte[bytes];
+        ByteBuffer buffer = ByteBuffer.wrap(array);
+        buffer.order(byteOrder);
+
+        fileHeader.writeFileHeader(buffer, 0);
+        System.arraycopy(userHeader, 0, array,
+                         RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
+
         return buffer;
     }
+
+    /**
+     * Write a general header as the last "header" or trailer in the file
+     * optionally followed by an index of all record lengths.
+     * @param writeIndex if true, write an index of all record lengths in trailer.
+     */
+    public void writeTrailer(boolean writeIndex){
+
+        // If we're NOT adding a record index, just write trailer
+        if (!writeIndex) {
+            RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
+            try {
+                // TODO: not really necessary to keep track here?
+                writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
+                outStream.write(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
+            } catch (IOException ex) {
+                Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
+
+        // Create the index of record lengths in proper byte order
+        byte[] recordIndex = new byte[4* recordLengths.size()];
+        try {
+            for (int i = 0; i < recordLengths.size(); i++) {
+                ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
+                                            recordIndex, 4*i);
+//System.out.println("Writing record length = " + recordOffsets.get(i) +
+//", = 0x" + Integer.toHexString(recordOffsets.get(i)));
+            }
+        }
+        catch (EvioException e) {/* never happen */}
+
+        // Write trailer with index
+
+        // How many bytes are we writing here?
+        int dataBytes = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+
+        // Make sure our array can hold everything
+        if (headerArray.length < dataBytes) {
+//System.out.println("Allocating byte array of " + dataBytes + " bytes in size");
+            headerArray = new byte[dataBytes];
+        }
+
+        // Place data into headerArray - both header and index
+        RecordHeader.writeTrailer(headerArray, recordNumber,
+                                  byteOrder, recordIndex);
+        try {
+            // TODO: not really necessary to keep track here?
+            writerBytesWritten += dataBytes;
+            outStream.write(headerArray, 0, dataBytes);
+        } catch (IOException ex) {
+            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return;
+    }
+
     /**
      * Appends the record to the file.
+     * Using this method in conjunction with addEvent() is not thread-safe.
      * @param record record object
      */
-    private void writeRecord(Record record){
-        ByteBuffer buffer = record.build();        
+    public void writeRecord(RecordOutputStream record) {
+        RecordHeader header = record.getHeader();
+
+        // Make sure given record is consistent with this writer
+        header.setCompressionType(compressionType);
+        header.setRecordNumber(recordNumber++);
+        //System.out.println( " set compresstion type = " + compressionType);
+        record.getHeader().setCompressionType(compressionType);
+        record.setByteOrder(byteOrder);
+
+        record.build();
+        int bytesToWrite = header.getLength();
+        // Record length of this record
+        recordLengths.add(bytesToWrite);
+        writerBytesWritten += bytesToWrite;
+
         try {
-            byte[] bufferArray = buffer.array();
-            this.writerBytesWritten += bufferArray.length;
-            this.outStream.write(buffer.array());
+            outStream.write(record.getBinaryBuffer().array(), 0, bytesToWrite);
         } catch (IOException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
+    // Use internal outputRecordStream to write individual events
+
+    /**
+     * Add a byte array to the internal record. If the length of
+     * the buffer exceeds the maximum size of the record, the record
+     * will be written to the file (compressed if the flag is set).
+     * Internal record will be reset to receive new buffers.
+     * Using this method in conjunction with writeRecord() is not thread-safe.
+     *
+     * @param buffer array to add to the file.
+     * @param offset offset into array from which to start writing data.
+     * @param length number of bytes to write from array.
+     */
     public void addEvent(byte[] buffer, int offset, int length){
-        boolean status = outputRecordStream.addEvent(buffer, offset,length);
-        if(status==false){
+        boolean status = outputRecord.addEvent(buffer, offset, length);
+        if(!status){
             writeOutput();
-            outputRecordStream.addEvent(buffer, offset,length);
+            outputRecord.addEvent(buffer, offset, length);
         }
     }
+
     /**
-     * add an byte buffer to the internal record. if the length of
+     * Add a byte array to the internal record. If the length of
      * the buffer exceeds the maximum size of the record, the record
-     * will be written to the file (compressed if the flag is set), then
-     * it will be reset to receive new buffers.
+     * will be written to the file (compressed if the flag is set).
+     * Internal record will be reset to receive new buffers.
+     * Using this method in conjunction with writeRecord() is not thread-safe.
+     *
      * @param buffer array to add to the file.
      */
     public void addEvent(byte[] buffer){
         addEvent(buffer,0,buffer.length);
-        /*
-        boolean status = outputRecord.addEvent(buffer);
-        if(status==false){
-            //ByteBuffer outbytes = outputRecord.build();
-            writeRecord(outputRecord);
-            outputRecord.reset();
-            outputRecord.addEvent(buffer);
-        }*/
     }
-    
-    private void writeOutput(){
-        
-        byte[] header = new byte[233];
-        ByteBuffer userHeader = ByteBuffer.wrap(header);
 
-        outputRecordStream.getHeader().setRecordNumber(234);
-        outputRecordStream.build(userHeader);
-        
-        ByteBuffer buffer = outputRecordStream.getBinaryBuffer();
-        int bufferSize = buffer.getInt(0)*4;
-        
+    /** Write internal record with incremented record # to file. */
+    private void writeOutput(){
+        RecordHeader header = outputRecord.getHeader();
+        header.setRecordNumber(recordNumber++);
+        // --- Added on SEP 21 - gagik
+        outputRecord.getHeader().setCompressionType(compressionType);
+        outputRecord.build();
+        int bytesToWrite = header.getLength();
+        // Record length of this record
+        recordLengths.add(bytesToWrite);
+        writerBytesWritten += bytesToWrite;
+        //System.out.println(" bytes to write = " + bytesToWrite);
         try {
-            outStreamRandom.write(buffer.array(), 0, bufferSize);
-            outputRecordStream.reset();
+            if (outputRecord.getBinaryBuffer().hasArray()) {
+                outStream.write(outputRecord.getBinaryBuffer().array(), 0, bytesToWrite);
+            }
+            else {
+                // binary buffer is ready to read after build()
+                fileChannel.write(outputRecord.getBinaryBuffer());
+            }
+            outputRecord.reset();
         } catch (IOException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    //---------------------------------------------------------------------
+
+    /** Get this object ready for re-use.
+     * Follow calling this with call to {@link #open(String)}. */
+    public void reset() {
+        outputRecord.reset();
+        fileHeader.reset();
+        writerBytesWritten = 0L;
+        recordNumber = 1;
+        addTrailer = false;
+    }
+
     /**
-     * Close opened file. if the output record contains events.
-     * the events will be flushed out.
+     * Close opened file. If the output record contains events,
+     * they will be flushed to file. Trailer and its optional index
+     * written if requested.
      */
     public void close(){
-        if(outputRecordStream.getEventCount()>0){
+        if (outputRecord.getEventCount() > 0) {
             writeOutput();
         }
-        
+
         try {
-            outStreamRandom.close();
-            /*
-            if(outputRecord.getEntries()>0){
-            System.out.println("[writer] ---> closing file. flashing " +
-            outputRecord.getEntries() + " events.");
-            this.writeRecord(outputRecord);
+            if (addTrailer) {
+                // Keep track of where we are right now which is just before trailer
+                long trailerPosition = writerBytesWritten;
+
+                // Write the trailer
+                writeTrailer(addTrailerIndex);
+
+                // Find & update file header's trailer position word
+                outStream.seek(RecordHeader.TRAILER_POSITION_OFFSET);
+                if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
+                    outStream.writeLong(Long.reverseBytes(trailerPosition));
+                }
+                else {
+                    outStream.writeLong(trailerPosition);
+                }
+
+                // Find & update file header's bit-info word
+                if (addTrailerIndex) {
+                    outStream.seek(RecordHeader.BIT_INFO_OFFSET);
+                    int bitInfo = fileHeader.setBitInfoForFile(false,
+                                                               false,
+                                                               true);
+                    if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
+                        outStream.writeInt(Integer.reverseBytes(bitInfo));
+                    }
+                    else {
+                        outStream.writeInt(bitInfo);
+                    }
+                }
             }
-            try {
-            this.outStream.close();
-            System.out.println("[writer] ---> bytes written " + this.writerBytesWritten);
-            } catch (IOException ex) {
-            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
+
+            outStream.close();
+            //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
         } catch (IOException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }
