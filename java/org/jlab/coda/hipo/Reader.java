@@ -38,8 +38,11 @@ public class Reader {
      */
     FileInputStream  inputStream = null;
     
-    private RandomAccessFile  inStreamRandom = null;
+    private          RandomAccessFile  inStreamRandom = null;
     private final RecordInputStream inputRecordStream = new RecordInputStream();
+    
+    
+    private int currentRecordLoaded = 0;
     /**
      * Default constructor. Does nothing. If instance is created
      * with default constructor the open() method has to be used 
@@ -91,6 +94,15 @@ public class Reader {
         return inputRecordStream.getEvent(index);
     }
     
+    public void getEvent(ByteBuffer buffer, int index){
+        try {
+            inputRecordStream.getEvent(buffer, index);
+        } catch (HipoException ex) {
+            /** If the sizes are not right**/
+            System.out.println(ex.getMessage());
+        }
+    }
+    
     public int getEventCount(){
         return inputRecordStream.getEntries();
     }
@@ -100,22 +112,10 @@ public class Reader {
      * @return decoded record from the file
      */
     public boolean readRecord(int index){
-        /*Long   position = readerRecordEntries.get(index).getPosition();
-        Integer    size = readerRecordEntries.get(index).getLength();
-        byte[] buffer = new byte[size];
-        //System.out.println(" READ RECORD SIZE = " + buffer.length);
-        try {
-            inputStream.getChannel().position(position);
-            inputStream.read(buffer);
-        } catch (IOException ex) {
-            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        Record rec = Record.initBinary(buffer);
-        return rec;*/
         if(index>=0&&index<recordPositions.size()){
             RecordPosition pos = recordPositions.get(index);
-            this.inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
+            inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
+            currentRecordLoaded = index;
             return true;
         }
         return false;
@@ -127,7 +127,16 @@ public class Reader {
     public int getRecordCount(){
         return recordPositions.size();
     }
-    
+    /**
+     * returns the index of the record that has been loaded.
+     * @return index of loaded record
+     */
+    public int getCurrentRecord(){
+        return this.currentRecordLoaded;
+    }
+    /**
+     * Scans the file to index all the record positions.
+     */
     private void scanFile(){
         
         byte[]     fileHeader = new byte[Writer.FILE_HEADER_LENGTH];
@@ -221,11 +230,25 @@ public class Reader {
         Reader reader = new Reader("converted_000810.evio");
         
         //reader.show();
-        /*for(int i = 0; i < reader.getRecordCount(); i++){
+        byte[] eventarray = new byte[1024*1024];
+        ByteBuffer eventBuffer = ByteBuffer.wrap(eventarray);
+        
+        for(int i = 0; i < reader.getRecordCount(); i++){
             reader.readRecord(i);
-        }*/        
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            int nevents = reader.getEventCount();
+            for(int k = 0; k < nevents ; k++){
+                reader.getEvent(eventBuffer,k);
+            }
+            System.out.println("---> read record " + i);
+        }
+        
         //reader.open("test.evio");
-        reader.readRecord(0);
+        /*reader.readRecord(0);
         int nevents = reader.getEventCount();
         System.out.println("-----> events = " + nevents);
         for(int i = 0; i < 10 ; i++){
@@ -235,6 +258,6 @@ public class Reader {
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             String data = DataUtils.getStringArray(buffer, 10,30);
             System.out.println(data);
-        }
+        }*/
     }
 }
