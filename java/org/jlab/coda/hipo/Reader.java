@@ -87,6 +87,13 @@ public class Reader {
         }
     }
     
+    public byte[] getEvent(int index){
+        return inputRecordStream.getEvent(index);
+    }
+    
+    public int getEventCount(){
+        return inputRecordStream.getEntries();
+    }
     /**
      * Reads record from the file from position index.
      * @param index record index
@@ -180,14 +187,6 @@ public class Reader {
         }
     }
     
-    public static void main(String[] args){
-        Reader reader = new Reader("converted_000810.evio");
-        //reader.show();
-        for(int i = 0; i < reader.getRecordCount(); i++){
-            reader.readRecord(i);
-        }
-        //reader.open("test.evio");        
-    }
     /**
      * Internal class to keep track of the records in the file.
      * Each entry keeps record position in the file, length of
@@ -215,6 +214,27 @@ public class Reader {
         @Override
         public String toString(){
             return String.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
+        }
+    }
+    
+    public static void main(String[] args){
+        Reader reader = new Reader("converted_000810.evio");
+        
+        //reader.show();
+        /*for(int i = 0; i < reader.getRecordCount(); i++){
+            reader.readRecord(i);
+        }*/        
+        //reader.open("test.evio");
+        reader.readRecord(0);
+        int nevents = reader.getEventCount();
+        System.out.println("-----> events = " + nevents);
+        for(int i = 0; i < 10 ; i++){
+            byte[] event = reader.getEvent(i);
+            System.out.println("---> events length = " + event.length);
+            ByteBuffer buffer = ByteBuffer.wrap(event);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            String data = DataUtils.getStringArray(buffer, 10,30);
+            System.out.println(data);
         }
     }
 }

@@ -61,7 +61,39 @@ public class RecordInputStream {
         System.arraycopy(dataBuffer.array(), offset, event, 0, event.length);
         return event;
     }
-    
+    /**
+     * Writes event with index into a byte buffer, The byte buffer has 
+     * to have proper size.
+     * @param buffer
+     * @param index
+     * @return 
+     * @throws org.jlab.coda.hipo.HipoException 
+     */
+    public boolean getEvent(ByteBuffer buffer, int index) throws HipoException {        
+        int lastPosition  = dataBuffer.getInt(index*4);
+        int firstPosition = 0;
+        if(index>0) firstPosition = dataBuffer.getInt( (index-1)*4 );
+        int length = lastPosition - firstPosition;
+        int offset = eventsOffset + firstPosition;
+        if(buffer.hasArray()==true){
+            if(buffer.array().length>=length){
+                System.arraycopy(dataBuffer.array(), offset, buffer.array(), 0, length);
+                buffer.position(0);
+                buffer.limit(length);
+                return true;
+            } else {
+                throw new HipoException("ByteBuffer is smaller than the event.");
+            }
+        }
+        return false;
+    }
+    /**
+     * Reads the record from the file from given position and given
+     * length.
+     * @param file opened file descriptor
+     * @param position position in the file
+     * @param length the length of the record
+     */
     public void readRecord(RandomAccessFile file, long position, int length){
         try {
             file.getChannel().position(position);
@@ -70,7 +102,13 @@ public class RecordInputStream {
             Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+    /**
+     * Reads record from the file from given position. First the header
+     * is read then the length of the record is read from header, then
+     * following bytes are read and decompressed.
+     * @param file opened file descriptor
+     * @param position position in the file
+     */
     public void readRecord(RandomAccessFile file, long position) {
         try {
             file.getChannel().position(position);
@@ -99,7 +137,6 @@ public class RecordInputStream {
             nEntries = header.getEntries();
             userHeaderOffset = nEntries*4;
             eventsOffset     = userHeaderOffset + header.getUserHeaderLengthWords()*4;
-            
             //showIndex();
             int event_pos = 0;
             for(int i = 0; i < nEntries; i++){
@@ -114,15 +151,24 @@ public class RecordInputStream {
             Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+    /**
+     * returns number of the events packed in the record.
+     * @return 
+     */
     public int getEntries(){ return nEntries;}
-    
+    /**
+     * prints on the screen the index array of the record
+     */
     private void showIndex(){
         for(int i = 0; i < nEntries; i++){
             System.out.printf("%3d  ",dataBuffer.getInt(i*4));
         }
         System.out.println();
     }
+    /**
+     * test main program
+     * @param args 
+     */
     public static void main(String[] args){
         
         try {
