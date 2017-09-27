@@ -23,7 +23,7 @@ public class RecordInputStream {
     private ByteBuffer    dataBuffer   = null;
     private ByteBuffer    recordBuffer = null;
     private ByteBuffer    headerBuffer = null;    
-    private Compressor    compressor   = new Compressor();
+    private Compressor    compressor   = Compressor.getInstance();
     /**
      * Set offsets to the uncompressed buffer for retrieving the
      * user header and the rest of the data.
