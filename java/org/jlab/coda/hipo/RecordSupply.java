@@ -44,11 +44,11 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  *   (2) The consumer who calls getToCompress() will get that ring item and will
  *       compress its data. There may be any number of compression threads
  *       as long as <b># threads <= # of ring items!!!</b>.
- *       That same user does a release() when done with the record.
+ *       That same user does a releaseCompressor() when done with the record.
  *
  *   (3) The consumer who calls getToWrite() will get that ring item and will
  *       write its data to a file or another buffer. There may be only 1
- *       such thread. This same user does a release() when done with the record.
+ *       such thread. This same user does a releaseWriter() when done with the record.
  *
  *                       ||
  *                       ||  writeBarrier
