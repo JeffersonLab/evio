@@ -297,7 +297,51 @@ public class RecordHeader {
         position = _pos; recordLength = _l; entries = _e;
     }
 
-    /** Reset internal variables. */
+    /**
+     * Copy the contents of the arg into this object.
+     * @param head object to copy
+     */
+    public void copy(RecordHeader head) {
+        if (head == null) return;
+
+        // file header only
+        fileId          = head.fileId;
+        fileNumber      = head.fileNumber;
+        trailerPosition = head.trailerPosition;
+        userIntFirst    = head.userIntFirst;
+        userIntSecond   = head.userIntSecond;
+        position        = head.position;
+
+        // record header only
+        recordLength             = head.recordLength;
+        recordNumber             = head.recordNumber;
+        recordLengthWords        = head.recordLengthWords;
+        recordUserRegisterFirst  = head.recordUserRegisterFirst;
+        recordUserRegisterSecond = head.recordUserRegisterSecond;
+
+        // all headers
+        headerType                = head.headerType;
+        entries                   = head.entries;
+        bitInfo                   = head.bitInfo;
+        headerLength              = head.headerLength;
+        headerLengthWords         = head.headerLengthWords;
+        userHeaderLength          = head.userHeaderLength;
+        userHeaderLengthWords     = head.userHeaderLengthWords;
+        indexLength               = head.indexLength;
+        dataLength                = head.dataLength;
+        dataLengthWords           = head.dataLengthWords;
+        compressedDataLength      = head.compressedDataLength;
+        compressedDataLengthWords = head.compressedDataLengthWords;
+        compressionType           = head.compressionType;
+        headerMagicWord           = head.headerMagicWord;
+        // don't bother with version as must be same
+
+        userHeaderLengthPadding     = head.userHeaderLengthPadding;
+        dataLengthPadding           = head.dataLengthPadding;
+        compressedDataLengthPadding = head.compressedDataLengthPadding;
+    }
+
+    /** Reset generated data. */
     public void reset(){
         // file header only
         // Do NOT reset fileId which is only set in constructor!
@@ -329,7 +373,8 @@ public class RecordHeader {
         dataLengthWords = 0;
         compressedDataLength = 0;
         compressedDataLengthWords = 0;
-        compressionType = 0;
+        // Do NOT reset the compression type
+        //compressionType = 0;
 
         userHeaderLengthPadding = 0;
         dataLengthPadding = 0;
