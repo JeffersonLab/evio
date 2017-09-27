@@ -94,7 +94,7 @@ public class Writer implements AutoCloseable {
         if (order != null) {
             byteOrder = order;
         }
-        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize);
+        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 1);
         fileHeader   = new RecordHeader(HeaderType.EVIO_FILE);
     }
 
@@ -111,7 +111,7 @@ public class Writer implements AutoCloseable {
 
     /**
      * Constructor with filename & byte order.
-     * The output file will be created with no user header.
+     * The output file will be created with no user header. LZ4 compression.
      * @param filename      output file name
      * @param order         byte order of written file or null for default (little endian)
      * @param maxEventCount max number of events a record can hold.
@@ -126,6 +126,7 @@ public class Writer implements AutoCloseable {
 
     /**
      * Constructor for writing to a ByteBuffer. Byte order is taken from the buffer.
+     * LZ4 compression.
      * @param buf buffer in to which to write events and/or records.
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
@@ -135,7 +136,7 @@ public class Writer implements AutoCloseable {
     public Writer(ByteBuffer buf, int maxEventCount, int maxBufferSize) {
         buffer = buf;
         byteOrder = buf.order();
-        outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize);
+        outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize, 1);
     }
 
     /**
@@ -398,7 +399,7 @@ public class Writer implements AutoCloseable {
         RecordHeader header = outputRecord.getHeader();
         header.setRecordNumber(recordNumber++);
         // --- Added on SEP 21 - gagik
-        outputRecord.getHeader().setCompressionType(compressionType);
+        header.setCompressionType(compressionType);
         outputRecord.build();
         int bytesToWrite = header.getLength();
         // Record length of this record
