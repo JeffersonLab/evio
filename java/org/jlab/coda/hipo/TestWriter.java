@@ -126,7 +126,84 @@ public class TestWriter {
 
 
     }
-    
+
+
+    public static void testStreamRecordMT(){
+
+        // Variables to track record build rate
+        double freqAvg;
+        long t1, t2, deltaT,
+
+                totalC=0;
+        // Ignore the first N values found for freq in order
+        // to get better avg statistics. Since the JIT compiler in java
+        // takes some time to analyze & compile code, freq may initially be low.
+        long ignore = 0;
+        long loops  = 6;
+
+        String fileName = "/daqfs/home/timmer/exampleFile.v6.evio";
+
+        // Create files
+        WriterMT writer1 = new WriterMT(fileName + ".1", ByteOrder.LITTLE_ENDIAN, 0, 0,
+                                       1, 1, 8);
+        WriterMT writer2 = new WriterMT(fileName + ".2", ByteOrder.LITTLE_ENDIAN, 0, 0,
+                                       1, 2, 8);
+        WriterMT writer3 = new WriterMT(fileName + ".3", ByteOrder.LITTLE_ENDIAN, 0, 0,
+                                       1, 3, 8);
+
+        byte[] buffer = TestWriter.generateBuffer(400);
+
+        t1 = System.currentTimeMillis();
+
+        while (true) {
+            // random data array
+            writer1.addEvent(buffer);
+            writer2.addEvent(buffer);
+            writer3.addEvent(buffer);
+
+//System.out.println(""+ (20000000 - loops));
+            // Ignore beginning loops to remove JIT compile time
+            if (ignore-- > 0) {
+                t1 = System.currentTimeMillis();
+            }
+            else {
+                totalC++;
+            }
+
+            if (--loops < 1) break;
+        }
+
+        t2 = System.currentTimeMillis();
+        deltaT = t2 - t1; // millisec
+        freqAvg = (double) totalC / deltaT * 1000;
+
+        System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
+
+        System.out.println("Finished all loops, count = " + totalC);
+
+
+        writer1.addTrailer(true);
+        writer1.addTrailerWithIndex(true);
+
+        writer2.addTrailer(true);
+        writer2.addTrailerWithIndex(true);
+
+        writer3.addTrailer(true);
+        writer3.addTrailerWithIndex(true);
+
+
+        writer1.close();
+        writer2.close();
+        writer3.close();
+
+        // Doing a diff between files shows they're identical!
+
+        System.out.println("Finished writing files");
+
+
+    }
+
+
     public static void streamRecord(){
         RecordOutputStream stream = new RecordOutputStream();
         byte[] buffer = TestWriter.generateBuffer();
@@ -201,7 +278,8 @@ public class TestWriter {
     
     public static void main(String[] args){
 
-       // testStreamRecord();
+        testStreamRecordMT();
+       //testStreamRecord();
        // TestWriter.createEmptyFile();
         
         /*Writer writer = new Writer();
@@ -211,7 +289,7 @@ public class TestWriter {
         
         //writer.createHeader(new byte[17]);
         
-        TestWriter.convertor();
+        //TestWriter.convertor();
         
         //TestWriter.writerTest();
         
