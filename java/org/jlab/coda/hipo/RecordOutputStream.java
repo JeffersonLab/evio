@@ -127,9 +127,9 @@ public class RecordOutputStream {
     private ByteOrder byteOrder;
 
     
-    /** Default, no-arg constructor. */
+    /** Default, no-arg constructor. Little endian. LZ4 compression. */
     public RecordOutputStream(){
-        dataCompressor = new Compressor();
+        dataCompressor = Compressor.getInstance();
         header = new RecordHeader();
         header.setCompressionType(Compressor.RECORD_COMPRESSION_LZ4);
         byteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -143,11 +143,13 @@ public class RecordOutputStream {
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes this record can hold.
      *                      Value of < 8MB results in default of 8MB.
+     * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      */
-    public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize) {
-        dataCompressor = new Compressor();
+    public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize,
+                              int compressionType) {
+        dataCompressor = Compressor.getInstance();
         header = new RecordHeader();
-        header.setCompressionType(Compressor.RECORD_COMPRESSION_LZ4);
+        header.setCompressionType(compressionType);
         byteOrder = order;
 
         if (maxEventCount > 0) {
@@ -160,6 +162,54 @@ public class RecordOutputStream {
         }
 
         allocate();
+    }
+
+    /**
+     * Copy the contents of the arg into this object.
+     * @param rec object to copy
+     */
+    public void copy(RecordOutputStream rec) {
+        if (rec == null) return;
+
+        // Copy primitive types & immutable objects
+        eventCount = rec.eventCount;
+        indexSize  = rec.indexSize;
+        eventSize  = rec.eventSize;
+        byteOrder  = rec.byteOrder;
+
+        // Copy header
+        header.copy(rec.header);
+
+        // Leave MAX_EVENT_COUNT as is so RecordSupply has consistent behavior
+
+        // Choose the larger of the 2 buffer sizes
+        if (rec.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE) {
+            MAX_BUFFER_SIZE    = rec.MAX_BUFFER_SIZE;
+            RECORD_BUFFER_SIZE = rec.RECORD_BUFFER_SIZE;
+            allocate();
+        }
+
+        // Copy data over
+        System.arraycopy(rec.recordIndex.array(),  0, recordIndex,  0, indexSize);
+        System.arraycopy(rec.recordEvents.array(), 0, recordEvents, 0, eventSize);
+
+        // recordData is just a temporary holding buffer and does NOT need to be copied
+
+        // recordBinary holds built record and may or may NOT have a backing array.
+        // Assume that buffer is ready to read as is the case right after build() is called.
+        if (rec.recordBinary.hasArray() && recordBinary.hasArray()) {
+            System.arraycopy(rec.recordBinary.array(), 0,
+                             recordBinary, 0, rec.recordBinary.limit());
+            // Get buffer ready to read
+            recordBinary.position(0).limit(rec.recordBinary.limit());
+        }
+        else {
+            recordBinary.position(0);
+            recordBinary.put(rec.recordBinary);
+            // Get buffers ready to read
+            recordBinary.flip();
+            rec.recordBinary.flip();
+        }
     }
 
     /**
@@ -291,8 +341,8 @@ public class RecordOutputStream {
 
         if( (eventCount + 1 > MAX_EVENT_COUNT) ||
             ((indexSize + eventSize + RecordHeader.HEADER_SIZE_BYTES + length) >= MAX_BUFFER_SIZE)) {
-            //System.out.println(" the record is FULL..... INDEX SIZE = "
-            //        + (indexSize/4) + " DATA SIZE = " + eventSize);
+//System.out.println(" the record is FULL..... INDEX SIZE = "
+//        + (indexSize/4) + " DATA SIZE = " + eventSize);
             return false;
         }
 
@@ -301,6 +351,8 @@ public class RecordOutputStream {
 
         // Add event data (position of recordEvents buffer is incremented)
         int pos = recordEvents.position();
+//System.out.println("record.addEvent:  put event data into record buffer at pos = " + pos +
+//", len = " + length);
         System.arraycopy(event, position, recordEvents.array(), pos, length);
         recordEvents.position(pos + length);
         // Same as below, but above method should be a lot faster:
@@ -312,6 +364,8 @@ public class RecordOutputStream {
         indexSize += 4;
 
         eventCount++;
+//System.out.println("record.addEvent:  ev count = " + eventCount +
+//                ", ev size = " + eventSize);
 
         return true;
     }
@@ -469,17 +523,18 @@ public class RecordOutputStream {
         }
         catch (HipoException e) {/* should not happen */}
         //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
-        int LZ4id = recordBinary.getInt(RecordHeader.HEADER_SIZE_BYTES);
+        //int LZ4id = recordBinary.getInt(RecordHeader.HEADER_SIZE_BYTES);
         //System.out.println(String.format("IDENTIFICATION %X", LZ4id));
         // Set the rest of the header values
         header.setEntries(eventCount);
         header.setDataLength(eventSize);
         header.setIndexLength(indexSize);
+        // This unnecessarily re-does what is already done above ------ SEP 26 - timmer
         // Added this line ------ SEP 21 - gagik
-        header.setCompressedDataLength(compressedSize);
-        //System.out.println(" COMPRESSED = " + compressedSize + "  events size = " + eventSize + "  type = " 
-        //        + compressionType + "  data size = " + uncompressedDataSize 
-        //        + "  compressed size = " + header.getCompressedDataLength());
+        //header.setCompressedDataLength(compressedSize);
+//        System.out.println(" COMPRESSED = " + compressedSize + "  events size = " + eventSize + "  type = "
+//                + compressionType + "  uncompressed = " + uncompressedDataSize +
+//                " record bytes = " + header.getLength());
         // Go back and write header into destination buffer
         recordBinary.position(0);
         //System.out.println(header.toString());
