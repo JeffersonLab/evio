@@ -17,7 +17,7 @@ import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4SafeDecompressor;
 
 /**
- * Class used to provide data compression and decompression in a variety of formats.
+ * Singleton class used to provide data compression and decompression in a variety of formats.
  * @author gavalian
  */
 public class Compressor {
@@ -33,21 +33,41 @@ public class Compressor {
 
     /** Number of bytes to read in a single call while doing gzip decompression. */
     private static final int MTU = 1024*1024;
-    
-    private LZ4Factory factory = null;
-    private LZ4Compressor lz4_compressor = null;
-    private LZ4Compressor lz4_compressor_best = null;
-    private LZ4SafeDecompressor lz4_decompressor = null;
+
+    /** Object used to create compressors. */
+    private static LZ4Factory factory;
+    /** Fastest LZ4 compressor. */
+    private static LZ4Compressor lz4_compressor;
+    /** Slowest but best LZ4 compressor. */
+    private static LZ4Compressor lz4_compressor_best;
+    /** Decompressor for LZ4. */
+    private static LZ4SafeDecompressor lz4_decompressor;
 
 
-    /** No-arg constructor. */
-    public Compressor(){
+    static {
         factory = LZ4Factory.fastestInstance();
         lz4_compressor = factory.fastCompressor();
         lz4_compressor_best = factory.highCompressor();
         lz4_decompressor = factory.safeDecompressor();
     }
-    
+
+    /** One instance of this class. */
+    private static Compressor instance = null;
+
+    /** Constructor to defeat instantiation. */
+    protected Compressor() {}
+
+    /**
+     * Get the single instance of this class.
+     * @return single instance of this class.
+     */
+    public static Compressor getInstance() {
+        if (instance == null) {
+            instance = new Compressor();
+        }
+        return instance;
+    }
+
     /**
      * Returns compressed buffer. Depends on compression type.
      * @param compressionType compression type.
@@ -152,7 +172,7 @@ public class Compressor {
      * @return length of compressed data in bytes.
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
-    public int compressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize)
+    public static int compressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
         if (lz4_compressor.maxCompressedLength(srcSize) > maxSize) {
@@ -174,7 +194,7 @@ public class Compressor {
      * @return length of compressed data in bytes.
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
-    public int compressLZ4(byte[] src, int srcOff, int srcSize,
+    public static int compressLZ4(byte[] src, int srcOff, int srcSize,
                             byte[] dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
@@ -197,7 +217,7 @@ public class Compressor {
      * @return length of compressed data in bytes.
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
-    public int compressLZ4(ByteBuffer src, int srcOff, int srcSize,
+    public static int compressLZ4(ByteBuffer src, int srcOff, int srcSize,
                             ByteBuffer dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
@@ -218,7 +238,7 @@ public class Compressor {
      * @return length of compressed data in bytes.
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
-    public int compressLZ4Best(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize)
+    public static int compressLZ4Best(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
         if (lz4_compressor_best.maxCompressedLength(srcSize) > maxSize) {
@@ -240,7 +260,7 @@ public class Compressor {
      * @return length of compressed data in bytes.
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
-    public int compressLZ4Best(byte[] src, int srcOff, int srcSize,
+    public static int compressLZ4Best(byte[] src, int srcOff, int srcSize,
                             byte[] dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
@@ -263,7 +283,7 @@ public class Compressor {
      * @return length of compressed data in bytes.
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
-    public int compressLZ4Best(ByteBuffer src, int srcOff, int srcSize,
+    public static int compressLZ4Best(ByteBuffer src, int srcOff, int srcSize,
                                ByteBuffer dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
@@ -283,7 +303,7 @@ public class Compressor {
      * @return original (uncompressed) input size.
      * @throws org.jlab.coda.hipo.HipoException if dst is too small to hold uncompressed data
      */
-    public int uncompressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst)
+    public static int uncompressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst)
             throws HipoException {
 
         try {
@@ -309,7 +329,7 @@ public class Compressor {
      * @throws org.jlab.coda.hipo.HipoException if (dst.length - dstOff) is too small
      *                                          to hold uncompressed data
      */
-    public int uncompressLZ4(byte[] src, int srcOff, int srcSize, byte[] dst, int dstOff)
+    public static int uncompressLZ4(byte[] src, int srcOff, int srcSize, byte[] dst, int dstOff)
             throws HipoException {
 
         try {
