@@ -343,12 +343,12 @@ public class RecordSupply {
 
     /**
      * Release claim on ring items up to sequenceNum for the given compressor thread.
-     * Used internally to free up records that the compressor thread will skip
+     * For internal use only - to free up records that the compressor thread will skip
      * over anyway.
      * @param threadNum    compressor thread number
      * @param sequenceNum  sequence to release
      */
-    void release(int threadNum, long sequenceNum) {
+    public void release(int threadNum, long sequenceNum) {
         compressSeqs[threadNum].set(sequenceNum);
     }
 
