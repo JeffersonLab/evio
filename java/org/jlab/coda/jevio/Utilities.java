@@ -30,6 +30,38 @@ import java.util.regex.Pattern;
 final public class Utilities {
 
     /**
+     * Return the power of 2 closest to the given argument.
+     *
+     * @param x value to get the power of 2 closest to.
+     * @param roundUp if true, round up, else down
+     * @return -1 if x is negative or the closest power of 2 to value
+     */
+    static final public int powerOfTwo(int x, boolean roundUp) {
+        if (x < 0) return -1;
+
+        // The following algorithms are found in
+        // "Hacker's Delight" by Henry Warren Jr.
+
+        if (roundUp) {
+            x = x - 1;
+            x |= (x>>1);
+            x |= (x>>2);
+            x |= (x>>4);
+            x |= (x>>8);
+            x |= (x>>16);
+            return x + 1;
+        }
+
+        int y;
+        do {
+            y = x;
+            x &= (x - 1);
+        } while (x != 0);
+        return y;
+    }
+
+
+    /**
      * This method generates part of a file name given a base file name as an argument.<p>
      *
      * The base file name may contain up to 2, C-style integer format specifiers
