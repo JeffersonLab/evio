@@ -35,7 +35,13 @@ public class RecordRingItem {
     /** Sequence object allowing ring consumer to get/release this item. */
     private Sequence sequenceObj;
 
-    //--------------------------------
+    /** Do we split a file after writing this record? */
+    private boolean splitFileAfterWrite;
+
+    /** Do we force the record to be physically written to disk? */
+    private boolean forceToDisk;
+
+     //--------------------------------
 
     /**
      * Constructor.
@@ -96,5 +102,31 @@ public class RecordRingItem {
         sequence = seq;
         sequenceObj = seqObj;
     }
+
+    /**
+     * Get whether a file writer splits the file after writing this record.
+     * @return true if file writer splits the file after writing this record.
+     */
+    public boolean splitFileAfterWrite() {return splitFileAfterWrite;}
+
+    /**
+     * Set whether a file writer splits the file after writing this record.
+     * @param split if true, file writer splits the file after writing this record,
+     *              else false.
+     */
+    public void splitFileAfterWrite(boolean split) {splitFileAfterWrite = split;}
+
+    /**
+     * Get whether a file writer forces this record to be physically written to disk.
+     * @return true if file writer forces this record to be physically written to disk.
+     */
+    public boolean forceToDisk() {return forceToDisk;}
+
+    /**
+     * Set whether a file writer forces this record to be physically written to disk.
+     * @param force if true, file writer forces this record to be physically written
+     *              to disk, else false.
+     */
+    public void forceToDisk(boolean force) {forceToDisk = force;}
 
 }
