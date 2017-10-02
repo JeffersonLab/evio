@@ -206,7 +206,7 @@ public class WriterMT implements AutoCloseable {
         public void run() {
             try {
                 // The first time thru, we need to release all records up to our first
-                // in the event that there are < num records before close() is called.
+                // in case there are < num records before close() is called.
                 // This way close() is not waiting for thread #12 to get and subsequently
                 // release items 0 - 11 when there were only 5 records total.
                 // (threadNumber starts at 0).
@@ -277,15 +277,15 @@ public class WriterMT implements AutoCloseable {
 
                     try {
                         ByteBuffer buf = record.getBinaryBuffer();
-                        if (record.getBinaryBuffer().hasArray()) {
+                        if (buf.hasArray()) {
 //System.out.println("   Writer: use outStream to write file, buf pos = " + buf.position() +
 //        ", lim = " + buf.limit() + ", bytesToWrite = " + bytesToWrite);
-                            outStream.write(record.getBinaryBuffer().array(), 0, bytesToWrite);
+                            outStream.write(buf.array(), 0, bytesToWrite);
                         }
                         else {
 //System.out.println("   Writer: use fileChannel to write file");
                             // binary buffer is ready to read after build()
-                            fileChannel.write(record.getBinaryBuffer());
+                            fileChannel.write(buf);
                         }
                         record.reset();
                     } catch (IOException ex) {
