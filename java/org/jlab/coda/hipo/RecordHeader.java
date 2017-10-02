@@ -146,15 +146,15 @@ public class RecordHeader {
     /** Array to help find number of bytes to pad data. */
     private final static int[] padValue = {0,3,2,1};
     /** First word in every HIPO file for identification purposes. */
-    final static int   HIPO_FILE_UNIQUE_WORD = 0x4F504948; // 0x4849504F = HIPO
+    public final static int   HIPO_FILE_UNIQUE_WORD = 0x4F504948; // 0x4849504F = HIPO
     /** First word in every Evio file for identification purposes. */
-    final static int   EVIO_FILE_UNIQUE_WORD = 0x4556494F; // = EVIO
+    public final static int   EVIO_FILE_UNIQUE_WORD = 0x4556494F; // = EVIO
     /** Number of 32-bit words in a normal sized header. */
-    final static int   HEADER_SIZE_WORDS = 14;
+    public final static int   HEADER_SIZE_WORDS = 14;
     /** Number of bytes in a normal sized header. */
-    final static int   HEADER_SIZE_BYTES = 56;
+    public final static int   HEADER_SIZE_BYTES = 56;
     /** Magic number used to track endianness. */
-    final static int   HEADER_MAGIC = 0xc0da0100;
+    public final static int   HEADER_MAGIC = 0xc0da0100;
     /** Magic number for HIPO's little endian uses. */
     final static int   HEADER_MAGIC_LE = HEADER_MAGIC;
     /** Magic number for HIPO's big endian uses (byte swapped from HEADER_MAGIC_LE). */
@@ -163,9 +163,9 @@ public class RecordHeader {
     // Byte offset to header words
 
     /** Number of bytes from beginning of file header to write trailer position. */
-    final static int   TRAILER_POSITION_OFFSET = 40;
+    public final static int   TRAILER_POSITION_OFFSET = 40;
     /** Number of bytes from beginning of file header to write bit info word. */
-    final static int   BIT_INFO_OFFSET = 20;
+    public final static int   BIT_INFO_OFFSET = 20;
 
     // Bits in bit info word
     
@@ -386,7 +386,7 @@ public class RecordHeader {
      * @param length length in bytes.
      * @return length in bytes padded to 4-byte boundary.
      */
-    private static int getWords(int length){
+    static int getWords(int length){
         int words = length/4;
         if (getPadding(length) > 0) words++;
         return words;
@@ -397,7 +397,7 @@ public class RecordHeader {
      * @param length length in bytes.
      * @return number of bytes needed to pad to 4-byte boundary.
      */
-    private static int getPadding(int length) {return padValue[length%4];}
+    static int getPadding(int length) {return padValue[length%4];}
 
     //-----------------------
     // File header related
@@ -583,8 +583,8 @@ public class RecordHeader {
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
      */
-    int  setBitInfoForRecord(boolean isLastRecord,
-                             boolean haveDictionary) {
+    public int  setBitInfoForRecord(boolean isLastRecord,
+                                    boolean haveDictionary) {
 
         bitInfo = (headerType.getValue() << 28) |
                   (compressedDataLengthPadding << 24) |
@@ -605,9 +605,9 @@ public class RecordHeader {
      * @param haveTrailerWithIndex  true if file has trailer with record length index.
      * @return new bit info word.
      */
-    int  setBitInfoForFile(boolean haveFirst,
-                           boolean haveDictionary,
-                           boolean haveTrailerWithIndex) {
+    public int  setBitInfoForFile(boolean haveFirst,
+                                  boolean haveDictionary,
+                                  boolean haveTrailerWithIndex) {
 
         bitInfo = (headerType.getValue() << 28) |
                   (compressedDataLengthPadding << 24) |
