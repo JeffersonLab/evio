@@ -78,7 +78,7 @@ public class RecordSupply {
     /** Number of threads doing compression simultaneously. */
     private int compressionThreadCount = 1;
     /** Ring buffer. */
-    private final RingBuffer<RecordRingItem> ringBuffer;
+    public final RingBuffer<RecordRingItem> ringBuffer;
 
     // Stuff for compression threads
 
@@ -211,6 +211,14 @@ public class RecordSupply {
      */
     public long getFillLevel() {
         return 100*(ringBuffer.getCursor() - ringBuffer.getMinimumGatingSequence())/ringBuffer.getBufferSize();
+    }
+
+    /**
+     * Get the sequence of last ring buffer obtained with get (seq starts at 0).
+     * @return sequence of last ring buffer obtained with get (seq starts at 0).
+     */
+    public long getLastSequence() {
+        return ringBuffer.getCursor();
     }
 
     /**
