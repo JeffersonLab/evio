@@ -241,6 +241,7 @@ public class WriterMT implements AutoCloseable {
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToCompress
                 // which means we're all done.
+System.out.println("   Compressor: thread " + num + " INTERRUPTED");
             }
         }
     }
@@ -253,9 +254,23 @@ public class WriterMT implements AutoCloseable {
      */
     class RecordWriter extends Thread {
 
+        /** The highest sequence to have been currently processed. */
+        private volatile long lastSeqProcessed = -1;
+
+        /** Wait for the last item to be processed, then exit thread. */
+        void waitForLastItem() {
+            while (supply.getLastSequence() > lastSeqProcessed) {
+                Thread.yield();
+            }
+            // Interrupt this thread, not the calling thread
+            this.interrupt();
+        }
+
         @Override
         public void run() {
             try {
+                long currentSeq;
+
                 while (true) {
                     if (Thread.interrupted()) {
                         return;
@@ -264,6 +279,7 @@ public class WriterMT implements AutoCloseable {
 //System.out.println("   Writer: try getting record to write");
                     // Get the next record for this thread to write
                     RecordRingItem item = supply.getToWrite();
+                    currentSeq = item.getSequence();
                     // Pull record out of wrapping object
                     RecordOutputStream record = item.getRecord();
 
@@ -296,11 +312,15 @@ public class WriterMT implements AutoCloseable {
                     // Release back to supply
 //System.out.println("   Writer: release ring item back to supply");
                     supply.releaseWriter(item);
+
+                    // Now we're done with this sequence
+                    lastSeqProcessed = currentSeq;
                 }
             }
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToWrite
                 // which means we're all done.
+System.out.println("   Writer: thread INTERRUPTED");
             }
         }
     }
@@ -619,20 +639,24 @@ public class WriterMT implements AutoCloseable {
     /**
      * Close opened file. If the output record contains events,
      * they will be flushed to file. Trailer and its optional index
-     * written if requested.
+     * written if requested.<p>
+     * <b>The addEvent or addRecord methods must no longer be called.</b>
      */
     public void close(){
 
-        // If we're building a record, send it off since we're done
+        // If we're in the middle of building a record, send it off since we're done
         if (record.getEventCount() > 0) {
             // Put it back in supply for compressing
             supply.publish(ringItem);
         }
 
-        // Spin until all records are written.
-        while (supply.getFillLevel() > 0) {
-            // Keep trying
-  //          System.out.print("wait4writer  ");
+        // Since the writer thread is the last to process each record,
+        // wait until it's done with the last item, then exit the thread.
+        recordWriterThread.waitForLastItem();
+
+        // Stop all compressing threads which by now are stuck on get
+        for (RecordCompressor rc : recordCompressorThreads) {
+            rc.interrupt();
         }
 
         try {
@@ -671,14 +695,6 @@ public class WriterMT implements AutoCloseable {
             //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
         } catch (IOException ex) {
             Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        // TODO: Make sure all writing is done by this point!
-
-        // Stop all compressing and writing threads
-        recordWriterThread.interrupt();
-        for (RecordCompressor rc : recordCompressorThreads) {
-            rc.interrupt();
         }
     }
 }
