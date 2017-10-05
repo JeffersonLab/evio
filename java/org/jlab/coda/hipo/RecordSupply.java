@@ -73,12 +73,19 @@ public class RecordSupply {
 
     /** Byte order of RecordOutputStream in each RecordRingItem. */
     private ByteOrder order;
+    /** Ring buffer. */
+    public final RingBuffer<RecordRingItem> ringBuffer;
+
+    /** Max number of events each record can hold.
+     *  Value of O means use default (1M). */
+    private int maxEventCount;
+    /** Max number of uncompressed data bytes each record can hold.
+     *  Value of < 8MB results in default of 8MB. */
+    private int maxBufferSize;
     /** Type type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip). */
     private int compressionType;
     /** Number of threads doing compression simultaneously. */
     private int compressionThreadCount = 1;
-    /** Ring buffer. */
-    public final RingBuffer<RecordRingItem> ringBuffer;
 
     // Stuff for compression threads
 
@@ -110,7 +117,7 @@ public class RecordSupply {
     /** Class used to initially create all items in ring buffer. */
     private final class RecordFactory implements EventFactory<RecordRingItem> {
         public RecordRingItem newInstance() {
-            return new RecordRingItem(order, compressionType);
+            return new RecordRingItem(order, maxEventCount, maxBufferSize, compressionType);
         }
     }
 
@@ -121,22 +128,28 @@ public class RecordSupply {
      */
     public RecordSupply() {
         // IllegalArgumentException is never thrown here
-        this(4, ByteOrder.LITTLE_ENDIAN, 1, 1);
+        this(4, ByteOrder.LITTLE_ENDIAN,
+             1, 0, 0, 1);
     }
 
 
     /**
      * Constructor.
-     * @param ringSize     number of RecordRingItem objects in ring buffer.
-     * @param order        byte order of RecordOutputStream in each RecordRingItem object.
-     * @param threadCount  number of threads simultaneously doing compression.
-     *                     Must be <= ringSize.
+     * @param ringSize        number of RecordRingItem objects in ring buffer.
+     * @param order           byte order of RecordOutputStream in each RecordRingItem object.
+     * @param threadCount     number of threads simultaneously doing compression.
+     *                        Must be <= ringSize.
+     * @param maxEventCount   max number of events each record can hold.
+     *                        Value of O means use default (1M).
+     * @param maxBufferSize   max number of uncompressed data bytes each record can hold.
+     *                        Value of < 8MB results in default of 8MB.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      * @throws IllegalArgumentException if args < 1, ringSize not power of 2,
      *                                  threadCount > ringSize, compression type invalid.
      */
     public RecordSupply(int ringSize, ByteOrder order,
-                        int threadCount, int compressionType)
+                        int threadCount, int maxEventCount,
+                        int maxBufferSize, int compressionType)
             throws IllegalArgumentException {
 
         if (ringSize < 1 || Integer.bitCount(ringSize) != 1) {
@@ -157,6 +170,8 @@ public class RecordSupply {
         }
 
         this.order = order;
+        this.maxEventCount = maxEventCount;
+        this.maxBufferSize = maxBufferSize;
         this.compressionType = compressionType;
 
         // Create ring buffer with "ringSize" # of elements
