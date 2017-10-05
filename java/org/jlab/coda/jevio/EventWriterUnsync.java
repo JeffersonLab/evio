@@ -1545,8 +1545,6 @@ public class EventWriterUnsync {
         // most probably won't contain the full file contents.
         if (toFile()) return null;
 
-        // We synchronize here so we do not write/close in the middle
-        // of our messing with the buffer.
         ByteBuffer buf = buffer.duplicate().order(buffer.order());
 
         // Get buffer ready for reading
