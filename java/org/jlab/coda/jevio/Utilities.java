@@ -404,7 +404,42 @@ final public class Utilities {
         System.out.println();
 
         buf.position(origPos);
-   }
+    }
+
+
+    /**
+     * Convert bank to byte array.
+     * @param bank bank to convert.
+     * @param order byte order of resulting array
+     * @return byte array with bank as data
+     */
+    static final public byte[] bankToBytes(EvioBank bank, ByteOrder order) {
+        // Create proper sized array
+        byte[] bankArray = new byte[bank.getTotalBytes()];
+
+        // Wrap with ByteBuffer of given byte order
+        ByteBuffer firstEventBuf = ByteBuffer.wrap(bankArray);
+        firstEventBuf.order(order);
+
+        // Write data into array
+        bank.write(firstEventBuf);
+
+        return bankArray;
+    }
+
+
+    /**
+     * Convert node to byte array.
+     * Resulting array is same byte order as backing array of node.
+     * @param node  node to convert.
+     * @return byte array with node as data
+     */
+    static final public byte[] nodeToByteArray(EvioNode node) {
+        // Copy event node into buffer so it has backing array
+        ByteBuffer firstEventBuf = node.getStructureBuffer(true);
+        // Return that backing array
+        return firstEventBuf.array();
+    }
 
 
     /**
