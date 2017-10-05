@@ -36,10 +36,14 @@ public class RecordRingItem {
     private Sequence sequenceObj;
 
     /** Do we split a file after writing this record? */
-    private boolean splitFileAfterWrite;
+    private volatile boolean splitFileAfterWrite;
 
     /** Do we force the record to be physically written to disk? */
-    private boolean forceToDisk;
+    private volatile boolean forceToDisk;
+
+    /** Processing thread may need to know if this is the last item
+     *  to be processed so thread can shutdown. */
+    private volatile boolean lastItem;
 
      //--------------------------------
 
@@ -57,17 +61,20 @@ public class RecordRingItem {
     /** Method to reset this item each time it is retrieved from the supply. */
     public void reset() {
         record.reset();
+
         sequence = 0L;
         sequenceObj = null;
+        
+        lastItem = false;
+        forceToDisk = false;
+        splitFileAfterWrite = false;
     }
 
     /**
      * Get the contained record. Record is reset.
      * @return contained record.
      */
-    public RecordOutputStream getRecord() {
-        return record;
-    }
+    public RecordOutputStream getRecord() {return record;}
 
     /**
      * Get the byte order used to build record.
@@ -128,5 +135,18 @@ public class RecordRingItem {
      *              to disk, else false.
      */
     public void forceToDisk(boolean force) {forceToDisk = force;}
+
+    /**
+     * Get whether this is the last item in the supply to be used.
+     * @return true this is the last item in the supply to be used.
+     */
+    public boolean isLastItem() {return lastItem;}
+
+    /**
+     * Set whether this is the last item in the supply to be used.
+     * Used in WriterMT when closing.
+     * @param last if true, this is the last item in the supply to be used.
+     */
+    public void setLastItem(boolean last) {lastItem = last;}
 
 }
