@@ -2083,6 +2083,7 @@ System.err.println("Non leaf with null children!");
         return datalen;
     }
 
+    // TODO: Throw exception if byteBuffer is too small !!!
 	/**
 	 * Write myself out a byte buffer with fastest algorithms I could find.
 	 *
