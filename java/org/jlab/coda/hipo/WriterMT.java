@@ -95,7 +95,8 @@ public class WriterMT implements AutoCloseable {
     public WriterMT() {
         compressionThreadCount = 1;
         fileHeader = new RecordHeader(HeaderType.EVIO_FILE);
-        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 1);
+        supply = new RecordSupply(8, byteOrder, compressionThreadCount,
+                                  0, 0, 1);
 
         // Get a single blank record to start writing into
         ringItem = supply.get();
@@ -150,7 +151,8 @@ public class WriterMT implements AutoCloseable {
         }
 
         fileHeader = new RecordHeader(HeaderType.EVIO_FILE);
-        supply = new RecordSupply(ringSize, byteOrder, compressionThreads, compressionType);
+        supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
+                                  maxEventCount, maxBufferSize, compressionType);
 
         // Get a single blank record to start writing into
         ringItem = supply.get();
