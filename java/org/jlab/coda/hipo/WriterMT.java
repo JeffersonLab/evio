@@ -9,6 +9,7 @@ package org.jlab.coda.hipo;
 
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.Utilities;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -117,7 +118,7 @@ public class WriterMT implements AutoCloseable {
      * @param ringSize      number of records in supply ring, must be multiple of 2
      *                      and >= compressionThreads.
      *
-     * @throws IllegalArgumentException ringSize not power of 2 or threadCount > ringSize.
+     * @throws IllegalArgumentException if invalid compression type.
      */
     public WriterMT(ByteOrder order, int maxEventCount, int maxBufferSize,
                     int compressionType, int compressionThreads, int ringSize)
@@ -135,6 +136,19 @@ public class WriterMT implements AutoCloseable {
         }
 
         compressionThreadCount = compressionThreads;
+
+        // Number of ring items must be >= compressionThreads
+        int finalRingSize = ringSize;
+        if (finalRingSize < compressionThreads) {
+            finalRingSize = compressionThreads;
+        }
+        // AND is must be multiple of 2
+        finalRingSize = Utilities.powerOfTwo(finalRingSize, true);
+
+        if (finalRingSize != ringSize) {
+            System.out.println("WriterMT: change to ring size = " + finalRingSize);
+        }
+
         fileHeader = new RecordHeader(HeaderType.EVIO_FILE);
         supply = new RecordSupply(ringSize, byteOrder, compressionThreads, compressionType);
 
@@ -477,62 +491,84 @@ System.out.println("   Writer: thread INTERRUPTED");
         return buffer;
     }
 
+
     /**
      * Write a general header as the last "header" or trailer in the file
      * optionally followed by an index of all record lengths.
      * @param writeIndex if true, write an index of all record lengths in trailer.
+     * @throws IOException if problems writing to file.
      */
-    public void writeTrailer(boolean writeIndex){
+    private void writeTrailer(boolean writeIndex) throws IOException {
+
+        // Keep track of where we are right now which is just before trailer
+        long trailerPosition = writerBytesWritten;
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
-            try {
-                // TODO: not really necessary to keep track here?
-                writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
-                outStream.write(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
-            } catch (IOException ex) {
-                Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return;
+            writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
+            outStream.write(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
         }
-
-        // Create the index of record lengths in proper byte order
-        byte[] recordIndex = new byte[4* recordLengths.size()];
-        try {
-            for (int i = 0; i < recordLengths.size(); i++) {
-                ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
-                                            recordIndex, 4*i);
+        else {
+            // Create the index of record lengths in proper byte order
+            byte[] recordIndex = new byte[4 * recordLengths.size()];
+            try {
+                for (int i = 0; i < recordLengths.size(); i++) {
+                    ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
+                                                recordIndex, 4*i);
 //System.out.println("Writing record length = " + recordOffsets.get(i) +
 //", = 0x" + Integer.toHexString(recordOffsets.get(i)));
+                }
             }
-        }
-        catch (EvioException e) {/* never happen */}
+            catch (EvioException e) {/* never happen */}
 
-        // Write trailer with index
+            // Write trailer with index
 
-        // How many bytes are we writing here?
-        int dataBytes = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+            // How many bytes are we writing here?
+            int dataBytes = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
 
-        // Make sure our array can hold everything
-        if (headerArray.length < dataBytes) {
+            // Make sure our array can hold everything
+            if (headerArray.length < dataBytes) {
 //System.out.println("Allocating byte array of " + dataBytes + " bytes in size");
-            headerArray = new byte[dataBytes];
-        }
+                headerArray = new byte[dataBytes];
+            }
 
-        // Place data into headerArray - both header and index
-        RecordHeader.writeTrailer(headerArray, recordNumber,
-                                  byteOrder, recordIndex);
-        try {
-            // TODO: not really necessary to keep track here?
+            // Place data into headerArray - both header and index
+            RecordHeader.writeTrailer(headerArray, recordNumber,
+                                      byteOrder, recordIndex);
             writerBytesWritten += dataBytes;
             outStream.write(headerArray, 0, dataBytes);
-        } catch (IOException ex) {
-            Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // Find & update file header's trailer position word
+        outStream.seek(RecordHeader.TRAILER_POSITION_OFFSET);
+        if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
+            outStream.writeLong(Long.reverseBytes(trailerPosition));
+        }
+        else {
+            outStream.writeLong(trailerPosition);
+        }
+
+        // Find & update file header's bit-info word
+        if (addTrailerIndex) {
+            outStream.seek(RecordHeader.BIT_INFO_OFFSET);
+            int bitInfo = fileHeader.setBitInfoForFile(false,
+                                                       false,
+                                                       true);
+            if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
+                outStream.writeInt(Integer.reverseBytes(bitInfo));
+            }
+            else {
+                outStream.writeInt(bitInfo);
+            }
         }
 
         return;
     }
+
+
+
+
 
     /**
      * Write this record into one taken from the supply.
@@ -661,34 +697,8 @@ System.out.println("   Writer: thread INTERRUPTED");
 
         try {
             if (addTrailer) {
-                // Keep track of where we are right now which is just before trailer
-                long trailerPosition = writerBytesWritten;
-
                 // Write the trailer
                 writeTrailer(addTrailerIndex);
-
-                // Find & update file header's trailer position word
-                outStream.seek(RecordHeader.TRAILER_POSITION_OFFSET);
-                if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-                    outStream.writeLong(Long.reverseBytes(trailerPosition));
-                }
-                else {
-                    outStream.writeLong(trailerPosition);
-                }
-
-                // Find & update file header's bit-info word
-                if (addTrailerIndex) {
-                    outStream.seek(RecordHeader.BIT_INFO_OFFSET);
-                    int bitInfo = fileHeader.setBitInfoForFile(false,
-                                                               false,
-                                                               true);
-                    if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-                        outStream.writeInt(Integer.reverseBytes(bitInfo));
-                    }
-                    else {
-                        outStream.writeInt(bitInfo);
-                    }
-                }
             }
 
             outStream.close();
