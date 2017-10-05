@@ -81,7 +81,8 @@ public class RecordSupplyTester {
 
     RecordSupplyTester(int threadCount) {
 
-        supply = new RecordSupply(8, order, threadCount, 1);
+        supply = new RecordSupply(8, order, threadCount,
+                                  0, 0, 1);
         compressThreadCount = threadCount;
 
         Writerr writer = new Writerr();
