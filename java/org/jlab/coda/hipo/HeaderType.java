@@ -71,7 +71,7 @@ public enum HeaderType {
      * @param val the value to match.
      * @return the matching enum, or <code>null</code>.
      */
-    public static HeaderType getEventType(int val) {
+    public static HeaderType getHeaderType(int val) {
         if (val > 7 || val < 0) return null;
         return intToType[val];
     }
@@ -83,7 +83,7 @@ public enum HeaderType {
      */
     public static String getName(int val) {
         if (val > 7 || val < 0) return null;
-        HeaderType type = getEventType(val);
+        HeaderType type = getHeaderType(val);
         if (type == null) return null;
         return type.name();
     }
