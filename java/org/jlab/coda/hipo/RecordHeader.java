@@ -788,15 +788,26 @@ public class RecordHeader {
      * @return this object.
      */
     public RecordHeader setUserRegisterSecond(long reg) {recordUserRegisterSecond = reg; return this;}
+
     /**
      * decodes the padding words
      * @param word 
      */
     private void decodeBitInfoWord(int word){
-        this.compressedDataLengthPadding = (word >> 24)&0x0003;
-        this.dataLengthPadding           = (word >> 22)&0x0003;
-        this.userHeaderLengthPadding     = (word >> 20)&0x0003;
+        // Padding
+        this.compressedDataLengthPadding = (word >>> 24)&0x0003;
+        this.dataLengthPadding           = (word >>> 22)&0x0003;
+        this.userHeaderLengthPadding     = (word >>> 20)&0x0003;
+
+        // Header type
+        headerType =  HeaderType.getHeaderType(word >>> 28);
+        if (headerType == null) {
+            headerType = HeaderType.EVIO_RECORD;
+        }
+
+        
     }
+
     //-------------------------------------------------
     /**
      * Writes this header into the given byte buffer.
@@ -843,6 +854,21 @@ public class RecordHeader {
      */
     static public void writeTrailer(byte[] array, int recordNumber,
                                     ByteOrder order, byte[] index) {
+        writeTrailer(array, 0, recordNumber, order, index);
+    }
+
+
+    /**
+     * Writes a trailer with an optional index array into the given byte array.
+     * @param array byte array to write trailer into.
+     * @param off   offset into array to start writing.
+     * @param recordNumber record number of trailer.
+     * @param order byte order of data to be written.
+     * @param index array of record lengths to be written to trailer
+     *              (must be multiple of 4 bytes). Null if no index array.
+     */
+    static public void writeTrailer(byte[] array, int off, int recordNumber,
+                                    ByteOrder order, byte[] index) {
 
         int indexLength = 0;
         int totalLength = HEADER_SIZE_BYTES;
@@ -862,27 +888,83 @@ public class RecordHeader {
 
         try {
             // First the general header part
-            ByteDataTransformer.toBytes(totalLength, order, array, 0*4);
-            ByteDataTransformer.toBytes(recordNumber, order, array, 1*4);
-            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 2*4);
-            ByteDataTransformer.toBytes(0, order, array, 3*4);
-            ByteDataTransformer.toBytes(indexLength, order, array, 4*4);
-            ByteDataTransformer.toBytes(bitInfo, order, array, 5*4);
-            ByteDataTransformer.toBytes(0, order, array, 6*4);
-            ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 7*4);
-            ByteDataTransformer.toBytes(0, order, array, 8*4);
-            ByteDataTransformer.toBytes(0, order, array, 9*4);
+            ByteDataTransformer.toBytes(totalLength,  order, array, 0*4 + off);
+            ByteDataTransformer.toBytes(recordNumber, order, array, 1*4 + off);
+            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 2*4 + off);
+            ByteDataTransformer.toBytes(0, order, array, 3*4 + off);
+            ByteDataTransformer.toBytes(indexLength, order, array, 4*4 + off);
+            ByteDataTransformer.toBytes(bitInfo, order, array, 5*4 + off);
+            ByteDataTransformer.toBytes(0, order, array, 6*4 + off);
+            ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 7*4 + off);
+            ByteDataTransformer.toBytes(0, order, array, 8*4 + off);
+            ByteDataTransformer.toBytes(0, order, array, 9*4 + off);
 
-            ByteDataTransformer.toBytes(0L, order, array, 10*4);
-            ByteDataTransformer.toBytes(0L, order, array, 12*4);
+            ByteDataTransformer.toBytes(0L, order, array, 10*4 + off);
+            ByteDataTransformer.toBytes(0L, order, array, 12*4 + off);
 
             // Second the index
             if (indexLength > 0) {
-                System.arraycopy(index, 0, array, 14 * 4, indexLength);
+                System.arraycopy(index, 0, array, 14 * 4 + off, indexLength);
             }
         }
         catch (EvioException e) {/* never happen */}
     }
+
+
+    /**
+     * Writes a trailer with an optional index array into the given byte array.
+     * @param buf   ByteBuffer to write trailer into.
+     * @param off   offset into buffer to start writing.
+     * @param recordNumber record number of trailer.
+     * @param order byte order of data to be written.
+     * @param index array of record lengths to be written to trailer
+     *              (must be multiple of 4 bytes). Null if no index array.
+     */
+    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
+                                    ByteOrder order, byte[] index) {
+
+        int indexLength = 0;
+        int totalLength = HEADER_SIZE_BYTES;
+        if (index != null) {
+            indexLength = index.length;
+            totalLength += indexLength;
+        }
+
+        // Check arg
+        if (buf == null || (buf.capacity() - off < totalLength)) {
+            // TODO: ERROR
+            return;
+        }
+
+        if (buf.hasArray()) {
+            writeTrailer(buf.array(), off, recordNumber, order, index);
+        }
+        else {
+            // TODO: the header type and "last record" bit are redundant
+            int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | LAST_RECORD_BIT | 6;
+
+            buf.position(off);
+
+            // First the general header part
+            buf.putInt(totalLength);
+            buf.putInt(recordNumber);
+            buf.putInt(HEADER_SIZE_WORDS);
+            buf.putInt(0);
+            buf.putInt(bitInfo);
+            buf.putInt(0);
+            buf.putInt(HEADER_MAGIC);
+            buf.putInt(0);
+            buf.putInt(0);
+            buf.putLong(0L);
+            buf.putLong(0L);
+
+            // Second the index
+            if (indexLength > 0) {
+                buf.put(index, 0, indexLength);
+            }
+        }
+    }
+
 
    /**
      * Writes the file (not record!) header into the given byte buffer.
@@ -948,11 +1030,13 @@ public class RecordHeader {
             }
         }
 
-        // Next look at the version #
+        // Look at the bit-info word
         int bitInfoWord = buffer.getInt(  5*4 + offset);
+
+        // Set padding and header type
+        decodeBitInfoWord(bitInfoWord);
         
-        //decodeBitInfoWord(bitInfoWord);
-        
+        // Look at the version #
         int version  = (bitInfoWord & 0xFF);
         if (version < headerVersion) {
             throw new HipoException("buffer is in evio format version " + version);
