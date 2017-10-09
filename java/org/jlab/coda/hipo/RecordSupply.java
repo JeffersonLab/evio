@@ -140,7 +140,7 @@ public class RecordSupply {
      * @param threadCount     number of threads simultaneously doing compression.
      *                        Must be <= ringSize.
      * @param maxEventCount   max number of events each record can hold.
-     *                        Value of O means use default (1M).
+     *                        Value <= O means use default (1M).
      * @param maxBufferSize   max number of uncompressed data bytes each record can hold.
      *                        Value of < 8MB results in default of 8MB.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
