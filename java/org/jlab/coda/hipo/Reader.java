@@ -110,8 +110,9 @@ public class Reader {
      * Reads record from the file from position index.
      * @param index record index
      * @return decoded record from the file
+     * @throws HipoException if file not in hipo format
      */
-    public boolean readRecord(int index){
+    public boolean readRecord(int index) throws HipoException {
         if(index>=0&&index<recordPositions.size()){
             RecordPosition pos = recordPositions.get(index);
             inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
@@ -140,8 +141,9 @@ public class Reader {
     private void scanFile(){
         
         byte[]     fileHeader = new byte[RecordHeader.HEADER_SIZE_BYTES];
-        RecordHeader   header = new RecordHeader();
-        
+        FileHeader header = new FileHeader();
+        RecordHeader recordHeader = new RecordHeader();
+
         try {
             
             inStreamRandom.getChannel().position(0L);
@@ -150,7 +152,7 @@ public class Reader {
             ByteBuffer buffer = ByteBuffer.wrap(fileHeader);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             
-            header.readFileHeader(buffer);
+            header.readHeader(buffer);
             //System.out.println(header.toString());
             
             int userHeaderWords = header.getUserHeaderLengthWords();            
@@ -168,13 +170,13 @@ public class Reader {
                 inStreamRandom.read(fileHeader);
                 ByteBuffer recordBuffer = ByteBuffer.wrap(fileHeader);
                 recordBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                header.readHeader(recordBuffer);
+                recordHeader.readHeader(recordBuffer);
                 //System.out.println(">>>>>==============================================");
-                //System.out.println(header.toString());
-                int offset = header.getLength();
+                //System.out.println(recordHeader.toString());
+                int offset = recordHeader.getLength();
                 RecordPosition pos = new RecordPosition(recordPosition);
                 pos.setLength(offset);
-                pos.setCount(header.getEntries());
+                pos.setCount(recordHeader.getEntries());
                 this.recordPositions.add(pos);
                 recordPosition += offset;
                 numberOfRecords++;
@@ -234,10 +236,10 @@ public class Reader {
         ByteBuffer eventBuffer = ByteBuffer.wrap(eventarray);
         
         for(int i = 0; i < reader.getRecordCount(); i++){
-            reader.readRecord(i);
             try {
+                reader.readRecord(i);
                 Thread.sleep(100);
-            } catch (InterruptedException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
             }
             int nevents = reader.getEventCount();
