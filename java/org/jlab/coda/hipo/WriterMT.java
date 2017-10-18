@@ -42,7 +42,7 @@ public class WriterMT implements AutoCloseable {
     /** The file channel, used for writing a file, derived from outStream. */
     private FileChannel  fileChannel;
     /** Header to write to file. */
-    private RecordHeader  fileHeader;
+    private FileHeader  fileHeader;
 
     // If writing to buffer ...
 
@@ -94,7 +94,7 @@ public class WriterMT implements AutoCloseable {
      */
     public WriterMT() {
         compressionThreadCount = 1;
-        fileHeader = new RecordHeader(HeaderType.EVIO_FILE);
+        fileHeader = new FileHeader(true); // evio file
         supply = new RecordSupply(8, byteOrder, compressionThreadCount,
                                   0, 0, 1);
 
@@ -150,7 +150,7 @@ public class WriterMT implements AutoCloseable {
             System.out.println("WriterMT: change to ring size = " + finalRingSize);
         }
 
-        fileHeader = new RecordHeader(HeaderType.EVIO_FILE);
+        fileHeader = new FileHeader(true);  // evio file
         supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
                                   maxEventCount, maxBufferSize, compressionType);
 
@@ -352,7 +352,7 @@ System.out.println("   Writer: thread INTERRUPTED");
      * Get the file header.
      * @return file header.
      */
-    public RecordHeader getFileHeader() {return fileHeader;}
+    public FileHeader getFileHeader() {return fileHeader;}
 
 //    /**
 //     * Get the internal record's header.
@@ -486,7 +486,10 @@ System.out.println("   Writer: thread INTERRUPTED");
         ByteBuffer buffer = ByteBuffer.wrap(array);
         buffer.order(byteOrder);
 
-        fileHeader.writeFileHeader(buffer, 0);
+        try {
+            fileHeader.writeHeader(buffer, 0);
+        }
+        catch (HipoException e) {/* never happen */}
         System.arraycopy(userHeader, 0, array,
                          RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
 
@@ -507,7 +510,10 @@ System.out.println("   Writer: thread INTERRUPTED");
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
-            RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
+            try {
+                FileHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
+            }
+            catch (HipoException e) {/* never happen */}
             writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
             outStream.write(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
         }
@@ -536,14 +542,17 @@ System.out.println("   Writer: thread INTERRUPTED");
             }
 
             // Place data into headerArray - both header and index
-            RecordHeader.writeTrailer(headerArray, recordNumber,
-                                      byteOrder, recordIndex);
+            try {
+                FileHeader.writeTrailer(headerArray, recordNumber,
+                                          byteOrder, recordIndex);
+            }
+            catch (HipoException e) {/* never happen */}
             writerBytesWritten += dataBytes;
             outStream.write(headerArray, 0, dataBytes);
         }
 
         // Find & update file header's trailer position word
-        outStream.seek(RecordHeader.TRAILER_POSITION_OFFSET);
+        outStream.seek(FileHeader.TRAILER_POSITION_OFFSET);
         if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
             outStream.writeLong(Long.reverseBytes(trailerPosition));
         }
@@ -554,9 +563,7 @@ System.out.println("   Writer: thread INTERRUPTED");
         // Find & update file header's bit-info word
         if (addTrailerIndex) {
             outStream.seek(RecordHeader.BIT_INFO_OFFSET);
-            int bitInfo = fileHeader.setBitInfoForFile(false,
-                                                       false,
-                                                       true);
+            int bitInfo = fileHeader.setBitInfo(false, false, true);
             if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
                 outStream.writeInt(Integer.reverseBytes(bitInfo));
             }
