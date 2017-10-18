@@ -40,7 +40,7 @@ public class Writer implements AutoCloseable {
     /** The file channel, used for writing a file, derived from outStream. */
     private FileChannel  fileChannel;
     /** Header to write to file. */
-    private RecordHeader  fileHeader;
+    private FileHeader  fileHeader;
 
     // If writing to buffer ...
     
@@ -75,7 +75,7 @@ public class Writer implements AutoCloseable {
      */
     public Writer(){
         outputRecord = new RecordOutputStream();
-        fileHeader   = new RecordHeader(HeaderType.EVIO_FILE);
+        fileHeader = new FileHeader(true);
     }
 
     /**
@@ -95,7 +95,7 @@ public class Writer implements AutoCloseable {
             byteOrder = order;
         }
         outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 1);
-        fileHeader   = new RecordHeader(HeaderType.EVIO_FILE);
+        fileHeader = new FileHeader(true);
     }
 
     /**
@@ -149,7 +149,7 @@ public class Writer implements AutoCloseable {
      * Get the file header.
      * @return file header.
      */
-    public RecordHeader getFileHeader() {return fileHeader;}
+    public FileHeader getFileHeader() {return fileHeader;}
 
     /**
      * Get the internal record's header.
@@ -259,16 +259,16 @@ public class Writer implements AutoCloseable {
 
         fileHeader.reset();
         fileHeader.setUserHeaderLength(userHeaderBytes);
-        // Amount of user data in bytes + padding
-        int userHeaderPaddedBytes = 4*fileHeader.getUserHeaderLengthWords();
-        int bytes = RecordHeader.HEADER_SIZE_BYTES + userHeaderPaddedBytes;
-        fileHeader.setLength(bytes);
 
-        byte[] array = new byte[bytes];
+        byte[] array = new byte[fileHeader.getLength()];
         ByteBuffer buffer = ByteBuffer.wrap(array);
         buffer.order(byteOrder);
 
-        fileHeader.writeFileHeader(buffer, 0);
+        try {
+            fileHeader.writeHeader(buffer, 0);
+        }
+        catch (HipoException e) {/* never happen */}
+        
         System.arraycopy(userHeader, 0, array,
                          RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
 
@@ -284,12 +284,16 @@ public class Writer implements AutoCloseable {
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
-            RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
             try {
+                FileHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
                 // TODO: not really necessary to keep track here?
                 writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
                 outStream.write(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
-            } catch (IOException ex) {
+            }
+            catch (HipoException ex) {
+                // never happen
+            }
+            catch (IOException ex) {
                 Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
             }
             return;
@@ -318,14 +322,18 @@ public class Writer implements AutoCloseable {
             headerArray = new byte[dataBytes];
         }
 
-        // Place data into headerArray - both header and index
-        RecordHeader.writeTrailer(headerArray, recordNumber,
-                                  byteOrder, recordIndex);
         try {
+            // Place data into headerArray - both header and index
+        FileHeader.writeTrailer(headerArray, recordNumber,
+                                  byteOrder, recordIndex);
             // TODO: not really necessary to keep track here?
             writerBytesWritten += dataBytes;
             outStream.write(headerArray, 0, dataBytes);
-        } catch (IOException ex) {
+        }
+        catch (HipoException ex) {
+            // never happen
+        }
+        catch (IOException ex) {
             Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -451,7 +459,7 @@ public class Writer implements AutoCloseable {
                 writeTrailer(addTrailerIndex);
 
                 // Find & update file header's trailer position word
-                outStream.seek(RecordHeader.TRAILER_POSITION_OFFSET);
+                outStream.seek(FileHeader.TRAILER_POSITION_OFFSET);
                 if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
                     outStream.writeLong(Long.reverseBytes(trailerPosition));
                 }
@@ -462,9 +470,7 @@ public class Writer implements AutoCloseable {
                 // Find & update file header's bit-info word
                 if (addTrailerIndex) {
                     outStream.seek(RecordHeader.BIT_INFO_OFFSET);
-                    int bitInfo = fileHeader.setBitInfoForFile(false,
-                                                               false,
-                                                               true);
+                    int bitInfo = fileHeader.setBitInfo(false, false, true);
                     if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
                         outStream.writeInt(Integer.reverseBytes(bitInfo));
                     }
