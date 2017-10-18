@@ -519,7 +519,10 @@ public class RecordOutputStream {
             header.setCompressedDataLength(0);
             header.setLength(RecordHeader.HEADER_SIZE_BYTES);
             recordBinary.position(0);
-            header.writeHeader(recordBinary);
+            try {
+                header.writeHeader(recordBinary);
+            }
+            catch (HipoException e) {/* never happen */}
             recordBinary.position(0).limit(RecordHeader.HEADER_SIZE_BYTES);
             return;
         }
@@ -544,6 +547,7 @@ public class RecordOutputStream {
         }
 
         // Since hipo/evio data is padded, all data to be written is already padded
+        // TODO: This does NOT include padding. Shouldn't we do that?
         int uncompressedDataSize = indexSize + eventSize;
         int compressedSize;
 
@@ -633,7 +637,10 @@ public class RecordOutputStream {
         // Go back and write header into destination buffer
         recordBinary.position(0);
         //System.out.println(header.toString());
-        header.writeHeader(recordBinary);
+        try {
+            header.writeHeader(recordBinary);
+        }
+        catch (HipoException e) {/* never happen */}
 
         // Make ready to read
         recordBinary.position(0).limit(header.getLength());
@@ -702,6 +709,7 @@ public class RecordOutputStream {
 
             // 3) uncompressed data array (hipo/evio data is already padded)
             recordData.put(recordEvents.array(), 0, eventSize);
+            // TODO: This does NOT include padding. Shouldn't we do that?
             uncompressedDataSize += eventSize;
         }
         // If NOT compressing data ...
@@ -729,6 +737,7 @@ public class RecordOutputStream {
 
             // 3) uncompressed data array (hipo/evio data is already padded)
             recordBinary.put(recordEvents.array(), 0, eventSize);
+            // TODO: This does NOT include padding. Shouldn't we do that?
             uncompressedDataSize += eventSize;
         }
 
@@ -812,7 +821,10 @@ public class RecordOutputStream {
 
         // Go back and write header into destination buffer
         recordBinary.position(0);
-        header.writeHeader(recordBinary);
+        try {
+            header.writeHeader(recordBinary);
+        }
+        catch (HipoException e) {/* never happen */}
 
         // Make ready to read
         recordBinary.position(0).limit(header.getLength());
