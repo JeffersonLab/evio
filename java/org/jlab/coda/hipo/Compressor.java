@@ -11,10 +11,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import net.jpountz.lz4.LZ4Compressor;
-import net.jpountz.lz4.LZ4Exception;
-import net.jpountz.lz4.LZ4Factory;
-import net.jpountz.lz4.LZ4SafeDecompressor;
+
+import net.jpountz.lz4.*;
 
 /**
  * Singleton class used to provide data compression and decompression in a variety of formats.
@@ -40,7 +38,7 @@ public class Compressor {
     private static LZ4Compressor lz4_compressor;
     /** Slowest but best LZ4 compressor. */
     private static LZ4Compressor lz4_compressor_best;
-    /** Decompressor for LZ4. */
+    /** Decompressor for LZ4 if decompressed size unknown. */
     private static LZ4SafeDecompressor lz4_decompressor;
 
 
@@ -70,28 +68,50 @@ public class Compressor {
 
     /**
      * Returns compressed buffer. Depends on compression type.
-     * @param compressionType compression type.
+     * @param compressionType type of data compression to do
+     *                        (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     *                        Default to none.
      * @param buffer uncompressed buffer.
      * @return compressed buffer.
      */
     public static byte[] getCompressedBuffer(int compressionType, byte[] buffer){
-        if (compressionType == RECORD_COMPRESSION_GZIP){
-            return Compressor.compressGZIP(buffer);
+        switch(compressionType) {
+            case RECORD_COMPRESSION_GZIP:
+                return Compressor.compressGZIP(buffer);
+            case RECORD_COMPRESSION_LZ4_BEST:
+                return lz4_compressor_best.compress(buffer);
+            case RECORD_COMPRESSION_LZ4:
+                return lz4_compressor.compress(buffer);
+            case RECORD_UNCOMPRESSED:
+            default:
+                return buffer;
         }
-        return buffer;
     }
 
     /**
      * Returns uncompressed buffer. Depends on compression type.
-     * @param compressionType compression type.
-     * @param compressedBuffer compressed buffer.
-     * @return uncompressed buffer.
+     * @param compressionType type of data compression to undo
+     *                        (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     *                        Default to none.
+     * @param compressedBuffer uncompressed array.
+     * @return uncompressed array.
+     * @throws LZ4Exception if not enough room in allocated array
+     *                      (3x compressed) to hold LZ4 uncompressed data.
      */
-    public static byte[] getUnCompressedBuffer(int compressionType, byte[] compressedBuffer){
-        if(compressionType == RECORD_COMPRESSION_GZIP){
-            return Compressor.uncompressGZIP(compressedBuffer);
+    public static byte[] getUnCompressedBuffer(int compressionType, byte[] compressedBuffer)
+                                throws LZ4Exception {
+        switch(compressionType) {
+            case RECORD_COMPRESSION_GZIP:
+                return Compressor.uncompressGZIP(compressedBuffer);
+            case RECORD_COMPRESSION_LZ4_BEST:
+            case RECORD_COMPRESSION_LZ4:
+                // Only works if did NOT get more than 3x compression originally.
+                // Computationally expensive method.
+                return lz4_decompressor.decompress(compressedBuffer, 3*compressedBuffer.length);
+            case RECORD_UNCOMPRESSED:
+            default:
+                return compressedBuffer;
         }
-        return compressedBuffer;
     }
 
     /**
@@ -142,7 +162,7 @@ public class Compressor {
         try {
             final GZIPInputStream inputStream = new GZIPInputStream(new ByteArrayInputStream(gzipped), Compressor.MTU);
             
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(gzipped.length);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(2*gzipped.length);
             final byte[] buffer = new byte[Compressor.MTU];
             int bytesRead = 0;
             while (bytesRead != -1) {
@@ -161,6 +181,40 @@ public class Compressor {
         }
         return ungzipped;
     }
+
+    /**
+     * GZIP decompression. Returns uncompressed byte array.
+     * @param gzipped compressed data.
+     * @param off     offset into gzipped array.
+     * @param length  max number of bytes to read from gzipped.
+     * @return uncompressed data.
+     */
+    public static byte[] uncompressGZIP(byte[] gzipped, int off, int length) {
+        byte[] ungzipped = new byte[0];
+        try {
+            final GZIPInputStream inputStream = new GZIPInputStream(
+                    new ByteArrayInputStream(gzipped, off, length), Compressor.MTU);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(2*length);
+            final byte[] buffer = new byte[Compressor.MTU];
+            int bytesRead = 0;
+            while (bytesRead != -1) {
+                bytesRead = inputStream.read(buffer, 0, Compressor.MTU);
+                if (bytesRead != -1) {
+                    byteArrayOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
+            ungzipped = byteArrayOutputStream.toByteArray();
+            inputStream.close();
+            byteArrayOutputStream.close();
+        } catch (IOException e) {
+            //LOG.error("Could not ungzip. Heartbeat will not be working. " + e.getMessage());
+            System.out.println("[Evio::compressor] ERROR: could not uncompress the array. \n"
+                    + e.getMessage());
+        }
+        return ungzipped;
+    }
+
 
     /**
      * Fastest LZ4 compression. Returns length of compressed data in bytes.
