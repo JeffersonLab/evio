@@ -11,12 +11,11 @@ import org.jlab.coda.jevio.EvioException;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 /**
- * Generic HEADER class to compose a record header or file header
- * with given buffer sizes and paddings and compression types.<p>
- *
  * <pre>
+ *
  * GENERAL RECORD HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
  *
  *    +----------------------------------+
@@ -29,7 +28,7 @@ import java.nio.ByteOrder;
  *  4 +       Event (Index) Count        |
  *    +----------------------------------+
  *  5 +      Index Array Length          | // bytes
- *    +-----------------------+---------+
+ *    +-----------------------+----------+
  *  6 +       Bit Info        | Version  | // version (8 bits)
  *    +-----------------------+----------+
  *  7 +      User Header Length          | // bytes
@@ -83,57 +82,6 @@ import java.nio.ByteOrder;
  *
  *
  * ------------------------------------------------------------
- * ------------------------------------------------------------
- *
- * FILE HEADER STRUCTURE ( 56 bytes, 14 integers (32 bit) )
- *
- *    +----------------------------------+
- *  1 |              ID                  | // HIPO: 0x43455248, Evio: 0x4556494F
- *    +----------------------------------+
- *  2 +          File Number             | // split file #
- *    +----------------------------------+
- *  3 +         Header Length            | // 14 (words)
- *    +----------------------------------+
- *  4 +      Record (Index) Count        |
- *    +----------------------------------+
- *  5 +      Index Array Length          | // bytes
- *    +-----------------------+---------+
- *  6 +       Bit Info        | Version  | // version (8 bits)
- *    +-----------------------+----------+
- *  7 +      User Header Length          | // bytes
- *    +----------------------------------+
- *  8 +          Magic Number            | // 0xc0da0100
- *    +----------------------------------+
- *  9 +     Uncompressed Data Length     | // 0 (bytes)
- *    +------+---------------------------+
- * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits); compressed len in words
- *    +----------------------------------+
- * 11 +         Trailer Position         | // File offset to trailer head (64 bits).
- *    +--                              --+ // 0 = no offset available or no trailer exists.
- * 12 +                                  |
- *    +----------------------------------+
- * 13 +          User Integer 1          |
- *    +----------------------------------+
- * 14 +          User Integer 2          |
- *    +----------------------------------+
- *
- * -------------------
- *   Bit Info Word
- * -------------------
- *     0-7  = version
- *     8    = true if dictionary is included (relevant for first record only)
- *     9    = true if this file has "first" event (in every split file)
- *    10    = File trailer with index array exists
- *    11-19 = reserved
- *    20-21 = pad 1
- *    22-23 = pad 2
- *    24-25 = pad 3 (always 0)
- *    26-27 = reserved
- *    28-31 = general header type: 1 = Evio file
- *                                 2 = Evio extended file
- *                                 5 = HIPO file
- *                                 6 = HIPO extended file
- *
  * </pre>
  *
  * @version 6.0
@@ -145,10 +93,6 @@ public class RecordHeader {
 
     /** Array to help find number of bytes to pad data. */
     private final static int[] padValue = {0,3,2,1};
-    /** First word in every HIPO file for identification purposes. */
-    public final static int   HIPO_FILE_UNIQUE_WORD = 0x4F504948; // 0x4849504F = HIPO
-    /** First word in every Evio file for identification purposes. */
-    public final static int   EVIO_FILE_UNIQUE_WORD = 0x4556494F; // = EVIO
     /** Number of 32-bit words in a normal sized header. */
     public final static int   HEADER_SIZE_WORDS = 14;
     /** Number of bytes in a normal sized header. */
@@ -162,8 +106,6 @@ public class RecordHeader {
 
     // Byte offset to header words
 
-    /** Number of bytes from beginning of file header to write trailer position. */
-    public final static int   TRAILER_POSITION_OFFSET = 40;
     /** Number of bytes from beginning of file header to write bit info word. */
     public final static int   BIT_INFO_OFFSET = 20;
 
@@ -171,12 +113,8 @@ public class RecordHeader {
     
     /** 8th bit set in bitInfo word in record/file header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
-    /** 9th bit set in bitInfo word in file header means every split file has same first event. */
-    final static int   HAS_FIRST_EVENT_BIT = 0x200;
     /** 9th bit set in bitInfo word in record header means is last in stream or file. */
     final static int   LAST_RECORD_BIT = 0x200;
-    /** 10th bit set in bitInfo word in file header means file trailer with index array exists. */
-    final static int   TRAILER_WITH_INDEX_BIT = 0x400;
 
     /** 10-13th bits in bitInfo word in record header for CODA data type, ROC raw = 0. */
     final static int   DATA_ROC_RAW_BITS = 0x000;
@@ -193,24 +131,9 @@ public class RecordHeader {
     /** 10-13th bits in bitInfo word in record header for CODA data type, other = 15. */
     final static int   DATA_OTHER_BITS   = 0x3C00;
 
-    // File header only
 
-    /** File id for file identification purposes. Defaults to evio file.
-      * Only valid if file header. 1st word. */
-    private int  fileId = EVIO_FILE_UNIQUE_WORD;
-    /** File number or split file number, starting at 1. Only valid if file header. 2nd word. */
-    private int  fileNumber = 1;
-    /** Position of trailing header from start of file in bytes. Only valid if file header. 11th word. */
-    private long trailerPosition;
-    /** First user-defined integer in file header. Only valid if file header. 13th word. */
-    private int  userIntFirst;
-    /** Second user-defined integer in file header. Only valid if file header. 14th word. */
-    private int  userIntSecond;
     /** Position of this header in a file. */
     private long position;
-
-    // Record header only
-
     /** Length of the entire record this header is a part of (bytes). */
     private int  recordLength;
     /** Length of the entire record this header is a part of (32-bit words). 1st word. */
@@ -222,10 +145,9 @@ public class RecordHeader {
     /** Second user-defined 64-bit register. 13th and 14th words. */
     private long recordUserRegisterSecond;
 
-    // All headers
 
-    /** Type of header this is. Normal evio record by default. */
-    private HeaderType headerType = HeaderType.EVIO_RECORD;
+    /** Type of header this is. Normal HIPO record by default. */
+    private HeaderType headerType = HeaderType.HIPO_RECORD;
     /** Event or record count. 4th word. */
     private int  entries;
     /** BitInfo & version. 6th word. */
@@ -236,7 +158,7 @@ public class RecordHeader {
     private int  headerLengthWords = HEADER_SIZE_WORDS;
     /** Length of user-defined header (bytes). 7th word. */
     private int  userHeaderLength;
-    /** Length of user-defined header when padded (words). 7th word. */
+    /** Length of user-defined header when padded (words). */
     private int  userHeaderLengthWords;
     /** Length of index array (bytes). 5th word. */
     private int  indexLength;
@@ -276,14 +198,12 @@ public class RecordHeader {
     /**
      * Constructor which sets the type of header this is.
      * @param type  type of header this is
+     * @throws HipoException if type is for file
      */
-    public RecordHeader(HeaderType type) {
+    public RecordHeader(HeaderType type) throws HipoException {
         headerType = type;
-        if (type.isEvioFileHeader()) {
-            fileId = EVIO_FILE_UNIQUE_WORD;
-        }
-        else if (type.isHipoFileHeader()) {
-            fileId = HIPO_FILE_UNIQUE_WORD;
+        if (type.isFileHeader()) {
+            throw new HipoException("use FileHeader class for a file");
         }
     }
 
@@ -304,22 +224,14 @@ public class RecordHeader {
     public void copy(RecordHeader head) {
         if (head == null) return;
 
-        // file header only
-        fileId          = head.fileId;
-        fileNumber      = head.fileNumber;
-        trailerPosition = head.trailerPosition;
-        userIntFirst    = head.userIntFirst;
-        userIntSecond   = head.userIntSecond;
-        position        = head.position;
+        position                 = head.position;
 
-        // record header only
         recordLength             = head.recordLength;
         recordNumber             = head.recordNumber;
         recordLengthWords        = head.recordLengthWords;
         recordUserRegisterFirst  = head.recordUserRegisterFirst;
         recordUserRegisterSecond = head.recordUserRegisterSecond;
 
-        // all headers
         headerType                = head.headerType;
         entries                   = head.entries;
         bitInfo                   = head.bitInfo;
@@ -343,25 +255,16 @@ public class RecordHeader {
 
     /** Reset generated data. */
     public void reset(){
-        // file header only
-        // Do NOT reset fileId which is only set in constructor!
-        //fileId = EVIO_FILE_UNIQUE_WORD;
-        fileNumber = 1;
-        trailerPosition = 0L;
-        userIntFirst  = 0;
-        userIntSecond = 0;
+        // Do NOT reset header type which is only set in constructor!
+        // Do NOT reset the compression type
         position = 0L;
 
-        // record header only
         recordLength = 0;
         recordNumber = 0;
         recordLengthWords = 0;
         recordUserRegisterFirst = 0L;
         recordUserRegisterSecond = 0L;
 
-        // all headers
-        // Do NOT reset header type which is only set in constructor!
-        //headerType = HeaderType.EVIO_RECORD;
         entries = 0;
         bitInfo = -1;
         headerLength = HEADER_SIZE_BYTES;
@@ -373,8 +276,6 @@ public class RecordHeader {
         dataLengthWords = 0;
         compressedDataLength = 0;
         compressedDataLengthWords = 0;
-        // Do NOT reset the compression type
-        //compressionType = 0;
 
         userHeaderLengthPadding = 0;
         dataLengthPadding = 0;
@@ -386,7 +287,7 @@ public class RecordHeader {
      * @param length length in bytes.
      * @return length in bytes padded to 4-byte boundary.
      */
-    static int getWords(int length){
+    private static int getWords(int length){
         int words = length/4;
         if (getPadding(length) > 0) words++;
         return words;
@@ -397,64 +298,7 @@ public class RecordHeader {
      * @param length length in bytes.
      * @return number of bytes needed to pad to 4-byte boundary.
      */
-    static int getPadding(int length) {return padValue[length%4];}
-
-    //-----------------------
-    // File header related
-    //-----------------------
-
-    /**
-     * Get the file number or split number. Valid only if this is a file header.
-     * @return file number.
-     */
-    public int  getFileNumber() {return fileNumber;}
-
-    /**
-     * Get the file id. Valid only if this is a file header.
-     * @return file id.
-     */
-    public int  getFileId() {return fileId;}
-
-    /**
-     * Get the trailer's (trailing header's) file position in bytes.
-     * Valid only if this is a file header.
-     * @return trailer's (trailing header's) file position in bytes.
-     */
-    public long  getTrailerPosition() {return trailerPosition;}
-
-    /**
-     * Get the first user integer value. Valid only if this is a file header.
-     * @return first user integer value.
-     */
-    public int  getUserIntFirst() {return userIntFirst;}
-
-    /**
-     * Get the second user integer value. Valid only if this is a file header.
-     * @return second user integer value.
-     */
-    public int  getUserIntSecond() {return userIntSecond;}
-
-    /**
-     * Get the file number which is the split number starting at 1. Valid only if this is a file header.
-     * @return file number starting at 1.
-     */
-    public RecordHeader  setFileNumber(int num) {fileNumber = num; return this;}
-
-    /**
-     * Get the first user integer. Valid only if this is a file header.
-     * @return first user integer.
-     */
-    public RecordHeader  setUserIntFirst(int val) {userIntFirst  = val; return this;}
-
-    /**
-     * Get the second user integer. Valid only if this is a file header.
-     * @return second user integer.
-     */
-    public RecordHeader  setUserIntSecond(int val){userIntSecond = val; return this;}
-
-    //-----------------------
-    // Record header related
-    //-----------------------
+    private static int getPadding(int length) {return padValue[length%4];}
 
     // Getters
 
@@ -524,7 +368,11 @@ public class RecordHeader {
      */
     public int  getCompressedDataLength() {return compressedDataLength;}
 
-    public int getCompressedDataLengthPadding(){ return this.compressedDataLengthPadding;}
+    /**
+     * Get the padding of the compressed data in bytes.
+     * @return padding of the compressed data in bytes.
+     */
+    public int getCompressedDataLengthPadding() {return this.compressedDataLengthPadding;}
     
     /**
      * Get the length of the compressed data in words (padded).
@@ -572,7 +420,7 @@ public class RecordHeader {
         // If bitInfo uninitialized, do so now
         if (bitInfo < 0) {
             // This will init the same whether file or record header
-            setBitInfoForRecord(false, false);
+            setBitInfo(false, false);
         }
         return bitInfo;
     }
@@ -583,13 +431,13 @@ public class RecordHeader {
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
      */
-    public int  setBitInfoForRecord(boolean isLastRecord,
-                                    boolean haveDictionary) {
+    public int  setBitInfo(boolean isLastRecord,
+                           boolean haveDictionary) {
 
-        bitInfo = (headerType.getValue() << 28) |
+        bitInfo = (headerType.getValue()       << 28) |
                   (compressedDataLengthPadding << 24) |
-                  (dataLengthPadding << 22) |
-                  (userHeaderLengthPadding << 20) |
+                  (dataLengthPadding           << 22) |
+                  (userHeaderLengthPadding     << 20) |
                   (headerVersion & 0xFF);
 
         if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
@@ -599,32 +447,8 @@ public class RecordHeader {
     }
 
     /**
-     * Set the bit info word for a file header.
-     * @param haveFirst  true if file has first event.
-     * @param haveDictionary  true if file has dictionary in user header.
-     * @param haveTrailerWithIndex  true if file has trailer with record length index.
-     * @return new bit info word.
-     */
-    public int  setBitInfoForFile(boolean haveFirst,
-                                  boolean haveDictionary,
-                                  boolean haveTrailerWithIndex) {
-
-        bitInfo = (headerType.getValue() << 28) |
-                  (compressedDataLengthPadding << 24) |
-                  (dataLengthPadding << 22) |
-                  (userHeaderLengthPadding << 20) |
-                  (headerVersion & 0xFF);
-
-        if (haveFirst) bitInfo |= HAS_FIRST_EVENT_BIT;
-        if (haveDictionary) bitInfo |= DICTIONARY_BIT;
-        if (haveTrailerWithIndex) bitInfo |= TRAILER_WITH_INDEX_BIT;
-
-        return bitInfo;
-    }
-
-    /**
      * Set the bit info of a record header for a specified CODA data type.
-     * Must be called AFTER {@link #setBitInfoForRecord(boolean, boolean)} or
+     * Must be called AFTER {@link #setBitInfo(boolean, boolean)} or
      * {@link #setBitInfoWord(int)} in order to have change preserved.
      * @return new bit info word.
      * @param type data type (0=ROC raw, 1=Physics, 2=Partial Physics,
@@ -654,10 +478,46 @@ public class RecordHeader {
     }
 
     /**
-     * Set the bit info word.
+     * Set the bit info word and related values.
      * @param word  bit info word.
      */
-    void  setBitInfoWord(int word) {bitInfo = word;}
+    void  setBitInfoWord(int word) {
+        bitInfo = word;
+        decodeBitInfoWord(word);
+    }
+
+    /**
+     * decodes the padding words
+     * @param word
+     */
+    private void decodeBitInfoWord(int word){
+        // Padding
+        this.compressedDataLengthPadding = (word >>> 24) & 0x3;
+        this.dataLengthPadding           = (word >>> 22) & 0x3;
+        this.userHeaderLengthPadding     = (word >>> 20) & 0x3;
+
+        // Header type
+        headerType =  HeaderType.getHeaderType(word >>> 28);
+        if (headerType == null) {
+            headerType = HeaderType.EVIO_RECORD;
+        }
+    }
+
+    /**
+     * Does this header have a dictionary in the user header?
+     * @return true if header has a dictionary in the user header, else false.
+     */
+    public boolean hasDictionary() {
+        return ((bitInfo & DICTIONARY_BIT) != 0);
+    }
+
+    /**
+     * Is this the header of the last record?
+     * @return true this is the header of the last record, else false.
+     */
+    public boolean isLastRecord() {
+        return ((bitInfo & LAST_RECORD_BIT) != 0);
+    }
 
     // Setters
 
@@ -689,8 +549,8 @@ public class RecordHeader {
      * @return this object.
      */
     public RecordHeader  setLength(int length) {
-        recordLength        = length;
-        recordLengthWords   = length/4;
+        recordLength      = length;
+        recordLengthWords = length/4;
         //System.out.println(" LENGTH = " + recordLength + "  WORDS = " + this.recordLengthWords
         //+ "  SIZE = " + recordLengthWords*4 );
         return this;
@@ -789,98 +649,78 @@ public class RecordHeader {
      */
     public RecordHeader setUserRegisterSecond(long reg) {recordUserRegisterSecond = reg; return this;}
 
-    /**
-     * decodes the padding words
-     * @param word 
-     */
-    private void decodeBitInfoWord(int word){
-        // Padding
-        this.compressedDataLengthPadding = (word >>> 24)&0x0003;
-        this.dataLengthPadding           = (word >>> 22)&0x0003;
-        this.userHeaderLengthPadding     = (word >>> 20)&0x0003;
-
-        // Header type
-        headerType =  HeaderType.getHeaderType(word >>> 28);
-        if (headerType == null) {
-            headerType = HeaderType.EVIO_RECORD;
-        }
-
-        
-    }
-
     //-------------------------------------------------
     /**
      * Writes this header into the given byte buffer.
      * Position & limit of given buffer does NOT change.
-     * @param buffer byte buffer to write header into.
-     * @param offset position in buffer to begin writing.
+     * @param buf byte buffer to write header into.
+     * @param off position in buffer to begin writing.
+     * @throws HipoException if buffer is null or contains too little room.
      */
-    public void writeHeader(ByteBuffer buffer, int offset){
+    public void writeHeader(ByteBuffer buf, int off) throws HipoException {
 
-        buffer.putInt( 0*4 + offset, recordLengthWords);
-        buffer.putInt( 1*4 + offset, recordNumber);
-        buffer.putInt( 2*4 + offset, headerLengthWords);
-        buffer.putInt( 3*4 + offset, entries);
-        buffer.putInt( 4*4 + offset, indexLength);
-        buffer.putInt( 5*4 + offset, getBitInfoWord());
-        buffer.putInt( 6*4 + offset, userHeaderLength);
-        buffer.putInt( 7*4 + offset, headerMagicWord);
+        // Check arg
+        if (buf == null || (buf.capacity() - off) < HEADER_SIZE_BYTES) {
+            throw new HipoException("null or too small buf arg");
+        }
 
-        int compressedWord = ( compressedDataLengthWords & 0x0FFFFFFF) |
-                ((compressionType & 0x0000000F) << 28);
-        buffer.putInt( 8*4 + offset, dataLength);
-        buffer.putInt( 9*4 + offset, compressedWord);
+        int compressedWord =  (compressedDataLengthWords & 0x0FFFFFFF) |
+                             ((compressionType & 0xF) << 28);
 
-        buffer.putLong( 10*4 + offset, recordUserRegisterFirst);
-        buffer.putLong( 12*4 + offset, recordUserRegisterSecond);
+        buf.putInt (     off, recordLengthWords);        //  0*4
+        buf.putInt ( 4 + off, recordNumber);             //  1*4
+        buf.putInt ( 8 + off, headerLengthWords);        //  2*4
+        buf.putInt (12 + off, entries);                  //  3*4
+        buf.putInt (16 + off, indexLength);              //  4*4
+        buf.putInt (20 + off, getBitInfoWord());         //  5*4
+        buf.putInt (24 + off, userHeaderLength);         //  6*4
+        buf.putInt (28 + off, headerMagicWord);          //  7*4
+        buf.putInt (32 + off, dataLength);               //  8*4
+        buf.putInt (36 + off, compressedWord);           //  9*4
+        buf.putLong(40 + off, recordUserRegisterFirst);  // 10*4
+        buf.putLong(48 + off, recordUserRegisterSecond); // 12*4
     }
 
     /**
      * Writes this header into the given byte buffer starting at the beginning.
      * Position & limit of given buffer does NOT change.
      * @param buffer byte buffer to write header into.
+     * @throws HipoException if buffer is null, contains too little room.
      */
-    public void writeHeader(ByteBuffer buffer){
+    public void writeHeader(ByteBuffer buffer) throws HipoException {
         writeHeader(buffer,0);
     }
 
     /**
-     * Writes a trailer with an optional index array into the given byte array.
+     * Writes an empty trailer into the given byte array.
      * @param array byte array to write trailer into.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
-     * @param index array of record lengths to be written to trailer
-     *              (must be multiple of 4 bytes). Null if no index array.
+     * @throws HipoException if array arg is null or too small to hold trailer
      */
-    static public void writeTrailer(byte[] array, int recordNumber,
-                                    ByteOrder order, byte[] index) {
-        writeTrailer(array, 0, recordNumber, order, index);
+    static public void writeTrailer(byte[] array, int recordNumber, ByteOrder order)
+            throws HipoException {
+        writeTrailer(array, 0, recordNumber, order);
     }
 
-
     /**
-     * Writes a trailer with an optional index array into the given byte array.
+     * Writes an empty trailer into the given byte array.
      * @param array byte array to write trailer into.
      * @param off   offset into array to start writing.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
-     * @param index array of record lengths to be written to trailer
-     *              (must be multiple of 4 bytes). Null if no index array.
+     * @throws HipoException if array arg is null or too small to hold trailer
      */
     static public void writeTrailer(byte[] array, int off, int recordNumber,
-                                    ByteOrder order, byte[] index) {
+                                    ByteOrder order)
+            throws HipoException {
 
         int indexLength = 0;
         int totalLength = HEADER_SIZE_BYTES;
-        if (index != null) {
-            indexLength = index.length;
-            totalLength += indexLength;
-        }
 
         // Check arg
         if (array == null || array.length < totalLength) {
-            // TODO: ERROR
-            return;
+            throw new HipoException("null or too small array arg");
         }
 
         // TODO: the header type and "last record" bit are redundant
@@ -888,56 +728,41 @@ public class RecordHeader {
 
         try {
             // First the general header part
-            ByteDataTransformer.toBytes(totalLength,  order, array, 0*4 + off);
-            ByteDataTransformer.toBytes(recordNumber, order, array, 1*4 + off);
-            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 2*4 + off);
-            ByteDataTransformer.toBytes(0, order, array, 3*4 + off);
-            ByteDataTransformer.toBytes(indexLength, order, array, 4*4 + off);
-            ByteDataTransformer.toBytes(bitInfo, order, array, 5*4 + off);
-            ByteDataTransformer.toBytes(0, order, array, 6*4 + off);
-            ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 7*4 + off);
-            ByteDataTransformer.toBytes(0, order, array, 8*4 + off);
-            ByteDataTransformer.toBytes(0, order, array, 9*4 + off);
-
-            ByteDataTransformer.toBytes(0L, order, array, 10*4 + off);
-            ByteDataTransformer.toBytes(0L, order, array, 12*4 + off);
-
-            // Second the index
-            if (indexLength > 0) {
-                System.arraycopy(index, 0, array, 14 * 4 + off, indexLength);
-            }
+            ByteDataTransformer.toBytes(totalLength,  order, array, off);          // 0*4
+            ByteDataTransformer.toBytes(recordNumber, order, array, 4 + off);      // 1*4
+            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8 + off); // 2*4
+            ByteDataTransformer.toBytes(0, order, array, 12 + off);                // 3*4
+            ByteDataTransformer.toBytes(indexLength, order, array, 16 + off);      // 4*4
+            ByteDataTransformer.toBytes(bitInfo, order, array, 20 + off);          // 5*4
+            ByteDataTransformer.toBytes(0, order, array, 24 + off);                // 6*4
+            ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 28 + off);     // 7*4
+            // The rest is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
+            Arrays.fill(array, 32 + off, 56 + off, (byte)0);
         }
         catch (EvioException e) {/* never happen */}
     }
 
-
     /**
-     * Writes a trailer with an optional index array into the given byte array.
+     * Writes an empty trailer into the given buffer.
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
-     * @param index array of record lengths to be written to trailer
-     *              (must be multiple of 4 bytes). Null if no index array.
+     * @throws HipoException if buf arg is null or too small to hold trailer
      */
     static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
-                                    ByteOrder order, byte[] index) {
+                                    ByteOrder order)
+            throws HipoException {
 
-        int indexLength = 0;
         int totalLength = HEADER_SIZE_BYTES;
-        if (index != null) {
-            indexLength = index.length;
-            totalLength += indexLength;
-        }
 
         // Check arg
         if (buf == null || (buf.capacity() - off < totalLength)) {
-            // TODO: ERROR
-            return;
+            throw new HipoException("null or too small buf arg");
         }
 
         if (buf.hasArray()) {
-            writeTrailer(buf.array(), off, recordNumber, order, index);
+            writeTrailer(buf.array(), off, recordNumber, order);
         }
         else {
             // TODO: the header type and "last record" bit are redundant
@@ -953,50 +778,11 @@ public class RecordHeader {
             buf.putInt(bitInfo);
             buf.putInt(0);
             buf.putInt(HEADER_MAGIC);
-            buf.putInt(0);
-            buf.putInt(0);
             buf.putLong(0L);
             buf.putLong(0L);
-
-            // Second the index
-            if (indexLength > 0) {
-                buf.put(index, 0, indexLength);
-            }
+            buf.putLong(0L);
         }
     }
-
-
-   /**
-     * Writes the file (not record!) header into the given byte buffer.
-     * @param buffer byte buffer to write file header into.
-     * @param offset position in buffer to begin writing.
-     */
-    public void writeFileHeader(ByteBuffer buffer, int offset){
-
-        buffer.putInt( 0*4 + offset, fileId);
-        buffer.putInt( 1*4 + offset, fileNumber);
-        buffer.putInt( 2*4 + offset, headerLengthWords);
-        buffer.putInt( 3*4 + offset, entries);
-        buffer.putInt( 4*4 + offset, indexLength);
-        buffer.putInt( 5*4 + offset, getBitInfoWord());
-        buffer.putInt( 6*4 + offset, userHeaderLength);
-        buffer.putInt( 7*4 + offset, headerMagicWord);
-
-        int compressedWord = ( compressedDataLengthWords & 0x0FFFFFFF) |
-                ((compressionType & 0x0000000F) << 28);
-        buffer.putInt( 8*4 + offset, dataLength);
-        buffer.putInt( 9*4 + offset, compressedWord);
-
-        buffer.putLong( 10*4 + offset, trailerPosition);
-        buffer.putInt ( 12*4 + offset, userIntFirst);
-        buffer.putInt ( 13*4 + offset, userIntSecond);
-    }
-
-    /**
-     * Writes the file (not record!) header into the given byte buffer starting at beginning.
-     * @param buffer byte buffer to write file header into.
-     */
-    public void writeFileHeader(ByteBuffer buffer) {writeFileHeader(buffer,0);}
 
     /**
      * Reads the header information from a byte buffer and validates
@@ -1005,12 +791,16 @@ public class RecordHeader {
      *
      * @param buffer buffer to read from.
      * @param offset position of first word to be read.
-     * @throws HipoException if buffer is not in the proper format or earlier than version 6
+     * @throws HipoException if buffer is null, contains too little data,
+     *                       is not in proper format, or version earlier than 6.
      */
     public void readHeader(ByteBuffer buffer, int offset) throws HipoException {
+        if (buffer == null || (buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
+            throw new HipoException("null or too small buffer arg");
+        }
 
         // First read the magic word to establish endianness
-        headerMagicWord = buffer.getInt( 7*4 + offset);
+        headerMagicWord = buffer.getInt(28 + offset);    // 7*4
 
         // If it's NOT in the proper byte order ...
         if (headerMagicWord != HEADER_MAGIC_LE) {
@@ -1031,7 +821,7 @@ public class RecordHeader {
         }
 
         // Look at the bit-info word
-        int bitInfoWord = buffer.getInt(  5*4 + offset);
+        int bitInfoWord = buffer.getInt(20 + offset);   // 5*4
 
         // Set padding and header type
         decodeBitInfoWord(bitInfoWord);
@@ -1042,33 +832,31 @@ public class RecordHeader {
             throw new HipoException("buffer is in evio format version " + version);
         }
 
-        recordLengthWords = buffer.getInt(    0 + offset );
-        recordLength      = 4*recordLengthWords;
-
-        recordNumber      = buffer.getInt(  1*4 + offset );
-        headerLengthWords = buffer.getInt(  2*4 + offset);
+        recordLengthWords   = buffer.getInt(     offset);        //  0*4
+        recordLength        = 4*recordLengthWords;
+        recordNumber        = buffer.getInt( 4 + offset);        //  1*4
+        headerLengthWords   = buffer.getInt( 8 + offset);        //  2*4
         setHeaderLength(4*headerLengthWords);
-        entries           = buffer.getInt(  3*4 + offset);
+        entries             = buffer.getInt(12 + offset);        //  3*4
 
-        indexLength  = buffer.getInt( 4*4 + offset);
+        indexLength         = buffer.getInt(16 + offset);        //  4*4
         setIndexLength(indexLength);
 
-        userHeaderLength = buffer.getInt( 6*4 + offset);
+        userHeaderLength    = buffer.getInt(24 + offset);        //  6*4
         setUserHeaderLength(userHeaderLength);
 
         // uncompressed data length
-        dataLength       = buffer.getInt( 8*4 + offset);
+        dataLength          = buffer.getInt(32 + offset);        //  8*4
         setDataLength(dataLength);
 
-        int compressionWord   = buffer.getInt( 9*4 + offset);
-        compressionType      = (compressionWord >>> 28);
+        int compressionWord = buffer.getInt(36 + offset);        //  9*4
+        compressionType     = (compressionWord >>> 28);
         compressedDataLengthWords = (compressionWord & 0x0FFFFFFF);
-        // modified on SEP 21 - gagik (the compressed data length was switched to words)
-        // was setCompressedDataLength(compressedDataLength);
-        compressedDataLengthPadding = (bitInfoWord>>24)&0x00000003;
+        compressedDataLengthPadding = (bitInfoWord >>> 24) & 0x3;
         compressedDataLength = compressedDataLengthWords*4 - compressedDataLengthPadding;
-        recordUserRegisterFirst  = buffer.getLong( 10*4 + offset);
-        recordUserRegisterSecond = buffer.getLong( 12*4 + offset);
+
+        recordUserRegisterFirst  = buffer.getLong(40 + offset);  // 10*4
+        recordUserRegisterSecond = buffer.getLong(48 + offset);  // 12*4
     }
 
     /**
@@ -1080,82 +868,6 @@ public class RecordHeader {
      * @throws HipoException if buffer is not in the proper format or earlier than version 6
      */
     public void readHeader(ByteBuffer buffer) throws HipoException {
-        readHeader(buffer,0);
-    }
-
-    /**
-     * Reads the file header information from a byte buffer and validates
-     * it by checking the magic word (8th word). This magic word
-     * also determines the byte order.
-     *
-     * @param buffer buffer to read from.
-     * @param offset position of first word to be read.
-     * @throws HipoException if buffer is not in the proper format or earlier than version 6
-     */
-    public void readFileHeader(ByteBuffer buffer, int offset) throws HipoException {
-
-        // First read the magic word to establish endianness
-        headerMagicWord = buffer.getInt( 7*4 + offset);
-
-        // If it's NOT in the proper byte order ...
-        if (headerMagicWord != HEADER_MAGIC_LE) {
-            // If it needs to be switched ...
-            if (headerMagicWord == HEADER_MAGIC_BE) {
-                ByteOrder bufEndian = buffer.order();
-                if (bufEndian == ByteOrder.BIG_ENDIAN) {
-                    buffer.order(ByteOrder.LITTLE_ENDIAN);
-                }
-                else {
-                    buffer.order(ByteOrder.BIG_ENDIAN);
-                }
-            }
-            else {
-                // ERROR condition, bad magic word
-                throw new HipoException("buffer arg not in evio/hipo format");
-            }
-        }
-
-        // Next look at the version #
-        int bitInoWord = buffer.getInt(  5*4 + offset);
-        int version  = (bitInoWord & 0xFF);
-        if (version < headerVersion) {
-            throw new HipoException("buffer is in evio format version " + version);
-        }
-
-        fileId            = buffer.getInt(    0 + offset );
-        fileNumber        = buffer.getInt(  1*4 + offset );
-        headerLengthWords = buffer.getInt(  2*4 + offset);
-        setHeaderLength(4*headerLengthWords);
-        entries           = buffer.getInt(  3*4 + offset);
-
-        indexLength  = buffer.getInt( 4*4 + offset);
-        setIndexLength(indexLength);
-
-        userHeaderLength = buffer.getInt( 6*4 + offset);
-        setUserHeaderLength(userHeaderLength);
-
-        dataLength       = buffer.getInt( 8*4 + offset);
-        setDataLength(dataLength);
-
-        int compressionWord   = buffer.getInt( 9*4 + offset);
-        compressionType      = (compressionWord >>> 28);
-        compressedDataLength = (compressionWord & 0x0FFFFFFF);
-        setCompressedDataLength(compressedDataLength);
-
-        trailerPosition  = buffer.getLong( 10*4 + offset);
-        userIntFirst  = buffer.getInt( 12*4 + offset);
-        userIntSecond = buffer.getInt( 13*4 + offset);
-    }
-
-    /**
-     * Reads the file header information from a byte buffer and validates
-     * it by checking the magic word (8th word). This magic word
-     * also determines the byte order.
-     *
-     * @param buffer buffer to read from starting at the beginning.
-     * @throws HipoException if buffer is not in the proper format or earlier than version 6
-     */
-    public void readFileHeader(ByteBuffer buffer) throws HipoException {
         readHeader(buffer,0);
     }
 
@@ -1201,7 +913,7 @@ public class RecordHeader {
      * @param upTo      length to make original string plus padding
      * @return
      */
-    private String padLeft(String original, String pad, int upTo) {
+    private static String padLeft(String original, String pad, int upTo) {
         int npadding = upTo - original.length();
         StringBuilder str = new StringBuilder();
         if(npadding>0) for(int i = 0;i < npadding; i++) str.append(pad);
@@ -1213,7 +925,7 @@ public class RecordHeader {
      * Print out each word of the given buffer as binary, hex, and decimal.
      * @param buffer
      */
-    public void byteBufferBinaryString(ByteBuffer buffer) {
+    public static void byteBufferBinaryString(ByteBuffer buffer) {
         int nwords = buffer.array().length/4;
         for(int i = 0; i < nwords; i++){
             int value = buffer.getInt(i*4);
@@ -1249,7 +961,10 @@ public class RecordHeader {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 
-        header.writeHeader(buffer);
+        try {
+            header.writeHeader(buffer);
+        }
+        catch (HipoException e) {/* never happen */}
 
         //header.byteBufferBinaryString(buffer);
 
