@@ -1608,18 +1608,7 @@ public class EventWriter {
      *                       buffer arg is null, or in appending mode.
      */
     public void setBuffer(ByteBuffer buf) throws EvioException {
-        if (toFile) return;
-        if (buf == null) {
-            throw new EvioException("Buffer arg null");
-        }
-        if (append) {
-            throw new EvioException("Method not for use if appending");
-        }
-        if (!closed) {
-            throw new EvioException("Close EventWriter before changing buffers");
-        }
-
-        reInitializeBuffer(buf, bitInfo, 1);
+        setBuffer(buf, bitInfo, 1);
     }
 
 
