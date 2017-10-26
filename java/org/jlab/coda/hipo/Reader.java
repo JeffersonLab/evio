@@ -282,7 +282,7 @@ public class Reader {
     /**
      * Scans the file to index all the record positions.
      * It takes advantage of any existing indexes in file.
-     * @param force if true, force a file scan even except if trailer has index info.
+     * @param force if true, force a file scan even except if header has index info.
      */
     private void scanFile(boolean force) {
         
