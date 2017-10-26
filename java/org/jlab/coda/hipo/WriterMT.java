@@ -85,7 +85,8 @@ public class WriterMT implements AutoCloseable {
     /** Do we add a record index to the trailer? */
     private boolean addTrailerIndex;
 
-    /** List of record lengths to be optionally written in trailer. */
+    /** List of record lengths interspersed with record event counts
+     * to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
 
     /**
@@ -305,6 +306,8 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
                     int bytesToWrite = header.getLength();
                     // Record length of this record
                     recordLengths.add(bytesToWrite);
+                    // Followed by events in record
+                    recordLengths.add(header.getEntries());
                     writerBytesWritten += bytesToWrite;
 
                     try {
@@ -519,7 +522,7 @@ System.out.println("   Writer: thread INTERRUPTED");
         }
         else {
             // Create the index of record lengths in proper byte order
-            byte[] recordIndex = new byte[4 * recordLengths.size()];
+            byte[] recordIndex = new byte[4*recordLengths.size()];
             try {
                 for (int i = 0; i < recordLengths.size(); i++) {
                     ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
