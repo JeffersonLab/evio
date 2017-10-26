@@ -657,7 +657,7 @@ public class EvioReader {
     }
 
      /**
-     * Get the XML format dictionary is there is one.
+     * Get the XML format dictionary if there is one.
      *
      * @return XML format dictionary, else null.
      */
