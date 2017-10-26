@@ -226,7 +226,7 @@ public class RecordInputStream {
      * @param index  index of event starting at 0. Negative value = 0.
      * @return buffer or newly allocated buffer if arg is null.
      * @throws HipoException if buffer has insufficient space to contain event
-     *                       (buffer.capacity() - bufOffset < event size).
+     *                       (buffer.capacity() < event size).
      */
     public ByteBuffer getEvent(ByteBuffer buffer, int index) throws HipoException {
         return getEvent(buffer, 0, index);
@@ -318,12 +318,12 @@ public class RecordInputStream {
 
     /**
      * Get any existing user header and write it into the given byte buffer.
-     * Any given byte buffer has to be large enough to contain user header,
-     * but the buffer.limit() is ignored & reset.
+     * The given byte buffer must be large enough to contain user header.
+     * Note that the buffer.limit() is ignored & reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
      *
-     * @param buffer    buffer to be filled with user header. If null create one and
+     * @param buffer    buffer to be filled with user header. If null, create one and
      *                  return that.
      * @param bufOffset offset into buffer to place user header.
      * @return buffer (or newly allocated buffer if arg is null) if header exists
@@ -378,28 +378,36 @@ public class RecordInputStream {
 
     /**
      * Get any existing user header and write it into the given byte buffer.
-     * Parse the user header into the returned recordInputStream object.
-     * The byte buffer has to be large enough to contain it.
+     * The byte buffer must be large enough to contain it.
      * Warning, buffer.limit() is ignored & reset.
+     * If no buffer is given (arg is null), create a buffer internally and use it.
+     * Parse the user header into the returned recordInputStream object.
      * @param buffer    buffer to be filled with user header
      * @param bufOffset offset into buffer to place user header.
      * @return record parsed from user header or null if no user header exists.
-     * @throws HipoException if buffer has insufficient space to contain user header
+     * @throws HipoException if non-null buffer has insufficient space to contain user header
      *                       (buffer.capacity() - bufOffset < user header size).
-     *                       If buffer null or offset negative.
+     *                       If offset negative.
      */
     public RecordInputStream getUserHeaderAsRecord(ByteBuffer buffer, int bufOffset)
                     throws HipoException {
 
-        // Read user header into given buffer, ready to read & with proper byte order
-        if (getUserHeader(buffer, bufOffset) == null) {
+        // Read user header into given buffer, ready to read & with proper byte order.
+        // If buffer is null, use internally created buffer with 0 offset.
+        ByteBuffer buf = getUserHeader(buffer, bufOffset);
+        if (buf == null) {
             // If no user header ...
             return null;
         }
 
+        // If we had to create buffer internally ...
+        if (buffer == null) {
+            bufOffset = 0;
+        }
+
         // Parse user header into record
         RecordInputStream record = new RecordInputStream(byteOrder);
-        record.readRecord(buffer, bufOffset);
+        record.readRecord(buf, bufOffset);
         return record;
     }
 
