@@ -98,7 +98,31 @@ public class Writer implements AutoCloseable {
         outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 1);
         fileHeader = new FileHeader(true);
     }
-
+    /**
+     * Constructor with byte order.
+     * <b>No</b> file is opened.
+     * Any dictionary will be placed in the user header which will create a conflict if
+     * user tries to call {@link #open(String, byte[])} with another user header array.
+     * 
+     * @param hType the type of the file. If set to HIPO type, then the header will be
+     *              written with the first 4 bytes set to HIPO.
+     * @param order byte order of written file
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
+     */
+    public Writer(HeaderType hType,ByteOrder order, int maxEventCount, int maxBufferSize){
+        if (order != null) {
+            byteOrder = order;
+        }
+        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 1);
+        if(hType==HeaderType.HIPO_FILE){
+            fileHeader = new FileHeader(false);
+        } else {
+            fileHeader = new FileHeader(true);
+        }
+    }
     /**
      * Constructor with filename.
      * The output file will be created with no user header.

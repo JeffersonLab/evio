@@ -5,13 +5,16 @@
  */
 package org.jlab.coda.hipo;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jlab.coda.jevio.EvioCompactReader;
+import org.jlab.coda.jevio.EvioEvent;
 import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.EvioReader;
 
 /**
  *
@@ -27,7 +30,7 @@ public class Evio6Converter {
             int nevents = reader.getEventCount();
             ByteOrder order = reader.getByteOrder();
             
-            order = ByteOrder.BIG_ENDIAN;
+            //order = ByteOrder.BIG_ENDIAN;
             
             System.out.println(" THE FILE ORDER = " + order);
             Writer writer = new Writer(outFile,order,10000,8*1024*1024);
@@ -53,19 +56,25 @@ public class Evio6Converter {
     }
     
     public static void convert(String inFile, String outFile, int nthreads, int compressionType){
-        EvioCompactReader  reader;
+        //EvioCompactReader  reader;
+        EvioReader  reader;
         try {
             
-            reader = new EvioCompactReader(inFile);
+            //reader = new EvioCompactReader(inFile);
+            reader = new EvioReader(new File(inFile),false,false);
             int nevents = reader.getEventCount();
             ByteOrder order = reader.getByteOrder();
             WriterMT writer = new WriterMT(order,10000,8*1024*1024,compressionType,
-                    nthreads,nthreads*4);
+                    nthreads,nthreads*2);
             writer.open(outFile);
             System.out.println("OPENED FILE: ENTRIES = " + nevents);
             long start_writer = System.currentTimeMillis();
             for(int i = 1; i < nevents; i++){
-                ByteBuffer buffer = reader.getEventBuffer(i,true);
+                
+                //ByteBuffer buffer = reader.getEventBuffer(i,true);
+                EvioEvent  event  = reader.getEvent(i);
+                byte[]     data   = event.getRawBytes();
+                ByteBuffer buffer = ByteBuffer.wrap(data);
                 writer.addEvent(buffer.array());
                 if(i%5000==0){
                     System.out.println(" processed events # " + i);
