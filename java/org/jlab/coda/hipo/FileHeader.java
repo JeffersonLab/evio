@@ -153,6 +153,8 @@ public class FileHeader {
     private int  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
     private int  headerMagicWord = HEADER_MAGIC;
+    /** Byte order of file. */
+    private ByteOrder  byteOrder = ByteOrder.LITTLE_ENDIAN;
 
     // These quantities are updated automatically when lengths are set
 
@@ -250,6 +252,13 @@ public class FileHeader {
     private static int getPadding(int length) {return padValue[length%4];}
 
     // Getters
+
+    /**
+     * Get the byte order of the file this header was read from.
+     * Defaults to little endian.
+     * @return byte order of the file this header was read from.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
 
     /**
      * Get the file number or split number.
@@ -407,25 +416,27 @@ public class FileHeader {
      * Does this header have a first event in the user header?
      * @return true if header has a first event in the user header, else false.
      */
-    public boolean hasFirstEvent() {
-        return ((bitInfo & HAS_FIRST_EVENT_BIT) != 0);
-    }
+    public boolean hasFirstEvent() {return ((bitInfo & HAS_FIRST_EVENT_BIT) != 0);}
 
     /**
      * Does this header have a dictionary in the user header?
      * @return true if header has a dictionary in the user header, else false.
      */
-    public boolean hasDictionary() {
-        return ((bitInfo & DICTIONARY_BIT) != 0);
-    }
+    public boolean hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
+
+    /**
+     * Does this file have a valid index of record lengths immediately following header?
+     * There should be at least one integer for valid index.
+     * Must have integral number of entries.
+     * @return true if file has a valid index, else false.
+     */
+    public boolean hasIndex() {return ((indexLength > 3) && (indexLength % 4 == 0));}
 
     /**
      * Does this file have a trailer with an index?
      * @return true if file has a trailer with an index, else false.
      */
-    public boolean hasTrailerWithIndex() {
-        return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);
-    }
+    public boolean hasTrailerWithIndex() {return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);}
 
     // Setters
 
@@ -520,6 +531,7 @@ public class FileHeader {
 
     /**
      * Set the total length in bytes, header + index + user header.
+     * This includes padding and is on a 4-byte boundary.
      * Never compressed.
      * @return this object.
      * @param length  total length in bytes, header + index + user header.
@@ -584,7 +596,8 @@ public class FileHeader {
      * @param off   offset into array to start writing.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
-     * @param index array of record lengths to be written to trailer
+     * @param index array of record lengths interspersed with event counts
+     *              to be written to trailer
      *              (must be multiple of 4 bytes). Null if no index array.
      * @throws HipoException if array arg is null or too small to hold trailer + index
      */
@@ -638,7 +651,8 @@ public class FileHeader {
      * @param off   offset into buffer to start writing.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
-     * @param index array of record lengths to be written to trailer
+     * @param index array of record lengths interspersed with event counts
+     *              to be written to trailer
      *              (must be multiple of 4 bytes). Null if no index array.
      * @throws HipoException if buf arg is null or too small to hold trailer + index
      */
@@ -708,18 +722,21 @@ public class FileHeader {
         if (headerMagicWord != HEADER_MAGIC_LE) {
             // If it needs to be switched ...
             if (headerMagicWord == HEADER_MAGIC_BE) {
-                ByteOrder bufEndian = buffer.order();
-                if (bufEndian == ByteOrder.BIG_ENDIAN) {
-                    buffer.order(ByteOrder.LITTLE_ENDIAN);
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    byteOrder = ByteOrder.LITTLE_ENDIAN;
                 }
                 else {
-                    buffer.order(ByteOrder.BIG_ENDIAN);
+                    byteOrder = ByteOrder.BIG_ENDIAN;
                 }
+                buffer.order(byteOrder);
             }
             else {
                 // ERROR condition, bad magic word
                 throw new HipoException("buffer arg not in evio/hipo format");
             }
+        }
+        else {
+            byteOrder = buffer.order();
         }
 
         // Next look at the version #
