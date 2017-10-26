@@ -1,7 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *   Copyright (c) 2018.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   to use, copy, modify, and distribute  this software and its documentation for
+ *   educational, research, and not-for-profit purposes, without fee and without a
+ *   signed licensing agreement.
  */
 package org.jlab.coda.hipo;
 
@@ -14,24 +15,37 @@ import java.util.List;
  * @author gavalian
  */
 public class FileEventIndex {
-    
+
+    /**
+     * Each entry corresponds to a record.
+     * The value of each entry is the total number of events in
+     * the file up to and including the record of that entry.
+     * The only exception is the first entry which corresponds to no
+     * record and its value is always 0. Thus, an index of 1 in this
+     * list corresponds to the first record.
+     */
     private List<Integer>       recordIndex  = new ArrayList<Integer>();
+    /** Index number of the current event in the file. */
     private int                 currentEvent = 0;
+    /** Index number of the current record.
+     *  First record has value of 0. Add one to use with recordIndex. */
     private int                currentRecord = 0;
+    /** Index number of the current event in the current record. */
     private int           currentRecordEvent = 0;
     
-    public FileEventIndex(){
-        
-    }
+    public FileEventIndex(){}
+
     /**
-     * resets the current index, sets it to 0. the corresponding
+     * Resets the current index to 0. The corresponding
      * record number is recalculated by calling setEvent() method.
      */
-    public void resetIndex(){ currentEvent = 0; setEvent(currentEvent);}
+    public void resetIndex() {currentEvent = 0; setEvent(currentEvent);}
+
     /**
-     * adds another event with size = size to the index
-     * of records.
-     * @param size 
+     * Adds the number of events in the next record to the index of records.
+     * Internally, what is stored is the total number of events in
+     * the file up to and including the record of this entry.
+     * @param size number of events in the next record.
      */
     public void addEventSize(int size){
         if(recordIndex.isEmpty()){
@@ -42,68 +56,86 @@ public class FileEventIndex {
             recordIndex.add(cz);
         }
     }
+
     /**
-     * returns the current event number, the event number is either 
-     * set by using setEvent() method, which will also determine 
-     * the record number that the event belongs to.
-     * @return current event number
+     * Gets the current event number which is set by {@link #advance()},
+     * {@link #retreat()} or {@link #setEvent(int)} (which also sets
+     * the record number that the event belongs to).
+     * @return current event number.
      */
-    public int getEventNumber()  { return currentEvent;  }
+    public int getEventNumber() {return currentEvent;}
+
     /**
-     * returns the current record number, this is determined automatically
-     * by either setting the event number using setEvent() method, or
-     * by using methods advance() or retreat() which will set the event number
-     * to the next available one or previous available one respectively.
+     * Gets the current record number which is set by {@link #setEvent(int)},
+     * or by using {@link #advance()} or {@link #retreat()} (which set the event
+     * number to the next available or previous available respectively).
      * @return current record number.
      */
-    public int getRecordNumber() { return currentRecord; }
+    public int getRecordNumber() {return currentRecord;}
+
     /**
-     * returns the event number inside the record that corresponds
-     * to the global event number from the file.
+     * Gets the event number inside the record that corresponds
+     * to the current global event number from the file.
      * @return event offset in the record.
      */
-    public int getRecordEventNumber(){
-        return this.currentRecordEvent;
-    }
+    public int getRecordEventNumber() {return currentRecordEvent;}
+
     /**
-     * checks if the event counter reached the end of the array.
-     * @return true is there are more events to advance, false otherwise.
+     * Checks to see if the event counter reached the end.
+     * @return true if there are more events to advance to, false otherwise.
      */
-    public boolean canAdvance(){
-        return (currentEvent<getMaxEvents());
-    }
+    public boolean canAdvance() {return (currentEvent < getMaxEvents());}
+
     /**
-     * advances the current event number, if the event is not from current
-     * record the record number will also be changed.
-     * @return false if the record number is the same, and true is the record number has changed
+     * Advances the current event number by one. If the event is not from current
+     * record, the record number will also be changed.
+     * If calling this would advance the current event number beyond its maximum limit,
+     * nothing is done.
+     * @return false if the record number is the same,
+     *         and true if the record number has changed.
      */
     public boolean advance() {
-        if(currentEvent+1<recordIndex.get(currentRecord+1)){
+        // If no data entered into recordIndex yet ...
+        if (recordIndex.isEmpty()) {
+            System.out.println("advance(): Warning, no entries in recordIndex!");
+            return false;
+        }
+
+        if (currentEvent+1 < recordIndex.get(currentRecord+1)) {
             currentEvent++;
             currentRecordEvent++;
             return false;
-        } else {
-            currentEvent++;
-            currentRecord++;
-            currentRecordEvent = 0;
         }
-        return true; 
+        
+        // Trying to advance beyond the limit of list
+        if (recordIndex.size() < currentRecord + 2 + 1) {
+            System.out.println("advance(): Warning, reached recordIndex limit!");
+            return false;
+        }
+
+        currentEvent++;
+        currentRecord++;
+        currentRecordEvent = 0;
+
+        return true;
     }
+
     /**
-     * checks if the event index can retreat (decrease). convenience function.
+     * Checks if the event index can retreat (decrease). convenience function.
      * @return true is the event index can be lowered by one.
      */
-    public boolean canRetreat(){
-        return (currentEvent>0);
-    }
+    public boolean canRetreat() {return (currentEvent > 0);}
+    
     /**
-     * retreats one event backwards, if the record number changes it returns true.
-     * @return false if the record number is the same, and true is the record number has changed
+     * Reduces current event number by one.
+     * If the record number changes, it returns true.
+     * @return false if the record number is the same,
+     *         and true is the record number has changed.
      */
     public boolean retreat() { 
-        if(currentEvent==0) return false;
+        if (currentEvent == 0) return false;
         currentEvent--;
-        if(currentRecordEvent>0){
+        if(currentRecordEvent > 0){
             currentRecordEvent--;
             return false;
         } else {
@@ -112,16 +144,16 @@ public class FileEventIndex {
         }
         return true; 
     }
+
     /**
-     * returns maximum number of events.
+     * Gets the total number of events in file.
      * @return returns the number of events corresponding to the all records.
      */
     public int getMaxEvents() {
-        return recordIndex.isEmpty()?0:recordIndex.get(recordIndex.size()-1);
+        return recordIndex.isEmpty() ? 0 : recordIndex.get(recordIndex.size()-1);
     }
-    /**
-     * Prints the content of the event index array on the screen.
-     */
+
+    /** Prints the content of the event index array on the screen. */
     public void show(){
         System.out.println("[FILERECORDINDEX] number of records    : " + recordIndex.size());
         System.out.println("[FILERECORDINDEX] max number of events : " + getMaxEvents());
@@ -133,29 +165,29 @@ public class FileEventIndex {
     }
     
     /**
-     * set the current event to the desired position. the current record and event
-     * offset inside of the record is updated as well. 
-     * @param event event number in the stream, must be 0-getMaxEvents()
-     * @return true if record is different from previous one, false if it is the same
+     * Set the current event to the desired position. The current record and event
+     * offset inside of the record are updated as well.
+     * @param event event number in the stream, must be 0 to getMaxEvents()-1.
+     * @return true if record is different from previous one, false if it is the same.
      */
-    
     public boolean setEvent(int event){
         
         boolean hasRecordChanged = true;
-        if(event<0||event>=this.getMaxEvents()){
-            System.out.println("[record-index] ** error ** can't chage event "
-            + " to " + event + ". choose value [ 0-"+getMaxEvents()+" ]");
+        if(event < 0 || event >= getMaxEvents()) {
+            System.out.println("[record-index] ** error ** can't change event "
+            + " to " + event + ". choose value [ 0-" + (getMaxEvents()-1) + " ]");
             return false;
         }
         
         int index = Collections.binarySearch(recordIndex, event);
-        if(index>=0){
-            if(currentRecord==index) hasRecordChanged=false;
+        if(index >= 0){
+            if(currentRecord == index) hasRecordChanged = false;
             currentRecord = index;
             currentRecordEvent = 0;
             currentEvent = event;
         } else {
-            if(currentRecord==(-index-2)) hasRecordChanged=false;
+            if(currentRecord == (-index-2)) hasRecordChanged = false;
+            // One less than index into recordIndex
             currentRecord = -index-2;
             currentEvent  = event;
             currentRecordEvent = currentEvent - recordIndex.get(currentRecord);
@@ -177,7 +209,7 @@ public class FileEventIndex {
         
         FileEventIndex index = new FileEventIndex();
         int nevents = 10;
-        index.addEventSize(10);
+        index.addEventSize(nevents);
         for(int i = 0; i < 5; i++){
             //int nevents = (int) (Math.random()*40+120);
             index.addEventSize(5+i*2);
@@ -187,7 +219,7 @@ public class FileEventIndex {
         index.setEvent(0);
         System.out.println(index);
         System.out.println(" **** START ADVANCING ****");
-        for(int i = 0 ; i < 54; i++){
+        for(int i = 0 ; i < 60; i++){
             boolean status = index.advance();
             System.out.println(index + " status = " + status);
         }
