@@ -425,6 +425,12 @@ public class FileHeader {
     public boolean hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
 
     /**
+     * Is this header followed by a user header?
+     * @return true if header followed by a user header, else false.
+     */
+    public boolean hasUserHeader() {return userHeaderLength > 0;}
+
+    /**
      * Does this file have a valid index of record lengths immediately following header?
      * There should be at least one integer for valid index.
      * Must have integral number of entries.
