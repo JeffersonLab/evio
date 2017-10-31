@@ -12,6 +12,7 @@ import org.jlab.coda.jevio.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -49,6 +50,10 @@ public class Writer implements AutoCloseable {
 
     // For both files & buffers
 
+    /** String containing evio-format XML dictionary to store in file header's user header. */
+    private String dictionary;
+    /** Evio format first event to store in file header's user header. */
+    private byte[] firstEvent;
     /** Byte order of data to write to file/buffer. */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
     /** Internal Record. */
@@ -80,42 +85,54 @@ public class Writer implements AutoCloseable {
     }
 
     /**
-     * Constructor with byte order.
-     * <b>No</b> file is opened.
-     * Any dictionary will be placed in the user header which will create a conflict if
-     * user tries to call {@link #open(String, byte[])} with another user header array.
-     *
-     * @param order byte order of written file
+     * Constructor with byte order. <b>No</b> file is opened.
+     * File header type is evio file ({@link HeaderType#EVIO_FILE}).
+     * @param order byte order of written file. Little endian if null.
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
      *                      Value of < 8MB results in default of 8MB.
      */
     public Writer(ByteOrder order, int maxEventCount, int maxBufferSize){
-        if (order != null) {
-            byteOrder = order;
-        }
-        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 1);
-        fileHeader = new FileHeader(true);
+        this(HeaderType.EVIO_FILE, order, maxEventCount, maxBufferSize, null, null);
     }
+
     /**
-     * Constructor with byte order.
-     * <b>No</b> file is opened.
-     * Any dictionary will be placed in the user header which will create a conflict if
-     * user tries to call {@link #open(String, byte[])} with another user header array.
-     * 
-     * @param hType the type of the file. If set to HIPO type, then the header will be
-     *              written with the first 4 bytes set to HIPO.
-     * @param order byte order of written file
+     * Constructor with byte order and header type. <b>No</b> file is opened.
+     * @param hType the type of the file. If set to {@link HeaderType#HIPO_FILE},
+     *              the header will be written with the first 4 bytes set to HIPO.
+     * @param order byte order of written file. Little endian if null.
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
      *                      Value of < 8MB results in default of 8MB.
      */
-    public Writer(HeaderType hType,ByteOrder order, int maxEventCount, int maxBufferSize){
+    public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize) {
+        this(hType, order, maxEventCount, maxBufferSize, null, null);
+    }
+
+    /**
+     * Constructor with byte order. <b>No</b> file is opened.
+     * This method places the dictionary and first event into the file header's user header.
+     *
+     * @param hType the type of the file. If set to {@link HeaderType#HIPO_FILE},
+     *              the header will be written with the first 4 bytes set to HIPO.
+     * @param order byte order of written file. Little endian if null.
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value of O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
+     * @param dictionary    string holding an evio format dictionary
+     * @param firstEvent    byte array containing an evio first event.
+     *                      It must be in the same byte order as the order argument.
+     */
+    public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize,
+                  String dictionary, byte[] firstEvent) {
         if (order != null) {
             byteOrder = order;
         }
+        this.dictionary = dictionary;
+        this.firstEvent = firstEvent;
         outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 1);
         if(hType==HeaderType.HIPO_FILE){
             fileHeader = new FileHeader(false);
@@ -123,6 +140,7 @@ public class Writer implements AutoCloseable {
             fileHeader = new FileHeader(true);
         }
     }
+
     /**
      * Constructor with filename.
      * The output file will be created with no user header.
@@ -233,11 +251,22 @@ public class Writer implements AutoCloseable {
      * User header is automatically padded when written.
      * @param filename disk file name.
      * @param userHeader byte array representing the optional user's header.
+     *                   If this is null AND dictionary and/or first event are given,
+     *                   the dictionary and/or first event will be placed in its
+     *                   own record and written as the user header.
      */
     public final void open(String filename, byte[] userHeader){
 
         if (userHeader == null) {
-            userHeader = new byte[0];
+            // If dictionary and firstEvent not defined ...
+            if (dictionary == null && firstEvent == null) {
+                userHeader = new byte[0];
+            }
+            // Else place dictionary and/or firstEvent into
+            // record which becomes user header
+            else {
+                userHeader = createDictionaryRecord();
+            }
         }
 
         try {
@@ -255,6 +284,62 @@ public class Writer implements AutoCloseable {
         }
 
         writerBytesWritten = (long) (fileHeader.getLength());
+    }
+
+    /**
+     * Create a byte array representation of record
+     * containing dictionary and/or first event.
+     * No compression.
+     * @return byte array representation of record
+     *         containing dictionary and/or first event.
+     *         Null if both are null.
+     */
+    private byte[] createDictionaryRecord() {
+        if (dictionary == null && firstEvent == null) return null;
+
+        // Create record.
+        // Bit of chicken&egg problem, so start with default internal buf size.
+        RecordOutputStream record = new RecordOutputStream(byteOrder, 2, 0, 0);
+
+        // How much data we got?
+        int bytes=0;
+        if (dictionary != null) {
+            bytes += dictionary.length();
+        }
+        if (firstEvent != null) {
+            bytes += firstEvent.length;
+        }
+
+        // If we have huge dictionary/first event ...
+        if (bytes > record.getInternalBufferCapacity()) {
+            record = new RecordOutputStream(byteOrder, 2, bytes, 0);
+        }
+
+        // Add events to record
+        if (dictionary != null) {
+            try {record.addEvent(dictionary.getBytes("US-ASCII"));}
+            catch (UnsupportedEncodingException e) {/* never happen */}
+        }
+        if (firstEvent != null) {
+            record.addEvent(firstEvent);
+        }
+
+        // Make events into record. Pos = 0, limit = # valid bytes.
+        record.build();
+        // Buffer contains record data
+        ByteBuffer buf = record.getBinaryBuffer();
+        // Return array representation of record
+        byte[] rec = new byte[buf.limit()];
+
+        if (buf.hasArray()) {
+            // Backing array may be bigger
+            System.arraycopy(buf.array(), buf.arrayOffset(), rec, 0, rec.length);
+        }
+
+        // Buffer is ready to read from record.build()
+        buf.get(rec);
+
+        return rec;
     }
     
     /**
