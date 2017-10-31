@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  *                                                    |                                  |
  *    +----------------------------------+            |                                  |
  *    |           User Header            |            |                  ----------------|
- *    |                                  |            |                  |    Pad 3      |
+ *    |           (Optional)             |            |                  |    Pad 3      |
  *    |                  ----------------|            +----------------------------------+
  *    |                  |    Pad 1      |           ^
  *    +----------------------------------+          /
@@ -155,6 +155,12 @@ public class RecordInputStream {
     }
 
     /**
+     * Get the header of this record.
+     * @return header of this record.
+     */
+    public RecordHeader getHeader() {return header;}
+
+    /**
      * Get the byte order of the internal buffers.
      * @return byte order of the internal buffers.
      */
@@ -186,7 +192,7 @@ public class RecordInputStream {
     /**
      * Get the event at the given index and return it in an allocated array.
      * @param index  index of event starting at 0. If index too large, it's
-     *               set to last index.
+     *               set to last index. If negative, it's set to 0.
      * @return byte array containing event.
      */
     public byte[] getEvent(int index){
@@ -196,6 +202,9 @@ public class RecordInputStream {
                 index = header.getEntries() - 1;
             }
             firstPosition = dataBuffer.getInt( (index-1)*4 );
+        }
+        else {
+            index = 0;
         }
         int lastPosition = dataBuffer.getInt(index*4);
 
@@ -412,9 +421,9 @@ public class RecordInputStream {
     }
 
     /**
-     * Reads record from the file at given position.
-     * Any compressed data is decompressed.
-     * Memory is allocated as needed.
+     * Reads record from the file at given position. Call this method or
+     * {@link #readRecord(ByteBuffer, int)} before calling any other.
+     * Any compressed data is decompressed. Memory is allocated as needed.
      * First the header is read, then the length of
      * the record is read from header, then
      * following bytes are read and decompressed.
@@ -516,9 +525,9 @@ public class RecordInputStream {
     }
 
     /**
-     * Reads a record from the buffer at the given offset.
-     * Any compressed data is decompressed.
-     * Memory is allocated as needed.
+     * Reads a record from the buffer at the given offset. Call this method or
+     * {@link #readRecord(RandomAccessFile, long)} before calling any other.
+     * Any compressed data is decompressed. Memory is allocated as needed.
      * @param buffer buffer containing record data.
      * @param offset offset into buffer to beginning of record data.
      * @throws HipoException if buffer not in hipo format or if bad argument(s)
