@@ -800,8 +800,7 @@ public class RecordHeader {
         }
 
         // First read the magic word to establish endianness
-        headerMagicWord = buffer.getInt(28 + offset);    // 7*4
-
+        headerMagicWord = buffer.getInt(28 + offset);    // 7*4        
         // If it's NOT in the proper byte order ...
         if (headerMagicWord != HEADER_MAGIC_LE) {
             // If it needs to be switched ...

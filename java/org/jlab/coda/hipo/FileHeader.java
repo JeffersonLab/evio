@@ -717,13 +717,13 @@ public class FileHeader {
      *                       is not in proper format, or version earlier than 6.
      */
     public void readHeader(ByteBuffer buffer, int offset) throws HipoException {
+        //System.out.println("PARSING HEADER");
         if (buffer == null || (buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
             throw new HipoException("null or too small buffer arg");
         }
 
         // First read the magic word to establish endianness
         headerMagicWord = buffer.getInt(28 + offset);   // 7*4
-
         // If it's NOT in the proper byte order ...
         if (headerMagicWord != HEADER_MAGIC_LE) {
             // If it needs to be switched ...
@@ -738,6 +738,7 @@ public class FileHeader {
             }
             else {
                 // ERROR condition, bad magic word
+                
                 throw new HipoException("buffer arg not in evio/hipo format");
             }
         }
