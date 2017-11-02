@@ -524,14 +524,15 @@ public class Reader {
                     headerBuffer.getInt(7*4),headerBuffer.getInt(8*4)
                     ));*/
             // Take care of non-standard header size
-            channel.position(fileHeader.getHeaderLength());
+            int userHeaderLength = fileHeader.getUserHeaderLength();
+            channel.position(fileHeader.getHeaderLength()+userHeaderLength);
             //System.out.println(header.toString());
 
             // First record position (past file's header + index + user header)
-            long recordPosition = fileHeader.getLength();
+            long recordPosition = fileHeader.getLength() + userHeaderLength;
             while (recordPosition < maximumSize) {
                 channel.position(recordPosition);
-                inStreamRandom.read(headerBytes);                
+                inStreamRandom.read(headerBytes); 
                 recordHeader.readHeader(headerBuffer);
                 //System.out.println(recordHeader.toString());
                 //System.out.println(">>>>>==============================================");
