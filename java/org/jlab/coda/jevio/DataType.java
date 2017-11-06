@@ -154,6 +154,7 @@ public enum DataType {
 	/**
 	 * Convenience routine to see if the given integer arg represents a data type which
      * is a structure (a container).
+	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to one of the structure
 	 * types: BANK, SEGMENT, or TAGSEGMENT.
 	 */
@@ -163,6 +164,7 @@ public enum DataType {
 
 	/**
 	 * Convenience routine to see if the given integer arg represents a BANK.
+	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to a BANK.
 	 */
 	static public boolean isBank(int dataType) {
@@ -171,6 +173,7 @@ public enum DataType {
 
 	/**
 	 * Convenience routine to see if the given integer arg represents a SEGMENT.
+	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to a SEGMENT.
 	 */
 	static public boolean isSegment(int dataType) {
@@ -179,6 +182,7 @@ public enum DataType {
 
 	/**
 	 * Convenience routine to see if the given integer arg represents a TAGSEGMENT.
+	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to a TAGSEGMENT.
 	 */
 	static public boolean isTagSegment(int dataType) {

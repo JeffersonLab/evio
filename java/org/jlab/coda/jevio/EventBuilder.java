@@ -43,7 +43,6 @@ public class EventBuilder {
 	/**
 	 * This goes through the event recursively, and makes sure all the length fields
 	 * in the headers are properly set.
-     * @throws EvioException if the length of containing event is too large (> Integer.MAX_VALULE),
 	 */
 	public void setAllHeaderLengths() {
         try {
@@ -142,7 +141,7 @@ public class EventBuilder {
 	/**
 	 * This removes a structure (and all its descendants) from the tree.
 	 * @param child the child structure to remove.
-	 * @throws EvioException
+	 * @throws EvioException if arg is null or its parent is null
 	 */
 	public void remove(BaseStructure child) throws EvioException {
 		if (child == null) {
@@ -279,7 +278,7 @@ public class EventBuilder {
      * is the same as setting the data.
      * @param structure the structure to receive the data, which is appended.
      * @param data the int data to append, or set if there is no existing data.
-     * @throws EvioException
+     * @throws EvioException if structure arg is null.
      */
     public void appendIntData(BaseStructure structure, int data[]) throws EvioException {
         if (structure == null) {
@@ -295,7 +294,7 @@ public class EventBuilder {
 	 * is the same as setting the data.
 	 * @param structure the structure to receive the data, which is appended.
 	 * @param data the short data to append, or set if there is no existing data.
-	 * @throws EvioException
+	 * @throws EvioException if structure arg is null.
 	 */
 	public void appendShortData(BaseStructure structure, short data[]) throws EvioException {
 		if (structure == null) {
@@ -311,7 +310,7 @@ public class EventBuilder {
 	 * is the same as setting the data.
 	 * @param structure the structure to receive the data, which is appended.
 	 * @param data the long data to append, or set if there is no existing data.
-	 * @throws EvioException
+	 * @throws EvioException if structure arg is null.
 	 */
 	public void appendLongData(BaseStructure structure, long data[]) throws EvioException {
 		if (structure == null) {
@@ -327,7 +326,7 @@ public class EventBuilder {
 	 * is the same as setting the data.
 	 * @param structure the structure to receive the data, which is appended.
 	 * @param data the byte data to append, or set if there is no existing data.
-	 * @throws EvioException
+	 * @throws EvioException if structure arg is null.
 	 */
 	public void appendByteData(BaseStructure structure, byte data[]) throws EvioException {
 		if (structure == null) {
@@ -343,7 +342,7 @@ public class EventBuilder {
 	 * is the same as setting the data.
 	 * @param structure the structure to receive the data, which is appended.
 	 * @param data the float data to append, or set if there is no existing data.
-	 * @throws EvioException
+	 * @throws EvioException if structure arg is null.
 	 */
 	public void appendFloatData(BaseStructure structure, float data[]) throws EvioException {
 		if (structure == null) {
@@ -359,7 +358,7 @@ public class EventBuilder {
      * is the same as setting the data.
      * @param structure the structure to receive the data, which is appended.
      * @param data the double data to append, or set if there is no existing data.
-     * @throws EvioException
+	 * @throws EvioException if structure arg is null.
      */
     public void appendDoubleData(BaseStructure structure, double data[]) throws EvioException {
         if (structure == null) {
@@ -375,10 +374,9 @@ public class EventBuilder {
      * is the same as setting the data.
      * @param structure the structure to receive the data, which is appended.
      * @param data the string to append, or set if there is no existing data.
-     * @throws EvioException
+	 * @throws EvioException if structure arg is null.
      */
     public void appendStringData(BaseStructure structure, String data) throws EvioException {
-
         if (structure == null) {
             throw new EvioException("Tried to append String to a null structure.");
         }
@@ -399,7 +397,7 @@ public class EventBuilder {
 	 * Set the underlying event. As far as this event builder is concerned, the
 	 * previous underlying event is lost, and all subsequent calls will affect
 	 * the newly supplied event.
-	 * param the new underlying event.
+	 * @param event the new underlying event.
 	 */
 	public void setEvent(EvioEvent event) {
 		this.event = event;

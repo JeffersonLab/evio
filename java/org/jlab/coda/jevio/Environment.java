@@ -193,7 +193,7 @@ public class Environment {
 	/**
 	 * Main program used for testing only.
 	 * 
-	 * @param args
+	 * @param args arguments to program.
 	 */
 	public static void main(String[] args) {
 		Environment env = Environment.getInstance();
