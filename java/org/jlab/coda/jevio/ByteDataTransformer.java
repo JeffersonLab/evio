@@ -65,7 +65,7 @@ public class ByteDataTransformer {
 	 *
      * @param bytes the byte array.
      * @param padding number of <b>bytes</b> at the end of the byte array to ignore.
-     *                Valid values are 0 and mulitples of 2 (though only 0 & 2 are used).
+     *                Valid values are 0 and multiples of 2 (though only 0 and 2 are used).
      * @param byteOrder the endianness of the data in the byte array,
      *       {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}.
 	 * @return the raw bytes converted into an int array.
@@ -1229,7 +1229,7 @@ public class ByteDataTransformer {
      * @param byteOrder byte order of supplied bytes (big endian if null)
      * @param dest array in which to write converted bytes
      * @param off offset into dest array
-     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
      */
     public static void toShortArray(byte[] data, int padding, ByteOrder byteOrder, short[] dest, int off)
             throws EvioException {
@@ -1255,7 +1255,7 @@ public class ByteDataTransformer {
      * @param byteOrder byte order of supplied bytes (big endian if null)
      * @param dest array in which to write converted bytes
      * @param off offset into dest array
-     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
      */
     public static void toShortArray(byte[] data, ByteOrder byteOrder, short[] dest, int off)
             throws EvioException {
@@ -1313,7 +1313,7 @@ public class ByteDataTransformer {
      * @param b2 2nd byte
      * @param b3 3rd byte
      * @param b4 4th byte
-     * @param byteOrder if big endian, 1st byte is most significant &
+     * @param byteOrder if big endian, 1st byte is most significant &amp;
      *                  4th is least (big endian if null)
      * @return int converted from byte array
      */
@@ -1373,7 +1373,7 @@ public class ByteDataTransformer {
      * @param byteOrder byte order of supplied bytes (big endian if null)
      * @param dest array in which to write converted bytes
      * @param off offset into dest array
-     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
      */
     public static void toIntArray(byte[] data, ByteOrder byteOrder, int[] dest, int off)
             throws EvioException {
@@ -1404,7 +1404,7 @@ public class ByteDataTransformer {
      * @param byteOrder  byte order of supplied bytes (big endian if null)
      * @param dest       array in which to write converted bytes
      * @param destOffset offset into dest array
-     * @throws EvioException if data is null; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null; dest is null, wrong size, or off &lt; 0
      */
     public static void toIntArray(byte[] data, int dataOffset,
                                    ByteOrder byteOrder, int[] dest, int destOffset)
@@ -1439,7 +1439,7 @@ public class ByteDataTransformer {
      * @param byteOrder  byte order of supplied bytes (big endian if null).
      * @param dest       array in which to write converted bytes.
      * @param destOffset offset into dest array.
-     * @throws EvioException if data is null; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null; dest is null, wrong size, or off &lt; 0
      */
     public static void toIntArray(byte[] data, int dataOffset, int dataLen,
                                    ByteOrder byteOrder, int[] dest, int destOffset)
@@ -1519,7 +1519,7 @@ public class ByteDataTransformer {
      * @param b6 6th byte
      * @param b7 7th byte
      * @param b8 8th byte
-     * @param byteOrder if big endian, 1st byte is most significant &
+     * @param byteOrder if big endian, 1st byte is most significant &amp;
      *                  8th least (big endian if null)
      * @return long converted from byte array
      */
@@ -1590,7 +1590,7 @@ public class ByteDataTransformer {
      * @param byteOrder byte order of supplied bytes (big endian if null)
      * @param dest array in which to write converted bytes
      * @param off offset into dest array
-     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
      */
     public static void toLongArray(byte[] data, ByteOrder byteOrder, long[] dest, int off)
             throws EvioException {
@@ -1635,7 +1635,7 @@ public class ByteDataTransformer {
      * @param b2 2nd byte
      * @param b3 3rd byte
      * @param b4 4th byte
-     * @param byteOrder if big endian, 1st byte is most significant &
+     * @param byteOrder if big endian, 1st byte is most significant &amp;
      *                  4th least (big endian if null)
      * @return float converted from byte array
      */
@@ -1677,7 +1677,7 @@ public class ByteDataTransformer {
      * @param byteOrder byte order of supplied bytes (big endian if null)
      * @param dest array in which to write converted bytes
      * @param off offset into dest array
-     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
      */
     public static void toFloatArray(byte[] data, ByteOrder byteOrder, float[] dest, int off)
             throws EvioException {
@@ -1722,7 +1722,7 @@ public class ByteDataTransformer {
      * @param b6 6th byte
      * @param b7 7th byte
      * @param b8 8th byte
-     * @param byteOrder if big endian, 1st byte is most significant &
+     * @param byteOrder if big endian, 1st byte is most significant &amp;
      *                  8th least (big endian if null)
      * @return double converted from byte array
      */
@@ -1768,7 +1768,7 @@ public class ByteDataTransformer {
      * @param byteOrder byte order of supplied bytes (big endian if null)
      * @param dest array in which to write converted bytes
      * @param off offset into dest array
-     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off < 0
+     * @throws EvioException if data is null or wrong size; dest is null, wrong size, or off &lt; 0
      */
     public static void toDoubleArray(byte[] data, ByteOrder byteOrder, double[] dest, int off)
             throws EvioException {
@@ -1846,7 +1846,7 @@ public class ByteDataTransformer {
      *                   If null, or identical to srcBuffer, the data is swapped in place.
      * @param srcPos     position in srcBuffer to start reading event
      * @param destPos    position in destBuffer to start writing swapped event
-     * @param nodeList   if not null, generate & store node objects here -
+     * @param nodeList   if not null, generate and store node objects here -
      *                   one for each swapped evio structure in destBuffer.
      *
      * @throws EvioException if srcBuffer arg is null;
@@ -1880,7 +1880,7 @@ public class ByteDataTransformer {
      * @param srcPos     position in srcBuffer to start reading event
      * @param destPos    position in destBuffer to start writing swapped event
      * @param swapData   if false, do NOT swap data, else swap data too
-     * @param nodeList   if not null, generate & store node objects here -
+     * @param nodeList   if not null, generate and store node objects here -
      *                   one for each swapped evio structure in destBuffer.
      *
      * @throws EvioException if srcBuffer arg is null;
