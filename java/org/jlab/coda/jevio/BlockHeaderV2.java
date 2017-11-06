@@ -5,18 +5,18 @@ import java.nio.ByteOrder;
 
 /**
  * This holds an evio block header, also known as a physical record header.
- * Unfortunately, in versions 1, 2 & 3, evio files impose an anachronistic
+ * Unfortunately, in versions 1, 2 &amp; 3, evio files impose an anachronistic
  * block structure. The complication that arises is that logical records
  * (events) will sometimes cross physical record boundaries.
  *
  *
- * <code><pre>
+ * <pre>
  * ####################################
- * Evio block header, versions 1,2 & 3:
+ * Evio block header, versions 1,2 &amp; 3:
  * ####################################
  *
  * MSB(31)                          LSB(0)
- * <---  32 bits ------------------------>
+ * &lt;---  32 bits ------------------------&gt;
  * _______________________________________
  * |            Block Length             |
  * |_____________________________________|
@@ -46,7 +46,7 @@ import java.nio.ByteOrder;
  *      Reserved 1    = reserved
  *      Magic #       = magic number (0xc0da0100) used to check endianness
  *
- * </pre></code>
+ * </pre>
  *
  *
  * @author heddle
@@ -221,18 +221,18 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Set the size of the block (physical record). Some trivial checking is done.
 	 *
 	 * @param size the new value for the size, in ints.
-	 * @throws org.jlab.coda.jevio.EvioException
+	 * @throws EvioException if size &lt; 8 or &gt; MAX_BLOCK_SIZE
 	 */
 	public void setSize(int size) throws EvioException {
         if ((size < 8) || (size > MAX_BLOCK_SIZE)) {
 			throw new EvioException(String.format("Bad value for size in block (physical record) header: %d", size));
 		}
 
-        // I'm not sure why this restriction is in here - timmer
-        if ((size % 256) != 0) {
-            throw new EvioException(String.format(
-                    "Bad value for size in block (physical record) header: %d (must be multiple of 256 ints)", size));
-        }
+        // I'm not sure why this restriction is originally in here - timmer
+//        if ((size % 256) != 0) {
+//            throw new EvioException(String.format(
+//                    "Bad value for size in block (physical record) header: %d (must be multiple of 256 ints)", size));
+//        }
         this.size = size;
 	}
 
@@ -261,7 +261,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
      * NOTE: a logical record (event) that spans three blocks (physical records) will have <code>start = 0</code>.
      *
      * @param start the new value for the start.
-     * @throws EvioException
+	 * @throws EvioException if start &lt; 8 or &gt; MAX_BLOCK_SIZE
      */
     public void setStart(int start) throws EvioException {
         if ((start < 0) || (start > MAX_BLOCK_SIZE)) {
@@ -274,7 +274,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Get the ending position of the block (physical record.) This is the number of valid words (header + data) in the
 	 * block (physical record.) This is normally the same as the block size, except for the last block (physical record)
 	 * in the file.<br>
-	 * NOTE: for evio files, even if end < size (blocksize) for the last block (physical record), the data behind it
+	 * NOTE: for evio files, even if end &lt; size (blocksize) for the last block (physical record), the data behind it
 	 * will be padded with zeroes so that the file size is an integer multiple of the block size.
 	 *
 	 * @return the ending position of the block (physical record.)
@@ -287,11 +287,11 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Set the ending position of the block (physical record.) This is the number of valid words (header + data) in the
 	 * block (physical record.) This is normally the same as the block size, except for the last block (physical record)
 	 * in the file. Some trivial checking is done.<br>
-	 * NOTE: for evio files, even if end < size (blocksize) for the last block (physical record), the data behind it
+	 * NOTE: for evio files, even if end &lt; size (blocksize) for the last block (physical record), the data behind it
 	 * will be padded with zeroes so that the file size is an integer multiple of the block size.
 	 *
 	 * @param end the new value for the end.
-	 * @throws EvioException
+	 * @throws EvioException if end &lt; 8 or &gt; MAX_BLOCK_SIZE
 	 */
 	public void setEnd(int end) throws EvioException {
 		if ((end < 8) || (end > MAX_BLOCK_SIZE)) {
@@ -332,8 +332,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 * Set the block header length, in ints. This should be 8. However, since this is usually read as part of reading
 	 * the physical record header, it is a good check to have a setter rather than just fix its value at 8.
 	 *
-	 * param headerLength the new block header length. This should be 8.
-	 *
+	 * @param headerLength the new block header length. This should be 8.
 	 * @throws EvioException if headerLength is not 8.
 	 */
 	public void setHeaderLength(int headerLength) throws EvioException {
@@ -395,10 +394,10 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
      * If it doesn't, some obvious possibilities: <br>
 	 * 1) The evio data (perhaps from a file) is screwed up.<br>
 	 * 2) The reading algorithm is screwed up. <br>
-	 * 3) The endianess is not being handled properly.
+	 * 3) The endianness is not being handled properly.
 	 *
 	 * @param magicNumber the new value for magic number.
-	 * @throws EvioException
+	 * @throws EvioException if magic number not the correct value.
 	 */
 	public void setMagicNumber(int magicNumber) throws EvioException {
 		if (magicNumber != MAGIC_NUMBER) {
@@ -506,7 +505,7 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 *
 	 * @param position the absolute current position is a byte buffer.
 	 * @return the number of bytes remaining in this block (physical record.)
-	 * @throws EvioException
+	 * @throws EvioException if position &lt; buffer starting position or &gt; buffer end position
 	 */
 	public int bytesRemaining(long position) throws EvioException {
 		if (position < bufferStartingPosition) {

@@ -107,7 +107,7 @@ public interface IBlockHeader {
      * being maintained properly by the reader. No block is longer than 2.1GB - 31 bits of length. This is for
      * practical reasons - so a block can be read into a single byte array.
      *
-     * @param position the absolute current position is a byte buffer.
+     * @param position the absolute current position in a byte buffer.
      * @return the number of bytes remaining in this block (physical record.)
      * @throws EvioException
      */
