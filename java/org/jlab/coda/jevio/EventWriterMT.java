@@ -418,7 +418,7 @@ public class EventWriterMT {
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file
      * name after a dot (.).
-     * If streamCount > 1, the split number is calculated starting with streamId and incremented
+     * If streamCount &gt; 1, the split number is calculated starting with streamId and incremented
      * by streamCount each time. In this manner, all split files will have unique, sequential
      * names even though there are multiple parallel ERs.
      * <p>
@@ -432,7 +432,7 @@ public class EventWriterMT {
      * the runType is null.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
+     * they can be differentiated by a stream id number. If the id is &gt; 0, the string, ".strm"
      * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
      * This is done after the run type, run number, split numbers, and env vars have been inserted
      * into the file name.<p>
@@ -441,15 +441,15 @@ public class EventWriterMT {
      * @param directory     directory in which file is to be placed
      * @param runType       name of run type configuration to be used in naming files
      * @param runNumber     number of the CODA run, used in naming files
-     * @param split         if < 1, do not split file, write to only one file of unlimited size.
+     * @param split         if &lt; 1, do not split file, write to only one file of unlimited size.
      *                      Else this is max size in bytes to make a file
      *                      before closing it and starting writing another.
      * @param maxRecordSize max number of uncompressed data bytes each record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      *                      The size of the record will not be larger than this size
      *                      unless a single event itself is larger.
      * @param maxEventCount max number of events each record can hold.
-     *                      Value <= O means use default (1M).
+     *                      Value &lt;= O means use default (1M).
      * @param byteOrder     the byte order in which to write the file. This is ignored
      *                      if appending to existing file. Defaults to Big Endian if null.
      * @param xmlDictionary dictionary in xml format or null if none.
@@ -459,12 +459,12 @@ public class EventWriterMT {
      * @param firstEvent    the first event written into each file (after any dictionary)
      *                      including all split files; may be null. Useful for adding
      *                      common, static info into each split file.
-     * @param streamId      streamId number (100 > id > -1) for file name
+     * @param streamId      streamId number (100 &gt; id &gt; -1) for file name
      * @param streamCount   total number of data streams
      * @param compressionType    type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
      * @param compressionThreads number of threads doing compression simultaneously
      * @param ringSize           number of records in supply ring, must be multiple of 2
-     *                           and >= compressionThreads.
+     *                           and &gt;= compressionThreads.
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
      *                       if defined dictionary or first event while appending;
@@ -694,11 +694,11 @@ public class EventWriterMT {
      *
      * @param buf            the buffer to write to.
      * @param maxRecordSize  max number of data bytes each record can hold.
-     *                       Value of < 8MB results in default of 8MB.
+     *                       Value of &lt; 8MB results in default of 8MB.
      *                       The size of the record will not be larger than this size
      *                       unless a single event itself is larger.
      * @param maxEventCount  max number of events each record can hold.
-     *                       Value <= O means use default (1M).
+     *                       Value &lt;= O means use default (1M).
      * @param xmlDictionary  dictionary in xml format or null if none.
      * @param recordNumber   number at which to start record number counting.
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits; if buf arg is null
@@ -716,11 +716,11 @@ public class EventWriterMT {
      *
      * @param buf             the buffer to write to.
      * @param maxRecordSize   max number of data bytes each record can hold.
-     *                        Value of < 8MB results in default of 8MB.
+     *                        Value of &lt; 8MB results in default of 8MB.
      *                        The size of the record will not be larger than this size
      *                        unless a single event itself is larger.
      * @param maxEventCount   max number of events each record can hold.
-     *                        Value <= O means use default (1M).
+     *                        Value &lt;= O means use default (1M).
      * @param xmlDictionary   dictionary in xml format or null if none.
      * @param recordNumber    number at which to start record number counting.
      * @param append          if <code>true</code>, all events to be written will be
@@ -1021,6 +1021,13 @@ public class EventWriterMT {
      * @param node node representing event to be placed first in each file written
      *             including all splits. If null, no more first events are written
      *             to any files.
+     * @throws IOException   if error writing to file
+     * @throws EvioException if first event is opposite byte order of internal buffer;
+     *                       if bad data format;
+     *                       if close() already called;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
      */
     public void setFirstEvent(EvioNode node)
             throws EvioException, IOException {
@@ -1068,6 +1075,13 @@ public class EventWriterMT {
      *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
+     * @throws IOException   if error writing to file
+     * @throws EvioException if first event is opposite byte order of internal buffer;
+     *                       if bad data format;
+     *                       if close() already called;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if no room when writing to user-given buffer;
      */
     public void setFirstEvent(EvioBank bank)
             throws EvioException, IOException {

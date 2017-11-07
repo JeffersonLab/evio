@@ -41,7 +41,7 @@ public class EventParser {
 	 * may be accessed through the event's tree model, i.e., via <code>event.getTreeModel()</code>.
 	 * 
 	 * @param evioEvent the event to parse.
-	 * @throws EvioException
+	 * @throws EvioException if arg is null.
 	 */
 	public synchronized void parseEvent(EvioEvent evioEvent) throws EvioException {
 

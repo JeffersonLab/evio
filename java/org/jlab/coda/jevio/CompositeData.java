@@ -4106,8 +4106,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
     /**
      * This method returns a string representation of this CompositeData object
-     * suitable for displaying in {@docRoot org.jlab.coda.jevio.graphics.EventTreeFrame}
-     * gui. Each data item is separated from those before and after by a line.
+     * suitable for displaying in graphical event viewer.
+     * Each data item is separated from those before and after by a line.
      * Non-parenthesis repeats are printed together.
      *
      * @param hex if <code>true</code> then print integers in hexadecimal

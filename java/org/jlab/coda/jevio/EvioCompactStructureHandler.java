@@ -999,7 +999,7 @@ public class EvioCompactStructureHandler {
      * Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1035,7 +1035,7 @@ public class EvioCompactStructureHandler {
     /**
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1051,7 +1051,7 @@ public class EvioCompactStructureHandler {
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a

@@ -109,7 +109,7 @@ public interface IBlockHeader {
      *
      * @param position the absolute current position in a byte buffer.
      * @return the number of bytes remaining in this block (physical record.)
-     * @throws EvioException
+     * @throws EvioException if position out of bounds
      */
     int bytesRemaining(long position) throws EvioException;
 
