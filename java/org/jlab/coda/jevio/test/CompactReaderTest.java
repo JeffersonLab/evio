@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -656,14 +655,6 @@ public class CompactReaderTest {
             bankInts.appendIntData(intDataSmall);
             builder2.addChild(event2, bankInts);
 
-
-
-//            public EvioCompactEventWriter(String baseName, String directory, int runNumber, int split,
-//                                         int blockSizeMax, int blockCountMax, int bufferSize,
-//                                         ByteOrder byteOrder, String xmlDictionary,
-//                                         boolean overWriteOK)
-
-
             ByteBuffer evBuf1 = ByteBuffer.allocate(event1.getTotalBytes());
             event1.write(evBuf1);
             evBuf1.flip();
@@ -678,9 +669,9 @@ public class CompactReaderTest {
 
 
             if (false) {
-                EvioCompactEventWriter writer = new EvioCompactEventWriter(
+                EventWriter writer = new EventWriter(
                         "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -707,26 +698,26 @@ public class CompactReaderTest {
             else {
                 long t2, t1 = System.currentTimeMillis();
 
-                EvioCompactEventWriter writer = new EvioCompactEventWriter(
+                EventWriter writer = new EventWriter(
                         "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
 
-                writer = new EvioCompactEventWriter(
+                writer = new EventWriter(
                         "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
 
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new EvioCompactEventWriter(
+                writer = new EventWriter(
                         "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -787,21 +778,6 @@ public class CompactReaderTest {
             bankInts.appendIntData(intDataSmall);
             builder2.addChild(event2, bankInts);
 
-
-//            * @param byteBuffer    buffer into which events are written.
-//            * @param blockSizeMax  the max blocksize in bytes which must be >= 400 B and <= 4 MB.
-//            *                      The size of the block will not be larger than this size
-//            *                      unless a single event itself is larger.
-//            * @param blockCountMax the max number of events in a single block which must be
-//            *                      >= {@link EventWriter#MIN_BLOCK_COUNT} and <= {@link EventWriter#MAX_BLOCK_COUNT}.
-//            * @param xmlDictionary dictionary in xml format or null if none.
-//            *
-//            * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
-//            *                       if buffer arg is null
-//            */
-//            public EvioCompactEventWriter(ByteBuffer byteBuffer, int blockSizeMax,
-//            int blockCountMax, String xmlDictionary)
-
             ByteBuffer evBuf1 = ByteBuffer.allocate(event1.getTotalBytes());
             event1.write(evBuf1);
             evBuf1.flip();
@@ -817,8 +793,7 @@ public class CompactReaderTest {
 
             if (false) {
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EvioCompactEventWriter writer =
-                        new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -850,19 +825,19 @@ public class CompactReaderTest {
                 long t2, t1 = System.currentTimeMillis();
 
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EvioCompactEventWriter writer = new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
-                writer = new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -925,13 +900,8 @@ public class CompactReaderTest {
             bankInts.appendIntData(intDataSmall);
             builder2.addChild(event2, bankInts);
 
-//            public EvioCompactEventWriter(String baseName, String directory, int runNumber, int split,
-//                                         int blockSizeMax, int blockCountMax, int bufferSize,
-//                                         ByteOrder byteOrder, String xmlDictionary,
-//                                         boolean overWriteOK)
-
-            EvioCompactEventWriter writer = new EvioCompactEventWriter("file", null, 0, 0,
-                    256000, 20000, 256000, null, null, true);
+            EventWriter writer = new EventWriter("file", null, null, 0, 0,
+                    64000, 20000, 256000, null, null, null, true, false);
 
             ByteBuffer evBuf1 = ByteBuffer.allocate(event1.getTotalBytes());
             event1.write(evBuf1);
@@ -973,7 +943,7 @@ public class CompactReaderTest {
 
 
         try {
-            EvioCompactReader reader = new EvioCompactReader("/daqfs/home/timmer/coda/evioTestFiles/BSTN2.ev");
+            IEvioCompactReader reader = new EvioCompactReader("/daqfs/home/timmer/coda/evioTestFiles/BSTN2.ev");
 
             // Get each event in the buffer
             evCount = reader.getEventCount();
@@ -1106,7 +1076,7 @@ public class CompactReaderTest {
 
         System.out.println("\nCompactEvioReader file: " + fileName);
         try {
-            EvioCompactReader reader = new EvioCompactReader(fileName);
+            IEvioCompactReader reader = new EvioCompactReader(fileName);
             System.out.println("\nev count= " + reader.getEventCount());
             System.out.println("dictionary = " + reader.getDictionaryXML() + "\n");
 
@@ -1144,7 +1114,7 @@ System.out.println("addBankBuf size = " + addBankBuf.remaining());
         List<EvioNode> returnList;
 
         try {
-            EvioCompactReader reader = new EvioCompactReader(myBuf);
+            IEvioCompactReader reader = new EvioCompactReader(myBuf);
             //EvioCompactReader reader = new EvioCompactReader("/tmp/compactTest");
 
             EvioNode node = reader.getEvent(4);
@@ -1291,7 +1261,7 @@ System.out.println("Return list size for search of tag/num = 7/0 -> " + retList1
             if (true) {
                 for (int i=0; i < 1; i++) {
                     try {
-                        EvioCompactReader reader = new EvioCompactReader(myBuf);
+                        IEvioCompactReader reader = new EvioCompactReader(myBuf);
                         //EvioCompactReader reader = new EvioCompactReader("/tmp/compactTest");
                         if (reader.hasDictionary()) {
                             System.out.println(" *** We Have a dictionary ***");
