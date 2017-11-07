@@ -997,7 +997,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
 
     /**
      * Returns the name associated with the given tag, num, and tagEnd.
-     * If a valid tag and num are given (>= 0) a search is made for:
+     * If a valid tag and num are given (&gt;= 0) a search is made for:
      * <ol>
      * <li>an entry of a tag/num pair. If that fails,
      * <li>an entry of a tag only. If that fails,

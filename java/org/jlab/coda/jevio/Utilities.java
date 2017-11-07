@@ -160,9 +160,9 @@ final public class Utilities {
     /**
      * This method generates a complete file name from the previously determined baseFileName
      * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
-     * If evio data is to be split up into multiple files (split > 0), numbers are used to
+     * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
      * distinguish between the split files with splitNumber.
-     * If baseFileName contains C-style int format specifiers (specifierCount > 0), then
+     * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
      * the first occurrence will be substituted with the given runNumber value.
      * If the file is being split, the second will be substituted with the splitNumber.
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
@@ -191,9 +191,9 @@ final public class Utilities {
     /**
      * This method generates a complete file name from the previously determined baseFileName
      * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
-     * If evio data is to be split up into multiple files (split > 0), numbers are used to
+     * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
      * distinguish between the split files with splitNumber.
-     * If baseFileName contains C-style int format specifiers (specifierCount > 0), then
+     * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
      * the first occurrence will be substituted with the given runNumber value.
      * If the file is being split, the second will be substituted with the splitNumber.
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
@@ -479,6 +479,7 @@ final public class Utilities {
     /**
      * This method takes an EvioNode object and converts it to an EvioEvent object.
      * @param node EvioNode object to EvioEvent
+     * @return event object
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
     final static public EvioEvent nodeToEvent(EvioNode node) throws EvioException {
@@ -1633,6 +1634,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * This method takes an EvioNode object and converts it to a readable, XML String.
      * @param node EvioNode object to print out
      * @param hex  if true, ints get displayed in hexadecimal
+     * @return string representation of node.
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
     final static public String toXML(EvioNode node, boolean hex) throws EvioException {
