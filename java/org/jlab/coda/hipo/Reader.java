@@ -251,6 +251,10 @@ public class Reader {
             // If here, the next event is in the next record
             readRecord(eventIndex.getRecordNumber());
         }
+        if(inputRecordStream.getEntries()==0){
+            System.out.println("[READER] first time reading");
+            readRecord(eventIndex.getRecordNumber());
+        }
         return inputRecordStream.getEvent(eventIndex.getRecordEventNumber());
     }
     /**
@@ -295,12 +299,17 @@ public class Reader {
      * @throws HipoException if file not in hipo format
      */
     public byte[] getEvent(int index) throws HipoException {
+        
         if (index < 0 || index >= eventIndex.getMaxEvents()) {
             return null;
         }
         
         if (eventIndex.setEvent(index)) {
             // If here, the event is in the next record
+            readRecord(eventIndex.getRecordNumber());
+        }
+        if(inputRecordStream.getEntries()==0){
+            System.out.println("[READER] first time reading");
             readRecord(eventIndex.getRecordNumber());
         }
         return inputRecordStream.getEvent(eventIndex.getRecordEventNumber());
@@ -342,7 +351,7 @@ public class Reader {
      * @return true if previous event is accessible, false otherwise
      */
     public boolean hasPrev(){
-       return eventIndex.canAdvance();
+       return eventIndex.canRetreat();
     }
     /**
      * Get the number of events in current record.
@@ -510,17 +519,22 @@ public class Reader {
             // Read and parse file header
             inStreamRandom.read(headerBytes);
             fileHeader.readHeader(headerBuffer);
-
+            
+            /*System.out.println(String.format("HEADER %x %x \n", 
+                    headerBuffer.getInt(7*4),headerBuffer.getInt(8*4)
+                    ));*/
             // Take care of non-standard header size
-            channel.position(fileHeader.getHeaderLength());
+            int userHeaderLength = fileHeader.getUserHeaderLength();
+            channel.position(fileHeader.getHeaderLength()+userHeaderLength);
             //System.out.println(header.toString());
 
             // First record position (past file's header + index + user header)
-            long recordPosition = fileHeader.getLength();
+            long recordPosition = fileHeader.getLength() + userHeaderLength;
             while (recordPosition < maximumSize) {
                 channel.position(recordPosition);
-                inStreamRandom.read(headerBytes);
+                inStreamRandom.read(headerBytes); 
                 recordHeader.readHeader(headerBuffer);
+                //System.out.println(recordHeader.toString());
                 //System.out.println(">>>>>==============================================");
                 //System.out.println(recordHeader.toString());
                 offset = recordHeader.getLength();

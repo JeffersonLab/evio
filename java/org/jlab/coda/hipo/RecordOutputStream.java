@@ -601,7 +601,7 @@ public class RecordOutputStream {
                                              RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
-                case 3:
+                case 3:                    
                     // GZIP compression
                     byte[] gzippedData = dataCompressor.compressGZIP(recordData.array(), 0,
                                                                      uncompressedDataSize);
@@ -617,7 +617,10 @@ public class RecordOutputStream {
                 default:
                     // No compression
                     header.setCompressedDataLength(0);
-                    header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
+                    int words = uncompressedDataSize/4;
+                    if(uncompressedDataSize%4!=0) words++;
+                    header.setLength(words*4 + RecordHeader.HEADER_SIZE_BYTES);                    
+                    //header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
             }
         }
         catch (HipoException e) {/* should not happen */}
@@ -641,7 +644,6 @@ public class RecordOutputStream {
             header.writeHeader(recordBinary);
         }
         catch (HipoException e) {/* never happen */}
-
         // Make ready to read
         recordBinary.position(0).limit(header.getLength());
     }
@@ -825,7 +827,8 @@ public class RecordOutputStream {
             header.writeHeader(recordBinary);
         }
         catch (HipoException e) {/* never happen */}
-
+        
+        //System.out.println();
         // Make ready to read
         recordBinary.position(0).limit(header.getLength());
     }

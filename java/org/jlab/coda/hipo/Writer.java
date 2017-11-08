@@ -356,6 +356,9 @@ public class Writer implements AutoCloseable {
         return this;
     }
 
+    public int getCompressionType(){
+        return outputRecord.getHeader().getCompressionType();
+    }
     /**
      * Create and return a byte array containing a general file header
      * followed by the user header given in the argument.
@@ -522,6 +525,8 @@ public class Writer implements AutoCloseable {
         header.setCompressionType(compressionType);
         outputRecord.build();
         int bytesToWrite = header.getLength();
+        //int wordsToWrite = bytesToWrite/4;
+        //int remainder    = bytesToWrite%4;
         // Record length of this record
         recordLengths.add(bytesToWrite);
         // Followed by events in record
