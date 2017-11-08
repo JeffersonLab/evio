@@ -9,138 +9,128 @@ import java.nio.ByteOrder;
  * @author timmer
  */
 public interface IBlockHeader {
-    /**
-     * The magic number, should be the value of <code>magicNumber</code>.
-     */
-    public static final int MAGIC_NUMBER = 0xc0da0100;
+
+    /** The magic number, should be the value of <code>magicNumber</code>. */
+    int MAGIC_NUMBER = 0xc0da0100;
 
     /**
-	 * Get the size of the block (physical record).
-	 *
-	 * @return the size of the block (physical record) in ints.
+	 * Get the size of the block (record) in 32 bit words.
+	 * @return size of the block (record) in 32 bit words.
 	 */
     int getSize();
 
     /**
-	 * Get the block number for this block (physical record).
+	 * Get the block number for this block (record).
      * In a file, this is usually sequential.
-     *
-     * @return the block number for this block (physical record).
+     * @return the block number for this block (record).
      */
     int getNumber();
 
     /**
-	 * Get the block header length, in ints. This should be 8.
-     *
-     * @return the block header length. This should be 8.
+	 * Get the block (record) header length, in 32 bit words.
+     * @return block (record) header length, in 32 bit words.
      */
     int getHeaderLength();
 
     /**
-     * Get the evio version of the block (physical record) header.
-     *
-     * @return the evio version of the block (physical record) header.
+     * Get the evio version of the block (record) header.
+     * @return evio version of the block (record) header.
      */
     int getVersion();
 
     /**
-	 * Get the magic number the block (physical record) header which should be 0xc0da0100.
-     *
-     * @return the magic number in the block (physical record).
+	 * Get the magic number the block (record) header which should be 0xc0da0100.
+     * @return magic number in the block (record).
      */
     int getMagicNumber();
 
     /**
 	 * Get the byte order of the data being read.
-     *
-     * @return the byte order of the data being read.
+     * @return byte order of the data being read.
      */
     ByteOrder getByteOrder();
 
     /**
-     * Get the position in the buffer (in bytes) of this block's last data word.<br>
-     *
-     * @return the position in the buffer (in bytes) of this block's last data word.
+     * Get the position in the buffer (bytes) of this block's last data word.<br>
+     * @return position in the buffer (bytes) of this block's last data word.
      */
     long getBufferEndingPosition();
 
     /**
-     * Get the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
+     * Get the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
      * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
-     * (physical record). It is kept for convenience. It is up to the reader to set it.
+     * (record). It is kept for convenience. It is up to the reader to set it.
      *
-     * @return the starting position in the buffer (in bytes) from which this header was read--if that happened.
+     * @return starting position in buffer (bytes) from which this header was read--if that happened.
      */
     long getBufferStartingPosition();
 
     /**
-	 * Set the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
+	 * Set the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
      * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
-     * (physical record). It is kept for convenience. It is up to the reader to set it.
+     * (record). It is kept for convenience. It is up to the reader to set it.
      *
-     * @param bufferStartingPosition the starting position in the buffer from which this header was read--if that
+     * @param bufferStartingPosition starting position in buffer from which this header was read--if that
      *            happened.
      */
     void setBufferStartingPosition(long bufferStartingPosition);
 
     /**
-	 * Determines where the start of the next block (physical record) header in some buffer is located (in bytes).
+	 * Determines where the start of the next block (record) header in some buffer is located (bytes).
      * This assumes the start position has been maintained by the object performing the buffer read.
      *
-     * @return the start of the next block (physical record) header in some buffer is located (in bytes).
+     * @return the start of the next block (record) header in some buffer is located (bytes).
      */
     long nextBufferStartingPosition();
 
     /**
-	 * Determines where the start of the first event (logical record) in this block (physical record) is located
-     * (in bytes). This assumes the start position has been maintained by the object performing the buffer read.
+	 * Determines where the start of the first event in this block (record) is located
+     * (bytes). This assumes the start position has been maintained by the object performing the buffer read.
      *
-     * @return where the start of the first event (logical record) in this block (physical record) is located
-     *         (in bytes). Returns 0 if start is 0, signaling that this entire physical record is part of a
-     *         logical record that spans at least three physical records.
+     * @return where the start of the first event in this block (record) is located
+     *         (bytes). In evio format version 2, returns 0 if start is 0, signaling
+     *         that this entire record is part of a logical record that spans at least
+     *         three physical records.
      */
     long firstEventStartingPosition();
 
     /**
-	 * Gives the bytes remaining in this block (physical record) given a buffer position. The position is an absolute
+	 * Gives the bytes remaining in this block (record) given a buffer position. The position is an absolute
      * position in a byte buffer. This assumes that the absolute position in <code>bufferStartingPosition</code> is
      * being maintained properly by the reader. No block is longer than 2.1GB - 31 bits of length. This is for
      * practical reasons - so a block can be read into a single byte array.
      *
      * @param position the absolute current position in a byte buffer.
-     * @return the number of bytes remaining in this block (physical record.)
+     * @return the number of bytes remaining in this block (record).
      * @throws EvioException if position out of bounds
      */
     int bytesRemaining(long position) throws EvioException;
 
     /**
-     * Is this block's first event is an evio dictionary?
-     *
-     * @return <code>true</code> if this block's first event is an evio dictionary, else <code>false</code>
+     * Does this block contain an evio dictionary?
+     * @return <code>true</code> if this block contains an evio dictionary, else <code>false</code>.
      */
-    public boolean hasDictionary();
+    boolean hasDictionary();
 
     /**
      * Is this the last block in the file or being sent over the network?
-     *
      * @return <code>true</code> if this is the last block in the file or being sent
-     *         over the network, else <code>false</code>
+     *         over the network, else <code>false</code>.
      */
-    public boolean isLastBlock();
+    boolean isLastBlock();
 
     /**
-	 * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.
-     *
+	 * Write myself out into a byte buffer. This write is relative--i.e.,
+     * it uses the current position of the buffer.
      * @param byteBuffer the byteBuffer to write to.
-     * @return the number of bytes written, which for a BlockHeader is 32.
+     * @return the number of bytes written.
      */
     int write(ByteBuffer byteBuffer);
 
     /**
-     * Obtain a string representation of the block (physical record) header.
-     *
-     * @return a string representation of the block (physical record) header.
+     * Get the string representation of the block (record) header.
+     * @return string representation of the block (record) header.
      */
     @Override
-    public String toString();
+    String toString();
 }
