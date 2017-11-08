@@ -139,27 +139,16 @@ public enum DataType {
 		}
 	}
 
-//	/**
-//	 * Convenience routine to see if the given integer arg represents a data type which
-//     * is a structure (a container).
-//	 * @return <code>true</code> if the data type corresponds to one of the structure
-//	 * types: BANK, SEGMENT, or TAGSEGMENT.
-//	 */
-//	static public boolean isStructure(int dataType) {
-//		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
-//				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
-//				dataType == TAGSEGMENT.value;
-//	}
-
 	/**
 	 * Convenience routine to see if the given integer arg represents a data type which
      * is a structure (a container).
-	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to one of the structure
-	 * types: BANK, SEGMENT, or TAGSEGMENT.
+	 *         types: BANK, SEGMENT, or TAGSEGMENT.
 	 */
 	static public boolean isStructure(int dataType) {
-		return  ((dataType > 0xb && dataType < 0x11) || dataType == 0x20);
+		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
+				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
+				dataType == TAGSEGMENT.value;
 	}
 
 	/**
@@ -210,6 +199,39 @@ public enum DataType {
 		}
 	}
 
+	/**
+	 * Is the given data type one that can have non-zero padding?
+	 * @param type evio data type
+	 * @return {@code true} if the data type can have non-zero padding, else {@code false}.
+	 */
+	static public boolean hasPadding(DataType type) {
+		return  type == CHAR8    ||
+				type == UCHAR8   ||
+				type == SHORT16  ||
+				type == USHORT16 ||
+				type == COMPOSITE;
+	}
+
+	/**
+	 * Is the given data type one that can have non-zero padding?
+	 * @param val integer representing evio data type
+	 * @return {@code true} if the data type can have non-zero padding, else {@code false}.
+	 */
+	static public boolean hasPadding(int val) {
+		return  hasPadding(getDataType(val));
+	}
+
+	/**
+	 * Is this data type one that can have non-zero padding?
+	 * @return {@code true} if this data type can have non-zero padding, else {@code false}.
+	 */
+	public boolean hasPadding() {
+		return  this == CHAR8    ||
+				this == UCHAR8   ||
+				this == SHORT16  ||
+				this == USHORT16 ||
+				this == COMPOSITE;
+	}
 
 
 }
