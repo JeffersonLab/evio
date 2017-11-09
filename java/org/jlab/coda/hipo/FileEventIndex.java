@@ -121,8 +121,8 @@ public class FileEventIndex {
     }
 
     /**
-     * Checks if the event index can retreat (decrease). convenience function.
-     * @return true is the event index can be lowered by one.
+     * Checks if the event index can retreat (decrease). Convenience function.
+     * @return true if the event index can be lowered by one.
      */
     public boolean canRetreat() {return (currentEvent > 0);}
     
