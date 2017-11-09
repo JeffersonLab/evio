@@ -221,7 +221,7 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
 
 	/**
 	 * Obtain a string representation of the structure header.
-	 * 
+	 *
 	 * @return a string representation of the structure header.
 	 */
 	@Override
@@ -233,7 +233,7 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
         sb.append(String.format("padding:     %d\n", padding));
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Convenience method to return the byte value of an integer. Although
 	 * the parameter is an Integer, use "autoboxing" to pass in a primitive. I.e.,
