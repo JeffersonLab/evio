@@ -90,6 +90,7 @@ import java.util.logging.Logger;
  * @since 6.0 08/10/2017
  * @author gavalian
  * @author timmer
+ * @see BufferReader
  * @see FileHeader
  * @see RecordInputStream
  */
@@ -99,44 +100,54 @@ public class Reader {
      * when the entire file is scanned to read out positions
      * of each record in the file (in constructor).
      */
-    private final List<RecordPosition>  recordPositions = new ArrayList<RecordPosition>();
+    protected final List<RecordPosition>  recordPositions = new ArrayList<RecordPosition>();
 
     /** Fastest way to read/write files. */
-    private RandomAccessFile  inStreamRandom;
+    protected RandomAccessFile  inStreamRandom;
 
     /** Keep one record for reading in data record-by-record. */
-    private final RecordInputStream inputRecordStream = new RecordInputStream();
+    protected final RecordInputStream inputRecordStream = new RecordInputStream();
     
     /** Number or position of last record to be read. */
-    private int currentRecordLoaded;
+    protected int currentRecordLoaded;
 
     /** General file header. */
-    private FileHeader fileHeader;
+    protected FileHeader fileHeader;
 
     /** Files may have an xml format dictionary in the user header of the file header. */
-    private String dictionaryXML;
+    protected String dictionaryXML;
 
     /** Each file of a set of split CODA files may have a "first" event common to all. */
-    private byte[] firstEvent;
+    protected byte[] firstEvent;
 
     /** Object to handle event indexes in context of file and having to change records. */
-    private FileEventIndex eventIndex = new FileEventIndex();
+    protected FileEventIndex eventIndex = new FileEventIndex();
 
     /** Are we reading from file (true) or buffer? */
-    private boolean fromFile = true;
+    protected boolean fromFile = true;
     
-// TODO: this constructor is useless since scanFile is not public
+
     /**
-     * Default constructor. Does nothing. If instance is created
-     * with default constructor the {@link #open(String)} method has to be used
-     * to open the input stream.
+     * Default constructor. Does nothing.
+     * The {@link #open(String)} method has to be called to open the input stream.
+     * Also {@link #forceScanFile()} needs to be called to find records.
      */
     public Reader() {}
 
     /**
-     * Constructor with filename. creates instance and opens 
-     * the input stream with given name
-     * @param filename input file name
+     * Constructor with file already opened.
+     * The method {@link #forceScanFile()} needs to be called to find records.
+     * @param file open file
+     */
+    public Reader(RandomAccessFile file) {
+        inStreamRandom = file;
+    }
+
+    /**
+     * Constructor with filename. Creates instance and opens
+     * the input stream with given name. Uses existing indexes
+     * in file before scanning.
+     * @param filename input file name.
      */
     public Reader(String filename){
         open(filename);
@@ -144,14 +155,14 @@ public class Reader {
     }
 
     /**
-     * Constructor with filename. creates instance and opens
-     * the input stream with given name
-     * @param filename input file name
-     * @param forceScan force a scan of file even if index info exists in header.
+     * Constructor with filename. Creates instance and opens
+     * the input stream with given name.
+     * @param filename input file name.
+     * @param forceScan if true, force a scan of file, else use existing indexes first.
      */
     public Reader(String filename, boolean forceScan){
         open(filename);
-        if(forceScan==true){
+        if (forceScan){
            forceScanFile();
         } else {
             scanFile(forceScan);
@@ -224,7 +235,6 @@ public class Reader {
      */
     public boolean hasFirstEvent() {return fileHeader.hasFirstEvent();}
 
-// TODO: This changed from record to file.
     /**
      * Get the number of events in file.
      * @return number of events in file.
@@ -260,7 +270,7 @@ public class Reader {
     /**
      * Get a byte array representing the previous event from the sequential queue.
      * @return byte array representing the previous event or null if there is none.
-     * @throws HipoException if the file is no in HIPO format
+     * @throws HipoException if the file is not in HIPO format
      */
     public byte[] getPrevEvent() throws HipoException {
         if(!eventIndex.canRetreat()) return null;
@@ -271,7 +281,7 @@ public class Reader {
     }
     /**
      * Reads user header of the file. The returned ByteBuffer also contains
-     * endiannes of the file.
+     * endianness of the file.
      * @return ByteBuffer containing the user header of the file
      */
     public ByteBuffer readUserHeader(){
@@ -388,7 +398,7 @@ public class Reader {
     }
 
     /** Extract dictionary and first event from file if possible, else do nothing. */
-    private void extractDictionary() {
+    protected void extractDictionary() {
         // If already read & parsed from file ...
         if (dictionaryXML != null || firstEvent != null) {
             return;
@@ -445,59 +455,8 @@ public class Reader {
 
     //-----------------------------------------------------------------
 
-    /** Scans the file to index all the record positions. */
-    private void scanFileOrig(){
-
-        byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
-        fileHeader = new FileHeader();
-        RecordHeader recordHeader = new RecordHeader();
-
-        try {
-
-            inStreamRandom.getChannel().position(0L);
-            inStreamRandom.read(headerBytes);
-
-            ByteBuffer buffer = ByteBuffer.wrap(headerBytes);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-            fileHeader.readHeader(buffer);
-            //System.out.println(header.toString());
-
-            int userHeaderWords = fileHeader.getUserHeaderLengthWords();
-            long recordPosition = fileHeader.getHeaderLength() + userHeaderWords*4;
-
-            //System.out.println(" FIRST RECORD POSITION = " + recordPosition);
-            long fileSize = inStreamRandom.length();
-
-            long    maximumSize = fileSize - RecordHeader.HEADER_SIZE_BYTES;
-            int     numberOfRecords = 0;
-            recordPositions.clear();
-
-            while(recordPosition < maximumSize){
-                inStreamRandom.getChannel().position(recordPosition);
-                inStreamRandom.read(headerBytes);
-                ByteBuffer recordBuffer = ByteBuffer.wrap(headerBytes);
-                recordBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                recordHeader.readHeader(recordBuffer);
-                //System.out.println(">>>>>==============================================");
-                //System.out.println(recordHeader.toString());
-                int offset = recordHeader.getLength();
-                RecordPosition pos = new RecordPosition(recordPosition);
-                pos.setLength(offset);
-                pos.setCount(recordHeader.getEntries());
-                this.recordPositions.add(pos);
-                recordPosition += offset;
-                numberOfRecords++;
-            }
-            //System.out.println("NUMBER OF RECORDS " + recordPositions.size());
-        } catch (IOException ex) {
-            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (HipoException ex) {
-            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private void forceScanFile(){
+    /** Scan file to find all records and store their position, length, and event count. */
+    public void forceScanFile() {
         
         byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
         ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
@@ -506,8 +465,7 @@ public class Reader {
         RecordHeader recordHeader = new RecordHeader();
         
         try {
-            // If here, there is either no valid index or only one in header but
-            // force flag was set, so scan file by reading each record header and
+            // Scan file by reading each record header and
             // storing its position, length, and event count.
             long fileSize = inStreamRandom.length();
             // Don't go beyond 1 header length before EOF since we'll be reading in 1 header
@@ -520,21 +478,13 @@ public class Reader {
             inStreamRandom.read(headerBytes);
             fileHeader.readHeader(headerBuffer);
             
-            /*System.out.println(String.format("HEADER %x %x \n", 
-                    headerBuffer.getInt(7*4),headerBuffer.getInt(8*4)
-                    ));*/
-            // Take care of non-standard header size
-            int userHeaderLength = fileHeader.getUserHeaderLength();
-            channel.position(fileHeader.getHeaderLength()+userHeaderLength);
-            //System.out.println(header.toString());
-
             // First record position (past file's header + index + user header)
-            long recordPosition = fileHeader.getLength() + userHeaderLength;
+            long recordPosition = fileHeader.getLength();
+
             while (recordPosition < maximumSize) {
                 channel.position(recordPosition);
                 inStreamRandom.read(headerBytes); 
                 recordHeader.readHeader(headerBuffer);
-                //System.out.println(recordHeader.toString());
                 //System.out.println(">>>>>==============================================");
                 //System.out.println(recordHeader.toString());
                 offset = recordHeader.getLength();
@@ -555,9 +505,16 @@ public class Reader {
     /**
      * Scans the file to index all the record positions.
      * It takes advantage of any existing indexes in file.
-     * @param force if true, force a file scan even except if header has index info.
+     * @param force if true, force a file scan even if header
+     *              or trailer have index info.
      */
-    private void scanFile(boolean force) {
+    protected void scanFile(boolean force) {
+
+        if (force) {
+            forceScanFile();
+            return;
+        }
+
         //System.out.println("[READER] ---> scanning the file");
         byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
         ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
@@ -572,6 +529,20 @@ public class Reader {
             inStreamRandom.read(headerBytes);
             fileHeader.readHeader(headerBuffer);
 
+            // Is there an existing record length index?
+            // Index in trailer gets first priority.
+            // Index in file header gets next priority.
+            boolean fileHasIndex = fileHeader.hasTrailerWithIndex() || (fileHeader.hasIndex());
+            /*System.out.println(" file has index = " + fileHasIndex
+                    + "  " + fileHeader.hasTrailerWithIndex()
+                    + "  " + fileHeader.hasIndex()); */
+
+            // If there is no index, scan file
+            if (!fileHasIndex) {
+                forceScanFile();
+                return;
+            }
+
             // Take care of non-standard header size
             channel.position(fileHeader.getHeaderLength());
             //System.out.println(header.toString());
@@ -579,76 +550,44 @@ public class Reader {
             // First record position (past file's header + index + user header)
             long recordPosition = fileHeader.getLength();
             //System.out.println("record position = " + recordPosition);
-            // Is there an existing record length index?
-            // Index in trailer gets first priority.
-            // Index in file header gets next priority but
-            // only if told not to force a scan.
-            boolean fileHasIndex = fileHeader.hasTrailerWithIndex() || (fileHeader.hasIndex() && !force);            
-            /*System.out.println(" file has index = " + fileHasIndex 
-                    + "  " + fileHeader.hasTrailerWithIndex()
-                    + "  " + fileHeader.hasIndex());
-            fileHasIndex = false;*/
-            // If there is an index, use that instead of generating a list by scanning
-            if (fileHasIndex) {
-                int indexLength;               
-                // If we have a trailer with indexes ...
-                if (fileHeader.hasTrailerWithIndex()) {
-                    // Position read right before trailing header
-                    channel.position(fileHeader.getTrailerPosition());
-                    // Read trailer
-                    inStreamRandom.read(headerBytes);
-                    recordHeader.readHeader(headerBuffer);
-                    indexLength = recordHeader.getIndexLength();
-                }
-                else {
-                    // If index immediately follows file header,
-                    // we're already in position to read it.
-                    indexLength = fileHeader.getIndexLength();
-                }
 
-                // Read indexes
-                byte[] index = new byte[indexLength];
-                inStreamRandom.read(index);
-                int len, count;
-                try {
-                    // Turn bytes into record lengths & event counts
-                    int[] intData = ByteDataTransformer.toIntArray(index, fileHeader.getByteOrder());
-                    // Turn record lengths into file positions and store in list
-                    recordPositions.clear();
-                    for (int i=0; i < intData.length; i += 2) {
-                        len = intData[i];
-                        count = intData[i+1];
-                        RecordPosition pos = new RecordPosition(recordPosition, len, count);
-                        recordPositions.add(pos);
-                        // Track # of events in this record for event index handling
-                        eventIndex.addEventSize(count);
-                        recordPosition += len;
-                    }
-                }
-                catch (EvioException e) {/* never happen */}
-
-                return;
-            }            
-            //System.out.println("NUMBER OF RECORDS " + recordPositions.size());
-            long fileSize = inStreamRandom.length();
-            // Don't go beyond 1 header length before EOF since we'll be reading in 1 header
-            long maximumSize = fileSize - RecordHeader.HEADER_SIZE_BYTES;
-            recordPositions.clear();
-            int  offset;
-            while (recordPosition < maximumSize) {
-                channel.position(recordPosition);
+            int indexLength;
+            // If we have a trailer with indexes ...
+            if (fileHeader.hasTrailerWithIndex()) {
+                // Position read right before trailing header
+                channel.position(fileHeader.getTrailerPosition());
+                // Read trailer
                 inStreamRandom.read(headerBytes);
                 recordHeader.readHeader(headerBuffer);
-                //System.out.println(">>>>>==============================================");
-                //System.out.println(recordHeader.toString());
-                offset = recordHeader.getLength();
-                RecordPosition pos = new RecordPosition(recordPosition, offset,
-                                                        recordHeader.getEntries());
-                recordPositions.add(pos);
-                // Track # of events in this record for event index handling
-                eventIndex.addEventSize(recordHeader.getEntries());
-                recordPosition += offset;
+                indexLength = recordHeader.getIndexLength();
             }
+            else {
+                // If index immediately follows file header,
+                // we're already in position to read it.
+                indexLength = fileHeader.getIndexLength();
+            }
+
+            // Read indexes
+            byte[] index = new byte[indexLength];
+            inStreamRandom.read(index);
+            int len, count;
+            try {
+                // Turn bytes into record lengths & event counts
+                int[] intData = ByteDataTransformer.toIntArray(index, fileHeader.getByteOrder());
+                // Turn record lengths into file positions and store in list
+                recordPositions.clear();
+                for (int i=0; i < intData.length; i += 2) {
+                    len = intData[i];
+                    count = intData[i+1];
+                    RecordPosition pos = new RecordPosition(recordPosition, len, count);
+                    recordPositions.add(pos);
+                    // Track # of events in this record for event index handling
+                    eventIndex.addEventSize(count);
+                    recordPosition += len;
+                }
+            }
+            catch (EvioException e) {/* never happen */}
+
         } catch (IOException ex) {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
         } catch (HipoException ex) {
