@@ -1524,6 +1524,39 @@ System.err.println("ERROR endOfBuffer " + a);
 	}
 
     /**
+     * Get an evio bank or event in byte array form.
+     * @param eventNumber number of event of interest
+     * @return array containing bank's/event's bytes.
+     * @throws IOException if failed file access
+     * @throws EvioException if eventNumber &lt; 1;
+     *                       if the event number does not correspond to an existing event;
+     *                       if object closed
+     */
+    public byte[] getEventArray(int eventNumber)
+            throws EvioException, IOException {
+
+        EvioEvent ev = gotoEventNumber(eventNumber, false);
+        if (ev == null) {
+            throw new EvioException("event number must be > 0");
+        }
+        return ev.toArray();
+    }
+
+    /**
+     * Get an evio bank or event in ByteBuffer form.
+     * @param eventNumber number of event of interest
+     * @return buffer containing bank's/event's bytes.
+     * @throws IOException if failed file access
+     * @throws EvioException if eventNumber &lt; 1;
+     *                       if the event number does not correspond to an existing event;
+     *                       if object closed
+     */
+    public ByteBuffer getEventBuffer(int eventNumber)
+            throws EvioException, IOException {
+        return ByteBuffer.wrap(getEventArray(eventNumber));
+    }
+
+    /**
    	 * Get the number of bytes remaining in the internal byte buffer.
      * Called only by {@link #nextEvent()}.
    	 *
