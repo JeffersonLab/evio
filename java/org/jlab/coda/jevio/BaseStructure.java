@@ -151,7 +151,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     /**
      * This method does a partial copy and is designed to help convert
      * between banks, segments,and tagsegments in the {@link StructureTransformer}
-     * class (hence the name "transfrom").
+     * class (hence the name "transform").
      * It copies all the data from another BaseStructure object.
      * Children are <b>not</b> copied in the deep clone way,
      * but their references are added to this structure.
@@ -282,8 +282,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * Clone this object. First call the Object class's clone() method
      * which creates a bitwise copy. Then clone all the mutable objects
      * so that this method does a safe (not deep) clone. This means all
-     * children get cloned as well. Remind me again why anyone would
-     * want to clone their bratty kids?
+     * children get cloned as well.
      */
     public Object clone() {
         try {
