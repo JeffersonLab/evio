@@ -3347,7 +3347,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
                     }
-                    else if (hex) {
+
+                    if (hex) {
                         xmlWriter.writeCharacters(String.format("0x%04x  ", s));
                     }
                     else if (kcnf ==  4) {
@@ -3946,7 +3947,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(xmlIndent);
                     }
-                    else if (hex) {
+                    
+                    if (hex) {
                         xmlWriter.writeCharacters(String.format("0x%04x  ", s));
                     }
                     else if (kcnf ==  4) {
