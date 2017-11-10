@@ -20,14 +20,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * This class is used to read an evio format version 4 formatted file or buffer
- * and extract specific evio containers (bank, seg, or tagseg)
- * with actual data in them given a tag/num pair. It is NOT thread-safe since
- * all synchronization is removed in order to gain speed.<p>
- *
- * @author timmer
- */
+ /**
+  * This class was used to read an evio format version 4 formatted buffer
+  * with all synchronization removed in order to gain speed.
+  * However, now it is deprecated since EvioCompactReader can be
+  * used to do the same thing.
+  *
+  * @deprecated use EvioCompactReader with constructor
+  *             flag for removing synchronization.
+  * @author timmer
+  */
 public class EvioCompactReaderUnsync {
 
     /**
