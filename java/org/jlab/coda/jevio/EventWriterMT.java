@@ -86,10 +86,6 @@ public class EventWriterMT {
     static final int headerBytes = 32;
 
 
-    /** Turn on or off the debug printout. */
-    static final boolean debug = false;
-
-
 
     /** Header for file only. */
     private FileHeader fileHeader;
