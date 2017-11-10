@@ -105,14 +105,26 @@ public class EvioCompactReader implements IEvioCompactReader {
 
     /**
      * Constructor for reading a buffer.
-     *
      * @param byteBuffer the buffer that contains events.
-
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
      *                       failure to read first block header
      */
     public EvioCompactReader(ByteBuffer byteBuffer) throws EvioException {
+        this(byteBuffer, true);
+    }
+
+
+    /**
+     * Constructor for reading a buffer with option of removing synchronization
+     * for much greater speed.
+     * @param byteBuffer the buffer that contains events.
+     * @param synced     if true, methods are synchronized for thread safety, else false.
+     * @see EventWriter
+     * @throws EvioException if buffer arg is null;
+     *                       failure to read first block header
+     */
+    public EvioCompactReader(ByteBuffer byteBuffer, boolean synced) throws EvioException {
 
         if (byteBuffer == null) {
             throw new EvioException("Buffer arg is null");
@@ -131,10 +143,20 @@ public class EvioCompactReader implements IEvioCompactReader {
         }
 
         if (evioVersion == 4) {
-            reader = new EvioCompactReaderV4(byteBuffer);
+            if (synced) {
+                reader = new EvioCompactReaderV4(byteBuffer);
+            }
+            else {
+                reader = new EvioCompactReaderUnsyncV4(byteBuffer);
+            }
         }
         else if (evioVersion == 6) {
-            reader = new EvioCompactReaderV4(byteBuffer);
+            if (synced) {
+                reader = new EvioCompactReaderV4(byteBuffer);
+            }
+            else {
+                reader = new EvioCompactReaderUnsyncV4(byteBuffer);
+            }
         }
         else {
             throw new EvioException("unsupported evio version (" + evioVersion + ")");
