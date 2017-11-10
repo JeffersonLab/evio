@@ -8,6 +8,7 @@ package org.jlab.coda.hipo;
 
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.IBlockHeader;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -61,15 +62,16 @@ import java.util.Arrays;
  * -------------------
  *     0-7  = version
  *     8    = true if dictionary is included (relevant for first record only)
- *     9    = true if this record is the last in file or stream
- *    10-13 = type of events contained: 0 = ROC Raw,
+ *     9    = true if this record has "first" event (to be in every split file)
+ *    10    = true if this record is the last in file or stream
+ *    11-14 = type of events contained: 0 = ROC Raw,
  *                                      1 = Physics
  *                                      2 = PartialPhysics
  *                                      3 = DisentangledPhysics
  *                                      4 = User
  *                                      5 = Control
  *                                     15 = Other
- *    14-19 = reserved
+ *    15-19 = reserved
  *    20-21 = pad 1
  *    22-23 = pad 2
  *    24-25 = pad 3
@@ -89,8 +91,9 @@ import java.util.Arrays;
  * @author gavalian
  * @author timmer
  */
-public class RecordHeader {
-
+public class RecordHeader implements IBlockHeader {
+    //public class RecordHeader  {
+    
     /** Array to help find number of bytes to pad data. */
     private final static int[] padValue = {0,3,2,1};
     /** Number of 32-bit words in a normal sized header. */
@@ -111,25 +114,27 @@ public class RecordHeader {
 
     // Bits in bit info word
     
-    /** 8th bit set in bitInfo word in record/file header means contains dictionary. */
+    /** 8th bit set in bitInfo word in header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
-    /** 9th bit set in bitInfo word in record header means is last in stream or file. */
-    final static int   LAST_RECORD_BIT = 0x200;
+    /** 9th bit set in bitInfo word in header means every split file has same first event. */
+    final static int   HAS_FIRST_EVENT_BIT = 0x200;
+    /** 10th bit set in bitInfo word in header means is last in stream or file. */
+    final static int   LAST_RECORD_BIT = 0x400;
 
-    /** 10-13th bits in bitInfo word in record header for CODA data type, ROC raw = 0. */
+    /** 11-14th bits in bitInfo word in header for CODA data type, ROC raw = 0. */
     final static int   DATA_ROC_RAW_BITS = 0x000;
-    /** 10-13th bits in bitInfo word in record header for CODA data type, physics = 1. */
-    final static int   DATA_PHYSICS_BITS = 0x400;
-    /** 10-13th bits in bitInfo word in record header for CODA data type, partial physics = 2. */
-    final static int   DATA_PARTIAL_BITS = 0x800;
-    /** 10-13th bits in bitInfo word in record header for CODA data type, disentangled = 3. */
-    final static int   DATA_DISENTANGLED_BITS = 0xC00;
-    /** 10-13th bits in bitInfo word in record header for CODA data type, user = 4. */
-    final static int   DATA_USER_BITS    = 0x1000;
-    /** 10-13th bits in bitInfo word in record header for CODA data type, control = 5. */
-    final static int   DATA_CONTROL_BITS = 0x1400;
-    /** 10-13th bits in bitInfo word in record header for CODA data type, other = 15. */
-    final static int   DATA_OTHER_BITS   = 0x3C00;
+    /** 11-14th bits in bitInfo word in header for CODA data type, physics = 1. */
+    final static int   DATA_PHYSICS_BITS = 0x800;
+    /** 11-14th bits in bitInfo word in header for CODA data type, partial physics = 2. */
+    final static int   DATA_PARTIAL_BITS = 0x1000;
+    /** 11-14th bits in bitInfo word in header for CODA data type, disentangled = 3. */
+    final static int   DATA_DISENTANGLED_BITS = 0x1800;
+    /** 11-14th bits in bitInfo word in header for CODA data type, user = 4. */
+    final static int   DATA_USER_BITS    = 0x2000;
+    /** 11-14th bits in bitInfo word in record header for CODA data type, control = 5. */
+    final static int   DATA_CONTROL_BITS = 0x2800;
+    /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
+    final static int   DATA_OTHER_BITS   = 0x7800;
 
 
     /** Position of this header in a file. */
@@ -152,6 +157,12 @@ public class RecordHeader {
     private int  entries;
     /** BitInfo & version. 6th word. */
     private int  bitInfo = -1;
+    /**
+     * Type of events in record, encoded in bitInfo word
+     * (0=ROC raw, 1=Physics, 2=Partial Physics, 3=Disentangled,
+     * 4=User, 5=Control, 15=Other).
+     */
+    private int  eventType;
     /** Length of this header (bytes). */
     private int  headerLength = HEADER_SIZE_BYTES;
     /** Length of this header (words). 3rd word. */
@@ -235,6 +246,7 @@ public class RecordHeader {
         headerType                = head.headerType;
         entries                   = head.entries;
         bitInfo                   = head.bitInfo;
+        eventType                 = head.eventType;
         headerLength              = head.headerLength;
         headerLengthWords         = head.headerLengthWords;
         userHeaderLength          = head.userHeaderLength;
@@ -267,6 +279,7 @@ public class RecordHeader {
 
         entries = 0;
         bitInfo = -1;
+        eventType = 0;
         headerLength = HEADER_SIZE_BYTES;
         headerLengthWords = HEADER_SIZE_WORDS;
         userHeaderLength = 0;
@@ -387,6 +400,12 @@ public class RecordHeader {
     public int  getHeaderLength() {return headerLength;}
 
     /**
+     * Get the length of this header data in words.
+     * @return length of this header data in words.
+   	 */
+   	public int getHeaderWords() {return headerLengthWords;}
+
+    /**
      * Get the record number.
      * @return record number.
      */
@@ -420,7 +439,7 @@ public class RecordHeader {
         // If bitInfo uninitialized, do so now
         if (bitInfo < 0) {
             // This will init the same whether file or record header
-            setBitInfo(false, false);
+            setBitInfo(false, false, false);
         }
         return bitInfo;
     }
@@ -432,6 +451,7 @@ public class RecordHeader {
      * @return new bit info word.
      */
     public int  setBitInfo(boolean isLastRecord,
+                           boolean haveFirstEvent,
                            boolean haveDictionary) {
 
         bitInfo = (headerType.getValue()       << 28) |
@@ -440,37 +460,38 @@ public class RecordHeader {
                   (userHeaderLengthPadding     << 20) |
                   (headerVersion & 0xFF);
 
-        if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
         if (haveDictionary) bitInfo |= DICTIONARY_BIT;
+        if (haveFirstEvent) bitInfo |= HAS_FIRST_EVENT_BIT;
+        if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
 
         return bitInfo;
     }
 
     /**
-     * Set the bit info of a record header for a specified CODA data type.
-     * Must be called AFTER {@link #setBitInfo(boolean, boolean)} or
+     * Set the bit info of a record header for a specified CODA event type.
+     * Must be called AFTER {@link #setBitInfo(boolean, boolean, boolean)} or
      * {@link #setBitInfoWord(int)} in order to have change preserved.
-     * @return new bit info word.
-     * @param type data type (0=ROC raw, 1=Physics, 2=Partial Physics,
+     * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
      *             3=Disentangled, 4=User, 5=Control, 15=Other,
      *             else = nothing set).
+     * @return new bit info word.
      */
-    public int  setBitInfoDataType (int type) {
+    public int  setBitInfoEventType (int type) {
         switch(type) {
             case 0:
-                bitInfo |= DATA_ROC_RAW_BITS; break;
+                bitInfo |= DATA_ROC_RAW_BITS; eventType = type; break;
             case 1:
-                bitInfo |= DATA_PHYSICS_BITS; break;
+                bitInfo |= DATA_PHYSICS_BITS; eventType = type; break;
             case 2:
-                bitInfo |= DATA_PARTIAL_BITS; break;
+                bitInfo |= DATA_PARTIAL_BITS; eventType = type; break;
             case 3:
-                bitInfo |= DATA_DISENTANGLED_BITS; break;
+                bitInfo |= DATA_DISENTANGLED_BITS; eventType = type; break;
             case 4:
-                bitInfo |= DATA_USER_BITS; break;
+                bitInfo |= DATA_USER_BITS; eventType = type; break;
             case 5:
-                bitInfo |= DATA_CONTROL_BITS; break;
-            case 13:
-                bitInfo |= DATA_OTHER_BITS; break;
+                bitInfo |= DATA_CONTROL_BITS; eventType = type; break;
+            case 15:
+                bitInfo |= DATA_OTHER_BITS; eventType = type; break;
             default:
         }
 
@@ -487,8 +508,8 @@ public class RecordHeader {
     }
 
     /**
-     * decodes the padding words
-     * @param word
+     * Decodes the padding and header type info.
+     * @param word int to decode.
      */
     private void decodeBitInfoWord(int word){
         // Padding
@@ -501,6 +522,9 @@ public class RecordHeader {
         if (headerType == null) {
             headerType = HeaderType.EVIO_RECORD;
         }
+
+        // Data type
+        eventType = (word >> 11) & 0xf;
     }
 
     /**
@@ -509,6 +533,14 @@ public class RecordHeader {
      */
     public boolean hasDictionary() {
         return ((bitInfo & DICTIONARY_BIT) != 0);
+    }
+
+    /**
+     * Does this header have a first event in the user header?
+     * @return true if header has a first event in the user header, else false.
+     */
+    public boolean hasFirstEvent() {
+        return ((bitInfo & HAS_FIRST_EVENT_BIT) != 0);
     }
 
     /**
@@ -800,7 +832,8 @@ public class RecordHeader {
         }
 
         // First read the magic word to establish endianness
-        headerMagicWord = buffer.getInt(28 + offset);    // 7*4        
+        headerMagicWord = buffer.getInt(28 + offset);    // 7*4
+        
         // If it's NOT in the proper byte order ...
         if (headerMagicWord != HEADER_MAGIC_LE) {
             // If it needs to be switched ...
@@ -870,6 +903,10 @@ public class RecordHeader {
         readHeader(buffer,0);
     }
 
+    //-----------------------------------------------------
+    // Additional methods for implementing IBlockHeader
+    //-----------------------------------------------------
+
     /**
      * Returns a string representation of the record.
      * @return a string representation of the record.
@@ -903,6 +940,62 @@ public class RecordHeader {
 
         return str.toString();
     }
+
+    /** {@inheritDoc} */
+    public int getSize() {return recordLengthWords;}
+
+    /** {@inheritDoc} */
+    public int getNumber() {return recordNumber;}
+
+    /** {@inheritDoc} */
+    public int getMagicNumber() {return headerMagicWord;}
+
+    /** {@inheritDoc} */
+    public boolean isLastBlock() {return isLastRecord();}
+
+    /** {@inheritDoc} */
+    public int getSourceId() {return (int)recordUserRegisterFirst;}
+
+    /** {@inheritDoc} */
+    public int getEventType() {return eventType;}
+
+    /** {@inheritDoc} */
+    public int write(ByteBuffer byteBuffer) {
+        try {
+            writeHeader(byteBuffer, byteBuffer.position());
+        }
+        catch (HipoException e) {
+            System.out.println("RecordHeader.write(): buffer is null or contains too little room");
+            return 0;
+        }
+        return HEADER_SIZE_BYTES;
+    }
+
+    // Following methods are not used in this class but must be part of IBlockHeader interface
+
+    /** {@inheritDoc} */
+    public ByteOrder getByteOrder() {return null;}
+
+    /** {@inheritDoc} */
+    public long getBufferEndingPosition() {return 0L;}
+
+    /** {@inheritDoc} */
+    public long getBufferStartingPosition() {return 0L;}
+
+    /** {@inheritDoc} */
+    public void setBufferStartingPosition(long bufferStartingPosition) {}
+
+    /** {@inheritDoc} */
+    public long nextBufferStartingPosition() {return 0L;}
+
+    /** {@inheritDoc} */
+    public long firstEventStartingPosition() {return 0L;}
+
+    /** {@inheritDoc} */
+    public int bytesRemaining(long position) throws EvioException {return 0;}
+
+    //----------------------------------------------------------------------------
+    //----------------------------------------------------------------------------
 
     /**
      * Take a string and add padding characters to its left side.
