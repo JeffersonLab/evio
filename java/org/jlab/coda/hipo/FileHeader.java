@@ -105,8 +105,6 @@ public class FileHeader {
     final static int   DICTIONARY_BIT = 0x100;
     /** 9th bit set in bitInfo word in file header means every split file has same first event. */
     final static int   HAS_FIRST_EVENT_BIT = 0x200;
-    /** 9th bit set in bitInfo word in record header means is last in stream or file. */
-    final static int   LAST_RECORD_BIT = 0x200;
     /** 10th bit set in bitInfo word in file header means file trailer with index array exists. */
     final static int   TRAILER_WITH_INDEX_BIT = 0x400;
 
@@ -623,8 +621,7 @@ public class FileHeader {
             throw new HipoException("null or too small array arg");
         }
 
-        // TODO: the header type and "last record" bit are redundant
-        int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | LAST_RECORD_BIT | 6;
+        int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
 
         try {
             // First the general header part
@@ -682,8 +679,7 @@ public class FileHeader {
             writeTrailer(buf.array(), off, recordNumber, order, index);
         }
         else {
-            // TODO: the header type and "last record" bit are redundant
-            int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | LAST_RECORD_BIT | 6;
+            int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
 
             buf.position(off);
 
