@@ -320,11 +320,21 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	}
 
 	/**
-	 * Get the block header length, in ints. This should be 8.
-	 *
-	 * @return the block header length. This should be 8.
+	 * Get the block header length in ints. This should be 8.
+	 * @return block header length in ints.
 	 */
 	public int getHeaderLength() {
+		return headerLength;
+	}
+
+	/**
+	 * Get the block header length, in 32 bit words (ints). This should be 8.
+	 * This is needed to implement IBlockHeader interface. The {@link #getHeaderLength()}
+	 * method cannot be used since the new hipo code uses that method to return a
+	 * length in bytes.
+	 * @return block header length.
+	 */
+	public int getHeaderWords() {
 		return headerLength;
 	}
 
@@ -343,9 +353,23 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 		this.headerLength = headerLength;
 	}
 
+   /**
+    * Does this block/record contain the "first event"
+    * (first event to be written to each file split)?
+	* First event is not supported by this evio version. So always return false.
+    * @return <code>false</code>
+    */
+   public boolean hasFirstEvent() {return false;}
+
+   /**
+    * Get the type of events in block (see values of {@link DataType}.
+	* This is not supported by this version header. So just return -1.
+    * @return -1 to indicate not supported.
+    */
+   public int getEventType() {return -1;}
+
 	/**
 	 * Get the evio version of the block (physical record) header.
-	 *
 	 * @return the evio version of the block (physical record) header.
 	 */
 	public int getVersion() {
@@ -354,16 +378,17 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 
     /**
      * Sets the evio version. Should be 1, 2 or 3 but no check is performed here.
-     *
      * @param version the evio version of evio.
      */
     public void setVersion(int version) {
         this.version = version;
     }
 
+	/** {@inheritDoc} */
+	public int getSourceId() {return reserved1;}
+
 	/**
 	 * Get the first reserved word in the block (physical record) header. Used in evio versions 1-3 only.
-	 *
 	 * @return the first reserved word in the block (physical record). Used in evio versions 1-3 only.
 	 */
 	public int getReserved1() {
@@ -372,7 +397,6 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 
 	/**
 	 * Sets the value of reserved 1.
-	 *
 	 * @param reserved1 the value for reserved1.
 	 */
 	public void setReserved1(int reserved1) {
@@ -382,7 +406,6 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	/**
 	 * Get the magic number the block (physical record) header which should be 0xc0da0100.
      * Formerly this location in the header was called "reserved2".
-	 *
 	 * @return the magic number in the block (physical record).
 	 */
 	public int getMagicNumber() {
