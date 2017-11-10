@@ -117,10 +117,6 @@ public class EventWriterUnsync {
     /** Size of block header in bytes. */
     static final int headerWords = 8;
 
-    /** Turn on or off the debug printout. */
-    static final boolean debug = false;
-
-
 
     /**
      * Maximum block size (32 bit words) for a single block (block header & following events).
@@ -290,20 +286,6 @@ public class EventWriterUnsync {
     /** <code>True</code> if internal buffer has the last empty block header
      * written and buffer position is immediately after it, else <code>false</code>. */
     private boolean lastEmptyBlockHeaderExists;
-
-    //-----------------------------
-    // Compression related members
-    //-----------------------------
-
-    /** If true, write files as compressed evio output. */
-    private boolean compressedOutput;
-
-    /** Stream used to hold compressed data. */
-    private EvioByteArrayOutputStream byteArrayOut;
-
-    /** Stream used to compress data. */
-    private EvioGZIPOutputStream gzipOut;
-
 
     //-----------------------
 
@@ -1951,13 +1933,6 @@ public class EventWriterUnsync {
                     writeNewHeader(0, blockNumber, null, false, true);
                 }
                 flushToFile(true);
-
-                if (compressedOutput) {
-                    // System.out.println("\nFINISH Gzip output and close stream\n");
-                    gzipOut.finish();
-                    gzipOut.close();
-                }
-
             }
             else {
                 // Data is written, but need to write empty last header
@@ -2494,16 +2469,6 @@ System.err.println("ERROR endOfBuffer " + a);
         buffer = ByteBuffer.allocateDirect(newSize);
         buffer.order(byteOrder);
         bufferSize = newSize;
-
-        if (compressedOutput) {
-            byteArrayOut = new EvioByteArrayOutputStream(newSize + 1024);
-            try {
-                gzipOut = new EvioGZIPOutputStream(byteArrayOut);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
 //System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
         return;
@@ -3110,10 +3075,6 @@ System.err.println("ERROR endOfBuffer " + a);
         buffer.flip();
 //System.out.println("    flushToFile: try writing " + eventsWrittenToBuffer + " events");
 
-        if (compressedOutput) {
-            return flushToFileCompressed(force);
-        }
-
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
 //System.out.println("    flushToFile: create file " + currentFile.getName());
@@ -3131,88 +3092,6 @@ System.err.println("ERROR endOfBuffer " + a);
         int bytesWritten = buffer.remaining();
         while (buffer.hasRemaining()) {
             fileChannel.write(buffer);
-        }
-
-        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
-        // but don't bother writing the metadata (arg to force()) since that slows it
-        // down too.
-        if (force) fileChannel.force(false);
-
-        // Set buf position to 0 and set limit to capacity
-        buffer.clear();
-
-        // Keep track of what is written to this, one, file
-        bytesWrittenToFile  += bytesWritten;
-        eventsWrittenToFile += eventsWrittenToBuffer;
-
-//        if (debug) {
-//            System.out.println("    flushToFile: after last header written, Events written to:");
-//            System.out.println("                 cnt total (no dict) = " + eventsWrittenTotal);
-//            System.out.println("                 file cnt total (dict) = " + eventsWrittenToFile);
-//            System.out.println("                 internal buffer cnt (dict) = " + eventsWrittenToBuffer);
-//            System.out.println("                 current  block  cnt (dict) = " + currentBlockEventCount);
-//            System.out.println("                 bytes-written  = " + bytesWritten);
-//            System.out.println("                 bytes-to-file = " + bytesWrittenToFile);
-//            System.out.println("                 block # = " + blockNumber);
-//        }
-
-        // Buffer has been flushed, nothing in it
-        bytesWrittenToBuffer   = 0;
-        eventsWrittenToBuffer  = 0;
-
-        return true;
-    }
-
-
-    /**
-     * Flush everything in buffer to file.
-     * Does nothing if object already closed.
-     *
-     * @param force force it to write event to the disk.
-     * @return {@code false} if no data written, else {@code true}
-     *
-     * @throws EvioException if this object already closed;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
-     */
-    private boolean flushToFileCompressed(boolean force) throws EvioException, IOException {
-        // This actually creates the file. Do it only once.
-        if (bytesWrittenToFile < 1) {
-//System.out.println("    flushToFile: create file " + currentFile.getName());
-            try {
-                raf = new RandomAccessFile(currentFile, "rw");
-                fileChannel = raf.getChannel();
-
-                byteArrayOut = new EvioByteArrayOutputStream(buffer.capacity() + 1024);
-                gzipOut = new EvioGZIPOutputStream(byteArrayOut);
-            }
-            catch (FileNotFoundException e) {
-                throw new EvioException("File could not be opened for writing, " +
-                        currentFile.getPath(), e);
-            }
-        }
-
-        int bytesWritten = buffer.remaining();
-        ByteBuffer compressedBuf;
-
-        if (buffer.hasArray()) {
-            gzipOut.write(buffer.array(),
-                          buffer.arrayOffset() + buffer.position(),
-                          bytesWritten);
-        }
-        else {
-            while(buffer.hasRemaining()) {
-                gzipOut.write(buffer.get());
-            }
-        }
-        //gzipOut.finish();
-        gzipOut.flush();
-        compressedBuf = byteArrayOut.byteBuf;
-
-        // Write everything in internal buffer out to file
-        while (compressedBuf.hasRemaining()) {
-            fileChannel.write(compressedBuf);
         }
 
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
