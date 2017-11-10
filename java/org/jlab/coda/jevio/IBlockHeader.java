@@ -30,7 +30,26 @@ public interface IBlockHeader {
 	 * Get the block (record) header length, in 32 bit words.
      * @return block (record) header length, in 32 bit words.
      */
-    int getHeaderLength();
+    int getHeaderWords();
+
+    /**
+	 * Get the source ID number if in CODA online context and data is coming from ROC.
+     * @return source ID number if in CODA online context and data is coming from ROC.
+     */
+    int getSourceId();
+
+    /**
+     * Does this block/record contain the "first event"
+     * (first event to be written to each file split)?
+     * @return <code>true</code> if this record has the first event, else <code>false</code>
+     */
+    boolean hasFirstEvent();
+
+    /**
+     * Get the type of events in block/record (see values of {@link DataType}.
+     * @return type of events in block/record.
+     */
+    int getEventType();
 
     /**
      * Get the evio version of the block (record) header.
