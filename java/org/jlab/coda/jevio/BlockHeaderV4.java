@@ -294,14 +294,24 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 		this.number = number;
 	}
 
-	/**
-	 * Get the block header length, in ints. This should be 8.
-	 *
-	 * @return the block header length. This should be 8.
-	 */
-	public int getHeaderLength() {
-		return headerLength;
-	}
+    /**
+   	 * Get the block header length, in ints. This should be 8.
+   	 * @return block header length. This should be 8.
+   	 */
+   	public int getHeaderLength() {
+   		return headerLength;
+   	}
+
+    /**
+   	 * Get the block header length, in 32 bit words (ints). This should be 8.
+     * This is needed to implement IBlockHeader interface. The {@link #getHeaderLength()}
+     * method cannot be used since the new hipo code uses that method to return a
+     * length in bytes.
+   	 * @return block header length. This should be 8.
+   	 */
+   	public int getHeaderWords() {
+   		return headerLength;
+   	}
 
 	/**
 	 * Set the block header length, in ints. Although technically speaking this value
@@ -366,10 +376,10 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
     /**
-     * Does this block in the file contain the "first event" (first event
-     * to be written to each file split)?
+     * Does this block contain the "first event"
+     * (first event to be written to each file split)?
      *
-     * @return <code>true</code> if this is the first event, else <code>false</code>
+     * @return <code>true</code> if this contains the first event, else <code>false</code>
      */
     public boolean hasFirstEvent() { return bitInfo.get(6); }
 
@@ -434,7 +444,6 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /**
      * Get the value of bits 2-5. It represents the type of event being sent.
-     *
      * @return bits 2-5 as an integer, representing event type.
      */
     public int getEventType() {
@@ -670,6 +679,9 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
     }
 
 
+    /** {@inheritDoc} */
+    public int getSourceId() {return reserved1;}
+
     /**
      * Get the first reserved word.
      * @return the first reserved word.
@@ -702,11 +714,7 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         this.reserved2 = reserved2;
     }
 
-	/**
-	 * Get the magic number the block (physical record) header which should be 0xc0da0100.
-	 *
-	 * @return the magic number in the block (physical record).
-	 */
+    /** {@inheritDoc} */
 	public int getMagicNumber() {
 		return magicNumber;
 	}
