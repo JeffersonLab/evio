@@ -53,15 +53,19 @@
 #include <cstring>
 #include <typeinfo>
 #include <expat.h>
+
+#ifdef vxworks
+#include <iostream.h>
+#else
 #include <iostream>
 #include <iomanip>
+#endif
 
 #include "evio.h"
 #include "evioTypedefs.hxx"
 #include "evioException.hxx"
 #include "evioDictionary.hxx"
 #include "evioChannel.hxx"
-#include "evioDictEntry.hxx"
 
 
 
@@ -280,6 +284,13 @@ public:
                                         uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &tVec) throw(evioException);
 
   static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                                        uint16_t dataTag, uint8_t dataNum, const uint32_t* t, int len, int pad) throw(evioException);
+
+  static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, const string &formatString,
+					uint16_t dataTag, uint8_t dataNum, const uint32_t* t, const uint32_t* t_end) throw(evioException);
+
+  
+  static evioDOMNodeP createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
                                         uint16_t dataTag, uint8_t dataNum, const uint32_t* t, int len) throw(evioException);
 
   static evioDOMNodeP createUnknownEvioDOMNode(uint16_t tag, uint8_t num, const vector<uint32_t> &tVec) throw(evioException);
@@ -336,8 +347,8 @@ public:
 public:
   virtual bool operator==(uint16_t tag) const;
   virtual bool operator!=(uint16_t tag) const;
-  bool operator==(evioDictEntry tnPair) const;
-  bool operator!=(evioDictEntry tnPair) const;
+  bool operator==(tagNum tnPair) const;
+  bool operator!=(tagNum tnPair) const;
 
 
 public:
@@ -383,6 +394,7 @@ protected:
 public:
   uint16_t tag;            /**<The node tag, max 16-bits depending on container type.*/
   uint8_t num;             /**<The node num, max 8 bits, used by BANK and String container types (2-word header).*/
+  int fPadd;               /**<The padding used for composite data.*/
 };
 
 
@@ -474,6 +486,10 @@ protected:
                            uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &v) throw(evioException);
   evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
                            uint16_t dataTag, uint8_t dataNum, const uint32_t *p, int ndata) throw(evioException);
+
+  evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
+                           uint16_t dataTag, uint8_t dataNum, const uint32_t *p, int ndata, int fpad) throw(evioException);
+
   ~evioCompositeDOMLeafNode(void);
 
   evioCompositeDOMLeafNode(const evioCompositeDOMLeafNode &lNode) throw(evioException);
@@ -514,7 +530,7 @@ public:
   evioDOMTree(evioDOMNodeP node, const string &name = "evio") throw(evioException);
   evioDOMTree(uint16_t tag, uint8_t num, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
   evioDOMTree(const string &bankName, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
-  evioDOMTree(evioDictEntry tn, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
+  evioDOMTree(tagNum tn, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
   evioDOMTree(const string &bankName, evioDictionary *dictionary, ContainerType cType=BANK, const string &name = "evio") throw(evioException);
   virtual ~evioDOMTree(void);
 
@@ -529,8 +545,8 @@ public:
   void addBank(evioDOMNodeP node) throw(evioException);
   template <typename T> void addBank(uint16_t tag, uint8_t num, const vector<T> &dataVec) throw(evioException);
   template <typename T> void addBank(uint16_t tag, uint8_t num, const T* dataBuf, int dataLen) throw(evioException);
-  template <typename T> void addBank(evioDictEntry tn, const vector<T> &dataVec) throw(evioException);
-  template <typename T> void addBank(evioDictEntry tn, const T* dataBuf, int dataLen) throw(evioException);
+  template <typename T> void addBank(tagNum tn, const vector<T> &dataVec) throw(evioException);
+  template <typename T> void addBank(tagNum tn, const T* dataBuf, int dataLen) throw(evioException);
   template <typename T> void addBank(const string &name, const vector<T> &dataVec) throw(evioException);
   template <typename T> void addBank(const string &name, const T* dataBuf, int dataLen) throw(evioException);
 
@@ -538,9 +554,9 @@ public:
                uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException);
   void addBank(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString, 
                uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException);
-  void addBank(evioDictEntry tn, uint16_t formatTag, const string &formatString,
+  void addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
                uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException);
-  void addBank(evioDictEntry tn, uint16_t formatTag, const string &formatString,
+  void addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
                uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException);
   void addBank(const string &name, uint16_t formatTag, const string &formatString, 
                uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException);
