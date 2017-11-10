@@ -4,7 +4,6 @@ import org.jlab.coda.jevio.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.*;
 import java.nio.channels.FileChannel;
 
