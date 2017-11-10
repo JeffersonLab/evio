@@ -5,6 +5,9 @@
 */
 
 
+#ifdef vxworks
+#include <iostream.h>
+#endif
 #include "evioUtil.hxx"
 
 using namespace std;
@@ -75,7 +78,7 @@ uint32_t *evioUtilities::appendToBuffer(const uint32_t *buffer, ContainerType bu
   if(bufferType==BANK) {
     bufferLength = buffer[0]+1;
   } else {
-    bufferLength = (buffer[0] & 0xffff) + 1;
+    bufferLength = buffer[0]&0xffff + 1;
   }
 
 
@@ -84,7 +87,7 @@ uint32_t *evioUtilities::appendToBuffer(const uint32_t *buffer, ContainerType bu
   if(structureType==BANK) {
     structureLength=structure[0]+1;
   } else {
-    structureLength=(buffer[0] & 0xffff) + 1;
+    structureLength=(buffer[0]&0xffff)+1;
   }
 
 
@@ -195,7 +198,7 @@ void evioToStringConfig::init(void) {
 bool evioToStringConfig::skipNode(const evioDOMNodeP pNode) const {
 
   // if dictionary exists search for bank name given tag/num
-  evioDictEntry tn(pNode->tag,pNode->num);
+  tagNum tn(pNode->tag,pNode->num);
   string name;
   if((toStringDictionary!=NULL)&&(toStringDictionary->getNameMap.find(tn)!=toStringDictionary->getNameMap.end()))
     name=toStringDictionary->getName(tn);
@@ -406,6 +409,8 @@ void *evioStreamParser::parseBank(const uint32_t *buf, int bankType, int depth,
  */
 evioDOMNode::evioDOMNode(evioDOMNodeP par, uint16_t tag, uint8_t num, int contentType) throw(evioException)
   : parent(par), parentTree(NULL), contentType(contentType), tag(tag), num(num)  {
+  // cout<<"Kuku3"<<endl;
+  // cout<<"tag in kuku3 = "<<tag<<endl;
 }
 
 
@@ -421,14 +426,15 @@ evioDOMNode::evioDOMNode(evioDOMNodeP par, uint16_t tag, uint8_t num, int conten
  */
 evioDOMNode::evioDOMNode(evioDOMNodeP par, const string &name, const evioDictionary *dictionary, int contentType) throw(evioException)
   : parent(par), parentTree(NULL), contentType(contentType) {
-
+  
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    tag=tn.getTag();
-    num=tn.getNum();
+    tagNum tn = dictionary->getTagNum(name);
+    tag=tn.first;
+    num=tn.second;
   } else {
     throw(evioException(0,"?evioDOMNode constructor...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
   }
+
 }
 
 
@@ -460,8 +466,8 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, Container
 evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, ContainerType cType) throw(evioException) {
   
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    return(new evioDOMContainerNode(NULL,tn.getTag(),tn.getNum(),cType));
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioDOMContainerNode(NULL,tn.first,tn.second,cType));
   } else {
     throw(evioException(0,"?evioDOMNode::createEvioDOMNode...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
   }
@@ -503,8 +509,8 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictio
   throw(evioException) {
 
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.getTag(),tn.getNum(),cType);
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.first,tn.second,cType);
     o.serialize(c);
     return(c);
   } else {
@@ -571,7 +577,38 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t 
  */
 evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
                                             uint16_t dataTag, uint8_t dataNum, const uint32_t* t, int len) throw(evioException) {
+  //cout<<"Kuku1"<<endl;
   return(new evioCompositeDOMLeafNode(NULL,tag,num,formatTag,formatString,dataTag,dataNum,t,len));
+}
+
+
+/**
+Added by Rafo, Testing for now
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, uint16_t formatTag, const string &formatString,
+                                            uint16_t dataTag, uint8_t dataNum, const uint32_t* t, int len, int pad) throw(evioException) {
+  //cout<<"Kuku1"<<endl;
+  return(new evioCompositeDOMLeafNode(NULL,tag,num,formatTag,formatString,dataTag,dataNum,t,len, pad));
+}
+
+/**
+Added by Rafo, Testing for now
+With this method user needs to provide the beggining address (t) and the end address (t_end) of the data,
+then number of words and padding will be calculated inside the function.
+The user also don't need to provide the format tag, Sergei mentioned that he is using thhis
+parameter internally and he needs this to be equal to the format string length
+ */
+evioDOMNodeP evioDOMNode::createEvioDOMNode(uint16_t tag, uint8_t num, const string &formatString,
+                                            uint16_t dataTag, uint8_t dataNum, const uint32_t* t, const uint32_t* t_end) throw(evioException) {
+  //cout<<"Kuku1"<<endl;
+
+  int len = ((uint8_t*)t_end - (uint8_t*)t + 3)/4;
+  
+  int pad = (uint8_t*)t + 4*len - (uint8_t*)t_end;
+
+  uint16_t formatTag = strlen(formatString.c_str());
+  
+  return(new evioCompositeDOMLeafNode(NULL,tag,num,formatTag,formatString,dataTag,dataNum,t,len, pad));
 }
 
 
@@ -593,8 +630,8 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictio
                                             uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &tVec) throw(evioException) {
 
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    return(new evioCompositeDOMLeafNode(NULL,tn.getTag(),tn.getNum(),formatTag,formatString,dataTag,dataNum,tVec));
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioCompositeDOMLeafNode(NULL,tn.first,tn.second,formatTag,formatString,dataTag,dataNum,tVec));
   } else {
     throw(evioException(0,"?evioDOMNode::createEvioDOMNode...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
   }
@@ -621,8 +658,8 @@ evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictio
                                             uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException) {
 
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    return(new evioCompositeDOMLeafNode(NULL,tn.getTag(),tn.getNum(),formatTag,formatString,dataTag,dataNum,t,len));
+    tagNum tn = dictionary->getTagNum(name);
+    return(new evioCompositeDOMLeafNode(NULL,tn.first,tn.second,formatTag,formatString,dataTag,dataNum,t,len));
   } else {
     throw(evioException(0,"?evioDOMNode::createEvioDOMNode...NULL dictionary for bank name: " + name,__FILE__,__FUNCTION__,__LINE__));
   }
@@ -679,8 +716,8 @@ evioDOMNodeP evioDOMNode::createUnknownEvioDOMNode(const string &name, const evi
   throw(evioException) {
 
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tn.getTag(),tn.getNum(),tVec);
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tn.first,tn.second,tVec);
     p->contentType=0x0;
     return(p);
   } else {
@@ -704,8 +741,8 @@ evioDOMNodeP evioDOMNode::createUnknownEvioDOMNode(const string &name, const evi
   throw(evioException) {
 
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tn.getTag(),tn.getNum(),t,len);
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMNodeP p = evioDOMNode::createEvioDOMNode(tn.first,tn.second,t,len);
     p->contentType=0x0;
     return(p);
   } else {
@@ -729,8 +766,8 @@ evioDOMNodeP evioDOMNode::createUnknownEvioDOMNode(const string &name, const evi
 evioDOMNodeP evioDOMNode::createEvioDOMNode(const string &name, const evioDictionary *dictionary, void (*f)(evioDOMNodeP c, void *userArg), 
                                             void *userArg, ContainerType cType) throw(evioException) {
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.getTag(),tn.getNum(),cType);
+    tagNum tn = dictionary->getTagNum(name);
+    evioDOMContainerNode *c = new evioDOMContainerNode(NULL,tn.first,tn.second,cType);
     f(c,userArg);
     return(c);
   } else {
@@ -1007,14 +1044,14 @@ bool evioDOMNode::operator!=(uint16_t tg) const {
 
 
 /** 
- * True if node tag and num same as in evioDictEntry pair.
- * @param tnPair evioDictEntry pair to compare to
+ * True if node tag and num same as in tagNum pair.
+ * @param tnPair tagNum pair to compare to
  * @return true if tag and num agree
  */
-bool evioDOMNode::operator==(evioDictEntry tnPair) const {
+bool evioDOMNode::operator==(tagNum tnPair) const {
   return(
-         (this->tag==tnPair.getTag()) &&
-         (this->num==tnPair.getNum())
+         (this->tag==tnPair.first) &&
+         (this->num==tnPair.second)
          );
 }
 
@@ -1023,14 +1060,14 @@ bool evioDOMNode::operator==(evioDictEntry tnPair) const {
 
 
 /** 
- * True if node tag and num NOT the same as in evioDictEntry pair.
- * @param tnPair evioDictEntry pair to compare to
+ * True if node tag and num NOT the same as in tagNum pair.
+ * @param tnPair tagNum pair to compare to
  * @return true if tag and num disagree
  */
-bool evioDOMNode::operator!=(evioDictEntry tnPair) const {
+bool evioDOMNode::operator!=(tagNum tnPair) const {
   return(
-         (this->tag!=tnPair.getTag()) ||
-         (this->num!=tnPair.getNum())
+         (this->tag!=tnPair.first) ||
+         (this->num!=tnPair.second)
          );
 }
 
@@ -1173,9 +1210,9 @@ string evioDOMContainerNode::getHeader(int depth, const evioToStringConfig *conf
   // get node name
   string name;
   if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
-    map<evioDictEntry,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(evioDictEntry(tag,num));
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
     if(iter!=config->toStringDictionary->getNameMap.end()) {
-      //evioDictEntry t=(*iter).first;
+      //tagNum t=(*iter).first;
       name=(*iter).second;
     }
   }
@@ -1226,7 +1263,7 @@ string evioDOMContainerNode::getFooter(int depth, const evioToStringConfig *conf
   // get node name
   string name;
   if((config!=NULL)&&(config->toStringDictionary!=NULL)) {
-    map<evioDictEntry,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(evioDictEntry(tag,num));
+    map<tagNum,string>::const_iterator iter = config->toStringDictionary->getNameMap.find(tagNum(tag,num));
     if(iter!=config->toStringDictionary->getNameMap.end()) name=(*iter).second;
   }
   if(name.size()<=0) name = evGetTypename(parent==NULL?BANK:parent->getContentType());
@@ -1263,7 +1300,7 @@ int evioDOMContainerNode::getSize(void) const {
 evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
                                                    uint16_t formatTag, const string &formatString, 
                                                    uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &v) throw(evioException)
-  : evioDOMLeafNode<uint32_t>(par,tg,num,v), formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum) {
+  : formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum), evioDOMLeafNode<uint32_t>(par,tg,num,v) {
   contentType=0xf;
 }
 
@@ -1274,14 +1311,48 @@ evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg
 /** 
  * Composite leaf node constructor used internally.
  * @param par Parent node
- * @param tg Node tag
+ * @param tg  Node tag
  * @param num Node num
+ * @param formatTag tag associated with format "bank"
+ * @param formatString string defining composite data format
+ * @param dataTag tag associated with data "bank"
+ * @param dataNum num associated with data "bank"
+ * @param p  pointer to ....
+ * @param ndata number of data points
  */
 evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
                                                    uint16_t formatTag, const string &formatString, 
                                                    uint16_t dataTag, uint8_t dataNum, const uint32_t *p, int ndata) throw(evioException)
-  : evioDOMLeafNode<uint32_t>(par,tg,num,p,ndata), formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum) {
+  : formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum), evioDOMLeafNode<uint32_t>(par,tg,num,p,ndata) {
+  // cout<<"Kuku2"<<endl;
+  // cout<<"tag = "<<tg<<endl;
   contentType=0xf;
+}
+
+
+/** 
+ * Composite leaf node constructor used internally.
+ * Made by Rafo, testing
+ * @param par Parent node
+ * @param tg  Node tag
+ * @param num Node num
+ * @param formatTag tag associated with format "bank"
+ * @param formatString string defining composite data format
+ * @param dataTag tag associated with data "bank"
+ * @param dataNum num associated with data "bank"
+ * @param p  pointer to ....
+ * @param ndata number of data points
+ * @param padd number of padding bytes to make entire structure a multiple of 4 bytes
+ */
+evioCompositeDOMLeafNode::evioCompositeDOMLeafNode(evioDOMNodeP par, uint16_t tg, uint8_t num,
+                                                   uint16_t formatTag, const string &formatString, 
+                                                   uint16_t dataTag, uint8_t dataNum, const uint32_t *p, int ndata, int padd) throw(evioException)
+  : formatTag(formatTag), formatString(formatString), dataTag(dataTag), dataNum(dataNum), evioDOMLeafNode<uint32_t>(par,tg,num,p,ndata) {
+  // cout<<"Kuku2"<<endl;
+  // cout<<"tag = "<<tg<<endl;
+  contentType=0xf;
+  fPadd = padd;
+  //cout<<"fPadd = "<<fPadd<<endl;
 }
 
 
@@ -1491,8 +1562,8 @@ evioDOMTree::evioDOMTree(const string& bankName, ContainerType cType, const stri
   : root(NULL), name(name), dictionary(NULL) {
   
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(bankName);
-    root=evioDOMNode::createEvioDOMNode(tn.getTag(),tn.getNum(),cType);
+    tagNum tn = dictionary->getTagNum(bankName);
+    root=evioDOMNode::createEvioDOMNode(tn.first,tn.second,cType);
     root->parentTree=this;
   } else {
     throw(evioException(0,"?evioDOMTree constructor...no dictionary to lookup bank name: " + bankName,__FILE__,__FUNCTION__,__LINE__));
@@ -1505,13 +1576,13 @@ evioDOMTree::evioDOMTree(const string& bankName, ContainerType cType, const stri
 
 /**
  * Constructor creates new container node as root node.
- * @param name Root node evioDictEntry
+ * @param name Root node tagNum
  * @param cType Root node content type
  * @param name Name of tree
  */
-evioDOMTree::evioDOMTree(evioDictEntry tn, ContainerType cType, const string &name) throw(evioException)
+evioDOMTree::evioDOMTree(tagNum tn, ContainerType cType, const string &name) throw(evioException)
   : root(NULL), name(name), dictionary(NULL) {
-  root=evioDOMNode::createEvioDOMNode(tn.getTag(),tn.getNum(),cType);
+  root=evioDOMNode::createEvioDOMNode(tn.first,tn.second,cType);
   root->parentTree=this;
 }
 
@@ -1690,7 +1761,6 @@ void *evioDOMTree::leafNodeHandler(int bankLength, int containerType, int conten
     }
   }
 
-
   // add new leaf to parent
   evioDOMContainerNode *parent = (evioDOMContainerNode*)userArg;
   if(parent!=NULL) {
@@ -1790,8 +1860,8 @@ void evioDOMTree::addBank(const string &name, uint16_t formatTag, const string &
                           uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException) {
 
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    addBank(tn.getTag(), tn.getNum(), formatTag, formatString, dataTag, dataNum, dataVec);
+    tagNum tn = dictionary->getTagNum(name);
+    addBank(tn.first, tn.second, formatTag, formatString, dataTag, dataNum, dataVec);
   } else {
     throw(evioException(0,"?evioDOMTree::addBank...no dictionary",__FILE__,__FUNCTION__,__LINE__));
   }
@@ -1805,16 +1875,16 @@ void evioDOMTree::addBank(const string &name, uint16_t formatTag, const string &
 
 /**
  * Creates leaf node and adds it to tree root node.
- * @param tn Leaf evioDictEntry
+ * @param tn Leaf tagNum
  * @param formatTag Format tag
  * @param formatString Format string
  * @param dataTag Data tag
  * @param dataNum Data num
  * @param dataVec vector<T> of data
  */
-void evioDOMTree::addBank(evioDictEntry tn, uint16_t formatTag, const string &formatString,
+void evioDOMTree::addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
                           uint16_t dataTag, uint8_t dataNum, const vector<uint32_t> &dataVec) throw(evioException) {
-  addBank(tn.getTag(), tn.getNum(), formatTag, formatString, dataTag, dataNum, dataVec);
+  addBank(tn.first, tn.second, formatTag, formatString, dataTag, dataNum, dataVec);
   return;
 }
 
@@ -1824,7 +1894,7 @@ void evioDOMTree::addBank(evioDictEntry tn, uint16_t formatTag, const string &fo
 
 /**
  * Creates leaf node and adds it to tree root node.
- * @param tn Leaf evioDictEntry
+ * @param tn Leaf tagNum
  * @param formatTag Format tag
  * @param formatString Format string
  * @param dataTag Data tag
@@ -1832,10 +1902,10 @@ void evioDOMTree::addBank(evioDictEntry tn, uint16_t formatTag, const string &fo
  * @param t array of uint32_t data
  * @parem len Length of array
  */
-void evioDOMTree::addBank(evioDictEntry tn, uint16_t formatTag, const string &formatString,
+void evioDOMTree::addBank(tagNum tn, uint16_t formatTag, const string &formatString, 
                           uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException) {
 
-  addBank(tn.getTag(), tn.getNum(), formatTag, formatString, dataTag, dataNum, t, len);
+  addBank(tn.first, tn.second, formatTag, formatString, dataTag, dataNum, t, len);
   return;
 }
 
@@ -1890,8 +1960,8 @@ void evioDOMTree::addBank(const string &name, uint16_t formatTag, const string &
                           uint16_t dataTag, uint8_t dataNum, const uint32_t *t, int len) throw(evioException) {
 
   if(dictionary!=NULL) {
-    evioDictEntry tn = dictionary->getEntry(name);
-    addBank(tn.getTag(), tn.getNum(), formatTag, formatString, dataTag, dataNum, t, len);
+    tagNum tn = dictionary->getTagNum(name);
+    addBank(tn.first, tn.second, formatTag, formatString, dataTag, dataNum, t, len);
   } else {
     throw(evioException(0,"?evioDOMTree::addBank...no dictionary",__FILE__,__FUNCTION__,__LINE__));
   }
@@ -2317,7 +2387,9 @@ int evioDOMTree::toEVIOBuffer(uint32_t *buf, const evioDOMNodeP pNode, int size)
         
         // data stored as uint32_t in bank
         buf[dataOffset+nfmtword+1] = ndata+1;
-        buf[dataOffset+nfmtword+2] = (leaf->dataTag<<16) | (0x1<<8) | leaf->dataNum;
+	    padding = pNode->fPadd;
+	    //cout<<"padding = "<<padding<<endl;
+        buf[dataOffset+nfmtword+2] = (leaf->dataTag<<16) | (padding<<14) | (0x1<<8) | leaf->dataNum;
         uint32_t *d = &buf[dataOffset+3+nfmtword];
         for(i=0; i<ndata; i++) d[i]=leaf->data[i];
       }
@@ -2381,14 +2453,14 @@ evioDOMNodeListP evioDOMTree::getNodeList(void) throw(evioException) {
 
 
 /**
- * Returns list of all nodes in tree with particular name, evioDictEntry from dictionary
+ * Returns list of all nodes in tree with particular name, tagNum from dictionary
  * @param name Name of banks to find
  * @return Pointer to list of nodes in tree (actually auto_ptr<>)
  */
 evioDOMNodeListP evioDOMTree::getNodeList(const string &nName) throw(evioException) {
 
   if(dictionary!=NULL) {
-    map<string, evioDictEntry>::const_iterator iter = dictionary->getTagNumMap.find(nName);
+    map<string,tagNum>::const_iterator iter = dictionary->getTagNumMap.find(nName);
     if(iter!=dictionary->getTagNumMap.end())
       return(evioDOMNodeListP(addToNodeList(root,new evioDOMNodeList,tagNumEquals((*iter).second))));
   }
