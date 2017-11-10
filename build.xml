@@ -23,7 +23,7 @@
     <property name="allJarNames"   value="jevio-*.jar" />
     <property name="jarPath"       value="${build.lib}/${jarName}" />
 
-    <property name="lz4JarName"     value="lz4-1.3.0.jar" />
+    <property name="lz4JarName"     value="lz4-java-1.4.0.jar" />
     <property name="lz4JarPath"     value="${local.jars}/${lz4JarName}" />
   
     <!-- Set Classpath, ignore caller's classpath -->
