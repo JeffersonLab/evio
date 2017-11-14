@@ -2007,6 +2007,10 @@ public final class CompositeData {
             throw new EvioException("buffer(s) is(are) too small to handle swap");
         }
 
+        // keep track of how many bytes to go once through format
+        int formatBytes = 0, initSrcPos = srcPos;
+        boolean firstTime = true;
+
         // Sergey's original comments:
         //
         //   Converts the data of array (iarr[i], i=0...nwrd-1)
@@ -2020,7 +2024,7 @@ public final class CompositeData {
         //                  but that's now been replaced by the
         //                  num of bytes since data may not be an
         //                  even multiple of 4 bytes.
-
+        topLoop:
         while (srcPos < srcEndIndex) {
 
             if (debug) System.out.println(String.format("+++ %d %d\n", srcPos, srcEndIndex));
@@ -2032,6 +2036,17 @@ public final class CompositeData {
                 if (imt > nfmt) {
                     //imt = iterm;
                     imt = 0;
+
+                    // Check to see if there are enough bytes for another round
+                    if (firstTime) {
+                        formatBytes = srcPos - initSrcPos;
+                        firstTime = false;
+                    }
+
+                    if (formatBytes > srcEndIndex - srcPos) {
+//System.out.println("Not enough data for another loop through format");
+                        break topLoop;
+                    }
                     if (debug) System.out.println("1\n");
                 }
                 // meet right parenthesis, so we're finished processing format(s) in parenthesis
@@ -2072,6 +2087,11 @@ public final class CompositeData {
                     if (kcnf == 15) {
                         // set it to regular left parenthesis code
                         kcnf = 0;
+                        if (srcPos + 4 > srcEndIndex) {
+//System.out.println("Not enough data to read 32 bits for N at srcPos = " + srcPos);
+                            break topLoop;
+                        }
+
                         // read "N" value from buffer
                         int i = srcBuf.getInt(srcPos);
 
@@ -2132,6 +2152,12 @@ public final class CompositeData {
 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
+                // make sure we don't go past end of data
+                if (srcPos + 4 > srcEndIndex) {
+//System.out.println("Not enough data to read 32 bits for N at srcPos = " + srcPos);
+                    break;
+                }
+
                 // read "N" value from buffer
                 int i = srcBuf.getInt(srcPos);
 
@@ -2162,12 +2188,11 @@ public final class CompositeData {
 
             // If 64-bit
             if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
-                long i;
                 int b64EndIndex = srcPos + 8*ncnf;
                 // make sure we don't go past end of data
                 if (b64EndIndex > srcEndIndex) b64EndIndex = srcEndIndex;
                 // swap all 64 bit items
-                while (srcPos < b64EndIndex) {
+                while (srcPos + 4 <= b64EndIndex) {
                     // buffers are of opposite endianness so putLong will automagically swap
                     destBuf.putLong(destPos, srcBuf.getLong(srcPos));
                     srcPos  += 8;
@@ -2182,7 +2207,7 @@ public final class CompositeData {
                 // make sure we don't go past end of data
                 if (b32EndIndex > srcEndIndex) b32EndIndex = srcEndIndex;
                 // swap all 32 bit items
-                while (srcPos < b32EndIndex) {
+                while (srcPos + 4 <= b32EndIndex) {
                     // buffers are of opposite endianness so putInt will automagically swap
                     destBuf.putInt(destPos, srcBuf.getInt(srcPos));
                     srcPos  += 4;
@@ -2198,7 +2223,7 @@ public final class CompositeData {
                 // make sure we don't go past end of data
                 if (b16EndIndex > srcEndIndex) b16EndIndex = srcEndIndex;
                 // swap all 16 bit items
-                while (srcPos < b16EndIndex) {
+                while (srcPos + 2 <= b16EndIndex) {
                     // buffers are of opposite endianness so putShort will automagically swap
                     destBuf.putShort(destPos, srcBuf.getShort(srcPos));
                     srcPos  += 2;
@@ -2605,7 +2630,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 //                    ", left = " + (endIndex - dataIndex));
                     
                     if (formatBytes > endIndex - dataIndex) {
-System.out.println("Not enough data for another loop through format");
+//System.out.println("Not enough data for another loop through format");
                         break topLoop;
                     }
                 }
@@ -2645,7 +2670,7 @@ System.out.println("Not enough data for another loop through format");
                         // set it to regular left parenthesis code
                         kcnf = 0;
                         if (dataIndex + 4 > endIndex) {
-System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
                             break topLoop;
                         }
 
@@ -2710,7 +2735,7 @@ System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dat
 //System.out.println("read 32 bits N at dataIndex = " + dataIndex);
                 // make sure we don't go past end of data
                 if (dataIndex + 4 > endIndex) {
-System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
                     break;
                 }
 
