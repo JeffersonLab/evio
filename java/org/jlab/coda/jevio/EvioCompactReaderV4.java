@@ -894,12 +894,15 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         int dt = (word >> 8) & 0xff;
         node.dataType = dt & 0x3f;
         node.pad = dt >>> 6;
-        // If only 7th bit set, that can only be the legacy tagsegment type
-        // with no padding information - convert it properly.
-        if (dt == 0x40) {
-            node.dataType = DataType.TAGSEGMENT.getValue();
-            node.pad = 0;
-        }
+        // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+        // This regularly happens with composite data.
+        // However, it that MAY also be the legacy tagsegment type
+        // with no padding information. Ignore this as having tag & num
+        // in legacy code is probably rare.
+        //if (dt == 0x40) {
+        //    node.dataType = DataType.TAGSEGMENT.getValue();
+        //    node.pad = 0;
+        //}
         node.num = word & 0xff;
 
         return node;
@@ -958,12 +961,15 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
                 dt = (word >> 8) & 0xff;
                 dataType = dt & 0x3f;
                 kidNode.pad = dt >>> 6;
-                // If only 7th bit set, that can only be the legacy tagsegment type
-                // with no padding information - convert it properly.
-                if (dt == 0x40) {
-                    dataType = DataType.TAGSEGMENT.getValue();
-                    kidNode.pad = 0;
-                }
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
                 kidNode.num = word & 0xff;
 
 
@@ -1005,12 +1011,15 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
                 dt = (word >>> 16) & 0xff;
                 dataType = dt & 0x3f;
                 kidNode.pad = dt >>> 6;
-                // If only 7th bit set, that can only be the legacy tagsegment type
-                // with no padding information - convert it properly.
-                if (dt == 0x40) {
-                    dataType = DataType.TAGSEGMENT.getValue();
-                    kidNode.pad = 0;
-                }
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
                 len = word & 0xffff;
 
 

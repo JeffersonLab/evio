@@ -229,12 +229,15 @@ public class EventParser {
         int dt = (word >> 8) & 0xff;
         int type = dt & 0x3f;
         int padding = dt >>> 6;
-        // If only 7th bit set, that can only be the legacy tagsegment type
-        // with no padding information - convert it properly.
-        if (dt == 0x40) {
-            type = DataType.TAGSEGMENT.getValue();
-            padding = 0;
-        }
+        // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+        // This regularly happens with composite data.
+        // However, it that MAY also be the legacy tagsegment type
+        // with no padding information. Ignore this as having tag & num
+        // in legacy code is probably rare.
+        //if (dt == 0x40) {
+        //    type = DataType.TAGSEGMENT.getValue();
+        //    padding = 0;
+        //}
         header.setDataType(type);
         header.setPadding(padding);
         header.setNumber(word & 0xff);
@@ -275,12 +278,15 @@ public class EventParser {
         int dt = (word >>> 16) & 0xff;
         int type = dt & 0x3f;
         int padding = dt >>> 6;
-        // If only 7th bit set, that can only be the legacy tagsegment type
-        // with no padding information - convert it properly.
-        if (dt == 0x40) {
-            type = DataType.TAGSEGMENT.getValue();
-            padding = 0;
-        }
+        // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+        // This regularly happens with composite data.
+        // However, it that MAY also be the legacy tagsegment type
+        // with no padding information. Ignore this as having tag & num
+        // in legacy code is probably rare.
+        //if (dt == 0x40) {
+        //    type = DataType.TAGSEGMENT.getValue();
+        //    padding = 0;
+        //}
         header.setDataType(type);
         header.setPadding(padding);
         header.setTag(word >>> 24);
