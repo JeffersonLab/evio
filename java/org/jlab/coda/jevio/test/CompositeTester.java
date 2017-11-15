@@ -21,7 +21,7 @@ public class CompositeTester {
 
 
     /** For testing only */
-    public static void main0(String args[]) {
+    public static void main(String args[]) {
 
 
         int[] bank = new int[24];
@@ -67,14 +67,11 @@ public class CompositeTester {
             bank[17+i] = bank[10+i];
         }
 
-
         // all composite including headers
         int[] allData = new int[22];
         for (int i=0; i < 22; i++) {
             allData[i] = bank[i+2];
         }
-
-
 
         // analyze format string
         String format = "N(I,D,F,2S,8a)";
@@ -88,7 +85,7 @@ public class CompositeTester {
             buf.order(ByteOrder.BIG_ENDIAN);
 
             // swap
-System.out.println("Call CompositeData.swapAll()");
+System.out.println("CALL CompositeData.swapAll()");
             CompositeData.swapAll(byteArray, 0, null, 0, allData.length, ByteOrder.BIG_ENDIAN);
 
             // print swapped data
@@ -127,21 +124,34 @@ System.out.println("Call CompositeData.swapAll()");
             }
             System.out.println();
 
+            // Check for differences
+            System.out.println("CHECK FOR DIFFERENCES:");
+            boolean goodSwap = true;
+            for (int i=0; i < 22; i++) {
+                if (iBuf.get(i) != bank[i+2]) {
+                    System.out.println("orig = " + allData[i] + ", double swapped = " + iBuf.get(i) );
+                    goodSwap = false;
+                }
+            }
+            System.out.println("good swap = " + goodSwap);
+
+
             // Create composite object
             CompositeData cData = new CompositeData(byteArray, ByteOrder.BIG_ENDIAN);
+            System.out.println("cData object = " + cData + "\n\n");
 
             // print out general data
             printCompositeDataObject(cData);
 
             // use alternative method to print out
-            cData.index(0);
-            System.out.println("\nInt    = 0x" + Integer.toHexString(cData.getInt()));
-            System.out.println("Double = " + cData.getDouble());
-            System.out.println("Float  = " + cData.getFloat());
-            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
-            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
-            String[] strs = cData.getStrings();
-            for (String s : strs) System.out.println("String = " + s);
+//            cData.index(0);
+//            System.out.println("\nInt    = 0x" + Integer.toHexString(cData.getInt()));
+//            System.out.println("Double = " + cData.getDouble());
+//            System.out.println("Float  = " + cData.getFloat());
+//            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
+//            System.out.println("Short  = 0x" + Integer.toHexString(cData.getShort()));
+//            String[] strs = cData.getStrings();
+//            for (String s : strs) System.out.println("String = " + s);
 
             // use toString() method to print out
 //            System.out.println("\ntoXmlString =\n" + cData.toXMLString("     ", true));
@@ -267,7 +277,7 @@ System.out.println("Call CompositeData.swapAll()");
      * More complicated example of providing a format string and some data
      * in order to create a CompositeData object.
      */
-    public static void main(String args[]) {
+    public static void main3(String args[]) {
 
         // Create a CompositeData object ...
 
@@ -353,7 +363,7 @@ System.out.println("READ FILE & PRINT CONTENTS:");
 
 
     /** For testing only */
-    public static void main4(String args[]) {
+    public static void main5(String args[]) {
 
         //create an event writer to write out the test events.
         String fileName  = "/daqfs/home/timmer/coda/evio-4.0.sergey/Linux-x86_64/bin/sample.dat";
