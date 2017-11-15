@@ -479,8 +479,13 @@ public class Reader {
             fileHeader.readHeader(headerBuffer);
             
             // First record position (past file's header + index + user header)
-            long recordPosition = fileHeader.getLength();
-
+            //long recordPosition = fileHeader.getLength();
+            long recordPosition = fileHeader.getHeaderLength() + 
+                    fileHeader.getUserHeaderLength() + fileHeader.getIndexLength();
+            /*System.out.println(" READER FORCE SCAN : HEADER LENGTH = " 
+                    + fileHeader.getLength() + " USER HEADER LENGTH = " + fileHeader.getUserHeaderLength()
+            + " INDEX LENGTH = " + fileHeader.getIndexLength() + "  HEADER LENGTH = " + fileHeader.getHeaderLength()
+            + "  INDEX LENGTH = " + fileHeader.getIndexLength());*/
             while (recordPosition < maximumSize) {
                 channel.position(recordPosition);
                 inStreamRandom.read(headerBytes); 
@@ -490,11 +495,13 @@ public class Reader {
                 offset = recordHeader.getLength();
                 RecordPosition pos = new RecordPosition(recordPosition, offset,
                                                         recordHeader.getEntries());
+                //System.out.println(" RECORD HEADER ENTRIES = " + recordHeader.getEntries());
                 recordPositions.add(pos);
                 // Track # of events in this record for event index handling
                 eventIndex.addEventSize(recordHeader.getEntries());
                 recordPosition += offset;
             }
+            //eventIndex.show();
             //System.out.println("NUMBER OF RECORDS " + recordPositions.size());
         } catch (IOException ex) {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
@@ -636,24 +643,19 @@ public class Reader {
     }
     
     public static void main(String[] args){
-        Reader reader = new Reader("converted_000810.evio");
+        Reader reader = new Reader("/Users/gavalian/Work/Software/project-3a.0.0/Distribution/clas12-offline-software/coatjava/clas_000810_324.hipo",true);
         
+        int icounter = 0;
         //reader.show();
-        byte[] eventarray = new byte[1024*1024];
-        ByteBuffer eventBuffer = ByteBuffer.wrap(eventarray);
-        
-        for(int i = 0; i < reader.getRecordCount(); i++){
+        while(reader.hasNext()==true){
+            System.out.println(" reading event # " + icounter);
             try {
-                reader.readRecord(i);
-                Thread.sleep(100);
-                int nevents = reader.getRecordCount();
-                for(int k = 0; k < nevents ; k++){
-                    reader.getEvent(eventBuffer,k);
-                }
-                System.out.println("---> read record " + i);
-            } catch (Exception ex) {
+                byte[] event = reader.getNextEvent();
+            } catch (HipoException ex) {
                 Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
             }
+
+            icounter++;
         }
         
         //reader.open("test.evio");
