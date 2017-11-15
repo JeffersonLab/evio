@@ -84,7 +84,10 @@ public class FileEventIndex {
      * Checks to see if the event counter reached the end.
      * @return true if there are more events to advance to, false otherwise.
      */
-    public boolean canAdvance() {return (currentEvent < getMaxEvents());}
+    public boolean canAdvance() {
+        //System.out.println(" current event = " + currentEvent + " MAX = " + getMaxEvents());
+        return (currentEvent < (getMaxEvents()-1));
+    }
 
     /**
      * Advances the current event number by one. If the event is not from current
