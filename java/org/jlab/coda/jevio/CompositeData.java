@@ -1683,7 +1683,8 @@ public final class CompositeData {
             dataOffset += 4*headerLen;
 
             // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset);
+            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
+                                                                  4*(tsHeader.getLength()));
 
             if (strs.length < 1) {
                throw new EvioException("bad format string data");
@@ -2846,7 +2847,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     ncnf = endIndex - b8EndIndex;
                 }
 
-//System.out.println("read 8 bits at dataIndex = " + dataIndex);
                 dataBuffer.position(dataIndex);
                 byte[] bytes = new byte[ncnf];
                 // relative read
@@ -2854,7 +2854,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 // string array
                 if (kcnf == 3) {
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
                     items.add(strs);
                 }
                 // char & unsigned char ints
@@ -2897,11 +2897,13 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         getIndex = 0;
         StringBuilder sb = new StringBuilder(1024);
         int numItems = items.size();
-
         for (int i=0; i < numItems; i++) {
             if (i%5 == 0) sb.append(indent);
 
             switch (types.get(i)) {
+                case NVALUE:
+                    sb.append("N="); sb.append(getNValue());
+                    break;
                 case INT32:
                     sb.append("I="); sb.append(getInt());
                     break;
