@@ -3022,6 +3022,9 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         int endIndex = dataBytes;
         // track repeat xml element so it can be ended properly
         int repeat = 0;
+        // keep track of how many bytes to go once through format
+        int formatBytes = 0;
+        boolean firstTime = true;
 
         //---------------------------------
         // First we have the format string
@@ -3074,6 +3077,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         // is a specific  int embedded in the format statement.
         boolean repeatFromN;
 
+        topLoop:
         while (dataIndex < endIndex) {
 
             // get next format code
@@ -3083,6 +3087,17 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 // end of format statement reached, back to format beginning
                 if (imt > nfmt) {
                     imt = 0;
+
+                    // Check to see if there are enough bytes for another round
+                    if (firstTime) {
+                        formatBytes = dataIndex;
+                        firstTime = false;
+                    }
+
+                    if (formatBytes > endIndex - dataIndex) {
+//System.out.println("Not enough data for another loop through format");
+                        break topLoop;
+                    }
 
                     bs.decreaseXmlIndent();
                     xmlWriter.writeCharacters("\n");
@@ -3140,6 +3155,11 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
                         kcnf = 0;
+                        if (dataIndex + 4 > endIndex) {
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+                            break topLoop;
+                        }
+
                         // read "N" value from buffer
                         int i = dataBuffer.getInt(dataIndex);
                         if (swap) {
@@ -3210,6 +3230,11 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
+                // make sure we don't go past end of data
+                if (dataIndex + 4 > endIndex) {
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+                    break;
+                }
                 // read "N" value from buffer
                 int i = dataBuffer.getInt(dataIndex);
                 if (swap) {
@@ -3257,7 +3282,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 int b64EndIndex = dataIndex + 8*ncnf;
                 if (b64EndIndex > endIndex) b64EndIndex = endIndex;
 
-                while (dataIndex < b64EndIndex) {
+                while (dataIndex + 8 <= b64EndIndex) {
                     lng = dataBuffer.getLong(dataIndex);
                     if (swap) lng = Long.reverseBytes(lng);
 
@@ -3341,7 +3366,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 int i, b32EndIndex = dataIndex + 4*ncnf;
                 if (b32EndIndex > endIndex) b32EndIndex = endIndex;
 
-                while (dataIndex < b32EndIndex) {
+                while (dataIndex + 4 <= b32EndIndex) {
                     i = dataBuffer.getInt(dataIndex);
                     if (swap) i = Integer.reverseBytes(i);
 
@@ -3416,7 +3441,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 if (b16EndIndex > endIndex) b16EndIndex = endIndex;
 
                 // swap all 16 bit items
-                while (dataIndex < b16EndIndex) {
+                while (dataIndex + 2 <= b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
                     if (swap) s = Short.reverseBytes(s);
 
@@ -3472,7 +3497,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     bs.increaseXmlIndent();
                     xmlWriter.writeCharacters("\n");
 
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
                     for (String s: strs) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
                         xmlWriter.writeCData(s);
@@ -3620,6 +3645,9 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         int endIndex = dataBytes;
         // track repeat xml element so it can be ended properly
         int repeat = 0;
+        // keep track of how many bytes to go once through format
+        int formatBytes = 0;
+        boolean firstTime = true;
 
         //---------------------------------
         // First we have the format string
@@ -3672,6 +3700,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         // is a specific  int embedded in the format statement.
         boolean repeatFromN;
 
+        topLoop:
         while (dataIndex < endIndex) {
 
             // get next format code
@@ -3681,6 +3710,17 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 // end of format statement reached, back to format beginning
                 if (imt > nfmt) {
                     imt = 0;
+
+                    // Check to see if there are enough bytes for another round
+                    if (firstTime) {
+                        formatBytes = dataIndex;
+                        firstTime = false;
+                    }
+
+                    if (formatBytes > endIndex - dataIndex) {
+//System.out.println("Not enough data for another loop through format");
+                        break topLoop;
+                    }
 
                     xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
                     xmlWriter.writeCharacters("\n");
@@ -3739,6 +3779,11 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
                         kcnf = 0;
+                        if (dataIndex + 4 > endIndex) {
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+                            break topLoop;
+                        }
+
                         // read "N" value from buffer
                         int i = dataBuffer.getInt(dataIndex);
                         if (swap) {
@@ -3810,6 +3855,11 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
+                // make sure we don't go past end of data
+                if (dataIndex + 4 > endIndex) {
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+                    break;
+                }
                 // read "N" value from buffer
                 int i = dataBuffer.getInt(dataIndex);
                 if (swap) {
@@ -3857,7 +3907,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 int b64EndIndex = dataIndex + 8*ncnf;
                 if (b64EndIndex > endIndex) b64EndIndex = endIndex;
 
-                while (dataIndex < b64EndIndex) {
+                while (dataIndex + 8 <= b64EndIndex) {
                     lng = dataBuffer.getLong(dataIndex);
                     if (swap) lng = Long.reverseBytes(lng);
 
@@ -3941,7 +3991,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 int i, b32EndIndex = dataIndex + 4*ncnf;
                 if (b32EndIndex > endIndex) b32EndIndex = endIndex;
 
-                while (dataIndex < b32EndIndex) {
+                while (dataIndex + 4 <= b32EndIndex) {
                     i = dataBuffer.getInt(dataIndex);
                     if (swap) i = Integer.reverseBytes(i);
 
@@ -4016,7 +4066,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 if (b16EndIndex > endIndex) b16EndIndex = endIndex;
 
                 // swap all 16 bit items
-                while (dataIndex < b16EndIndex) {
+                while (dataIndex + 2 <= b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
                     if (swap) s = Short.reverseBytes(s);
 
@@ -4072,7 +4122,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
                     xmlWriter.writeCharacters("\n");
 
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
                     for (String s: strs) {
                         xmlWriter.writeCharacters(xmlIndent);
                         xmlWriter.writeCData(s);
@@ -4225,6 +4275,9 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         int dataIndex = 0;
         // just past end of data -> size of data in bytes
         int endIndex = dataBytes;
+        // keep track of how many bytes to go once through format
+        int formatBytes = 0;
+        boolean firstTime = true;
 
         //---------------------------------
         // First we have the format string
@@ -4232,6 +4285,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         sb.append(format);
         sb.append("\n");
 
+        topLoop:
         while (dataIndex < endIndex) {
 
             // get next format code
@@ -4241,6 +4295,16 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 if (imt > nfmt) {
                     imt = 0;
 
+                    // Check to see if there are enough bytes for another round
+                    if (firstTime) {
+                        formatBytes = dataIndex;
+                        firstTime = false;
+                    }
+
+                    if (formatBytes > endIndex - dataIndex) {
+//System.out.println("Not enough data for another loop through format");
+                        break topLoop;
+                    }
                     sb.append("\n");  // end of one & beginning of another row
                  }
                 // right parenthesis, so we're finished processing format(s) in parenthesis
@@ -4266,6 +4330,11 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     // left parenthesis, SPECIAL case: #repeats must be taken from data
                     if (kcnf == 15) {
                         kcnf = 0;
+                        if (dataIndex + 4 > endIndex) {
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+                            break topLoop;
+                        }
+
                         // read "N" value from buffer
                         int i = dataBuffer.getInt(dataIndex);
                         if (swap) {
@@ -4309,6 +4378,12 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
+                // make sure we don't go past end of data
+                if (dataIndex + 4 > endIndex) {
+//System.out.println("Not enough data to read 32 bits for N at dataIndex = " + dataIndex);
+                    break;
+                }
+
                 // read "N" value from buffer
                 int i = dataBuffer.getInt(dataIndex);
                 if (swap) {
@@ -4329,7 +4404,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 int b64EndIndex = dataIndex + 8*ncnf;
                 if (b64EndIndex > endIndex) b64EndIndex = endIndex;
 
-                while (dataIndex < b64EndIndex) {
+                while (dataIndex + 8 <= b64EndIndex) {
                     lng = dataBuffer.getLong(dataIndex);
                     if (swap) lng = Long.reverseBytes(lng);
 
@@ -4365,7 +4440,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 int i, b32EndIndex = dataIndex + 4*ncnf;
                 if (b32EndIndex > endIndex) b32EndIndex = endIndex;
 
-                while (dataIndex < b32EndIndex) {
+                while (dataIndex + 4 <= b32EndIndex) {
                     i = dataBuffer.getInt(dataIndex);
                     if (swap) i = Integer.reverseBytes(i);
 
@@ -4402,7 +4477,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 if (b16EndIndex > endIndex) b16EndIndex = endIndex;
 
                 // swap all 16 bit items
-                while (dataIndex < b16EndIndex) {
+                while (dataIndex + 2 <= b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
                     if (swap) s = Short.reverseBytes(s);
 
@@ -4430,7 +4505,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 if (kcnf == 3) {
                     sb.append("\n");
 
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
                     for (String s: strs) {
                         sb.append(s);
                         sb.append("\n");
