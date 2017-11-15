@@ -937,23 +937,56 @@ public class CompactReaderTest {
 
     /** For reading a local file/buffer, take events and put them into
      *  a EvioCompactEventWriter and write a file with it. */
-    public static void main0(String args[]) {
+    public static void main(String args[]) {
 
         int evCount;
 
 
         try {
-            IEvioCompactReader reader = new EvioCompactReader("/daqfs/home/timmer/coda/evioTestFiles/BSTN2.ev");
+            EvioCompactReader reader = new EvioCompactReader("/daqfs/home/timmer/clas_000809.evio.15");
 
             // Get each event in the buffer
             evCount = reader.getEventCount();
+            System.out.println("got Count = " + evCount);
 
-            Scanner keyboard = new Scanner(System.in);
-            keyboard.next().charAt(0);
+//            Scanner keyboard = new Scanner(System.in);
+//            keyboard.next().charAt(0);
+//
+
+
+
+//when I do the following on that file:
+//
+//         ByteBuffer     compBuffer = node.getByteData(true);
+//          CompositeData  compData = new CompositeData(compBuffer.array(),event.getByteOrder());
+//
+//         For the node tag=57617 and num=anything, I get the exception thrown:
+//
+//         illegal character (value 0)
+//
+//         it comes from here (LINE 1574) in CompositeData :
+//
+//         throw new EvioException("illegal character (value " + (byte)ch + ")");
+
 
             for (int i=0; i < evCount; i++) {
-                Thread.sleep(1);
-                reader.searchEvent(i+1, 10, 1);
+                int num = 0;
+                List<EvioNode> list = reader.searchEvent(i+1, 57617, num);
+                if (!list.isEmpty()) {
+
+                    System.out.println("List not empty for event " + (i+1) + " tag = 57617, num = " + num);
+                    for (EvioNode node : list) {
+                        ByteBuffer compBuffer = node.getByteData(true);
+                        try {
+                            CompositeData compData = new CompositeData(compBuffer.array(), reader.getByteOrder());
+                        }
+                        catch (EvioException e) {
+                            // print out the bad bytes
+                            Utilities.printBuffer(compBuffer, 0, 100, "Bad composite bank");
+                            throw e;
+                        }
+                    }
+                }
             }
 
             reader.close();
@@ -1030,7 +1063,7 @@ public class CompactReaderTest {
 
     /** For reading a local file/buffer, take events and put them into
      *  a EvioCompactEventWriter and write a file with it. */
-    public static void main(String args[]) {
+    public static void main22(String args[]) {
 
         int evCount;
 
@@ -1076,7 +1109,7 @@ public class CompactReaderTest {
 
         System.out.println("\nCompactEvioReader file: " + fileName);
         try {
-            IEvioCompactReader reader = new EvioCompactReader(fileName);
+            EvioCompactReader reader = new EvioCompactReader(fileName);
             System.out.println("\nev count= " + reader.getEventCount());
             System.out.println("dictionary = " + reader.getDictionaryXML() + "\n");
 
@@ -1114,7 +1147,7 @@ System.out.println("addBankBuf size = " + addBankBuf.remaining());
         List<EvioNode> returnList;
 
         try {
-            IEvioCompactReader reader = new EvioCompactReader(myBuf);
+            EvioCompactReader reader = new EvioCompactReader(myBuf);
             //EvioCompactReader reader = new EvioCompactReader("/tmp/compactTest");
 
             EvioNode node = reader.getEvent(4);
@@ -1261,7 +1294,7 @@ System.out.println("Return list size for search of tag/num = 7/0 -> " + retList1
             if (true) {
                 for (int i=0; i < 1; i++) {
                     try {
-                        IEvioCompactReader reader = new EvioCompactReader(myBuf);
+                        EvioCompactReader reader = new EvioCompactReader(myBuf);
                         //EvioCompactReader reader = new EvioCompactReader("/tmp/compactTest");
                         if (reader.hasDictionary()) {
                             System.out.println(" *** We Have a dictionary ***");
