@@ -943,7 +943,7 @@ public class CompactReaderTest {
 
 
         try {
-            EvioCompactReader reader = new EvioCompactReader("/daqfs/home/timmer/clas_000809.evio.15");
+            EvioCompactReader reader = new EvioCompactReader("/daqfs/home/timmer/rafopar044.evio");
 
             // Get each event in the buffer
             evCount = reader.getEventCount();
@@ -969,16 +969,17 @@ public class CompactReaderTest {
 //         throw new EvioException("illegal character (value " + (byte)ch + ")");
 
 
-            for (int i=0; i < evCount; i++) {
                 int num = 0;
-                List<EvioNode> list = reader.searchEvent(i+1, 57617, num);
+                List<EvioNode> list = reader.searchEvent(2, 57601, num);
+        //    System.out.println("list = " + list);
                 if (!list.isEmpty()) {
 
-                    System.out.println("List not empty for event " + (i+1) + " tag = 57617, num = " + num);
+                    System.out.println("List not empty for event " + (2) + " tag = 57617, num = " + num);
                     for (EvioNode node : list) {
                         ByteBuffer compBuffer = node.getByteData(true);
                         try {
                             CompositeData compData = new CompositeData(compBuffer.array(), reader.getByteOrder());
+                            System.out.println("COMPOSITE DATA:\n" + compData);
                         }
                         catch (EvioException e) {
                             // print out the bad bytes
@@ -987,7 +988,26 @@ public class CompactReaderTest {
                         }
                     }
                 }
-            }
+
+//            for (int i=0; i < evCount; i++) {
+//                int num = 0;
+//                List<EvioNode> list = reader.searchEvent(i+1, 57617, num);
+//                if (!list.isEmpty()) {
+//
+//                    System.out.println("List not empty for event " + (i+1) + " tag = 57617, num = " + num);
+//                    for (EvioNode node : list) {
+//                        ByteBuffer compBuffer = node.getByteData(true);
+//                        try {
+//                            CompositeData compData = new CompositeData(compBuffer.array(), reader.getByteOrder());
+//                        }
+//                        catch (EvioException e) {
+//                            // print out the bad bytes
+//                            Utilities.printBuffer(compBuffer, 0, 100, "Bad composite bank");
+//                            throw e;
+//                        }
+//                    }
+//                }
+//            }
 
             reader.close();
 
