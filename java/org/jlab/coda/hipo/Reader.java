@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,10 +99,14 @@ public class Reader {
      * when the entire file is scanned to read out positions
      * of each record in the file (in constructor).
      */
-    protected final List<RecordPosition>  recordPositions = new ArrayList<RecordPosition>();
+    protected final List<RecordPosition> recordPositions = new ArrayList<RecordPosition>();
 
     /** Fastest way to read/write files. */
-    protected RandomAccessFile  inStreamRandom;
+    protected RandomAccessFile inStreamRandom;
+
+    protected ByteBuffer buffer;
+
+    protected int initialBufferPosition;
 
     /** Keep one record for reading in data record-by-record. */
     protected final RecordInputStream inputRecordStream = new RecordInputStream();
@@ -111,8 +114,11 @@ public class Reader {
     /** Number or position of last record to be read. */
     protected int currentRecordLoaded;
 
-    /** General file header. */
+    /** File header. */
     protected FileHeader fileHeader;
+
+    /** First record's header. */
+    protected RecordHeader firstRecordHeader;
 
     /** Files may have an xml format dictionary in the user header of the file header. */
     protected String dictionaryXML;
@@ -169,8 +175,15 @@ public class Reader {
         }
     }
 
+    /**
+     * Constructor for reading buffer with evio data.
+     * Buffer must be ready to read with position and limit set properly.
+     * @param buffer buffer with evio data.
+     */
     public Reader(ByteBuffer buffer) {
-        
+        this.buffer = buffer;
+        initialBufferPosition = buffer.position();
+        scanBuffer();
     }
 
     /**
@@ -212,11 +225,16 @@ public class Reader {
     }
 
     /**
-     * Does this evio file have an associated XML dictionary?
-     * @return <code>true</code> if this evio file has an associated XML dictionary,
+     * Does this evio file/buffer have an associated XML dictionary?
+     * @return <code>true</code> if this evio file/buffer has an associated XML dictionary,
      *         else <code>false</code>.
      */
-    public boolean hasDictionary() {return fileHeader.hasDictionary();}
+    public boolean hasDictionary() {
+        if (fromFile) {
+            return fileHeader.hasDictionary();
+        }
+        return firstRecordHeader.hasDictionary();
+    }
 
     /**
      * Get a byte array representing the first event.
@@ -229,33 +247,38 @@ public class Reader {
     }
 
     /**
-     * Does this evio file have an associated first event?
-     * @return <code>true</code> if this evio file has an associated first event,
+     * Does this evio file/buffer have an associated first event?
+     * @return <code>true</code> if this evio file/buffer has an associated first event,
      *         else <code>false</code>.
      */
-    public boolean hasFirstEvent() {return fileHeader.hasFirstEvent();}
+    public boolean hasFirstEvent() {
+        if (fromFile) {
+            return fileHeader.hasFirstEvent();
+        }
+        return firstRecordHeader.hasFirstEvent();
+    }
 
     /**
-     * Get the number of events in file.
-     * @return number of events in file.
+     * Get the number of events in file/buffer.
+     * @return number of events in file/buffer.
      */
     public int getEventCount() {return eventIndex.getMaxEvents();}
 
     /**
-     * Get the number of records read from the file.
-     * @return number of records read from the file.
+     * Get the number of records read from the file/buffer.
+     * @return number of records read from the file/buffer.
      */
     public int getRecordCount() {return recordPositions.size();}
 
     // Methods for current record
 
     /**
-     * Get a byte array representing the next event from the file while sequentially reading.
+     * Get a byte array representing the next event from the file/buffer while sequentially reading.
      * @return byte array representing the next event or null if there is none.
-     * @throws HipoException if file not in hipo format
+     * @throws HipoException if file/buffer not in hipo format
      */
     public byte[] getNextEvent() throws HipoException {
-        // If reached last event in file ...
+        // If reached last event ...
         if (!eventIndex.canAdvance()) return null;
         if (eventIndex.advance()) {
             // If here, the next event is in the next record
@@ -267,10 +290,11 @@ public class Reader {
         }
         return inputRecordStream.getEvent(eventIndex.getRecordEventNumber());
     }
+
     /**
      * Get a byte array representing the previous event from the sequential queue.
      * @return byte array representing the previous event or null if there is none.
-     * @throws HipoException if the file is not in HIPO format
+     * @throws HipoException if the file/buffer is not in HIPO format
      */
     public byte[] getPrevEvent() throws HipoException {
         if(!eventIndex.canRetreat()) return null;
@@ -279,34 +303,44 @@ public class Reader {
         }
         return inputRecordStream.getEvent(eventIndex.getRecordEventNumber());
     }
+
     /**
-     * Reads user header of the file. The returned ByteBuffer also contains
-     * endianness of the file.
-     * @return ByteBuffer containing the user header of the file
+     * Reads user header of the file header/first record header of buffer.
+     * The returned ByteBuffer also contains endianness of the file/buffer.
+     * @return ByteBuffer containing the user header of the file/buffer.
      */
-    public ByteBuffer readUserHeader(){
+    public ByteBuffer readUserHeader() {
         int userLen = fileHeader.getUserHeaderLength();
         System.out.println("  " + fileHeader.getUserHeaderLength()
          + "  " + fileHeader.getHeaderLength() + "  " + fileHeader.getIndexLength());
         try {
             byte[] userBytes = new byte[userLen];
-            inStreamRandom.getChannel().position(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
-            inStreamRandom.read(userBytes);
-            ByteBuffer userBuffer = ByteBuffer.wrap(userBytes);
-            return userBuffer;
+
+            if (fromFile) {
+                inStreamRandom.getChannel().position(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
+                inStreamRandom.read(userBytes);
+            }
+            else {
+                buffer.position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
+                buffer.get(userBytes, 0, userLen);
+            }
+
+            return ByteBuffer.wrap(userBytes);
+
         } catch (IOException ex) {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
+
     /**
-     * Get a byte array representing the specified event from the file.
+     * Get a byte array representing the specified event from the file/buffer.
      * If index is out of bounds, null is returned.
-     * @param index index of specified event within the entire file,
+     * @param index index of specified event within the entire file/buffer,
      *              contiguous starting at 0.
      * @return byte array representing the specified event or null if
      *         index is out of bounds.
-     * @throws HipoException if file not in hipo format
+     * @throws HipoException if file/buffer not in hipo format
      */
     public byte[] getEvent(int index) throws HipoException {
         
@@ -326,19 +360,19 @@ public class Reader {
     }
 
     /**
-     * Get a byte array representing the specified event from the file
-     * and place it in given buffer.
-     * If no buffer is given (arg is null), create a buffer internally and return it.
+     * Get a byte array representing the specified event from the file/buffer
+     * and place it in the given buf.
+     * If no buf is given (arg is null), create a buffer internally and return it.
      * If index is out of bounds, null is returned.
-     * @param buffer buffer in which to place event data.
-     * @param index index of specified event within the entire file,
+     * @param buf buffer in which to place event data.
+     * @param index index of specified event within the entire file/buffer,
      *              contiguous starting at 0.
-     * @return buffer or null if buffer is null or index out of bounds.
-     * @throws HipoException if file not in hipo format, or
-     *                       if buffer has insufficient space to contain event
-     *                       (buffer.capacity() < event size).
+     * @return buf or null if buf is null or index out of bounds.
+     * @throws HipoException if file/buffer not in hipo format, or
+     *                       if buf has insufficient space to contain event
+     *                       (buf.capacity() < event size).
      */
-    public ByteBuffer getEvent(ByteBuffer buffer, int index) throws HipoException {
+    public ByteBuffer getEvent(ByteBuffer buf, int index) throws HipoException {
         if (index < 0 || index >= eventIndex.getMaxEvents()) {
             return null;
         }
@@ -347,8 +381,9 @@ public class Reader {
             // If here, the event is in the next record
             readRecord(eventIndex.getRecordNumber());
         }
-        return inputRecordStream.getEvent(buffer, eventIndex.getRecordEventNumber());
+        return inputRecordStream.getEvent(buf, eventIndex.getRecordEventNumber());
     }
+
     /**
      * Checks if the file has an event to read next.
      * @return true if the next event is available, false otherwise
@@ -382,27 +417,93 @@ public class Reader {
     public RecordInputStream getCurrentRecordStream() {return inputRecordStream;}
 
     /**
-     * Reads record from the file at the given record index.
+     * Reads record from the file/buffer at the given record index.
      * @param index record index  (starting at 0).
      * @return true if valid index and successful reading record, else false.
-     * @throws HipoException if file not in hipo format
+     * @throws HipoException if file/buffer not in hipo format
      */
     public boolean readRecord(int index) throws HipoException {
         if (index >= 0 && index < recordPositions.size()) {
             RecordPosition pos = recordPositions.get(index);
-            inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
+            if (fromFile) {
+                inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
+            }
+            else {
+                inputRecordStream.readRecord(buffer, (int)pos.getPosition());
+            }
             currentRecordLoaded = index;
             return true;
         }
         return false;
     }
 
-    /** Extract dictionary and first event from file if possible, else do nothing. */
+    /** Extract dictionary and first event from file/buffer if possible, else do nothing. */
     protected void extractDictionary() {
-        // If already read & parsed from file ...
+        // If already read & parsed ...
         if (dictionaryXML != null || firstEvent != null) {
             return;
         }
+
+        if (fromFile) {
+            extractDictionaryFromFile();
+            return;
+        }
+        extractDictionaryFromBuffer();
+    }
+
+    /** Extract dictionary and first event from buffer if possible, else do nothing. */
+    protected void extractDictionaryFromBuffer() {
+
+        // If no dictionary or first event ...
+        if (!firstRecordHeader.hasDictionary() && !firstRecordHeader.hasFirstEvent()) {
+            return;
+        }
+
+        int userLen = firstRecordHeader.getUserHeaderLength();
+        // 8 byte min for evio event, more for xml dictionary
+        if (userLen < 8) {
+            return;
+        }
+
+        RecordInputStream record;
+
+        try {
+            // Position right before record header's user header
+            buffer.position(initialBufferPosition +
+                            firstRecordHeader.getHeaderLength() +
+                            firstRecordHeader.getIndexLength());
+            // Read user header
+            byte[] userBytes = new byte[userLen];
+            buffer.get(userBytes, 0, userLen);
+            ByteBuffer userBuffer = ByteBuffer.wrap(userBytes);
+            
+            // Parse user header as record
+            record = new RecordInputStream(firstRecordHeader.getByteOrder());
+            record.readRecord(userBuffer, 0);
+        }
+        catch (HipoException e) {
+            // Not in proper format
+            return;
+        }
+
+        int eventIndex = 0;
+
+        // Dictionary always comes first in record
+        if (firstRecordHeader.hasDictionary()) {
+            // Just plain ascii, not evio format
+            byte[] dict = record.getEvent(eventIndex++);
+            try {dictionaryXML = new String(dict, "US-ASCII");}
+            catch (UnsupportedEncodingException e) {/* never happen */}
+        }
+
+        // First event comes next
+        if (firstRecordHeader.hasFirstEvent()) {
+            firstEvent = record.getEvent(eventIndex);
+        }
+    }
+
+    /** Extract dictionary and first event from file if possible, else do nothing. */
+    protected void extractDictionaryFromFile() {
 
         // If no dictionary or first event ...
         if (!fileHeader.hasDictionary() && !fileHeader.hasFirstEvent()) {
@@ -455,6 +556,56 @@ public class Reader {
 
     //-----------------------------------------------------------------
 
+    /** Scan buffer to find all records and store their position, length, and event count. */
+    public void scanBuffer() {
+
+        byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
+        ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
+
+        RecordHeader recordHeader = new RecordHeader();
+        boolean haveFirstRecordHeader = false;
+
+        try {
+            // Scan buffer by reading each record header and
+            // storing its position, length, and event count.
+            int bufSize = buffer.remaining();
+
+            // Don't go beyond 1 header length before EOB since we'll be reading in 1 header
+            int maximumSize = bufSize - RecordHeader.HEADER_SIZE_BYTES;
+            recordPositions.clear();
+
+            // First record position is at beginning
+            int recordPosition = initialBufferPosition;
+            int offset;
+                        
+            while (recordPosition < maximumSize) {
+                buffer.position(recordPosition);
+                buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
+                recordHeader.readHeader(headerBuffer);
+
+                // Save the first record header
+                if (!haveFirstRecordHeader) {
+                    firstRecordHeader = new RecordHeader(recordHeader);
+                    haveFirstRecordHeader = true;
+                }
+                //System.out.println(">>>>>==============================================");
+                //System.out.println(recordHeader.toString());
+                offset = recordHeader.getLength();
+                RecordPosition pos = new RecordPosition(recordPosition, offset,
+                                                        recordHeader.getEntries());
+                //System.out.println(" RECORD HEADER ENTRIES = " + recordHeader.getEntries());
+                recordPositions.add(pos);
+                // Track # of events in this record for event index handling
+                eventIndex.addEventSize(recordHeader.getEntries());
+                recordPosition += offset;
+            }
+            //eventIndex.show();
+            //System.out.println("NUMBER OF RECORDS " + recordPositions.size());
+        } catch (HipoException ex) {
+            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     /** Scan file to find all records and store their position, length, and event count. */
     public void forceScanFile() {
         
@@ -463,6 +614,8 @@ public class Reader {
         
         fileHeader = new FileHeader();
         RecordHeader recordHeader = new RecordHeader();
+
+        boolean haveFirstRecordHeader = false;
         
         try {
             // Scan file by reading each record header and
@@ -490,6 +643,11 @@ public class Reader {
                 channel.position(recordPosition);
                 inStreamRandom.read(headerBytes); 
                 recordHeader.readHeader(headerBuffer);
+                // Save the first record header
+                if (!haveFirstRecordHeader) {
+                    firstRecordHeader = new RecordHeader(recordHeader);
+                    haveFirstRecordHeader = true;
+                }
                 //System.out.println(">>>>>==============================================");
                 //System.out.println(recordHeader.toString());
                 offset = recordHeader.getLength();
@@ -509,6 +667,7 @@ public class Reader {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     /**
      * Scans the file to index all the record positions.
      * It takes advantage of any existing indexes in file.
@@ -611,12 +770,12 @@ public class Reader {
     }
     
     /**
-     * Internal class to keep track of the records in the file.
-     * Each entry keeps record position in the file, length of
+     * Internal class to keep track of the records in the file/buffer.
+     * Each entry keeps record position in the file/buffer, length of
      * the record and number of entries contained.
      */
     private static class RecordPosition {
-        /** Position in file. */
+        /** Position in file/buffer. */
         private long position;
         /** Length in bytes. */
         private int  length;
