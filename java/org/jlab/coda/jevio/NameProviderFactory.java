@@ -20,8 +20,6 @@ public class NameProviderFactory {
 	 * @return a NameProvider appropriate for the fileName.
 	 */
 	public static INameProvider createNameProvider(File file) {
-        INameProvider provider = null;
-
         if (file != null) {
             // only handle xml files for now
             String filename =  file.getName();
@@ -34,7 +32,7 @@ public class NameProviderFactory {
             // TODO provide provider for standard CODA dictionaries
         }
 
-        return provider;
+        return null;
     }
 
 
@@ -45,14 +43,12 @@ public class NameProviderFactory {
      * @return a NameProvider appropriate for the fileName.
      */
     public static INameProvider createNameProvider(String xmlString) {
-        INameProvider provider = null;
-
         if (xmlString != null) {
             return new EvioXMLDictionary(xmlString);
             // TODO provide provider for standard CODA dictionaries
         }
 
-        return provider;
+        return null;
     }
 
 }
