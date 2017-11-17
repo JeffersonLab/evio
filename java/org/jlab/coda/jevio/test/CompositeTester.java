@@ -26,9 +26,9 @@ public class CompositeTester {
 
         int[] bank = new int[24];
 
-        /***********************/
-        /* bank of tagsegments */
-        /***********************/
+        //**********************/
+        // bank of tagsegments */
+        //**********************/
         bank[0] = 23;                       // bank length
         bank[1] = 6 << 16 | 0xF << 8 | 3;   // tag = 6, bank contains composite type, num = 3
 
