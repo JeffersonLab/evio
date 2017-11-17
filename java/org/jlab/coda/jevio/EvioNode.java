@@ -173,7 +173,6 @@ public class EvioNode implements Cloneable {
         this.bufferNode = bufferNode;
     }
 
-
     //-------------------------------
     // Methods
     //-------------------------------
@@ -229,26 +228,15 @@ public class EvioNode implements Cloneable {
     }
 
 
-    /**
-     * Clear all data in this object.
-     */
+    /** Clear all data in this object. */
     final public void clear() {
-        if (allNodes   != null)   allNodes.clear();
-        if (childNodes != null) childNodes.clear();
-
+        if (allNodes != null) allNodes.clear();
         len = tag = num = pad = pos = type = dataLen = dataPos = dataType = place = 0;
-        isEvent = obsolete = scanned = false;
-
-        blockNode  = null;
-        bufferNode = null;
-        eventNode  = null;
-        parentNode = null;
+        clearObjects();
     }
 
 
-    /**
-     * Empty all lists and remove all other objects from this object.
-     */
+    /** Empty all lists and remove all other objects from this object. */
     final public void clearObjects() {
         if (childNodes != null) childNodes.clear();
 
@@ -261,94 +249,284 @@ public class EvioNode implements Cloneable {
 
     final public void clearAll() {
         allNodes = null;
-        if (childNodes != null) childNodes.clear();
-
-        isEvent = obsolete = scanned = false;
-        blockNode  = null;
-        bufferNode = null;
-        eventNode  = null;
-        parentNode = null;
+        clearObjects();
     }
 
-
-    final public void clearIntArray() {
-        if (data != null) data = null;
-    }
+    final public void clearIntArray() {if (data != null) data = null;}
 
 
     //-------------------------------
-    // Setters & Getters
+    // Static Methods
     //-------------------------------
 
 
-    void setAsEvent(int position, int place,
-                    BufferNode bufferNode, BlockNode blockNode) {
-        this.bufferNode = bufferNode;
-        this.blockNode  = blockNode;
-        this.pos = position;
-        this.place = place;
-        allNodes = new ArrayList<>(5);
-        allNodes.add(this);
+    /**
+     * This method extracts an EvioNode object representing an
+     * evio event (top level evio bank) from a given buffer, a
+     * location in the buffer, and a few other things. An EvioNode
+     * object represents an evio container - either a bank, segment,
+     * or tag segment.
+     *
+     * @param bufferNode buffer to examine
+     * @param blockNode  object holding data about block header
+     * @param position   position in buffer
+     * @param place      place of event in buffer (starting at 0)
+     *
+     * @return EvioNode object containing evio event information
+     * @throws EvioException if file/buffer too small
+     */
+    static final public EvioNode extractEventNode(BufferNode bufferNode, BlockNode blockNode,
+                                            int position, int place)
+            throws EvioException {
+
+        // Make sure there is enough data to at least read evio header
+        ByteBuffer buffer = bufferNode.buffer;
+        if (buffer.remaining() < 8) {
+            throw new EvioException("buffer underflow");
+        }
+
+        // Store evio event info, without de-serializing, into EvioNode object
+        EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
+
+        return extractNode(node, position);
     }
 
-    void setData(BufferNode bufferNode, BlockNode blockNode,
-                 EvioNode eventNode, ArrayList<EvioNode> allNodes,
-                 boolean obsolete) {
+    /**
+     * This method populates an EvioNode object that will represent an
+     * evio bank from that same node containing a reference to the
+     * backing buffer and given a position in that buffer.
+     *
+     * @param bankNode   EvioNode to represent a bank and containing,
+     *                   at least, a reference to backing buffer.
+     * @param position   position in backing buffer
+     *
+     * @return EvioNode bankNode arg filled with appropriate data.
+     * @throws EvioException if file/buffer too small
+     */
+    static final public EvioNode extractNode(EvioNode bankNode, int position)
+            throws EvioException {
 
-        this.bufferNode = bufferNode;
-        this.blockNode  = blockNode;
-        this.eventNode  = eventNode;
-        this.allNodes   = allNodes;
-        this.obsolete   = obsolete;
+        // Make sure there is enough data to at least read evio header
+        ByteBuffer buffer = bankNode.bufferNode.buffer;
+        if (buffer.remaining() < 8) {
+            throw new EvioException("buffer underflow");
+        }
+
+        // Get length of current bank
+        int len = buffer.getInt(position);
+        bankNode.len = len;
+        bankNode.pos = position;
+        bankNode.type = DataType.BANK.getValue();
+
+        // Position of data for a bank
+        bankNode.dataPos = position + 8;
+        // Len of data for a bank
+        bankNode.dataLen = len - 1;
+
+        // Make sure there is enough data to read full bank
+        // even though it is NOT completely read at this time.
+        if (buffer.remaining() < 4*(len + 1)) {
+//System.out.println("ERROR: remaining = " + buffer.remaining() +
+//            ", node len bytes = " + ( 4*(len + 1)));
+            throw new EvioException("buffer underflow");
+        }
+
+        // Hop over length word
+        position += 4;
+
+        // Read and parse second header word
+        int word = buffer.getInt(position);
+        bankNode.tag = (word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        bankNode.dataType = dt & 0x3f;
+        bankNode.pad = dt >>> 6;
+        // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+        // This regularly happens with composite data.
+        // However, it that MAY also be the legacy tagsegment type
+        // with no padding information. Ignore this as having tag & num
+        // in legacy code is probably rare.
+        //if (dt == 0x40) {
+        //    node.dataType = DataType.TAGSEGMENT.getValue();
+        //    node.pad = 0;
+        //}
+        bankNode.num = word & 0xff;
+
+        return bankNode;
     }
 
+    /**
+     * This method recursively stores, in the given list, all the information
+     * about an evio structure's children found in the given ByteBuffer object.
+     * It uses absolute gets so buffer's position does <b>not</b> change.
+     *
+     * @param node node being scanned
+     */
+    static final void scanStructure(EvioNode node) {
 
-    void setData(BufferNode bufferNode, BlockNode blockNode,
-                 EvioNode eventNode, EvioNode parentNode,
-                 ArrayList<EvioNode> allNodes,
-                 int len, int tag, int num, int pad,
-                 int pos, int type, int dataLen,
-                 int dataPos, int dataType) {
+        int dType = node.dataType;
 
-        this.bufferNode = bufferNode;
-        this.blockNode  = blockNode;
-        this.eventNode  = eventNode;
-        this.parentNode = parentNode;
-        this.allNodes   = allNodes;
-        this.len = len;
-        this.tag = tag;
-        this.num = num;
-        this.pad = pad;
-        this.pos = pos;
-        this.type = type;
-        this.dataLen = dataLen;
-        this.dataPos = dataPos;
-        this.dataType = dataType;
+        // If node does not contain containers, return since we can't drill any further down
+        if (!DataType.isStructure(dType)) {
+            return;
+        }
+
+        // Start at beginning position of evio structure being scanned
+        int position = node.dataPos;
+        // Don't go past the data's end which is (position + length)
+        // of evio structure being scanned in bytes.
+        int endingPos = position + 4*node.dataLen;
+        // Buffer we're using
+        ByteBuffer buffer = node.bufferNode.buffer;
+
+        int dt, dataType, dataLen, len, word;
+
+        // Do something different depending on what node contains
+        if (DataType.isBank(dType)) {
+            // Extract all the banks from this bank of banks.
+            // Make allowance for reading header (2 ints).
+            endingPos -= 8;
+            while (position <= endingPos) {
+
+                // Cloning is a fast copy that eliminates the need
+                // for setting stuff that's the same as the parent.
+                EvioNode kidNode = (EvioNode) node.clone();
+
+                // Read first header word
+                len = buffer.getInt(position);
+                kidNode.pos = position;
+
+                // Len of data (no header) for a bank
+                dataLen = len - 1;
+                position += 4;
+
+                // Read and parse second header word
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = (word >>> 16);
+                dt = (word >> 8) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
+                kidNode.num = word & 0xff;
+
+
+                kidNode.len = len;
+                kidNode.type = DataType.BANK.getValue();  // This is a bank
+                kidNode.dataLen = dataLen;
+                kidNode.dataPos = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent = false;
+
+                // Create the tree structure
+                kidNode.parentNode = node;
+                // Add this to list of children and to list of all nodes in the event
+                node.addChild(kidNode);
+
+                // Only scan through this child if it's a container
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode);
+                }
+
+                // Set position to start of next header (hop over kid's data)
+                position += 4 * dataLen;
+            }
+        }
+        else if (DataType.isSegment(dType)) {
+
+            // Extract all the segments from this bank of segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+                EvioNode kidNode = (EvioNode) node.clone();
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = word >>> 24;
+                dt = (word >>> 16) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
+                len = word & 0xffff;
+
+
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.SEGMENT.getValue();  // This is a segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode);
+                }
+
+                position += 4*len;
+            }
+        }
+        // Only one type of structure left - tagsegment
+        else {
+
+            // Extract all the tag segments from this bank of tag segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+
+                EvioNode kidNode = (EvioNode) node.clone();
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag =  word >>> 20;
+                dataType    = (word >>> 16) & 0xf;
+                len         =  word & 0xffff;
+
+                kidNode.pad      = 0;
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.TAGSEGMENT.getValue();  // This is a tag segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode);
+                }
+
+                position += 4*len;
+            }
+        }
     }
 
-    void setData(EvioNode parentNode,
-                 int len, int tag, int num, int pad,
-                 int pos, int type, int dataLen,
-                 int dataPos, int dataType) {
-
-        this.bufferNode = parentNode.bufferNode;
-        this.blockNode  = parentNode.blockNode;
-        this.eventNode  = parentNode.eventNode;
-        this.allNodes   = parentNode.allNodes;
-        this.parentNode = parentNode;
-
-        this.len = len;
-        this.tag = tag;
-        this.num = num;
-        this.pad = pad;
-        this.pos = pos;
-        this.type = type;
-        this.dataLen = dataLen;
-        this.dataPos = dataPos;
-        this.dataType = dataType;
-    }
-
-
+    //-------------------------------
+    // Setters & Getters & ...
+    //-------------------------------
 
     /**
      * Add a node to the end of the list of all nodes contained in event.
