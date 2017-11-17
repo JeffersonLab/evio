@@ -12,14 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * HIPO Record Class that creates records of 
- * data buffers (agnostic to what the data represents).
- * @author gavalian
- * @date 08/10/2017
- */
-
-
-/**
  * RECORD HEADER STRUCTURE ( 48 bytes, 12 integers (32 bit) )
  * 
  * +----------------------------------+
@@ -48,10 +40,11 @@ import java.util.List;
  * +        UID SECOND HIGH           |
  * +----------------------------------+
  * 
+ * HIPO Record Class that creates records of
+ * data buffers (agnostic to what the data represents).
  * @author gavalian
+ * @since 08/10/2017
  */
-
-
 public class Record {
     /**
      * Constants providing Unique ID that is written at the beginning 
@@ -246,8 +239,7 @@ public class Record {
     }
     
     public static int encodeCompressionWord(int compression, int length){
-        int word = 0;
-        word = (compression<<24)&0xFF000000;
+        int word = (compression << 24) & 0xFF000000;
         word = (word|length);
         return word;
     }
