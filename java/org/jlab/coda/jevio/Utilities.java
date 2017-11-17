@@ -1644,7 +1644,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
         }
 
         StringWriter sWriter = null;
-        XMLStreamWriter xmlWriter = null;
+        XMLStreamWriter xmlWriter;
         try {
             sWriter = new StringWriter();
             xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sWriter);
