@@ -16,7 +16,7 @@ public final class BufferNode {
     ByteBuffer buffer;
 
     /** Blocks contained in the buffer. */
-    ArrayList<BlockNode> blockNodes;
+    final ArrayList<BlockNode> blockNodes;
 
     //----------------------------------
     // Constructor (package accessible)

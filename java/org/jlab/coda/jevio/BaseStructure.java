@@ -95,10 +95,10 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
     protected int numberDataItems;
 
     /** Bytes with which to pad short and byte data. */
-    private static byte[] padValues = {0,0,0};
+    final private static byte[] padValues = {0,0,0};
 
     /** Number of bytes to pad short and byte data. */
-    private static int[]  padCount  = {0,3,2,1};
+    final private static int[]  padCount  = {0,3,2,1};
 
     /** Give the XML output proper indentation. */
     protected String xmlIndent = "";

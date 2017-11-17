@@ -314,14 +314,14 @@ public class EventWriterUnsync {
             threadPool.shutdown();
         }
 
-        private class CloseThd implements Runnable {
-            private RandomAccessFile raf;
+        private final class CloseThd implements Runnable {
+            private final RandomAccessFile raf;
 
             CloseThd(RandomAccessFile raf) {
                 this.raf = raf;
             }
 
-            public void run() {
+            public final void run() {
                 try {
                     raf.close();
                 }

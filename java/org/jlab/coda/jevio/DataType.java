@@ -49,7 +49,7 @@ public enum DataType {
 
 
     /** Fast way to convert integer values into DataType objects. */
-    private static DataType[] intToType;
+    private static final DataType[] intToType;
 
 
     // Fill array after all enum objects created

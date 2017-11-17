@@ -95,7 +95,7 @@ public final class CompositeData {
     private int getIndex;
 
 
-    static class LV {
+    static final class LV {
       int left;    // index of ifmt[] element containing left parenthesis "("
       int nrepeat; // how many times format in parenthesis must be repeated
       int irepeat; // right parenthesis ")" counter, or how many times format
@@ -558,7 +558,7 @@ public final class CompositeData {
      * This class is used to provide all data when constructing a CompositeData object.
      * Doing things this way keeps all internal data members self-consistent.
      */
-    public static class Data  {
+    public static final class Data  {
 
         /** Keep a running total of how many bytes the data take without padding.
          *  This includes both the dataItems and N values and thus assumes all N
@@ -569,17 +569,17 @@ public final class CompositeData {
         private int paddingBytes;
 
         /** Convenient way to calculate padding. */
-        private int[] pads = {0,3,2,1};
+        private final int[] pads = {0,3,2,1};
 
         /** List of data objects. */
-        private ArrayList<Object> dataItems = new ArrayList<Object>(100);
+        private final ArrayList<Object> dataItems = new ArrayList<Object>(100);
 
         /** List of types of data objects. */
-        private ArrayList<DataType> dataTypes = new ArrayList<DataType>(100);
+        private final ArrayList<DataType> dataTypes = new ArrayList<DataType>(100);
 
         /** List of "N" values - multiplier values read from data instead
          *  of being part of the format string. */
-        private ArrayList<Integer>  nList = new ArrayList<Integer>(100);
+        private final ArrayList<Integer>  nList = new ArrayList<Integer>(100);
 
         /** Though currently not used, this is the tag in the segment containing format string. */
         private int formatTag;
@@ -2275,7 +2275,7 @@ public final class CompositeData {
         boolean debug = false;
         int imt, ncnf, kcnf, lev, iterm;
 
-        class LV {
+        final class LV {
           int left;    // index of ifmt[] element containing left parenthesis "("
           int nrepeat; // how many times format in parenthesis must be repeated
           int irepeat; // right parenthesis ")" counter, or how many times format
@@ -2574,7 +2574,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
             swap = true;
         }
 
-        class LV {
+        final class LV {
           int left;    // index of formatInts[] element containing left parenthesis "("
           int nrepeat; // how many times format in parenthesis must be repeated
           int irepeat; // right parenthesis ")" counter, or how many times format
@@ -4248,7 +4248,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
             swap = true;
         }
 
-        class LV {
+        final class LV {
           int left;    // index of formatInts[] element containing left parenthesis "("
           int nrepeat; // how many times format in parenthesis must be repeated
           int irepeat; // right parenthesis ")" counter, or how many times format

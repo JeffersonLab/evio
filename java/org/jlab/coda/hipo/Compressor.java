@@ -33,13 +33,13 @@ public class Compressor {
     private static final int MTU = 1024*1024;
 
     /** Object used to create compressors. */
-    private static LZ4Factory factory;
+    private static final LZ4Factory factory;
     /** Fastest LZ4 compressor. */
-    private static LZ4Compressor lz4_compressor;
+    private static final LZ4Compressor lz4_compressor;
     /** Slowest but best LZ4 compressor. */
-    private static LZ4Compressor lz4_compressor_best;
+    private static final LZ4Compressor lz4_compressor_best;
     /** Decompressor for LZ4 if decompressed size unknown. */
-    private static LZ4SafeDecompressor lz4_decompressor;
+    private static final LZ4SafeDecompressor lz4_decompressor;
 
 
     static {

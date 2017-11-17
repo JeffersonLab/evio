@@ -83,7 +83,7 @@ import java.util.BitSet;
  * @author timmer
  *
  */
-public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
+public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /** The minimum and expected block header size in 32 bit ints. */
     public static final int HEADER_SIZE = 8;
