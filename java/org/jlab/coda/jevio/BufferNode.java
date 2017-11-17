@@ -26,7 +26,7 @@ public final class BufferNode {
      * Constructor which stores buffer and creates list of block nodes.
      * @param buffer buffer with evio version 4 file-format data.
      */
-    BufferNode(ByteBuffer buffer) {
+    public BufferNode(ByteBuffer buffer) {
         this.buffer = buffer;
         blockNodes = new ArrayList<>(10);
     }
@@ -35,9 +35,7 @@ public final class BufferNode {
     // Methods
     //-------------------------------
 
-    public void clearLists() {
-        blockNodes.clear();
-    }
+    public void clearLists() {blockNodes.clear();}
 
     //-------------------------------
     // Getters & Setters
@@ -47,14 +45,19 @@ public final class BufferNode {
      * Get the byte buffer.
      * @return byte buffer.
      */
-    public ByteBuffer getBuffer() {
-        return buffer;
-    }
+    public ByteBuffer getBuffer() {return buffer;}
 
     /**
-     * set the byte buffer.
+     * Set the byte buffer.
      * @param buf new byte buffer.
      */
-    void setBuffer(ByteBuffer buf) { buffer = buf; }
+    void setBuffer(ByteBuffer buf) {buffer = buf;}
+
+    /**
+     * Get the list containing block in the buffer.
+     * @return list containing block in the buffer.
+     */
+    public ArrayList<BlockNode> getBlockNodes() {return blockNodes;}
+
 
 }
