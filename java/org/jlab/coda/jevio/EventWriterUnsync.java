@@ -2481,8 +2481,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @param currentEventBytes  number of bytes to write from buffer
      */
-    private void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes)
-                                            throws EvioException{
+    private void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes) {
 
 //if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = " +
 //                bytesWrittenToBuffer);
@@ -3133,9 +3132,8 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @throws EvioException if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
      */
-    private void splitFile() throws EvioException, IOException {
+    private void splitFile() throws EvioException {
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
         if (raf != null) {

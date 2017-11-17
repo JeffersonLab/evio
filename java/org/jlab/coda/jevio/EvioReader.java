@@ -508,12 +508,10 @@ public class EvioReader {
      *                       and throw an exception if it is not sequential starting
      *                       with 1
      * @see EventWriter
-     * @throws IOException   if read failure
      * @throws EvioException if buffer arg is null;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
-    public EvioReader(ByteBuffer byteBuffer, boolean checkBlkNumSeq)
-                                                    throws EvioException, IOException {
+    public EvioReader(ByteBuffer byteBuffer, boolean checkBlkNumSeq) throws EvioException {
 
         if (byteBuffer == null) {
             throw new EvioException("Buffer arg is null");

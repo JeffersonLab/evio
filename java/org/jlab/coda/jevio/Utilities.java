@@ -1635,9 +1635,8 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * @param node EvioNode object to print out
      * @param hex  if true, ints get displayed in hexadecimal
      * @return string representation of node.
-     * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
-    final static public String toXML(EvioNode node, boolean hex) throws EvioException {
+    final static public String toXML(EvioNode node, boolean hex) {
 
         if (node == null) {
             return null;

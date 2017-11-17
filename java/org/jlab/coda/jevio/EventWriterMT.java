@@ -786,11 +786,8 @@ public class EventWriterMT {
      *
      * @param buf            the buffer to write to.
      * @param recordNumber   number at which to start record number counting.
-     *
-     * @throws EvioException not enough memory in buf for writing.
      */
-    private void reInitializeBuffer(ByteBuffer buf, int recordNumber)
-            throws EvioException {
+    private void reInitializeBuffer(ByteBuffer buf, int recordNumber) {
 
         this.buffer       = buf;
         this.byteOrder    = buf.order();
@@ -1904,7 +1901,6 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
      *
-     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if bad bankBuffer format;
      *                       if close() already called;
@@ -1913,7 +1909,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if no room when writing to user-given buffer;
      */
     private void writeEvent(EvioBank bank, ByteBuffer bankBuffer, boolean force)
-            throws EvioException, IOException {
+            throws EvioException {
 
         if (closed) {
             throw new EvioException("close() has already been called");
