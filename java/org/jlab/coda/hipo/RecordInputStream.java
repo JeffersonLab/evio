@@ -542,7 +542,7 @@ public class RecordInputStream {
             // This will switch buffer to proper byte order
             header.readHeader(buffer, offset);
             // Make sure all internal buffers have the same byte order
-            setByteOrder(headerBuffer.order());
+            setByteOrder(buffer.order());
 
             int recordLengthWords = header.getLength();
             int headerLength      = header.getHeaderLength();
