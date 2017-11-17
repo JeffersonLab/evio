@@ -1,40 +1,3 @@
-/**
- * ################################
- * COMPOSITE DATA:
- * ################################
- * This is a new type of data (value = 0xf) which originated with Hall B.
- * It is a composite type and allows for possible expansion in the future
- * if there is a demand. Basically it allows the user to specify a custom
- * format by means of a string - stored in a tagsegment. The data in that
- * format follows in a bank. The routine to swap this data must be provided
- * by the definer of the composite type - in this case Hall B. The swapping
- * function is plugged into this evio library's swapping routine.
- *
- * Here's what the data looks like.
- *
- * MSB(31)                          LSB(0)
- * <---  32 bits ------------------------>
- * _______________________________________
- * |  tag    | type |    length          | --> tagsegment header
- * |_________|______|____________________|
- * |        Data Format String           |
- * |                                     |
- * |_____________________________________|
- * |              length                 | \
- * |_____________________________________|  \  bank header
- * |       tag      |  type   |   num    |  /
- * |________________|_________|__________| /
- * |               Data                  |
- * |                                     |
- * |_____________________________________|
- *
- * The beginning tagsegment is a normal evio tagsegment containing a string
- * (type = 0x3). Currently its type and tag are not used - at least not for
- * data formatting.
- * The bank is a normal evio bank header with data following.
- * The format string is used to read/write this data so that takes care of any
- * padding that may exist. As with the tagsegment, the tags and type are ignored.
- */
 package org.jlab.coda.jevio;
 
 
@@ -49,11 +12,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is the class defining the composite data type.
- * It is a mixture of header and raw data.
+ * ################################
+ * COMPOSITE DATA:
+ * ################################
+ * This is a new type of data (value = 0xf) which originated with Hall B.
+ * It is a composite type and allows for possible expansion in the future
+ * if there is a demand. Basically it allows the user to specify a custom
+ * format by means of a string - stored in a tagsegment. The data in that
+ * format follows in a bank. The routine to swap this data must be provided
+ * by the definer of the composite type - in this case Hall B. The swapping
+ * function is plugged into this evio library's swapping routine.
+ *
+ * Here's what the data looks like.
+ * <pre>
+ * MSB(31)                          LSB(0)
+ * &lt;---  32 bits ------------------------&gt;
+ * _______________________________________
+ * |  tag    | type |    length          | --&gt; tagsegment header
+ * |_________|______|____________________|
+ * |        Data Format String           |
+ * |                                     |
+ * |_____________________________________|
+ * |              length                 | \
+ * |_____________________________________|  \  bank header
+ * |       tag      |  type   |   num    |  /
+ * |________________|_________|__________| /
+ * |               Data                  |
+ * |                                     |
+ * |_____________________________________|
+ * </pre>
+ * The beginning tagsegment is a normal evio tagsegment containing a string
+ * (type = 0x3). Currently its type and tag are not used - at least not for
+ * data formatting.
+ * The bank is a normal evio bank header with data following.
+ * The format string is used to read/write this data so that takes care of any
+ * padding that may exist. As with the tagsegment, the tags and type are ignored.
  *
  * @author timmer
- * 
  */
 public final class CompositeData {
 
