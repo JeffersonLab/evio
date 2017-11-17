@@ -92,8 +92,7 @@ import java.util.Arrays;
  * @author timmer
  */
 public class RecordHeader implements IBlockHeader {
-    //public class RecordHeader  {
-    
+
     /** Array to help find number of bytes to pad data. */
     private final static int[] padValue = {0,3,2,1};
     /** Number of 32-bit words in a normal sized header. */
@@ -117,7 +116,7 @@ public class RecordHeader implements IBlockHeader {
     /** 8th bit set in bitInfo word in header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
     /** 9th bit set in bitInfo word in header means every split file has same first event. */
-    final static int   HAS_FIRST_EVENT_BIT = 0x200;
+    final static int   FIRST_EVENT_BIT = 0x200;
     /** 10th bit set in bitInfo word in header means is last in stream or file. */
     final static int   LAST_RECORD_BIT = 0x400;
 
@@ -184,10 +183,13 @@ public class RecordHeader implements IBlockHeader {
     /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
       * Highest 4 bits of 10th word. */
     private int  compressionType;
-    /** Evio format version number. Lowest byte of 6th word. */
+    /** Evio format version number. It is 6 when being written, else
+     * the version of file/buffer being read. Lowest byte of 6th word. */
     private int  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
     private int  headerMagicWord = HEADER_MAGIC;
+    /** Byte order of file/buffer this header was read from. */
+    private ByteOrder  byteOrder = ByteOrder.LITTLE_ENDIAN;
 
     // These quantities are updated automatically when lengths are set
 
@@ -216,6 +218,14 @@ public class RecordHeader implements IBlockHeader {
         if (type.isFileHeader()) {
             throw new HipoException("use FileHeader class for a file");
         }
+    }
+
+    /**
+     * Constructor which copies another header.
+     * @param header  header to copy.
+     */
+    public RecordHeader(RecordHeader header) {
+        copy(header);
     }
 
     /**
@@ -314,6 +324,13 @@ public class RecordHeader implements IBlockHeader {
     private static int getPadding(int length) {return padValue[length%4];}
 
     // Getters
+
+    /**
+     * Get the byte order of the file/buffer this header was read from.
+     * Defaults to little endian.
+     * @return byte order of the file/buffer this header was read from.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
 
     /**
      * Get the position of this record in a file.
@@ -461,7 +478,7 @@ public class RecordHeader implements IBlockHeader {
                   (headerVersion & 0xFF);
 
         if (haveDictionary) bitInfo |= DICTIONARY_BIT;
-        if (haveFirstEvent) bitInfo |= HAS_FIRST_EVENT_BIT;
+        if (haveFirstEvent) bitInfo |= FIRST_EVENT_BIT;
         if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
 
         return bitInfo;
@@ -540,7 +557,7 @@ public class RecordHeader implements IBlockHeader {
      * @return true if header has a first event in the user header, else false.
      */
     public boolean hasFirstEvent() {
-        return ((bitInfo & HAS_FIRST_EVENT_BIT) != 0);
+        return ((bitInfo & FIRST_EVENT_BIT) != 0);
     }
 
     /**
@@ -838,18 +855,21 @@ public class RecordHeader implements IBlockHeader {
         if (headerMagicWord != HEADER_MAGIC_LE) {
             // If it needs to be switched ...
             if (headerMagicWord == HEADER_MAGIC_BE) {
-                ByteOrder bufEndian = buffer.order();
-                if (bufEndian == ByteOrder.BIG_ENDIAN) {
-                    buffer.order(ByteOrder.LITTLE_ENDIAN);
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    byteOrder = ByteOrder.LITTLE_ENDIAN;
                 }
                 else {
-                    buffer.order(ByteOrder.BIG_ENDIAN);
+                    byteOrder = ByteOrder.BIG_ENDIAN;
                 }
+                buffer.order(byteOrder);
             }
             else {
                 // ERROR condition, bad magic word
                 throw new HipoException("buffer arg not in evio/hipo format");
             }
+        }
+        else {
+            byteOrder = buffer.order();
         }
 
         // Look at the bit-info word
@@ -860,9 +880,10 @@ public class RecordHeader implements IBlockHeader {
         
         // Look at the version #
         int version  = (bitInfoWord & 0xFF);
-        if (version < headerVersion) {
+        if (version < 6) {
             throw new HipoException("buffer is in evio format version " + version);
         }
+        headerVersion = version;
 
         recordLengthWords   = buffer.getInt(     offset);        //  0*4
         recordLength        = 4*recordLengthWords;
@@ -972,9 +993,6 @@ public class RecordHeader implements IBlockHeader {
     }
 
     // Following methods are not used in this class but must be part of IBlockHeader interface
-
-    /** {@inheritDoc} */
-    public ByteOrder getByteOrder() {return null;}
 
     /** {@inheritDoc} */
     public long getBufferEndingPosition() {return 0L;}
