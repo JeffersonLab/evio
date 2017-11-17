@@ -179,13 +179,11 @@ public class EvioEvent extends EvioBank {
             sb.append("(0x");
             sb.append(Integer.toHexString(header.tag));
             sb.append(")");
-            if (this instanceof EvioBank) {
-                sb.append("  num=");
-                sb.append(header.number);
-                sb.append("(0x");
-                sb.append(Integer.toHexString(header.number));
-                sb.append(")");
-            }
+            sb.append("  num=");
+            sb.append(header.number);
+            sb.append("(0x");
+            sb.append(Integer.toHexString(header.number));
+            sb.append(")");
         }
 
         // todo: can be more thorough here for datalen calculation
