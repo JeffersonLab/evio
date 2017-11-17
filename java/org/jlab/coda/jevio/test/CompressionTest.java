@@ -477,11 +477,11 @@ class GzipCompression3 {
         System.out.println("Compressed buf: cap = " + compressedBuf.capacity() +
                            ", pos = " + compressedBuf.position() + ", lim = " + compressedBuf.limit());
 
-        /** The object used for writing a file. */
+        // The object used for writing a file
         File currentFile = new File("/scratch/timmer/myDataFile5");
         RandomAccessFile raf = new RandomAccessFile(currentFile, "rw");
 
-        /** The file channel, used for writing a file, derived from raf. */
+        // The file channel, used for writing a file, derived from raf
         FileChannel fileChannel = raf.getChannel();
 
         // Write everything in internal buffer out to file
@@ -596,11 +596,11 @@ class GzipCompression4 {
         System.out.println("Compressed buf: cap = " + compressedBuf.capacity() +
                            ", pos = " + compressedBuf.position() + ", lim = " + compressedBuf.limit());
 
-        /** The object used for writing a file. */
+        // The object used for writing a file
         File currentFile = new File("/scratch/timmer/myIntDataFile");
         RandomAccessFile raf = new RandomAccessFile(currentFile, "rw");
 
-        /** The file channel, used for writing a file, derived from raf. */
+        // The file channel, used for writing a file, derived from raf
         FileChannel fileChannel = raf.getChannel();
 
         // Write everything in internal buffer out to file
