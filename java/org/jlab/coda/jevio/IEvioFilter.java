@@ -27,5 +27,5 @@ public interface IEvioFilter {
 	 * @return <code>true</code> if the structure passes the filter and should be given to the listeners.
 	 * @see StructureType
 	 */
-	public boolean accept(StructureType structureType, IEvioStructure structure);
+	boolean accept(StructureType structureType, IEvioStructure structure);
 }

@@ -16,7 +16,7 @@ public class EvioFileTest {
 	 * PASS indicates that a given test passed. <br>
 	 * FAIL indicates that a given test failed.
 	 */
-	public static enum TestResult {
+	public enum TestResult {
 		PASS, FAIL
 	}
 

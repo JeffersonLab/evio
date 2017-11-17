@@ -18,18 +18,18 @@ public interface IEvioListener extends EventListener {
 	 * @param topStructure the evio structure at the top of the search/parse
 	 * @param structure the full structure, including header
 	 */
-	public void gotStructure(BaseStructure topStructure, IEvioStructure structure);
+	void gotStructure(BaseStructure topStructure, IEvioStructure structure);
     
     /**
      * Starting to parse a new evio structure.
      * @param structure the evio structure in question.
      */
-    public void startEventParse(BaseStructure structure);
+    void startEventParse(BaseStructure structure);
 
     /**
      * Done parsing a new evio structure.
      * @param structure the evio structure in question.
      */
-    public void endEventParse(BaseStructure structure);
+    void endEventParse(BaseStructure structure);
 
 }

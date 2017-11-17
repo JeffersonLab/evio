@@ -7,5 +7,5 @@ public interface IEvioProgressListener {
 	 * @param num the current number,
 	 * @param total the total number, i.e, we have completed num out of total.
 	 */
-	public void completed(int num, int total);
+	void completed(int num, int total);
 }

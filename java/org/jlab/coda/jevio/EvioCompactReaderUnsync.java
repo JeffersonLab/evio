@@ -41,7 +41,7 @@ public class EvioCompactReaderUnsync {
 	 * such as a negative start position.<br>
 	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
 	 */
-	public static enum ReadStatus {
+	public enum ReadStatus {
 		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
 	}
 

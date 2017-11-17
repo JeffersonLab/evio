@@ -105,7 +105,7 @@ public enum DataType {
      * Constructor.
      * @param value
      */
-	private DataType(int value) {
+	DataType(int value) {
 		this.value = value;
 	}
 

@@ -30,7 +30,7 @@ public enum StructureType {
     }
 
 
-    private StructureType(int value) {
+    StructureType(int value) {
         this.value = value;
     }
 

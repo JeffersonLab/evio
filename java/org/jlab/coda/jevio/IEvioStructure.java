@@ -14,7 +14,7 @@ public interface IEvioStructure {
 	 * 
 	 * @return the <code>BaseStructureHeader</code> for this structure.
 	 */
-	public BaseStructureHeader getHeader();
+	BaseStructureHeader getHeader();
 
 	/**
 	 * Return the StructureType for this structure.
@@ -22,7 +22,7 @@ public interface IEvioStructure {
 	 * @return the StructureType for this structure.
 	 * @see StructureType
 	 */
-	public StructureType getStructureType();
+	StructureType getStructureType();
 	
 	/**
 	 * Gets the raw data as an integer array, if the type as indicated by the
@@ -32,14 +32,14 @@ public interface IEvioStructure {
 	 * negative as unsigned ints
 	 * @return the data as an int array, or <code>null</code> if this makes no sense for the given type.
 	 */
-	public int[] getIntData();
+	int[] getIntData();
 	
 	/**
 	 * Gets the raw data as a double array, if the type as indicated by the
 	 * header is appropriate.
 	 * @return the data as an double array, or <code>null</code> if this makes no sense for the given type.
 	 */
-	public double[] getDoubleData();
+	double[] getDoubleData();
 	
 	/**
 	 * Gets the raw data as an byte array, if the type as indicated by the
@@ -49,7 +49,7 @@ public interface IEvioStructure {
 	 * if necessary.
 	 * @return the data as an byte array, or <code>null</code> if this makes no sense for the given type.
 	 */
-	public byte[] getByteData();
+	byte[] getByteData();
 	
     /**
      * Gets the raw data as an array of String objects, if the type as indicated by the
@@ -57,7 +57,7 @@ public interface IEvioStructure {
      * @return the data as an array of String objects, or <code>null</code> if this makes no sense for the given type.
      * (The only DataType it makes sense for is CHARSTAR8.)
      */
-    public String[] getStringData();
+    String[] getStringData();
 
 	/**
 	 * Gets the raw data as a long array, if the type as indicated by the
@@ -67,14 +67,14 @@ public interface IEvioStructure {
 	 * negative as unsigned longs.
 	 * @return the data as an long array, or <code>null</code> if this makes no sense for the given type.
 	 */
-	public long[] getLongData();
+	long[] getLongData();
 	
 	/**
 	 * Gets the raw data as a float array, if the type as indicated by the
 	 * header is appropriate.
 	 * @return the data as an double array, or <code>null</code> if this makes no sense for the given type.
 	 */
-	public float[] getFloatData();
+	float[] getFloatData();
 	
 	/**
 	 * Gets the raw data as a short array, if the type as indicated by the
@@ -85,7 +85,7 @@ public interface IEvioStructure {
 
 	 * @return the data as an short array, or <code>null</code> if this makes no sense for the given type.
 	 */
-	public short[] getShortData();
+	short[] getShortData();
 	
     /**
      * Gets the raw data as an array of CompositeData objects, if the type as indicated
@@ -95,14 +95,14 @@ public interface IEvioStructure {
      *         or <code>null</code> if this makes no sense for the given type.
      * @throws EvioException if the data is internally inconsistent
      */
-    public CompositeData[] getCompositeData() throws EvioException;
+    CompositeData[] getCompositeData() throws EvioException;
 
 	/**
 	 * Get the description from the name provider (dictionary), if there is one.
 	 * @return the description from the name provider (dictionary), if there is one. If not, return
 	 *         NameProvider.NO_NAME_STRING.
 	 */
-	public String getDescription();
+	String getDescription();
 
 
 

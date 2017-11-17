@@ -45,7 +45,7 @@ public class EvioReader {
 	 * such as a negative start position.<br>
 	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
 	 */
-	public static enum ReadStatus {
+	public enum ReadStatus {
 		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
 	}
 
@@ -56,7 +56,7 @@ public class EvioReader {
 	 * EVIO_EXCEPTION indicates that an EvioException was thrown during a write.<br>
 	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
 	 */
-	public static enum WriteStatus {
+	public enum WriteStatus {
 		SUCCESS, CANNOT_OPEN_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
 	}
 

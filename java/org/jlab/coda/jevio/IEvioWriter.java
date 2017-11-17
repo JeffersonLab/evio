@@ -14,5 +14,5 @@ public interface IEvioWriter {
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written.
 	 */
-	public int write(ByteBuffer byteBuffer);
+	int write(ByteBuffer byteBuffer);
 }

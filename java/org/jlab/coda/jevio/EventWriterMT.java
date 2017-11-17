@@ -486,7 +486,6 @@ public class EventWriterMT {
             byteOrder = ByteOrder.BIG_ENDIAN;
         }
 
-
 //        if (append) {
 //            if (split > 0) {
 //                throw new EvioException("Cannot specify split when appending");
@@ -504,7 +503,6 @@ public class EventWriterMT {
         this.append        = false;
         this.runNumber     = runNumber;
         this.byteOrder     = byteOrder;   // byte order may be overwritten if appending
-        this.bufferSize    = bufferSize;
         this.overWriteOK   = overWriteOK;
         this.xmlDictionary = xmlDictionary;
         this.streamCount   = streamCount;
@@ -1014,7 +1012,6 @@ public class EventWriterMT {
      * @param node node representing event to be placed first in each file written
      *             including all splits. If null, no more first events are written
      *             to any files.
-     * @throws IOException   if error writing to file
      * @throws EvioException if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
@@ -1022,8 +1019,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void setFirstEvent(EvioNode node)
-            throws EvioException, IOException {
+    public void setFirstEvent(EvioNode node) throws EvioException {
 
         // There's no way to remove an event from a record, so reconstruct it
         createCommonRecord(xmlDictionary, null, node);
@@ -1654,7 +1650,6 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @param node   object representing the event to write in buffer form
      * @param force  if writing to disk, force it to write event to the disk.
-     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1662,9 +1657,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioNode node, boolean force)
-            throws EvioException, IOException {
-
+    public void writeEvent(EvioNode node, boolean force) throws EvioException {
         // Duplicate buffer so we can set pos & limit without messing others up
         writeEvent(node, force, true);
     }
