@@ -6,16 +6,17 @@
  */
 package org.jlab.coda.hipo;
 
-import org.jlab.coda.jevio.ByteDataTransformer;
-import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -131,7 +132,15 @@ public class Reader {
 
     /** Are we reading from file (true) or buffer? */
     protected boolean fromFile = true;
+
+
     
+    /** Is this object currently closed? */
+    private boolean closed;
+    /** Byte order of file/buffer being read. */
+    private ByteOrder byteOrder;
+    /** Evio version of file/buffer being read. */
+    private int evioVersion;
 
     /**
      * Default constructor. Does nothing.
@@ -166,7 +175,7 @@ public class Reader {
      * @param filename input file name.
      * @param forceScan if true, force a scan of file, else use existing indexes first.
      */
-    public Reader(String filename, boolean forceScan){
+    public Reader(String filename, boolean forceScan) {
         open(filename);
         if (forceScan){
            forceScanFile();
@@ -213,6 +222,59 @@ public class Reader {
         }
     }
 
+    /**
+     * This is closes the file, but for buffers it only sets the position to 0.
+     * This method, along with the <code>rewind()</code> and the two
+     * <code>position()</code> methods, allows applications to treat files
+     * in a normal random access manner.
+     *
+     * @throws IOException if error accessing file
+     */
+    public synchronized void close() throws IOException {
+        if (closed) {
+            return;
+        }
+
+        if (fromFile) {
+            inStreamRandom.close();
+        }
+
+        closed = true;
+    }
+
+    /**
+     * This method can be used to avoid creating additional Reader
+     * objects by reusing this one with another buffer.
+     * @param buf ByteBuffer to be read
+     */
+    public void setBuffer(ByteBuffer buf) {
+        if (buf == null) {
+            return;
+        }
+
+        buffer = buf;
+        initialBufferPosition = buffer.position();
+        scanBuffer();
+        closed = false;
+    }
+
+    /**
+     * Get the byte order of the file/buffer being read.
+     * @return byte order of the file/buffer being read.
+     */
+    public ByteOrder getByteOrder() {return byteOrder;}
+
+    /**
+     * Set the byte order of the file/buffer being read.
+     * @param order byte order of the file/buffer being read.
+     */
+    private void setByteOrder(ByteOrder order) {byteOrder = order;}
+
+    /**
+     * Get the Evio format version number of the file/buffer being read.
+     * @return Evio format version number of the file/buffer being read.
+     */
+    public int  getVersion() {return evioVersion;}
 
     /**
      * Get the XML format dictionary if there is one.
@@ -582,6 +644,8 @@ public class Reader {
                 buffer.position(recordPosition);
                 buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
                 recordHeader.readHeader(headerBuffer);
+                byteOrder = recordHeader.getByteOrder();
+                evioVersion = recordHeader.getVersion();
 
                 // Save the first record header
                 if (!haveFirstRecordHeader) {
@@ -603,6 +667,153 @@ public class Reader {
             //System.out.println("NUMBER OF RECORDS " + recordPositions.size());
         } catch (HipoException ex) {
             Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+
+    /** Stores info of all the (top-level) events. */
+    private final ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
+
+    /** Store info of all block headers. */
+    private final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
+
+
+    /**
+     * Generate a table (ArrayList) of positions of events in file/buffer.
+     * This method does <b>not</b> affect the byteBuffer position, eventNumber,
+     * or lastBlock values. Uses only absolute gets so byteBuffer position
+     * does not change. Called only in constructors and
+     * {@link #setBuffer(ByteBuffer)}.
+     *
+     * @throws EvioException if bytes not in evio format
+     */
+    void generateEventPositionTable() throws EvioException {
+
+        int      byteInfo, byteLen, blockHdrSize, blockSize, blockEventCount, magicNum;
+        boolean  firstBlock=true, hasDictionary=false;
+        //boolean  curLastBlock=false;
+
+//        long t2, t1 = System.currentTimeMillis();
+
+        BufferNode bufferNode = new BufferNode(buffer);
+
+        // Start at the beginning of buffer without changing
+        // its current position. Do this with absolute gets.
+        int position  = initialBufferPosition;
+        int bytesLeft = buffer.limit() - position;
+
+        // Keep track of the # of blocks, events, and valid words in file/buffer
+        int blockCount = 0;
+        int eventCount = 0;
+        int validDataWords = 0;
+        BlockNode blockNode;
+
+        try {
+
+            while (bytesLeft > 0) {
+                // Need enough data to at least read 1 block header (32 bytes)
+                if (bytesLeft < 32) {
+                    throw new EvioException("Bad evio format: extra " + bytesLeft +
+                                                    " bytes at file end");
+                }
+
+                // Swapping is taken care of
+                blockSize       = buffer.getInt(position);
+                byteInfo        = buffer.getInt(position + 4* BlockHeaderV4.EV_VERSION);
+                blockHdrSize    = buffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
+                blockEventCount = buffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
+                magicNum        = buffer.getInt(position + 4*BlockHeaderV4.EV_MAGIC);
+
+//                System.out.println("    genEvTablePos: blk ev count = " + blockEventCount +
+//                                           ", blockSize = " + blockSize +
+//                                           ", blockHdrSize = " + blockHdrSize +
+//                                           ", byteInfo  = " + byteInfo);
+
+                // If magic # is not right, file is not in proper format
+                if (magicNum != BlockHeaderV4.MAGIC_NUMBER) {
+                    throw new EvioException("Bad evio format: block header magic # incorrect");
+                }
+
+                if (blockSize < 8 || blockHdrSize < 8) {
+                    throw new EvioException("Bad evio format (block: len = " +
+                                                    blockSize + ", blk header len = " + blockHdrSize + ")" );
+                }
+
+                // Check to see if the whole block is there
+                if (4*blockSize > bytesLeft) {
+//System.out.println("    4*blockSize = " + (4*blockSize) + " >? bytesLeft = " + bytesLeft +
+//                   ", pos = " + position);
+                    throw new EvioException("Bad evio format: not enough data to read block");
+                }
+
+                // File is now positioned before block header.
+                // Look at block header to get info.
+                blockNode = new BlockNode();
+
+                blockNode.setPos(position);
+                blockNode.setLen(blockSize);
+                blockNode.setCount(blockEventCount);
+
+                blockNodes.put(blockCount, blockNode);
+                bufferNode.getBlockNodes().add(blockNode);
+
+                blockNode.setPlace(blockCount++);
+                validDataWords += blockSize;
+//                curLastBlock    = BlockHeaderV4.isLastBlock(byteInfo);
+                if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(byteInfo);
+
+                // Hop over block header to events
+                position  += 4*blockHdrSize;
+                bytesLeft -= 4*blockHdrSize;
+
+//System.out.println("    hopped blk hdr, pos = " + position + ", is last blk = " + curLastBlock);
+
+                // Check for a dictionary - the first event in the first block.
+                // It's not included in the header block count, but we must take
+                // it into account by skipping over it.
+                if (firstBlock && hasDictionary) {
+                    firstBlock = false;
+
+                    // Get its length - bank's len does not include itself
+                    byteLen = 4*(buffer.getInt(position) + 1);
+
+                    // Skip over dictionary
+                    position  += byteLen;
+                    bytesLeft -= byteLen;
+//System.out.println("    hopped dict, pos = " + position);
+                }
+
+                // For each event in block, store its location
+                for (int i=0; i < blockEventCount; i++) {
+                    // Sanity check - must have at least 1 header's amount left
+                    if (bytesLeft < 8) {
+                        throw new EvioException("Bad evio format: not enough data to read event (bad bank len?)");
+                    }
+
+                    EvioNode node = EvioNode.extractEventNode(bufferNode, blockNode,
+                                                     position, eventCount + i);
+//System.out.println("      event "+i+" in block: pos = " + node.pos +
+//                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
+                    eventNodes.add(node);
+                    //blockNode.allEventNodes.add(node);
+
+                    // Hop over header + data
+                    byteLen = 8 + 4*node.getDataLength();
+                    position  += byteLen;
+                    bytesLeft -= byteLen;
+
+                    if (byteLen < 8 || bytesLeft < 0) {
+                        throw new EvioException("Bad evio format: bad bank length");
+                    }
+
+//System.out.println("    hopped event " + (i+1) + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
+                }
+
+                eventCount += blockEventCount;
+            }
+        }
+        catch (IndexOutOfBoundsException e) {
+            throw new EvioException("Bad evio format", e);
         }
     }
 
@@ -630,7 +841,9 @@ public class Reader {
             // Read and parse file header
             inStreamRandom.read(headerBytes);
             fileHeader.readHeader(headerBuffer);
-            
+            byteOrder = fileHeader.getByteOrder();
+            evioVersion = fileHeader.getVersion();
+
             // First record position (past file's header + index + user header)
             //long recordPosition = fileHeader.getLength();
             long recordPosition = fileHeader.getHeaderLength() + 
@@ -694,6 +907,8 @@ public class Reader {
             // Read and parse file header
             inStreamRandom.read(headerBytes);
             fileHeader.readHeader(headerBuffer);
+            byteOrder = fileHeader.getByteOrder();
+            evioVersion = fileHeader.getVersion();
 
             // Is there an existing record length index?
             // Index in trailer gets first priority.
