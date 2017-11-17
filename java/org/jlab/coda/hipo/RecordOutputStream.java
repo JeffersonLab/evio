@@ -192,8 +192,8 @@ public class RecordOutputStream {
         }
 
         // Copy data over
-        System.arraycopy(rec.recordIndex.array(),  0, recordIndex,  0, indexSize);
-        System.arraycopy(rec.recordEvents.array(), 0, recordEvents, 0, eventSize);
+        System.arraycopy(rec.recordIndex.array(),  0, recordIndex.array(),  0, indexSize);
+        System.arraycopy(rec.recordEvents.array(), 0, recordEvents.array(), 0, eventSize);
 
         // recordData is just a temporary holding buffer and does NOT need to be copied
 
@@ -201,7 +201,7 @@ public class RecordOutputStream {
         // Assume that buffer is ready to read as is the case right after build() is called.
         if (rec.recordBinary.hasArray() && recordBinary.hasArray()) {
             System.arraycopy(rec.recordBinary.array(), 0,
-                             recordBinary, 0, rec.recordBinary.limit());
+                             recordBinary.array(), 0, rec.recordBinary.limit());
             // Get buffer ready to read
             recordBinary.position(0).limit(rec.recordBinary.limit());
         }
@@ -747,7 +747,7 @@ public class RecordOutputStream {
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
-        int compressedSize = 0;
+        int compressedSize;
         try {
             switch (compressionType) {
                 case 1:
