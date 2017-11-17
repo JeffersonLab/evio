@@ -61,20 +61,14 @@ public final class BankHeader extends BaseStructureHeader {
 
 	/**
 	 * Obtain a string representation of the bank header.
-	 * 
 	 * @return a string representation of the bank header.
 	 */
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(512);
-		sb.append(String.format("bank length: %d\n", length));
-		sb.append(String.format("number:      %d\n", number));
-		sb.append(String.format("data type:   %s\n", getDataTypeName()));
-        sb.append(String.format("tag:         %d\n", tag));
-        sb.append(String.format("padding:     %d\n", padding));
-		return sb.toString();
+		return String.format("bank length: %d\nnumber:      %d\ndata type:   %s\ntag:         %d\npadding:     %d\n",
+					  length, number, getDataTypeName(), tag, padding);
 	}
-	
+
 	/**
 	 * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.
 	 * 
