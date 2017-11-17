@@ -19,7 +19,7 @@ public class FileToV4 {
         String readFileName  = "/daqfs/home/timmer/coda/jevio-4.3/testdata/evioV2format.ev";
         String writeFileName = "/daqfs/home/timmer/coda/jevio-4.3/testdata/evioV4format.ev";
 
-        EvioEvent event=null;
+        EvioEvent event;
 
 
         System.out.println("\nTRY READING");
