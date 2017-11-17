@@ -1068,7 +1068,6 @@ public class EventWriterMT {
      *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
-     * @throws IOException   if error writing to file
      * @throws EvioException if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
@@ -1076,8 +1075,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void setFirstEvent(EvioBank bank)
-            throws EvioException, IOException {
+    public void setFirstEvent(EvioBank bank) throws EvioException {
 
         // There's no way to remove an event from a record, so reconstruct it
         createCommonRecord(xmlDictionary, bank, null);
@@ -1699,7 +1697,6 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
-     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1709,7 +1706,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if null node arg;
      */
     public void writeEvent(EvioNode node, boolean force, boolean duplicate)
-            throws EvioException, IOException {
+            throws EvioException {
 
         if (node == null) {
             throw new EvioException("null node arg");
@@ -1763,7 +1760,6 @@ System.err.println("ERROR endOfBuffer " + a);
      * user header part of the file header.<p>
      *
      * @param eventBuffer the event (bank) to write in buffer form
-     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1771,8 +1767,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(ByteBuffer eventBuffer)
-            throws EvioException, IOException {
+    public void writeEvent(ByteBuffer eventBuffer) throws EvioException {
         writeEvent(null, eventBuffer, false);
     }
 
@@ -1792,14 +1787,12 @@ System.err.println("ERROR endOfBuffer " + a);
      * user header part of the file header.<p>
      *
      * @param bank the bank to write.
-     * @throws IOException   if error writing file
      * @throws EvioException if close() already called;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioBank bank)
-            throws EvioException, IOException {
+    public void writeEvent(EvioBank bank) throws EvioException {
         writeEvent(bank, null, false);
     }
 
@@ -1827,7 +1820,6 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
      *
-     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1835,8 +1827,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(ByteBuffer bankBuffer, boolean force)
-            throws EvioException, IOException {
+    public void writeEvent(ByteBuffer bankBuffer, boolean force) throws EvioException {
         writeEvent(null, bankBuffer, force);
     }
 
@@ -1862,14 +1853,12 @@ System.err.println("ERROR endOfBuffer " + a);
      * @param bank   the bank to write.
      * @param force  if writing to disk, force it to write event to the disk.
      *
-     * @throws IOException   if error writing file
      * @throws EvioException if close() already called;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioBank bank, boolean force)
-            throws EvioException, IOException {
+    public void writeEvent(EvioBank bank, boolean force) throws EvioException {
         writeEvent(bank, null, force);
     }
 

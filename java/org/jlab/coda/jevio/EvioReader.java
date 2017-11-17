@@ -493,10 +493,9 @@ public class EvioReader {
      *
      * @param byteBuffer the buffer that contains events.
      * @see EventWriter
-     * @throws IOException   if read failure
      * @throws EvioException if buffer arg is null
      */
-    public EvioReader(ByteBuffer byteBuffer) throws EvioException, IOException {
+    public EvioReader(ByteBuffer byteBuffer) throws EvioException {
         this(byteBuffer, false);
     }
 
