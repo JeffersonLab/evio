@@ -232,7 +232,14 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
 
     /*** {@inheritDoc}  */
     public Object clone() {
-        return new BlockHeaderV4(this);
+        try {
+            BlockHeaderV4 result = (BlockHeaderV4) super.clone();
+            result.bitInfo = (BitSet) bitInfo.clone();
+            return result;
+        }
+        catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 
 	/**

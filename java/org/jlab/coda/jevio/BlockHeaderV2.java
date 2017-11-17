@@ -191,12 +191,17 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
         bufferStartingPosition = blkHeader.bufferStartingPosition;
     }
 
-    /*** {@inheritDoc}  */
-    public Object clone() {
-        return new BlockHeaderV2(this);
-    }
+	/*** {@inheritDoc}  */
+	public Object clone() {
+		try {
+			return super.clone();
+		}
+		catch (CloneNotSupportedException e) {
+			return null;
+		}
+	}
 
-    /**
+	/**
      * Gets whether this block's first event is an evio dictionary.
      * This is not implemented in evio versions 1-3. Just return false.
      *
@@ -444,7 +449,6 @@ public class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 
 	/**
 	 * Obtain a string representation of the block (physical record) header.
-	 *
 	 * @return a string representation of the block (physical record) header.
 	 */
 	@Override
