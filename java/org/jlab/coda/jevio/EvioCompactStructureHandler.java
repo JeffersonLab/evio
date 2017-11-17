@@ -169,7 +169,7 @@ public class EvioCompactStructureHandler {
 
         // Doing scan after above adjustments
         // will make other nodes come out right.
-        scanStructure(node);
+        EvioNode.scanStructure(node);
         node.scanned = true;
 
         byteBuffer = newBuffer;
@@ -244,7 +244,7 @@ public class EvioCompactStructureHandler {
      *         or null if there is none.
      */
     public EvioNode getScannedStructure() {
-        scanStructure(node);
+        EvioNode.scanStructure(node);
         return node;
     }
 
@@ -367,215 +367,6 @@ public class EvioCompactStructureHandler {
 
 
     /**
-     * This method recursively stores, in the given list, all the information
-     * about an evio structure's children found in the given ByteBuffer object.
-     * It uses absolute gets so buffer's position does <b>not</b> change.
-     *
-     * @param node node being scanned
-     */
-    static private void scanStructure(EvioNode node) {
-
-        // Type of evio structure being scanned
-        DataType type = node.getDataTypeObj();
-
-        // If node does not contain containers, return since we can't drill any further down
-        if (!type.isStructure()) {
-//System.out.println("scanStructure: NODE is not a structure, return");
-            return;
-        }
- //System.out.println("scanStructure: scanning evio struct with len = " + node.dataLen);
- //System.out.println("scanStructure: data type of node to be scanned = " + type);
-
-        // Start at beginning position of evio structure being scanned
-        int position = node.dataPos;
-        // Length of evio structure being scanned in bytes
-        int dataBytes = 4*node.dataLen;
-        // Don't go past the data's end
-        int endingPos = position + dataBytes;
-        // Buffer we're using
-        ByteBuffer buffer = node.bufferNode.buffer;
-
-        int dt, dataType, dataLen, len, pad, tag, num, word;
-
-        // Do something different depending on what node contains
-        switch (type) {
-            case BANK:
-            case ALSOBANK:
-
-                // Extract all the banks from this bank of banks.
-                while (position < endingPos) {
-//System.out.println("scanStructure: start at pos " + position + " < end " + endingPos + " ?");
-
-//System.out.println("scanStructure: buf is at pos " + buffer.position() +
-//                   ", limit =  " + buffer.limit() + ", remaining = " + buffer.remaining() +
-//                   ", capacity = " + buffer.capacity());
-
-                    // Read first header word
-                    len = buffer.getInt(position);
-                    dataLen = len - 1; // Len of data (no header) for a bank
-                    position += 4;
-
-                    // Read and parse second header word
-                    word = buffer.getInt(position);
-                    position += 4;
-                    tag = (word >>> 16);
-                    dt = (word >> 8) & 0xff;
-                    dataType = dt & 0x3f;
-                    pad = dt >>> 6;
-                    // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
-                    // This regularly happens with composite data.
-                    // However, it that MAY also be the legacy tagsegment type
-                    // with no padding information. Ignore this as having tag & num
-                    // in legacy code is probably rare.
-                    //if (dt == 0x40) {
-                    //    dataType = DataType.TAGSEGMENT.getValue();
-                    //    pad = 0;
-                    //}
-                    num = word & 0xff;
-
-                    // Cloning is a fast copy that eliminates the need
-                    // for setting stuff that's the same as the parent.
-                    EvioNode kidNode = (EvioNode)node.clone();
-
-                    kidNode.len  = len;
-                    kidNode.pos  = position - 8;
-                    kidNode.type = DataType.BANK.getValue();  // This is a bank
-
-                    kidNode.dataLen  = dataLen;
-                    kidNode.dataPos  = position;
-                    kidNode.dataType = dataType;
-
-                    kidNode.pad = pad;
-                    kidNode.tag = tag;
-                    kidNode.num = num;
-
-                    // Create the tree structure
-                    kidNode.isEvent = false;
-                    kidNode.parentNode = node;
-
-                    // Add this to list of children and to list of all nodes in the event
-                    node.addChild(kidNode);
-//System.out.println("scanStructure: kid bank, scanned val = " + kidNode.scanned);
-
-//System.out.println("scanStructure: kid bank at pos = " + kidNode.pos +
-//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
-//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
-
-                    // Only scan through this child if it's a container
-                    if (DataType.isStructure(dataType)) {
-                        scanStructure(kidNode);
-                    }
-
-                    // Set position to start of next header (hop over kid's data)
-                    position += 4*dataLen;
-                }
-
-                break; // structure contains banks
-
-            case SEGMENT:
-            case ALSOSEGMENT:
-
-                // Extract all the segments from this bank of segments.
-                while (position < endingPos) {
-
-                    word = buffer.getInt(position);
-                    position += 4;
-                    tag = word >>> 24;
-                    dt = (word >>> 16) & 0xff;
-                    dataType = dt & 0x3f;
-                    pad = dt >>> 6;
-                    // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
-                    // This regularly happens with composite data.
-                    // However, it that MAY also be the legacy tagsegment type
-                    // with no padding information. Ignore this as having tag & num
-                    // in legacy code is probably rare.
-                    //if (dt == 0x40) {
-                    //    dataType = DataType.TAGSEGMENT.getValue();
-                    //    pad = 0;
-                    //}
-                    len = word & 0xffff;
-
-                    EvioNode kidNode = (EvioNode)node.clone();
-
-                    kidNode.len  = len;
-                    kidNode.pos  = position - 4;
-                    kidNode.type = DataType.SEGMENT.getValue();  // This is a segment
-
-                    kidNode.dataLen  = len;
-                    kidNode.dataPos  = position;
-                    kidNode.dataType = dataType;
-
-                    kidNode.pad = pad;
-                    kidNode.tag = tag;
-                    kidNode.num = 0;
-
-                    kidNode.isEvent = false;
-                    kidNode.parentNode = node;
-
-                    node.addChild(kidNode);
-//System.out.println("scanStructure: kid bank, scanned val = " + kidNode.scanned);
-
-// System.out.println("scanStructure: kid seg at pos = " + kidNode.pos +
-//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
-//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
-                    if (DataType.isStructure(dataType)) {
-                        scanStructure(kidNode);
-                    }
-
-                    position += 4*len;
-                }
-
-                break; // structure contains segments
-
-            case TAGSEGMENT:
-
-                // Extract all the tag segments from this bank of tag segments.
-                while (position < endingPos) {
-
-                    word = buffer.getInt(position);
-                    position += 4;
-                    tag      = word >>> 20;
-                    dataType = (word >>> 16) & 0xf;
-                    len      = word & 0xffff;
-
-                    EvioNode kidNode = (EvioNode)node.clone();
-
-                    kidNode.len  = len;
-                    kidNode.pos  = position - 4;
-                    kidNode.type = DataType.TAGSEGMENT.getValue();  // This is a tag segment
-
-                    kidNode.dataLen  = len;
-                    kidNode.dataPos  = position;
-                    kidNode.dataType = dataType;
-
-                    kidNode.pad = 0;
-                    kidNode.tag = tag;
-                    kidNode.num = 0;
-
-                    kidNode.isEvent = false;
-                    kidNode.parentNode = node;
-
-                    node.addChild(kidNode);
-//System.out.println("scanStructure: kid bank, scanned val = " + kidNode.scanned);
-
-// System.out.println("scanStructure: kid tagseg at pos = " + kidNode.pos +
-//                    " with type " +  DataType.getDataType(dataType) + ", tag/num = " + kidNode.tag +
-//                    "/" + kidNode.num + ", list size = " + node.eventNode.allNodes.size());
-                   if (DataType.isStructure(dataType)) {
-                        scanStructure(kidNode);
-                    }
-
-                    position += 4*len;
-                }
-
-                break;
-
-            default:
-        }
-    }
-
-
-    /**
      * This method scans the event in the buffer.
      * The results are stored for future reference so the
      * event is only scanned once. It returns a list of EvioNode
@@ -596,7 +387,7 @@ public class EvioCompactStructureHandler {
             node.scanned = true;
 
 //System.out.println("scanStructure: not scanned do so now");
-            scanStructure(node);
+            EvioNode.scanStructure(node);
         }
 //        else {
 //            System.out.println("scanStructure: already scanned, skip it");
@@ -822,7 +613,7 @@ public class EvioCompactStructureHandler {
         node.addChild(newNode);
 
         // Add its children into those lists too
-        scanStructure(newNode);
+        EvioNode.scanStructure(newNode);
 
         return byteBuffer;
     }
