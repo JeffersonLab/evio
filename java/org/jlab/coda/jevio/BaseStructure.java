@@ -648,7 +648,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 //        sb.append("  len=");
 //        sb.append(header.length);
         if (rawBytes == null) {
-            sb.append("  dataLen=" + ((header.length - (header.getHeaderLength() - 1))/4));
+            sb.append("  dataLen=");
+            sb.append((header.length - (header.getHeaderLength() - 1))/4);
         }
         else {
             sb.append("  dataLen=");
@@ -656,7 +657,8 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
 
         if (header.padding != 0) {
-            sb.append("  pad="+header.padding);
+            sb.append("  pad=");
+            sb.append(header.padding);
         }
 
         int numChildren = (children == null) ? 0 : children.size();
@@ -2924,25 +2926,30 @@ System.err.println("Non leaf with null children!");
             else {
                 // Decode the raw data we have
                 CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
-
-                // Allocate array to hold everything
-                int len1 = cdArray.length, len2 = data.length;
-                int totalLen = len1 + len2;
-
-                if (Integer.MAX_VALUE - len1 < len2) {
-                    throw new EvioException("added data overflowed containing structure");
+                if (cdArray == null) {
+                    compositeData   = data;
+                    numberDataItems = data.length;
                 }
-                compositeData = new CompositeData[totalLen];
+                else {
+                    // Allocate array to hold everything
+                    int len1 = cdArray.length, len2 = data.length;
+                    int totalLen = len1 + len2;
 
-                // Fill with existing object first
-                for (int i=0; i < len1; i++) {
-                    compositeData[i] = cdArray[i];
+                    if (Integer.MAX_VALUE - len1 < len2) {
+                        throw new EvioException("added data overflowed containing structure");
+                    }
+                    compositeData = new CompositeData[totalLen];
+
+                    // Fill with existing object first
+                    for (int i = 0; i < len1; i++) {
+                        compositeData[i] = cdArray[i];
+                    }
+                    // Append new objects
+                    for (int i = len1; i < totalLen; i++) {
+                        compositeData[i] = cdArray[i];
+                    }
+                    numberDataItems = totalLen;
                 }
-                // Append new objects
-                for (int i=len1; i < totalLen; i++) {
-                    compositeData[i] = cdArray[i];
-                }
-                numberDataItems = totalLen;
             }
         }
         else {
