@@ -19,7 +19,7 @@ package org.jlab.coda.jevio;
  * @author timmer
  * Date: 11/13/12
  */
-final class BlockNode {
+final public class BlockNode {
     /** Block's length value (32-bit words). */
     int len;
     /** Number of events in block. */
@@ -36,11 +36,23 @@ final class BlockNode {
     // Constructor (package accessible)
     //----------------------------------
 
-    BlockNode() {}
+    public BlockNode() {}
 
     //-------------------------------
     // Methods
     //-------------------------------
+
+    final public int getLen() {return len;}
+    final public void setLen(int len) {this.len = len;}
+
+    final public int getCount() {return count;}
+    final public void setCount(int count) {this.count = count;}
+
+    final public int getPos() {return pos;}
+    final public void setPos(int pos) {this.pos = pos;}
+
+    final public int getPlace() {return place;}
+    final public void setPlace(int place) {this.place = place;}
 
     final public String toString() {
         StringBuilder builder = new StringBuilder(100);
