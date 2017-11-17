@@ -221,17 +221,12 @@ public abstract class BaseStructureHeader implements Cloneable, IEvioWriter {
 
 	/**
 	 * Obtain a string representation of the structure header.
-	 *
 	 * @return a string representation of the structure header.
 	 */
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(512);
-		sb.append(String.format("structure length: %d\n", length));
-		sb.append(String.format("data type:   %s\n", getDataTypeName()));
-        sb.append(String.format("tag:         %d\n", tag));
-        sb.append(String.format("padding:     %d\n", padding));
-		return sb.toString();
+		return String.format("structure length: %d\ndata type:   %s\ntag:         %d\npadding:     %d\n",
+					  length, getDataTypeName(), tag, padding);
 	}
 
 	/**
