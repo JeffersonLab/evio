@@ -147,7 +147,8 @@ public class FileHeader {
     private int  totalLength = HEADER_SIZE_BYTES;
 
 
-    /** Evio format version number. Lowest byte of 6th word. */
+    /** Evio format version number. It is 6 when being written, else
+     * the version of file/buffer being read. Lowest byte of 6th word. */
     private int  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
     private int  headerMagicWord = HEADER_MAGIC;
@@ -745,9 +746,10 @@ public class FileHeader {
         // Next look at the version #
         int bitInoWord    = buffer.getInt(20 + offset);  // 5*4
         int version       = (bitInoWord & 0xFF);
-        if (version < headerVersion) {
+        if (version < 6) {
             throw new HipoException("buffer is in evio format version " + version);
         }
+        headerVersion = version;
 
         fileId            = buffer.getInt(     offset);   // 0*4
         fileNumber        = buffer.getInt( 4 + offset);   // 1*4
