@@ -24,14 +24,14 @@ you can skip the C/C++ installation.
 The evio package, including documentation, can be found on the
 JLab Data Acquisition Group CODA wiki at http://coda.jlab.org.
 
-To install all of evio, download the evio-5.x.tar.gz
+To install all of evio, download the evio-6.0x.tar.gz
 file (or whatever version happens to be current) and untar it.
 This will give you a full evio distribution with the top level
-directory being evio-5.x. The documentation, is available on the
+directory being evio-6.0x. The documentation, is available on the
 above-mentioned web site but also exists in the doc subdirectory
 of the full distribution.
 
-Note that for C/C++, only Linux, Solaris, and Darwin (Mac OSX)
+Note that for C/C++, only Linux and Darwin (Mac OSX)
 operating systems are supported. The libraries and executables
 are placed into the $CODA/<arch>/lib and bin subdirectories
 (eg. ...Linux-x86_64/lib).  Be sure to change your LD_LIBRARY_PATH
@@ -73,7 +73,7 @@ scons install         make C and C++ library code;
 
 scons -c install      uninstall libs, headers, and binaries
 
-scons tar             create a tar file (evio-5.x.tgz) of the evio top level
+scons tar             create a tar file (evio-6.0x.tgz) of the evio top level
                       directory and put in ./tar directory
 
 scons doc             generate html documentation from doxygen
@@ -104,7 +104,7 @@ scons --bindir=<dir>  copy executable files to directory <dir> when doing instal
 You can see these options by running "scons -h"
 
 
-Note that currently only Linux, Solaris, and Darwin (Mac OSX)
+Note that currently only Linux and Darwin (Mac OSX)
 operating systems are fully supported. The libraries and executables
 are placed into the $CODA/<arch>/lib and bin subdirectories
 (eg. ...Linux-x86_64/lib).  Be sure to change your LD_LIBRARY_PATH
@@ -115,7 +115,7 @@ Vxworks is no longer supported.
 
 3) JAVA
 
-One can download the jevio-5.x.jar file from the CODA website or it can
+One can download the jevio-6.0x.jar file from the CODA website or it can
 be generated from the general evio distribution.  In either case,
 put the jar file into your classpath and run your java application.
 
@@ -127,10 +127,10 @@ If you wish to recompile the java part of evio, ant must be installed
 on your system (http://ant.apache.org). First extract the package files
 from the general evio tar file:
   
-# download evio-5.x.tar.gz into <top>
+# download evio-6.0x.tar.gz into <top>
 $ cd <top>
-$ tar -fxz evio-5.x.tar.gz
-$ cd evio-5.x
+$ tar -fxz evio-6.0x.tar.gz
+$ cd evio-6.0x
 $ ant
 
 To get a list of options with ant, type "ant help":
