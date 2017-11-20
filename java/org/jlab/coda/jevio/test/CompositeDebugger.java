@@ -24,6 +24,7 @@ public class CompositeDebugger {
     private int filterNum = -1;
     private int bytesViewed = 20;
     private int eventNumber;
+    private boolean lookAtAllCompositeData = false;
     private String fileName = "/daqfs/home/timmer/rafopar044.evio";
 
 
@@ -39,6 +40,9 @@ public class CompositeDebugger {
             if (args[i].equalsIgnoreCase("-h")) {
                 usage();
                 System.exit(-1);
+            }
+            else if (args[i].equalsIgnoreCase("-a")) {
+                lookAtAllCompositeData = true;
             }
             else if (args[i].equalsIgnoreCase("-t")) {
                 filterTag = Integer.parseInt(args[i + 1]);
@@ -79,6 +83,7 @@ public class CompositeDebugger {
             "        [-e <event #>] number of specific event to look at\n" +
             "        [-b <bytes>]   bytes of bad structure to view\n" +
             "        [-f <file>]    file to read\n" +
+            "        [-a]           show ALL composite data (not just errors)\n" +
             "        [-h]           print this help\n");
     }
 
@@ -122,25 +127,12 @@ public class CompositeDebugger {
                         ByteBuffer compBuffer = node.getByteData(true);
                         try {
                             CompositeData compData = new CompositeData(compBuffer.array(), reader.getByteOrder());
+                            if (lookAtAllCompositeData) {
+                                printData(i, node, compBuffer, false);
+                            }
                         }
                         catch (EvioException e) {
-                            // Print out the bad bytes
-                            int tag = node.getTag();
-                            int num = node.getNum();
-
-                            // Only look at specific tag/num if specified on command line
-                            if (filterTag > -1 && tag != filterTag) {
-                                continue;
-                            }
-                            if (filterNum > -1 && num != filterNum) {
-                                continue;
-                            }
-
-                            String label = "Bad composite bank for event " + (i) +
-                                    ", tag = " + tag + "(0x" + Integer.toHexString(tag) +
-                                    "), num = " + num + "(0x" + Integer.toHexString(num) +
-                                    "), pad = " + node.getPad() + ", pos = " + node.getPosition();
-                            Utilities.printBuffer(compBuffer, 0, bytesViewed, label);
+                            printData(i, node, compBuffer, true);
                         }
                     }
                 }
@@ -153,6 +145,38 @@ public class CompositeDebugger {
             e.printStackTrace();
             System.exit(-1);
         }
+    }
+
+
+    /** Print out some of the composite data in hex. */
+    private void printData(int eventNumber, EvioNode node,
+                           ByteBuffer compBuffer, boolean hasError) {
+        // Print out the bytes
+        int tag = node.getTag();
+        int num = node.getNum();
+
+        // Only look at specific tag/num if specified on command line
+        if (filterTag > -1 && tag != filterTag) {
+            return;
+        }
+        if (filterNum > -1 && num != filterNum) {
+            return;
+        }
+
+        String label;
+
+        if (hasError) {
+            label = "Composite bank (contains error) for event " + eventNumber;
+        }
+        else {
+            label = "Composite bank for event " + eventNumber;
+        }
+
+        label += ", tag = " + tag + "(0x" + Integer.toHexString(tag) +
+                 "), num = " + num + "(0x" + Integer.toHexString(num) +
+                 "), pad = " + node.getPad() + ", pos = " + node.getPosition();
+
+        Utilities.printBuffer(compBuffer, 0, bytesViewed, label);
     }
 
 
