@@ -369,7 +369,7 @@ final public class Utilities {
 
 
     /**
-     * This method takes a byte buffer and prints out the desired number of byes
+     * This method takes a byte buffer and prints out the desired number of bytes
      * from the given position. Prints all bytes.
      *
      * @param buf       buffer to print out
@@ -398,7 +398,7 @@ final public class Utilities {
                 System.out.print("  ");
             }
 
-            System.out.print(String.format("%02x", buf.get(i)) + " ");
+            System.out.print(String.format("%02x", buf.get(i)));
         }
         System.out.println();
         System.out.println();
