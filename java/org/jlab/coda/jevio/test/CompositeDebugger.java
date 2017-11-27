@@ -22,7 +22,7 @@ public class CompositeDebugger {
 
     private int filterTag = -1;
     private int filterNum = -1;
-    private int bytesViewed = 20;
+    private int bytesViewed = 80;
     private int eventNumber;
     private boolean lookAtAllCompositeData = false;
     private String fileName = "/daqfs/home/timmer/rafopar044.evio";
@@ -133,6 +133,7 @@ public class CompositeDebugger {
                         }
                         catch (EvioException e) {
                             printData(i, node, compBuffer, true);
+                            System.out.println("ERROR: " + e.getMessage());
                         }
                     }
                 }
@@ -174,9 +175,10 @@ public class CompositeDebugger {
 
         label += ", tag = " + tag + "(0x" + Integer.toHexString(tag) +
                  "), num = " + num + "(0x" + Integer.toHexString(num) +
-                 "), pad = " + node.getPad() + ", pos = " + node.getPosition();
+                 "), pad = " + node.getPad() + ", pos = " + node.getPosition() +
+                 ", data len = " + node.getDataLength() + " words";
 
-        Utilities.printBuffer(compBuffer, 0, bytesViewed, label);
+        Utilities.printBufferBytes(compBuffer, 0, bytesViewed, label);
     }
 
 
