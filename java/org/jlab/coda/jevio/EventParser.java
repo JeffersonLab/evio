@@ -215,7 +215,7 @@ public class EventParser {
 
         // Does the length make sense?
         int len = ByteDataTransformer.toInt(bytes, byteOrder, offset);
-        if ((len < 1) || (4*len + 4 + offset > bytes.length)) {
+        if ((len < 1) || bytes.length < 8 + offset) {
             throw new EvioException("bad length in bank header (0x" + Integer.toHexString(len) + ")");
         }
 
