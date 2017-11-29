@@ -22,7 +22,7 @@ from subprocess import Popen, PIPE
 import coda
 
 # Created files & dirs will have this permission
-os.umask(002)
+os.umask(0o2)
 
 # Software version
 versionMajor = '5'
@@ -41,13 +41,13 @@ ldLibPath = os.getenv('LD_LIBRARY_PATH', '')
 
 if path == '':
     print
-    print "Error: set PATH environmental variable"
+    print ("Error: set PATH environmental variable")
     print
     raise SystemExit
 
 if ldLibPath == '':
     print
-    print "Warning: LD_LIBRARY_PATH environmental variable not defined"
+    print ("Warning: LD_LIBRARY_PATH environmental variable not defined")
     print
     env = Environment(ENV = {'PATH' : os.environ['PATH']})
 else:
@@ -64,9 +64,9 @@ else:
 # a configure-type test.
 is64bits = coda.is64BitMachine(env, platform, machine)
 if is64bits:
-    print "We're on a 64-bit machine"
+    print ("We're on a 64-bit machine")
 else:
-    print "We're on a 32-bit machine"
+    print ("We're on a 32-bit machine")
 
 
 #############################################
@@ -79,13 +79,13 @@ Help('\nlocal scons OPTIONS:\n')
 # debug option
 AddOption('--dbg', dest='ddebug', default=False, action='store_true')
 debug = GetOption('ddebug')
-if debug: print "Enable debugging"
+if debug: print ("Enable debugging")
 Help('--dbg               compile with debug flag\n')
 
 # 32 bit option
 AddOption('--32bits', dest='use32bits', default=False, action='store_true')
 use32bits = GetOption('use32bits')
-if use32bits: print "use 32-bit libs & executables even on 64 bit system"
+if use32bits: print ("use 32-bit libs & executables even on 64 bit system")
 Help('--32bits            compile 32bit libs & executables on 64bit system\n')
 
 # install directory option
@@ -148,7 +148,7 @@ if platform == 'Darwin':
 if is64bits and use32bits:
     osname = osname + '-32'
 
-print "OSNAME =", osname
+print ("OSNAME = "+osname)
 
 # hidden sub directory into which variant builds go
 archDir = '.' + osname + debugSuffix
@@ -185,13 +185,13 @@ if 'install' in COMMAND_LINE_TARGETS:
     # Create the include directories (make symbolic link if possible)
     coda.makeIncludeDirs(incInstallDir, archIncInstallDir, osDir, archIncLocalLink)
 
-    print 'Main install dir  = ', mainInstallDir
-    print 'bin  install dir  = ', binInstallDir
-    print 'lib  install dir  = ', libInstallDir
-    print 'inc  install dirs = ', incInstallDir, ", ", archIncInstallDir
+    print ('Main install dir  = '+mainInstallDir)
+    print ('bin  install dir  = '+binInstallDir)
+    print ('lib  install dir  = '+libInstallDir)
+    print ('inc  install dirs = '+incInstallDir+", "+archIncInstallDir)
 
 else:
-    print 'No installation being done'
+    print ('No installation being done')
 
 print
 
