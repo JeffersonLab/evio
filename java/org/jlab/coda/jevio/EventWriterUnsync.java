@@ -1942,12 +1942,11 @@ public class EventWriterUnsync {
         try {
             if (toFile) {
                 // We need to end the file with an empty block header.
-                // However, if resetBuffer (or flush) was just called,
-                // a last block header will already exist.
-                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
-//System.out.println("close(): write header, free bytes In Buffer = " + (bufferSize - bytesWrittenToBuffer));
-                    writeNewHeader(0, blockNumber, null, false, true);
-                }
+                // If resetBuffer (or flush) was just called,
+                // a block header with nothing following will already exist;
+                // however, it will not be a "last" block header.
+                // Add that now.
+                writeNewHeader(0, blockNumber, null, false, true);
                 flushToFile(true);
 
                 if (compressedOutput) {
@@ -3108,10 +3107,6 @@ System.err.println("ERROR endOfBuffer " + a);
         buffer.flip();
 //System.out.println("    flushToFile: try writing " + eventsWrittenToBuffer + " events");
 
-        if (compressedOutput) {
-            return flushToFileCompressed(force);
-        }
-
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
 //System.out.println("    flushToFile: create file " + currentFile.getName());
@@ -3163,88 +3158,6 @@ System.err.println("ERROR endOfBuffer " + a);
 
 
     /**
-     * Flush everything in buffer to file.
-     * Does nothing if object already closed.
-     *
-     * @param force force it to write event to the disk.
-     * @return {@code false} if no data written, else {@code true}
-     *
-     * @throws EvioException if this object already closed;
-     *                       if file could not be opened for writing;
-     *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
-     */
-    private boolean flushToFileCompressed(boolean force) throws EvioException, IOException {
-        // This actually creates the file. Do it only once.
-        if (bytesWrittenToFile < 1) {
-//System.out.println("    flushToFile: create file " + currentFile.getName());
-            try {
-                raf = new RandomAccessFile(currentFile, "rw");
-                fileChannel = raf.getChannel();
-
-                byteArrayOut = new EvioByteArrayOutputStream(buffer.capacity() + 1024);
-                gzipOut = new EvioGZIPOutputStream(byteArrayOut);
-            }
-            catch (FileNotFoundException e) {
-                throw new EvioException("File could not be opened for writing, " +
-                        currentFile.getPath(), e);
-            }
-        }
-
-        int bytesWritten = buffer.remaining();
-        ByteBuffer compressedBuf;
-
-        if (buffer.hasArray()) {
-            gzipOut.write(buffer.array(),
-                          buffer.arrayOffset() + buffer.position(),
-                          bytesWritten);
-        }
-        else {
-            while(buffer.hasRemaining()) {
-                gzipOut.write(buffer.get());
-            }
-        }
-        //gzipOut.finish();
-        gzipOut.flush();
-        compressedBuf = byteArrayOut.byteBuf;
-
-        // Write everything in internal buffer out to file
-        while (compressedBuf.hasRemaining()) {
-            fileChannel.write(compressedBuf);
-        }
-
-        // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
-        // but don't bother writing the metadata (arg to force()) since that slows it
-        // down too.
-        if (force) fileChannel.force(false);
-
-        // Set buf position to 0 and set limit to capacity
-        buffer.clear();
-
-        // Keep track of what is written to this, one, file
-        bytesWrittenToFile  += bytesWritten;
-        eventsWrittenToFile += eventsWrittenToBuffer;
-
-//        if (debug) {
-//            System.out.println("    flushToFile: after last header written, Events written to:");
-//            System.out.println("                 cnt total (no dict) = " + eventsWrittenTotal);
-//            System.out.println("                 file cnt total (dict) = " + eventsWrittenToFile);
-//            System.out.println("                 internal buffer cnt (dict) = " + eventsWrittenToBuffer);
-//            System.out.println("                 current  block  cnt (dict) = " + currentBlockEventCount);
-//            System.out.println("                 bytes-written  = " + bytesWritten);
-//            System.out.println("                 bytes-to-file = " + bytesWrittenToFile);
-//            System.out.println("                 block # = " + blockNumber);
-//        }
-
-        // Buffer has been flushed, nothing in it
-        bytesWrittenToBuffer   = 0;
-        eventsWrittenToBuffer  = 0;
-
-        return true;
-    }
-
-
-    /**
      * Split the file.
      * Never called when output destination is buffer.
      * Otherwise it resets the buffer, forces the physical disk to update,
@@ -3260,12 +3173,11 @@ System.err.println("ERROR endOfBuffer " + a);
         if (raf != null) {
             try {
                 // We need to end the file with an empty block header.
-                // However, if resetBuffer (or flush) was just called,
-                // a last block header will already exist.
-                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
-//System.out.println("    split file: write last header in old file, buf pos = " + buffer.position());
-                    writeNewHeader(0, blockNumber, null, false, true);
-                }
+                // If resetBuffer (or flush) was just called,
+                // a block header with nothing following will already exist;
+                // however, it will not be a "last" block header.
+                // Add that now.
+                writeNewHeader(0, blockNumber, null, false, true);
 //System.out.println("    split file: flushToFile for file being closed");
             }
             catch (EvioException e) {

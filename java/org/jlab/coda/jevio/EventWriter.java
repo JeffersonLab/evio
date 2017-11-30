@@ -1943,12 +1943,11 @@ public class EventWriter {
         try {
             if (toFile) {
                 // We need to end the file with an empty block header.
-                // However, if resetBuffer (or flush) was just called,
-                // a last block header will already exist.
-                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
-//System.out.println("close(): write header, free bytes In Buffer = " + (bufferSize - bytesWrittenToBuffer));
-                    writeNewHeader(0, blockNumber, null, false, true);
-                }
+                // If resetBuffer (or flush) was just called,
+                // a block header with nothing following will already exist;
+                // however, it will not be a "last" block header.
+                // Add that now.
+                writeNewHeader(0, blockNumber, null, false, true);
                 flushToFile(true);
             }
             else {
@@ -3246,12 +3245,11 @@ System.out.println("write " +bytesWritten + " bytes into " + compressedBuf + " c
         if (raf != null) {
             try {
                 // We need to end the file with an empty block header.
-                // However, if resetBuffer (or flush) was just called,
-                // a last block header will already exist.
-                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
-//System.out.println("    split file: write last header in old file, buf pos = " + buffer.position());
-                    writeNewHeader(0, blockNumber, null, false, true);
-                }
+                // If resetBuffer (or flush) was just called,
+                // a block header with nothing following will already exist;
+                // however, it will not be a "last" block header.
+                // Add that now.
+                writeNewHeader(0, blockNumber, null, false, true);
 //System.out.println("    split file: flushToFile for file being closed");
             }
             catch (EvioException e) {
