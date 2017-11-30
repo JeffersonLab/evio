@@ -3149,9 +3149,10 @@ System.err.println("ERROR endOfBuffer " + a);
                 // however, it will not be a "last" block header.
                 // Add that now.
                 writeNewHeader(0, blockNumber, null, false, true);
+                flushToFile(false);
 //System.out.println("    split file: flushToFile for file being closed");
             }
-            catch (EvioException e) {
+            catch (Exception e) {
                 e.printStackTrace();
             }
 
