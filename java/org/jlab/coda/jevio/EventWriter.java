@@ -252,6 +252,9 @@ public class EventWriter {
     /** Split number associated with output file to be written next. */
     private int splitNumber;
 
+    /** Number of split files produced by this writer. */
+    private int splitCount;
+
     /** Part of filename without run or split numbers. */
     public String baseFileName;
 
@@ -1691,6 +1694,13 @@ public class EventWriter {
 
 
     /**
+     * Get the number of split files produced by this writer.
+     * @return number of split files produced by this writer.
+     */
+    public int getSplitCount() {return splitCount;}
+
+
+    /**
      * Get the current block number.
      * Warning, this value may be changing.
      * @return the current block number.
@@ -3074,6 +3084,7 @@ System.err.println("ERROR endOfBuffer " + a);
             try {
                 raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
+                splitCount++;
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
@@ -3138,9 +3149,10 @@ System.err.println("ERROR endOfBuffer " + a);
                 // however, it will not be a "last" block header.
                 // Add that now.
                 writeNewHeader(0, blockNumber, null, false, true);
+                flushToFile(false);
 //System.out.println("    split file: flushToFile for file being closed");
             }
-            catch (EvioException e) {
+            catch (Exception e) {
                 e.printStackTrace();
             }
 
