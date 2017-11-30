@@ -248,8 +248,8 @@ public class EventWriterUnsync {
     /** The file channel, used for writing a file, derived from raf. */
     private FileChannel fileChannel;
 
-    /** Running count of split output files. */
-    private int splitCount;
+    /** Split number associated with output file to be written next. */
+    private int splitNumber;
 
     /** Part of filename without run or split numbers. */
     public String baseFileName;
@@ -1046,9 +1046,9 @@ public class EventWriterUnsync {
         // If there are multiple streams, then the initial split number is,
         // streamId*streamCount. All subsequent split numbers are calculated
         // by adding the streamCount.
-        splitCount = 0;
+        splitNumber = 0;
         if (streamCount > 1) {
-            splitCount = streamId * streamCount;
+            splitNumber = streamId;
         }
         else {
             streamCount = 1;
@@ -1062,9 +1062,9 @@ public class EventWriterUnsync {
         baseFileName   = builder.toString();
         // Also create the first file's name with more substitutions
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
-                                                     runNumber, split, splitCount,
+                                                     runNumber, split, splitNumber,
                                                      0);
-        splitCount += streamCount;
+        splitNumber += streamCount;
         //System.out.println("EventWriter const: filename = " + fileName);
         //System.out.println("                   basename = " + baseName);
         currentFile = new File(fileName);
@@ -1679,11 +1679,11 @@ public class EventWriterUnsync {
 
 
     /**
-     * Get the current split count which is the number of files
-     * created by this object. Warning, this value may be changing.
-     * @return the current split count which is the number of files created by this object.
+     * Get the current split number which is the split number of file
+     * to be written next. Warning, this value may be changing.
+     * @return the current split number which is the split number of file to be written next.
      */
-    public int getSplitCount() {return splitCount;}
+    public int getSplitNumber() {return splitNumber;}
 
 
     /**
@@ -1926,12 +1926,12 @@ public class EventWriterUnsync {
         try {
             if (toFile) {
                 // We need to end the file with an empty block header.
-                // However, if resetBuffer (or flush) was just called,
-                // a last block header will already exist.
-                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
+                // If resetBuffer (or flush) was just called,
+                // a block header with nothing following will already exist;
+                // however, it will not be a "last" block header.
+                // Add that now.
 //System.out.println("close(): write header, free bytes In Buffer = " + (bufferSize - bytesWrittenToBuffer));
-                    writeNewHeader(0, blockNumber, null, false, true);
-                }
+                writeNewHeader(0, blockNumber, null, false, true);
                 flushToFile(true);
             }
             else {
@@ -3139,12 +3139,11 @@ System.err.println("ERROR endOfBuffer " + a);
         if (raf != null) {
             try {
                 // We need to end the file with an empty block header.
-                // However, if resetBuffer (or flush) was just called,
-                // a last block header will already exist.
-                if (eventsWrittenToBuffer > 0 || bytesWrittenToBuffer < 1) {
-//System.out.println("    split file: write last header in old file, buf pos = " + buffer.position());
-                    writeNewHeader(0, blockNumber, null, false, true);
-                }
+                // If resetBuffer (or flush) was just called,
+                // a block header with nothing following will already exist;
+                // however, it will not be a "last" block header.
+                // Add that now.
+                writeNewHeader(0, blockNumber, null, false, true);
 //System.out.println("    split file: flushToFile for file being closed");
             }
             catch (EvioException e) {
@@ -3159,8 +3158,8 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
-                                                     runNumber, split, splitCount);
-        splitCount += streamCount;
+                                                     runNumber, split, splitNumber);
+        splitNumber += streamCount;
         currentFile = new File(fileName);
 
         // If we can't overwrite and file exists, throw exception
