@@ -255,6 +255,9 @@ public class EventWriterUnsync {
     /** Split number associated with output file to be written next. */
     private int splitNumber;
 
+    /** Number of split files produced by this writer. */
+    private int splitCount;
+
     /** Part of filename without run or split numbers. */
     public String baseFileName;
 
@@ -291,18 +294,6 @@ public class EventWriterUnsync {
      * written and buffer position is immediately after it, else <code>false</code>. */
     private boolean lastEmptyBlockHeaderExists;
 
-    //-----------------------------
-    // Compression related members
-    //-----------------------------
-
-    /** If true, write files as compressed evio output. */
-    private boolean compressedOutput;
-
-    /** Stream used to hold compressed data. */
-    private EvioByteArrayOutputStream byteArrayOut;
-
-    /** Stream used to compress data. */
-    private EvioGZIPOutputStream gzipOut;
 
 
     //-----------------------
@@ -1713,7 +1704,14 @@ public class EventWriterUnsync {
      * created by this object. Warning, this value may be changing.
      * @return the current split count which is the number of files created by this object.
      */
-    public int getsplitNumber() {return splitNumber;}
+    public int getSplitNumber() {return splitNumber;}
+
+
+    /**
+     * Get the number of split files produced by this writer.
+     * @return number of split files produced by this writer.
+     */
+    public int getSplitCount() {return splitCount;}
 
 
     /**
@@ -1948,13 +1946,6 @@ public class EventWriterUnsync {
                 // Add that now.
                 writeNewHeader(0, blockNumber, null, false, true);
                 flushToFile(true);
-
-                if (compressedOutput) {
-                    // System.out.println("\nFINISH Gzip output and close stream\n");
-                    gzipOut.finish();
-                    gzipOut.close();
-                }
-
             }
             else {
                 // Data is written, but need to write empty last header
@@ -2491,16 +2482,6 @@ System.err.println("ERROR endOfBuffer " + a);
         buffer = ByteBuffer.allocateDirect(newSize);
         buffer.order(byteOrder);
         bufferSize = newSize;
-
-        if (compressedOutput) {
-            byteArrayOut = new EvioByteArrayOutputStream(newSize + 1024);
-            try {
-                gzipOut = new EvioGZIPOutputStream(byteArrayOut);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
 //System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
         return;
@@ -3113,6 +3094,7 @@ System.err.println("ERROR endOfBuffer " + a);
             try {
                 raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
+                splitCount++;
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
@@ -3194,7 +3176,6 @@ System.err.println("ERROR endOfBuffer " + a);
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
                                                      runNumber, split, splitNumber);
         splitNumber += streamCount;
-
         currentFile = new File(fileName);
 
         // If we can't overwrite and file exists, throw exception
