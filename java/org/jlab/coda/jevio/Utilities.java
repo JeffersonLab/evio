@@ -373,11 +373,11 @@ final public class Utilities {
      * from the given position. Prints all bytes.
      *
      * @param buf       buffer to print out
-     * @param position  position of data (bytes) in buffer to start printing
+     * @param position  position of data (bytes) in buffer to start printing (starting from 0)
      * @param bytes     number of bytes to print in hex
      * @param label     a label to print as header
      */
-    final static public void printBufferBytes(ByteBuffer buf, int position, int bytes, String label) {
+    final static public void printBytes(ByteBuffer buf, int position, int bytes, String label) {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
@@ -386,7 +386,7 @@ final public class Utilities {
 
         int origPos = buf.position();
         buf.position(position);
-        bytes = bytes > buf.capacity() ? buf.capacity() : bytes;
+        bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
 
         if (label != null) System.out.println(label + ":");
 
@@ -404,6 +404,41 @@ final public class Utilities {
         System.out.println();
 
         buf.position(origPos);
+    }
+
+
+    /**
+     * This method takes a byte array and prints out the desired number of bytes
+     * from the given index. Prints all bytes.
+     *
+     * @param array   byte array to print out
+     * @param offset  offset into array to start printing
+     * @param bytes   number of bytes to print in hex
+     * @param label   a label to print as header
+     */
+    final static public void printBytes(byte[] array, int offset, int bytes, String label) {
+
+        if (array == null) {
+            System.out.println("printBuffer: array arg is null");
+            return;
+        }
+
+        int limit = bytes + offset > array.length ? array.length : bytes + offset;
+
+        if (label != null) System.out.println(label + ":");
+
+        for (int i = offset; i < limit; i++) {
+            if (i%20 == 0) {
+                System.out.print("\n  array[" + (i + 1) + "-" + (i + 20) + "] =  ");
+            }
+            else if (i%4 == 0) {
+                System.out.print("  ");
+            }
+
+            System.out.print(String.format("%02x", array[i]));
+        }
+        System.out.println();
+        System.out.println();
     }
 
 
