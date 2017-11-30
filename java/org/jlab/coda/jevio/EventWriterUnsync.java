@@ -255,13 +255,13 @@ public class EventWriterUnsync {
     private int splitCount;
 
     /** Part of filename without run or split numbers. */
-    public String baseFileName;
+    private String baseFileName;
 
     /** Number of C-style int format specifiers contained in baseFileName. */
-    public int specifierCount;
+    private int specifierCount;
 
     /** Run number possibly used in naming split files. */
-    public int runNumber;
+    private int runNumber;
 
     /**
      * Do we split the file into several smaller ones (val &gt; 0)?
