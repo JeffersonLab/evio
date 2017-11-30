@@ -252,8 +252,8 @@ public class EventWriterUnsync {
     /** The file channel, used for writing a file, derived from raf. */
     private FileChannel fileChannel;
 
-    /** Running count of split output files. */
-    private int splitCount;
+    /** Split number associated with output file to be written next. */
+    private int splitNumber;
 
     /** Part of filename without run or split numbers. */
     public String baseFileName;
@@ -1061,11 +1061,11 @@ public class EventWriterUnsync {
 
         // Split file number normally starts at 0.
         // If there are multiple streams, then the initial split number is,
-        // streamId*streamCount. All subsequent split numbers are calculated
+        // streamId. All subsequent split numbers are calculated
         // by adding the streamCount.
-        splitCount = 0;
+        splitNumber = 0;
         if (streamCount > 1) {
-            splitCount = streamId * streamCount;
+            splitNumber = streamId;
         }
         else {
             streamCount = 1;
@@ -1079,9 +1079,9 @@ public class EventWriterUnsync {
         baseFileName   = builder.toString();
         // Also create the first file's name with more substitutions
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
-                                                     runNumber, split, splitCount,
+                                                     runNumber, split, splitNumber,
                                                      0);
-        splitCount += streamCount;
+        splitNumber += streamCount;
         //System.out.println("EventWriter const: filename = " + fileName);
         //System.out.println("                   basename = " + baseName);
         currentFile = new File(fileName);
@@ -1713,7 +1713,7 @@ public class EventWriterUnsync {
      * created by this object. Warning, this value may be changing.
      * @return the current split count which is the number of files created by this object.
      */
-    public int getSplitCount() {return splitCount;}
+    public int getsplitNumber() {return splitNumber;}
 
 
     /**
@@ -3280,8 +3280,8 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
-                                                     runNumber, split, splitCount);
-        splitCount += streamCount;
+                                                     runNumber, split, splitNumber);
+        splitNumber += streamCount;
 
         currentFile = new File(fileName);
 
