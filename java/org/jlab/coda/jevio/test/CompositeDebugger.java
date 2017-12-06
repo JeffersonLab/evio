@@ -178,7 +178,7 @@ public class CompositeDebugger {
                  "), pad = " + node.getPad() + ", pos = " + node.getPosition() +
                  ", data len = " + node.getDataLength() + " words";
 
-        Utilities.printBufferBytes(compBuffer, 0, bytesViewed, label);
+        Utilities.printBytes(compBuffer, 0, bytesViewed, label);
     }
 
 
