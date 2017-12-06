@@ -892,7 +892,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 
         // Make sure there is enough data to read full bank
         // even though it is NOT completely read at this time.
-        if (buffer.remaining() < 4*(node.len + 1)) {
+        if ((buffer.limit() - position) < 4*(node.len + 1)) {
 //System.out.println("ERROR: remaining = " + buffer.remaining() +
 //            ", node len bytes = " + ( 4*(node.len + 1)));
             throw new EvioException("buffer underflow");
