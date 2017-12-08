@@ -2566,7 +2566,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 // string array
                 if (kcnf == 3) {
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
                     items.add(strs);
                 }
                 // char & unsigned char ints
@@ -3164,7 +3164,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     bs.increaseXmlIndent();
                     xmlWriter.writeCharacters("\n");
 
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
                     for (String s: strs) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
                         xmlWriter.writeCData(s);
@@ -3746,7 +3746,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     xmlIndent = Utilities.increaseXmlIndent(xmlIndent);
                     xmlWriter.writeCharacters("\n");
 
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
+                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
                     for (String s: strs) {
                         xmlWriter.writeCharacters(xmlIndent);
                         xmlWriter.writeCData(s);
