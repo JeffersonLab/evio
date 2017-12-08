@@ -105,6 +105,95 @@ public class CompositeDebugger {
         debugger.run();
     }
 
+    public void run2() {
+
+        int evCount;
+
+        try {
+            EvioCompactReader reader = new EvioCompactReader(fileName);
+            String outputFile = fileName + "_composite";
+            EventWriter writer = new EventWriter(outputFile);
+
+            // Get each event in the buffer
+            evCount = reader.getEventCount();
+            System.out.println("Event count = " + evCount);
+
+            // Gather 3 different composite data instances
+            int compCount=0, compLimit=3;
+            CompositeData[] compArray = new CompositeData[compLimit];
+
+            CompactEventBuilder cb = new CompactEventBuilder(100000, ByteOrder.BIG_ENDIAN);
+
+            System.out.println("Reading evio data file and looking for comp data");
+            
+            topLoop:
+            for (int i=1; i <= evCount; i++) {
+                // If event # specified
+                if (eventNumber > 0 && eventNumber != i) {
+                    continue;
+                }
+
+                EvioNode eventNode = reader.getScannedEvent(i);
+                System.out.println("reader order = " + reader.getByteOrder());
+                ArrayList<EvioNode> nodeList = eventNode.getAllNodes();
+                cb.openBank(1, 2, DataType.BANK);
+                cb.addEvioNode(eventNode);
+                cb.openBank(2, 3, DataType.COMPOSITE);
+
+                // Look through all structures (bank, seg, tagseg) associated with this event
+                for (EvioNode node : nodeList) {
+                    // Pick out those whose data type is composite
+                    if (node.getDataTypeObj() == DataType.COMPOSITE) {
+                        ByteBuffer compBuffer = node.getByteData(true);
+                        byte[] cData = compBuffer.array();
+                        CompositeData compData = new CompositeData(cData, reader.getByteOrder());
+                        // Store some of the comp data
+                        compArray[compCount++] = compData;
+                        if (compCount > 2) {
+                            cb.addCompositeData(compArray);
+                            cb.closeAll();
+                            break topLoop;
+                        }
+                    }
+                }
+                break;
+            }
+
+            // Build an event (bank) with composite array as data
+            EventBuilder b = new EventBuilder(1, DataType.COMPOSITE, 2);
+            EvioEvent ev = b.getEvent();
+            ev.appendCompositeData(compArray);
+
+            // Write event into file
+            System.out.println("Writing comp data file");
+            writer.writeEvent(ev);
+            writer.close();
+
+            // Read this back
+            System.out.println("Reading comp data file");
+            EvioReader compReader = new EvioReader(outputFile);
+            EvioEvent compEvent = compReader.getEvent(1);
+            compArray = compEvent.getCompositeData();
+            System.out.println("There is a comp array of " + compArray.length + " elements");
+
+            for (CompositeData cd : compArray) {
+                System.out.println("Get and swap cd data");
+                //System.out.println("\n\nCD DATA (NOT SWAPPED):\n" + cd.toXML(false));
+                cd.swap();
+                //System.out.println("\n\nCD DATA (SWAPPED):\n" + cd.toXML(false));
+            }
+
+
+            reader.close();
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+
     public void run() {
 
         int evCount;
@@ -139,21 +228,23 @@ public class CompositeDebugger {
                                 byte[] cData = compBuffer.array();
                                 byte[] swapped = new byte[cData.length];
                                 swapBuf = ByteBuffer.wrap(swapped);
-                                ByteOrder oppositeOrder = compBuffer.order() == ByteOrder.BIG_ENDIAN ?
-                                        ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+                                CompositeData.swapAll(cData, 0, swapped, 0, cData.length / 4, compBuffer.order());
+
+                               // ByteOrder oppositeOrder = compBuffer.order() == ByteOrder.BIG_ENDIAN ?
+                               //         ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
 
                                 //CompositeData compData = new CompositeData(cData, reader.getByteOrder());
 
-                                System.out.println("compBuffer -> " + compBuffer.order() +
-                                                           ", reader -> " + reader.getByteOrder());
-
-                                Utilities.printBufferBytes(compBuffer, 0, 60, "Pre swap");
-                                CompositeData.swapAll(cData, 0, null, 0, cData.length/4, compBuffer.order());
-
-                                Utilities.printBufferBytes(compBuffer, 0, 60, "Post swap");
-                                CompositeData.swapAll(cData, 0, null, 0, cData.length/4, oppositeOrder);
-
-                                Utilities.printBufferBytes(compBuffer, 0, 60, "Post-post swap");
+//                                System.out.println("compBuffer -> " + compBuffer.order() +
+//                                                           ", reader -> " + reader.getByteOrder());
+//
+//                                Utilities.printBufferBytes(compBuffer, 0, 60, "Pre swap");
+//                                CompositeData.swapAll(cData, 0, null, 0, cData.length/4, compBuffer.order());
+//
+//                                Utilities.printBufferBytes(compBuffer, 0, 60, "Post swap");
+//                                CompositeData.swapAll(cData, 0, null, 0, cData.length/4, oppositeOrder);
+//
+//                                Utilities.printBufferBytes(compBuffer, 0, 60, "Post-post swap");
                             }
 
                             if (lookAtAllCompositeData) {
