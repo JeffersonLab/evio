@@ -24,6 +24,7 @@ public class CompositeDebugger {
     private int filterNum = -1;
     private int bytesViewed = 80;
     private int eventNumber;
+    boolean checkSwap = false;
     private boolean lookAtAllCompositeData = false;
     private String fileName = "/daqfs/home/timmer/rafopar044.evio";
 
@@ -43,6 +44,9 @@ public class CompositeDebugger {
             }
             else if (args[i].equalsIgnoreCase("-a")) {
                 lookAtAllCompositeData = true;
+            }
+            else if (args[i].equalsIgnoreCase("-s")) {
+                checkSwap = true;
             }
             else if (args[i].equalsIgnoreCase("-t")) {
                 filterTag = Integer.parseInt(args[i + 1]);
@@ -84,6 +88,7 @@ public class CompositeDebugger {
             "        [-b <bytes>]   bytes of bad structure to view\n" +
             "        [-f <file>]    file to read\n" +
             "        [-a]           show ALL composite data (not just errors)\n" +
+            "        [-s]           swap data as well\n" +
             "        [-h]           print this help\n");
     }
 
@@ -124,11 +129,26 @@ public class CompositeDebugger {
                 for (EvioNode node : nodeList) {
                     // Pick out those whose data type is composite
                     if (node.getDataTypeObj() == DataType.COMPOSITE) {
+                        ByteBuffer swapBuf = null;
                         ByteBuffer compBuffer = node.getByteData(true);
+
                         try {
-                            CompositeData compData = new CompositeData(compBuffer.array(), reader.getByteOrder());
+                            //CompositeData compData = new CompositeData(cData, reader.getByteOrder());
+
+                            if (checkSwap) {
+                                byte[] cData = compBuffer.array();
+                                byte[] swapped = new byte[cData.length];
+                                swapBuf = ByteBuffer.wrap(swapped);
+                                CompositeData.swapAll(cData, 0, swapped, 0, cData.length / 4, compBuffer.order());
+                            }
+
                             if (lookAtAllCompositeData) {
                                 printData(i, node, compBuffer, false);
+
+                                if (checkSwap) {
+                                    System.out.println("\nNow look at swapped data\n");
+                                    printData(i, node, swapBuf, false);
+                                }
                             }
                         }
                         catch (EvioException e) {
