@@ -1374,6 +1374,22 @@ public final class CompositeData {
 
 
     /**
+      * This method swaps the data of this composite type between big &
+      * little endian. It swaps the entire type including the beginning tagsegment
+      * header, the following format string it contains, the data's bank header,
+      * and finally the data itself.
+      *
+      * @throws EvioException if internal error
+      */
+     public void swap() throws EvioException {
+         swapAll(rawBytes, 0, null, 0, rawBytes.length/4, byteOrder);
+         byteOrder = (byteOrder == ByteOrder.LITTLE_ENDIAN) ?
+                     ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+         dataBuffer.order(byteOrder);
+     }
+
+
+    /**
      * This method converts (swaps) a buffer of EVIO composite type between big &amp;
      * little endian. It swaps the entire type including the beginning tagsegment
      * header, the following format string it contains, the data's bank header,
@@ -1428,101 +1444,95 @@ public final class CompositeData {
         srcBuffer.order(srcOrder);
         destBuffer.order(destOrder);
 
-        while (srcBytesLeft > 0) {
-
-            // Start here
-            dataOffset = 0;
+        // Start here
+        dataOffset = 0;
 //System.out.println("start src offset = " + (srcOff + dataOffset));
 
-            // First read the tag segment header
-            TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOffset, srcOrder);
-            int headerLen  = tsHeader.getHeaderLength();
-            int dataLength = tsHeader.getLength() - (headerLen - 1);
+        // First read the tag segment header
+        TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOffset, srcOrder);
+        int headerLen  = tsHeader.getHeaderLength();
+        int dataLength = tsHeader.getLength() - (headerLen - 1);
 
 //System.out.println("tag len = " + tsHeader.getLength() + ", dataLen = " + dataLength);
 
-            // Oops, no format data
-            if (dataLength < 1) {
-               throw new EvioException("no format data");
-            }
+        // Oops, no format data
+        if (dataLength < 1) {
+            throw new EvioException("no format data");
+        }
 
-            // Got all we needed from the tagseg header, now swap as it's written out.
-            tsHeader.write(destBuffer);
+        // Got all we needed from the tagseg header, now swap as it's written out.
+        tsHeader.write(destBuffer);
 
-            // Move to beginning of string data
-            dataOffset += 4*headerLen;
+        // Move to beginning of string data
+        dataOffset += 4*headerLen;
 
-            // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
-                                                                  4*(tsHeader.getLength()));
+        // Read the format string it contains
+        String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
+                                                              4*(tsHeader.getLength()));
 
-            if (strs.length < 1) {
-               throw new EvioException("bad format string data");
-            }
-            String format = strs[0];
+        if (strs.length < 1) {
+            throw new EvioException("bad format string data");
+        }
+        String format = strs[0];
 
-            // Transform string format into int array format
-            List<Integer> formatInts = compositeFormatToInt(format);
-            if (formatInts.size() < 1) {
-               throw new EvioException("bad format string data");
-            }
+        // Transform string format into int array format
+        List<Integer> formatInts = compositeFormatToInt(format);
+        if (formatInts.size() < 1) {
+            throw new EvioException("bad format string data");
+        }
 
-            // Char data does not get swapped but needs
-            // to be copied if not swapping in place.
-            if (!inPlace) {
-                System.arraycopy(src,   srcOff + dataOffset,
-                                 dest, destOff + dataOffset, 4*dataLength);
-            }
+        // Char data does not get swapped but needs
+        // to be copied if not swapping in place.
+        if (!inPlace) {
+            System.arraycopy(src,   srcOff + dataOffset,
+                             dest, destOff + dataOffset, 4*dataLength);
+        }
 
-            // Move to beginning of bank header
-            dataOffset += 4*dataLength;
+        // Move to beginning of bank header
+        dataOffset += 4*dataLength;
 
-            // Read the data bank header
-            BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOffset, srcOrder);
-            headerLen  = bHeader.getHeaderLength();
-            dataLength = bHeader.getLength() - (headerLen - 1);
+        // Read the data bank header
+        BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOffset, srcOrder);
+        headerLen  = bHeader.getHeaderLength();
+        dataLength = bHeader.getLength() - (headerLen - 1);
 
 //System.out.println("bank len = " + bHeader.getLength() + ", dataLen = " + dataLength);
 
-            // Oops, no data
-            if (dataLength < 1) {
-               throw new EvioException("no data");
-            }
+        // Oops, no data
+        if (dataLength < 1) {
+            throw new EvioException("no data");
+        }
 
-            // Adjust data length by switching units from
-            // ints to bytes and accounting for padding.
-            dataLength = 4*dataLength - bHeader.getPadding();
+        // Adjust data length by switching units from
+        // ints to bytes and accounting for padding.
+        int padding = bHeader.getPadding();
+        dataLength = 4*dataLength - padding;
 
-            // Got all we needed from the bank header, now swap as it's written out.
-            destBuffer.position(destOff + dataOffset);
-            bHeader.write(destBuffer);
+        // Got all we needed from the bank header, now swap as it's written out.
+        destBuffer.position(destOff + dataOffset);
+        bHeader.write(destBuffer);
 
-            // Move to beginning of data
-            dataOffset += 4*headerLen;
-            srcBuffer.position(  srcOff + dataOffset);
-            destBuffer.position(destOff + dataOffset);
+        // Move to beginning of data
+        dataOffset += 4*headerLen;
+        srcBuffer.position(  srcOff + dataOffset);
+        destBuffer.position(destOff + dataOffset);
 
-            // Swap data
-            swapData(srcBuffer, destBuffer, dataLength, formatInts);
+        // Swap data
+        swapData(srcBuffer, destBuffer, dataLength, formatInts);
 
-            // Set buffer positions and offset
-            dataOffset += dataLength;
-            srcBuffer.position( srcOff + dataOffset);
-            destBuffer.position(srcOff + dataOffset);
+        // Set buffer positions and offset
+        dataOffset += dataLength;
+        srcBuffer.position( srcOff + dataOffset);
+        destBuffer.position(srcOff + dataOffset);
 
-            srcOff       += dataOffset;
-            destOff      += dataOffset;
-            srcBytesLeft -= dataOffset;
-            
-            // TODO: what about padding??
+        srcBytesLeft -= dataOffset + padding;
 
 //System.out.println("bytes left = " + srcBytesLeft);
 //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
 
-            // Oops, things aren't coming out evenly
-            if (srcBytesLeft < 0) {
-               throw new EvioException("bad format");
-            }
+        // Oops, things aren't coming out evenly
+        if (srcBytesLeft != 0) {
+            throw new EvioException("bad format");
         }
     }
 
@@ -1552,81 +1562,77 @@ public final class CompositeData {
         int srcBytesLeft = 4*len;
         int dataOffset, byteLen;
 
-        while (srcBytesLeft > 0) {
-            // Initialize
-            dataOffset = 0;
+        // Initialize
+        dataOffset = 0;
 
-            // Read & swap string tagsegment header
-            EvioNode node = new EvioNode();
-            ByteDataTransformer.swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+        // Read & swap string tagsegment header
+        EvioNode node = new EvioNode();
+        ByteDataTransformer.swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
-            // Move to beginning of string data
-            srcPos     += 4;
-            destPos    += 4;
-            dataOffset += 4;
+        // Move to beginning of string data
+        srcPos     += 4;
+        destPos    += 4;
+        dataOffset += 4;
 
-            // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, 4*node.dataLen);
+        // Read the format string it contains
+        String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, 4*node.dataLen);
 
-            if (strs.length < 1) {
-                throw new EvioException("bad format string data");
+        if (strs.length < 1) {
+            throw new EvioException("bad format string data");
+        }
+        String format = strs[0];
+
+        // Transform string format into int array format
+        List<Integer> formatInts = compositeFormatToInt(format);
+        if (formatInts.size() < 1) {
+            throw new EvioException("bad format string data");
+        }
+
+        // String data length in bytes
+        byteLen = 4*node.dataLen;
+
+        // Char data does not get swapped but needs
+        // to be copied if not swapping in place.
+        if (!inPlace) {
+            for (int i=0; i < byteLen; i++) {
+                destBuffer.put(destPos+i, srcBuffer.get(srcPos+i));
             }
-            String format = strs[0];
+        }
 
-            // Transform string format into int array format
-            List<Integer> formatInts = compositeFormatToInt(format);
-            if (formatInts.size() < 1) {
-                throw new EvioException("bad format string data");
-            }
+        // Move to beginning of bank header
+        srcPos     += byteLen;
+        destPos    += byteLen;
+        dataOffset += byteLen;
 
-            // String data length in bytes
-            byteLen = 4*node.dataLen;
+        // Read & swap data bank header
+        ByteDataTransformer.swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
-            // Char data does not get swapped but needs
-            // to be copied if not swapping in place.
-            if (!inPlace) {
-                for (int i=0; i < byteLen; i++) {
-                    destBuffer.put(destPos+i, srcBuffer.get(srcPos+i));
-                }
-            }
+        // Oops, no data
+        if (node.dataLen < 1) {
+            throw new EvioException("no data");
+        }
 
-            // Move to beginning of bank header
-            srcPos     += byteLen;
-            destPos    += byteLen;
-            dataOffset += byteLen;
+        // Move to beginning of bank data
+        srcPos     += 8;
+        destPos    += 8;
+        dataOffset += 8;
 
-            // Read & swap data bank header
-            ByteDataTransformer.swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+        // Bank data length in bytes
+        byteLen = 4*node.dataLen;
 
-            // Oops, no data
-            if (node.dataLen < 1) {
-                throw new EvioException("no data");
-            }
+        // Swap data (accounting for padding)
+        swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), formatInts);
 
-            // Move to beginning of bank data
-            srcPos     += 8;
-            destPos    += 8;
-            dataOffset += 8;
+        // Move past bank data
+        dataOffset   += byteLen;
+        srcBytesLeft -= dataOffset;
 
-            // Bank data length in bytes
-            byteLen = 4*node.dataLen;
+        //System.out.println("bytes left = " + srcBytesLeft);
+        //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
 
-            // Swap data (accounting for padding)
-            swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), formatInts);
-
-            // Move past bank data
-            srcPos       += byteLen;
-            destPos      += byteLen;
-            dataOffset   += byteLen;
-            srcBytesLeft -= dataOffset;
-
-            //System.out.println("bytes left = " + srcBytesLeft);
-            //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
-
-            // Oops, things aren't coming out evenly
-            if (srcBytesLeft < 0) {
-                throw new EvioException("bad format");
-            }
+        // Oops, things aren't coming out evenly
+        if (srcBytesLeft != 0) {
+            throw new EvioException("bad format");
         }
     }
 
