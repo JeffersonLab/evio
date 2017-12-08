@@ -86,7 +86,7 @@ public class EventWriter {
      * It is a soft limit since a single
      * event larger than this limit may need to be written.
      */
-    static final int DEFAULT_BLOCK_SIZE = 4194304;
+    static final public int DEFAULT_BLOCK_SIZE = 4194304;
 
     /** The default maximum event count for a single block used for writing. */
     static final int DEFAULT_BLOCK_COUNT = 10000;
