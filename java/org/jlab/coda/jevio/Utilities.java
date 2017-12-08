@@ -354,7 +354,7 @@ final public class Utilities {
 
         int origPos = buf.position();
         buf.position(position);
-        bytes = bytes > buf.capacity() ? buf.capacity() : bytes;
+        bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
 
         if (label != null) System.out.println(label + ":");
 
