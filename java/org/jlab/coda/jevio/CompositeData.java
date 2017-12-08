@@ -204,6 +204,7 @@ public final class CompositeData {
 
         // Create ByteBuffer object around array
         ByteBuffer allDataBuffer = ByteBuffer.wrap(rawBytes, 0, totalByteLen);
+        allDataBuffer.order(byteOrder);
 
         // Write tagsegment to buffer
         tagSegment.write(allDataBuffer);
@@ -216,6 +217,7 @@ public final class CompositeData {
 
         // Set data buffer for completenesss
         dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
+        dataBuffer.order(byteOrder);
 
         // How big is the data in bytes (without padding) ?
         dataBytes -= data.getPadding();
@@ -310,6 +312,7 @@ public final class CompositeData {
 
         // Put data into ByteBuffer object
         dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
+        dataBuffer.order(byteOrder);
 
         // Turn dataBuffer into list of items and their types
         process();
@@ -425,6 +428,7 @@ public final class CompositeData {
 
             // Put only actual data into ByteBuffer object
             cd.dataBuffer = ByteBuffer.wrap(cd.rawBytes, 4*cd.dataOffset, cd.dataBytes).slice();
+            cd.dataBuffer.order(byteOrder);
 
             // Turn dataBuffer into list of items and their types
             cd.process();
@@ -454,10 +458,12 @@ public final class CompositeData {
     /**
      * This method generates raw bytes of evio format from an array of CompositeData objects.
      * The returned array consists of gluing together all the individual objects' rawByte arrays.
+     * All CompositeData element must be of the same byte order.
      *
      * @param data  array of CompositeData object to turn into bytes
      * @return array of raw, evio format bytes; null if arg is null or empty
-     * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit)
+     * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit);
+     *                       array elements have different byte order.
      */
     static public byte[] generateRawBytes(CompositeData data[]) throws EvioException {
 
@@ -465,9 +471,14 @@ public final class CompositeData {
             return null;
         }
 
+        ByteOrder order = data[0].byteOrder;
+
         // Get a total length (# bytes)
         int totalLen = 0, len;
         for (CompositeData cd : data) {
+            if (cd.byteOrder != order) {
+                throw new EvioException("all array elements must have same byte order");
+            }
             len = cd.getRawBytes().length;
             if (Integer.MAX_VALUE - totalLen < len) {
                 throw new EvioException("added data overflowed containing structure");
@@ -518,6 +529,7 @@ public final class CompositeData {
 
         // copy ByteBuffer
         cd.dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, 4*bHeader.getLength()).slice();
+        cd.dataBuffer.order(byteOrder);
 
         // copy format ints
         cd.formatInts = new ArrayList<Integer>(formatInts.size());
@@ -941,245 +953,6 @@ public final class CompositeData {
             dataTypes.add(DataType.CHARSTAR8);
             addBytesToData(BaseStructure.stringsToRawSize(s));
         }
-
-
-
-//        /**
-//          * This method checks to see if the data being added corresponds to the
-//          *  data format given. If not, an exception is thrown.
-//          *
-//          * @throws EvioException if item's data type does <b>not</> correspond
-//          *                       with the given format string
-//         */
-//        public void checkDataFormat(DataType itemType) throws EvioException {
-//
-//            boolean debug = false;
-//            int formatIndex, ncnf, kcnf, iterm;
-//
-//            class LV {
-//                int left;    // index of formatInts[] element containing left parenthesis "("
-//                int nrepeat; // how many times format in parenthesis must be repeated
-//                int irepeat; // right parenthesis ")" counter, or how many times format
-//                // in parenthesis already repeated
-//            };
-//
-//            LV[] lv = new LV[10];
-//            for (int i=0; i < lv.length; i++) {
-//                lv[i] = new LV();
-//            }
-//
-//            int nfmt = formatInts.size();
-//
-//            formatIndex = 0;  // formatInts[] index
-//            ncnf  = 0;  // how many times must repeat a format
-//            iterm = 0;
-//
-//
-//            // get next format code
-//            while (true) {
-//                formatIndex++;
-//                // end of format statement reached, back to iterm - last parenthesis or format begining
-//                if (formatIndex > nfmt) {
-//                    formatIndex = 0;
-//                }
-//                // meet right parenthesis, so we're finished processing format(s) in parenthesis
-//                else if (formatInts.get(formatIndex - 1) == 0) {
-//                    // increment counter
-//                    lv[parenLevel -1].irepeat++;
-//
-//                    // if format in parenthesis was processed the required number of times
-//                    if (lv[parenLevel -1].irepeat >= lv[parenLevel -1].nrepeat) {
-//                        // store left parenthesis index minus 1
-//                        iterm = lv[parenLevel -1].left - 1;
-//
-//                        // If end of format, will start from format index imt=iterm.
-//                        // By default we continue from the beginning of the format (iterm=0).
-//
-//                        // done with this level - decrease parenthesis level
-//                        parenLevel--;
-//                    }
-//                    // go for another round of processing by setting 'imt' to the left parenthesis
-//                    else {
-//                        // points ifmt[] index to the left parenthesis from the same level 'lev'
-//                        formatIndex = lv[parenLevel -1].left;
-//                    }
-//                }
-//                else {
-//                    // how many times to repeat format code
-//                    ncnf = formatInts.get(formatIndex -1)/16;
-//                    // format code
-//                    kcnf = formatInts.get(formatIndex -1) - 16*ncnf;
-//
-//                    // left parenthesis, SPECIAL case: #repeats must be taken from data
-//                    if (kcnf == 15) {
-//                        // set it to regular left parenthesis code
-//                        kcnf = 0;
-//
-//                        // "N" value being added
-//                        if (itemType != DataType.INT32 | itemType != DataType.UINT32) {
-//                            throw new EvioException("Wrong data type for N");
-//                        }
-//                        return;
-//                    }
-//
-//                    // left parenthesis - set new lv[]
-//                    if (kcnf == 0) {
-//                        // store ifmt[] index
-//                        lv[parenLevel].left = formatIndex;
-//                        // how many time will repeat format code inside parenthesis
-//                        lv[parenLevel].nrepeat = ncnf;
-//                        // cleanup place for the right parenthesis (do not get it yet)
-//                        lv[parenLevel].irepeat = 0;
-//                        // increase parenthesis level
-//                        parenLevel++;
-//                    }
-//                    // format F or I or ...
-//                    else {
-//                        // there are no parenthesis, just simple format, go to processing
-//                        if (parenLevel == 0) {
-//                        }
-//                        // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
-//                        else if (formatIndex != (nfmt-1)) {
-//                        }
-//                        // have parenthesis, NOT the first format after the left parenthesis
-//                        else if (formatIndex != lv[parenLevel -1].left+1) {
-//                        }
-//                        else {
-//                            // If none of above, we are in the end of format
-//                            // so set format repeat to a big number.
-//                            ncnf = 999999999;
-//                        }
-//                        break;
-//                    }
-//                }
-//            }
-//
-//
-//            // if 'ncnf' is zero, get "N" from list (always in 'int' format)
-//            if (ncnf == 0) {
-//                // "N" value being added
-//                if (itemType != DataType.INT32 | itemType != DataType.UINT32) {
-//                    throw new EvioException("Wrong data type for N");
-//                }
-//                return;
-//            }
-//
-//
-//            // At this point we are ready to process next piece of data;.
-//            // We have following entry info:
-//            //     kcnf - format type
-//            //     ncnf - how many times format repeated
-//
-//            // Convert data type kcnf
-//            switch (kcnf) {
-//                // 64 Bits
-//                case 8:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.DOUBLE64) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                case 9:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.LONG64) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                case 10:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.ULONG64) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                // 32 Bits
-//                case 1:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.INT32) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                case 11:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.UINT32) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                case 2:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.FLOAT32) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                case 12:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.HOLLERIT) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                // 16 bits
-//                case 4:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.SHORT16) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                case 5:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.USHORT16) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                // 8 bits
-//                case 6:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.CHAR8) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                case 7:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.UCHAR8) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                // String array
-//                case 3:
-//                    for (int j=0; j < ncnf; j++) {
-//                        if (itemType != DataType.CHARSTAR8) {
-//                            throw new EvioException("Data type mismatch");
-//                        }
-//                    }
-//                    break;
-//
-//                default:
-//            }
-//
-//
-//        }
-//
-
     }
 
 
@@ -1208,6 +981,11 @@ public final class CompositeData {
         return null;
     }
 
+    /**
+     * Get the data padding (0, 1, 2, or 3 bytes).
+     * @return data padding.
+     */
+    public int getPadding() {return dataPadding;}
 
     /**
      * This method gets the format string.
@@ -1600,7 +1378,8 @@ public final class CompositeData {
      * little endian. It swaps the entire type including the beginning tagsegment
      * header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src array may contain an array of
-     * composite type items and all will be swapped.
+     * composite type items and all will be swapped. If swapping in place,
+     * destOff set equal to srcOff.
      *
      * @param src      source data array (of 32 bit words)
      * @param srcOff   # of bytes offset into source data array
@@ -1610,7 +1389,6 @@ public final class CompositeData {
      * @param srcOrder the byte order of data in src
      *
      * @throws EvioException if offsets or length &lt; 0; if src = null;
-     *                       if src = dest and offsets are not the same;
      *                       if src or dest is too small
      */
     public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
@@ -1621,17 +1399,14 @@ public final class CompositeData {
         }
 
         boolean inPlace = false;
-        if (dest == null) {
+        if (dest == null || dest == src) {
             dest = src;
+            destOff = srcOff;
             inPlace = true;
         }
 
         if (srcOff < 0 || destOff < 0 || length < 0) {
             throw new EvioException("offsets or length must be >= 0");
-        }
-
-        if ((dest == src) && (srcOff != destOff)) {
-            throw new EvioException("if src = dest, offsets cannot differ");
         }
 
         // Byte order of swapped data
@@ -1738,6 +1513,9 @@ public final class CompositeData {
             srcOff       += dataOffset;
             destOff      += dataOffset;
             srcBytesLeft -= dataOffset;
+            
+            // TODO: what about padding??
+
 //System.out.println("bytes left = " + srcBytesLeft);
 //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
 
@@ -1760,6 +1538,7 @@ public final class CompositeData {
      * @param srcPos      position in srcBuffer to beginning swapping
      * @param destPos     position in destBuffer to beginning writing swapped data
      * @param len         length of data in srcBuffer to swap in 32 bit words
+     * @param inPlace     if true, swap in place.
      *
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
@@ -1859,7 +1638,9 @@ public final class CompositeData {
      * between IEEE (big endian) and DECS (little endian). This
      * data does <b>NOT</b> include the composite type's beginning tagsegment and
      * the format string it contains. It also does <b>NOT</b> include the data's
-     * bank header words.
+     * bank header words. If swapping in place, destOff set equal to srcOff.
+     * The dest array can be null or the same as srcBuf in which case data
+     * is swapped in place.
      *
      * @param src      source data array (of 32 bit words)
      * @param srcOff   offset into source data array
@@ -1871,7 +1652,6 @@ public final class CompositeData {
      *
      * @throws EvioException if src == null or ifmt == null;
      *                       if nBytes or ifmt size &lt;= 0;
-     *                       if src = dest and offsets are not the same;
      *                       if src or dest is too small
      */
     public static void swapData(byte[] src, int srcOff, byte[] dest, int destOff,
@@ -1883,19 +1663,9 @@ public final class CompositeData {
         ByteBuffer srcBuf = ByteBuffer.wrap(src, srcOff, nBytes);
         srcBuf.order(srcOrder);
 
-        ByteBuffer destBuf;
+        ByteBuffer destBuf = null;
 
-        if (src == dest) {
-            if (srcOff != destOff) {
-                throw new EvioException("if src = dest, offsets cannot differ");
-            }
-            dest = null;
-        }
-
-        if (dest == null) {
-            destBuf = null;
-        }
-        else {
+        if (src != dest && dest != null) {
             destBuf = ByteBuffer.wrap(dest, destOff, nBytes);
         }
 
@@ -1910,9 +1680,8 @@ public final class CompositeData {
      * the format string it contains. It also does <b>NOT</b> include the data's
      * bank header words. Caller must be sure the endian value of the srcBuf
      * is set properly before the call.<p>
-     * <b>MAKE SURE destBuf IS SET TO THE OPPOSITE ENDIANNESS AS srcBuf OR
-     * NO SWAPPING WILL TAKE PLACE!</b> This can be done by calling
-     * {@link ByteBuffer#order(java.nio.ByteOrder)}.
+     * The destBuf can be null or the same as srcBuf in which case data
+     * is swapped in place and the srcBuf byte order is switched in this method.
      *
      * @param srcBuf   source data buffer
      * @param destBuf  destination data buffer; if null, use srcBuf as destination
@@ -1920,13 +1689,26 @@ public final class CompositeData {
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
      * @throws EvioException if ifmt null; ifmt size or nBytes &lt;= 0;
+     *                       srcBuf is null;
      *                       srcBuf or destBuf is too small
      */
     public static void swapData(ByteBuffer srcBuf, ByteBuffer destBuf,
                                 int nBytes, List<Integer> ifmt)
                         throws EvioException {
 
-        swapData(srcBuf, destBuf, srcBuf.position(), destBuf.position(), nBytes, ifmt);
+        if (srcBuf == null) {
+            throw new EvioException("srcBuf arg is null");
+        }
+
+        int destPos;
+        if (destBuf != null) {
+            destPos = destBuf.position();
+        }
+        else {
+            destPos = srcBuf.position();
+        }
+
+        swapData(srcBuf, destBuf, srcBuf.position(), destPos, nBytes, ifmt);
     }
 
 
@@ -1938,9 +1720,8 @@ public final class CompositeData {
      * the format string it contains. It also does <b>NOT</b> include the data's
      * bank header words. Caller must be sure the endian value of the srcBuf
      * is set properly before the call.<p>
-     * <b>MAKE SURE destBuf IS SET TO THE OPPOSITE ENDIANNESS AS srcBuf OR
-     * NO SWAPPING WILL TAKE PLACE!</b> This can be done by calling
-     * {@link ByteBuffer#order(java.nio.ByteOrder)}.
+     * The destBuf can be null or the same as srcBuf in which case data
+     * is swapped in place and the srcBuf byte order is switched in this method.
      *
      * @param srcBuf   source data buffer
      * @param destBuf  destination data buffer; if null, use srcBuf as destination
@@ -1950,6 +1731,7 @@ public final class CompositeData {
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
      * @throws EvioException if ifmt null; ifmt size or nBytes &lt;= 0;
+     *                       srcBuf is null;
      *                       srcBuf or destBuf is too small;
      *                       if bad values for srcPos or destPos;
      */
@@ -1967,8 +1749,30 @@ public final class CompositeData {
         int nfmt = ifmt.size();
         if (nfmt <= 0) throw new EvioException("empty format list");
 
-        if (destBuf == null) destBuf = srcBuf;
-        boolean inPlace = (srcBuf == destBuf);
+        if (srcBuf == null) {
+            throw new EvioException("srcBuf arg is null");
+        }
+
+        boolean inPlace = false;
+        ByteOrder destOrder;
+
+        if (destBuf == null || srcBuf == destBuf) {
+            // The trick is to swap in place and that can only be done if
+            // we have 2 separate buffers with different endianness.
+            // So duplicate the buffer which shares content but allows
+            // different endianness.
+            destBuf = srcBuf.duplicate();
+            // Byte order of swapped data
+            destOrder = (srcBuf.order() == ByteOrder.BIG_ENDIAN) ?
+                                           ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+
+            destBuf.order(destOrder);
+            destPos = srcPos;
+            inPlace = true;
+        }
+        else {
+            destOrder = destBuf.order();
+        }
 
         // Check position args
         if (srcPos < 0 || srcPos > srcBuf.capacity() - 8) {
@@ -1988,12 +1792,6 @@ public final class CompositeData {
         ncnf  = 0;  // how many times must repeat a format
         lev   = 0;  // parenthesis level
         iterm = 0;
-
-        // Byte order stuff
-        boolean fromLittleEndian = true;
-        if (srcBuf.order() == ByteOrder.BIG_ENDIAN) {
-            fromLittleEndian = false;
-        }
 
         // just past end of src data
         int srcEndIndex = srcPos + nBytes;
@@ -2067,18 +1865,14 @@ public final class CompositeData {
                     if (kcnf == 15) {
                         // set it to regular left parenthesis code
                         kcnf = 0;
-                        // read "N" value from buffer
-                        int i = srcBuf.getInt(srcPos);
 
-                        // if buffer is big endian, don't swap to use its value
-                        if (!fromLittleEndian) ncnf = i;
+                        // read "N" value from buffer
+                        // (srcBuf automagically swaps in the getInt)
+                        ncnf = srcBuf.getInt(srcPos);
 
                         // put swapped val back into buffer
                         // (destBuf automagically swaps in the putInt)
-                        destBuf.putInt(destPos, i);
-
-                        // if swapping to big endian, use its swapped value
-                        if (fromLittleEndian) ncnf = Integer.reverseBytes(i);
+                        destBuf.putInt(destPos, ncnf);
 
                         srcPos  += 4;
                         destPos += 4;
@@ -2128,17 +1922,12 @@ public final class CompositeData {
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
                 // read "N" value from buffer
-                int i = srcBuf.getInt(srcPos);
-
-                // if buffer is big endian, don't swap to use its value
-                if (!fromLittleEndian) ncnf = i;
+                // (srcBuf automagically swaps in the getInt)
+                ncnf = srcBuf.getInt(srcPos);
 
                 // put swapped val back into buffer
                 // (destBuf automagically swaps in the putInt)
-                destBuf.putInt(destPos, i);
-
-                // if swapping to big endian, use its swapped value
-                if (fromLittleEndian) ncnf = Integer.reverseBytes(i);
+                destBuf.putInt(destPos, ncnf);
 
                 srcPos  += 4;
                 destPos += 4;
@@ -2227,8 +2016,11 @@ public final class CompositeData {
 
         } //while
 
+        if (inPlace) {
+            // If swapped in place, we need to update the buffer's byte order
+            srcBuf.order(destOrder);
+        }
     }
-
 
 
     /**
@@ -2532,7 +2324,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
     /**
      * This method swaps EVIO composite type data, in place, to big endian
-     * if currently little endian (DECS). It also extracts and stores all the data
+     * if currently little endian. It also extracts and stores all the data
      * items and their types in 2 lists.
      */
     public void process() {
@@ -2543,12 +2335,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         // size of int list
         int nfmt = formatInts.size();
 
-        boolean swap = false;
-        if (byteOrder != ByteOrder.BIG_ENDIAN) {
-            swap = true;
-        }
-
-        class LV {
+        final class LV {
           int left;    // index of formatInts[] element containing left parenthesis "("
           int nrepeat; // how many times format in parenthesis must be repeated
           int irepeat; // right parenthesis ")" counter, or how many times format
@@ -2621,15 +2408,12 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     if (kcnf == 15) {
                         // set it to regular left parenthesis code
                         kcnf = 0;
+
                         // read "N" value from buffer
-                        int i = dataBuffer.getInt(dataIndex);
-                        // if swapping to local endian, use N's swapped value
-                        if (swap) {
-                            i = Integer.reverseBytes(i);
-                        }
-                        ncnf = i;
-                        nList.add(i);
-                        items.add(i);
+                        ncnf = dataBuffer.getInt(dataIndex);
+
+                        nList.add(ncnf);
+                        items.add(ncnf);
                         types.add(DataType.NVALUE);
 
                         dataIndex += 4;
@@ -2678,12 +2462,10 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
                 // read "N" value from buffer
-                int i = dataBuffer.getInt(dataIndex);
-                // if swapping to local endian, use N's swapped value
-                if (swap) i = Integer.reverseBytes(i);
-                ncnf = i;
-                nList.add(i);
-                items.add(i);
+                ncnf = dataBuffer.getInt(dataIndex);
+
+                nList.add(ncnf);
+                items.add(ncnf);
                 types.add(DataType.NVALUE);
                 dataIndex += 4;
             }
@@ -2706,8 +2488,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b64EndIndex) {
                     lng = dataBuffer.getLong(dataIndex);
-                    // swap item if necessary
-                    if (swap) lng = Long.reverseBytes(lng);
 
                     // store its data type
                     types.add(DataType.getDataType(kcnf));
@@ -2734,7 +2514,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b32EndIndex) {
                     i = dataBuffer.getInt(dataIndex);
-                    if (swap) i = Integer.reverseBytes(i);
 
                     // Hollerit
                     if (kcnf == 12) {
@@ -2765,7 +2544,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 // swap all 16 bit items
                 while (dataIndex < b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
-                    if (swap) s = Short.reverseBytes(s);
 
                     types.add(DataType.getDataType(kcnf));
                     items.add(s);
@@ -2892,7 +2670,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
     /**
      * This method writes an xml string representation of this CompositeData object.
-     * @param hex if <code>true</code> then print integers in hexadecimal
+     * @param hex if <code>true</code> then print integers in hexadecimal.
      */
     public String toXML(boolean hex) {
         StringWriter sWriter = null;
@@ -2932,11 +2710,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
         // size of int list
         int nfmt = formatInts.size();
-
-        boolean swap = false;
-        if (byteOrder != ByteOrder.BIG_ENDIAN) {
-            swap = true;
-        }
 
         LV[] lv = new LV[10];
         for (int i=0; i < lv.length; i++) {
@@ -3075,11 +2848,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     if (kcnf == 15) {
                         kcnf = 0;
                         // read "N" value from buffer
-                        int i = dataBuffer.getInt(dataIndex);
-                        if (swap) {
-                            i = Integer.reverseBytes(i);
-                        }
-                        ncnf = i;
+                        ncnf = dataBuffer.getInt(dataIndex);
                         dataIndex += 4;
                         repeatFromN = true;
                     }
@@ -3145,11 +2914,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
                 // read "N" value from buffer
-                int i = dataBuffer.getInt(dataIndex);
-                if (swap) {
-                    i = Integer.reverseBytes(i);
-                }
-                ncnf = i;
+                ncnf = dataBuffer.getInt(dataIndex);
                 dataIndex += 4;
                 repeatFromN = true;
             }
@@ -3193,7 +2958,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b64EndIndex) {
                     lng = dataBuffer.getLong(dataIndex);
-                    if (swap) lng = Long.reverseBytes(lng);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
@@ -3277,7 +3041,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b32EndIndex) {
                     i = dataBuffer.getInt(dataIndex);
-                    if (swap) i = Integer.reverseBytes(i);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
@@ -3352,7 +3115,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 // swap all 16 bit items
                 while (dataIndex < b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
-                    if (swap) s = Short.reverseBytes(s);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(bs.xmlIndent);
@@ -3529,12 +3291,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
         // size of int list
         int nfmt = formatInts.size();
-
-        boolean swap = false;
-        if (byteOrder != ByteOrder.BIG_ENDIAN) {
-            swap = true;
-        }
-
         LV[] lv = new LV[10];
         for (int i=0; i < lv.length; i++) {
             lv[i] = new LV();
@@ -3673,11 +3429,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     if (kcnf == 15) {
                         kcnf = 0;
                         // read "N" value from buffer
-                        int i = dataBuffer.getInt(dataIndex);
-                        if (swap) {
-                            i = Integer.reverseBytes(i);
-                        }
-                        ncnf = i;
+                        ncnf = dataBuffer.getInt(dataIndex);
                         dataIndex += 4;
                         repeatFromN = true;
                     }
@@ -3744,11 +3496,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
                 // read "N" value from buffer
-                int i = dataBuffer.getInt(dataIndex);
-                if (swap) {
-                    i = Integer.reverseBytes(i);
-                }
-                ncnf = i;
+                ncnf = dataBuffer.getInt(dataIndex);
                 dataIndex += 4;
                 repeatFromN = true;
             }
@@ -3792,7 +3540,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b64EndIndex) {
                     lng = dataBuffer.getLong(dataIndex);
-                    if (swap) lng = Long.reverseBytes(lng);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(xmlIndent);
@@ -3876,7 +3623,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b32EndIndex) {
                     i = dataBuffer.getInt(dataIndex);
-                    if (swap) i = Integer.reverseBytes(i);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(xmlIndent);
@@ -3951,7 +3697,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 // swap all 16 bit items
                 while (dataIndex < b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
-                    if (swap) s = Short.reverseBytes(s);
 
                     if (!oneLine && count % itemsOnLine == 1) {
                         xmlWriter.writeCharacters(xmlIndent);
@@ -4130,11 +3875,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         // size of int list
         int nfmt = formatInts.size();
 
-        boolean swap = false;
-        if (byteOrder != ByteOrder.BIG_ENDIAN) {
-            swap = true;
-        }
-
         final class LV {
           int left;    // index of formatInts[] element containing left parenthesis "("
           int nrepeat; // how many times format in parenthesis must be repeated
@@ -4199,11 +3939,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     if (kcnf == 15) {
                         kcnf = 0;
                         // read "N" value from buffer
-                        int i = dataBuffer.getInt(dataIndex);
-                        if (swap) {
-                            i = Integer.reverseBytes(i);
-                        }
-                        ncnf = i;
+                        ncnf = dataBuffer.getInt(dataIndex);
                         dataIndex += 4;
                     }
 
@@ -4242,11 +3978,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
                 // read "N" value from buffer
-                int i = dataBuffer.getInt(dataIndex);
-                if (swap) {
-                    i = Integer.reverseBytes(i);
-                }
-                ncnf = i;
+                ncnf = dataBuffer.getInt(dataIndex);
                 dataIndex += 4;
             }
 
@@ -4263,7 +3995,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b64EndIndex) {
                     lng = dataBuffer.getLong(dataIndex);
-                    if (swap) lng = Long.reverseBytes(lng);
 
                     // double
                     if (kcnf == 8) {
@@ -4299,7 +4030,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 while (dataIndex < b32EndIndex) {
                     i = dataBuffer.getInt(dataIndex);
-                    if (swap) i = Integer.reverseBytes(i);
 
                     // float
                     if (kcnf == 2) {
@@ -4336,7 +4066,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 // swap all 16 bit items
                 while (dataIndex < b16EndIndex) {
                     s = dataBuffer.getShort(dataIndex);
-                    if (swap) s = Short.reverseBytes(s);
 
                     if (hex) sb.append(String.format("0x%04x  ", s));
                     else     sb.append(String.format("%-6d ", s));
