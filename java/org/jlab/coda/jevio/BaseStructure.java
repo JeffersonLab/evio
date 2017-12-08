@@ -1123,7 +1123,37 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
         catch (UnsupportedEncodingException e) { /* will never happen */ }
 
-        return stringBuilderToStrings(stringData);
+        return stringBuilderToStrings(stringData, false);
+    }
+
+
+    /**
+     * This method extracts an array of strings from byte array of raw evio string data.
+     * Don't go beyond the specified max character limit and stop that the first
+     * non-character value.
+     *
+     * @param rawBytes    raw evio string data
+     * @param offset      offset into raw data array
+     * @param maxLength   max length in bytes of valid data in rawBytes array
+     * @return array of Strings or null if bad arg or too little data
+     */
+    static public String[] unpackRawBytesToStrings(byte[] rawBytes, int offset, int maxLength) {
+
+        if (rawBytes == null) return null;
+
+        int length = rawBytes.length - offset;
+        if (offset < 0 || length < 4) return null;
+
+        // Don't read read more than maxLength ASCII characters
+        length = length > maxLength ? maxLength : length;
+
+        StringBuilder stringData = null;
+        try {
+            stringData = new StringBuilder(new String(rawBytes, offset, length, "US-ASCII"));
+        }
+        catch (UnsupportedEncodingException e) { /* will never happen */ }
+
+        return stringBuilderToStrings(stringData, true);
     }
 
 
@@ -1149,17 +1179,24 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
         catch (CharacterCodingException e) {/* will not happen */}
 
-        return stringBuilderToStrings(stringData);
+        return stringBuilderToStrings(stringData, false);
     }
 
 
     /**
      * This method extracts an array of strings from StringBuilder containing string data.
+     * If non-printable chars are found (besides those used to terminate strings),
+     * then 1 string with all characters will be returned. However, if the "onlyGoodChars"
+     * flag is true, 1 string is returned in truncated form without
+     * the bad characters at the end.
      *
-     * @param stringData  buffer containing string data
+     * @param stringData     buffer containing string data
+     * @param onlyGoodChars  if true and non-printable chars found,
+     *                       only 1 string with printable ASCII chars will be returned.
      * @return array of Strings or null if processing error
      */
-    static private String[] stringBuilderToStrings(StringBuilder stringData) {
+    static private String[] stringBuilderToStrings(StringBuilder stringData,
+                                                   boolean onlyGoodChars) {
 
         // Each string is terminated with a null (char val = 0)
         // and in addition, the end is padded by ASCII 4's (char val = 4).
@@ -1171,7 +1208,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
         char c;
         ArrayList<Integer> nullIndexList = new ArrayList<Integer>(10);
-        int nullCount = 0;
+        int nullCount = 0, goodChars = 0;
         boolean badFormat = true;
 
         int length = stringData.length();
@@ -1237,9 +1274,16 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
                     break;
                 }
             }
+
+            // Number of good ASCII chars we have
+            goodChars++;
         }
 
         if (badFormat) {
+            if (onlyGoodChars) {
+                // Return everything in one String WITHOUT garbage
+                return new String[] {stringData.substring(0, goodChars)};
+            }
             // Return everything in one String including possible garbage
             return new String[] {stringData.toString()};
         }
