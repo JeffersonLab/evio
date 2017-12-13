@@ -2809,7 +2809,9 @@ System.err.println("ERROR endOfBuffer " + a);
 
             // Check for inconsistent lengths
             if (currentEventBytes != 4*(bankBuffer.getInt(bankBuffer.position()) + 1)) {
-                throw new EvioException("inconsistent event lengths");
+                throw new EvioException("inconsistent event lengths: total bytes from event = " +
+                                       (4*(bankBuffer.getInt(bankBuffer.position()) + 1)) +
+                                        ", from buffer = " + currentEventBytes);
             }
         }
         else if (bank != null) {
