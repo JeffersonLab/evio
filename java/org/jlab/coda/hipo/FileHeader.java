@@ -96,6 +96,8 @@ public class FileHeader {
 
     /** Number of bytes from beginning of file header to write trailer position. */
     public final static int   TRAILER_POSITION_OFFSET = 40;
+    /** Number of bytes from beginning of file header to write record index count. */
+    public final static int   RECORD_COUNT_OFFSET = 12;
     /** Number of bytes from beginning of file header to write bit info word. */
     public final static int   BIT_INFO_OFFSET = 20;
 
@@ -164,7 +166,7 @@ public class FileHeader {
 
 
     /** Default, no-arg constructor. */
-    public FileHeader() {}
+    public FileHeader() {bitInfoInit();}
 
     /**
      * Constructor which sets the type of header this is and file id.
@@ -179,6 +181,7 @@ public class FileHeader {
             fileId = HIPO_FILE_UNIQUE_WORD;
             headerType = HeaderType.HIPO_FILE;
         }
+        bitInfoInit();
     }
 
     /**
@@ -222,7 +225,7 @@ public class FileHeader {
         userIntSecond = 0;
         position = 0L;
         entries = 0;
-        bitInfo = -1;
+        bitInfoInit();
         totalLength  = HEADER_SIZE_BYTES;
         headerLength = HEADER_SIZE_BYTES;
         headerLengthWords = HEADER_SIZE_WORDS;
@@ -352,18 +355,28 @@ public class FileHeader {
 
     // Bit info methods
 
+    /** Initialize bitInfo word to this value. */
+    private void bitInfoInit() {
+        bitInfo = (headerType.getValue() << 28) | (headerVersion & 0xFF);
+    }
+
     /**
-     * Get the bit info word. Will initialize if not already done.
+     * Set the user header's padding - the number of bytes required to bring uncompressed
+     * user header to 4-byte boundary. Sets the associated value in bitInfo word.
+     * @param padding user header's padding.
+     */
+    private void setUserHeaderLengthPadding(int padding) {
+        System.out.println("setUserHeaderLengthPadding: IN, fe bit = " + hasFirstEvent());
+        userHeaderLengthPadding = padding;
+        bitInfo = bitInfo | (userHeaderLengthPadding << 20);
+        System.out.println("setUserHeaderLengthPadding: END, fe bit = " + hasFirstEvent());
+    }
+
+    /**
+     * Get the bit info word.
      * @return bit info word.
      */
-    public int getBitInfoWord() {
-        // If bitInfo uninitialized, do so now
-        if (bitInfo < 0) {
-            // This will init the same whether file or record header
-            setBitInfo(false, false, false);
-        }
-        return bitInfo;
-    }
+    public int getBitInfoWord() {return bitInfo;}
 
     /**
      * Set the bit info word for a file header.
@@ -372,9 +385,9 @@ public class FileHeader {
      * @param haveTrailerWithIndex  true if file has trailer with record length index.
      * @return new bit info word.
      */
-    public int  setBitInfo(boolean haveFirst,
-                           boolean haveDictionary,
-                           boolean haveTrailerWithIndex) {
+    public int setBitInfo(boolean haveFirst,
+                          boolean haveDictionary,
+                          boolean haveTrailerWithIndex) {
 
         bitInfo = (headerType.getValue() << 28) |
                   (userHeaderLengthPadding << 20) |
@@ -388,27 +401,21 @@ public class FileHeader {
     }
 
     /**
-     * Set the bit info word and related values.
-     * @param word  bit info word.
+     * Set the bit in the file header which says there is a first event.
+     * @param hasFirst  true if file has a first event.
+     * @return new bitInfo word.
      */
-    void  setBitInfoWord(int word) {
-        bitInfo = word;
-        decodeBitInfoWord(word);
-    }
-
-    /**
-     * Decodes the bit-info word into padding and header type.
-     * @param word bit-info word.
-     */
-    private void decodeBitInfoWord(int word){
-        // Padding
-        this.userHeaderLengthPadding = (word >>> 20) & 0x3;
-
-        // Header type
-        headerType =  HeaderType.getHeaderType(word >>> 28);
-        if (headerType == null) {
-            headerType = HeaderType.EVIO_RECORD;
+    public int hasFirstEvent(boolean hasFirst) {
+        if (hasFirst) {
+            // set bit
+            bitInfo |= HAS_FIRST_EVENT_BIT;
         }
+        else {
+            // clear bit
+            bitInfo &= ~HAS_FIRST_EVENT_BIT;
+        }
+
+        return bitInfo;
     }
 
     /**
@@ -418,10 +425,81 @@ public class FileHeader {
     public boolean hasFirstEvent() {return ((bitInfo & HAS_FIRST_EVENT_BIT) != 0);}
 
     /**
+     * Set the bit in the file header which says there is a dictionary.
+     * @param hasFirst  true if file has a dictionary.
+     * @return new bitInfo word.
+     */
+    public int hasDictionary(boolean hasFirst) {
+        if (hasFirst) {
+            // set bit
+            bitInfo |= DICTIONARY_BIT;
+        }
+        else {
+            // clear bit
+            bitInfo &= ~DICTIONARY_BIT;
+        }
+
+        return bitInfo;
+    }
+
+    /**
      * Does this header have a dictionary in the user header?
      * @return true if header has a dictionary in the user header, else false.
      */
     public boolean hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
+
+    /**
+     * Set the bit in the file header which says there is a trailer with a record index.
+     * @param hasFirst  true if file has a  trailer with a record index.
+     * @return new bitInfo word.
+     */
+    public int hasTrailerWithIndex(boolean hasFirst) {
+        if (hasFirst) {
+            // set bit
+            bitInfo |= TRAILER_WITH_INDEX_BIT;
+        }
+        else {
+            // clear bit
+            bitInfo &= ~TRAILER_WITH_INDEX_BIT;
+        }
+
+        return bitInfo;
+    }
+
+    /**
+     * Does this file have a trailer with an index?
+     * @return true if file has a trailer with an index, else false.
+     */
+    public boolean hasTrailerWithIndex() {return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);}
+
+    /**
+     * Set the bit info word and related values.
+     * @param word  bit info word.
+     */
+    void  setBitInfoWord(int word) {
+        bitInfo = word;
+        decodeBitInfoWord(word);
+    }
+
+    /**
+     * Decodes the bit-info word into version, padding and header type.
+     * @param word bit-info word.
+     */
+    private void decodeBitInfoWord(int word){
+        // Padding
+        userHeaderLengthPadding = (word >>> 20) & 0x3;
+
+        // Evio version
+        headerVersion = (word & 0xff);
+
+        // Header type
+        headerType =  HeaderType.getHeaderType(word >>> 28);
+        if (headerType == null) {
+            headerType = HeaderType.EVIO_RECORD;
+        }
+    }
+
+    //--------------------------------------------------------------
 
     /**
      * Is this header followed by a user header?
@@ -436,12 +514,6 @@ public class FileHeader {
      * @return true if file has a valid index, else false.
      */
     public boolean hasIndex() {return ((indexLength > 3) && (indexLength % 4 == 0));}
-
-    /**
-     * Does this file have a trailer with an index?
-     * @return true if file has a trailer with an index, else false.
-     */
-    public boolean hasTrailerWithIndex() {return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);}
 
     // Setters
 
@@ -486,15 +558,13 @@ public class FileHeader {
     /**
      * Set the length of the index array in bytes.
      * Length is forced to be a multiple of 4!
-     * Use this to keep track of total length (header + index + user header) too.
+     * Sets the total length too.
      * @param length  length of index array in bytes.
      * @return this object.
      */
     public FileHeader setIndexLength(int length) {
-        // Keep track of total length too
-        totalLength -= indexLength;
         indexLength = (length/4)*4;
-        totalLength += indexLength;
+        setLength(headerLength + indexLength + userHeaderLength + userHeaderLengthPadding);
         return this;
     }
 
@@ -508,29 +578,30 @@ public class FileHeader {
 
     /**
      * Set the user-defined header's length in bytes & words and the padding.
-     * Use this to keep track of total length (header + index + user header) too.
+     * Sets the total length too.
      * @param length  user-defined header's length in bytes.
      * @return this object.
      */
     public FileHeader setUserHeaderLength(int length) {
-        // Keep track of total length too
-        totalLength -= userHeaderLength + userHeaderLengthPadding;
         userHeaderLength = length;
-        userHeaderLengthWords   = getWords(length);
-        userHeaderLengthPadding = getPadding(length);
-        totalLength += userHeaderLength + userHeaderLengthPadding;
+        userHeaderLengthWords = getWords(length);
+        // Set value and update associated value in bitInfo word
+        setUserHeaderLengthPadding(getPadding(length));
+        setLength(headerLength + indexLength + userHeaderLength + userHeaderLengthPadding);
         return this;
     }
 
     /**
      * Set the this header's length in bytes & words.
      * If length is not a multiple of 4, you're on your own!
+     * Sets the total length too.
      * @param length  this header's length in bytes.
      * @return this object.
      */
     public FileHeader setHeaderLength(int length) {
         headerLength = length;
         headerLengthWords = length/4;
+        setLength(headerLength + indexLength + userHeaderLength + userHeaderLengthPadding);
         return this;
     }
 
@@ -714,7 +785,7 @@ public class FileHeader {
      *                       is not in proper format, or version earlier than 6.
      */
     public void readHeader(ByteBuffer buffer, int offset) throws HipoException {
-        //System.out.println("PARSING HEADER");
+System.out.println("PARSING HEADER");
         if (buffer == null || (buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
             throw new HipoException("null or too small buffer arg");
         }
@@ -744,24 +815,29 @@ public class FileHeader {
         }
 
         // Next look at the version #
-        int bitInoWord    = buffer.getInt(20 + offset);  // 5*4
-        int version       = (bitInoWord & 0xFF);
-        if (version < 6) {
-            throw new HipoException("buffer is in evio format version " + version);
+        bitInfo = buffer.getInt(20 + offset);  // 5*4
+        decodeBitInfoWord(bitInfo);
+        if (headerVersion < 6) {
+            throw new HipoException("buffer is in evio format version " + headerVersion);
         }
-        headerVersion = version;
 
         fileId            = buffer.getInt(     offset);   // 0*4
         fileNumber        = buffer.getInt( 4 + offset);   // 1*4
         headerLengthWords = buffer.getInt( 8 + offset);   // 2*4
         setHeaderLength(4*headerLengthWords);
+System.out.println("fileHeader: header len = " + headerLength);
         entries           = buffer.getInt(12 + offset);   // 3*4
 
         indexLength       = buffer.getInt(16 + offset);   // 4*4
+System.out.println("fileHeader: index len = " + indexLength);
         setIndexLength(indexLength);
 
         userHeaderLength  = buffer.getInt(24 + offset);   // 6*4
         setUserHeaderLength(userHeaderLength);
+System.out.println("fileHeader: user header len = " + userHeaderLength +
+                   ", padding = " + userHeaderLengthPadding);
+
+System.out.println("fileHeader: total len = " + totalLength);
 
         userRegister     = buffer.getLong(32 + offset);   // 8*4
         trailerPosition  = buffer.getLong(40 + offset);   // 10*4
@@ -790,7 +866,7 @@ public class FileHeader {
 
         StringBuilder str = new StringBuilder();
         str.append(String.format("%24s : %d\n","version",headerVersion));
-        str.append(String.format("%24s : %d\n","file #",fileNumber));
+        str.append(String.format("%24s : %d    bytes,     words,    padding\n","file #",fileNumber));
         str.append(String.format("%24s : %8d / %8d / %8d\n","user header length",
                                  userHeaderLength, userHeaderLengthWords, userHeaderLengthPadding));
         str.append(String.format("%24s : %d\n","header length",headerLength));
