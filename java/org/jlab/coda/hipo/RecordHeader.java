@@ -162,7 +162,7 @@ public class RecordHeader implements IBlockHeader {
      * 4=User, 5=Control, 15=Other).
      */
     private int  eventType;
-    /** Length of this header (bytes). */
+    /** Length of this header NOT including user header or index (bytes). */
     private int  headerLength = HEADER_SIZE_BYTES;
     /** Length of this header (words). 3rd word. */
     private int  headerLengthWords = HEADER_SIZE_WORDS;
@@ -411,7 +411,7 @@ public class RecordHeader implements IBlockHeader {
     public int  getCompressedDataLengthWords() {return compressedDataLengthWords;}
 
     /**
-     * Get the length of this header data in bytes.
+     * Get the length of this header data in bytes (NOT including user header or index).
      * @return length of this header data in bytes.
      */
     public int  getHeaderLength() {return headerLength;}
@@ -937,7 +937,7 @@ public class RecordHeader implements IBlockHeader {
 
         StringBuilder str = new StringBuilder();
         str.append(String.format("%24s : %d\n","version",headerVersion));
-        str.append(String.format("%24s : %d\n","record #",recordNumber));
+        str.append(String.format("%24s : %d    bytes,     words,    padding\n","record #",recordNumber));
         str.append(String.format("%24s : %8d / %8d / %8d\n","user header length",
                                  userHeaderLength, userHeaderLengthWords, userHeaderLengthPadding));
         str.append(String.format("%24s : %8d / %8d / %8d\n","   data length",
