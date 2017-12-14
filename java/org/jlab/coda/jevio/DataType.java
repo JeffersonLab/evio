@@ -179,6 +179,12 @@ public enum DataType {
 	}
 
 	/**
+	 * Convenience routine to see if this type represents a BANK.
+	 * @return <code>true</code> if this type represents a BANK.
+	 */
+	public boolean isBank() {return this == BANK || this == ALSOBANK;}
+
+	/**
 	 * Convenience routine to see if "this" data type is an integer of some kind -
 	 * either 8, 16, 32, or 64 bits worth.
 	 * @return <code>true</code> if the data type corresponds to an integer type
