@@ -1250,8 +1250,6 @@ System.err.println("ERROR endOfBuffer " + a);
         int word = buf.getInt();
         header.setTag(word >>> 16);
         int dt = (word >> 8) & 0xff;
-        int type = dt & 0x3f;
-        int padding = dt >>> 6;
         // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
         // This regularly happens with composite data.
         // However, it that MAY also be the legacy tagsegment type
@@ -1261,8 +1259,8 @@ System.err.println("ERROR endOfBuffer " + a);
         //    type = DataType.TAGSEGMENT.getValue();
         //    padding = 0;
         //}
-        header.setDataType(type);
-        header.setPadding(padding);
+        header.setDataType(dt & 0x3f);
+        header.setPadding(dt >>> 6);
         header.setNumber(word & 0xff);
 
         // Once we know what the data type is, let the no-arg constructed
@@ -1411,8 +1409,6 @@ System.err.println("ERROR endOfBuffer " + a);
         int word = byteBuffer.getInt();
         header.setTag(word >>> 16);
         int dt = (word >> 8) & 0xff;
-        int type = dt & 0x3f;
-        int padding = dt >>> 6;
         // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
         // This regularly happens with composite data.
         // However, it that MAY also be the legacy tagsegment type
@@ -1422,8 +1418,8 @@ System.err.println("ERROR endOfBuffer " + a);
         //    type = DataType.TAGSEGMENT.getValue();
         //    padding = 0;
         //}
-        header.setDataType(type);
-        header.setPadding(padding);
+        header.setDataType(dt & 0x3f);
+        header.setPadding(dt >>> 6);
         header.setNumber(word & 0xff);
 
         blockBytesRemaining -= 4; // just read in 4 bytes
@@ -1525,6 +1521,57 @@ System.err.println("ERROR endOfBuffer " + a);
         // This method is synchronized too
 		parser.parseEvent(evioEvent);
 	}
+
+
+    /**
+     * Parse the given byte array into an EvioEvent.
+     * Byte array must not be in file format (have block headers),
+     * but must consist of only the bytes comprising the evio event.
+     *
+     * @return the EvioEvent object parsed from the given bytes.
+     * @throws EvioException if null arg, too little data, or data not in evio format.
+     */
+    public static EvioEvent parseEvent(byte[] array, int offset, ByteOrder order) throws EvioException {
+
+        if (array == null || array.length - offset < 8) {
+            throw new EvioException("arg null or too little data");
+        }
+
+        int byteLen = array.length - offset;
+        EvioEvent event = new EvioEvent();
+        BaseStructureHeader header = event.getHeader();
+        ByteBuffer byteBuffer = ByteBuffer.wrap(array, offset, byteLen).order(order);
+
+        // Read the first header word - the length in 32bit words
+        int words = byteBuffer.getInt();
+        if (words < 1) {
+            throw new EvioException("non-positive length (0x" + Integer.toHexString(words) + ")");
+        }
+        else if (4*(words + 1) < byteLen) {
+            throw new EvioException("too little data (needed " + (4*(words + 1)) +
+                                    " but have " + byteLen + " bytes)");
+        }
+        header.setLength(words);
+
+        // Read and parse second header word
+        int word = byteBuffer.getInt();
+        header.setTag(word >>> 16);
+        int dt = (word >> 8) & 0xff;
+        header.setDataType(dt & 0x3f);
+        header.setPadding(dt >>> 6);
+        header.setNumber(word & 0xff);
+
+        // Set the raw data
+        int dataBytes = 4*(words - 1);
+        byte data[] = new byte[dataBytes];
+        System.arraycopy(array, offset+8, data, 0, dataBytes);
+        event.setRawBytes(data);
+        event.setByteOrder(order);
+
+        EventParser.eventParse(event);
+        return event;
+    }
+
 
     /**
      * Get an evio bank or event in byte array form.
