@@ -1166,6 +1166,7 @@ public class EventWriterMT {
         int commonSize = commonRecord.getHeader().getLength();
         fileHeader.setUserHeaderLength(commonSize);
 
+        // TODO: This is now unnecessary as the above call takes care of it
         // Total header size in bytes (no padding for evio data)
         int bytes = RecordHeader.HEADER_SIZE_BYTES + commonSize;
         fileHeader.setLength(bytes);
