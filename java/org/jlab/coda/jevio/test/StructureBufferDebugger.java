@@ -111,7 +111,7 @@ public class StructureBufferDebugger {
 
                 // Look through all structures (bank, seg, tagseg) associated with this event
                 for (EvioNode node : nodeList) {
-                    // Pick out those whose data type is composite
+                    // Pick out those whose data type is integer
                     if (node.getDataTypeObj() == DataType.UINT32 ||
                         node.getDataTypeObj() == DataType.INT32) {
 
