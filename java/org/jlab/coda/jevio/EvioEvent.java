@@ -272,6 +272,7 @@ public class EvioEvent extends EvioBank {
     public void toXML(XMLStreamWriter xmlWriter, boolean hex) {
 
         try {
+            setXmlNames();
             int totalLen = header.length + 1;
             increaseXmlIndent();
             xmlWriter.writeCharacters(xmlIndent);
