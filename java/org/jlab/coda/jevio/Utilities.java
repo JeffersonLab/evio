@@ -471,9 +471,8 @@ final public class Utilities {
      */
     static final public byte[] nodeToByteArray(EvioNode node) {
         // Copy event node into buffer so it has backing array
-        ByteBuffer firstEventBuf = node.getStructureBuffer(true);
-        // Return that backing array
-        return firstEventBuf.array();
+        // and return that backing array.
+        return node.getStructureBuffer(true).array();
     }
 
 
