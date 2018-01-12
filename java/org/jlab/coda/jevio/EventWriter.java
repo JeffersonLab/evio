@@ -1822,6 +1822,7 @@ public class EventWriter {
         writeEvent(null, firstEventBuf, false);
     }
 
+
     /**
      * Set an event which will be written to the file/buffer as
      * well as to all split files. It's called the "first event" as it will be the
