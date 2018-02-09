@@ -1603,7 +1603,7 @@ System.err.println("ERROR endOfBuffer " + a);
      */
     public ByteBuffer getEventBuffer(int eventNumber)
             throws EvioException, IOException {
-        return ByteBuffer.wrap(getEventArray(eventNumber));
+        return ByteBuffer.wrap(getEventArray(eventNumber)).order(byteOrder);
     }
 
     /**
