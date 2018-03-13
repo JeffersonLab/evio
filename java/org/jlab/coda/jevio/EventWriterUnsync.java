@@ -2021,7 +2021,7 @@ public class EventWriterUnsync {
                 // however, it will not be a "last" block header.
                 // Add that now.
                 writeNewHeader(0, blockNumber, null, false, true);
-                flushToFile(true);
+                flushToFile(false);
             }
             else {
                 // Data is written, but need to write empty last header
@@ -3189,7 +3189,7 @@ System.err.println("ERROR endOfBuffer " + a);
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
         // but don't bother writing the metadata (arg to force()) since that slows it
         // down too.
-        if (force) fileChannel.force(false);
+//        if (force) fileChannel.force(false);
 
         // Set buf position to 0 and set limit to capacity
         buffer.clear();
