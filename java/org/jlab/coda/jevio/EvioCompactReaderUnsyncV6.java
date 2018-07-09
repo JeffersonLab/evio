@@ -6,6 +6,7 @@
  */
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.HipoException;
 import org.jlab.coda.hipo.Reader;
 
 import java.io.File;
@@ -122,8 +123,10 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      * @param byteBuffer the buffer that contains events.
      *
      * @see EventWriter
-     * @throws EvioException if buffer arg is null;
-     *                       failure to read first block header
+     * @throws EvioException if buffer arg is null,
+     *                       buffer too small,
+     *                       buffer not in the proper format,
+     *                       or earlier than version 6.
      */
     public EvioCompactReaderUnsyncV6(ByteBuffer byteBuffer) throws EvioException {
 
@@ -134,7 +137,12 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
         initialPosition = byteBuffer.position();
         this.byteBuffer = byteBuffer;
 
-        reader = new Reader(byteBuffer);
+        try {
+            reader = new Reader(byteBuffer);
+        }
+        catch (HipoException e) {
+            throw new EvioException(e);
+        }
     }
 
     /**
@@ -149,11 +157,17 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
      * {@link #close()} is called before anything else.
      *
      * @param buf ByteBuffer to be read
-     * @throws EvioException if arg is null;
-     *                       if failure to read first block header
+     * @throws EvioException if arg is null, buffer too small,
+     *                       not in the proper format, or earlier than version 6
      */
     public void setBuffer(ByteBuffer buf) throws EvioException {
-        reader.setBuffer(buf);
+        try {
+            reader.setBuffer(buf);
+        }
+        catch (HipoException e) {
+            throw new EvioException(e);
+        }
+        
         closed = false;
     }
 
