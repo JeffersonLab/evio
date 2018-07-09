@@ -3104,6 +3104,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Write new block header if required
         if (writeNewBlockHeader) {
+//System.out.println("evWrite: wrote new blk hdr, block # = " + blockNumber);
             writeNewHeader(1, blockNumber++, null, false, false);
 //if (debug) System.out.println("evWrite: wrote new blk hdr, bytesToBuf = " + bytesWrittenToBuffer);
         }
