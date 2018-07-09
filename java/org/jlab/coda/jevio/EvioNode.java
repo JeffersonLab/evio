@@ -805,6 +805,41 @@ public class EvioNode implements Cloneable {
 
 
     /**
+     * Get the data associated with this node as an 32-bit integer array.
+     * Place data in the given array. Only allocate memory if array is too small.
+     * If data is of a type less than 32 bits, the last int will be junk.
+     * Call this to avoid calling {@link #getByteData(boolean)} and converting
+     * it to an int array which involves creating additional objects and calling
+     * additional methods.
+     * This method is not synchronized.
+     *
+     * @param intData integer array in which to store data.
+     * @param length  set first element to contain number of valid array elements of the returned array.
+     * @return integer array containing data, or null if length array arg is null or 0 length.
+     */
+    final public int[] getIntData(int[] intData, int[] length) {
+        if (length == null || length.length < 1) return null;
+
+        // If supplied array is null or too small, create one
+        if (intData == null || intData.length < dataLen) {
+            intData = new int[dataLen];
+        }
+
+        ByteBuffer buf = bufferNode.buffer;
+
+        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
+            intData[(i-dataPos)/4] = buf.getInt(i);
+        }
+
+        // Return number of valid array elements through this array
+        length[0] = dataLen;
+
+        // Return data here
+        return intData;
+    }
+
+
+    /**
      * Get the data associated with this node as an 64-bit integer array.
      * If data is of a type less than 64 bits, the last long will be junk.
      * Make sure we don't try to read beyond the end.
