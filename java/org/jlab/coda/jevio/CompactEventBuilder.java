@@ -1160,7 +1160,7 @@ public final class CompactEventBuilder {
      *                       if no room in buffer for data.
      */
     public void addIntData(int data[]) throws EvioException {
-        addIntData(data, 0);
+        addIntData(data, 0, data.length);
     }
 
 
@@ -1176,9 +1176,37 @@ public final class CompactEventBuilder {
      *                       if no room in buffer for data.
      */
     public void addIntData(int data[], int offset) throws EvioException {
-        if (data == null || offset < 0 || data.length - offset < 1) {
-            throw new EvioException("no data to add");
+        addIntData(data, offset, data.length);
+    }
+
+
+    /**
+     * Appends int data to the structure.
+     *
+     * @param data   the int data to append.
+     * @param offset offset into data array.
+     * @param len    the number of ints from data to append.
+     * @throws EvioException if data is null;
+     *                       if count/offset negative or too large;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    public void addIntData(int data[], int offset, int len) throws EvioException {
+
+        if (data == null) {
+            throw new EvioException("data arg null");
         }
+
+        if (len < 0 || len > data.length) {
+            throw new EvioException("len must be >= 0 and <= data length");
+        }
+
+        if (offset < 0 || offset + len > data.length) {
+            throw new EvioException("offset must be >= 0 and <= (data length - len)");
+        }
+
+        if (len == 0) return;
 
         if (currentStructure == null) {
             throw new EvioException("add a bank, segment, or tagsegment first");
@@ -1193,7 +1221,6 @@ public final class CompactEventBuilder {
         // Sets pos = 0, limit = capacity, & does NOT clear data
         buffer.clear();
 
-        int len = data.length - offset;
         if (buffer.limit() - position < 4*len) {
             throw new EvioException("no room in buffer");
         }
@@ -1209,7 +1236,7 @@ public final class CompactEventBuilder {
         else {
             int j, pos = position;
             if (order == ByteOrder.BIG_ENDIAN) {
-                for (int i=offset; i < data.length; i++) {
+                for (int i=offset; i < len + offset; i++) {
                     j = data[i];
                     array[pos++] = (byte) (j >> 24);
                     array[pos++] = (byte) (j >> 16);
@@ -1218,7 +1245,7 @@ public final class CompactEventBuilder {
                 }
             }
             else {
-                for (int i=offset; i < data.length; i++) {
+                for (int i=offset; i < len + offset; i++) {
                     j = data[i];
                     array[pos++] = (byte) (j);
                     array[pos++] = (byte) (j >> 8);
@@ -1242,9 +1269,37 @@ public final class CompactEventBuilder {
      *                       if no room in buffer for data.
      */
     public void addShortData(short data[]) throws EvioException {
-        if (data == null || data.length < 1) {
-            throw new EvioException("no data to add");
+        addShortData(data, 0, data.length);
+    }
+
+
+    /**
+     * Appends short data to the structure.
+     *
+     * @param data    the short data to append.
+     * @param offset  offset into data array.
+     * @param len     the number of shorts from data to append.
+     * @throws EvioException if data is null;
+     *                       if count/offset negative or too large;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    public void addShortData(short data[], int offset, int len) throws EvioException {
+
+        if (data == null) {
+            throw new EvioException("data arg null");
         }
+
+        if (len < 0 || len > data.length) {
+            throw new EvioException("len must be >= 0 and <= data length");
+        }
+
+        if (offset < 0 || offset + len > data.length) {
+            throw new EvioException("offset must be >= 0 and <= (data length - len)");
+        }
+
+        if (len == 0) return;
 
         if (currentStructure == null) {
             throw new EvioException("add a bank, segment, or tagsegment first");
@@ -1258,7 +1313,6 @@ public final class CompactEventBuilder {
         // Sets pos = 0, limit = capacity, & does NOT clear data
         buffer.clear();
 
-        int len = data.length;
         if (buffer.limit() - position < 2*len) {
             throw new EvioException("no room in buffer");
         }
@@ -1292,19 +1346,21 @@ public final class CompactEventBuilder {
         if (useByteBuffer) {
             buffer.position(position);
             ShortBuffer db = buffer.asShortBuffer();
-            db.put(data, 0, len);
+            db.put(data, offset, len);
             buffer.position(0);
         }
         else {
             int pos = position;
             if (order == ByteOrder.BIG_ENDIAN) {
-                for (short aData : data) {
+                for (int i=offset; i < len + offset; i++) {
+                    short aData = data[i];
                     array[pos++] = (byte) (aData >> 8);
                     array[pos++] = (byte) (aData);
                 }
             }
             else {
-                for (short aData : data) {
+                for (int i=offset; i < len + offset; i++) {
+                    short aData = data[i];
                     array[pos++] = (byte) (aData);
                     array[pos++] = (byte) (aData >> 8);
                 }
@@ -1312,11 +1368,8 @@ public final class CompactEventBuilder {
         }
 
         currentStructure.padding = 2*(currentStructure.dataLen % 2);
-//System.out.println("short padding = " + currentStructure.padding);
         // Advance position
         position += 2*len + currentStructure.padding;
-//System.out.println("set pos = " + position);
-//System.out.println("");
     }
 
 
@@ -1402,9 +1455,37 @@ public final class CompactEventBuilder {
      *                       if no room in buffer for data.
      */
     public void addLongData(long data[]) throws EvioException {
-        if (data == null || data.length < 1) {
-            throw new EvioException("no data to add");
+        addLongData(data, 0, data.length);
+    }
+
+
+    /**
+     * Appends long data to the structure.
+     *
+     * @param data    the long data to append.
+     * @param offset  offset into data array.
+     * @param len     the number of longs from data to append.
+     * @throws EvioException if data is null;
+     *                       if count/offset negative or too large;
+     *                       if adding wrong data type to structure;
+     *                       if structure not added first;
+     *                       if no room in buffer for data.
+     */
+    public void addLongData(long data[], int offset, int len) throws EvioException {
+
+        if (data == null) {
+            throw new EvioException("data arg null");
         }
+
+        if (len < 0 || len > data.length) {
+            throw new EvioException("len must be >= 0 and <= data length");
+        }
+
+        if (offset < 0 || offset + len > data.length) {
+            throw new EvioException("offset must be >= 0 and <= (data length - len)");
+        }
+
+        if (len == 0) return;
 
         if (currentStructure == null) {
             throw new EvioException("add a bank, segment, or tagsegment first");
@@ -1418,7 +1499,6 @@ public final class CompactEventBuilder {
         // Sets pos = 0, limit = capacity, & does NOT clear data
         buffer.clear();
 
-        int len = data.length;
         if (buffer.limit() - position < 8*len) {
             throw new EvioException("no room in buffer");
         }
@@ -1428,13 +1508,14 @@ public final class CompactEventBuilder {
         if (useByteBuffer) {
             buffer.position(position);
             LongBuffer db = buffer.asLongBuffer();
-            db.put(data, 0, len);
+            db.put(data, offset, len);
             buffer.position(0);
         }
         else {
             int pos = position;
             if (order == ByteOrder.BIG_ENDIAN) {
-                for (long aData : data) {
+                for (int i=offset; i < len + offset; i++) {
+                    long aData = data[i];
                     array[pos++] = (byte) (aData >> 56);
                     array[pos++] = (byte) (aData >> 48);
                     array[pos++] = (byte) (aData >> 40);
@@ -1446,7 +1527,8 @@ public final class CompactEventBuilder {
                 }
             }
             else {
-                for (long aData : data) {
+                for (int i=offset; i < len + offset; i++) {
+                    long aData = data[i];
                     array[pos++] = (byte) (aData);
                     array[pos++] = (byte) (aData >> 8);
                     array[pos++] = (byte) (aData >> 16);
