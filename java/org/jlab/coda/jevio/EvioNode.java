@@ -405,7 +405,7 @@ public class EvioNode implements Cloneable {
         }
 
         if (childNodes == null) {
-            childNodes = new ArrayList<>(5);
+            childNodes = new ArrayList<>(15);
         }
 
         childNodes.add(node);
@@ -807,7 +807,7 @@ public class EvioNode implements Cloneable {
     /**
      * Get the data associated with this node as an 32-bit integer array.
      * Place data in the given array. Only allocate memory if array is too small.
-     * If data is of a type less than 32 bits, the last int will be junk.
+     * If data is of a type less than 32 bits, the last int may be junk.
      * Call this to avoid calling {@link #getByteData(boolean)} and converting
      * it to an int array which involves creating additional objects and calling
      * additional methods.
@@ -851,16 +851,52 @@ public class EvioNode implements Cloneable {
      * @return long array containing data.
      */
     final public long[] getLongData() {
-        // Make sure we don't read an extra long if odd # of ints
-        int effectiveLen = (dataLen/2)*2;
+        int numLongs = dataLen/2;
 
-        long[] data = new long[effectiveLen/2];
+        long[] data = new long[numLongs];
         ByteBuffer buf = bufferNode.buffer;
 
-        for (int i = dataPos; i < dataPos + 4*effectiveLen; i+= 8) {
+        for (int i = dataPos; i < dataPos + 8*numLongs; i+= 8) {
             data[(i-dataPos)/8] = buf.getLong(i);
         }
         return data;
+    }
+
+
+    /**
+     * Get the data associated with this node as an 64-bit integer array.
+     * Place data in the given array. Only allocate memory if array is too small.
+     * If data is of a type less than 64 bits, the last element may be junk.
+     * Call this to avoid calling {@link #getByteData(boolean)} and converting
+     * it to an long array which involves creating additional objects and calling
+     * additional methods.
+     * This method is not synchronized.
+     *
+     * @param longData long array in which to store data.
+     * @param length   set first element to contain number of valid array elements of the returned array.
+     * @return long array containing data, or null if length array arg is null or 0 length.
+     */
+    final public long[] getLongData(long[] longData, int[] length) {
+        if (length == null || length.length < 1) return null;
+
+        int numLongs = dataLen/2;
+
+        // If supplied array is null or too small, create one
+        if (longData == null || longData.length < numLongs) {
+            longData = new long[numLongs];
+        }
+
+        ByteBuffer buf = bufferNode.buffer;
+
+        for (int i = dataPos; i < dataPos + 8*numLongs; i+= 8) {
+            longData[(i-dataPos)/8] = buf.getLong(i);
+        }
+
+        // Return number of valid array elements through this array
+        length[0] = numLongs;
+
+        // Return data here
+        return longData;
     }
 
 
@@ -875,13 +911,51 @@ public class EvioNode implements Cloneable {
      * @return short array containing data.
      */
     final public short[] getShortData() {
-        short[] data = new short[2*dataLen];
+        int numShorts = 2*dataLen;
+        short[] data = new short[numShorts];
         ByteBuffer buf = bufferNode.buffer;
 
-        for (int i = dataPos; i < dataPos + 4*dataLen; i+= 2) {
+        for (int i = dataPos; i < dataPos + 2*numShorts; i+= 2) {
             data[(i-dataPos)/2] = buf.getShort(i);
         }
         return data;
+    }
+
+
+    /**
+     * Get the data associated with this node as an 16-bit integer array.
+     * Place data in the given array. Only allocate memory if array is too small.
+     * If data is of a type less than 16 bits, the last element may be junk.
+     * Call this to avoid calling {@link #getByteData(boolean)} and converting
+     * it to an short array which involves creating additional objects and calling
+     * additional methods.
+     * This method is not synchronized.
+     *
+     * @param shortData short array in which to store data.
+     * @param length    set first element to contain number of valid array elements of the returned array.
+     * @return short array containing data, or null if length array arg is null or 0 length.
+     */
+    final public short[] getShortData(short[] shortData, int[] length) {
+        if (length == null || length.length < 1) return null;
+
+        int numShorts = 2*dataLen;
+
+        // If supplied array is null or too small, create one
+        if (shortData == null || shortData.length < numShorts) {
+            shortData = new short[numShorts];
+        }
+
+        ByteBuffer buf = bufferNode.buffer;
+
+        for (int i = dataPos; i < dataPos + 2*numShorts; i+= 2) {
+            shortData[(i-dataPos)/2] = buf.getShort(i);
+        }
+
+        // Return number of valid array elements through this array
+        length[0] = numShorts;
+
+        // Return data here
+        return shortData;
     }
 
 
