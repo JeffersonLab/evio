@@ -114,6 +114,8 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
     /* Keep track if repeat value is from reading N or
        is a specific int embedded in the format statement. */
     int repeatFromN = 0;
+	/* Keep track if repeat value from N, n, or m (1, 2, or 3). */
+	int Nnm = 0;
 
     /* Initialize indent string */
     indentStr[0] = '\0';
@@ -149,6 +151,7 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
         /* get next format code */
         while(1) {
             repeatFromN = 0;
+			Nnm = 0;
             imt++;
             /* end of format statement reached, back to iterm - last parenthesis or format beginning */
             if (imt > nfmt) {
@@ -195,7 +198,7 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
                 /* format code */
                 kcnf = ifmt[imt-1] - 16*ncnf;
 
-                /* left parenthesis, SPECIAL case: # of repeats must be taken from data */
+                /* left parenthesis, SPECIAL case: # of repeats must be taken from int32 data */
                 if (kcnf == 15) {
                     /* set it to regular left parenthesis code */
                     kcnf = 0;
@@ -205,6 +208,32 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
                     ncnf = *b32; /* get #repeats from data */
                     b8 += 4;
                     repeatFromN = 1;
+					Nnm = 1;
+                }
+
+                /* left parenthesis, SPECIAL case: # of repeats must be taken from int16 data */
+                if (kcnf == 14) {
+                    /* set it to regular left parenthesis code */
+                    kcnf = 0;
+
+                    /* get # of repeats from data (watch out for endianness) */
+                    b16 = (int16_t *)b8;
+                    ncnf = *b16; /* get #repeats from data */
+                    b8 += 2;
+                    repeatFromN = 1;
+					Nnm = 2;
+                }
+
+                /* left parenthesis, SPECIAL case: # of repeats must be taken from int8 data */
+                if (kcnf == 13) {
+                    /* set it to regular left parenthesis code */
+                    kcnf = 0;
+
+                    /* get # of repeats from data (watch out for endianness) */
+                    ncnf = *((uint8_t *)b8);
+                    b8++;
+                    repeatFromN = 1;
+					Nnm = 3;
                 }
 
                 /* left parenthesis - set new lv[] */
@@ -214,7 +243,12 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
                     xml += sprintf(xml,"\n%s<repeat ", indentStr);
 
                     if (repeatFromN) {
-                        xml += sprintf(xml," n=\"%d\">", ncnf);
+                        if (Nnm == 2)
+                            xml += sprintf(xml," n=\"%d\">", ncnf);
+                        else if (Nnm == 3)
+                            xml += sprintf(xml," m=\"%d\">", ncnf);
+                        else
+                            xml += sprintf(xml," N=\"%d\">", ncnf);
                     }
                     else {
                         xml += sprintf(xml," count=\"%d\">", ncnf);
@@ -297,7 +331,7 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
             }
 
             if (repeatFromN) {
-                xml += sprintf(xml,"n=\"%d\">", ncnf);
+                xml += sprintf(xml,"N=\"%d\">", ncnf);
             }
             else {
                 xml += sprintf(xml,"count=\"%d\">", ncnf);
@@ -379,7 +413,7 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
             }
 
             if (repeatFromN) {
-                xml += sprintf(xml,"n=\"%d\">", ncnf);
+                xml += sprintf(xml,"N=\"%d\">", ncnf);
             }
             else {
                 xml += sprintf(xml,"count=\"%d\">", ncnf);
@@ -459,7 +493,7 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
             }
 
             if (repeatFromN) {
-                xml += sprintf(xml,"n=\"%d\">", ncnf);
+                xml += sprintf(xml,"N=\"%d\">", ncnf);
             }
             else {
                 xml += sprintf(xml,"count=\"%d\">", ncnf);
@@ -525,7 +559,7 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
                 xml += sprintf(xml,"\n%s<string ", indentStr);
 
                 if (repeatFromN) {
-                    xml += sprintf(xml,"n=\"%d\">", ncnf);
+                    xml += sprintf(xml,"N=\"%d\">", ncnf);
                 }
                 else {
                     xml += sprintf(xml,"count=\"%d\">", ncnf);
@@ -558,7 +592,7 @@ int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
                 }
 
                 if (repeatFromN) {
-                    xml += sprintf(xml,"n=\"%d\">", ncnf);
+                    xml += sprintf(xml,"N=\"%d\">", ncnf);
                 }
                 else {
                     xml += sprintf(xml,"count=\"%d\">", ncnf);

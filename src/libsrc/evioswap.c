@@ -77,7 +77,7 @@
 
 /* from Sergey's composite swap library */
 extern int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
-extern int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal);
+extern int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal, int padding);
 
 /* internal prototypes */
 static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest);
@@ -536,7 +536,7 @@ static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_
 
         /* swap composite data: convert format string to internal format, then call formatted swap routine */
         if ((nfmt = eviofmt(formatString, ifmt, 1024)) > 0 ) {
-            if (eviofmtswap(pData, dataLen, ifmt, nfmt, tolocal)) {
+            if (eviofmtswap(pData, dataLen, ifmt, nfmt, tolocal, 0)) {
                 printf("swap_composite_t: eviofmtswap returned error, bad arg(s)\n");
                 return S_FAILURE;
             }
