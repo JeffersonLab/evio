@@ -885,10 +885,22 @@ if (debug) System.out.println("    comp START_ELEMENT " + name + ":");
                         }
 
                         // This attribute will never appear together with "count"
-                        attr = se.getAttributeByName(new QName("n"));
+                        attr = se.getAttributeByName(new QName("N"));
                         if (attr != null) {
                             repeats = Integer.parseInt(attr.getValue());
                             cData[cDataCount].addN(repeats);
+                        }
+
+                        attr = se.getAttributeByName(new QName("n"));
+                        if (attr != null) {
+                            repeats = Integer.parseInt(attr.getValue());
+                            cData[cDataCount].addn((short)repeats);
+                        }
+
+                        attr = se.getAttributeByName(new QName("m"));
+                        if (attr != null) {
+                            repeats = Integer.parseInt(attr.getValue());
+                            cData[cDataCount].addm((byte)repeats);
                         }
                     }
                     catch (NumberFormatException e) {
