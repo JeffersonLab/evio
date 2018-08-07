@@ -307,14 +307,13 @@ public class EvioCompactReaderUnsync {
      * node.allNodes list.
      * @param eventNumber number of event (place in file/buffer) starting at 1.
      * @return  EvioNode object associated with a particular event number,
-     *
-     *         or null if there is none.
+     *          or null if there is none.
      */
     public EvioNode getScannedEvent(int eventNumber) {
         try {
             return scanStructure(eventNumber);
         }
-        catch (IndexOutOfBoundsException e) { }
+        catch (IndexOutOfBoundsException e) {}
         return null;
     }
 
@@ -877,7 +876,6 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             }
         }
     }
-
 
     /**
      * This method scans the given event number in the buffer.
