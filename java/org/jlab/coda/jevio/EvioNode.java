@@ -108,13 +108,13 @@ public class EvioNode implements Cloneable {
     public EvioNode() {
         // Put this node in list of all nodes (evio banks, segs, or tagsegs)
         // contained in this event.
-        allNodes = new ArrayList<>(5);
+        allNodes = new ArrayList<>(50);
         allNodes.add(this);
     }
 
     /** Constructor used when swapping data. */
     EvioNode(EvioNode firstNode) {
-        allNodes = new ArrayList<>(5);
+        allNodes = new ArrayList<>(50);
         allNodes.add(this);
         scanned = true;
         eventNode = firstNode;
@@ -143,7 +143,7 @@ public class EvioNode implements Cloneable {
 
         // Put this node in list of all nodes (evio banks, segs, or tagsegs)
         // contained in this event.
-        allNodes = new ArrayList<>(5);
+        allNodes = new ArrayList<>(50);
         allNodes.add(this);
     }
 
@@ -583,7 +583,7 @@ public class EvioNode implements Cloneable {
         }
 
         if (childNodes == null) {
-            childNodes = new ArrayList<>(15);
+            childNodes = new ArrayList<>(50);
         }
 
         childNodes.add(node);
