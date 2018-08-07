@@ -128,9 +128,9 @@ final public class Utilities {
     /**
      * This method generates a complete file name from the previously determined baseFileName
      * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
-     * If evio data is to be split up into multiple files (split > 0), numbers are used to
+     * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
      * distinguish between the split files with splitNumber.
-     * If baseFileName contains C-style int format specifiers (specifierCount > 0), then
+     * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
      * the first occurrence will be substituted with the given runNumber value.
      * If the file is being split, the second will be substituted with the splitNumber.
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
@@ -159,9 +159,9 @@ final public class Utilities {
     /**
      * This method generates a complete file name from the previously determined baseFileName
      * obtained from calling {@link #generateBaseFileName(String, String, StringBuilder)}.
-     * If evio data is to be split up into multiple files (split > 0), numbers are used to
+     * If evio data is to be split up into multiple files (split &gt; 0), numbers are used to
      * distinguish between the split files with splitNumber.
-     * If baseFileName contains C-style int format specifiers (specifierCount > 0), then
+     * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
      * the first occurrence will be substituted with the given runNumber value.
      * If the file is being split, the second will be substituted with the splitNumber.
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
@@ -337,7 +337,7 @@ final public class Utilities {
 
 
     /**
-     * This method takes a byte buffer and prints out the desired number of byes
+     * This method takes a byte buffer and prints out the desired number of bytes
      * from the given position. Prints all bytes.
      *
      * @param buf       buffer to print out
