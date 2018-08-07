@@ -41,7 +41,9 @@ public enum DataType {
     // These 2 types are only used when dealing with COMPOSITE data.
     // They are never transported independently and are stored in integers.
     HOLLERIT       (0x21),
-    NVALUE         (0x22);
+	NVALUE         (0x22),
+	nVALUE         (0x23),
+	mVALUE         (0x24);
 
 
     /** Each name is associated with a specific evio integer value. */
@@ -49,12 +51,12 @@ public enum DataType {
 
 
     /** Fast way to convert integer values into DataType objects. */
-    private static final DataType[] intToType;
+    private static DataType[] intToType;
 
 
     // Fill array after all enum objects created
     static {
-        intToType = new DataType[0x22 + 1];
+        intToType = new DataType[0x24 + 1];
         for (DataType type : values()) {
             intToType[type.value] = type;
         }
@@ -68,7 +70,7 @@ public enum DataType {
 	 * @return the matching enum, or <code>null</code>.
 	 */
     public static DataType getDataType(int val) {
-        if (val > 0x22 || val < 0) return null;
+        if (val > 0x24 || val < 0) return null;
         return intToType[val];
     }
 
@@ -80,7 +82,7 @@ public enum DataType {
      * @return the name, or "UNKNOWN".
      */
     public static String getName(int val) {
-        if (val > 0x22 || val < 0) return "UNKNOWN";
+        if (val > 0x24 || val < 0) return "UNKNOWN";
         DataType type = getDataType(val);
         if (type == null) return "UNKNOWN";
         return type.name();
@@ -105,7 +107,7 @@ public enum DataType {
      * Constructor.
      * @param value
      */
-	DataType(int value) {
+	private DataType(int value) {
 		this.value = value;
 	}
 
@@ -139,21 +141,30 @@ public enum DataType {
 		}
 	}
 
+//	/**
+//	 * Convenience routine to see if the given integer arg represents a data type which
+//     * is a structure (a container).
+//	 * @return <code>true</code> if the data type corresponds to one of the structure
+//	 * types: BANK, SEGMENT, or TAGSEGMENT.
+//	 */
+//	static public boolean isStructure(int dataType) {
+//		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
+//				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
+//				dataType == TAGSEGMENT.value;
+//	}
+
 	/**
 	 * Convenience routine to see if the given integer arg represents a data type which
      * is a structure (a container).
 	 * @return <code>true</code> if the data type corresponds to one of the structure
-	 *         types: BANK, SEGMENT, or TAGSEGMENT.
+	 * types: BANK, SEGMENT, or TAGSEGMENT.
 	 */
 	static public boolean isStructure(int dataType) {
-		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
-				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
-				dataType == TAGSEGMENT.value;
+		return  ((dataType > 0xb && dataType < 0x11) || dataType == 0x20);
 	}
 
 	/**
 	 * Convenience routine to see if the given integer arg represents a BANK.
-	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to a BANK.
 	 */
 	static public boolean isBank(int dataType) {
@@ -162,7 +173,6 @@ public enum DataType {
 
 	/**
 	 * Convenience routine to see if the given integer arg represents a SEGMENT.
-	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to a SEGMENT.
 	 */
 	static public boolean isSegment(int dataType) {
@@ -171,18 +181,11 @@ public enum DataType {
 
 	/**
 	 * Convenience routine to see if the given integer arg represents a TAGSEGMENT.
-	 * @param dataType integer to examine.
 	 * @return <code>true</code> if the data type corresponds to a TAGSEGMENT.
 	 */
 	static public boolean isTagSegment(int dataType) {
 		return TAGSEGMENT.value == dataType;
 	}
-
-	/**
-	 * Convenience routine to see if this type represents a BANK.
-	 * @return <code>true</code> if this type represents a BANK.
-	 */
-	public boolean isBank() {return this == BANK || this == ALSOBANK;}
 
 	/**
 	 * Convenience routine to see if "this" data type is an integer of some kind -
@@ -205,39 +208,6 @@ public enum DataType {
 		}
 	}
 
-	/**
-	 * Is the given data type one that can have non-zero padding?
-	 * @param type evio data type
-	 * @return {@code true} if the data type can have non-zero padding, else {@code false}.
-	 */
-	static public boolean hasPadding(DataType type) {
-		return  type == CHAR8    ||
-				type == UCHAR8   ||
-				type == SHORT16  ||
-				type == USHORT16 ||
-				type == COMPOSITE;
-	}
-
-	/**
-	 * Is the given data type one that can have non-zero padding?
-	 * @param val integer representing evio data type
-	 * @return {@code true} if the data type can have non-zero padding, else {@code false}.
-	 */
-	static public boolean hasPadding(int val) {
-		return  hasPadding(getDataType(val));
-	}
-
-	/**
-	 * Is this data type one that can have non-zero padding?
-	 * @return {@code true} if this data type can have non-zero padding, else {@code false}.
-	 */
-	public boolean hasPadding() {
-		return  this == CHAR8    ||
-				this == UCHAR8   ||
-				this == SHORT16  ||
-				this == USHORT16 ||
-				this == COMPOSITE;
-	}
 
 
 }

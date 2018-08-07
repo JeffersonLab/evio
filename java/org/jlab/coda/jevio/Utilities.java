@@ -30,38 +30,6 @@ import java.util.regex.Pattern;
 final public class Utilities {
 
     /**
-     * Return the power of 2 closest to the given argument.
-     *
-     * @param x value to get the power of 2 closest to.
-     * @param roundUp if true, round up, else down
-     * @return -1 if x is negative or the closest power of 2 to value
-     */
-    static final public int powerOfTwo(int x, boolean roundUp) {
-        if (x < 0) return -1;
-
-        // The following algorithms are found in
-        // "Hacker's Delight" by Henry Warren Jr.
-
-        if (roundUp) {
-            x = x - 1;
-            x |= (x>>1);
-            x |= (x>>2);
-            x |= (x>>4);
-            x |= (x>>8);
-            x |= (x>>16);
-            return x + 1;
-        }
-
-        int y;
-        do {
-            y = x;
-            x &= (x - 1);
-        } while (x != 0);
-        return y;
-    }
-
-
-    /**
      * This method generates part of a file name given a base file name as an argument.<p>
      *
      * The base file name may contain up to 2, C-style integer format specifiers
@@ -373,11 +341,11 @@ final public class Utilities {
      * from the given position. Prints all bytes.
      *
      * @param buf       buffer to print out
-     * @param position  position of data (bytes) in buffer to start printing (starting from 0)
+     * @param position  position of data (bytes) in buffer to start printing
      * @param bytes     number of bytes to print in hex
      * @param label     a label to print as header
      */
-    final static public void printBytes(ByteBuffer buf, int position, int bytes, String label) {
+    final static public void printBufferBytes(ByteBuffer buf, int position, int bytes, String label) {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
@@ -398,122 +366,18 @@ final public class Utilities {
                 System.out.print("  ");
             }
 
-            System.out.print(String.format("%02x", buf.get(i)));
+            System.out.print(String.format("%02x", buf.get(i)) + " ");
         }
         System.out.println();
         System.out.println();
 
         buf.position(origPos);
-    }
-
-
-    /**
-     * This method takes a byte array and prints out the desired number of bytes
-     * from the given index. Prints all bytes.
-     *
-     * @param array   byte array to print out
-     * @param offset  offset into array to start printing
-     * @param bytes   number of bytes to print in hex
-     * @param label   a label to print as header
-     */
-    final static public void printBytes(byte[] array, int offset, int bytes, String label) {
-
-        if (array == null) {
-            System.out.println("printBuffer: array arg is null");
-            return;
-        }
-
-        int limit = bytes + offset > array.length ? array.length : bytes + offset;
-
-        if (label != null) System.out.println(label + ":");
-
-        for (int i = offset; i < limit; i++) {
-            if (i%20 == 0) {
-                System.out.print("\n  array[" + (i + 1) + "-" + (i + 20) + "] =  ");
-            }
-            else if (i%4 == 0) {
-                System.out.print("  ");
-            }
-
-            System.out.print(String.format("%02x", array[i]));
-        }
-        System.out.println();
-        System.out.println();
-    }
-
-
-    /**
-     * Convert bank to byte array.
-     * @param bank bank to convert.
-     * @param order byte order of resulting array
-     * @return byte array with bank as data
-     */
-    static final public byte[] bankToBytes(EvioBank bank, ByteOrder order) {
-        // Create proper sized array
-        byte[] bankArray = new byte[bank.getTotalBytes()];
-
-        // Wrap with ByteBuffer of given byte order
-        ByteBuffer firstEventBuf = ByteBuffer.wrap(bankArray);
-        firstEventBuf.order(order);
-
-        // Write data into array
-        bank.write(firstEventBuf);
-
-        return bankArray;
-    }
-
-
-    /**
-     * Convert node to byte array.
-     * Resulting array is same byte order as backing array of node.
-     * @param node  node to convert.
-     * @return byte array with node as data
-     */
-    static final public byte[] nodeToByteArray(EvioNode node) {
-        // Copy event node into buffer so it has backing array
-        // and return that backing array.
-        return node.getStructureBuffer(true).array();
-    }
-
-
-    /**
-     * This method takes a string and turns it into an evio bank in the given byte order.
-     * @param string  string to convert
-     * @param tag     tag of resulting bank
-     * @param num     num of resulting bank
-     * @param order   byte order of evio data in returned array
-     * @return  byte array containing evio bank with string as data
-     */
-    final static public byte[] stringToBank(String string, int tag, int num, ByteOrder order) {
-        // Turn string data into individual bytes (byte order irrelevant)
-        // already padded but NOT including evio header.
-        byte[] rawBytes = BaseStructure.stringsToRawBytes(new String[]{string});
-
-        // Create array in which to store bank
-        byte[] bank = new byte[rawBytes.length + 8];
-
-        // Write evio header into bank
-        try {
-            ByteDataTransformer.toBytes(
-                // Set bank's length, tag, num, content type = string
-                new int[] {rawBytes.length/4 + 1,
-                           (tag << 16) | (DataType.CHARSTAR8.getValue() << 8) | num},
-                order, bank, 0
-            );
-        }
-        catch (EvioException e) {/* never happen */}
-
-        // Write data into bank
-        System.arraycopy(rawBytes, 0, bank, 8, rawBytes.length);
-
-        return bank;
-    }
+   }
 
 
     /**
      * This method takes an EvioNode object and converts it to an EvioEvent object.
      * @param node EvioNode object to EvioEvent
-     * @return event object
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
     final static public EvioEvent nodeToEvent(EvioNode node) throws EvioException {
@@ -1021,10 +885,22 @@ if (debug) System.out.println("    comp START_ELEMENT " + name + ":");
                         }
 
                         // This attribute will never appear together with "count"
-                        attr = se.getAttributeByName(new QName("n"));
+                        attr = se.getAttributeByName(new QName("N"));
                         if (attr != null) {
                             repeats = Integer.parseInt(attr.getValue());
                             cData[cDataCount].addN(repeats);
+                        }
+
+                        attr = se.getAttributeByName(new QName("n"));
+                        if (attr != null) {
+                            repeats = Integer.parseInt(attr.getValue());
+                            cData[cDataCount].addn((short)repeats);
+                        }
+
+                        attr = se.getAttributeByName(new QName("m"));
+                        if (attr != null) {
+                            repeats = Integer.parseInt(attr.getValue());
+                            cData[cDataCount].addm((byte)repeats);
                         }
                     }
                     catch (NumberFormatException e) {
@@ -1668,16 +1544,16 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * This method takes an EvioNode object and converts it to a readable, XML String.
      * @param node EvioNode object to print out
      * @param hex  if true, ints get displayed in hexadecimal
-     * @return string representation of node.
+     * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
-    final static public String toXML(EvioNode node, boolean hex) {
+    final static public String toXML(EvioNode node, boolean hex) throws EvioException {
 
         if (node == null) {
             return null;
         }
 
         StringWriter sWriter = null;
-        XMLStreamWriter xmlWriter;
+        XMLStreamWriter xmlWriter = null;
         try {
             sWriter = new StringWriter();
             xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sWriter);
