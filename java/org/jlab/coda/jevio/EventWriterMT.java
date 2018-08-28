@@ -1036,6 +1036,82 @@ public class EventWriterMT {
         }
     }
 
+// TODO: Next to add method that takes ByteBuffer arg
+//    /**
+//     * Set an event which will be written to the file/buffer as
+//     * well as to all split files. It's called the "first event" as it will be the
+//     * first event written to each split file (after the dictionary) if this method
+//     * is called early enough or the first event was defined in the constructor.<p>
+//     *
+//     * Since this method is always called after the constructor, the common block will
+//     * have already been written with a dictionary and firstEvent if either was
+//     * defined in the constructor. The event given here will be written
+//     * immediately somewhere in the body of the file, with the forth-coming split
+//     * files having that event in the first block along with any dictionary.<p>
+//     *
+//     * This means that if the firstEvent is given in the constructor, then the
+//     * caller may end up with 2 copies of it in a single file (if this method
+//     * is called once). It's also possible to get 2 copies in a file if this
+//     * method is called immediately prior to the file splitting.<p>
+//     *
+//     * By its nature this method is not useful for writing to a buffer since
+//     * it is never split and the event can be written to it as any other.<p>
+//     *
+//     * The method {@link #writeEvent} calls writeCommonBlock() which, in turn,
+//     * only gets called when synchronized. So synchronizing this method will
+//     * make sure firstEvent only gets set while nothing is being written.
+//     *
+//     * @param buffer buffer containing event to be placed first in each file written
+//     *               including all splits. If null, no more first events are written
+//     *               to any files.
+//     */
+//    synchronized public void setFirstEvent(ByteBuffer buffer)
+//            throws EvioException, IOException {
+//
+//        // If getting rid of the first event ...
+//        if (buffer == null) {
+//            if (xmlDictionary != null) {
+//                commonBlockCount = 1;
+//                commonBlockByteSize = dictionaryBytes;
+//            }
+//            else {
+//                commonBlockCount = 0;
+//                commonBlockByteSize = 0;
+//            }
+//            firstEventBytes = 0;
+//            firstEventByteArray = null;
+//            haveFirstEvent = false;
+//            return;
+//        }
+//
+//        // Find the first event's bytes and the memory size needed
+//        // to contain the common events (dictionary + first event).
+//        if (xmlDictionary != null) {
+//            commonBlockCount = 1;
+//            commonBlockByteSize = dictionaryBytes;
+//        }
+//        else {
+//            commonBlockCount = 0;
+//            commonBlockByteSize = 0;
+//        }
+//
+//        // Copy the buffer arg & get it ready to read
+//        int totalEventLength = buffer.remaining();
+//        ByteBuffer buf = ByteBuffer.allocate(totalEventLength);
+//        buf.put(buffer).limit(totalEventLength).position(0);
+//
+//        firstEventBytes = buf.array().length;
+//        firstEventByteArray = buf.array();
+//        commonBlockByteSize += firstEventBytes;
+//        commonBlockCount++;
+//        haveFirstEvent = true;
+//
+//        // Write it to the file/buffer now. In this case it may not be the
+//        // first event written and some splits may not even have it
+//        // (depending on how many events have been written so far).
+//        writeEvent(null, buf, false);
+//    }
+
 
     /**
      * Set an event which will be written to the file/buffer as
@@ -1118,7 +1194,7 @@ public class EventWriterMT {
             }
 
             // Turn dictionary data into bytes as an evio event
-            dictionaryByteArray = Utilities.stringToBank(xmlDictionary, 0, 0, byteOrder);
+            dictionaryByteArray = Utilities.stringToBank(xmlDictionary, (short)0, (byte)0, byteOrder);
 
             // Add to record which will be our file header's "user header"
             commonRecord.addEvent(dictionaryByteArray);
