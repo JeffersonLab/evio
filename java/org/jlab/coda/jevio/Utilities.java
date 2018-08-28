@@ -345,7 +345,7 @@ final public class Utilities {
      * @param bytes     number of bytes to print in hex
      * @param label     a label to print as header
      */
-    final static public void printBufferBytes(ByteBuffer buf, int position, int bytes, String label) {
+    final static public void printBytes(ByteBuffer buf, int position, int bytes, String label) {
 
         if (buf == null) {
             System.out.println("printBuffer: buf arg is null");
@@ -373,6 +373,120 @@ final public class Utilities {
 
         buf.position(origPos);
    }
+
+
+    /**
+     * This method takes a byte array and prints out the desired number of bytes
+     * from the given index. Prints all bytes.
+     *
+     * @param array   byte array to print out
+     * @param offset  offset into array to start printing
+     * @param bytes   number of bytes to print in hex
+     * @param label   a label to print as header
+     */
+    final static public void printBytes(byte[] array, int offset, int bytes, String label) {
+
+        if (array == null) {
+            System.out.println("printBuffer: array arg is null");
+            return;
+        }
+
+        if (offset < 0 || bytes < 0) {
+            System.out.println("printBuffer: offset and bytes args must be >= 0");
+            return;
+        }
+
+        int limit = bytes + offset > array.length ? array.length : bytes + offset;
+
+        if (label != null) System.out.println(label + ":");
+
+        for (int i = offset; i < limit; i++) {
+            if (i%20 == 0) {
+                System.out.print("\n  array[" + (i + 1) + "-" + (i + 20) + "] =  ");
+            }
+            else if (i%4 == 0) {
+                System.out.print("  ");
+            }
+
+            System.out.print(String.format("%02x", array[i]));
+        }
+        System.out.println();
+        System.out.println();
+    }
+
+
+    /**
+     * Method to create a byte array representing a bank with one string as data.
+     * Not the most efficient implementation.
+     * @param text  string to use as data.
+     * @param tag   bank's tag.
+     * @param num   bank's num.
+     * @param order byte order of returned bank. If null use big endian.
+     * @return byte array containing evio bank with string data. Null if text is null.
+     */
+    final static public byte[] stringToBank(String text, short tag,
+                                            byte num, ByteOrder order) {
+
+        if (text  == null) return null;
+        if (order == null) order = ByteOrder.BIG_ENDIAN;
+
+        // Turn string data into bytes
+        byte[] data = BaseStructure.stringsToRawBytes(new String[] {text});
+        // Create room for data + 2-int header
+        byte[] bank = new byte[data.length + 8];
+        // Copy data into bank array
+        System.arraycopy(data, 0, bank, 8, data.length);
+
+        // Set bank header length
+        int bankLen = (data.length/4 + 1);
+
+        try {
+            // Write 1st header word
+            ByteDataTransformer.toBytes(bankLen, order, bank, 0);
+
+            // Write 2nd header word
+            if (order == ByteOrder.BIG_ENDIAN) {
+                ByteDataTransformer.toBytes(tag, order, bank, 4);
+                bank[6] = (byte)(DataType.BANK.getValue() & 0x3f); // no padding
+                bank[7] = num;
+            }
+            else {
+                bank[4] = num;
+                bank[5] = (byte)(DataType.BANK.getValue() & 0x3f); // no padding
+                ByteDataTransformer.toBytes(tag, order, bank, 6);
+            }
+        }
+        catch (EvioException e) {/* never happen */}
+
+        return bank;
+    }
+
+
+    /**
+     * Method to create a byte array representing a bank.
+     * @param bank  bank to encode.
+     * @param order byte order of returned bank. If null use big endian.
+     * @return byte array containing evio bank as byte array. Null if bank is null.
+     */
+    final static public byte[] bankToBytes(EvioBank bank, ByteOrder order) {
+
+        if (bank  == null) return null;
+        if (order == null) order = ByteOrder.BIG_ENDIAN;
+
+        byte[] bankArray = bank.toArray();
+
+        if (order == bank.getByteOrder()) {
+            return bankArray;
+        }
+
+        ByteBuffer bankBuf = ByteBuffer.wrap(bankArray);
+        try {
+            ByteDataTransformer.swapEvent(bankBuf, null, 0, 0);
+        }
+        catch (EvioException e) {/* never happen */}
+
+        return bankArray;
+    }
 
 
     /**
@@ -428,6 +542,38 @@ final public class Utilities {
         }
 
         return event;
+    }
+
+
+    /**
+     * Return the power of 2 closest to the given argument.
+     *
+     * @param x value to get the power of 2 closest to.
+     * @param roundUp if true, round up, else down
+     * @return -1 if x is negative or the closest power of 2 to value
+     */
+    static final public int powerOfTwo(int x, boolean roundUp) {
+        if (x < 0) return -1;
+
+        // The following algorithms are found in
+        // "Hacker's Delight" by Henry Warren Jr.
+
+        if (roundUp) {
+            x = x - 1;
+            x |= (x>>1);
+            x |= (x>>2);
+            x |= (x>>4);
+            x |= (x>>8);
+            x |= (x>>16);
+            return x + 1;
+        }
+
+        int y;
+        do {
+            y = x;
+            x &= (x - 1);
+        } while (x != 0);
+        return y;
     }
 
 
