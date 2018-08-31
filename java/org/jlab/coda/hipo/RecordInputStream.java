@@ -223,7 +223,18 @@ public class RecordInputStream {
         //System.out.println(" reading from " + offset + "  length = " + event.length);
         return event;
     }
-    
+    /**
+     * Returns the length of the event with given index.
+     * @param index index of the event
+     * @return length of the data in bytes.
+     */
+    public int getEventLength(int index){
+        if(index<0||index>=getEntries()) return 0;
+        int firstPosition = dataBuffer.getInt((index - 1) * 4);
+        int lastPosition = dataBuffer.getInt(index * 4);
+        int length = lastPosition - firstPosition;
+        return length;
+    }
     /**
      * Get the event at the given index and write it into the given byte buffer.
      * The given byte buffer has to be large enough to receive all the event's data,

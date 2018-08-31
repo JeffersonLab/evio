@@ -332,6 +332,11 @@ public class Reader {
      */
     public int getRecordCount() {return recordPositions.size();}
 
+    /**
+     * Returns the list of record positions in the file.
+     * @return 
+     */
+    public List<RecordPosition> getRecordPositions(){ return this.recordPositions;}
     // Methods for current record
 
     /**
@@ -989,7 +994,7 @@ public class Reader {
      * Each entry keeps record position in the file/buffer, length of
      * the record and number of entries contained.
      */
-    private static class RecordPosition {
+    public static class RecordPosition {
         /** Position in file/buffer. */
         private long position;
         /** Length in bytes. */
