@@ -1309,7 +1309,7 @@ public final class CompositeData {
         boolean debug = false;
 
         ArrayList<Integer> ifmt = new ArrayList<Integer>(2*fmt.length());
-        int ifmtLen = ifmt.size();
+//        int ifmtLen = ifmt.size();
 
         n   = 0; // ifmt[] index
         nr  = 0;
@@ -1346,7 +1346,7 @@ public final class CompositeData {
             // a left parenthesis -> 16*nr + 0
             else if (ch == '(')  {
                 if (nr < 0) throw new EvioException("no negative repeats");
-                if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
+//                if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
                 lev++;
 
                 if (debug) {
@@ -1381,7 +1381,7 @@ public final class CompositeData {
             // a right parenthesis -> (0<<8) + 0
             else if (ch == ')') {
                 if (nr >= 0) throw new EvioException("cannot repeat right parenthesis");
-                if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
+//                if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
                 lev--;
                 ifmt.add(0);
                 n++;
@@ -1447,7 +1447,7 @@ public final class CompositeData {
                     }
 
                     if (nr < 0) throw new EvioException("no negative repeats");
-                    if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
+//                    if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
 
                     int ifmtVal = ((max(nn,nr) & 0x3F) << 8) + kf;
 
