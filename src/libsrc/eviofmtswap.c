@@ -24,6 +24,23 @@
 
 #define MIN(a,b) ( (a) < (b) ? (a) : (b) )
 
+#define SWAP64(x) ( (((x) & 0x00000000000000ff) << 56) | \
+                    (((x) & 0x000000000000ff00) << 40) | \
+                    (((x) & 0x0000000000ff0000) << 24) | \
+                    (((x) & 0x00000000ff000000) <<  8) | \
+                    (((x) & 0x000000ff00000000) >>  8) | \
+                    (((x) & 0x0000ff0000000000) >> 24) | \
+                    (((x) & 0x00ff000000000000) >> 40) | \
+                    (((x) & 0xff00000000000000) >> 56) )
+
+#define SWAP32(x) ( (((x) & 0x000000ff) << 24) | \
+                    (((x) & 0x0000ff00) <<  8) | \
+                    (((x) & 0x00ff0000) >>  8) | \
+                    (((x) & 0xff000000) >> 24) )
+
+#define SWAP16(x) ( (((x) & 0x00ff) << 8) | \
+                    (((x) & 0xff00) >> 8) )
+
 typedef struct {
     int left;    /* index of ifmt[] element containing left parenthesis */
     int nrepeat; /* how many times format in parenthesis must be repeated */
@@ -51,20 +68,19 @@ typedef struct {
  *
  * @param iarr    pointer to data to be swapped
  * @param nwrd    number of data words (32-bit ints) to be swapped
- * @param ifmt    unsigned char array holding translated format
- * @param nfmt    length of unsigned char array, ifmt, in # of chars
+ * @param ifmt    unsigned short array holding translated format
+ * @param nfmt    length of unsigned short array, ifmt, in # of shorts
  * @param tolocal if 0 data is of same endian as local host,
  *                else data is of opposite endian
- * @param padding number of bytes from end of valid composite
- *                data to four-byte boundary.
- * 
+ * @param padding number of bytes to ignore in last data word (starting from data end)
+ *
  * @return  0 if success
  * @return -1 if nwrd or nfmt arg(s) < 0
  */
 int
-eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal, int padding)
+eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal, int padding)
 {
-    int      imt, ncnf, kcnf, lev, iterm;
+    int imt, ncnf, kcnf, mcnf, lev, iterm;
     int64_t *b64, *b64end;
     int32_t *b32, *b32end;
     int16_t *b16, *b16end;
@@ -85,98 +101,110 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal,
     printf("\n=== eviofmtswap start ===\n");
 #endif
 
-    while (b8 < b8end) {
+    while (b8 < b8end)
+    {
 #ifdef DEBUG
-        printf("+++ begin = 0x%08x, end = 0x%08x\n", b8, b8end);
+      printf("+++ begin = 0x%08x, end = 0x%08x\n", b8, b8end);
 #endif
         /* get next format code */
-        while (1) {
-            imt++;
-            /* end of format statement reached, back to iterm - last parenthesis or format begining */
-            if (imt > nfmt) {
-			  imt = 0/*iterm*/; /* sergey: will always start format from the begining - for now ...*/
+      while (1)
+      {
+        imt++;
+        /* end of format statement reached, back to iterm - last parenthesis or format begining */
+        if (imt > nfmt)
+        {
+		  imt = 0/*iterm*/; /* sergey: will always start format from the begining - for now ...*/
 #ifdef DEBUG
-                printf("1\n");
+          printf("1\n");
 #endif
-            }
-            /* meet right parenthesis, so we're finished processing format(s) in parenthesis */
-            else if (ifmt[imt-1] == 0) {
-                /* increment counter */
-                lv[lev-1].irepeat++;
+        }
+        /* meet right parenthesis, so we're finished processing format(s) in parenthesis */
+        else if (ifmt[imt-1] == 0)
+        {
+          /* increment counter */
+          lv[lev-1].irepeat ++;
                 
-                /* if format in parenthesis was processed */
-                if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
-                    /* required number of times */
+          /* if format in parenthesis was processed */
+          if (lv[lev-1].irepeat >= lv[lev-1].nrepeat)
+          {
+            /* required number of times */
                     
-                    /* store left parenthesis index minus 1
-                       (if will meet end of format, will start from format index imt=iterm;
-                       by default we continue from the beginning of the format (iterm=0)) */
-                    iterm = lv[lev-1].left - 1;
-                    lev--; /* done with this level - decrease parenthesis level */
+            /* store left parenthesis index minus 1
+               (if will meet end of format, will start from format index imt=iterm;
+               by default we continue from the beginning of the format (iterm=0)) */
+            iterm = lv[lev-1].left - 1;
+            lev--; /* done with this level - decrease parenthesis level */
 #ifdef DEBUG
-                    printf("2\n");
+            printf("2\n");
 #endif
-                }
-                /* go for another round of processing by setting 'imt' to the left parenthesis */
-                else {
-                    /* points ifmt[] index to the left parenthesis from the same level 'lev' */
-                    imt = lv[lev-1].left;
+          }
+          /* go for another round of processing by setting 'imt' to the left parenthesis */
+          else
+          {
+            /* points ifmt[] index to the left parenthesis from the same level 'lev' */
+            imt = lv[lev-1].left;
 #ifdef DEBUG
-                    printf("3\n");
+            printf("3\n");
 #endif
-                }
-            }
-            else {
-                /* how many times to repeat format code */
-                ncnf = ifmt[imt-1]/16;
-                /* format code */
-                kcnf = ifmt[imt-1] - 16*ncnf;
-        
-                /* left parenthesis, SPECIAL case: # of repeats must be taken from int32 data */
-                if (kcnf == 15) {
-                    /* set it to regular left parenthesis code */
-                    kcnf = 0;
-                    /* get # of repeats from data (watch out for endianness) */
-                    b32 = (int32_t *)b8;
-                    if (!tolocal) ncnf = *b32;
-                    *b32 = EVIO_SWAP32(*b32);
-                    if (tolocal) ncnf = *b32;
-                    b8 += 4;
-#ifdef DEBUG
-                    printf("\n*1 ncnf from data = %#10.8x, b8 = 0x%08x (code 15)\n",ncnf, b8);
-#endif
-                }
+          }
+        }
+        else
+        {
+          ncnf = (ifmt[imt-1]>>8)&0x3F; /* how many times to repeat format code */
+          kcnf = ifmt[imt-1]&0xFF; /* format code */
+          mcnf = (ifmt[imt-1]>>14)&0x3; /* repeat code */
+                
+          /* left parenthesis - set new lv[] */
+          if (kcnf == 0)
+          {
 
-                /* left parenthesis, SPECIAL case: # of repeats must be taken from int16 data */
-                if (kcnf == 14) {
-                    /* set it to regular left parenthesis code */
-                    kcnf = 0;
-                    /* get # of repeats from data (watch out for endianness) */
-                    b16 = (int16_t *)b8;
-                    if (!tolocal) ncnf = *b16;
-                    *b16 = EVIO_SWAP16(*b16);
-                    if (tolocal) ncnf = *b16;
-                    b8 += 2;
-#ifdef DEBUG
-                    printf("\n*1 ncnf from data = %#10.8x, b8 = 0x%08x (code 14)\n",ncnf, b8);
-#endif
-                }
-        
+          /* check repeats for left parenthesis */
 
-                /* left parenthesis, SPECIAL case: # of repeats must be taken from int8 data */
-                if (kcnf == 13) {
-                    /* set it to regular left parenthesis code */
-                    kcnf = 0;
-                    /* get # of repeats from data (watch out for endianness) */
-                    ncnf = *((int8_t *)b8);
-                    b8 ++;
-#ifdef DEBUG
-                    printf("\n*1 ncnf from data = %#10.8x, b8 = 0x%08x (code 13)\n",ncnf, b8);
+          if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
+          {
+            mcnf = 0;
+            b32 = (uint32_t *)b8;
+            ncnf = *b32 = SWAP32(*b32); /* get #repeats from data */
+#ifdef PRINT
+            xml += sprintf(xml,"          %d(\n",ncnf);
+            /*printf("ncnf(: %d\n",ncnf);*/
 #endif
-                }
-        
-                /* left parenthesis - set new lv[] */
-                if (kcnf == 0) {
+            b8 += 4;
+#ifdef DEBUG
+            printf("ncnf from data = %d (code 15)\n",ncnf);
+#endif
+          }
+
+          if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
+          {
+            mcnf = 0;
+            b16 = (uint16_t *)b8;
+            ncnf = *b16 = SWAP16(*b16); /* get #repeats from data */
+#ifdef PRINT
+            xml += sprintf(xml,"          %d(\n",ncnf);
+            /*printf("ncnf(: %d\n",ncnf);*/
+#endif
+            b8 += 2;
+#ifdef DEBUG
+            printf("ncnf from data = %d (code 14)\n",ncnf);
+#endif
+          }
+
+          if(mcnf==3) /* left parenthesis, SPECIAL case: #repeats must be taken from int8 data */
+          {
+            mcnf = 0;
+            ncnf = *((uint8_t *)b8); /* get #repeats from data */
+#ifdef PRINT
+            xml += sprintf(xml,"          %d(\n",ncnf);
+            /*printf("ncnf(: %d\n",ncnf);*/
+#endif
+            b8 ++;
+#ifdef DEBUG
+            printf("ncnf from data = %d (code 13)\n",ncnf);
+#endif
+          }
+
+
                     /* store ifmt[] index */
                     lv[lev].left = imt;
                     /* how many time will repeat format code inside parenthesis */
@@ -190,7 +218,8 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal,
 #endif
                 }
                 /* format F or I or ... */
-                else {
+                else
+                {
                     /* there are no parenthesis, just simple format, go to processing */
                     if (lev == 0) {
 #ifdef DEBUG
@@ -210,7 +239,8 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal,
 #endif
                     }
                     /* if none of above, we are in the end of format */
-                    else {
+                    else
+                    {
                         /* set format repeat to the big number */
                         ncnf = 999999999;
 #ifdef DEBUG
@@ -223,17 +253,37 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal,
         } /* while(1) */
 
 
-        if (ncnf == 0) {
-            /* get # of repeats from data (watch out for endianness) */
-            b32 = (int32_t *)b8;
-            if (!tolocal) ncnf = *b32;
-            *b32 = EVIO_SWAP32(*b32);
-            if (tolocal) ncnf = *b32;
-            b8 += 4;
+
+    /* if 'ncnf' is zero, get it from data */
+	/*printf("ncnf=%d\n",ncnf);fflush(stdout);*/
+    if(ncnf==0)
+    {
+      if(mcnf==1)
+	  {
+        b32 = (int *)b8;
+        ncnf = *b32 = SWAP32(*b32);
+		/*printf("ncnf32=%d\n",ncnf);fflush(stdout);*/
+        b8 += 4;
+	  }
+      else if(mcnf==2)
+	  {
+        b16 = (short *)b8;
+        ncnf = *b16 = SWAP16(*b16);
+		/*printf("ncnf16=%d\n",ncnf);fflush(stdout);*/
+        b8 += 2;
+	  }
+      else if(mcnf==3)
+	  {
+        ncnf = *b8;
+		/*printf("ncnf08=%d\n",ncnf);fflush(stdout);*/
+        b8 += 1;
+	  }
+      /*else printf("ncnf00=%d\n",ncnf);fflush(stdout);*/
+
 #ifdef DEBUG
-            printf("\n*2 ncnf from data = %d\n",ncnf);
+      printf("ncnf from data = %d\n",ncnf);
 #endif
-        }
+    }
 
 
         /* At this point we are ready to process next piece of data.
@@ -250,7 +300,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal,
             b64 = (int64_t *)b8;
             b64end = b64 + ncnf;
             if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
-            while (b64 < b64end) *b64++ = EVIO_SWAP64(*b64);
+            while (b64 < b64end) *b64++ = SWAP64(*b64);
             b8 = (int8_t *)b64;
 #ifdef DEBUG
             printf("64bit: %d elements\n",ncnf);
@@ -261,7 +311,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal,
             b32 = (int32_t *)b8;
             b32end = b32 + ncnf;
             if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
-            while (b32 < b32end) *b32++ = EVIO_SWAP32(*b32);
+            while (b32 < b32end) *b32++ = SWAP32(*b32);
             b8 = (int8_t *)b32;
 #ifdef DEBUG
             printf("32bit: %d elements, b8 = 0x%08x\n",ncnf, b8);
@@ -272,7 +322,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal,
             b16 = (int16_t *)b8;
             b16end = b16 + ncnf;
             if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
-            while (b16 < b16end) *b16++ = EVIO_SWAP16(*b16);
+            while (b16 < b16end) *b16++ = SWAP16(*b16);
             b8 = (int8_t *)b16;
 #ifdef DEBUG
             printf("16bit: %d elements\n",ncnf);

@@ -76,8 +76,8 @@
 
 
 /* from Sergey's composite swap library */
-extern int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
-extern int eviofmtswap(uint32_t *iarr, int nwrd, unsigned char *ifmt, int nfmt, int tolocal, int padding);
+extern int eviofmt(char *fmt, unsigned short *ifmt, int ifmtLen);
+extern int eviofmtswap(uint32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal, int padding);
 
 /* internal prototypes */
 static void swap_bank(uint32_t *buf, int tolocal, uint32_t *dest);

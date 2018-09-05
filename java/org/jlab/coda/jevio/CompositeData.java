@@ -1266,38 +1266,38 @@ public final class CompositeData {
      *  conjunction with {@link #swapData(ByteBuffer, ByteBuffer, int, List)}
      *  to swap the endianness of composite data.
      *  It's translated from the eviofmt C function.
-     *
+     *  <pre>
      *   format code bits <- format in ascii form
-     *     [7:4] [3:0]
-     *       #     0           #'('
-     *       0    13           #'(' same as above, but have to take # from the data (8-bit), letter 'm'
-     *       0    14           #'(' same as above, but have to take # from the data (16-bit), letter 'n'
-     *       0    15           #'(' same as above, but have to take # from the data (32-bit), letter 'N'
-     *       0     0            ')'
-     *       #     1           #'i'   unsigned int
-     *       #     2           #'F'   floating point
-     *       #     3           #'a'   8-bit ASCII char (C++)
-     *       #     4           #'S'   short
-     *       #     5           #'s'   unsigned short
-     *       #     6           #'C'   char
-     *       #     7           #'c'   unsigned char
-     *       #     8           #'D'   double (64-bit float)
-     *       #     9           #'L'   long long (64-bit int)
-     *       #    10           #'l'   unsigned long long (64-bit int)`
-     *       #    11           #'I'   int
-     *       #    12           #'A'   hollerit (4-byte char with int ending)
+     *    [15:14] [13:8] [7:0]
+     *      Nnm      #     0           #'('
+     *        0      0     0            ')'
+     *      Nnm      #     1           #'i'   unsigned int
+     *      Nnm      #     2           #'F'   floating point
+     *      Nnm      #     3           #'a'   8-bit char (C++)
+     *      Nnm      #     4           #'S'   short
+     *      Nnm      #     5           #'s'   unsigned short
+     *      Nnm      #     6           #'C'   char
+     *      Nnm      #     7           #'c'   unsigned char
+     *      Nnm      #     8           #'D'   double (64-bit float)
+     *      Nnm      #     9           #'L'   long long (64-bit int)
+     *      Nnm      #    10           #'l'   unsigned long long (64-bit int)
+     *      Nnm      #    11           #'I'   int
+     *      Nnm      #    12           #'A'   hollerit (4-byte char with int endining)
      *
      *   NOTES:
-     *    1. If format ends but end of data did not reach, format in last parenthesis
+     *    1. The number of repeats '#' must be the number between 2 and 63, number 1 assumed by default
+     *    2. If the number of repeats is symbol 'N' instead of the number, it will be taken from data assuming 'int32' format;
+     *       if the number of repeats is symbol 'n' instead of the number, it will be taken from data assuming 'int16' format;
+     *       if the number of repeats is symbol 'm' instead of the number, it will be taken from data assuming 'int8' format;
+     *       Two bits Nnm [15:14], if not zero, requires to take the number of repeats from data in appropriate format:
+     *            [01] means that number is integer (N),
+     *            [10] - short (n),
+     *            [11] - char (m)
+     *    3. If format ends but end of data did not reach, format in last parenthesis
      *       will be repeated until all data processed; if there are no parenthesis
      *       in format, data processing will be started from the beginning of the format
      *       (FORTRAN agreement)
-     *    2. The number of repeats '#' must be a number between 2 and 15;
-     *       if the number of repeats is symbol 'N' instead of the number, it will be taken from data assuming 'int' format;
-     *       if the number of repeats is symbol 'n' instead of the number, it will be taken from data assuming 'short' format;
-     *       if the number of repeats is symbol 'm' instead of the number, it will be taken from data assuming 'byte' format;
-     *       NOTE: before '(' all 3 (N,n,m) can be used, without '(' only N can be used.
-     *
+     * </pre>
      *  @param  fmt composite data format string
      *  @return List of ints resulting from transformation of "fmt" string
      *  @throws EvioException if improper format string
@@ -1305,25 +1305,20 @@ public final class CompositeData {
     public static List<Integer> compositeFormatToInt(String fmt) throws EvioException {
 
         char ch;
-        int l, kf, lev, nr, nn, nb;
+        int l, n, kf, lev, nr, nn, nb;
         boolean debug = false;
 
         ArrayList<Integer> ifmt = new ArrayList<Integer>(2*fmt.length());
+        int ifmtLen = ifmt.size();
 
+        n   = 0; // ifmt[] index
         nr  = 0;
         nn  = 1;
         lev = 0;
-        nb = 0; // the number of bytes in length taken from data
-
-        // HACK
-        if (fmt.equals("c,i,l,n(s,mc)")) {
-            System.out.println("REPLACING 'c,i,l,n(s,mc)' STRING by 'c,i,l,n(s,m(c))' !");
-            fmt = "c,i,l,n(s,m(c))";
-        }
-        // HACK
+        nb  = 0; // the number of bytes in length taken from data
 
         if (debug) {
-            System.out.println("\nfmt >" + fmt + "<");
+            System.out.println("\\n=== eviofmt start, fmt >" + fmt + "< ===\n");
         }
 
         // loop over format string character-by-character
@@ -1351,28 +1346,31 @@ public final class CompositeData {
             // a left parenthesis -> 16*nr + 0
             else if (ch == '(')  {
                 if (nr < 0) throw new EvioException("no negative repeats");
+                if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
                 lev++;
 
                 if (debug) {
                     System.out.println(String.format("111: nn=%d nr=%d\n",nn,nr));
                 }
 
-                // special case: if #repeats is in data, use code '13' or '14' or '15'
+                // special case: if # repeats is in data, set bits [15:14]
                 if (nn == 0) {
-                    if (nb == 4)      ifmt.add(15);
-                    else if (nb == 2) ifmt.add(14);
-                    else if (nb == 1) ifmt.add(13);
+                    if (nb == 4)      {ifmt.add(1 << 14); n++;}
+                    else if (nb == 2) {ifmt.add(2 << 14); n++;}
+                    else if (nb == 1) {ifmt.add(3 << 14); n++;}
                     else {throw new EvioException("unknown nb = "+ nb);}
                 }
+                // # repeats hardcoded
                 else {
-                    ifmt.add(16*max(nn,nr));
+                    ifmt.add((max(nn,nr) & 0x3F) << 8);
+                    n++;
                 }
 
                 nn = 1;
                 nr = 0;
 
                 if (debug) {
-                    int ii = ifmt.size() - 1;
+                    int ii = n - 1;
                     String s = String.format("  [%3d] S%3d (16 * %2d + %2d), nr=%d\n",
                                              ii,ifmt.get(ii),ifmt.get(ii)/16,
                                              ifmt.get(ii)-(ifmt.get(ii)/16)*16,nr);
@@ -1380,15 +1378,17 @@ public final class CompositeData {
                 }
 
             }
-            // a right parenthesis -> 16*0 + 0
+            // a right parenthesis -> (0<<8) + 0
             else if (ch == ')') {
                 if (nr >= 0) throw new EvioException("cannot repeat right parenthesis");
+                if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
                 lev--;
                 ifmt.add(0);
+                n++;
                 nr = -1;
 
                 if (debug) {
-                    int ii = ifmt.size() - 1;
+                    int ii = n - 1;
                     String s = String.format("  [%3d] S%3d (16 * %2d + %2d), nr=%d\n",
                                              ii,ifmt.get(ii),ifmt.get(ii)/16,
                                              ifmt.get(ii)-(ifmt.get(ii)/16)*16,nr);
@@ -1447,12 +1447,23 @@ public final class CompositeData {
                     }
 
                     if (nr < 0) throw new EvioException("no negative repeats");
+                    if (--ifmtLen < 0) throw new EvioException("ifmt array too small (" + ifmt.size() + ")");
 
-                    ifmt.add(16*max(nn,nr) + kf);
+                    int ifmtVal = ((max(nn,nr) & 0x3F) << 8) + kf;
+
+                    if (nb > 0) {
+                        if (nb==4)      ifmtVal |= (1 << 14);
+                        else if (nb==2) ifmtVal |= (2 << 14);
+                        else if (nb==1) ifmtVal |= (3 << 14);
+                        else {throw new EvioException("unknown nb="+ nb);}
+                    }
+
+                    ifmt.add(ifmtVal);
+                    n++;
                     nn=1;
 
                     if (debug) {
-                        int ii = ifmt.size() - 1;
+                        int ii = n - 1;
                         String s = String.format("  [%3d] S%3d (16 * %2d + %2d), nr=%d\n",
                                                  ii,ifmt.get(ii),ifmt.get(ii)/16,
                                                  ifmt.get(ii)-(ifmt.get(ii)/16)*16,nr);
@@ -1470,7 +1481,7 @@ public final class CompositeData {
             throw new EvioException("mismatched number of right/left parentheses");
         }
 
-        if (debug) System.out.println();
+        if (debug) System.out.println("=== eviofmt end ===");
 
         return (ifmt);
     }
@@ -1849,7 +1860,7 @@ public final class CompositeData {
                         throws EvioException {
 
         boolean debug = false;
-        int imt, ncnf, kcnf, lev, iterm;
+        int imt, ncnf, kcnf, mcnf, lev, iterm;
 
         // check args
         if (ifmt == null || nBytes <= 0) throw new EvioException("bad argument value(s)");
@@ -1898,8 +1909,8 @@ public final class CompositeData {
         }
 
         imt   = 0;  // ifmt[] index
-        ncnf  = 0;  // how many times must repeat a format
         lev   = 0;  // parenthesis level
+        ncnf  = 0;  // how many times must repeat a format
         iterm = 0;
 
         // just past end of src data
@@ -1926,7 +1937,7 @@ public final class CompositeData {
 
         while (srcPos < srcEndIndex) {
 
-            if (debug) System.out.println(String.format("+++ %d %d\n", srcPos, srcEndIndex));
+            if (debug) System.out.println(String.format("+++ begin = %d, end = %d\n", srcPos, srcEndIndex));
 
             // get next format code
             while (true) {
@@ -1945,11 +1956,9 @@ public final class CompositeData {
                     // if format in parenthesis was processed the required number of times
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
                         // store left parenthesis index minus 1
+                        // (if will meet end of format, will start from format index imt=iterm;
+                        // by default we continue from the beginning of the format (iterm=0)) */
                         iterm = lv[lev-1].left - 1;
-
-                        // If end of format, will start from format index imt=iterm.
-                        // By default we continue from the beginning of the format (iterm=0).
-
                         // done with this level - decrease parenthesis level
                         lev--;
 
@@ -1963,55 +1972,54 @@ public final class CompositeData {
                     }
                 }
                 else {
-                    // how many times to repeat format code (higher 4 bits). Is 0 for N
-                    // ncnf = ifmt.get(imt-1)/16;
-                    ncnf = ifmt.get(imt-1) >>> 4;
-
-                    // format code (lower 4 bits)
-                    // kcnf = ifmt.get(imt-1) - 16*ncnf;
-                    kcnf = ifmt.get(imt-1) & 0xf;
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as int
-                    if (kcnf == 15) {
-                        // set it to regular left parenthesis code
-                        kcnf = 0;
-
-                        // read "N" value from buffer
-                        // (srcBuf automagically swaps in the getInt)
-                        ncnf = srcBuf.getInt(srcPos);
-
-                        // put swapped val back into buffer
-                        // (destBuf automagically swaps in the putInt)
-                        destBuf.putInt(destPos, ncnf);
-
-                        srcPos  += 4;
-                        destPos += 4;
-
-                        if (debug) System.out.println("1 ncnf from data = " + ncnf);
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as short
-                    if (kcnf == 14) {
-                        kcnf = 0;
-                        ncnf = srcBuf.getShort(srcPos);
-                        destBuf.putShort(destPos, (short)ncnf);
-                        srcPos  += 2;
-                        destPos += 2;
-                        if (debug) System.out.println("1 ncnf from data = " + ncnf);
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as byte
-                    if (kcnf == 13) {
-                        kcnf = 0;
-                        ncnf = srcBuf.get(srcPos);
-                        destBuf.put(destPos, (byte)ncnf);
-                        srcPos++;
-                        destPos++;
-                        if (debug) System.out.println("1 ncnf from data = " + ncnf);
-                    }
+                    ncnf = (ifmt.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  ifmt.get(imt-1) & 0xFF;        /* format code */
+                    mcnf = (ifmt.get(imt-1) >> 14) & 0x3;  /* repeat code */
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
+
+                        // check repeats for left parenthesis
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as int
+                        if (mcnf == 1) {
+                            // set it to regular left parenthesis code
+                            mcnf = 0;
+
+                            // read "N" value from buffer
+                            // (srcBuf automagically swaps in the getInt)
+                            ncnf = srcBuf.getInt(srcPos);
+
+                            // put swapped val back into buffer
+                            // (destBuf automagically swaps in the putInt)
+                            destBuf.putInt(destPos, ncnf);
+
+                            srcPos  += 4;
+                            destPos += 4;
+
+                            if (debug) System.out.println("ncnf from data = " + ncnf + " (code 15)");
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as short
+                        if (mcnf == 2) {
+                            mcnf = 0;
+                            ncnf = srcBuf.getShort(srcPos) & 0xffff;
+                            destBuf.putShort(destPos, (short)ncnf);
+                            srcPos  += 2;
+                            destPos += 2;
+                            if (debug) System.out.println("ncnf from data = " + ncnf + " (code 14)");
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as byte
+                        if (mcnf == 3) {
+                            mcnf = 0;
+                            ncnf = srcBuf.get(srcPos) & 0xff;
+                            destBuf.put(destPos, (byte)ncnf);
+                            srcPos++;
+                            destPos++;
+                            if (debug) System.out.println("ncnf from data = " + ncnf + " (code 13)");
+                        }
+
                         // store ifmt[] index
                         lv[lev].left = imt;
                         // how many time will repeat format code inside parenthesis
@@ -2046,23 +2054,40 @@ public final class CompositeData {
                         break;
                     }
                 }
-            }
+            } // while(true)
 
 
-            // if 'ncnf' is zero, get "N" from data (always in 'int' format)
+            // if 'ncnf' is zero, get it from data
             if (ncnf == 0) {
-                // read "N" value from buffer
-                // (srcBuf automagically swaps in the getInt)
-                ncnf = srcBuf.getInt(srcPos);
 
-                // put swapped val back into buffer
-                // (destBuf automagically swaps in the putInt)
-                destBuf.putInt(destPos, ncnf);
+                if (mcnf == 1) {
+                    // read "N" value from buffer
+                    // (srcBuf automagically swaps in the getInt)
+                    ncnf = srcBuf.getInt(srcPos);
 
-                srcPos  += 4;
-                destPos += 4;
+                    // put swapped val back into buffer
+                    // (destBuf automagically swaps in the putInt)
+                    destBuf.putInt(destPos, ncnf);
 
-                if (debug) System.out.println("ncnf from data 2 = " + ncnf);
+                    srcPos += 4;
+                    destPos += 4;
+
+                    if (debug) System.out.println("ncnf32 = " + ncnf);
+                }
+                else if (mcnf == 2) {
+                    ncnf = srcBuf.getShort(srcPos) & 0xffff;
+                    destBuf.putShort(destPos, (short)ncnf);
+                    srcPos += 2;
+                    destPos += 2;
+                    if (debug) System.out.println("ncnf16 = " + ncnf);
+                }
+                else if (mcnf == 3) {
+                    ncnf = srcBuf.get(srcPos) & 0xff;
+                    destBuf.put(destPos, (byte)ncnf);
+                    srcPos++;
+                    destPos++;
+                    if (debug) System.out.println("ncnf08 = " + ncnf);
+                }
             }
 
 
@@ -2106,7 +2131,6 @@ public final class CompositeData {
             }
             // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
-                short i;
                 int b16EndIndex = srcPos + 2*ncnf;
                 // make sure we don't go past end of data
                 if (b16EndIndex > srcEndIndex) b16EndIndex = srcEndIndex;
@@ -2124,15 +2148,6 @@ public final class CompositeData {
             else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
                 // copy characters if dest != src
                 if (!inPlace) {
-//                    byte[] b = new byte[ncnf];
-//                    srcBuf.position(srcPos);
-//                    srcBuf.get(b, 0, ncnf);
-//                    destBuf.position(destPos);
-//                    destBuf.put(b, 0, ncnf);
-//                    // Put buffers back the way they were
-//                    srcBuf.position(srcPosOrig);
-//                    destBuf.position(destPosOrig);
-
                     // Use absolute gets & puts
                     for (int j=0; j < ncnf; j++) {
                         destBuf.put(destPos+j, srcBuf.get(srcPos+j));
@@ -2140,10 +2155,12 @@ public final class CompositeData {
                 }
                 srcPos  += ncnf;
                 destPos += ncnf;
-                if (debug) System.out.println("C: %d elements " + ncnf);
+                if (debug) System.out.println("8bit: %d elements " + ncnf);
             }
 
         } //while
+
+        if (debug) System.out.println("\n=== eviofmtswap end ===");
 
         if (inPlace) {
             // If swapped in place, we need to update the buffer's byte order
@@ -2168,14 +2185,7 @@ public final class CompositeData {
                         throws EvioException {
 
         boolean debug = false;
-        int imt, ncnf, kcnf, lev, iterm;
-
-        final class LV {
-          int left;    // index of ifmt[] element containing left parenthesis "("
-          int nrepeat; // how many times format in parenthesis must be repeated
-          int irepeat; // right parenthesis ")" counter, or how many times format
-                       // in parenthesis already repeated
-        };
+        int imt, ncnf, kcnf, mcnf, lev, iterm;
 
         // check args
         if (ifmt == null || data == null || rawBuf == null) throw new EvioException("arg is null");
@@ -2190,8 +2200,8 @@ public final class CompositeData {
         }
 
         imt   = 0;  // ifmt[] index
-        ncnf  = 0;  // how many times must repeat a format
         lev   = 0;  // parenthesis level
+        ncnf  = 0;  // how many times must repeat a format
         iterm = 0;
 
         int itemIndex = 0;
@@ -2205,7 +2215,6 @@ public final class CompositeData {
                 imt++;
                 // end of format statement reached, back to iterm - last parenthesis or format begining
                 if (imt > nfmt) {
-                    //imt = iterm;
                     imt = 0;
                 }
                 // meet right parenthesis, so we're finished processing format(s) in parenthesis
@@ -2217,10 +2226,6 @@ public final class CompositeData {
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
                         // store left parenthesis index minus 1
                         iterm = lv[lev-1].left - 1;
-
-                        // If end of format, will start from format index imt=iterm.
-                        // By default we continue from the beginning of the format (iterm=0).
-
                         // done with this level - decrease parenthesis level
                         lev--;
                     }
@@ -2231,64 +2236,63 @@ public final class CompositeData {
                     }
                 }
                 else {
-                    // how many times to repeat format code (higher 4 bits). Is 0 for N
-                    // ncnf = ifmt.get(imt-1)/16;
-                    ncnf = ifmt.get(imt-1) >>> 4;
-
-                    // format code (lower 4 bits)
-                    // kcnf = ifmt.get(imt-1) - 16*ncnf;
-                    kcnf = ifmt.get(imt-1) & 0xf;
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as int
-                    if (kcnf == 15) {
-                        // set it to regular left parenthesis code
-                        kcnf = 0;
-
-                        // get "N" value from List
-                        if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                            throw new EvioException("Data type mismatch");
-                        }
-                        ncnf = (Integer)data.dataItems.get(itemIndex++);
-if (debug) System.out.println("N 1 from list = " + ncnf);
-
-                        // put into buffer (relative put)
-                        rawBuf.putInt(ncnf);
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as short
-                    if (kcnf == 14) {
-                        kcnf = 0;
-
-                        // get "n" value from List
-                        if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                            throw new EvioException("Data type mismatch");
-                        }
-                        // Get rid of sign extension to allow n to be unsigned
-                        ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
-if (debug) System.out.println("n 1 from list = " + ncnf);
-
-                        // put into buffer (relative put)
-                        rawBuf.putShort((short)ncnf);
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as byte
-                    if (kcnf == 13) {
-                        kcnf = 0;
-
-                        // get "m" value from List
-                        if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                            throw new EvioException("Data type mismatch");
-                        }
-                        // Get rid of sign extension to allow n to be unsigned
-                        ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
-if (debug) System.out.println("m 1 from list = " + ncnf);
-
-                        // put into buffer (relative put)
-                        rawBuf.put((byte)ncnf);
-                    }
+                    ncnf = (ifmt.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  ifmt.get(imt-1) & 0xFF;        /* format code */
+                    mcnf = (ifmt.get(imt-1) >> 14) & 0x3;  /* repeat code */
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
+
+                        // check repeats for left parenthesis
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as int
+                        if (mcnf == 1) {
+                            // set it to regular left parenthesis code
+                            mcnf = 0;
+
+                            // get "N" value from List
+                            if (data.dataTypes.get(itemIndex) != DataType.INT32) {
+                                throw new EvioException("Data type mismatch");
+                            }
+                            ncnf = (Integer)data.dataItems.get(itemIndex++);
+                            if (debug) System.out.println("ncnf from list = " + ncnf + " (code 15)");
+
+                            // put into buffer (relative put)
+                            rawBuf.putInt(ncnf);
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as short
+                        if (mcnf == 2) {
+                            mcnf = 0;
+
+                            // get "n" value from List
+                            if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
+                                throw new EvioException("Data type mismatch");
+                            }
+                            // Get rid of sign extension to allow n to be unsigned
+                            ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
+                            if (debug) System.out.println("ncnf from list = " + ncnf + " (code 14)");
+
+                            // put into buffer (relative put)
+                            rawBuf.putShort((short)ncnf);
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as byte
+                        if (mcnf == 3) {
+                            mcnf = 0;
+
+                            // get "m" value from List
+                            if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
+                                throw new EvioException("Data type mismatch");
+                            }
+                            // Get rid of sign extension to allow m to be unsigned
+                            ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
+                            if (debug) System.out.println("ncnf from list = " + ncnf + " (code 13)");
+
+                            // put into buffer (relative put)
+                            rawBuf.put((byte)ncnf);
+                        }
+
                         // store ifmt[] index
                         lv[lev].left = imt;
                         // how many time will repeat format code inside parenthesis
@@ -2317,21 +2321,42 @@ if (debug) System.out.println("m 1 from list = " + ncnf);
                         break;
                     }
                 }
-            }
+            } // while(true)
 
 
-            // if 'ncnf' is zero, get "N" from list (always in 'int' format)
+            // if 'ncnf' is zero, get N,n,m from list
             if (ncnf == 0) {
-                // get "N" value from List
-                if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                    throw new EvioException("Data type mismatch");
+
+                if (mcnf == 1) {
+                    // get "N" value from List
+                    if (data.dataTypes.get(itemIndex) != DataType.INT32) {
+                        throw new EvioException("Data type mismatch");
+                    }
+                    ncnf = (Integer) data.dataItems.get(itemIndex++);
+
+                    // put into buffer (relative put)
+                    rawBuf.putInt(ncnf);
+
+                    if (debug) System.out.println("ncnf32 = " + ncnf);
                 }
-                ncnf = (Integer)data.dataItems.get(itemIndex++);
-
-                // put into buffer (relative put)
-                rawBuf.putInt(ncnf);
-
-if (debug) System.out.println("N 2 from list = " + ncnf);
+                else if (mcnf == 2) {
+                    // get "n" value from List
+                    if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
+                        throw new EvioException("Data type mismatch");
+                    }
+                    ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
+                    rawBuf.putShort((short)ncnf);
+                    if (debug) System.out.println("ncnf16 = " + ncnf);
+                 }
+                 else if (mcnf == 3) {
+                    // get "m" value from List
+                    if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
+                        throw new EvioException("Data type mismatch");
+                    }
+                    ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
+                    rawBuf.put((byte)ncnf);
+                    if (debug) System.out.println("ncnf08 = " + ncnf);
+                 }
             }
 
 
@@ -2476,9 +2501,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                 default:
             }
-
-        } //while
-
+        }
     }
 
 
@@ -2491,17 +2514,10 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
     public void process() {
 
         boolean debug = false;
-        int imt, ncnf, kcnf, lev, iterm;
+        int imt, ncnf, kcnf, mcnf, lev, iterm;
 
         // size of int list
         int nfmt = formatInts.size();
-
-        final class LV {
-          int left;    // index of formatInts[] element containing left parenthesis "("
-          int nrepeat; // how many times format in parenthesis must be repeated
-          int irepeat; // right parenthesis ")" counter, or how many times format
-                       // in parenthesis already repeated
-        };
 
         items = new ArrayList<Object>(100);
         types = new ArrayList<DataType>(100);
@@ -2515,8 +2531,8 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         }
 
         imt   = 0;  // formatInts[] index
-        ncnf  = 0;  // how many times must repeat a format
         lev   = 0;  // parenthesis level
+        ncnf  = 0;  // how many times must repeat a format
         iterm = 0;
 
         // start of data, index into data array
@@ -2533,7 +2549,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 imt++;
                 // end of format statement reached, back to iterm - last parenthesis or format begining
                 if (imt > nfmt) {
-                    //imt = iterm;
                     imt = 0;
                 }
                 // meet right parenthesis, so we're finished processing format(s) in parenthesis
@@ -2545,10 +2560,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
                         // store left parenthesis index minus 1
                         iterm = lv[lev-1].left - 1;
-
-                        // If end of format, will start from format index imt=iterm.
-                        // By default we continue from the beginning of the format (iterm=0).
-
                         // done with this level - decrease parenthesis level
                         lev--;
                     }
@@ -2559,68 +2570,59 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     }
                 }
                 else {
-                    // how many times to repeat format code (higher 4 bits). Is 0 for N
-                    // ncnf = formatInts.get(imt-1)/16;
-                    ncnf = formatInts.get(imt-1) >>> 4;
 
-                    // format code (lower 4 bits)
-                    // kcnf = formatInts.get(imt-1) - 16*ncnf;
-                    kcnf = formatInts.get(imt-1) & 0xf;
+                    ncnf = (formatInts.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  formatInts.get(imt-1) & 0xFF;        /* format code */
+                    mcnf = (formatInts.get(imt-1) >> 14) & 0x3;  /* repeat code */
 
-                    // left parenthesis, SPECIAL case: #repeats must be taken from int data
-                    if (kcnf == 15) {
-                        // set it to regular left parenthesis code
-                        kcnf = 0;
-
-                        // read "N" value from buffer
-                        ncnf = dataBuffer.getInt(dataIndex);
-
-                        NList.add(ncnf);
-                        items.add(ncnf);
-                        types.add(DataType.NVALUE);
-
-                        dataIndex += 4;
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from short data
-                    if (kcnf == 14) {
-                        // set it to regular left parenthesis code
-                        kcnf = 0;
-
-                        // read "n" value from buffer
-                        ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
-
-                        nList.add((short)ncnf);
-                        items.add((short)ncnf);
-                        types.add(DataType.nVALUE);
-
-                        dataIndex += 2;
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from byte data
-                    if (kcnf == 13) {
-                        // set it to regular left parenthesis code
-                        kcnf = 0;
-
-                        // read "m" value from buffer
-                        ncnf = (dataBuffer.get(dataIndex)) & 0xff;
-
-                        mList.add((byte)ncnf);
-                        items.add((byte)ncnf);
-                        types.add(DataType.mVALUE);
-
-                        dataIndex++;
-                    }
-
-                   // left parenthesis - set new lv[]
+                    // left parenthesis - set new lv[]
                     if (kcnf == 0) {
-                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
-                            iterm = imt-1;
-                            while (formatInts.get(imt-1) != 0) {
-                                imt++;
-                            }
-                            continue;
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from int data
+                        if (mcnf == 1) {
+                            // set it to regular left parenthesis code
+                            mcnf = 0;
+
+                            // read "N" value from buffer
+                            ncnf = dataBuffer.getInt(dataIndex);
+
+                            NList.add(ncnf);
+                            items.add(ncnf);
+                            types.add(DataType.NVALUE);
+
+                            dataIndex += 4;
                         }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from short data
+                        if (mcnf == 2) {
+                            mcnf = 0;
+                            // read "n" value from buffer
+                            ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                            nList.add((short)ncnf);
+                            items.add((short)ncnf);
+                            types.add(DataType.nVALUE);
+                            dataIndex += 2;
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from byte data
+                        if (mcnf == 3) {
+                            mcnf = 0;
+                            // read "m" value from buffer
+                            ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                            mList.add((byte)ncnf);
+                            items.add((byte)ncnf);
+                            types.add(DataType.mVALUE);
+                            dataIndex++;
+                        }
+
+//                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
+//                            iterm = imt-1;
+//                            while (formatInts.get(imt-1) != 0) {
+//                                imt++;
+//                            }
+//                            continue;
+//                        }
+
                         // store formatInts[] index
                         lv[lev].left = imt;
                         // how many time will repeat format code inside parenthesis
@@ -2649,18 +2651,35 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                         break;
                     }
                 }
-            }
+            } // while(true)
 
 
-            // if 'ncnf' is zero, get "N" from data (always in 'int' format)
+            // if 'ncnf' is zero, get N,n,m from list
             if (ncnf == 0) {
-                // read "N" value from buffer
-                ncnf = dataBuffer.getInt(dataIndex);
-
-                NList.add(ncnf);
-                items.add(ncnf);
-                types.add(DataType.NVALUE);
-                dataIndex += 4;
+                if (mcnf == 1) {
+                    // read "N" value from buffer
+                    ncnf = dataBuffer.getInt(dataIndex);
+                    NList.add(ncnf);
+                    items.add(ncnf);
+                    types.add(DataType.NVALUE);
+                    dataIndex += 4;
+                }
+                else if (mcnf == 2) {
+                    // read "n" value from buffer
+                    ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                    nList.add((short)ncnf);
+                    items.add((short)ncnf);
+                    types.add(DataType.nVALUE);
+                    dataIndex += 2;
+                }
+                else if (mcnf == 3) {
+                    // read "m" value from buffer
+                    ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                    mList.add((byte)ncnf);
+                    items.add((byte)ncnf);
+                    types.add(DataType.mVALUE);
+                    dataIndex++;
+                }
             }
 
 
@@ -2691,7 +2710,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     }
                     // 64 bit int/uint
                     else {
-                        // Autobox to Long object and store as Object
                         items.add(lng);
                     }
 
@@ -2747,8 +2765,9 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 int b8EndIndex = dataIndex + ncnf;
                 // make sure we don't go past end of data
                 if (b8EndIndex > endIndex) {
-                    b8EndIndex = endIndex;
-                    ncnf = endIndex - b8EndIndex;
+                    //b8EndIndex = endIndex;
+                    //ncnf = endIndex - b8EndIndex; // BUG found 9/5/2018
+                    ncnf = endIndex - dataIndex;
                 }
 
                 dataBuffer.position(dataIndex);
@@ -2915,10 +2934,10 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         }
 
         int imt   = 0;  // formatInts[] index
-        int ncnf  = 0;  // how many times must repeat a format
         int lev   = 0;  // parenthesis level
+        int ncnf  = 0;  // how many times must repeat a format
         int iterm = 0;
-        int kcnf;
+        int kcnf, mcnf;
         int rowNumber = 2;
 
         // start of data, index into data array
@@ -3038,43 +3057,43 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     }
                 }
                 else {
-                    // how many times to repeat format code (higher 4 bits). Is 0 for N
-                    ncnf = formatInts.get(imt-1) >>> 4;
-
-                    // format code (lower 4 bits)
-                    kcnf = formatInts.get(imt-1) & 0xf;
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from int data
-                    if (kcnf == 15) {
-                        kcnf = 0;
-                        // read "N" value from buffer
-                        ncnf = dataBuffer.getInt(dataIndex);
-                        dataIndex += 4;
-                        repeatFromN = true;
-                        Nnm = 1;
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from short data
-                    if (kcnf == 14) {
-                        kcnf = 0;
-                        // read "n" value from buffer
-                        ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
-                        dataIndex += 2;
-                        repeatFromN = true;
-                        Nnm = 2;
-                    }
-                    // left parenthesis, SPECIAL case: #repeats must be taken from byte data
-                    if (kcnf == 13) {
-                        kcnf = 0;
-                        // read "m" value from buffer
-                        ncnf = (dataBuffer.get(dataIndex)) & 0xff;
-                        dataIndex++;
-                        repeatFromN = true;
-                        Nnm = 3;
-                    }
+                    ncnf = (formatInts.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  formatInts.get(imt-1) & 0xFF;        /* format code */
+                    mcnf = (formatInts.get(imt-1) >> 14) & 0x3;  /* repeat code */
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from int data
+                        if (mcnf == 1) {
+                            mcnf = 0;
+                            // read "N" value from buffer
+                            ncnf = dataBuffer.getInt(dataIndex);
+                            dataIndex += 4;
+                            repeatFromN = true;
+                            Nnm = 1;
+                        }
+                        // left parenthesis, SPECIAL case: #repeats must be taken from short data
+                        if (mcnf == 2) {
+                            mcnf = 0;
+                            // read "n" value from buffer
+                            ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                            dataIndex += 2;
+                            repeatFromN = true;
+                            Nnm = 2;
+                        }
+                        // left parenthesis, SPECIAL case: #repeats must be taken from byte data
+                        if (mcnf == 3) {
+                            mcnf = 0;
+                            // read "m" value from buffer
+                            ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                            dataIndex++;
+                            repeatFromN = true;
+                            Nnm = 3;
+                        }
+
+                        // left parenthesis - set new lv[]
+
                         xmlWriter.writeCharacters("\n");
                         xmlWriter.writeCharacters(bs.xmlIndent);
                         xmlWriter.writeStartElement("repeat");
@@ -3097,22 +3116,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                         xmlWriter.writeCharacters(bs.xmlIndent);
                         xmlWriter.writeStartElement("paren");
 
-                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
-                            iterm = imt-1;
-                            while (formatInts.get(imt-1) != 0) {
-                                imt++;
-                            }
-                            xmlWriter.writeCharacters("\n");
-                            xmlWriter.writeCharacters(bs.xmlIndent);
-                            xmlWriter.writeEndElement();// </paren>
-
-                            bs.decreaseXmlIndent();
-                            xmlWriter.writeCharacters("\n");
-                            xmlWriter.writeCharacters(bs.xmlIndent);
-                            xmlWriter.writeEndElement();// </repeat>
-                            repeat--;
-                            continue;
-                        }
                         lv[lev].left = imt;
                         lv[lev].nrepeat = ncnf;
                         lv[lev].irepeat = 0;
@@ -3136,12 +3139,28 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 }
             }
 
-            // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
-                // read "N" value from buffer
-                ncnf = dataBuffer.getInt(dataIndex);
-                dataIndex += 4;
-                repeatFromN = true;
+                if (mcnf == 1) {
+                    // read "N" value from buffer
+                    ncnf = dataBuffer.getInt(dataIndex);
+                    dataIndex += 4;
+                    repeatFromN = true;
+                    Nnm = 1;
+                }
+                if (mcnf == 2) {
+                    // read "n" value from buffer
+                    ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                    dataIndex += 2;
+                    repeatFromN = true;
+                    Nnm = 2;
+                }
+                if (mcnf == 3) {
+                    // read "m" value from buffer
+                    ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                    dataIndex++;
+                    repeatFromN = true;
+                    Nnm = 3;
+                }
             }
 
             // If 64-bit
@@ -3164,7 +3183,12 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 }
 
                 if (repeatFromN) {
-                    xmlWriter.writeAttribute("N", ""+ncnf);
+                    if (Nnm == 2)
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    else if (Nnm == 3)
+                        xmlWriter.writeAttribute("m", ""+ncnf);
+                    else
+                        xmlWriter.writeAttribute("N", ""+ncnf);
                 }
                 else {
                     xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3247,7 +3271,12 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 }
 
                 if (repeatFromN) {
-                    xmlWriter.writeAttribute("N", ""+ncnf);
+                    if (Nnm == 2)
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    else if (Nnm == 3)
+                        xmlWriter.writeAttribute("m", ""+ncnf);
+                    else
+                        xmlWriter.writeAttribute("N", ""+ncnf);
                 }
                 else {
                     xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3273,7 +3302,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
                     // float
                     if (kcnf == 2) {
-                        f = Float.intBitsToFloat(i) ;
+                        f = Float.intBitsToFloat(i);
                         xmlWriter.writeCharacters(String.format("%15.8g  ",f));
                     }
                     else if (hex) {
@@ -3320,7 +3349,12 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                 }
 
                 if (repeatFromN) {
-                    xmlWriter.writeAttribute("N", ""+ncnf);
+                    if (Nnm == 2)
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    else if (Nnm == 3)
+                        xmlWriter.writeAttribute("m", ""+ncnf);
+                    else
+                        xmlWriter.writeAttribute("N", ""+ncnf);
                 }
                 else {
                     xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3383,7 +3417,12 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     xmlWriter.writeStartElement("string");
 
                     if (repeatFromN) {
-                        xmlWriter.writeAttribute("N", ""+ncnf);
+                        if (Nnm == 2)
+                            xmlWriter.writeAttribute("n", ""+ncnf);
+                        else if (Nnm == 3)
+                            xmlWriter.writeAttribute("m", ""+ncnf);
+                        else
+                            xmlWriter.writeAttribute("N", ""+ncnf);
                     }
                     else {
                         xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3418,7 +3457,12 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     }
 
                     if (repeatFromN) {
-                        xmlWriter.writeAttribute("N", ""+ncnf);
+                        if (Nnm == 2)
+                            xmlWriter.writeAttribute("n", ""+ncnf);
+                        else if (Nnm == 3)
+                            xmlWriter.writeAttribute("m", ""+ncnf);
+                        else
+                            xmlWriter.writeAttribute("N", ""+ncnf);
                     }
                     else {
                         xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3522,10 +3566,10 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
         }
 
         int imt   = 0;  // formatInts[] index
-        int ncnf  = 0;  // how many times must repeat a format
         int lev   = 0;  // parenthesis level
+        int ncnf  = 0;  // how many times must repeat a format
         int iterm = 0;
-        int kcnf;
+        int kcnf, mcnf;
         int rowNumber = 2;
 
         // start of data, index into data array
@@ -3645,45 +3689,45 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                     }
                 }
                 else {
-                    // how many times to repeat format code (higher 4 bits). Is 0 for N
-                    ncnf = formatInts.get(imt-1) >>> 4;
-
-                    // format code (lower 4 bits)
-                    kcnf = formatInts.get(imt-1) & 0xf;
-
-//System.out.println("REPEAT = " + ncnf + ", formatInt = " + formatInts.get(imt-1) +", kcnf = " + kcnf);
-                    // left parenthesis, SPECIAL case: #repeats must be taken from int data
-                    if (kcnf == 15) {
-                        kcnf = 0;
-                        // read "N" value from buffer
-                        ncnf = dataBuffer.getInt(dataIndex);
-//System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
-                        dataIndex += 4;
-                        repeatFromN = true;
-                        Nnm = 1;
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from short data
-                    if (kcnf == 14) {
-                        kcnf = 0;
-                        // read "n" value from buffer
-                        ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
-                        dataIndex += 2;
-                        repeatFromN = true;
-                        Nnm = 2;
-                    }
-                    // left parenthesis, SPECIAL case: #repeats must be taken from byte data
-                    if (kcnf == 13) {
-                        kcnf = 0;
-                        // read "m" value from buffer
-                        ncnf = (dataBuffer.get(dataIndex)) & 0xff;
-                        dataIndex++;
-                        repeatFromN = true;
-                        Nnm = 3;
-                    }
+                    ncnf = (formatInts.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  formatInts.get(imt-1) & 0xFF;        /* format code */
+                    mcnf = (formatInts.get(imt-1) >> 14) & 0x3;  /* repeat code */
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
+
+//System.out.println("REPEAT = " + ncnf + ", formatInt = " + formatInts.get(imt-1) +", kcnf = " + kcnf);
+                        // left parenthesis, SPECIAL case: #repeats must be taken from int data
+                        if (mcnf == 1) {
+                            mcnf = 0;
+                            // read "N" value from buffer
+                            ncnf = dataBuffer.getInt(dataIndex);
+//System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
+                            dataIndex += 4;
+                            repeatFromN = true;
+                            Nnm = 1;
+                        }
+                        // left parenthesis, SPECIAL case: #repeats must be taken from short data
+                        if (mcnf == 2) {
+                            mcnf = 0;
+                            // read "n" value from buffer
+                            ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                            dataIndex += 2;
+                            repeatFromN = true;
+                            Nnm = 2;
+                        }
+                        // left parenthesis, SPECIAL case: #repeats must be taken from byte data
+                        if (mcnf == 3) {
+                            mcnf = 0;
+                            // read "m" value from buffer
+                            ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                            dataIndex++;
+                            repeatFromN = true;
+                            Nnm = 3;
+                        }
+
+                        // left parenthesis - set new lv[]
+
                         xmlWriter.writeCharacters("\n");
                         xmlWriter.writeCharacters(xmlIndent);
                         xmlWriter.writeStartElement("repeat");
@@ -3706,23 +3750,6 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
                         xmlWriter.writeCharacters(xmlIndent);
                         xmlWriter.writeStartElement("paren");
 
-                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
-                            iterm = imt-1;
-                            while (formatInts.get(imt-1) != 0) {
-                                imt++;
-                            }
-
-                            xmlWriter.writeCharacters("\n");
-                            xmlWriter.writeCharacters(xmlIndent);
-                            xmlWriter.writeEndElement();// </paren>
-
-                            xmlIndent = Utilities.decreaseXmlIndent(xmlIndent);
-                            xmlWriter.writeCharacters("\n");
-                            xmlWriter.writeCharacters(xmlIndent);
-                            xmlWriter.writeEndElement();// </repeat>
-                            repeat--;
-                            continue;
-                        }
                         lv[lev].left = imt;
                         lv[lev].nrepeat = ncnf;
                         lv[lev].irepeat = 0;
@@ -3748,11 +3775,27 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
             // if 'ncnf' is zero, get "N" from data (always in 'int' format)
             if (ncnf == 0) {
-                // read "N" value from buffer
-                ncnf = dataBuffer.getInt(dataIndex);
-System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
-                dataIndex += 4;
-                repeatFromN = true;
+                if (mcnf == 1) {
+                    // read "N" value from buffer
+                    ncnf = dataBuffer.getInt(dataIndex);
+                    dataIndex += 4;
+                    repeatFromN = true;
+                    Nnm = 1;
+                }
+                if (mcnf == 2) {
+                    // read "n" value from buffer
+                    ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                    dataIndex += 2;
+                    repeatFromN = true;
+                    Nnm = 2;
+                }
+                if (mcnf == 3) {
+                    // read "m" value from buffer
+                    ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                    dataIndex++;
+                    repeatFromN = true;
+                    Nnm = 3;
+                }
             }
 
             // If 64-bit
@@ -3775,7 +3818,12 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                 }
 
                 if (repeatFromN) {
-                    xmlWriter.writeAttribute("N", ""+ncnf);
+                    if (Nnm == 2)
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    else if (Nnm == 3)
+                        xmlWriter.writeAttribute("m", ""+ncnf);
+                    else
+                        xmlWriter.writeAttribute("N", ""+ncnf);
                 }
                 else {
                     xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3858,7 +3906,12 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                 }
 
                 if (repeatFromN) {
-                    xmlWriter.writeAttribute("N", ""+ncnf);
+                    if (Nnm == 2)
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    else if (Nnm == 3)
+                        xmlWriter.writeAttribute("m", ""+ncnf);
+                    else
+                        xmlWriter.writeAttribute("N", ""+ncnf);
                 }
                 else {
                     xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3931,7 +3984,12 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                 }
 
                 if (repeatFromN) {
-                    xmlWriter.writeAttribute("N", ""+ncnf);
+                    if (Nnm == 2)
+                        xmlWriter.writeAttribute("n", ""+ncnf);
+                    else if (Nnm == 3)
+                        xmlWriter.writeAttribute("m", ""+ncnf);
+                    else
+                        xmlWriter.writeAttribute("N", ""+ncnf);
                 }
                 else {
                     xmlWriter.writeAttribute("count", ""+ncnf);
@@ -3994,7 +4052,12 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                     xmlWriter.writeStartElement("string");
 
                     if (repeatFromN) {
-                        xmlWriter.writeAttribute("N", ""+ncnf);
+                        if (Nnm == 2)
+                            xmlWriter.writeAttribute("n", ""+ncnf);
+                        else if (Nnm == 3)
+                            xmlWriter.writeAttribute("m", ""+ncnf);
+                        else
+                            xmlWriter.writeAttribute("N", ""+ncnf);
                     }
                     else {
                         xmlWriter.writeAttribute("count", ""+ncnf);
@@ -4029,7 +4092,12 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                     }
 
                     if (repeatFromN) {
-                        xmlWriter.writeAttribute("N", ""+ncnf);
+                        if (Nnm == 2)
+                            xmlWriter.writeAttribute("n", ""+ncnf);
+                        else if (Nnm == 3)
+                            xmlWriter.writeAttribute("m", ""+ncnf);
+                        else
+                            xmlWriter.writeAttribute("N", ""+ncnf);
                     }
                     else {
                         xmlWriter.writeAttribute("count", ""+ncnf);
@@ -4129,23 +4197,16 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
         // size of int list
         int nfmt = formatInts.size();
 
-        final class LV {
-          int left;    // index of formatInts[] element containing left parenthesis "("
-          int nrepeat; // how many times format in parenthesis must be repeated
-          int irepeat; // right parenthesis ")" counter, or how many times format
-                       // in parenthesis already repeated
-        };
-
         LV[] lv = new LV[10];
         for (int i=0; i < lv.length; i++) {
             lv[i] = new LV();
         }
 
         int imt   = 0;  // formatInts[] index
-        int ncnf  = 0;  // how many times must repeat a format
         int lev   = 0;  // parenthesis level
+        int ncnf  = 0;  // how many times must repeat a format
         int iterm = 0;
-        int kcnf;
+        int kcnf, mcnf;
 
         // start of data, index into data array
         int dataIndex = 0;
@@ -4166,7 +4227,6 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                 // end of format statement reached, back to format beginning
                 if (imt > nfmt) {
                     imt = 0;
-
                     sb.append("\n");  // end of one & beginning of another row
                  }
                 // right parenthesis, so we're finished processing format(s) in parenthesis
@@ -4184,44 +4244,37 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                     }
                 }
                 else {
-                    // how many times to repeat format code
-                    ncnf = formatInts.get(imt-1)/16;
-                    // format code
-                    kcnf = formatInts.get(imt-1) - 16*ncnf;
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from int data
-                    if (kcnf == 15) {
-                        kcnf = 0;
-                        // read "N" value from buffer
-                        ncnf = dataBuffer.getInt(dataIndex);
-                        dataIndex += 4;
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from short data
-                    if (kcnf == 14) {
-                        kcnf = 0;
-                        // read "N" value from buffer
-                        ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
-                        dataIndex += 2;
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from byte data
-                    if (kcnf == 13) {
-                        kcnf = 0;
-                        // read "N" value from buffer
-                        ncnf = (dataBuffer.get(dataIndex)) & 0xff;
-                        dataIndex++;
-                    }
+                    ncnf = (formatInts.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  formatInts.get(imt-1) & 0xFF;        /* format code */
+                    mcnf = (formatInts.get(imt-1) >> 14) & 0x3;  /* repeat code */
 
                     // left parenthesis - set new lv[]
                     if (kcnf == 0) {
-                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
-                            iterm = imt-1;
-                            while (formatInts.get(imt-1) != 0) {
-                                imt++;
-                            }
-                            continue;
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from int data
+                        if (mcnf == 1) {
+                            mcnf = 0;
+                            // read "N" value from buffer
+                            ncnf = dataBuffer.getInt(dataIndex);
+                            dataIndex += 4;
                         }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from short data
+                        if (mcnf == 2) {
+                            mcnf = 0;
+                            // read "N" value from buffer
+                            ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                            dataIndex += 2;
+                        }
+                        // left parenthesis, SPECIAL case: #repeats must be taken from byte data
+                        if (mcnf == 3) {
+                            mcnf = 0;
+                            // read "N" value from buffer
+                            ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                            dataIndex++;
+                        }
+
+                        // left parenthesis - set new lv[]
                         lv[lev].left = imt;
                         lv[lev].nrepeat = ncnf;
                         lv[lev].irepeat = 0;
@@ -4245,11 +4298,23 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
                 }
             }
 
-            // if 'ncnf' is zero, get "N" from data (always in 'int' format)
+            // if 'ncnf' is zero, get N,n,m from list
             if (ncnf == 0) {
-                // read "N" value from buffer
-                ncnf = dataBuffer.getInt(dataIndex);
-                dataIndex += 4;
+                if (mcnf == 1) {
+                     // read "N" value from buffer
+                     ncnf = dataBuffer.getInt(dataIndex);
+                     dataIndex += 4;
+                 }
+                 else if (mcnf == 2) {
+                     // read "n" value from buffer
+                     ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                     dataIndex += 2;
+                 }
+                 else if (mcnf == 3) {
+                     // read "m" value from buffer
+                     ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                     dataIndex++;
+                 }
             }
 
             // If 64-bit
@@ -4303,7 +4368,7 @@ System.out.println("ncnf = " + ncnf + " databuf order = " + dataBuffer.order());
 
                     // float
                     if (kcnf == 2) {
-                        f = Float.intBitsToFloat(i) ;
+                        f = Float.intBitsToFloat(i);
                         sb.append(String.format("%-14.8g ",f));
                     }
                     // Hollerit, 32 bit int/uint
