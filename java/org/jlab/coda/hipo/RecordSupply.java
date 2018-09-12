@@ -10,6 +10,8 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import com.lmax.disruptor.*;
+import com.lmax.disruptor.util.SpinCountBackoffWaitStrategy;
+
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
 /**
@@ -176,7 +178,8 @@ public class RecordSupply {
 
         // Create ring buffer with "ringSize" # of elements
         ringBuffer = createSingleProducer(new RecordFactory(), ringSize,
-                                          new YieldingWaitStrategy());
+                                          new SpinCountBackoffWaitStrategy(10000, new LiteBlockingWaitStrategy()));
+                                    //      new YieldingWaitStrategy());
 
         // The thread which fills records is considered the "producer"
         // and doesn't need a barrier.
