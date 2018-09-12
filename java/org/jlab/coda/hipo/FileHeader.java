@@ -106,7 +106,7 @@ public class FileHeader {
     /** 8th bit set in bitInfo word in record/file header means contains dictionary. */
     final static int   DICTIONARY_BIT = 0x100;
     /** 9th bit set in bitInfo word in file header means every split file has same first event. */
-    final static int   HAS_FIRST_EVENT_BIT = 0x200;
+    final static int   FIRST_EVENT_BIT = 0x200;
     /** 10th bit set in bitInfo word in file header means file trailer with index array exists. */
     final static int   TRAILER_WITH_INDEX_BIT = 0x400;
 
@@ -361,18 +361,6 @@ public class FileHeader {
     }
 
     /**
-     * Set the user header's padding - the number of bytes required to bring uncompressed
-     * user header to 4-byte boundary. Sets the associated value in bitInfo word.
-     * @param padding user header's padding.
-     */
-    private void setUserHeaderLengthPadding(int padding) {
-        System.out.println("setUserHeaderLengthPadding: IN, fe bit = " + hasFirstEvent());
-        userHeaderLengthPadding = padding;
-        bitInfo = bitInfo | (userHeaderLengthPadding << 20);
-        System.out.println("setUserHeaderLengthPadding: END, fe bit = " + hasFirstEvent());
-    }
-
-    /**
      * Get the bit info word.
      * @return bit info word.
      */
@@ -380,6 +368,7 @@ public class FileHeader {
 
     /**
      * Set the bit info word for a file header.
+     * Current value of bitInfo is lost.
      * @param haveFirst  true if file has first event.
      * @param haveDictionary  true if file has dictionary in user header.
      * @param haveTrailerWithIndex  true if file has trailer with record length index.
@@ -393,7 +382,7 @@ public class FileHeader {
                   (userHeaderLengthPadding << 20) |
                   (headerVersion & 0xFF);
 
-        if (haveFirst) bitInfo |= HAS_FIRST_EVENT_BIT;
+        if (haveFirst) bitInfo |= FIRST_EVENT_BIT;
         if (haveDictionary) bitInfo |= DICTIONARY_BIT;
         if (haveTrailerWithIndex) bitInfo |= TRAILER_WITH_INDEX_BIT;
 
@@ -401,18 +390,18 @@ public class FileHeader {
     }
 
     /**
-     * Set the bit in the file header which says there is a first event.
+     * Set the bit which says file has a first event.
      * @param hasFirst  true if file has a first event.
      * @return new bitInfo word.
      */
     public int hasFirstEvent(boolean hasFirst) {
         if (hasFirst) {
             // set bit
-            bitInfo |= HAS_FIRST_EVENT_BIT;
+            bitInfo |= FIRST_EVENT_BIT;
         }
         else {
             // clear bit
-            bitInfo &= ~HAS_FIRST_EVENT_BIT;
+            bitInfo &= ~FIRST_EVENT_BIT;
         }
 
         return bitInfo;
@@ -422,7 +411,7 @@ public class FileHeader {
      * Does this header have a first event in the user header?
      * @return true if header has a first event in the user header, else false.
      */
-    public boolean hasFirstEvent() {return ((bitInfo & HAS_FIRST_EVENT_BIT) != 0);}
+    public boolean hasFirstEvent() {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
 
     /**
      * Set the bit in the file header which says there is a dictionary.
@@ -590,6 +579,18 @@ public class FileHeader {
         setLength(headerLength + indexLength + userHeaderLength + userHeaderLengthPadding);
         return this;
     }
+
+    /**
+      * Set the user header's padding - the number of bytes required to bring uncompressed
+      * user header to 4-byte boundary. Sets the associated value in bitInfo word.
+      * @param padding user header's padding.
+      */
+     private void setUserHeaderLengthPadding(int padding) {
+System.out.println("setUserHeaderLengthPadding: IN, fe bit = " + hasFirstEvent());
+         userHeaderLengthPadding = padding;
+         bitInfo = bitInfo | (userHeaderLengthPadding << 20);
+System.out.println("setUserHeaderLengthPadding: END, fe bit = " + hasFirstEvent());
+     }
 
     /**
      * Set the this header's length in bytes & words.
