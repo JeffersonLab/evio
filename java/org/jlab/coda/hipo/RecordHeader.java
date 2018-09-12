@@ -206,7 +206,7 @@ public class RecordHeader implements IBlockHeader {
     
 
     /** Default, no-arg constructor. */
-    public RecordHeader() {}
+    public RecordHeader() {bitInfoInit();}
 
     /**
      * Constructor which sets the type of header this is.
@@ -218,15 +218,14 @@ public class RecordHeader implements IBlockHeader {
         if (type.isFileHeader()) {
             throw new HipoException("use FileHeader class for a file");
         }
+        bitInfoInit();
     }
 
     /**
      * Constructor which copies another header.
      * @param header  header to copy.
      */
-    public RecordHeader(RecordHeader header) {
-        copy(header);
-    }
+    public RecordHeader(RecordHeader header) {copy(header);}
 
     /**
      * Constructor.
@@ -236,6 +235,7 @@ public class RecordHeader implements IBlockHeader {
      */
     public RecordHeader(long _pos, int _l, int _e){
         position = _pos; recordLength = _l; entries = _e;
+        bitInfoInit();
     }
 
     /**
@@ -288,7 +288,7 @@ public class RecordHeader implements IBlockHeader {
         recordUserRegisterSecond = 0L;
 
         entries = 0;
-        bitInfo = -1;
+        bitInfoInit();
         eventType = 0;
         headerLength = HEADER_SIZE_BYTES;
         headerLengthWords = HEADER_SIZE_WORDS;
@@ -448,21 +448,20 @@ public class RecordHeader implements IBlockHeader {
 
     // Bit info methods
 
+    /** Initialize bitInfo word to this value. */
+    private void bitInfoInit() {
+        bitInfo = (headerType.getValue() << 28) | (headerVersion & 0xFF);
+    }
+
     /**
      * Get the bit info word. Will initialize if not already done.
      * @return bit info word.
      */
-    public int getBitInfoWord() {
-        // If bitInfo uninitialized, do so now
-        if (bitInfo < 0) {
-            // This will init the same whether file or record header
-            setBitInfo(false, false, false);
-        }
-        return bitInfo;
-    }
+    public int getBitInfoWord() {return bitInfo;}
 
     /**
      * Set the bit info word for a record header.
+     * Current value of bitInfo is lost.
      * @param isLastRecord   true if record is last in stream or file.
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
@@ -482,6 +481,80 @@ public class RecordHeader implements IBlockHeader {
         if (isLastRecord)   bitInfo |= LAST_RECORD_BIT;
 
         return bitInfo;
+    }
+
+    /**
+     * Set the bit which says record has a first event in the user header.
+     * @param hasFirst  true if record has a first event in the user header.
+     * @return new bitInfo word.
+     */
+    public int hasFirstEvent(boolean hasFirst) {
+        if (hasFirst) {
+            // set bit
+            bitInfo |= FIRST_EVENT_BIT;
+        }
+        else {
+            // clear bit
+            bitInfo &= ~FIRST_EVENT_BIT;
+        }
+
+        return bitInfo;
+    }
+
+    /**
+     * Does this header have a first event in the user header?
+     * @return true if header has a first event in the user header, else false.
+     */
+    public boolean hasFirstEvent() {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
+
+    /**
+     * Set the bit which says record has a dictionary in the user header.
+     * @param hasFirst  true if record has a dictionary in the user header.
+     * @return new bitInfo word.
+     */
+    public int hasDictionary(boolean hasFirst) {
+        if (hasFirst) {
+            // set bit
+            bitInfo |= DICTIONARY_BIT;
+        }
+        else {
+            // clear bit
+            bitInfo &= ~DICTIONARY_BIT;
+        }
+
+        return bitInfo;
+    }
+
+    /**
+     * Does this record have a dictionary in the user header?
+     * @return true if record has a dictionary in the user header, else false.
+     */
+    public boolean hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
+
+    /**
+     * Set the bit which says record is last in file/buffer.
+     * @param isLast  true if record is last in file/buffer.
+     * @return new bitInfo word.
+     */
+    public int isLastRecord(boolean isLast) {
+        if (isLast) {
+            // set bit
+            bitInfo |= LAST_RECORD_BIT;
+        }
+        else {
+            // clear bit
+            bitInfo &= ~LAST_RECORD_BIT;
+        }
+
+        return bitInfo;
+    }
+
+    /**
+     * Is this the header of the last record?
+     * @return true this is the header of the last record, else false.
+     */
+    public boolean isLastRecord() {
+        return ((bitInfo & LAST_RECORD_BIT) != 0);
     }
 
     /**
@@ -530,9 +603,12 @@ public class RecordHeader implements IBlockHeader {
      */
     private void decodeBitInfoWord(int word){
         // Padding
-        this.compressedDataLengthPadding = (word >>> 24) & 0x3;
-        this.dataLengthPadding           = (word >>> 22) & 0x3;
-        this.userHeaderLengthPadding     = (word >>> 20) & 0x3;
+        compressedDataLengthPadding = (word >>> 24) & 0x3;
+        dataLengthPadding           = (word >>> 22) & 0x3;
+        userHeaderLengthPadding     = (word >>> 20) & 0x3;
+
+        // Evio version
+        headerVersion = (word & 0xff);
 
         // Header type
         headerType =  HeaderType.getHeaderType(word >>> 28);
@@ -542,30 +618,6 @@ public class RecordHeader implements IBlockHeader {
 
         // Data type
         eventType = (word >> 11) & 0xf;
-    }
-
-    /**
-     * Does this header have a dictionary in the user header?
-     * @return true if header has a dictionary in the user header, else false.
-     */
-    public boolean hasDictionary() {
-        return ((bitInfo & DICTIONARY_BIT) != 0);
-    }
-
-    /**
-     * Does this header have a first event in the user header?
-     * @return true if header has a first event in the user header, else false.
-     */
-    public boolean hasFirstEvent() {
-        return ((bitInfo & FIRST_EVENT_BIT) != 0);
-    }
-
-    /**
-     * Is this the header of the last record?
-     * @return true this is the header of the last record, else false.
-     */
-    public boolean isLastRecord() {
-        return ((bitInfo & LAST_RECORD_BIT) != 0);
     }
 
     // Setters
