@@ -21,7 +21,7 @@ public class CompositeTester {
 
 
     /** For testing only */
-    public static void main(String args[]) {
+    public static void main6(String args[]) {
 
 
         int[] bank = new int[24];
@@ -363,10 +363,10 @@ System.out.println("READ FILE & PRINT CONTENTS:");
 
 
     /** For testing only */
-    public static void main5(String args[]) {
+    public static void main(String args[]) {
 
         //create an event writer to write out the test events.
-        String fileName  = "/daqfs/home/timmer/coda/evio-4.0.sergey/Linux-x86_64/bin/sample.dat";
+        String fileName  = "/home/timmer/evioTestFiles/clas_004604.evio.00000";
 
         File fileIn = new File(fileName);
         System.out.println("read ev file: " + fileName + " size: " + fileIn.length());
@@ -374,8 +374,11 @@ System.out.println("READ FILE & PRINT CONTENTS:");
         try {
             EvioReader evioReader = new EvioReader(fileName);
             EvioEvent ev;
+            int eventNum = 1;
             while ( (ev = evioReader.parseNextEvent()) != null) {
-                System.out.println("EVENT:\n" + ev.toXML());
+                System.out.println("\nEVENT: number " + (eventNum++) + " (starting at 1)");
+                System.out.println("-->:\n" + ev.toXML());
+                System.out.println("\n\n");
             }
         }
         catch (EvioException e) {
