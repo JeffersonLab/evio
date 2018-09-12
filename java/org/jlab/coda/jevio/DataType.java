@@ -122,24 +122,30 @@ public enum DataType {
 	}
 
 
-	/**
-	 * Convenience routine to see if "this" data type is a structure (a container.)
-	 * @return <code>true</code> if the data type corresponds to one of the structure
-	 * types: BANK, SEGMENT, or TAGSEGMENT.
-	 */
-	public boolean isStructure() {
-		switch (this) {
-		case BANK:
-		case SEGMENT:
-		case TAGSEGMENT:
-		case ALSOBANK:
-		case ALSOSEGMENT:
-//		case ALSOTAGSEGMENT:
-			return true;
-		default:
-			return false;
-		}
-	}
+    /**
+   	 * Convenience routine to see if "this" data type is a structure (a container.)
+   	 * @return <code>true</code> if the data type corresponds to one of the structure
+   	 * types: BANK, SEGMENT, or TAGSEGMENT.
+   	 */
+   	public boolean isStructure() {
+   		switch (this) {
+   		case BANK:
+   		case SEGMENT:
+   		case TAGSEGMENT:
+   		case ALSOBANK:
+   		case ALSOSEGMENT:
+   //		case ALSOTAGSEGMENT:
+   			return true;
+   		default:
+   			return false;
+   		}
+   	}
+
+    /**
+   	 * Convenience routine to see if "this" data type is a bank structure.
+   	 * @return <code>true</code> if this data type corresponds to a bank structure.
+   	 */
+   	public boolean isBank() {return (this == BANK || this == ALSOBANK);}
 
 //	/**
 //	 * Convenience routine to see if the given integer arg represents a data type which
