@@ -22,7 +22,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Class to write Evio/HIPO files.
+ * Class to write Evio/HIPO files only (not to buffers).
+ * Able to multithread the compression of data.
  *
  * @version 6.0
  * @since 6.0 8/10/17
@@ -32,24 +33,14 @@ import java.util.logging.Logger;
 
 public class WriterMT implements AutoCloseable {
 
-    /** Do we write to a file or a buffer? */
-    private boolean toFile = true;
-
-    // If writing to file ...
-
     /** Object for writing file. */
-    private RandomAccessFile  outStream;
+    private RandomAccessFile outStream;
+
     /** The file channel, used for writing a file, derived from outStream. */
-    private FileChannel  fileChannel;
+    private FileChannel fileChannel;
+
     /** Header to write to file. */
-    private FileHeader  fileHeader;
-
-    // If writing to buffer ...
-
-    /** The buffer being written to. */
-    private ByteBuffer buffer;
-
-    // For both files & buffers
+    private FileHeader fileHeader;
 
     /** Fast, thread-safe, lock-free supply of records. */
     private RecordSupply supply;
@@ -73,15 +64,20 @@ public class WriterMT implements AutoCloseable {
     private RecordRingItem ringItem;
 
     /** Byte array large enough to hold a header/trailer. */
-    private byte[]  headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
+    private byte[] headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
+
     /** Type of compression to use on file. Default is none. */
-    private int    compressionType;
+    private int compressionType;
+
     /** Number of bytes written to file/buffer at current moment. */
-    private long   writerBytesWritten;
+    private long writerBytesWritten;
+
     /** Number which is incremented and stored with each successive written record starting at 1. */
-    private int   recordNumber = 1;
+    private int recordNumber = 1;
+
     /** Do we add a last header or trailer to file/buffer? */
     private boolean addTrailer;
+
     /** Do we add a record index to the trailer? */
     private boolean addTrailerIndex;
 
@@ -96,8 +92,7 @@ public class WriterMT implements AutoCloseable {
     public WriterMT() {
         compressionThreadCount = 1;
         fileHeader = new FileHeader(true); // evio file
-        supply = new RecordSupply(8, byteOrder, compressionThreadCount,
-                                  0, 0, 1);
+        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, 1);
 
         // Get a single blank record to start writing into
         ringItem = supply.get();
@@ -189,19 +184,6 @@ public class WriterMT implements AutoCloseable {
                     int compressionType, int compressionThreads, int ringSize) {
         this(order, maxEventCount, maxBufferSize, compressionType, compressionThreads, ringSize);
         open(filename);
-    }
-
-    /**
-     * Constructor for writing to a ByteBuffer. Byte order is taken from the buffer.
-     * @param buf buffer in to which to write events and/or records.
-     * @param maxEventCount max number of events a record can hold.
-     *                      Value of O means use default (1M).
-     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
-     */
-    public WriterMT(ByteBuffer buf, int maxEventCount, int maxBufferSize) {
-        buffer = buf;
-        byteOrder = buf.order();
     }
 
 
@@ -713,8 +695,16 @@ System.out.println("   Writer: thread INTERRUPTED");
                 writeTrailer(addTrailerIndex);
             }
 
+            // Need to update the record count in file header
+            outStream.seek(FileHeader.RECORD_COUNT_OFFSET);
+            if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
+                outStream.writeInt(Integer.reverseBytes(recordNumber - 1));
+            }
+            else {
+                outStream.writeInt(recordNumber - 1);
+            }
             outStream.close();
-            //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
+           //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
         } catch (IOException ex) {
             Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
         }
