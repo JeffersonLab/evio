@@ -54,7 +54,7 @@ import java.util.Arrays;
  *     0-7  = version
  *     8    = true if dictionary is included (relevant for first record only)
  *     9    = true if this file has "first" event (in every split file)
- *    10    = File trailer with index array exists
+ *    10    = File trailer with index array of record lengths exists
  *    11-19 = reserved
  *    20-21 = pad 1
  *    22-23 = pad 2
@@ -94,12 +94,30 @@ public class FileHeader {
 
     // Byte offset to header words
 
-    /** Number of bytes from beginning of file header to write trailer position. */
-    public final static int   TRAILER_POSITION_OFFSET = 40;
-    /** Number of bytes from beginning of file header to write record index count. */
+    /** Byte offset from beginning of header to the file id. */
+    public final static int   FILE_ID_OFFSET = 0;
+    /** Byte offset from beginning of header to the file number. */
+    public final static int   FILE_NUMBER_OFFSET = 4;
+    /** Byte offset from beginning of header to the header length. */
+    public final static int   HEADER_LENGTH_OFFSET = 8;
+    /** Byte offset from beginning of header to the record count. */
     public final static int   RECORD_COUNT_OFFSET = 12;
-    /** Number of bytes from beginning of file header to write bit info word. */
+    /** Byte offset from beginning of header to the index array length. */
+    public final static int   INDEX_ARRAY_OFFSET = 16;
+    /** Byte offset from beginning of header to bit info word. */
     public final static int   BIT_INFO_OFFSET = 20;
+    /** Byte offset from beginning of header to the user header length. */
+    public final static int   USER_LENGTH_OFFSET = 24;
+    /** Byte offset from beginning of header to the record length. */
+    public final static int   MAGIC_OFFSET = 28;
+    /** Byte offset from beginning of header to the user register #1. */
+    public final static int   REGISTER1_OFFSET = 32;
+    /** Byte offset from beginning of header to write trailer position. */
+    public final static int   TRAILER_POSITION_OFFSET = 40;
+    /** Byte offset from beginning of header to the user integer #1. */
+    public final static int   INT1_OFFSET = 48;
+    /** Byte offset from beginning of header to the user integer #2. */
+    public final static int   INT2_OFFSET = 52;
 
     // Bits in bit info word
 
@@ -144,7 +162,7 @@ public class FileHeader {
     /** Length of index array (bytes). 5th word. */
     private int  indexLength;
 
-    /** Final, total length of header + index + user header (bytes).
+    /** Final, total length of header + index + user header (bytes) + padding.
      *  Not stored in any word. */
     private int  totalLength = HEADER_SIZE_BYTES;
 
@@ -353,6 +371,13 @@ public class FileHeader {
      */
     public int getLength() {return totalLength;}
 
+    /**
+     * Get the user header's padding - the number of bytes required to bring uncompressed
+     * user header to 4-byte boundary.
+     * @return  user header's padding
+     */
+    public int getUserHeaderLengthPadding() {return userHeaderLengthPadding;}
+
     // Bit info methods
 
     /** Initialize bitInfo word to this value. */
@@ -368,7 +393,7 @@ public class FileHeader {
 
     /**
      * Set the bit info word for a file header.
-     * Current value of bitInfo is lost.
+     * Retains current header type, user header length padding, and version.
      * @param haveFirst  true if file has first event.
      * @param haveDictionary  true if file has dictionary in user header.
      * @param haveTrailerWithIndex  true if file has trailer with record length index.
@@ -438,8 +463,15 @@ public class FileHeader {
     public boolean hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
 
     /**
-     * Set the bit in the file header which says there is a trailer with a record index.
-     * @param hasFirst  true if file has a  trailer with a record index.
+     * Does this bitInfo arg indicate the existence of a dictionary in the user header?
+     * @param bitInfo bitInfo word.
+     * @return true if header has a dictionary in the user header, else false.
+     */
+    static public boolean hasDictionary(int bitInfo) {return ((bitInfo & DICTIONARY_BIT) != 0);}
+
+    /**
+     * Set the bit in the file header which says there is a trailer with a record length index.
+     * @param hasFirst  true if file has a  trailer with a record length index.
      * @return new bitInfo word.
      */
     public int hasTrailerWithIndex(boolean hasFirst) {
@@ -456,10 +488,19 @@ public class FileHeader {
     }
 
     /**
-     * Does this file have a trailer with an index?
-     * @return true if file has a trailer with an index, else false.
+     * Does this file have a trailer with a record length index?
+     * @return true if file has a trailer with a record length index, else false.
      */
     public boolean hasTrailerWithIndex() {return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);}
+
+    /**
+     * Does this bitInfo arg indicate the existence of a trailer with a record length index?
+     * @param bitInfo bitInfo word.
+     * @return true if file has a trailer with a record length index, else false.
+     */
+    static public boolean hasTrailerWithIndex(int bitInfo) {
+        return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);
+    }
 
     /**
      * Set the bit info word and related values.
@@ -786,13 +827,13 @@ System.out.println("setUserHeaderLengthPadding: END, fe bit = " + hasFirstEvent(
      *                       is not in proper format, or version earlier than 6.
      */
     public void readHeader(ByteBuffer buffer, int offset) throws HipoException {
-System.out.println("PARSING HEADER");
         if (buffer == null || (buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
             throw new HipoException("null or too small buffer arg");
         }
 
         // First read the magic word to establish endianness
-        headerMagicWord = buffer.getInt(28 + offset);   // 7*4
+        headerMagicWord = buffer.getInt(MAGIC_OFFSET + offset);
+
         // If it's NOT in the proper byte order ...
         if (headerMagicWord != HEADER_MAGIC_LE) {
             // If it needs to be switched ...
@@ -816,34 +857,34 @@ System.out.println("PARSING HEADER");
         }
 
         // Next look at the version #
-        bitInfo = buffer.getInt(20 + offset);  // 5*4
+        bitInfo = buffer.getInt(BIT_INFO_OFFSET + offset);
         decodeBitInfoWord(bitInfo);
         if (headerVersion < 6) {
-            throw new HipoException("buffer is in evio format version " + headerVersion);
+            throw new HipoException("evio format < 6, = " + headerVersion);
         }
 
-        fileId            = buffer.getInt(     offset);   // 0*4
-        fileNumber        = buffer.getInt( 4 + offset);   // 1*4
-        headerLengthWords = buffer.getInt( 8 + offset);   // 2*4
+        fileId            = buffer.getInt(FILE_ID_OFFSET + offset);
+        fileNumber        = buffer.getInt(FILE_NUMBER_OFFSET + offset);
+        headerLengthWords = buffer.getInt(HEADER_LENGTH_OFFSET + offset);
         setHeaderLength(4*headerLengthWords);
 System.out.println("fileHeader: header len = " + headerLength);
-        entries           = buffer.getInt(12 + offset);   // 3*4
+        entries           = buffer.getInt(RECORD_COUNT_OFFSET + offset);
 
-        indexLength       = buffer.getInt(16 + offset);   // 4*4
+        indexLength       = buffer.getInt(INDEX_ARRAY_OFFSET + offset);
 System.out.println("fileHeader: index len = " + indexLength);
         setIndexLength(indexLength);
 
-        userHeaderLength  = buffer.getInt(24 + offset);   // 6*4
+        userHeaderLength  = buffer.getInt(USER_LENGTH_OFFSET + offset);
         setUserHeaderLength(userHeaderLength);
 System.out.println("fileHeader: user header len = " + userHeaderLength +
                    ", padding = " + userHeaderLengthPadding);
 
 System.out.println("fileHeader: total len = " + totalLength);
 
-        userRegister     = buffer.getLong(32 + offset);   // 8*4
-        trailerPosition  = buffer.getLong(40 + offset);   // 10*4
-        userIntFirst     = buffer.getInt (48 + offset);   // 12*4
-        userIntSecond    = buffer.getInt (52 + offset);   // 13*4
+        userRegister     = buffer.getLong(REGISTER1_OFFSET + offset);
+        trailerPosition  = buffer.getLong(TRAILER_POSITION_OFFSET + offset);
+        userIntFirst     = buffer.getInt (INT1_OFFSET + offset);
+        userIntSecond    = buffer.getInt (INT2_OFFSET + offset);
     }
 
     /**
