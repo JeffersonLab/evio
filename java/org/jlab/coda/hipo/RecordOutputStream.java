@@ -7,6 +7,7 @@
 package org.jlab.coda.hipo;
 
 import org.jlab.coda.jevio.EvioBank;
+import org.jlab.coda.jevio.EvioNode;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -287,8 +288,8 @@ public class RecordOutputStream {
 
     /**
      * Is there room in this record's memory for an additional event
-     * of the given length (length NOT including accompanying index).
-     * @param length length of event to add
+     * of the given length in bytes.(length NOT including accompanying index).
+     * @param length length of event to add in bytes
      * @return {@code true} if room in record, else {@code false}.
      */
     public boolean roomForEvent(int length) {
@@ -426,11 +427,73 @@ public class RecordOutputStream {
     }
 
     /**
+     * Adds an event represented by an EvioNode into the record.
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated. This is important for an application such as
+     * CODA online in which event building may not fail due to a large event size.
+     * This method is not thread-safe with respect to the node as it's backing
+     * ByteBuffer's limit and position may be concurrently changed.
+     * <b>The byte order of event in the backing ByteBuffer of the node
+     * must match the byte order given in constructor!</b>
+     *
+     * @param node  event's EvioNode object
+     * @return true if event was added, false if the buffer is full or
+     *         event count limit exceeded
+     * @throws HipoException if node does not correspond to a bank.
+     */
+    public boolean addEvent(EvioNode node) throws HipoException {
+
+        int length = node.getTotalBytes();
+
+        if (!node.getTypeObj().isBank()) {
+            throw new HipoException("node does not represent a bank");
+        }
+
+        if (eventCount < 1 && !roomForEvent(length)) {
+            MAX_BUFFER_SIZE = length + ONE_MEG;
+            RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
+            allocate();
+            reset();
+        }
+
+        if (oneTooMany() || !roomForEvent(length)) {
+            //System.out.println(" the record is FULL..... INDEX SIZE = "
+            //        + indexSize + ", DATA SIZE = " + eventSize + " bytes");
+            return false;
+        }
+
+        ByteBuffer buf = node.getStructureBuffer(false);
+        if (buf.hasArray()) {
+            // recordEvents backing array's offset = 0
+            int pos = recordEvents.position();
+            System.arraycopy(buf.array(),
+                             buf.arrayOffset() + buf.position(),
+                             recordEvents.array(), pos, length);
+            recordEvents.position(pos + length);
+
+            // Same as below, but above method should be a lot faster:
+            // recordEvents.put(event.array(), event.arrayOffset() + event.position(), length);
+        }
+        else {
+            recordEvents.put(buf);
+        }
+
+        // Same as below, but above method should be a lot faster:
+        // recordEvents.put(event.array(), event.arrayOffset() + event.position(), length);
+
+        eventSize += length;
+        recordIndex.putInt(indexSize, length);
+        indexSize += 4;
+        eventCount++;
+
+        return true;
+    }
+
+    /**
      * Adds an event's EvioBank into the record.
      * If a single event is too large for the internal buffers,
      * more memory is allocated. This is important for an application such as
      * CODA online in which event building may not fail due to a large event size.
-     * <b>The byte order of event must match the byte order given in constructor!</b>
      *
      * @param event  event's EvioBank object
      * @return true if event was added, false if the buffer is full or
@@ -541,8 +604,14 @@ public class RecordOutputStream {
         // If NOT compressing data ...
         else {
             // Write directly into final buffer, past where header will go
+//System.out.println("build: recordBinary len = " + recordBinary.capacity() +
+//                   ", pos = " + recordBinary.position() + ", data to write = " +
+//                   (RecordHeader.HEADER_SIZE_BYTES + indexSize + eventSize));
             recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
             recordBinary.put(  recordIndex.array(), 0, indexSize);
+//System.out.println("build: recordBinary pos = " + recordBinary.position() +
+//                   ", eventSize = " + eventSize + ", recordEvents.array().len = " +
+//                   recordEvents.array().length);
             recordBinary.put( recordEvents.array(), 0, eventSize);
         }
 
