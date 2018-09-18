@@ -2322,7 +2322,7 @@ System.err.println("ERROR endOfBuffer " + a);
                 // Hop over the entire block
 //System.out.println("toAppendPosition: wrote over last block's 6th word, hop over %d words" +
 // (blockLength - (6 + 1)));
-                fileChannel.position(fileChannel.position() + 4 * blockLength - (BIT_INFO_OFFSET + 1));
+                fileChannel.position(fileChannel.position() + 4 * blockLength - (BIT_INFO_OFFSET + 4));
             }
             // Buffer still positioned right before the last header to be read
             else {
