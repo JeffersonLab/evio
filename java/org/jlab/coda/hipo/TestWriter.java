@@ -66,7 +66,7 @@ public class TestWriter {
         System.out.println( " OBTAINED ARRAY LENGTH = " + buffer.length + "  " + buffer[0]);
     }
     
-    public static void testStreamRecord(){
+    public static void testStreamRecord() throws IOException, HipoException {
 
         // Variables to track record build rate
         double freqAvg;
@@ -218,7 +218,7 @@ public class TestWriter {
 
     }
 
-    public static void writerTest(){
+    public static void writerTest() throws IOException {
         Writer writer = new Writer("compressed_file.evio",
                                    ByteOrder.BIG_ENDIAN, 0, 0);
         //byte[] array = TestWriter.generateBuffer();
@@ -263,7 +263,7 @@ public class TestWriter {
     }
     
     
-    public static void createEmptyFile(){
+    public static void createEmptyFile() throws IOException, HipoException {
        String userHeader = "Example of creating a new header file.......?";
        System.out.println("STRING LENGTH = " + userHeader.length());
        Writer writer = new Writer();
