@@ -4,7 +4,6 @@ package org.jlab.coda.jevio;
 import org.jlab.coda.hipo.*;
 
 import java.io.*;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -2342,7 +2341,7 @@ public class EventWriterMT {
         // Do compression
         currentRecord.build();
 
-        // Write to record (without event) to buffer.
+        // Write record (without event) to buffer.
         // Binary buffer is ready to read after build().
         ByteBuffer buf = currentRecord.getBinaryBuffer();
         if (buf.hasArray() && buffer.hasArray()) {
@@ -2429,8 +2428,8 @@ public class EventWriterMT {
 
         // Keep track of what is written to this file.
         // We did write a record, even if it had no data.
-        recordNumber++;
-        recordsWritten++;
+//        recordNumber++;
+//        recordsWritten++;
         bytesWritten         += bytesToWrite;
         bytesWrittenToBuffer += bytesToWrite;
     }
