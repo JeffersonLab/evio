@@ -101,6 +101,7 @@ public class RecordHeader implements IBlockHeader {
     public final static int   HEADER_SIZE_BYTES = 56;
     /** Magic number used to track endianness. */
     public final static int   HEADER_MAGIC = 0xc0da0100;
+
     /** Magic number for HIPO's little endian uses. */
     final static int   HEADER_MAGIC_LE = HEADER_MAGIC;
     /** Magic number for HIPO's big endian uses (byte swapped from HEADER_MAGIC_LE). */
@@ -108,8 +109,30 @@ public class RecordHeader implements IBlockHeader {
 
     // Byte offset to header words
 
-    /** Number of bytes from beginning of file header to write bit info word. */
+    /** Byte offset from beginning of header to the record length. */
+    public final static int   RECORD_LENGTH_OFFSET = 0;
+    /** Byte offset from beginning of header to the record number. */
+    public final static int   RECORD_NUMBER_OFFSET = 4;
+    /** Byte offset from beginning of header to the header length. */
+    public final static int   HEADER_LENGTH_OFFSET = 8;
+    /** Byte offset from beginning of header to the event index count. */
+    public final static int   EVENT_COUNT_OFFSET = 12;
+    /** Byte offset from beginning of header to the index array length. */
+    public final static int   INDEX_ARRAY_OFFSET = 16;
+    /** Byte offset from beginning of header to bit info word. */
     public final static int   BIT_INFO_OFFSET = 20;
+    /** Byte offset from beginning of header to the user header length. */
+    public final static int   USER_LENGTH_OFFSET = 24;
+    /** Byte offset from beginning of header to the record length. */
+    public final static int   MAGIC_OFFSET = 28;
+    /** Byte offset from beginning of header to the uncompressed data length. */
+    public final static int   UNCOMPRESSED_LENGTH_OFFSET = 32;
+    /** Byte offset from beginning of header to the compression type & compressed data length word. */
+    public final static int   COMPRESSION_TYPE_OFFSET = 36;
+    /** Byte offset from beginning of header to the user register #1. */
+    public final static int   REGISTER1_OFFSET = 40;
+    /** Byte offset from beginning of header to the user register #2. */
+    public final static int   REGISTER2_OFFSET = 48;
 
     // Bits in bit info word
     
@@ -135,6 +158,14 @@ public class RecordHeader implements IBlockHeader {
     /** 11-14th bits in bitInfo word in record header for CODA data type, other = 15. */
     final static int   DATA_OTHER_BITS   = 0x7800;
 
+    // Bit masks
+
+    /** Mask to get version number from 6th int in header. */
+    public final static int VERSION_MASK = 0xff;
+    /** "Last record" is 11th bit in bitInfo word */
+    public static final int LAST_RECORD_MASK = 0x400;
+
+    //-------------------
 
     /** Position of this header in a file. */
     private long position;
@@ -532,6 +563,13 @@ public class RecordHeader implements IBlockHeader {
     public boolean hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
 
     /**
+     * Does this bitInfo arg indicate the existence of a dictionary in the user header?
+     * @param bitInfo bitInfo word.
+     * @return true if header has a dictionary in the user header, else false.
+     */
+    static public boolean hasDictionary(int bitInfo) {return ((bitInfo & DICTIONARY_BIT) != 0);}
+
+    /**
      * Set the bit which says record is last in file/buffer.
      * @param isLast  true if record is last in file/buffer.
      * @return new bitInfo word.
@@ -553,9 +591,21 @@ public class RecordHeader implements IBlockHeader {
      * Is this the header of the last record?
      * @return true this is the header of the last record, else false.
      */
-    public boolean isLastRecord() {
-        return ((bitInfo & LAST_RECORD_BIT) != 0);
-    }
+    public boolean isLastRecord() {return ((bitInfo & LAST_RECORD_BIT) != 0);}
+
+    /**
+     * Does this word indicate this is the header of the last record?
+     * @param bitInfo bitInfo word.
+     * @return true this is the header of the last record, else false.
+     */
+    static public boolean isLastRecord(int bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
+
+    /**
+     * Clear the bit in the given arg to indicate it is NOT the last record.
+     * @param i integer in which to clear the last-record bit
+     * @return arg with last-record bit cleared
+     */
+    static public int clearLastRecordBit(int i) {return (i &= ~LAST_RECORD_MASK);}
 
     /**
      * Set the bit info of a record header for a specified CODA event type.
