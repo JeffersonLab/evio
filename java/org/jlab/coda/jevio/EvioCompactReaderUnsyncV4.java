@@ -1,9 +1,13 @@
 /*
- *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
- *   to use, copy, modify, and distribute  this software and its documentation for
- *   educational, research, and not-for-profit purposes, without fee and without a
- *   signed licensing agreement.
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
  */
+
 package org.jlab.coda.jevio;
 
 import java.io.File;
