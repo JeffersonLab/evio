@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ */
+
 package org.jlab.coda.jevio;
 
 
@@ -8,33 +18,18 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * An EventWriter object is used for writing events to a file or to a byte buffer.
- * This class does NOT write versions 1-3 data, only version 4!
+ * This class does NOT write versions 1-4 data, only version 6!
  * This class is thread-safe.
  *
- * @author heddle
  * @author timmer
  */
 public class EventWriterMT {
-
-    /**
-	 * This <code>enum</code> denotes the status of a read. <br>
-	 * SUCCESS indicates a successful read/write. <br>
-	 * END_OF_FILE indicates that we cannot read because an END_OF_FILE has occurred. Technically this means that what
-	 * ever we are trying to read is larger than the buffer's unread bytes.<br>
-	 * EVIO_EXCEPTION indicates that an EvioException was thrown during a read, possibly due to out of range values,
-	 * such as a negative start position.<br>
-     * CANNOT_OPEN_FILE  that we cannot write because the destination file cannot be opened.<br>
-	 * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
-	 */
-	public enum IOStatus {
-		SUCCESS, END_OF_FILE, EVIO_EXCEPTION, CANNOT_OPEN_FILE, UNKNOWN_ERROR
-	}
-
 
     /** Dictionary and first event are stored in user header part of file header.
      *  They're written as a record which allows multiple events. */
@@ -52,9 +47,6 @@ public class EventWriterMT {
     /** Type of compression being done on data
      *  (0=none, 1=LZ4fastest, 2=LZ4best, 3=gzip). */
     private int compressionType;
-
-    /** Number of threads doing compression simultaneously. */
-    private int compressionThreadCount = 1;
 
     /** List of record lengths to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
@@ -103,7 +95,7 @@ public class EventWriterMT {
     /** <code>True</code> if writing to file, else <code>false</code>. */
     private boolean toFile;
 
-    /** <code>True</code> if appending to file/buffer, <code>false</code> if (over)writing. */
+    /** <code>True</code> if appending to file, <code>false</code> if (over)writing. */
     private boolean append;
 
     /** <code>True</code> if appending to file/buffer with dictionary, <code>false</code>. */
@@ -159,6 +151,9 @@ public class EventWriterMT {
     /** Split number associated with output file to be written next. */
     private int splitNumber;
 
+    /** Number of split files produced by this writer. */
+    private int splitCount;
+
     /** Part of filename without run or split numbers. */
     private String baseFileName;
 
@@ -179,6 +174,9 @@ public class EventWriterMT {
      * A data stream is a chain of ROCS and EBs ending in a single specific ER.
      */
     private int streamCount;
+
+    /** Writing to file with single thread? */
+    private boolean singleThreadedCompression;
 
     /** Is it OK to overwrite a previously existing file? */
     private boolean overWriteOK;
@@ -450,21 +448,20 @@ public class EventWriterMT {
             byteOrder = ByteOrder.BIG_ENDIAN;
         }
 
-//        if (append) {
-//            if (split > 0) {
-//                throw new EvioException("Cannot specify split when appending");
-//            }
-//            else if ((xmlDictionary != null) || (firstEvent != null)) {
-//                throw new EvioException("Cannot specify dictionary or first event when appending");
-//            }
-//        }
+        if (append) {
+            if (split > 0) {
+                throw new EvioException("Cannot specify split when appending");
+            }
+            else if ((xmlDictionary != null) || (firstEvent != null)) {
+                throw new EvioException("Cannot specify dictionary or first event when appending");
+            }
+        }
 
         createCommonRecord(xmlDictionary, firstEvent, null, null);
 
         // Store arguments
         this.split         = split;
-        //this.append        = append;
-        this.append        = false;
+        this.append        = append;
         this.runNumber     = runNumber;
         this.byteOrder     = byteOrder;   // byte order may be overwritten if appending
         this.overWriteOK   = overWriteOK;
@@ -479,15 +476,7 @@ public class EventWriterMT {
         if (compressionThreads < 1) {
             compressionThreads = 1;
         }
-        this.compressionThreadCount = compressionThreads;
 
-        // Number of ring items must be >= compressionThreadCount
-        if (ringSize < compressionThreadCount) {
-            ringSize = compressionThreadCount;
-        }
-        // AND is must be multiple of 2
-        /* Number of records in record supply. */
-        ringSize = Utilities.powerOfTwo(ringSize, true);
 
         toFile = true;
         recordNumber = 1;
@@ -527,19 +516,40 @@ public class EventWriterMT {
 
         // Evio file
         fileHeader = new FileHeader(true);
-        supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
-                                  maxEventCount, maxRecordSize, compressionType);
 
-        // Create and start compression threads
-        recordCompressorThreads = new RecordCompressor[compressionThreadCount];
-        for (int i=0; i < compressionThreadCount; i++) {
-            recordCompressorThreads[i] = new RecordCompressor(i);
-            recordCompressorThreads[i].start();
+        // Compression threads
+        if (compressionThreads == 1) {
+            // When writing single threaded, just fill/compress/write one record at a time
+            singleThreadedCompression = true;
+            currentRecord = new RecordOutputStream(byteOrder, maxEventCount,
+                                                   maxRecordSize, compressionType);
         }
+        else {
+            // Number of ring items must be >= compressionThreads
+            if (ringSize < compressionThreads) {
+                ringSize = compressionThreads;
+            }
+            // AND must be multiple of 2
+            ringSize = Utilities.powerOfTwo(ringSize, true);
 
-        // Create and start writing thread
-        recordWriterThread = new RecordWriter();
-        recordWriterThread.start();
+            supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
+                                      maxEventCount, maxRecordSize, compressionType);
+
+            // Create and start compression threads
+            recordCompressorThreads = new RecordCompressor[compressionThreads];
+            for (int i = 0; i < compressionThreads; i++) {
+                recordCompressorThreads[i] = new RecordCompressor(i);
+                recordCompressorThreads[i].start();
+            }
+
+            // Create and start writing thread
+            recordWriterThread = new RecordWriter();
+            recordWriterThread.start();
+
+            // Get a single blank record to start writing into
+            currentRingItem = supply.get();
+            currentRecord   = currentRingItem.getRecord();
+        }
 
         // Object to close files in a separate thread when splitting, to speed things up
         if (split > 0) fileCloser = new FileCloser();
@@ -659,7 +669,6 @@ public class EventWriterMT {
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
      *                       if buf arg is null;
-     *                       if defined dictionary while appending;
      */
     public EventWriterMT(ByteBuffer buf, int maxRecordSize, int maxEventCount,
                          String xmlDictionary, int recordNumber,
@@ -671,12 +680,9 @@ public class EventWriterMT {
             throw new EvioException("Buffer arg cannot be null");
         }
 
-        if (append && ((xmlDictionary != null) || (firstEvent != null))) {
-            throw new EvioException("Cannot specify dictionary or first event when appending");
-        }
-
         createCommonRecord(xmlDictionary, firstEvent, null, null);
 
+        this.toFile          = false;
         this.append          = false;
         this.buffer          = buf;
         this.byteOrder       = buf.order();
@@ -684,9 +690,7 @@ public class EventWriterMT {
         this.xmlDictionary   = xmlDictionary;
         this.compressionType = compressionType;
 
-        // Get buffer ready for writing. If we're appending, setting
-        // the position to 0 lets us read up to the end of the evio
-        // data and find the proper place to append to.
+        // Get buffer ready for writing.
         buffer.position(0);
         bufferSize = buf.capacity();
 
@@ -701,9 +705,13 @@ public class EventWriterMT {
      * The buffer's position is set to 0 before writing.
      *
      * @param buf            the buffer to write to.
+     * @param bitInfo        set of bits to include in first record header.
      * @param recordNumber   number at which to start record number counting.
+     * @param useCurrentBitInfo   regardless of bitInfo arg's value, use the
+     *                            current value of bitInfo in the reinitialized buffer.
      */
-    private void reInitializeBuffer(ByteBuffer buf, int recordNumber) {
+    private void reInitializeBuffer(ByteBuffer buf, BitSet bitInfo, int recordNumber,
+                                    boolean useCurrentBitInfo) {
 
         this.buffer       = buf;
         this.byteOrder    = buf.order();
@@ -718,8 +726,22 @@ public class EventWriterMT {
         bytesWrittenToBuffer = 0L;
         bytesWritten = 0L;
         
+        // Deal with bitInfo
+        RecordHeader header = currentRecord.getHeader();
+        if (useCurrentBitInfo) {
+            int bitInfoWord = header.getBitInfoWord();
+            currentRecord.reset();
+            header.setBitInfoWord(bitInfoWord);
+        }
+        else {
+            currentRecord.reset();
+            try {
+                header.setBitInfoWord(bitInfo);
+            }
+            catch (HipoException e) {/* do nothing if problem (bitInfo == null) */}
+        }
+
         // Get buffer ready for writing
-        currentRecord.reset();
         buffer.position(0);
         bufferSize = buf.capacity();
     }
@@ -729,27 +751,25 @@ public class EventWriterMT {
      * Set the buffer being written into (initially set in constructor).
      * This method allows the user to avoid having to create a new EventWriterMT
      * each time a bank needs to be written to a different buffer.
-     * This does nothing if writing to a file. Not for use if appending.<p>
+     * This does nothing if writing to a file.<p>
      * Do <b>not</b> use this method unless you know what you are doing.
      *
      * @param buf the buffer to write to.
+     * @param bitInfo        set of bits to include in first record header.
      * @param recordNumber   number at which to start record number counting.
      * @throws EvioException if this object was not closed prior to resetting the buffer,
-     *                       buffer arg is null, or in appending mode.
+     *                       buffer arg is null, or writing to file.
      */
-    public void setBuffer(ByteBuffer buf, int recordNumber) throws EvioException {
+    public void setBuffer(ByteBuffer buf, BitSet bitInfo, int recordNumber) throws EvioException {
         if (toFile) return;
         if (buf == null) {
             throw new EvioException("Buffer arg null");
-        }
-        if (append) {
-            throw new EvioException("Method not for use if appending");
         }
         if (!closed) {
             throw new EvioException("Close EventWriter before changing buffers");
         }
 
-        reInitializeBuffer(buf, recordNumber);
+        reInitializeBuffer(buf, bitInfo, recordNumber, false);
     }
 
 
@@ -757,15 +777,23 @@ public class EventWriterMT {
      * Set the buffer being written into (initially set in constructor).
      * This method allows the user to avoid having to create a new EventWriterMT
      * each time a bank needs to be written to a different buffer.
-     * This does nothing if writing to a file. Not for use if appending.<p>
+     * This does nothing if writing to a file.<p>
      * Do <b>not</b> use this method unless you know what you are doing.
      *
      * @param buf the buffer to write to.
      * @throws EvioException if this object was not closed prior to resetting the buffer,
-     *                       buffer arg is null, or in appending mode.
+     *                       buffer arg is null, or writing to file.
      */
     public void setBuffer(ByteBuffer buf) throws EvioException {
-        setBuffer(buf, 1);
+        if (toFile) return;
+        if (buf == null) {
+            throw new EvioException("Buffer arg null");
+        }
+        if (!closed) {
+            throw new EvioException("Close EventWriter before changing buffers");
+        }
+
+        reInitializeBuffer(buf, null, recordNumber, true);
     }
 
 
@@ -805,7 +833,12 @@ public class EventWriterMT {
         // most probably won't contain the full file contents.
         if (toFile()) return null;
 
-        ByteBuffer buf = buffer.duplicate().order(buffer.order());
+        // We synchronize here so we do not write/close in the middle
+        // of our messing with the buffer.
+        ByteBuffer buf;
+        synchronized (this) {
+            buf = buffer.duplicate().order(buffer.order());
+        }
 
         // Get buffer ready for reading
         buf.flip();
@@ -826,7 +859,7 @@ public class EventWriterMT {
      *
      * @return {@code true} if this object closed, else {@code false}.
      */
-    public boolean isClosed() {return closed;}
+    synchronized public boolean isClosed() {return closed;}
 
 
     /**
@@ -840,6 +873,14 @@ public class EventWriterMT {
         }
         return null;
     }
+
+
+    /**
+     * If writing to a buffer, get the number of bytes written to it
+     * including the trailer.
+     * @return number of bytes written to buffer
+     */
+    public long getBytesWrittenToBuffer() {return bytesWrittenToBuffer;}
 
 
     /**
@@ -861,6 +902,21 @@ public class EventWriterMT {
      * @return the current split number which is the split number of file to be written next.
      */
     public int getSplitNumber() {return splitNumber;}
+
+
+    /**
+     * Get the number of split files produced by this writer.
+     * @return number of split files produced by this writer.
+     */
+    public int getSplitCount() {return splitCount;}
+
+
+    /**
+     * Get the current block (record) number.
+     * Warning, this value may be changing.
+     * @return the current block (record) number.
+     */
+    public int getBlockNumber() {return recordNumber;}
 
 
     /**
@@ -888,6 +944,19 @@ public class EventWriterMT {
      * @return byte order of the buffer/file being written into.
      */
     public ByteOrder getByteOrder() {return byteOrder;}
+
+
+    /**
+     * Set the number with which to start block (record) numbers.
+     * This method does nothing if events have already been written.
+     * @param startingRecordNumber  the number with which to start block
+     *                              (record) numbers.
+     */
+    public void setStartingBlockNumber(int startingRecordNumber) {
+        // If events have been written already, forget about it
+        if (eventsWrittenTotal > 0) return;
+        recordNumber = startingRecordNumber;
+    }
 
 
     /**
@@ -930,6 +999,7 @@ public class EventWriterMT {
      * @param node node representing event to be placed first in each file written
      *             including all splits. If null, no more first events are written
      *             to any files.
+     * @throws IOException   if error writing to file
      * @throws EvioException if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
@@ -937,7 +1007,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void setFirstEvent(EvioNode node) throws EvioException {
+    synchronized public void setFirstEvent(EvioNode node) throws EvioException, IOException {
 
         // There's no way to remove an event from a record, so reconstruct it
         createCommonRecord(xmlDictionary, null, node, null);
@@ -982,6 +1052,7 @@ public class EventWriterMT {
      * @param buffer buffer containing event to be placed first in each file written
      *               including all splits. If null, no more first events are written
      *               to any files.
+     * @throws IOException   if error writing to file
      * @throws EvioException if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
@@ -989,7 +1060,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void setFirstEvent(ByteBuffer buffer) throws EvioException {
+    synchronized public void setFirstEvent(ByteBuffer buffer) throws EvioException, IOException {
 
         createCommonRecord(xmlDictionary, null, null, buffer);
 
@@ -1031,6 +1102,7 @@ public class EventWriterMT {
      *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
+     * @throws IOException   if error writing to file
      * @throws EvioException if first event is opposite byte order of internal buffer;
      *                       if bad data format;
      *                       if close() already called;
@@ -1038,7 +1110,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void setFirstEvent(EvioBank bank) throws EvioException {
+    synchronized public void setFirstEvent(EvioBank bank) throws EvioException, IOException {
 
         createCommonRecord(xmlDictionary, bank, null, null);
 
@@ -1186,21 +1258,30 @@ public class EventWriterMT {
      * Calling this can kill performance. May not call this when simultaneously
      * calling writeEvent, close, setFirstEvent, or getByteBuffer.
      */
-    public void flush() {
+    synchronized public void flush() {
 
         if (closed || !toFile) {
             return;
         }
 
-        // Write any existing data.
-        // Tell writer to force this record to disk which kills performance!
-        currentRingItem.forceToDisk(true);
-        // Send current record back to ring
-        supply.publish(currentRingItem);
+        if (singleThreadedCompression) {
+            // This will kill performance!
+            try {compressAndWriteToFile(true);}
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            // Write any existing data.
+            // Tell writer to force this record to disk which kills performance!
+            currentRingItem.forceToDisk(true);
+            // Send current record back to ring
+            supply.publish(currentRingItem);
 
-        // Get another empty record from ring
-        currentRingItem = supply.get();
-        currentRecord = currentRingItem.getRecord();
+            // Get another empty record from ring
+            currentRingItem = supply.get();
+            currentRecord = currentRingItem.getRecord();
+        }
     }
 
 
@@ -1209,26 +1290,34 @@ public class EventWriterMT {
      * May not call this when simultaneously calling
      * writeEvent, flush, setFirstEvent, or getByteBuffer.
      */
-    public void close() {
+    synchronized public void close() {
         if (closed) {
             return;
         }
 
         if (toFile) {
-            // If we're building a record, send it off
-            // to compressing thread since we're done.
-            if (currentRecord.getEventCount() > 0) {
-                // Put it back in supply for compressing
-                supply.publish(currentRingItem);
+            if (singleThreadedCompression) {
+                try {compressAndWriteToFile(false);}
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+            else {
+                // If we're building a record, send it off
+                // to compressing thread since we're done.
+                if (currentRecord.getEventCount() > 0) {
+                    // Put it back in supply for compressing
+                    supply.publish(currentRingItem);
+                }
 
-            // Since the writer thread is the last to process each record,
-            // wait until it's done with the last item, then exit the thread.
-            recordWriterThread.waitForLastItem();
+                // Since the writer thread is the last to process each record,
+                // wait until it's done with the last item, then exit the thread.
+                recordWriterThread.waitForLastItem();
 
-            // Stop all compressing threads which by now are stuck on get
-            for (RecordCompressor rc : recordCompressorThreads) {
-                rc.interrupt();
+                // Stop all compressing threads which by now are stuck on get
+                for (RecordCompressor rc : recordCompressorThreads) {
+                    rc.interrupt();
+                }
             }
         }
         else {
@@ -1583,6 +1672,7 @@ public class EventWriterMT {
      *
      * @param node   object representing the event to write in buffer form
      * @param force  if writing to disk, force it to write event to the disk.
+     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1590,7 +1680,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioNode node, boolean force) throws EvioException {
+    public void writeEvent(EvioNode node, boolean force) throws EvioException, IOException {
         // Duplicate buffer so we can set pos & limit without messing others up
         writeEvent(node, force, true);
     }
@@ -1623,6 +1713,7 @@ public class EventWriterMT {
      * @param force      if writing to disk, force it to write event to the disk.
      * @param duplicate  if true, duplicate node's buffer so its position and limit
      *                   can be changed without issue.
+     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1632,7 +1723,7 @@ public class EventWriterMT {
      *                       if null node arg;
      */
     public void writeEvent(EvioNode node, boolean force, boolean duplicate)
-            throws EvioException {
+            throws EvioException, IOException {
 
         if (node == null) {
             throw new EvioException("null node arg");
@@ -1686,6 +1777,7 @@ public class EventWriterMT {
      * user header part of the file header.<p>
      *
      * @param eventBuffer the event (bank) to write in buffer form
+     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1693,7 +1785,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(ByteBuffer eventBuffer) throws EvioException {
+    public void writeEvent(ByteBuffer eventBuffer) throws EvioException, IOException {
         writeEvent(null, eventBuffer, false);
     }
 
@@ -1713,12 +1805,13 @@ public class EventWriterMT {
      * user header part of the file header.<p>
      *
      * @param bank the bank to write.
+     * @throws IOException   if error writing file
      * @throws EvioException if close() already called;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioBank bank) throws EvioException {
+    public void writeEvent(EvioBank bank) throws EvioException, IOException {
         writeEvent(bank, null, false);
     }
 
@@ -1746,6 +1839,7 @@ public class EventWriterMT {
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
      *
+     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if close() already called;
      *                       if bad eventBuffer format;
@@ -1753,7 +1847,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(ByteBuffer bankBuffer, boolean force) throws EvioException {
+    public void writeEvent(ByteBuffer bankBuffer, boolean force) throws EvioException, IOException {
         writeEvent(null, bankBuffer, force);
     }
 
@@ -1779,12 +1873,13 @@ public class EventWriterMT {
      * @param bank   the bank to write.
      * @param force  if writing to disk, force it to write event to the disk.
      *
+     * @throws IOException   if error writing file
      * @throws EvioException if close() already called;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    public void writeEvent(EvioBank bank, boolean force) throws EvioException {
+    public void writeEvent(EvioBank bank, boolean force) throws EvioException, IOException {
         writeEvent(bank, null, force);
     }
 
@@ -1816,6 +1911,7 @@ public class EventWriterMT {
      * @param bankBuffer the bank (as a ByteBuffer object) to write.
      * @param force      if writing to disk, force it to write event to the disk.
      *
+     * @throws IOException   if error writing file
      * @throws EvioException if event is opposite byte order of internal buffer;
      *                       if bad bankBuffer format;
      *                       if close() already called;
@@ -1823,8 +1919,8 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    private void writeEvent(EvioBank bank, ByteBuffer bankBuffer, boolean force)
-            throws EvioException {
+    synchronized private void writeEvent(EvioBank bank, ByteBuffer bankBuffer, boolean force)
+            throws EvioException, IOException {
 
         if (closed) {
             throw new EvioException("close() has already been called");
@@ -1896,15 +1992,20 @@ public class EventWriterMT {
 
         // If event is big enough to split the file ...
         if (splittingFile) {
-            recordsWritten++;
-            // Set flag to split file
-            currentRingItem.splitFileAfterWrite(true);
-            // Send current record back to ring without adding event
-            supply.publish(currentRingItem);
+            if (singleThreadedCompression) {
+                compressAndWriteToFile(false);
+                splitFile();
+            }
+            else {
+                // Set flag to split file
+                currentRingItem.splitFileAfterWrite(true);
+                // Send current record back to ring without adding event
+                supply.publish(currentRingItem);
 
-            // Get another empty record from ring
-            currentRingItem = supply.get();
-            currentRecord = currentRingItem.getRecord();
+                // Get another empty record from ring
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
+            }
         }
 
         // Try adding event to current record.
@@ -1918,13 +2019,17 @@ public class EventWriterMT {
 
         // If no room or too many events ...
         if (!fitInRecord) {
-            recordsWritten++;
-            // Send current record back to ring without adding event
-            supply.publish(currentRingItem);
+            if (singleThreadedCompression) {
+                compressAndWriteToFile(false);
+            }
+            else {
+                // Send current record back to ring without adding event
+                supply.publish(currentRingItem);
 
-            // Get another empty record from ring
-            currentRingItem = supply.get();
-            currentRecord = currentRingItem.getRecord();
+                // Get another empty record from ring
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
+            }
 
             // Add event to it (guaranteed to fit)
             if (bankBuffer != null) {
@@ -1937,15 +2042,19 @@ public class EventWriterMT {
 
         // If event must be physically written to disk ...
         if (force) {
-            recordsWritten++;
-            // Tell writer to force this record to disk
-            currentRingItem.forceToDisk(true);
-            // Send current record back to ring
-            supply.publish(currentRingItem);
+            if (singleThreadedCompression) {
+                compressAndWriteToFile(true);
+            }
+            else {
+                // Tell writer to force this record to disk
+                currentRingItem.forceToDisk(true);
+                // Send current record back to ring
+                supply.publish(currentRingItem);
 
-            // Get another empty record from ring
-            currentRingItem = supply.get();
-            currentRecord = currentRingItem.getRecord();
+                // Get another empty record from ring
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
+            }
         }
     }
 
@@ -2072,6 +2181,29 @@ public class EventWriterMT {
 
 
     /**
+     * Compress data and write record to file. Does nothing if close() already called.
+     * Used when doing compression & writing to file in a single thread.
+     *
+     * @param force force it to write event to the disk.
+     * @return {@code false} if no data written, else {@code true}
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if this object already closed;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     */
+    private void compressAndWriteToFile(boolean force)
+                                throws EvioException, IOException {
+        RecordHeader header = currentRecord.getHeader();
+        header.setRecordNumber(recordNumber);
+        header.setCompressionType(compressionType);
+        currentRecord.build();
+        writeToFile(null, force);
+        currentRecord.reset();
+     }
+
+
+    /**
      * Write record to file. Does nothing if close() already called.
      *
      * @param force force it to write event to the disk.
@@ -2082,7 +2214,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
      */
-    private boolean writeToFile(RecordRingItem item, boolean force)
+    synchronized private boolean writeToFile(RecordRingItem item, boolean force)
                                 throws EvioException, IOException {
         if (closed) {
             throw new EvioException("close() has already been called");
@@ -2094,6 +2226,7 @@ public class EventWriterMT {
             try {
                 raf = new RandomAccessFile(currentFile, "rw");
                 fileChannel = raf.getChannel();
+                splitCount++;
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
@@ -2105,7 +2238,10 @@ public class EventWriterMT {
         }
 
         // Do write
-        RecordOutputStream record = item.getRecord();
+        RecordOutputStream record = currentRecord;
+        if (!singleThreadedCompression) {
+            record = item.getRecord();
+        }
         RecordHeader header = record.getHeader();
 //System.out.println("   Writer: got record, header = \n" + header);
 
@@ -2175,7 +2311,7 @@ public class EventWriterMT {
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
      */
-    private void splitFile() throws EvioException, IOException {
+    synchronized private void splitFile() throws EvioException, IOException {
 
         if (raf != null) {
             if (addTrailer) {
