@@ -168,7 +168,7 @@ final public class Utilities {
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is not 0, the string, ".strm"
+     * they can be differentiated by a stream id number. If the id is &gt; -1, the string, ".strm"
      * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
      * This is done after the run and split numbers have been inserted into the file name.
      *
@@ -177,7 +177,7 @@ final public class Utilities {
      * @param runNumber      CODA run number
      * @param split          number of bytes at which to split off evio file
      * @param splitNumber    number of the split file
-     * @param streamId       number of the stream id
+     * @param streamId       number of the stream id, value of &lt; 0 does NOT append stream number to name
      *
      * @return generated file name
      *
@@ -235,7 +235,7 @@ final public class Utilities {
             }
         }
 
-        if (streamId > 0) {
+        if (streamId > -1) {
             fileName += ".strm" + streamId;
         }
 
