@@ -2053,7 +2053,7 @@ public class EventWriter {
      *
      * @return status of read attempt
      */
-    protected synchronized IOStatus examineFirstBlockHeader()
+    protected IOStatus examineFirstBlockHeader()
             throws IOException, EvioException {
 
         // Only for append mode
