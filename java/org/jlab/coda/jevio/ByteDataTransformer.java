@@ -1,9 +1,20 @@
+/*
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ */
+
 package org.jlab.coda.jevio;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.*;
+import java.util.BitSet;
 import java.util.List;
 
 
@@ -17,6 +28,59 @@ import java.util.List;
  *
  */
 public class ByteDataTransformer {
+
+    //-----------------------------------
+    // BitSet
+    //-----------------------------------
+
+
+    /**
+     * Converts a BitSet object into an integer.
+     *
+     * @param bSet BitSet to convert to integer.
+     * @return integer representing bit set values.
+     * @throws EvioException if arg null or contains too many true bits to fit into integer.
+     */
+    public static int toInt(BitSet bSet) throws EvioException {
+
+        if (bSet == null || bSet.length() > 32) {
+            throw new EvioException("arg is null or too many true bits for int");
+        }
+
+        // Do the encoding
+        int j=0;
+        for (int i=0; i < bSet.length(); i++) {
+            if (bSet.get(i)) {
+                j |= 1 << i;
+            }
+        }
+
+        return j;
+    }
+
+
+    /**
+     * Converts an integer into a BitSet object.
+     *
+     * @param bSet BitSet object to hold int data.
+     * @param bits integer to convert to BitSet.
+     * @throws EvioException if arg null.
+     */
+    public static void toBitSet(BitSet bSet, int bits) throws EvioException {
+        if (bSet == null) {
+            throw new EvioException("arg is null");
+        }
+
+        // Do the encoding
+        bSet.clear();
+        for (int i=0; i < 32; i++) {
+            if (((bits >>> i) & 1) > 0) bSet.set(i);
+        }
+    }
+
+
+    //-----------------------------------
+
 
     /**
      * Converts a byte array into an int array.
