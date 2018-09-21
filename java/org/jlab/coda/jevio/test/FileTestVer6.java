@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * Test program for writing and reading evio version 6 files.
@@ -261,10 +262,29 @@ public class FileTestVer6 {
                     "  <xmldumpDictEntry name=\"bank of chars\"  tag=\"5\"   num=\"5\"/>\n" +
             "</xmlDict>";
 
+    /** For WRITING a local file. */
+    public static void main(String args[]) {
+        int i = -456;
+        BitSet bs = new BitSet(32);
+
+        try {
+            ByteDataTransformer.toBitSet(bs, i);
+            i = ByteDataTransformer.toInt(bs);
+            System.out.println("i = " + i);
+            ByteDataTransformer.toBitSet(bs, i);
+            i = ByteDataTransformer.toInt(bs);
+            System.out.println("i = " + i);
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+
+    }
 
 
     /** For WRITING a local file. */
-    public static void main(String args[]) {
+    public static void main1(String args[]) {
 
         String fileName  = "/daqfs/home/timmer/evioFiles/fileTestSmall.ev";
         File file = new File(fileName);
