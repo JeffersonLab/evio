@@ -13,6 +13,7 @@ import org.jlab.coda.jevio.IBlockHeader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * <pre>
@@ -307,7 +308,7 @@ public class RecordHeader implements IBlockHeader {
     }
 
     /** Reset generated data. */
-    public void reset(){
+    public void reset() {
         // Do NOT reset header type which is only set in constructor!
         // Do NOT reset the compression type
         position = 0L;
@@ -640,18 +641,35 @@ public class RecordHeader implements IBlockHeader {
 
     /**
      * Set the bit info word and related values.
+     * NOT FOR GENERAL USE!
      * @param word  bit info word.
      */
-    void  setBitInfoWord(int word) {
+    public void setBitInfoWord(int word) {
         bitInfo = word;
         decodeBitInfoWord(word);
+    }
+
+    /**
+     * Set the bit info word and related values.
+     * NOT FOR GENERAL USE!
+     * @param word  bit info object.
+     * @throws HipoException if word arg is null or cannot be represented by int.
+     */
+    public void setBitInfoWord(BitSet word) throws HipoException {
+        try {
+            bitInfo = ByteDataTransformer.toInt(word);
+        }
+        catch (EvioException e) {
+            throw new HipoException(e);
+        }
+        decodeBitInfoWord(bitInfo);
     }
 
     /**
      * Decodes the padding and header type info.
      * @param word int to decode.
      */
-    private void decodeBitInfoWord(int word){
+    private void decodeBitInfoWord(int word) {
         // Padding
         compressedDataLengthPadding = (word >>> 24) & 0x3;
         dataLengthPadding           = (word >>> 22) & 0x3;
