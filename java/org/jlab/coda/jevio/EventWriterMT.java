@@ -413,18 +413,20 @@ public class EventWriterMT {
      * @param xmlDictionary dictionary in xml format or null if none.
      * @param overWriteOK   if <code>false</code> and the file already exists,
      *                      an exception is thrown rather than overwriting it.
-     * @param append        currently appending is not done (false regardless).
+     * @param append        if <code>true</code> append written data to given file.
      * @param firstEvent    the first event written into each file (after any dictionary)
      *                      including all split files; may be null. Useful for adding
      *                      common, static info into each split file.
-     * @param streamId      streamId number (100 &gt; id &gt; -1) for file name
-     * @param streamCount   total number of data streams
-     * @param compressionType    type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
-     * @param compressionThreads number of threads doing compression simultaneously
-     * @param ringSize           number of records in supply ring, must be multiple of 2
-     *                           and &gt;= compressionThreads.
+     * @param streamId      streamId number for file name. Only used if &gt;= 0.
+     * @param streamCount   total number of data streams (&gt; 0).
+     * @param compressionType    type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     * @param compressionThreads number of threads doing compression simultaneously.
+     * @param ringSize           number of records in supply ring. If set to &lt; compressionThreads,
+     *                           it is forced to equal that value and is also forced to be a multiple of
+     *                           2, rounded up.
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
+     *                       if streamCount &gt; 1 and streamId &lt; 0;
      *                       if defined dictionary or first event while appending;
      *                       if splitting file while appending;
      *                       if file name arg is null;
@@ -442,6 +444,10 @@ public class EventWriterMT {
 
         if (baseName == null) {
             throw new EvioException("baseName arg is null");
+        }
+
+        if (runNumber < 1) {
+            runNumber = 1;
         }
 
         if (byteOrder == null) {
@@ -487,10 +493,15 @@ public class EventWriterMT {
         // by adding the streamCount.
         splitNumber = 0;
         if (streamCount > 1) {
+            if (streamId < 0) {
+                throw new EvioException("streamId arg must be >= 0");
+            }
             splitNumber = streamId;
         }
         else {
             streamCount = 1;
+            // Don't use stream id in file name
+            streamId = -1;
         }
 
         // The following may not be backwards compatible.
@@ -625,28 +636,6 @@ public class EventWriterMT {
     public EventWriterMT(ByteBuffer buf, String xmlDictionary) throws EvioException {
 
         this(buf, 0, 0, xmlDictionary, 1, null, 0);
-    }
-
-    /**
-     * Create an <code>EventWriterMT</code> for writing events to a ByteBuffer.
-     * Will overwrite any existing data in buffer!
-     *
-     * @param buf            the buffer to write to.
-     * @param maxRecordSize  max number of data bytes each record can hold.
-     *                       Value of &lt; 8MB results in default of 8MB.
-     *                       The size of the record will not be larger than this size
-     *                       unless a single event itself is larger.
-     * @param maxEventCount  max number of events each record can hold.
-     *                       Value &lt;= O means use default (1M).
-     * @param xmlDictionary  dictionary in xml format or null if none.
-     * @param recordNumber   number at which to start record number counting.
-     * @throws EvioException if maxRecordSize or maxEventCount exceed limits; if buf arg is null
-     */
-    public EventWriterMT(ByteBuffer buf, int maxRecordSize, int maxEventCount,
-                         String xmlDictionary, int recordNumber) throws EvioException {
-
-        this(buf, maxRecordSize, maxEventCount, xmlDictionary,
-                         recordNumber, null, 0);
     }
 
 
@@ -1208,8 +1197,8 @@ public class EventWriterMT {
         int commonRecordSize = 0;
         if (commonRecord.getEventCount() > 0) {
             commonRecordSize = commonRecord.getHeader().getLength();
-            boolean haveDict = dictionaryByteArray == null ? false : true;
-            boolean haveFE   = firstEventByteArray == null ? false : true;
+            boolean haveDict = dictionaryByteArray != null;
+            boolean haveFE   = firstEventByteArray != null;
             fileHeader.setBitInfo(haveFE, haveDict, false);
         }
         // Sets file header length too
@@ -1255,7 +1244,7 @@ public class EventWriterMT {
      * events at such a low rate that it takes an inordinate amount of time
      * for internally buffered data to be written to the file.<p>
      *
-     * Calling this can kill performance. May not call this when simultaneously
+     * Calling this may easily kill performance. May not call this when simultaneously
      * calling writeEvent, close, setFirstEvent, or getByteBuffer.
      */
     synchronized public void flush() {
@@ -1265,7 +1254,6 @@ public class EventWriterMT {
         }
 
         if (singleThreadedCompression) {
-            // This will kill performance!
             try {compressAndWriteToFile(true);}
             catch (Exception e) {
                 e.printStackTrace();
@@ -1273,7 +1261,6 @@ public class EventWriterMT {
         }
         else {
             // Write any existing data.
-            // Tell writer to force this record to disk which kills performance!
             currentRingItem.forceToDisk(true);
             // Send current record back to ring
             supply.publish(currentRingItem);
