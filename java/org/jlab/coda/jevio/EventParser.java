@@ -1,6 +1,5 @@
 package org.jlab.coda.jevio;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import javax.swing.event.EventListenerList;
