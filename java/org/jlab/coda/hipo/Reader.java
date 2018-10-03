@@ -158,8 +158,6 @@ public class Reader {
     /** Evio version of file/buffer being read. */
     protected int evioVersion;
 
-
-    
     /**
      * Default constructor. Does nothing.
      * The {@link #open(String)} method has to be called to open the input stream.
@@ -234,17 +232,13 @@ public class Reader {
             catch (IOException ex) {}
         }
 
-        System.out.println("[READER] ----> opening current file : " + filename);
+        System.out.println("[READER] ----> opening file : " + filename);
         inStreamRandom = new RandomAccessFile(filename,"r");
         System.out.println("[READER] ---> open successful, size : " + inStreamRandom.length());
     }
 
     /**
-     * This is closes the file, but for buffers it only sets the position to 0.
-     * This method, along with the <code>rewind()</code> and the two
-     * <code>position()</code> methods, allows applications to treat files
-     * in a normal random access manner.
-     *
+     * This closes the file, but for buffers it only sets the position to 0.
      * @throws IOException if error accessing file
      */
     public void close() throws IOException {
@@ -291,11 +285,29 @@ public class Reader {
     }
 
     /**
+     * Get the buffer being read, if any.
+     * @return buffer being read, if any.
+     */
+    public ByteBuffer getBuffer() {return buffer;}
+
+    /**
+     * Get the beginning position of the buffer being read.
+     * @return the beginning position of the buffer being read.
+     */
+    public int getBufferOffset() {return bufferOffset;}
+
+    /**
      * Get the file header from reading a file.
      * Will return null if reading a buffer.
      * @return file header from reading a file.
      */
     public FileHeader getFileHeader() {return fileHeader;}
+
+    /**
+     * Get the first record header from reading a file/buffer.
+     * @return first record header from reading a file/buffer.
+     */
+    public RecordHeader getFirstRecordHeader() {return firstRecordHeader;}
 
     /**
      * Get the byte order of the file/buffer being read.
@@ -381,7 +393,16 @@ public class Reader {
      * Returns the list of record positions in the file.
      * @return 
      */
-    public List<RecordPosition> getRecordPositions(){ return this.recordPositions;}
+    public List<RecordPosition> getRecordPositions() {return recordPositions;}
+
+    /**
+     * Get the list of EvioNode objects contained in the buffer being read.
+     * To be used internally to evio.
+     * @return list of EvioNode objects contained in the buffer being read.
+     */
+    public ArrayList<EvioNode> getEventNodes() {return eventNodes;}
+
+
     // Methods for current record
 
     /**
@@ -426,7 +447,7 @@ public class Reader {
     /**
      * Get a byte array representing the previous event from the sequential queue.
      * If the previous call was to {@link #getNextEvent}, this will get the event
-     * previous to what that returned. If this is the called before getNextEvent,
+     * previous to what that returned. If this is called before getNextEvent,
      * it will always return null. Once the first event is returned, this will
      * return null.
      * @return byte array representing the previous event or null if there is none.
@@ -507,6 +528,7 @@ public class Reader {
 
             inStreamRandom.getChannel().position(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
             inStreamRandom.read(userBytes);
+            return ByteBuffer.wrap(userBytes).order(fileHeader.getByteOrder());
         }
         else {
             int userLen = firstRecordHeader.getUserHeaderLength();
@@ -516,9 +538,8 @@ public class Reader {
 
             buffer.position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
             buffer.get(userBytes, 0, userLen);
+            return ByteBuffer.wrap(userBytes).order(firstRecordHeader.getByteOrder());
         }
-
-        return ByteBuffer.wrap(userBytes);
     }
 
     /**
@@ -586,12 +607,12 @@ public class Reader {
      *         index is out of bounds, reading a file or data is compressed.
      */
     public EvioNode getEventNode(int index) {
-        System.out.println("index = " + index + " >? " + eventIndex.getMaxEvents() +
-        ", fromFile = " + fromFile + ", compressed = " + compressed);
+//System.out.println("index = " + index + " >? " + eventIndex.getMaxEvents() +
+//                   ", fromFile = " + fromFile + ", compressed = " + compressed);
         if (index < 0 || index >= eventIndex.getMaxEvents() || fromFile || compressed) {
             return null;
         }
-        System.out.println("Getting node at index = " + index);
+//System.out.println("Getting node at index = " + index);
         return eventNodes.get(index);
     }
 
@@ -787,7 +808,8 @@ public class Reader {
 
 System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft = " + bytesLeft);
         // Keep track of the # of records, events, and valid words in file/buffer
-        int eventCount = 0, byteLen, recordBytes, eventsInRecord;
+        int eventCount = 0, byteLen, recordBytes, eventsInRecord, recPosition;
+        eventNodes.clear();
         recordPositions.clear();
 
         while (bytesLeft >= RecordHeader.HEADER_SIZE_BYTES) {
@@ -796,7 +818,7 @@ System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft =
             // This moves the buffer's position
             buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
             recordHeader.readHeader(headerBuffer);
-            System.out.println("read header ->\n" + recordHeader);
+System.out.println("read header ->\n" + recordHeader);
 
             // Save the first record header
             if (!haveFirstRecordHeader) {
@@ -820,6 +842,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
             recordBytes = recordHeader.getLength();
             eventsInRecord = recordHeader.getEntries();
             RecordPosition rp = new RecordPosition(position, recordBytes, eventsInRecord);
+            recPosition = position;
 //System.out.println(" RECORD HEADER ENTRIES = " + eventsInRecord);
             recordPositions.add(rp);
             // Track # of events in this record for event index handling
@@ -840,7 +863,7 @@ System.out.println("    hopped to data, pos = " + position);
             for (int i=0; i < eventsInRecord; i++) {
                 EvioNode node;
                 try {
-                    node = EvioNode.extractEventNode(bufferNode, null, position, eventCount + i);
+                    node = EvioNode.extractEventNode(bufferNode, recPosition, position, eventCount + i);
                 }
                 catch (EvioException e) {
                     throw new HipoException("Bad evio format: not enough data to read event (bad bank len?)");
@@ -1054,7 +1077,237 @@ System.out.println("position file to trailer = " + fileHeader.getTrailerPosition
         }
         catch (EvioException e) {/* never happen */}
     }
-    
+
+
+
+    /**
+     * This method removes the data, represented by the given node, from the buffer.
+     * It also marks all nodes taken from that buffer as obsolete.
+     * They must not be used anymore.<p>
+     *
+     * @param  removeNode  evio structure to remove from buffer
+     * @return ByteBuffer updated to reflect the node removal
+     * @throws HipoException if object closed;
+     *                       if node was not found in any event;
+     *                       if internal programming error;
+     *                       if buffer has compressed data;
+     */
+    public  ByteBuffer removeStructure(EvioNode removeNode) throws HipoException {
+
+        // If we're removing nothing, then DO nothing
+        if (removeNode == null) {
+            return buffer;
+        }
+
+        if (closed) {
+            throw new HipoException("object closed");
+        }
+        else if (removeNode.isObsolete()) {
+            //System.out.println("removeStructure: node has already been removed");
+            return buffer;
+        }
+
+        if (firstRecordHeader.getCompressionType() != 0) {
+            throw new HipoException("cannot remove node from buffer of compressed data");
+        }
+
+        boolean foundNode = false;
+
+        // Locate the node to be removed ...
+        outer:
+        for (EvioNode ev : eventNodes) {
+            // See if it's an event ...
+            if (removeNode == ev) {
+                foundNode = true;
+                break;
+            }
+
+            for (EvioNode n : ev.getAllNodes()) {
+                // The first node in allNodes is the event node,
+                if (removeNode == n) {
+                    foundNode = true;
+                    break outer;
+                }
+            }
+        }
+
+        if (!foundNode) {
+            throw new HipoException("removeNode not found in any event");
+        }
+
+        // The data these nodes represent will be removed from the buffer,
+        // so the node will be obsolete along with all its descendants.
+        removeNode.setObsolete(true);
+
+        //---------------------------------------------------
+        // Remove structure. Keep using current buffer.
+        // We'll move all data that came after removed node
+        // to where removed node used to be.
+        //---------------------------------------------------
+
+        // Amount of data being removed
+        int removeDataLen = removeNode.getTotalBytes();
+
+        // Just after removed node (start pos of data being moved)
+        int startPos = removeNode.getPosition() + removeDataLen;
+
+        // Duplicate backing buffer
+        ByteBuffer moveBuffer = buffer.duplicate().order(buffer.order());
+        // Prepare to move data currently sitting past the removed node
+        moveBuffer.position(startPos).limit(bufferLimit);
+
+        // Set place to put the data being moved - where removed node starts
+        buffer.position(removeNode.getPosition());
+        // Copy it over
+        buffer.put(moveBuffer);
+
+        // Reset some buffer values
+        buffer.position(bufferOffset);
+        bufferLimit -= removeDataLen;
+        buffer.limit(bufferLimit);
+
+        // Reduce lengths of parent nodes
+        EvioNode parent = removeNode.getParentNode();
+        parent.updateLengths(-removeDataLen);
+
+        // Reduce containing record's length
+        int pos = removeNode.getRecordPosition();
+        // Header length in words
+        int oldLen = 4*buffer.getInt(pos);
+        buffer.putInt(pos, (oldLen - removeDataLen)/4);
+        // Uncompressed data length in bytes
+        oldLen = buffer.getInt(pos + RecordHeader.UNCOMPRESSED_LENGTH_OFFSET);
+        buffer.putInt(pos + RecordHeader.UNCOMPRESSED_LENGTH_OFFSET, oldLen - removeDataLen);
+
+        // Invalidate all nodes obtained from the last buffer scan
+        for (EvioNode ev : eventNodes) {
+            ev.setObsolete(true);
+        }
+
+        // Now the evio data in buffer is in a valid state so rescan buffer to update everything
+        scanBuffer();
+
+        return buffer;
+    }
+
+
+    /**
+     * This method adds an evio container (bank, segment, or tag segment) as the last
+     * structure contained in an event. It is the responsibility of the caller to make
+     * sure that the buffer argument contains valid evio data (only data representing
+     * the structure to be added - not in file format with record header and the like)
+     * which is compatible with the type of data stored in the given event.<p>
+     *
+     * To produce such evio data use {@link EvioBank#write(ByteBuffer)},
+     * {@link EvioSegment#write(ByteBuffer)} or
+     * {@link EvioTagSegment#write(ByteBuffer)} depending on whether
+     * a bank, seg, or tagseg is being added.<p>
+     *
+     * The given buffer argument must be ready to read with its position and limit
+     * defining the limits of the data to copy.
+     *
+     * @param eventNumber number of event to which addBuffer is to be added
+     * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,
+     *                  i.e. no record headers)
+     * @return a new ByteBuffer object which is created and filled with all the data
+     *         including what was just added.
+     * @throws HipoException if eventNumber &lt; 1;
+     *                       if addBuffer is null;
+     *                       if addBuffer arg is empty or has non-evio format;
+     *                       if addBuffer is opposite endian to current event buffer;
+     *                       if added data is not the proper length (i.e. multiple of 4 bytes);
+     *                       if the event number does not correspond to an existing event;
+     *                       if there is an internal programming error;
+     *                       if object closed
+     */
+    public  ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws HipoException {
+
+        if (addBuffer == null || addBuffer.remaining() < 8) {
+            throw new HipoException("null, empty, or non-evio format buffer arg");
+        }
+
+        if (addBuffer.order() != byteOrder) {
+            throw new HipoException("trying to add wrong endian buffer");
+        }
+
+        if (eventNumber < 1) {
+            throw new HipoException("event number must be > 0");
+        }
+
+        if (closed) {
+            throw new HipoException("object closed");
+        }
+
+        EvioNode eventNode;
+        try {
+            eventNode = eventNodes.get(eventNumber - 1);
+        }
+        catch (IndexOutOfBoundsException e) {
+            throw new HipoException("event " + eventNumber + " does not exist", e);
+        }
+
+        // Position in byteBuffer just past end of event
+        int endPos = eventNode.getDataPosition() + 4*eventNode.getDataLength();
+
+        // How many bytes are we adding?
+        int appendDataLen = addBuffer.remaining();
+
+        // Make sure it's a multiple of 4
+        if (appendDataLen % 4 != 0) {
+            throw new HipoException("data added is not in evio format");
+        }
+
+        //--------------------------------------------
+        // Add new structure to end of specified event
+        //--------------------------------------------
+
+        // Create a new buffer
+        ByteBuffer newBuffer = ByteBuffer.allocate(bufferLimit - bufferOffset + appendDataLen);
+        newBuffer.order(byteOrder);
+
+        // Copy beginning part of existing buffer into new buffer
+        buffer.limit(endPos).position(bufferOffset);
+        newBuffer.put(buffer);
+
+        // Copy new structure into new buffer
+        newBuffer.put(addBuffer);
+
+        // Copy ending part of existing buffer into new buffer
+        buffer.limit(bufferLimit).position(endPos);
+        newBuffer.put(buffer);
+
+        // Get new buffer ready for reading
+        newBuffer.flip();
+        buffer = newBuffer;
+        bufferOffset = 0;
+        bufferLimit  = newBuffer.limit();
+
+        // Increase lengths of parent nodes
+        EvioNode addToNode = eventNodes.get(eventNumber);
+        EvioNode parent = addToNode.getParentNode();
+        parent.updateLengths(appendDataLen);
+
+        // Increase containing record's length
+        int pos = addToNode.getRecordPosition();
+        // Header length in words
+        int oldLen = 4*buffer.getInt(pos);
+        buffer.putInt(pos, (oldLen + appendDataLen)/4);
+        // Uncompressed data length in bytes
+        oldLen = buffer.getInt(pos + RecordHeader.UNCOMPRESSED_LENGTH_OFFSET);
+        buffer.putInt(pos + RecordHeader.UNCOMPRESSED_LENGTH_OFFSET, oldLen + appendDataLen);
+
+        // Invalidate all nodes obtained from the last buffer scan
+        for (EvioNode ev : eventNodes) {
+            ev.setObsolete(true);
+        }
+
+        // Now the evio data in buffer is in a valid state so rescan buffer to update everything
+        scanBuffer();
+
+        return buffer;
+    }
+
+
     public void show(){
         System.out.println(" ***** FILE: (info), RECORDS = "
                 + recordPositions.size() + " *****");
