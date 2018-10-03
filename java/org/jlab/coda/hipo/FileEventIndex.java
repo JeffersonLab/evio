@@ -11,7 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
+ * Class used to handle event indexes in the context
+ * of a file and having to change records.
  * @author gavalian
  */
 public class FileEventIndex {
@@ -181,7 +182,9 @@ public class FileEventIndex {
             + " to " + event + ". choose value [ 0-" + (getMaxEvents()-1) + " ]");
             return false;
         }
-        
+
+        // If event not specifically contained in recordIndex, it returns (-(insertion pt) - 1)
+        // where "insertion pt" is point where it would be inserted.
         int index = Collections.binarySearch(recordIndex, event);
         if(index >= 0){
             if(currentRecord == index) hasRecordChanged = false;
