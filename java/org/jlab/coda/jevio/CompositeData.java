@@ -1610,7 +1610,9 @@ public final class CompositeData {
         headerLen  = bHeader.getHeaderLength();
         dataLength = bHeader.getLength() - (headerLen - 1);
 
-//System.out.println("bank len = " + bHeader.getLength() + ", dataLen = " + dataLength);
+//System.out.println("swapAll: bank len = " + bHeader.getLength() + ", dataLen = " + dataLength +
+//", tag = " + bHeader.getTag() + ", num = " + bHeader.getNumber() + ", type = " + bHeader.getDataTypeName() +
+//", pad = " + bHeader.getPadding());
 
         // Oops, no data
         if (dataLength < 1) {
