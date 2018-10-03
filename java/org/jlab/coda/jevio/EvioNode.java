@@ -238,6 +238,22 @@ public class EvioNode implements Cloneable {
         return builder.toString();
     }
 
+    /**
+     * Copy parameters from a parent node when scanning evio data and
+     * placing into EvioNode obtained from an EvioNodeSource.
+     * @param parent parent of the object.
+     */
+    final void copyParentForScan(EvioNode parent) {
+        blockNode  = parent.blockNode;
+        bufferNode = parent.bufferNode;
+        allNodes   = parent.allNodes;
+        eventNode  = parent.eventNode;
+        place      = parent.place;
+        scanned    = parent.scanned;
+        recordPos  = parent.recordPos;
+        parentNode = parent;
+    }
+
  //TODO: figure out which clears are needed
     /**
      * Clear the childNode it is exists.
