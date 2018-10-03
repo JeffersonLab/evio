@@ -1,8 +1,9 @@
-package org.jlab.coda.jevio;
+package org.jlab.coda.jevio.test;
+
+import org.jlab.coda.jevio.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.BitSet;
 
 /**
