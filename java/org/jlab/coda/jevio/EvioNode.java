@@ -47,6 +47,10 @@ public class EvioNode implements Cloneable {
     /** Type of data stored in node. */
     int dataType;
 
+    /** Position of the record containing this node in bytes
+     *  @since version 6. */
+    int recordPos;
+
     /** Store data in int array form if calculated. */
     int[] data;
 
@@ -120,6 +124,7 @@ public class EvioNode implements Cloneable {
         eventNode = firstNode;
     }
 
+    //----------------------------------
 
     /**
      * Constructor which creates an EvioNode associated with
@@ -127,7 +132,7 @@ public class EvioNode implements Cloneable {
      * for evio data.
      *
      * @param pos        position of event in buffer (number of bytes)
-     * @param place      containing event's place in buffer (starting at 1)
+     * @param place      containing event's place in buffer (starting at 0)
      * @param bufferNode buffer containing this event
      * @param blockNode  block containing this event
      */
@@ -135,6 +140,33 @@ public class EvioNode implements Cloneable {
         this.pos = pos;
         this.place = place;
         this.blockNode = blockNode;
+        this.bufferNode = bufferNode;
+        // This is an event by definition
+        this.isEvent = true;
+        // Event is a Bank by definition
+        this.type = DataType.BANK.getValue();
+
+        // Put this node in list of all nodes (evio banks, segs, or tagsegs)
+        // contained in this event.
+        allNodes = new ArrayList<>(50);
+        allNodes.add(this);
+    }
+
+
+    /**
+     * Constructor which creates an EvioNode associated with
+     * an event (top level) evio container when parsing buffers
+     * for evio data.
+     *
+     * @param pos        position of event in buffer (number of bytes).
+     * @param place      containing event's place in buffer (starting at 0).
+     * @param recordPos  position of record containing this node.
+     * @param bufferNode buffer containing this event.
+     */
+    public EvioNode(int pos, int place, int recordPos, BufferNode bufferNode) {
+        this.pos = pos;
+        this.place = place;
+        this.recordPos = recordPos;
         this.bufferNode = bufferNode;
         // This is an event by definition
         this.isEvent = true;
@@ -276,7 +308,7 @@ public class EvioNode implements Cloneable {
      * @throws EvioException if file/buffer too small
      */
     static final public EvioNode extractEventNode(BufferNode bufferNode, BlockNode blockNode,
-                                            int position, int place)
+                                                  int position, int place)
             throws EvioException {
 
         // Make sure there is enough data to at least read evio header
@@ -287,6 +319,37 @@ public class EvioNode implements Cloneable {
 
         // Store evio event info, without de-serializing, into EvioNode object
         EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
+
+        return extractNode(node, position);
+    }
+
+    /**
+     * This method extracts an EvioNode object representing an
+     * evio event (top level evio bank) from a given buffer, a
+     * location in the buffer, and a few other things. An EvioNode
+     * object represents an evio container - either a bank, segment,
+     * or tag segment.
+     *
+     * @param bufferNode   buffer to examine
+     * @param recPosition  position of containing record
+     * @param position     position in buffer
+     * @param place        place of event in buffer (starting at 0)
+     *
+     * @return EvioNode object containing evio event information
+     * @throws EvioException if file/buffer too small
+     */
+    static final public EvioNode extractEventNode(BufferNode bufferNode, int recPosition,
+                                                  int position, int place)
+            throws EvioException {
+
+        // Make sure there is enough data to at least read evio header
+        ByteBuffer buffer = bufferNode.buffer;
+        if (buffer.remaining() < 8) {
+            throw new EvioException("buffer underflow");
+        }
+
+        // Store evio event info, without de-serializing, into EvioNode object
+        EvioNode node = new EvioNode(position, place, recPosition, bufferNode);
 
         return extractNode(node, position);
     }
@@ -632,10 +695,11 @@ public class EvioNode implements Cloneable {
     /**
      * Set whether this node & descendants are now obsolete because the
      * data they represent in the buffer has been removed.
+     * Only for internal use.
      * @param obsolete true if node & descendants no longer represent valid
      *                 buffer data, else false.
      */
-    final void setObsolete(boolean obsolete) {
+    final public void setObsolete(boolean obsolete) {
         this.obsolete = obsolete;
 
         // Set for all descendants.
@@ -768,9 +832,7 @@ public class EvioNode implements Cloneable {
      * Get the file/buffer byte position of this evio structure.
      * @return file/buffer byte position of this evio structure
      */
-    final public int getPosition() {
-        return pos;
-    }
+    final public int getPosition() {return pos;}
 
     /**
      * Get the evio type of this evio structure, not what it contains.
@@ -820,10 +882,27 @@ public class EvioNode implements Cloneable {
      * Get the evio type of the data this evio structure contains as an object.
      * @return evio type of the data this evio structure contains as an object.
      */
-    final public DataType getDataTypeObj() {
-        return DataType.getDataType(dataType);
-    }
+    final public DataType getDataTypeObj() {return DataType.getDataType(dataType);}
 
+    /**
+     * Get the file/buffer byte position of the record containing this node.
+     * @since version 6.
+     * @return file/buffer byte position of the record containing this node.
+     */
+    public int getRecordPosition() {return recordPos;}
+
+    /**
+     * Get the place of containing event in file/buffer. First event = 0, second = 1, etc.
+     * Only for internal use.
+     * @return place of containing event in file/buffer.
+     */
+    final public int getPlace() {return place;}
+
+    /**
+     * Get this node's parent node.
+     * @return this node's parent node or null if none.
+     */
+    final public EvioNode getParentNode() {return parentNode;}
 
     /**
      * If this object represents an event (top-level, evio bank),
@@ -844,6 +923,50 @@ public class EvioNode implements Cloneable {
      */
     final public boolean isEvent() {
         return isEvent;
+    }
+
+
+    /**
+     * Update the length of this node in the buffer and all its parent nodes as well.
+     * For internal use only.
+     * @param deltaLen change in length (words). Negative value reduces lengths.
+     */
+    final public void updateLengths(int deltaLen) {
+
+        ByteBuffer buffer = bufferNode.buffer;
+        EvioNode node = this;
+        DataType typ = getTypeObj();
+        int length;
+
+        while (node != null) {
+            switch (typ) {
+                case BANK:
+                case ALSOBANK:
+                    length = buffer.getInt(node.pos) + deltaLen;
+                    buffer.putInt(node.pos, length);
+                    break;
+
+                case SEGMENT:
+                case ALSOSEGMENT:
+                case TAGSEGMENT:
+                    if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                        length = (buffer.getShort(node.pos+2) & 0xffff) + deltaLen;
+                        buffer.putShort(node.pos+2, (short)length);
+                    }
+                    else {
+                        length = (buffer.getShort(node.pos) & 0xffff) + deltaLen;
+                        buffer.putShort(node.pos, (short)length);
+                    }
+                    break;
+
+                default:
+            }
+
+            node = node.parentNode;
+            if (node != null) {
+                typ = node.getTypeObj();
+            }
+        }
     }
 
 
