@@ -81,12 +81,18 @@ public class FileWritingSpeedTest {
             long splitBytes = 20000000000L; // 20 GB split
 
             if (unsync) {
-                writerUnsync = new EventWriterUnsync(file.getPath(), null, null, 0,
-                                                     splitBytes, ByteOrder.BIG_ENDIAN, null);
+                writerUnsync = new EventWriterUnsync(filename, null, null, 1, splitBytes,
+                                                     4*16, 1000,
+                                                     ByteOrder.BIG_ENDIAN, null,
+                                                     true, false, null,
+                                                     0, 0, 0, 0, 0);
             }
             else {
-                writer = new EventWriter(file.getPath(), null, null, 0,
-                                         splitBytes, ByteOrder.BIG_ENDIAN, null);
+                writer = new EventWriter(filename, null, null, 1, splitBytes,
+                                         4*16, 1000,
+                                         ByteOrder.BIG_ENDIAN, null,
+                                         true, false, null,
+                                         0, 0, 0, 0, 0);
             }
 
             ByteBuffer eventBuf = createEventBuffer();

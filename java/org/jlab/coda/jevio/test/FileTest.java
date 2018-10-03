@@ -96,24 +96,21 @@ public class FileTest {
 
 
             if (useFile) {
-//                writer = new EventWriter(file, 16, 1000, ByteOrder.nativeOrder(),
-//                                         xmlDictionary, null, true, append);
-
 // Include first event
                 int splitBytes = 160;
                 int targetBlockSize = 29;
-                int internalBufSize = 148;
-                writer = new EventWriter(file.getPath(), null, null, 0, splitBytes,
-                                         targetBlockSize, 1000, internalBufSize,
+
+                writer = new EventWriter(file.getPath(), null, null, 1, splitBytes,
+                                         4*targetBlockSize, 1000,
                                          ByteOrder.nativeOrder(), xmlDictionary,
-                                         null, true, append, eventFirst);
+                                         true, append, eventFirst,
+                                         0, 0, 0, 0, 0);
             }
             else {
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
                 //myBuf.order(ByteOrder.LITTLE_ENDIAN);
-                //writer = new EventWriter(myBuf, xmlDictionary, append);
-                writer = new EventWriter(myBuf, 28, 1000, null, null, 0, 1, append, null);
+                writer = new  EventWriter(myBuf, 4*28, 1000, null, 1, null, 0);
             }
 
 
@@ -314,9 +311,11 @@ public class FileTest {
     private static void appendEvents(String fileName, EvioEvent ev, int count)
             throws IOException, EvioException {
 
-        File file = new File(fileName);
-        EventWriter writer = new EventWriter(file, 16, 1000, ByteOrder.nativeOrder(),
-                                             null, null, true, true);
+        EventWriter writer = new EventWriter(fileName, null, null, 1, 0,
+                                 4*16, 1000,
+                                 ByteOrder.nativeOrder(), null,
+                                 true, true, null,
+                                 0, 0, 0, 0, 0);
 
         for (int i=0; i < count; i++) {
             // append event to file
@@ -484,8 +483,11 @@ public class FileTest {
         EvioEvent event = null;
 
         try {
-            //EventWriter eventWriterNew = new EventWriter(myBuf, 100, 3, dictionary, null);
-            EventWriter eventWriterNew = new EventWriter(file, 1000, 3, ByteOrder.BIG_ENDIAN, dictionary, null);
+            EventWriter eventWriterNew = new EventWriter(fileName, null, null, 1, 0,
+                                                         4*1000, 3,
+                                                         ByteOrder.BIG_ENDIAN, dictionary,
+                                                         true, false, null,
+                                                         0, 0, 0, 0, 0);
 
             // event - bank of banks
             EventBuilder eventBuilder2 = new EventBuilder(1, DataType.BANK, 1);
@@ -746,7 +748,11 @@ public class FileTest {
 
 
             try {
-                EventWriter eventWriterNew = new EventWriter(file, 1000, 3, ByteOrder.BIG_ENDIAN, null, null);
+                EventWriter eventWriterNew = new EventWriter(fileName, null, null, 1, 0,
+                                                             4*1000, 3,
+                                                             ByteOrder.BIG_ENDIAN, null,
+                                                             true, false, null,
+                                                             0, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -779,7 +785,11 @@ public class FileTest {
 
 
             try {
-                EventWriter eventWriterNew = new EventWriter(file, 10000000, 100000, ByteOrder.BIG_ENDIAN, null, null);
+                EventWriter eventWriterNew = new EventWriter(fileName, null, null, 1, 0,
+                                                             4*10000000, 100000,
+                                                             ByteOrder.BIG_ENDIAN, null,
+                                                             true, false, null,
+                                                             0, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -812,7 +822,11 @@ public class FileTest {
 
 
             try {
-                EventWriter eventWriterNew = new EventWriter(file, 10000000, 6535, ByteOrder.BIG_ENDIAN, dictionary, null);
+                EventWriter eventWriterNew = new EventWriter(fileName, null, null, 1, 0,
+                                                              4*10000000, 6535,
+                                                              ByteOrder.BIG_ENDIAN, null,
+                                                              true, false, null,
+                                                              0, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -844,8 +858,11 @@ public class FileTest {
 
 
             try {
-                EventWriter eventWriterNew = new EventWriter(file, 1000, 3, ByteOrder.BIG_ENDIAN,
-                                                             dictionary, null);
+                EventWriter eventWriterNew = new EventWriter(fileName, null, null, 1, 0,
+                                                              4*1000, 3,
+                                                              ByteOrder.BIG_ENDIAN, dictionary,
+                                                              true, false, null,
+                                                              0, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);

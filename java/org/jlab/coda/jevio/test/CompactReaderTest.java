@@ -341,7 +341,7 @@ public class CompactReaderTest {
 
         try {
             // Create an event writer to write into "myBuf" with 10000 ints or 100 events/block max
-            EventWriter writer = new EventWriter(myBuf, 10000, 100, xmlDict, null);
+            EventWriter writer = new  EventWriter(myBuf, 4*10000, 100, xmlDict, 1, null, 0);
 
 //            EvioEvent ev = createSingleEvent(1);
             EvioEvent ev = createSimpleSingleEvent(1);
@@ -428,72 +428,30 @@ public class CompactReaderTest {
             builder2.addChild(event2, bankInts);
 
 
-//            private EventWriter(ByteBuffer buf, int blockSizeMax, int blockCountMax,
-//                                String xmlDictionary, BitSet bitInfo, int reserved1,
-//                                boolean append) throws EvioException {
+            ByteBuffer buffie = ByteBuffer.allocate(7664);
+            EventWriter writer = new EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
 
+            long t2, t1 = System.currentTimeMillis();
 
-            if (false) {
-                ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null, 0, false);
-
-                long t2, t1 = System.currentTimeMillis();
-
-                for (int i=0; i < 15; i++)  {
-                    writer.writeEvent(event2); // little
-                }
-
-                writer.writeEvent(event1);  // med
-
-                for (int i=0; i < 15; i++)  {
-                    writer.writeEvent(event2);  // little
-                }
-
-                writer.writeEvent(event3);  // big
-
-                writer.close();
-                t2 = System.currentTimeMillis();
-                System.out.println("time (ms) = " + (t2 - t1));
-
-                buffie.flip();
-
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
+            for (int i=0; i < 15; i++)  {
+                writer.writeEvent(event2); // little
             }
-            else {
-                long t2, t1 = System.currentTimeMillis();
 
-                ByteBuffer buffie = ByteBuffer.allocate(8560);
-                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null, 0, false);
+            writer.writeEvent(event1);  // med
+
+            for (int i=0; i < 15; i++)  {
                 writer.writeEvent(event2);  // little
-                writer.close();
-
-                for (int i=0; i < 14; i++)  {
-                    writer = new EventWriter(buffie, 300, 1000, null, null, 0, true);
-                    writer.writeEvent(event2); // little
-                    writer.close();
-                }
-
-                writer = new EventWriter(buffie, 300, 1000, null, null, 0, true);
-                writer.writeEvent(event1);  // med
-                writer.close();
-
-                for (int i=0; i < 15; i++)  {
-                    writer = new EventWriter(buffie, 300, 1000, null, null, 0, true);
-                    writer.writeEvent(event2); // little
-                    writer.close();
-                }
-
-                writer = new EventWriter(buffie, 300, 1000, null, null, 0, true);
-                writer.writeEvent(event3);  // big
-                writer.close();
-
-                t2 = System.currentTimeMillis();
-                System.out.println("time (ms) = " + (t2 - t1));
-
-                buffie.flip();
-
-                Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
             }
+
+            writer.writeEvent(event3);  // big
+
+            writer.close();
+            t2 = System.currentTimeMillis();
+            System.out.println("time (ms) = " + (t2 - t1));
+
+            buffie.flip();
+
+            Utilities.bufferToFile("/dev/shm/carlTest/file", buffie, true, false);
 
         }
         catch (EvioException e) {
@@ -545,66 +503,28 @@ public class CompactReaderTest {
             bankInts.appendIntData(intDataSmall);
             builder2.addChild(event2, bankInts);
 
+            EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
+                                                 4*300, 1000, null, null,
+                                                 true, false, null,
+                                                 0, 0, 0, 0, 0);
 
-//            public EventWriter(String baseName, String directory, String runType,
-//                               int runNumber, int split,
-//                               int blockSizeMax (ints), int blockCountMax, int bufferSize (bytes),
-//                               ByteOrder byteOrder, String xmlDictionary,
-//                               BitSet bitInfo, boolean overWriteOK, boolean append)
-//
+            long t2, t1 = System.currentTimeMillis();
 
-            if (false) {
-                EventWriter writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
-
-                long t2, t1 = System.currentTimeMillis();
-
-                for (int i=0; i < 15; i++)  {
-                    writer.writeEvent(event2); // little
-                }
-
-                writer.writeEvent(event1);  // med
-
-                for (int i=0; i < 15; i++)  {
-                    writer.writeEvent(event2);  // little
-                }
-
-                writer.writeEvent(event3);  // big
-
-                writer.close();
-                t2 = System.currentTimeMillis();
-                System.out.println("time (ms) = " + (t2 - t1));
+            for (int i=0; i < 15; i++)  {
+                writer.writeEvent(event2); // little
             }
-            else {
-                long t2, t1 = System.currentTimeMillis();
 
-                EventWriter writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 0, 300, 1000, 1200, null, null, null, true, false);
+            writer.writeEvent(event1);  // med
 
-                writer.writeEvent(event2);  // small
-                writer.close();
-
-
-                writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 0, 300, 1000, 1200, null, null, null, false, true);
-
-                writer.writeEvent(event1);  // med
-                writer.close();
-
-                writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 0, 300, 1000, 1200, null, null, null, false, true);
-
-                writer.writeEvent(event3);  // big
-                writer.close();
-
-                t2 = System.currentTimeMillis();
-                System.out.println("time (ms) = " + (t2 - t1));
-
+            for (int i=0; i < 15; i++)  {
+                writer.writeEvent(event2);  // little
             }
+
+            writer.writeEvent(event3);  // big
+
+            writer.close();
+            t2 = System.currentTimeMillis();
+            System.out.println("time (ms) = " + (t2 - t1));
 
         }
         catch (EvioException e) {
@@ -669,9 +589,10 @@ public class CompactReaderTest {
 
 
             if (false) {
-                EventWriter writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
+                EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
+                                                     4*300, 1000, null, null,
+                                                     true, false, null,
+                                                     0, 0, 0, 0, 0);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -698,26 +619,28 @@ public class CompactReaderTest {
             else {
                 long t2, t1 = System.currentTimeMillis();
 
-                EventWriter writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
+                EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
+                                                     4*300, 1000, null, null,
+                                                     true, false, null,
+                                                     0, 0, 0, 0, 0);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
 
-                writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
-
+                writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
+                                                     4*300, 1000, null, null,
+                                                     true, false, null,
+                                                     0, 0, 0, 0, 0);
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new EventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, null, 0, 1000, 300, 1000, 1200, null, null, null, true, false);
+                writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
+                                                     4*300, 1000, null, null,
+                                                     true, false, null,
+                                                     0, 0, 0, 0, 0);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -793,7 +716,7 @@ public class CompactReaderTest {
 
             if (false) {
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null);
+                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -825,19 +748,19 @@ public class CompactReaderTest {
                 long t2, t1 = System.currentTimeMillis();
 
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null);
+                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
-                writer = new EventWriter(buffie, 300, 1000, null, null);
+                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
 
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new EventWriter(buffie, 300, 1000, null, null);
+                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -900,9 +823,10 @@ public class CompactReaderTest {
             bankInts.appendIntData(intDataSmall);
             builder2.addChild(event2, bankInts);
 
-            EventWriter writer = new EventWriter("file", null, null, 0, 0,
-                    64000, 20000, 256000, null, null, null, true, false);
-
+            EventWriter writer = new EventWriter("file", null, null, 1, 0,
+                                                 4*64000, 20000, null, null,
+                                                 true, false, null,
+                                                 0, 0, 0, 0, 0);
             ByteBuffer evBuf1 = ByteBuffer.allocate(event1.getTotalBytes());
             event1.write(evBuf1);
             evBuf1.flip();

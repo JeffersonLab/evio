@@ -58,9 +58,11 @@ public class FirstEventTest {
                 System.out.println("FirstEventTest: create EventWriter for file");
 
                 EventWriter ER = new EventWriter(fileName, null, "runType", 1, split,
-                                                 1000, 4, 0,
+                                                 4*1000, 4,
                                                  ByteOrder.BIG_ENDIAN, dictionary,
-                                                 null, true, false, eventFirst);
+                                                 true, false, eventFirst,
+                                                 0, 0, 0, 0, 0);
+
                 System.out.println("FirstEventTest: write event #1");
                 ER.writeEvent(event);
                 System.out.println("FirstEventTest: write event #2");
@@ -77,9 +79,10 @@ public class FirstEventTest {
                     // Append 1 event onto 1st file
                     System.out.println("FirstEventTest: opening first file");
                     ER = new EventWriter(fileName + ".0", null, "runType", 1, split,
-                                         1000, 4, 0,
-                                         ByteOrder.BIG_ENDIAN, null,
-                                         null, true, true, null);
+                                                   4*1000, 4,
+                                                   ByteOrder.BIG_ENDIAN, null,
+                                                   true, true, null,
+                                                   0, 0, 0, 0, 0);
 
                     System.out.println("FirstEventTest: append event #1");
                     ER.writeEvent(event);
@@ -89,8 +92,8 @@ public class FirstEventTest {
             }
             else {
                 System.out.println("FirstEventTest: create EventWriter for buffer");
-                EventWriter ER = new EventWriter(myBuf, 1000, 3, dictionary, null, 0, 1,
-                                                 false, eventFirst);
+
+                EventWriter ER = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, eventFirst, 0);
 
                 System.out.println("FirstEventTest: write event #1");
                 ER.writeEvent(event);
@@ -110,29 +113,6 @@ public class FirstEventTest {
                 // Does not mess with buf pos or limit
                 Utilities.bufferToFile(fileName, myBuf, true, false);
 
-
-                if (append) {
-                    // Append 1 event onto buffer
-                    System.out.println("FirstEventTest: opening buffer");
-
-                    // Give us room to write a little more
-                    myBuf.limit(myBuf.capacity());
-
-                    System.out.println("FirstEventTest: before appending to buf, buf pos = " + myBuf.position() +
-                                                       ", lim = " + myBuf.limit());
-                    ER = new EventWriter(myBuf, 1000, 3, null, null, 0, 1, append, eventFirst);
-
-                    System.out.println("FirstEventTest: append event #1");
-                    ER.writeEvent(event);
-                    // All done appending
-                    ER.close();
-
-                    // Write buf to file
-                    myBuf.flip();
-
-                    // Write buf to file
-                    Utilities.bufferToFile(fileName + ".app", myBuf, true, false);
-                }
             }
 
         }
@@ -187,8 +167,8 @@ public class FirstEventTest {
 
             // Create buffer writer
             System.out.println("FirstEventTest: create EventWriter for buffer w/o first event");
-            EventWriter bufWriter = new EventWriter(myBuf, 1000, 3, dictionary, null, 0, 1,
-                                              false, null);
+            EventWriter bufWriter = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, null, 0);
+
             // Write first event into buf as a regular event
             bufWriter.writeEvent(eventFirst);
             bufWriter.close();
@@ -203,9 +183,11 @@ public class FirstEventTest {
             // Create a writer to a file to do this
             System.out.println("FirstEventTest: create EventWriter for file");
             EventWriter ER = new EventWriter(fileName, null, "runType", 1, split,
-                                             1000, 4, 0,
+                                             4*1000, 4,
                                              ByteOrder.BIG_ENDIAN, dictionary,
-                                             null, true, false);
+                                             true, false, null,
+                                             0, 0, 0, 0, 0);
+
 
             System.out.println("FirstEventTest: write event #1");
             ER.writeEvent(event);

@@ -701,7 +701,7 @@ System.out.println("Tag, int = " + tag + ", str = " + tagStr + ", bad entry = " 
                 dbanks.appendDoubleData(da);
                 eb.addChild(ev, dbanks);
 
-                EventWriter evWriter = new EventWriter(ByteBuffer.allocate(32), 550000, 200, null, null);
+                EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(32), 4*550000, 200, null, 1, null, 0);
                 evWriter.close();
 
                 ByteBuffer buffer = ByteBuffer.allocate(4000);

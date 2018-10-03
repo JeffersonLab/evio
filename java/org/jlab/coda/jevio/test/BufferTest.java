@@ -155,7 +155,7 @@ public class BufferTest {
             ev.appendIntData(dat);
 
             // create writer with max block size of 256 ints
-            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 256, 20, null, null);
+            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*256, 20, null, 1, null, 0);
             evWriter.close();
 
             // create buffer to write to of size 274 ints (> 8 + 244 + 8 + 6 + 8)
@@ -208,7 +208,7 @@ public class BufferTest {
             double[] da = new double[] {1., 2., 3.};
             ev.appendDoubleData(da);
 
-            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 550000, 200, null, null);
+            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null, 0);
             evWriter.close();
 
             ByteBuffer buffer = ByteBuffer.allocate(4000);
@@ -237,158 +237,6 @@ public class BufferTest {
     }
 
 
-    /** Append event to buffer of events. Change buffer and repeat. */
-    public static void main2(String args[]) {
-
-        try {
-
-            // Create event to append
-            EventBuilder eventBuilder = new EventBuilder(1, DataType.INT32, 1);
-            EvioEvent ev = eventBuilder.getEvent();
-            ev.appendIntData(new int[]  {4,5,6});
-
-            // Start with a buffer
-            byte[] be  = ByteDataTransformer.toBytes(data2, ByteOrder.BIG_ENDIAN);
-            // If we are to write into this array we need to expand it first
-            byte[] bee = Arrays.copyOf(be, be.length + 4*100);
-            ByteBuffer buf = ByteBuffer.wrap(bee);
-
-            EventWriter writer = new EventWriter(buf, 1000000, 3, null, null, true);
-
-System.out.println("Main: writer blockNum = " + writer.getBlockNumber());
-
-            writer.writeEvent(ev);
-            writer.close();
-
-System.out.println("Main: (before flip) buf limit = " + buf.limit() +
-                   ", pos = " + buf.position() +
-                   ", cap = " + buf.capacity());
-            buf.flip();
-
-System.out.println("Main: (after flip) buf limit = " + buf.limit() +
-                   ", pos = " + buf.position() +
-                   ", cap = " + buf.capacity());
-
-            // Read appended-to buffer
-            IntBuffer iBuf = buf.asIntBuffer();
-            while(iBuf.hasRemaining()) {
-                System.out.println("0x" + Integer.toHexString(iBuf.get()));
-            }
-
-
-            // Use a different buffer now but the same writer
-            be  = ByteDataTransformer.toBytes(data3, ByteOrder.BIG_ENDIAN);
-            // If we are to write into this array we need to expand it first
-            bee = Arrays.copyOf(be, be.length + 4*100);
-            buf = ByteBuffer.wrap(bee);
-
-            writer.setBuffer(buf);
-            writer.writeEvent(ev);
-            writer.close();
-
-System.out.println("Main: (before flip) buf limit = " + buf.limit() +
-                   ", pos = " + buf.position() +
-                   ", cap = " + buf.capacity());
-            buf.flip();
-
-System.out.println("Main: (after flip) buf limit = " + buf.limit() +
-                   ", pos = " + buf.position() +
-                   ", cap = " + buf.capacity());
-
-
-            iBuf = buf.asIntBuffer();
-            while(iBuf.hasRemaining()) {
-                System.out.println("0x" + Integer.toHexString(iBuf.get()));
-            }
-
-
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    /** Append event to buffer of events */
-    public static void main3(String args[]) {
-
-        // xml dictionary
-        String dictionary =
-                "<xmlDict>\n" +
-                        "  <xmldumpDictEntry name=\"bank of ints\"   tag=\"1\"   num=\"1\"/>\n" +
-                "</xmlDict>";
-
-
-        try {
-            byte[] be  = ByteDataTransformer.toBytes(data1, ByteOrder.BIG_ENDIAN);
-            // If we are to write into this array we need to expand it first
-            byte[] bee = Arrays.copyOf(be, be.length + 4*100);
-            ByteBuffer buf = ByteBuffer.wrap(bee);
-//            public EventWriter(ByteBuffer buf, int blockSizeMax, int blockCountMax,
-//                               String xmlDictionary, BitSet bitInfo,
-//                               boolean append) throws EvioException {
-
-            EventWriter writer = new EventWriter(buf, 1000000, 3, null, null, true);
-
-            int eventsWritten = writer.getEventsWritten();
-
-            System.out.println("Main: read buffer for writing, already contains " + eventsWritten + " events\n");
-
-
-            // data
-            int[] intData = new int[]  {4,5,6};
-
-            // event - bank of banks
-            EventBuilder eventBuilder = new EventBuilder(1, DataType.INT32, 1);
-            EvioEvent ev = eventBuilder.getEvent();
-            ev.appendIntData(intData);
-System.out.println("Main: writer blockNum = " + writer.getBlockNumber());
-
-            writer.writeEvent(ev);
-            writer.close();
-
-System.out.println("Main: (before flip) buf limit = " + buf.limit() +
-                   ", pos = " + buf.position() +
-                   ", cap = " + buf.capacity());
-            buf.flip();
-
-System.out.println("Main: (after flip) buf limit = " + buf.limit() +
-                   ", pos = " + buf.position() +
-                   ", cap = " + buf.capacity());
-
-            EvioReader reader = new EvioReader(buf);
-            long evCount = reader.getEventCount();
-
-            String dict = reader.getDictionaryXML();
-            if (dict == null) {
-                System.out.println("Main: ain't got no dictionary!");
-            }
-            else {
-                System.out.println("Main: dict-> \n" + dict);
-            }
-
-System.out.println("Main: read file, got " + evCount + " number of events\n");
-
-            EvioEvent event;
-            while ( (event = reader.parseNextEvent()) != null) {
-               System.out.println("Main: event = " + event.toXML());
-                System.out.println("\nMain: event count = " + reader.getEventCount() + "\n");
-            }
-
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     /** Testing for padding bug in which zero values overwrite beginning of data array
      * instead of end for CHAR8 & UCHAR8. Found and fixed. */
     public static void main4(String args[]) {
@@ -402,7 +250,7 @@ System.out.println("Main: read file, got " + evCount + " number of events\n");
             ev.appendByteData(da);
 
             ByteBuffer buffer = ByteBuffer.allocate(100);
-            EventWriter evWriter = new EventWriter(buffer, 550000, 200, null, null);
+            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null, 0);
             evWriter.writeEvent(ev);
             evWriter.close();
 

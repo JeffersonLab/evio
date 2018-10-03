@@ -3,6 +3,7 @@ package org.jlab.coda.jevio.test;
 import org.jlab.coda.jevio.*;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
@@ -105,14 +106,13 @@ public class SplitTest {
 
         try {
             EventWriter writer = new EventWriter(fileName, null, "runType", runNumber, split,
-                    blockSizeMax, blockCountMax, bufferSize,
-                    ByteOrder.BIG_ENDIAN, xmlDictionary, null, true, append);
-
+                                                 4*blockSizeMax, blockCountMax,
+                                                 ByteOrder.BIG_ENDIAN, xmlDictionary,
+                                                 true, append, null,
+                                                 0, 0, 0, 0, 0);
 
 //            ByteBuffer buf = ByteBuffer.allocateDirect(bufferSize);
-//
-//            EventWriter writer = new EventWriter(buf, blockSizeMax, blockCountMax,
-//                                                 xmlDictionary, null, 0, append);
+//            EventWriter writer = new  EventWriter(buf, 4*blockSizeMax, blockCountMax, xmlDictionary, 1, null, 0);
 
             for (int i=0; i < 20; i++) {
                 // Write event to file
