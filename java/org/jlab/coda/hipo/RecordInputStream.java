@@ -124,8 +124,12 @@ public class RecordInputStream {
     /** Default, no-arg constructor. */
     public RecordInputStream(){
         byteOrder = ByteOrder.LITTLE_ENDIAN;
-        allocate(DEFAULT_BUF_SIZE);
         header = new RecordHeader();
+        allocate(DEFAULT_BUF_SIZE);
+
+        // Allocate buffer to read header into
+        headerBuffer = ByteBuffer.wrap(new byte[RecordHeader.HEADER_SIZE_BYTES]);
+        headerBuffer.order(byteOrder);
     }
 
     /**
@@ -134,24 +138,21 @@ public class RecordInputStream {
      */
     public RecordInputStream(ByteOrder order) {
         byteOrder = order;
-        allocate(DEFAULT_BUF_SIZE);
         header = new RecordHeader();
+        allocate(DEFAULT_BUF_SIZE);
+
+        // Allocate buffer to read header into
+        headerBuffer = ByteBuffer.wrap(new byte[RecordHeader.HEADER_SIZE_BYTES]);
+        headerBuffer.order(byteOrder);
     }
 
-    /** Allocates all buffers for constructing the record stream. */
+    /** Allocates data & record buffers for constructing the record stream. */
     private void allocate(int size){
-        byte[] arrayData = new byte[size];
-        dataBuffer = ByteBuffer.wrap(arrayData);
+        dataBuffer = ByteBuffer.wrap(new byte[size]);
         dataBuffer.order(byteOrder);
 
-        byte[] arrayRecord = new byte[size];
-        recordBuffer = ByteBuffer.wrap(arrayRecord);
+        recordBuffer = ByteBuffer.wrap(new byte[size]);
         recordBuffer.order(byteOrder);
-
-        // byte[] arrayHeader = new byte[72];
-        byte[] arrayHeader = new byte[RecordHeader.HEADER_SIZE_BYTES];
-        headerBuffer = ByteBuffer.wrap(arrayHeader);
-        headerBuffer.order(byteOrder);
     }
 
     /**
@@ -201,6 +202,8 @@ public class RecordInputStream {
             if (index >= header.getEntries()) {
                 index = header.getEntries() - 1;
             }
+            // Remember, the index array of events lengths (at beginning of dataBuffer)
+            // was overwritten in readRecord() to contain offsets to events.
             firstPosition = dataBuffer.getInt( (index-1)*4 );
         }
         else {
@@ -213,9 +216,11 @@ public class RecordInputStream {
         int   offset = eventsOffset + firstPosition;
 
         if (dataBuffer.hasArray()) {
+            // NOTE: dataBuffer.arrayOffset() is always 0
             System.arraycopy(dataBuffer.array(), offset, event, 0, length);
         }
         else {
+// TODO: Do changing limit & pos affect other things???
             dataBuffer.limit(length+offset).position(offset);
             dataBuffer.get(event, 0, length);
         }
@@ -223,6 +228,7 @@ public class RecordInputStream {
         //System.out.println(" reading from " + offset + "  length = " + event.length);
         return event;
     }
+
     /**
      * Returns the length of the event with given index.
      * @param index index of the event
@@ -235,6 +241,7 @@ public class RecordInputStream {
         int length = lastPosition - firstPosition;
         return length;
     }
+    
     /**
      * Get the event at the given index and write it into the given byte buffer.
      * The given byte buffer has to be large enough to receive all the event's data,
@@ -580,6 +587,7 @@ public class RecordInputStream {
                 case 1:
                 case 2:
                     // Read LZ4 compressed data
+// TODO: Why are we copying data into another buffer when we can decompress it where it is???
                     if (buffer.hasArray() && recordBuffer.hasArray()) {
                         System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
                                          recordBuffer.array(), 0, cLength);
@@ -594,6 +602,7 @@ public class RecordInputStream {
 
                 case 3:
                     // Read GZIP compressed data
+// TODO: Why are we copying data into another buffer when we can decompress it where it is???
                     if (buffer.hasArray() && recordBuffer.hasArray()) {
                         System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
                                          recordBuffer.array(), 0, cLength);
