@@ -308,7 +308,7 @@ public class RecordHeader implements IBlockHeader {
     }
 
     /** Reset generated data. */
-    public void reset() {
+    public void reset(){
         // Do NOT reset header type which is only set in constructor!
         // Do NOT reset the compression type
         position = 0L;
@@ -375,6 +375,12 @@ public class RecordHeader implements IBlockHeader {
      * @return total length of this record in bytes.
      */
     public int  getLength() {return recordLength;}
+
+    /**
+     * Get the total length of this record in 32 bit words.
+     * @return total length of this record in 32 bit words.
+     */
+    public int  getLengthWords() {return recordLengthWords;}
 
     /**
      * Get the number of events or entries in index.
