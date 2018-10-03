@@ -120,6 +120,7 @@ public class EvioNode implements Cloneable {
         eventNode = firstNode;
     }
 
+    //----------------------------------
 
     /**
      * Constructor which creates an EvioNode associated with
@@ -178,6 +179,7 @@ public class EvioNode implements Cloneable {
     // Methods
     //-------------------------------
 
+    /** {@inheritDoc} */
     final public Object clone() {
         try {
             EvioNode result = (EvioNode)super.clone();
@@ -193,6 +195,7 @@ public class EvioNode implements Cloneable {
         }
     }
 
+    /** {@inheritDoc} */
     final public String toString() {
         StringBuilder builder = new StringBuilder(100);
         builder.append("tag = ");        builder.append(tag);
@@ -205,6 +208,21 @@ public class EvioNode implements Cloneable {
         builder.append(", dataLen = ");  builder.append(dataLen);
 
         return builder.toString();
+    }
+
+    /**
+     * Copy parameters from a parent node when scanning evio data and
+     * placing into EvioNode obtained from an EvioNodeSource.
+     * @param parent parent of the object.
+     */
+    final void copyParentForScan(EvioNode parent) {
+        blockNode  = parent.blockNode;
+        bufferNode = parent.bufferNode;
+        allNodes   = parent.allNodes;
+        eventNode  = parent.eventNode;
+        place      = parent.place;
+        scanned    = parent.scanned;
+        parentNode = parent;
     }
 
  //TODO: figure out which clears are needed
@@ -272,7 +290,7 @@ public class EvioNode implements Cloneable {
 
 
     final public void clearIntArray() {
-        if (data != null) data = null;
+       data = null;
     }
 
 
@@ -288,6 +306,18 @@ public class EvioNode implements Cloneable {
         this.pos = position;
         this.place = place;
         allNodes = new ArrayList<>(50);
+        allNodes.add(this);
+    }
+
+    void setData(int position, int place,
+                 BufferNode bufferNode, BlockNode blockNode) {
+        this.bufferNode = bufferNode;
+        this.blockNode  = blockNode;
+        this.pos = position;
+        this.place = place;
+        this.isEvent = true;
+        this.type = DataType.BANK.getValue();
+        //allNodes = new ArrayList<>(50);
         allNodes.add(this);
     }
 
