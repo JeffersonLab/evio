@@ -277,24 +277,16 @@ public class EventWriterUnsync {
     private long split;
 
     /**
-     * Number of data streams currently active.
-     * In CODA, a data stream is a chain of ROCS and EBs ending in a single specific ER.
+     * If splitting file, the amount to increment the split number each time another
+     * file is written.
      */
-    private int streamCount;
+    private int splitIncrement;
 
     /**
      * Id of this specific data stream.
-     * In CODA, a data stream is a chain of ROCS and EBs ending in a single specific ER.
+     * In CODA, a data stream is a chain of ROCS and EBs ending in a final EB (SEB or PEB).
      */
     private int streamId;
-
-    /**
-     * Id of this specific sub stream of this data stream.
-     * In CODA, a data stream is a chain of ROCS and EBs ending in a single specific ER.
-     * When a single ER or EB writes to multiple files, the writing of each file is
-     * a sub stream.
-     */
-    private int subStreamId;
 
     /** Is it OK to overwrite a previously existing file? */
     private boolean overWriteOK;
@@ -818,7 +810,7 @@ public class EventWriterUnsync {
 
         this(baseName, directory, runType, runNumber, split,
              blockSizeMax, blockCountMax, bufferSize,
-             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, firstEvent, 0, -1);
+             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, firstEvent, 0, 1, 1);
     }
 
 
@@ -907,7 +899,7 @@ public class EventWriterUnsync {
          this(baseName, directory, runType, runNumber, split,
               blockSizeMax, blockCountMax, bufferSize,
               byteOrder, xmlDictionary, bitInfo, overWriteOK,
-              append, firstEvent, streamId, 1, -1);
+              append, firstEvent, streamId, 1, 1);
      }
 
     /**
@@ -999,7 +991,7 @@ public class EventWriterUnsync {
         this(baseName, directory, runType, runNumber, split,
              blockSizeMax, blockCountMax, bufferSize,
              byteOrder, xmlDictionary, bitInfo, overWriteOK,
-             append, firstEvent, streamId, streamCount, -1);
+             append, firstEvent, streamId, streamCount, 1);
     }
 
     /**
@@ -1037,10 +1029,7 @@ public class EventWriterUnsync {
      * the runType is null.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
-     * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
-     * This is done after the run type, run number, split numbers, and env vars have been inserted
-     * into the file name.<p>
+     * they can be differentiated by a stream id, starting split # and split increment.
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
@@ -1071,24 +1060,25 @@ public class EventWriterUnsync {
      *                      including all split files; may be null. Useful for adding
      *                      common, static info into each split file.
      * @param streamId      streamId number (100 > id > -1) for file name
-     * @param streamCount   total number of data streams
-     * @param subStreamId   id number of sub stream (100 > id > -1) for file name .
-     *                      Value of -1 means no sub streams.
+     * @param splitNumber   number at which to start the split numbers
+     * @param splitIncrement amount to increment split number each time another
+     *                       file is created.
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary or first event while appending;
      *                       if splitting file while appending;
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
-     *                       if file exists but user requested no over-writing or appending.
+     *                       if file exists but user requested no over-writing or appending;
+     *                       if streamId < 0, splitNumber < 0, or splitIncrement < 1.
      */
     public EventWriterUnsync(String baseName, String directory, String runType,
                              int runNumber, long split,
                              int blockSizeMax, int blockCountMax, int bufferSize,
                              ByteOrder byteOrder, String xmlDictionary,
                              BitSet bitInfo, boolean overWriteOK, boolean append,
-                             EvioBank firstEvent, int streamId, int streamCount,
-                             int subStreamId)
+                             EvioBank firstEvent, int streamId, int splitNumber,
+                             int splitIncrement)
             throws EvioException {
 
         if (baseName == null) {
@@ -1109,6 +1099,10 @@ public class EventWriterUnsync {
 
         if (blockCountMax > EventWriterUnsync.MAX_BLOCK_COUNT) {
             throw new EvioException("blockCountMax arg must be smaller");
+        }
+
+        if (streamId < 0 || splitNumber < 0 || splitIncrement < 1) {
+            throw new EvioException("streamId < 0, splitNumber < 0, or splitIncrement < 1");
         }
 
         if (bufferSize < 4*blockSizeMax + 32) {
@@ -1144,17 +1138,18 @@ public class EventWriterUnsync {
         }
 
         // Store arguments
-        this.split         = split;
-        this.append        = append;
-        this.runNumber     = runNumber;
-        this.byteOrder     = byteOrder;   // byte order may be overwritten if appending
-        this.bufferSize    = bufferSize;
-        this.overWriteOK   = overWriteOK;
-        this.blockSizeMax  = blockSizeMax;
-        this.blockCountMax = blockCountMax;
-        this.xmlDictionary = xmlDictionary;
-        this.streamId      = streamId;
-        this.subStreamId   = subStreamId;
+        this.split          = split;
+        this.append         = append;
+        this.runNumber      = runNumber;
+        this.byteOrder      = byteOrder;   // byte order may be overwritten if appending
+        this.bufferSize     = bufferSize;
+        this.overWriteOK    = overWriteOK;
+        this.blockSizeMax   = blockSizeMax;
+        this.blockCountMax  = blockCountMax;
+        this.xmlDictionary  = xmlDictionary;
+        this.streamId       = streamId;
+        this.splitNumber    = splitNumber;
+        this.splitIncrement = splitIncrement;
 
         toFile = true;
         blockNumber = 1;
@@ -1162,19 +1157,6 @@ public class EventWriterUnsync {
         if (bitInfo != null) {
             this.bitInfo = (BitSet)bitInfo.clone();
         }
-
-        // Split file number normally starts at 0.
-        // If there are multiple streams, then the initial split number is,
-        // streamId. All subsequent split numbers are calculated
-        // by adding the streamCount.
-        splitNumber = 0;
-        if (streamCount > 1) {
-            splitNumber = streamId;
-        }
-        else {
-            streamCount = 1;
-        }
-        this.streamCount = streamCount;
 
         // Make substitutions in the baseName to create the base file name.
         if (directory != null) baseName = directory + "/" + baseName;
@@ -1186,10 +1168,10 @@ public class EventWriterUnsync {
         // Also create the first file's name with more substitutions
         String fileName   = Utilities.generateFileName(baseFileName, specifierCount,
                                                        runNumber, split, splitNumber,
-                                                       streamId, subStreamId, specifierPosition);
-        splitNumber += streamCount;
-        //System.out.println("EventWriter const: filename = " + fileName);
-        //System.out.println("                   basename = " + baseName);
+                                                       streamId, specifierPosition);
+        // All subsequent split numbers are calculated by adding the streamCount
+        this.splitNumber += splitIncrement;
+
         currentFile = new File(fileName);
 
         // If we can't overwrite or append and file exists, throw exception
@@ -3370,8 +3352,8 @@ System.err.println("ERROR endOfBuffer " + a);
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
                                                      runNumber, split, splitNumber,
-                                                     streamId, subStreamId, specifierPosition);
-        splitNumber += streamCount;
+                                                     streamId, specifierPosition);
+        splitNumber += splitIncrement;
         currentFile = new File(fileName);
 
         // If we can't overwrite and file exists, throw exception
