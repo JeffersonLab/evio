@@ -370,8 +370,7 @@ final public class Utilities {
      * If multiple streams of data, each writing a file, end up with the same file name,
      * they can be differentiated by a stream id number. If the file is being split, the
      * stream id is inserted just before the split number. If not, tack the stream id onto
-     * the end of the file. If there are sub streams (subStreamId &gt; -1), then the stream id
-     * inserted into a file name is a string of the form &lt;streamId&gt;-&lt;subStreamId&gt;.
+     * the end of the file.
      *
      * @param baseFileName   file name to use as a basis for the generated file name
      * @param specifierCount number of C-style int format specifiers in baseFileName arg
@@ -379,8 +378,6 @@ final public class Utilities {
      * @param split          number of bytes at which to split off evio file
      * @param splitNumber    number of the split file
      * @param streamId       number of the stream id
-     * @param subStreamId    each stream can be split into sub streams, this is the sub stream id.
-     *                       Set to -1 if no sub streams.
      * @param specifierPos   position in baseFileName of 2nd int specifier if any.
      *
      * @return generated file name
@@ -391,33 +388,25 @@ final public class Utilities {
      */
     final static public String generateFileName(String baseFileName, int specifierCount,
                                                 int runNumber, long split, int splitNumber,
-                                                int streamId, int subStreamId, int specifierPos)
+                                                int streamId, int specifierPos)
                         throws IllegalFormatException {
 
         String fileName = baseFileName;
 
-        // In CODA, a single ER writing to 2 files created 2 sub streams
-        String streamIdString;
-        if (subStreamId < 0) {
-            streamIdString = "" + streamId;
-        }
-        else {
-            streamIdString = streamId + "-" + subStreamId;
-        }
-System.out.println("generateFileName: split# = " + splitNumber + ", start with    " + fileName +
-",    streamId = " + streamId + ", subStreamId = " + subStreamId + ", streamIdString = " + streamIdString);
+//System.out.println("generateFileName: split# = " + splitNumber + ", start with    " + fileName +
+//",    streamId = " + streamId);
 
         // If we're splitting files ...
         if (split > 0L) {
             // For no specifiers:  tack stream id and split # onto end of file name
             if (specifierCount < 1) {
-                fileName += "." + streamIdString + "." + splitNumber;
+                fileName += "." + streamId + "." + splitNumber;
             }
             // For 1 specifier: insert run # at specified location,
             // then tack stream id and split # onto end of file name
             else if (specifierCount == 1) {
                 fileName = String.format(baseFileName, runNumber);
-                fileName += "." + streamIdString + "." + splitNumber;
+                fileName += "." + streamId + "." + splitNumber;
             }
             // For 2 specifiers: insert run # and split # at specified locations
             // and insert stream id right before split #.
@@ -428,12 +417,10 @@ System.out.println("generateFileName: split# = " + splitNumber + ", start with  
                 char c = builder.charAt(specifierPos - 1);
 
                 if (c == '.') {
-System.out.println("generateFileName: found dot before second int specifier, " + fileName);
-                    builder.insert(specifierPos-1, "." + streamIdString);
+                    builder.insert(specifierPos-1, "." + streamId);
                 }
                 else {
-System.out.println("generateFileName: found \"" + c + "\" before second int specifier, " + fileName);
-                    builder.insert(specifierPos, "." + streamIdString + ".");
+                    builder.insert(specifierPos, "." + streamId + ".");
                 }
                 fileName = builder.toString();
                 fileName = String.format(fileName, runNumber, splitNumber);
@@ -444,7 +431,7 @@ System.out.println("generateFileName: found \"" + c + "\" before second int spec
             if (specifierCount == 1) {
                 // Insert runNumber
                 fileName = String.format(baseFileName, runNumber);
-                fileName += "." + streamIdString;
+                fileName += "." + streamId;
             }
             else if (specifierCount == 2) {
                 // First get rid of the extra (last) int format specifier as no split # exists
@@ -464,10 +451,10 @@ System.out.println("generateFileName: found \"" + c + "\" before second int spec
 
                 // Insert runNumber into first specifier
                 fileName = String.format(fileName, runNumber);
-                fileName += "." + streamIdString;
+                fileName += "." + streamId;
             }
         }
-System.out.println("generateFileName: end with    " + fileName);
+//System.out.println("generateFileName: end with    " + fileName);
 
         return fileName;
     }
