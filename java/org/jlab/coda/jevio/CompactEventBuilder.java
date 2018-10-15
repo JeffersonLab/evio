@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * This class is used for creating events
@@ -216,14 +217,14 @@ public final class CompactEventBuilder {
             throw new EvioException("null arg(s)");
         }
 
-        initBuffer(buffer, generateNodes);
-
         totalLengths = new int[MAX_LEVELS];
         stackArray   = new StructureContent[MAX_LEVELS];
 
         for (int i=0; i < MAX_LEVELS; i++) {
             stackArray[i] = new StructureContent();
         }
+
+        initBuffer(buffer, generateNodes);
    	}
 
 
@@ -277,6 +278,7 @@ public final class CompactEventBuilder {
         // Prepare buffer
         this.buffer = buffer;
         buffer.clear();
+        Arrays.fill(totalLengths, 0);
         order = buffer.order();
         position = 0;
 
