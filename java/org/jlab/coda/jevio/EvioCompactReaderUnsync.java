@@ -74,6 +74,8 @@ public class EvioCompactReaderUnsync {
     /** Store info of all block headers. */
     private final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
 
+    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
+    private EvioNodeSource nodePool;
 
     /**
      * This is the number of events in the file. It is not computed unless asked for,
@@ -166,6 +168,36 @@ public class EvioCompactReaderUnsync {
 
 
     /**
+     * Constructor for reading a buffer.
+     *
+     * @param byteBuffer the buffer that contains events.
+     *
+     * @see EventWriter
+     * @throws EvioException if buffer arg is null;
+     *                       failure to read first block header
+     */
+    public EvioCompactReaderUnsync(ByteBuffer byteBuffer, EvioNodeSource pool) throws EvioException {
+
+        if (byteBuffer == null) {
+            throw new EvioException("Buffer arg is null");
+        }
+
+        initialPosition = byteBuffer.position();
+        this.byteBuffer = byteBuffer;
+        nodePool = pool;
+
+        // Read first block header and find the file's endianness & evio version #.
+        // If there's a dictionary, read that too.
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new EvioException("Failed reading first block header/dictionary");
+        }
+
+        // Generate a table of all event positions in buffer for random access.
+        generateEventPositionTable();
+    }
+
+
+    /**
      * This method can be used to avoid creating additional EvioCompactReader
      * objects by reusing this one with another buffer. The method
      * {@link #close()} is called before anything else.
@@ -181,6 +213,7 @@ public class EvioCompactReaderUnsync {
 
         blockNodes.clear();
         eventNodes.clear();
+        if (nodePool != null) nodePool.reset();
 
         blockCount      = -1;
         eventCount      = -1;
@@ -195,6 +228,44 @@ public class EvioCompactReaderUnsync {
         generateEventPositionTable();
         closed = false;
     }
+
+    /**
+     * This method can be used to avoid creating additional EvioCompactReader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.
+     *
+     * @param buf ByteBuffer to be read
+     * @throws EvioException if arg is null;
+     *                       if failure to read first block header
+     */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        if (buf == null) {
+            throw new EvioException("arg is null");
+        }
+
+        blockNodes.clear();
+        eventNodes.clear();
+        nodePool = pool;
+
+        blockCount      = -1;
+        eventCount      = -1;
+        dictionaryXML   = null;
+        initialPosition = buf.position();
+        this.byteBuffer = buf;
+
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new EvioException("Failed reading first block header/dictionary");
+        }
+
+        generateEventPositionTable();
+        closed = false;
+    }
+
+    /**
+      * Is this reader reading a file? Always false for this class.
+      * @return false.
+      */
+     public boolean isFile() {return false;}
 
     /**
      * Has {@link #close()} been called (without reopening by calling
@@ -312,6 +383,24 @@ public class EvioCompactReaderUnsync {
     public EvioNode getScannedEvent(int eventNumber) {
         try {
             return scanStructure(eventNumber);
+        }
+        catch (IndexOutOfBoundsException e) {}
+        return null;
+    }
+
+
+    /**
+     * Get the EvioNode object associated with a particular event number
+     * which has been scanned so all substructures are contained in the
+     * node.allNodes list.
+     * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return  EvioNode object associated with a particular event number,
+     *          or null if there is none.
+     */
+    public EvioNode getScannedEvent(int eventNumber, EvioNodeSource nodeSource) {
+        try {
+            return scanStructure(eventNumber, nodeSource);
         }
         catch (IndexOutOfBoundsException e) {}
         return null;
@@ -647,7 +736,15 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         }
 
         // Store evio event info, without de-serializing, into EvioNode object
-        EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
+        EvioNode node;
+        if (nodePool != null) {
+            node = nodePool.getNode();
+            node.clear(); //node.clearIntArray();
+            node.setData(position, place, bufferNode, blockNode);
+        }
+        else {
+            node = new EvioNode(position, place, bufferNode, blockNode);
+        }
 
         return extractNode(node, position);
     }
@@ -701,12 +798,15 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         int dt = (word >> 8) & 0xff;
         node.dataType = dt & 0x3f;
         node.pad = dt >>> 6;
-        // If only 7th bit set, that can only be the legacy tagsegment type
-        // with no padding information - convert it properly.
-        if (dt == 0x40) {
-            node.dataType = DataType.TAGSEGMENT.getValue();
-            node.pad = 0;
-        }
+        // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+        // This regularly happens with composite data.
+        // However, it that MAY also be the legacy tagsegment type
+        // with no padding information. Ignore this as having tag & num
+        // in legacy code is probably rare.
+        //if (dt == 0x40) {
+        //    node.dataType = DataType.TAGSEGMENT.getValue();
+        //    node.pad = 0;
+        //}
         node.num = word & 0xff;
 
         return node;
@@ -765,12 +865,15 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
                 dt = (word >> 8) & 0xff;
                 dataType = dt & 0x3f;
                 kidNode.pad = dt >>> 6;
-                // If only 7th bit set, that can only be the legacy tagsegment type
-                // with no padding information - convert it properly.
-                if (dt == 0x40) {
-                    dataType = DataType.TAGSEGMENT.getValue();
-                    kidNode.pad = 0;
-                }
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
                 kidNode.num = word & 0xff;
 
 
@@ -811,12 +914,15 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
                 dt = (word >>> 16) & 0xff;
                 dataType = dt & 0x3f;
                 kidNode.pad = dt >>> 6;
-                // If only 7th bit set, that can only be the legacy tagsegment type
-                // with no padding information - convert it properly.
-                if (dt == 0x40) {
-                    dataType = DataType.TAGSEGMENT.getValue();
-                    kidNode.pad = 0;
-                }
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
                 len = word & 0xffff;
 
 
@@ -877,6 +983,184 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         }
     }
 
+
+    /**
+     * This method recursively stores, in the given list, all the information
+     * about an evio structure's children found in the given ByteBuffer object.
+     * It uses absolute gets so buffer's position does <b>not</b> change.
+     *
+     * @param node node being scanned
+     * @param nodeSource source of EvioNode objects to use while parsing evio data.
+     */
+    private void scanStructure(EvioNode node, EvioNodeSource nodeSource) {
+
+        int dType = node.dataType;
+
+        // If node does not contain containers, return since we can't drill any further down
+        if (!DataType.isStructure(dType)) {
+            return;
+        }
+
+        // Start at beginning position of evio structure being scanned
+        int position = node.dataPos;
+        // Don't go past the data's end which is (position + length)
+        // of evio structure being scanned in bytes.
+        int endingPos = position + 4*node.dataLen;
+        // Buffer we're using
+        ByteBuffer buffer = node.bufferNode.buffer;
+
+        int dt, dataType, dataLen, len, word;
+
+        // Do something different depending on what node contains
+        if (DataType.isBank(dType)) {
+            // Extract all the banks from this bank of banks.
+            // Make allowance for reading header (2 ints).
+            endingPos -= 8;
+            while (position <= endingPos) {
+
+                // Cloning is a fast copy that eliminates the need
+                // for setting stuff that's the same as the parent.
+
+                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = nodeSource.getNode();
+                kidNode.copyParentForScan(node);
+
+                // Read first header word
+                len = buffer.getInt(position);
+                kidNode.pos = position;
+
+                // Len of data (no header) for a bank
+                dataLen = len - 1;
+                position += 4;
+
+                // Read and parse second header word
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = (word >>> 16);
+                dt = (word >> 8) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
+                kidNode.num = word & 0xff;
+
+
+                kidNode.len = len;
+                kidNode.type = DataType.BANK.getValue();  // This is a bank
+                kidNode.dataLen = dataLen;
+                kidNode.dataPos = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent = false;
+
+                // Add this to list of children and to list of all nodes in the event
+                node.addChild(kidNode);
+
+                // Only scan through this child if it's a container
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode, nodeSource);
+                }
+
+                // Set position to start of next header (hop over kid's data)
+                position += 4 * dataLen;
+            }
+        }
+        else if (DataType.isSegment(dType)) {
+
+            // Extract all the segments from this bank of segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = nodeSource.getNode();
+                kidNode.copyParentForScan(node);
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = word >>> 24;
+                dt = (word >>> 16) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
+                len = word & 0xffff;
+
+
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.SEGMENT.getValue();  // This is a segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode, nodeSource);
+                }
+
+                position += 4*len;
+            }
+        }
+        // Only one type of structure left - tagsegment
+        else {
+
+            // Extract all the tag segments from this bank of tag segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+
+                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = nodeSource.getNode();
+                kidNode.copyParentForScan(node);
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag =  word >>> 20;
+                dataType    = (word >>> 16) & 0xf;
+                len         =  word & 0xffff;
+
+                kidNode.pad      = 0;
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.TAGSEGMENT.getValue();  // This is a tag segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode, nodeSource);
+                }
+
+                position += 4*len;
+            }
+        }
+    }
+
+
     /**
      * This method scans the given event number in the buffer.
      * It returns an EvioNode object representing the event.
@@ -903,6 +1187,35 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
 
         return node;
     }
+
+    /**
+     * This method scans the given event number in the buffer.
+     * It returns an EvioNode object representing the event.
+     * All the event's substructures, as EvioNode objects, are
+     * contained in the node.allNodes list (including the event itself).
+     *
+     * @param eventNumber number of the event to be scanned starting at 1
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return the EvioNode object corresponding to the given event number
+     */
+    private EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
+
+        // Node corresponding to event
+        EvioNode node = eventNodes.get(eventNumber - 1);
+
+        if (node.scanned) {
+            node.clearLists();
+        }
+
+        // Do this before actual scan so clone() sets all "scanned" fields
+        // of child nodes to "true" as well.
+        node.scanned = true;
+
+        scanStructure(node, nodeSource);
+
+        return node;
+    }
+
 
 
     /**
