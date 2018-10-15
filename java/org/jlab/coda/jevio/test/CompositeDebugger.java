@@ -221,14 +221,36 @@ public class CompositeDebugger {
                     if (node.getDataTypeObj() == DataType.COMPOSITE) {
                         ByteBuffer swapBuf = null;
                         ByteBuffer compBuffer = node.getByteData(true);
+                        System.out.println("Found a composite data structure, try a double swap");
 
                         try {
                             if (checkSwap) {
 
                                 byte[] cData = compBuffer.array();
-                                byte[] swapped = new byte[cData.length];
-                                swapBuf = ByteBuffer.wrap(swapped);
-                                CompositeData.swapAll(cData, 0, swapped, 0, cData.length / 4, compBuffer.order());
+                                byte[] swapped  = new byte[cData.length];
+                                byte[] swapped2 = new byte[cData.length];
+                                ByteOrder originalOrder = compBuffer.order();
+                                ByteOrder swappedOrder = originalOrder == ByteOrder.BIG_ENDIAN ?
+                                        ByteOrder.LITTLE_ENDIAN  :  ByteOrder.BIG_ENDIAN;
+                                CompositeData.swapAll(cData,   0, swapped,  0, cData.length / 4, originalOrder);
+                                CompositeData.swapAll(swapped, 0, swapped2, 0, cData.length / 4, swappedOrder);
+
+                                for (int j=0; j < cData.length; j++) {
+                                    if (cData[j] != swapped2[j]) {
+                                        // This will show an error if TagSeqs are used since
+                                        // inside evio, the old 0x40 is changed to 0xc. But
+                                        // that is fine.
+                                        System.out.println("ERROR IN SWAP, at j = " + j);
+                                        ByteBuffer origBuf = ByteBuffer.wrap(cData);
+                                        ByteBuffer swappedBuf = ByteBuffer.wrap(swapped);
+                                        ByteBuffer dSwappedBuf = ByteBuffer.wrap(swapped2);
+                                        Utilities.printBufferBytes(origBuf, 0, j+3, "Original");
+                                        Utilities.printBufferBytes(swappedBuf, 0, j+3, "Swapped");
+                                        Utilities.printBufferBytes(dSwappedBuf, 0, j+3, "Double swapped");
+                                        //break topLoop;
+                                    }
+                                }
+                                System.out.println("SUCESSFULL SWAP");
 
                                // ByteOrder oppositeOrder = compBuffer.order() == ByteOrder.BIG_ENDIAN ?
                                //         ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
@@ -249,11 +271,8 @@ public class CompositeDebugger {
 
                             if (lookAtAllCompositeData) {
                                 printData(i, node, compBuffer, false);
-
-                                if (checkSwap) {
-                                    System.out.println("\nNow look at swapped data\n");
-                                    printData(i, node, swapBuf, false);
-                                }
+                                //String xml = Utilities.toXML(node, true);
+                                //System.out.println("XML ->\n" + xml);
                             }
                         }
                         catch (EvioException e) {
