@@ -70,7 +70,7 @@ public class SplitTest {
             String baseFileName = builder.toString();
             // Also create the first file's name with more substitutions
             String fileName = Utilities.generateFileName(baseFileName, specifierCount,
-                    runNumber, split, splitCount++);
+                    runNumber, split, splitCount++, 0, 1);
             System.out.println("EventWriter const: filename = " + fileName);
             System.out.println("                   basename = " + baseName);
         }
