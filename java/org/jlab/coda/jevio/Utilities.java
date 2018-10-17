@@ -37,7 +37,7 @@ final public class Utilities {
      * will be thrown.
      * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
      * it will be added automatically in order to avoid spaces in the returned string.
-     * In the {@link #generateFileName(String, int, int, long, int)} method, the first
+     * In the {@link #generateFileName(String, int, int, long, int, int, int)}  method, the first
      * occurrence will be substituted with the given runNumber value.
      * If the file is being split, the second will be substituted with the split number.<p>
      *
@@ -254,7 +254,7 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static public String generateFileNameOld(String baseFileName, int specifierCount,
+    final static String generateFileNameOld(String baseFileName, int specifierCount,
                                                 int runNumber, long split, int splitNumber)
                         throws IllegalFormatException {
 
@@ -291,7 +291,7 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static public String generateFileNameOld(String baseFileName, int specifierCount,
+    final static String generateFileNameOld(String baseFileName, int specifierCount,
                                                    int runNumber, long split, int splitNumber,
                                                    int streamId)
                         throws IllegalFormatException {
