@@ -264,9 +264,6 @@ public class EventWriterUnsync {
     /** Number of C-style int format specifiers contained in baseFileName. */
     private int specifierCount;
 
-    /** The index of the second C-style int format specifier contained in baseFileName. */
-    private int specifierPosition;
-
     /** Run number possibly used in naming split files. */
     private int runNumber;
 
@@ -287,6 +284,9 @@ public class EventWriterUnsync {
      * In CODA, a data stream is a chain of ROCS and EBs ending in a final EB (SEB or PEB).
      */
     private int streamId;
+
+    /** The total number of data streams in DAQ. */
+    private int streamCount;
 
     /** Is it OK to overwrite a previously existing file? */
     private boolean overWriteOK;
@@ -810,7 +810,7 @@ public class EventWriterUnsync {
 
         this(baseName, directory, runType, runNumber, split,
              blockSizeMax, blockCountMax, bufferSize,
-             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, firstEvent, 0, 1, 1);
+             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, firstEvent, 0, 1, 1, 1);
     }
 
 
@@ -899,7 +899,7 @@ public class EventWriterUnsync {
          this(baseName, directory, runType, runNumber, split,
               blockSizeMax, blockCountMax, bufferSize,
               byteOrder, xmlDictionary, bitInfo, overWriteOK,
-              append, firstEvent, streamId, 1, 1);
+              append, firstEvent, streamId, 1, 1, 1);
      }
 
     /**
@@ -991,7 +991,7 @@ public class EventWriterUnsync {
         this(baseName, directory, runType, runNumber, split,
              blockSizeMax, blockCountMax, bufferSize,
              byteOrder, xmlDictionary, bitInfo, overWriteOK,
-             append, firstEvent, streamId, streamCount, 1);
+             append, firstEvent, streamId, streamCount, 1, 1);
     }
 
     /**
@@ -1063,6 +1063,7 @@ public class EventWriterUnsync {
      * @param splitNumber   number at which to start the split numbers
      * @param splitIncrement amount to increment split number each time another
      *                       file is created.
+     * @param streamCount    total number of streams in DAQ.
      *
      * @throws EvioException if blockSizeMax or blockCountMax exceed limits;
      *                       if defined dictionary or first event while appending;
@@ -1078,7 +1079,7 @@ public class EventWriterUnsync {
                              ByteOrder byteOrder, String xmlDictionary,
                              BitSet bitInfo, boolean overWriteOK, boolean append,
                              EvioBank firstEvent, int streamId, int splitNumber,
-                             int splitIncrement)
+                             int splitIncrement, int streamCount)
             throws EvioException {
 
         if (baseName == null) {
@@ -1150,6 +1151,7 @@ public class EventWriterUnsync {
         this.streamId       = streamId;
         this.splitNumber    = splitNumber;
         this.splitIncrement = splitIncrement;
+        this.streamCount    = streamCount;
 
         toFile = true;
         blockNumber = 1;
@@ -1163,12 +1165,11 @@ public class EventWriterUnsync {
         StringBuilder builder = new StringBuilder(100);
         int[] returnVals  = Utilities.generateBaseFileNameNew(baseName, runType, builder);
         specifierCount    = returnVals[0];
-        specifierPosition = returnVals[1];
         baseFileName      = builder.toString();
         // Also create the first file's name with more substitutions
         String fileName   = Utilities.generateFileName(baseFileName, specifierCount,
                                                        runNumber, split, splitNumber,
-                                                       streamId, specifierPosition);
+                                                       streamId, streamCount);
         // All subsequent split numbers are calculated by adding the streamCount
         this.splitNumber += splitIncrement;
 
@@ -3352,7 +3353,7 @@ System.err.println("ERROR endOfBuffer " + a);
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
                                                      runNumber, split, splitNumber,
-                                                     streamId, specifierPosition);
+                                                     streamId, streamCount);
         splitNumber += splitIncrement;
         currentFile = new File(fileName);
 
