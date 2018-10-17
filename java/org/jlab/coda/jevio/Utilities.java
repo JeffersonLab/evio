@@ -360,7 +360,7 @@ final public class Utilities {
      *
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
      * If no specifier for the stream id exists, it is tacked onto the end of the file name,
-     * after the splitNumber.<p>
+     * after the splitNumber. No run numbers are ever tacked on without a specifier.<p>
      *
      * For splitting: if there is only 1 stream, no stream ids are used and any
      * third specifier is removed.
@@ -393,7 +393,8 @@ final public class Utilities {
         boolean oneStream = streamCount < 2;
 
 //System.out.println("generateFileName: split# = " + splitNumber + ", start with    " + fileName +
-//",    streamId = " + streamId + ", stream count = " + streamCount);
+//",    streamId = " + streamId + ", stream count = " + streamCount + ", one stream = " + oneStream);
+        // NOTE: no run #s are tacked on the end!
 
         // If we're splitting files ...
         if (split > 0L) {
@@ -428,9 +429,6 @@ final public class Utilities {
             }
             // For 3 specifiers: insert run #, split #, and stream id at specified locations
             else if (specifierCount == 3) {
-                fileName = baseFileName;
-                fileName = String.format(fileName, runNumber, splitNumber, streamId);
-
                 // For one stream get rid of the extra (3rd) int format specifier
                 if (oneStream) {
                     Pattern pattern = Pattern.compile("(%\\d*[xd])");
@@ -444,7 +442,6 @@ final public class Utilities {
                                 matcher.appendReplacement(result, "");
                                 matcher.appendTail(result);
                                 fileName = result.toString();
-//System.out.println("generateFileName: replacing last int specifier =  " + fileName);
                             }
                         }
                     }
@@ -483,7 +480,6 @@ final public class Utilities {
                         matcher.appendReplacement(result, "");
                         matcher.appendTail(result);
                         fileName = result.toString();
-//System.out.println("generateFileName: replacing last int specifier =  " + fileName);
                     }
                 }
 
@@ -500,12 +496,11 @@ final public class Utilities {
                 StringBuffer result = new StringBuffer(100);
 
                 if (matcher.find()) {
-                    // Only look at second int format specifier
+                    // Remove second int format specifier
                     if (matcher.find()) {
                         matcher.appendReplacement(result, "");
                         matcher.appendTail(result);
                         fileName = result.toString();
-//System.out.println("generateFileName: replacing last int specifier =  " + fileName);
                     }
                 }
 
@@ -518,12 +513,17 @@ final public class Utilities {
                     matcher = pattern.matcher(fileName);
                     result = new StringBuffer(100);
 
+                    // Skip the first (run #)
                     if (matcher.find()) {
-                        matcher.appendReplacement(result, "");
-                        matcher.appendTail(result);
-                        fileName = result.toString();
-//System.out.println("generateFileName: replacing last int specifier =  " + fileName);
+                        // Remove the 3rd
+                        if (matcher.find()) {
+                            matcher.appendReplacement(result, "");
+                            matcher.appendTail(result);
+                            fileName = result.toString();
+                        }
                     }
+                    
+                    fileName = String.format(fileName, runNumber);
                 }
             }
         }
