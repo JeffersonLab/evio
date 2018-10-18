@@ -453,25 +453,7 @@ final public class Utilities {
             }
             // For 3 specifiers: insert run #, stream id, and split # at specified locations
             else if (specifierCount == 3) {
-                // For one stream get rid of the extra (2nd) int format specifier
-                if (oneStream) {
-                    Pattern pattern = Pattern.compile("(%\\d*[xd])");
-                    Matcher matcher = pattern.matcher(fileName);
-                    StringBuffer result = new StringBuffer(100);
-
-                    if (matcher.find()) {
-                        // Only look at 2nd int format specifier
-                        if (matcher.find()) {
-                            matcher.appendReplacement(result, "");
-                            matcher.appendTail(result);
-                            fileName = result.toString();
-                        }
-                    }
-                    fileName = String.format(fileName, runNumber, splitNumber);
-                }
-                else {
-                    fileName = String.format(fileName, runNumber, streamId, splitNumber);
-                }
+                fileName = String.format(fileName, runNumber, streamId, splitNumber);
             }
 
         }
@@ -529,27 +511,8 @@ final public class Utilities {
                     }
                 }
 
-                if (!oneStream) {
-                    // Insert runNumber into first specifier, stream id into 2nd
-                    fileName = String.format(fileName, runNumber, streamId);
-                }
-                else {
-                    // Remove 2nd, unused, specifier
-                    matcher = pattern.matcher(fileName);
-                    result = new StringBuffer(100);
-
-                    // Skip the first (run #)
-                    if (matcher.find()) {
-                        // Remove the 2nd
-                        if (matcher.find()) {
-                            matcher.appendReplacement(result, "");
-                            matcher.appendTail(result);
-                            fileName = result.toString();
-                        }
-                    }
-                    
-                    fileName = String.format(fileName, runNumber);
-                }
+                // Insert runNumber into first specifier, stream id into 2nd
+                fileName = String.format(fileName, runNumber, streamId);
             }
         }
 //System.out.println("generateFileName: end with    " + fileName);
