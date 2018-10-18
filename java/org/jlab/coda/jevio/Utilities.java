@@ -370,7 +370,7 @@ final public class Utilities {
      * For all cases: if there are more than 3 specifiers, <b>NO SUBSTITUTIONS
      * ARE DONE.</b> This is because an error would be thrown in the String.format() method.<p>
      *
-     * @param baseFileName   file name to use as a basis for the generated file name
+     * @param fileName   file name to use as a basis for the generated file name
      * @param specifierCount number of C-style int format specifiers in baseFileName arg
      * @param runNumber      CODA run number
      * @param split          number of bytes at which to split off evio file
@@ -384,19 +384,26 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static public String generateFileName(String baseFileName, int specifierCount,
+    final static public String generateFileName(String fileName, int specifierCount,
                                                 int runNumber, long split, int splitNumber,
                                                 int streamId, int streamCount)
                         throws IllegalFormatException {
 
-        String fileName = baseFileName;
+        if (streamCount < 1) streamCount = 1;
+        if (splitNumber < 1) splitNumber = 0;
+        if (runNumber < 0)   runNumber = 0;
+        if (streamId < 0)    streamId = 0;
         boolean oneStream = streamCount < 2;
+
+        if (fileName == null || fileName.length() < 1) {
+            fileName = "file";
+        }
 
 //System.out.println("generateFileName: split# = " + splitNumber + ", start with    " + fileName +
 //",    streamId = " + streamId + ", stream count = " + streamCount + ", one stream = " + oneStream);
         // NOTE: no run #s are tacked on the end!
 
-        // If we're splitting files ...
+        // If we're splitting files which is always the case of CODA users ...
         if (split > 0L) {
             // For no specifiers:  tack stream id and split # onto end of file name
             if (specifierCount < 1) {
@@ -404,56 +411,72 @@ final public class Utilities {
                     fileName += "." + splitNumber;
                 }
                 else {
-                    fileName += "." + splitNumber + "." + streamId;
+                    fileName += "." + streamId + "." + splitNumber;
                 }
             }
             // For 1 specifier: insert run # at specified location,
             // then tack stream id and split # onto end of file name
             else if (specifierCount == 1) {
-                fileName = String.format(baseFileName, runNumber);
+                fileName = String.format(fileName, runNumber);
                 if (oneStream) {
                     fileName += "." + splitNumber;
                 }
                 else {
-                    fileName += "." + splitNumber + "." + streamId;
+                    fileName += "." + streamId + "." + splitNumber;
                 }
             }
             // For 2 specifiers: insert run # and split # at specified locations
-            // and tack stream id on at the end.
+            // and place tack stream id immediately before split #.
             else if (specifierCount == 2) {
-                fileName = baseFileName;
-                fileName = String.format(fileName, runNumber, splitNumber);
                 if (!oneStream) {
-                    fileName += "." + streamId;
+                    // In order to place streamId before split#, place a %d in the filename
+                    // immediately before 2nd specifier.
+                    Pattern pattern = Pattern.compile("(%\\d*[xd])");
+                    Matcher matcher = pattern.matcher(fileName);
+                    StringBuffer result = new StringBuffer(100);
+
+                    if (matcher.find()) {
+                        // Only look at 2nd int format specifier.
+                        // Replace it with "%d.<match>"
+                        if (matcher.find()) {
+                            matcher.appendReplacement(result, "%d.$1");
+                            matcher.appendTail(result);
+                            fileName = result.toString();
+                        }
+                    }
+
+                    fileName = String.format(fileName, runNumber, streamId, splitNumber);
+                }
+                else {
+                    fileName = String.format(fileName, runNumber, splitNumber);
                 }
             }
-            // For 3 specifiers: insert run #, split #, and stream id at specified locations
+            // For 3 specifiers: insert run #, stream id, and split # at specified locations
             else if (specifierCount == 3) {
-                // For one stream get rid of the extra (3rd) int format specifier
+                // For one stream get rid of the extra (2nd) int format specifier
                 if (oneStream) {
                     Pattern pattern = Pattern.compile("(%\\d*[xd])");
                     Matcher matcher = pattern.matcher(fileName);
                     StringBuffer result = new StringBuffer(100);
 
                     if (matcher.find()) {
+                        // Only look at 2nd int format specifier
                         if (matcher.find()) {
-                            // Only look at third int format specifier
-                            if (matcher.find()) {
-                                matcher.appendReplacement(result, "");
-                                matcher.appendTail(result);
-                                fileName = result.toString();
-                            }
+                            matcher.appendReplacement(result, "");
+                            matcher.appendTail(result);
+                            fileName = result.toString();
                         }
                     }
                     fileName = String.format(fileName, runNumber, splitNumber);
                 }
                 else {
-                    fileName = String.format(fileName, runNumber, splitNumber, streamId);
+                    fileName = String.format(fileName, runNumber, streamId, splitNumber);
                 }
             }
 
         }
-        // If we're not splitting files ...
+        // If we're not splitting files, then CODA isn't being used and stream id is
+        // probably meaningless.
         else {
             // For no specifiers:  tack stream id onto end of file name
             if (specifierCount < 1) {
@@ -463,7 +486,7 @@ final public class Utilities {
             }
             else if (specifierCount == 1) {
                 // Insert runNumber
-                fileName = String.format(baseFileName, runNumber);
+                fileName = String.format(fileName, runNumber);
                 if (!oneStream) {
                     fileName += "." + streamId;
                 }
@@ -490,32 +513,34 @@ final public class Utilities {
                 }
             }
             else if (specifierCount == 3) {
-                // Get rid of extra (2nd) int format specifier as no split # exists
+                // Get rid of extra (3rd) int format specifier as no split # exists
                 Pattern pattern = Pattern.compile("(%\\d*[xd])");
                 Matcher matcher = pattern.matcher(fileName);
                 StringBuffer result = new StringBuffer(100);
 
                 if (matcher.find()) {
-                    // Remove second int format specifier
                     if (matcher.find()) {
-                        matcher.appendReplacement(result, "");
-                        matcher.appendTail(result);
-                        fileName = result.toString();
+                        // Remove 3rd int format specifier
+                        if (matcher.find()) {
+                            matcher.appendReplacement(result, "");
+                            matcher.appendTail(result);
+                            fileName = result.toString();
+                        }
                     }
                 }
 
                 if (!oneStream) {
-                    // Insert runNumber into first specifier, stream id into 3rd
+                    // Insert runNumber into first specifier, stream id into 2nd
                     fileName = String.format(fileName, runNumber, streamId);
                 }
                 else {
-                    // Remove 3rd, unused, specifier
+                    // Remove 2nd, unused, specifier
                     matcher = pattern.matcher(fileName);
                     result = new StringBuffer(100);
 
                     // Skip the first (run #)
                     if (matcher.find()) {
-                        // Remove the 3rd
+                        // Remove the 2nd
                         if (matcher.find()) {
                             matcher.appendReplacement(result, "");
                             matcher.appendTail(result);
