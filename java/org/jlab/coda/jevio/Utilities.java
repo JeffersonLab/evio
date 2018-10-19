@@ -163,7 +163,7 @@ final public class Utilities {
 
         String baseFileName;
         int pos = 0;
-        int[] returnInts = new int[2];
+        int[] returnInts = new int[1];
 
         if (baseName == null || newNameBuilder == null) {
             throw new EvioException("null arg(s)");
@@ -202,7 +202,6 @@ final public class Utilities {
 
         int specifierCount = 0;
         while (matcher.find()) {
-            //pos = matcher.start();
             String width = matcher.group(1);
             // Make sure any number preceding "x" or "d" starts with a 0
             // or else there will be empty spaces in the file name.
@@ -224,9 +223,8 @@ final public class Utilities {
         // Return the base file name
         newNameBuilder.delete(0, newNameBuilder.length()).append(baseFileName);
 
-        // Return 1) # of C-style int format specifiers
+        // Return # of C-style int format specifiers
         returnInts[0] = specifierCount;
-        //returnInts[1] = pos;
         return returnInts;
     }
 
