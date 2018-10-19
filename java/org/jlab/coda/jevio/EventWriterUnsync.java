@@ -810,7 +810,7 @@ public class EventWriterUnsync {
 
         this(baseName, directory, runType, runNumber, split,
              blockSizeMax, blockCountMax, bufferSize,
-             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, firstEvent, 0, 1, 1, 1);
+             byteOrder, xmlDictionary, bitInfo, overWriteOK, append, firstEvent, 0, 0, 1, 1);
     }
 
 
@@ -1170,7 +1170,7 @@ public class EventWriterUnsync {
         String fileName   = Utilities.generateFileName(baseFileName, specifierCount,
                                                        runNumber, split, splitNumber,
                                                        streamId, streamCount);
-        // All subsequent split numbers are calculated by adding the streamCount
+        // All subsequent split numbers are calculated by adding the splitIncrement
         this.splitNumber += splitIncrement;
 
         currentFile = new File(fileName);
