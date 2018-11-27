@@ -22,6 +22,20 @@ public interface EvioNodeSource {
      */
     EvioNode getNode();
 
+    /**
+     * Get the number of nodes taken from pool.
+     * @return number of nodes taken from pool.
+     */
+    int getUsed();
+
+    /**
+     * Get the number of nodes in the pool.
+     * @return number of nodes in the pool.
+     */
+    int getSize();
+
+
+
     /** Reset the source to initial condition. */
     void reset();
 }
