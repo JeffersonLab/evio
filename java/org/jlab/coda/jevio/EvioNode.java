@@ -99,6 +99,13 @@ public class EvioNode implements Cloneable {
     /** Node containing this node. Is null if this is an event node. */
     EvioNode parentNode;
 
+    //-------------------------------
+    // For testing
+    //-------------------------------
+    /** If in pool, the pool's id. */
+    int poolId = -1;
+
+
 
     //----------------------------------
     // Constructors (package accessible)
@@ -253,10 +260,10 @@ public class EvioNode implements Cloneable {
     final public void clear() {
         if (allNodes   != null)   allNodes.clear();
         if (childNodes != null) childNodes.clear();
-
         len = tag = num = pad = pos = type = dataLen = dataPos = dataType = place = 0;
         isEvent = obsolete = scanned = false;
 
+        data       = null;
         blockNode  = null;
         bufferNode = null;
         eventNode  = null;
@@ -271,6 +278,7 @@ public class EvioNode implements Cloneable {
         if (childNodes != null) childNodes.clear();
 
         isEvent = obsolete = scanned = false;
+        data       = null;
         blockNode  = null;
         bufferNode = null;
         eventNode  = null;
@@ -282,6 +290,7 @@ public class EvioNode implements Cloneable {
         if (childNodes != null) childNodes.clear();
 
         isEvent = obsolete = scanned = false;
+        data       = null;
         blockNode  = null;
         bufferNode = null;
         eventNode  = null;
