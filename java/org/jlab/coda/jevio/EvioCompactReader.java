@@ -537,7 +537,7 @@ public class EvioCompactReader {
                 blockNode.count = blockEventCount;
 
                 blockNodes.put(blockCount, blockNode);
-                bufferNode.blockNodes.add(blockNode);
+//                bufferNode.blockNodes.add(blockNode);
 
                 blockNode.place = blockCount++;
 
