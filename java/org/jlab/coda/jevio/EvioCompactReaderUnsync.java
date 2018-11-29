@@ -74,7 +74,8 @@ public class EvioCompactReaderUnsync {
     /** Store info of all block headers. */
     private final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
 
-    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
+    /** Source (pool) of EvioNode objects used for parsing the outer most bank
+     * (event) of Evio data in buffer. */
     private EvioNodeSource nodePool;
 
     /**
@@ -200,7 +201,8 @@ public class EvioCompactReaderUnsync {
     /**
      * This method can be used to avoid creating additional EvioCompactReader
      * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
+     * {@link #close()} is called before anything else. Any existing pool <b>is</b>
+     * reset in this method.
      *
      * @param buf ByteBuffer to be read
      * @throws EvioException if arg is null;
@@ -232,7 +234,8 @@ public class EvioCompactReaderUnsync {
     /**
      * This method can be used to avoid creating additional EvioCompactReader
      * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
+     * {@link #close()} is called before anything else.  The pool is <b>not</b>
+     * reset in this method. Caller may do that prior to calling method.
      *
      * @param buf ByteBuffer to be read
      * @throws EvioException if arg is null;
@@ -423,7 +426,7 @@ public class EvioCompactReaderUnsync {
         //boolean  curLastBlock=false;
 
 //        long t2, t1 = System.currentTimeMillis();
-
+// TODO: memory allocation
         bufferNode = new BufferNode(byteBuffer);
 
         // Start at the beginning of byteBuffer without changing
@@ -484,7 +487,7 @@ public class EvioCompactReaderUnsync {
                 blockNode.count = blockEventCount;
 
                 blockNodes.put(blockCount, blockNode);
-                bufferNode.blockNodes.add(blockNode);
+//                bufferNode.blockNodes.add(blockNode);
 
                 blockNode.place = blockCount++;
 
@@ -739,7 +742,8 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         EvioNode node;
         if (nodePool != null) {
             node = nodePool.getNode();
-            node.clear(); //node.clearIntArray();
+            // Pool nodes are already cleared in CODA
+            //node.clear(); //node.clearIntArray();
             node.setData(position, place, bufferNode, blockNode);
         }
         else {
