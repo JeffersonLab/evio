@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ */
+
 package org.jlab.coda.jevio;
 
 
@@ -1031,10 +1041,7 @@ public class EventWriter {
      * the runType is null.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is > 0, the string, ".strm"
-     * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
-     * This is done after the run type, run number, split numbers, and env vars have been inserted
-     * into the file name.<p>
+     * they can be differentiated by a stream id, starting split # and split increment.
      *
      * @param baseName      base file name used to generate complete file name (may not be null)
      * @param directory     directory in which file is to be placed
@@ -1075,7 +1082,8 @@ public class EventWriter {
      *                       if splitting file while appending;
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
-     *                       if file exists but user requested no over-writing or appending.
+     *                       if file exists but user requested no over-writing or appending;
+     *                       if streamId < 0, splitNumber < 0, or splitIncrement < 1.
      */
     public EventWriter(String baseName, String directory, String runType,
                        int runNumber, long split,
