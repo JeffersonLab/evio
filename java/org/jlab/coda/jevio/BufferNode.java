@@ -15,9 +15,6 @@ public final class BufferNode {
     /** ByteBuffer associated with this node. */
     ByteBuffer buffer;
 
-    /** Blocks contained in the buffer. */
-    ArrayList<BlockNode> blockNodes;
-
     //----------------------------------
     // Constructor (package accessible)
     //----------------------------------
@@ -28,15 +25,6 @@ public final class BufferNode {
      */
     BufferNode(ByteBuffer buffer) {
         this.buffer = buffer;
-        blockNodes = new ArrayList<>(10);
-    }
-
-    //-------------------------------
-    // Methods
-    //-------------------------------
-
-    public void clearLists() {
-        blockNodes.clear();
     }
 
     //-------------------------------
@@ -47,14 +35,12 @@ public final class BufferNode {
      * Get the byte buffer.
      * @return byte buffer.
      */
-    public ByteBuffer getBuffer() {
-        return buffer;
-    }
+    public ByteBuffer getBuffer() {return buffer;}
 
     /**
      * set the byte buffer.
      * @param buf new byte buffer.
      */
-    void setBuffer(ByteBuffer buf) { buffer = buf; }
+    void setBuffer(ByteBuffer buf) {buffer = buf;}
 
 }
