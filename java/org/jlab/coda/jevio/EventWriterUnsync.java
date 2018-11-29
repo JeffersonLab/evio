@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ */
+
 package org.jlab.coda.jevio;
 
 
@@ -2801,6 +2811,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Duplicate buffer so we can set pos & limit without messing others up
         if (duplicate) {
+// TODO: garbage producing call
             eventBuffer = bb.duplicate().order(bb.order());
         }
         else {
@@ -3288,7 +3299,7 @@ System.err.println("ERROR endOfBuffer " + a);
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
         // but don't bother writing the metadata (arg to force()) since that slows it
         // down too.
-//        if (force) fileChannel.force(false);
+        if (force) fileChannel.force(false);
 
         // Set buf position to 0 and set limit to capacity
         buffer.clear();
