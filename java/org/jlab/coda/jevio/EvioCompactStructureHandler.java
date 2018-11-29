@@ -305,12 +305,15 @@ public class EvioCompactStructureHandler {
                     int dt = (word >> 8) & 0xff;
                     node.dataType = dt & 0x3f;
                     node.pad = dt >>> 6;
-                    // If only 7th bit set, that can only be the legacy tagsegment type
-                    // with no padding information - convert it properly.
-                    if (dt == 0x40) {
-                        node.dataType = DataType.TAGSEGMENT.getValue();
-                        node.pad = 0;
-                    }
+                    // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                    // This regularly happens with composite data.
+                    // However, it that MAY also be the legacy tagsegment type
+                    // with no padding information. Ignore this as having tag & num
+                    // in legacy code is probably rare.
+                    //if (dt == 0x40) {
+                    //    node.dataType = DataType.TAGSEGMENT.getValue();
+                    //    node.pad = 0;
+                    //}
                     node.num = word & 0xff;
 
                     break;
@@ -325,12 +328,15 @@ public class EvioCompactStructureHandler {
                     dt = (word >>> 16) & 0xff;
                     node.dataType = dt & 0x3f;
                     node.pad = dt >>> 6;
-                    // If only 7th bit set, that can only be the legacy tagsegment type
-                    // with no padding information - convert it properly.
-                    if (dt == 0x40) {
-                        node.dataType = DataType.TAGSEGMENT.getValue();
-                        node.pad = 0;
-                    }
+                    // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                    // This regularly happens with composite data.
+                    // However, it that MAY also be the legacy tagsegment type
+                    // with no padding information. Ignore this as having tag & num
+                    // in legacy code is probably rare.
+                    //if (dt == 0x40) {
+                    //    node.dataType = DataType.TAGSEGMENT.getValue();
+                    //    node.pad = 0;
+                    //}
                     node.len = word & 0xffff;
                     node.dataLen = node.len;
 
@@ -416,12 +422,15 @@ public class EvioCompactStructureHandler {
                     dt = (word >> 8) & 0xff;
                     dataType = dt & 0x3f;
                     pad = dt >>> 6;
-                    // If only 7th bit set, that can only be the legacy tagsegment type
-                    // with no padding information - convert it properly.
-                    if (dt == 0x40) {
-                        dataType = DataType.TAGSEGMENT.getValue();
-                        pad = 0;
-                    }
+                    // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                    // This regularly happens with composite data.
+                    // However, it that MAY also be the legacy tagsegment type
+                    // with no padding information. Ignore this as having tag & num
+                    // in legacy code is probably rare.
+                    //if (dt == 0x40) {
+                    //    dataType = DataType.TAGSEGMENT.getValue();
+                    //    pad = 0;
+                    //}
                     num = word & 0xff;
 
                     // Cloning is a fast copy that eliminates the need
@@ -475,12 +484,15 @@ public class EvioCompactStructureHandler {
                     dt = (word >>> 16) & 0xff;
                     dataType = dt & 0x3f;
                     pad = dt >>> 6;
-                    // If only 7th bit set, that can only be the legacy tagsegment type
-                    // with no padding information - convert it properly.
-                    if (dt == 0x40) {
-                        dataType = DataType.TAGSEGMENT.getValue();
-                        pad = 0;
-                    }
+                    // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                    // This regularly happens with composite data.
+                    // However, it that MAY also be the legacy tagsegment type
+                    // with no padding information. Ignore this as having tag & num
+                    // in legacy code is probably rare.
+                    //if (dt == 0x40) {
+                    //    dataType = DataType.TAGSEGMENT.getValue();
+                    //    pad = 0;
+                    //}
                     len = word & 0xffff;
 
                     EvioNode kidNode = (EvioNode)node.clone();
@@ -999,7 +1011,7 @@ public class EvioCompactStructureHandler {
      * Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1035,7 +1047,7 @@ public class EvioCompactStructureHandler {
     /**
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1051,7 +1063,7 @@ public class EvioCompactStructureHandler {
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
+     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a

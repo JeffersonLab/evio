@@ -1253,16 +1253,17 @@ System.err.println("ERROR endOfBuffer " + a);
         int word = buf.getInt();
         header.setTag(word >>> 16);
         int dt = (word >> 8) & 0xff;
-        int type = dt & 0x3f;
-        int padding = dt >>> 6;
-        // If only 7th bit set, that can only be the legacy tagsegment type
-        // with no padding information - convert it properly.
-        if (dt == 0x40) {
-            type = DataType.TAGSEGMENT.getValue();
-            padding = 0;
-        }
-        header.setDataType(type);
-        header.setPadding(padding);
+        // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+        // This regularly happens with composite data.
+        // However, it that MAY also be the legacy tagsegment type
+        // with no padding information. Ignore this as having tag & num
+        // in legacy code is probably rare.
+        //if (dt == 0x40) {
+        //    type = DataType.TAGSEGMENT.getValue();
+        //    padding = 0;
+        //}
+        header.setDataType(dt & 0x3f);
+        header.setPadding(dt >>> 6);
         header.setNumber(word & 0xff);
 
         // Once we know what the data type is, let the no-arg constructed
@@ -1411,16 +1412,17 @@ System.err.println("ERROR endOfBuffer " + a);
         int word = byteBuffer.getInt();
         header.setTag(word >>> 16);
         int dt = (word >> 8) & 0xff;
-        int type = dt & 0x3f;
-        int padding = dt >>> 6;
-        // If only 7th bit set, that can only be the legacy tagsegment type
-        // with no padding information - convert it properly.
-        if (dt == 0x40) {
-            type = DataType.TAGSEGMENT.getValue();
-            padding = 0;
-        }
-        header.setDataType(type);
-        header.setPadding(padding);
+        // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+        // This regularly happens with composite data.
+        // However, it that MAY also be the legacy tagsegment type
+        // with no padding information. Ignore this as having tag & num
+        // in legacy code is probably rare.
+        //if (dt == 0x40) {
+        //    type = DataType.TAGSEGMENT.getValue();
+        //    padding = 0;
+        //}
+        header.setDataType(dt & 0x3f);
+        header.setPadding(dt >>> 6);
         header.setNumber(word & 0xff);
 
         blockBytesRemaining -= 4; // just read in 4 bytes
