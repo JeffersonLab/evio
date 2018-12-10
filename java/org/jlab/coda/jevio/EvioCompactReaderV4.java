@@ -1,55 +1,55 @@
 /*
- *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
- *   to use, copy, modify, and distribute  this software and its documentation for
- *   educational, research, and not-for-profit purposes, without fee and without a
- *   signed licensing agreement.
+ * Copyright (c) 2018, Jefferson Science Associates, all rights reserved.
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
  */
+
 package org.jlab.coda.jevio;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.*;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * This class is used to read an evio version 4 formatted file or buffer
+ * This class is used to read an evio format version 4 formatted file or buffer
  * and extract specific evio containers (bank, seg, or tagseg)
- * with actual data in them given a tag/num pair. It is theoretically thread-safe.
- * It is designed to be fast and does <b>NOT</b> do a full deserialization
- * on each event examined.<p>
+ * with actual data in them given a tag/num pair.<p>
  *
  * @author timmer
  */
 class EvioCompactReaderV4 implements IEvioCompactReader {
 
-    /**  Offset to get magic number from start of file. */
-    private static final int MAGIC_OFFSET = 28;
-
-    /** Offset to get version number from start of file. */
-    private static final int VERSION_OFFSET = 20;
-
     /** Offset to get block size from start of block. */
-    private static final int BLOCK_SIZE_OFFSET = 0;
+    static final int BLOCK_SIZE_OFFSET = 0;
 
     /** Offset to get block number from start of block. */
-    private static final int BLOCK_NUMBER = 4;
+    static final int BLOCK_NUMBER = 4;
 
     /** Offset to get block header size from start of block. */
-    private static final int BLOCK_HEADER_SIZE_OFFSET = 8;
+    static final int BLOCK_HEADER_SIZE_OFFSET = 8;
 
     /** Offset to get block event count from start of block. */
-    private static final int BLOCK_EVENT_COUNT = 12;
+    static final int BLOCK_EVENT_COUNT = 12;
 
     /** Offset to get block size from start of block. */
-    private static final int BLOCK_RESERVED_1 = 16;
+    static final int BLOCK_RESERVED_1 = 16;
 
     /** Mask to get version number from 6th int in block. */
-    private static final int VERSION_MASK = 0xff;
+    static final int VERSION_MASK = 0xff;
+
 
     /** Stores info of all the (top-level) events. */
     private final ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
@@ -57,6 +57,8 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
     /** Store info of all block headers. */
     private final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
 
+    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
+    private EvioNodeSource nodePool;
 
     /**
      * This is the number of events in the file. It is not computed unless asked for,
@@ -74,9 +76,6 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
      */
     private ByteOrder byteOrder;
 
-    /** When reading a file, this is the byte order of the evio data in the file. */
-    private ByteOrder fileByteOrder;
-
     /**
      * This is the number of blocks in the file including the empty block at the
      * end of the version 4 files. It is not computed unless asked for,
@@ -89,9 +88,6 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
 
     /** The current block header. */
     private BlockHeaderV4 blockHeader = new BlockHeaderV4();
-
-    /** Are we reading a file or buffer? */
-    private boolean isFile;
 
     /** Does the file/buffer have a dictionary? */
     private boolean hasDictionary;
@@ -108,9 +104,6 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
     /** The buffer being read. */
     private ByteBuffer byteBuffer;
 
-    /** Object containing buffer and its parsed information. */
-    BufferNode bufferNode;
-
     /** Initial position of buffer (mappedByteBuffer if reading a file). */
     private int initialPosition;
 
@@ -121,10 +114,12 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
     /** Is this object currently closed? */
     private boolean closed;
 
-
     //------------------------
     // File specific members
     //------------------------
+
+    /** Are we reading a file or buffer? */
+    private boolean isFile;
 
     /**
      * The buffer representing a map of the input file which is also
@@ -140,38 +135,18 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
 
 
 
-    //------------------------
-    /**
-     * This method prints out a portion of a given ByteBuffer object
-     * in hex representation of ints.
-     *
-     * @param buf buffer to be printed out
-     * @param lenInInts length of data in ints to be printed
-     */
-    private static void printBuffer(ByteBuffer buf, int lenInInts) {
-        IntBuffer ibuf = buf.asIntBuffer();
-        lenInInts = lenInInts > ibuf.capacity() ? ibuf.capacity() : lenInInts;
-        for (int i=0; i < lenInInts; i++) {
-            System.out.println("  Buf(" + i + ") = 0x" + Integer.toHexString(ibuf.get(i)));
-        }
-    }
-
-
-
     /**
      * Constructor for reading an event file.
      *
      * @param path the full path to the file that contains events.
      *             For writing event files, use an <code>EventWriter</code> object.
-     * @see EventWriter
-     * @throws IOException   if read failure
-     * @throws EvioException if file arg is null
+     * @see org.jlab.coda.jevio.EventWriter
+     * @throws java.io.IOException   if read failure
+     * @throws org.jlab.coda.jevio.EvioException if file arg is null
      */
     public EvioCompactReaderV4(String path) throws EvioException, IOException {
         this(new File(path));
     }
-
-
 
     /**
      * Constructor for reading an event file.
@@ -220,7 +195,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
      * Constructor for reading a buffer.
      *
      * @param byteBuffer the buffer that contains events.
-
+     *
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
      *                       failure to read first block header
@@ -246,11 +221,32 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
 
 
     /**
-     * Is this reader reading a file?
-     * @return true if reading file, false if reading buffer
+     * Constructor for reading a buffer.
+     *
+     * @param byteBuffer the buffer that contains events.
+     *
+     * @see EventWriter
+     * @throws EvioException if buffer arg is null;
+     *                       failure to read first block header
      */
-    public boolean isFile() {
-        return isFile;
+    public EvioCompactReaderV4(ByteBuffer byteBuffer, EvioNodeSource pool) throws EvioException {
+
+        if (byteBuffer == null) {
+            throw new EvioException("Buffer arg is null");
+        }
+
+        initialPosition = byteBuffer.position();
+        this.byteBuffer = byteBuffer;
+        nodePool = pool;
+
+        // Read first block header and find the file's endianness & evio version #.
+        // If there's a dictionary, read that too.
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new EvioException("Failed reading first block header/dictionary");
+        }
+
+        // Generate a table of all event positions in buffer for random access.
+        generateEventPositionTable();
     }
 
 
@@ -285,6 +281,45 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
         closed = false;
     }
 
+
+    /**
+     * This method can be used to avoid creating additional EvioCompactReader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.
+     *
+     * @param buf ByteBuffer to be read
+     * @throws EvioException if arg is null;
+     *                       if failure to read first block header
+     */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        if (buf == null) {
+            throw new EvioException("arg is null");
+        }
+
+        blockNodes.clear();
+        eventNodes.clear();
+        nodePool = pool;
+
+        blockCount      = -1;
+        eventCount      = -1;
+        dictionaryXML   = null;
+        initialPosition = buf.position();
+        this.byteBuffer = buf;
+
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new EvioException("Failed reading first block header/dictionary");
+        }
+
+        generateEventPositionTable();
+        closed = false;
+    }
+
+    /**
+     * Is this reader reading a file? Always false for this class.
+     * @return false.
+     */
+    public boolean isFile() {return isFile;}
+
     /**
      * Has {@link #close()} been called (without reopening by calling
      * {@link #setBuffer(ByteBuffer)})?
@@ -311,16 +346,13 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
       * Get the path to the file.
       * @return path to the file
       */
-     public String getPath() { return path; }
+     public String getPath() { return null; }
 
     /**
-     * When reading a file, this method's return value
-     * is the byte order of the evio data in the file.
-     * @return byte order of the evio data in the file.
+     * Since we're not reading a file, always return null.
+     * @return null.
      */
-    public ByteOrder getFileByteOrder() {
-        return fileByteOrder;
-    }
+    public ByteOrder getFileByteOrder() {return null;}
 
     /**
      * Get the XML format dictionary is there is one.
@@ -381,18 +413,18 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
          return hasDictionary;
     }
 
-	/**
-	 * Maps the file into memory. The data are not actually loaded in memory-- subsequent reads will read
-	 * random-access-like from the file.
-	 *
-     * @param inputChannel the input channel.
-     * @throws IOException if file cannot be opened
-	 */
-	private void mapFile(FileChannel inputChannel) throws IOException {
-		long sz = inputChannel.size();
-		mappedByteBuffer = inputChannel.map(FileChannel.MapMode.READ_ONLY, 0L, sz);
-        byteBuffer = mappedByteBuffer;
-	}
+    /**
+ 	 * Maps the file into memory. The data are not actually loaded in memory-- subsequent reads will read
+ 	 * random-access-like from the file.
+ 	 *
+      * @param inputChannel the input channel.
+      * @throws IOException if file cannot be opened
+ 	 */
+ 	private void mapFile(FileChannel inputChannel) throws IOException {
+ 		long sz = inputChannel.size();
+ 		mappedByteBuffer = inputChannel.map(FileChannel.MapMode.READ_ONLY, 0L, sz);
+         byteBuffer = mappedByteBuffer;
+ 	}
 
     /**
      * Get the memory mapped buffer corresponding to the event file.
@@ -418,7 +450,6 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
     public long fileSize() {
         return fileSize;
     }
-
 
     /**
      * Get the EvioNode object associated with a particular event number.
@@ -454,6 +485,24 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
 
 
     /**
+     * Get the EvioNode object associated with a particular event number
+     * which has been scanned so all substructures are contained in the
+     * node.allNodes list.
+     * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return  EvioNode object associated with a particular event number,
+     *          or null if there is none.
+     */
+    public EvioNode getScannedEvent(int eventNumber, EvioNodeSource nodeSource) {
+        try {
+            return scanStructure(eventNumber, nodeSource);
+        }
+        catch (IndexOutOfBoundsException e) {}
+        return null;
+    }
+
+
+    /**
      * Generate a table (ArrayList) of positions of events in file/buffer.
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Uses only absolute gets so byteBuffer position
@@ -462,15 +511,13 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
      *
      * @throws EvioException if bytes not in evio format
      */
-    private void generateEventPositionTable() throws EvioException {
+    void generateEventPositionTable() throws EvioException {
 
         int      byteInfo, byteLen, blockHdrSize, blockSize, blockEventCount, magicNum;
         boolean  firstBlock=true, hasDictionary=false;
         //boolean  curLastBlock=false;
 
 //        long t2, t1 = System.currentTimeMillis();
-
-        bufferNode = new BufferNode(byteBuffer);
 
         // Start at the beginning of byteBuffer without changing
         // its current position. Do this with absolute gets.
@@ -530,7 +577,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
                 blockNode.count = blockEventCount;
 
                 blockNodes.put(blockCount, blockNode);
-                bufferNode.blockNodes.add(blockNode);
+//                bufferNode.blockNodes.add(blockNode);
 
                 blockNode.place = blockCount++;
 
@@ -574,8 +621,8 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
                         throw new EvioException("Bad evio format: not enough data to read event (bad bank len?)");
                     }
 
-                    EvioNode node = EvioNode.extractEventNode(bufferNode, blockNode,
-                                                     position, eventCount + i);
+                    EvioNode node = EvioNode.extractEventNode(byteBuffer, nodePool, blockNode,
+                                                              position, eventCount + i);
 //System.out.println("      event "+i+" in block: pos = " + node.pos +
 //                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
                     eventNodes.add(node);
@@ -597,7 +644,6 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
             }
         }
         catch (IndexOutOfBoundsException e) {
-            bufferNode = null;
             throw new EvioException("Bad evio format", e);
         }
 
@@ -621,6 +667,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
 
         // Have enough remaining bytes to read header?
         if (byteBuffer.limit() - pos < 32) {
+System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() - pos));
             byteBuffer.clear();
             return ReadStatus.END_OF_FILE;
         }
@@ -648,11 +695,10 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
                 magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
 System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right");
+Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
                     return ReadStatus.EVIO_EXCEPTION;
                 }
             }
-
-            fileByteOrder = byteOrder;
 
             // Check the version number
             int bitInfo = byteBuffer.getInt(pos + VERSION_OFFSET);
@@ -684,10 +730,11 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         }
         catch (EvioException a) {
             byteBuffer.clear();
+            Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
             return ReadStatus.EVIO_EXCEPTION;
         }
         catch (BufferUnderflowException a) {
-            System.err.println("ERROR endOfBuffer " + a);
+            System.err.println("EvioCompactReader: end of Buffer: " + a.getMessage());
             byteBuffer.clear();
             return ReadStatus.UNKNOWN_ERROR;
         }
@@ -772,6 +819,35 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         node.scanned = true;
 
         EvioNode.scanStructure(node);
+
+        return node;
+    }
+
+
+    /**
+     * This method scans the given event number in the buffer.
+     * It returns an EvioNode object representing the event.
+     * All the event's substructures, as EvioNode objects, are
+     * contained in the node.allNodes list (including the event itself).
+     *
+     * @param eventNumber number of the event to be scanned starting at 1
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return the EvioNode object corresponding to the given event number
+     */
+    private EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
+
+        // Node corresponding to event
+        EvioNode node = eventNodes.get(eventNumber - 1);
+
+        if (node.scanned) {
+            node.clearLists();
+        }
+
+        // Do this before actual scan so clone() sets all "scanned" fields
+        // of child nodes to "true" as well.
+        node.scanned = true;
+
+        EvioNode.scanStructure(node, nodeSource);
 
         return node;
     }
@@ -880,12 +956,6 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * It also marks any existing EvioNodes representing the event and its
      * descendants as obsolete. They must not be used anymore.<p>
      *
-     * If the constructor of this reader read in data from a file, it will now switch
-     * to using a new, internal buffer which is returned by this method or can be
-     * retrieved by calling {@link #getByteBuffer()}. It will <b>not</b> change the
-     * file originally used. A new file can be created by calling either the
-     * {@link #toFile(String)} or {@link #toFile(File)} methods.<p>
-     *
      * @param eventNumber number of event to remove from buffer
      * @return new ByteBuffer created and updated to reflect the event removal
      * @throws EvioException if eventNumber &lt; 1;
@@ -921,14 +991,8 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * It also marks the node and its descendants as obsolete. They must not be used
      * anymore.<p>
      *
-     * If the constructor of this reader read in data from a file, it will now switch
-     * to using a new, internal buffer which is returned by this method or can be
-     * retrieved by calling {@link #getByteBuffer()}. It will <b>not</b> change the
-     * file originally used. A new file can be created by calling either the
-     * {@link #toFile(String)} or {@link #toFile(File)} methods.<p>
-     *
      * @param removeNode  evio structure to remove from buffer
-     * @return new ByteBuffer (perhaps created) and updated to reflect the node removal
+     * @return ByteBuffer updated to reflect the node removal
      * @throws EvioException if object closed;
      *                       if node was not found in any event;
      *                       if internal programming error
@@ -1009,7 +1073,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             // All nodes need to use this new buffer
             for (EvioNode ev : eventNodes) {
                 for (EvioNode n : ev.allNodes) {
-                    n.bufferNode.setBuffer(byteBuffer);
+                    n.setBuffer(byteBuffer);
                 }
             }
         }
@@ -1168,13 +1232,6 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * {@link EvioTagSegment#write(ByteBuffer)} depending on whether
      * a bank, seg, or tagseg is being added.<p>
      *
-     * A note about files here. If the constructor of this reader read in data
-     * from a file, it will now switch to using a new, internal buffer which
-     * is returned by this method or can be retrieved by calling
-     * {@link #getByteBuffer()}. It will <b>not</b> expand the file originally used.
-     * A new file can be created by calling either the {@link #toFile(String)} or
-     * {@link #toFile(File)} methods.<p>
-     *
      * The given buffer argument must be ready to read with its position and limit
      * defining the limits of the data to copy.
      * This method is synchronized due to the bulk, relative puts.
@@ -1282,7 +1339,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         for (int i=0; i < eventCount; i++) {
             for (EvioNode n : eventNodes.get(i).allNodes) {
                 // Make sure nodes are using the new buffer
-                n.bufferNode.setBuffer(newBuffer);
+                n.setBuffer(newBuffer);
 
                 //System.out.println("Event node " + (i+1) + ", pos = " + n.pos + ", dataPos = " + n.dataPos);
                 if (i > place) {
@@ -1373,10 +1430,12 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         // Instead, create a single new node by cloning the event object and resetting
         // all its internal values by parsing (or extracting from) the buffer.
         if (eventNode.scanned) {
-            // Clone() will give us an empty childNodes list
+
+            // Cloning is a fast copy & an empty childNodes list
             EvioNode newNode = (EvioNode) eventNode.clone();
             newNode.isEvent = false;
             newNode.eventNode = newNode.parentNode = eventNode;
+
             // Extract data from buffer (not children data)
             EvioNode.extractNode(newNode, newBankBufPos);
 
@@ -1413,7 +1472,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Get the data associated with an evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is synchronized due to the bulk, relative gets & puts.
      *
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1431,7 +1490,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
     /**
      * Get an evio bank or event in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is synchronized due to the bulk, relative gets & puts.
      *
      * @param eventNumber number of event of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1449,7 +1508,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Get an evio bank or event in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is synchronized due to the bulk, relative gets & puts.
      *
      * @param eventNumber number of event of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -1486,7 +1545,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
     /**
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is synchronized due to the bulk, relative gets & puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -1503,7 +1562,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
+     * This method is synchronized due to the bulk, relative gets & puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
