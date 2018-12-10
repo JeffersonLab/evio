@@ -35,19 +35,19 @@ public class EvioNode implements Cloneable {
     int num;
     /** Header's padding value. */
     int pad;
-    /** Position of header in file/buffer in bytes.  */
+    /** Position of header in buffer in bytes.  */
     int pos;
     /** This node's (evio container's) type. Must be bank, segment, or tag segment. */
     int type;
 
     /** Length of node's data in 32-bit words. */
     int dataLen;
-    /** Position of node's data in file/buffer in bytes. */
+    /** Position of node's data in buffer in bytes. */
     int dataPos;
     /** Type of data stored in node. */
     int dataType;
 
-    /** Position of the record containing this node in bytes
+    /** Position of the record in buffer containing this node in bytes
      *  @since version 6. */
     int recordPos;
 
@@ -65,7 +65,7 @@ public class EvioNode implements Cloneable {
     public BlockNode blockNode;
 
     /** ByteBuffer that this node is associated with. */
-    BufferNode bufferNode;
+    ByteBuffer buffer;
 
     /** List of child nodes ordered according to placement in buffer. */
     ArrayList<EvioNode> childNodes;
@@ -103,6 +103,12 @@ public class EvioNode implements Cloneable {
     /** Node containing this node. Is null if this is an event node. */
     EvioNode parentNode;
 
+    //-------------------------------
+    // For testing
+    //-------------------------------
+    /** If in pool, the pool's id. */
+    int poolId = -1;
+
 
     //----------------------------------
     // Constructors (package accessible)
@@ -133,14 +139,14 @@ public class EvioNode implements Cloneable {
      *
      * @param pos        position of event in buffer (number of bytes)
      * @param place      containing event's place in buffer (starting at 0)
-     * @param bufferNode buffer containing this event
+     * @param buffer buffer containing this event
      * @param blockNode  block containing this event
      */
-    public EvioNode(int pos, int place, BufferNode bufferNode, BlockNode blockNode) {
+    public EvioNode(int pos, int place, ByteBuffer buffer, BlockNode blockNode) {
         this.pos = pos;
         this.place = place;
         this.blockNode = blockNode;
-        this.bufferNode = bufferNode;
+        this.buffer = buffer;
         // This is an event by definition
         this.isEvent = true;
         // Event is a Bank by definition
@@ -161,13 +167,13 @@ public class EvioNode implements Cloneable {
      * @param pos        position of event in buffer (number of bytes).
      * @param place      containing event's place in buffer (starting at 0).
      * @param recordPos  position of record containing this node.
-     * @param bufferNode buffer containing this event.
+     * @param buffer buffer containing this event.
      */
-    public EvioNode(int pos, int place, int recordPos, BufferNode bufferNode) {
+    public EvioNode(int pos, int place, int recordPos, ByteBuffer buffer) {
         this.pos = pos;
         this.place = place;
         this.recordPos = recordPos;
-        this.bufferNode = bufferNode;
+        this.buffer = buffer;
         // This is an event by definition
         this.isEvent = true;
         // Event is a Bank by definition
@@ -189,11 +195,11 @@ public class EvioNode implements Cloneable {
      * @param dataPos    position of event's data in buffer (bytes.)
      * @param type       the type of this evio structure.
      * @param dataType   the data type contained in this evio event.
-     * @param bufferNode buffer containing this event.
+     * @param buffer buffer containing this event.
      */
     EvioNode(int tag, int num, int pos, int dataPos,
              DataType type, DataType dataType,
-             BufferNode bufferNode) {
+             ByteBuffer buffer) {
 
         this.tag = tag;
         this.num = num;
@@ -202,7 +208,7 @@ public class EvioNode implements Cloneable {
 
         this.type = type.getValue();
         this.dataType = dataType.getValue();
-        this.bufferNode = bufferNode;
+        this.buffer = buffer;
     }
 
     //-------------------------------
@@ -226,14 +232,15 @@ public class EvioNode implements Cloneable {
 
     final public String toString() {
         StringBuilder builder = new StringBuilder(100);
-        builder.append("tag = ");        builder.append(tag);
-        builder.append(", num = ");      builder.append(num);
-        builder.append(", type = ");     builder.append(getTypeObj());
-        builder.append(", dataType = "); builder.append(getDataTypeObj());
-        builder.append(", pos = ");      builder.append(pos);
-        builder.append(", dataPos = ");  builder.append(dataPos);
-        builder.append(", len = ");      builder.append(len);
-        builder.append(", dataLen = ");  builder.append(dataLen);
+        builder.append("tag = ");          builder.append(tag);
+        builder.append(", num = ");        builder.append(num);
+        builder.append(", type = ");       builder.append(getTypeObj());
+        builder.append(", dataType = ");   builder.append(getDataTypeObj());
+        builder.append(", pos = ");        builder.append(pos);
+        builder.append(", dataPos = ");    builder.append(dataPos);
+        builder.append(", len = ");        builder.append(len);
+        builder.append(", dataLen = ");    builder.append(dataLen);
+        builder.append(", recordPos = ");  builder.append(recordPos);
 
         return builder.toString();
     }
@@ -245,7 +252,7 @@ public class EvioNode implements Cloneable {
      */
     final void copyParentForScan(EvioNode parent) {
         blockNode  = parent.blockNode;
-        bufferNode = parent.bufferNode;
+        buffer     = parent.buffer;
         allNodes   = parent.allNodes;
         eventNode  = parent.eventNode;
         place      = parent.place;
@@ -279,7 +286,7 @@ public class EvioNode implements Cloneable {
     /** Clear all data in this object. */
     final public void clear() {
         if (allNodes != null) allNodes.clear();
-        len = tag = num = pad = pos = type = dataLen = dataPos = dataType = place = 0;
+        len = tag = num = pad = pos = type = dataLen = dataPos = dataType = place = recordPos = 0;
         clearObjects();
     }
 
@@ -289,8 +296,9 @@ public class EvioNode implements Cloneable {
         if (childNodes != null) childNodes.clear();
 
         isEvent = obsolete = scanned = false;
+        data       = null;
         blockNode  = null;
-        bufferNode = null;
+        buffer     = null;
         eventNode  = null;
         parentNode = null;
     }
@@ -300,13 +308,63 @@ public class EvioNode implements Cloneable {
         clearObjects();
     }
 
-    final public void clearIntArray() {if (data != null) data = null;}
+    final public void clearIntArray() {data = null;}
 
+
+    //-------------------------------
+    // Setters & Getters
+    //-------------------------------
+
+    /**
+     * Set the buffer.
+     * @param buf buffer associated with this object.
+     */
+    public void setBuffer(ByteBuffer buf) {buffer = buf;}
+
+    /**
+     * Once this node is cleared, it may be reused and then re-initialized
+     * with this method.
+     *
+     * @param position   position in buffer
+     * @param place      place of event in buffer (starting at 0)
+     * @param buffer buffer to examine
+     * @param blockNode  object holding data about header of block containing event
+     */
+    void setData(int position, int place,
+                 ByteBuffer buffer, BlockNode blockNode) {
+        this.buffer = buffer;
+        this.blockNode  = blockNode;
+        this.pos = position;
+        this.place = place;
+        this.isEvent = true;
+        this.type = DataType.BANK.getValue();
+        //allNodes = new ArrayList<>(50);
+        allNodes.add(this);
+    }
+
+    /**
+     * Once this node is cleared, it may be reused and then re-initialized
+     * with this method.
+     *
+     * @param position   position in buffer
+     * @param place      place of event in buffer (starting at 0)
+     * @param recordPos  place of event in containing record (bytes)
+     * @param buffer buffer to examine
+     */
+    void setData(int position, int place, int recordPos, ByteBuffer buffer) {
+        this.buffer     = buffer;
+        this.recordPos  = recordPos;
+        this.pos        = position;
+        this.place      = place;
+        this.isEvent    = true;
+        this.type       = DataType.BANK.getValue();
+        //allNodes = new ArrayList<>(50);
+        allNodes.add(this);
+    }
 
     //-------------------------------
     // Static Methods
     //-------------------------------
-
 
     /**
      * This method extracts an EvioNode object representing an
@@ -315,7 +373,7 @@ public class EvioNode implements Cloneable {
      * object represents an evio container - either a bank, segment,
      * or tag segment.
      *
-     * @param bufferNode buffer to examine
+     * @param buffer     buffer to examine
      * @param blockNode  object holding data about block header
      * @param position   position in buffer
      * @param place      place of event in buffer (starting at 0)
@@ -323,21 +381,31 @@ public class EvioNode implements Cloneable {
      * @return EvioNode object containing evio event information
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractEventNode(BufferNode bufferNode, BlockNode blockNode,
+    static final public EvioNode extractEventNode(ByteBuffer buffer,
+                                                  EvioNodeSource nodePool,
+                                                  BlockNode blockNode,
                                                   int position, int place)
             throws EvioException {
 
         // Make sure there is enough data to at least read evio header
-        ByteBuffer buffer = bufferNode.buffer;
         if (buffer.remaining() < 8) {
             throw new EvioException("buffer underflow");
         }
 
         // Store evio event info, without de-serializing, into EvioNode object
-        EvioNode node = new EvioNode(position, place, bufferNode, blockNode);
+        EvioNode node;
+        if (nodePool != null) {
+            node = nodePool.getNode();
+            node.clear(); //node.clearIntArray();
+            node.setData(position, place, buffer, blockNode);
+        }
+        else {
+            node = new EvioNode(position, place, buffer, blockNode);
+        }
 
         return extractNode(node, position);
     }
+
 
     /**
      * This method extracts an EvioNode object representing an
@@ -346,7 +414,7 @@ public class EvioNode implements Cloneable {
      * object represents an evio container - either a bank, segment,
      * or tag segment.
      *
-     * @param bufferNode   buffer to examine
+     * @param buffer   buffer to examine
      * @param recPosition  position of containing record
      * @param position     position in buffer
      * @param place        place of event in buffer (starting at 0)
@@ -354,18 +422,25 @@ public class EvioNode implements Cloneable {
      * @return EvioNode object containing evio event information
      * @throws EvioException if file/buffer too small
      */
-    static final public EvioNode extractEventNode(BufferNode bufferNode, int recPosition,
-                                                  int position, int place)
+    static final public EvioNode extractEventNode(ByteBuffer buffer, EvioNodeSource pool,
+                                                  int recPosition, int position, int place)
             throws EvioException {
 
         // Make sure there is enough data to at least read evio header
-        ByteBuffer buffer = bufferNode.buffer;
         if (buffer.remaining() < 8) {
             throw new EvioException("buffer underflow");
         }
 
         // Store evio event info, without de-serializing, into EvioNode object
-        EvioNode node = new EvioNode(position, place, recPosition, bufferNode);
+        EvioNode node;
+        if (pool != null) {
+            node = pool.getNode();
+            node.clear(); //node.clearIntArray();
+            node.setData(position, place, recPosition, buffer);
+        }
+        else {
+            node = new EvioNode(position, place, recPosition, buffer);
+        }
 
         return extractNode(node, position);
     }
@@ -386,7 +461,7 @@ public class EvioNode implements Cloneable {
             throws EvioException {
 
         // Make sure there is enough data to at least read evio header
-        ByteBuffer buffer = bankNode.bufferNode.buffer;
+        ByteBuffer buffer = bankNode.buffer;
         if (buffer.remaining() < 8) {
             throw new EvioException("buffer underflow");
         }
@@ -425,8 +500,8 @@ public class EvioNode implements Cloneable {
         // with no padding information. Ignore this as having tag & num
         // in legacy code is probably rare.
         //if (dt == 0x40) {
-        //    node.dataType = DataType.TAGSEGMENT.getValue();
-        //    node.pad = 0;
+        //    bankNode.dataType = DataType.TAGSEGMENT.getValue();
+        //    bankNode.pad = 0;
         //}
         bankNode.num = word & 0xff;
 
@@ -455,7 +530,7 @@ public class EvioNode implements Cloneable {
         // of evio structure being scanned in bytes.
         int endingPos = position + 4*node.dataLen;
         // Buffer we're using
-        ByteBuffer buffer = node.bufferNode.buffer;
+        ByteBuffer buffer = node.buffer;
 
         int dt, dataType, dataLen, len, word;
 
@@ -596,6 +671,183 @@ public class EvioNode implements Cloneable {
 
                 if (DataType.isStructure(dataType)) {
                     scanStructure(kidNode);
+                }
+
+                position += 4*len;
+            }
+        }
+    }
+
+
+    /**
+     * This method recursively stores, in the given list, all the information
+     * about an evio structure's children found in the given ByteBuffer object.
+     * It uses absolute gets so buffer's position does <b>not</b> change.
+     *
+     * @param node node being scanned
+     * @param nodeSource source of EvioNode objects to use while parsing evio data.
+     */
+    static final void scanStructure(EvioNode node, EvioNodeSource nodeSource) {
+
+        int dType = node.dataType;
+
+        // If node does not contain containers, return since we can't drill any further down
+        if (!DataType.isStructure(dType)) {
+            return;
+        }
+
+        // Start at beginning position of evio structure being scanned
+        int position = node.dataPos;
+        // Don't go past the data's end which is (position + length)
+        // of evio structure being scanned in bytes.
+        int endingPos = position + 4*node.dataLen;
+        // Buffer we're using
+        ByteBuffer buffer = node.buffer;
+
+        int dt, dataType, dataLen, len, word;
+
+        // Do something different depending on what node contains
+        if (DataType.isBank(dType)) {
+            // Extract all the banks from this bank of banks.
+            // Make allowance for reading header (2 ints).
+            endingPos -= 8;
+            while (position <= endingPos) {
+
+                // Cloning is a fast copy that eliminates the need
+                // for setting stuff that's the same as the parent.
+
+                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = nodeSource.getNode();
+                kidNode.copyParentForScan(node);
+
+                // Read first header word
+                len = buffer.getInt(position);
+                kidNode.pos = position;
+
+                // Len of data (no header) for a bank
+                dataLen = len - 1;
+                position += 4;
+
+                // Read and parse second header word
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = (word >>> 16);
+                dt = (word >> 8) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
+                kidNode.num = word & 0xff;
+
+
+                kidNode.len = len;
+                kidNode.type = DataType.BANK.getValue();  // This is a bank
+                kidNode.dataLen = dataLen;
+                kidNode.dataPos = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent = false;
+
+                // Add this to list of children and to list of all nodes in the event
+                node.addChild(kidNode);
+
+                // Only scan through this child if it's a container
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode, nodeSource);
+                }
+
+                // Set position to start of next header (hop over kid's data)
+                position += 4 * dataLen;
+            }
+        }
+        else if (DataType.isSegment(dType)) {
+
+            // Extract all the segments from this bank of segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = nodeSource.getNode();
+                kidNode.copyParentForScan(node);
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag = word >>> 24;
+                dt = (word >>> 16) & 0xff;
+                dataType = dt & 0x3f;
+                kidNode.pad = dt >>> 6;
+                // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
+                // This regularly happens with composite data.
+                // However, it that MAY also be the legacy tagsegment type
+                // with no padding information. Ignore this as having tag & num
+                // in legacy code is probably rare.
+                //if (dt == 0x40) {
+                //    dataType = DataType.TAGSEGMENT.getValue();
+                //    kidNode.pad = 0;
+                //}
+                len = word & 0xffff;
+
+
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.SEGMENT.getValue();  // This is a segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode, nodeSource);
+                }
+
+                position += 4*len;
+            }
+        }
+        // Only one type of structure left - tagsegment
+        else {
+
+            // Extract all the tag segments from this bank of tag segments.
+            // Make allowance for reading header (1 int).
+            endingPos -= 4;
+            while (position <= endingPos) {
+
+                //EvioNode kidNode = (EvioNode) node.clone();
+                EvioNode kidNode = nodeSource.getNode();
+                kidNode.copyParentForScan(node);
+
+                kidNode.pos = position;
+
+                word = buffer.getInt(position);
+                position += 4;
+                kidNode.tag =  word >>> 20;
+                dataType    = (word >>> 16) & 0xf;
+                len         =  word & 0xffff;
+
+                kidNode.pad      = 0;
+                kidNode.num      = 0;
+                kidNode.len      = len;
+                kidNode.type     = DataType.TAGSEGMENT.getValue();  // This is a tag segment
+                kidNode.dataLen  = len;
+                kidNode.dataPos  = position;
+                kidNode.dataType = dataType;
+                kidNode.isEvent  = false;
+
+                kidNode.parentNode = node;
+                node.addChild(kidNode);
+
+                if (DataType.isStructure(dataType)) {
+                    scanStructure(kidNode, nodeSource);
                 }
 
                 position += 4*len;
@@ -796,8 +1048,8 @@ public class EvioNode implements Cloneable {
      * Get the object containing the buffer that this node is associated with.
      * @return object containing the buffer that this node is associated with.
      */
-    final public BufferNode getBufferNode() {
-        return bufferNode;
+    final public ByteBuffer getBuffer() {
+        return buffer;
     }
 
     /**
@@ -949,7 +1201,6 @@ public class EvioNode implements Cloneable {
      */
     final public void updateLengths(int deltaLen) {
 
-        ByteBuffer buffer = bufferNode.buffer;
         EvioNode node = this;
         DataType typ = getTypeObj();
         int length;
@@ -994,8 +1245,6 @@ public class EvioNode implements Cloneable {
      * @param newTag new tag value
      */
     final public void updateTag(int newTag) {
-
-        ByteBuffer buffer = bufferNode.buffer;
 
         switch (DataType.getDataType(type)) {
             case BANK:
@@ -1042,8 +1291,6 @@ public class EvioNode implements Cloneable {
      */
     final public void updateNum(int newNum) {
 
-        ByteBuffer buffer = bufferNode.buffer;
-
         switch (DataType.getDataType(type)) {
             case BANK:
             case ALSOBANK:
@@ -1080,19 +1327,19 @@ public class EvioNode implements Cloneable {
         // with other operations being done to it.
         // So even though it is less efficient, use a duplicate of the
         // buffer which gives us our own limit and position.
-        ByteOrder order   = bufferNode.buffer.order();
-        ByteBuffer buffer = bufferNode.buffer.duplicate().order(order);
-        buffer.limit(dataPos + 4*dataLen - pad).position(dataPos);
+        ByteOrder order    = buffer.order();
+        ByteBuffer buffer2 = buffer.duplicate().order(order);
+        buffer2.limit(dataPos + 4*dataLen - pad).position(dataPos);
 
         if (copy) {
             ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen - pad).order(order);
-            newBuf.put(buffer);
+            newBuf.put(buffer2);
             newBuf.flip();
             return newBuf;
         }
 
-        //return  buffer.slice().order(order);
-        return  buffer;
+        //return  buffer2.slice().order(order);
+        return  buffer2;
     }
 
 
@@ -1113,10 +1360,9 @@ public class EvioNode implements Cloneable {
         }
 
         data = new int[dataLen];
-        ByteBuffer buf = bufferNode.buffer;
 
         for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
-            data[(i-dataPos)/4] = buf.getInt(i);
+            data[(i-dataPos)/4] = buffer.getInt(i);
         }
         return data;
     }
@@ -1143,10 +1389,8 @@ public class EvioNode implements Cloneable {
             intData = new int[dataLen];
         }
 
-        ByteBuffer buf = bufferNode.buffer;
-
         for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
-            intData[(i-dataPos)/4] = buf.getInt(i);
+            intData[(i-dataPos)/4] = buffer.getInt(i);
         }
 
         // Return number of valid array elements through this array
@@ -1171,10 +1415,9 @@ public class EvioNode implements Cloneable {
         int numLongs = dataLen/2;
 
         long[] data = new long[numLongs];
-        ByteBuffer buf = bufferNode.buffer;
 
         for (int i = dataPos; i < dataPos + 8*numLongs; i+= 8) {
-            data[(i-dataPos)/8] = buf.getLong(i);
+            data[(i-dataPos)/8] = buffer.getLong(i);
         }
         return data;
     }
@@ -1203,10 +1446,8 @@ public class EvioNode implements Cloneable {
             longData = new long[numLongs];
         }
 
-        ByteBuffer buf = bufferNode.buffer;
-
         for (int i = dataPos; i < dataPos + 8*numLongs; i+= 8) {
-            longData[(i-dataPos)/8] = buf.getLong(i);
+            longData[(i-dataPos)/8] = buffer.getLong(i);
         }
 
         // Return number of valid array elements through this array
@@ -1230,10 +1471,9 @@ public class EvioNode implements Cloneable {
     final public short[] getShortData() {
         int numShorts = 2*dataLen;
         short[] data = new short[numShorts];
-        ByteBuffer buf = bufferNode.buffer;
 
         for (int i = dataPos; i < dataPos + 2*numShorts; i+= 2) {
-            data[(i-dataPos)/2] = buf.getShort(i);
+            data[(i-dataPos)/2] = buffer.getShort(i);
         }
         return data;
     }
@@ -1262,10 +1502,8 @@ public class EvioNode implements Cloneable {
             shortData = new short[numShorts];
         }
 
-        ByteBuffer buf = bufferNode.buffer;
-
         for (int i = dataPos; i < dataPos + 2*numShorts; i+= 2) {
-            shortData[(i-dataPos)/2] = buf.getShort(i);
+            shortData[(i-dataPos)/2] = buffer.getShort(i);
         }
 
         // Return number of valid array elements through this array
@@ -1275,7 +1513,7 @@ public class EvioNode implements Cloneable {
         return shortData;
     }
 
- 
+
     /**
      * Get this node's entire evio structure in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
@@ -1297,19 +1535,19 @@ public class EvioNode implements Cloneable {
         // So even though it is less efficient, use a duplicate of the
         // buffer which gives us our own limit and position.
 
-        ByteOrder order   = bufferNode.buffer.order();
-        ByteBuffer buffer = bufferNode.buffer.duplicate().order(order);
-        buffer.limit(dataPos + 4*dataLen).position(pos);
+        ByteOrder order    = buffer.order();
+        ByteBuffer buffer2 = buffer.duplicate().order(order);
+        buffer2.limit(dataPos + 4*dataLen).position(pos);
 
         if (copy) {
             ByteBuffer newBuf = ByteBuffer.allocate(getTotalBytes()).order(order);
-            newBuf.put(buffer);
+            newBuf.put(buffer2);
             newBuf.flip();
             return newBuf;
         }
 
-        //return buffer.slice().order(order);
-        return buffer;
+        //return buffer2.slice().order(order);
+        return buffer2;
     }
 
 
