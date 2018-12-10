@@ -6,6 +6,8 @@
  */
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.RecordHeader;
+
 import java.io.*;
 import java.nio.*;
 import java.util.List;
@@ -21,7 +23,7 @@ import java.util.List;
  */
 public class EvioCompactReader implements IEvioCompactReader {
 
-    /** Evio version number. Obtain this by reading first block header. */
+    /** Evio version number (1-4, 6). Obtain this by reading first header. */
     private int evioVersion;
 
     /**
@@ -74,28 +76,25 @@ public class EvioCompactReader implements IEvioCompactReader {
 
         initialPosition = 0;
 
-        // Read 32 bytes of header
+        // Read first 32 bytes of file header
         RandomAccessFile rFile = new RandomAccessFile(file, "r");
         byteBuffer = ByteBuffer.wrap(new byte[32]);
         rFile.read(byteBuffer.array());
 
-        // Parse first block header to find the file's endianness & evio version #
-        if (findEvioVersion() != IEvioCompactReader.ReadStatus.SUCCESS) {
+        // Parse file header to find the file's endianness & evio version #
+        if (findEvioVersion() != ReadStatus.SUCCESS) {
             throw new EvioException("Failed reading first block header");
         }
 
         // This object is no longer needed
         rFile.close();
 
-        if (evioVersion < 4)  {
-            throw new EvioException("unsupported evio version (" + evioVersion + "), only 4+");
-        }
-
-        if (evioVersion == 4) {
+        if (evioVersion < 5) {
             reader = new EvioCompactReaderV4(file);
         }
         else if (evioVersion == 6) {
-            reader = new EvioCompactReaderV4(file);
+            reader = null;
+//            reader = new EvioCompactReaderV6(file);
         }
         else {
             throw new EvioException("unsupported evio version (" + evioVersion + ")");
@@ -134,7 +133,7 @@ public class EvioCompactReader implements IEvioCompactReader {
         this.byteBuffer = byteBuffer;
 
         // Read first block header and find the file's endianness & evio version #.
-        if (findEvioVersion() != IEvioCompactReader.ReadStatus.SUCCESS) {
+        if (findEvioVersion() != ReadStatus.SUCCESS) {
             throw new EvioException("Failed reading first block header");
         }
 
@@ -155,7 +154,7 @@ public class EvioCompactReader implements IEvioCompactReader {
                 reader = new EvioCompactReaderV4(byteBuffer);
             }
             else {
-                reader = new EvioCompactReaderUnsyncV4(byteBuffer);
+                reader = new EvioCompactReaderUnsyncV6(byteBuffer);
             }
         }
         else {
@@ -169,12 +168,12 @@ public class EvioCompactReader implements IEvioCompactReader {
      * in order to determine the evio version of buffer.
      * @return status of read attempt
      */
-    private IEvioCompactReader.ReadStatus findEvioVersion() {
+    private ReadStatus findEvioVersion() {
         // Look at first block header
 
         // Have enough remaining bytes to read 8 words of header?
         if (byteBuffer.limit() - initialPosition < 32) {
-            return IEvioCompactReader.ReadStatus.END_OF_FILE;
+            return ReadStatus.END_OF_FILE;
         }
 
         try {
@@ -183,7 +182,7 @@ public class EvioCompactReader implements IEvioCompactReader {
             // Check the magic number for endianness (buffer defaults to big endian)
             byteOrder = byteBuffer.order();
 
-            int magicNumber = byteBuffer.getInt(initialPosition + MAGIC_OFFSET);
+            int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
                 if (byteOrder == ByteOrder.BIG_ENDIAN) {
                     byteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -194,19 +193,19 @@ public class EvioCompactReader implements IEvioCompactReader {
                 byteBuffer.order(byteOrder);
 
                 // Reread magic number to make sure things are OK
-                magicNumber = byteBuffer.getInt(initialPosition + MAGIC_OFFSET);
+                magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-                    return IEvioCompactReader.ReadStatus.EVIO_EXCEPTION;
+                    return ReadStatus.EVIO_EXCEPTION;
                 }
             }
 
             // Find the version number
-            int bitInfo = byteBuffer.getInt(initialPosition + VERSION_OFFSET);
-            evioVersion = bitInfo & VERSION_MASK;
+            int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
+            evioVersion = bitInfo & RecordHeader.VERSION_MASK;
         }
         catch (BufferUnderflowException a) {/* never happen */}
 
-        return IEvioCompactReader.ReadStatus.SUCCESS;
+        return ReadStatus.SUCCESS;
     }
 
 
