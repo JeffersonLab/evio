@@ -433,18 +433,25 @@ public class FileHeader {
     }
 
     /**
-     * Does this header have a first event in the user header?
-     * @return true if header has a first event in the user header, else false.
+     * Does this header have a first event in the file header?
+     * @return true if header has a first event in the file header, else false.
      */
     public boolean hasFirstEvent() {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
 
     /**
+     * Does this bitInfo arg indicate the existence of a first event in the file header?
+     * @param bitInfo bitInfo word.
+     * @return true if header has a first event in the file header, else false.
+     */
+    static public boolean hasFirstEvent(int bitInfo) {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
+
+    /**
      * Set the bit in the file header which says there is a dictionary.
-     * @param hasFirst  true if file has a dictionary.
+     * @param hasDictionary  true if file has a dictionary.
      * @return new bitInfo word.
      */
-    public int hasDictionary(boolean hasFirst) {
-        if (hasFirst) {
+    public int hasDictionary(boolean hasDictionary) {
+        if (hasDictionary) {
             // set bit
             bitInfo |= DICTIONARY_BIT;
         }
@@ -457,25 +464,25 @@ public class FileHeader {
     }
 
     /**
-     * Does this header have a dictionary in the user header?
-     * @return true if header has a dictionary in the user header, else false.
+     * Does this header have a dictionary in the file header?
+     * @return true if header has a dictionary in the file header, else false.
      */
     public boolean hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
 
     /**
-     * Does this bitInfo arg indicate the existence of a dictionary in the user header?
+     * Does this bitInfo arg indicate the existence of a dictionary in the file header?
      * @param bitInfo bitInfo word.
-     * @return true if header has a dictionary in the user header, else false.
+     * @return true if header has a dictionary in the file header, else false.
      */
     static public boolean hasDictionary(int bitInfo) {return ((bitInfo & DICTIONARY_BIT) != 0);}
 
     /**
      * Set the bit in the file header which says there is a trailer with a record length index.
-     * @param hasFirst  true if file has a  trailer with a record length index.
+     * @param hasTrailerWithIndex  true if file has a trailer with a record length index.
      * @return new bitInfo word.
      */
-    public int hasTrailerWithIndex(boolean hasFirst) {
-        if (hasFirst) {
+    public int hasTrailerWithIndex(boolean hasTrailerWithIndex) {
+        if (hasTrailerWithIndex) {
             // set bit
             bitInfo |= TRAILER_WITH_INDEX_BIT;
         }
@@ -515,7 +522,7 @@ public class FileHeader {
      * Decodes the bit-info word into version, padding and header type.
      * @param word bit-info word.
      */
-    private void decodeBitInfoWord(int word){
+    private void decodeBitInfoWord(int word) {
         // Padding
         userHeaderLengthPadding = (word >>> 20) & 0x3;
 
@@ -627,10 +634,10 @@ public class FileHeader {
       * @param padding user header's padding.
       */
      private void setUserHeaderLengthPadding(int padding) {
-System.out.println("setUserHeaderLengthPadding: IN, fe bit = " + hasFirstEvent());
+//System.out.println("setUserHeaderLengthPadding: IN, firstEv bit = " + hasFirstEvent());
          userHeaderLengthPadding = padding;
          bitInfo = bitInfo | (userHeaderLengthPadding << 20);
-System.out.println("setUserHeaderLengthPadding: END, fe bit = " + hasFirstEvent());
+//System.out.println("setUserHeaderLengthPadding: END, firstEv bit = " + hasFirstEvent());
      }
 
     /**
@@ -867,19 +874,19 @@ System.out.println("setUserHeaderLengthPadding: END, fe bit = " + hasFirstEvent(
         fileNumber        = buffer.getInt(FILE_NUMBER_OFFSET + offset);
         headerLengthWords = buffer.getInt(HEADER_LENGTH_OFFSET + offset);
         setHeaderLength(4*headerLengthWords);
-System.out.println("fileHeader: header len = " + headerLength);
+//System.out.println("  fileHeader: header len = " + headerLength);
         entries           = buffer.getInt(RECORD_COUNT_OFFSET + offset);
 
         indexLength       = buffer.getInt(INDEX_ARRAY_OFFSET + offset);
-System.out.println("fileHeader: index len = " + indexLength);
+//System.out.println("  fileHeader: index len = " + indexLength);
         setIndexLength(indexLength);
 
         userHeaderLength  = buffer.getInt(USER_LENGTH_OFFSET + offset);
         setUserHeaderLength(userHeaderLength);
-System.out.println("fileHeader: user header len = " + userHeaderLength +
-                   ", padding = " + userHeaderLengthPadding);
+//System.out.println("  fileHeader: user header len = " + userHeaderLength +
+//                   ", padding = " + userHeaderLengthPadding);
 
-System.out.println("fileHeader: total len = " + totalLength);
+//System.out.println("  fileHeader: total len = " + totalLength);
 
         userRegister     = buffer.getLong(REGISTER1_OFFSET + offset);
         trailerPosition  = buffer.getLong(TRAILER_POSITION_OFFSET + offset);
@@ -914,7 +921,9 @@ System.out.println("fileHeader: total len = " + totalLength);
         str.append(String.format("%24s : %d\n","header length",headerLength));
         str.append(String.format("%24s : 0x%X\n","magic word",headerMagicWord));
         Integer bitInfo = getBitInfoWord();
-        str.append(String.format("%24s : %s\n","bit info word",Integer.toBinaryString(bitInfo)));
+        str.append(String.format("%24s : %s\n","bit info bits",Integer.toBinaryString(bitInfo)));
+        str.append(String.format("%24s : 0x%s\n","bit info word",Integer.toHexString(bitInfo)));
+        str.append(String.format("%24s : %b\n","has dictionary",FileHeader.hasDictionary(bitInfo)));
         str.append(String.format("%24s : %d\n","record entries",entries));
 
         str.append(String.format("%24s : %d\n","  index length", indexLength));
