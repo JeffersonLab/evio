@@ -223,12 +223,12 @@ public class CompactReaderAddSubtractTest {
             for (EvioNode n : node1.getAllNodes()) {
                 i++;
                 System.out.println("node " + i + ": " + n);
-                System.out.println("nodeBB = " + n.getBufferNode().getBuffer());
+                System.out.println("nodeBB = " + n.getBuffer());
             }
 
             System.out.println("reader.byteBuffer = " + reader.getByteBuffer());
 
-            if (reader.getByteBuffer() == node1.getBufferNode().getBuffer()) {
+            if (reader.getByteBuffer() == node1.getBuffer()) {
                 System.out.println("reader and node have same buffer");
             }
             else {

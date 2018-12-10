@@ -135,7 +135,7 @@ public class FileTestVer6 {
      * data from each roc, 30K per event.
      * @return  typical Hall D type of event.
      */
-    static private EvioEvent createEvioEvent(int ts) {
+    static private EvioEvent createEvioEvent(int ts, int tag) {
 
         int EBid = 1;
         int numRocs = 100;
@@ -147,7 +147,7 @@ public class FileTestVer6 {
             /////////////////////////////////////////////////////////////////////
             // Top level event, from PEB, 20 entangled events
             /////////////////////////////////////////////////////////////////////
-            EventBuilder builder = new EventBuilder(0xff50, DataType.BANK, numEvents);
+            EventBuilder builder = new EventBuilder(tag, DataType.BANK, numEvents);
             EvioEvent event = builder.getEvent();
 
             /////////////////////////////////////////////////////////////////////
@@ -262,25 +262,137 @@ public class FileTestVer6 {
                     "  <xmldumpDictEntry name=\"bank of chars\"  tag=\"5\"   num=\"5\"/>\n" +
             "</xmlDict>";
 
+
+    public static String curFileName;
+
     /** For WRITING a local file. */
     public static void main(String args[]) {
-        int i = -456;
-        BitSet bs = new BitSet(32);
+
+        String fileName  = "/Users/timmer/fileTest.ev.v6";
+        String splitFileName  = "/Users/timmer/fileTest.ev.v6.0";
+        File file = new File(fileName);
+        file.delete();
+        File sfile = new File(splitFileName);
+        sfile.delete();
+
+        ByteBuffer myBuf = null;
+
+        // Do we overwrite or append?
+        boolean append = false;
+
+        // Do we write to file or buffer?
+        boolean useFile = true;
 
         try {
-            ByteDataTransformer.toBitSet(bs, i);
-            i = ByteDataTransformer.toInt(bs);
-            System.out.println("i = " + i);
-            ByteDataTransformer.toBitSet(bs, i);
-            i = ByteDataTransformer.toInt(bs);
-            System.out.println("i = " + i);
+            // Create an event writer to write out the test events to file
+            EventWriter writer;
+            int targetRecordBytes = 8*1024*1024; // 8 MB
+            int splitBytes = 200000000;
+
+            ByteOrder order = ByteOrder.BIG_ENDIAN;
+
+            // Define a first event and write it into byte array
+            EvioEvent eventFirst = createEvioEvent(100, 0xff50);
+            byte[] efArray = new byte[eventFirst.getTotalBytes()];
+            ByteBuffer efBuf = ByteBuffer.wrap(efArray);
+            efBuf.order(order);
+            eventFirst.write(efBuf);
+
+            if (useFile) {
+                System.out.println("FileTest, write to file " + fileName + "\n");
+                writer = new EventWriter(fileName, null,
+                        null, 0, splitBytes,
+                        50000, 0,
+                         ByteOrder.BIG_ENDIAN, xmlDictionary,
+                        false, append, null,
+                        0, 0, 1,
+                        1, 0, 1,
+                        8);
+//
+//                public EventWriter(String baseName, String directory, String runType,
+//                         int runNumber, long split,
+//                         int maxRecordSize, int maxEventCount,
+//                         ByteOrder byteOrder, String xmlDictionary,
+//                         boolean overWriteOK, boolean append,
+//                         EvioBank firstEvent, int streamId,
+//                         int splitNumber, int splitIncrement, int streamCount,
+//                         int compressionType, int compressionThreads, int ringSize)
+
+            }
+            else {
+                // Create an event writer to write to buffer
+                myBuf = ByteBuffer.allocate(10000);
+                myBuf.order(order);
+                writer = new EventWriter(myBuf, targetRecordBytes,
+                        10000, null,
+                        1, null, 0);
+//                public EventWriter(ByteBuffer buf, int maxRecordSize, int maxEventCount,
+//                            String xmlDictionary, int recordNumber,
+//                            EvioBank firstEvent, int compressionType)
+            }
+
+
+            for (int i = 0; i < 10; i++) {
+                // Top level event
+                EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i);
+                // Write event to file
+                writer.writeEvent(event);
+                // How much room do I have left in the buffer now?
+                if (!useFile) {
+                    System.out.println("Buffer has " + myBuf.remaining() + " bytes left");
+                }
+                else {
+                    System.out.println("Wrote event w/ ts = " + (10*(i+1)));
+                }
+            }
+
+            if (true) {
+                // All done writing
+                System.out.println("FileTest, call close()\n\n");
+                writer.close();
+            }
+
+            if (useFile) {
+                curFileName = splitFileName;
+                System.out.println("FileTest, current file name = " + curFileName + "\n");
+                Utilities.printBytes(splitFileName, 0, 600, "File");
+            }
+            else {
+                Utilities.printBytes(myBuf, 0, 600, "Buffer");
+            }
+
+            boolean useSequentialRead = false;
+
+
+            // Since we're splitting the file, .0 is tacked onto the end by default
+            fileName = splitFileName;
+            
+
+            if (useFile) {
+                // Mess with the file by removing bytes off the end
+                // to simulate incomplete writes due to crashes.
+                //removeBytesFromFileEnd(fileName, 5);
+                System.out.println("\nCALLING readWrittenDataOldAPI on " + fileName + "\n");
+                readWrittenDataOldAPI(fileName, null, useSequentialRead);
+            }
+            else {
+                //ByteBuffer buf = writer.getBuffer();
+                // remove header + 1 word if closed, else just 1 word
+                //buf.limit(buf.limit() - 84);
+                //Utilities.bufferToFile(fileName+"out", buf, true, false);
+
+
+                //myBuf.flip();
+                readWrittenDataOldAPI(null, myBuf, useSequentialRead);
+            }
+
         }
-        catch (EvioException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
 
-
     }
+
 
 
     /** For WRITING a local file. */
@@ -312,7 +424,7 @@ public class FileTestVer6 {
             ByteOrder order = ByteOrder.BIG_ENDIAN;
 
             // Define a first event and write it into byte array
-            eventFirst = createEvioEvent(100);
+            eventFirst = createEvioEvent(100, 0xff50);
             byte[] efArray = new byte[eventFirst.getTotalBytes()];
             ByteBuffer efBuf = ByteBuffer.wrap(efArray);
             efBuf.order(order);
@@ -341,7 +453,7 @@ public class FileTestVer6 {
             if (useFile) {
                 for (int i = 0; i < 6; i++) {
                     // Top level event
-                    EvioEvent event = createEvioEvent(10 * (i + 1));
+                    EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i);
                     // Write event to file
                     writer.addEvent(event);
                     // How much room do I have left in the buffer now?
@@ -355,7 +467,7 @@ public class FileTestVer6 {
 
                 for (int i = 0; i < 6; i++) {
                     // Top level event
-                    EvioEvent event = createEvioEvent(10 * (i + 1));
+                    EvioEvent event = createEvioEvent(10 * (i + 1), 0xff50 + i);
                     // Write event to output stream
                     outputStream.addEvent(event);
                     // How much room do I have left in the buffer now?
@@ -451,6 +563,78 @@ public class FileTestVer6 {
     }
 
 
+    private static void readWrittenDataOldAPI(String fileName, ByteBuffer buf, boolean sequential)
+            throws IOException, EvioException {
+
+        try {
+
+            File file;
+            EvioReader reader;
+
+            if (buf != null) {
+                System.out.println("\nRead buffer:\n");
+
+                reader = new EvioReader(buf);
+                System.out.println("    buffer: pos = " + buf.position() + ", lim: " + buf.limit());
+                // Buffer will not contain first event or dictionary.
+            }
+            else {
+                System.out.println("\nRead file " + fileName + " as file:\n");
+                file = new File(fileName);
+                reader = new EvioReader(fileName, true);
+                System.out.println("  file:  size = " + file.length());
+
+
+                if (reader.hasDictionaryXML()) {
+                    String xml = reader.getDictionaryXML();
+                    System.out.println("  Dictionary = \n" + xml);
+                }
+                else {
+                    System.out.println("  NO dictionary");
+                }
+            }
+
+            // How many events in the file?
+            int evCount = reader.getEventCount();
+            System.out.println("Read file, got " + evCount + " events:\n");
+
+            // When reading a file, EvioNodes will be null by definition
+            if (sequential) {
+                // Use sequential access to look at events
+                for (int i = 0; i < evCount; i++) {
+                    EvioEvent ev = reader.nextEvent();
+                    if (ev == null) {
+                        System.out.println("Seq Event #" + i + " => node is null");
+                    }
+                    else {
+                        System.out.println("Seq Event #" + i + " = " + ev.toString());
+                    }
+                }
+
+            }
+            else {
+                // Use the "random access" capability to look at event
+                for (int i = 1; i <= evCount; i++) {
+                    EvioEvent ev = reader.getEvent(i);
+                    if (ev == null) {
+                        System.out.println("Event #" + i + " => node is null");
+                    }
+                    else {
+                        System.out.println("Event #" + i + " = " + ev.toString());
+                    }
+                }
+            }
+
+
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+            Utilities.printBytes(buf, 0, 200, "Bad Event");
+        }
+    }
+
+
+
     private static void readWrittenData(String fileName, ByteBuffer buf, boolean sequential)
             throws IOException, EvioException {
 
@@ -513,7 +697,7 @@ public class FileTestVer6 {
                 }
                 else {
                     // Use the "random access" capability to look at event
-                    for (int i = 0; i < evCount; i++) {
+                    for (int i=1; i <= evCount; i++) {
                         EvioNode ev = reader.getEventNode(i);
                         if (ev == null) {
                             System.out.println("Event #" + i + " => node is null");
@@ -630,6 +814,8 @@ public class FileTestVer6 {
     }
 
 
+
+
     private static void appendEvents(String fileName, EvioEvent ev, int count)
             throws IOException, EvioException {
 
@@ -637,7 +823,7 @@ public class FileTestVer6 {
                                              4*16, 1000,
                                              ByteOrder.nativeOrder(), null,
                                              true, true, null,
-                                             0, 0, 0, 0, 0);
+                                             0, 0, 1, 1, 0, 1, 8);
         for (int i=0; i < count; i++) {
             // append event to file
             writer.writeEvent(ev);
@@ -681,7 +867,7 @@ public class FileTestVer6 {
                                                          4*1000, 3,
                                                          ByteOrder.BIG_ENDIAN, dictionary,
                                                          true, false, null,
-                                                         0, 0, 0, 0, 0);
+                                                         0, 0, 1, 1, 0, 1, 8);
 
             // event - bank of banks
             EventBuilder eventBuilder2 = new EventBuilder(1, DataType.BANK, 1);
@@ -946,7 +1132,7 @@ public class FileTestVer6 {
                                                              4*1000, 3,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 1, 8);
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
                 event = eventBuilder2.getEvent();
@@ -982,7 +1168,7 @@ public class FileTestVer6 {
                                                              4*10000000, 100000,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 1, 8);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -1019,7 +1205,7 @@ public class FileTestVer6 {
                                                               4*10000000, 6535,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                              0, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 1, 8);
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
                 event = eventBuilder2.getEvent();
@@ -1054,7 +1240,7 @@ public class FileTestVer6 {
                                                               4*1000, 3,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                              0, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 1, 8);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);

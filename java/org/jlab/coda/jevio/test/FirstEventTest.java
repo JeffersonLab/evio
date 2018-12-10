@@ -61,7 +61,7 @@ public class FirstEventTest {
                                                  4*1000, 4,
                                                  ByteOrder.BIG_ENDIAN, dictionary,
                                                  true, false, eventFirst,
-                                                 0, 0, 0, 0, 0);
+                                                 0, 0, 1, 1, 0, 0, 0);
 
                 System.out.println("FirstEventTest: write event #1");
                 ER.writeEvent(event);
@@ -82,7 +82,7 @@ public class FirstEventTest {
                                                    4*1000, 4,
                                                    ByteOrder.BIG_ENDIAN, null,
                                                    true, true, null,
-                                                   0, 0, 0, 0, 0);
+                                         0, 0, 1, 1, 0, 0, 0);
 
                     System.out.println("FirstEventTest: append event #1");
                     ER.writeEvent(event);
@@ -186,7 +186,7 @@ public class FirstEventTest {
                                              4*1000, 4,
                                              ByteOrder.BIG_ENDIAN, dictionary,
                                              true, false, null,
-                                             0, 0, 0, 0, 0);
+                                             0, 0, 1, 1, 0, 0, 0);
 
 
             System.out.println("FirstEventTest: write event #1");

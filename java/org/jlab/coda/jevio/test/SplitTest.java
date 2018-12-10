@@ -67,11 +67,12 @@ public class SplitTest {
             // The following may not be backwards compatible.
             // Make substitutions in the baseName to create the base file name.
             StringBuilder builder = new StringBuilder(100);
-            int specifierCount = Utilities.generateBaseFileName(baseName, runType, builder);
+            int[] ret = Utilities.generateBaseFileName(baseName, runType, builder);
+            int specifierCount = ret[0];
             String baseFileName = builder.toString();
             // Also create the first file's name with more substitutions
             String fileName = Utilities.generateFileName(baseFileName, specifierCount,
-                    runNumber, split, splitCount++);
+                    runNumber, split, splitCount++, 0, 1);
             System.out.println("EventWriter const: filename = " + fileName);
             System.out.println("                   basename = " + baseName);
         }
@@ -109,7 +110,7 @@ public class SplitTest {
                                                  4*blockSizeMax, blockCountMax,
                                                  ByteOrder.BIG_ENDIAN, xmlDictionary,
                                                  true, append, null,
-                                                 0, 0, 0, 0, 0);
+                                                 0, 0, 1, 1, 0, 0, 0);
 
 //            ByteBuffer buf = ByteBuffer.allocateDirect(bufferSize);
 //            EventWriter writer = new  EventWriter(buf, 4*blockSizeMax, blockCountMax, xmlDictionary, 1, null, 0);
