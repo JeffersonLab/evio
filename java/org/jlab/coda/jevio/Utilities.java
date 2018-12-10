@@ -29,105 +29,6 @@ import java.util.regex.Pattern;
  */
 final public class Utilities {
 
-    /**
-     * This method generates part of a file name given a base file name as an argument.<p>
-     *
-     * The base file name may contain up to 2, C-style integer format specifiers
-     * (such as <b>%03d</b>, or <b>%x</b>). If more than 2 are found, an exception
-     * will be thrown.
-     * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
-     * it will be added automatically in order to avoid spaces in the returned string.
-     * In the {@link #generateFileName(String, int, int, long, int)} method, the first
-     * occurrence will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the split number.<p>
-     *
-     * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
-     * which will be substituted with the value of the associated environmental
-     * variable or a blank string if none is found.<p>
-     *
-     * Finally, the base file name may contain occurrences of the string "%s"
-     * which will be substituted with the value of the runType arg or nothing if
-     * the runType is null.
-     *
-     * @deprecated  This method is being replace by a newer version
-     *              {@link #generateBaseFileNameNew(String, String, StringBuilder)}
-     *              which returns additional information.
-     *
-     * @param baseName        file name to start with
-     * @param runType         run type/configuration name
-     * @param newNameBuilder  object which contains generated base file name
-     * @return                number of C-style int format specifiers found in baseName arg
-     * @throws EvioException  if baseName arg is improperly formatted;
-     *                        if baseName or newNameBuilder arg is null
-     */
-    final static public int generateBaseFileName(String baseName, String runType,
-                                                 StringBuilder newNameBuilder)
-            throws EvioException {
-
-        String baseFileName;
-
-        if (baseName == null || newNameBuilder == null) {
-            throw new EvioException("null arg(s)");
-        }
-
-        // Replace all %s occurrences with run type
-        baseName = (runType == null)?  baseName.replace("%s", "") :
-                                       baseName.replace("%s", runType);
-
-        // Scan for environmental variables of the form $(xxx)
-        // and substitute the values for them (blank string if not found)
-        if (baseName.contains("$(")) {
-            Pattern pattern = Pattern.compile("\\$\\((.*?)\\)");
-            Matcher matcher = pattern.matcher(baseName);
-            StringBuffer result = new StringBuffer(100);
-
-            while (matcher.find()) {
-                String envVar = matcher.group(1);
-                String envVal = System.getenv(envVar);
-                if (envVal == null) envVal = "";
-//System.out.println("generateBaseFileName: replacing " + envVar + " with " + envVal);
-                matcher.appendReplacement(result, envVal);
-            }
-            matcher.appendTail(result);
-//System.out.println("generateBaseFileName: Resulting string = " + result);
-            baseFileName = result.toString();
-        }
-        else {
-            baseFileName = baseName;
-        }
-
-        // How many C-style int specifiers are in baseFileName?
-        Pattern pattern = Pattern.compile("%(\\d*)([xd])");
-        Matcher matcher = pattern.matcher(baseFileName);
-        StringBuffer result = new StringBuffer(100);
-
-        int specifierCount = 0;
-        while (matcher.find()) {
-            String width = matcher.group(1);
-            // Make sure any number preceding "x" or "d" starts with a 0
-            // or else there will be empty spaces in the file name.
-            if (width.length() > 0 && !width.startsWith("0")) {
-                String newWidth = "0" + width;
-//System.out.println("generateFileName: replacing " + width + " with " + newWidth);
-                matcher.appendReplacement(result, "%" + newWidth + matcher.group(2));
-            }
-
-            specifierCount++;
-        }
-        matcher.appendTail(result);
-        baseFileName = result.toString();
-
-        if (specifierCount > 2) {
-            throw new EvioException("baseName arg is improperly formatted");
-        }
-
-        // Return the base file name
-        newNameBuilder.delete(0, newNameBuilder.length()).append(baseFileName);
-
-        // Return the number of C-style int format specifiers
-        return specifierCount;
-    }
-
 
     /**
      * This method generates part of a file name given a base file name as an argument.<p>
@@ -137,8 +38,8 @@ final public class Utilities {
      * will be thrown.
      * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
      * it will be added automatically in order to avoid spaces in the returned string.
-     * In the {@link #generateFileName(String, int, int, long, int)} method, the first
-     * occurrence will be substituted with the given runNumber value.
+     * In the {@link #generateFileName(String, int, int, long, int, int, int)} method,
+     * the first occurrence will be substituted with the given runNumber value.
      * If the file is being split, the second will be substituted with the split number.<p>
      *
      * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
@@ -152,20 +53,18 @@ final public class Utilities {
      * @param baseName        file name to start with
      * @param runType         run type/configuration name
      * @param newNameBuilder  object which contains generated base file name
-     * @return                int array containing: 1) number of C-style int format
-     *                        specifiers found in baseName arg, and 2) the starting
-     *                        position in newly formed filename of the 2nd int format
-     *                        specifier (or 0 if there is none).
+     * @return                int array containing number of C-style int format
+     *                        specifiers found in baseName arg.
      * @throws EvioException  if baseName arg is improperly formatted;
      *                        if baseName or newNameBuilder arg is null
      */
-    final static public int[] generateBaseFileNameNew(String baseName, String runType,
-                                                      StringBuilder newNameBuilder)
+    final static public int[] generateBaseFileName(String baseName, String runType,
+                                                   StringBuilder newNameBuilder)
             throws EvioException {
 
         String baseFileName;
         int pos = 0;
-        int[] returnInts = new int[2];
+        int[] returnInts = new int[1];
 
         if (baseName == null || newNameBuilder == null) {
             throw new EvioException("null arg(s)");
@@ -173,7 +72,7 @@ final public class Utilities {
 
         // Replace all %s occurrences with run type
         baseName = (runType == null)?  baseName.replace("%s", "") :
-                                       baseName.replace("%s", runType);
+                baseName.replace("%s", runType);
 
         // Scan for environmental variables of the form $(xxx)
         // and substitute the values for them (blank string if not found)
@@ -204,7 +103,6 @@ final public class Utilities {
 
         int specifierCount = 0;
         while (matcher.find()) {
-            pos = matcher.start();
             String width = matcher.group(1);
             // Make sure any number preceding "x" or "d" starts with a 0
             // or else there will be empty spaces in the file name.
@@ -219,16 +117,15 @@ final public class Utilities {
         matcher.appendTail(result);
         baseFileName = result.toString();
 
-        if (specifierCount > 2) {
+        if (specifierCount > 3) {
             throw new EvioException("baseName arg is improperly formatted");
         }
 
         // Return the base file name
         newNameBuilder.delete(0, newNameBuilder.length()).append(baseFileName);
 
-        // Return 1) # of C-style int format specifiers, 2) position of 2nd int specifier
+        // Return # of C-style int format specifiers
         returnInts[0] = specifierCount;
-        returnInts[1] = pos;
         return returnInts;
     }
 
@@ -244,9 +141,6 @@ final public class Utilities {
      * If 2 specifiers exist and the file is not being split, no substitutions are made.
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
      *
-     * @deprecated  This method is being replace by a newer version
-     *              {@link #generateFileName(String, int, int, long, int, int, int)}.
-     *
      * @param baseFileName   file name to use as a basis for the generated file name
      * @param specifierCount number of C-style int format specifiers in baseFileName arg
      * @param runNumber      CODA run number
@@ -259,11 +153,11 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static public String generateFileName(String baseFileName, int specifierCount,
-                                                int runNumber, long split, int splitNumber)
-                        throws IllegalFormatException {
+    final static String generateFileNameOld(String baseFileName, int specifierCount,
+                                            int runNumber, long split, int splitNumber)
+            throws IllegalFormatException {
 
-       return generateFileName(baseFileName, specifierCount, runNumber, split, splitNumber, 0);
+        return generateFileNameOld(baseFileName, specifierCount, runNumber, split, splitNumber, 0);
     }
 
 
@@ -279,19 +173,16 @@ final public class Utilities {
      * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.<p>
      *
      * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the id is &gt; -1, the string, ".strm"
+     * they can be differentiated by a stream id number. If the id is not 0, the string, ".strm"
      * is appended to the very end of the file followed by the id number (e.g. filename.strm1).
      * This is done after the run and split numbers have been inserted into the file name.
-     *
-     * @deprecated  This method is being replace by a newer version
-     *              {@link #generateFileName(String, int, int, long, int, int, int)}.
      *
      * @param baseFileName   file name to use as a basis for the generated file name
      * @param specifierCount number of C-style int format specifiers in baseFileName arg
      * @param runNumber      CODA run number
      * @param split          number of bytes at which to split off evio file
      * @param splitNumber    number of the split file
-     * @param streamId       number of the stream id, value of &lt; 0 does NOT append stream number to name
+     * @param streamId       number of the stream id
      *
      * @return generated file name
      *
@@ -299,10 +190,10 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static public String generateFileName(String baseFileName, int specifierCount,
-                                                int runNumber, long split, int splitNumber,
-                                                int streamId)
-                        throws IllegalFormatException {
+    final static String generateFileNameOld(String baseFileName, int specifierCount,
+                                            int runNumber, long split, int splitNumber,
+                                            int streamId)
+            throws IllegalFormatException {
 
         String fileName = baseFileName;
 
@@ -349,13 +240,12 @@ final public class Utilities {
             }
         }
 
-        if (streamId > -1) {
+        if (streamId > 0) {
             fileName += ".strm" + streamId;
         }
 
         return fileName;
     }
-
 
     /**
      * This method generates a complete file name from the previously determined baseFileName
@@ -365,24 +255,27 @@ final public class Utilities {
      * If baseFileName contains C-style int format specifiers (specifierCount &gt; 0), then
      * the first occurrence will be substituted with the given runNumber value.
      * If the file is being split, the second will be substituted with the splitNumber.
-     * If 2 specifiers exist and the file is not being split, no substitutions are made.
-     * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.<p>
+     * If there are multiple streams, the third will be substituted with the stream id.<p>
      *
-     * If multiple streams of data, each writing a file, end up with the same file name,
-     * they can be differentiated by a stream id number. If the file is being split, the
-     * stream id is inserted just before the split number. If not, tack the stream id onto
-     * the end of the file. If there are sub streams (subStreamId &gt; -1), then the stream id
-     * inserted into a file name is a string of the form &lt;streamId&gt;-&lt;subStreamId&gt;.
+     * If no specifier for the splitNumber exists, it is tacked onto the end of the file name.
+     * If no specifier for the stream id exists, it is tacked onto the end of the file name,
+     * after the splitNumber. No run numbers are ever tacked on without a specifier.<p>
      *
-     * @param baseFileName   file name to use as a basis for the generated file name
+     * For splitting: if there is only 1 stream, no stream ids are used and any
+     * third specifier is removed.
+     * For non-splitting: if there is only 1 stream, no stream ids are used and any
+     * second and third specifiers are removed. For multiple streams, the second specifier is
+     * removed and the 3rd substituted with the stream id.
+     * For all cases: if there are more than 3 specifiers, <b>NO SUBSTITUTIONS
+     * ARE DONE.</b> This is because an error would be thrown in the String.format() method.<p>
+     *
+     * @param fileName   file name to use as a basis for the generated file name
      * @param specifierCount number of C-style int format specifiers in baseFileName arg
      * @param runNumber      CODA run number
      * @param split          number of bytes at which to split off evio file
      * @param splitNumber    number of the split file
      * @param streamId       number of the stream id
-     * @param subStreamId    each stream can be split into sub streams, this is the sub stream id.
-     *                       Set to -1 if no sub streams.
-     * @param specifierPos   position in baseFileName of 2nd int specifier if any.
+     * @param streamCount    total number of streams
      *
      * @return generated file name
      *
@@ -390,65 +283,97 @@ final public class Utilities {
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting
      */
-    final static public String generateFileName(String baseFileName, int specifierCount,
+    final static public String generateFileName(String fileName, int specifierCount,
                                                 int runNumber, long split, int splitNumber,
-                                                int streamId, int subStreamId, int specifierPos)
-                        throws IllegalFormatException {
+                                                int streamId, int streamCount)
+            throws IllegalFormatException {
 
-        String fileName = baseFileName;
+        if (streamCount < 1) streamCount = 1;
+        if (splitNumber < 1) splitNumber = 0;
+        if (runNumber < 0)   runNumber = 0;
+        if (streamId < 0)    streamId = 0;
+        boolean oneStream = streamCount < 2;
 
-        // In CODA, a single ER writing to 2 files created 2 sub streams
-        String streamIdString;
-        if (subStreamId < 0) {
-            streamIdString = "" + streamId;
+        if (fileName == null || fileName.length() < 1) {
+            fileName = "file";
         }
-        else {
-            streamIdString = streamId + "-" + subStreamId;
-        }
-System.out.println("generateFileName: split# = " + splitNumber + ", start with    " + fileName +
-",    streamIdString = " + streamIdString);
 
-        // If we're splitting files ...
+//System.out.println("generateFileName: split# = " + splitNumber + ", start with    " + fileName +
+//",    streamId = " + streamId + ", stream count = " + streamCount + ", one stream = " + oneStream);
+        // NOTE: no run #s are tacked on the end!
+
+        // If we're splitting files which is always the case of CODA users ...
         if (split > 0L) {
             // For no specifiers:  tack stream id and split # onto end of file name
             if (specifierCount < 1) {
-                fileName += "." + streamIdString + "." + splitNumber;
+                if (oneStream) {
+                    fileName += "." + splitNumber;
+                }
+                else {
+                    fileName += "." + streamId + "." + splitNumber;
+                }
             }
             // For 1 specifier: insert run # at specified location,
             // then tack stream id and split # onto end of file name
             else if (specifierCount == 1) {
-                fileName = String.format(baseFileName, runNumber);
-                fileName += "." + streamIdString + "." + splitNumber;
-            }
-            // For 2 specifiers: insert run # and split # at specified locations
-            // and insert stream id right before split #.
-            else {
-                StringBuilder builder = new StringBuilder(baseFileName);
-
-                // Is the character before the specifier a dot?
-                char c = builder.charAt(specifierPos - 1);
-
-                if (c == '.') {
-System.out.println("generateFileName: found dot before second int specifier, " + fileName);
-                    builder.insert(specifierPos-1, "." + streamIdString);
+                fileName = String.format(fileName, runNumber);
+                if (oneStream) {
+                    fileName += "." + splitNumber;
                 }
                 else {
-System.out.println("generateFileName: found \"" + c + "\" before second int specifier, " + fileName);
-                    builder.insert(specifierPos, "." + streamIdString + ".");
+                    fileName += "." + streamId + "." + splitNumber;
                 }
-                fileName = builder.toString();
-                fileName = String.format(fileName, runNumber, splitNumber);
             }
+            // For 2 specifiers: insert run # and split # at specified locations
+            // and place tack stream id immediately before split #.
+            else if (specifierCount == 2) {
+                if (!oneStream) {
+                    // In order to place streamId before split#, place a %d in the filename
+                    // immediately before 2nd specifier.
+                    Pattern pattern = Pattern.compile("(%\\d*[xd])");
+                    Matcher matcher = pattern.matcher(fileName);
+                    StringBuffer result = new StringBuffer(100);
+
+                    if (matcher.find()) {
+                        // Only look at 2nd int format specifier.
+                        // Replace it with "%d.<match>"
+                        if (matcher.find()) {
+                            matcher.appendReplacement(result, "%d.$1");
+                            matcher.appendTail(result);
+                            fileName = result.toString();
+                        }
+                    }
+
+                    fileName = String.format(fileName, runNumber, streamId, splitNumber);
+                }
+                else {
+                    fileName = String.format(fileName, runNumber, splitNumber);
+                }
+            }
+            // For 3 specifiers: insert run #, stream id, and split # at specified locations
+            else if (specifierCount == 3) {
+                fileName = String.format(fileName, runNumber, streamId, splitNumber);
+            }
+
         }
-        // If we're not splitting files ...
+        // If we're not splitting files, then CODA isn't being used and stream id is
+        // probably meaningless.
         else {
-            if (specifierCount == 1) {
+            // For no specifiers:  tack stream id onto end of file name
+            if (specifierCount < 1) {
+                if (!oneStream) {
+                    fileName += "." + streamId;
+                }
+            }
+            else if (specifierCount == 1) {
                 // Insert runNumber
-                fileName = String.format(baseFileName, runNumber);
-                fileName += "." + streamIdString;
+                fileName = String.format(fileName, runNumber);
+                if (!oneStream) {
+                    fileName += "." + streamId;
+                }
             }
             else if (specifierCount == 2) {
-                // First get rid of the extra (last) int format specifier as no split # exists
+                // First get rid of the extra (2nd) int format specifier as no split # exists
                 Pattern pattern = Pattern.compile("(%\\d*[xd])");
                 Matcher matcher = pattern.matcher(fileName);
                 StringBuffer result = new StringBuffer(100);
@@ -459,16 +384,37 @@ System.out.println("generateFileName: found \"" + c + "\" before second int spec
                         matcher.appendReplacement(result, "");
                         matcher.appendTail(result);
                         fileName = result.toString();
-//System.out.println("generateFileName: replacing last int specifier =  " + fileName);
                     }
                 }
 
                 // Insert runNumber into first specifier
                 fileName = String.format(fileName, runNumber);
-                fileName += "." + streamIdString;
+                if (!oneStream) {
+                    fileName += "." + streamId;
+                }
+            }
+            else if (specifierCount == 3) {
+                // Get rid of extra (3rd) int format specifier as no split # exists
+                Pattern pattern = Pattern.compile("(%\\d*[xd])");
+                Matcher matcher = pattern.matcher(fileName);
+                StringBuffer result = new StringBuffer(100);
+
+                if (matcher.find()) {
+                    if (matcher.find()) {
+                        // Remove 3rd int format specifier
+                        if (matcher.find()) {
+                            matcher.appendReplacement(result, "");
+                            matcher.appendTail(result);
+                            fileName = result.toString();
+                        }
+                    }
+                }
+
+                // Insert runNumber into first specifier, stream id into 2nd
+                fileName = String.format(fileName, runNumber, streamId);
             }
         }
-System.out.println("generateFileName: end with    " + fileName);
+//System.out.println("generateFileName: end with    " + fileName);
 
         return fileName;
     }
@@ -526,6 +472,14 @@ System.out.println("generateFileName: end with    " + fileName);
         fileChannel.write(buf);
         fileChannel.close();
         buf.limit(limit).position(position);
+    }
+
+
+    /** This method prints out the current stack trace. */
+    final static public void printStackTrace() {
+        for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+            System.out.println(ste);
+        }
     }
 
 
@@ -643,6 +597,43 @@ System.out.println("generateFileName: end with    " + fileName);
         }
         System.out.println();
         System.out.println();
+    }
+
+
+    /**
+     * This method takes a byte array and prints out the desired number of bytes
+     * from the given index. Prints all bytes.
+     *
+     * @param fileName file to print out
+     * @param offset   offset into file to start printing
+     * @param bytes    number of bytes to print in hex
+     * @param label    a label to print as header
+     */
+    final static public void printBytes(String fileName, long offset, int bytes, String label) {
+
+        if (fileName == null || fileName.length() < 1) {
+            System.out.println("printBuffer: file name arg is invalid");
+            return;
+        }
+
+        if (offset < 0 || bytes < 0) {
+            System.out.println("printBuffer: offset and bytes args must be >= 0");
+            return;
+        }
+
+        try {
+            RandomAccessFile raf = new RandomAccessFile(fileName, "rw");
+            long limit = bytes + offset > raf.length() ? raf.length() : bytes + offset;
+            int dataLen = (int)(limit - offset);
+            byte array[] = new byte[dataLen];
+            raf.readFully(array);
+
+            printBytes(array, 0, dataLen, label);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
     }
 
 
@@ -2129,7 +2120,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
                     break;
                 case CHARSTAR8:
                     String[] s = BaseStructure.unpackRawBytesToStrings(
-                                    node.bufferNode.buffer, node.dataPos, 4*node.dataLen);
+                                    node.buffer, node.dataPos, 4*node.dataLen);
 
                     if (s == null) {
                         numberDataItems = 0;
@@ -2419,7 +2410,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
 
   			case CHARSTAR8:
                 String[] stringdata = BaseStructure.unpackRawBytesToStrings(
-                        node.bufferNode.buffer, node.dataPos, 4 * node.dataLen);
+                        node.buffer, node.dataPos, 4 * node.dataLen);
 
                 if (stringdata == null) {
                     break;
