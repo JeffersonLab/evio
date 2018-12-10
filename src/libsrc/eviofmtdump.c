@@ -68,7 +68,7 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
   short *b16, *b16end;
   char *b8, *b8end;
   LV lv[10];
-  int xml1 = xml;
+  char *xml1 = xml;
 
 
   if(nwrd <= 0 || nfmt<=0 || nwrd>NWORDS)
@@ -410,5 +410,5 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
   printf("\n=== eviofmtdump end (xml1=0x%08x, xml=0x%08x, len=%d) ===\n",xml1,xml,xml-xml1);fflush(stdout);
 #endif
 
-  return(xml-xml1);
+  return (int)(xml-xml1);
 }

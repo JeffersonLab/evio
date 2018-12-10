@@ -481,7 +481,7 @@ static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_
     char *formatString;
     uint32_t *d, *pData, formatLen, dataLen;
     int nfmt, inPlace, wordLen;
-    unsigned char ifmt[1024];
+    unsigned short ifmt[1024];
 
     /* swap in place or copy ? */
     inPlace = (dest == NULL);
