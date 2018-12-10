@@ -176,20 +176,59 @@ public class EventParser {
 	private IEvioFilter evioFilter;
 
 
-	/**
-	 * This is the workhorse method for parsing the event. It will drill down and uncover all structures
+    /**
+   	 * This is the workhorse method for parsing the event. It will drill down and uncover all structures
      * (banks, segments, and tagsegments) and notify any interested listeners in a SAX-Like manner. <br>
-	 * Note: applications may choose not to provide a listener. In that case, when the event is parsed, its structures
-	 * may be accessed through the event's tree model, i.e., via <code>event.getTreeModel()</code>.
-	 * 
-	 * @param evioEvent the event to parse.
-	 * @throws EvioException if arg is null or data not in evio format.
-	 */
-	public synchronized void parseEvent(EvioEvent evioEvent) throws EvioException {
+   	 * Note: applications may choose not to provide a listener. In that case, when the event is parsed, its structures
+   	 * may be accessed through the event's tree model, i.e., via <code>event.getTreeModel()</code>.
+   	 *
+   	 * @param evioEvent the event to parse.
+   	 * @throws EvioException if arg is null or data not in evio format.
+   	 */
+   	public synchronized void parseEvent(EvioEvent evioEvent) throws EvioException {
 
-		if (evioEvent == null) {
-			throw new EvioException("Null event in parseEvent.");
-		}
+   		if (evioEvent == null) {
+   			throw new EvioException("Null event in parseEvent.");
+   		}
+
+           if (evioEvent.parsed) {
+               System.out.println("Event already parsed");
+               return;
+           }
+
+           //let listeners know we started
+           notifyStart(evioEvent);
+
+   		// The event itself is a structure (EvioEvent extends EvioBank) so just
+   		// parse it as such. The recursive drill down will take care of the rest.
+   		parseStructure(evioEvent, evioEvent);
+
+           evioEvent.parsed = true;
+
+           // let listeners know we stopped
+           notifyStop(evioEvent);
+   	}
+
+    /**
+   	 * This is the workhorse method for parsing the event. It will drill down and uncover all structures
+     * (banks, segments, and tagsegments) and notify any interested listeners in a SAX-Like manner. <br>
+   	 * Note: applications may choose not to provide a listener. In that case, when the event is parsed, its structures
+   	 * may be accessed through the event's tree model, i.e., via <code>event.getTreeModel()</code>.
+   	 *
+     * @param evioEvent the event to parse.
+     * @param synced if true, synchronize this method.
+   	 * @throws EvioException if arg is null or data not in evio format.
+   	 */
+   	public void parseEvent(EvioEvent evioEvent, boolean synced) throws EvioException {
+
+   	    if (synced) {
+   	        parseEvent(evioEvent);
+   	        return;
+        }
+
+        if (evioEvent == null) {
+            throw new EvioException("Null event in parseEvent.");
+        }
 
         if (evioEvent.parsed) {
             System.out.println("Event already parsed");
@@ -199,17 +238,17 @@ public class EventParser {
         //let listeners know we started
         notifyStart(evioEvent);
 
-		// The event itself is a structure (EvioEvent extends EvioBank) so just
-		// parse it as such. The recursive drill down will take care of the rest.
-		parseStructure(evioEvent, evioEvent);
+        // The event itself is a structure (EvioEvent extends EvioBank) so just
+        // parse it as such. The recursive drill down will take care of the rest.
+        parseStructure(evioEvent, evioEvent);
 
         evioEvent.parsed = true;
 
         // let listeners know we stopped
         notifyStop(evioEvent);
-	}
+    }
 
-	/**
+    /**
 	 * Parse a structure. If it is a structure of structures, such as a bank of banks or a segment of tag segments,
 	 * parse recursively. Listeners are notified AFTER all their children have been handled, not before. Thus the
 	 * LAST structure that will send notification is the outermost bank--the event bank itself.
