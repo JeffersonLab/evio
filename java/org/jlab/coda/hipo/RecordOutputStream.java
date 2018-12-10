@@ -288,7 +288,7 @@ public class RecordOutputStream {
 
     /**
      * Is there room in this record's memory for an additional event
-     * of the given length in bytes.(length NOT including accompanying index).
+     * of the given length in bytes (length NOT including accompanying index).
      * @param length length of event to add in bytes
      * @return {@code true} if room in record, else {@code false}.
      */
