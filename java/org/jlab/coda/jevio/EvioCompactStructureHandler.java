@@ -49,7 +49,7 @@ public class EvioCompactStructureHandler {
         }
 
         // Node's backing buffer
-        ByteBuffer byteBuffer = node.getBufferNode().getBuffer();
+        ByteBuffer byteBuffer = node.getBuffer();
 
         // Duplicate backing buf cause we'll be changing pos & lim
         // and don't want to mess it up for someone else.
@@ -165,7 +165,7 @@ public class EvioCompactStructureHandler {
         node.parentNode = null;
         node.dataPos   -= startPos;
         node.pos       -= startPos;
-        node.bufferNode.buffer = newBuffer;
+        node.buffer     = newBuffer;
 
         // Doing scan after above adjustments
         // will make other nodes come out right.
@@ -201,7 +201,7 @@ public class EvioCompactStructureHandler {
         // Update node & descendants
         for (EvioNode n : node.allNodes) {
             // Using a new buffer now
-            n.bufferNode.buffer = newBuffer;
+            n.buffer = newBuffer;
         }
 
         byteBuffer = newBuffer;
@@ -279,7 +279,7 @@ public class EvioCompactStructureHandler {
         node.eventNode  = eventNode;
         node.isEvent    = isEvent;
         node.type       = type.getValue();
-        node.bufferNode = new BufferNode(buffer);
+        node.buffer     = buffer;
         if (eventNode != null) node.allNodes = eventNode.allNodes;
 
         try {
