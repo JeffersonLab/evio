@@ -33,8 +33,17 @@ public class FileEventIndex {
     private int                currentRecord = 0;
     /** Index number of the current event in the current record. */
     private int           currentRecordEvent = 0;
-    
-    public FileEventIndex(){}
+
+
+    /** Constructor. */
+    public FileEventIndex() {}
+
+
+    /** Clear the entire object. */
+    public void clear() {
+        currentEvent = currentRecord = currentRecordEvent = 0;
+        recordIndex.clear();
+    }
 
     /**
      * Resets the current index to 0. The corresponding
