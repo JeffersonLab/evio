@@ -991,7 +991,8 @@ public class RecordHeader implements IBlockHeader {
             }
             else {
                 // ERROR condition, bad magic word
-                throw new HipoException("buffer arg not in evio/hipo format");
+                throw new HipoException("buffer arg not in evio/hipo format, magic int = 0x" +
+                                                Integer.toHexString(headerMagicWord));
             }
         }
         else {
