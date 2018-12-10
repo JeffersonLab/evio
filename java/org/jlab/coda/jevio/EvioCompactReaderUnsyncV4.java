@@ -57,6 +57,8 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
     /** Store info of all block headers. */
     private final HashMap<Integer, BlockNode> blockNodes = new HashMap<>(20);
 
+    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
+    private EvioNodeSource nodePool;
 
     /**
      * This is the number of events in the file. It is not computed unless asked for,
@@ -102,8 +104,8 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
     /** The buffer being read. */
     private ByteBuffer byteBuffer;
 
-    /** Object containing buffer and its parsed information. */
-    BufferNode bufferNode;
+    /** Buffer being read. */
+    ByteBuffer buffer;
 
     /** Initial position of buffer (mappedByteBuffer if reading a file). */
     private int initialPosition;
@@ -147,11 +149,36 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
         generateEventPositionTable();
     }
 
+
     /**
-     * Is this reader reading a file? Always false for this class.
-     * @return false.
+     * Constructor for reading a buffer.
+     *
+     * @param byteBuffer the buffer that contains events.
+     *
+     * @see EventWriter
+     * @throws EvioException if buffer arg is null;
+     *                       failure to read first block header
      */
-    public boolean isFile() {return false;}
+    public EvioCompactReaderUnsyncV4(ByteBuffer byteBuffer, EvioNodeSource pool) throws EvioException {
+
+        if (byteBuffer == null) {
+            throw new EvioException("Buffer arg is null");
+        }
+
+        initialPosition = byteBuffer.position();
+        this.byteBuffer = byteBuffer;
+        nodePool = pool;
+
+        // Read first block header and find the file's endianness & evio version #.
+        // If there's a dictionary, read that too.
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new EvioException("Failed reading first block header/dictionary");
+        }
+
+        // Generate a table of all event positions in buffer for random access.
+        generateEventPositionTable();
+    }
+
 
     /**
      * This method can be used to avoid creating additional EvioCompactReader
@@ -183,6 +210,45 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
         generateEventPositionTable();
         closed = false;
     }
+
+
+    /**
+     * This method can be used to avoid creating additional EvioCompactReader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.
+     *
+     * @param buf ByteBuffer to be read
+     * @throws EvioException if arg is null;
+     *                       if failure to read first block header
+     */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        if (buf == null) {
+            throw new EvioException("arg is null");
+        }
+
+        blockNodes.clear();
+        eventNodes.clear();
+        nodePool = pool;
+
+        blockCount      = -1;
+        eventCount      = -1;
+        dictionaryXML   = null;
+        initialPosition = buf.position();
+        this.byteBuffer = buf;
+
+        if (readFirstHeader() != ReadStatus.SUCCESS) {
+            throw new EvioException("Failed reading first block header/dictionary");
+        }
+
+        generateEventPositionTable();
+        closed = false;
+    }
+
+    /**
+     * Is this reader reading a file? Always false for this class.
+     * @return false.
+     */
+    public boolean isFile() {return false;}
 
     /**
      * Has {@link #close()} been called (without reopening by calling
@@ -338,6 +404,24 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
 
 
     /**
+     * Get the EvioNode object associated with a particular event number
+     * which has been scanned so all substructures are contained in the
+     * node.allNodes list.
+     * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return  EvioNode object associated with a particular event number,
+     *          or null if there is none.
+     */
+    public EvioNode getScannedEvent(int eventNumber, EvioNodeSource nodeSource) {
+        try {
+            return scanStructure(eventNumber, nodeSource);
+        }
+        catch (IndexOutOfBoundsException e) {}
+        return null;
+    }
+
+
+    /**
      * Generate a table (ArrayList) of positions of events in file/buffer.
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
      * or lastBlock values. Uses only absolute gets so byteBuffer position
@@ -353,8 +437,6 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
         //boolean  curLastBlock=false;
 
 //        long t2, t1 = System.currentTimeMillis();
-
-        bufferNode = new BufferNode(byteBuffer);
 
         // Start at the beginning of byteBuffer without changing
         // its current position. Do this with absolute gets.
@@ -414,7 +496,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
                 blockNode.count = blockEventCount;
 
                 blockNodes.put(blockCount, blockNode);
-                bufferNode.blockNodes.add(blockNode);
+//                bufferNode.blockNodes.add(blockNode);
 
                 blockNode.place = blockCount++;
 
@@ -458,8 +540,8 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
                         throw new EvioException("Bad evio format: not enough data to read event (bad bank len?)");
                     }
 
-                    EvioNode node = EvioNode.extractEventNode(bufferNode, blockNode,
-                                                     position, eventCount + i);
+                    EvioNode node = EvioNode.extractEventNode(buffer, nodePool, blockNode,
+                                                              position, eventCount + i);
 //System.out.println("      event "+i+" in block: pos = " + node.pos +
 //                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
                     eventNodes.add(node);
@@ -481,7 +563,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
             }
         }
         catch (IndexOutOfBoundsException e) {
-            bufferNode = null;
+            buffer = null;
             throw new EvioException("Bad evio format", e);
         }
 
@@ -657,6 +739,35 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         node.scanned = true;
 
         EvioNode.scanStructure(node);
+
+        return node;
+    }
+
+
+    /**
+     * This method scans the given event number in the buffer.
+     * It returns an EvioNode object representing the event.
+     * All the event's substructures, as EvioNode objects, are
+     * contained in the node.allNodes list (including the event itself).
+     *
+     * @param eventNumber number of the event to be scanned starting at 1
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return the EvioNode object corresponding to the given event number
+     */
+    private EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
+
+        // Node corresponding to event
+        EvioNode node = eventNodes.get(eventNumber - 1);
+
+        if (node.scanned) {
+            node.clearLists();
+        }
+
+        // Do this before actual scan so clone() sets all "scanned" fields
+        // of child nodes to "true" as well.
+        node.scanned = true;
+
+        EvioNode.scanStructure(node, nodeSource);
 
         return node;
     }
@@ -1123,7 +1234,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
         for (int i=0; i < eventCount; i++) {
             for (EvioNode n : eventNodes.get(i).allNodes) {
                 // Make sure nodes are using the new buffer
-                n.bufferNode.setBuffer(newBuffer);
+                n.setBuffer(newBuffer);
 
                 //System.out.println("Event node " + (i+1) + ", pos = " + n.pos + ", dataPos = " + n.dataPos);
                 if (i > place) {
