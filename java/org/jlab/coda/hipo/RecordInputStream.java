@@ -212,6 +212,7 @@ public class RecordInputStream {
         int lastPosition = dataBuffer.getInt(index*4);
 
         int length = lastPosition - firstPosition;
+// TODO: Allocating memory here!!!
         byte[] event = new byte[length];
         int   offset = eventsOffset + firstPosition;
 
@@ -225,7 +226,7 @@ public class RecordInputStream {
             dataBuffer.get(event, 0, length);
         }
 
-        //System.out.println(" reading from " + offset + "  length = " + event.length);
+//System.out.println(" reading from " + offset + "  length = " + event.length);
         return event;
     }
 
