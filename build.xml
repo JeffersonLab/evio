@@ -25,7 +25,10 @@
 
     <property name="lz4JarName"     value="lz4-java-1.4.0.jar" />
     <property name="lz4JarPath"     value="${local.jars}/${lz4JarName}" />
-  
+
+    <property name="compJarName"     value="AHACompressionAPI.jar" />
+    <property name="compJarPath"     value="${local.jars}/${compJarName}" />
+
     <!-- Set Classpath, ignore caller's classpath -->
     <property name="build.sysclasspath" value="ignore" />
     <path id="classpath" />
@@ -104,6 +107,9 @@
     <target name="CODA_cp" depends="installCheck" if="codaDefined">
         <path id="classpath">
             <fileset dir="${env.CODA}/common/jar" >
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="${local.jars}" >
                 <include name="*.jar" />
             </fileset>
         </path>
@@ -209,22 +215,26 @@
     <target name="installInPrefix" if="prefixDefined">
         <echo>Install ${jarName} into ${prefix}</echo>
         <echo>Install ${lz4JarName} into ${prefix}</echo>
+        <echo>Install ${compJarName} into ${prefix}</echo>
         <delete>
             <fileset dir="${prefix}/jar" includes="${allJarNames}" />
         </delete>
         <copy file="${jarPath}" todir="${prefix}/jar"/>
         <copy file="${lz4JarPath}" todir="${prefix}/jar"/>
+        <copy file="${compJarPath}" todir="${prefix}/jar"/>
     </target>
 
     <!-- Install in $CODA -->
     <target name="installInCODA" unless="prefixDefined" if="codaDefined">
         <echo>Install ${jarName} into ${env.CODA}/common/jar</echo>
         <echo>Install ${lz4JarName} into ${env.CODA}/common/jar</echo>
+        <echo>Install ${compJarName} into ${env.CODA}/common/jar</echo>
         <delete>
             <fileset dir="${env.CODA}/common/jar" includes="${allJarNames}" />
         </delete>
         <copy file="${jarPath}" todir="${env.CODA}/common/jar"/>
         <copy file="${lz4JarPath}" todir="${env.CODA}/common/jar"/>
+        <copy file="${compJarPath}" todir="${env.CODA}/common/jar"/>
     </target>
 
     <!-- No installation directory defined -->
@@ -245,16 +255,20 @@
     <target name="uninstallFromPrefix" if="prefixDefined">
         <echo>Remove ${jarName} from ${prefix}</echo>
         <echo>Remove ${lz4JarName} from ${prefix}</echo>
+        <echo>Remove ${compJarName} from ${prefix}</echo>
         <delete file="${prefix}/jar/${jarName}"/>
         <delete file="${prefix}/jar/${lz4JarName}"/>
+        <delete file="${prefix}/jar/${compJarName}"/>
     </target>
 
     <!-- Uninstall from $CODA -->
     <target name="uninstallFromCODA" unless="prefixDefined" if="codaDefined">
         <echo>Remove ${jarName} from ${env.CODA}/common/jar</echo>
         <echo>Remove ${lz4JarName} from ${env.CODA}/common/jar</echo>
+        <echo>Remove ${compJarName} from ${env.CODA}/common/jar</echo>
         <delete file="${env.CODA}/common/jar/${jarName}"/>
         <delete file="${env.CODA}/common/jar/${lz4JarName}"/>
+        <delete file="${env.CODA}/common/jar/${compJarName}"/>
     </target>
 
     <!-- No installation directory defined to uninstall from -->
