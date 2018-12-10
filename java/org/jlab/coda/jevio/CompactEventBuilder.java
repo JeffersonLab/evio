@@ -16,6 +16,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+
+
 
 /**
  * This class is used for creating events
@@ -216,14 +220,14 @@ public final class CompactEventBuilder {
             throw new EvioException("null arg(s)");
         }
 
-        initBuffer(buffer, generateNodes);
-
         totalLengths = new int[MAX_LEVELS];
         stackArray   = new StructureContent[MAX_LEVELS];
 
         for (int i=0; i < MAX_LEVELS; i++) {
             stackArray[i] = new StructureContent();
         }
+
+        initBuffer(buffer, generateNodes);
    	}
 
 
@@ -277,6 +281,7 @@ public final class CompactEventBuilder {
         // Prepare buffer
         this.buffer = buffer;
         buffer.clear();
+        Arrays.fill(totalLengths, 0);
         order = buffer.order();
         position = 0;
 
@@ -404,7 +409,7 @@ public final class CompactEventBuilder {
             // This constructor does not have lengths or create allNodes list, blockNode
             node = new EvioNode(tag, 0, position, position+4,
                                          DataType.SEGMENT, dataType,
-                                         new BufferNode(buffer));
+                                         buffer);
             nodes.add(node);
         }
 
@@ -502,7 +507,7 @@ public final class CompactEventBuilder {
             // This constructor does not have lengths or create allNodes list, blockNode
             node = new EvioNode(tag, 0, position, position+4,
                                          DataType.TAGSEGMENT, dataType,
-                                         new BufferNode(buffer));
+                                         buffer);
             nodes.add(node);
         }
 
@@ -614,7 +619,7 @@ public final class CompactEventBuilder {
             // This constructor does not have lengths or create allNodes list, blockNode
             node = new EvioNode(tag, 0, position, position+8,
                                          DataType.BANK, dataType,
-                                         new BufferNode(buffer));
+                                         buffer);
             nodes.add(node);
         }
 
@@ -978,7 +983,7 @@ public final class CompactEventBuilder {
             }
         }
         else {
-            ByteBuffer nodeBuf = node.bufferNode.buffer;
+            ByteBuffer nodeBuf = node.buffer;
 
             if (swapData) {
                 try {
@@ -1048,7 +1053,7 @@ public final class CompactEventBuilder {
 
         addToAllLengths(len/4);  // # 32-bit words
 
-        ByteBuffer nodeBuf = node.bufferNode.buffer;
+        ByteBuffer nodeBuf = node.buffer;
 
         if (nodeBuf.order() == buffer.order()) {
             if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray() &&
