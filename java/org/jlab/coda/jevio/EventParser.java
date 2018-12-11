@@ -187,27 +187,27 @@ public class EventParser {
    	 */
    	public synchronized void parseEvent(EvioEvent evioEvent) throws EvioException {
 
-   		if (evioEvent == null) {
-   			throw new EvioException("Null event in parseEvent.");
-   		}
+        if (evioEvent == null) {
+            throw new EvioException("Null event in parseEvent.");
+        }
 
-           if (evioEvent.parsed) {
-               System.out.println("Event already parsed");
-               return;
-           }
+        if (evioEvent.parsed) {
+            System.out.println("Event already parsed");
+            return;
+        }
 
-           //let listeners know we started
-           notifyStart(evioEvent);
+        //let listeners know we started
+        notifyStart(evioEvent);
 
-   		// The event itself is a structure (EvioEvent extends EvioBank) so just
-   		// parse it as such. The recursive drill down will take care of the rest.
-   		parseStructure(evioEvent, evioEvent);
+        // The event itself is a structure (EvioEvent extends EvioBank) so just
+        // parse it as such. The recursive drill down will take care of the rest.
+        parseStructure(evioEvent, evioEvent);
 
-           evioEvent.parsed = true;
+        evioEvent.parsed = true;
 
-           // let listeners know we stopped
-           notifyStop(evioEvent);
-   	}
+        // let listeners know we stopped
+        notifyStop(evioEvent);
+    }
 
     /**
    	 * This is the workhorse method for parsing the event. It will drill down and uncover all structures
