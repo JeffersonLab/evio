@@ -275,8 +275,7 @@ public class EvioReader implements IEvioReader {
                 reader = new EvioReaderV6(byteBuffer, checkRecNumSeq);
             }
             else {
-                //TODO: need an unsync version!!
-                reader = new EvioReaderV6(byteBuffer, checkRecNumSeq);
+                reader = new EvioReaderUnsyncV6(byteBuffer, checkRecNumSeq);
             }
         }
         else {
