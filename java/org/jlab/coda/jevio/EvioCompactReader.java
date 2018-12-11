@@ -151,7 +151,7 @@ public class EvioCompactReader implements IEvioCompactReader {
         }
         else if (evioVersion == 6) {
             if (synced) {
-                reader = new EvioCompactReaderV4(byteBuffer);
+                reader = new EvioCompactReaderV6(byteBuffer);
             }
             else {
                 reader = new EvioCompactReaderUnsyncV6(byteBuffer);
