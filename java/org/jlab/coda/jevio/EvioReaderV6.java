@@ -311,8 +311,7 @@ public class EvioReaderV6 implements IEvioReader {
      */
     @Override
     public synchronized EvioEvent getEvent(int index) throws EvioException {
-
-        return getEvent(getEventArray(index), 0, reader.getByteOrder());
+        return EvioReader.getEvent(getEventArray(index), 0, reader.getByteOrder());
     }
 
 
@@ -341,7 +340,7 @@ public class EvioReaderV6 implements IEvioReader {
             throw new EvioException(e);
         }
 
-        return getEvent(bytes, 0, reader.getByteOrder());
+        return EvioReader.getEvent(bytes, 0, reader.getByteOrder());
     }
 
 
@@ -362,77 +361,6 @@ public class EvioReaderV6 implements IEvioReader {
         // This method is synchronized too
 		parser.parseEvent(evioEvent);
 	}
-
-
-    /**
-     * Transform an event in the form of a byte array into an EvioEvent object.
-     * However, only top level header is parsed.
-     * Byte array must not be in file format (have record headers),
-     * but must consist of only the bytes comprising the evio event.
-     *
-     * @param array   array to parse into EvioEvent object.
-     * @param offset  offset into array.
-     * @param order   byte order to use.
-     * @return an EvioEvent object parsed from the given array.
-     * @throws EvioException if null arg, too little data, length too large, or data not in evio format.
-     */
-    static EvioEvent getEvent(byte[] array, int offset, ByteOrder order) throws EvioException {
-
-        if (array == null || array.length - offset < 8) {
-            throw new EvioException("arg null or too little data");
-        }
-
-        int byteLen = array.length - offset;
-        EvioEvent event = new EvioEvent();
-        BaseStructureHeader header = event.getHeader();
-
-        // Read the first header word - the length in 32bit words
-        int wordLen   = ByteDataTransformer.toInt(array, order, offset);
-        int dataBytes = 4*(wordLen - 1);
-        if (wordLen < 1) {
-            throw new EvioException("non-positive length (0x" + Integer.toHexString(wordLen) + ")");
-        }
-        else if (dataBytes > byteLen) {
-            // Protect against too large length
-            throw new EvioException("bank length too large (needed " + dataBytes +
-                                            " but have " + byteLen + " bytes)");
-        }
-        header.setLength(wordLen);
-
-        // Read and parse second header word
-        int word = ByteDataTransformer.toInt(array, order, offset+4);
-        header.setTag(word >>> 16);
-        int dt = (word >> 8) & 0xff;
-        header.setDataType(dt & 0x3f);
-        header.setPadding(dt >>> 6);
-        header.setNumber(word & 0xff);
-
-        // Set the raw data
-        byte data[] = new byte[dataBytes];
-        System.arraycopy(array, offset+8, data, 0, dataBytes);
-        event.setRawBytes(data);
-        event.setByteOrder(order);
-
-        return event;
-    }
-
-
-    /**
-     * Completely parse the given byte array into an EvioEvent.
-     * Byte array must not be in file format (have record headers),
-     * but must consist of only the bytes comprising the evio event.
-     *
-     * @param array   array to parse into EvioEvent object.
-     * @param offset  offset into array.
-     * @param order   byte order to use.
-     * @return the EvioEvent object parsed from the given bytes.
-     * @throws EvioException if null arg, too little data, length too large, or data not in evio format.
-     */
-    public static EvioEvent parseEvent(byte[] array, int offset, ByteOrder order) throws EvioException {
-        EvioEvent event = getEvent(array, offset, order);
-        EventParser.eventParse(event);
-        return event;
-    }
 
 
     /** {@inheritDoc} */
