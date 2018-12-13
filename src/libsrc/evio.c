@@ -5167,13 +5167,14 @@ if(debug) printf("evClose: write header, free bytes In Buffer = %d\n", (int)(a->
     if (a->runType      != NULL) free(a->runType);
 
     free((void *)a);
-    
+
+    handleUnlock(handle);
+
     /* Remove this handle from the list */
     getHandleLock();
     handleList[handle-1] = 0;
     getHandleUnlock();
 
-    handleUnlock(handle);
 if (debug) printf("evClose: end\n");
 
     return(status);
