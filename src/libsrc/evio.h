@@ -205,7 +205,7 @@ typedef struct evfilestruct {
   uint32_t commonBlkCount;    /**< Number of events written into common block.
                                *   This can be 2 at the most, dictionary + first event. */
   /* synchronization */
-  volatile int lockingOn;     /**< if = 1 (default), turn on the use of a mutex for thread safety. */
+  int lockingOn;             /**< if = 1 (default), turn on the use of a mutex for thread safety. */
 
 } EVFILE;
 
