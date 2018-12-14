@@ -20,7 +20,7 @@ set(CMAKE_INSTALL_PREFIX ./)
 
 cmake_minimum_required(VERSION 3.2)
 
-project(evio_5_2)
+project(evio_6_0)
 
 # Find include files here
 include_directories(src/libsrc src/libsrc++)
