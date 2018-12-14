@@ -81,6 +81,10 @@
  * void evPrintBuffer          (uint32_t *p, uint32_t len, int swap)
  */
 
+/* This is necessary to use an error check version of the pthread mutex */
+#ifndef __APPLE__
+#define _GNU_SOURCE
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -386,6 +390,7 @@ static int       evReadFileV3(EVFILE *a, uint32_t *buffer, uint32_t buflen);
 static void      structInit(EVFILE *a);
 static void      handleLock(int handle);
 static void      handleUnlock(int handle);
+static void      handleUnlockUnconditional(int handle);
 static void      getHandleLock(void);
 static void      getHandleUnlock(void);
 
@@ -404,7 +409,11 @@ EVFILE **handleList = NULL;
 static size_t handleCount = 0;
 
 /* Pthread mutex for serializing calls to get and free handles. */
-static pthread_mutex_t getHandleMutex = PTHREAD_MUTEX_INITIALIZER;
+#ifdef __APPLE__
+static pthread_mutex_t getHandleMutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
+#else
+static pthread_mutex_t getHandleMutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+#endif
 
 /* Array of pthread lock pointers for preventing simultaneous calls
  * to evClose, read/write routines, etc. Need 1 for each evOpen() call. */
@@ -683,6 +692,17 @@ static void handleUnlock(int handle) {
     EVFILE *a = handleList[handle-1];
     if (a == NULL || !a->lockingOn) return;
 
+    pthread_mutex_t *lock = handleLocks[handle-1];
+    int status = pthread_mutex_unlock(lock);
+    if (status != 0) {
+        evio_err_abort(status, "Failed handle unlock");
+    }
+}
+
+/** Routine to release read lock used to prevent simultaneous
+ *  calls to evClose and read/write routines. Called only by evClose
+ *  when handleList array member has already been cleared. */
+static void handleUnlockUnconditional(int handle) {
     pthread_mutex_t *lock = handleLocks[handle-1];
     int status = pthread_mutex_unlock(lock);
     if (status != 0) {
@@ -1524,8 +1544,10 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
  *                  number are automatically appended to the end of the file name.
  * @param flags     pointer to case-independent string of "w" for writing,
  *                  "r" for reading, "a" for appending, "ra" for random
- *                  access reading of a file, or "s" for splitting a file
- *                  while writing
+ *                  access reading of a file which means memory mapping it,
+ *                  or "s" for splitting a file while writing.
+ *                  The w, r, a, s, or ra, may be followed by an x which means
+ *                  do not do any mutex locking (not thread safe).
  * @param handle    pointer to int which gets filled with handle
  *
  * @return S_SUCCESS          if successful
@@ -1538,14 +1560,19 @@ char *evGenerateFileName(EVFILE *a, int specifierCount, int runNumber,
  */
 int evOpen(char *filename, char *flags, int *handle)
 {
-    if (strcasecmp(flags, "w")  != 0 &&
-        strcasecmp(flags, "s")  != 0 &&
-        strcasecmp(flags, "r")  != 0 &&
-        strcasecmp(flags, "a")  != 0 &&
-        strcasecmp(flags, "ra") != 0)  {
+    if (strcasecmp(flags, "w")   != 0 &&
+        strcasecmp(flags, "s")   != 0 &&
+        strcasecmp(flags, "r")   != 0 &&
+        strcasecmp(flags, "a")   != 0 &&
+        strcasecmp(flags, "ra")  != 0 &&
+        strcasecmp(flags, "wx")  != 0 &&
+        strcasecmp(flags, "sx")  != 0 &&
+        strcasecmp(flags, "rx")  != 0 &&
+        strcasecmp(flags, "ax")  != 0 &&
+        strcasecmp(flags, "rax") != 0)  {
         return(S_EVFILE_BADARG);
     }
-    
+
     return(evOpenImpl(filename, 0, 0, flags, handle));
 }
 
@@ -1560,6 +1587,8 @@ int evOpen(char *filename, char *flags, int *handle)
  * @param bufLen  length of buffer in 32 bit ints
  * @param flags   pointer to case-independent string of "w", "r", "a", or "ra"
  *                for writing/reading/appending/random-access-reading to/from a buffer.
+ *                The w, r, a, or ra, may be followed by an x which means
+ *                do not do any mutex locking (not thread safe).
  * @param handle  pointer to int which gets filled with handle
  *
  * @return S_SUCCESS          if successful
@@ -1587,6 +1616,18 @@ int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle)
     else if (strcasecmp(flags, "ra") == 0) {
         flag = "rab";
     }
+    else if (strcasecmp(flags, "wx") == 0) {
+        flag = "wbx";
+    }
+    else if (strcasecmp(flags, "rx") == 0) {
+        flag = "rbx";
+    }
+    else if (strcasecmp(flags, "ax") == 0) {
+        flag = "abx";
+    }
+    else if (strcasecmp(flags, "rax") == 0) {
+        flag = "rabx";
+    }
     else {
         return(S_EVFILE_BADARG);
     }
@@ -1603,6 +1644,8 @@ int evOpenBuffer(char *buffer, uint32_t bufLen, char *flags, int *handle)
  * @param sockFd  TCP socket file descriptor
  * @param flags   pointer to case-independent string of "w" & "r" for
  *                writing/reading to/from a socket
+ *                The w or r, may be followed by an x which means
+ *                do not do any mutex locking (not thread safe).
  * @param handle  pointer to int which gets filled with handle
  *
  * @return S_SUCCESS          if successful
@@ -1624,6 +1667,12 @@ int evOpenSocket(int sockFd, char *flags, int *handle)
     }
     else if (strcasecmp(flags, "r") == 0) {
         flag = "rs";
+    }
+    else if (strcasecmp(flags, "wx") == 0) {
+        flag = "wsx";
+    }
+    else if (strcasecmp(flags, "rx") == 0) {
+        flag = "rsx";
     }
     else {
         return(S_EVFILE_BADARG);
@@ -1679,6 +1728,8 @@ int evOpenFake(char *filename, char *flags, int *handle, char **evf)
  *                for writing/reading to/from a socket;
  *                "wb", "rb", "ab", & "rab"
  *                for writing/reading/append/random-access-reading to/from a buffer.
+ *                The above mentioned flags, may be followed by an x which means
+ *                do not do any mutex locking (not thread safe).
  * @param handle  pointer to int which gets filled with handle
  * 
  * @return S_SUCCESS          if successful
@@ -1706,7 +1757,7 @@ static int evOpenImpl(char *srcDest, uint32_t bufLen, int sockFd, char *flags, i
     int err, version, ihandle;
     int64_t nBytes=0;
     int debug=0, useFile=0, useBuffer=0, useSocket=0;
-    int reading=0, randomAccess=0, append=0, splitting=0, specifierCount=0;
+    int reading=0, randomAccess=0, append=0, splitting=0, specifierCount=0, lockingOn=1;
 
     
     /* Check args */
@@ -1720,18 +1771,42 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
         return(S_FAILURE);
     }
 
+    /* Are we removing mutex locking? */
+    if (strcasecmp(flags, "wx")   == 0  ||
+        strcasecmp(flags, "sx")   == 0  ||
+        strcasecmp(flags, "rx")   == 0  ||
+        strcasecmp(flags, "ax")   == 0  ||
+        strcasecmp(flags, "rax")  == 0  ||
+
+        strcasecmp(flags, "wbx")  == 0  ||
+        strcasecmp(flags, "rbx")  == 0  ||
+        strcasecmp(flags, "abx")  == 0  ||
+        strcasecmp(flags, "rabx") == 0  ||
+
+        strcasecmp(flags, "wsx")  == 0  ||
+        strcasecmp(flags, "rsx")  == 0)   {
+
+        lockingOn = 0;
+    }
+
     /* Are we dealing with a file, buffer, or socket? */
-    if (strcasecmp(flags, "w")  == 0  ||
-        strcasecmp(flags, "s")  == 0  ||
-        strcasecmp(flags, "r")  == 0  ||
-        strcasecmp(flags, "a")  == 0  ||
-        strcasecmp(flags, "ra") == 0 )  {
-        
+    if (strcasecmp(flags, "w")    == 0  ||
+        strcasecmp(flags, "s")    == 0  ||
+        strcasecmp(flags, "r")    == 0  ||
+        strcasecmp(flags, "a")    == 0  ||
+        strcasecmp(flags, "ra")   == 0  ||
+
+        strcasecmp(flags, "wx")   == 0  ||
+        strcasecmp(flags, "sx")   == 0  ||
+        strcasecmp(flags, "rx")   == 0  ||
+        strcasecmp(flags, "ax")   == 0  ||
+        strcasecmp(flags, "rax")  == 0)   {
+
         useFile = 1;
-        
-        if      (strcasecmp(flags,  "a") == 0) append = 1;
-        else if (strcasecmp(flags,  "s") == 0) splitting = 1;
-        else if (strcasecmp(flags, "ra") == 0) randomAccess = 1;
+
+        if      (strncasecmp(flags,  "a", 1) == 0) append = 1;
+        else if (strncasecmp(flags,  "s", 1) == 0) splitting = 1;
+        else if (strncasecmp(flags, "ra", 2) == 0) randomAccess = 1;
 
 #if defined _MSC_VER
         /* No random access support in Windows */
@@ -1751,10 +1826,15 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
         /* Trim whitespace from filename front & back */
         evTrim(filename, 0);
     }
-    else if (strcasecmp(flags, "wb")  == 0  ||
-             strcasecmp(flags, "rb")  == 0  ||
-             strcasecmp(flags, "ab")  == 0  ||
-             strcasecmp(flags, "rab") == 0 )  {
+    else if (strcasecmp(flags, "wb")   == 0  ||
+             strcasecmp(flags, "rb")   == 0  ||
+             strcasecmp(flags, "ab")   == 0  ||
+             strcasecmp(flags, "rab")  == 0  ||
+
+             strcasecmp(flags, "wbx")  == 0  ||
+             strcasecmp(flags, "rbx")  == 0  ||
+             strcasecmp(flags, "abx")  == 0  ||
+             strcasecmp(flags, "rabx") == 0)   {
         
         useBuffer = 1;
         
@@ -1773,8 +1853,10 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
             return(S_EVFILE_BADARG);
         }
     }
-    else if (strcasecmp(flags, "ws") == 0 ||
-             strcasecmp(flags, "rs") == 0)  {
+    else if (strcasecmp(flags, "ws")  == 0 ||
+             strcasecmp(flags, "rs")  == 0 ||
+             strcasecmp(flags, "wsx") == 0 ||
+             strcasecmp(flags, "rsx") == 0)  {
         
         useSocket = 1;
         if (sockFd < 0) {
@@ -1802,6 +1884,9 @@ if (debug) printf("EV_HDSIZ in evio.h set to be too small (%d). Must be >= 8.\n"
     }
     /* Initialize newly allocated structure */
     structInit(a);
+
+    /* Set the mutex locking */
+    a->lockingOn = lockingOn;
 
     
     /*********************************************************/
@@ -5113,6 +5198,8 @@ int evClose(int handle)
         return(S_EVFILE_BADHANDLE);
     }
 
+    int lockOn = a->lockingOn;
+
     /* If file writing ... */
     if (a->rw == EV_WRITEFILE || a->rw == EV_WRITEPIPE || a->rw == EV_WRITESOCK) {
         // We need to end the file with an empty block header.
@@ -5168,13 +5255,12 @@ if(debug) printf("evClose: write header, free bytes In Buffer = %d\n", (int)(a->
 
     free((void *)a);
 
-    handleUnlock(handle);
-
     /* Remove this handle from the list */
     getHandleLock();
     handleList[handle-1] = 0;
     getHandleUnlock();
 
+    if (lockOn) handleUnlockUnconditional(handle);
 if (debug) printf("evClose: end\n");
 
     return(status);
@@ -5266,9 +5352,6 @@ int evGetBufferLength(int handle, uint32_t *length)
  * It sets the stream id used when auto naming files being written to if request = "M".
  * Used only in version 4.<p>
  *
- * It turns the mutex locking for routines' thread safety on/off if request = "X".
- * Used only in version 4.<p>
- *
  * It returns the version number if request = "V".<p>
  *
  * It returns a pointer to the EV_HDSIZ block header ints if request = "H".
@@ -5291,7 +5374,6 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI>  "T"  for setting run type   (used in file splitting)
  * <LI>  "S"  for setting file split size in bytes
  * <LI>  "M"  for setting stream id  (used in auto file naming)
- * <LI>  "X"  for turning off/on the mutex locking of routines for thread safety
  * <LI>  "V"  for getting evio version #
  * <LI>  "H"  for getting 8 ints of block header info
  * <LI>  "E"  for getting # of events in file/buffer
@@ -5306,7 +5388,6 @@ int evGetBufferLength(int handle, uint32_t *length)
  * <LI> pointer to character containing run type if request = T, or
  * <LI> pointer to <b>uint64_t</b> containing max size in bytes of split file if request = S, or
  * <LI> pointer to uin32_t containing stream id if request = M, or
- * <LI> pointer to uin32_t containing 0 (off) or non-zero (on) if request = X, or
  * <LI> pointer to int32_t returning version # if request = V, or
  * <LI> address of pointer to uint32_t returning pointer to 8
  *              uint32_t's of block header if request = H. This pointer must be
@@ -5725,55 +5806,6 @@ if (debug) printf("evIoctl: split file at %llu (0x%llx) bytes\n", splitSize, spl
             }
 
             a->streamId = *(uint32_t *) argp;
-            break;
-
-        /************************************************/
-        /* Turn mutex locking on/off                    */
-        /************************************************/
-        case 'x':
-        case 'X':
-            /* Need to specify stream id */
-            if (argp == NULL) {
-                handleUnlock(handle);
-                return(S_EVFILE_BADARG);
-            }
-            {
-                int lockingOn = *(uint32_t *) argp;
-                /* If we want to turn OFF locking ... */
-                if (lockingOn == 0) {
-                    /* Only do something if locking currently on */
-                    if (a->lockingOn != 0) {
-                        /* A bit tricky here. Since locking is on, a lock was grabbed in calling
-                         * this routine. So we need to release that lock - handleUnlock
-                         * is the only function that can do this - before we can exit
-                         * this routine. Then turn off locking. */
-                        handleUnlock(handle);
-                        /* Should do this while mutex is grabbed, but that's impossible here. */
-//printf("evIoctl: turn OFF locking\n");
-                        a->lockingOn = 0;
-                        return(S_SUCCESS);
-                    }
-//                    else {
-//                        printf("evIoctl: locking already OFF\n");
-//                    }
-                }
-                /* If we want to turn ON locking ... */
-                else {
-                    /* Only do something if locking currently off */
-                    if (a->lockingOn == 0) {
-                        /* A bit tricky here. Since locking is off, a lock was not grabbed in calling
-                         * this routine. So make sure that the lock is not released when exiting
-                         * this routine. Do this by turning locking on but exiting without calling
-                         * handleUnlock. */
-//printf("evIoctl: turn ON locking\n");
-                        a->lockingOn = 1;
-                        return(S_SUCCESS);
-                    }
-//                    else {
-//                        printf("evIoctl: locking already ON\n");
-//                    }
-                }
-            }
             break;
 
         /****************************/
