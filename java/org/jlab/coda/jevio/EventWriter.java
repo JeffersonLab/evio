@@ -1931,7 +1931,7 @@ if (debug) System.out.println("writeEvent: currentEventBytes = " + currentEventB
         // If writing to buffer, we're not multi-threading compression & writing.
         // Do it all in this thread, right now.
         if (!toFile) {
-            writeToBuffer(bank, bankBuffer);
+            writeToBuffer(bank, bankBuffer, force);
             return;
         }
 
@@ -2411,13 +2411,16 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
 
     /**
      * Write bank to current record. If it doesn't fit, write record to buffer
-     * and add event to newly emptied record.<p>
-     *
+     * and add event to newly emptied record. A bank in buffer form has priority,
+     * if it's null, then it looks at the bank in EvioBank object form.
      * Does nothing if already closed.
      *
-     * @throws EvioException if this object already closed
+     * @param bank        bank to write in EvioBank object form.
+     * @param bankBuffer  bank to write in buffer form .
+     * @param force       write now regardless if internal buffer is not filled.
+     * @throws EvioException if this object already closed.
      */
-    private void writeToBuffer(EvioBank bank, ByteBuffer bankBuffer)
+    private void writeToBuffer(EvioBank bank, ByteBuffer bankBuffer, boolean force)
                                     throws EvioException {
         if (closed) {
             throw new EvioException("close() has already been called");
@@ -2433,7 +2436,7 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
         }
 
         // If it fit into record, we're done
-        if (fitInRecord) {
+        if (fitInRecord && !force) {
             return;
         }
 
@@ -2470,13 +2473,16 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
         eventsWrittenToBuffer += eventCount;
         eventsWrittenTotal    += eventCount;
 
-        // Now the single, current event is guaranteed to fit into record
         currentRecord.reset();
-        if (bankBuffer != null) {
-            currentRecord.addEvent(bankBuffer);
-        }
-        else {
-            currentRecord.addEvent(bank);
+
+        // Now the single, current event is guaranteed to fit into record
+        if (fitInRecord) {
+            if (bankBuffer != null) {
+                currentRecord.addEvent(bankBuffer);
+            }
+            else {
+                currentRecord.addEvent(bank);
+            }
         }
     }
 

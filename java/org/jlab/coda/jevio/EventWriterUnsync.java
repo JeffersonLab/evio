@@ -48,7 +48,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      *  (0=none, 1=LZ4fastest, 2=LZ4best, 3=gzip). */
     private int compressionType;
 
-    /** List of record lengths to be optionally written in trailer. */
+    /** List of record length followed by count to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
 
     /** Number of bytes written to file/buffer at current moment. */
@@ -1245,25 +1245,34 @@ final public class EventWriterUnsync implements AutoCloseable {
      */
     public void flush() {
 
-        if (closed || !toFile) {
+        if (closed) {
             return;
         }
 
-        if (singleThreadedCompression) {
-            try {compressAndWriteToFile(true);}
-            catch (Exception e) {
-                e.printStackTrace();
+        if (toFile) {
+            if (singleThreadedCompression) {
+                try {
+                    compressAndWriteToFile(true);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                // Write any existing data.
+                currentRingItem.forceToDisk(true);
+                if (currentRecord.getEventCount() > 0) {
+                    // Send current record back to ring
+                    supply.publish(currentRingItem);
+                }
+
+                // Get another empty record from ring
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
             }
         }
         else {
-            // Write any existing data.
-            currentRingItem.forceToDisk(true);
-            // Send current record back to ring
-            supply.publish(currentRingItem);
-
-            // Get another empty record from ring
-            currentRingItem = supply.get();
-            currentRecord = currentRingItem.getRecord();
+            flushRecordToBuffer();
         }
     }
 
@@ -1304,10 +1313,7 @@ final public class EventWriterUnsync implements AutoCloseable {
             }
         }
         else {
-            // TODO: Close writing to buffer
-            if (currentRecord.getEventCount() > 0) {
-                // --------
-            }
+            flushRecordToBuffer();
         }
 
         // Write any remaining data
@@ -1945,7 +1951,7 @@ final public class EventWriterUnsync implements AutoCloseable {
         // If writing to buffer, we're not multi-threading compression & writing.
         // Do it all in this thread, right now.
         if (!toFile) {
-            writeToBuffer(bank, bankBuffer);
+            writeToBuffer(bank, bankBuffer, force);
             return;
         }
 
@@ -2232,13 +2238,14 @@ final public class EventWriterUnsync implements AutoCloseable {
         int bytesToWrite = header.getLength();
         int eventCount   = header.getEntries();
         recordLengths.add(bytesToWrite);
+        // Trailer's index has count following length
         recordLengths.add(eventCount);
 
         try {
             ByteBuffer buf = record.getBinaryBuffer();
             if (buf.hasArray()) {
 //System.out.println("   Writer: use outStream to write file, buf pos = " + buf.position() +
-//        ", lim = " + buf.limit() + ", bytesToWrite = " + bytesToWrite);
+//                   ", lim = " + buf.limit() + ", bytesToWrite = " + bytesToWrite);
                 raf.write(buf.array(), 0, bytesToWrite);
             }
             else {
@@ -2268,12 +2275,11 @@ final public class EventWriterUnsync implements AutoCloseable {
         eventsWrittenToFile += eventCount;
         eventsWrittenTotal  += eventCount;
 
-//        if (debug) {
+//        if (true) {
 //            System.out.println("    flushToFile: after last header written, Events written to:");
 //            System.out.println("                 cnt total (no dict) = " + eventsWrittenTotal);
 //            System.out.println("                 file cnt total (dict) = " + eventsWrittenToFile);
 //            System.out.println("                 internal buffer cnt (dict) = " + eventsWrittenToBuffer);
-//            System.out.println("                 current  record  cnt (dict) = " + currentRecordEventCount);
 //            System.out.println("                 bytes-written  = " + bytesWritten);
 //            System.out.println("                 bytes-to-file = " + bytesWrittenToFile);
 //            System.out.println("                 record # = " + recordNumber);
@@ -2419,19 +2425,70 @@ final public class EventWriterUnsync implements AutoCloseable {
     }
 
 
+    /** Flush everything in currentRecord into the buffer. */
+    private void flushRecordToBuffer() {
+
+        int eventCount = currentRecord.getEventCount();
+        // If nothing in current record, return
+        if (eventCount < 1) {
+            return;
+        }
+
+        // Get record header
+        RecordHeader header = currentRecord.getHeader();
+        // Get/set record info
+        header.setRecordNumber(recordNumber);
+        int bytesToWrite = header.getLength();
+        // Store length & count for possible trailer index
+        recordLengths.add(bytesToWrite);
+        // Trailer's index has count following length
+        recordLengths.add(eventCount);
+
+        // Do compression
+System.out.println("   Writer: writeToBuffer, build record");
+        currentRecord.build();
+
+        // Write record to buffer.
+        // Binary buffer is ready to read after build().
+        ByteBuffer buf = currentRecord.getBinaryBuffer();
+        if (buf.hasArray() && buffer.hasArray()) {
+            System.arraycopy(buf.array(), 0, buffer.array(),
+                             buffer.position(), bytesToWrite);
+        }
+        else {
+            buffer.put(buf);
+        }
+
+Utilities.printBuffer(buf, 0, 20, "Internal buffer --->");
+        // Keep track of what is written
+        recordNumber++;
+        recordsWritten++;
+        bytesWritten          += bytesToWrite;
+        bytesWrittenToBuffer  += bytesToWrite;
+        eventsWrittenToBuffer += eventCount;
+        eventsWrittenTotal    += eventCount;
+
+        currentRecord.reset();
+    }
+
+
     /**
      * Write bank to current record. If it doesn't fit, write record to buffer
-     * and add event to newly emptied record.<p>
-     *
+     * and add event to newly emptied record. A bank in buffer form has priority,
+     * if it's null, then it looks at the bank in EvioBank object form.
      * Does nothing if already closed.
      *
-     * @throws EvioException if this object already closed
+     * @param bank        bank to write in EvioBank object form.
+     * @param bankBuffer  bank to write in buffer form .
+     * @param force       write now regardless if internal buffer is not filled.
+     * @throws EvioException if this object already closed.
      */
-    private void writeToBuffer(EvioBank bank, ByteBuffer bankBuffer)
+    private void writeToBuffer(EvioBank bank, ByteBuffer bankBuffer, boolean force)
                                     throws EvioException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
+System.out.println("   Writer: writeToBuffer, IN, force = " + force);
 
         boolean fitInRecord;
 
@@ -2443,50 +2500,21 @@ final public class EventWriterUnsync implements AutoCloseable {
         }
 
         // If it fit into record, we're done
-        if (fitInRecord) {
+System.out.println("   Writer: writeToBuffer, fit in record = " + fitInRecord);
+        if (fitInRecord && !force) {
             return;
         }
 
-        // Get record header
-        RecordHeader header = currentRecord.getHeader();
-
-        // Get/set record info
-        header.setRecordNumber(recordNumber);
-        int bytesToWrite = header.getLength();
-        int eventCount   = header.getEntries();
-        // Store length & count for possible trailer index
-        recordLengths.add(bytesToWrite);
-        recordLengths.add(eventCount);
-
-        // Do compression
-        currentRecord.build();
-
-        // Write record (without event) to buffer.
-        // Binary buffer is ready to read after build().
-        ByteBuffer buf = currentRecord.getBinaryBuffer();
-        if (buf.hasArray() && buffer.hasArray()) {
-            System.arraycopy(buf.array(), 0, buffer.array(),
-                             buffer.position(), bytesToWrite);
-        }
-        else {
-            buffer.put(buf);
-        }
-
-        // Keep track of what is written
-        recordNumber++;
-        recordsWritten++;
-        bytesWritten          += bytesToWrite;
-        bytesWrittenToBuffer  += bytesToWrite;
-        eventsWrittenToBuffer += eventCount;
-        eventsWrittenTotal    += eventCount;
+        flushRecordToBuffer();
 
         // Now the single, current event is guaranteed to fit into record
-        currentRecord.reset();
-        if (bankBuffer != null) {
-            currentRecord.addEvent(bankBuffer);
-        }
-        else {
-            currentRecord.addEvent(bank);
+        if (fitInRecord) {
+            if (bankBuffer != null) {
+                currentRecord.addEvent(bankBuffer);
+            }
+            else {
+                currentRecord.addEvent(bank);
+            }
         }
     }
 
