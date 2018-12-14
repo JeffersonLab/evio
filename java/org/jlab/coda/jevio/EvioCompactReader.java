@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * This class is used to read an evio version 4 formatted file or buffer
  * and extract specific evio containers (bank, seg, or tagseg)
- * with actual data in them given a tag/num pair. It is theoretically thread-safe.
- * It is designed to be fast and does <b>NOT</b> do a full deserialization
+ * with actual data in them given a tag/num pair. It is theoretically thread-safe
+ * if synced is true. It is designed to be fast and does <b>NOT</b> do a full deserialization
  * on each event examined.<p>
  *
  * @author timmer
@@ -68,6 +68,9 @@ public class EvioCompactReader implements IEvioCompactReader {
      * @see EventWriter
      * @throws IOException   if read failure
      * @throws EvioException if file arg is null; file is too large;
+     * @throws BufferUnderflowException if not enough data;
+     * @throws EvioException if failure to parse first block header;
+     *                       unsupported evio version.
      */
     public EvioCompactReader(File file) throws EvioException, IOException {
         if (file == null) {
@@ -82,9 +85,7 @@ public class EvioCompactReader implements IEvioCompactReader {
         rFile.read(byteBuffer.array());
 
         // Parse file header to find the file's endianness & evio version #
-        if (findEvioVersion() != ReadStatus.SUCCESS) {
-            throw new EvioException("Failed reading first block header");
-        }
+        findEvioVersion();
 
         // This object is no longer needed
         rFile.close();
@@ -120,8 +121,10 @@ public class EvioCompactReader implements IEvioCompactReader {
      * @param byteBuffer the buffer that contains events.
      * @param synced     if true, methods are synchronized for thread safety, else false.
      * @see EventWriter
+     * @throws BufferUnderflowException if not enough buffer data;
      * @throws EvioException if buffer arg is null;
-     *                       failure to read first block header
+     *                       failure to parse first block header;
+     *                       unsupported evio version.
      */
     public EvioCompactReader(ByteBuffer byteBuffer, boolean synced) throws EvioException {
 
@@ -132,10 +135,8 @@ public class EvioCompactReader implements IEvioCompactReader {
         initialPosition = byteBuffer.position();
         this.byteBuffer = byteBuffer;
 
-        // Read first block header and find the file's endianness & evio version #.
-        if (findEvioVersion() != ReadStatus.SUCCESS) {
-            throw new EvioException("Failed reading first block header");
-        }
+        // Read first block header and find the file's endianness & evio version #
+        findEvioVersion();
 
         if (evioVersion < 4)  {
             throw new EvioException("unsupported evio version (" + evioVersion + "), only 4+");
@@ -164,49 +165,48 @@ public class EvioCompactReader implements IEvioCompactReader {
 
 
     /**
-     * Reads a couple things in the first block (physical record) header
-     * in order to determine the evio version of buffer.
-     * @return status of read attempt
-     */
-    private ReadStatus findEvioVersion() {
-        // Look at first block header
+      * Reads a couple things in the first block (physical record) header
+      * in order to determine the evio version of buffer.
+      * @return evio version.
+      * @throws BufferUnderflowException if not enough data in buffer.
+      * @throws EvioException bad magic number in header.
+      */
+     private int findEvioVersion() throws BufferUnderflowException, EvioException {
+         // Look at first block header
 
-        // Have enough remaining bytes to read 8 words of header?
-        if (byteBuffer.limit() - initialPosition < 32) {
-            return ReadStatus.END_OF_FILE;
-        }
+         // Have enough remaining bytes to read 8 words of header?
+         if (byteBuffer.limit() - initialPosition < 32) {
+             throw new BufferUnderflowException();
+         }
 
-        try {
-            // Set the byte order to match the file's ordering.
+         // Set the byte order to match the file's ordering.
 
-            // Check the magic number for endianness (buffer defaults to big endian)
-            byteOrder = byteBuffer.order();
+         // Check the magic number for endianness (buffer defaults to big endian)
+         byteOrder = byteBuffer.order();
 
-            int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
-            if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-                if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                    byteOrder = ByteOrder.LITTLE_ENDIAN;
-                }
-                else {
-                    byteOrder = ByteOrder.BIG_ENDIAN;
-                }
-                byteBuffer.order(byteOrder);
+         int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
+         if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+             if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                 byteOrder = ByteOrder.LITTLE_ENDIAN;
+             }
+             else {
+                 byteOrder = ByteOrder.BIG_ENDIAN;
+             }
+             byteBuffer.order(byteOrder);
 
-                // Reread magic number to make sure things are OK
-                magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
-                if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-                    return ReadStatus.EVIO_EXCEPTION;
-                }
-            }
+             // Reread magic number to make sure things are OK
+             magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
+             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+                 throw new EvioException("magic number is bad, 0x" +  Integer.toHexString(magicNumber));
+             }
+         }
 
-            // Find the version number
-            int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
-            evioVersion = bitInfo & RecordHeader.VERSION_MASK;
-        }
-        catch (BufferUnderflowException a) {/* never happen */}
+         // Find the version number
+         int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
+         evioVersion = bitInfo & RecordHeader.VERSION_MASK;
 
-        return ReadStatus.SUCCESS;
-    }
+         return evioVersion;
+     }
 
 
     /** {@inheritDoc} */
@@ -259,6 +259,11 @@ public class EvioCompactReader implements IEvioCompactReader {
 
     /** {@inheritDoc} */
     public EvioNode getScannedEvent(int eventNumber) {return reader.getScannedEvent(eventNumber);}
+
+    /** {@inheritDoc} */
+    public EvioNode getScannedEvent(int eventNumber, EvioNodeSource nodeSource) {
+        return reader.getScannedEvent(eventNumber, nodeSource);
+    }
 
     /** {@inheritDoc} */
     public IBlockHeader getFirstBlockHeader() {return reader.getFirstBlockHeader();}

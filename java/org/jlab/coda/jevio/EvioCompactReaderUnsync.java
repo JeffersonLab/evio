@@ -8,28 +8,33 @@ package org.jlab.coda.jevio;
 
 import org.jlab.coda.hipo.RecordHeader;
 
-import java.io.*;
-import java.nio.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
 import java.util.List;
 
 /**
  * This class is used to read an evio version 4 formatted file or buffer
  * and extract specific evio containers (bank, seg, or tagseg)
- * with actual data in them given a tag/num pair. It is theoretically thread-safe.
+ * with actual data in them given a tag/num pair. It is not thread-safe.
  * It is designed to be fast and does <b>NOT</b> do a full deserialization
  * on each event examined.<p>
  *
+ * @deprecated use EvioCompactReader with constructor's sync arg set to false.
  * @author timmer
  */
-public class EvioCompactReader implements IEvioCompactReader {
+public class EvioCompactReaderUnsync implements IEvioCompactReader {
 
     /** Evio version number (1-4, 6). Obtain this by reading first header. */
     private int evioVersion;
 
     /**
      * Endianness of the data being read, either
-     * {@link java.nio.ByteOrder#BIG_ENDIAN} or
-     * {@link java.nio.ByteOrder#LITTLE_ENDIAN}.
+     * {@link ByteOrder#BIG_ENDIAN} or
+     * {@link ByteOrder#LITTLE_ENDIAN}.
      */
     private ByteOrder byteOrder;
 
@@ -45,63 +50,6 @@ public class EvioCompactReader implements IEvioCompactReader {
     private final IEvioCompactReader reader;
 
 
-
-    /**
-     * Constructor for reading an event file.
-     *
-     * @param path the full path to the file that contains events.
-     *             For writing event files, use an <code>EventWriter</code> object.
-     * @see org.jlab.coda.jevio.EventWriter
-     * @throws java.io.IOException   if read failure
-     * @throws org.jlab.coda.jevio.EvioException if file arg is null
-     */
-    public EvioCompactReader(String path) throws EvioException, IOException {
-        this(new File(path));
-    }
-
-
-    /**
-     * Constructor for reading an event file.
-     *
-     * @param file the file that contains events.
-     *
-     * @see EventWriter
-     * @throws IOException   if read failure
-     * @throws EvioException if file arg is null; file is too large;
-     */
-    public EvioCompactReader(File file) throws EvioException, IOException {
-        if (file == null) {
-            throw new EvioException("File arg is null");
-        }
-
-        initialPosition = 0;
-
-        // Read first 32 bytes of file header
-        RandomAccessFile rFile = new RandomAccessFile(file, "r");
-        byteBuffer = ByteBuffer.wrap(new byte[32]);
-        rFile.read(byteBuffer.array());
-
-        // Parse file header to find the file's endianness & evio version #
-        if (findEvioVersion() != ReadStatus.SUCCESS) {
-            throw new EvioException("Failed reading first block header");
-        }
-
-        // This object is no longer needed
-        rFile.close();
-
-        if (evioVersion < 5) {
-            reader = new EvioCompactReaderV4(file);
-        }
-        else if (evioVersion == 6) {
-            reader = null;
-//            reader = new EvioCompactReaderV6(file);
-        }
-        else {
-            throw new EvioException("unsupported evio version (" + evioVersion + ")");
-        }
-    }
-
-
     /**
      * Constructor for reading a buffer.
      * @param byteBuffer the buffer that contains events.
@@ -109,21 +57,24 @@ public class EvioCompactReader implements IEvioCompactReader {
      * @throws EvioException if buffer arg is null;
      *                       failure to read first block header
      */
-    public EvioCompactReader(ByteBuffer byteBuffer) throws EvioException {
-        this(byteBuffer, true);
+    public EvioCompactReaderUnsync(ByteBuffer byteBuffer)  throws EvioException {
+        this(byteBuffer, null);
     }
 
 
     /**
-     * Constructor for reading a buffer with option of removing synchronization
-     * for much greater speed.
+     * Constructor for reading a buffer.
+     *
      * @param byteBuffer the buffer that contains events.
-     * @param synced     if true, methods are synchronized for thread safety, else false.
+     * @param pool pool of EvioNode objects.
+     *
      * @see EventWriter
+     * @throws BufferUnderflowException if not enough buffer data;
      * @throws EvioException if buffer arg is null;
-     *                       failure to read first block header
+     *                       failure to parse first block header;
+     *                       unsupported evio version.
      */
-    public EvioCompactReader(ByteBuffer byteBuffer, boolean synced) throws EvioException {
+    public EvioCompactReaderUnsync(ByteBuffer byteBuffer, EvioNodeSource pool) throws EvioException {
 
         if (byteBuffer == null) {
             throw new EvioException("Buffer arg is null");
@@ -132,30 +83,18 @@ public class EvioCompactReader implements IEvioCompactReader {
         initialPosition = byteBuffer.position();
         this.byteBuffer = byteBuffer;
 
-        // Read first block header and find the file's endianness & evio version #.
-        if (findEvioVersion() != ReadStatus.SUCCESS) {
-            throw new EvioException("Failed reading first block header");
-        }
+        // Read first block header and find the file's endianness & evio version #
+        findEvioVersion();
 
         if (evioVersion < 4)  {
             throw new EvioException("unsupported evio version (" + evioVersion + "), only 4+");
         }
 
         if (evioVersion == 4) {
-            if (synced) {
-                reader = new EvioCompactReaderV4(byteBuffer);
-            }
-            else {
-                reader = new EvioCompactReaderUnsyncV4(byteBuffer);
-            }
+            reader = new EvioCompactReaderUnsyncV4(byteBuffer, pool);
         }
         else if (evioVersion == 6) {
-            if (synced) {
-                reader = new EvioCompactReaderV6(byteBuffer);
-            }
-            else {
-                reader = new EvioCompactReaderUnsyncV6(byteBuffer);
-            }
+            reader = new EvioCompactReaderUnsyncV6(byteBuffer, pool);
         }
         else {
             throw new EvioException("unsupported evio version (" + evioVersion + ")");
@@ -166,46 +105,46 @@ public class EvioCompactReader implements IEvioCompactReader {
     /**
      * Reads a couple things in the first block (physical record) header
      * in order to determine the evio version of buffer.
-     * @return status of read attempt
+     * @return evio version.
+     * @throws BufferUnderflowException if not enough data in buffer.
+     * @throws EvioException bad magic number in header.
      */
-    private ReadStatus findEvioVersion() {
+    private int findEvioVersion() throws BufferUnderflowException, EvioException {
         // Look at first block header
-
+System.out.println("findEvioVersion: buf limit = " + byteBuffer.limit() + ", initialPos = " + initialPosition);
+Utilities.printBuffer(byteBuffer, 0, 20, "buffer");
         // Have enough remaining bytes to read 8 words of header?
         if (byteBuffer.limit() - initialPosition < 32) {
-            return ReadStatus.END_OF_FILE;
+            throw new BufferUnderflowException();
         }
 
-        try {
-            // Set the byte order to match the file's ordering.
+        // Set the byte order to match the file's ordering.
 
-            // Check the magic number for endianness (buffer defaults to big endian)
-            byteOrder = byteBuffer.order();
+        // Check the magic number for endianness (buffer defaults to big endian)
+        byteOrder = byteBuffer.order();
 
-            int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
-            if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-                if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                    byteOrder = ByteOrder.LITTLE_ENDIAN;
-                }
-                else {
-                    byteOrder = ByteOrder.BIG_ENDIAN;
-                }
-                byteBuffer.order(byteOrder);
-
-                // Reread magic number to make sure things are OK
-                magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
-                if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-                    return ReadStatus.EVIO_EXCEPTION;
-                }
+        int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
+        if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+            if (byteOrder == ByteOrder.BIG_ENDIAN) {
+                byteOrder = ByteOrder.LITTLE_ENDIAN;
             }
+            else {
+                byteOrder = ByteOrder.BIG_ENDIAN;
+            }
+            byteBuffer.order(byteOrder);
 
-            // Find the version number
-            int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
-            evioVersion = bitInfo & RecordHeader.VERSION_MASK;
+            // Reread magic number to make sure things are OK
+            magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
+            if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
+                throw new EvioException("magic number is bad, 0x" +  Integer.toHexString(magicNumber));
+            }
         }
-        catch (BufferUnderflowException a) {/* never happen */}
 
-        return ReadStatus.SUCCESS;
+        // Find the version number
+        int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
+        evioVersion = bitInfo & RecordHeader.VERSION_MASK;
+
+        return evioVersion;
     }
 
 
@@ -259,6 +198,11 @@ public class EvioCompactReader implements IEvioCompactReader {
 
     /** {@inheritDoc} */
     public EvioNode getScannedEvent(int eventNumber) {return reader.getScannedEvent(eventNumber);}
+
+    /** {@inheritDoc} */
+    public EvioNode getScannedEvent(int eventNumber, EvioNodeSource nodeSource) {
+        return reader.getScannedEvent(eventNumber, nodeSource);
+    }
 
     /** {@inheritDoc} */
     public IBlockHeader getFirstBlockHeader() {return reader.getFirstBlockHeader();}
