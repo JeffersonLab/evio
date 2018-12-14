@@ -1348,7 +1348,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * Changes in one will affect the other.
      *
      * @param node evio structure whose data is to be retrieved
-     * @throws EvioException if object closed
+     * @throws EvioException if object closed or node arg is null.
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
@@ -1365,12 +1365,18 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
      * @param node evio structure whose data is to be retrieved
      * @param copy if <code>true</code>, then return a copy as opposed to a
      *             view into this reader object's buffer.
-     * @throws EvioException if object closed
+     * @throws EvioException if object closed or node arg is null.
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
     public  ByteBuffer getData(EvioNode node, boolean copy)
                             throws EvioException {
+        if (closed) {
+            throw new EvioException("object closed");
+        }
+        else if (node == null) {
+            throw new EvioException("node arg is null");
+        }
         return node.getByteData(copy);
     }
 

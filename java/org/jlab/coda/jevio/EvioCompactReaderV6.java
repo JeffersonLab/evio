@@ -215,6 +215,25 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
     }
 
 
+    /**
+     * Get the EvioNode object associated with a particular event number
+     * which has been scanned so all substructures are contained in the
+     * node.allNodes list.
+     * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return  EvioNode object associated with a particular event number,
+     *          or null if eventNumber is out of bounds, reading a file or data is
+     *          compressed.
+     */
+    public EvioNode getScannedEvent(int eventNumber, EvioNodeSource nodeSource) {
+        try {
+            return scanStructure(eventNumber, nodeSource);
+        }
+        catch (IndexOutOfBoundsException e) {}
+        return null;
+    }
+
+
     /** {@inheritDoc} */
     public IBlockHeader getFirstBlockHeader() {return reader.getFirstRecordHeader();}
 
@@ -245,6 +264,36 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
         node.scanned = true;
 
         EvioNode.scanStructure(node);
+
+        return node;
+    }
+
+
+    /**
+     * This method scans the given event number in the buffer.
+     * It returns an EvioNode object representing the event.
+     * All the event's substructures, as EvioNode objects, are
+     * contained in the node.allNodes list (including the event itself).
+     *
+     * @param eventNumber number of the event to be scanned starting at 1
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return the EvioNode object corresponding to the given event number
+     */
+    private EvioNode scanStructure(int eventNumber, EvioNodeSource nodeSource) {
+
+        // Node corresponding to event
+        EvioNode node = reader.getEventNode(eventNumber - 1);
+        if (node == null) return null;
+
+        if (node.scanned) {
+            node.clearLists();
+        }
+
+        // Do this before actual scan so clone() sets all "scanned" fields
+        // of child nodes to "true" as well.
+        node.scanned = true;
+
+        EvioNode.scanStructure(node, nodeSource);
 
         return node;
     }

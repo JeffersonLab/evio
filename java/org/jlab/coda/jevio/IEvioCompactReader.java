@@ -158,6 +158,17 @@ public interface IEvioCompactReader {
     EvioNode getScannedEvent(int eventNumber);
 
     /**
+     * Get the EvioNode object associated with a particular event number
+     * which has been scanned so all substructures are contained in the
+     * node.allNodes list.
+     * @param eventNumber number of event (place in file/buffer) starting at 1.
+     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
+     * @return  EvioNode object associated with a particular event number,
+     *          or null if there is none.
+     */
+    EvioNode getScannedEvent(int eventNumber, EvioNodeSource nodeSource);
+
+    /**
      * This returns the FIRST block (or record) header.
      * (Not the file header of evio version 6+ files).
      * @return the first block header.
@@ -286,7 +297,7 @@ public interface IEvioCompactReader {
      * Changes in one will affect the other.
      *
      * @param node evio structure whose data is to be retrieved
-     * @throws EvioException if object closed
+     * @throws EvioException if object closed or node arg is null.
      * @return ByteBuffer object containing data. Position and limit are
      *         set for reading.
      */
@@ -311,7 +322,6 @@ public interface IEvioCompactReader {
     /**
      * Get an evio bank or event in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param eventNumber number of event of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -326,7 +336,6 @@ public interface IEvioCompactReader {
      * Get an evio bank or event in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param eventNumber number of event of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -343,7 +352,6 @@ public interface IEvioCompactReader {
     /**
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -357,7 +365,6 @@ public interface IEvioCompactReader {
      * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
      * Depending on the copy argument, the returned buffer will either be
      * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets &amp; puts.
      *
      * @param node node object representing evio structure of interest
      * @param copy if <code>true</code>, then return a copy as opposed to a
@@ -370,9 +377,7 @@ public interface IEvioCompactReader {
     ByteBuffer getStructureBuffer(EvioNode node, boolean copy)
             throws EvioException;
 
-    /**
-     * This only sets the position to its initial value.
-     */
+    /** This sets the position to its initial value and marks reader as closed. */
     void close();
 
     /**
@@ -380,19 +385,15 @@ public interface IEvioCompactReader {
      * included in the count. In versions 3 and earlier, it is not computed unless
      * asked for, and if asked for it is computed and cached.
      *
-     * @return the number of events in the file.
+     * @return the number of events in the file/buffer.
      */
     int getEventCount();
 
     /**
-     * This is the number of blocks in the file including the empty
-     * block usually at the end of version 4 files/buffers.
-     * For version 3 files, a block size read from the first block is used
-     * to calculate the result.
-     * It is not computed unless in random access mode or is
-     * asked for, and if asked for it is computed and cached.
+     * This is the number of blocks in the file/buffer including the empty
+     * block at the end.
      *
-     * @return the number of blocks in the file (estimate for version 3 files)
+     * @return the number of blocks in the file/buffer (estimate for version 3 files)
      */
     int getBlockCount();
 
