@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
       if(v!=NULL) {
         cout << "vector size is " << v->size() << endl;
         uint32_t uibuf[100];
-        for(int i=0; i<v->size(); i++) uibuf[i]=(*v)[i];
+        for(size_t i=0; i<v->size(); i++) uibuf[i]=(*v)[i];
         uint16_t *ui16 = (uint16_t*)uibuf;
         uint32_t *ui32 = (uint32_t*)(&(ui16[1]));
         cout << "ui16[0] " << showbase << hex << ui16[0] << endl;

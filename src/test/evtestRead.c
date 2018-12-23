@@ -24,7 +24,7 @@
 
     int main2()
     {
-        int handle, status, nevents, nwords, i;
+        int handle, status, nevents, nwords;
         uint32_t  *buffer, *ip, bufLen;
 
         status = evOpen("/home/timmer/evioTestFiles/evioV2format.ev", "r", &handle);
@@ -50,6 +50,7 @@
 
 //        printf("Hit Enter to continue:\n");
 //        getchar();
+            return 0;
         }
 
         if (status == EOF) {
@@ -61,12 +62,13 @@
 
         status = evClose(handle);
         printf ("    Closed /home/timmer/evioTestFiles/evioV2format.ev again, status = %d\n\n", status);
+        return 0;
     }
 
 
     int main()
     {
-        int handle, status, nevents, nwords, i;
+        int handle, status, nevents, nwords;
         uint32_t  buffer[50000], *ip;
 
         status = evOpen("/home/timmer/evioTestFiles/evioV2format.ev", "r", &handle);
@@ -101,6 +103,7 @@
 
         status = evClose(handle);
         printf ("    Closed /home/timmer/evioTestFiles/evioV2format.ev again, status = %d\n\n", status);
+        return 0;
     }
 
 
@@ -149,6 +152,7 @@
 
     status = evClose(handle);
     printf ("    Closed /daqfs/home/timmer/coda/output-evio4.ev again, status = %d\n\n", status);
+    return 0;
 }
 
 

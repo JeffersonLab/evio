@@ -22,11 +22,15 @@
 
 int main()
 {
-    int handle, status, nevents, nwords, i;
-    uint32_t  evBuf[16], *ip;
+    int handle, status;
+    uint32_t  evBuf[16];
 
-    status = evOpen("/tmp/fileTestSmallBigEndian.ev", "a", &handle);
-    nevents = 0;
+    char* fileName = "/tmp/fileTestSmallBigEndian.ev";
+    status = evOpen(fileName, "a", &handle);
+    if(status != S_SUCCESS) {
+      printf("    Failed to open %s, status = %d\n", fileName, status);
+      exit(1);
+    }
 
     /* bank  header */
     evBuf[0]  = 0x0000000f;        evBuf[1]  = 0x00020b02;

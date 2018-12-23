@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
 
     // create stream buffer
-    int streamBufLen=100000;
+    const int streamBufLen=100000;
     uint32_t streamBuf[streamBufLen];
 
 

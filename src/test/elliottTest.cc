@@ -39,7 +39,7 @@ using namespace evio;
 int main(int argc, char **argv) {
   
     uint8_t ix[10] = {1,2,3,4,5,6,7,8,9,10};
-    int streamBufLen=1000;
+    const int streamBufLen=1000;
 
 
     // evio buffer channel

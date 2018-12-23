@@ -363,9 +363,9 @@ public:
   virtual string getFooter(int depth, const evioToStringConfig *config = &defaultToStringConfig) const = 0;
   virtual int getSize(void) const = 0;
 
-  const evioDOMNodeP getParent(void) const;
+  evioDOMNodeP getParent(void) const;
   int getContentType(void) const;
-  const evioDOMTree *getParentTree(void) const;
+  evioDOMTree *getParentTree(void) const;
   bool isContainer(void) const;
   bool isLeaf(void) const;
 

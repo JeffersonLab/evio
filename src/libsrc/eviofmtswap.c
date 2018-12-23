@@ -80,7 +80,7 @@ typedef struct {
 int
 eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal, int padding)
 {
-    int imt, ncnf, kcnf, mcnf, lev, iterm;
+  int imt, ncnf, kcnf, mcnf, lev/*, iterm*/;
     int64_t *b64, *b64end;
     int32_t *b32, *b32end;
     int16_t *b16, *b16end;
@@ -92,7 +92,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
     imt   = 0;  /* ifmt[] index */
     lev   = 0;  /* parenthesis level */
     ncnf  = 0;  /* how many times must repeat a format */
-    iterm = 0;
+    /* iterm = 0; */
 
     b8    = (int8_t *)&iarr[0];    /* beginning of data */
     b8end = (int8_t *)&iarr[nwrd] - padding; /* end of data + 1 - padding*/
@@ -132,7 +132,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
             /* store left parenthesis index minus 1
                (if will meet end of format, will start from format index imt=iterm;
                by default we continue from the beginning of the format (iterm=0)) */
-            iterm = lv[lev-1].left - 1;
+            //iterm = lv[lev-1].left - 1;
             lev--; /* done with this level - decrease parenthesis level */
 #ifdef DEBUG
             printf("2\n");
@@ -163,7 +163,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
           if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
           {
             mcnf = 0;
-            b32 = (uint32_t *)b8;
+            b32 = (int32_t *)b8;
             ncnf = *b32 = SWAP32(*b32); /* get #repeats from data */
 #ifdef PRINT
             xml += sprintf(xml,"          %d(\n",ncnf);
@@ -178,7 +178,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
           if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
           {
             mcnf = 0;
-            b16 = (uint16_t *)b8;
+            b16 = (int16_t *)b8;
             ncnf = *b16 = SWAP16(*b16); /* get #repeats from data */
 #ifdef PRINT
             xml += sprintf(xml,"          %d(\n",ncnf);
@@ -193,7 +193,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
           if(mcnf==3) /* left parenthesis, SPECIAL case: #repeats must be taken from int8 data */
           {
             mcnf = 0;
-            ncnf = *((uint8_t *)b8); /* get #repeats from data */
+            ncnf = *((int8_t *)b8); /* get #repeats from data */
 #ifdef PRINT
             xml += sprintf(xml,"          %d(\n",ncnf);
             /*printf("ncnf(: %d\n",ncnf);*/
@@ -260,14 +260,14 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
     {
       if(mcnf==1)
 	  {
-        b32 = (int *)b8;
+        b32 = (int32_t *)b8;
         ncnf = *b32 = SWAP32(*b32);
 		/*printf("ncnf32=%d\n",ncnf);fflush(stdout);*/
         b8 += 4;
 	  }
       else if(mcnf==2)
 	  {
-        b16 = (short *)b8;
+        b16 = (int16_t *)b8;
         ncnf = *b16 = SWAP16(*b16);
 		/*printf("ncnf16=%d\n",ncnf);fflush(stdout);*/
         b8 += 2;
@@ -300,7 +300,10 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
             b64 = (int64_t *)b8;
             b64end = b64 + ncnf;
             if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
-            while (b64 < b64end) *b64++ = SWAP64(*b64);
+            while (b64 < b64end) {
+                *b64 = SWAP64(*b64);
+                b64++;
+            }
             b8 = (int8_t *)b64;
 #ifdef DEBUG
             printf("64bit: %d elements\n",ncnf);
@@ -311,7 +314,10 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
             b32 = (int32_t *)b8;
             b32end = b32 + ncnf;
             if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
-            while (b32 < b32end) *b32++ = SWAP32(*b32);
+            while (b32 < b32end) {
+                *b32 = SWAP32(*b32);
+                b32++;
+            }
             b8 = (int8_t *)b32;
 #ifdef DEBUG
             printf("32bit: %d elements, b8 = 0x%08x\n",ncnf, b8);
@@ -322,7 +328,10 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
             b16 = (int16_t *)b8;
             b16end = b16 + ncnf;
             if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
-            while (b16 < b16end) *b16++ = SWAP16(*b16);
+            while (b16 < b16end) {
+                *b16 = SWAP16(*b16);
+                b16++;
+            }
             b8 = (int8_t *)b16;
 #ifdef DEBUG
             printf("16bit: %d elements\n",ncnf);
