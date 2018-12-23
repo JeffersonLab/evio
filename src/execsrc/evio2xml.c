@@ -128,9 +128,9 @@ static void indent() {
     xml += sprintf(xml, indentStr);
 }
 
-static int getIndent() {
-    return (int)strlen(indentStr);
-}
+//static int getIndent() {
+//    return (int)strlen(indentStr);
+//}
 
 /** Routine to increase the xml indentation by 3 spaces up to the limit. */
 static void increaseIndent() {
@@ -179,8 +179,10 @@ static const char *get_char_att(const char **atts, const int natt, const char *t
 static int (*USER_FRAG_SELECT_FUNC) (int tag) = NULL;
 
 /* From C lib */
+//extern int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
+//                int nextrabytes, int numIndent, int hex, char *xmlStringx);
 extern int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
-                int nextrabytes, int numIndent, int hex, char *xmlStringx);
+                int nextrabytes, char *xmlStringx);
 extern int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
 
 /* evio2xml.c prototypes */
@@ -292,11 +294,15 @@ int main (int argc, char **argv)
             if(tolower(s[strspn(s," \t")])=='q')done=1;
         }
 
-        if((done!=0)||((nevent>=max_event+skip_event)&&(max_event!=0))){printf("break1\n");break;}
+        if((done!=0)||((nevent>=max_event+skip_event)&&(max_event!=0))) {
+            printf("break1\n");
+            break;
+        }
     }
     decreaseIndent();
 
-    if(status!=EOF) printf("\n   *** error reading file, status is: 0x%x ***\n\n",status);
+    if(status!=EOF&&(max_event==0||status!=S_SUCCESS))
+      printf("\n   *** error reading file, status is: 0x%x ***\n\n",status);
 
     /* done */
     evio_xmldump_done(xml,maxbuf*sizeof(unsigned int)*EVIO2XML);
@@ -961,7 +967,8 @@ static int dump_composite(unsigned int *buf) {
 
     indent();
     xml += sprintf(xml,"<data  tag=\"%d\" num=\"%d\">\n",tag, num);
-    xml += eviofmtdump((int *)&buf[index], length, ifmt, nfmt, padding, getIndent(), !xtod, xml);
+    //    xml += eviofmtdump((int *)&buf[index], length, ifmt, nfmt, padding, getIndent(), !xtod, xml);
+    xml += eviofmtdump((int *)&buf[index], length, ifmt, nfmt, padding, xml);
     indent();
     xml += sprintf(xml,"</data>\n");
 
