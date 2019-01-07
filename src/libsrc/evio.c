@@ -5378,7 +5378,7 @@ int evGetBufferLength(int handle, uint32_t *length)
     if (length == NULL)
         return (S_SUCCESS);
 
-    if (handle < 1 || handle > handleCount) {
+    if (handle < 1 || (size_t)handle > handleCount) {
         return(S_EVFILE_BADHANDLE);
     }
 

@@ -297,7 +297,10 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
         b64 = (int64_t *)b8;
         b64end = b64 + ncnf;
         if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
-        while (b64 < b64end) *b64++ = SWAP64(*b64);
+        while (b64 < b64end) {
+          *b64 = SWAP64(*b64);
+          b64++;
+        }
         b8 = (int8_t *)b64;
 #ifdef DEBUG
         printf("64bit: %d elements\n",ncnf);
@@ -308,7 +311,10 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
         b32 = (int32_t *)b8;
         b32end = b32 + ncnf;
         if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
-        while (b32 < b32end) *b32++ = SWAP32(*b32);
+        while (b32 < b32end) {
+          *b32 = SWAP32(*b32);
+          b32++;
+        }
         b8 = (int8_t *)b32;
 #ifdef DEBUG
         printf("32bit: %d elements, b8 = 0x%08x\n",ncnf, b8);
@@ -319,7 +325,10 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
         b16 = (int16_t *)b8;
         b16end = b16 + ncnf;
         if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
-        while (b16 < b16end) *b16++ = SWAP16(*b16);
+        while (b16 < b16end) {
+          *b16 = SWAP16(*b16);
+          b16++;
+        }
         b8 = (int8_t *)b16;
 #ifdef DEBUG
         printf("16bit: %d elements\n",ncnf);
