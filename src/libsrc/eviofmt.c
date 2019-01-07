@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include "evio.h"
 
 #define MAX(a,b)  ( (a) > (b) ? (a) : (b) )
@@ -82,6 +83,7 @@ eviofmt(char *fmt, unsigned short *ifmt, int ifmtLen)
 {
     char ch;
     int  l, n, kf, lev, nr, nn, nb;
+    size_t fmt_len;
 
     n   = 0; /* ifmt[] index */
     nr  = 0;
@@ -94,7 +96,9 @@ eviofmt(char *fmt, unsigned short *ifmt, int ifmtLen)
 #endif
 
     /* loop over format string */
-    for (l=0; l < strlen(fmt); l++)
+    fmt_len = strlen(fmt);
+    if (fmt_len > INT_MAX) return (-1);
+    for (l=0; l < (int)fmt_len; l++)
     {
       ch = fmt[l];
       if (ch == ' ') continue;

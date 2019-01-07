@@ -132,7 +132,7 @@ eviofmtswap(int32_t *iarr, int nwrd, unsigned short *ifmt, int nfmt, int tolocal
             /* store left parenthesis index minus 1
                (if will meet end of format, will start from format index imt=iterm;
                by default we continue from the beginning of the format (iterm=0)) */
-            iterm = lv[lev-1].left - 1;
+            //iterm = lv[lev-1].left - 1;
             lev--; /* done with this level - decrease parenthesis level */
 #ifdef DEBUG
             printf("2\n");

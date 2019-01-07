@@ -1042,7 +1042,7 @@ bool evioDOMNode::operator!=(evioDictEntry tnPair) const {
  * Returns parent evioDOMNode.
  * @return Pointer to parent evioDOMNode
  */
-const evioDOMNodeP evioDOMNode::getParent(void) const {
+evioDOMNodeP evioDOMNode::getParent(void) const {
   return(parent);
 }
 
@@ -1054,7 +1054,7 @@ const evioDOMNodeP evioDOMNode::getParent(void) const {
  * Returns parent evioDOMTree.
  * @return Pointer to parent evioDOMTree
  */
-const evioDOMTree *evioDOMNode::getParentTree(void) const {
+evioDOMTree *evioDOMNode::getParentTree(void) const {
   return(parentTree);
 }
 

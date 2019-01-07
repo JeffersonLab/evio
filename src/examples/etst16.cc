@@ -68,10 +68,10 @@ int main(int argc, char **argv) {
       cout << "12,22 data length: " << b.dataLength << endl;
       if(b.dataLength>0) {
         cout << " full bank: ";
-        for(unsigned int i=0; i<b.bankLength; i++) cout << ((uint32_t*)b.bankPointer)[i] << "  ";
+        for(int i=0; i<b.bankLength; i++) cout << ((uint32_t*)b.bankPointer)[i] << "  ";
         cout << endl << endl;
         cout << " data only: ";
-        for(unsigned int i=0; i<b.dataLength; i++) cout << ((uint32_t*)b.data)[i] << "  ";
+        for(int i=0; i<b.dataLength; i++) cout << ((uint32_t*)b.data)[i] << "  ";
         cout << endl;
       }
       cout << endl;
@@ -86,10 +86,10 @@ int main(int argc, char **argv) {
       cout << "30,35 data length: " << b.dataLength << endl;
       if(b.dataLength>0) {
         cout << " full bank: ";
-        for(unsigned int i=0; i<b.bankLength; i++) cout << ((uint32_t*)b.bankPointer)[i] << "  ";
+        for(int i=0; i<b.bankLength; i++) cout << ((uint32_t*)b.bankPointer)[i] << "  ";
         cout << endl << endl;
         cout << " data only: ";
-        for(unsigned int i=0; i<b.dataLength; i++) cout << ((uint32_t*)b.data)[i] << "  ";
+        for(int i=0; i<b.dataLength; i++) cout << ((uint32_t*)b.data)[i] << "  ";
         cout << endl;
       }
       cout << endl;
@@ -104,10 +104,10 @@ int main(int argc, char **argv) {
       cout << "11,21 data length: " << b.dataLength << endl;
       if(b.dataLength>0) {
         cout << " full bank: ";
-        for(unsigned int i=0; i<b.bankLength; i++) cout << ((uint32_t*)b.bankPointer)[i] << "  ";
+        for(int i=0; i<b.bankLength; i++) cout << ((uint32_t*)b.bankPointer)[i] << "  ";
         cout << endl << endl;
         cout << " data only: ";
-        for(unsigned int i=0; i<b.dataLength; i++) cout << ((double*)b.data)[i] << "  ";
+        for(int i=0; i<b.dataLength; i++) cout << ((double*)b.data)[i] << "  ";
         cout << endl;
       }
       cout << endl;

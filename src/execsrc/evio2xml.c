@@ -26,8 +26,9 @@ enum {
 };
 
 /* for posix */
-#define _POSIX_SOURCE_ 1
-#define __EXTENSIONS__
+#define _POSIX_C_SOURCE 200809L  /* needed for strdup() with -std=c99 */
+//#define _POSIX_SOURCE_ 1
+//#define __EXTENSIONS__
 
 
 /*  misc macros, etc. */
@@ -45,6 +46,8 @@ enum {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>   /* for strncasecmp */
+#include <limits.h>    /* for INT_MAX */
 #include <ctype.h>
 #include <expat.h>
 #include "evio.h"
@@ -125,12 +128,12 @@ static char *xml;
 static char indentStr[3*MAXDEPTH + 1];
 
 static void indent() {
-    xml += sprintf(xml, indentStr);
+    xml += sprintf(xml, "%s", indentStr);
 }
 
-static int getIndent() {
-    return (int)strlen(indentStr);
-}
+//static int getIndent() {
+//    return (int)strlen(indentStr);
+//}
 
 /** Routine to increase the xml indentation by 3 spaces up to the limit. */
 static void increaseIndent() {
@@ -145,7 +148,7 @@ static void increaseIndent() {
 
 /** Routine to decrease the xml indentation by 3 spaces down to 0. */
 static void decreaseIndent() {
-    int i, len = strlen(indentStr);
+    int len = strlen(indentStr);
     if (len < 3) return;
     indentStr[len-3] = '\0';
 }
@@ -179,8 +182,10 @@ static const char *get_char_att(const char **atts, const int natt, const char *t
 static int (*USER_FRAG_SELECT_FUNC) (int tag) = NULL;
 
 /* From C lib */
+//extern int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
+//                int nextrabytes, int numIndent, int hex, char *xmlStringx);
 extern int eviofmtdump(int *iarr, int nwrd, unsigned char *ifmt, int nfmt,
-                int nextrabytes, int numIndent, int hex, char *xmlStringx);
+                int nextrabytes, char *xmlStringx);
 extern int eviofmt(char *fmt, unsigned char *ifmt, int ifmtLen);
 
 /* evio2xml.c prototypes */
@@ -292,11 +297,15 @@ int main (int argc, char **argv)
             if(tolower(s[strspn(s," \t")])=='q')done=1;
         }
 
-        if((done!=0)||((nevent>=max_event+skip_event)&&(max_event!=0))){printf("break1\n");break;}
+        if((done!=0)||((nevent>=max_event+skip_event)&&(max_event!=0))) {
+            printf("break1\n");
+            break;
+        }
     }
     decreaseIndent();
 
-    if(status!=EOF) printf("\n   *** error reading file, status is: 0x%x ***\n\n",status);
+    if(status!=EOF&&(max_event==0||status!=S_SUCCESS))
+      printf("\n   *** error reading file, status is: 0x%x ***\n\n",status);
 
     /* done */
     evio_xmldump_done(xml,maxbuf*sizeof(unsigned int)*EVIO2XML);
@@ -468,7 +477,7 @@ void decode_command_line(int argc, char**argv) {
             i=i+1;
 
         } else if (strncasecmp(argv[i],"-ev",3)==0) {
-            if(nevok<(sizeof(evok)/sizeof(int))) {
+          if(nevok<(int)(sizeof(evok)/sizeof(int))) {
                 evok[nevok++]=atoi(argv[i+1]);
                 i=i+2;
             } else {
@@ -476,7 +485,7 @@ void decode_command_line(int argc, char**argv) {
             }
 
         } else if (strncasecmp(argv[i],"-noev",5)==0) {
-            if(nnoev<(sizeof(noev)/sizeof(int))) {
+          if(nnoev<(int)(sizeof(noev)/sizeof(int))) {
                 noev[nnoev++]=atoi(argv[i+1]);
                 i=i+2;
             } else {
@@ -484,7 +493,7 @@ void decode_command_line(int argc, char**argv) {
             }
 
         } else if (strncasecmp(argv[i],"-frag",5)==0) {
-            if(nfragok<(sizeof(fragok)/sizeof(int))) {
+          if(nfragok<(int)(sizeof(fragok)/sizeof(int))) {
                 fragok[nfragok++]=atoi(argv[i+1]);
                 i=i+2;
             } else {
@@ -492,7 +501,7 @@ void decode_command_line(int argc, char**argv) {
             }
 
         } else if (strncasecmp(argv[i],"-nofrag",7)==0) {
-            if(nnofrag<(sizeof(nofrag)/sizeof(int))) {
+          if(nnofrag<(int)(sizeof(nofrag)/sizeof(int))) {
                 nofrag[nnofrag++]=atoi(argv[i+1]);
                 i=i+2;
             } else {
@@ -600,6 +609,7 @@ static void startDictElement(void *userData, const char *name, const char **atts
     const char *cp;
     int i,nt,nn;
     int *ip, *in;
+    size_t len;
 
 
     if(strcasecmp(name,dicttagname2)!=0)return;
@@ -618,7 +628,12 @@ static void startDictElement(void *userData, const char *name, const char **atts
     if(cp!=NULL) {
         nt=1;
         tagtext=strdup(cp);
-        for(i=0; i<strlen(tagtext); i++) if(tagtext[i]=='.')nt++;
+        len=strlen(tagtext);
+        if(len>INT_MAX) {
+            printf("\nevio2xml: startDictElement: runaway tagtext\n\n");
+            exit(EXIT_FAILURE);
+        }
+        for(i=0; i<(int)len; i++) if(tagtext[i]=='.')nt++;
         ip=(int*)malloc(nt*sizeof(int));
 
         i=0;
@@ -637,7 +652,12 @@ static void startDictElement(void *userData, const char *name, const char **atts
     if(cp!=NULL) {
         nn=1;
         numtext=strdup(cp);
-        for(i=0; i<strlen(numtext); i++) if(numtext[i]=='.')nn++;
+        len=strlen(numtext);
+        if(len>INT_MAX) {
+            printf("\nevio2xml: startDictElement: runaway numtext\n\n");
+            exit(EXIT_FAILURE);
+        }
+        for(i=0; i<(int)len; i++) if(numtext[i]=='.')nn++;
         in=(int*)malloc(nn*sizeof(int));
 
         i=0;
@@ -706,7 +726,7 @@ void set_user_frag_select_func( int (*f) (int tag) ) {
  */
 static void dump_fragment(unsigned int *buf, int fragment_type) {
 
-    int i, length,type,is_a_container,noexpand, padding=0;
+    int length,type,is_a_container,noexpand, padding=0;
     unsigned short tag;
     unsigned char num;
 
@@ -751,7 +771,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
 
     /* update depth, tagstack, numstack, etc. */
     depth++;
-    if( (depth>(sizeof(tagstack)/sizeof(int))) || (depth>(sizeof(numstack)/sizeof(int))) ) {
+    if( (depth>(int)(sizeof(tagstack)/sizeof(int))) || (depth>(int)(sizeof(numstack)/sizeof(int))) ) {
         printf("?error...tagstack/numstack overflow\n");
         exit(EXIT_FAILURE);
     }
@@ -856,7 +876,7 @@ static void dump_fragment(unsigned int *buf, int fragment_type) {
  */
 static int dump_composite(unsigned int *buf) {
 
-    int i, length, type, is_a_container, noexpand, compLen=1;
+    int length, type, is_a_container, noexpand, compLen=1;
     unsigned short tag;
     unsigned char num;
 
@@ -961,7 +981,8 @@ static int dump_composite(unsigned int *buf) {
 
     indent();
     xml += sprintf(xml,"<data  tag=\"%d\" num=\"%d\">\n",tag, num);
-    xml += eviofmtdump((int *)&buf[index], length, ifmt, nfmt, padding, getIndent(), !xtod, xml);
+    //    xml += eviofmtdump((int *)&buf[index], length, ifmt, nfmt, padding, getIndent(), !xtod, xml);
+    xml += eviofmtdump((int *)&buf[index], length, ifmt, nfmt, padding, xml);
     indent();
     xml += sprintf(xml,"</data>\n");
 
