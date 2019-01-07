@@ -15,6 +15,9 @@
  *
  */
  
+/* for nanosleep in time.h */
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -134,7 +137,6 @@ static int handle;
 int main1() {
     int status;
     int maxEvBlk = 2;
-    int *ip, bufLen;
     size_t bufSize = 10000;
     char eventBuffer[4*bufSize];
     pthread_t  tid;
@@ -143,7 +145,7 @@ int main1() {
     memset(eventBuffer, 0, 4*bufSize);
 
 
-    printf("\nEvent I/O tests to BUFFER (%p) ...\n", eventBuffer);
+    printf("\nEvent I/O tests to BUFFER (%p) ...\n", (void*)eventBuffer);
     status = evOpenBuffer(eventBuffer, bufSize, "w", &handle);
 
     status = evIoctl(handle, "N", (void *) (&maxEvBlk));
@@ -178,7 +180,7 @@ int main() {
     memset(eventBuffer, 0, 4*bufSize);
 
 
-    printf("\nEvent I/O tests to BUFFER (%p) ...\n", eventBuffer);
+    printf("\nEvent I/O tests to BUFFER (%p) ...\n", (void*)eventBuffer);
     status = evOpenBuffer(eventBuffer, bufSize, "w", &handle);
 
     status = evIoctl(handle, "N", (void *) (&maxEvBlk));

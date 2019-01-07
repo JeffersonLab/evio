@@ -80,18 +80,18 @@ static uint32_t *makeFirstEvent(int localEndian) {
 
 int main()
 {
-    int i, status, localEndian=1;
-    uint32_t *pBuf, *block, len;
+    int status, localEndian=1;
+    uint32_t *pBuf, *block, len, i;
 
 
     pBuf = makeFirstEvent(localEndian);
-    printf ("    Created first event, pBuf = %p\n",pBuf);
+    printf ("    Created first event, pBuf = %p\n",(void*)pBuf);
 
     status = evCreateFirstEventBlock(pBuf, localEndian, (void **)(&block), &len);
     printf ("    Created first event block, status = %d\n", status);
 
     for (i=0; i < len; i++) {
-        printf ("buf[%d] = 0x%x\n", i, block[i]);
+        printf ("buf[%u] = 0x%x\n", i, block[i]);
     }
 
 
@@ -116,7 +116,7 @@ int main1()
     printf ("    Changed max events/block to %d, status = %#x\n", maxEvBlk, status);
 
     status = evIoctl(handle, "S", (void *) (&split));
-    printf ("    Changed split to %d, status = %#x\n", split, status);
+    printf ("    Changed split to %lu, status = %#x\n", split, status);
 
     printf ("    Write dictionary, status = %d\n",status);
     status = evWriteDictionary(handle, dictionary);
@@ -142,5 +142,6 @@ int main1()
 
     free(pBuf);
     free(ip);
+    return 0;
 }
 

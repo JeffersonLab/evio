@@ -7,6 +7,7 @@
  *
  * author: Carl Timmer
  */
+#define _POSIX_C_SOURCE 200809L  /* needed for strdup() with -std=c99 */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -66,13 +67,46 @@ static  char bad6[16] = {(char)101, (char)118, (char)105, (char)111,
 /* e, 0, 4*/  /* too small */
 static char bad7[3] =  {(char)101, (char)0,   (char)4};
 
+static void printStringArray(char** a, int count)
+{
+  for(int i = 0; i<count; ++i) {
+    printf("       %2d: %s\n", i, a[i]);
+  }
+}
 
+static void freeStringArray(char** a, int count)
+{
+  for(int i = 0; i<count; ++i) {
+    free(a[i]);
+  }
+  free(a);
+}
+
+#define runStringTest(STR) \
+    strCount = 0; \
+    err = evBufToStrings(STR, sizeof(STR), &array,  &strCount); \
+    printf("    Test %5s, count = %d, status = %s", #STR, strCount, evPerror(err)); \
+    printStringArray(array, strCount); \
+    freeStringArray(array, strCount); \
+    array = NULL;
 
 int main (int argc, char **argv) {
-    char **array;
-    int strCount;
+    char **array = NULL;
+    int strCount, err;
 
-    int err = evBufToStrings(bad7, 3, &array,  &strCount);
+    runStringTest(good1);
+    runStringTest(good2);
+    runStringTest(good3);
+    runStringTest(bad1);
+    runStringTest(bad2);
+    runStringTest(bad3);
+    runStringTest(bad4);
+    runStringTest(bad5);
+    runStringTest(bad6);
+    runStringTest(bad7);
+    runStringTest(ws);
+
+    return 0;
 }
 
 

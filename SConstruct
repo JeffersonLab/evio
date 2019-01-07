@@ -53,6 +53,7 @@ if ldLibPath == '':
 else:
     env = Environment(ENV = {'PATH' : os.environ['PATH'], 'LD_LIBRARY_PATH' : os.environ['LD_LIBRARY_PATH']})
 
+# env.Replace(CC = '/usr/lib64/ccache/clang', CXX = '/usr/lib64/ccache/clang++')
 
 ################################
 # 64 or 32 bit operating system?
@@ -118,9 +119,9 @@ debugSuffix = ''
 if debug:
     debugSuffix = '-dbg'
 # Compile with -g and add debugSuffix to all executable names
-    env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
-
-env.Append(CCFLAGS = ['-O3'])
+    env.Append(CCFLAGS = ['-g', '-O0'], PROGSUFFIX = debugSuffix)
+else:
+    env.Append(CCFLAGS = ['-O3'])
 
 
 # Take care of 64/32 bit issues
@@ -136,6 +137,9 @@ execLibs = ['']
 
 # Platform dependent quantities. Default to standard Linux libs.
 execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
+
+env.Append(CFLAGS = ['-std=c99', '-Wall', '-Wextra', '-pedantic'])
+env.Append(CCFLAGS = ['-Wall', '-Wextra', '-pedantic', '-Wno-unused-parameter'])
 
 if platform == 'Darwin':
     execLibs = ['pthread', 'dl', 'expat', 'z']

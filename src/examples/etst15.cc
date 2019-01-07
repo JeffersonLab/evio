@@ -29,8 +29,8 @@ int64_t lbuf[100];
 double dbuf[100];
 uint32_t uibuf[100];
 
-string sa[3] = {"I", "am", "bored"};;
-string sca[3] = {"in", "the", "end"};;
+string sa[3] = {"I", "am", "bored"};
+string sca[3] = {"in", "the", "end"};
 
 const char *ca[3];
 

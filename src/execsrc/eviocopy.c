@@ -14,8 +14,9 @@
 
 
 /* for posix */
-#define _POSIX_SOURCE_ 1
-#define __EXTENSIONS__
+#define _POSIX_C_SOURCE 200809L
+//#define _POSIX_SOURCE_ 1
+//#define __EXTENSIONS__
 
 
 /*  misc macros, etc. */
@@ -26,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>   /* for strncasecmp */
 #include "evio.h"
 
 
@@ -179,7 +181,7 @@ void decode_command_line(int argc, char**argv) {
       i=i+2;
 
     } else if (strncasecmp(argv[i],"-ev",3)==0) {
-      if(nevok<(sizeof(evok)/sizeof(int))) {
+      if(nevok<(int)(sizeof(evok)/sizeof(int))) {
 	evok[nevok++]=atoi(argv[i+1]);
 	i=i+2;
       } else {
@@ -187,7 +189,7 @@ void decode_command_line(int argc, char**argv) {
       }
 
     } else if (strncasecmp(argv[i],"-noev",5)==0) {
-      if(nnoev<(sizeof(noev)/sizeof(int))) {
+      if(nnoev<(int)(sizeof(noev)/sizeof(int))) {
 	noev[nnoev++]=atoi(argv[i+1]);
 	i=i+2;
       } else {
@@ -195,7 +197,7 @@ void decode_command_line(int argc, char**argv) {
       }
 
     } else if (strncasecmp(argv[i],"-nonum",6)==0) {
-      if(nnonum<(sizeof(nonum)/sizeof(int))) {
+      if(nnonum<(int)(sizeof(nonum)/sizeof(int))) {
 	nonum[nnonum++]=atoi(argv[i+1]);
 	i=i+2;
       } else {

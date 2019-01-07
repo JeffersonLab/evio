@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>    /* for bcopy */
 #include <sys/socket.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -162,13 +163,13 @@ static int createSendFd() {
     }
 
     hp = gethostbyname(host);
-    if (hp == 0 && (sin.sin_addr.s_addr = inet_addr(host)) == -1) {
+    if (hp == 0 && (int)(sin.sin_addr.s_addr = inet_addr(host)) == -1) {
         fprintf(stderr, "%s: unknown host\n", host);
         exit(1);
     }
 
     if (hp != 0) {
-        bcopy((const void *)hp->h_addr, (void *) &sin.sin_addr, hp->h_length);
+        bcopy((const void *)hp->h_addr_list[0], (void *) &sin.sin_addr, hp->h_length);
     }
 
     sin.sin_port = htons(serverPort);
@@ -200,30 +201,30 @@ static int createSendFd() {
  * @return number of bytes written if successful
  * @return -1 if error and errno is set
  */
-static int tcpWrite(int fd, const void *vptr, int n)
-{
-    int         nleft;
-    int         nwritten;
-    const char  *ptr;
-
-    ptr = (char *) vptr;
-    nleft = n;
-  
-    while (nleft > 0) {
-        if ( (nwritten = write(fd, (char*)ptr, nleft)) <= 0) {
-            if (errno == EINTR) {
-                nwritten = 0;       /* and call write() again */
-            }
-            else {
-                return(nwritten);   /* error */
-            }
-        }
-
-        nleft -= nwritten;
-        ptr   += nwritten;
-    }
-    return(n);
-}
+// static int tcpWrite(int fd, const void *vptr, int n)
+// {
+//     int         nleft;
+//     int         nwritten;
+//     const char  *ptr;
+//
+//     ptr = (char *) vptr;
+//     nleft = n;
+//
+//     while (nleft > 0) {
+//         if ( (nwritten = write(fd, (char*)ptr, nleft)) <= 0) {
+//             if (errno == EINTR) {
+//                 nwritten = 0;       /* and call write() again */
+//             }
+//             else {
+//                 return(nwritten);   /* error */
+//             }
+//         }
+//
+//         nleft -= nwritten;
+//         ptr   += nwritten;
+//     }
+//     return(n);
+// }
 
 
 

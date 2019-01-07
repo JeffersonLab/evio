@@ -18,12 +18,13 @@
 
 int main (int argc, char **argv) {
 
-  int i,loop,handle, nevents, status;
+  int loop,handle, status;
+  unsigned int nevents,i;
   unsigned int buf[MAXBUFLEN];
   unsigned int buf2[MAXBUFLEN];
   unsigned int buf3[MAXBUFLEN];
   unsigned int other[MAXBUFLEN];
-  int maxev   = 0;
+  unsigned int maxev   = 0;
   int maxloop = 1;
   
 
@@ -54,18 +55,18 @@ int main (int argc, char **argv) {
       
       evioswap(buf2,1,NULL); /* buf2 is now same */
       for(i=0; i<buf[0]; i++) {
-	if(buf2[i]!=buf[i]) {
-	  printf("?error event %d word %d in: %u same %u (%x)\n",
-		 nevents,i,buf[i],buf2[i],buf2[i]);
-	}
+        if(buf2[i]!=buf[i]) {
+          printf("?error event %u word %u in: 0x%x same 0x%x\n",
+                 nevents,i,buf[i],buf2[i]);
+        }
       }
       
       evioswap(buf2,0,NULL); /* buf2 is now other */
       for(i=0; i<buf[0]; i++) {
-	if(buf2[i]!=other[i]) {
-	  printf("?error event %d word %d in: %u other %u (%x)\n",
-		 nevents,i,buf2[i],other[i],other[i]);
-	}
+        if(buf2[i]!=other[i]) {
+          printf("?error event %u word %u in: 0x%x other 0x%x\n",
+                 nevents,i,buf2[i],other[i]);
+        }
       }
       
       evioswap(buf2,1,buf3); /* buf3 is now same */
@@ -73,8 +74,8 @@ int main (int argc, char **argv) {
     
     for(i=0; i<buf[0]; i++) {
       if(buf3[i]!=buf[i]) {
-	printf("?error event %d word %d in: %u same %u (%x)\n",
-	       nevents,i,buf[i],buf3[i],buf3[i]);
+        printf("?error event %u word %u in: 0x%x same 0x%x\n",
+               nevents,i,buf[i],buf3[i]);
       }
     }
     

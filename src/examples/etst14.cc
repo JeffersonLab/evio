@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     uint32_t len;
     chan->getRandomAccessTable(&table,&len);
     cout << "random access table length is: " << len << endl;
-    for(int i=0; i<len; i++) cout << i << " " << table[i] << endl;
+    for(uint32_t i=0; i<len; i++) cout << i << " " << table[i] << endl;
     cout << endl;    
 
 
