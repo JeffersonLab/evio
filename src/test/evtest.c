@@ -196,7 +196,7 @@ uint32_t *makeEvent()
 uint32_t *makeEvent2()
 {
     short *shortWord;
-    float  data;
+    //float  data;
     double doubl;
     uint64_t bigInt, *bigWord;
     uint32_t *bank, *segment, *tagseg, *intWord;

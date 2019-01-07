@@ -19,6 +19,12 @@
 #include "evioException.hxx"
 #include "evioDictionary.hxx"
 
+#if defined(__GNUC__) || defined(__clang__)
+# define _MAYBE_UNUSED __attribute__((unused))
+#else
+# define _MAYBE_UNUSED
+#endif
+
 namespace evio {
 
     using namespace std;
@@ -52,18 +58,20 @@ namespace evio {
         EVIO_SEGMENT      =  (0x20) };
 
     /** Put DataType enums into an array. */
-    static const DataType DataTypes[18] = { EVIO_UNKNOWN32,  EVIO_UINT32,      EVIO_FLOAT32,  EVIO_CHARSTAR8,
-                                            EVIO_SHORT16,    EVIO_USHORT16,    EVIO_CHAR8,    EVIO_UCHAR8,
-                                            EVIO_DOUBLE64,   EVIO_LONG64,      EVIO_ULONG64,  EVIO_INT32,
-                                            EVIO_TAGSEGMENT, EVIO_ALSOSEGMENT, EVIO_ALSOBANK,
-                                            EVIO_COMPOSITE,  EVIO_BANK,        EVIO_SEGMENT };
+    static const DataType DataTypes[18] _MAYBE_UNUSED =
+      { EVIO_UNKNOWN32,  EVIO_UINT32,      EVIO_FLOAT32,  EVIO_CHARSTAR8,
+        EVIO_SHORT16,    EVIO_USHORT16,    EVIO_CHAR8,    EVIO_UCHAR8,
+        EVIO_DOUBLE64,   EVIO_LONG64,      EVIO_ULONG64,  EVIO_INT32,
+        EVIO_TAGSEGMENT, EVIO_ALSOSEGMENT, EVIO_ALSOBANK,
+        EVIO_COMPOSITE,  EVIO_BANK,        EVIO_SEGMENT };
 
     /** Put the string associated with each DataType enums into an array. */
-    static const char * DataTypeNames[18] = { "unknown32",  "uint32",      "float32",  "charstar8",
-                                              "short16",    "ushort16",    "char8",    "uchar8",
-                                              "double64",   "long64",      "ulong64",  "int32",
-                                              "tagsegment", "alsosegment", "alsobank",
-                                              "composite",  "bank",        "segment" };
+    static const char * DataTypeNames[18] _MAYBE_UNUSED =
+      { "unknown32",  "uint32",      "float32",  "charstar8",
+        "short16",    "ushort16",    "char8",    "uchar8",
+        "double64",   "long64",      "ulong64",  "int32",
+        "tagsegment", "alsosegment", "alsobank",
+        "composite",  "bank",        "segment" };
 
     /** This class defines an entry in the XML dictionary. */
     class evioDictEntry {
@@ -225,7 +233,7 @@ namespace evio {
     };
     
 
-};
+}
 
 #endif
   

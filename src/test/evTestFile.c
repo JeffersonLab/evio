@@ -71,10 +71,10 @@ static char *xmlDictionary =
 int mainAppend() {
 
     int handle, status, i;
-    uint32_t *blkHeader, blkWordSize, bufferSize;
+    uint32_t blkWordSize, bufferSize;
     uint64_t splitSize;
 
-    int useFile = 1;
+    const int useFile = 1;
 
     printf("\nReopen /home/timmer/fileAppend and append\n");
     if (useFile) {
@@ -130,12 +130,12 @@ int mainAppend() {
 
 int main() {
     int handle, status;
-    uint32_t *ip, *pBuf;
     int i;
-    uint32_t *blkHeader, blkWordSize, lockOff=0, lockOn=1, bufferSize;
+    uint32_t *blkHeader, blkWordSize, bufferSize;
+    //    uint32_t lockOff=0, lockOn=1;
     uint64_t splitSize;
 
-    int useFile = 1;
+    const int useFile = 1;
 
 
     printf("\nEvent I/O test, write /home/timmer/fileTestSmall.ev\n");

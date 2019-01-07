@@ -122,7 +122,8 @@ static char *xmlDictionary2 =
 
 int main (int argc, char **argv)
 {
-    int err, handle, arg;
+    int handle, arg;
+    uint32_t err;
 
     /* open file for writing & create a buffer */
     /*
@@ -255,9 +256,9 @@ int main (int argc, char **argv)
 
 int mainBuffer (int argc, char **argv)
 {
-    int i, err, handle, arg;
+    int i, handle, arg;
     uint64_t split;
-    uint32_t bufLen = 60, buffer[60];
+    uint32_t bufLen = 60, buffer[60], err;
 
     
     /* open file for writing */
@@ -347,22 +348,23 @@ int mainBuffer (int argc, char **argv)
 
 int mainFile (int argc, char **argv)
 {
-    int i, err, handle, arg;
+    int i, handle, arg;
+    uint32_t err;
     // int evCount = 5;
     uint64_t split;
-    uint32_t eventBuffer5[60];
+    // uint32_t eventBuffer5[60];
     // char stuff[128];
 
-    eventBuffer5[0] = 0x0000003b;
-    eventBuffer5[1] = 0x00011001;
-    eventBuffer5[2] = 0x00000039,
-    eventBuffer5[3] = 0x00020b02;
+//     eventBuffer5[0] = 0x0000003b;
+//     eventBuffer5[1] = 0x00011001;
+//     eventBuffer5[2] = 0x00000039,
+//     eventBuffer5[3] = 0x00020b02;
+//
+//     for (i=4; i < 61; i++) {
+//         eventBuffer5[i] = i-4;
+//     }
 
-    for (i=4; i < 61; i++) {
-        eventBuffer5[i] = i-4;
-    }
 
-    
     /* open file for splitting */
     err = evOpen(filename, "s", &handle);
     if (err != S_SUCCESS) {

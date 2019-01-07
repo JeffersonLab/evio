@@ -63,7 +63,7 @@ static void printFile(char *fileName) {
 
 static void createFile(char *fileName) {
 
-    int nBytes, len1=54 /*, len2=13, len3=9, len4=18 */;
+    size_t nBytes, len1=54 /*, len2=13, len3=9, len4=18 */;
     
     /*
        3 block headers (first 2 have 2 extra words each, last has 1 extra word).
@@ -202,6 +202,10 @@ static void createFile(char *fileName) {
 
     /* Write data to file */
     nBytes = fwrite((const void *)data1, 1, len1*sizeof(uint32_t), file);
+    if (nBytes != len1*sizeof(uint32_t)) {
+      perror(fileName);
+      exit(1);
+    }
     //nBytes = fwrite((const void *)data2, 1, len2*sizeof(uint32_t), file);
     //nBytes = fwrite((const void *)data3, 1, len3*sizeof(uint32_t), file);
     //nBytes = fwrite((const void *)data4, 1, len4*sizeof(uint32_t), file);
@@ -462,6 +466,7 @@ int main22() {
 
 int main4() {
     int i, handle, status, nevents, nwords;
+    unsigned int k;
     const uint32_t *ip;
     uint32_t evCount, len = 0L, bufLen;
     uint32_t **pTable;
@@ -479,8 +484,8 @@ int main4() {
     status = evGetRandomAccessTable(handle, &pTable, &len);
     printf("  i      pointers\n");
     printf("-------------------\n");
-    for (i=0; i < len; i++) {
-        printf("  %d    %p\n", i, pTable[i]);
+    for (k=0; k < len; k++) {
+      printf("  %u    %p\n", k, (void*)pTable[k]);
     }
     printf("-------------------\n\n");
 
@@ -538,6 +543,7 @@ int main4() {
 
 int main1() {
     int i, handle, status, nevents, nwords;
+    unsigned int k;
     const uint32_t *ip = NULL;
     uint32_t **pTable;
     uint32_t evCount, len = 0L, bufLen;
@@ -595,8 +601,8 @@ int main1() {
     status = evGetRandomAccessTable(handle, &pTable, &len) ;
     printf("  i      pointers\n");
     printf("-------------------\n");
-    for (i=0; i < len; i++) {
-        printf("  %d    %p\n", i, pTable[i]);
+    for (k=0; k < len; k++) {
+      printf("  %u    %p\n", k, (void*)pTable[k]);
     }
     printf("-------------------\n\n");
 

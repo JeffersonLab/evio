@@ -46,7 +46,7 @@ int main()
     memset(eventBuffer, 0, 4*4096);
 
 
-    printf("\nEvent I/O tests to BUFFER (%p) ...\n", eventBuffer);
+    printf("\nEvent I/O tests to BUFFER (%p) ...\n", (void*)eventBuffer);
     status = evOpenBuffer(eventBuffer, 4096, "w", &handle);
     printf ("    Opened buffer, status = %#x\n", status);
 

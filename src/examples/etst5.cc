@@ -39,7 +39,7 @@ class myHandler : public evioStreamParserHandler {
     
     int *i;
     short *s;
-    char *c;
+    const char *c;
     float *f;
     double *d;
     int64_t *ll;
@@ -53,41 +53,41 @@ class myHandler : public evioStreamParserHandler {
     case 0x1:
     case 0xb:
       i = (int *)data;
-      printf("%d %d\n",i[0],i[1]);
+      cout << i[0] << " " << i[1] << endl;
       break;
 
 
     case 0x2:
       f=(float*)data;
-      printf("%f %f\n",f[0],f[1]);
+      cout << f[0] << " " << f[1] << endl;
       break;
 
     case 0x3:
-      c=(char*)data;
-      printf("%s\n",c);
+      c=(const char*)data;
+      cout << c << endl;
       break;
 
     case 0x6:
     case 0x7:
-      c=(char*)data;
-      printf("%d %d\n",c[0],c[1]);
+      c=(const char*)data;
+      cout << c[0] << " " << c[1] << endl;
       break;
 
     case 0x4:
     case 0x5:
       s=(short*)data;
-      printf("%hd %hd\n",s[0],s[1]);
+      cout << s[0] << " " << s[1] << endl;
       break;
 
     case 0x8:
       d=(double*)data;
-      printf("%f %f\n",d[0],d[1]);
+      cout << d[0] << " " << d[1] << endl;
       break;
 
     case 0x9:
     case 0xa:
       ll=(int64_t*)data;
-      printf("%lld %lld\n", (long long)ll[0], (long long)ll[1]);
+      cout << ll[0] << " " << ll[1] << endl;
       break;
 
     }  

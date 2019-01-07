@@ -341,7 +341,7 @@ static void swap_data(uint32_t *data, int type, uint32_t length, int tolocal, ui
 }
 
 /* Do we need this for backwards compatibility??? *?
-/**
+ **
  * This routine swaps the bytes of a 32 bit integer and
  * returns the swapped value. Rewritten to be a wrapper
  * for EVIO_SWAP32(x) macro. Keep it for backwards compatibility.
@@ -482,6 +482,7 @@ static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_
     uint32_t *d, *pData, formatLen, dataLen;
     int nfmt, inPlace, wordLen;
     unsigned short ifmt[1024];
+    int64_t len = length;  /* the algorithm below does not guarantee positive length */
 
     /* swap in place or copy ? */
     inPlace = (dest == NULL);
@@ -492,7 +493,7 @@ static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_
 
     /* The data is actually an array of composite data elements,
      * so be sure to loop through all of them. */
-    while (length > 0) {
+    while (len > 0) {
         /* swap format tagsegment header word */
         if (tolocal) {
             pData = swap_int32_t(data, 1, dest);
@@ -550,13 +551,13 @@ static int swap_composite_t(uint32_t *data, int tolocal, uint32_t *dest, uint32_
         wordLen = 1 + formatLen + 2 + dataLen;
 
         /* go to the next composite data array element */
-        length -= wordLen;
+        len -= wordLen;
         dest += wordLen;
         pData = data += wordLen;
         d = inPlace ? data : dest;
 
         /* oops, things aren't coming out evenly */
-        if (length < 0) {
+        if (len < 0) {
             return S_FAILURE;
         }
     }
