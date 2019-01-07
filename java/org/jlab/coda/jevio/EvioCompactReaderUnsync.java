@@ -172,6 +172,7 @@ public class EvioCompactReaderUnsync {
      * Constructor for reading a buffer.
      *
      * @param byteBuffer the buffer that contains events.
+     * @param pool pool of EvioNode objects.
      *
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
