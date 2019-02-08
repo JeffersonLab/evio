@@ -16,12 +16,10 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.AsynchronousFileChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.BitSet;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -281,15 +279,10 @@ public class EventWriterUnsync {
     /** Index for selecting which future (1 or 2) to use for next file write. */
     private int futureIndex;
 
-    /** Index for selecting which buffer (from internalBuffers) to use for next file write. */
-    private int bufferIndex;
-
-    /** Array used to select the next buffer (from internalBuffers) to use for next file write. */
-    private int[] nextBufIndex = {1,2,0};
-
     /** The asynchronous file channel, used for writing a file. */
     private AsynchronousFileChannel asyncFileChannel;
 
+    /** The location of the next write in the file. */
     private long fileWritingPosition;
 
     /** Split number associated with output file to be written next. */
@@ -355,22 +348,10 @@ public class EventWriterUnsync {
         /** Thread pool with 1 thread. */
         private final ExecutorService threadPool;
 
-        FileCloser() {
-            threadPool = Executors.newSingleThreadExecutor();
-        }
+        FileCloser() {threadPool = Executors.newSingleThreadExecutor();}
 
         /** Close the thread pool in this object while executing all existing tasks. */
-        void close() {
-            threadPool.shutdown();
-        }
-
-//        /**
-//         * Close the given file, in the order received, in a separate thread.
-//         * @param raf file to close
-//         */
-//        void closeFile(RandomAccessFile raf) {
-//            threadPool.submit(new CloseThd(raf));
-//        }
+        void close() {threadPool.shutdown();}
 
         /**
          * Close the given file, in the order received, in a separate thread.
@@ -381,29 +362,10 @@ public class EventWriterUnsync {
         }
 
 
-//        private class CloseThd implements Runnable {
-//            private RandomAccessFile raf;
-//
-//            CloseThd(RandomAccessFile raf) {
-//                this.raf = raf;
-//            }
-//
-//            public void run() {
-//                try {
-//                    raf.close();
-//                }
-//                catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-
         private class CloseAsyncFChan implements Runnable {
             private AsynchronousFileChannel afc;
 
-            CloseAsyncFChan(AsynchronousFileChannel afc) {
-                this.afc = afc;
-            }
+            CloseAsyncFChan(AsynchronousFileChannel afc) {this.afc = afc;}
 
             public void run() {
                 // Finish writing to current file
@@ -1307,7 +1269,6 @@ public class EventWriterUnsync {
                         internalBuffers[0].order(byteOrder);
                         internalBuffers[1].order(byteOrder);
                         internalBuffers[2].order(byteOrder);
-                        //buffer.order(byteOrder);
                     }
 
                     // Prepare for appending by moving file position to end of last block
@@ -2534,9 +2495,7 @@ System.err.println("ERROR endOfBuffer " + a);
             // File now positioned right after the last header to be read
             if (toFile) {
                 // Back up to before 6th block header word
-//fileChannel.position(fileChannel.position() - (32 - BIT_INFO_OFFSET));
                 fileWritingPosition -= 32 - BIT_INFO_OFFSET;
-
 //System.out.println("toAppendPosition: writing over last block's 6th word, back up %d words" +(8 - 6));
 
                 // Write over 6th block header word
@@ -2553,11 +2512,9 @@ System.err.println("ERROR endOfBuffer " + a);
                     throw new IOException(e);
                 }
 
-
                 // Hop over the entire block
 //System.out.println("toAppendPosition: wrote over last block's 6th word, hop over %d words" +
 //                   (blockLength - (6 + 1)));
-//fileChannel.position(fileChannel.position() + 4 * blockLength - (BIT_INFO_OFFSET + 1));
                 fileWritingPosition += 4 * blockLength - (BIT_INFO_OFFSET + 1);
             }
             // Buffer still positioned right before the last header to be read
@@ -2579,7 +2536,6 @@ System.err.println("ERROR endOfBuffer " + a);
             // If using buffer, we never incremented the position, so we're OK.
             blockNumber--;
             if (toFile) {
-//fileChannel.position(fileChannel.position() - 32);
                 fileWritingPosition -= 32;
 //System.out.println("toAppendPos: position (bkup) = " + fileWritingPosition);
             }
@@ -2590,7 +2546,6 @@ System.err.println("ERROR endOfBuffer " + a);
         // subsequent write/flush.
         if (toFile) {
 //System.out.println("toAppendPos: file pos = " + fileWritingPosition);
-//bytesWrittenToFile = fileChannel.position();
             bytesWrittenToFile = fileWritingPosition;
         }
         else {
@@ -2801,10 +2756,6 @@ System.err.println("ERROR endOfBuffer " + a);
         internalBuffers[2].order(byteOrder);
         buffer = internalBuffers[0];
         bufferSize = newSize;
-
-//        buffer = ByteBuffer.allocateDirect(newSize);
-//        buffer.order(byteOrder);
-//        bufferSize = newSize;
 
 //System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
         return;
@@ -3394,8 +3345,7 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
      */
-    private boolean flushToFile(boolean force)
-                        throws EvioException, IOException {
+    private boolean flushToFile(boolean force) throws EvioException, IOException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -3423,8 +3373,8 @@ System.err.println("ERROR endOfBuffer " + a);
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
                                                                 StandardOpenOption.CREATE,
                                                                 StandardOpenOption.WRITE);
-                System.out.println("\n*******\nOPENED NEW FILE " + currentFilePath.toFile().getName() +
-                                           ", size is " + asyncFileChannel.size());
+//                System.out.println("\n*******\nOPENED NEW FILE " + currentFilePath.toFile().getName() +
+//                                           ", size is " + asyncFileChannel.size());
                 fileWritingPosition = 0L;
                 splitCount++;
             }
@@ -3558,7 +3508,6 @@ System.err.println("ERROR endOfBuffer " + a);
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
         if (asyncFileChannel != null) {
-        //if (raf != null) {
             try {
                 // We need to end the file with an empty block header.
                 // If resetBuffer (or flush) was just called,
@@ -3573,12 +3522,10 @@ System.err.println("ERROR endOfBuffer " + a);
                 e.printStackTrace();
             }
 
-            //fileCloser.closeFile(raf);
             fileCloser.closeAsyncFile(asyncFileChannel);
         }
 
         // Right now no file is open for writing
-        //raf = null;
         asyncFileChannel = null;
 
         // Create the next file's name
@@ -3589,8 +3536,6 @@ System.err.println("ERROR endOfBuffer " + a);
 
         currentFilePath = Paths.get(fileName);
         currentFile = currentFilePath.toFile();
-
-        //currentFile = new File(fileName);
 
         // If we can't overwrite and file exists, throw exception
         if (!overWriteOK && (currentFile.exists() && currentFile.isFile())) {
