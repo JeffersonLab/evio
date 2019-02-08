@@ -15,10 +15,17 @@ import java.io.*;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.BitSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 
 /**
  * An EventWriter object is used for writing events to a file or to a byte buffer.
@@ -243,9 +250,17 @@ public class EventWriterUnsync {
 
     /**
      * The output buffer when writing to a buffer.
-     * The internal buffer when writing to a file.
+     * The internal buffer when writing to a file which is
+     * a reference to one of the internalBuffers.
      */
     private ByteBuffer buffer;
+
+    /** Two internal buffers, first element last used in the future1 write,
+     * the second last used in future2 write. */
+    private ByteBuffer[] usedBuffers;
+
+    /** Three internal buffers used for writing to a file. */
+    private ByteBuffer[] internalBuffers;
 
     /** The byte order in which to write a file or buffer. */
     private ByteOrder byteOrder;
@@ -254,13 +269,28 @@ public class EventWriterUnsync {
     // File related members
     //-----------------------
 
+    /** File object corresponding to file currently being written. */
     private File currentFile;
+    
+    /** Path object corresponding to file currently being written. */
+    private Path currentFilePath;
 
-    /** The object used for writing a file. */
-    private RandomAccessFile raf;
+    /** Objects to allow efficient, asynchronous file writing. */
+    private Future<Integer> future1, future2;
 
-    /** The file channel, used for writing a file, derived from raf. */
-    private FileChannel fileChannel;
+    /** Index for selecting which future (1 or 2) to use for next file write. */
+    private int futureIndex;
+
+    /** Index for selecting which buffer (from internalBuffers) to use for next file write. */
+    private int bufferIndex;
+
+    /** Array used to select the next buffer (from internalBuffers) to use for next file write. */
+    private int[] nextBufIndex = {1,2,0};
+
+    /** The asynchronous file channel, used for writing a file. */
+    private AsynchronousFileChannel asyncFileChannel;
+
+    private long fileWritingPosition;
 
     /** Split number associated with output file to be written next. */
     private int splitNumber;
@@ -329,35 +359,78 @@ public class EventWriterUnsync {
             threadPool = Executors.newSingleThreadExecutor();
         }
 
-        /**
-         * Close the given file, in the order received, in a separate thread.
-         * @param raf file to close
-         */
-        void closeFile(RandomAccessFile raf) {
-            threadPool.submit(new CloseThd(raf));
-        }
-
         /** Close the thread pool in this object while executing all existing tasks. */
         void close() {
             threadPool.shutdown();
         }
 
-        private class CloseThd implements Runnable {
-            private RandomAccessFile raf;
+//        /**
+//         * Close the given file, in the order received, in a separate thread.
+//         * @param raf file to close
+//         */
+//        void closeFile(RandomAccessFile raf) {
+//            threadPool.submit(new CloseThd(raf));
+//        }
 
-            CloseThd(RandomAccessFile raf) {
-                this.raf = raf;
+        /**
+         * Close the given file, in the order received, in a separate thread.
+         * @param afc file channel to close
+         */
+        void closeAsyncFile(AsynchronousFileChannel afc) {
+            threadPool.submit(new CloseAsyncFChan(afc));
+        }
+
+
+//        private class CloseThd implements Runnable {
+//            private RandomAccessFile raf;
+//
+//            CloseThd(RandomAccessFile raf) {
+//                this.raf = raf;
+//            }
+//
+//            public void run() {
+//                try {
+//                    raf.close();
+//                }
+//                catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        };
+
+        private class CloseAsyncFChan implements Runnable {
+            private AsynchronousFileChannel afc;
+
+            CloseAsyncFChan(AsynchronousFileChannel afc) {
+                this.afc = afc;
             }
 
             public void run() {
+                // Finish writing to current file
+                if (future1 != null) {
+                    try {
+                        // Wait for last write to end before we continue
+                        future1.get();
+                    }
+                    catch (Exception e) {}
+                }
+
+                if (future2 != null) {
+                    try {
+                        future2.get();
+                    }
+                    catch (Exception e) {}
+                }
+
                 try {
-                    raf.close();
+                    afc.close();
                 }
                 catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         };
+
     }
 
     /** Object used to close files in a separate thread when splitting
@@ -1183,7 +1256,8 @@ public class EventWriterUnsync {
         // All subsequent split numbers are calculated by adding the splitIncrement
         this.splitNumber += splitIncrement;
 
-        currentFile = new File(fileName);
+        currentFilePath = Paths.get(fileName);
+        currentFile = currentFilePath.toFile();
 
         // If we can't overwrite or append and file exists, throw exception
         if (!overWriteOK && !append && (currentFile.exists() && currentFile.isFile())) {
@@ -1195,9 +1269,16 @@ public class EventWriterUnsync {
         // Since we're doing I/O to a file, a direct buffer is more efficient.
         // Besides, the JVM will convert a non-direct to a direct one anyway
         // when doing the I/O (and copy all that data again).
-// TODO: Make sure this is a direct BUFFER!   C. Timmer
-        buffer = ByteBuffer.allocateDirect(bufferSize);
-        buffer.order(byteOrder);
+        // Make sure these are DIRECT buffers or performance suffers!  C. Timmer
+        usedBuffers     = new ByteBuffer[2];
+        internalBuffers = new ByteBuffer[3];
+        internalBuffers[0] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[1] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[2] = ByteBuffer.allocateDirect(bufferSize);
+        internalBuffers[0].order(byteOrder);
+        internalBuffers[1].order(byteOrder);
+        internalBuffers[2].order(byteOrder);
+        buffer = internalBuffers[0];
 
         // Aim for this size block (in bytes)
         targetBlockSize = 4*blockSizeMax;
@@ -1207,15 +1288,14 @@ public class EventWriterUnsync {
 
         try {
             if (append) {
-                // Random file access only used to read existing file
-                // and prepare for stream writes.
-                raf = new RandomAccessFile(currentFile, "rw");
-                fileChannel = raf.getChannel();
-
+                // For reading existing file and preparing for stream writes
+                asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                                                                StandardOpenOption.READ,
+                                                                StandardOpenOption.WRITE);
                 // If we have an empty file, that's OK.
                 // Otherwise we have to examine it for compatibility
                 // and position ourselves for the first write.
-                if (fileChannel.size() > 0) {
+                if (asyncFileChannel.size() > 0) {
                     // Look at first block header to find endianness & version.
                     // Endianness given in constructor arg, when appending, is ignored.
                     examineFirstBlockHeader();
@@ -1223,7 +1303,11 @@ public class EventWriterUnsync {
                     // Oops, gotta redo this since file has different byte order
                     // than specified in constructor arg.
                     if (this.byteOrder != byteOrder) {
-                        buffer.order(this.byteOrder);
+                        byteOrder = this.byteOrder;
+                        internalBuffers[0].order(byteOrder);
+                        internalBuffers[1].order(byteOrder);
+                        internalBuffers[2].order(byteOrder);
+                        //buffer.order(byteOrder);
                     }
 
                     // Prepare for appending by moving file position to end of last block
@@ -1251,7 +1335,7 @@ public class EventWriterUnsync {
         if (firstEvent != null) {
             firstEventBytes = firstEvent.getTotalBytes();
             ByteBuffer firstEventBuf = ByteBuffer.allocate(firstEventBytes);
-            firstEventBuf.order(buffer.order());
+            firstEventBuf.order(byteOrder);
             firstEvent.write(firstEventBuf);
             firstEventByteArray = firstEventBuf.array();
             commonBlockByteSize += firstEventBytes;
@@ -1583,7 +1667,7 @@ public class EventWriterUnsync {
         if (firstEvent != null) {
             firstEventBytes = firstEvent.getTotalBytes();
             ByteBuffer firstEventBuf = ByteBuffer.allocate(firstEventBytes);
-            firstEventBuf.order(buffer.order());
+            firstEventBuf.order(byteOrder);
             firstEvent.write(firstEventBuf);
             firstEventByteArray = firstEventBuf.array();
             commonBlockByteSize += firstEventBytes;
@@ -2066,7 +2150,7 @@ public class EventWriterUnsync {
 
         firstEventBytes = bank.getTotalBytes();
         ByteBuffer firstEventBuf = ByteBuffer.allocate(firstEventBytes);
-        firstEventBuf.order(buffer.order());
+        firstEventBuf.order(byteOrder);
         bank.write(firstEventBuf);
         firstEventBuf.flip();
         firstEventByteArray = firstEventBuf.array();
@@ -2142,8 +2226,24 @@ public class EventWriterUnsync {
         // Close everything
         try {
             if (toFile) {
-                // Close current file
-                if (raf != null) raf.close();
+                // Finish writing to current file
+                if (future1 != null) {
+                    try {
+                        // Wait for last write to end before we continue
+                        future1.get();
+                    }
+                    catch (Exception e) {
+                    }
+                }
+
+                if (future2 != null) {
+                    try {
+                        future2.get();
+                    }
+                    catch (Exception e) {}
+                }
+
+                if (asyncFileChannel != null) asyncFileChannel.close();
                 // Close split file handler thread pool
                 if (fileCloser != null) fileCloser.close();
             }
@@ -2177,15 +2277,19 @@ public class EventWriterUnsync {
             buffer.limit(32);
 
 //System.out.println("Internal buffer capacity = " + buffer.capacity() + ", pos = " + buffer.position());
-            // This read advances fileChannel position
-            nBytes = fileChannel.read(buffer);
+            Future<Integer> f = asyncFileChannel.read(buffer, 0L);
+            try {
+                nBytes = f.get();
+            }
+            catch (Exception e) {
+                throw new IOException(e);
+            }
 
             // Check to see if we read the whole header
             if (nBytes != 32) {
                 throw new EvioException("bad file format");
             }
             currentPosition = 0;
-            fileChannel.position(0);
         }
         else {
             // Have enough remaining bytes to read?
@@ -2278,11 +2382,13 @@ System.err.println("ERROR endOfBuffer " + a);
         boolean lastBlock, readEOF = false;
 //        int blockNum;
         int blockLength, blockEventCount;
-        int nBytes, bitInfo, headerLength, currentPosition;
+        int nBytes, bitInfo, headerLength, headerPosition;
         long bytesLeftInFile=0L;
+        Future<Integer> future;
+        fileWritingPosition = 0L;
 
         if (toFile) {
-            bytesLeftInFile = fileChannel.size();
+            bytesLeftInFile = asyncFileChannel.size();
         }
 
         // The file's block #s may be fine or they may be messed up.
@@ -2299,10 +2405,19 @@ System.err.println("ERROR endOfBuffer " + a);
             if (toFile) {
                 buffer.clear();
                 buffer.limit(32);
-//System.out.println("toAppendPosition: (before read) file pos = " + fileChannel.position());
+
                 while (nBytes < 32) {
-                    // This read advances fileChannel position
-                    int partial = fileChannel.read(buffer);
+                    // There is no internal asyncFileChannel position
+                    int partial;
+
+                    future = asyncFileChannel.read(buffer, fileWritingPosition);
+                    try {
+                        partial = future.get();
+                    }
+                    catch (Exception e) {
+                        throw new IOException(e);
+                    }
+
                     // If EOF ...
                     if (partial < 0) {
                         if (nBytes != 0) {
@@ -2320,7 +2435,9 @@ System.err.println("ERROR endOfBuffer " + a);
                 if (nBytes != 0 && nBytes != 32) {
                     throw new EvioException("internal file reading error");
                 }
-                currentPosition = 0;
+                
+                headerPosition = 0;
+                fileWritingPosition += 32;
             }
             else {
 //System.out.println("toAppendPosition: pos = " + buffer.position() +
@@ -2329,14 +2446,14 @@ System.err.println("ERROR endOfBuffer " + a);
                 if (buffer.remaining() < 32) {
                     throw new EvioException("bad buffer format");
                 }
-                currentPosition = buffer.position();
+                headerPosition = buffer.position();
             }
 
-            bitInfo         = buffer.getInt(currentPosition + BIT_INFO_OFFSET);
-            blockLength     = buffer.getInt(currentPosition + BLOCK_LENGTH_OFFSET);
-//            blockNum        = buffer.getInt(currentPosition + BLOCK_NUMBER_OFFSET);
-            headerLength    = buffer.getInt(currentPosition + HEADER_LENGTH_OFFSET);
-            blockEventCount = buffer.getInt(currentPosition + EVENT_COUNT_OFFSET);
+            bitInfo         = buffer.getInt(headerPosition + BIT_INFO_OFFSET);
+            blockLength     = buffer.getInt(headerPosition + BLOCK_LENGTH_OFFSET);
+//            blockNum        = buffer.getInt(headerPosition + BLOCK_NUMBER_OFFSET);
+            headerLength    = buffer.getInt(headerPosition + HEADER_LENGTH_OFFSET);
+            blockEventCount = buffer.getInt(headerPosition + EVENT_COUNT_OFFSET);
             lastBlock       = BlockHeaderV4.isLastBlock(bitInfo);
 
 //            System.out.println("bitInfo         = 0x" + Integer.toHexString(bitInfo));
@@ -2365,7 +2482,8 @@ System.err.println("ERROR endOfBuffer " + a);
                 if (bytesLeftInFile < bytesToNextBlockHeader) {
                     throw new EvioException("bad file format");
                 }
-                fileChannel.position(fileChannel.position() + bytesToNextBlockHeader);
+//fileChannel.position(fileChannel.position() + bytesToNextBlockHeader);
+                fileWritingPosition += bytesToNextBlockHeader;
                 bytesLeftInFile -=  bytesToNextBlockHeader;
             }
             else {
@@ -2416,21 +2534,31 @@ System.err.println("ERROR endOfBuffer " + a);
             // File now positioned right after the last header to be read
             if (toFile) {
                 // Back up to before 6th block header word
-                fileChannel.position(fileChannel.position() - (32 - BIT_INFO_OFFSET));
+//fileChannel.position(fileChannel.position() - (32 - BIT_INFO_OFFSET));
+                fileWritingPosition -= 32 - BIT_INFO_OFFSET;
+
 //System.out.println("toAppendPosition: writing over last block's 6th word, back up %d words" +(8 - 6));
 
                 // Write over 6th block header word
                 buffer.clear();
                 buffer.putInt(bitInfo);
                 buffer.flip();
-                while (buffer.hasRemaining()) {
-                    fileChannel.write(buffer);
+
+                //fileChannel.write(buffer);
+                future = asyncFileChannel.write(buffer, fileWritingPosition);
+                try {
+                    future.get();
                 }
+                catch (Exception e) {
+                    throw new IOException(e);
+                }
+
 
                 // Hop over the entire block
 //System.out.println("toAppendPosition: wrote over last block's 6th word, hop over %d words" +
-// (blockLength - (6 + 1)));
-                fileChannel.position(fileChannel.position() + 4 * blockLength - (BIT_INFO_OFFSET + 1));
+//                   (blockLength - (6 + 1)));
+//fileChannel.position(fileChannel.position() + 4 * blockLength - (BIT_INFO_OFFSET + 1));
+                fileWritingPosition += 4 * blockLength - (BIT_INFO_OFFSET + 1);
             }
             // Buffer still positioned right before the last header to be read
             else {
@@ -2451,8 +2579,9 @@ System.err.println("ERROR endOfBuffer " + a);
             // If using buffer, we never incremented the position, so we're OK.
             blockNumber--;
             if (toFile) {
-                fileChannel.position(fileChannel.position() - 32);
-//System.out.println("toAppendPos: position (bkup) = " + fileChannel.position());
+//fileChannel.position(fileChannel.position() - 32);
+                fileWritingPosition -= 32;
+//System.out.println("toAppendPos: position (bkup) = " + fileWritingPosition);
             }
         }
 
@@ -2460,8 +2589,9 @@ System.err.println("ERROR endOfBuffer " + a);
         // will be OK. This last block header will be over-written with each
         // subsequent write/flush.
         if (toFile) {
-//System.out.println("toAppendPos: file pos = " + fileChannel.position());
-            bytesWrittenToFile = fileChannel.position();
+//System.out.println("toAppendPos: file pos = " + fileWritingPosition);
+//bytesWrittenToFile = fileChannel.position();
+            bytesWrittenToFile = fileWritingPosition;
         }
         else {
             bytesWrittenToBuffer = buffer.position() + headerBytes;
@@ -2649,10 +2779,10 @@ System.err.println("ERROR endOfBuffer " + a);
 
 
     /**
-     * This method expands the size of the internal buffer used when
+     * This method expands the size of the internal buffers used when
      * writing to files. Some variables are updated.
      *
-     * @param newSize size in bytes to make the new buffer
+     * @param newSize size in bytes to make the new buffers
      */
     private void expandBuffer(int newSize) {
         // No need to increase it
@@ -2663,9 +2793,18 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // Use the new buffer from here on
 // TODO: make sure this is a direct buffer! C. Timmer
-        buffer = ByteBuffer.allocateDirect(newSize);
-        buffer.order(byteOrder);
+        internalBuffers[0] = ByteBuffer.allocateDirect(newSize);
+        internalBuffers[1] = ByteBuffer.allocateDirect(newSize);
+        internalBuffers[2] = ByteBuffer.allocateDirect(newSize);
+        internalBuffers[0].order(byteOrder);
+        internalBuffers[1].order(byteOrder);
+        internalBuffers[2].order(byteOrder);
+        buffer = internalBuffers[0];
         bufferSize = newSize;
+
+//        buffer = ByteBuffer.allocateDirect(newSize);
+//        buffer.order(byteOrder);
+//        bufferSize = newSize;
 
 //System.out.println("    expandBuffer: increased buf size to " + newSize + " bytes");
         return;
@@ -3247,7 +3386,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * Flush everything in buffer to file.
      * Does nothing if object already closed.
      *
-     * @param force force it to write event to the disk.
+     * @param force     if true, force it to write event to the disk.
      * @return {@code false} if no data written, else {@code true}
      *
      * @throws EvioException if this object already closed;
@@ -3255,13 +3394,14 @@ System.err.println("ERROR endOfBuffer " + a);
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
      */
-    private boolean flushToFile(boolean force) throws EvioException, IOException {
+    private boolean flushToFile(boolean force)
+                        throws EvioException, IOException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
 
         // If not writing to file, just return
-        if (!toFile ) {
+        if (!toFile) {
             return false;
         }
 
@@ -3278,34 +3418,111 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
-//System.out.println("    flushToFile: create file " + currentFile.getName());
             try {
-                raf = new RandomAccessFile(currentFile, "rw");
-                fileChannel = raf.getChannel();
+                asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                                                                StandardOpenOption.TRUNCATE_EXISTING,
+                                                                StandardOpenOption.CREATE,
+                                                                StandardOpenOption.WRITE);
+                System.out.println("\n*******\nOPENED NEW FILE " + currentFilePath.toFile().getName() +
+                                           ", size is " + asyncFileChannel.size());
+                fileWritingPosition = 0L;
                 splitCount++;
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
-                        currentFile.getPath(), e);
+                                                currentFile.getPath(), e);
             }
         }
 
+        // Which buffer do we fill next?
+        ByteBuffer unusedBuffer;
+
         // Write everything in internal buffer out to file
         int bytesWritten = buffer.remaining();
-        while (buffer.hasRemaining()) {
-            fileChannel.write(buffer);
+
+        // We need one of the 2 future jobs to be completed in order to proceed
+
+        // If 1st time thru, proceed without waiting
+        if (future1 == null) {
+            futureIndex = 0;
+            // Fill 2nd buffer next
+            unusedBuffer = internalBuffers[1];
         }
+        // If 2nd time thru, proceed without waiting
+        else if (future2 == null) {
+            futureIndex = 1;
+            // Fill 3rd buffer next
+            unusedBuffer = internalBuffers[2];
+        }
+        // After first 2 times, wait until one of the
+        // 2 futures is finished before proceeding
+        else {
+            // If future1 is finished writing, proceed
+            if (future1.isDone()) {
+                futureIndex = 0;
+                // Reuse the buffer future1 just finished using
+                unusedBuffer = usedBuffers[0];
+            }
+            // If future2 is finished writing, proceed
+            else if (future2.isDone()) {
+                futureIndex = 1;
+                unusedBuffer = usedBuffers[1];
+            }
+            // Neither are finished, so wait for one of them to finish
+            else {
+                // If the last write to be submitted was future2, wait for 1
+                if (futureIndex == 0) {
+                    try {
+                        // Wait for write to end before we continue
+                        future1.get();
+                        unusedBuffer = usedBuffers[0];
+                    }
+                    catch (Exception e) {
+                        throw new IOException(e);
+                    }
+                }
+                // Otherwise, wait for 2
+                else {
+                    try {
+                        future2.get();
+                        unusedBuffer = usedBuffers[1];
+                    }
+                    catch (Exception e) {
+                        throw new IOException(e);
+                    }
+                }
+            }
+        }
+
+        if (futureIndex == 0) {
+            //buffer.position(buffer.limit() - 20);
+            future1 = asyncFileChannel.write(buffer, fileWritingPosition);
+            // Keep track of which buffer future1 used so it can be reused when done
+            usedBuffers[0] = buffer;
+            futureIndex = 1;
+        }
+        else {
+            //buffer.position(buffer.limit() - 20);
+            future2 = asyncFileChannel.write(buffer, fileWritingPosition);
+            usedBuffers[1] = buffer;
+            futureIndex = 0;
+        }
+
+        // Next buffer to work with
+        buffer = unusedBuffer;
+        buffer.clear();
 
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
         // but don't bother writing the metadata (arg to force()) since that slows it
         // down too.
-        if (force) fileChannel.force(false);
-
-        // Set buf position to 0 and set limit to capacity
-        buffer.clear();
+        // TODO: This may not work since data may NOT have been written yet!
+        if (force) asyncFileChannel.force(false);
 
         // Keep track of what is written to this, one, file
+        //fileWritingPosition += 20;
+        fileWritingPosition += bytesWritten;
         bytesWrittenToFile  += bytesWritten;
+        //bytesWrittenToFile  += 20;
         eventsWrittenToFile += eventsWrittenToBuffer;
 
 //        if (debug) {
@@ -3319,7 +3536,7 @@ System.err.println("ERROR endOfBuffer " + a);
 //            System.out.println("                 block # = " + blockNumber);
 //        }
 
-        // Buffer has been flushed, nothing in it
+        // New buffer has nothing in it
         bytesWrittenToBuffer   = 0;
         eventsWrittenToBuffer  = 0;
 
@@ -3340,7 +3557,8 @@ System.err.println("ERROR endOfBuffer " + a);
     private void splitFile() throws EvioException, IOException {
         // Close existing file (in separate thread for speed)
         // which will also flush remaining data.
-        if (raf != null) {
+        if (asyncFileChannel != null) {
+        //if (raf != null) {
             try {
                 // We need to end the file with an empty block header.
                 // If resetBuffer (or flush) was just called,
@@ -3355,18 +3573,24 @@ System.err.println("ERROR endOfBuffer " + a);
                 e.printStackTrace();
             }
 
-            fileCloser.closeFile(raf);
+            //fileCloser.closeFile(raf);
+            fileCloser.closeAsyncFile(asyncFileChannel);
         }
 
         // Right now no file is open for writing
-        raf = null;
+        //raf = null;
+        asyncFileChannel = null;
 
         // Create the next file's name
         String fileName = Utilities.generateFileName(baseFileName, specifierCount,
                                                      runNumber, split, splitNumber,
                                                      streamId, streamCount);
         splitNumber += splitIncrement;
-        currentFile = new File(fileName);
+
+        currentFilePath = Paths.get(fileName);
+        currentFile = currentFilePath.toFile();
+
+        //currentFile = new File(fileName);
 
         // If we can't overwrite and file exists, throw exception
         if (!overWriteOK && (currentFile.exists() && currentFile.isFile())) {
