@@ -5359,6 +5359,51 @@ if (debug) printf("evClose: end\n");
  * @{
  */
 
+
+/**
+ * This routine gets the name of the file currently being written to and opened with {@link #evOpen},
+ * Returned string may <b>NOT</b> be written into.
+ *
+ * @param handle evio handle
+ * @param name pointer to char pointer which gets filled with file name.
+ *
+ * @return S_SUCCESS          if successful.
+ * @return S_EVFILE_BADMODE   if not opened for writing to file.
+ * @return S_EVFILE_BADHANDLE if bad handle arg or NULL name arg.
+ */
+int evGetFileName(int handle, const char **name) {
+
+    EVFILE *a;
+
+    if (handle < 1 || (size_t) handle > handleCount) {
+        return (S_EVFILE_BADHANDLE);
+    }
+
+    /* For thread-safe function calls */
+    handleLock(handle);
+
+    /* Look up file struct (which contains block buffer) from handle */
+    a = handleList[handle - 1];
+
+    /* Check args */
+    if (a == NULL || name == NULL) {
+        handleUnlock(handle);
+        return (S_EVFILE_BADHANDLE);
+    }
+
+    /* Need to be open for writing to file */
+    if (a->rw != EV_WRITEFILE) {
+        handleUnlock(handle);
+        return (S_EVFILE_BADMODE);
+    }
+
+    *name = a->fileName;
+
+    handleUnlock(handle);
+    return(S_SUCCESS);
+}
+
+
 /**
  * This routine returns the number of bytes written into a buffer so
  * far when given a handle provided by calling {@link #evOpenBuffer}.
