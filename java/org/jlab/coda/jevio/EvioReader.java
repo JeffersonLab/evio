@@ -1638,6 +1638,7 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws IOException   if error accessing file
      * @throws EvioException if object closed
      */
+    @Deprecated
 	public synchronized void position(long position) throws IOException, EvioException  {
         if (!sequentialRead && evioVersion > 3) return;
 
