@@ -1443,7 +1443,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	 * Get an enumeration of all the children of this structure. If none, it returns a constant,
      * empty Enumeration. Part of the <code>MutableTreeNode</code> interface.
 	 */
-	public Enumeration<?> children() {
+	public Enumeration<? extends TreeNode> children() {
 		if (children == null) {
 			return DefaultMutableTreeNode.EMPTY_ENUMERATION;
 		}
@@ -2039,6 +2039,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
      * @deprecated child structures are no longer keep in a Vector
    	 * @return the children of this structure.
    	 */
+    @Deprecated
    	public Vector<BaseStructure> getChildren() {
         if (children == null) return null;
         return new Vector<BaseStructure>(children);

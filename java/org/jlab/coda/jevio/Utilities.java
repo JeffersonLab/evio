@@ -60,6 +60,7 @@ final public class Utilities {
      * @throws EvioException  if baseName arg is improperly formatted;
      *                        if baseName or newNameBuilder arg is null
      */
+    @Deprecated
     final static public int generateBaseFileName(String baseName, String runType,
                                                  StringBuilder newNameBuilder)
             throws EvioException {

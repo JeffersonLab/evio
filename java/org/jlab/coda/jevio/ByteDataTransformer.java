@@ -28,6 +28,7 @@ public class ByteDataTransformer {
      * @return the raw bytes converted into an int array.
      * @deprecated
      */
+    @Deprecated
     public static int[] getAsIntArray(byte bytes[], ByteOrder byteOrder) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
         int intsize = bytes.length / 4;
@@ -49,6 +50,7 @@ public class ByteDataTransformer {
      * @return the raw bytes converted into an int array.
      * @deprecated
      */
+    @Deprecated
     public static short[] getAsShortArray(byte bytes[], ByteOrder byteOrder) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
         int shortsize = bytes.length / 2;
@@ -71,6 +73,7 @@ public class ByteDataTransformer {
 	 * @return the raw bytes converted into an int array.
      * @deprecated
 	 */
+    @Deprecated
 	public static short[] getAsShortArray(byte bytes[], int padding, ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
 		int shortsize = bytes.length / 2;
@@ -95,6 +98,7 @@ public class ByteDataTransformer {
 	 * @return the raw bytes converted into a long array.
      * @deprecated
 	 */
+    @Deprecated
 	public static long[] getAsLongArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
 		int longsize = bytes.length / 8;
@@ -115,6 +119,7 @@ public class ByteDataTransformer {
 	 * @return the raw bytes converted into a double array.
      * @deprecated
 	 */
+    @Deprecated
 	public static double[] getAsDoubleArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
 		int doublesize = bytes.length / 8;
@@ -135,6 +140,7 @@ public class ByteDataTransformer {
 	 * @return the raw bytes converted into a float array.
      * @deprecated
 	 */
+    @Deprecated
 	public static float[] getAsFloatArray(byte bytes[], ByteOrder byteOrder) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
 		int floatsize = bytes.length / 4;
