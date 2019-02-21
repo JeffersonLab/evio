@@ -237,15 +237,12 @@ System.out.println("getMatchingStructures: returning null list");
             public boolean accept(StructureType structureType, IEvioStructure struct) {
                 String dictName;
 
-                Vector<BaseStructure> children = ((BaseStructure)struct).getChildren();
+                List<BaseStructure> children = ((BaseStructure)struct).getChildrenList();
                 if (children == null || children.size() < 1) {
                     return false;
                 }
 
-                BaseStructure bStruct;
-                Enumeration<BaseStructure> enumeration = children.elements();
-                while (enumeration.hasMoreElements()) {
-                    bStruct = enumeration.nextElement();
+                for (BaseStructure bStruct : children) {
                     if (useGlobalDictionary) {
                         dictName = NameProvider.getName(bStruct);
                     }

@@ -252,7 +252,7 @@ public class EventTreePanel extends JPanel implements TreeSelectionListener {
                         BaseStructure parent = bs.getParent();
                         // If null parent, pos = 0
                         if (parent != null) {
-                            Iterator<BaseStructure> iter = parent.getChildren().iterator();
+                            Iterator<BaseStructure> iter = parent.getChildrenList().iterator();
                             for (int j=0; iter.hasNext(); j++) {
                                 BaseStructure bsKid = iter.next();
                                 if (bsKid == bs) {
@@ -507,7 +507,7 @@ public class EventTreePanel extends JPanel implements TreeSelectionListener {
                         return;
                     }
 
-                    kid = parent.getChildren().get(info.pos);
+                    kid = parent.getChildrenList().get(info.pos);
 
                     if (info.tag != kid.getHeader().getTag()) {
                         return;
