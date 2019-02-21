@@ -66,10 +66,10 @@ public class SplitTest {
             // The following may not be backwards compatible.
             // Make substitutions in the baseName to create the base file name.
             StringBuilder builder = new StringBuilder(100);
-            int specifierCount = Utilities.generateBaseFileName(baseName, runType, builder);
+            int[] specifierCount = Utilities.generateBaseFileNameNew(baseName, runType, builder);
             String baseFileName = builder.toString();
             // Also create the first file's name with more substitutions
-            String fileName = Utilities.generateFileName(baseFileName, specifierCount,
+            String fileName = Utilities.generateFileName(baseFileName, specifierCount[0],
                     runNumber, split, splitCount++, 0, 1);
             System.out.println("EventWriter const: filename = " + fileName);
             System.out.println("                   basename = " + baseName);
