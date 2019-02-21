@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 /**
  * An EventWriter object is used for writing events to a file or to a byte buffer.
  * This class does NOT write versions 1-3 data, only version 4!
- * This class is thread-safe.
+ * This class is not thread-safe.
  *
  * @author heddle
  * @author timmer
