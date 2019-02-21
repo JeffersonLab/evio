@@ -678,9 +678,10 @@ public class CompactReaderTest {
 
 
             if (false) {
-                EvioCompactEventWriter writer = new EvioCompactEventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                EventWriter writer = new EventWriter(
+                        "/dev/shm/carlTest/file", null, null, 0, 1000,
+                        300, 1000, 1200,
+                        null, null, null, true, false);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -707,26 +708,29 @@ public class CompactReaderTest {
             else {
                 long t2, t1 = System.currentTimeMillis();
 
-                EvioCompactEventWriter writer = new EvioCompactEventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                EventWriter writer = new EventWriter(
+                        "/dev/shm/carlTest/file", null, null, 0, 1000,
+                        300, 1000, 1200,
+                        null, null, null, true, false);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
 
-                writer = new EvioCompactEventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                writer = new EventWriter(
+                        "/dev/shm/carlTest/file", null, null, 0, 1000,
+                        300, 1000, 1200,
+                        null, null, null, true, false);
 
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new EvioCompactEventWriter(
-                        "/dev/shm/carlTest/file",
-                        null, 0, 1000, 4*300, 1000, 1200, null, null, true);
+                writer = new EventWriter(
+                        "/dev/shm/carlTest/file", null, null, 0, 1000,
+                        300, 1000, 1200,
+                        null, null, null, true, false);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -817,8 +821,7 @@ public class CompactReaderTest {
 
             if (false) {
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EvioCompactEventWriter writer =
-                        new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -850,19 +853,19 @@ public class CompactReaderTest {
                 long t2, t1 = System.currentTimeMillis();
 
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EvioCompactEventWriter writer = new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                EventWriter writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
-                writer = new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new EvioCompactEventWriter(buffie, 4*300, 1000, null);
+                writer = new EventWriter(buffie, 300, 1000, null, null);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -925,13 +928,8 @@ public class CompactReaderTest {
             bankInts.appendIntData(intDataSmall);
             builder2.addChild(event2, bankInts);
 
-//            public EvioCompactEventWriter(String baseName, String directory, int runNumber, int split,
-//                                         int blockSizeMax, int blockCountMax, int bufferSize,
-//                                         ByteOrder byteOrder, String xmlDictionary,
-//                                         boolean overWriteOK)
-
-            EvioCompactEventWriter writer = new EvioCompactEventWriter("file", null, 0, 0,
-                    256000, 20000, 256000, null, null, true);
+            EventWriter writer = new EventWriter("file", null, null, 0, 0,
+                    256000/4, 20000, 256000, null, null, null, true, false);
 
             ByteBuffer evBuf1 = ByteBuffer.allocate(event1.getTotalBytes());
             event1.write(evBuf1);
