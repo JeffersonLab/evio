@@ -724,7 +724,8 @@ public class FileHeader {
      * @param index array of record lengths interspersed with event counts
      *              to be written to trailer
      *              (must be multiple of 4 bytes). Null if no index array.
-     * @throws HipoException if array arg is null or too small to hold trailer + index
+     * @throws HipoException if array arg is null, array too small to hold trailer + index,
+     *                       or index not multiple of 4 bytes.
      */
     static public void writeTrailer(byte[] array, int off, int recordNumber,
                                     ByteOrder order, byte[] index)
@@ -734,6 +735,9 @@ public class FileHeader {
         int wholeLength = HEADER_SIZE_BYTES;
         if (index != null) {
             indexLength = index.length;
+            if ((indexLength % 4) != 0) {
+                throw new HipoException("index length not multiple of 4 bytes");
+            }
             wholeLength += indexLength;
         }
 
@@ -746,7 +750,7 @@ public class FileHeader {
 
         try {
             // First the general header part
-            ByteDataTransformer.toBytes(wholeLength,  order, array, off);          // 0*4
+            ByteDataTransformer.toBytes(wholeLength/4,  order, array, off);          // 0*4
             ByteDataTransformer.toBytes(recordNumber, order, array, 4 + off);      // 1*4
             ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8 + off); // 2*4
             ByteDataTransformer.toBytes(0, order, array, 12 + off);                // 3*4
@@ -778,7 +782,8 @@ public class FileHeader {
      * @param index array of record lengths interspersed with event counts
      *              to be written to trailer
      *              (must be multiple of 4 bytes). Null if no index array.
-     * @throws HipoException if buf arg is null or too small to hold trailer + index
+     * @throws HipoException if buf arg is null, buf too small to hold trailer + index,
+     *                       or index not multiple of 4 bytes.
      */
     static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
                                     ByteOrder order, byte[] index)
@@ -788,6 +793,9 @@ public class FileHeader {
         int wholeLength = HEADER_SIZE_BYTES;
         if (index != null) {
             indexLength = index.length;
+            if ((indexLength % 4) != 0) {
+                throw new HipoException("index length not multiple of 4 bytes");
+            }
             wholeLength += indexLength;
         }
 
@@ -805,7 +813,7 @@ public class FileHeader {
             buf.position(off);
 
             // First the general header part
-            buf.putInt(wholeLength);
+            buf.putInt(wholeLength/4);
             buf.putInt(recordNumber);
             buf.putInt(HEADER_SIZE_WORDS);
             buf.putInt(0);
@@ -826,7 +834,8 @@ public class FileHeader {
     /**
      * Reads the file header information from a byte buffer and validates
      * it by checking the magic word (8th word). This magic word
-     * also determines the byte order.
+     * also determines the byte order. The given buffer's position does
+     * NOT change.
      *
      * @param buffer buffer to read from.
      * @param offset position of first word to be read.
@@ -897,7 +906,8 @@ public class FileHeader {
     /**
      * Reads the file header information from a byte buffer and validates
      * it by checking the magic word (8th word). This magic word
-     * also determines the byte order.
+     * also determines the byte order. The given buffer's position does
+     * NOT change.
      *
      * @param buffer buffer to read from starting at the beginning.
      * @throws HipoException if buffer is not in the proper format or earlier than version 6
