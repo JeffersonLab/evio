@@ -294,7 +294,7 @@ public class Reader {
     public final void open(String filename) throws IOException {
         if (inStreamRandom != null && inStreamRandom.getChannel().isOpen()) {
             try {
-                System.out.println("[READER] ---> closing current file : " + inStreamRandom.getFilePointer());
+                //System.out.println("[READER] ---> closing current file : " + inStreamRandom.getFilePointer());
                 inStreamRandom.close();
             }
             catch (IOException ex) {}
@@ -302,10 +302,10 @@ public class Reader {
 
         fileName = filename;
 
-        System.out.println("[READER] ----> opening file : " + filename);
+        //System.out.println("[READER] ----> opening file : " + filename);
         inStreamRandom = new RandomAccessFile(filename,"r");
         fileSize = inStreamRandom.length();
-        System.out.println("[READER] ---> open successful, size : " + inStreamRandom.length());
+        //System.out.println("[READER] ---> open successful, size : " + inStreamRandom.length());
     }
 
     /**
@@ -367,6 +367,22 @@ public class Reader {
         scanBuffer();
         
         closed = false;
+    }
+
+    /**
+     * This method can be used to avoid creating additional Reader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.  The pool is <b>not</b>
+     * reset in this method. Caller may do that prior to calling method.
+     *
+     * @param buf ByteBuffer to be read
+     * @param pool pool of EvioNode objects to use when parsing buf.
+     * @throws HipoException if buf arg is null, buffer too small,
+     *                       not in the proper format, or earlier than version 6
+     */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws HipoException {
+        nodePool = pool;
+        setBuffer(buf);
     }
 
     /**
@@ -447,7 +463,6 @@ public class Reader {
      */
     public boolean hasDictionary() {
         if (fromFile) {
- System.out.println("Reader (hipo): hasDictionary returns " + fileHeader.hasDictionary());
             return fileHeader.hasDictionary();
         }
         return firstRecordHeader.hasDictionary();
@@ -665,7 +680,7 @@ public class Reader {
     public byte[] getEvent(int index) throws HipoException {
         
         if (index < 0 || index >= eventIndex.getMaxEvents()) {
-System.out.println("getEvent: index = " + index + ", max events = " + eventIndex.getMaxEvents());
+//System.out.println("getEvent: index = " + index + ", max events = " + eventIndex.getMaxEvents());
             return null;
         }
         
@@ -674,7 +689,7 @@ System.out.println("getEvent: index = " + index + ", max events = " + eventIndex
             readRecord(eventIndex.getRecordNumber());
         }
         if(inputRecordStream.getEntries()==0){
-            System.out.println("[READER] first time reading");
+            //System.out.println("[READER] first time reading");
             readRecord(eventIndex.getRecordNumber());
         }
         return inputRecordStream.getEvent(eventIndex.getRecordEventNumber());
@@ -704,7 +719,7 @@ System.out.println("getEvent: index = " + index + ", max events = " + eventIndex
             readRecord(eventIndex.getRecordNumber());
         }
         if (inputRecordStream.getEntries() == 0) {
-            System.out.println("[READER] first time reading buffer");
+            //System.out.println("[READER] first time reading buffer");
             readRecord(eventIndex.getRecordNumber());
         }
         return inputRecordStream.getEvent(buf, eventIndex.getRecordEventNumber());
@@ -846,7 +861,7 @@ System.out.println("getEvent: index = " + index + ", max events = " + eventIndex
 
     /** Extract dictionary and first event from file if possible, else do nothing. */
     protected void extractDictionaryFromFile() {
-        System.out.println("extractDictionaryFromFile: IN, hasFirst = " + fileHeader.hasFirstEvent());
+//        System.out.println("extractDictionaryFromFile: IN, hasFirst = " + fileHeader.hasFirstEvent());
         // If no dictionary or first event ...
         if (!fileHeader.hasDictionary() && !fileHeader.hasFirstEvent()) {
             return;
@@ -861,7 +876,7 @@ System.out.println("getEvent: index = " + index + ", max events = " + eventIndex
         RecordInputStream record;
 
         try {
-            System.out.println("extractDictionaryFromFile: Read");
+//            System.out.println("extractDictionaryFromFile: Read");
             // Position right before file header's user header
             inStreamRandom.getChannel().position(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
             // Read user header
@@ -898,10 +913,11 @@ System.out.println("getEvent: index = " + index + ", max events = " + eventIndex
     }
 
     //-----------------------------------------------------------------
+  int lastRecordNum = 0;
 
     /**
      * Scan buffer to find all records and store their position, length, and event count.
-     * Also find all events and create & store their associated EvioNode objects.
+     * Also finds all events and creates & stores their associated EvioNode objects.
      * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6;
      *                       if checkRecordNumberSequence is true and records are out of sequence.
      */
@@ -917,12 +933,13 @@ System.out.println("getEvent: index = " + index + ", max events = " + eventIndex
         int position  = bufferOffset;
         int bytesLeft = bufferLimit - bufferOffset;
 
-System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft = " + bytesLeft);
+//System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft = " + bytesLeft);
         // Keep track of the # of records, events, and valid words in file/buffer
         int eventCount = 0, byteLen, recordBytes, eventsInRecord, recPosition;
         eventNodes.clear();
         recordPositions.clear();
         eventIndex.clear();
+        // TODO: this should NOT change in records in 1 buffer, only BETWEEN buffers!!!!!!!!!!!!
         recordNumberExpected = 1;
 
         while (bytesLeft >= RecordHeader.HEADER_SIZE_BYTES) {
@@ -930,14 +947,15 @@ System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft =
             buffer.position(position);
             // This moves the buffer's position
             buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
+            // Only sets the byte order of headerBuffer
             recordHeader.readHeader(headerBuffer);
-System.out.println("read header ->\n" + recordHeader);
+//System.out.println("read header ->\n" + recordHeader);
+            lastRecordNum = recordHeader.getRecordNumber();
 
             if (checkRecordNumberSequence) {
                 if (recordHeader.getRecordNumber() != recordNumberExpected) {
-System.out.println("  scanBuffer: record # out of sequence, got " + recordHeader.getRecordNumber() +
-                   " expecting " + recordNumberExpected);
-
+//System.out.println("  scanBuffer: record # out of sequence, got " + recordHeader.getRecordNumber() +
+//                   " expecting " + recordNumberExpected);
                     throw new HipoException("bad record # sequence");
                 }
                 recordNumberExpected++;
@@ -947,6 +965,7 @@ System.out.println("  scanBuffer: record # out of sequence, got " + recordHeader
             if (!haveFirstRecordHeader) {
                 // First time through, save byte order and version
                 byteOrder = recordHeader.getByteOrder();
+                buffer.order(byteOrder);
                 evioVersion = recordHeader.getVersion();
                 firstRecordHeader = new RecordHeader(recordHeader);
                 compressed = recordHeader.getCompressionType() != 0;
@@ -980,20 +999,22 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
 
             // Do this because extractEventNode uses the buffer position
             buffer.position(position);
-System.out.println("    hopped to data, pos = " + position);
+//System.out.println("    hopped to data, pos = " + position);
 
             // For each event in record, store its location
             for (int i=0; i < eventsInRecord; i++) {
                 EvioNode node;
                 try {
+//System.out.println("      try extracting event "+i+" in record pos = " + recPosition + ", pos = " + position +
+//                                               ", place = " + (eventCount + i));
                     node = EvioNode.extractEventNode(buffer, nodePool, recPosition,
                                                      position, eventCount + i);
                 }
                 catch (EvioException e) {
-                    throw new HipoException("Bad evio format: not enough data to read event (bad bank len?)");
+                    throw new HipoException("Bad evio format: not enough data to read event (bad bank len?)", e);
                 }
-System.out.println("      event "+i+" in record: pos = " + node.getPosition() +
-                           ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventCount + i + 1));
+//System.out.println("      event "+i+" in record: pos = " + node.getPosition() +
+//                           ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventCount + i + 1));
                 eventNodes.add(node);
 
                 // Hop over event
@@ -1014,7 +1035,7 @@ System.out.println("      event "+i+" in record: pos = " + node.getPosition() +
         buffer.position(bufferOffset);
 
         //eventIndex.show();
-        //System.out.println("NUMBER OF RECORDS " + recordPositions.size());
+//System.out.println("number of records = " + recordPositions.size());
     }
 
 
@@ -1470,7 +1491,7 @@ System.out.println("scanFile: add record's event count (" + count + ") to eventI
     }
 
 
-    public void show(){
+    public void show() {
         System.out.println(" ***** FILE: (info), RECORDS = "
                 + recordPositions.size() + " *****");
         for(RecordPosition entry : this.recordPositions){
