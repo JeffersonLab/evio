@@ -10,6 +10,8 @@
 
 package org.jlab.coda.jevio;
 
+import org.jlab.coda.hipo.HipoException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -314,11 +316,17 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
         closed = false;
     }
 
-    /**
-     * Is this reader reading a file? Always false for this class.
-     * @return false.
-     */
+    /** {@inheritDoc} */
+    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        setBuffer(buf, pool);
+        return buf;
+    }
+
+    /** {@inheritDoc} */
     public boolean isFile() {return isFile;}
+
+    /** {@inheritDoc} */
+    public boolean isCompressed() {return false;}
 
     /**
      * Has {@link #close()} been called (without reopening by calling

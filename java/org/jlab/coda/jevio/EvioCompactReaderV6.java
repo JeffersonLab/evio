@@ -74,6 +74,9 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
      */
     public boolean isFile() {return false;}
 
+    /** {@inheritDoc} */
+    public boolean isCompressed() {return reader.isCompressed();}
+
     /**
      * This method can be used to avoid creating additional EvioCompactReader
      * objects by reusing this one with another buffer. The
@@ -93,6 +96,40 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
 
         dictionary = null;
         closed = false;
+    }
+
+    /**
+     * This method can be used to avoid creating additional EvioCompactReader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.  The pool is <b>not</b>
+     * reset in this method. Caller may do that prior to calling method.
+     *
+     * @param buf ByteBuffer to be read
+     * @throws EvioException if arg is null;
+     *                       if failure to read first block header
+     */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        try {
+            reader.setBuffer(buf, pool);
+        }
+        catch (HipoException e) {
+            throw new EvioException(e);
+        }
+
+        dictionary = null;
+        closed = false;
+    }
+
+    /** {@inheritDoc} */
+    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        try {
+            dictionary = null;
+            closed = false;
+            return reader.setCompressedBuffer(buf, pool);
+        }
+        catch (HipoException e) {
+            throw new EvioException(e);
+        }
     }
 
     /**
