@@ -496,7 +496,7 @@ System.out.println("   Writer: thread INTERRUPTED");
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             try {
-                FileHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
+                RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
             }
             catch (HipoException e) {/* never happen */}
             writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
@@ -528,7 +528,7 @@ System.out.println("   Writer: thread INTERRUPTED");
 
             // Place data into headerArray - both header and index
             try {
-                FileHeader.writeTrailer(headerArray, recordNumber,
+                RecordHeader.writeTrailer(headerArray, recordNumber,
                                           byteOrder, recordIndex);
             }
             catch (HipoException e) {/* never happen */}
@@ -570,8 +570,12 @@ System.out.println("   Writer: thread INTERRUPTED");
      * is not thread-safe.
      * @param rec record object
      * @throws IllegalArgumentException if arg's byte order is opposite to record supply.
+     * @throws HipoException if we cannot replace internal buffer of the current record
+     *                       if it needs to be expanded since the buffer was provided
+     *                       by the user.
      */
-    public void writeRecord(RecordOutputStream rec) throws IllegalArgumentException {
+    public void writeRecord(RecordOutputStream rec)
+            throws IllegalArgumentException, HipoException {
 
         // Need to ensure that the given record has a byte order the same
         // as all the records in the supply.
