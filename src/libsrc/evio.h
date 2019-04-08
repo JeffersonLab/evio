@@ -267,6 +267,7 @@ int evIoctl(int handle, char *request, void *argp);
 int evFlush(int handle);
 int evClose(int handle);
 int evGetBufferLength(int handle, uint32_t *length);
+int evGetFileName(int handle, char **name, size_t maxLength);
 
 int evIsLastBlock(uint32_t sixthWord);
 
