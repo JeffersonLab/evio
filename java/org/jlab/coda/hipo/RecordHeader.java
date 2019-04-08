@@ -9,6 +9,7 @@ package org.jlab.coda.hipo;
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioException;
 import org.jlab.coda.jevio.IBlockHeader;
+import org.jlab.coda.jevio.Utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -163,8 +164,17 @@ public class RecordHeader implements IBlockHeader {
 
     /** Mask to get version number from 6th int in header. */
     public final static int VERSION_MASK = 0xff;
-    /** "Last record" is 11th bit in bitInfo word */
+    /** "Last record" is 11th bit in bitInfo word. */
     public static final int LAST_RECORD_MASK = 0x400;
+
+    /** Compressed data padding mask. */
+    private static final int COMP_PADDING_MASK = 0x03000000;
+    /** Uncompressed data padding mask. */
+    private static final int DATA_PADDING_MASK = 0x00C00000;
+    /** User header padding mask. */
+    private static final int USER_PADDING_MASK = 0x00300000;
+    /** Header type mask. */
+    private static final int HEADER_TYPE_MASK = 0xF0000000;
 
     //-------------------
 
@@ -246,8 +256,11 @@ public class RecordHeader implements IBlockHeader {
      * @throws HipoException if type is for file
      */
     public RecordHeader(HeaderType type) throws HipoException {
-        headerType = type;
-        if (type.isFileHeader()) {
+        if (type != null) {
+            headerType = type;
+        }
+        
+        if (headerType.isFileHeader()) {
             throw new HipoException("use FileHeader class for a file");
         }
         bitInfoInit();
@@ -356,6 +369,27 @@ public class RecordHeader implements IBlockHeader {
     private static int getPadding(int length) {return padValue[length%4];}
 
     // Getters
+
+    /**
+     * Get the padded length in bytes of the entire uncompressed record.
+     * @return padded length in bytes of the entire uncompressed record.
+     */
+    public int getUncompressedRecordLength() {
+        return (headerLength + indexLength + userHeaderLength + dataLength +
+                userHeaderLengthPadding + dataLengthPadding);
+    }
+
+    /**
+     * Get the padded length in bytes of the entire compressed record.
+     * If the data is not compressed, then this returns -1;
+     * @return padded length in bytes of the entire compressed record, else -1 if not compressed.
+     */
+    public int getCompressedRecordLength() {
+        if (compressionType != 0) {
+            return (recordLength + compressedDataLengthPadding);
+        }
+        return  -1;
+    }
 
     /**
      * Get the byte order of the file/buffer this header was read from.
@@ -492,12 +526,6 @@ public class RecordHeader implements IBlockHeader {
     }
 
     /**
-     * Get the bit info word. Will initialize if not already done.
-     * @return bit info word.
-     */
-    public int getBitInfoWord() {return bitInfo;}
-
-    /**
      * Set the bit info word for a record header.
      * Current value of bitInfo is lost.
      * @param isLastRecord   true if record is last in stream or file.
@@ -520,6 +548,141 @@ public class RecordHeader implements IBlockHeader {
 
         return bitInfo;
     }
+
+    /**
+     * Get the bit info word. Will initialize if not already done.
+     * @return bit info word.
+     */
+    public int getBitInfoWord() {return bitInfo;}
+
+    /**
+     * Set the bit info word and related values.
+     * NOT FOR GENERAL USE!
+     * @param word  bit info word.
+     */
+    public void setBitInfoWord(int word) {
+        bitInfo = word;
+        decodeBitInfoWord(word);
+    }
+
+    /**
+     * Set the bit info word and related values.
+     * NOT FOR GENERAL USE!
+     * @param set  bit info object.
+     */
+    public void setBitInfoWord(BitSet set) throws HipoException {
+        bitInfo = generateSixthWord(set);
+        decodeBitInfoWord(bitInfo);
+    }
+
+
+    /**
+     * Calculates the sixth word of this header which has the version
+     * number (6) in the lowest 8 bits and the set in the upper 24 bits.
+     * NOT FOR GENERAL USE!
+     *
+     * @param set Bitset containing all bits to be set
+     * @return generated sixth word of this header.
+     */
+    static public int generateSixthWord(BitSet set) {
+
+        // version
+        int v = 6;
+
+        if (set == null) return v;
+
+        for (int i=0; i < set.length(); i++) {
+            if (i > 23) {
+                break;
+            }
+            if (set.get(i)) {
+                v |= (0x1 << (8+i));
+            }
+        }
+
+        return v;
+    }
+
+
+    /**
+     * Calculates the sixth word of this header which has the version number
+     * in the lowest 8 bits. The arg hasDictionary
+     * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+     * (event type) are set in bits 11-14.
+     *
+     * @param version evio version number
+     * @param hasDictionary does this block include an evio xml dictionary as the first event?
+     * @param isEnd is this the last block of a file or a buffer?
+     * @param eventType 4 bit type of events header is containing
+     * @return generated sixth word of this header.
+     */
+    static public int generateSixthWord(int version, boolean hasDictionary,
+                                        boolean isEnd, int eventType) {
+
+        return generateSixthWord(null, version, hasDictionary, isEnd, eventType);
+    }
+
+
+    /**
+      * Calculates the sixth word of this header which has the version number (4)
+      * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
+      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
+      * (event type) are set in bits 11-14.
+      *
+      * @param bSet Bitset containing all bits to be set
+      * @param version evio version number
+      * @param hasDictionary does this block include an evio xml dictionary as the first event?
+      * @param isEnd is this the last block of a file or a buffer?
+      * @param eventType 4 bit type of events header is containing
+      * @return generated sixth word of this header.
+      */
+     static public int generateSixthWord(BitSet bSet, int version,
+                                         boolean hasDictionary,
+                                         boolean isEnd, int eventType) {
+         int v = version; // version
+
+         if (bSet != null) {
+             for (int i=0; i < bSet.length(); i++) {
+                 if (i > 23) {
+                     break;
+                 }
+                 if (bSet.get(i)) {
+                     v |= (0x1 << (8+i));
+                 }
+             }
+         }
+
+         v =  hasDictionary ? (v | 0x100) : v;
+         v =  isEnd ? (v | 0x200) : v;
+         v |= ((eventType & 0xf) << 10);
+
+         return v;
+     }
+
+    /**
+     * Decodes the padding and header type info.
+     * @param word int to decode.
+     */
+    private void decodeBitInfoWord(int word) {
+        // Padding
+        compressedDataLengthPadding = (word >>> 24) & 0x3;
+        dataLengthPadding           = (word >>> 22) & 0x3;
+        userHeaderLengthPadding     = (word >>> 20) & 0x3;
+
+        // Evio version
+        headerVersion = (word & 0xff);
+
+        // Header type
+        headerType =  HeaderType.getHeaderType(word >>> 28);
+//System.out.println("decodeBitInfoWord: header type = " + headerType);
+        if (headerType == null) {
+            headerType = HeaderType.EVIO_RECORD;
+        }
+
+        // Data type
+        eventType = (word >> 11) & 0xf;
+    }
+
 
     /**
      * Set the bit which says record has a first event in the user header.
@@ -626,73 +789,38 @@ public class RecordHeader implements IBlockHeader {
     public int  setBitInfoEventType (int type) {
         switch(type) {
             case 0:
-                bitInfo |= DATA_ROC_RAW_BITS; eventType = type; break;
+                bitInfo |= DATA_ROC_RAW_BITS; eventType = type;
+                eventType = type;
+                break;
             case 1:
-                bitInfo |= DATA_PHYSICS_BITS; eventType = type; break;
+                bitInfo |= DATA_PHYSICS_BITS; eventType = type;
+                eventType = type;
+                break;
             case 2:
-                bitInfo |= DATA_PARTIAL_BITS; eventType = type; break;
+                bitInfo |= DATA_PARTIAL_BITS; eventType = type;
+                eventType = type;
+                break;
             case 3:
-                bitInfo |= DATA_DISENTANGLED_BITS; eventType = type; break;
+                bitInfo |= DATA_DISENTANGLED_BITS; eventType = type;
+                eventType = type;
+                break;
             case 4:
-                bitInfo |= DATA_USER_BITS; eventType = type; break;
+                bitInfo |= DATA_USER_BITS; eventType = type;
+                eventType = type;
+                break;
             case 5:
-                bitInfo |= DATA_CONTROL_BITS; eventType = type; break;
+                bitInfo |= DATA_CONTROL_BITS; eventType = type;
+                eventType = type;
+                break;
             case 15:
-                bitInfo |= DATA_OTHER_BITS; eventType = type; break;
+                bitInfo |= DATA_OTHER_BITS; eventType = type;
+                eventType = type;
+                break;
             default:
         }
-
         return bitInfo;
     }
 
-    /**
-     * Set the bit info word and related values.
-     * NOT FOR GENERAL USE!
-     * @param word  bit info word.
-     */
-    public void setBitInfoWord(int word) {
-        bitInfo = word;
-        decodeBitInfoWord(word);
-    }
-
-    /**
-     * Set the bit info word and related values.
-     * NOT FOR GENERAL USE!
-     * @param word  bit info object.
-     * @throws HipoException if word arg is null or cannot be represented by int.
-     */
-    public void setBitInfoWord(BitSet word) throws HipoException {
-        try {
-            bitInfo = ByteDataTransformer.toInt(word);
-        }
-        catch (EvioException e) {
-            throw new HipoException(e);
-        }
-        decodeBitInfoWord(bitInfo);
-    }
-
-    /**
-     * Decodes the padding and header type info.
-     * @param word int to decode.
-     */
-    private void decodeBitInfoWord(int word) {
-        // Padding
-        compressedDataLengthPadding = (word >>> 24) & 0x3;
-        dataLengthPadding           = (word >>> 22) & 0x3;
-        userHeaderLengthPadding     = (word >>> 20) & 0x3;
-
-        // Evio version
-        headerVersion = (word & 0xff);
-
-        // Header type
-        headerType =  HeaderType.getHeaderType(word >>> 28);
-        if (headerType == null) {
-            headerType = HeaderType.EVIO_RECORD;
-        }
-
-        // Data type
-        eventType = (word >> 11) & 0xf;
-    }
 
     // Setters
 
@@ -701,7 +829,14 @@ public class RecordHeader implements IBlockHeader {
      * @param type type of header.
      * @return this object.
      */
-    RecordHeader  setHeaderType(HeaderType type)  {headerType = type; return this;}
+    RecordHeader  setHeaderType(HeaderType type)  {
+        headerType = type;
+
+        // Update bitInfo by first clearing then setting the 2 header type bits
+        bitInfo = (bitInfo & (~HEADER_TYPE_MASK)) | (type.getValue() << 28);
+
+        return this;
+    }
 
     /**
      * Set the position of this record in a file.
@@ -740,6 +875,11 @@ public class RecordHeader implements IBlockHeader {
         dataLength = length;
         dataLengthWords = getWords(length);
         dataLengthPadding = getPadding(length);
+
+        // Update bitInfo by first clearing then setting the 2 padding bits
+        bitInfo = (bitInfo & (~DATA_PADDING_MASK)) |
+                 ((dataLengthPadding << 22) & DATA_PADDING_MASK);
+
         return this;
     }
 
@@ -752,6 +892,11 @@ public class RecordHeader implements IBlockHeader {
         compressedDataLength = length;
         compressedDataLengthWords = getWords(length);
         compressedDataLengthPadding = getPadding(length);
+
+        // Update bitInfo by first clearing then setting the 2 padding bits
+        bitInfo = (bitInfo & (~COMP_PADDING_MASK)) |
+                 ((compressedDataLengthPadding << 24) & COMP_PADDING_MASK);
+
         return this;
     }
 
@@ -795,6 +940,11 @@ public class RecordHeader implements IBlockHeader {
         userHeaderLength = length;
         userHeaderLengthWords   = getWords(length);
         userHeaderLengthPadding = getPadding(length);
+
+        // Update bitInfo by first clearing then setting the 2 padding bits
+        bitInfo = (bitInfo & (~USER_PADDING_MASK)) |
+                 ((userHeaderLengthPadding << 20) & USER_PADDING_MASK);
+
         return this;
     }
 
@@ -840,7 +990,7 @@ public class RecordHeader implements IBlockHeader {
         }
 
         int compressedWord =  (compressedDataLengthWords & 0x0FFFFFFF) |
-                             ((compressionType & 0xF) << 28);
+                              (compressionType << 28);
 
         buf.putInt (     off, recordLengthWords);        //  0*4
         buf.putInt ( 4 + off, recordNumber);             //  1*4
@@ -875,7 +1025,7 @@ public class RecordHeader implements IBlockHeader {
      */
     static public void writeTrailer(byte[] array, int recordNumber, ByteOrder order)
             throws HipoException {
-        writeTrailer(array, 0, recordNumber, order);
+        writeTrailer(array, 0, recordNumber, order, null);
     }
 
     /**
@@ -890,65 +1040,134 @@ public class RecordHeader implements IBlockHeader {
                                     ByteOrder order)
             throws HipoException {
 
-        int indexLength = 0;
-        int totalLength = HEADER_SIZE_BYTES;
-
-        // Check arg
-        if (array == null || array.length < totalLength) {
-            throw new HipoException("null or too small array arg");
-        }
-
-        // TODO: the header type and "last record" bit are redundant
-        int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | LAST_RECORD_BIT | 6;
-
-        try {
-            // First the general header part
-            ByteDataTransformer.toBytes(totalLength,  order, array, off);          // 0*4
-            ByteDataTransformer.toBytes(recordNumber, order, array, 4 + off);      // 1*4
-            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8 + off); // 2*4
-            ByteDataTransformer.toBytes(0, order, array, 12 + off);                // 3*4
-            ByteDataTransformer.toBytes(indexLength, order, array, 16 + off);      // 4*4
-            ByteDataTransformer.toBytes(bitInfo, order, array, 20 + off);          // 5*4
-            ByteDataTransformer.toBytes(0, order, array, 24 + off);                // 6*4
-            ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 28 + off);     // 7*4
-            // The rest is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
-            Arrays.fill(array, 32 + off, 56 + off, (byte)0);
-        }
-        catch (EvioException e) {/* never happen */}
+        writeTrailer(array, off, recordNumber, order, null);
     }
+
+    /**
+      * Writes a trailer with an optional index array into the given byte array.
+      * @param array byte array to write trailer into.
+      * @param recordNumber record number of trailer.
+      * @param order byte order of data to be written.
+      * @param index array of record lengths to be written to trailer
+      *              (must be multiple of 4 bytes). Null if no index array.
+      * @throws HipoException if array arg is null or too small to hold trailer + index
+      */
+     static public void writeTrailer(byte[] array, int recordNumber,
+                                     ByteOrder order, byte[] index)
+             throws HipoException {
+         writeTrailer(array, 0, recordNumber, order, index);
+     }
+
+     /**
+      * Writes a trailer with an optional index array into the given byte array.
+      * @param array byte array to write trailer into.
+      * @param off   offset into array to start writing.
+      * @param recordNumber record number of trailer.
+      * @param order byte order of data to be written.
+      * @param index array of record lengths interspersed with event counts
+      *              to be written to trailer
+      *              (must be multiple of 4 bytes). Null if no index array.
+      * @throws HipoException if array arg is null, array too small to hold trailer + index,
+      *                       or index not multiple of 4 bytes.
+      */
+     static public void writeTrailer(byte[] array, int off, int recordNumber,
+                                     ByteOrder order, byte[] index)
+             throws HipoException {
+
+         int indexLength = 0;
+         int wholeLength = HEADER_SIZE_BYTES;
+         if (index != null) {
+             indexLength = index.length;
+             if ((indexLength % 4) != 0) {
+                 throw new HipoException("index length not multiple of 4 bytes");
+             }
+             wholeLength += indexLength;
+         }
+
+         // Check arg
+         if (array == null || array.length < wholeLength) {
+             throw new HipoException("null or too small array arg");
+         }
+
+         int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
+
+         try {
+             // First the general header part
+             ByteDataTransformer.toBytes(wholeLength/4,  order, array, off);        // 0*4
+             ByteDataTransformer.toBytes(recordNumber, order, array, 4 + off);      // 1*4
+             ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8 + off); // 2*4
+             ByteDataTransformer.toBytes(0, order, array, 12 + off);                // 3*4
+             ByteDataTransformer.toBytes(indexLength, order, array, 16 + off);      // 4*4
+             ByteDataTransformer.toBytes(bitInfo, order, array, 20 + off);          // 5*4
+             ByteDataTransformer.toBytes(0, order, array, 24 + off);                // 6*4
+             ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 28 + off);     // 7*4
+             // The rest is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
+             Arrays.fill(array, 32 + off, 56 + off, (byte)0);
+
+             // Second the index
+             if (indexLength > 0) {
+                 System.arraycopy(index, 0, array, 14 * 4 + off, indexLength);
+             }
+         }
+         catch (EvioException e) {/* never happen */}
+     }
 
     /**
      * Writes an empty trailer into the given buffer.
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNumber record number of trailer.
-     * @param order byte order of data to be written.
      * @throws HipoException if buf arg is null or too small to hold trailer
      */
-    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
-                                    ByteOrder order)
+    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber)
             throws HipoException {
 
-        int totalLength = HEADER_SIZE_BYTES;
+        writeTrailer(buf, off, recordNumber, null);
+    }
+
+    /**
+     * Writes a trailer with an optional index array into the given buffer.
+     * @param buf   ByteBuffer to write trailer into.
+     * @param off   offset into buffer to start writing.
+     * @param recordNumber record number of trailer.
+     * @param index array of record lengths interspersed with event counts
+     *              to be written to trailer
+     *              (must be multiple of 4 bytes). Null if no index array.
+     * @throws HipoException if buf arg is null, buf too small to hold trailer + index,
+     *                       or index not multiple of 4 bytes.
+     */
+    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber, byte[] index)
+            throws HipoException {
+
+        int indexLength = 0;
+        int wholeLength = HEADER_SIZE_BYTES;
+        if (index != null) {
+            indexLength = index.length;
+            if ((indexLength % 4) != 0) {
+                throw new HipoException("index length not multiple of 4 bytes");
+            }
+            wholeLength += indexLength;
+        }
 
         // Check arg
-        if (buf == null || (buf.capacity() - off < totalLength)) {
+        if (buf == null || (buf.capacity() - off < wholeLength)) {
             throw new HipoException("null or too small buf arg");
         }
 
+        // Make sure the limit allows writing
+        buf.limit(off + wholeLength).position(off);
+
         if (buf.hasArray()) {
-            writeTrailer(buf.array(), off, recordNumber, order);
+            writeTrailer(buf.array(), buf.arrayOffset() + off, recordNumber, buf.order(), index);
         }
         else {
-            // TODO: the header type and "last record" bit are redundant
-            int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | LAST_RECORD_BIT | 6;
-
-            buf.position(off);
+            int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
 
             // First the general header part
-            buf.putInt(totalLength);
+            buf.putInt(wholeLength/4);
             buf.putInt(recordNumber);
             buf.putInt(HEADER_SIZE_WORDS);
+            buf.putInt(0);
             buf.putInt(0);
             buf.putInt(bitInfo);
             buf.putInt(0);
@@ -956,8 +1175,58 @@ public class RecordHeader implements IBlockHeader {
             buf.putLong(0L);
             buf.putLong(0L);
             buf.putLong(0L);
+
+            // Second the index
+            if (indexLength > 0) {
+                buf.put(index, 0, indexLength);
+            }
         }
     }
+
+
+    /**
+     * Quickly check to see if this buffer contains compressed data or not.
+     * The offset must point to the beginning of a valid hipo/evio record
+     * in the buffer.
+     *
+     * @param buffer buffer to read from.
+     * @param offset position of record header to be read.
+     * @return true if data in record is compressed, else false.
+     * @throws HipoException if buffer is null, contains too little data,
+     *                       or is not in proper format.
+     */
+    static public boolean isCompressed(ByteBuffer buffer, int offset) throws HipoException {
+
+        if (buffer == null || (buffer.capacity() - offset) < 40) {
+            throw new HipoException("buffer is null or too small");
+        }
+
+        // First read the magic word to establish endianness
+        int headerMagicWord = buffer.getInt(28 + offset);
+        ByteOrder byteOrder;
+        
+        // If it's NOT in the proper byte order ...
+        if (headerMagicWord != HEADER_MAGIC) {
+            // If it needs to be switched ...
+            if (headerMagicWord == Integer.reverseBytes(HEADER_MAGIC)) {
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    byteOrder = ByteOrder.LITTLE_ENDIAN;
+                }
+                else {
+                    byteOrder = ByteOrder.BIG_ENDIAN;
+                }
+                buffer.order(byteOrder);
+            }
+            else {
+                throw new HipoException("buffer arg not in evio/hipo format, magic int = 0x" +
+                                                Integer.toHexString(headerMagicWord));
+            }
+        }
+
+        int compressionWord = buffer.getInt(36 + offset);
+        return ((compressionWord >>> 28) == 0);
+    }
+
 
     /**
      * Reads the header information from a byte buffer and validates
@@ -973,14 +1242,15 @@ public class RecordHeader implements IBlockHeader {
         if (buffer == null || (buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
             throw new HipoException("null or too small buffer arg");
         }
-
+//System.out.println("RecordHeader.readHeader: buf lim = " + buffer.limit() +
+//                ", cap = " + buffer.capacity() + ", pos = " + buffer.position());
         // First read the magic word to establish endianness
         headerMagicWord = buffer.getInt(28 + offset);    // 7*4
-        
+
         // If it's NOT in the proper byte order ...
-        if (headerMagicWord != HEADER_MAGIC_LE) {
+        if (headerMagicWord != HEADER_MAGIC) {
             // If it needs to be switched ...
-            if (headerMagicWord == HEADER_MAGIC_BE) {
+            if (headerMagicWord == Integer.reverseBytes(HEADER_MAGIC)) {
                 if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                     byteOrder = ByteOrder.LITTLE_ENDIAN;
                 }
@@ -988,9 +1258,12 @@ public class RecordHeader implements IBlockHeader {
                     byteOrder = ByteOrder.BIG_ENDIAN;
                 }
                 buffer.order(byteOrder);
+                headerMagicWord = HEADER_MAGIC;
+//System.out.println("RecordHeader.readHeader: switch endian to " + byteOrder);
             }
             else {
                 // ERROR condition, bad magic word
+Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
                 throw new HipoException("buffer arg not in evio/hipo format, magic int = 0x" +
                                                 Integer.toHexString(headerMagicWord));
             }
@@ -998,19 +1271,18 @@ public class RecordHeader implements IBlockHeader {
         else {
             byteOrder = buffer.order();
         }
+//Utilities.printBuffer(buffer, 0, 40, "RecordHeader: BUFFER:");
 
         // Look at the bit-info word
-        int bitInfoWord = buffer.getInt(20 + offset);   // 5*4
+        bitInfo = buffer.getInt(20 + offset);   // 5*4
 
         // Set padding and header type
-        decodeBitInfoWord(bitInfoWord);
-        
+        decodeBitInfoWord(bitInfo);
+
         // Look at the version #
-        int version  = (bitInfoWord & 0xFF);
-        if (version < 6) {
-            throw new HipoException("buffer is in evio format version " + version);
+        if (headerVersion < 6) {
+            throw new HipoException("buffer is in evio format version " + (bitInfo & 0xff));
         }
-        headerVersion = version;
 
         recordLengthWords   = buffer.getInt(     offset);        //  0*4
         recordLength        = 4*recordLengthWords;
@@ -1032,12 +1304,12 @@ public class RecordHeader implements IBlockHeader {
         int compressionWord = buffer.getInt(36 + offset);        //  9*4
         compressionType     = (compressionWord >>> 28);
         compressedDataLengthWords = (compressionWord & 0x0FFFFFFF);
-        compressedDataLengthPadding = (bitInfoWord >>> 24) & 0x3;
+        compressedDataLengthPadding = (bitInfo >>> 24) & 0x3;
         compressedDataLength = compressedDataLengthWords*4 - compressedDataLengthPadding;
-
         recordUserRegisterFirst  = buffer.getLong(40 + offset);  // 10*4
         recordUserRegisterSecond = buffer.getLong(48 + offset);  // 12*4
     }
+
 
     /**
      * Reads the header information from a byte buffer and validates
@@ -1064,24 +1336,33 @@ public class RecordHeader implements IBlockHeader {
 
         StringBuilder str = new StringBuilder();
         str.append(String.format("%24s : %d\n","version",headerVersion));
-        str.append(String.format("%24s : %d    bytes,     words,    padding\n","record #",recordNumber));
-        str.append(String.format("%24s : %8d / %8d / %8d\n","user header length",
+        str.append(String.format("%24s : %b\n","compressed", (compressionType != 0)));
+        str.append(String.format("%24s : %d\n","record #",recordNumber));
+
+        str.append(String.format("%24s :     bytes,     words,    padding\n",""));
+        str.append(String.format("%24s : %8d  %8d  %8d\n","user header length",
                                  userHeaderLength, userHeaderLengthWords, userHeaderLengthPadding));
-        str.append(String.format("%24s : %8d / %8d / %8d\n","   data length",
+        str.append(String.format("%24s : %8d  %8d  %8d\n","uncompressed data length",
                                  dataLength, dataLengthWords, dataLengthPadding));
-        str.append(String.format("%24s : %8d / %8d\n","record length",
+        str.append(String.format("%24s : %8d  %8d\n","record length",
                                  recordLength, recordLengthWords));
-        str.append(String.format("%24s : %8d / %8d / %8d\n","compressed length",
+        str.append(String.format("%24s : %8d  %8d  %8d\n","compressed length",
                                  compressedDataLength, compressedDataLengthWords,
                                  compressedDataLengthPadding));
         str.append(String.format("%24s : %d\n","header length",headerLength));
-        str.append(String.format("%24s : 0x%X\n","magic word",headerMagicWord));
-        Integer bitInfo = getBitInfoWord();
-        str.append(String.format("%24s : %s\n","bit info word",Integer.toBinaryString(bitInfo)));
-        str.append(String.format("%24s : %d\n","record entries",entries));
-        str.append(String.format("%24s : %d\n","   compression type",compressionType));
+        str.append(String.format("%24s : %d\n","index length",indexLength));
 
-        str.append(String.format("%24s : %d\n","  index length",indexLength));
+        str.append(String.format("%24s : 0x%X\n","magic word",headerMagicWord));
+        str.append(String.format("%24s : %s\n","bit info word bin",Integer.toBinaryString(bitInfo)));
+        str.append(String.format("%24s : 0x%s\n","bit info word hex",Integer.toHexString(bitInfo)));
+        str.append(String.format("%24s : %b\n","has dictionary",hasDictionary()));
+        str.append(String.format("%24s : %b\n","has 1st event",hasFirstEvent()));
+        str.append(String.format("%24s : %b\n","is last record",isLastRecord()));
+        str.append(String.format("%24s : %s (%d)\n","data type", eventTypeToString(), eventType));
+
+
+        str.append(String.format("%24s : %d\n","event count",entries));
+        str.append(String.format("%24s : %d\n","compression type",compressionType));
 
         str.append(String.format("%24s : %d\n","user register #1",recordUserRegisterFirst));
         str.append(String.format("%24s : %d\n","user register #2",recordUserRegisterSecond));
@@ -1106,6 +1387,31 @@ public class RecordHeader implements IBlockHeader {
 
     /** {@inheritDoc} */
     public int getEventType() {return eventType;}
+
+    /**
+     * Return  a meaningful string associated with event type.
+     * @return a meaningful string associated with event type.
+     */
+    private String eventTypeToString() {
+        switch (eventType) {
+            case 0:
+                return "ROC Raw";
+            case 1:
+                return "Physics";
+            case 2:
+                return "Partial Physics";
+            case 3:
+                return "Disentangled";
+            case 4:
+                return "User";
+            case 5:
+                return "Control";
+            case 15:
+                return "Other";
+            default:
+                return "Unknown";
+        }
+    }
 
     /** {@inheritDoc} */
     public int write(ByteBuffer byteBuffer) {
