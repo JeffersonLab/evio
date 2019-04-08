@@ -337,8 +337,6 @@ public class EvioReader implements IEvioReader {
      */
     private ReadStatus findEvioVersion() {
         // Look at first record header
-        System.out.println("findEvioVersion: IN");
-
         // Have enough remaining bytes to read 8 words of header?
         if (byteBuffer.limit() - initialPosition < 32) {
             return ReadStatus.END_OF_FILE;
@@ -351,7 +349,6 @@ public class EvioReader implements IEvioReader {
             byteOrder = byteBuffer.order();
 
             int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
-System.out.println("findEvioVersion: magic # = 0x" + Integer.toHexString(magicNumber));
             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
                 if (byteOrder == ByteOrder.BIG_ENDIAN) {
                     byteOrder = ByteOrder.LITTLE_ENDIAN;
