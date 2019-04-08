@@ -57,16 +57,16 @@ typedef struct
 #undef DEBUG
 
 #define NWORDS 1000000
-static int iarr[NWORDS+10];
+static int32_t iarr[NWORDS+10];
 
 int
-eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes, char *xml)
+eviofmtdump(int32_t *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes, char *xml)
 {
-  int i, imt, ncnf, kcnf, mcnf, lev, iterm;
-  long long *b64, *b64end;
-  int *b32, *b32end;
-  short *b16, *b16end;
-  char *b8, *b8end;
+  int i, imt, ncnf, kcnf, mcnf, lev/*, iterm*/;
+  int64_t *b64, *b64end;
+  int32_t *b32, *b32end;
+  int16_t *b16, *b16end;
+  int8_t  *b8, *b8end;
   LV lv[10];
   char *xml1 = xml;
 
@@ -82,13 +82,13 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
   imt = 0;   /* ifmt[] index */
   ncnf = 0;  /* how many times must repeat a format */
   lev  = 0;  /* parenthesis level */
-  iterm = 0; /*  */
+  /* iterm = 0;  */
 
-  b8 = (char *)&iarr[0]; /* beginning of data */
-  b8end = (char *)&iarr[nwrd] - nextrabytes; /* end of data + 1 */
+  b8 = (int8_t *)&iarr[0]; /* beginning of data */
+  b8end = (int8_t *)&iarr[nwrd] - nextrabytes; /* end of data + 1 */
 
 #ifdef DEBUG
-  printf("\n=== eviofmtdump start (xml=0x%08x) ===\n",xml);
+  printf("\n=== eviofmtdump start (xml=0x%016lx) ===\n",(long unsigned int)xml);
   printf("iarr[0]=0x%08x, nwrd=%d\n",iarr[0],nwrd);
 #endif
 
@@ -98,7 +98,8 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
   while(b8 < b8end)
   {
 #ifdef DEBUG
-    printf("+++ 0x%08x 0x%08x - geting next format code\n",b8,b8end);
+    printf("+++ 0x%016lx 0x%016lx - getting next format code\n",
+           (long unsigned int)b8,(long unsigned int)b8end);
 #endif
     while(1) /* get next format code */
     {
@@ -125,9 +126,9 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
         lv[lev-1].irepeat ++; /* increment counter */
         if(lv[lev-1].irepeat >= lv[lev-1].nrepeat) /* if format in parenthesis was processed */
         {                                          /* required number of times */
-          iterm = lv[lev-1].left - 1; /* store left parenthesis index minus 1
-                                      (if will meet end of format, will start from format index imt=iterm;
-                                       by default we continue from the beginning of the format (iterm=0)) */
+          //iterm = lv[lev-1].left - 1; /* store left parenthesis index minus 1
+          //                            (if will meet end of format, will start from format index imt=iterm;
+          //                             by default we continue from the beginning of the format (iterm=0)) */
           lev--; /* done with this level - decrease parenthesis level */
 #ifdef PRINT
           xml += sprintf(xml,"          )\n");
@@ -161,7 +162,7 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
           if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
           {
             mcnf = 0;
-            b32 = (uint32_t *)b8;
+            b32 = (int32_t *)b8;
             ncnf = *b32 = SWAP32(*b32); /* get #repeats from data */
 #ifdef PRINT
             xml += sprintf(xml,"          %d(\n",ncnf);
@@ -176,7 +177,7 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
           if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
           {
             mcnf = 0;
-            b16 = (uint16_t *)b8;
+            b16 = (int16_t *)b8;
             ncnf = *b16 = SWAP16(*b16); /* get #repeats from data */
 #ifdef PRINT
             xml += sprintf(xml,"          %d(\n",ncnf);
@@ -191,7 +192,7 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
           if(mcnf==3) /* left parenthesis, SPECIAL case: #repeats must be taken from int8 data */
           {
             mcnf = 0;
-            ncnf = *((uint8_t *)b8); /* get #repeats from data */
+            ncnf = *((int8_t *)b8); /* get #repeats from data */
 #ifdef PRINT
             xml += sprintf(xml,"          %d(\n",ncnf);
             /*printf("ncnf(: %d\n",ncnf);*/
@@ -254,14 +255,14 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
     {
       if(mcnf==1)
 	  {
-        b32 = (int *)b8;
+        b32 = (int32_t *)b8;
         ncnf = *b32 = SWAP32(*b32);
 		/*printf("ncnf32=%d\n",ncnf);fflush(stdout);*/
         b8 += 4;
 	  }
       else if(mcnf==2)
 	  {
-        b16 = (short *)b8;
+        b16 = (int16_t *)b8;
         ncnf = *b16 = SWAP16(*b16);
 		/*printf("ncnf16=%d\n",ncnf);fflush(stdout);*/
         b8 += 2;
@@ -301,29 +302,31 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
     /* Convert data in according to type kcnf */
     if(kcnf==8||kcnf==9||kcnf==10) /* 64-bit */
     {
-      b64 = (long long *)b8;
+      b64 = (int64_t *)b8;
       b64end = b64 + ncnf;
-      if(b64end > (long long *)b8end) b64end = (long long *)b8end;
+      if(b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
       while(b64 < b64end)
 	  {
 #ifdef PRINT
-        xml += sprintf(xml,"             64bit: 0x%llx(%lld)\n",*b64,*b64);
+        xml += sprintf(xml,"             64bit: 0x%llx(%lld)\n",
+                       (long long unsigned int)*b64,(long long int)*b64);
 #endif
 #ifdef DEBUG
-        printf("64bit: 0x%llx(%lld)\n",*b64,*b64);
+        printf("64bit: 0x%llx(%lld)\n",(unsigned long long)*b64,(long long)*b64);
 #endif
-        *b64++ = SWAP64(*b64);
+        *b64 = SWAP64(*b64);
+        b64++;
 	  }
-      b8 = (char *)b64;
+      b8 = (int8_t *)b64;
 #ifdef DEBUG
       printf("64bit: %d elements\n",ncnf);
 #endif
     }
     else if(kcnf==1||kcnf==2||kcnf==11||kcnf==12) /* 32-bit */
     {
-      b32 = (int *)b8;
+      b32 = (int32_t *)b8;
       b32end = b32 + ncnf;
-      if(b32end > (int *)b8end) b32end = (int *)b8end;
+      if(b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
       while(b32 < b32end)
 	  {
 #ifdef PRINT
@@ -332,18 +335,19 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
 #ifdef DEBUG
         printf("32bit: 0x%08x(%d)\n",*b32,*b32);
 #endif
-        *b32++ = SWAP32(*b32);
+        *b32 = SWAP32(*b32);
+        b32++;
 	  }
-      b8 = (char *)b32;
+      b8 = (int8_t *)b32;
 #ifdef DEBUG
       printf("32bit: %d elements\n",ncnf);
 #endif
     }
     else if(kcnf==4||kcnf==5)       /* 16 bits */
     {
-      b16 = (short *)b8;
+      b16 = (int16_t *)b8;
       b16end = b16 + ncnf;
-      if(b16end > (short *)b8end) b16end = (short *)b8end;
+      if(b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
 #ifdef PRINT
       xml += sprintf(xml,"             16bit:");
 #endif
@@ -358,7 +362,8 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
 #ifdef DEBUG
         printf(" 0x%04x(%d)",*b16,*b16);
 #endif
-        *b16++ = SWAP16(*b16);
+        *b16 = SWAP16(*b16);
+        b16++;
 	  }
 #ifdef PRINT
       xml += sprintf(xml,"\n");
@@ -366,7 +371,7 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
       printf("\n");
 #endif
 #endif
-      b8 = (char *)b16;
+      b8 = (int8_t *)b16;
 #ifdef DEBUG
       printf("16bit: %d elements\n",ncnf);
 #endif
@@ -407,7 +412,8 @@ eviofmtdump(int *arr, int nwrd, unsigned short *ifmt, int nfmt, int nextrabytes,
 #endif
 
 #ifdef DEBUG
-  printf("\n=== eviofmtdump end (xml1=0x%08x, xml=0x%08x, len=%d) ===\n",xml1,xml,xml-xml1);fflush(stdout);
+  printf("\n=== eviofmtdump end (xml1=0x%016lx, xml=0x%016lx, len=%ld) ===\n",
+         (long unsigned int)xml1,(long unsigned int)xml,xml-xml1);fflush(stdout);
 #endif
 
   return (int)(xml-xml1);
