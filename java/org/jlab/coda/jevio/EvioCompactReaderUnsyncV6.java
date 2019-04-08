@@ -87,6 +87,9 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
     public boolean isFile() {return false;}
 
     /** {@inheritDoc} */
+    public boolean isCompressed() {return reader.isCompressed();}
+
+    /** {@inheritDoc} */
     public void setBuffer(ByteBuffer buf) throws EvioException {
         try {
             reader.setBuffer(buf);
@@ -97,6 +100,31 @@ class EvioCompactReaderUnsyncV6 implements IEvioCompactReader {
 
         dictionary = null;
         closed = false;
+    }
+
+    /** {@inheritDoc} */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        try {
+            reader.setBuffer(buf, pool);
+        }
+        catch (HipoException e) {
+            throw new EvioException(e);
+        }
+
+        dictionary = null;
+        closed = false;
+    }
+
+    /** {@inheritDoc} */
+    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        try {
+            dictionary = null;
+            closed = false;
+            return reader.setCompressedBuffer(buf, pool);
+        }
+        catch (HipoException e) {
+            throw new EvioException(e);
+        }
     }
 
     /** {@inheritDoc} */
