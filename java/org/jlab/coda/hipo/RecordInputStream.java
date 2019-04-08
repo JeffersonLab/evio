@@ -16,7 +16,8 @@ import java.util.logging.Logger;
 
 /**
  *
- *  Class which reads data to create an Evio or HIPO Record.<p>
+ *  Class which reads data to create an Evio or HIPO Record.
+ *  This class is NOT thread safe!<p>
  *
  * <pre>
  * RECORD STRUCTURE:
@@ -104,7 +105,7 @@ public class RecordInputStream {
     private ByteBuffer  headerBuffer;
 
     /** Singleton used to decompress data. */
-    private Compressor  compressor = Compressor.getInstance();
+    private static Compressor compressor = Compressor.getInstance();
     
     /** Number of event in record. */
     private int  nEntries;
@@ -116,6 +117,10 @@ public class RecordInputStream {
     /** Offset, in uncompressed dataBuffer, from just past header to event data
      *  (past index + user header). */
     private int  eventsOffset;
+
+    /** Length in bytes of uncompressed data (events) in dataBuffer, not including
+     * header, index or user header. */
+    private int  uncompressedEventsLength;
 
     /** Byte order of internal ByteBuffers. */
     private ByteOrder byteOrder;
@@ -179,6 +184,17 @@ public class RecordInputStream {
     }
 
     /**
+     * Get the buffer with all uncompressed data in it.
+     * It's position and limit are set to read only event data. That means no
+     * header, index, or user-header.
+     * @return  the buffer with uncompressed event data in it.
+     */
+    public ByteBuffer getUncompressedDataBuffer() {
+        dataBuffer.limit(eventsOffset + uncompressedEventsLength).position(eventsOffset);
+        return dataBuffer;
+    }
+
+    /**
      * Does this record contain an event index?
      * @return true if record contains an event index, else false.
      */
@@ -226,7 +242,7 @@ public class RecordInputStream {
             dataBuffer.get(event, 0, length);
         }
 
-//System.out.println(" reading from " + offset + "  length = " + event.length);
+//System.out.println("getEvent: reading from " + offset + "  length = " + event.length);
         return event;
     }
 
@@ -372,7 +388,6 @@ public class RecordInputStream {
             buffer = ByteBuffer.wrap(new byte[length]);
             bufOffset = 0;
         }
-// TODO: use capacity NOT array.length since backing array may be huge. Make changes elsewhere.
         else if ((bufOffset < 0) || (bufOffset + length > buffer.capacity())) {
             if (bufOffset < 0) {
                 throw new HipoException("negative offset arg");
@@ -384,7 +399,6 @@ public class RecordInputStream {
         buffer.order(byteOrder);
 
         if (buffer.hasArray() && dataBuffer.hasArray()) {
-// TODO: be sure to use arrayOffset() since buffer may represent only part of array
             System.arraycopy(dataBuffer.array(), userHeaderOffset, buffer.array(),
                              buffer.arrayOffset() + bufOffset, length);
         }
@@ -472,10 +486,12 @@ public class RecordInputStream {
             int cLength           = header.getCompressedDataLength();
 
             // How many bytes will the expanded record take?
-            // That is, everything except the header. Don't forget padding.
+            // Just data:
+            uncompressedEventsLength = 4*header.getDataLengthWords();
+            // Everything except the header & don't forget padding:
             int neededSpace =   header.getIndexLength() +
                               4*header.getUserHeaderLengthWords() +
-                              4*header.getDataLengthWords();
+                                uncompressedEventsLength;
 
             // Handle rare situation in which compressed data takes up more room
             neededSpace = neededSpace < cLength ? cLength : neededSpace;
@@ -484,12 +500,7 @@ public class RecordInputStream {
             if (dataBuffer.capacity() < neededSpace) {
                 allocate(neededSpace);
             }
-
-            //System.out.println(header);
-            //System.out.println(" READING FROM POSITION "
-            //        + (position) + "  DATA SIZE = " + (recordLengthWords));
-            //int padding = header.getCompressedDataLengthPadding();
-            //System.out.println(" compressed size = " + cLength + "  padding = " + padding);
+            dataBuffer.clear();
 
             // Go here to read rest of record
             channel.position(position + headerLength);
@@ -524,9 +535,8 @@ public class RecordInputStream {
             // Offset from just past header to user header (past index)
             userHeaderOffset = nEntries*4;
             // Offset from just past header to data (past index + user header)
-            eventsOffset     = userHeaderOffset + header.getUserHeaderLengthWords()*4;
+            eventsOffset = userHeaderOffset + header.getUserHeaderLengthWords()*4;
 
-            //showIndex();
             // Overwrite event lengths with event offsets
             int event_pos = 0;
             for(int i = 0; i < nEntries; i++){
@@ -534,7 +544,6 @@ public class RecordInputStream {
                 event_pos += size;
                 dataBuffer.putInt(i*4, event_pos);
             }
-            //showIndex();
 
         } catch (IOException ex) {
             Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
@@ -560,25 +569,26 @@ public class RecordInputStream {
         try {
             // This will switch buffer to proper byte order
             header.readHeader(buffer, offset);
+
             // Make sure all internal buffers have the same byte order
             setByteOrder(buffer.order());
 
-            int recordLengthWords = header.getLength();
+            int recordLengthBytes = header.getLength();
             int headerLength      = header.getHeaderLength();
             int cLength           = header.getCompressedDataLength();
 
             int compDataOffset = offset + headerLength;
 
             // How many bytes will the expanded record take?
-            // That is, everything except the header. Don't forget padding.
+            // Just data:
+            uncompressedEventsLength = 4*header.getDataLengthWords();
+            // Everything except the header & don't forget padding:
             int neededSpace =   header.getIndexLength() +
                               4*header.getUserHeaderLengthWords() +
-                              4*header.getDataLengthWords();
-
-            // Handle rare situation in which compressed data takes up more room
-            neededSpace = neededSpace < cLength ? cLength : neededSpace;
+                                uncompressedEventsLength;
 
             // Make room to handle all data to be read & uncompressed
+            dataBuffer.clear();
             if (dataBuffer.capacity() < neededSpace) {
                 allocate(neededSpace);
             }
@@ -587,40 +597,22 @@ public class RecordInputStream {
             switch (header.getCompressionType()) {
                 case 1:
                 case 2:
-                    // Read LZ4 compressed data
-// TODO: Why are we copying data into another buffer when we can decompress it where it is???
-                    if (buffer.hasArray() && recordBuffer.hasArray()) {
-                        System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
-                                         recordBuffer.array(), 0, cLength);
-                    }
-                    else {
-                        buffer.limit(compDataOffset + cLength).position(compDataOffset);
-                        recordBuffer.put(buffer);
-                    }
-
-                    compressor.uncompressLZ4(recordBuffer, cLength, dataBuffer);
+                    // Read LZ4 compressed data (WARNING: this does set limit on dataBuffer!)
+                    compressor.uncompressLZ4(buffer, compDataOffset, cLength, dataBuffer);
                     break;
 
                 case 3:
                     // Read GZIP compressed data
-// TODO: Why are we copying data into another buffer when we can decompress it where it is???
-                    if (buffer.hasArray() && recordBuffer.hasArray()) {
-                        System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
-                                         recordBuffer.array(), 0, cLength);
-                    }
-                    else {
-                        buffer.limit(compDataOffset + cLength).position(compDataOffset);
-                        recordBuffer.put(buffer);
-                    }
-
-                    byte[] unzipped = compressor.uncompressGZIP(recordBuffer.array(), 0, cLength);
+                    buffer.limit(compDataOffset + cLength).position(compDataOffset);
+                    byte[] unzipped = compressor.uncompressGZIP(buffer);
                     dataBuffer.put(unzipped);
                     break;
 
                 case 0:
                 default:
+// TODO: See if we can avoid this unnecessary copy!
                     // Read uncompressed data - rest of record
-                    int len = recordLengthWords - headerLength;
+                    int len = recordLengthBytes - headerLength;
                     if (buffer.hasArray() && dataBuffer.hasArray()) {
                         System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
                                          dataBuffer.array(), 0, len);
@@ -638,6 +630,7 @@ public class RecordInputStream {
             // Offset from just past header to data (past index + user header)
             eventsOffset = userHeaderOffset + header.getUserHeaderLengthWords()*4;
 
+// TODO: How do we handle trailers???
             // Overwrite event lengths with event offsets
             int event_pos = 0;
             for(int i = 0; i < nEntries; i++){
@@ -647,8 +640,141 @@ public class RecordInputStream {
             }
         }
         catch (HipoException ex) {
+            ex.printStackTrace();
             Logger.getLogger(RecordInputStream.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    /**
+     * Uncompress the data of a record from the source buffer at the given offset
+     * into the destination buffer.
+     * Be aware that the position & limit of srcBuf may be changed.
+     * The limit of dstBuf may be changed. The position of dstBuf will
+     * be set to just after the user-header and just before the data.
+     * 
+     * @param srcBuf buffer containing record data.
+     * @param srcOff offset into buffer to beginning of record data.
+     * @param dstBuf buffer into which the record is uncompressed.
+     * @param arrayBacked true if both srcBuf and dstBuf are backed by arrays.
+     * @param header RecordHeader object to be used to read the record header in srcBuf.
+     * @return the original record size in srcBuf (bytes).
+     * @throws HipoException if srcBuf is null, contains too little data,
+     *                       is not in proper format, or version earlier than 6.
+     */
+    static int uncompressRecord(ByteBuffer srcBuf, int srcOff, ByteBuffer dstBuf,
+                                boolean arrayBacked, RecordHeader header)
+            throws HipoException {
+
+//        if (srcBuf == null || srcOff < 0 || destBuf == null || destOff < 0 || header == null) {
+//            throw new HipoException("bad argument(s)");
+//        }
+
+        int dstOff = dstBuf.position();
+
+        // Read in header. This will switch srcBuf to proper byte order.
+        header.readHeader(srcBuf, srcOff);
+//System.out.println("\nuncompressRecord: header --> \n" + header);
+
+        int headerBytes              = header.getHeaderLength();
+        int compressionType          = header.getCompressionType();
+        int origRecordBytes          = header.getLength();
+        int compressedDataLength     = header.getCompressedDataLength();
+        int uncompressedRecordLength = header.getUncompressedRecordLength();
+
+        int compressedDataOffset = srcOff + headerBytes;
+        int indexLen = header.getIndexLength();
+        int userLen  = 4*header.getUserHeaderLengthWords();  // padded
+
+        // Make sure destination buffer has the same byte order
+        //dstBuf.order(srcBuf.order());
+
+        if (compressionType != 0) {
+            // Copy (uncompressed) general record header to destination buffer
+            if (arrayBacked) {
+                System.arraycopy(srcBuf.array(), srcOff + srcBuf.arrayOffset(),
+                                 dstBuf.array(), dstOff + dstBuf.arrayOffset(),
+                                 headerBytes);
+                dstBuf.position(dstOff + headerBytes);
+            }
+            else {
+                srcBuf.limit(srcOff + headerBytes).position(srcOff);
+                dstBuf.position(dstOff);
+                dstBuf.put(srcBuf);
+                // Get ready to read data
+                srcBuf.limit(srcBuf.capacity());
+            }
+        }
+        else {
+            // Since everything is uncompressed, copy it all over as is
+            int copyBytes = indexLen + userLen + 4*header.getDataLengthWords();  // padded
+            if (arrayBacked) {
+                System.arraycopy(srcBuf.array(), srcOff + srcBuf.arrayOffset(),
+                                 dstBuf.array(), dstOff + dstBuf.arrayOffset(),
+                                 headerBytes  + copyBytes);
+                dstBuf.position(dstOff + headerBytes);
+            }
+            else {
+                srcBuf.limit(compressedDataOffset + copyBytes).position(srcOff);
+                dstBuf.position(dstOff);
+                dstBuf.put(srcBuf);
+                srcBuf.limit(srcBuf.capacity());
+            }
+        }
+
+        // Decompress data
+        switch (compressionType) {
+            case 1:
+            case 2:
+                // Read LZ4 compressed data
+                compressor.uncompressLZ4(srcBuf, compressedDataOffset,
+                                         compressedDataLength, dstBuf);
+                dstBuf.limit(dstBuf.capacity());
+                break;
+
+            case 3:
+                // Read GZIP compressed data
+                srcBuf.limit(compressedDataOffset + compressedDataLength).position(compressedDataOffset);
+                byte[] unzipped = compressor.uncompressGZIP(srcBuf);
+                dstBuf.put(unzipped);
+                break;
+
+            case 0:
+            default:
+                // Everything copied over above
+        }
+
+        srcBuf.limit(srcBuf.capacity());
+
+        // Position dstBuf just before the data so it can be scanned for EvioNodes.
+        // This takes user header padding into account.
+        dstBuf.position(dstOff + headerBytes + indexLen + userLen);
+
+        // Reset the compression type and length in header to 0
+        dstBuf.putInt(dstOff + RecordHeader.COMPRESSION_TYPE_OFFSET, 0);
+        header.setCompressionType(0).setCompressedDataLength(0);
+
+        // Reset the header length
+        dstBuf.putInt(dstOff + RecordHeader.RECORD_LENGTH_OFFSET, uncompressedRecordLength);
+        header.setLength(uncompressedRecordLength);
+
+//            // If there is an index, change lengths to event offsets
+//            if (header.getIndexLength() > 0) {
+//                // Number of entries in index
+//                int nEntries = header.getEntries();
+//
+//                // Overwrite event lengths with event offsets
+//                int index, eventPos = 0;
+//                int off = dstOff + headerBytes;
+//
+//                for (int i = 0; i < nEntries; i++) {
+//                    index = off + 4*i;
+//                    int size = dstBuf.getInt(index);
+//                    eventPos += size;
+//                    dstBuf.putInt(index, eventPos);
+//                }
+//            }
+
+        return origRecordBytes;
     }
 
     /**
