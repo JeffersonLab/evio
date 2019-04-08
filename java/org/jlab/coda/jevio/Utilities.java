@@ -501,6 +501,9 @@ final public class Utilities {
         }
 
         int origPos = buf.position();
+        int origLim = buf.limit();
+        // set pos = 0, lim = cap
+        buf.clear();
         buf.position(position);
 
         if (label != null) System.out.println(label + ":");
@@ -517,7 +520,7 @@ final public class Utilities {
         System.out.println();
         System.out.println();
 
-        buf.position(origPos);
+        buf.limit(origLim).position(origPos);
    }
 
 
@@ -538,7 +541,11 @@ final public class Utilities {
         }
 
         int origPos = buf.position();
+        int origLim = buf.limit();
+        // set pos = 0, lim = cap
+        buf.clear();
         buf.position(position);
+
         bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
 
         if (label != null) System.out.println(label + ":");
@@ -556,7 +563,7 @@ final public class Utilities {
         System.out.println();
         System.out.println();
 
-        buf.position(origPos);
+        buf.limit(origLim).position(origPos);
    }
 
 
