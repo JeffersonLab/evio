@@ -198,7 +198,6 @@ public class EvioReaderV6 implements IEvioReader {
 
          try {
              reader = new Reader(byteBuffer);
-             reader.scanBuffer();
              parser = new EventParser();
          }
          catch (HipoException e) {
