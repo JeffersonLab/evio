@@ -27,6 +27,84 @@ import java.util.concurrent.Executors;
  * This class does NOT write versions 1-4 data, only version 6!
  * This class is NOT thread-safe.
  *
+ * <pre>
+ *
+ *            FILE Uncompressed
+ *
+ *    +----------------------------------+
+ *    +                                  +
+ *    +      General File Header         +
+ *    +                                  +
+ *    +----------------------------------+
+ *    +----------------------------------+
+ *    +                                  +
+ *    +     Index Array (optional)       +
+ *    +                                  +
+ *    +----------------------------------+
+ *    +----------------------------------+
+ *    +      User Header (optional)      +
+ *    +        --------------------------+
+ *    +       |        Padding           +
+ *    +----------------------------------+
+ *    +----------------------------------+
+ *    +                                  +
+ *    +          Data Record 1           +
+ *    +                                  +
+ *    +----------------------------------+
+ *                    .
+ *                    .
+ *                    .
+ *    +----------------------------------+
+ *    +                                  +
+ *    +          Data Record N           +
+ *    +                                  +
+ *    +----------------------------------+
+ *
+ * ---------------------------------------------
+ * ---------------------------------------------
+ *
+ *              FILE Compressed
+ *
+ *    +----------------------------------+
+ *    +                                  +
+ *    +      General File Header         +
+ *    +                                  +
+ *    +----------------------------------+
+ *    +----------------------------------+
+ *    +                                  +
+ *    +     Index Array (optional)       +
+ *    +                                  +
+ *    +----------------------------------+
+ *    +----------------------------------+
+ *    +      User Header (optional)      +
+ *    +        --------------------------+
+ *    +       |         Padding          +
+ *    +----------------------------------+
+ *    +----------------------------------+
+ *    +           Compressed             +
+ *    +          Data Record 1           +
+ *    +                                  +
+ *    +----------------------------------+
+ *                    .
+ *                    .
+ *                    .
+ *    +----------------------------------+
+ *    +           Compressed             +
+ *    +          Data Record N           +
+ *    +                                  +
+ *    +----------------------------------+
+ *
+ *    The User Header contains a data record which
+ *    holds the dictionary and first event, if any.
+ *    The general file header, index array, and
+ *    user header are never compressed.
+ *
+ *    Writing a buffer is done without the general file header
+ *    and the index array and user header which follow.
+ *
+ *
+ * </pre>
+ * 
  * @author timmer
  */
 public class EventWriter implements AutoCloseable {
@@ -48,7 +126,7 @@ public class EventWriter implements AutoCloseable {
      *  (0=none, 1=LZ4fastest, 2=LZ4best, 3=gzip). */
     private int compressionType;
 
-    /** List of record lengths to be optionally written in trailer. */
+    /** List of record length followed by count to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
 
     /** Number of bytes written to file/buffer at current moment. */
@@ -116,6 +194,9 @@ public class EventWriter implements AutoCloseable {
     // Buffer related members
     //-----------------------
     
+    /** CODA id of buffer sender. */
+    private int sourceId;
+
     /** Total size of the buffer in bytes. */
     private int bufferSize;
 
@@ -123,7 +204,7 @@ public class EventWriter implements AutoCloseable {
     private ByteBuffer buffer;
 
     /** Number of bytes written to the current buffer. */
-    private long bytesWrittenToBuffer;
+    private int bytesWrittenToBuffer;
 
     /** Number of events written to final destination buffer or file's current record
      * NOT including dictionary (& first event?). */
@@ -170,16 +251,16 @@ public class EventWriter implements AutoCloseable {
     private long split;
 
     /**
-      * If splitting file, the amount to increment the split number each time another
-      * file is written.
-      */
-     private int splitIncrement;
+     * If splitting file, the amount to increment the split number each time another
+     * file is written.
+     */
+    private int splitIncrement;
 
-     /**
-      * Id of this specific data stream.
-      * In CODA, a data stream is a chain of ROCS and EBs ending in a single specific ER.
-      */
-     private int streamId;
+    /**
+     * Id of this specific data stream.
+     * In CODA, a data stream is a chain of ROCS and EBs ending in a single specific ER.
+     */
+    private int streamId;
 
     /** The total number of data streams in DAQ. */
     private int streamCount;
@@ -500,7 +581,6 @@ public class EventWriter implements AutoCloseable {
             compressionThreads = 1;
         }
 
-
         toFile = true;
         recordNumber = 1;
 
@@ -534,7 +614,8 @@ public class EventWriter implements AutoCloseable {
             // When writing single threaded, just fill/compress/write one record at a time
             singleThreadedCompression = true;
             currentRecord = new RecordOutputStream(byteOrder, maxEventCount,
-                                                   maxRecordSize, compressionType);
+                                                   maxRecordSize, compressionType,
+                                                   HeaderType.EVIO_FILE);
         }
         else {
             // Number of ring items must be >= compressionThreads
@@ -661,8 +742,8 @@ public class EventWriter implements AutoCloseable {
      *                       if buf arg is null;
      */
     public EventWriter(ByteBuffer buf, int maxRecordSize, int maxEventCount,
-                         String xmlDictionary, int recordNumber,
-                         EvioBank firstEvent, int compressionType)
+                       String xmlDictionary, int recordNumber,
+                       EvioBank firstEvent, int compressionType)
             throws EvioException {
 
 
@@ -685,8 +766,15 @@ public class EventWriter implements AutoCloseable {
         bufferSize = buf.capacity();
 
         // When writing to buffer, just fill/compress/write one record at a time
-        currentRecord = new RecordOutputStream(byteOrder, maxEventCount,
-                                               maxRecordSize, compressionType);
+        currentRecord = new RecordOutputStream(buf, maxEventCount,
+                                               compressionType,
+                                               HeaderType.EVIO_RECORD);
+
+        RecordHeader header = currentRecord.getHeader();
+        header.setBitInfo(false, firstEvent != null, xmlDictionary != null);
+        
+        createCommonRecord(xmlDictionary, firstEvent, null, null);
+        flushCommonRecordToBuffer();
     }
 
 
@@ -713,7 +801,7 @@ public class EventWriter implements AutoCloseable {
         closed = false;
         eventsWrittenTotal = 0;
         eventsWrittenToBuffer = 0;
-        bytesWrittenToBuffer = 0L;
+        bytesWrittenToBuffer = 0;
         bytesWritten = 0L;
         
         // Deal with bitInfo
@@ -730,6 +818,10 @@ public class EventWriter implements AutoCloseable {
             }
             catch (HipoException e) {/* do nothing if problem (bitInfo == null) */}
         }
+
+        // Only necessary to do this when using EventWriter in EMU's
+        // RocSimulation module. Only the ROC sends sourceId in header.
+        header.setUserRegisterFirst(sourceId);
 
         // Get buffer ready for writing
         buffer.position(0);
@@ -835,6 +927,39 @@ public class EventWriter implements AutoCloseable {
 
 
     /**
+     * Set the value of the source Id in the first block header.
+     * Only necessary to do this when using EventWriter in EMU's
+     * RocSimulation module. Only the ROC sends sourceId in header.
+     * In evio 6, the source id is stored in user register 1. In
+     * earlier versions it's stored in reserved1.
+     * This should only be used internally by CODA in emu software.
+     *
+     * @param sourceId  value of the source Id.
+     */
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
+        RecordHeader header = currentRecord.getHeader();
+        header.setUserRegisterFirst(sourceId);
+    }
+
+    
+    /**
+     * Set the bit info of a record header for a specified CODA event type.
+     * Must be called AFTER {@link RecordHeader#setBitInfo(boolean, boolean, boolean)} or
+     * {@link RecordHeader#setBitInfoWord(int)} in order to have change preserved.
+     * This should only be used internally by CODA in emu software.
+     *
+     * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
+     *             3=Disentangled, 4=User, 5=Control, 15=Other,
+     *             else = nothing set).
+     */
+    public void setEventType(int type) {
+        RecordHeader header = currentRecord.getHeader();
+        header.setBitInfoEventType(type);
+    }
+
+
+    /**
      * Is this object writing to file?
      * @return {@code true} if writing to file, else {@code false}.
      */
@@ -868,7 +993,7 @@ public class EventWriter implements AutoCloseable {
      * including the trailer.
      * @return number of bytes written to buffer
      */
-    public long getBytesWrittenToBuffer() {return bytesWrittenToBuffer;}
+    public int getBytesWrittenToBuffer() {return bytesWrittenToBuffer;}
 
 
     /**
@@ -960,26 +1085,26 @@ public class EventWriter implements AutoCloseable {
 
 
     /**
-     * Set an event which will be written to the file/buffer as
+     * Set an event which will be written to the file as
      * well as to all split files. It's called the "first event" as it will be the
-     * first event written to each split file (after the dictionary) if this method
-     * is called early enough or the first event was defined in the constructor.<p>
+     * first event written to each split file if this method
+     * is called early enough or the first event was defined in the constructor.
+     * In evio version 6, any dictionary and the first event are written to a
+     * common record which is stored in the user-header part of the file header.
+     * <p>
      *
-     * Since this method can only called after the constructor, the common record may
-     * have already been written with its dictionary and firstEvent.
-     * The event given here will be written immediately somewhere in the body of the file
-     * if the common record was already written to file. If using a buffer, it will
-     * be written as a normal event.<p>
-     *
-     * The forth-coming split files will have this event in the common record
-     * (file header's user header) along with any dictionary.<p>
-     *
-     * If the firstEvent is given in the constructor, then the
-     * caller may end up with N+1 copies of it in a single file if this method
-     * is called N times.<p>
+     * Since this method can only be called after the constructor, the common record may
+     * have already been written with its dictionary and possibly another firstEvent.
+     * If that is the case, the event given here will be written immediately somewhere
+     * in the body of the file. Any subsequent splits will have this event as the first
+     * event in the file header. On the other hand, if the common record has not yet been
+     * written to the file, this event becomes the first event in the file header.<p>
      *
      * By its nature this method is not useful for writing to a buffer since
-     * it is never split and the event can be written to it as any other.<p>
+     * the buffer is never split. Writing this event is done by writing the
+     * common record as the first data record if it has not been already done.
+     * If the common record was already written, then the event is written as
+     * any other.<p>
      *
      * @param node node representing event to be placed first in each file written
      *             including all splits. If null, no more first events are written
@@ -994,42 +1119,50 @@ public class EventWriter implements AutoCloseable {
      */
     synchronized public void setFirstEvent(EvioNode node) throws EvioException, IOException {
 
-        // There's no way to remove an event from a record, so reconstruct it
-        createCommonRecord(xmlDictionary, null, node, null);
+        if (toFile) {
+            // There's no way to remove an event from a record, so reconstruct it
+            createCommonRecord(xmlDictionary, null, node, null);
 
-        // Write this as a normal event if we've already written the common
-        // record to file or if writing to a buffer.
-        boolean writeEvent = true;
-        if (toFile && recordsWritten < 1) {
-            writeEvent = false;
+            if (recordsWritten < 1) {
+                // The new common record will be written to file header, later
+                return;
+            }
+        }
+        else {
+            // Common record is written in constructor, so if no common record
+            // is written yet, then there is none. Create it and write it to buf.
+            if (recordsWritten < 1) {
+                createCommonRecord(xmlDictionary, null, node, null);
+                flushCommonRecordToBuffer();
+                return;
+            }
         }
 
-        if (writeEvent) {
-            writeEvent(node, false);
-        }
+        // Common record is already written, so write first event like all others
+        writeEvent(node, false);
     }
 
     /**
-     * Set an event which will be written to the file/buffer as
+     * Set an event which will be written to the file as
      * well as to all split files. It's called the "first event" as it will be the
-     * first event written to each split file (after the dictionary) if this method
-     * is called early enough or the first event was defined in the constructor.<p>
+     * first event written to each split file if this method
+     * is called early enough or the first event was defined in the constructor.
+     * In evio version 6, any dictionary and the first event are written to a
+     * common record which is stored in the user-header part of the file header.
+     * <p>
      *
-     * Since this method can only called after the constructor, the common record may
-     * have already been written with its dictionary and firstEvent.
-     * The event given here will be written immediately somewhere in the body of the file
-     * if the common record was already written to file. If using a buffer, it will
-     * be written as a normal event.<p>
-     *
-     * The forth-coming split files will have this event in the common record
-     * (file header's user header) along with any dictionary.<p>
-     *
-     * If the firstEvent is given in the constructor, then the
-     * caller may end up with N+1 copies of it in a single file if this method
-     * is called N times.<p>
+     * Since this method can only be called after the constructor, the common record may
+     * have already been written with its dictionary and possibly another firstEvent.
+     * If that is the case, the event given here will be written immediately somewhere
+     * in the body of the file. Any subsequent splits will have this event as the first
+     * event in the file header. On the other hand, if the common record has not yet been
+     * written to the file, this event becomes the first event in the file header.<p>
      *
      * By its nature this method is not useful for writing to a buffer since
-     * it is never split and the event can be written to it as any other.<p>
+     * the buffer is never split. Writing this event is done by writing the
+     * common record as the first data record if it has not been already done.
+     * If the common record was already written, then the event is written as
+     * any other.<p>
      *
      * @param buffer buffer containing event to be placed first in each file written
      *               including all splits. If null, no more first events are written
@@ -1044,40 +1177,46 @@ public class EventWriter implements AutoCloseable {
      */
     synchronized public void setFirstEvent(ByteBuffer buffer) throws EvioException, IOException {
 
-        createCommonRecord(xmlDictionary, null, null, buffer);
+        if (toFile) {
+            createCommonRecord(xmlDictionary, null, null, buffer);
 
-        boolean writeEvent = true;
-        if (toFile && recordsWritten < 1) {
-            writeEvent = false;
+            if (recordsWritten < 1) {
+                return;
+            }
+        }
+        else {
+            if (recordsWritten < 1) {
+                createCommonRecord(xmlDictionary, null, null, buffer);
+                flushCommonRecordToBuffer();
+                return;
+            }
         }
 
-        if (writeEvent) {
-            writeEvent(buffer, false);
-        }
+        writeEvent(buffer, false);
     }
 
 
     /**
-     * Set an event which will be written to the file/buffer as
+     * Set an event which will be written to the file as
      * well as to all split files. It's called the "first event" as it will be the
-     * first event written to each split file (after the dictionary) if this method
-     * is called early enough or the first event was defined in the constructor.<p>
+     * first event written to each split file if this method
+     * is called early enough or the first event was defined in the constructor.
+     * In evio version 6, any dictionary and the first event are written to a
+     * common record which is stored in the user-header part of the file header.
+     * <p>
      *
-     * Since this method can only called after the constructor, the common record may
-     * have already been written with its dictionary and firstEvent.
-     * The event given here will be written immediately somewhere in the body of the file
-     * if the common record was already written to file. If using a buffer, it will
-     * be written as a normal event.<p>
-     *
-     * The forth-coming split files will have this event in the common record
-     * (file header's user header) along with any dictionary.<p>
-     *
-     * If the firstEvent is given in the constructor, then the
-     * caller may end up with N+1 copies of it in a single file if this method
-     * is called N times.<p>
+     * Since this method can only be called after the constructor, the common record may
+     * have already been written with its dictionary and possibly another firstEvent.
+     * If that is the case, the event given here will be written immediately somewhere
+     * in the body of the file. Any subsequent splits will have this event as the first
+     * event in the file header. On the other hand, if the common record has not yet been
+     * written to the file, this event becomes the first event in the file header.<p>
      *
      * By its nature this method is not useful for writing to a buffer since
-     * it is never split and the event can be written to it as any other.<p>
+     * the buffer is never split. Writing this event is done by writing the
+     * common record as the first data record if it has not been already done.
+     * If the common record was already written, then the event is written as
+     * any other.<p>
      *
      * @param bank event to be placed first in each file written including all splits.
      *             If null, no more first events are written to any files.
@@ -1091,16 +1230,22 @@ public class EventWriter implements AutoCloseable {
      */
     synchronized public void setFirstEvent(EvioBank bank) throws EvioException, IOException {
 
-        createCommonRecord(xmlDictionary, bank, null, null);
+        if (toFile) {
+            createCommonRecord(xmlDictionary, bank, null, null);
 
-        boolean writeEvent = true;
-        if (toFile && recordsWritten < 1) {
-            writeEvent = false;
+            if (recordsWritten < 1) {
+                return;
+            }
+        }
+        else {
+            if (recordsWritten < 1) {
+                createCommonRecord(xmlDictionary, bank, null, null);
+                flushCommonRecordToBuffer();
+                return;
+            }
         }
 
-        if (writeEvent) {
-            writeEvent(bank, null, false);
-        }
+        writeEvent(bank, null, false);
     }
 
 
@@ -1194,7 +1339,9 @@ public class EventWriter implements AutoCloseable {
         // Sets file header length too
         fileHeader.setUserHeaderLength(commonRecordSize);
 
-                // Total header size in bytes
+        // Index array is unused
+
+        // Total header size in bytes
         int bytes = fileHeader.getLength();
         byte[] array = new byte[bytes];
         ByteBuffer buffer = ByteBuffer.wrap(array);
@@ -1239,25 +1386,35 @@ public class EventWriter implements AutoCloseable {
      */
     synchronized public void flush() {
 
-        if (closed || !toFile) {
+        if (closed) {
             return;
         }
 
-        if (singleThreadedCompression) {
-            try {compressAndWriteToFile(true);}
-            catch (Exception e) {
-                e.printStackTrace();
+        if (toFile) {
+            if (singleThreadedCompression) {
+                try {
+                    compressAndWriteToFile(true);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                // Write any existing data.
+                currentRingItem.forceToDisk(true);
+                if (currentRecord.getEventCount() > 0) {
+                    // Send current record back to ring
+                    supply.publish(currentRingItem);
+                }
+
+                // Get another empty record from ring
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
             }
         }
         else {
-            // Write any existing data.
-            currentRingItem.forceToDisk(true);
-            // Send current record back to ring
-            supply.publish(currentRingItem);
-
-            // Get another empty record from ring
-            currentRingItem = supply.get();
-            currentRecord = currentRingItem.getRecord();
+System.out.println("flush(): call flushRecordToBuffer");
+            flushCurrentRecordToBuffer();
         }
     }
 
@@ -1272,12 +1429,8 @@ public class EventWriter implements AutoCloseable {
             return;
         }
 
-        boolean debug = false;
-
         if (toFile) {
             if (singleThreadedCompression) {
-if (debug) System.out.println("close: compress and write to file, single thread");
-
                 try {compressAndWriteToFile(false);}
                 catch (Exception e) {
                     e.printStackTrace();
@@ -1288,7 +1441,6 @@ if (debug) System.out.println("close: compress and write to file, single thread"
                 // to compressing thread since we're done.
                 if (currentRecord.getEventCount() > 0) {
                     // Put it back in supply for compressing
-if (debug) System.out.println("close: publish current record");
                     supply.publish(currentRingItem);
                 }
 
@@ -1303,10 +1455,8 @@ if (debug) System.out.println("close: publish current record");
             }
         }
         else {
-            // TODO: Close writing to buffer
-            if (currentRecord.getEventCount() > 0) {
-                // --------
-            }
+System.out.println("close(): call flushRecordToBuffer");
+            flushCurrentRecordToBuffer();
         }
 
         // Write any remaining data
@@ -1331,7 +1481,6 @@ if (debug) System.out.println("close: publish current record");
                     else {
                         raf.writeInt(recordNumber - 1);
                     }
-                    if (debug) System.out.println("close: wrote int (" + (recordNumber - 1) + ") as record count to file");
                 }
                 catch (IOException e) {
                     e.printStackTrace();
@@ -1362,12 +1511,14 @@ if (debug) System.out.println("close: publish current record");
             if (fileCloser != null) fileCloser.close();
         }
 
+        recordLengths.clear();
+
         closed = true;
     }
 
     
     /**
-     * Reads part of the file header in order to determine
+     * Reads part of the first record header in order to determine
      * the evio version # and endianness of the file in question.
      *
      * @throws EvioException not in append mode, contains too little data, is not in proper format,
@@ -1893,7 +2044,7 @@ if (debug) System.out.println("close: publish current record");
             throw new EvioException("close() has already been called");
         }
 
-        boolean fitInRecord;
+        boolean fitInRecord = true;
         boolean splittingFile = false;
         boolean debug = true;
         // See how much space the event will take up
@@ -1988,7 +2139,7 @@ if (debug) System.out.println("writeEvent: splittingFile = " + splittingFile);
             fitInRecord = currentRecord.addEvent(bank);
         }
 
-if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
+        if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
 
         // If no room or too many events ...
         if (!fitInRecord) {
@@ -2220,13 +2371,14 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
         int bytesToWrite = header.getLength();
         int eventCount   = header.getEntries();
         recordLengths.add(bytesToWrite);
+        // Trailer's index has count following length
         recordLengths.add(eventCount);
 
         try {
             ByteBuffer buf = record.getBinaryBuffer();
             if (buf.hasArray()) {
 //System.out.println("   Writer: use outStream to write file, buf pos = " + buf.position() +
-//        ", lim = " + buf.limit() + ", bytesToWrite = " + bytesToWrite);
+//                   ", lim = " + buf.limit() + ", bytesToWrite = " + bytesToWrite);
                 raf.write(buf.array(), 0, bytesToWrite);
             }
             else {
@@ -2339,7 +2491,7 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             try {
-                FileHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
+                RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
             }
             catch (HipoException e) {/* never happen */}
             bytesToWrite = RecordHeader.HEADER_SIZE_BYTES;
@@ -2368,8 +2520,8 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
 
             // Place data into headerArray - both header and index
             try {
-                FileHeader.writeTrailer(headerArray, recordNumber,
-                                        byteOrder, recordIndex);
+                RecordHeader.writeTrailer(headerArray, recordNumber,
+                                          byteOrder, recordIndex);
             }
             catch (HipoException e) {/* never happen */}
             raf.write(headerArray, 0, bytesToWrite);
@@ -2389,7 +2541,7 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
             raf.seek(FileHeader.BIT_INFO_OFFSET);
             int bitInfo = fileHeader.setBitInfo(fileHeader.hasFirstEvent(),
                                                 fileHeader.hasDictionary(),
-                              true);
+                                                true);
             if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
                 raf.writeInt(Integer.reverseBytes(bitInfo));
             }
@@ -2409,54 +2561,84 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
     }
 
 
-    /**
-     * Write bank to current record. If it doesn't fit, write record to buffer
-     * and add event to newly emptied record. A bank in buffer form has priority,
-     * if it's null, then it looks at the bank in EvioBank object form.
-     * Does nothing if already closed.
-     *
-     * @param bank        bank to write in EvioBank object form.
-     * @param bankBuffer  bank to write in buffer form .
-     * @param force       write now regardless if internal buffer is not filled.
-     * @throws EvioException if this object already closed.
-     */
-    private void writeToBuffer(EvioBank bank, ByteBuffer bankBuffer, boolean force)
-                                    throws EvioException {
-        if (closed) {
-            throw new EvioException("close() has already been called");
-        }
+    /** Flush everything in currentRecord into the buffer. */
+    private void flushCurrentRecordToBuffer() {
 
-        boolean fitInRecord;
-
-        if (bankBuffer != null) {
-            fitInRecord = currentRecord.addEvent(bankBuffer);
-        }
-        else {
-            fitInRecord = currentRecord.addEvent(bank);
-        }
-
-        // If it fit into record, we're done
-        if (fitInRecord && !force) {
+        int eventCount = currentRecord.getEventCount();
+        // If nothing in current record, return
+        if (eventCount < 1) {
             return;
         }
 
         // Get record header
         RecordHeader header = currentRecord.getHeader();
+        // Get/set record info before building
+        header.setRecordNumber(recordNumber);
 
+        // Do compression
+System.out.println("   EventWriter: flushCurrentRecordToBuffer, build record");
+        currentRecord.build();
+
+        int bytesToWrite = header.getLength();
+        // Store length & count for possible trailer index
+        recordLengths.add(bytesToWrite);
+        // Trailer's index has count following length
+        recordLengths.add(eventCount);
+
+System.out.println("   EventWriter: header = \n" + header);
+
+        // Write record to buffer.
+        // Binary buffer is ready to read after build().
+        ByteBuffer buf = currentRecord.getBinaryBuffer();
+        if (buf.hasArray() && buffer.hasArray()) {
+            System.arraycopy(buf.array(), 0, buffer.array(),
+                             buffer.position(), bytesToWrite);
+        }
+        else {
+            buffer.put(buf);
+        }
+
+Utilities.printBuffer(buf, 0, 33, "EventWriter, internal buffer --->");
+        // Keep track of what is written
+        recordNumber++;
+        recordsWritten++;
+        bytesWritten          += bytesToWrite;
+        bytesWrittenToBuffer  += bytesToWrite;
+        eventsWrittenToBuffer += eventCount;
+        eventsWrittenTotal    += eventCount;
+System.out.println("   EventWriter: bytesWritten = " + bytesWritten + ", byesToWrite = " + bytesToWrite);
+
+        currentRecord.reset();
+    }
+
+
+    /** Flush everything in commonRecord into the buffer. */
+    private void flushCommonRecordToBuffer() {
+
+        if (commonRecord == null || commonRecord.getEventCount() < 1) {
+            return;
+        }
+
+        int eventCount = commonRecord.getEventCount();
+        if (eventCount < 1) {
+            return;
+        }
+
+        // Get record header
+        RecordHeader header = commonRecord.getHeader();
         // Get/set record info
         header.setRecordNumber(recordNumber);
         int bytesToWrite = header.getLength();
-        int eventCount   = header.getEntries();
         // Store length & count for possible trailer index
         recordLengths.add(bytesToWrite);
+        // Trailer's index has count following length
         recordLengths.add(eventCount);
 
-        // Do compression
-        currentRecord.build();
+        // Compression/build already done (in createCommonRecord())
 
-        // Write record (without event) to buffer.
+        // Write record to buffer.
         // Binary buffer is ready to read after build().
-        ByteBuffer buf = currentRecord.getBinaryBuffer();
+        ByteBuffer buf = commonRecord.getBinaryBuffer();
         if (buf.hasArray() && buffer.hasArray()) {
             System.arraycopy(buf.array(), 0, buffer.array(),
                              buffer.position(), bytesToWrite);
@@ -2472,8 +2654,45 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
         bytesWrittenToBuffer  += bytesToWrite;
         eventsWrittenToBuffer += eventCount;
         eventsWrittenTotal    += eventCount;
+    }
 
-        currentRecord.reset();
+
+    /**
+     * Write bank to current record. If it doesn't fit, write record to buffer
+     * and add event to newly emptied record. A bank in buffer form has priority,
+     * if it's null, then it looks at the bank in EvioBank object form.
+     * Does nothing if already closed.
+     *
+     * @param bank        bank to write in EvioBank object form.
+     * @param bankBuffer  bank to write in buffer form .
+     * @param force       write now regardless if internal buffer is not filled.
+     * @throws EvioException if this object already closed; if user-given buffer is
+     *                       too small to fit single event.
+     */
+    private void writeToBuffer(EvioBank bank, ByteBuffer bankBuffer, boolean force)
+                                    throws EvioException {
+        if (closed) {
+            throw new EvioException("close() has already been called");
+        }
+System.out.println("   Writer: writeToBuffer, IN, force = " + force);
+
+        boolean fitInRecord = true;
+
+        if (bankBuffer != null) {
+            fitInRecord = currentRecord.addEvent(bankBuffer);
+        }
+        else {
+            fitInRecord = currentRecord.addEvent(bank);
+        }
+
+        // If it fit into record, we're done
+System.out.println("   Writer: writeToBuffer, fit in record = " + fitInRecord);
+        if (fitInRecord && !force) {
+            return;
+        }
+
+        System.out.println("   Writer: writeToBuffer, call flushRecordToBuf");
+        flushCurrentRecordToBuffer();
 
         // Now the single, current event is guaranteed to fit into record
         if (fitInRecord) {
@@ -2505,8 +2724,8 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
             }
 
             try {
-                FileHeader.writeTrailer(buffer, (int)bytesWritten,
-                                        recordNumber, byteOrder, null);
+                RecordHeader.writeTrailer(buffer, (int)bytesWritten,
+                                          recordNumber, null);
             }
             catch (HipoException e) {/* never happen */}
 
@@ -2536,8 +2755,8 @@ if (debug) System.out.println("writeEvent: fitInRecord = " + fitInRecord);
 
             try {
                 // Place data into buffer - both header and index
-                FileHeader.writeTrailer(buffer, (int) bytesWritten, recordNumber,
-                                        byteOrder, recordIndex);
+                RecordHeader.writeTrailer(buffer, (int) bytesWritten, recordNumber,
+                                          recordIndex);
             }
             catch (HipoException e) {/* never happen */}
         }
