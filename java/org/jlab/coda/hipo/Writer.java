@@ -644,7 +644,7 @@ System.out.println("createRecord: add first event to record");
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             try {
-                FileHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
+                RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
                 // TODO: not really necessary to keep track here?
                 writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
                 if (toFile) {
@@ -685,8 +685,8 @@ System.out.println("createRecord: add first event to record");
 
         try {
             // Place data into headerArray - both header and index
-            FileHeader.writeTrailer(headerArray, recordNumber,
-                                    byteOrder, recordIndex);
+            RecordHeader.writeTrailer(headerArray, recordNumber,
+                                      byteOrder, recordIndex);
             // TODO: not really necessary to keep track here?
             writerBytesWritten += dataBytes;
             if (toFile) {
