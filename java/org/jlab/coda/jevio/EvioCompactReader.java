@@ -212,9 +212,21 @@ public class EvioCompactReader implements IEvioCompactReader {
     /** {@inheritDoc} */
     public boolean isFile() {return reader.isFile();}
 
+    /** {@inheritDoc} */
+    public boolean isCompressed() {return reader.isCompressed();}
 
     /** {@inheritDoc} */
     public void setBuffer(ByteBuffer buf) throws EvioException {reader.setBuffer(buf);}
+
+    /** {@inheritDoc} */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        reader.setBuffer(buf, pool);
+    }
+
+    /** {@inheritDoc} */
+    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        return reader.setCompressedBuffer(buf, pool);
+    }
 
     /** {@inheritDoc} */
     public synchronized boolean isClosed() {return reader.isClosed();}
