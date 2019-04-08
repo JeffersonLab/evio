@@ -154,6 +154,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
      * Constructor for reading a buffer.
      *
      * @param byteBuffer the buffer that contains events.
+     * @param pool pool of EvioNode objects to use when parsing buf.
      *
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
@@ -244,11 +245,21 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
         closed = false;
     }
 
+    /** {@inheritDoc} */
+    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool)
+            throws EvioException {
+        setBuffer(buf, pool);
+        return buf;
+    }
+
     /**
      * Is this reader reading a file? Always false for this class.
      * @return false.
      */
     public boolean isFile() {return false;}
+
+    /** {@inheritDoc} */
+    public boolean isCompressed() {return false;}
 
     /**
      * Has {@link #close()} been called (without reopening by calling
