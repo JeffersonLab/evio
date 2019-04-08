@@ -164,7 +164,7 @@
     <!-- Javadoc -->
     <target name="javadoc" description="Create javadoc.">
         <mkdir dir="${doc.dir}" />
-        <javadoc packagenames="org.jlab.coda.jevio"
+        <javadoc packagenames="org.jlab.coda.*"
                  sourcepath="java"
                  access="public"
                  destdir="${doc.dir}"
@@ -176,7 +176,7 @@
     <!-- Javadoc for developer -->
     <target name="developdoc" description="Create javadoc for developer.">
         <mkdir dir="${doc.dir}" />
-        <javadoc packagenames="org.jlab.coda.jevio"
+        <javadoc packagenames="org.jlab.coda.*"
                  sourcepath="java"
                  access="package"
                  destdir="${doc.dir}"
