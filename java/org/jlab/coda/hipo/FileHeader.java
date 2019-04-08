@@ -701,137 +701,6 @@ public class FileHeader {
      }
 
     /**
-     * Writes a trailer with an optional index array into the given byte array.
-     * @param array byte array to write trailer into.
-     * @param recordNumber record number of trailer.
-     * @param order byte order of data to be written.
-     * @param index array of record lengths to be written to trailer
-     *              (must be multiple of 4 bytes). Null if no index array.
-     * @throws HipoException if array arg is null or too small to hold trailer + index
-     */
-    static public void writeTrailer(byte[] array, int recordNumber,
-                                    ByteOrder order, byte[] index)
-            throws HipoException {
-        writeTrailer(array, 0, recordNumber, order, index);
-    }
-
-    /**
-     * Writes a trailer with an optional index array into the given byte array.
-     * @param array byte array to write trailer into.
-     * @param off   offset into array to start writing.
-     * @param recordNumber record number of trailer.
-     * @param order byte order of data to be written.
-     * @param index array of record lengths interspersed with event counts
-     *              to be written to trailer
-     *              (must be multiple of 4 bytes). Null if no index array.
-     * @throws HipoException if array arg is null, array too small to hold trailer + index,
-     *                       or index not multiple of 4 bytes.
-     */
-    static public void writeTrailer(byte[] array, int off, int recordNumber,
-                                    ByteOrder order, byte[] index)
-            throws HipoException {
-
-        int indexLength = 0;
-        int wholeLength = HEADER_SIZE_BYTES;
-        if (index != null) {
-            indexLength = index.length;
-            if ((indexLength % 4) != 0) {
-                throw new HipoException("index length not multiple of 4 bytes");
-            }
-            wholeLength += indexLength;
-        }
-
-        // Check arg
-        if (array == null || array.length < wholeLength) {
-            throw new HipoException("null or too small array arg");
-        }
-
-        int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
-
-        try {
-            // First the general header part
-            ByteDataTransformer.toBytes(wholeLength/4,  order, array, off);          // 0*4
-            ByteDataTransformer.toBytes(recordNumber, order, array, 4 + off);      // 1*4
-            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8 + off); // 2*4
-            ByteDataTransformer.toBytes(0, order, array, 12 + off);                // 3*4
-            ByteDataTransformer.toBytes(indexLength, order, array, 16 + off);      // 4*4
-            ByteDataTransformer.toBytes(bitInfo, order, array, 20 + off);          // 5*4
-            ByteDataTransformer.toBytes(0, order, array, 24 + off);                // 6*4
-            ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 28 + off);     // 7*4
-            // The rest is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
-            Arrays.fill(array, 32 + off, 56 + off, (byte)0);
-//
-//            ByteDataTransformer.toBytes(0L, order, array,  8*4 + off);
-//            ByteDataTransformer.toBytes(0L, order, array, 10*4 + off);
-//            ByteDataTransformer.toBytes(0L, order, array, 12*4 + off);
-
-            // Second the index
-            if (indexLength > 0) {
-                System.arraycopy(index, 0, array, 14 * 4 + off, indexLength);
-            }
-        }
-        catch (EvioException e) {/* never happen */}
-    }
-
-    /**
-     * Writes a trailer with an optional index array into the given buffer.
-     * @param buf   ByteBuffer to write trailer into.
-     * @param off   offset into buffer to start writing.
-     * @param recordNumber record number of trailer.
-     * @param order byte order of data to be written.
-     * @param index array of record lengths interspersed with event counts
-     *              to be written to trailer
-     *              (must be multiple of 4 bytes). Null if no index array.
-     * @throws HipoException if buf arg is null, buf too small to hold trailer + index,
-     *                       or index not multiple of 4 bytes.
-     */
-    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
-                                    ByteOrder order, byte[] index)
-            throws HipoException {
-
-        int indexLength = 0;
-        int wholeLength = HEADER_SIZE_BYTES;
-        if (index != null) {
-            indexLength = index.length;
-            if ((indexLength % 4) != 0) {
-                throw new HipoException("index length not multiple of 4 bytes");
-            }
-            wholeLength += indexLength;
-        }
-
-        // Check arg
-        if (buf == null || (buf.capacity() - off < wholeLength)) {
-            throw new HipoException("null or too small buf arg");
-        }
-
-        if (buf.hasArray()) {
-            writeTrailer(buf.array(), off, recordNumber, order, index);
-        }
-        else {
-            int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
-
-            buf.position(off);
-
-            // First the general header part
-            buf.putInt(wholeLength/4);
-            buf.putInt(recordNumber);
-            buf.putInt(HEADER_SIZE_WORDS);
-            buf.putInt(0);
-            buf.putInt(bitInfo);
-            buf.putInt(0);
-            buf.putInt(HEADER_MAGIC);
-            buf.putLong(0L);
-            buf.putLong(0L);
-            buf.putLong(0L);
-
-            // Second the index
-            if (indexLength > 0) {
-                buf.put(index, 0, indexLength);
-            }
-        }
-    }
-
-    /**
      * Reads the file header information from a byte buffer and validates
      * it by checking the magic word (8th word). This magic word
      * also determines the byte order. The given buffer's position does
@@ -924,6 +793,8 @@ public class FileHeader {
     public String toString(){
 
         StringBuilder str = new StringBuilder();
+        str.append(String.format("%24s : 0x%x, %s file\n","ID",fileId,
+                                 (fileId == EVIO_FILE_UNIQUE_WORD ? "Evio" : "Hipo")));
         str.append(String.format("%24s : %d\n","version",headerVersion));
         str.append(String.format("%24s : %d    bytes,     words,    padding\n","file #",fileNumber));
         str.append(String.format("%24s : %8d / %8d / %8d\n","user header length",
@@ -932,16 +803,16 @@ public class FileHeader {
         str.append(String.format("%24s : 0x%X\n","magic word",headerMagicWord));
         Integer bitInfo = getBitInfoWord();
         str.append(String.format("%24s : %s\n","bit info bits",Integer.toBinaryString(bitInfo)));
-        str.append(String.format("%24s : 0x%s\n","bit info word",Integer.toHexString(bitInfo)));
+        str.append(String.format("%24s : 0x%x\n","bit info word",bitInfo));
         str.append(String.format("%24s : %b\n","has dictionary",FileHeader.hasDictionary(bitInfo)));
         str.append(String.format("%24s : %d\n","record entries",entries));
 
         str.append(String.format("%24s : %d\n","  index length", indexLength));
 
         str.append(String.format("%24s : %d\n","trailer position", trailerPosition));
-        str.append(String.format("%24s : %d\n","user register", userRegister));
-        str.append(String.format("%24s : %d\n","user int #1", userIntFirst));
-        str.append(String.format("%24s : %d\n","user int #2", userIntSecond));
+        str.append(String.format("%24s : 0x%X\n","user register", userRegister));
+        str.append(String.format("%24s : 0x%X\n","user int #1", userIntFirst));
+        str.append(String.format("%24s : 0x%X\n","user int #2", userIntSecond));
 
         return str.toString();
     }
