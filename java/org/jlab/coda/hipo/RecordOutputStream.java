@@ -8,6 +8,7 @@ package org.jlab.coda.hipo;
 
 import org.jlab.coda.jevio.EvioBank;
 import org.jlab.coda.jevio.EvioNode;
+import org.jlab.coda.jevio.Utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -90,12 +91,26 @@ public class RecordOutputStream {
 
 
     /** Maximum number of events per record. */
-    private int MAX_EVENT_COUNT = ONE_MEG;
+    private int MAX_EVENT_COUNT = 1000000;
 
-    /** Size of some internal buffers in bytes. */
+    /**
+     * Size of some internal buffers in bytes. If the recordBinary buffer is passed
+     * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
+     * value is 91% of the its size (from position to capacity). This allows some
+     * margin for compressed data to be larger than the uncompressed - which may
+     * happen if data is random. It also allows other records to have been previously
+     * stored in the given buffer (eg. common record) since it starts writing at the
+     * buffer position which may not be 0.
+     */
     private int MAX_BUFFER_SIZE = 8*ONE_MEG;
 
-    /** Size of buffer holding built record in bytes. */
+    /**
+     * Size of buffer holding built record in bytes. If the recordBinary buffer is passed
+     * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
+     * value is set to be 10% bigger than {@link #MAX_BUFFER_SIZE}. This allows some
+     * margin for compressed data to be larger than the uncompressed - which may
+     * happen if data is random.
+     */
     private int RECORD_BUFFER_SIZE = 9*ONE_MEG;
 
     /** This buffer stores event lengths ONLY. */
@@ -110,6 +125,14 @@ public class RecordOutputStream {
     /** Buffer in which to put constructed (& compressed) binary record.
      * Code is written so that it works whether or not it's backed by an array. */
     private ByteBuffer recordBinary;
+
+    /** The number of initially available bytes to be written into in the user-given buffer,
+     * that go from position to limit. The user-given buffer is stored in recordBinary.
+     */
+    private int userBufferSize;
+
+    /** Is recordBinary a user provided buffer? */
+    private boolean userProvidedBuffer;
     
     /** Compression information & type. */
     private Compressor dataCompressor;
@@ -126,17 +149,36 @@ public class RecordOutputStream {
     /** Number of valid bytes in recordEvents buffer. */
     private int eventSize;
 
+    /** The starting position of a user-given buffer.
+     * No data will be written before this position. */
+    private int startingPosition;
+
     /** Byte order of record byte arrays to build. */
     private ByteOrder byteOrder;
 
     
     /** Default, no-arg constructor. Little endian. LZ4 compression. */
-    public RecordOutputStream(){
+    public RecordOutputStream() {
         dataCompressor = Compressor.getInstance();
         header = new RecordHeader();
         header.setCompressionType(Compressor.RECORD_COMPRESSION_LZ4);
         byteOrder = ByteOrder.LITTLE_ENDIAN;
         allocate();
+    }
+
+    /**
+     * Constructor with arguments.
+     * Record header type defaults to HIPO record.
+     * @param order byte order of built record byte arrays.
+     * @param maxEventCount max number of events this record can hold.
+     *                      Value <= O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes this record can hold.
+     *                      Value of < 8MB results in default of 8MB.
+     * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     */
+    public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize,
+                              int compressionType) {
+        this(order, maxEventCount, maxBufferSize, compressionType, null);
     }
 
     /**
@@ -147,11 +189,19 @@ public class RecordOutputStream {
      * @param maxBufferSize max number of uncompressed data bytes this record can hold.
      *                      Value of < 8MB results in default of 8MB.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     * @param hType           type of record header to use.
      */
     public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize,
-                              int compressionType) {
+                              int compressionType, HeaderType hType) {
         dataCompressor = Compressor.getInstance();
-        header = new RecordHeader();
+        try {
+            if (hType != null) {
+                if      (hType.isEvioFileHeader()) hType = HeaderType.EVIO_RECORD;
+                else if (hType.isHipoFileHeader()) hType = HeaderType.HIPO_RECORD;
+            }
+            header = new RecordHeader(hType);
+        }
+        catch (HipoException e) {/* never happen */}
         header.setCompressionType(compressionType);
         byteOrder = order;
 
@@ -161,17 +211,108 @@ public class RecordOutputStream {
 
         if (maxBufferSize > MAX_BUFFER_SIZE) {
             MAX_BUFFER_SIZE = maxBufferSize;
-            RECORD_BUFFER_SIZE = maxBufferSize + ONE_MEG;
+            // If it's at least 10% bigger we'll be OK.
+            // Done so that if we "compress" random data,
+            // we have a place to put its larger size.
+            RECORD_BUFFER_SIZE = (int) (1.1 * MAX_BUFFER_SIZE);
         }
 
         allocate();
     }
 
     /**
-     * Copy the contents of the arg into this object.
-     * @param rec object to copy
+     * Constructor with arguments.
+     * @param buffer buffer in which to put constructed (& compressed) binary record.
+     *               Must have position and limit set to accept new data.
+     * @param maxEventCount max number of events this record can hold.
+     *                      Value <= O means use default (1M).
+     * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     * @param hType           type of record header to use.
      */
-    public void copy(RecordOutputStream rec) {
+    public RecordOutputStream(ByteBuffer buffer, int maxEventCount,
+                              int compressionType, HeaderType hType) {
+
+        dataCompressor = Compressor.getInstance();
+        try {
+            if (hType != null) {
+                if      (hType.isEvioFileHeader()) hType = HeaderType.EVIO_RECORD;
+                else if (hType.isHipoFileHeader()) hType = HeaderType.HIPO_RECORD;
+            }
+            header = new RecordHeader(hType);
+        }
+        catch (HipoException e) {/* never happen */}
+        header.setCompressionType(compressionType);
+
+        userProvidedBuffer = true;
+        recordBinary = buffer;
+        byteOrder = buffer.order();
+
+        // Start writing at startingPosition, but allow writing
+        // to extend to the full buffer capacity and not be limited
+        // to only the limit. This is done as we may be adding records
+        // to already existing records, but we most likely will not be
+        // trying to fit a record in between 2 existing records.
+        startingPosition = buffer.position();
+        userBufferSize = buffer.capacity() - startingPosition;
+        buffer.limit(buffer.capacity());
+
+        if (maxEventCount > 0) {
+            MAX_EVENT_COUNT = maxEventCount;
+        }
+
+        // Set things so user buffer is 10% bigger
+        MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
+        // Not used with user provided buffer,
+        // but change it anyway for use in copy(RecordOutputStream)
+        RECORD_BUFFER_SIZE = userBufferSize;
+
+        allocate();
+    }
+
+    /**
+     * Reset internal buffers and set the buffer in which to build this record.
+     * The given buffer should be made ready to receive new data by setting its
+     * position and limit properly. Its byte order is set to the same as this writer's.
+     * The argument ByteBuffer can be retrieved by calling {@link #getBinaryBuffer()}.
+     * @param buf buffer in which to build record.
+     */
+    public void setBuffer(ByteBuffer buf) {
+        if (buf.order() != byteOrder) {
+            System.out.println("setBuffer(): warning, changing buffer's byte order!");
+        }
+
+        recordBinary = buf;
+        recordBinary.order(byteOrder);
+        userProvidedBuffer = true;
+
+        startingPosition = buf.position();
+        userBufferSize = buf.capacity() - startingPosition;
+        buf.limit(buf.capacity());
+
+        // Only allocate memory if current buffers are too small
+        if (userBufferSize > RECORD_BUFFER_SIZE) {
+            MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
+            RECORD_BUFFER_SIZE = userBufferSize;
+            allocate();
+        }
+        else {
+            MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
+            RECORD_BUFFER_SIZE = userBufferSize;
+        }
+
+        reset();
+    }
+
+    // TODO: This method needs some serious attention!
+    /**
+     * Copy the contents of the arg into this object.
+     * If the arg has more data than will fit, increase buffer sizes.
+     * If the arg has more events than our allowed max, increase the max.
+     * @param rec object to copy
+     * @throws HipoException if we cannot replace internal buffer if it needs to be
+     *                       expanded since it was provided by the user.
+     */
+    public void copy(RecordOutputStream rec) throws HipoException {
         if (rec == null) return;
 
         // Copy primitive types & immutable objects
@@ -183,13 +324,39 @@ public class RecordOutputStream {
         // Copy header
         header.copy(rec.header);
 
-        // Leave MAX_EVENT_COUNT as is so RecordSupply has consistent behavior
+        // It would be nice to leave MAX_EVENT_COUNT as is so RecordSupply
+        // has consistent behavior. But I don't think that's possible if
+        // the record output stream being copied is larger. Since the record
+        // being copied may not have had build() called, go by the max sizes
+        // and not how much data are in the buffers.
 
-        // Choose the larger of the 2 buffer sizes
-        if (rec.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE) {
-            MAX_BUFFER_SIZE    = rec.MAX_BUFFER_SIZE;
+        // Choose the larger of rec's or this object's buffer sizes
+        if (rec.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE ||
+            rec.RECORD_BUFFER_SIZE > RECORD_BUFFER_SIZE) {
+
+            MAX_BUFFER_SIZE = rec.MAX_BUFFER_SIZE;
             RECORD_BUFFER_SIZE = rec.RECORD_BUFFER_SIZE;
-            allocate();
+
+            // Reallocate memory
+            if (!userProvidedBuffer) {
+                recordBinary = ByteBuffer.wrap(new byte[RECORD_BUFFER_SIZE]);
+                recordBinary.order(byteOrder);
+            }
+            else {
+                throw new HipoException("cannot replace internal buffer since it's provided by user");
+            }
+
+            recordEvents = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
+            recordEvents.order(byteOrder);
+
+            recordData = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
+            recordData.order(byteOrder);
+        }
+
+        if (rec.eventCount > MAX_EVENT_COUNT) {
+            MAX_EVENT_COUNT = rec.eventCount;
+            recordIndex = ByteBuffer.wrap(new byte[MAX_EVENT_COUNT*4]);
+            recordIndex.order(byteOrder);
         }
 
         // Copy data over
@@ -215,6 +382,14 @@ public class RecordOutputStream {
         }
     }
 
+
+    /**
+     * Get the number of initially available bytes to be written into in the user-given buffer,
+     * that goes from position to limit. The user-given buffer is referenced by recordBinary.
+     * @return umber of initially available bytes to be written into in the user-given buffer.
+     */
+    public int getUserBufferSize() {return userBufferSize;}
+
     /**
      * Get the current uncompressed size of the record in bytes.
      * This does NOT count any user header.
@@ -230,9 +405,7 @@ public class RecordOutputStream {
      * uncompressed record.
      * @return capacity of the internal buffer in bytes.
      */
-    public int getInternalBufferCapacity() {
-        return MAX_BUFFER_SIZE;
-    }
+    public int getInternalBufferCapacity() {return MAX_BUFFER_SIZE;}
 
     /**
      * Get the general header of this record.
@@ -253,6 +426,12 @@ public class RecordOutputStream {
     public ByteBuffer getBinaryBuffer() {return recordBinary;}
 
     /**
+     * Was the internal buffer provided by the user?
+     * @return true if internal buffer provided by user.
+     */
+    public boolean hasUserProvidedBuffer() {return userProvidedBuffer;}
+
+    /**
      * Get the byte order of the record to be built.
      * @return byte order of the record to be built.
      */
@@ -266,35 +445,38 @@ public class RecordOutputStream {
     void setByteOrder(ByteOrder order) {byteOrder = order;}
 
     /** Allocates all buffers for constructing the record stream. */
-    private void allocate(){
+    private void allocate() {
 
-        recordIndex = ByteBuffer.wrap(new byte[MAX_EVENT_COUNT*4]);
-        recordIndex.order(byteOrder);
+        if (recordIndex == null) {
+            // This only needs to be done once
+            recordIndex = ByteBuffer.wrap(new byte[MAX_EVENT_COUNT * 4]);
+            recordIndex.order(byteOrder);
+        }
 
         recordEvents = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
         recordEvents.order(byteOrder);
 
-        // Making this a direct buffer slow it down by 6%
+        // Making this a direct buffer slows it down by 6%
         recordData = ByteBuffer.wrap(new byte[MAX_BUFFER_SIZE]);
         recordData.order(byteOrder);
 
-        // Trying to compress random data will expand it, so create a cushion
-
-        // Using a direct buffer takes 2/3 the time of an array-backed buffer
-        //recordBinary = ByteBuffer.allocateDirect(RECORD_BUFFER_SIZE);
-        recordBinary = ByteBuffer.wrap(new byte[RECORD_BUFFER_SIZE]);
-        recordBinary.order(byteOrder);
+        if (!userProvidedBuffer) {
+            // Trying to compress random data will expand it, so create a cushion.
+            // Using a direct buffer takes 2/3 the time of an array-backed buffer
+            //recordBinary = ByteBuffer.allocateDirect(RECORD_BUFFER_SIZE);
+            recordBinary = ByteBuffer.wrap(new byte[RECORD_BUFFER_SIZE]);
+            recordBinary.order(byteOrder);
+        }
     }
 
     /**
      * Is there room in this record's memory for an additional event
      * of the given length in bytes (length NOT including accompanying index).
-     * @param length length of event to add in bytes
+     * @param length length of data to add in bytes
      * @return {@code true} if room in record, else {@code false}.
      */
     public boolean roomForEvent(int length) {
-        // New length = existing indexes  +  index for new event  +
-        // existing data  +  header  +  new data.
+        // Account for this record's header including index
         return ((indexSize + 4 + eventSize + RecordHeader.HEADER_SIZE_BYTES + length) <= MAX_BUFFER_SIZE);
     }
 
@@ -302,104 +484,167 @@ public class RecordOutputStream {
      * Does adding one more event exceed the event count limit?
      * @return {@code true} if one more event exceeds count limit, else {@code false}.
      */
-    public boolean oneTooMany() {
-        return (eventCount + 1 > MAX_EVENT_COUNT);
+    public boolean oneTooMany() {return (eventCount + 1 > MAX_EVENT_COUNT);}
+
+    /**
+     * Is another event of the given length allowed into this record's memory?
+     * It may not be allowed if its exceeds the memory or count limit.
+     * @param length length of event to add in bytes
+     * @return {@code true} if allowed into record, else {@code false}.
+     */
+    private boolean allowedIntoRecord(int length) {
+        return (eventCount < 1 && !roomForEvent(length));
     }
 
     /**
-     * Adds an event's byte[] array into the record.
-     * <b>The byte order of event's byte array must
-     * match the byte order given in constructor!</b>
+     * Adds an event's ByteBuffer into the record.
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
      *
-     * @param event    event's byte array
-     * @param position offset into event byte array from which to begin reading
-     * @param length   number of bytes from byte array to add
-     * @return true if event was added, false if the buffer is full or
-     *         event count limit exceeded
+     *
+     * @param event  event's byte array.
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
      */
-    public boolean addEvent(byte[] event, int position, int length) {
+    public boolean addEvent(byte[] event) {
+        return addEvent(event, 0, event.length, 0);
+    }
+
+    /**
+     * Adds an event's ByteBuffer into the record.
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
+     *
+     *
+     * @param event     event's byte array.
+     * @param position  offset into event byte array from which to begin reading.
+     * @param eventLen  number of bytes from byte array to add.
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
+     */
+    public boolean addEvent(byte[] event, int position, int eventLen) {
+        return addEvent(event, position, eventLen, 0);
+    }
+
+    /**
+     * Adds an event's ByteBuffer into the record.
+     * Can specify the length of additional data to follow the event
+     * (such as an evio trailer record) to see if by adding this event
+     * everything will fit in the available memory.<p>
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
+     *
+     *
+     * @param event        event's byte array.
+     * @param position     offset into event byte array from which to begin reading.
+     * @param eventLen     number of bytes from byte array to add.
+     * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
+     */
+    public boolean addEvent(byte[] event, int position, int eventLen, int extraDataLen) {
 
         // If we receive a single event larger than our memory, we must accommodate this
         // by increasing our internal buffer size(s). Cannot simply refuse to write an
         // event during event building for example.
-        if (eventCount < 1 && !roomForEvent(length)) {
+        if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
+            if (userProvidedBuffer) {
+                return false;
+            }
+
             // Allocate roughly what we need + 1MB
-            MAX_BUFFER_SIZE = length + ONE_MEG;
+            MAX_BUFFER_SIZE = eventLen + ONE_MEG;
             RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
             allocate();
             // This does NOT reset record type, compression type, or byte order
             reset();
         }
 
-        if (oneTooMany() || !roomForEvent(length)) {
-//System.out.println(" the record is FULL..... INDEX SIZE = "
-//        + (indexSize/4) + " DATA SIZE = " + eventSize);
+        if (oneTooMany() || !roomForEvent(eventLen)) {
             return false;
         }
 
-        //recordEvents.position(eventSize);
-        // TODO: check length if len%4 = 0 ? Error handling?
-
         // Where do we start writing in buffer?
         int pos = recordEvents.position();
-//System.out.println("record.addEvent:  put event data into record buffer at pos = " + pos +
-//", len = " + length);
         // Add event data
-        System.arraycopy(event, position, recordEvents.array(), pos, length);
+        System.arraycopy(event, position, recordEvents.array(), pos, eventLen);
         // Make sure we write in the correct position next time
-        recordEvents.position(pos + length);
-        // Same as below, but above method should be a lot faster:
+        recordEvents.position(pos + eventLen);
+        // Same as above, but above method is a lot faster:
         //recordEvents.put(event, position, length);
-        eventSize += length;
+        eventSize += eventLen;
 
         // Add 1 more index
-        recordIndex.putInt(indexSize, length);
+        recordIndex.putInt(indexSize, eventLen);
         indexSize += 4;
 
         eventCount++;
-//System.out.println("record.addEvent:  ev count = " + eventCount +
-//                ", ev size = " + eventSize);
 
         return true;
     }
 
     /**
-     * Adds an event's byte[] array into the record.
-     * <b>The byte order of event's byte array must
-     * match the byte order given in constructor!</b>
-     * 
-     * @param event event's byte array
-     * @return true if event was added, false if the buffer is full.
+     * Adds an event's ByteBuffer into the record.
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
+     *
+     * @param event  event's ByteBuffer object.
+     * @return true if event was added; false if the buffer is full,
+     *         the event count limit is exceeded, or this single event cannot fit into
+     *         the user-provided buffer.
      */
-    public boolean addEvent(byte[] event){
-        return addEvent(event,0, event.length);
+    public boolean addEvent(ByteBuffer event) {
+        return addEvent(event, 0);
     }
 
     /**
      * Adds an event's ByteBuffer into the record.
+     * Can specify the length of additional data to follow the event
+     * (such as an evio trailer record) to see if by adding this event
+     * everything will fit in the available memory.<p>
      * If a single event is too large for the internal buffers,
-     * more memory is allocated. This is important for an application such as
-     * CODA online in which event building may not fail due to a large event size.
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
      * <b>The byte order of event must match the byte order given in constructor!</b>
      *
-     * @param event  event's ByteBuffer object
-     * @return true if event was added, false if the buffer is full or
-     *         event count limit exceeded
+     * @param event        event's ByteBuffer object.
+     * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
      */
-    public boolean addEvent(ByteBuffer event) {
+    public boolean addEvent(ByteBuffer event, int extraDataLen) {
 
-        int length = event.remaining();
+        int eventLen = event.remaining();
 
-        if (eventCount < 1 && !roomForEvent(length)) {
-            MAX_BUFFER_SIZE = length + ONE_MEG;
+        if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
+            if (userProvidedBuffer) {
+                return false;
+            }
+
+            MAX_BUFFER_SIZE = eventLen + ONE_MEG;
             RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
             allocate();
             reset();
         }
 
-        if (oneTooMany() || !roomForEvent(length)) {
-            //System.out.println(" the record is FULL..... INDEX SIZE = "
-            //        + indexSize + ", DATA SIZE = " + eventSize + " bytes");
+        if (oneTooMany() || !roomForEvent(eventLen)) {
             return false;
         }
 
@@ -408,18 +653,15 @@ public class RecordOutputStream {
             int pos = recordEvents.position();
             System.arraycopy(event.array(),
                              event.arrayOffset() + event.position(),
-                             recordEvents.array(), pos, length);
-            recordEvents.position(pos + length);
-
-            // Same as below, but above method should be a lot faster:
-            // recordEvents.put(event.array(), event.arrayOffset() + event.position(), length);
+                             recordEvents.array(), pos, eventLen);
+            recordEvents.position(pos + eventLen);
         }
         else {
             recordEvents.put(event);
         }
 
-        eventSize += length;
-        recordIndex.putInt(indexSize, length);
+        eventSize += eventLen;
+        recordIndex.putInt(indexSize, eventLen);
         indexSize += 4;
         eventCount++;
 
@@ -427,62 +669,82 @@ public class RecordOutputStream {
     }
 
     /**
-     * Adds an event represented by an EvioNode into the record.
+     * Adds an event's ByteBuffer into the record.
      * If a single event is too large for the internal buffers,
-     * more memory is allocated. This is important for an application such as
-     * CODA online in which event building may not fail due to a large event size.
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
      * This method is not thread-safe with respect to the node as it's backing
      * ByteBuffer's limit and position may be concurrently changed.
-     * <b>The byte order of event in the backing ByteBuffer of the node
-     * must match the byte order given in constructor!</b>
      *
-     * @param node  event's EvioNode object
-     * @return true if event was added, false if the buffer is full or
-     *         event count limit exceeded
+     * @param node         event's EvioNode object
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
      * @throws HipoException if node does not correspond to a bank.
      */
     public boolean addEvent(EvioNode node) throws HipoException {
+        return addEvent(node, 0);
+    }
 
-        int length = node.getTotalBytes();
+    /**
+     * Adds an event's ByteBuffer into the record.
+     * Can specify the length of additional data to follow the event
+     * (such as an evio trailer record) to see if by adding this event
+     * everything will fit in the available memory.<p>
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
+     * This method is not thread-safe with respect to the node as it's backing
+     * ByteBuffer's limit and position may be concurrently changed.
+     *
+     * @param node         event's EvioNode object
+     * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
+     * @throws HipoException if node does not correspond to a bank.
+     */
+    public boolean addEvent(EvioNode node, int extraDataLen) throws HipoException {
+
+        int eventLen = node.getTotalBytes();
 
         if (!node.getTypeObj().isBank()) {
             throw new HipoException("node does not represent a bank");
         }
 
-        if (eventCount < 1 && !roomForEvent(length)) {
-            MAX_BUFFER_SIZE = length + ONE_MEG;
+        if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
+            if (userProvidedBuffer) {
+                return false;
+            }
+
+            MAX_BUFFER_SIZE = eventLen + ONE_MEG;
             RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
             allocate();
             reset();
         }
 
-        if (oneTooMany() || !roomForEvent(length)) {
-            //System.out.println(" the record is FULL..... INDEX SIZE = "
-            //        + indexSize + ", DATA SIZE = " + eventSize + " bytes");
+        if (oneTooMany() || !roomForEvent(eventLen)) {
             return false;
         }
 
         ByteBuffer buf = node.getStructureBuffer(false);
         if (buf.hasArray()) {
-            // recordEvents backing array's offset = 0
             int pos = recordEvents.position();
             System.arraycopy(buf.array(),
                              buf.arrayOffset() + buf.position(),
-                             recordEvents.array(), pos, length);
-            recordEvents.position(pos + length);
-
-            // Same as below, but above method should be a lot faster:
-            // recordEvents.put(event.array(), event.arrayOffset() + event.position(), length);
+                             recordEvents.array(), pos, eventLen);
+            recordEvents.position(pos + eventLen);
         }
         else {
             recordEvents.put(buf);
         }
 
-        // Same as below, but above method should be a lot faster:
-        // recordEvents.put(event.array(), event.arrayOffset() + event.position(), length);
-
-        eventSize += length;
-        recordIndex.putInt(indexSize, length);
+        eventSize += eventLen;
+        recordIndex.putInt(indexSize, eventLen);
         indexSize += 4;
         eventCount++;
 
@@ -490,36 +752,62 @@ public class RecordOutputStream {
     }
 
     /**
-     * Adds an event's EvioBank into the record.
+     * Adds an event's ByteBuffer into the record.
      * If a single event is too large for the internal buffers,
-     * more memory is allocated. This is important for an application such as
-     * CODA online in which event building may not fail due to a large event size.
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
      *
-     * @param event  event's EvioBank object
-     * @return true if event was added, false if the buffer is full or
-     *         event count limit exceeded
+     * @param event event's EvioBank object.
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
      */
     public boolean addEvent(EvioBank event) {
+        return addEvent(event, 0);
+    }
 
-        int length = event.getTotalBytes();
+    /**
+     * Adds an event's ByteBuffer into the record.
+     * Can specify the length of additional data to follow the event
+     * (such as an evio trailer record) to see if by adding this event
+     * everything will fit in the available memory.<p>
+     * If a single event is too large for the internal buffers,
+     * more memory is allocated.
+     * On the other hand, if the buffer was provided by the user,
+     * then obviously the buffer cannot be expanded and false is returned.<p>
+     * <b>The byte order of event must match the byte order given in constructor!</b>
+     *
+     * @param event        event's EvioBank object.
+     * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+     * @return true if event was added; false if the event was not added because the
+     *         count limit would be exceeded or the buffer is full and cannot be
+     *         expanded since it's user-provided.
+     */
+    public boolean addEvent(EvioBank event, int extraDataLen) {
 
-        if (eventCount < 1 && !roomForEvent(length)) {
-            MAX_BUFFER_SIZE = length + ONE_MEG;
+        int eventLen = event.getTotalBytes();
+
+        if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
+            if (userProvidedBuffer) {
+                return false;
+            }
+
+            MAX_BUFFER_SIZE = eventLen + ONE_MEG;
             RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
             allocate();
             reset();
         }
 
-        if (oneTooMany() || !roomForEvent(length)) {
-            //System.out.println(" the record is FULL..... INDEX SIZE = "
-            //        + indexSize + ", DATA SIZE = " + eventSize + " bytes");
+        if (oneTooMany() || !roomForEvent(eventLen)) {
             return false;
         }
 
         event.write(recordEvents);
         
-        eventSize += length;
-        recordIndex.putInt(indexSize, length);
+        eventSize += eventLen;
+        recordIndex.putInt(indexSize, eventLen);
         indexSize += 4;
         eventCount++;
 
@@ -545,25 +833,17 @@ public class RecordOutputStream {
     }
 
     /**
-     * Reset internal buffers and set the buffer in which to build this record.
-     * The given buffer should be made ready to receive new data by setting its
-     * position and limit properly. It's byte order is set to the same as this writer's.
-     * The argument ByteBuffer can be retrieved by calling {@link #getBinaryBuffer()}.
-     * @param buf buffer in which to build record.
-     * @throws HipoException if buf is too small (must be >= RECORD_BUFFER_SIZE).
+     * Set the starting position of the user-given buffer being written into.
+     * Calling this may be necessary from EventWriter(Unsync) when a common record
+     * (dictionary + first event) is written after the constructor for this
+     * object has been called, but before any events have been written.
+     * This method should <b>not</b> be called in general as it will MESS UP
+     * THE WRITING OF DATA!
+     * @param pos position in buffer to start writing.
      */
-    public void setBuffer(ByteBuffer buf) throws HipoException {
-        if (buf.order() != byteOrder) {
-            System.out.println("setBuffer(): warning, changing buffer's byte order!");
-        }
-
-        if (buf.capacity() < RECORD_BUFFER_SIZE) {
-            throw new HipoException("buffer too small, must be >= " + RECORD_BUFFER_SIZE + " bytes");
-        }
-
-        reset();
-        recordBinary = buf;
-        recordBinary.order(byteOrder);
+    public void setStartingBufferPosition(int pos) {
+        recordBinary.position(pos);
+        startingPosition = pos;
     }
 
     /**
@@ -572,7 +852,7 @@ public class RecordOutputStream {
      * This method may be called multiple times in succession without
      * any problem.
      */
-    public void build(){
+    public void build() {
 
         // If no events have been added yet, just write a header
         if (eventCount < 1) {
@@ -581,12 +861,14 @@ public class RecordOutputStream {
             header.setIndexLength(0);
             header.setCompressedDataLength(0);
             header.setLength(RecordHeader.HEADER_SIZE_BYTES);
-            recordBinary.position(0);
+            recordBinary.position(startingPosition);
             try {
                 header.writeHeader(recordBinary);
             }
             catch (HipoException e) {/* never happen */}
-            recordBinary.position(0).limit(RecordHeader.HEADER_SIZE_BYTES);
+//            System.out.println("build: buf lim = " + recordBinary.limit() +
+//                    ", cap = " + recordBinary.capacity());
+            recordBinary.limit(RecordHeader.HEADER_SIZE_BYTES);
             return;
         }
 
@@ -604,21 +886,25 @@ public class RecordOutputStream {
         // If NOT compressing data ...
         else {
             // Write directly into final buffer, past where header will go
-//System.out.println("build: recordBinary len = " + recordBinary.capacity() +
-//                   ", pos = " + recordBinary.position() + ", data to write = " +
+//System.out.println("build: recordBinary len = " + userBufferSize +
+//                   ", start pos = " + startingPosition + ", data to write = " +
 //                   (RecordHeader.HEADER_SIZE_BYTES + indexSize + eventSize));
-            recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+
+            recordBinary.position(startingPosition + RecordHeader.HEADER_SIZE_BYTES);
             recordBinary.put(  recordIndex.array(), 0, indexSize);
 //System.out.println("build: recordBinary pos = " + recordBinary.position() +
 //                   ", eventSize = " + eventSize + ", recordEvents.array().len = " +
 //                   recordEvents.array().length);
+
             recordBinary.put( recordEvents.array(), 0, eventSize);
+//System.out.println("build: writing index of size " + indexSize);
+//System.out.println("build: events of size " + indexSize);
         }
 
         // Since hipo/evio data is padded, all data to be written is already padded
         // TODO: This does NOT include padding. Shouldn't we do that?
         int uncompressedDataSize = indexSize + eventSize;
-        int compressedSize;
+        int compressedSize = -1;
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
@@ -628,19 +914,20 @@ public class RecordOutputStream {
                     // LZ4 fastest compression
                     if (recordBinary.hasArray() && recordData.hasArray()) {
                         //System.out.println("1. uncompressed size = " + uncompressedDataSize);
+                        int dstOff = recordBinary.arrayOffset() + startingPosition +
+                                     RecordHeader.HEADER_SIZE_BYTES;
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData.array(), 0, uncompressedDataSize,
-                                recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
-                                (recordBinary.array().length -
-                                        RecordHeader.HEADER_SIZE_BYTES));
+                                recordBinary.array(), dstOff,
+                                (recordBinary.array().length - dstOff));
                     }
                     else {
                         //System.out.println("2. uncompressed size = " + uncompressedDataSize);
+                        int dstOff = startingPosition + RecordHeader.HEADER_SIZE_BYTES;
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData, 0, uncompressedDataSize,
-                                recordBinary, RecordHeader.HEADER_SIZE_BYTES,
-                               (recordBinary.capacity() -
-                                       RecordHeader.HEADER_SIZE_BYTES));
+                                recordBinary, dstOff,
+                               (recordBinary.capacity() - dstOff));
                     }
                     // Length of compressed data in bytes
                     header.setCompressedDataLength(compressedSize);
@@ -652,29 +939,42 @@ public class RecordOutputStream {
                 case 2:
                     // LZ4 highest compression
                     if (recordBinary.hasArray() && recordData.hasArray()) {
+                        int dstOff = recordBinary.arrayOffset() + startingPosition +
+                                     RecordHeader.HEADER_SIZE_BYTES;
                         compressedSize = dataCompressor.compressLZ4Best(
                                 recordData.array(), 0, uncompressedDataSize,
-                                recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
-                                (recordBinary.array().length -
-                                        RecordHeader.HEADER_SIZE_BYTES));
+                                recordBinary.array(), dstOff,
+                                (recordBinary.array().length - dstOff));
+//System.out.println("Compressing data array from offset = 0, size = " + uncompressedDataSize +
+//         " to output.array offset = " + dstOff + ", compressed size = " +  compressedSize +
+//         ", available size = " + (recordBinary.array().length - dstOff));
                     }
                     else {
+                        int dstOff = startingPosition + RecordHeader.HEADER_SIZE_BYTES;
                         compressedSize = dataCompressor.compressLZ4Best(
                                 recordData, 0, uncompressedDataSize,
-                                recordBinary, RecordHeader.HEADER_SIZE_BYTES,
-                               (recordBinary.capacity() -
-                                       RecordHeader.HEADER_SIZE_BYTES));
+                                recordBinary, dstOff,
+                               (recordBinary.capacity() - dstOff));
+//System.out.println("Compressing data buffer from offset = 0, size = " + uncompressedDataSize +
+//        " to output.buffer offset = " + dstOff + ", compressed size = " +  compressedSize +
+//        ", available size = " + (recordBinary.array().length - dstOff));
                     }
+//System.out.println("BEFORE setting header len: comp size = " + header.getCompressedDataLength() +
+//                            ", comp words = " + header.getCompressedDataLengthWords() + ", padding = " +
+//                            header.getCompressedDataLengthPadding());
                     header.setCompressedDataLength(compressedSize);
                     header.setLength(4*header.getCompressedDataLengthWords() +
                                              RecordHeader.HEADER_SIZE_BYTES);
+//System.out.println("AFTER setting, read back from header: comp size = " + header.getCompressedDataLength() +
+//        ", comp words = " + header.getCompressedDataLengthWords() + ", padding = " +
+//        header.getCompressedDataLengthPadding() + ", rec len = " + header.getLength());
                     break;
 
                 case 3:                    
                     // GZIP compression
                     byte[] gzippedData = dataCompressor.compressGZIP(recordData.array(), 0,
                                                                      uncompressedDataSize);
-                    recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+                    recordBinary.position(startingPosition + RecordHeader.HEADER_SIZE_BYTES);
                     recordBinary.put(gzippedData);
                     compressedSize = gzippedData.length;
                     header.setCompressedDataLength(compressedSize);
@@ -687,15 +987,13 @@ public class RecordOutputStream {
                     // No compression
                     header.setCompressedDataLength(0);
                     int words = uncompressedDataSize/4;
-                    if(uncompressedDataSize%4!=0) words++;
+                    if(uncompressedDataSize % 4 != 0) words++;
                     header.setLength(words*4 + RecordHeader.HEADER_SIZE_BYTES);                    
                     //header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
             }
         }
         catch (HipoException e) {/* should not happen */}
-        //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
-        //int LZ4id = recordBinary.getInt(RecordHeader.HEADER_SIZE_BYTES);
-        //System.out.println(String.format("IDENTIFICATION %X", LZ4id));
+
         // Set the rest of the header values
         header.setEntries(eventCount);
         header.setDataLength(eventSize);
@@ -705,16 +1003,16 @@ public class RecordOutputStream {
         //header.setCompressedDataLength(compressedSize);
 //        System.out.println(" COMPRESSED = " + compressedSize + "  events size = " + eventSize + "  type = "
 //                + compressionType + "  uncompressed = " + uncompressedDataSize +
-//                " record bytes = " + header.getLength());
-        // Go back and write header into destination buffer
-        recordBinary.position(0);
-        //System.out.println(header.toString());
+//                " record bytes = " + header.getLength() + "\n\n");
+//        // Go back and write header into destination buffer
         try {
-            header.writeHeader(recordBinary);
+            // Does NOT change recordBinary pos or lim
+            header.writeHeader(recordBinary, startingPosition);
         }
         catch (HipoException e) {/* never happen */}
+
         // Make ready to read
-        recordBinary.position(0).limit(header.getLength());
+        recordBinary.limit(startingPosition + header.getLength()).position(0);
     }
 
     /**
@@ -726,7 +1024,7 @@ public class RecordOutputStream {
      *
      * @param userHeader user's ByteBuffer which must be READY-TO-READ!
      */
-    public void build(ByteBuffer userHeader){
+    public void build(ByteBuffer userHeader) {
 
         // Arg check
         if (userHeader == null) {
@@ -786,7 +1084,7 @@ public class RecordOutputStream {
         // If NOT compressing data ...
         else {
             // Write directly into final buffer, past where header will go
-            recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+            recordBinary.position(startingPosition + RecordHeader.HEADER_SIZE_BYTES);
 
             // 1) uncompressed index array
             recordBinary.put(recordIndex.array(), 0, indexSize);
@@ -804,7 +1102,8 @@ public class RecordOutputStream {
 
             header.setUserHeaderLength(userHeaderSize);
             uncompressedDataSize += 4*header.getUserHeaderLengthWords();
-            recordBinary.position(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
+            recordBinary.position(startingPosition + uncompressedDataSize +
+                                  RecordHeader.HEADER_SIZE_BYTES);
 
             // 3) uncompressed data array (hipo/evio data is already padded)
             recordBinary.put(recordEvents.array(), 0, eventSize);
@@ -824,16 +1123,18 @@ public class RecordOutputStream {
                     if (recordBinary.hasArray() && recordData.hasArray()) {
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData.array(), 0, uncompressedDataSize,
-                                recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                                recordBinary.array(),
+                                startingPosition + RecordHeader.HEADER_SIZE_BYTES,
                                 (recordBinary.array().length -
-                                        RecordHeader.HEADER_SIZE_BYTES));
+                                 (startingPosition + RecordHeader.HEADER_SIZE_BYTES)));
                     }
                     else {
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData, 0, uncompressedDataSize,
-                                recordBinary, RecordHeader.HEADER_SIZE_BYTES,
+                                recordBinary,
+                                startingPosition + RecordHeader.HEADER_SIZE_BYTES,
                                (recordBinary.capacity() -
-                                       RecordHeader.HEADER_SIZE_BYTES));
+                                (startingPosition + RecordHeader.HEADER_SIZE_BYTES)));
                     }
                     // Length of compressed data in bytes
                     header.setCompressedDataLength(compressedSize);
@@ -847,16 +1148,18 @@ public class RecordOutputStream {
                     if (recordBinary.hasArray() && recordData.hasArray()) {
                         compressedSize = dataCompressor.compressLZ4Best(
                                 recordData.array(), 0, uncompressedDataSize,
-                                recordBinary.array(), RecordHeader.HEADER_SIZE_BYTES,
+                                recordBinary.array(),
+                                startingPosition + RecordHeader.HEADER_SIZE_BYTES,
                                 (recordBinary.array().length -
-                                        RecordHeader.HEADER_SIZE_BYTES));
+                                 (startingPosition + RecordHeader.HEADER_SIZE_BYTES)));
                     }
                     else {
                         compressedSize = dataCompressor.compressLZ4Best(
                                 recordData, 0, uncompressedDataSize,
-                                recordBinary, RecordHeader.HEADER_SIZE_BYTES,
+                                recordBinary,
+                                startingPosition + RecordHeader.HEADER_SIZE_BYTES,
                                (recordBinary.capacity() -
-                                       RecordHeader.HEADER_SIZE_BYTES));
+                                (startingPosition + RecordHeader.HEADER_SIZE_BYTES)));
                     }
                     header.setCompressedDataLength(compressedSize);
                     header.setLength(4*header.getCompressedDataLengthWords() +
@@ -867,7 +1170,7 @@ public class RecordOutputStream {
                     // GZIP compression
                     byte[] gzippedData = dataCompressor.compressGZIP(recordData.array(), 0,
                                                                      uncompressedDataSize);
-                    recordBinary.position(RecordHeader.HEADER_SIZE_BYTES);
+                    recordBinary.position(startingPosition + RecordHeader.HEADER_SIZE_BYTES);
                     recordBinary.put(gzippedData);
                     compressedSize = gzippedData.length;
                     header.setCompressedDataLength(compressedSize);
@@ -891,14 +1194,13 @@ public class RecordOutputStream {
         header.setIndexLength(indexSize);
 
         // Go back and write header into destination buffer
-        recordBinary.position(0);
         try {
-            header.writeHeader(recordBinary);
+            header.writeHeader(recordBinary, startingPosition);
         }
         catch (HipoException e) {/* never happen */}
         
         //System.out.println();
         // Make ready to read
-        recordBinary.position(0).limit(header.getLength());
+        recordBinary.limit(startingPosition + header.getLength()).position(0);
     }
 }
