@@ -28,11 +28,15 @@ import java.util.List;
  */
 public class EvioCompactReaderUnsync implements IEvioCompactReader {
 
-    /** Evio version number (1-4, 6). Obtain this by reading first header. */
+    /** Evio version number (1-4, 6) of data in buffer currently being read. */
     private int evioVersion;
 
+    /** For evio version number 6 and above,
+     * is the data compressed in buffer currently being read. */
+    private boolean isCompressed;
+
     /**
-     * Endianness of the data being read, either
+     * Endianness of the data currently being read, either
      * {@link ByteOrder#BIG_ENDIAN} or
      * {@link ByteOrder#LITTLE_ENDIAN}.
      */
@@ -43,6 +47,43 @@ public class EvioCompactReaderUnsync implements IEvioCompactReader {
 
     /** Initial position of buffer (0 if file). */
     private final int initialPosition;
+
+    //----------------------------------------
+    // Results of last call to findEvioInfo()
+    //----------------------------------------
+
+    /** Evio version number (1-4, 6) found by last call to
+     * {@link #findRecordInfo(ByteBuffer)} reading first header. */
+    static private int version;
+
+    /** For evio version number 6 and above,
+     * is the data compressed, found by last call to
+     * {@link #findRecordInfo(ByteBuffer)} reading first header. */
+    static private boolean compressed;
+
+    /**
+     * Endianness found by last call to
+     * {@link #findRecordInfo(ByteBuffer)} reading first header.
+     */
+    static private ByteOrder order;
+
+    /** Is this the last record in buffer for evio V6? */
+    static private boolean isLastRecord;
+
+    /** Length of entire (possibly compressed) record in bytes for evio V6. */
+    static private int recordLen;
+
+    /** Length of general record header itself in bytes for evio V6. */
+    static private int headerLen;
+
+    /** Length of uncompressed event index array in bytes for evio V6. */
+    static private int indexLen;
+
+    /** Length of uncompressed user header in bytes for evio V6. */
+    static private int userHdrLen;
+
+    /** Length of uncompressed data in bytes for evio V6. */
+    static private int uncompDataLen;
 
     //------------------------
     // Object to delegate to
@@ -84,7 +125,12 @@ public class EvioCompactReaderUnsync implements IEvioCompactReader {
         this.byteBuffer = byteBuffer;
 
         // Read first block header and find the file's endianness & evio version #
-        findEvioVersion();
+        findRecordInfo(byteBuffer);
+
+        // Take results of above method call and associate it with buffer being read
+        byteOrder = order;
+        evioVersion = version;
+        isCompressed = compressed;
 
         if (evioVersion < 4)  {
             throw new EvioException("unsupported evio version (" + evioVersion + "), only 4+");
@@ -103,57 +149,188 @@ public class EvioCompactReaderUnsync implements IEvioCompactReader {
 
 
     /**
-     * Reads a couple things in the first block (physical record) header
-     * in order to determine the evio version of buffer.
-     * @return evio version.
+     * Reads some data in a record header (located at buffer position)
+     * in order to determine things like the evio version of buffer.
+     * Does <b>not</b> change the position or limit of buffer.
+     * 
+     * @param  buf buffer containing evio header to parse.
      * @throws BufferUnderflowException if not enough data in buffer.
-     * @throws EvioException bad magic number in header.
+     * @throws EvioException null argument or bad magic number in header.
      */
-    private int findEvioVersion() throws BufferUnderflowException, EvioException {
-        // Look at first block header
-System.out.println("findEvioVersion: buf limit = " + byteBuffer.limit() + ", initialPos = " + initialPosition);
-Utilities.printBuffer(byteBuffer, 0, 20, "buffer");
+    static private void findRecordInfo(ByteBuffer buf) throws BufferUnderflowException, EvioException {
+//System.out.println("findEvioVersion: buf limit = " + buf.limit() +
+//                   ", cap = " + buf.capacity() + ", initialPos = " + buf.position());
+//Utilities.printBuffer(buf, 0, 40, "buffer");
+        if (buf == null) {
+            throw new EvioException("null argument");
+        }
+
+        // Look at first block header.
         // Have enough remaining bytes to read 8 words of header?
-        if (byteBuffer.limit() - initialPosition < 32) {
+        if (buf.remaining() < 32) {
             throw new BufferUnderflowException();
         }
 
         // Set the byte order to match the file's ordering.
+        int initialPos = buf.position();
 
         // Check the magic number for endianness (buffer defaults to big endian)
-        byteOrder = byteBuffer.order();
+        order = buf.order();
 
-        int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
+        int magicNumber = buf.getInt(initialPos + RecordHeader.MAGIC_OFFSET);
         if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-            if (byteOrder == ByteOrder.BIG_ENDIAN) {
-                byteOrder = ByteOrder.LITTLE_ENDIAN;
+            if (order == ByteOrder.BIG_ENDIAN) {
+                order = ByteOrder.LITTLE_ENDIAN;
             }
             else {
-                byteOrder = ByteOrder.BIG_ENDIAN;
+                order = ByteOrder.BIG_ENDIAN;
             }
-            byteBuffer.order(byteOrder);
+            buf.order(order);
 
             // Reread magic number to make sure things are OK
-            magicNumber = byteBuffer.getInt(initialPosition + RecordHeader.MAGIC_OFFSET);
+            magicNumber = buf.getInt(initialPos + RecordHeader.MAGIC_OFFSET);
             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
                 throw new EvioException("magic number is bad, 0x" +  Integer.toHexString(magicNumber));
             }
+//Utilities.printBuffer(byteBuffer, 0, 40, "Switch endian ....");
         }
 
         // Find the version number
-        int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
-        evioVersion = bitInfo & RecordHeader.VERSION_MASK;
+        int bitInfo = buf.getInt(initialPos + RecordHeader.BIT_INFO_OFFSET);
+        version = bitInfo & RecordHeader.VERSION_MASK;
 
-        return evioVersion;
+        // If it's version 6, read whether data is compressed or not
+        // and assorted uncompressed lengths.
+        if (version > 5) {
+            if (buf.remaining() < 40) {
+                throw new BufferUnderflowException();
+            }
+
+            int compressionType = buf.getInt(initialPos + RecordHeader.COMPRESSION_TYPE_OFFSET) >>> 28;
+            compressed    = (compressionType == 0);
+
+            recordLen     = buf.getInt(initialPos + RecordHeader.RECORD_LENGTH_OFFSET) * 4;
+            headerLen     = buf.getInt(initialPos + RecordHeader.HEADER_LENGTH_OFFSET) * 4;
+            indexLen      = buf.getInt(initialPos + RecordHeader.INDEX_ARRAY_OFFSET);
+            userHdrLen    = buf.getInt(initialPos + RecordHeader.USER_LENGTH_OFFSET);
+            uncompDataLen = buf.getInt(initialPos + RecordHeader.UNCOMPRESSED_LENGTH_OFFSET);
+            isLastRecord  = RecordHeader.isLastRecord(bitInfo);
+        }
+        else {
+            compressed = isLastRecord = false;
+            recordLen = headerLen = indexLen = userHdrLen = uncompDataLen = 0;
+        }
     }
 
+    /**
+     * This method finds out whether the given buffer contains compressed data or not.
+     *
+     * @param src  ByteBuffer containing evio/hipo data
+     * @return {@code true} if the data in the source buffer was compressed,
+     *         else {@code false}.
+     * @throws EvioException if arg is null;
+     *                       if failure to read first block header
+     */
+    public boolean isCompressed(ByteBuffer src) throws EvioException {
+        findRecordInfo(src);
+        return compressed;
+    }
+
+    /**
+     * This method ensures that the given buffer has sufficient capacity to
+     * hold its current contents while uncompressed. If the first record header
+     * indicates that there is no compressed data, the given buffer is returned as is.
+     * If there is insufficient memory to hold the uncompressed data, a bigger buffer
+     * is allocated, current contents are copied into it, and the new buffer is the
+     * return value of this method.<p>
+     *
+     * @param buf  ByteBuffer containing evio/hipo data
+     * @return if buf is not compressed, buf is returned. If buf is too small to hold
+     *         uncompressed data, a bigger buffer is created, data is copied into the
+     *         new buffer, and the new buffer is returned.
+     * @throws BufferUnderflowException if not enough data in buffer.
+     * @throws EvioException if arg is null; if failure to read record header.
+     */
+    public static ByteBuffer ensureUncompressedCapacity(ByteBuffer buf)
+                            throws EvioException, BufferUnderflowException {
+
+        if (buf == null) throw new EvioException("null arg");
+        int srcPos = buf.position();
+        int srcPosOrig = srcPos;
+        int recordBytes, totalBytes = 0, totalCompressed = 0;
+
+        ByteBuffer biggerBuf;
+
+        do {
+            // Look at the record
+            findRecordInfo(buf);
+
+            // If there's no data compression, we don't need to expand buffer.
+            // This assumes all records have the same compression.
+            if (!compressed) return buf;
+
+            // Total uncompressed length of record
+            recordBytes = headerLen + indexLen + userHdrLen + uncompDataLen;
+
+           // Track total uncompressed & compressed sizes
+            totalBytes += recordBytes;
+            totalCompressed += recordLen;
+
+            // Hop over record
+            srcPos += recordLen;
+            buf.position(srcPos);
+
+        } while (!isLastRecord); // Go to the next record if any
+
+        buf.position(srcPosOrig);
+
+        // If we've got enough room to handle all the uncompressed data ...
+        if (totalBytes <= (buf.capacity() - srcPos)) {
+            // TODO: should we do this?
+            //buf.limit(totalCompressed + srcPosOrig);
+            return buf;
+        }
+
+        // Give buffer an extra 2KB
+        if (buf.isDirect()) {
+            biggerBuf = ByteBuffer.allocateDirect(totalBytes + srcPos + 2048);
+            biggerBuf.order(order).limit(srcPosOrig + totalCompressed);
+            // Copy over all data in buf
+            biggerBuf.put(buf);
+            // Set back to original pos
+            buf.position(srcPosOrig);
+            // Prepare to be able to write into
+            biggerBuf.clear();
+        }
+        else {
+            // Backed by array
+            biggerBuf = ByteBuffer.allocate(totalBytes + srcPos + 2048);
+            biggerBuf.order(order);
+            // Copy over all data in buf
+            System.arraycopy(buf, buf.position(), biggerBuf, 0, totalCompressed);
+        }
+
+        return biggerBuf;
+    }
 
     /** {@inheritDoc} */
     public boolean isFile() {return reader.isFile();}
 
+    /** {@inheritDoc} */
+    public boolean isCompressed() {return reader.isCompressed();}
 
     /** {@inheritDoc} */
     public void setBuffer(ByteBuffer buf) throws EvioException {reader.setBuffer(buf);}
+
+    /** {@inheritDoc} */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        reader.setBuffer(buf, pool);
+    }
+
+    /** {@inheritDoc} */
+    public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool) throws EvioException {
+        return reader.setCompressedBuffer(buf, pool);
+    }
 
     /** {@inheritDoc} */
     public synchronized boolean isClosed() {return reader.isClosed();}
