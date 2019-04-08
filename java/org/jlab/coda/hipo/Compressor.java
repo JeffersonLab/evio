@@ -8,6 +8,7 @@ package org.jlab.coda.hipo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.zip.GZIPInputStream;
@@ -19,6 +20,7 @@ import net.jpountz.lz4.*;
 /**
  * Singleton class used to provide data compression and decompression in a variety of formats.
  * @author gavalian
+ * @author timmer
  */
 public class Compressor {
     
@@ -156,6 +158,82 @@ public class Compressor {
     /** One instance of this class. */
     private static Compressor instance = null;
 
+
+    /** Use this class when decompressing GZIP data from a ByteBuffer. */
+    public static class ByteBufferBackedInputStream extends InputStream {
+
+        private ByteBuffer backendBuffer;
+
+        public ByteBufferBackedInputStream(ByteBuffer backendBuffer) {
+            this.backendBuffer = backendBuffer;
+        }
+
+        public void close() {this.backendBuffer = null;}
+
+        private void ensureStreamAvailable() throws IOException {
+            if (this.backendBuffer == null) {
+                throw new IOException("read on a closed InputStream!");
+            }
+        }
+
+        public int read() throws IOException {
+            this.ensureStreamAvailable();
+            return this.backendBuffer.hasRemaining() ? this.backendBuffer.get() & 0xFF : -1;
+        }
+
+        public int read(byte[] buffer) throws IOException {
+            return this.read(buffer, 0, buffer.length);
+        }
+
+        public int read(byte[] buffer, int offset, int length) throws IOException {
+            this.ensureStreamAvailable();
+            if (offset >= 0 && length >= 0 && length <= buffer.length - offset) {
+                if (length == 0) {
+                    return 0;
+                }
+                else {
+                    int remainingSize = Math.min(this.backendBuffer.remaining(), length);
+                    if (remainingSize == 0) {
+                        return -1;
+                    }
+                    else {
+                        this.backendBuffer.get(buffer, offset, remainingSize);
+                        return remainingSize;
+                    }
+                }
+            }
+            else {
+                throw new IndexOutOfBoundsException();
+            }
+        }
+
+        public long skip(long n) throws IOException {
+            this.ensureStreamAvailable();
+            if (n <= 0L) {
+                return 0L;
+            }
+            int length = (int) n;
+            int remainingSize = Math.min(this.backendBuffer.remaining(), length);
+            this.backendBuffer.position(this.backendBuffer.position() + remainingSize);
+            return (long) length;
+        }
+
+        public int available() throws IOException {
+            this.ensureStreamAvailable();
+            return this.backendBuffer.remaining();
+        }
+
+        public void mark(int var1) {}
+
+        public void reset() throws IOException {
+            throw new IOException("mark/reset not supported");
+        }
+
+        public boolean markSupported() {return false;}
+    }
+
+
+
     /** Constructor to defeat instantiation. */
     protected Compressor() {}
 
@@ -168,6 +246,30 @@ public class Compressor {
             instance = new Compressor();
         }
         return instance;
+    }
+
+    /**
+     * Returns the maximum number of bytes needed to compress the given length
+     * of uncompressed data. Depends on compression type. Unknown for gzip.
+     *
+     * @param compressionType type of data compression to do
+     *                        (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     *                        Default to none.
+     * @param uncompressedLength uncompressed data length in bytes.
+     * @return maximum compressed length in bytes or -1 if unknown.
+     */
+    public static int getMaxCompressedLength(int compressionType, int uncompressedLength) {
+        switch(compressionType) {
+            case RECORD_COMPRESSION_GZIP:
+                return -1;
+            case RECORD_COMPRESSION_LZ4_BEST:
+                return lz4_compressor_best.maxCompressedLength(uncompressedLength);
+            case RECORD_COMPRESSION_LZ4:
+                return lz4_compressor.maxCompressedLength(uncompressedLength);
+            case RECORD_UNCOMPRESSED:
+            default:
+                return uncompressedLength;
+        }
     }
 
     /**
@@ -289,6 +391,38 @@ public class Compressor {
         return ungzipped;
     }
 
+    /**
+     * GZIP decompression. Returns uncompressed byte array.
+     * @param gzipped compressed data.
+     * @return uncompressed data.
+     */
+    public static byte[] uncompressGZIP(ByteBuffer gzipped) {
+        byte[] ungzipped = new byte[0];
+        try {
+            int length = gzipped.remaining();
+
+            final GZIPInputStream inputStream = new GZIPInputStream(
+                    new ByteBufferBackedInputStream(gzipped), Compressor.MTU);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(2*length);
+            final byte[] buffer = new byte[Compressor.MTU];
+            int bytesRead = 0;
+            while (bytesRead != -1) {
+                bytesRead = inputStream.read(buffer, 0, Compressor.MTU);
+                if (bytesRead != -1) {
+                    byteArrayOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
+            ungzipped = byteArrayOutputStream.toByteArray();
+            inputStream.close();
+            byteArrayOutputStream.close();
+        } catch (IOException e) {
+            //LOG.error("Could not ungzip. Heartbeat will not be working. " + e.getMessage());
+            System.out.println("[Evio::compressor] ERROR: could not uncompress the array. \n"
+                    + e.getMessage());
+        }
+        return ungzipped;
+    }
 
     /**
      * Fastest LZ4 compression. Returns length of compressed data in bytes.
@@ -307,7 +441,17 @@ public class Compressor {
             throw new HipoException("maxSize (" + maxSize + ") is < max # of compressed bytes (" +
                                     lz4_compressor.maxCompressedLength(srcSize) + ")");
         }
-        return lz4_compressor.compress(src.array(), 0, srcSize, dst.array(), 0, maxSize);
+
+        if (src.hasArray() && dst.hasArray()) {
+            return lz4_compressor.compress(src.array(), src.position() + src.arrayOffset(),
+                                           srcSize,
+                                           dst.array(), dst.position() + dst.arrayOffset(),
+                                           maxSize);
+        }
+        else {
+            return lz4_compressor.compress(src, src.position(), srcSize, dst, dst.position(), maxSize);
+        }
+
     }
 
     /**
@@ -323,7 +467,7 @@ public class Compressor {
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
     public static int compressLZ4(byte[] src, int srcOff, int srcSize,
-                            byte[] dst, int dstOff, int maxSize)
+                                  byte[] dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
         if (lz4_compressor.maxCompressedLength(srcSize) > maxSize) {
@@ -346,14 +490,23 @@ public class Compressor {
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
     public static int compressLZ4(ByteBuffer src, int srcOff, int srcSize,
-                            ByteBuffer dst, int dstOff, int maxSize)
+                                  ByteBuffer dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
         if (lz4_compressor.maxCompressedLength(srcSize) > maxSize) {
             throw new HipoException("maxSize (" + maxSize + ") is < max # of compressed bytes (" +
                                     lz4_compressor.maxCompressedLength(srcSize) + ")");
         }
-        return lz4_compressor.compress(src, srcOff, srcSize, dst, dstOff, maxSize);
+
+        if (src.hasArray() && dst.hasArray()) {
+            return lz4_compressor.compress(src.array(), srcOff + src.arrayOffset(),
+                                           srcSize,
+                                           dst.array(), dstOff + dst.arrayOffset(),
+                                           maxSize);
+        }
+        else {
+            return lz4_compressor.compress(src, srcOff, srcSize, dst, dstOff, maxSize);
+        }
     }
 
     /**
@@ -373,7 +526,17 @@ public class Compressor {
             throw new HipoException("maxSize (" + maxSize + ") is < max # of compressed bytes (" +
                                             lz4_compressor_best.maxCompressedLength(srcSize) + ")");
         }
-        return lz4_compressor_best.compress(src.array(), 0, srcSize, dst.array(), 0, maxSize);
+        
+        if (src.hasArray() && dst.hasArray()) {
+            return lz4_compressor_best.compress(src.array(), src.position() + src.arrayOffset(),
+                                                srcSize,
+                                                dst.array(), dst.position() + dst.arrayOffset(),
+                                                maxSize);
+        }
+        else {
+            return lz4_compressor_best.compress(src, src.position(), srcSize,
+                                                dst, dst.position(), maxSize);
+        }
     }
 
     /**
@@ -389,7 +552,7 @@ public class Compressor {
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
     public static int compressLZ4Best(byte[] src, int srcOff, int srcSize,
-                            byte[] dst, int dstOff, int maxSize)
+                                      byte[] dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
         if (lz4_compressor_best.maxCompressedLength(srcSize) > maxSize) {
@@ -412,7 +575,7 @@ public class Compressor {
      * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
      */
     public static int compressLZ4Best(ByteBuffer src, int srcOff, int srcSize,
-                               ByteBuffer dst, int dstOff, int maxSize)
+                                      ByteBuffer dst, int dstOff, int maxSize)
             throws HipoException {
         //System.out.println("----> compressing " + srcSize + " max size = " + maxSize);
         if (lz4_compressor_best.maxCompressedLength(srcSize) > maxSize) {
@@ -429,16 +592,44 @@ public class Compressor {
      * @param srcSize  number of compressed bytes.
      * @param dst      destination array.
      * @return original (uncompressed) input size.
-     * @throws org.jlab.coda.hipo.HipoException if dst is too small to hold uncompressed data
+     * @throws HipoException if dst is too small to hold uncompressed data
      */
     public static int uncompressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst)
             throws HipoException {
+        return uncompressLZ4(src, src.position(), srcSize, dst);
+    }
+
+    /**
+     * LZ4 decompression. Returns original length of decompressed data in bytes.
+     *
+     * @param src      source of compressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of compressed bytes.
+     * @param dst      destination array.
+     * @return original (uncompressed) input size.
+     * @throws HipoException if dst is too small to hold uncompressed data
+     */
+    public static int uncompressLZ4(ByteBuffer src, int srcOff, int srcSize, ByteBuffer dst)
+            throws HipoException {
 
         try {
-            int i = lz4_decompressor.decompress(src.array(), 0, srcSize, dst.array(), 0);
+            int size;
+            int destOff = dst.position();
+
+            if (src.hasArray() && dst.hasArray()) {
+//System.out.println("uncompressLZ4:  src off = " + (src.arrayOffset() + srcOff) +
+//                  ", src len = " + srcSize);
+                size = lz4_decompressor.decompress(src.array(), srcOff + src.arrayOffset(), srcSize,
+                                                   dst.array(), destOff + dst.arrayOffset());
+            }
+            else {
+                size = lz4_decompressor.decompress(src, srcOff, srcSize,
+                                                   dst, destOff, dst.capacity() - destOff);
+            }
+
             // Prepare buffer for reading
-            dst.position(0).limit(i);
-            return i;
+            dst.limit(destOff + size).position(destOff);
+            return size;
         }
         catch (LZ4Exception e) {
             throw new HipoException(e);
@@ -467,5 +658,20 @@ public class Compressor {
             throw new HipoException(e);
         }
     }
+
+    /**
+     * LZ4 decompression. Returns original length of decompressed data in bytes.
+     *
+     * @param src      source of compressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of compressed bytes.
+     * @param maxDestLen    max bytes to decode?
+     * @return original (uncompressed) input size.
+     * @throws HipoException
+     */
+    public static byte[] uncompressLZ4(byte[] src, int srcOff, int srcSize, int maxDestLen) {
+            return lz4_decompressor.decompress(src, srcOff, srcSize, maxDestLen);
+    }
+
 
 }
