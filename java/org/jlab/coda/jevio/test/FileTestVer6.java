@@ -21,102 +21,91 @@ import java.util.BitSet;
 public class FileTestVer6 {
 
     /**
+     * Create a prestart control event.
+     * @return  buffer containing prestart event.
+     */
+    static private ByteBuffer createPrestartBuffer(int time, int runNum, int runType) {
+
+        try {
+            CompactEventBuilder b = new CompactEventBuilder(ByteBuffer.allocate(20));
+            b.openBank(0xffd1, 0, DataType.UINT32);
+            int data[] = new int[] {time, runNum, runType};
+            b.addIntData(data);
+            b.closeStructure();
+            return b.getBuffer();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Create a go control event.
+     * @return  buffer containing go event.
+     */
+    static private ByteBuffer createGoBuffer(int time, int evCount) {
+
+        try {
+            CompactEventBuilder b = new CompactEventBuilder(ByteBuffer.allocate(20));
+            b.openBank(0xffd2, 0, DataType.UINT32);
+            int data[] = new int[] {time, 0, evCount};
+            b.addIntData(data);
+            b.closeStructure();
+            return b.getBuffer();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Create a end control event.
+     * @return  buffer containing end event.
+     */
+    static private ByteBuffer createEndBuffer(int time, int evCount) {
+
+        try {
+            CompactEventBuilder b = new CompactEventBuilder(ByteBuffer.allocate(20));
+            b.openBank(0xffd4, 0, DataType.UINT32);
+            int data[] = new int[] {time, 0, evCount};
+            b.addIntData(data);
+            b.closeStructure();
+            return b.getBuffer();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+    /**
       * Create a typical Hall D type of event in its structure.
-      * Has 100 rocs of 20 entangled events with 200 bytes of
-      * data from each roc, 30K per event.
+      * Has 64 rocs of 40 entangled events with 200 bytes of
+      * data from each roc.
       * @return  typical Hall D type of event.
       */
-     static private ByteBuffer createEventBuffer(int ts) {
+     static private ByteBuffer createSmallEventBuffer(int ts) {
 
          try {
-             //CompactEventBuilder b = new CompactEventBuilder(31000, ByteOrder.BIG_ENDIAN);
-             CompactEventBuilder b = new CompactEventBuilder(ByteBuffer.allocateDirect(31000));
-             int EBid = 1;
-             int numRocs = 100;
-             int numEvents = 20;
-             long startingEventNumber = 2L;
+             int numRocs = 64;
+             int numEvents = 40;
 
-             /////////////////////////////////////////////////////////////////////
-             // Top level event, from PEB, 20 entangled events
-             /////////////////////////////////////////////////////////////////////
-             b.openBank(0xff50, numEvents, DataType.BANK);
+             CompactEventBuilder b = new CompactEventBuilder(ByteBuffer.allocate(100));
 
-             /////////////////////////////////////////////////////////////////////
-             // Built trigger bank w/ timestamps, run # and runt type, 100 rocs
-             /////////////////////////////////////////////////////////////////////
-             b.openBank(0xff27, numRocs, DataType.SEGMENT);
+              b.openBank(0xff50, numEvents, DataType.BANK);
 
-             // 1st segment - unsigned longs
-             b.openSegment(EBid, DataType.ULONG64);
+              b.openBank(0xff27, numRocs, DataType.INT32);
 
-             // timestamp for each event starting at 10
-             long[] t = new long[numEvents+2];
-             for (int i=0; i < numEvents; i++) {
-                 t[i+1] = ts + i;
-             }
-             // first event number
-             t[0] = startingEventNumber;
-             // run #3, run type 4
-             t[numEvents + 1] = (3L << 32) & 4L;
-             b.addLongData(t);
-
-             b.closeStructure();
-
-             // 2nd segment - unsigned shorts
-             b.openSegment(EBid, DataType.USHORT16);
-
-             short[] s = new short[numEvents];
-             Arrays.fill(s, (short)20);  // event types = 20 for all rocs
-             b.addShortData(s);
-
-             b.closeStructure();
-
-             // Segment for each roc - unsigned ints.
-             // Each roc has one timestamp for each event (10 + i)
-             int[] rocTS = new int[numEvents];
-             for (int i=0; i < numEvents; i++) {
-                 rocTS[i] = 10 + i;
-             }
-
-             for (int i=0; i < numRocs; i++) {
-                 int rocId = i;
-                 b.openSegment(rocId, DataType.UINT32);
-                 b.addIntData(rocTS);
-                 b.closeStructure();
-             }
-
-             b.closeStructure();
-
-             /////////////////////////////////////////////////////////////////////
-             // End of trigger bank
-             /////////////////////////////////////////////////////////////////////
-
-             /////////////////////////////////////////////////////////////////////
-             // One data bank for each roc
-             /////////////////////////////////////////////////////////////////////
-
-             int[] data = new int[50];     // 200 bytes
+             int[] data = new int[3];
              Arrays.fill(data, 0xf0f0f0f0);
-             data[0] = (int)startingEventNumber;
-             data[1] = 10; // TS
+             b.addIntData(data);
 
-             for (int i=0; i < numRocs; i++) {
-                 int rocId = i;
-                 // Data Bank
-                 b.openBank(rocId, numEvents, DataType.BANK);
-
-                 // Data Block Bank
-                 int detectorId = 10*i;
-                 b.openBank(detectorId, numEvents, DataType.INT32);
-                 b.addIntData(data);
-                 b.closeStructure();
-
-                 b.closeStructure();
-             }
-
-             /////////////////////////////////////////////////////////////////////
-             // End of event
-             /////////////////////////////////////////////////////////////////////
              b.closeAll();
 
              // Returned buffer is read to read
@@ -131,27 +120,136 @@ public class FileTestVer6 {
 
     /**
      * Create a typical Hall D type of event in its structure.
-     * Has 100 rocs of 20 entangled events with 200 bytes of
-     * data from each roc, 30K per event.
+     * Has 64 rocs of 40 entangled events with 200 bytes of
+     * data from each roc.
+     * @return  typical Hall D type of event.
+     */
+    static private ByteBuffer createEventBuffer(int ts) {
+
+        try {
+            CompactEventBuilder b = new CompactEventBuilder(ByteBuffer.allocate(41000));
+            int EBid = 1;
+            int numRocs = 64;
+            int numEvents = 40;
+            long startingEventNumber = 2L;
+
+            /////////////////////////////////////////////////////////////////////
+            // Top level event, from PEB, 20 entangled events
+            /////////////////////////////////////////////////////////////////////
+            b.openBank(0xff50, numEvents, DataType.BANK);
+
+            /////////////////////////////////////////////////////////////////////
+            // Built trigger bank w/ timestamps, run # and runt type, 100 rocs
+            /////////////////////////////////////////////////////////////////////
+            b.openBank(0xff27, numRocs, DataType.SEGMENT);
+
+            // 1st segment - unsigned longs
+            b.openSegment(EBid, DataType.ULONG64);
+
+            // timestamp for each event starting at 10
+            long[] t = new long[numEvents+2];
+            for (int i=0; i < numEvents; i++) {
+                t[i+1] = ts + i;
+            }
+            // first event number
+            t[0] = startingEventNumber;
+            // run #3, run type 4
+            t[numEvents + 1] = (3L << 32) & 4L;
+            b.addLongData(t);
+
+            b.closeStructure();
+
+            // 2nd segment - unsigned shorts
+            b.openSegment(EBid, DataType.USHORT16);
+
+            short[] s = new short[numEvents];
+            Arrays.fill(s, (short)20);  // event types = 20 for all rocs
+            b.addShortData(s);
+
+            b.closeStructure();
+
+            // Segment for each roc - unsigned ints.
+            // Each roc has one timestamp for each event (10 + i)
+            int[] rocTS = new int[numEvents];
+            for (int i=0; i < numEvents; i++) {
+                rocTS[i] = 10 + i;
+            }
+
+            for (int i=0; i < numRocs; i++) {
+                int rocId = i;
+                b.openSegment(rocId, DataType.UINT32);
+                b.addIntData(rocTS);
+                b.closeStructure();
+            }
+
+            b.closeStructure();
+
+            /////////////////////////////////////////////////////////////////////
+            // End of trigger bank
+            /////////////////////////////////////////////////////////////////////
+
+            /////////////////////////////////////////////////////////////////////
+            // One data bank for each roc
+            /////////////////////////////////////////////////////////////////////
+
+            int[] data = new int[50];     // 200 bytes
+            Arrays.fill(data, 0xf0f0f0f0);
+            data[0] = (int)startingEventNumber;
+            data[1] = 10; // TS
+
+            for (int i=0; i < numRocs; i++) {
+                int rocId = i;
+                // Data Bank
+                b.openBank(rocId, numEvents, DataType.BANK);
+
+                // Data Block Bank
+                int detectorId = 10*i;
+                b.openBank(detectorId, numEvents, DataType.INT32);
+                b.addIntData(data);
+                b.closeStructure();
+
+                b.closeStructure();
+            }
+
+            /////////////////////////////////////////////////////////////////////
+            // End of event
+            /////////////////////////////////////////////////////////////////////
+            b.closeAll();
+
+            // Returned buffer is read to read
+            return b.getBuffer();
+        }
+        catch (EvioException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Create a typical Hall D type of event in its structure.
+     * Has 64 rocs of 40 entangled events with 200 bytes of
+     * data from each roc.
      * @return  typical Hall D type of event.
      */
     static private EvioEvent createEvioEvent(int ts, int tag) {
 
         int EBid = 1;
-        int numRocs = 100;
-        int numEvents = 20;
+        int numRocs = 64;
+        int numEvents = 40;
         long startingEventNumber = 2L;
 
         try {
 
             /////////////////////////////////////////////////////////////////////
-            // Top level event, from PEB, 20 entangled events
+            // Top level event, from PEB, 40 entangled events
             /////////////////////////////////////////////////////////////////////
             EventBuilder builder = new EventBuilder(tag, DataType.BANK, numEvents);
             EvioEvent event = builder.getEvent();
 
             /////////////////////////////////////////////////////////////////////
-            // Built trigger bank w/ timestamps, run # and runt type, 100 rocs
+            // Built trigger bank w/ timestamps, run # and runt type, 64 rocs
             /////////////////////////////////////////////////////////////////////
             // bank of segments
             EvioBank bankSegs = new EvioBank(0xff27, DataType.SEGMENT, numRocs);
@@ -265,8 +363,104 @@ public class FileTestVer6 {
 
     public static String curFileName;
 
-    /** For WRITING a local file. */
+
+
+    /** For WRITING a file. Mimic online conditions as much as possible. */
     public static void main(String args[]) {
+
+//        String fileName  = "/Users/timmer/onlineTest.ev.v6";
+//        String splitFileName  = "/Users/timmer/onlineTest.ev.v6.0";
+        String fileName  = "/tmp/onlineTest.ev.v6";
+        String splitFileName  = "/tmp/onlineTest.ev.v6.0";
+        File file = new File(fileName);
+        file.delete();
+        File sfile = new File(splitFileName);
+        sfile.delete();
+
+
+        // Do we overwrite or append?
+        boolean append = false;
+
+        try {
+            int targetRecordBytes = 50000; // bytes
+            int splitBytes = 2000000;
+
+            ByteOrder order = ByteOrder.BIG_ENDIAN;
+            int ts = 10;
+            int runNum  = 1;
+            int runType = 30;
+          //  xmlDictionary = null;
+
+            ByteBuffer prestartBuf = createPrestartBuffer(ts, runNum, runType);
+            ts += 10;
+            ByteBuffer goBuf = createGoBuffer(ts, 0);
+
+System.out.println("FileTest, write to file " + fileName + "\n");
+            EventWriterUnsync writer = new EventWriterUnsync(fileName, null,
+                        null, 0, splitBytes,
+                        targetRecordBytes, 0, order, xmlDictionary,
+                        false, append, null,
+                        0, 0, 1,
+                        1, 2, 1,
+                        8);
+//
+//                public EventWriter(String baseName, String directory, String runType,
+//                         int runNumber, long split,
+//                         int maxRecordSize, int maxEventCount,
+//                         ByteOrder byteOrder, String xmlDictionary,
+//                         boolean overWriteOK, boolean append,
+//                         EvioBank firstEvent, int streamId,
+//                         int splitNumber, int splitIncrement, int streamCount,
+//                         int compressionType, int compressionThreads, int ringSize)
+
+            // Write prestart event, force to file
+            writer.writeEvent(prestartBuf, true);
+
+            // Write go event, do NOT force to file
+            writer.writeEvent(goBuf, true);
+
+            ts += 10;
+
+            for (int i = 0; i < 3; i++) {
+                // Top level event
+                ByteBuffer event = createEventBuffer(ts);
+                ts += 10;
+                // Write event to file
+                writer.writeEvent(event, false);
+                System.out.println("Wrote event w/ ts = " + ts);
+            }
+
+            // Write end event, do NOT force to file
+            ByteBuffer endBuf = createEndBuffer(ts, 4);
+            writer.writeEvent(endBuf, false);
+
+            // All done writing
+            System.out.println("FileTest, call close()\n\n");
+            writer.close();
+
+            curFileName = splitFileName;
+            System.out.println("FileTest, current file name = " + curFileName + "\n");
+            Utilities.printBytes(splitFileName, 0, 600, "File");
+
+            boolean useSequentialRead = false;
+
+            // Since we're splitting the file, .0 is tacked onto the end by default
+            fileName = splitFileName;
+
+            // Mess with the file by removing bytes off the end
+            // to simulate incomplete writes due to crashes.
+            System.out.println("\nCALLING readWrittenDataOldAPI on " + fileName + "\n");
+           readWrittenDataOldAPI(fileName, null, useSequentialRead);
+    //       readWrittenData(fileName, null, useSequentialRead);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /** For WRITING a local file/buffer. */
+    public static void main1(String args[]) {
 
         String fileName  = "/Users/timmer/fileTest.ev.v6";
         String splitFileName  = "/Users/timmer/fileTest.ev.v6.0";
@@ -366,7 +560,7 @@ public class FileTestVer6 {
 
             // Since we're splitting the file, .0 is tacked onto the end by default
             fileName = splitFileName;
-            
+
 
             if (useFile) {
                 // Mess with the file by removing bytes off the end
@@ -393,10 +587,8 @@ public class FileTestVer6 {
 
     }
 
-
-
     /** For WRITING a local file. */
-    public static void main1(String args[]) {
+    public static void main2(String args[]) {
 
         String fileName  = "/daqfs/home/timmer/evioFiles/fileTestSmall.ev";
         File file = new File(fileName);
