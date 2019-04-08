@@ -215,6 +215,26 @@ public class EvioNode implements Cloneable {
     // Methods
     //-------------------------------
 
+    /**
+     * Shift the positions (pos, dataPos, and recordPos) of this node and its
+     * children by a fixed amount.
+     * Useful, for example, when the contents of one buffer is copied into another.
+     *
+     * @param deltaPos number of bytes to add to existing positions.
+     */
+    final public EvioNode shift(int deltaPos) {
+        pos += deltaPos;
+        dataPos += deltaPos;
+        recordPos += deltaPos;
+
+        if (childNodes != null) {
+            for (EvioNode kid : childNodes) {
+                kid.shift(deltaPos);
+            }
+        }
+        return this;
+    }
+
     final public Object clone() {
         try {
             EvioNode result = (EvioNode)super.clone();
@@ -476,12 +496,14 @@ public class EvioNode implements Cloneable {
         bankNode.dataPos = position + 8;
         // Len of data for a bank
         bankNode.dataLen = len - 1;
+//System.out.println("extractNode: len = " + len + ", pos = " + position +
+//                ", dataPos = " + bankNode.dataPos + ", dataLen = " + bankNode.dataLen);
 
         // Make sure there is enough data to read full bank
         // even though it is NOT completely read at this time.
         if (buffer.remaining() < 4*(len + 1)) {
-//System.out.println("ERROR: remaining = " + buffer.remaining() +
-//            ", node len bytes = " + ( 4*(len + 1)));
+System.out.println("ERROR: remaining = " + buffer.remaining() +
+            ", node len bytes = " + ( 4*(len + 1)) + ", len = " + len);
             throw new EvioException("buffer underflow");
         }
 
@@ -504,6 +526,9 @@ public class EvioNode implements Cloneable {
         //    bankNode.pad = 0;
         //}
         bankNode.num = word & 0xff;
+//System.out.println("extractNode: tag = 0x" + Integer.toHexString(bankNode.tag) +
+//                   ", num = " + Integer.toHexString(bankNode.num) +
+//                   ", data type = " + Integer.toHexString(bankNode.dataType));
 
         return bankNode;
     }
