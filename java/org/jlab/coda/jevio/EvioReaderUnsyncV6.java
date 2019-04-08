@@ -201,7 +201,6 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
 
          try {
              reader = new Reader(byteBuffer);
-             reader.scanBuffer();
              parser = new EventParser();
          }
          catch (HipoException e) {
@@ -282,7 +281,7 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
      * @return number of events remaining in the file
      */
     @Override
-    public int getNumEventsRemaining() throws EvioException {return  reader.getNumEventsRemaining();}
+    public int getNumEventsRemaining() {return  reader.getNumEventsRemaining();}
 
     /** {@inheritDoc} */
     @Override
