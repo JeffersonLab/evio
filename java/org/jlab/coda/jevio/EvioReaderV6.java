@@ -41,7 +41,7 @@ import java.nio.ByteOrder;
 public class EvioReaderV6 implements IEvioReader {
 
     /** The reader object which does all the work. */
-    private org.jlab.coda.hipo.Reader reader;
+    private Reader reader;
 
     /** Is this object currently closed? */
     private boolean closed;
@@ -98,49 +98,6 @@ public class EvioReaderV6 implements IEvioReader {
         this(file, false);
     }
 
-
-    /**
-     * Constructor for reading an event file.
-     * Sequential reading and not memory-mapped buffer.
-     *
-     * @param file the file that contains events.
-     * @param checkRecNumSeq if <code>true</code> check the record number sequence
-     *                       and throw an exception if it is not sequential starting
-     *                       with 1
-     * @see EventWriter
-     * @throws IOException   if read failure
-     * @throws EvioException if file arg is null;
-     *                       if first record number != 1 when checkRecNumSeq arg is true
-     */
-    public EvioReaderV6(File file, boolean checkRecNumSeq)
-                                        throws EvioException, IOException {
-        this(file, checkRecNumSeq, true);
-    }
-
-
-    /**
-     * Constructor for reading an event file.
-     * Do <b>not</b> set sequential to false for remote files.
-     *
-     * @param path the full path to the file that contains events.
-     *             For writing event files, use an <code>EventWriter</code> object.
-     * @param checkRecNumSeq if <code>true</code> check the record number sequence
-     *                       and throw an exception if it is not sequential starting
-     *                       with 1
-     * @param sequential     if <code>true</code> read the file sequentially,
-     *                       else use memory mapped buffers. If file &gt; 2.1 GB,
-     *                       reads are always sequential for the older evio format.
-     * @see EventWriter
-     * @throws IOException   if read failure
-     * @throws EvioException if file arg is null;
-     *                       if first record number != 1 when checkRecNumSeq arg is true
-     */
-    public EvioReaderV6(String path, boolean checkRecNumSeq, boolean sequential)
-            throws EvioException, IOException {
-        this(new File(path), checkRecNumSeq, sequential);
-    }
-
-
     /**
      * Constructor for reading an event file.
      * Do <b>not</b> set sequential to false for remote files.
@@ -149,9 +106,6 @@ public class EvioReaderV6 implements IEvioReader {
      * @param checkRecNumSeq if <code>true</code> check the record number sequence
      *                       and throw an exception if it is not sequential starting
      *                       with 1
-     * @param sequential     if <code>true</code> read the file sequentially,
-     *                       else use memory mapped buffers. If file &gt; 2.1 GB,
-     *                       reads are always sequential for the older evio format.
      *
      * @see EventWriter
      * @throws IOException   if read failure
@@ -159,7 +113,7 @@ public class EvioReaderV6 implements IEvioReader {
      *                       if file is too small to have valid evio format data
      *                       if first record number != 1 when checkRecNumSeq arg is true
      */
-    EvioReaderV6(File file, boolean checkRecNumSeq, boolean sequential)
+    EvioReaderV6(File file, boolean checkRecNumSeq)
                                         throws EvioException, IOException {
 
         try {

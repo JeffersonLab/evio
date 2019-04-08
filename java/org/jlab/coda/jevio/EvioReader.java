@@ -124,7 +124,7 @@ public class EvioReader implements IEvioReader {
      */
     public EvioReader(File file, boolean checkBlkNumSeq)
                                         throws EvioException, IOException {
-        this(file, checkBlkNumSeq, true);
+        this(file, checkBlkNumSeq, true, false);
     }
 
 
@@ -147,7 +147,7 @@ public class EvioReader implements IEvioReader {
      */
     public EvioReader(String path, boolean checkBlkNumSeq, boolean sequential)
             throws EvioException, IOException {
-        this(new File(path), checkBlkNumSeq, sequential);
+        this(new File(path), checkBlkNumSeq, sequential, false);
     }
 
 
@@ -171,6 +171,31 @@ public class EvioReader implements IEvioReader {
      */
     public EvioReader(File file, boolean checkRecNumSeq, boolean sequential)
                                         throws EvioException, IOException {
+        this(file, checkRecNumSeq, sequential, false);
+    }
+
+
+    /**
+     * Constructor for reading an event file.
+     * Do <b>not</b> set sequential to false for remote files.
+     *
+     * @param file the file that contains events.
+     * @param checkRecNumSeq if <code>true</code> check the block number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1
+     * @param sequential     if <code>true</code> read the file sequentially,
+     *                       else use memory mapped buffers. If file &gt; 2.1 GB,
+     *                       reads are always sequential for the older evio format.
+     * @param synced         if true, methods are synchronized for thread safety, else false.
+     *
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if file arg is null;
+     *                       if file is too small to have valid evio format data
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    public EvioReader(File file, boolean checkRecNumSeq, boolean sequential, boolean synced)
+                                        throws EvioException, IOException {
         if (file == null) {
             throw new EvioException("File arg is null");
         }
@@ -191,15 +216,26 @@ public class EvioReader implements IEvioReader {
         rFile.close();
 
         if (evioVersion < 5)  {
-            reader = new EvioReaderV4(file, checkRecNumSeq, sequential);
+            if (synced) {
+                reader = new EvioReaderV4(file, checkRecNumSeq, sequential);
+            }
+            else {
+                reader = new EvioReaderUnsyncV4(file, checkRecNumSeq, sequential);
+            }
         }
         else if (evioVersion == 6) {
-            reader = new EvioReaderV6(file, checkRecNumSeq, sequential);
+            if (synced) {
+                reader = new EvioReaderV6(file, checkRecNumSeq);
+            }
+            else {
+                reader = new EvioReaderUnsyncV6(file, checkRecNumSeq);
+            }
         }
         else {
             throw new EvioException("unsupported evio version (" + evioVersion + ")");
         }
     }
+
 
     //------------------------------------------
     //   BUFFER
