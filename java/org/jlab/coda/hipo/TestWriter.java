@@ -204,7 +204,7 @@ public class TestWriter {
     }
 
 
-    public static void streamRecord(){
+    public static void streamRecord() throws HipoException {
         RecordOutputStream stream = new RecordOutputStream();
         byte[] buffer = TestWriter.generateBuffer();
         while(true){
