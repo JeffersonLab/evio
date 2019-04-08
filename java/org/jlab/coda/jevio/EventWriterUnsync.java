@@ -615,6 +615,9 @@ final public class EventWriterUnsync implements AutoCloseable {
         this.splitIncrement = splitIncrement;
         this.streamCount    = streamCount;
 
+        // Only add trailer index if writing file
+        addTrailerIndex = true;
+
         // compressionType = 0 before creating commonRecord, so NO compression in common record.
         // But be sure byteOrder is set so commonRecord has the correct byteOrder.
 
@@ -626,15 +629,11 @@ final public class EventWriterUnsync implements AutoCloseable {
             createCommonRecord(xmlDictionary, firstEvent, null, null);
         }
 
-
-
+        // Don't compress if bad value
         if (compressionType < 0 || compressionType > 3) {
             compressionType = 0;
         }
         this.compressionType = compressionType;
-
-
-// TODO: If no compression, shouldn't compressionThreads = 1 ???
 
         if (compressionThreads < 1) {
             compressionThreads = 1;
@@ -697,9 +696,6 @@ System.out.println("EventWriterUnsync constr: record # set to 1");
         if (compressionThreads == 1) {
             // When writing single threaded, just fill/compress/write one record at a time
             singleThreadedCompression = true;
-//            currentRecord = new RecordOutputStream(byteOrder, maxEventCount,
-//                                                   maxRecordSize, compressionType,
-//                                                   HeaderType.EVIO_RECORD);
             currentRecord = new RecordOutputStream(buffer, maxEventCount,
                                                    compressionType, HeaderType.EVIO_RECORD);
         }
@@ -858,7 +854,6 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
         // Write any record containing dictionary and first event, first
         if (xmlDictionary != null || firstEvent != null) {
             createCommonRecord(xmlDictionary, firstEvent, null, null);
-//            flushCommonRecordToBuffer();
         }
 
         // When writing to buffer, just fill/compress/write one record at a time
@@ -1436,6 +1431,7 @@ System.out.println("setStartingRecordNumber: set to " + recordNumber);
         }
 
         commonRecord.build();
+        commonRecordBytesToBuffer = 4*commonRecord.getHeader().getLengthWords();
     }
 
 
@@ -2716,7 +2712,6 @@ System.out.println("                 record # = " + recordNumber);
                 // Write the trailer
                 writeTrailerToFile(addTrailerIndex);
             }
-            //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
 
             // Close existing file (in separate thread for speed)
             // which will also flush remaining data.
@@ -3000,10 +2995,7 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
              // Update the current block header's size and event count as best we can.
              // Does NOT take compression or trailer into account.
              bytesWritten = commonRecordBytesToBuffer + currentRecord.getUncompressedSize();
-//        int i = bytesWrittenToBuffer;
              bytesWrittenToBuffer = (int) bytesWritten;
-//System.out.println("** writeToBuffer: bytesWrittenToBuffer, " + i +
-//                           " --> " + bytesWrittenToBuffer);
              eventsWrittenTotal++;
              eventsWrittenToBuffer++;
          }
@@ -3045,8 +3037,7 @@ System.out.println("** writeToBuffer: NOT FIT IN RECORD");
             }
 
             try {
-                RecordHeader.writeTrailer(buffer, (int)bytesWritten,
-                                          recordNumber);
+                RecordHeader.writeTrailer(buffer, (int)bytesWritten, recordNumber);
             }
             catch (HipoException e) {/* never happen */}
 
