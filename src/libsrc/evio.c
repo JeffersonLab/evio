@@ -5365,15 +5365,16 @@ if (debug) printf("evClose: end\n");
  * Returned string may <b>NOT</b> be written into.
  *
  * @param handle evio handle
- * @param name pointer to caller's char array which gets filled with file name or NULL if there is no name.
+ * @param name caller's char array which gets filled with file name or NULL if there is no name.
  * @param maxLength length of array being passed in.
  *
  * @return S_SUCCESS          if successful.
+ * @return S_FAILURE          if file name is NULL.
  * @return S_EVFILE_TRUNC     if char array too small to file filename and ending NULL.
  * @return S_EVFILE_BADMODE   if not opened for writing to file.
  * @return S_EVFILE_BADHANDLE if bad handle arg, NULL name arg, or maxLength arg &lt; 1.
  */
-int evGetFileName(int handle, char **name, size_t maxLength) {
+int evGetFileName(int handle, char *name, size_t maxLength) {
 
     EVFILE *a;
     int err = S_SUCCESS;
@@ -5401,16 +5402,16 @@ int evGetFileName(int handle, char **name, size_t maxLength) {
     }
 
     if (a->fileName == NULL) {
-        *name = NULL;
+        err = S_FAILURE;
     }
     else {
         /* If there's not enough room for filename + ending NULL, copy whatever there's room for */
         if (strlen(a->fileName) + 1 > maxLength) {
-            strncpy(*name, a->fileName, maxLength);
+            strncpy(name, a->fileName, maxLength);
             err = S_EVFILE_TRUNC;
         }
         else {
-            strcpy(*name, a->fileName);
+            strcpy(name, a->fileName);
         }
     }
 
