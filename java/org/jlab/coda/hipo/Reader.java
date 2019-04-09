@@ -351,10 +351,26 @@ public class Reader {
      *                       not in the proper format, or earlier than version 6
      */
     public void setBuffer(ByteBuffer buf) throws HipoException {
+        setBuffer(buf, null);
+    }
+
+    /**
+     * This method can be used to avoid creating additional Reader
+     * objects by reusing this one with another buffer. The method
+     * {@link #close()} is called before anything else.  The pool is <b>not</b>
+     * reset in this method. Caller may do that prior to calling method.
+     *
+     * @param buf ByteBuffer to be read
+     * @param pool pool of EvioNode objects to use when parsing buf.
+     * @throws HipoException if buf arg is null, buffer too small,
+     *                       not in the proper format, or earlier than version 6
+     */
+    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws HipoException {
         if (buf == null) {
             throw new HipoException("buf arg is null");
         }
 
+        nodePool = pool;
         buffer = buf;
         bufferLimit = buffer.limit();
         bufferOffset = buffer.position();
@@ -370,24 +386,8 @@ public class Reader {
         currentRecordLoaded = 0;
 
         scanBuffer();
-        
-        closed = false;
-    }
 
-    /**
-     * This method can be used to avoid creating additional Reader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.  The pool is <b>not</b>
-     * reset in this method. Caller may do that prior to calling method.
-     *
-     * @param buf ByteBuffer to be read
-     * @param pool pool of EvioNode objects to use when parsing buf.
-     * @throws HipoException if buf arg is null, buffer too small,
-     *                       not in the proper format, or earlier than version 6
-     */
-    public void setBuffer(ByteBuffer buf, EvioNodeSource pool) throws HipoException {
-        nodePool = pool;
-        setBuffer(buf);
+        closed = false;
     }
 
     /**
