@@ -70,7 +70,8 @@ public class EvioCompactReader implements IEvioCompactReader {
      * @throws EvioException if file arg is null; file is too large;
      * @throws BufferUnderflowException if not enough data;
      * @throws EvioException if failure to parse first block header;
-     *                       unsupported evio version.
+     *                       unsupported evio version;
+     *                       reading file not supported for version 6+.
      */
     public EvioCompactReader(File file) throws EvioException, IOException {
         if (file == null) {
@@ -94,8 +95,7 @@ public class EvioCompactReader implements IEvioCompactReader {
             reader = new EvioCompactReaderV4(file);
         }
         else if (evioVersion == 6) {
-            reader = null;
-//            reader = new EvioCompactReaderV6(file);
+            throw new EvioException("reading file is unsupported in version " + evioVersion);
         }
         else {
             throw new EvioException("unsupported evio version (" + evioVersion + ")");
