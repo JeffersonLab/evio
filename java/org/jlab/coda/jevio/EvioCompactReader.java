@@ -95,7 +95,7 @@ public class EvioCompactReader implements IEvioCompactReader {
             reader = new EvioCompactReaderV4(file);
         }
         else if (evioVersion == 6) {
-            throw new EvioException("reading file is unsupported in version " + evioVersion);
+            throw new EvioException("reading file is unsupported in version " + evioVersion + ", use EvioReader");
         }
         else {
             throw new EvioException("unsupported evio version (" + evioVersion + ")");
@@ -127,6 +127,22 @@ public class EvioCompactReader implements IEvioCompactReader {
      *                       unsupported evio version.
      */
     public EvioCompactReader(ByteBuffer byteBuffer, boolean synced) throws EvioException {
+        this(byteBuffer, null, synced);
+    }
+
+
+    /**
+     * Constructor for reading a buffer with option of removing synchronization
+     * for much greater speed.
+     * @param byteBuffer the buffer that contains events.
+     * @param synced     if true, methods are synchronized for thread safety, else false.
+     * @see EventWriter
+     * @throws BufferUnderflowException if not enough buffer data;
+     * @throws EvioException if buffer arg is null;
+     *                       failure to parse first block header;
+     *                       unsupported evio version.
+     */
+    public EvioCompactReader(ByteBuffer byteBuffer, EvioNodeSource pool, boolean synced) throws EvioException {
 
         if (byteBuffer == null) {
             throw new EvioException("Buffer arg is null");
@@ -144,18 +160,18 @@ public class EvioCompactReader implements IEvioCompactReader {
 
         if (evioVersion == 4) {
             if (synced) {
-                reader = new EvioCompactReaderV4(byteBuffer);
+                reader = new EvioCompactReaderV4(byteBuffer, pool);
             }
             else {
-                reader = new EvioCompactReaderUnsyncV4(byteBuffer);
+                reader = new EvioCompactReaderUnsyncV4(byteBuffer, pool);
             }
         }
         else if (evioVersion == 6) {
             if (synced) {
-                reader = new EvioCompactReaderV6(byteBuffer);
+                reader = new EvioCompactReaderV6(byteBuffer, pool);
             }
             else {
-                reader = new EvioCompactReaderUnsyncV6(byteBuffer);
+                reader = new EvioCompactReaderUnsyncV6(byteBuffer, pool);
             }
         }
         else {

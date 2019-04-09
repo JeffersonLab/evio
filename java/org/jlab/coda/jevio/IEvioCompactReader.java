@@ -79,7 +79,7 @@ public interface IEvioCompactReader {
      * reset in this method. Caller may do that prior to calling method.
      *
      * @param buf  ByteBuffer to be read
-     * @param pool pool of EvioNode objects to use when parsing buf.
+     * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
      * @throws EvioException if arg is null;
      *                       if failure to read first block header
      */
@@ -101,7 +101,7 @@ public interface IEvioCompactReader {
      * reset in this method. Caller may do that prior to calling method.
      *
      * @param buf  ByteBuffer to be read
-     * @param pool pool of EvioNode objects to use when parsing buf.
+     * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
      * @return buf arg if data is not compressed. If compressed and buf does not have the
      *         necessary space to contain all uncompressed data, a new buffer is allocated,
      *         filled, and returned.

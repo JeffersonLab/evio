@@ -55,13 +55,29 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
      *                       or earlier than version 6.
      */
     public EvioCompactReaderV6(ByteBuffer byteBuffer) throws EvioException {
+        this(byteBuffer, null);
+    }
+
+    /**
+     * Constructor for reading a buffer.
+     *
+     * @param byteBuffer the buffer that contains events.
+     * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
+     *
+     * @see EventWriter
+     * @throws EvioException if buffer arg is null,
+     *                       buffer too small,
+     *                       buffer not in the proper format,
+     *                       or earlier than version 6.
+     */
+    public EvioCompactReaderV6(ByteBuffer byteBuffer, EvioNodeSource pool) throws EvioException {
 
         if (byteBuffer == null) {
             throw new EvioException("Buffer arg is null");
         }
 
         try {
-            reader = new Reader(byteBuffer);
+            reader = new Reader(byteBuffer, pool);
         }
         catch (HipoException e) {
             throw new EvioException(e);
@@ -87,15 +103,7 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
      *                       not in the proper format, or earlier than version 6
      */
     public void setBuffer(ByteBuffer buf) throws EvioException {
-        try {
-            reader.setBuffer(buf);
-        }
-        catch (HipoException e) {
-            throw new EvioException(e);
-        }
-
-        dictionary = null;
-        closed = false;
+        setBuffer(buf, null);
     }
 
     /**
@@ -104,7 +112,8 @@ class EvioCompactReaderV6 implements IEvioCompactReader {
      * {@link #close()} is called before anything else.  The pool is <b>not</b>
      * reset in this method. Caller may do that prior to calling method.
      *
-     * @param buf ByteBuffer to be read
+     * @param buf ByteBuffer to be read.
+     * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
      * @throws EvioException if arg is null;
      *                       if failure to read first block header
      */
