@@ -87,10 +87,6 @@ public class FileHeader {
     public final static int   HEADER_SIZE_BYTES = 56;
     /** Magic number used to track endianness. */
     public final static int   HEADER_MAGIC = 0xc0da0100;
-    /** Magic number for HIPO's little endian uses. */
-    final static int   HEADER_MAGIC_LE = HEADER_MAGIC;
-    /** Magic number for HIPO's big endian uses (byte swapped from HEADER_MAGIC_LE). */
-    final static int   HEADER_MAGIC_BE = Integer.reverseBytes(HEADER_MAGIC);
 
     // Byte offset to header words
 
@@ -227,8 +223,7 @@ public class FileHeader {
         indexLength             = head.indexLength;
         headerMagicWord         = head.headerMagicWord;
         userHeaderLengthPadding = head.userHeaderLengthPadding;
-
-        // version must be the same
+        headerVersion           = head.headerVersion;
     }
 
     /** Reset most internal variables (not file id & header type). */
@@ -251,6 +246,7 @@ public class FileHeader {
         userHeaderLengthWords = 0;
         indexLength = 0;
         userHeaderLengthPadding = 0;
+        headerVersion = 6;
     }
 
     /**
@@ -672,7 +668,7 @@ public class FileHeader {
      * @throws HipoException if buffer is null or contains too little room.
      */
      public void writeHeader(ByteBuffer buf, int off) throws HipoException {
-
+// TODO: shouldn't this be buf.limit - off ?????
          if (buf == null || (buf.capacity() - off) < HEADER_SIZE_BYTES) {
              throw new HipoException("null or too small buf arg");
          }
@@ -712,6 +708,7 @@ public class FileHeader {
      *                       is not in proper format, or version earlier than 6.
      */
     public void readHeader(ByteBuffer buffer, int offset) throws HipoException {
+// TODO: shouldn't this be buf.limit - off ?????
         if (buffer == null || (buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
             throw new HipoException("null or too small buffer arg");
         }
@@ -720,9 +717,9 @@ public class FileHeader {
         headerMagicWord = buffer.getInt(MAGIC_OFFSET + offset);
 
         // If it's NOT in the proper byte order ...
-        if (headerMagicWord != HEADER_MAGIC_LE) {
+        if (headerMagicWord != HEADER_MAGIC) {
             // If it needs to be switched ...
-            if (headerMagicWord == HEADER_MAGIC_BE) {
+            if (headerMagicWord == Integer.reverseBytes(HEADER_MAGIC)) {
                 if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                     byteOrder = ByteOrder.LITTLE_ENDIAN;
                 }
