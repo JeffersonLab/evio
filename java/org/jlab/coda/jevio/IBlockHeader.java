@@ -138,6 +138,7 @@ public interface IBlockHeader {
      */
     boolean isLastBlock();
 
+// TODO: this needs to throw an exception right?? Or is the return enough?
     /**
 	 * Write myself out into a byte buffer. This write is relative--i.e.,
      * it uses the current position of the buffer.
