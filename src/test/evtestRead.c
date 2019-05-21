@@ -61,6 +61,7 @@
 
         status = evClose(handle);
         printf ("    Closed /home/timmer/evioTestFiles/evioV2format.ev again, status = %d\n\n", status);
+        return 0;
     }
 
 
@@ -101,6 +102,7 @@
 
         status = evClose(handle);
         printf ("    Closed /home/timmer/evioTestFiles/evioV2format.ev again, status = %d\n\n", status);
+        return 0;
     }
 
 
@@ -149,6 +151,7 @@
 
     status = evClose(handle);
     printf ("    Closed /daqfs/home/timmer/coda/output-evio4.ev again, status = %d\n\n", status);
+    return 0;
 }
 
 
