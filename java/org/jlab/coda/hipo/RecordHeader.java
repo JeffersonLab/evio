@@ -104,11 +104,6 @@ public class RecordHeader implements IBlockHeader {
     /** Magic number used to track endianness. */
     public final static int   HEADER_MAGIC = 0xc0da0100;
 
-    /** Magic number for HIPO's little endian uses. */
-    final static int   HEADER_MAGIC_LE = HEADER_MAGIC;
-    /** Magic number for HIPO's big endian uses (byte swapped from HEADER_MAGIC_LE). */
-    final static int   HEADER_MAGIC_BE = Integer.reverseBytes(HEADER_MAGIC);
-
     // Byte offset to header words
 
     /** Byte offset from beginning of header to the record length. */
@@ -298,7 +293,7 @@ public class RecordHeader implements IBlockHeader {
         recordUserRegisterFirst  = head.recordUserRegisterFirst;
         recordUserRegisterSecond = head.recordUserRegisterSecond;
 
-        headerType                = head.headerType;
+        headerType = head.headerType;
         entries                   = head.entries;
         bitInfo                   = head.bitInfo;
         eventType                 = head.eventType;
@@ -570,7 +565,7 @@ public class RecordHeader implements IBlockHeader {
      * NOT FOR GENERAL USE!
      * @param set  bit info object.
      */
-    public void setBitInfoWord(BitSet set) throws HipoException {
+    public void setBitInfoWord(BitSet set) {
         bitInfo = generateSixthWord(set);
         decodeBitInfoWord(bitInfo);
     }
@@ -673,10 +668,10 @@ public class RecordHeader implements IBlockHeader {
         headerVersion = (word & 0xff);
 
         // Header type
-        headerType =  HeaderType.getHeaderType(word >>> 28);
+        headerType =  headerType.getHeaderType(word >>> 28);
 //System.out.println("decodeBitInfoWord: header type = " + headerType);
         if (headerType == null) {
-            headerType = HeaderType.EVIO_RECORD;
+            headerType = headerType.EVIO_RECORD;
         }
 
         // Data type
@@ -775,7 +770,7 @@ public class RecordHeader implements IBlockHeader {
      * @param i integer in which to clear the last-record bit
      * @return arg with last-record bit cleared
      */
-    static public int clearLastRecordBit(int i) {return (i &= ~LAST_RECORD_MASK);}
+    static public int clearLastRecordBit(int i) {return (i & ~LAST_RECORD_MASK);}
 
     /**
      * Set the bit info of a record header for a specified CODA event type.
@@ -789,31 +784,31 @@ public class RecordHeader implements IBlockHeader {
     public int  setBitInfoEventType (int type) {
         switch(type) {
             case 0:
-                bitInfo |= DATA_ROC_RAW_BITS; eventType = type;
+                bitInfo |= DATA_ROC_RAW_BITS;
                 eventType = type;
                 break;
             case 1:
-                bitInfo |= DATA_PHYSICS_BITS; eventType = type;
+                bitInfo |= DATA_PHYSICS_BITS;
                 eventType = type;
                 break;
             case 2:
-                bitInfo |= DATA_PARTIAL_BITS; eventType = type;
+                bitInfo |= DATA_PARTIAL_BITS;
                 eventType = type;
                 break;
             case 3:
-                bitInfo |= DATA_DISENTANGLED_BITS; eventType = type;
+                bitInfo |= DATA_DISENTANGLED_BITS;
                 eventType = type;
                 break;
             case 4:
-                bitInfo |= DATA_USER_BITS; eventType = type;
+                bitInfo |= DATA_USER_BITS;
                 eventType = type;
                 break;
             case 5:
-                bitInfo |= DATA_CONTROL_BITS; eventType = type;
+                bitInfo |= DATA_CONTROL_BITS;
                 eventType = type;
                 break;
             case 15:
-                bitInfo |= DATA_OTHER_BITS; eventType = type;
+                bitInfo |= DATA_OTHER_BITS;
                 eventType = type;
                 break;
             default:
@@ -1057,7 +1052,7 @@ public class RecordHeader implements IBlockHeader {
              throws HipoException {
          writeTrailer(array, 0, recordNumber, order, index);
      }
-
+// TODO: the index to be added has ints right? what about their endian value???
      /**
       * Writes a trailer with an optional index array into the given byte array.
       * @param array byte array to write trailer into.
@@ -1106,6 +1101,7 @@ public class RecordHeader implements IBlockHeader {
 
              // Second the index
              if (indexLength > 0) {
+// TODO: ENDIAN ISSUES HERE??????
                  System.arraycopy(index, 0, array, 14 * 4 + off, indexLength);
              }
          }
