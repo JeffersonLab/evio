@@ -660,13 +660,13 @@ public class Compressor {
     }
 
     /**
-     * LZ4 decompression. Returns original length of decompressed data in bytes.
+     * LZ4 decompression. Returns an array containing the original decompressed data in bytes.
      *
      * @param src      source of compressed data.
      * @param srcOff   start offset in src.
      * @param srcSize  number of compressed bytes.
-     * @param maxDestLen    max bytes to decode?
-     * @return original (uncompressed) input size.
+     * @param maxDestLen    max available bytes to hold uncompressed data.
+     * @return original, uncompressed data. Length of array is length of valid data.
      * @throws HipoException
      */
     public static byte[] uncompressLZ4(byte[] src, int srcOff, int srcSize, int maxDestLen) {
