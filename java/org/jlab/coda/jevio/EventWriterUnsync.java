@@ -137,7 +137,7 @@ final public class EventWriterUnsync implements AutoCloseable {
     private long bytesWritten;
 
     /** Do we add a last header or trailer to file/buffer? */
-    private boolean addTrailer = true;
+    private boolean addingTrailer = true;
 
     /** Do we add a record index to the trailer? */
     private boolean addTrailerIndex;
@@ -1599,7 +1599,7 @@ System.out.println("setStartingRecordNumber: set to " + recordNumber);
 
             // Write trailer
             if (asyncFileChannel != null) {
-                if (addTrailer) {
+                if (addingTrailer) {
                     // Write the trailer
                     try {
                         writeTrailerToFile(addTrailerIndex);
@@ -2708,7 +2708,7 @@ System.out.println("                 record # = " + recordNumber);
     private void splitFile() throws EvioException, IOException {
 
         if (asyncFileChannel != null) {
-            if (addTrailer) {
+            if (addingTrailer) {
                 // Write the trailer
                 writeTrailerToFile(addTrailerIndex);
             }
@@ -3013,7 +3013,7 @@ System.out.println("** writeToBuffer: NOT FIT IN RECORD");
      */
     private int trailerBytes() {
         int len = 0;
-        if (addTrailer) len += RecordHeader.HEADER_SIZE_BYTES;
+        if (addingTrailer) len += RecordHeader.HEADER_SIZE_BYTES;
         if (addTrailerIndex) len += 4 * recordLengths.size();
         return len;
     }
