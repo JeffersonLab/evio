@@ -20,10 +20,12 @@ set(CMAKE_INSTALL_PREFIX ./)
 
 cmake_minimum_required(VERSION 3.2)
 
+set(CMAKE_CXX_STANDARD 14)
+
 project(evio_6_0)
 
 # Find include files here
-include_directories(src/libsrc src/libsrc++)
+include_directories(src/libsrc src/libsrc++ src/newlib++ ../lz4/lib)
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
@@ -42,8 +44,7 @@ set(C_LIB_FILES
     src/libsrc/eviofmt.c
     src/libsrc/eviofmtdump.c
     src/libsrc/eviofmtswap.c
-    src/libsrc/evioswap.c
-)
+    src/libsrc/evioswap.c)
 
 set(CPP_HEADER_FILES
     src/libsrc++/evioBankIndex.hxx
@@ -70,10 +71,41 @@ set(CPP_LIB_FILES
     src/libsrc++/evioDictEntry.cc
 )
 
+set(CPP_HEADER_FILES_NEW
+        src/newlib++/FileEventIndex.h
+        src/newlib++/FileHeader.h
+        src/newlib++/ByteOrder.h
+        src/newlib++/HeaderType.h
+        src/newlib++/HipoException.h
+        src/newlib++/RecordHeader.h
+        src/newlib++/RecordInput.h
+        src/newlib++/RecordOutput.h
+        src/newlib++/ByteBuffer.h
+        src/newlib++/Compressor.h
+        src/newlib++/Writer.h
+        src/newlib++/WriterMT.h
+        src/newlib++/ConcurrentQueue.h
+        src/newlib++/Stoppable.h
+        )
 
-file(GLOB TEST_FILES src/test/*.c src/test/*.cc)
+set(CPP_LIB_FILES_NEW
+        src/newlib++/FileEventIndex.cpp
+        src/newlib++/FileHeader.cpp
+        src/newlib++/RecordHeader.cpp
+        src/newlib++/RecordInput.cpp
+        src/newlib++/RecordOutput.cpp
+        src/newlib++/ByteBuffer.cpp
+        src/newlib++/Compressor.cpp
+        src/newlib++/Writer.cpp
+        src/newlib++/WriterMT.cpp
+        src/newlib++/CompressionType.h)
 
-file(GLOB EXAMPLE_FILES src/examples/*.c src/examples/*.cc)
+
+file(GLOB TEST_FILES_C src/test/*.c)
+file(GLOB TEST_FILES_CC src/test/*.cc)
+
+#file(GLOB EXAMPLE_FILES_C src/examples/*.c)
+#file(GLOB EXAMPLE_FILES_CC src/examples/*.cc)
 
 
 # Shared evio C library
@@ -81,8 +113,13 @@ add_library(evio SHARED ${C_LIB_FILES})
 target_include_directories(evio PUBLIC src/libsrc)
 
 # Shared evio C++ library
-add_library(evioxx SHARED ${CPP_LIB_FILES})
-target_include_directories(evioxx PUBLIC src/libsrc src/libsrc++)
+#add_library(evioxx SHARED ${CPP_LIB_FILES})
+#target_include_directories(evioxx PUBLIC src/libsrc src/libsrc++)
+
+
+# Shared hipo C++ library
+add_library(hipo SHARED ${CPP_LIB_FILES_NEW})
+target_include_directories(hipo PUBLIC src/newlib++)
 
 
 # Main Executables
@@ -92,33 +129,36 @@ target_link_libraries(evio2xml pthread expat z evio)
 add_executable(eviocopy src/execsrc/eviocopy.c)
 target_link_libraries(eviocopy pthread evio)
 
-add_executable(evioCat  src/execsrc/evioCat.cc)
-target_link_libraries(evioCat evio evioxx)
+#add_executable(evioCat  src/execsrc/evioCat.cc)
+#target_link_libraries(evioCat evio evioxx)
 
 
 # Test programs
-foreach(fileName ${TEST_FILES})
+foreach(fileName ${TEST_FILES_C})
     # Get file name with no directory or extension as executable name
     get_filename_component(execName ${fileName} NAME_WE)
     # Create executable from file
     add_executable(${execName} ${fileName})
     # Needs these libs
-    target_link_libraries(${execName} evio evioxx)
+    target_link_libraries(${execName} evio)
     # Install into bin/test dir
     install(TARGETS ${execName} DESTINATION bin/test)
 endforeach(fileName)
 
 
 # Example programs
-foreach(fileName ${EXAMPLE_FILES})
-    get_filename_component(execName ${fileName} NAME_WE)
-    add_executable(${execName} ${fileName})
-    target_link_libraries(${execName} evio evioxx)
-    install(TARGETS ${execName} DESTINATION bin/examples)
-endforeach(fileName)
+#foreach(fileName ${EXAMPLE_FILES_C})
+#    get_filename_component(execName ${fileName} NAME_WE)
+#    add_executable(${execName} ${fileName})
+#    target_link_libraries(${execName} evio)
+#    install(TARGETS ${execName} DESTINATION bin/examples)
+#endforeach(fileName)
 
 
 # Installation relative to build/cmake
-install(TARGETS evio evioxx DESTINATION lib)
-install(TARGETS evio2xml eviocopy evioCat DESTINATION bin)
-install(FILES ${C_HEADER_FILES} ${CPP_HEADER_FILES} DESTINATION inc)
+#install(TARGETS evio evioxx DESTINATION lib)
+install(TARGETS evio hipo DESTINATION lib)
+#install(TARGETS evio DESTINATION lib)
+#install(TARGETS evio2xml eviocopy evioCat DESTINATION bin)
+install(TARGETS evio2xml eviocopy DESTINATION bin)
+install(FILES ${C_HEADER_FILES} ${CPP_HEADER_FILES_NEW} DESTINATION inc)
