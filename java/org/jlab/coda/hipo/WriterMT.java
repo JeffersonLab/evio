@@ -76,7 +76,7 @@ public class WriterMT implements AutoCloseable {
     private int recordNumber = 1;
 
     /** Do we add a last header or trailer to file/buffer? */
-    private boolean addTrailer;
+    private boolean addingTrailer;
 
     /** Do we add a record index to the trailer? */
     private boolean addTrailerIndex;
@@ -359,7 +359,7 @@ System.out.println("   Writer: thread INTERRUPTED");
 
     /**
      * Set whether this writer adds a trailer to the end of the file.
-     * @param addTrailer if true, at the end of file, add an ending header (trailer)
+     * @param addingTrailer if true, at the end of file, add an ending header (trailer)
      *                   with no index of records and no following data.
      *                   Update the file header to contain a file offset to the trailer.
      */
@@ -381,7 +381,7 @@ System.out.println("   Writer: thread INTERRUPTED");
     public void addTrailerWithIndex(boolean addTrailingIndex) {
         addTrailerIndex = addTrailingIndex;
         if (addTrailingIndex) {
-            addTrailer = true;
+            addingTrailer = true;
         }
     }
 
@@ -667,7 +667,7 @@ System.out.println("   Writer: thread INTERRUPTED");
         fileHeader.reset();
         writerBytesWritten = 0L;
         recordNumber = 1;
-        addTrailer = false;
+        addingTrailer = false;
     }
 
     /**
@@ -694,7 +694,7 @@ System.out.println("   Writer: thread INTERRUPTED");
         }
 
         try {
-            if (addTrailer) {
+            if (addingTrailer) {
                 // Write the trailer
                 writeTrailer(addTrailerIndex);
             }
