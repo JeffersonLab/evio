@@ -57,6 +57,9 @@ public class Writer implements AutoCloseable {
     private String dictionary;
     /** Evio format "first" event to store in file header's user header. */
     private byte[] firstEvent;
+    /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
+    ByteBuffer dictionaryFirstEventBuffer;
+
     /** Byte order of data to write to file/buffer. */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
     /** Internal Record. */
@@ -144,6 +147,11 @@ public class Writer implements AutoCloseable {
         this.firstEvent = firstEvent;
         outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 1);
 
+        if ( (dictionary != null && dictionary.length() > 0) ||
+             (firstEvent != null && firstEvent.length   > 0))  {
+            dictionaryFirstEventBuffer = createDictionaryRecord();
+        }
+
         if (hType == HeaderType.HIPO_FILE){
             fileHeader = new FileHeader(false);
         } else {
@@ -153,7 +161,8 @@ public class Writer implements AutoCloseable {
 
     /**
      * Constructor with filename.
-     * The output file will be created with no user header.
+     * The output file will be created with no user header and therefore
+     * {@link #open(String)} is called in this method and should not be called again.
      * File byte order is little endian.
      * @param filename output file name
      * @throws IOException  if file cannot be found or IO error writing to file
@@ -168,7 +177,9 @@ public class Writer implements AutoCloseable {
 
     /**
      * Constructor with filename & byte order.
-     * The output file will be created with no user header. LZ4 compression.
+     * The output file will be created with no user header and therefore
+     * {@link #open(String)} is called in this method and should not be called again.
+     * LZ4 compression.
      * @param filename      output file name
      * @param order         byte order of written file or null for default (little endian)
      * @param maxEventCount max number of events a record can hold.
@@ -215,7 +226,7 @@ public class Writer implements AutoCloseable {
      */
     public Writer(ByteBuffer buf, ByteOrder order, int maxEventCount, int maxBufferSize,
                   String dictionary, byte[] firstEvent) {
-
+// TODO: why are dict and firstEv defined if never used with buffer????
         if (order != null) {
             byteOrder = order;
         }
@@ -225,6 +236,12 @@ public class Writer implements AutoCloseable {
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
         outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 0);
+
+        if ( (dictionary != null && dictionary.length() > 0) ||
+             (firstEvent != null && firstEvent.length   > 0))  {
+            dictionaryFirstEventBuffer = createDictionaryRecord();
+        }
+
         toFile = false;
     }
 
@@ -314,7 +331,7 @@ public class Writer implements AutoCloseable {
     }
 
     /**
-     * Open a file and write file header with given user's header.
+     * Open a file and write file header with given user header.
      * User header is automatically padded when written.
      * @param filename   name of file to write to.
      * @param userHeader byte array representing the optional user's header.
@@ -351,14 +368,9 @@ public class Writer implements AutoCloseable {
                 userHeader = new byte[0];
                 headerBuffer = createHeader(userHeader);
             }
-            // else place dictionary and/or firstEvent into
-            // record which becomes user header
+            // else treat buffer containing dictionary and/or firstEvent as user header
             else {
-                System.out.println("open: create dictionary and first event record");
-                ByteBuffer userHeaderBuf = createDictionaryRecord();
-                System.out.println("open: created dictionary and first event record, fe bit = " +
-                fileHeader.hasFirstEvent());
-                headerBuffer = createHeader(userHeaderBuf);
+                headerBuffer = createHeader(dictionaryFirstEventBuffer);
             }
         }
 
@@ -482,23 +494,6 @@ System.out.println("createRecord: add first event to record");
 
         // Ready-to-read buffer contains record data
         return record.getBinaryBuffer();
-
-//        // Return array representation of record
-//        byte[] rec = new byte[buf.limit()];
-//System.out.println("createRecord: create byte array of size = " + buf.limit());
-//
-//        if (buf.hasArray()) {
-//            // Backing array may be bigger
-//            System.arraycopy(buf.array(), buf.arrayOffset(), rec, 0, rec.length);
-//System.out.println("createRecord: copied data using arraycopy");
-//        }
-//        else {
-//            // Buffer is ready to read from record.build()
-//            buf.get(rec);
-//System.out.println("createRecord: copied data using buffer");
-//        }
-//
-//        return rec;
     }
 
 
@@ -565,7 +560,7 @@ System.out.println("createRecord: add first event to record");
 
         if (userHeaderBytes > 0) {
             System.arraycopy(userHeader, 0, array,
-                             RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
+                             FileHeader.HEADER_SIZE_BYTES, userHeaderBytes);
         }
 
         // Get ready to read, buffer position is still 0
@@ -617,7 +612,7 @@ System.out.println("createRecord: add first event to record");
             if (userHeader.hasArray()) {
                 System.arraycopy(userHeader.array(),
                                  userHeader.arrayOffset() + userHeader.position(),
-                                 array, RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
+                                 array, FileHeader.HEADER_SIZE_BYTES, userHeaderBytes);
             }
             else {
                 userHeader.get(array, 0, userHeaderBytes);
@@ -699,8 +694,6 @@ System.out.println("createRecord: add first event to record");
         catch (HipoException ex) {
             // never happen
         }
-
-        return;
     }
 
     /**
