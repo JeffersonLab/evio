@@ -911,11 +911,11 @@ System.out.println("EventWriter constr: record # set to " + recordNumber);
             header.setBitInfoWord(oldBitInfoWord);
         }
         else {
-            try {
+//            try {
 //System.out.println("reInitializeBuffer: set bitInfo to" + bitInfo);
                 header.setBitInfoWord(bitInfo);
-            }
-            catch (HipoException e) {/* do nothing if problem (bitInfo == null) */}
+//            }
+//            catch (HipoException e) {/* do nothing if problem (bitInfo == null) */}
         }
 //System.out.println("reInitializeBuffer: after reset, record # -> " + recordNumber);
 
