@@ -898,7 +898,7 @@ public class RecordOutputStream {
 
             recordBinary.put( recordEvents.array(), 0, eventSize);
 //System.out.println("build: writing index of size " + indexSize);
-//System.out.println("build: events of size " + indexSize);
+//System.out.println("build: events of size " + eventSize);
         }
 
         // Since hipo/evio data is padded, all data to be written is already padded
@@ -1111,11 +1111,9 @@ public class RecordOutputStream {
             uncompressedDataSize += eventSize;
         }
 
-        //System.out.println(" TOTAL SIZE = " + dataBufSize);
-
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
-        int compressedSize;
+        int compressedSize = 0;
         try {
             switch (compressionType) {
                 case 1:
@@ -1186,7 +1184,8 @@ public class RecordOutputStream {
             }
         }
         catch (HipoException e) {/* should not happen */}
-        //System.out.println(" DATA SIZE = " + dataBufferSize + "  COMPRESSED SIZE = " + compressedSize);
+
+        //System.out.println(" COMPRESSED SIZE = " + compressedSize);
 
         // Set header values (user header length already set above)
         header.setEntries(eventCount);
