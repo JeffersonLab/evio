@@ -11,6 +11,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <future>
+#include <chrono>
 
 #include "FileHeader.h"
 #include "ByteBuffer.h"
@@ -37,18 +39,15 @@ private:
 
     /** Object for writing file. */
     std::ofstream outFile;
-
-//    /** The file channel, used for writing a file, derived from outStream. */
-//    FileChannel fileChannel;
-
     /** Header to write to file, created in constructor. */
     FileHeader fileHeader;
+    /** Used to write file asynchronously. Allow 1 write with 1 simultaneous record filling. */
+    std::future<void> future;
 
     // If writing to buffer ...
 
     /** Buffer being written to. */
     ByteBuffer buffer;
-
     /** Buffer containing user Header. */
     ByteBuffer userHeaderBuffer;
     /** Byte array containing user Header. */
@@ -72,19 +71,19 @@ private:
 
     /** Byte order of data to write to file/buffer. */
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
-    /** Internal Record. */
+
+    /** Record currently being filled. */
     RecordOutput outputRecord;
-
-
-//    /** Byte array large enough to hold a header/trailer. This array may increase. */
-//    uint8_t headerArray[RecordHeader::HEADER_SIZE_BYTES];
-//    /** Byte size of headerArray. */
-//    uint32_t headerArrayBytes = RecordHeader::HEADER_SIZE_BYTES;
+    /** Temp storage for next record to be written to. */
+    RecordOutput unusedRecord;
+    /** Record currently being written to file. */
+    RecordOutput beingWrittenRecord;
 
     /** Byte array large enough to hold a header/trailer. This array may increase. */
     vector<uint8_t> headerArray;
-
-
+    /** List of record lengths interspersed with record event counts
+     * to be optionally written in trailer. */
+    vector<uint32_t> recordLengths;
 
     /** Type of compression to use on file. Default is none. */
     Compressor::CompressionType compressionType;
@@ -92,21 +91,15 @@ private:
     size_t writerBytesWritten;
     /** Number which is incremented and stored with each successive written record starting at 1. */
     uint32_t recordNumber = 1;
+
     /** Do we add a last header or trailer to file/buffer? */
     bool addingTrailer;
     /** Do we add a record index to the trailer? */
     bool addTrailerIndex;
-
     /** Has close() been called? */
     bool closed;
     /** Has open() been called? */
     bool opened;
-
-    /** List of record lengths interspersed with record event counts
-     * to be optionally written in trailer. */
-    //ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
-    vector<uint32_t> recordLengths;
-
 
 public:
 
@@ -142,6 +135,7 @@ private:
     static void toBytes(uint32_t data, const ByteOrder & byteOrder,
                         uint8_t* dest, uint32_t off, uint32_t destMaxSize);
 
+    static void staticWriteFunction(Writer *pWriter, const char* data, size_t len);
 
 public:
 

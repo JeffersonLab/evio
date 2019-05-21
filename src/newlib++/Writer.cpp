@@ -5,31 +5,6 @@
 #include "Writer.h"
 
 
-
-//
-//1 #include <future>
-//2 #include <iostream>
-//3
-//4 void called_from_async() {
-//    5   std::cout << "Async call" << std::endl;
-//    6 }
-//7
-//8 int main() {
-//    9   //called_from_async launched in a separate thread if possible
-//    10   std::future<void> result( std::async(called_from_async));
-//    11
-//    12   std::cout << "Message from main." << std::endl;
-//    13
-//    14   //ensure that called_from_async is launched synchronously
-//    15   //if it wasn't already launched
-//    16   result.get();
-//    17
-//    18   return 0;
-//    19 }
-//
-
-
-
 /**
  * Default constructor.
  * <b>No</b> file is opened. Any file will have little endian byte order.
@@ -92,13 +67,27 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEv
 
     this->dictionary = dictionary;
     this->firstEvent = firstEvent;
-    this->firstEventLength = firstEventLen;
+    firstEventLength = firstEventLen;
 
+    byteOrder = order;
+    compressionType = Compressor::LZ4;
+
+    userHeader = nullptr;
+    userHeaderLength = 0;
+    writerBytesWritten = 0;
+
+    closed             = false;
+    opened             = false;
+    addingTrailer      = false;
+    addTrailerIndex    = false;
+    firstRecordWritten = false;
+
+    recordLengths.reserve(1500);
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
-    outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, Compressor::LZ4);
+    outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compressionType);
 
-    if ( (dictionary.length() > 0) ||
-         (firstEvent != nullptr && firstEventLen > 0))  {
+    if ((dictionary.length() > 0) ||
+        (firstEvent != nullptr && firstEventLen > 0))  {
         dictionaryFirstEventBuffer = createDictionaryRecord();
     }
 
@@ -217,15 +206,41 @@ ByteBuffer Writer::createDictionaryRecord() {
 }
 
 
+/**
+ * Static wrapper function used to asynchronously run threads to write to file.
+ * Necesssary because std::async cannot run member functions (i.e. outFile.write)
+ * directly.
+ *
+ * @param pWriter pointer to this object.
+ * @param data    pointer to data.
+ * @param len     number of bytes to write.
+ */
+void Writer::staticWriteFunction(Writer *pWriter, const char* data, size_t len) {
+    pWriter->outFile.write(data, len);
+}
+
 
 /**
  * Write internal record with incremented record # to file or buffer.
+ * Not thread safe with {@link #writeRecord}.
  * @throws HipoException if cannot write to file.
  */
 void Writer::writeOutput() {
+
     if (!toFile) {
         writeOutputToBuffer();
         return;
+    }
+
+    // Wait for previous (if any) write to finish
+    if (future.valid()) {
+        future.get();
+        // Now that we're done writing record, make it available to be filled again
+        unusedRecord = beingWrittenRecord;
+
+        if (outFile.fail()) {
+            throw HipoException("problem writing to file");
+        }
     }
 
     RecordHeader header = outputRecord.getHeader();
@@ -240,13 +255,23 @@ void Writer::writeOutput() {
     recordLengths.push_back(header.getEntries());
 
     writerBytesWritten += bytesToWrite;
-    //cout << " bytes to write = " << bytesToWrite << endl;
 
-    outFile.write(reinterpret_cast<const char *>(outputRecord.getBinaryBuffer().array()), bytesToWrite);
-    if (outFile.bad() || outFile.fail()) {
-        throw HipoException("problem writing to file");
-    }
+    // Launch async write in separate thread. That way the current thread can be filling
+    // and compressing one record while another is simultaneously being written.
+    // Unfortunately, unlike java which can do concurrent, thread-safe writes to a single file,
+    // C++ cannot do so. This limits us to one writing thread.
+    future = std::future<void>(
+                   std::async(std::launch::async,  // run in a separate thread
+                              staticWriteFunction, // function to run
+                              this,                // arguments to function ...
+                              reinterpret_cast<const char *>(outputRecord.getBinaryBuffer().array()),
+                              bytesToWrite));
 
+    // Keep track of which record is being written
+    beingWrittenRecord = outputRecord;
+
+    // Next record to work with
+    outputRecord = unusedRecord;
     outputRecord.reset();
 }
 
@@ -285,7 +310,6 @@ void Writer::writeOutputToBuffer() {
 
     outputRecord.reset();
 }
-
 
 //////////////////////////////////////////////////////////////////////
 
@@ -599,6 +623,8 @@ ByteBuffer Writer::createHeader(uint8_t* userHdr, uint32_t userLen) {
     if (userHdr != nullptr) {
         userHeaderBytes = userLen;
     }
+// TODO: make sure next line is necessary (taken from WriterMT)
+    fileHeader.reset();
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
     cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -779,74 +805,74 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
  */
 void Writer::writeTrailer(bool writeIndex) {
 
-        // If we're NOT adding a record index, just write trailer
-        if (!writeIndex) {
-            try {
-                RecordHeader::writeTrailer(&headerArray[0], headerArray.max_size(), 0,
-                                           recordNumber, byteOrder, nullptr, 0);
-
-                // TODO: not really necessary to keep track here?
-                writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
-
-                if (toFile) {
-                    outFile.write(reinterpret_cast<const char*>(&headerArray[0]), headerArray.size());
-                }
-                else {
-                    buffer.put(&headerArray[0], 0, headerArray.size());
-                }
-            }
-            catch (HipoException & ex) {
-                // never happen
-            }
-            return;
-        }
-
-        // Create the index of record lengths & entries in proper byte order
-        size_t recordLengthsBytes = 4*recordLengths.size();
-        auto recordIndex = new uint8_t[recordLengthsBytes];
-
+    // If we're NOT adding a record index, just write trailer
+    if (!writeIndex) {
         try {
-            for (int i = 0; i < recordLengths.size(); i++) {
-                toBytes(recordLengths[i], byteOrder, recordIndex, 4*i, recordLengthsBytes);
-//cout << "Writing record length = " << recordLengths[i] << showbase << hex <<
-//                ", = " << recordLengths[i] << endl;
-            }
-        }
-        catch (HipoException & e) {/* never happen */}
-
-        // Write trailer with index
-
-        // How many bytes are we writing here?
-        int dataBytes = RecordHeader::HEADER_SIZE_BYTES + recordLengthsBytes;
-
-        // Make sure our array can hold everything
-        if (headerArray.max_size() < dataBytes) {
-//cout << "Allocating byte array of " << dataBytes << " bytes in size" << endl;
-            headerArray.reserve(dataBytes);
-        }
-
-        try {
-            // Place data into headerArray - both header and index
             RecordHeader::writeTrailer(&headerArray[0], headerArray.max_size(), 0,
-                                       recordNumber, byteOrder, (const uint32_t*)recordIndex,
-                                       recordLengthsBytes);
+                                       recordNumber, byteOrder, nullptr, 0);
 
-//            RecordHeader::writeTrailer(headerArray, RecordHeader::HEADER_SIZE_BYTES, 0,
-//                                       recordNumber, byteOrder, recordIndex, indexLen);
             // TODO: not really necessary to keep track here?
-            writerBytesWritten += dataBytes;
+            writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
+
             if (toFile) {
-                outFile.write(reinterpret_cast<const char*>(&headerArray[0]), dataBytes);
+                outFile.write(reinterpret_cast<const char*>(&headerArray[0]), headerArray.size());
             }
             else {
-                buffer.put(&headerArray[0], 0, dataBytes);
+                buffer.put(&headerArray[0], 0, headerArray.size());
             }
         }
         catch (HipoException & ex) {
             // never happen
         }
+        return;
+    }
 
-        delete[] recordIndex;
+    // Create the index of record lengths & entries in proper byte order
+    size_t recordLengthsBytes = 4*recordLengths.size();
+    auto recordIndex = new uint8_t[recordLengthsBytes];
+
+    try {
+        for (int i = 0; i < recordLengths.size(); i++) {
+            toBytes(recordLengths[i], byteOrder, recordIndex, 4*i, recordLengthsBytes);
+//cout << "Writing record length = " << recordLengths[i] << showbase << hex <<
+//                ", = " << recordLengths[i] << endl;
+        }
+    }
+    catch (HipoException & e) {/* never happen */}
+
+    // Write trailer with index
+
+    // How many bytes are we writing here?
+    int dataBytes = RecordHeader::HEADER_SIZE_BYTES + recordLengthsBytes;
+
+    // Make sure our array can hold everything
+    if (headerArray.max_size() < dataBytes) {
+//cout << "Allocating byte array of " << dataBytes << " bytes in size" << endl;
+        headerArray.reserve(dataBytes);
+    }
+
+    try {
+        // Place data into headerArray - both header and index
+        RecordHeader::writeTrailer(&headerArray[0], headerArray.max_size(), 0,
+                                   recordNumber, byteOrder, (const uint32_t*)recordIndex,
+                                   recordLengthsBytes);
+
+//            RecordHeader::writeTrailer(headerArray, RecordHeader::HEADER_SIZE_BYTES, 0,
+//                                       recordNumber, byteOrder, recordIndex, indexLen);
+        // TODO: not really necessary to keep track here?
+        writerBytesWritten += dataBytes;
+        if (toFile) {
+            outFile.write(reinterpret_cast<const char*>(&headerArray[0]), dataBytes);
+        }
+        else {
+            buffer.put(&headerArray[0], 0, dataBytes);
+        }
+    }
+    catch (HipoException & ex) {
+        // never happen
+    }
+
+    delete[] recordIndex;
 }
 
 
@@ -882,13 +908,35 @@ void Writer::toBytes(uint32_t data, const ByteOrder & byteOrder,
 }
 
 
+
+
+/** Objects to allow efficient, asynchronous file writing. */
+private Future<Integer> future1, future2;
+
+/** Index for selecting which future (1 or 2) to use for next file write. */
+private int futureIndex;
+
+
+
+
 /**
  * Appends the record to the file.
  * Using this method in conjunction with addEvent() is not thread-safe.
  * @param record record object
- * @throws IOException if error writing to file.
+ * @throws HipoException if error writing to file.
  */
 void Writer::writeRecord(RecordOutput & record) {
+
+    // Wait for previous (if any) write to finish
+    if (toFile && future.valid()) {
+        future.get();
+        unusedRecord = beingWrittenRecord;
+
+        if (outFile.fail()) {
+            throw HipoException("problem writing to file");
+        }
+    }
+
     RecordHeader header = record.getHeader();
 
     // Make sure given record is consistent with this writer
@@ -907,7 +955,17 @@ void Writer::writeRecord(RecordOutput & record) {
     writerBytesWritten += bytesToWrite;
 
     if (toFile) {
-        outFile.write(reinterpret_cast<const char*>(record.getBinaryBuffer().array()), bytesToWrite);
+        // Launch async write in separate thread.
+        future = std::future<void>(
+                      std::async(std::launch::async,  // run in a separate thread
+                           staticWriteFunction, // function to run
+                           this,                // arguments to function ...
+                           reinterpret_cast<const char *>(record.getBinaryBuffer().array()),
+                           bytesToWrite));
+
+        // Next record to work with
+        outputRecord = unusedRecord;
+        outputRecord.reset();
     }
     else {
         buffer.put(record.getBinaryBuffer().array(), 0, bytesToWrite);
@@ -1040,7 +1098,14 @@ void Writer::close() {
         if (closed) return;
 
         if (outputRecord.getEventCount() > 0) {
+            // This will wait for previous asynchronous write to finish
             writeOutput();
+        }
+        else if (toFile) {
+            // Wait for previous (if any) asynchronous write to finish
+            if (future.valid()) {
+                future.get();
+            }
         }
 
         if (addingTrailer) {

@@ -19,7 +19,7 @@
 #include "ByteOrder.h"
 #include "RecordOutput.h"
 #include "RecordHeader.h"
-#include "ConcurrentQueue.h"
+#include "ConcurrentFixedQueue.h"
 #include "Compressor.h"
 #include "Stoppable.h"
 
@@ -54,9 +54,9 @@ private:
             /** Type of compression to perform. */
             Compressor::CompressionType compressionType;
             /** Queue containing uncompressed input records. */
-            ConcurrentQueue<RecordOutput> & queueIn;
+            ConcurrentFixedQueue<RecordOutput> & queueIn;
             /** Queue on which to place compressed records. */
-            ConcurrentQueue<RecordOutput> & queueOut;
+            ConcurrentFixedQueue<RecordOutput> & queueOut;
             /** Thread which does the compression. */
             std::thread thd;
 
@@ -70,8 +70,8 @@ private:
               * @param recordQ
               */
             CompressingThread(uint32_t thdNum, uint32_t recNum, Compressor::CompressionType type,
-                             ConcurrentQueue<RecordOutput> & qIn,
-                             ConcurrentQueue<RecordOutput> & qOut) :
+                             ConcurrentFixedQueue<RecordOutput> & qIn,
+                             ConcurrentFixedQueue<RecordOutput> & qOut) :
                                 threadNumber(thdNum),
                                 recordNumber(recNum),
                                 compressionType(type),
@@ -156,7 +156,7 @@ private:
         private:
 
             /** Vector of input queues with (possibly) compressed records. */
-            vector<ConcurrentQueue<RecordOutput>> queues;
+            vector<ConcurrentFixedQueue<RecordOutput>> queues;
             /** Object which owns this thread. */
             WriterMT * writer;
             /** Thread which does the file writing. */
@@ -168,7 +168,7 @@ private:
              * Default constructor.
              * @param threadNumber unique thread number starting at 0.
              */
-            WritingThread() : writer(nullptr), queues(vector<ConcurrentQueue<RecordOutput>>()) {}
+            WritingThread() : writer(nullptr), queues(vector<ConcurrentFixedQueue<RecordOutput>>()) {}
 
             /**
              * Constructor.
@@ -176,7 +176,7 @@ private:
              * @param qs vector of input queues containing compressed records that need to be written to file.
              *           Each queue is being filled by a CompressionThread.
              */
-            WritingThread(WriterMT * pwriter, vector<ConcurrentQueue<RecordOutput>> & qs) :
+            WritingThread(WriterMT * pwriter, vector<ConcurrentFixedQueue<RecordOutput>> & qs) :
                     writer(pwriter), queues(qs)  {}
 
             /** Move assignment operator. */
@@ -263,7 +263,7 @@ private:
 
                         //TODO: Check for errors in write
                         if (writer->outFile.fail()) {
-                            throw HipoException("failed write to file)";
+                            throw HipoException("failed write to file");
                         }
 
                         record.reset();
@@ -282,20 +282,10 @@ private:
 
 private:
 
-    /** Do we write to a file or a buffer? */
-    bool toFile = true;
-
-    // If writing to file ...
-
     /** Object for writing file. */
     std::ofstream outFile;
     /** Header to write to file, created in constructor. */
     FileHeader fileHeader;
-
-    // If writing to buffer ...
-
-    /** Buffer being written to. */
-    ByteBuffer buffer;
 
     /** Buffer containing user Header. */
     ByteBuffer userHeaderBuffer;
@@ -320,6 +310,9 @@ private:
 
     /** Byte order of data to write to file/buffer. */
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+
+// TODO: we're going to need many internal records!!
+
     /** Internal Record. */
     RecordOutput outputRecord;
 
@@ -327,18 +320,17 @@ private:
     vector<uint8_t> headerArray;
 
     /** Type of compression to use on file. Default is none. */
-    //uint32_t compressionType;
-    Compressor::CompressionType compressionType = Compressor::CompressionType::UNCOMPRESSED;
+    Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
 
     /** Number of bytes written to file/buffer at current moment. */
     size_t writerBytesWritten;
     /** Number which is incremented and stored with each successive written record starting at 1. */
     uint32_t recordNumber = 1;
+
     /** Do we add a last header or trailer to file/buffer? */
     bool addingTrailer;
     /** Do we add a record index to the trailer? */
     bool addTrailerIndex;
-
     /** Has close() been called? */
     bool closed;
     /** Has open() been called? */
@@ -349,17 +341,14 @@ private:
     //ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
     vector<uint32_t> recordLengths;
 
-//    /** Fast, thread-safe, lock-free supply of records. */
-//    RecordSupply supply;
-//    /** Current ring Item from which current record is taken. */
-//    RecordRingItem ringItem;
-
-
     /** Number of threads doing compression simultaneously. */
     uint32_t compressionThreadCount;
 
-    ConcurrentQueue<RecordOutput> writeQueue;
-    vector<ConcurrentQueue<RecordOutput>> queues;
+    /** Next queue in which a record to be compressed will be placed. */
+    uint32_t nextQueueIndex = 0;
+
+    ConcurrentFixedQueue<RecordOutput> writeQueue;
+    vector<ConcurrentFixedQueue<RecordOutput>> queues;
 
     /** Thread used to write data to file/buffer. */
     WritingThread recordWriterThread;
@@ -367,22 +356,20 @@ private:
     /** Threads used to compress data. */
     vector<CompressingThread> recordCompressorThreads;
 
-
-
 public:
 
     WriterMT();
     WriterMT(const ByteOrder  & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-             Compressor::CompressionType compType, uint32_t compressionThreads, uint32_t ringSize);
+             Compressor::CompressionType compType, uint32_t compressionThreads);
 
    WriterMT(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-            Compressor::CompressionType compressionType, uint32_t compressionThreads, uint32_t ringSize,
+            Compressor::CompressionType compressionType, uint32_t compressionThreads,
             const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen);
 
     WriterMT(string & filename);
 
     WriterMT(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-             Compressor::CompressionType compressionType, uint32_t compressionThreads, uint32_t ringSize);
+             Compressor::CompressionType compressionType, uint32_t compressionThreads);
 
     ~WriterMT() = default;
 
@@ -421,7 +408,7 @@ public:
                                    FileHeader* fileHeader,
                                    RecordHeader* recordHeader);
 
-    WriterMT & setCompressionType(uint32_t compression);
+    WriterMT & setCompressionType(Compressor::CompressionType compression);
 
 
     //ByteBuffer & createHeader(uint8_t* userHeader, size_t len);
