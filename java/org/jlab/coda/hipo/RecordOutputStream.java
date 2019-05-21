@@ -850,7 +850,8 @@ public class RecordOutputStream {
      * Builds the record. Compresses data, header is constructed,
      * then header & data written into internal buffer.
      * This method may be called multiple times in succession without
-     * any problem.
+     * any problem. The buffer obtained with {@link #getBinaryBuffer()}
+     * has its position and limit set for reading.
      */
     public void build() {
 
