@@ -355,15 +355,15 @@ System.out.println("   Writer: thread INTERRUPTED");
      * Does this writer add a trailer to the end of the file?
      * @return true if this writer adds a trailer to the end of the file, else false.
      */
-    public boolean addTrailer() {return addTrailer;}
+    public boolean addTrailer() {return addingTrailer;}
 
     /**
      * Set whether this writer adds a trailer to the end of the file.
      * @param addingTrailer if true, at the end of file, add an ending header (trailer)
-     *                   with no index of records and no following data.
-     *                   Update the file header to contain a file offset to the trailer.
+     *                      with no index of records and no following data.
+     *                      Update the file header to contain a file offset to the trailer.
      */
-    public void addTrailer(boolean addTrailer) {this.addTrailer = addTrailer;}
+    public void addTrailer(boolean addingTrailer) {this.addingTrailer = addingTrailer;}
 
     /**
      * Does this writer add a trailer with a record index to the end of the file?
