@@ -2999,9 +2999,9 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
              eventsWrittenTotal++;
              eventsWrittenToBuffer++;
          }
-         else {
-System.out.println("** writeToBuffer: NOT FIT IN RECORD");
-         }
+//         else {
+//System.out.println("** writeToBuffer: NOT FIT IN RECORD");
+//         }
 
         return fitInRecord;
     }
