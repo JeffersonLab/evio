@@ -10,7 +10,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import com.lmax.disruptor.*;
-import com.lmax.disruptor.util.SpinCountBackoffWaitStrategy;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
