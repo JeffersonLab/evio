@@ -83,7 +83,8 @@ public class EvioSegment extends BaseStructure {
             }
             xmlWriter.writeAttribute("data_type", String.format("0x%x", header.dataType.getValue()));
             xmlWriter.writeAttribute("tag", "" + header.tag);
-            xmlWriter.writeAttribute("length", "" + header.length);
+			xmlWriter.writeAttribute("hexTag", "0x" + Integer.toHexString(header.tag));
+			xmlWriter.writeAttribute("length", "" + header.length);
             xmlWriter.writeAttribute("ndata", "" + getNumberDataItems());
             increaseXmlIndent();
             commonXMLDataWrite(xmlWriter, hex);

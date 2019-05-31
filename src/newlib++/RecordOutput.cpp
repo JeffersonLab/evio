@@ -152,16 +152,13 @@ void RecordOutput::setBuffer(ByteBuffer & buf) {
     reset();
 }
 
+
 // TODO: This method needs some serious attention!
 /**
- * Copy the contents of the arg into this object.
- * If the arg has more data than will fit, increase buffer sizes.
- * If the arg has more events than our allowed max, increase the max.
- * @param rec object to copy
- * @throws HipoException if we cannot replace internal buffer if it needs to be
- *                       expanded since it was provided by the user.
+ * Copy constructor.
+ * @param rec RecordOutput to copy.
  */
-void RecordOutput::copy(const RecordOutput & rec) {
+RecordOutput::RecordOutput(const RecordOutput & rec) {
 
     // Copy primitive types & immutable objects
     eventCount = rec.eventCount;
@@ -169,8 +166,8 @@ void RecordOutput::copy(const RecordOutput & rec) {
     eventSize  = rec.eventSize;
     byteOrder  = rec.byteOrder;
 
-    // Copy header
-    header.copy(rec.header);
+    // Copy construct header
+    header = RecordHeader(rec.header);
 
     // It would be nice to leave MAX_EVENT_COUNT as is so RecordSupply
     // has consistent behavior. But I don't think that's possible if
@@ -223,8 +220,45 @@ void RecordOutput::copy(const RecordOutput & rec) {
 //                         recordBinary.array(), 0, rec.recordBinary.limit());
     // Get buffer ready to read
     recordBinary.position(0).limit(rec.recordBinary.limit());
-
 }
+
+/**
+ * Move constructor.
+ * @param srcBuf ByteBuffer to move.
+ */
+RecordOutput::RecordOutput(RecordOutput && rec) noexcept {
+
+    // TODO: finish copy constructor first
+    *this = std::move(rec);
+}
+
+/**
+ * Move assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ */
+RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
+
+    // Avoid self assignment ...
+    if (this != &other) {
+        buf = std::move(other.buf);
+    }
+    return *this;
+}
+
+/**
+ * Assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ */
+RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
+    // Avoid self assignment ...
+    if (this == &other) {
+        buf = other.buf;
+    }
+    return *this;
+}
+
 
 
 /**

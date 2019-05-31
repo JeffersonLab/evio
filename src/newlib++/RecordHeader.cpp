@@ -44,14 +44,6 @@ RecordHeader::RecordHeader(const HeaderType & type) {
 }
 
 /**
- * Copy constructor.
- * @param header  header to copy.
- */
-RecordHeader::RecordHeader(const RecordHeader & header) {
-    copy(header);
-}
-
-/**
  * Constructor.
  * @param pos   position in file.
  * @param len   length of record in bytes
@@ -69,11 +61,10 @@ RecordHeader::RecordHeader(long pos, int len, int ent) {
 }
 
 /**
- * Copy the contents of the arg into this object.
- * @param head object to copy
+ * Copy constructor.
+ * @param header  header to copy.
  */
-void RecordHeader::copy(const RecordHeader & head) {
-
+RecordHeader::RecordHeader(const RecordHeader & head) {
     position                 = head.position;
 
     recordLength             = head.recordLength;
@@ -97,6 +88,7 @@ void RecordHeader::copy(const RecordHeader & head) {
     compressedDataLengthWords = head.compressedDataLengthWords;
     compressionType           = head.compressionType;
     headerMagicWord           = head.headerMagicWord;
+    byteOrder                 = head.byteOrder;
     // don't bother with version as must be same
 
     userHeaderLengthPadding     = head.userHeaderLengthPadding;
@@ -128,6 +120,8 @@ void RecordHeader::reset() {
     dataLengthWords = 0;
     compressedDataLength = 0;
     compressedDataLengthWords = 0;
+    // TODO: what about byteOrder???
+    byteOrder = ByteOrder::ENDIAN_LITTLE;
 
     userHeaderLengthPadding = 0;
     dataLengthPadding = 0;

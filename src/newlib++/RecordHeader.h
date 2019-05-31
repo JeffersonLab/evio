@@ -274,7 +274,6 @@ private:
 
 public:
 
-    void copy(const RecordHeader & head);
     void reset();
 
     static uint32_t getWords(int length);

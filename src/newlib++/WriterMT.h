@@ -310,6 +310,10 @@ private:
 
     /** Byte order of data to write to file/buffer. */
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+    /** Max number of events an internal record can hold. */
+    uint32_t maxEventCount;
+    /** Max number of uncompressed data bytes an internal record can hold. */
+    uint32_t maxBufferSize;
 
 // TODO: we're going to need many internal records!!
 
@@ -380,6 +384,7 @@ private:
     ByteBuffer createDictionaryRecord();
     void writeOutput();
     void writeOutputToBuffer();
+    void writeInternalRecord(RecordOutput & internalRecord);
 
     // TODO: this should be part of an Utilities class ...
     static void toBytes(uint32_t data, const ByteOrder & byteOrder,

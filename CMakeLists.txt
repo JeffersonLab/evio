@@ -73,32 +73,32 @@ set(CPP_LIB_FILES
 
 set(CPP_HEADER_FILES_NEW
         src/newlib++/FileEventIndex.h
-        src/newlib++/FileHeader.h
-        src/newlib++/ByteOrder.h
-        src/newlib++/HeaderType.h
         src/newlib++/HipoException.h
+        src/newlib++/ByteOrder.h
+        src/newlib++/ByteBuffer.h
+        src/newlib++/HeaderType.h
+        src/newlib++/Stoppable.h
+        src/newlib++/ConcurrentFixedQueue.h
+        src/newlib++/Compressor.h
+        src/newlib++/CompressionType.h
+        src/newlib++/FileHeader.h
         src/newlib++/RecordHeader.h
         src/newlib++/RecordInput.h
         src/newlib++/RecordOutput.h
-        src/newlib++/ByteBuffer.h
-        src/newlib++/Compressor.h
         src/newlib++/Writer.h
         src/newlib++/WriterMT.h
-        src/newlib++/ConcurrentQueue.h
-        src/newlib++/Stoppable.h
         )
 
 set(CPP_LIB_FILES_NEW
         src/newlib++/FileEventIndex.cpp
+        src/newlib++/ByteBuffer.cpp
+        src/newlib++/Compressor.cpp
         src/newlib++/FileHeader.cpp
         src/newlib++/RecordHeader.cpp
         src/newlib++/RecordInput.cpp
         src/newlib++/RecordOutput.cpp
-        src/newlib++/ByteBuffer.cpp
-        src/newlib++/Compressor.cpp
         src/newlib++/Writer.cpp
-        src/newlib++/WriterMT.cpp
-        src/newlib++/CompressionType.h)
+        src/newlib++/WriterMT.cpp)
 
 
 file(GLOB TEST_FILES_C src/test/*.c)
