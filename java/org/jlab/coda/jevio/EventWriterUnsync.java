@@ -2430,7 +2430,7 @@ System.out.println("                 record # = " + recordNumber);
                     header.setCompressionType(compressionType);
                     // Do compression
                     record.build();
-System.out.println("   release compressed record (" + item.getSequence() + "), thd #" + num);
+//System.out.println("   release compressed record (" + item.getSequence() + "), thd #" + num);
                     // Release back to supply
                     supply.releaseCompressor(item);
                 }
@@ -2478,7 +2478,7 @@ System.out.println("   release compressed record (" + item.getSequence() + "), t
                     currentSeq = item.getSequence();
                     split = item.splitFileAfterWrite();
 
-System.out.println("   Rwrite record, got seq = " + item.getSequence());
+//System.out.println("   Rwrite record, got seq = " + item.getSequence());
                     // Write to file
                     writeToFileMT(item, item.forceToDisk());
 
