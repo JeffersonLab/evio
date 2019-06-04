@@ -8,7 +8,6 @@ package org.jlab.coda.hipo;
 
 import org.jlab.coda.jevio.EvioBank;
 import org.jlab.coda.jevio.EvioNode;
-import org.jlab.coda.jevio.Utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -293,11 +292,13 @@ public class RecordOutputStream {
         if (userBufferSize > RECORD_BUFFER_SIZE) {
             MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
             RECORD_BUFFER_SIZE = userBufferSize;
+            //System.out.println("setBuffer: changed MAX_BUFFER_SIZE to " + MAX_BUFFER_SIZE + ", reallocate");
             allocate();
         }
         else {
             MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
             RECORD_BUFFER_SIZE = userBufferSize;
+            //System.out.println("setBuffer: changed MAX_BUFFER_SIZE to " + MAX_BUFFER_SIZE + ", did NOT reallocate");
         }
 
         reset();
@@ -647,14 +648,32 @@ public class RecordOutputStream {
         if (oneTooMany() || !roomForEvent(eventLen)) {
             return false;
         }
+//        int curSize =  (indexSize + 4 + eventSize + RecordHeader.HEADER_SIZE_BYTES +
+//                                                eventLen + extraDataLen);
+//        int diff = recordData.limit() - curSize;
+//
+//        if (diff < 5000) {
+//            System.out.println("We got " + curSize + " bytes in recordEvents, lim " +
+//                                       recordEvents.limit() + ", cap = " + recordEvents.capacity() +
+//                                       ", diff = " + diff + ", max buff size = " + MAX_BUFFER_SIZE);
+//        }
 
+        int pos=0;
         if (event.hasArray()) {
-            // recordEvents backing array's offset = 0
-            int pos = recordEvents.position();
-            System.arraycopy(event.array(),
-                             event.arrayOffset() + event.position(),
-                             recordEvents.array(), pos, eventLen);
-            recordEvents.position(pos + eventLen);
+//            try {
+                // recordEvents backing array's offset = 0
+                pos = recordEvents.position();
+                System.arraycopy(event.array(),
+                                 event.arrayOffset() + event.position(),
+                                 recordEvents.array(), pos, eventLen);
+                recordEvents.position(pos + eventLen);
+//            }
+//            catch (Exception e) {
+//                System.out.println("addEvent, pos in recordEvent = " + pos + ", lim = " + recordEvents.limit() +
+//                                           ", next pos = " + (pos + eventLen));
+//
+//                e.printStackTrace();
+//            }
         }
         else {
             recordEvents.put(event);
