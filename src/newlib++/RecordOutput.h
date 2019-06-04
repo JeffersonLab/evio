@@ -170,6 +170,12 @@ public:
     RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
                  Compressor::CompressionType compressionType, HeaderType & hType);
 
+    RecordOutput(const RecordOutput & srcRec);
+    RecordOutput(RecordOutput && srcBuf) noexcept;
+
+    RecordOutput & operator=(RecordOutput&& other) noexcept;
+    RecordOutput & operator=(const RecordOutput& other);
+
 private:
 
     void allocate();

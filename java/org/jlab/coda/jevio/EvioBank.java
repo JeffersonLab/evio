@@ -103,6 +103,7 @@ public class EvioBank extends BaseStructure implements Cloneable {
             }
 			xmlWriter.writeAttribute("data_type", String.format("0x%x", header.dataType.getValue()));
 			xmlWriter.writeAttribute("tag", "" + header.tag);
+			xmlWriter.writeAttribute("hexTag", "0x" + Integer.toHexString(header.tag));
             xmlWriter.writeAttribute("num", "" + header.number);
             xmlWriter.writeAttribute("length", "" + header.length);
             xmlWriter.writeAttribute("ndata", "" + getNumberDataItems());

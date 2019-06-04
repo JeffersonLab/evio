@@ -59,6 +59,8 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order, uint32_t m
     this->dictionary = dictionary;
     this->firstEvent = firstEvent;
     firstEventLength = firstEventLen;
+    this->maxEventCount = maxEventCount;
+    this->maxBufferSize = maxBufferSize;
 
     byteOrder = order;
     compressionType = compType;
@@ -485,7 +487,6 @@ void WriterMT::writeTrailer(bool writeIndex) {
  * Appends the record to the file.
  * Using this method in conjunction with addEvent() is not thread-safe.
  * @param record record object
- * @throws HipoException if error writing to file.
  */
 void WriterMT::writeRecord(RecordOutput & record) {
 
@@ -494,7 +495,6 @@ void WriterMT::writeRecord(RecordOutput & record) {
     // Make sure given record is consistent with this writer
     header.setCompressionType(compressionType);
     header.setRecordNumber(recordNumber++);
-    //System.out.println( " set compression type = " + compressionType);
     record.getHeader().setCompressionType(compressionType);
     record.setByteOrder(byteOrder);
 
@@ -508,65 +508,33 @@ void WriterMT::writeRecord(RecordOutput & record) {
     recordLengths.push_back(header.getEntries());
     writerBytesWritten += bytesToWrite;
 
-// TODO: put the bytesToWrite into the record object so the write thread knows how much data to write!!!!!!!!!!!!!
+    // Place record ready to be written onto queue for writing thread. This will block.
     queues[nextQueueIndex++].push(record);
-
-    // Launch async write in separate thread.
-    future = std::future<void>(
-            std::async(std::launch::async,  // run in a separate thread
-                       staticWriteFunction, // function to run
-                       this,                // arguments to function ...
-                       reinterpret_cast<const char *>(record.getBinaryBuffer().array()),
-                       bytesToWrite));
 }
 
 
 /**
- * Write this record into one taken from the supply.
- * Using this method in conjunction with {@link #addEvent(byte[], int, int)}
- * is not thread-safe.
- * @param rec record object
- * @throws IllegalArgumentException if arg's byte order is opposite to record supply.
- * @throws HipoException if we cannot replace internal buffer of the current record
- *                       if it needs to be expanded since the buffer was provided
- *                       by the user.
+ * Appends the internal record to the file.
+ * @param record internal record object
  */
-void writeRecord(RecordOutput rec) {
+void WriterMT::writeInternalRecord(RecordOutput & internalRecord) {
 
-        // Need to ensure that the given record has a byte order the same
-        // as all the records in the supply.
-        if (rec.getByteOrder() != byteOrder) {
-            throw new IllegalArgumentException("byte order of record is wrong");
-        }
+    RecordHeader header = internalRecord.getHeader();
+    header.setRecordNumber(recordNumber++);
 
-        // If we have already written stuff into our current internal record ...
-        if (record.getEventCount() > 0) {
-            // Put it back in supply for compressing
-            supply.publish(ringItem);
+    internalRecord.build();
 
-            // Now get another, empty record.
-            // This may block if threads are busy compressing
-            // and/or writing all records in supply.
-            ringItem = supply.get();
-            record = ringItem.getRecord();
-        }
+    int bytesToWrite = header.getLength();
+    // Record length of this record
+    recordLengths.push_back(bytesToWrite);
+    // Followed by events in record
+    recordLengths.push_back(header.getEntries());
+    writerBytesWritten += bytesToWrite;
 
-        // Copy rec into an empty record taken from the supply
-        record.copy(rec);
-
-        // Make sure given record is consistent with this writer
-        RecordHeader header = record.getHeader();
-        header.setCompressionType(compressionType);
-        header.setRecordNumber(recordNumber++);
-        record.setByteOrder(byteOrder);
-
-        // Put it back in supply for compressing
-        supply.publish(ringItem);
-
-        // Get another
-        ringItem = supply.get();
-        record = ringItem.getRecord();
+    // Place record ready to be written onto queue for writing thread. This will block.
+    queues[nextQueueIndex++].push(internalRecord);
 }
+
 
 /**
  * Add a byte array to the current internal record. If the length of
@@ -580,16 +548,17 @@ void writeRecord(RecordOutput rec) {
  * @param offset offset into array from which to start writing data.
  * @param length number of bytes to write from array.
  */
-public void addEvent(byte[] buffer, int offset, int length) {
+void WriterMT::addEvent(uint8_t * buffer, uint32_t offset, uint32_t length) {
     // Try putting data into current record being filled
-    boolean status = record.addEvent(buffer, offset, length);
+    bool status = outputRecord.addEvent(buffer, offset, length);
 
     // If record is full ...
     if (!status) {
-        // Put it back in supply for compressing
-        supply.publish(ringItem);
+        // Put record onto queue for compressing
+        writeInternalRecord(outputRecord);
 
-        // Now get another, empty record.
+        // Now create another, empty record.
+        outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType);
         // This may block if threads are busy compressing
         // and/or writing all records in supply.
         ringItem = supply.get();
@@ -600,25 +569,12 @@ public void addEvent(byte[] buffer, int offset, int length) {
     }
 }
 
-/**
- * Add a byte array to the current internal record. If the length of
- * the buffer exceeds the maximum size of the record, the record
- * will be written to the file (compressed if the flag is set).
- * And another record will be obtained from the supply to receive the buffer.
- * Using this method in conjunction with {@link #writeRecord(RecordOutputStream)}
- * is not thread-safe.
- *
- * @param buffer array to add to the file.
- */
-public void addEvent(byte[] buffer){
-    addEvent(buffer, 0, buffer.length);
-}
 
 //---------------------------------------------------------------------
 
 /** Get this object ready for re-use.
  * Follow calling this with call to {@link #open(String)}. */
-public void reset() {
+void WriterMT::reset() {
     record.reset();
     fileHeader.reset();
     writerBytesWritten = 0L;
@@ -632,7 +588,7 @@ public void reset() {
  * written if requested.<p>
  * <b>The addEvent or addRecord methods must no longer be called.</b>
  */
-public void close(){
+void WriterMT::close() {
 
     // If we're in the middle of building a record, send it off since we're done
     if (record.getEventCount() > 0) {

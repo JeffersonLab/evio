@@ -27,8 +27,10 @@ private:
     queue<Data> q;
     /** Mutex. */
     mutable mutex mtx;
-    /** Condition variable. */
-    condition_variable cv;
+    /** Condition variable for adding to queue. */
+    condition_variable cvAddedOne;
+    /** Condition variable for removing from queue. */
+    condition_variable cvRemovedOne;
 
 public:
 
@@ -37,7 +39,8 @@ public:
         maxSize = size;
         q();
         mtx();
-        cv();
+        cvAddedOne();
+        cvRemovedOne();
     }
 
     /** Move assignment operator which moves the contents of other to lhs. */
@@ -83,9 +86,9 @@ public:
     }
 
     /**
-      * Is the queue empty?
-      * @return true if queue empty, else false;
-      */
+     * Is the queue empty?
+     * @return true if queue empty, else false;
+     */
     bool isEmpty() const {
         mtx.lock();
         bool empty = q.empty();
@@ -95,7 +98,7 @@ public:
 
     /**
      * Is the queue full?
-      * @return true if queue full, else false;
+     * @return true if queue full, else false;
      */
     bool isFull() const {
         mtx.lock();
@@ -105,20 +108,73 @@ public:
     }
 
     /**
-     * Add element to queue if not full.
+     * Add element to queue. Block if full.
+     * @param data element to add to queue.
+     */
+    void push(Data const& data) {
+        mtx.lock();
+        while (q.size() >= maxSize) {
+            cvRemovedOne.wait(mtx);
+        }
+
+        q.emplace(data); // emplace may be more efficient than push
+        mtx.unlock();
+        cvAddedOne.notify_one();
+    }
+
+    /**
+     * Try adding element to queue. Immediately return false if full.
      * @param data element to add to queue.
      * @return false if queue full and data not added, else true.
      */
-    bool push(Data const& data) {
+    bool tryPush(Data const& data) {
         mtx.lock();
         if (q.size() >= maxSize) {
             mtx.unlock();
             return false;
         }
-        q.push(data);
+
+        q.emplace(data);
         mtx.unlock();
-        cv.notify_one();
+        cvAddedOne.notify_one();
         return true;
+    }
+
+    /**
+     * Timed push from this queue.
+     * @param data element to add to queue.
+     * @param millisec number of milliseconds to wait
+     * @return false if queue full and data not added, else true.
+     */
+    bool waitPush(Data const& data, uint32_t millisec) {
+        mtx.lock();
+        while (q.size() >= maxSize) {
+            if (cvRemovedOne.wait_for(mtx, millisec * 1ms) == std::cv_status::timeout) {
+                mtx.unlock();
+                return false;
+            }
+        }
+
+        q.emplace(data);
+        mtx.unlock();
+        cvAddedOne.notify_one();
+        return true;
+    }
+
+    /**
+     * Pop from this queue. Blocks until queue item available.
+     * @param popped_value returned queue item.
+     */
+    void pop(Data& popped_value) {
+        mtx.lock();
+        while (q.empty()) {
+            cvAddedOne.wait(mtx);
+        }
+
+        popped_value = q.front();
+        q.pop();
+        mtx.unlock();
+        cvRemovedOne.notify_one();
     }
 
     /**
@@ -136,22 +192,8 @@ public:
         popped_value = q.front();
         q.pop();
         mtx.unlock();
+        cvRemovedOne.notify_one();
         return true;
-    }
-
-    /**
-      * Pop from this queue. Blocks until queue item available.
-      * @param popped_value returned queue item.
-      */
-    void waitPop(Data& popped_value) {
-        mtx.lock();
-        while(q.empty()) {
-            cv.wait(lock);
-        }
-
-        popped_value = q.front();
-        q.pop();
-        mtx.unlock();
     }
 
     /**
@@ -163,7 +205,7 @@ public:
     bool waitPop(Data& popped_value, uint32_t millisec) {
         mtx.lock();
         while (q.empty()) {
-            if (cv.wait_for(lock, millisec * 1ms) == std::cv_status::timeout) {
+            if (cvAddedOne.wait_for(mtx, millisec * 1ms) == std::cv_status::timeout) {
                 mtx.unlock();
                 return false;
             }
@@ -172,6 +214,7 @@ public:
         popped_value = q.front();
         q.pop();
         mtx.unlock();
+        cvRemovedOne.notify_one();
         return true;
     }
 
