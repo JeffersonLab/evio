@@ -118,6 +118,200 @@ RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
     allocate();
 }
 
+
+/**
+ * Copy constructor.
+ * @param rec RecordOutput to copy.
+ * @throws HipoException if trying to copy bigger record and
+ *                       internal buffer was provided by user.
+ */
+RecordOutput::RecordOutput(const RecordOutput & rec) {
+
+    // Copy primitive types & immutable objects
+    eventCount = rec.eventCount;
+    indexSize  = rec.indexSize;
+    eventSize  = rec.eventSize;
+    byteOrder  = rec.byteOrder;
+    startingPosition = rec.startingPosition;
+
+    // Copy construct header
+    header = RecordHeader(rec.header);
+
+    // For now, we're not going to use a RecordSupply class (from Java).
+    // We're just going to use queues instead, thus we don't have to
+    // worry about trying to leave MAX_EVENT_COUNT as is so RecordSupply
+    // has consistent behavior.
+
+    // Choose the larger of rec's or this object's buffer sizes
+    if (rec.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE ||
+        rec.RECORD_BUFFER_SIZE > RECORD_BUFFER_SIZE) {
+
+        MAX_BUFFER_SIZE = rec.MAX_BUFFER_SIZE;
+        RECORD_BUFFER_SIZE = rec.RECORD_BUFFER_SIZE;
+
+        // Reallocate memory
+        if (!userProvidedBuffer) {
+            recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
+            recordBinary.order(byteOrder);
+        }
+        else {
+            // If this record has a user-provided recordBinary buffer,
+            // then the user is expecting data to be built into that same buffer.
+            // If the data to be copied is larger than can be contained by the
+            // user-provided buffer, then we throw an exception.
+            throw HipoException("trying to copy bigger record which may not fit into buffer provided by user");
+        }
+
+        recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
+        recordEvents.order(byteOrder);
+
+        recordData = ByteBuffer(MAX_BUFFER_SIZE);
+        recordData.order(byteOrder);
+    }
+
+    if (rec.eventCount > MAX_EVENT_COUNT) {
+        MAX_EVENT_COUNT = rec.eventCount;
+        recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
+        recordIndex.order(byteOrder);
+    }
+
+    // Copy data (recordData is just a temporary holding buffer and does NOT need to be copied)
+    std::memcpy((void *)recordIndex.array(),  (const void *)rec.recordIndex.array(),  indexSize);
+    std::memcpy((void *)recordEvents.array(), (const void *)rec.recordEvents.array(), eventSize);
+    std::memcpy((void *)recordBinary.array(), (const void *)rec.recordBinary.array(),
+                        rec.recordBinary.limit());
+
+    // Copy buffer limits & positions:
+    recordBinary.limit(rec.recordBinary.limit()).position(rec.recordBinary.position());
+    recordEvents.limit(rec.recordEvents.limit()).position(rec.recordEvents.position());
+    recordIndex.limit(rec.recordIndex.limit()).position(rec.recordIndex.position());
+}
+
+
+/**
+ * Move constructor.
+ * @param srcBuf ByteBuffer to move.
+ */
+RecordOutput::RecordOutput(RecordOutput && rec) noexcept {
+    // Use code below in move assignment operator
+    *this = std::move(rec);
+}
+
+
+/**
+ * Move assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ */
+RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
+
+    // Avoid self assignment ...
+    if (this != &other) {
+        // Copy primitive types & immutable objects
+        eventCount = other.eventCount;
+        indexSize  = other.indexSize;
+        eventSize  = other.eventSize;
+        byteOrder  = other.byteOrder;
+
+        MAX_EVENT_COUNT    = other.eventCount;
+        MAX_BUFFER_SIZE    = other.MAX_BUFFER_SIZE;
+        RECORD_BUFFER_SIZE = other.RECORD_BUFFER_SIZE;
+
+        userBufferSize     = other.userBufferSize;
+        startingPosition   = other.startingPosition;
+        userProvidedBuffer = other.userProvidedBuffer;
+
+        // Copy construct header (nothing needs moving)
+        header = RecordHeader(other.header);
+
+        // Move all the buffers.
+        // Copies everything except shared pointer to buffer which gets moved
+        recordBinary = std::move(other.recordBinary);
+        recordEvents = std::move(other.recordEvents);
+        recordIndex  = std::move(other.recordIndex);
+        recordData   = std::move(other.recordData);
+    }
+
+    return *this;
+}
+
+
+/**
+ * Assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ * @throws HipoException if trying to copy bigger record and
+ *                       internal buffer was provided by user.
+ */
+RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
+
+    // Avoid self assignment ...
+    if (this == &other) {
+
+        // Copy primitive types & immutable objects
+        eventCount = other.eventCount;
+        indexSize  = other.indexSize;
+        eventSize  = other.eventSize;
+        byteOrder  = other.byteOrder;
+        startingPosition = other.startingPosition;
+
+        // Copy construct header
+        header = RecordHeader(other.header);
+
+        // For now, we're not going to use a RecordSupply class (from Java).
+        // We're just going to use queues instead, thus we don't have to
+        // worry about trying to leave MAX_EVENT_COUNT as is so RecordSupply
+        // has consistent behavior.
+
+        // Choose the larger of rec's or this object's buffer sizes
+        if (other.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE ||
+            other.RECORD_BUFFER_SIZE > RECORD_BUFFER_SIZE) {
+
+            MAX_BUFFER_SIZE = other.MAX_BUFFER_SIZE;
+            RECORD_BUFFER_SIZE = other.RECORD_BUFFER_SIZE;
+
+            // Reallocate memory
+            if (!userProvidedBuffer) {
+                recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
+                recordBinary.order(byteOrder);
+            }
+            else {
+                // If this record has a user-provided recordBinary buffer,
+                // then the user is expecting data to be built into that same buffer.
+                // If the data to be copied is larger than can be contained by the
+                // user-provided buffer, then we throw an exception.
+                throw HipoException("trying to copy bigger record which may not fit into buffer provided by user");
+            }
+
+            recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
+            recordEvents.order(byteOrder);
+
+            recordData = ByteBuffer(MAX_BUFFER_SIZE);
+            recordData.order(byteOrder);
+        }
+
+        if (other.eventCount > MAX_EVENT_COUNT) {
+            MAX_EVENT_COUNT = other.eventCount;
+            recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
+            recordIndex.order(byteOrder);
+        }
+
+        // Copy data (recordData is just a temporary holding buffer and does NOT need to be copied)
+        std::memcpy((void *)recordIndex.array(),  (const void *)other.recordIndex.array(),  indexSize);
+        std::memcpy((void *)recordEvents.array(), (const void *)other.recordEvents.array(), eventSize);
+        std::memcpy((void *)recordBinary.array(), (const void *)other.recordBinary.array(),
+                    other.recordBinary.limit());
+
+        // Copy buffer limits & positions:
+        recordBinary.limit(other.recordBinary.limit()).position(other.recordBinary.position());
+        recordEvents.limit(other.recordEvents.limit()).position(other.recordEvents.position());
+        recordIndex.limit(other.recordIndex.limit()).position(other.recordIndex.position());
+    }
+
+    return *this;
+}
+
+
 /**
  * Reset internal buffers and set the buffer in which to build this record.
  * The given buffer should be made ready to receive new data by setting its
@@ -151,114 +345,6 @@ void RecordOutput::setBuffer(ByteBuffer & buf) {
 
     reset();
 }
-
-
-// TODO: This method needs some serious attention!
-/**
- * Copy constructor.
- * @param rec RecordOutput to copy.
- */
-RecordOutput::RecordOutput(const RecordOutput & rec) {
-
-    // Copy primitive types & immutable objects
-    eventCount = rec.eventCount;
-    indexSize  = rec.indexSize;
-    eventSize  = rec.eventSize;
-    byteOrder  = rec.byteOrder;
-
-    // Copy construct header
-    header = RecordHeader(rec.header);
-
-    // It would be nice to leave MAX_EVENT_COUNT as is so RecordSupply
-    // has consistent behavior. But I don't think that's possible if
-    // the record output stream being copied is larger. Since the record
-    // being copied may not have had build() called, go by the max sizes
-    // and not how much data are in the buffers.
-
-    // Choose the larger of rec's or this object's buffer sizes
-    if (rec.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE ||
-        rec.RECORD_BUFFER_SIZE > RECORD_BUFFER_SIZE) {
-
-        MAX_BUFFER_SIZE = rec.MAX_BUFFER_SIZE;
-        RECORD_BUFFER_SIZE = rec.RECORD_BUFFER_SIZE;
-
-        // Reallocate memory
-        if (!userProvidedBuffer) {
-            recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
-            recordBinary.order(byteOrder);
-        }
-        else {
-            throw HipoException("cannot replace internal buffer since it's provided by user");
-        }
-
-        recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
-        recordEvents.order(byteOrder);
-
-        recordData = ByteBuffer(MAX_BUFFER_SIZE);
-        recordData.order(byteOrder);
-    }
-
-    if (rec.eventCount > MAX_EVENT_COUNT) {
-        MAX_EVENT_COUNT = rec.eventCount;
-        recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
-        recordIndex.order(byteOrder);
-    }
-
-    // Copy data over src , srcPos, des, despos, len
-    std::memcpy((void *)recordIndex.array(),  (const void *) rec.recordIndex.array(), indexSize);
-    std::memcpy((void *)recordEvents.array(), (const void *) rec.recordEvents.array(), eventSize);
-//  System.arraycopy(rec.recordEvents.array(), 0, recordEvents.array(), 0, eventSize);
-//  System.arraycopy(rec.recordIndex.array(),  0, recordIndex.array(),  0, indexSize);
-
-    // recordData is just a temporary holding buffer and does NOT need to be copied
-
-    // recordBinary holds built record
-    // Assume that buffer is ready to read as is the case right after build() is called.
-    std::memcpy((void *)recordBinary.array(), (const void *) rec.recordBinary.array(),
-                rec.recordBinary.limit());
-//        System.arraycopy(rec.recordBinary.array(), 0,
-//                         recordBinary.array(), 0, rec.recordBinary.limit());
-    // Get buffer ready to read
-    recordBinary.position(0).limit(rec.recordBinary.limit());
-}
-
-/**
- * Move constructor.
- * @param srcBuf ByteBuffer to move.
- */
-RecordOutput::RecordOutput(RecordOutput && rec) noexcept {
-
-    // TODO: finish copy constructor first
-    *this = std::move(rec);
-}
-
-/**
- * Move assignment operator.
- * @param other right side object.
- * @return left side object.
- */
-RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
-
-    // Avoid self assignment ...
-    if (this != &other) {
-        buf = std::move(other.buf);
-    }
-    return *this;
-}
-
-/**
- * Assignment operator.
- * @param other right side object.
- * @return left side object.
- */
-RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
-    // Avoid self assignment ...
-    if (this == &other) {
-        buf = other.buf;
-    }
-    return *this;
-}
-
 
 
 /**
