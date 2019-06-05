@@ -30,6 +30,79 @@ RecordInput::RecordInput(ByteOrder & order) {
 }
 
 
+/** Copy constructor. */
+RecordInput::RecordInput(const RecordInput & srcRec) {
+    // Copy the buffers, do not use the same shared pointer
+    dataBuffer               = srcRec.dataBuffer;
+    recordBuffer             = srcRec.recordBuffer;
+    headerBuffer             = srcRec.headerBuffer;
+
+    header                   = srcRec.header;
+    nEntries                 = srcRec.nEntries;
+    userHeaderOffset         = srcRec.userHeaderOffset;
+    eventsOffset             = srcRec.eventsOffset;
+    uncompressedEventsLength = srcRec.uncompressedEventsLength;
+    byteOrder                = srcRec.byteOrder;
+}
+
+
+/**
+ * Move constructor.
+ * @param srcRec RecordInput to move.
+ */
+RecordInput::RecordInput(RecordInput && srcRec) noexcept {
+    // Use code below in move assignment operator
+    *this = std::move(srcRec);
+}
+
+
+/**
+ * Move assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ */
+RecordInput & RecordInput::operator=(RecordInput&& other) noexcept {
+
+    // Avoid self assignment ...
+    if (this != &other) {
+        // Moves the shared pointer in the buffer, rest is simply copied
+        dataBuffer               = std::move(other.dataBuffer);
+        recordBuffer             = std::move(other.recordBuffer);
+        headerBuffer             = std::move(other.headerBuffer);
+
+        header                   = other.header;
+        nEntries                 = other.nEntries;
+        userHeaderOffset         = other.userHeaderOffset;
+        eventsOffset             = other.eventsOffset;
+        uncompressedEventsLength = other.uncompressedEventsLength;
+        byteOrder                = other.byteOrder;
+    }
+    return *this;
+}
+
+/**
+ * Assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ */
+RecordInput & RecordInput::operator=(const RecordInput& other) {
+
+    // Avoid self assignment ...
+    if (this != &other) {
+        dataBuffer               = other.dataBuffer;
+        recordBuffer             = other.recordBuffer;
+        headerBuffer             = other.headerBuffer;
+        header                   = other.header;
+        nEntries                 = other.nEntries;
+        userHeaderOffset         = other.userHeaderOffset;
+        eventsOffset             = other.eventsOffset;
+        uncompressedEventsLength = other.uncompressedEventsLength;
+        byteOrder                = other.byteOrder;
+    }
+    return *this;
+}
+
+
 /**
  * Allocates data & record buffers for constructing a record from the input.
  * @param size number of bytes to allocate for each internal ByteBuffer.
@@ -198,7 +271,7 @@ ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32
 
     buffer.order(byteOrder);
 
-    std::memcpy((void *)(buffer.array() + bufOffset),
+    std::memcpy((void *)(buffer.array() + buffer.arrayOffset() + bufOffset),
                 (const void *)(dataBuffer.array() + offset), length);
 //    System.arraycopy(dataBuffer.array(), offset, buffer.array(),
 //                     buffer.arrayOffset() + bufOffset, length);
@@ -419,7 +492,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
 
 /**
  * Reads a record from the buffer at the given offset. Call this method or
- * {@link #readRecord(RandomAccessFile, uint64_t)} before calling any other.
+ * {@link #readRecord(ifstream &, size_t)} before calling any other.
  * Any compressed data is decompressed. Memory is allocated as needed.
  *
  * @param buffer buffer containing record data.
@@ -482,7 +555,7 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
             // Read uncompressed data - rest of record
             int len = recordLengthBytes - headerLength;
             std::memcpy((void *)dataBuffer.array(),
-                        (const void *)(buffer.array() + compDataOffset), len);
+                        (const void *)(buffer.array() + buffer.arrayOffset() + compDataOffset), len);
 //                System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
 //                                     dataBuffer.array(), 0, len);
     }
@@ -544,8 +617,8 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
 
     if (compressionType != 0) {
         // Copy (uncompressed) general record header to destination buffer
-        std::memcpy((void *)(dstBuf.array() + dstOff),
-                    (const void *)(srcBuf.array() + srcOff), headerBytes);
+        std::memcpy((void *)(dstBuf.array() + dstOff + dstBuf.arrayOffset()),
+                    (const void *)(srcBuf.array() + srcOff + srcBuf.arrayOffset()), headerBytes);
 
 //        System.arraycopy(srcBuf.array(), srcOff + srcBuf.arrayOffset(),
 //                         dstBuf.array(), dstOff + dstBuf.arrayOffset(),
@@ -557,8 +630,8 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
         // Since everything is uncompressed, copy it all over as is
         int copyBytes = indexLen + userLen + 4*header.getDataLengthWords();  // padded
 
-        std::memcpy((void *)(dstBuf.array() + dstOff),
-                    (const void *)(srcBuf.array() + srcOff), headerBytes + copyBytes);
+        std::memcpy((void *)(dstBuf.array() + dstOff + dstBuf.arrayOffset()),
+                    (const void *)(srcBuf.array() + srcOff + srcBuf.arrayOffset()), headerBytes + copyBytes);
 //        System.arraycopy(srcBuf.array(), srcOff + srcBuf.arrayOffset(),
 //                         dstBuf.array(), dstOff + dstBuf.arrayOffset(),
 //                         headerBytes  + copyBytes);
