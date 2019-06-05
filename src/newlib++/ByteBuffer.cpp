@@ -51,11 +51,12 @@ ByteBuffer::ByteBuffer(size_t size) {
 }
 
 /**
- * Copy constructor. Not available in Java, but perhaps useful in C++.
+ * Copy constructor. Not available in Java, but useful in C++.
  * @param srcBuf ByteBuffer to copy.
  */
 ByteBuffer::ByteBuffer(const ByteBuffer & srcBuf) {
 
+    // A copy should not use the same shared pointer
     buf = shared_ptr<uint8_t>(new uint8_t[srcBuf.cap], default_delete<uint8_t[]>());
 
     pos = srcBuf.pos;
@@ -112,7 +113,7 @@ ByteBuffer & ByteBuffer::operator=(ByteBuffer&& other) noexcept {
 ByteBuffer & ByteBuffer::operator=(const ByteBuffer& other) {
 
     // Avoid self assignment ...
-    if (this == &other) {
+    if (this != &other) {
         pos = other.pos;
         cap = other.cap;
         lim = other.lim;
