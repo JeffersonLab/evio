@@ -133,8 +133,15 @@ public:
 
     RecordInput();
     explicit RecordInput(ByteOrder & order);
-    RecordHeader & getHeader();
+    RecordInput(const RecordInput & recordIn);
+    RecordInput(RecordInput && srcRec) noexcept;
 
+    ~RecordInput() = default;
+
+    RecordInput & operator=(RecordInput&& other) noexcept;
+    RecordInput & operator=(const RecordInput& other);
+
+    RecordHeader & getHeader();
     const ByteOrder & getByteOrder();
     ByteBuffer & getUncompressedDataBuffer();
 

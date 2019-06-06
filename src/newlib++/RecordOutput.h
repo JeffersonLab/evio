@@ -176,6 +176,9 @@ public:
     RecordOutput & operator=(RecordOutput&& other) noexcept;
     RecordOutput & operator=(const RecordOutput& other);
 
+    ~RecordOutput() = default;
+
+
 private:
 
     void allocate();
