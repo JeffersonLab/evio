@@ -39,12 +39,12 @@
  *    |                  |    Pad 1      |           ^
  *    +----------------------------------+          /
  *                                                 /
- *    +----------------------------------+       /
- *    |           Data Record            |     /
- *    |                                  |    /
- *    |                  ----------------|   /
- *    |                  |    Pad 2      | /
- *    +----------------------------------+
+ *    +----------------------------------+        /
+ *    |           Data Record            |       /
+ *    |                                  |      /
+ *    |                  ----------------|     /
+ *    |                  |    Pad 2      |    /
+ *    +----------------------------------+----
  *
  *
  *
@@ -145,7 +145,8 @@ private:
     /** Number of events written to this Record. */
     uint32_t eventCount;
 
-    /** Number of valid bytes in recordIndex buffer */
+    /** Number of valid bytes in recordIndex buffer.
+     *  Will always be multiple of 4 since indexes are ints. */
     uint32_t indexSize;
 
     /** Number of valid bytes in recordEvents buffer. */
@@ -161,7 +162,6 @@ private:
 
 public:
 
-    /** Default, no-arg constructor. Little endian. LZ4 compression. */
     RecordOutput();
 
     RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
