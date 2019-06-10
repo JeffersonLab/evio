@@ -947,8 +947,8 @@ public class RecordOutputStream {
 //System.out.println("build: events of size " + eventSize);
         }
 
-        // Since hipo/evio data is padded, all data to be written is already padded
-        // TODO: This does NOT include padding. Shouldn't we do that?
+        // Evio data is padded, but not necessarily all hipo data.
+        // Uncompressed data length is NOT padded, but the record length is.
         int uncompressedDataSize = indexSize + eventSize;
         int compressedSize = -1;
 
@@ -1024,7 +1024,8 @@ public class RecordOutputStream {
 
                 case 0:
                 default:
-                    // No compression
+                    // No compression. The uncompressed data size may not be padded to a 4byte boundary,
+                    // so make sure that's accounted for here.
                     header.setCompressedDataLength(0);
                     int words = uncompressedDataSize/4;
                     if(uncompressedDataSize % 4 != 0) words++;
@@ -1135,10 +1136,11 @@ public class RecordOutputStream {
             uncompressedDataSize += 4*header.getUserHeaderLengthWords();
             //recordData.position(uncompressedDataSize);
 
-            // 3) uncompressed data array (hipo/evio data is already padded)
+            // 3) uncompressed data array
             //recordData.put(recordEvents.array(), 0, eventSize);
             System.arraycopy(recordEvents.array(), 0, recordData.array(), uncompressedDataSize, eventSize);
-            // TODO: This does NOT include padding. Shouldn't we do that?
+            // Evio data is padded, but not necessarily all hipo data.
+            // Uncompressed data length is NOT padded, but the record length is.
             uncompressedDataSize += eventSize;
             recordData.position(uncompressedDataSize);
         }
@@ -1249,9 +1251,12 @@ public class RecordOutputStream {
 
                 case 0:
                 default:
-                    // No compression
+                    // No compression. The uncompressed data size may not be padded to a 4byte boundary,
+                    // so make sure that's accounted for here.
                     header.setCompressedDataLength(0);
-                    header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
+                    int words = uncompressedDataSize/4;
+                    if(uncompressedDataSize % 4 != 0) words++;
+                    header.setLength(words*4 + RecordHeader.HEADER_SIZE_BYTES);
             }
         }
         catch (HipoException e) {/* should not happen */}
