@@ -246,7 +246,7 @@ RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
 RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
 
     // Avoid self assignment ...
-    if (this == &other) {
+    if (this != &other) {
 
         // Copy primitive types & immutable objects
         eventCount = other.eventCount;
@@ -861,6 +861,17 @@ void RecordOutput::build() {
         return;
     }
 
+    // Position in recordBinary buffer of just past the record header
+    size_t recBinPastHdr = startingPosition + RecordHeader::HEADER_SIZE_BYTES;
+
+    // Position in recordBinary buffer's backing array of just past the record header.
+    // Usually the same as the corresponding buffer position. But need to
+    // account for the user providing a buffer which is mapped on to a bigger backing array.
+    // This may happen if the user provides a slice() of another buffer.
+    // Right now, slice() is not implemented in C++ so buf.arrayOffset() = 0 and
+    // recBinPastHdr = recBinPastHdrAbsolute.
+    size_t recBinPastHdrAbsolute = recBinPastHdr + recordBinary.arrayOffset();
+
     uint32_t compressionType = header.getCompressionType();
 
     // Write index & event arrays
@@ -879,7 +890,7 @@ void RecordOutput::build() {
 //        (RecordHeader::HEADER_SIZE_BYTES + indexSize + eventSize) << endl;
 
         // Write directly into final buffer, past where header will go
-        recordBinary.position(startingPosition + RecordHeader::HEADER_SIZE_BYTES);
+        recordBinary.position(recBinPastHdr);
         recordBinary.put(recordIndex.array(), 0, indexSize);
 
 //cout << "build: recordBinary pos = " << recordBinary.position() <<
@@ -892,11 +903,10 @@ void RecordOutput::build() {
 //        "build: events of size " << eventSize << endl;
     }
 
-    // Since hipo/evio data is padded, all data to be written is already padded
-    // TODO: This does NOT include padding. Shouldn't we do that?
+    // Evio data is padded, but not necessarily all hipo data.
+    // Uncompressed data length is NOT padded, but the record length is.
     uint32_t uncompressedDataSize = indexSize + eventSize;
     uint32_t compressedSize = 0;
-    size_t   dstOff = 0;
     uint8_t* gzippedData;
 
     // Compress that temporary buffer into destination buffer
@@ -905,13 +915,10 @@ void RecordOutput::build() {
         switch (compressionType) {
             case 1:
                 // LZ4 fastest compression
-                //cout << "1. uncompressed size = " << uncompressedDataSize << endl;
-                dstOff = recordBinary.arrayOffset() + startingPosition + RecordHeader::HEADER_SIZE_BYTES;
-
                 compressedSize = Compressor::getInstance().compressLZ4(
                         recordData.array(), 0, uncompressedDataSize,
-                        recordBinary.array(), dstOff,
-                        (recordBinary.capacity() - dstOff));
+                        recordBinary.array(), recBinPastHdrAbsolute,
+                        (recordBinary.capacity() - recBinPastHdrAbsolute));
 
                 // Length of compressed data in bytes
                 header.setCompressedDataLength(compressedSize);
@@ -922,16 +929,14 @@ void RecordOutput::build() {
 
             case 2:
                 // LZ4 highest compression
-                dstOff = recordBinary.arrayOffset() + startingPosition + RecordHeader::HEADER_SIZE_BYTES;
-
                 compressedSize = Compressor::getInstance().compressLZ4Best(
                         recordData.array(), 0, uncompressedDataSize,
-                        recordBinary.array(), dstOff,
-                        (recordBinary.capacity() - dstOff));
+                        recordBinary.array(), recBinPastHdrAbsolute,
+                        (recordBinary.capacity() - recBinPastHdrAbsolute));
 //
 //cout << "Compressing data array from offset = 0, size = " << uncompressedDataSize <<
-//         " to output.array offset = " << dstOff << ", compressed size = " <<  compressedSize <<
-//         ", available size = " << (recordBinary.capacity() - dstOff) << endl;
+//         " to output.array offset = " << recBinPastHdrAbsolute << ", compressed size = " <<  compressedSize <<
+//         ", available size = " << (recordBinary.capacity() - recBinPastHdrAbsolute) << endl;
 
 //cout << "BEFORE setting header len: comp size = " << header.getCompressedDataLength() <<
 //        ", comp words = " << header.getCompressedDataLengthWords() << ", padding = " <<
@@ -951,7 +956,7 @@ void RecordOutput::build() {
                 // GZIP compression
                 gzippedData = Compressor::getInstance().compressGZIP(recordData.array(), 0,
                                                                  uncompressedDataSize, &compressedSize);
-                recordBinary.position(startingPosition + RecordHeader::HEADER_SIZE_BYTES);
+                recordBinary.position(recBinPastHdr);
                 recordBinary.put(gzippedData, 0, compressedSize);
                 delete[] gzippedData;
                 header.setCompressedDataLength(compressedSize);
@@ -961,12 +966,12 @@ void RecordOutput::build() {
 
             case 0:
             default:
-                // No compression
+                // No compression. The uncompressed data size may not be padded to a 4byte boundary,
+                // so make sure that's accounted for here.
                 header.setCompressedDataLength(0);
                 int words = uncompressedDataSize/4;
                 if (uncompressedDataSize % 4 != 0) words++;
                 header.setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
-                //header.setLength(uncompressedDataSize + RecordHeader::HEADER_SIZE_BYTES);
         }
     }
     catch (HipoException & e) {/* should not happen */}
@@ -991,6 +996,7 @@ void RecordOutput::build() {
     recordBinary.limit(startingPosition + header.getLength()).position(0);
 }
 
+
 /**
  * Builds the record. Compresses data, header is constructed,
  * then header & data written into internal buffer.
@@ -1012,6 +1018,17 @@ void RecordOutput::build(ByteBuffer & userHeader) {
 
 //    cout << "  INDEX = 0 " << indexSize << "  " << (indexSize + userHeaderSize) <<
 //            "  DIFF " << userHeaderSize << endl;
+
+    // Position in recordBinary buffer of just past the record header
+    size_t recBinPastHdr = startingPosition + RecordHeader::HEADER_SIZE_BYTES;
+
+    // Position in recordBinary buffer's backing array of just past the record header.
+    // Usually the same as the corresponding buffer position. But need to
+    // account for the user providing a buffer which is mapped on to a bigger backing array.
+    // This may happen if the user provides a slice() of another buffer.
+    // Right now, slice() is not implemented in C++ so buf.arrayOffset() = 0 and
+    // recBinPastHdr = recBinPastHdrAbsolute.
+    size_t recBinPastHdrAbsolute = recBinPastHdr + recordBinary.arrayOffset();
 
     uint32_t compressionType = header.getCompressionType();
     uint32_t uncompressedDataSize = indexSize;
@@ -1037,13 +1054,13 @@ void RecordOutput::build(ByteBuffer & userHeader) {
 
         // 3) uncompressed data array (hipo/evio data is already padded)
         recordData.put(recordEvents.array(), 0, eventSize);
-        // TODO: This does NOT include padding. Shouldn't we do that?
+        // May not be padded
         uncompressedDataSize += eventSize;
     }
     // If NOT compressing data ...
     else {
         // Write directly into final buffer, past where header will go
-        recordBinary.position(startingPosition + RecordHeader::HEADER_SIZE_BYTES);
+        recordBinary.position(recBinPastHdr);
 
         // 1) uncompressed index array
         recordBinary.put(recordIndex.array(), 0, indexSize);
@@ -1053,12 +1070,11 @@ void RecordOutput::build(ByteBuffer & userHeader) {
 
         header.setUserHeaderLength(userHeaderSize);
         uncompressedDataSize += 4*header.getUserHeaderLengthWords();
-        recordBinary.position(startingPosition + uncompressedDataSize +
-                              RecordHeader::HEADER_SIZE_BYTES);
+        recordBinary.position(recBinPastHdr + uncompressedDataSize);
 
         // 3) uncompressed data array (hipo/evio data is already padded)
         recordBinary.put(recordEvents.array(), 0, eventSize);
-        // TODO: This does NOT include padding. Shouldn't we do that?
+        // May not be padded ...
         uncompressedDataSize += eventSize;
     }
 
@@ -1073,10 +1089,8 @@ void RecordOutput::build(ByteBuffer & userHeader) {
                 // LZ4 fastest compression
                 compressedSize = Compressor::getInstance().compressLZ4(
                         recordData.array(), 0, uncompressedDataSize,
-                        recordBinary.array(),
-                        startingPosition + RecordHeader::HEADER_SIZE_BYTES,
-                        (recordBinary.capacity() -
-                         (startingPosition + RecordHeader::HEADER_SIZE_BYTES)));
+                        recordBinary.array(), recBinPastHdrAbsolute,
+                        (recordBinary.capacity() - recBinPastHdrAbsolute));
 
                 // Length of compressed data in bytes
                 header.setCompressedDataLength(compressedSize);
@@ -1089,10 +1103,8 @@ void RecordOutput::build(ByteBuffer & userHeader) {
                 // LZ4 highest compression
                 compressedSize = Compressor::getInstance().compressLZ4Best(
                         recordData.array(), 0, uncompressedDataSize,
-                        recordBinary.array(),
-                        startingPosition + RecordHeader::HEADER_SIZE_BYTES,
-                        (recordBinary.capacity() -
-                         (startingPosition + RecordHeader::HEADER_SIZE_BYTES)));
+                        recordBinary.array(), recBinPastHdrAbsolute,
+                        (recordBinary.capacity() - recBinPastHdrAbsolute));
 
                 header.setCompressedDataLength(compressedSize);
                 header.setLength(4*header.getCompressedDataLengthWords() +
@@ -1103,7 +1115,7 @@ void RecordOutput::build(ByteBuffer & userHeader) {
                 // GZIP compression
                 gzippedData = Compressor::getInstance().compressGZIP(recordData.array(), 0,
                                                                      uncompressedDataSize, &compressedSize);
-                recordBinary.position(startingPosition + RecordHeader::HEADER_SIZE_BYTES);
+                recordBinary.position(recBinPastHdr);
                 recordBinary.put(gzippedData, 0, compressedSize);
                 delete[] gzippedData;
                 header.setCompressedDataLength(compressedSize);
@@ -1113,9 +1125,12 @@ void RecordOutput::build(ByteBuffer & userHeader) {
 
             case 0:
             default:
-                // No compression
+                // No compression. The uncompressed data size may not be padded to a 4byte boundary,
+                // so make sure that's accounted for here.
                 header.setCompressedDataLength(0);
-                header.setLength(uncompressedDataSize + RecordHeader::HEADER_SIZE_BYTES);
+                int words = uncompressedDataSize/4;
+                if (uncompressedDataSize % 4 != 0) words++;
+                header.setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
         }
     }
     catch (HipoException & e) {/* should not happen */}
