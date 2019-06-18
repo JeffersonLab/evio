@@ -253,6 +253,10 @@ final public class EventWriterUnsync implements AutoCloseable {
     /** Objects to allow efficient, asynchronous file writing. */
     private Future<Integer> future1, future2;
 
+    /** RingItem1 is associated with future1, etc. When a write is finished,
+     * the associated ring item need to be released - but not before! */
+    private RecordRingItem ringItem1, ringItem2;
+
     /** Index for selecting which future (1 or 2) to use for next file write. */
     private int futureIndex;
 
@@ -2439,6 +2443,10 @@ System.out.println("                 record # = " + recordNumber);
                 // We've been interrupted while blocked in getToCompress
                 // which means we're all done.
             }
+            catch (Exception e) {
+                // Try catching problem with buffer overflow and multiple compressing threads
+                e.printStackTrace();
+            }
         }
     }
 
@@ -2483,7 +2491,7 @@ System.out.println("                 record # = " + recordNumber);
                     writeToFileMT(item, item.forceToDisk());
 
                     // Release record back to supply
-                    supply.releaseWriter(item);
+                    //supply.releaseWriter(item);
 
                     // Now we're done with this sequence
                     lastSeqProcessed = currentSeq;
@@ -2753,10 +2761,16 @@ System.out.println("                 record # = " + recordNumber);
             // If future1 is finished writing, proceed
             if (future1.isDone()) {
                 futureIndex = 0;
+                // Release record back to supply
+                supply.releaseWriter(ringItem1);
             }
             // If future2 is finished writing, proceed
             else if (future2.isDone()) {
                 futureIndex = 1;
+
+                // TODO: Somehow reset is being called on ringItem2 before we release it so
+                // we get null pointer exception.
+                supply.releaseWriter(ringItem2);
             }
             // Neither are finished, so wait for one of them to finish
             else {
@@ -2765,6 +2779,7 @@ System.out.println("                 record # = " + recordNumber);
                     try {
                         // Wait for write to end before we continue
                         future1.get();
+                        supply.releaseWriter(ringItem1);
                     }
                     catch (Exception e) {
                         throw new IOException(e);
@@ -2774,6 +2789,7 @@ System.out.println("                 record # = " + recordNumber);
                 else {
                     try {
                         future2.get();
+                        supply.releaseWriter(ringItem2);
                     }
                     catch (Exception e) {
                         throw new IOException(e);
@@ -2798,20 +2814,18 @@ System.out.println("                 record # = " + recordNumber);
 
         if (futureIndex == 0) {
             //buf.position(buffer.limit() - 20);
+            System.out.print(" " + buf.position() + "/" + buf.limit());
             future1 = asyncFileChannel.write(buf, fileWritingPosition);
+            ringItem1 = item;
             futureIndex = 1;
         }
         else {
             //buf.position(buffer.limit() - 20);
+            System.out.print(" " + buf.position() + "//" + buf.limit());
             future2 = asyncFileChannel.write(buf, fileWritingPosition);
+            ringItem2 = item;
             futureIndex = 0;
         }
-
-//        // Next buffer to work with
-//        buffer = unusedBuffer;
-//        buffer.clear();
-//        record.setBuffer(buffer);
-//        record.reset();
 
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
         // but don't bother writing the metadata (arg to force()) since that slows it
