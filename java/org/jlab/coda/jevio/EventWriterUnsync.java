@@ -253,6 +253,9 @@ final public class EventWriterUnsync implements AutoCloseable {
     /** Objects to allow efficient, asynchronous file writing. */
     private Future<Integer> future1, future2;
 
+    /** Objects to allow efficient, closing of a file. */
+    private Future<Integer> closeFuture1, closeFuture2;
+
     /** Objects to allow efficient, asynchronous file writing. */
     private Future<Integer> prevFuture1, prevFuture2;
 
@@ -289,6 +292,13 @@ final public class EventWriterUnsync implements AutoCloseable {
      * If so, this gives the maximum number of bytes to make each file in size.
      */
     private long split;
+
+    /**
+     * In order to help with splitting file in an asynchronous, multithreaded
+     * environment, we need the help of this flag saying when it's OK to set
+     * the split flag.
+     */
+    volatile private boolean settingSplitFlagAllowed = true;
 
     /**
      * If splitting file, the amount to increment the split number each time another
@@ -362,17 +372,17 @@ final public class EventWriterUnsync implements AutoCloseable {
 
             public void run() {
                 // Finish writing to current file
-                if (future1 != null) {
+                if (closeFuture1 != null) {
                     try {
                         // Wait for last write to end before we continue
-                        future1.get();
+                        closeFuture1.get();
                     }
                     catch (Exception e) {}
                 }
 
-                if (future2 != null) {
+                if (closeFuture2 != null) {
                     try {
-                        future2.get();
+                        closeFuture2.get();
                     }
                     catch (Exception e) {}
                 }
@@ -2320,8 +2330,11 @@ System.out.println("                 record # = " + recordNumber);
                     4 * recordNumber;
 
             // If we're going to split the file, set a couple flags
-            if (totalSize > split) {
+            if (settingSplitFlagAllowed && totalSize > split) {
                 splittingFile = true;
+                // Don't allow this flag to be set in items again until the
+                // new file is created and various quantities are reset
+                settingSplitFlagAllowed = false;
             }
         }
 
@@ -2498,7 +2511,6 @@ System.out.println("Split at " + bytesWrittenToFile);
 
                     // Split file if needed
                     if (split) {
-                        System.out.println("SPLITTING FILE NOW");
                         splitFile();
                     }
                 }
@@ -2881,167 +2893,6 @@ System.out.println("Split at " + bytesWrittenToFile);
 
 
     /**
-      * For multi-threaded compression, write record to file.
-      * In this case we do NOT have 1 record with 3 buffers.
-      * Instead we have a ring of records, each with its own buffers.
-      * Does nothing if close() already called.
-      *
-      * @param item  contains record to write to the disk if compression is multi-threaded.
-      * @param force force it to write event to the disk.
-      * @return {@code false} if no data written, else {@code true}
-      *
-      * @throws EvioException if this object already closed;
-      *                       if file could not be opened for writing;
-      *                       if file exists but user requested no over-writing;
-      * @throws IOException   if error writing file
-      */
-     private boolean writeToFileMTOrig(RecordRingItem item, boolean force)
-                                 throws EvioException, IOException {
-         if (closed) {
-             throw new EvioException("close() has already been called");
-         }
-
-         // This actually creates the file so do it only once
-         if (bytesWrittenToFile < 1) {
-             try {
-                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
-                                                                 StandardOpenOption.TRUNCATE_EXISTING,
-                                                                 StandardOpenOption.CREATE,
-                                                                 StandardOpenOption.WRITE);
-                 fileWritingPosition = 0L;
-                 splitCount++;
-             }
-             catch (FileNotFoundException e) {
-                 throw new EvioException("File could not be opened for writing, " +
-                                                 currentFile.getPath(), e);
-             }
-
-             // Write out the beginning file header including common record
-             writeFileHeader();
-         }
-
-         // We need one of the 2 future jobs to be completed in order to proceed
-
-         // If 1st time thru, proceed without waiting
-         if (future1 == null) {
-             futureIndex = 0;
-         }
-         // If 2nd time thru, proceed without waiting
-         else if (future2 == null) {
-             futureIndex = 1;
-         }
-         // After first 2 times, wait until one of the
-         // 2 futures is finished before proceeding
-         else {
-
-             boolean future1Done = future1.isDone();
-             boolean future2Done = future2.isDone();
-
-             // If either write is finished, proceed to another write
-             if (future1Done || future2Done) {
-                 if (future1Done) {
-                     futureIndex = 0;
-                     // Release record back to supply now that we're done writing it
-                     supply.releaseWriter(ringItem1);
-
-                     if (future2Done) {
-                         supply.releaseWriter(ringItem2);
-                     }
-                 }
-                 else {
-                     futureIndex = 1;
-                     supply.releaseWriter(ringItem2);
-                 }
-             }
-             // Neither are finished, so wait for one of them to finish
-             else {
-                 // If the last write to be submitted was future2, wait for 1
-                 if (futureIndex == 0) {
-                     try {
-                         // Wait for write to end before we continue
-                         future1.get();
-                         supply.releaseWriter(ringItem1);
-                     }
-                     catch (Exception e) {
-                         throw new IOException(e);
-                     }
-                 }
-                 // Otherwise, wait for 2
-                 else {
-                     try {
-                         future2.get();
-                         supply.releaseWriter(ringItem2);
-                     }
-                     catch (Exception e) {
-                         throw new IOException(e);
-                     }
-                 }
-             }
-         }
-
-         // Get record to write
-         RecordOutputStream record = item.getRecord();
-         RecordHeader header = record.getHeader();
-
-         // Length of this record
-         int bytesToWrite = header.getLength();
-         int eventCount   = header.getEntries();
-         recordLengths.add(bytesToWrite);
-         // Trailer's index has count following length
-         recordLengths.add(eventCount);
-
-         // Data to write
-         ByteBuffer buf = record.getBinaryBuffer();
-
-         if (futureIndex == 0) {
-             //buf.position(buffer.limit() - 20);
-             //System.out.print(" " + buf.position() + "/" + buf.limit());
-             future1 = asyncFileChannel.write(buf, fileWritingPosition);
-             ringItem1 = item;
-             futureIndex = 1;
-         }
-         else {
-             //buf.position(buffer.limit() - 20);
-             //System.out.print(" " + buf.position() + "//" + buf.limit());
-             future2 = asyncFileChannel.write(buf, fileWritingPosition);
-             ringItem2 = item;
-             futureIndex = 0;
-         }
-
-         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
-         // but don't bother writing the metadata (arg to force()) since that slows it
-         // down even more.
-         // TODO: This may not work since data may NOT have been written yet!
-         if (force) asyncFileChannel.force(false);
-
-         // Keep track of what is written to this, one, file
-         recordNumber++;
-         recordsWritten++;
-         bytesWritten        += bytesToWrite;
-         bytesWrittenToFile  += bytesToWrite;
-         fileWritingPosition += bytesToWrite;
-         eventsWrittenToFile += eventCount;
-         eventsWrittenTotal  += eventCount;
-
-         //fileWritingPosition += 20;
-         //bytesWrittenToFile  += 20;
-
-         if (false) {
-             System.out.println("    writeToFile: after last header written, Events written to:");
-             System.out.println("                 cnt total (no dict) = " + eventsWrittenTotal);
-             System.out.println("                 file cnt total (dict) = " + eventsWrittenToFile);
-             System.out.println("                 internal buffer cnt (dict) = " + eventsWrittenToBuffer);
-             System.out.println("                 bytes-written  = " + bytesToWrite);
-             System.out.println("                 bytes-to-file = " + bytesWrittenToFile);
-             System.out.println("                 record # = " + recordNumber);
-         }
-
-         return true;
-     }
-
-
-
-    /**
      * Split the file.
      * Never called when output is to buffer.
      * It writes the trailer which includes an index of all records.
@@ -3056,14 +2907,19 @@ System.out.println("Split at " + bytesWrittenToFile);
 
         if (asyncFileChannel != null) {
             if (addingTrailer) {
-                // Write the trailer
+                // Synchronously write the trailer
                 writeTrailerToFile(addTrailerIndex);
             }
 
             // Close existing file (in separate thread for speed)
-            // which will also flush remaining data.
-            // TODO: must make sure the above trailer write gets finished
+            // which will also flush remaining data. Reassign futures
+            // 1 & 2 so they can be reused in the writeToFileMT method
+            closeFuture1 = future1;
+            closeFuture2 = future2;
             fileCloser.closeAsyncFile(asyncFileChannel);
+            
+            // Reset for next write
+            future1 = future2 = null;
         }
 
         // Right now no file is open for writing
@@ -3074,7 +2930,6 @@ System.out.println("Split at " + bytesWrittenToFile);
                                                      runNumber, split, splitNumber,
                                                      streamId, streamCount);
         splitNumber += splitIncrement;
-        System.out.println("Create " + fileName);
         currentFile = new File(fileName);
         currentFilePath = Paths.get(fileName);
 
@@ -3090,6 +2945,7 @@ System.out.println("Split at " + bytesWrittenToFile);
         bytesWritten        = 0L;
         bytesWrittenToFile  = 0L;
         eventsWrittenToFile = 0;
+        settingSplitFlagAllowed = true;
 
 System.out.println("    splitFile: generated file name = " + fileName + ", record # = " + recordNumber);
     }
@@ -3098,6 +2954,8 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
     /**
      * Write a general header as the last "header" or trailer in the file
      * optionally followed by an index of all record lengths.
+     * This writes synchronously.
+     * 
      * @param writeIndex if true, write an index of all record lengths in trailer.
      * @throws IOException if problems writing to file.
      */
@@ -3111,11 +2969,12 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             try {
+                // headerBuffer is only used in this method
                 headerBuffer.position(0).limit(RecordHeader.HEADER_SIZE_BYTES);
                 RecordHeader.writeTrailer(headerBuffer, 0, recordNumber, null);
             }
             catch (HipoException e) {/* never happen */}
-            bytesToWrite = RecordHeader.HEADER_SIZE_BYTES;
+            //bytesToWrite = RecordHeader.HEADER_SIZE_BYTES;
 
             // We don't want to let the closer thread do the work of seeing that
             // this write completes since it'll just complicate the code.
@@ -3126,7 +2985,8 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
             catch (Exception e) {
                 throw new IOException(e);
             }
-            fileWritingPosition += RecordHeader.HEADER_SIZE_BYTES;
+
+            //fileWritingPosition += RecordHeader.HEADER_SIZE_BYTES;
         }
         else {
             // Create the index of record lengths in proper byte order
@@ -3155,7 +3015,6 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
             try {
                 RecordHeader.writeTrailer(headerBuffer, 0, recordNumber,
                                           recordIndex);
-                headerBuffer.limit();
             }
             catch (HipoException e) {/* never happen */}
             Future f = asyncFileChannel.write(headerBuffer, fileWritingPosition);
@@ -3163,7 +3022,8 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
             catch (Exception e) {
                 throw new IOException(e);
             }
-            fileWritingPosition += RecordHeader.HEADER_SIZE_BYTES;
+
+            //fileWritingPosition += RecordHeader.HEADER_SIZE_BYTES;
         }
 
         // Update file header's trailer position word
@@ -3189,10 +3049,11 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
             }
         }
 
-        // Keep track of what is written to this file.
-        // We did write a record, even if it had no data.
-        bytesWritten       += bytesToWrite;
-        bytesWrittenToFile += bytesToWrite;
+   //TODO: This is useless, where is it used??
+//        // Keep track of what is written to this file.
+//        // We did write a record, even if it had no data.
+//        bytesWritten       += bytesToWrite;
+//        bytesWrittenToFile += bytesToWrite;
 
         return;
     }
