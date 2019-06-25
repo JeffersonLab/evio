@@ -137,7 +137,8 @@ final public class EventWriterUnsync implements AutoCloseable {
     /** List of record length followed by count to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<>(1500);
 
-    /** Number of uncompressed bytes written to file/buffer at current moment. */
+    /** Number of uncompressed bytes written to the current file/buffer at the moment,
+     * including ending header and NOT the total in all split files. */
     private long bytesWritten;
 
     /** Do we add a last header or trailer to file/buffer? */
@@ -228,9 +229,6 @@ final public class EventWriterUnsync implements AutoCloseable {
     /** Three internal buffers used for writing to a file. */
     private ByteBuffer[] internalBuffers;
 
-    /** Number of uncompressed bytes written to the current buffer. */
-    private int bytesWrittenToBuffer;
-
     /** Number of bytes written to the current buffer for the common record. */
     private int commonRecordBytesToBuffer;
 
@@ -320,10 +318,6 @@ final public class EventWriterUnsync implements AutoCloseable {
 
     /** Is it OK to overwrite a previously existing file? */
     private boolean overWriteOK;
-
-    /** Number of bytes written to the current file (including ending header),
-     *  not the total in all split files. */
-    private long bytesWrittenToFile;
 
     /** Number of events actually written to the current file - not the total in
      * all split files - including dictionary. */
@@ -1130,8 +1124,6 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
         closed = false;
         eventsWrittenTotal = 0;
         eventsWrittenToBuffer = 0;
-        bytesWrittenToBuffer = 0;
-//        System.out.println("** reInitializeBuffer: bytesWrittenToBuffer --> 0");
         bytesWritten = 0L;
         headerBuffer.order(byteOrder);
         buffer.clear();
@@ -1144,7 +1136,6 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
         // This will reset the record - header and all buffers (including buf)
         currentRecord.setBuffer(buffer);
 
-//        System.out.println("reInitializeBuffer 1: header ->\n" + header.toString());
         if (useCurrentBitInfo) {
             header.setBitInfoWord(oldBitInfoWord);
         }
@@ -1253,7 +1244,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
         if (toFile()) return null;
 
         ByteBuffer buf = buffer.duplicate().order(buffer.order());
-        buf.limit(bytesWrittenToBuffer);
+        buf.limit((int)bytesWritten);
 
         // Get buffer ready for reading
         buf.flip();
@@ -1328,7 +1319,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
      * including the trailer.
      * @return number of bytes written to buffer
      */
-    public int getBytesWrittenToBuffer() {return bytesWrittenToBuffer;}
+    public int getBytesWrittenToBuffer() {return (int)bytesWritten;}
 
 
     /**
@@ -1736,7 +1727,7 @@ System.out.println("setStartingRecordNumber: set to " + recordNumber);
         asyncFileChannel.write(buf, 0);
 
         eventsWrittenTotal = eventsWrittenToFile = commonRecordCount;
-        bytesWrittenToFile = bytesWritten = bytes;
+        bytesWritten = bytes;
         fileWritingPosition += bytes;
     }
 
@@ -2160,7 +2151,7 @@ System.out.println("                 record # = " + recordNumber);
         }
 
 //System.out.println("toAppendPos: file pos = " + fileWritingPosition);
-        bytesWritten = bytesWrittenToFile = fileWritingPosition;
+        bytesWritten = fileWritingPosition;
         recordsWritten = recordNumber - 1;
 
         // We should now be in a state identical to that if we had
@@ -2175,12 +2166,12 @@ System.out.println("                 record # = " + recordNumber);
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
     public boolean hasRoom(int bytes) {
-//System.out.println("User buffer size (" + currentRecord.getInternalBufferCapacity() + ") - bytesWritten (" + bytesWrittenToBuffer +
+//System.out.println("User buffer size (" + currentRecord.getInternalBufferCapacity() + ") - bytesWritten (" + bytesWritten +
 //      ") - trailer (" + trailerBytes() +  ") = (" +
-//         ((currentRecord.getInternalBufferCapacity() - bytesWrittenToBuffer) >= bytes + RecordHeader.HEADER_SIZE_BYTES) +
+//         ((currentRecord.getInternalBufferCapacity() - bytesWritten) >= bytes + RecordHeader.HEADER_SIZE_BYTES) +
 //      ") >= ? " + bytes);
         return toFile() || ((currentRecord.getInternalBufferCapacity() -
-                             bytesWrittenToBuffer - trailerBytes()) >= bytes);
+                             bytesWritten - trailerBytes()) >= bytes);
     }
 
     /**
@@ -2794,7 +2785,7 @@ System.out.println("                 record # = " + recordNumber);
         }
 
         // This actually creates the file so do it only once
-        if (bytesWrittenToFile < 1) {
+        if (bytesWritten < 1) {
             try {
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
@@ -2912,7 +2903,6 @@ System.out.println("                 record # = " + recordNumber);
         recordNumber++;
         recordsWritten++;
         bytesWritten        += bytesToWrite;
-        bytesWrittenToFile  += bytesToWrite;
         fileWritingPosition += bytesToWrite;
         eventsWrittenToFile += eventCount;
         eventsWrittenTotal  += eventCount;
@@ -2923,7 +2913,7 @@ System.out.println("                 record # = " + recordNumber);
 //            System.out.println("                 file cnt total (dict) = " + eventsWrittenToFile);
 //            System.out.println("                 internal buffer cnt (dict) = " + eventsWrittenToBuffer);
 //            System.out.println("                 bytes-written  = " + bytesToWrite);
-//            System.out.println("                 bytes-to-file = " + bytesWrittenToFile);
+//            System.out.println("                 bytes-to-file = " + bytesWritten);
 //            System.out.println("                 record # = " + recordNumber);
 //        }
     }
@@ -2950,7 +2940,7 @@ System.out.println("                 record # = " + recordNumber);
         }
 
         // This actually creates the file so do it only once
-        if (bytesWrittenToFile < 1) {
+        if (bytesWritten < 1) {
             try {
                 System.out.println("Creating channel to " + currentFilePath);
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
@@ -3078,14 +3068,12 @@ System.out.println("                 record # = " + recordNumber);
         recordNumber++;
         recordsWritten++;
         bytesWritten        += bytesToWrite;
-
-        bytesWrittenToFile  += bytesToWrite;
         fileWritingPosition += bytesToWrite;
         eventsWrittenToFile += eventCount;
         eventsWrittenTotal  += eventCount;
 
         //fileWritingPosition += 20;
-        //bytesWrittenToFile  += 20;
+        //bytesWritten  += 20;
 
 //        if (false) {
 //            System.out.println("    writeToFile: after last header written, Events written to:");
@@ -3093,7 +3081,7 @@ System.out.println("                 record # = " + recordNumber);
 //            System.out.println("                 file cnt total (dict) = " + eventsWrittenToFile);
 //            System.out.println("                 internal buffer cnt (dict) = " + eventsWrittenToBuffer);
 //            System.out.println("                 bytes-written  = " + bytesToWrite);
-//            System.out.println("                 bytes-to-file = " + bytesWrittenToFile);
+//            System.out.println("                 bytes-to-file = " + bytesWritten);
 //            System.out.println("                 record # = " + recordNumber);
 //        }
     }
@@ -3147,7 +3135,6 @@ System.out.println("                 record # = " + recordNumber);
         recordNumber        = 1;
         recordsWritten      = 0;
         bytesWritten        = 0L;
-        bytesWrittenToFile  = 0L;
         eventsWrittenToFile = 0;
 
 System.out.println("    splitFile: generated file name = " + fileName + ", record # = " + recordNumber);
@@ -3296,8 +3283,6 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
         
         // We need to reset lengths here since the data may now be compressed
         bytesWritten = bytesToWrite;
-        bytesWrittenToBuffer = bytesToWrite;
-//System.out.println("flushCurrentRecordToBuffer: record len = " + bytesWritten);
     }
 
 
@@ -3328,7 +3313,6 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
              // Update the current block header's size and event count as best we can.
              // Does NOT take compression or trailer into account.
              bytesWritten = commonRecordBytesToBuffer + currentRecord.getUncompressedSize();
-             bytesWrittenToBuffer = (int) bytesWritten;
              eventsWrittenTotal++;
              eventsWrittenToBuffer++;
          }
