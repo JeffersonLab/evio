@@ -198,6 +198,19 @@ public class FileHeader {
         bitInfoInit();
     }
 
+    
+    /*** {@inheritDoc}  */
+    public Object clone() {
+        try {
+            // Don't do anything special as all are primitive types or enum or ByteOrder
+            return super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
+
+
     /**
      * Copy the contents of the arg into this object.
      * @param head object to copy
