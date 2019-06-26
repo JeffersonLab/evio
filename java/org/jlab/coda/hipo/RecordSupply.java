@@ -10,7 +10,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import com.lmax.disruptor.*;
-import org.jlab.coda.jevio.Utilities;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
@@ -372,12 +371,32 @@ public class RecordSupply {
      * To be used in conjunction with {@link #getToWrite()}.<p>
      *
      * Care must be taken to ensure thread-safety.
-     * The following happens if no precautions are taken.
+     * This method may only be called if the writing is done IN THE SAME THREAD
+     * as the calling of this method so that items are released in sequence
+     * as ensured by the caller.
+     * Otherwise use {@link #releaseWriter(RecordRingItem)}.
+     *
+     * @param item item in ring buffer to release for reuse.
+     * @return false if item not released since item is null, else true.
+     */
+    public boolean releaseWriterSequential(RecordRingItem item) {
+        if (item == null) return false;
+        item.getSequenceObj().set(item.getSequence());
+        return true;
+    }
+
+    /**
+     * A writer thread releases its claim on the given ring buffer item
+     * so it becomes available for reuse by the producer.
+     * To be used in conjunction with {@link #getToWrite()}.<p>
+     *
+     * Care must be taken to ensure thread-safety.
+     * The following can happen if no precautions are taken.
      * In the case of EventWriterUnsync, writing to a file involves 2, simultaneous,
      * asynchronous writes to a file - both in separate threads to the thread which
      * calls the "write" method. If the writing of the later item finishes first, it
      * releases it's item and sequence which, unfortunately, also releases the
-     * previous item's sequence (which is still writing). When the first write is complete,
+     * previous item's sequence (which is still being written   ). When the first write is complete,
      * it also releases its item. However item.getSequenceObj() will return null
      * (causing NullPointerException) because it was already released thereby allowing
      * it to be reused and reset called on it.<p>
@@ -386,16 +405,8 @@ public class RecordSupply {
      * released in sequence.
      *
      * @param item item in ring buffer to release for reuse.
+     * @return false if item not released since item is null, else true.
      */
-    public void releaseWriterOrig(RecordRingItem item) {
-        if (item == null) return;
-        item.getSequenceObj().set(item.getSequence());
-        return;
-    }
-
-
-
-
     public boolean releaseWriter(RecordRingItem item) {
         if (item == null) {
             return false;
@@ -403,13 +414,6 @@ public class RecordSupply {
 
         synchronized (this) {
             long seq = item.getSequence();
-
-//            // If we're trying to release something already released, ignore it.
-//            // Unfortunately, this will not catch items previously released but
-//            // are > lastSequenceReleased and are < maxSequence (in between).
-//            if (seq <= lastSequenceReleased) {
-//                return false;
-//            }
 
             // If we got a new max ...
             if (seq > maxSequence) {
