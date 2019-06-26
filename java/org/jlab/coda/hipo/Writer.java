@@ -102,7 +102,7 @@ public class Writer implements AutoCloseable {
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      */
     public Writer(ByteOrder order, int maxEventCount, int maxBufferSize){
         this(HeaderType.EVIO_FILE, order, maxEventCount, maxBufferSize);
@@ -116,7 +116,7 @@ public class Writer implements AutoCloseable {
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize) {
         this(hType, order, maxEventCount, maxBufferSize, null, null);
@@ -133,7 +133,7 @@ public class Writer implements AutoCloseable {
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
