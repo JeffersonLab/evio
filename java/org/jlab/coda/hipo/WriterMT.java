@@ -547,7 +547,7 @@ System.out.println("   Writer: thread INTERRUPTED");
 
         // Find & update file header's bit-info word
         if (addTrailerIndex) {
-            outStream.seek(RecordHeader.BIT_INFO_OFFSET);
+            outStream.seek(FileHeader.BIT_INFO_OFFSET);
             int bitInfo = fileHeader.setBitInfo(false, false, true);
             if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
                 outStream.writeInt(Integer.reverseBytes(bitInfo));
