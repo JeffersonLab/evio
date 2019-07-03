@@ -56,17 +56,20 @@ ByteBuffer::ByteBuffer(size_t size) {
  */
 ByteBuffer::ByteBuffer(const ByteBuffer & srcBuf) {
 
-    // A copy should not use the same shared pointer
-    buf = shared_ptr<uint8_t>(new uint8_t[srcBuf.cap], default_delete<uint8_t[]>());
+    // Avoid self copy ...
+    if (this != &srcBuf) {
+        // A copy should not use the same shared pointer
+        buf = shared_ptr<uint8_t>(new uint8_t[srcBuf.cap], default_delete<uint8_t[]>());
 
-    pos = srcBuf.pos;
-    cap = srcBuf.cap;
-    lim = srcBuf.lim;
-    mrk = srcBuf.mrk;
-    byteOrder = srcBuf.byteOrder;
-    isHostEndian = srcBuf.isHostEndian;
-    isLittleEndian = srcBuf.isLittleEndian;
-    memcpy((void *)buf.get(), (const void *)srcBuf.buf.get(), cap);
+        pos = srcBuf.pos;
+        cap = srcBuf.cap;
+        lim = srcBuf.lim;
+        mrk = srcBuf.mrk;
+        byteOrder = srcBuf.byteOrder;
+        isHostEndian = srcBuf.isHostEndian;
+        isLittleEndian = srcBuf.isLittleEndian;
+        memcpy((void *) buf.get(), (const void *) srcBuf.buf.get(), cap);
+    }
 }
 
 /**
@@ -92,6 +95,7 @@ ByteBuffer & ByteBuffer::operator=(ByteBuffer&& other) noexcept {
         mrk = other.mrk;
         byteOrder = other.byteOrder;
         isHostEndian = other.isHostEndian;
+        isLittleEndian = other.isLittleEndian;
 
         // Data is in shared pointer. The following is cheaper than doing
         // buf = other.buf which works but requires atomic counter inc/decrement.
@@ -120,6 +124,7 @@ ByteBuffer & ByteBuffer::operator=(const ByteBuffer& other) {
         mrk = other.mrk;
         byteOrder = other.byteOrder;
         isHostEndian = other.isHostEndian;
+        isLittleEndian = other.isLittleEndian;
 
         // Share data with rhs object
         buf = other.buf;
@@ -338,7 +343,7 @@ inline ByteBuffer & ByteBuffer::clear() {
 
 /**
  * Flips this buffer. The limit is set to the current position and then the
- * position is set to 0. The mark is discarded.
+ * position is set to 0. The mark is discarded. Gets buffer ready for reading.
  * @return this buffer.
  */
 inline ByteBuffer & ByteBuffer::flip() {

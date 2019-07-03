@@ -45,7 +45,7 @@ public:
 
     /** Move assignment operator which moves the contents of other to lhs. */
     ConcurrentFixedQueue & operator=(ConcurrentFixedQueue&& other) noexcept {
-        if (this == &other) {
+        if (this != &other) {
             other.mtx.lock();
             q = std::move(other.q);
             maxSize = other.maxSize;
@@ -57,7 +57,7 @@ public:
     /** Copy assignment operator. */
     ConcurrentFixedQueue & operator=(const ConcurrentFixedQueue& other) {
         // Note: mutexes and cvs cannot be copied or moved
-        if (this == &other) {
+        if (this != &other) {
             other.mtx.lock();
             q = other.q;
             maxSize = other.maxSize;

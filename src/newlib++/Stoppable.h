@@ -31,9 +31,12 @@ public:
     }
 
     Stoppable & operator=(Stoppable && obj) noexcept {
-        //std::cout << "Move Assignment is called" << std::endl;
-        exitSignal = std::move(obj.exitSignal);
-        futureObj = std::move(obj.futureObj);
+        // Avoid self assignment ...
+        if (this != &obj) {
+            //std::cout << "Move Assignment is called" << std::endl;
+            exitSignal = std::move(obj.exitSignal);
+            futureObj  = std::move(obj.futureObj);
+        }
         return *this;
     }
 

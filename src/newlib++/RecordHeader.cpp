@@ -65,35 +65,38 @@ RecordHeader::RecordHeader(long pos, int len, int ent) {
  * @param header  header to copy.
  */
 RecordHeader::RecordHeader(const RecordHeader & head) {
-    position                 = head.position;
 
-    recordLength             = head.recordLength;
-    recordNumber             = head.recordNumber;
-    recordLengthWords        = head.recordLengthWords;
-    recordUserRegisterFirst  = head.recordUserRegisterFirst;
-    recordUserRegisterSecond = head.recordUserRegisterSecond;
+    if (this != &head) {
+        position = head.position;
 
-    headerType                = head.headerType;
-    entries                   = head.entries;
-    bitInfo                   = head.bitInfo;
-    eventType                 = head.eventType;
-    headerLength              = head.headerLength;
-    headerLengthWords         = head.headerLengthWords;
-    userHeaderLength          = head.userHeaderLength;
-    userHeaderLengthWords     = head.userHeaderLengthWords;
-    indexLength               = head.indexLength;
-    dataLength                = head.dataLength;
-    dataLengthWords           = head.dataLengthWords;
-    compressedDataLength      = head.compressedDataLength;
-    compressedDataLengthWords = head.compressedDataLengthWords;
-    compressionType           = head.compressionType;
-    headerMagicWord           = head.headerMagicWord;
-    byteOrder                 = head.byteOrder;
-    // don't bother with version as must be same
+        recordLength = head.recordLength;
+        recordNumber = head.recordNumber;
+        recordLengthWords = head.recordLengthWords;
+        recordUserRegisterFirst = head.recordUserRegisterFirst;
+        recordUserRegisterSecond = head.recordUserRegisterSecond;
 
-    userHeaderLengthPadding     = head.userHeaderLengthPadding;
-    dataLengthPadding           = head.dataLengthPadding;
-    compressedDataLengthPadding = head.compressedDataLengthPadding;
+        headerType = head.headerType;
+        entries = head.entries;
+        bitInfo = head.bitInfo;
+        eventType = head.eventType;
+        headerLength = head.headerLength;
+        headerLengthWords = head.headerLengthWords;
+        userHeaderLength = head.userHeaderLength;
+        userHeaderLengthWords = head.userHeaderLengthWords;
+        indexLength = head.indexLength;
+        dataLength = head.dataLength;
+        dataLengthWords = head.dataLengthWords;
+        compressedDataLength = head.compressedDataLength;
+        compressedDataLengthWords = head.compressedDataLengthWords;
+        compressionType = head.compressionType;
+        headerMagicWord = head.headerMagicWord;
+        byteOrder = head.byteOrder;
+        // don't bother with version as must be same
+
+        userHeaderLengthPadding = head.userHeaderLengthPadding;
+        dataLengthPadding = head.dataLengthPadding;
+        compressedDataLengthPadding = head.compressedDataLengthPadding;
+    }
 }
 
 /** Reset generated data. */

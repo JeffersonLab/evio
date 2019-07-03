@@ -127,6 +127,11 @@ RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
  */
 RecordOutput::RecordOutput(const RecordOutput & rec) {
 
+    // Avoid self copy ...
+    if (this == &rec) {
+        return;
+    }
+
     // Copy primitive types & immutable objects
     eventCount = rec.eventCount;
     indexSize  = rec.indexSize;

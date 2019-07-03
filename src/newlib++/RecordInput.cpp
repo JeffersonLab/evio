@@ -32,17 +32,20 @@ RecordInput::RecordInput(ByteOrder & order) {
 
 /** Copy constructor. */
 RecordInput::RecordInput(const RecordInput & srcRec) {
-    // Copy the buffers, do not use the same shared pointer
-    dataBuffer               = srcRec.dataBuffer;
-    recordBuffer             = srcRec.recordBuffer;
-    headerBuffer             = srcRec.headerBuffer;
 
-    header                   = srcRec.header;
-    nEntries                 = srcRec.nEntries;
-    userHeaderOffset         = srcRec.userHeaderOffset;
-    eventsOffset             = srcRec.eventsOffset;
-    uncompressedEventsLength = srcRec.uncompressedEventsLength;
-    byteOrder                = srcRec.byteOrder;
+    if (this != &srcRec) {
+        // Copy the buffers, do not use the same shared pointer
+        dataBuffer = srcRec.dataBuffer;
+        recordBuffer = srcRec.recordBuffer;
+        headerBuffer = srcRec.headerBuffer;
+
+        header = srcRec.header;
+        nEntries = srcRec.nEntries;
+        userHeaderOffset = srcRec.userHeaderOffset;
+        eventsOffset = srcRec.eventsOffset;
+        uncompressedEventsLength = srcRec.uncompressedEventsLength;
+        byteOrder = srcRec.byteOrder;
+    }
 }
 
 

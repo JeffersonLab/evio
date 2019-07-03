@@ -44,26 +44,28 @@ FileHeader::FileHeader(bool isEvio) {
  */
 void FileHeader::copy(const FileHeader & head) {
 
-    fileId                  = head.fileId;
-    headerType              = head.headerType;
+    if (this != &head) {
+        fileId = head.fileId;
+        headerType = head.headerType;
 
-    fileNumber              = head.fileNumber;
-    userRegister            = head.userRegister;
-    trailerPosition         = head.trailerPosition;
-    userIntFirst            = head.userIntFirst;
-    userIntSecond           = head.userIntSecond;
-    position                = head.position;
-    entries                 = head.entries;
-    bitInfo                 = head.bitInfo;
-    totalLength             = head.totalLength;
-    headerLength            = head.headerLength;
-    headerLengthWords       = head.headerLengthWords;
-    userHeaderLength        = head.userHeaderLength;
-    userHeaderLengthWords   = head.userHeaderLengthWords;
-    indexLength             = head.indexLength;
-    headerMagicWord         = head.headerMagicWord;
-    userHeaderLengthPadding = head.userHeaderLengthPadding;
-    headerVersion           = head.headerVersion;
+        fileNumber = head.fileNumber;
+        userRegister = head.userRegister;
+        trailerPosition = head.trailerPosition;
+        userIntFirst = head.userIntFirst;
+        userIntSecond = head.userIntSecond;
+        position = head.position;
+        entries = head.entries;
+        bitInfo = head.bitInfo;
+        totalLength = head.totalLength;
+        headerLength = head.headerLength;
+        headerLengthWords = head.headerLengthWords;
+        userHeaderLength = head.userHeaderLength;
+        userHeaderLengthWords = head.userHeaderLengthWords;
+        indexLength = head.indexLength;
+        headerMagicWord = head.headerMagicWord;
+        userHeaderLengthPadding = head.userHeaderLengthPadding;
+        headerVersion = head.headerVersion;
+    }
 }
 
 /** Reset most internal variables (not file id & header type). */
