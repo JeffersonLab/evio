@@ -27,8 +27,9 @@ using namespace std;
 
 /**
  * This class is copied from one of the same name in the Java programming language.
- * It wraps an array or buffer of data. It's particularly useful when converting
- * Java code to C++.
+ * It wraps an array or buffer of data and is extremely useful in reading and writing
+ * data. It's particularly useful when converting Java code to C++.
+ * There is only one major function that is not implemented, the slice() method.
  */
 class ByteBuffer {
 
