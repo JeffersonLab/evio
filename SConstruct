@@ -120,7 +120,8 @@ if debug:
 # Compile with -g and add debugSuffix to all executable names
     env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 
-env.Append(CCFLAGS = ['-O3'])
+# code for newlib++ written in C++11
+env.Append(CCFLAGS = ['-O3', '-std=c++11'])
 
 
 # Take care of 64/32 bit issues
@@ -239,8 +240,9 @@ Help('tar                 create tar file (in ./tar)\n')
 Export('env archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix')
 
 # Run lower level build files
-env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
-env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
-env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
-env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
-env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
+env.SConscript('src/newlib++/SConscript', variant_dir='src/newlib++/'+archDir,   duplicate=0)
+#env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
+#env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
+#env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
+#env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
+#env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
