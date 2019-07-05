@@ -15,19 +15,20 @@
 #ifndef EVIO_6_0_HIPOEXCEPTION_H
 #define EVIO_6_0_HIPOEXCEPTION_H
 
+#include <iostream>
 #include <exception>
 
 class HipoException : public std::exception {
 
-protected:
+private:
 
     std::string errorMsg;
 
 public:
 
-    explicit HipoException(const std::string& msg) : errorMsg(msg) {}
+    explicit HipoException(const std::string msg) noexcept : errorMsg(msg) {}
 
-    const char * what() {return errorMsg.c_str();}
+    virtual const char* what() const noexcept {return errorMsg.c_str();}
 
 };
 
