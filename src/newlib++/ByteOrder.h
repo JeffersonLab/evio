@@ -102,7 +102,7 @@ void byteSwap(uint32_t *array, size_t elements) {
  * @since 6.0 4/16/2019
  * @author timmer
  */
-class ByteOrder final {
+class ByteOrder {
 
 public:
 

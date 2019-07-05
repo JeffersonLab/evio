@@ -27,7 +27,6 @@ ByteBuffer::ByteBuffer() {
     clear();
 
     // Byte order of this buffer
-    byteOrder = ByteOrder::ENDIAN_LITTLE;
     isLittleEndian = true;
 
     // Is this buffer's byte order the same as the local host's?
@@ -45,7 +44,6 @@ ByteBuffer::ByteBuffer(size_t size) {
     cap = size;
     clear();
 
-    byteOrder = ByteOrder::ENDIAN_LITTLE;
     isLittleEndian = true;
     isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
 }
