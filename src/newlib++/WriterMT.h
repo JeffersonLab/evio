@@ -13,6 +13,7 @@
 #include <string>
 #include <thread>
 #include <queue>
+#include <chrono>
 
 #include "FileHeader.h"
 #include "ByteBuffer.h"
@@ -22,6 +23,7 @@
 #include "ConcurrentFixedQueue.h"
 #include "Compressor.h"
 #include "Stoppable.h"
+#include "Writer.h"
 
 
 /**
@@ -78,30 +80,6 @@ private:
                                 queueIn(qIn),
                                 queueOut(qOut)  {};
 
-            /** Move assignment operator. */
-            CompressingThread & operator=(CompressingThread&& other) noexcept {
-                if (this != &other) {
-                    threadNumber    = other.threadNumber;
-                    recordNumber    = other.recordNumber;
-                    compressionType = other.compressionType;
-                    queueIn         = std::move(other.queueIn);
-                    queueOut        = std::move(other.queueOut);
-                }
-                return *this;
-            }
-
-            /** Copy assignment operator. */
-            CompressingThread & operator=(const CompressingThread& other) {
-                if (this == &other) {
-                    threadNumber    = other.threadNumber;
-                    recordNumber    = other.recordNumber;
-                    compressionType = other.compressionType;
-                    queueIn         = other.queueIn;
-                    queueOut        = other.queueOut;
-                }
-                return *this;
-            }
-
             /** Create and start a thread to execute the run() method of this class. */
             void startThread() {
                 thd = std::thread([&]() {this->run();});
@@ -125,7 +103,9 @@ private:
 
                     // Get the next record for this thread to compress
                     RecordOutput record;
-                    queueIn.waitPop(record);
+                    // Wait up to 1 sec, then try again
+                    bool gotOne = queueIn.waitPop(record, 1000);
+                    if (!gotOne) continue;
 
                     // Set compression type and record #
                     RecordHeader header = record.getHeader();
@@ -179,24 +159,6 @@ private:
             WritingThread(WriterMT * pwriter, vector<ConcurrentFixedQueue<RecordOutput>> & qs) :
                     writer(pwriter), queues(qs)  {}
 
-            /** Move assignment operator. */
-            WritingThread & operator=(WritingThread&& other) noexcept {
-                if (this != &other) {
-                    writer = other.writer;
-                    queues = std::move(other.queues);
-                }
-                return *this;
-            }
-
-            /** Copy assignment operator. */
-            WritingThread & operator=(const WritingThread& other) {
-                if (this == &other) {
-                    writer = other.writer;
-                    queues = other.queues;
-                }
-                return *this;
-            }
-
             /** Create and start a thread to execute the run() method of this class. */
             void startThread() {
                 thd = std::thread([&]() {this->run();});
@@ -213,9 +175,9 @@ private:
             /** Wait for the last item to be processed, then exit thread. */
             void waitForLastItem() {
                 for (auto & queue : queues) {
-                    while (!queue.empty()) {
+                    while (!queue.isEmpty()) {
                         //std::this_thread::yield();
-                        std::this_thread::sleep_for(1ms);
+                        std::this_thread::sleep_for(chrono::milliseconds(1));
                     }
                 }
 
@@ -238,8 +200,14 @@ private:
 
                     // Go round robin through the queues to keep events in order
                     for (auto & queue : queues) {
-
-                        queue.waitPop(record);
+                        bool gotOne = false;
+                        while (!gotOne) {
+                            if (stopRequested()) {
+                                return;
+                            }
+                            // Check every 1 sec for something to write from this q
+                            gotOne = queue.waitPop(record, 1000);
+                        }
 
                         //cout << "   Writer: try getting record to write" << endl;
                         //currentSeq = item.getSequence();
@@ -315,8 +283,6 @@ private:
     /** Max number of uncompressed data bytes an internal record can hold. */
     uint32_t maxBufferSize;
 
-// TODO: we're going to need many internal records!!
-
     /** Internal Record. */
     RecordOutput outputRecord;
 
@@ -351,6 +317,7 @@ private:
     /** Next queue in which a record to be compressed will be placed. */
     uint32_t nextQueueIndex = 0;
 
+    /** Takes the place of disruptor ring buffers used in Java. */
     ConcurrentFixedQueue<RecordOutput> writeQueue;
     vector<ConcurrentFixedQueue<RecordOutput>> queues;
 
@@ -363,14 +330,15 @@ private:
 public:
 
     WriterMT();
+
     WriterMT(const ByteOrder  & order, uint32_t maxEventCount, uint32_t maxBufferSize,
              Compressor::CompressionType compType, uint32_t compressionThreads);
 
-   WriterMT(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-            Compressor::CompressionType compressionType, uint32_t compressionThreads,
-            const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen);
+    WriterMT(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
+             Compressor::CompressionType compressionType, uint32_t compressionThreads,
+             const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen);
 
-    WriterMT(string & filename);
+    explicit WriterMT(string & filename);
 
     WriterMT(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
              Compressor::CompressionType compressionType, uint32_t compressionThreads);
@@ -382,8 +350,6 @@ public:
 private:
 
     ByteBuffer createDictionaryRecord();
-    void writeOutput();
-    void writeOutputToBuffer();
     void writeInternalRecord(RecordOutput & internalRecord);
 
     // TODO: this should be part of an Utilities class ...
@@ -393,7 +359,7 @@ private:
 public:
 
     const ByteOrder & getByteOrder() const;
-    ByteBuffer   & getBuffer();
+    //ByteBuffer   & getBuffer();
     FileHeader   & getFileHeader();
     RecordHeader & getRecordHeader();
     RecordOutput & getRecord();
@@ -407,21 +373,10 @@ public:
     void open(string & filename);
     void open(string & filename, uint8_t* userHdr, uint32_t userLen);
 
-    static ByteBuffer createRecord(const string & dictionary,
-                                   uint8_t* firstEvent, uint32_t firstEventLen,
-                                   const ByteOrder & byteOrder,
-                                   FileHeader* fileHeader,
-                                   RecordHeader* recordHeader);
-
     WriterMT & setCompressionType(Compressor::CompressionType compression);
 
-
-    //ByteBuffer & createHeader(uint8_t* userHeader, size_t len);
     ByteBuffer createHeader(uint8_t* userHdr, uint32_t userLen);
     ByteBuffer createHeader(ByteBuffer & userHdr);
-    void createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen);
-    void createHeader(ByteBuffer & buf, ByteBuffer & userHdr);
-    //ByteBuffer & createHeader(ByteBuffer & userHeader);
 
     void writeTrailer(bool writeIndex);
     void writeRecord(RecordOutput & record);
