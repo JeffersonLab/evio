@@ -1,2 +1,5 @@
 This package relies on the https://github.com/lz4/lz4 package.
 Be sure to download and make the library.
+
+It optionally also depends on libz for gzip compression.
+This comes automatically with MacOs and may be obtained for Linux as well.
