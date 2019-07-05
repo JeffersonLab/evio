@@ -5,6 +5,7 @@
 #ifndef EVIO_6_0_CONCURRENTFIXEDQUEUE_H
 #define EVIO_6_0_CONCURRENTFIXEDQUEUE_H
 
+#include <chrono>
 #include <mutex>
 #include <queue>
 #include <condition_variable>
@@ -34,13 +35,33 @@ private:
 
 public:
 
-    /** Constructor. */
+    /** Constructor. Defaults to size = 32. */
+    ConcurrentFixedQueue() {
+        maxSize = 32;
+        q = queue<Data>();
+    }
+
+    /**
+     * Constructor.
+     * @param size maximum number of elements in queue.
+     */
     explicit ConcurrentFixedQueue(size_t size) {
         maxSize = size;
-        q();
-        mtx();
-        cvAddedOne();
-        cvRemovedOne();
+        q = queue<Data>();
+    }
+
+    /**
+     * Copy constructor.
+     * @param other concurrent fixed queue to copy.
+     */
+    ConcurrentFixedQueue(const ConcurrentFixedQueue & other) {
+        // Note: mutexes and cvs cannot be copied or moved
+        if (this != &other) {
+            other.mtx.lock();
+            q = other.q;
+            maxSize = other.maxSize;
+            other.mtx.unlock();
+        }
     }
 
     /** Move assignment operator which moves the contents of other to lhs. */
@@ -112,13 +133,14 @@ public:
      * @param data element to add to queue.
      */
     void push(Data const& data) {
-        mtx.lock();
+        // Locks the mutex
+        unique_lock<std::mutex> lck(mtx);
         while (q.size() >= maxSize) {
-            cvRemovedOne.wait(mtx);
+            cvRemovedOne.wait(lck);
         }
 
         q.emplace(data); // emplace may be more efficient than push
-        mtx.unlock();
+        lck.unlock();
         cvAddedOne.notify_one();
     }
 
@@ -147,16 +169,18 @@ public:
      * @return false if queue full and data not added, else true.
      */
     bool waitPush(Data const& data, uint32_t millisec) {
-        mtx.lock();
+        // Locks the mutex
+        unique_lock<std::mutex> lck(mtx);
+
         while (q.size() >= maxSize) {
-            if (cvRemovedOne.wait_for(mtx, millisec * 1ms) == std::cv_status::timeout) {
-                mtx.unlock();
+            if (cvRemovedOne.wait_for(lck, chrono::milliseconds(millisec)) == std::cv_status::timeout) {
+                lck.unlock();
                 return false;
             }
         }
 
         q.emplace(data);
-        mtx.unlock();
+        lck.unlock();
         cvAddedOne.notify_one();
         return true;
     }
@@ -166,14 +190,15 @@ public:
      * @param popped_value returned queue item.
      */
     void pop(Data& popped_value) {
-        mtx.lock();
+        // Locks the mutex
+        unique_lock<std::mutex> lck(mtx);
         while (q.empty()) {
-            cvAddedOne.wait(mtx);
+            cvAddedOne.wait(lck);
         }
 
         popped_value = q.front();
         q.pop();
-        mtx.unlock();
+        lck.unlock();
         cvRemovedOne.notify_one();
     }
 
@@ -203,17 +228,20 @@ public:
      * @return true if returned value is valid, false if timeout.
      */
     bool waitPop(Data& popped_value, uint32_t millisec) {
-        mtx.lock();
+        // Locks the mutex
+        unique_lock<std::mutex> lck(mtx);
+
         while (q.empty()) {
-            if (cvAddedOne.wait_for(mtx, millisec * 1ms) == std::cv_status::timeout) {
-                mtx.unlock();
+            if (cvAddedOne.wait_for(lck, chrono::milliseconds(millisec)) == std::cv_status::timeout) {
+                lck.unlock();
                 return false;
             }
         }
 
         popped_value = q.front();
         q.pop();
-        mtx.unlock();
+        lck.unlock();
+
         cvRemovedOne.notify_one();
         return true;
     }
