@@ -680,6 +680,7 @@ void Writer::createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) 
     if (userHdr != nullptr) {
         userHeaderBytes = userLen;
     }
+    fileHeader.reset();
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
     cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -721,6 +722,7 @@ ByteBuffer Writer::createHeader(ByteBuffer & userHdr) {
     cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
 
     int userHeaderBytes = userHdr.remaining();
+    fileHeader.reset();
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
     cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -769,6 +771,7 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
                             to_string(userHeaderBytes + FileHeader::HEADER_SIZE_BYTES) + " bytes");
     }
 
+    fileHeader.reset();
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
     cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -906,17 +909,6 @@ void Writer::toBytes(uint32_t data, const ByteOrder & byteOrder,
         dest[off+3] = (uint8_t)(data >> 24);
     }
 }
-
-
-
-
-/** Objects to allow efficient, asynchronous file writing. */
-private Future<Integer> future1, future2;
-
-/** Index for selecting which future (1 or 2) to use for next file write. */
-private int futureIndex;
-
-
 
 
 /**
