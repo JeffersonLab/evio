@@ -16,6 +16,18 @@ WriterMT::WriterMT() :
              Compressor::LZ4, 1, "", nullptr, 0) {
 }
 
+//
+///**
+// * Copy constructor.
+// * @param other writer to copy.
+// */
+//WriterMT::WriterMT(const WriterMT & other) {
+//    // Avoid self copy ...
+//    if (this != &other) {
+//        // TODO:
+//    }
+//}
+
 
 /**
  * Constructor with byte order. <b>No</b> file is opened.
@@ -52,7 +64,8 @@ WriterMT::WriterMT(const ByteOrder & order, uint32_t maxEventCount, uint32_t max
  *                      It must be in the same byte order as the order argument.
  * @param firstEventLen number of bytes in firstEvent.
  */
-WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
+WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
+                   uint32_t maxEventCount, uint32_t maxBufferSize,
                    Compressor::CompressionType compType, uint32_t compressionThreads,
                    const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen) {
 
@@ -94,11 +107,11 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order, uint32_t m
     // Create uncompressed record Queues - one for each compression thread input
     queues = vector<ConcurrentFixedQueue<RecordOutput>>();
     for (int i=0; i < compressionThreadCount; i++) {
-        queues.emplace_back(ConcurrentFixedQueue<RecordOutput>());
+        queues.emplace_back(ConcurrentFixedQueue<RecordOutput>(4));
     }
 
-    // Create 1 queue for compressed records
-    writeQueue = ConcurrentFixedQueue<RecordOutput>();
+    // Create 1 queue for compressed records. Q max size = 20
+    writeQueue = ConcurrentFixedQueue<RecordOutput>(20);
 
     // 1 thread used to write data to file/buffer
     recordWriterThread = WritingThread(this, queues);
@@ -148,6 +161,17 @@ WriterMT::WriterMT(string & filename, const ByteOrder & order, uint32_t maxEvent
 
 
 //////////////////////////////////////////////////////////////////////
+
+/**
+ * Create a buffer representation of a record
+ * containing the dictionary and/or the first event.
+ * No compression.
+ * @return buffer representation of record containing dictionary and/or first event,
+ *         of zero size if first event and dictionary don't exist.
+ */
+ByteBuffer WriterMT::createDictionaryRecord() {
+    return Writer::createRecord(dictionary, firstEvent, firstEventLength, byteOrder, &fileHeader, nullptr);
+}
 
 
 ///**
@@ -344,6 +368,41 @@ ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
         std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr), userHeaderBytes);
 //            System.arraycopy(userHdr, 0, buf.array(), RecordHeader::HEADER_SIZE_BYTES, userHeaderBytes);
+    }
+
+    // Get ready to read, buffer position is still 0
+    buf.limit(totalLen);
+    return std::move(buf);
+}
+
+
+/**
+ * Fill given buffer (buf) with a general file header followed by the given user header (userHdr).
+ * The buffer is cleared and set to desired byte order prior to writing.
+ * If user header is not padded to 4-byte boundary, it's done here.
+ *
+ * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
+ * @return buffer containing a file header followed by the user-defined header.
+ * @throws HipoException if writing to buffer, not file.
+ */
+ByteBuffer WriterMT::createHeader(ByteBuffer & userHdr) {
+
+    int userHeaderBytes = userHdr.remaining();
+    fileHeader.reset();
+    fileHeader.setUserHeaderLength(userHeaderBytes);
+
+    uint32_t totalLen = fileHeader.getLength();
+    ByteBuffer buf(totalLen);
+    buf.order(byteOrder);
+
+    try {
+        fileHeader.writeHeader(buf, 0);
+    }
+    catch (HipoException & e) {/* never happen */}
+
+    if (userHeaderBytes > 0) {
+        std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
+                    (const void *)(userHdr.array() + userHdr.arrayOffset()+ userHdr.position()), userHeaderBytes);
     }
 
     // Get ready to read, buffer position is still 0
@@ -558,14 +617,39 @@ void WriterMT::addEvent(uint8_t * buffer, uint32_t offset, uint32_t length) {
         writeInternalRecord(outputRecord);
 
         // Now create another, empty record.
-        outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType);
-        // This may block if threads are busy compressing
-        // and/or writing all records in supply.
-        ringItem = supply.get();
-        record   = ringItem.getRecord();
+        outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, compressionType);
 
         // Adding the first event to a record is guaranteed to work
-        record.addEvent(buffer, offset, length);
+        outputRecord.addEvent(buffer, offset, length);
+    }
+}
+
+
+/**
+ * Add a ByteBuffer to the internal record. If the length of
+ * the buffer exceeds the maximum size of the record, the record
+ * will be written to the file (compressed if the flag is set).
+ * Internal record will be reset to receive new buffers.
+ * Using this method in conjunction with writeRecord() is not thread-safe.
+ * <b>The byte order of event's data must
+ * match the byte order given in constructor!</b>
+ *
+ * @param buffer array to add to the file.
+ * @throws IOException if cannot write to file.
+ */
+void WriterMT::addEvent(ByteBuffer & buffer) {
+    bool status = outputRecord.addEvent(buffer);
+
+    // If record is full ...
+    if (!status) {
+        // Put record onto queue for compressing
+        writeInternalRecord(outputRecord);
+
+        // Now create another, empty record.
+        outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, compressionType);
+
+        // Adding the first event to a record is guaranteed to work
+        outputRecord.addEvent(buffer);
     }
 }
 
@@ -575,12 +659,13 @@ void WriterMT::addEvent(uint8_t * buffer, uint32_t offset, uint32_t length) {
 /** Get this object ready for re-use.
  * Follow calling this with call to {@link #open(String)}. */
 void WriterMT::reset() {
-    record.reset();
+    outputRecord.reset();
     fileHeader.reset();
     writerBytesWritten = 0L;
     recordNumber = 1;
     addingTrailer = false;
 }
+
 
 /**
  * Close opened file. If the output record contains events,
@@ -591,18 +676,18 @@ void WriterMT::reset() {
 void WriterMT::close() {
 
     // If we're in the middle of building a record, send it off since we're done
-    if (record.getEventCount() > 0) {
-        // Put it back in supply for compressing
-        supply.publish(ringItem);
+    if (outputRecord.getEventCount() > 0) {
+        // Put it in queue for compressing
+        writeQueue.push(outputRecord);
     }
 
     // Since the writer thread is the last to process each record,
     // wait until it's done with the last item, then exit the thread.
     recordWriterThread.waitForLastItem();
 
-    // Stop all compressing threads which by now are stuck on get
-    for (RecordCompressor rc : recordCompressorThreads) {
-        rc.interrupt();
+    // Stop all compressing threads
+    for (CompressingThread &thd : recordCompressorThreads) {
+        thd.stopThread();
     }
 
     try {
@@ -612,17 +697,20 @@ void WriterMT::close() {
         }
 
         // Need to update the record count in file header
-        outStream.seek(FileHeader.RECORD_COUNT_OFFSET);
-        if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-            outStream.writeInt(Integer.reverseBytes(recordNumber - 1));
+        outFile.seekp(FileHeader::RECORD_COUNT_OFFSET);
+        if (byteOrder == ByteOrder::ENDIAN_LITTLE) {
+            uint32_t bitSwap = SWAP_32(recordNumber - 1);
+            outFile.write(reinterpret_cast<const char *>(&bitSwap), sizeof(uint32_t));
+        } else {
+            uint32_t intData = recordNumber - 1;
+            outFile.write(reinterpret_cast<const char *>(&intData), sizeof(uint32_t));
         }
-        else {
-            outStream.writeInt(recordNumber - 1);
-        }
-        outStream.close();
-        //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
-    } catch (IOException ex) {
-        Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
+        outFile.close();
+
     }
-}
+    catch (HipoException & ex) {
+    }
+
+    closed = true;
+    opened = false;
 }
