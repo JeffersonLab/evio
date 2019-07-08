@@ -25,7 +25,7 @@ set(CMAKE_CXX_STANDARD 14)
 project(evio_6_0)
 
 # Find include files here
-include_directories(src/libsrc src/libsrc++ src/newlib++ ../lz4/lib)
+include_directories(src/libsrc src/libsrc++ src/newlib++)
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
