@@ -139,11 +139,11 @@ execLibs = ['']
 execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
 
 if platform == 'Darwin':
-    execLibs = ['pthread', 'dl', 'expat', 'z']
+    execLibs = ['lz4', 'pthread', 'dl', 'expat', 'z']
     #env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined','suppress','-undefined','dynamic_lookup'])
     env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
     env.Append(CCFLAGS = ['-fmessage-length=0'])
-
+#    env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
 
 
 if is64bits and use32bits:
