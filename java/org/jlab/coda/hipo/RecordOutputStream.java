@@ -464,7 +464,6 @@ public class RecordOutputStream {
         if (!userProvidedBuffer) {
             // Trying to compress random data will expand it, so create a cushion.
             // Using a direct buffer takes 2/3 the time of an array-backed buffer
-            //recordBinary = ByteBuffer.allocateDirect(RECORD_BUFFER_SIZE);
             recordBinary = ByteBuffer.wrap(new byte[RECORD_BUFFER_SIZE]);
             recordBinary.order(byteOrder);
         }
