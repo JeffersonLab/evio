@@ -123,6 +123,11 @@ public:
        // delete[] headerArray;
     }
 
+
+    Writer & operator=(Writer&& other) noexcept;
+    Writer & operator=(const Writer& other);
+
+
 //////////////////////////////////////////////////////////////////////
 
 private:
