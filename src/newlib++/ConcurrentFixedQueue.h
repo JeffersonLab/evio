@@ -64,6 +64,14 @@ public:
         }
     }
 
+    /**
+     * Move constructor.
+     * @param other concurrent fixed queue to move.
+     */
+    ConcurrentFixedQueue(ConcurrentFixedQueue & other) {
+        *this = std::move(other);
+    }
+
     /** Move assignment operator which moves the contents of other to lhs. */
     ConcurrentFixedQueue & operator=(ConcurrentFixedQueue&& other) noexcept {
         if (this != &other) {
