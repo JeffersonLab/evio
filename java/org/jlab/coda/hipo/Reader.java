@@ -1302,11 +1302,15 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
       *                       if checkRecordNumberSequence is true and records are out of sequence.
       */
      public void scanUncompressedBuffer() throws HipoException {
-
+         
+// TODO: This uses memory & garbage collection
          byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
          ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
 
+// TODO: This uses memory & garbage collection
          RecordHeader recordHeader = new RecordHeader();
+
+         
          boolean haveFirstRecordHeader = false;
 
          // Start at the buffer's initial position
