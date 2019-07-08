@@ -136,7 +136,7 @@ execLibs = ['']
 
 
 # Platform dependent quantities. Default to standard Linux libs.
-execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
+execLibs = ['pthread', 'expat', 'z', 'dl', 'm', 'lz4']
 
 if platform == 'Darwin':
     execLibs = ['lz4', 'pthread', 'dl', 'expat', 'z']
