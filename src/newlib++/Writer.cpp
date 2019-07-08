@@ -191,6 +191,119 @@ Writer::Writer(ByteBuffer & buf, const ByteOrder & order, uint32_t maxEventCount
     toFile = false;
 }
 
+
+
+/**
+ * Move assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ */
+Writer & Writer::operator=(Writer&& other) noexcept {
+
+    // Avoid self assignment ...
+    if (this != &other) {
+
+        toFile = other.toFile;
+        outFile = std::move(other.outFile);
+
+        fileHeader = other.fileHeader;
+        buffer = other.buffer;
+        userHeaderBuffer = std::move(other.userHeaderBuffer);
+        // transfer ownership of the array
+        userHeader = other.userHeader;
+        other.userHeader = nullptr;
+        userHeaderLength = other.userHeaderLength;
+        firstRecordWritten = other.firstRecordWritten;
+
+
+        dictionary = other.dictionary;
+        // transfer ownership of the array
+        firstEvent = other.firstEvent;
+        other.firstEvent = nullptr;
+        firstEventLength = other.firstEventLength;
+        dictionaryFirstEventBuffer = std::move(other.dictionaryFirstEventBuffer);
+
+        byteOrder = other.byteOrder;
+
+        outputRecord = std::move(other.outputRecord);
+        unusedRecord = std::move(other.unusedRecord);
+        beingWrittenRecord = std::move(other.beingWrittenRecord);
+
+        headerArray = std::move(other.headerArray);
+        recordLengths = std::move(other.recordLengths);
+
+        compressionType = other.compressionType;
+        writerBytesWritten = other.writerBytesWritten;
+        recordNumber = other.recordNumber;
+
+        addingTrailer = other.addingTrailer;
+        addTrailerIndex = other.addTrailerIndex;
+        closed = other.closed;
+        opened = other.opened;
+
+        return *this;
+    }
+}
+
+
+/**
+ * Copy assignment operator.
+ * @param other right side object.
+ * @return left side object.
+ */
+    Writer & Writer::operator=(const Writer& other) {
+
+    // Avoid self assignment ...
+    if (this != &other) {
+
+        toFile = other.toFile;
+
+        // TODO: nono
+        outFile = other.outFile;
+
+        fileHeader = other.fileHeader;
+        buffer = other.buffer;
+        userHeaderBuffer = other.userHeaderBuffer;
+
+        // transfer ownership of the array
+        userHeader = other.userHeader;
+        other.userHeader = nullptr;
+
+        userHeaderLength = other.userHeaderLength;
+        firstRecordWritten = other.firstRecordWritten;
+
+
+        dictionary = other.dictionary;
+        // transfer ownership of the array
+        firstEvent = other.firstEvent;
+        other.firstEvent = nullptr;
+
+        firstEventLength = other.firstEventLength;
+        dictionaryFirstEventBuffer = other.dictionaryFirstEventBuffer;
+
+        byteOrder = other.byteOrder;
+
+        outputRecord = std::move(other.outputRecord);
+        unusedRecord = std::move(other.unusedRecord);
+        beingWrittenRecord = std::move(other.beingWrittenRecord);
+
+        headerArray = std::move(other.headerArray);
+        recordLengths = std::move(other.recordLengths);
+
+        compressionType = other.compressionType;
+        writerBytesWritten = other.writerBytesWritten;
+        recordNumber = other.recordNumber;
+
+        addingTrailer = other.addingTrailer;
+        addTrailerIndex = other.addTrailerIndex;
+        closed = other.closed;
+        opened = other.opened;
+
+        return *this;
+    }
+}
+
+
 //////////////////////////////////////////////////////////////////////
 // PRIVATE
 
