@@ -265,8 +265,6 @@ private:
     /** Has the first record been written already? */
     bool firstRecordWritten;
 
-    // For both files & buffers
-
     /** String containing evio-format XML dictionary to store in file header's user header. */
     string dictionary;
     /** Evio format "first" event to store in file header's user header. */
