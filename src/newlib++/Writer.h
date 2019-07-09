@@ -6,6 +6,7 @@
 #define EVIO_6_0_WRITER_H
 
 
+#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -37,6 +38,8 @@ private:
 
     // If writing to file ...
 
+    /** File name. */
+    std::string fileName = nullptr;
     /** Object for writing file. */
     std::ofstream outFile;
     /** Header to write to file, created in constructor. */
