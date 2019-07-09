@@ -300,7 +300,7 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
 
     // Write this to file
     // TODO: what flags??? instead of "rw"
-    outFile = ofstream(filename, ios::binary);
+    outFile.open(filename, ios::binary);
     outFile.write(reinterpret_cast<const char*>(headerBuffer.array()), headerBuffer.remaining());
 
     writerBytesWritten = (size_t) (fileHeader.getLength());
