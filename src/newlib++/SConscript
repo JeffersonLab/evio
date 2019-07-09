@@ -2,10 +2,12 @@
 Import('env', 'libInstallDir', 'incInstallDir', 'archIncInstallDir', 'debugSuffix')
 
 # Headers to install
-headerList = Glob('*.h',  strings=True, exclude='ReadWriteTest.h')
+headerList = Glob('*.h',  strings=True)
+#headerList = Glob('*.h',  strings=True, exclude='ReadWriteTest.h')
 
 # Files to compile
-fileList = Glob('*.cpp',  strings=True, exclude='ReadWriteTest.cpp')
+fileList = Glob('*.cpp',  strings=True)
+#fileList = Glob('*.cpp',  strings=True, exclude='ReadWriteTest.cpp')
 
 env.AppendUnique(CPPPATH = ['.'], LIBPATH = ['/usr/lib', '/usr/local/lib'])
 evioxxLib = env.StaticLibrary(target = 'evioNew'+debugSuffix, source = fileList)
