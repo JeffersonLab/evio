@@ -139,7 +139,7 @@ execLibs = ['']
 execLibs = ['pthread', 'expat', 'z', 'dl', 'm', 'lz4']
 
 if platform == 'Darwin':
-    execLibs = ['lz4', 'pthread', 'dl', 'expat', 'z']
+    execLibs = ['pthread', 'dl', 'expat', 'z','lz4']
     #env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined','suppress','-undefined','dynamic_lookup'])
     env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
     env.Append(CCFLAGS = ['-fmessage-length=0'])
