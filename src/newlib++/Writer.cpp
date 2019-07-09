@@ -204,7 +204,6 @@ Writer & Writer::operator=(Writer&& other) noexcept {
     if (this != &other) {
 
         toFile = other.toFile;
-        outFile = std::move(other.outFile);
 
         fileHeader = other.fileHeader;
         buffer = other.buffer;
@@ -241,6 +240,12 @@ Writer & Writer::operator=(Writer&& other) noexcept {
         closed = other.closed;
         opened = other.opened;
 
+
+        if (toFile && opened) {
+            open(fileName, ios::binary);
+        }
+
+
         return *this;
     }
 }
@@ -267,7 +272,6 @@ Writer & Writer::operator=(Writer&& other) noexcept {
 
         // transfer ownership of the array
         userHeader = other.userHeader;
-        other.userHeader = nullptr;
 
         userHeaderLength = other.userHeaderLength;
         firstRecordWritten = other.firstRecordWritten;
@@ -276,7 +280,6 @@ Writer & Writer::operator=(Writer&& other) noexcept {
         dictionary = other.dictionary;
         // transfer ownership of the array
         firstEvent = other.firstEvent;
-        other.firstEvent = nullptr;
 
         firstEventLength = other.firstEventLength;
         dictionaryFirstEventBuffer = other.dictionaryFirstEventBuffer;
@@ -556,8 +559,9 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     }
 
     // Write this to file
+    fileName = filename;
     // TODO: what flags??? instead of "rw"
-    outFile = ofstream(filename, ios::binary);
+    outFile.open(filename, ios::binary);
     outFile.write(reinterpret_cast<const char*>(headerBuffer.array()), headerBuffer.remaining());
 
     writerBytesWritten = (size_t) (fileHeader.getLength());
@@ -692,6 +696,8 @@ ByteBuffer Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t 
 
     // Make events into record. Pos = 0, limit = # valid bytes.
     record.build();
+
+    //TODO: DOesn't record go OUT OF SCOPE?? and binary buffer as well???
 
     // Ready-to-read buffer contains record data
     return record.getBinaryBuffer();
