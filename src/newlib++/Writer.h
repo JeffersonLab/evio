@@ -51,17 +51,17 @@ private:
 
     /** Buffer being written to. */
     ByteBuffer buffer;
+    /** Has the first record been written already? */
+    bool firstRecordWritten;
+
+    // For both files & buffers
+
     /** Buffer containing user Header. */
     ByteBuffer userHeaderBuffer;
     /** Byte array containing user Header. */
     uint8_t* userHeader;
     /** Size in bytes of userHeader array. */
     uint32_t userHeaderLength;
-
-    /** Has the first record been written already? */
-    bool firstRecordWritten;
-
-    // For both files & buffers
 
     /** String containing evio-format XML dictionary to store in file header's user header. */
     string dictionary;
