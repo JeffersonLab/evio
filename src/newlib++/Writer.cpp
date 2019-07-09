@@ -240,11 +240,14 @@ Writer & Writer::operator=(Writer&& other) noexcept {
         closed = other.closed;
         opened = other.opened;
 
-
-        if (toFile && opened) {
-            open(fileName, ios::binary);
+        if (opened) {
+            if (toFile) {
+                // Need to set outFile properly, best done this way
+                open(fileName, userHeader, userHeaderLength);
+            } else {
+                open(buffer, userHeader, userHeaderLength);
+            }
         }
-
 
         return *this;
     }
@@ -262,9 +265,6 @@ Writer & Writer::operator=(Writer&& other) noexcept {
     if (this != &other) {
 
         toFile = other.toFile;
-
-        // TODO: nono
-        outFile = other.outFile;
 
         fileHeader = other.fileHeader;
         buffer = other.buffer;
@@ -286,12 +286,12 @@ Writer & Writer::operator=(Writer&& other) noexcept {
 
         byteOrder = other.byteOrder;
 
-        outputRecord = std::move(other.outputRecord);
-        unusedRecord = std::move(other.unusedRecord);
-        beingWrittenRecord = std::move(other.beingWrittenRecord);
+        outputRecord = other.outputRecord;
+        unusedRecord = other.unusedRecord;
+        beingWrittenRecord = other.beingWrittenRecord;
 
-        headerArray = std::move(other.headerArray);
-        recordLengths = std::move(other.recordLengths);
+        headerArray   = other.headerArray;
+        recordLengths = other.recordLengths;
 
         compressionType = other.compressionType;
         writerBytesWritten = other.writerBytesWritten;
@@ -301,6 +301,14 @@ Writer & Writer::operator=(Writer&& other) noexcept {
         addTrailerIndex = other.addTrailerIndex;
         closed = other.closed;
         opened = other.opened;
+
+        if (opened) {
+            if (toFile) {
+                open(fileName, userHeader, userHeaderLength);
+            } else {
+                open(buffer, userHeader, userHeaderLength);
+            }
+        }
 
         return *this;
     }
@@ -540,29 +548,30 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
         throw HipoException("can only write to a buffer, call open(buffer, userHdr, userLen)");
     }
 
-    ByteBuffer headerBuffer;
-
     // User header given as arg has precedent
     if (userHdr != nullptr) {
-        headerBuffer = createHeader(userHdr, userLen);
+        userHeaderBuffer = createHeader(userHdr, userLen);
     }
     else {
         // If dictionary & firstEvent not defined and user header not given ...
         if (dictionaryFirstEventBuffer.remaining() < 1) {
-            headerBuffer = createHeader(nullptr, 0);
+            userHeaderBuffer = createHeader(nullptr, 0);
         }
         // else place dictionary and/or firstEvent into
         // record which becomes user header
         else {
-            headerBuffer = createHeader(dictionaryFirstEventBuffer);
+            userHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
         }
     }
+
+    userHeader = userHeaderBuffer.array();
+    userHeaderLength = userHeaderBuffer.remaining();
 
     // Write this to file
     fileName = filename;
     // TODO: what flags??? instead of "rw"
     outFile.open(filename, ios::binary);
-    outFile.write(reinterpret_cast<const char*>(headerBuffer.array()), headerBuffer.remaining());
+    outFile.write(reinterpret_cast<const char*>(userHeaderBuffer.array()), userHeaderBuffer.remaining());
 
     writerBytesWritten = (size_t) (fileHeader.getLength());
     opened = true;
@@ -591,12 +600,6 @@ void Writer::open(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) {
     }
     else if (toFile) {
         throw HipoException("can only write to a file, call open(filename, userHdr)");
-    }
-
-    // Put dictionary / first event in user header of first record
-    if ((userHdr == nullptr || userLen < 1) && (dictionaryFirstEventBuffer.remaining() < 1)) {
-        userHdr = dictionaryFirstEventBuffer.array();
-        userLen = dictionaryFirstEventBuffer.remaining();
     }
 
     if (userHdr == nullptr) {
