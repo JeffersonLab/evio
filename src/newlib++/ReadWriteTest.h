@@ -90,7 +90,7 @@ public:
     }
 
 
-public static void testStreamRecordMT(){
+    static void testStreamRecordMT(){
 
         // Variables to track record build rate
         double freqAvg;
