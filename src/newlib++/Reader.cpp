@@ -91,7 +91,20 @@
  * The {@link #open(String)} method has to be called to open the input stream.
  * Also {@link #forceScanFile()} needs to be called to find records.
  */
-Reader::Reader() noexcept {}
+Reader::Reader() noexcept {
+    fileSize = 0;
+    bufferLimit  = 0;
+    bufferOffset = 0;
+    currentRecordLoaded = 0;
+    checkRecordNumberSequence = false;
+    firstEvent = nullptr;
+    closed = false;
+    compressed = false;
+    evioVersion = 6;
+    lastCalledSeqNext = true;
+//    inStreamRandom;
+//    nodePool;
+}
 
 /**
  * Constructor with filename. Creates instance and opens
@@ -146,8 +159,13 @@ Reader::Reader(string filename, bool forceScan, bool checkRecordNumSeq) {
  * @param buffer buffer with evio data.
  * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
  */
-Reader::Reader(ByteBuffer buffer) :
-        Reader(buffer, nullptr) {
+Reader::Reader(ByteBuffer buffer) {
+    this->buffer = buffer;
+    bufferOffset = buffer.position();
+    bufferLimit  = buffer.limit();
+    fromFile = false;
+    checkRecordNumberSequence = false;
+    scanBuffer();
 }
 
 /**
@@ -1667,7 +1685,7 @@ ByteBuffer Reader::removeStructure(EvioNode removeNode) {
  */
 ByteBuffer Reader::addStructure(int eventNumber, ByteBuffer addBuffer) {
 
-    if (addBuffer == null || addBuffer.remaining() < 8) {
+    if (addBuffer == nullptr || addBuffer.remaining() < 8) {
         throw new HipoException("null, empty, or non-evio format buffer arg");
     }
 
@@ -1760,18 +1778,18 @@ void Reader::show() {
     }
 }
 
-static int Reader::main(int argc, char **argv) {
+int Reader::main(int argc, char **argv) {
     try {
-        Reader reader = new Reader("/Users/gavalian/Work/Software/project-3a.0.0/Distribution/clas12-offline-software/coatjava/clas_000810_324.hipo",true);
+        Reader reader = Reader("/Users/gavalian/Work/Software/project-3a.0.0/Distribution/clas12-offline-software/coatjava/clas_000810_324.hipo",true);
 
         int icounter = 0;
         //reader.show();
         while(reader.hasNext()==true){
-            System.out.println(" reading event # " + icounter);
+            cout << " reading event # " << icounter << endl;
             try {
-                byte[] event = reader.getNextEvent();
+                uint8_t* event = reader.getNextEvent();
             } catch (HipoException ex) {
-                Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+                //Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             icounter++;

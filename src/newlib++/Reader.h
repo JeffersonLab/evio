@@ -5,6 +5,7 @@
 #ifndef EVIO_6_0_READER_H
 #define EVIO_6_0_READER_H
 
+#include <cstdint>
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -32,7 +33,7 @@ private:
     string fileName;
 
     /** File size in bytes. */
-    long fileSize;
+    uint64_t fileSize;
 
     /** Buffer being read. */
     ByteBuffer buffer;
@@ -40,11 +41,12 @@ private:
     /** Buffer used to temporarily hold data while decompressing. */
     ByteBuffer tempBuffer;
 
+//TODO: make this 64 bit ???
     /** Initial position of buffer. */
-    int bufferOffset;
+    uint32_t bufferOffset;
 
     /** Limit of buffer. */
-    int bufferLimit;
+    uint32_t bufferLimit;
 
     /** Keep one record for reading in data record-by-record. */
     RecordInputStream inputRecordStream = new RecordInputStream();
