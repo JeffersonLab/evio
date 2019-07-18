@@ -193,65 +193,65 @@ Writer::Writer(ByteBuffer & buf, const ByteOrder & order, uint32_t maxEventCount
 
 
 
-/**
- * Move assignment operator.
- * @param other right side object.
- * @return left side object.
- */
-Writer & Writer::operator=(Writer&& other) noexcept {
-
-    // Avoid self assignment ...
-    if (this != &other) {
-
-        toFile = other.toFile;
-
-        fileHeader = other.fileHeader;
-        buffer = other.buffer;
-        userHeaderBuffer = std::move(other.userHeaderBuffer);
-        // transfer ownership of the array
-        userHeader = other.userHeader;
-        other.userHeader = nullptr;
-        userHeaderLength = other.userHeaderLength;
-        firstRecordWritten = other.firstRecordWritten;
-
-
-        dictionary = other.dictionary;
-        // transfer ownership of the array
-        firstEvent = other.firstEvent;
-        other.firstEvent = nullptr;
-        firstEventLength = other.firstEventLength;
-        dictionaryFirstEventBuffer = std::move(other.dictionaryFirstEventBuffer);
-
-        byteOrder = other.byteOrder;
-
-        outputRecord = std::move(other.outputRecord);
-        unusedRecord = std::move(other.unusedRecord);
-        beingWrittenRecord = std::move(other.beingWrittenRecord);
-
-        headerArray = std::move(other.headerArray);
-        recordLengths = std::move(other.recordLengths);
-
-        compressionType = other.compressionType;
-        writerBytesWritten = other.writerBytesWritten;
-        recordNumber = other.recordNumber;
-
-        addingTrailer = other.addingTrailer;
-        addTrailerIndex = other.addTrailerIndex;
-        closed = other.closed;
-        opened = other.opened;
-
-        if (opened) {
-            if (toFile) {
-                // Need to set outFile properly, best done this way
-                open(fileName, userHeader, userHeaderLength);
-            } else {
-                open(buffer, userHeader, userHeaderLength);
-            }
-        }
-
-        return *this;
-    }
-}
+///**
+// * Move assignment operator.
+// * @param other right side object.
+// * @return left side object.
+// */
+//Writer & Writer::operator=(Writer&& other) noexcept {
+//
+//    // Avoid self assignment ...
+//    if (this != &other) {
+//
+//        toFile = other.toFile;
+//
+//        fileHeader = other.fileHeader;
+//        buffer = other.buffer;
+//        userHeaderBuffer = std::move(other.userHeaderBuffer);
+//        // transfer ownership of the array
+//        userHeader = other.userHeader;
+//        other.userHeader = nullptr;
+//        userHeaderLength = other.userHeaderLength;
+//        firstRecordWritten = other.firstRecordWritten;
+//
+//
+//        dictionary = other.dictionary;
+//        // transfer ownership of the array
+//        firstEvent = other.firstEvent;
+//        other.firstEvent = nullptr;
+//        firstEventLength = other.firstEventLength;
+//        dictionaryFirstEventBuffer = std::move(other.dictionaryFirstEventBuffer);
+//
+//        byteOrder = other.byteOrder;
+//
+//        outputRecord = std::move(other.outputRecord);
+//        unusedRecord = std::move(other.unusedRecord);
+//        beingWrittenRecord = std::move(other.beingWrittenRecord);
+//
+//        headerArray = std::move(other.headerArray);
+//        recordLengths = std::move(other.recordLengths);
+//
+//        compressionType = other.compressionType;
+//        writerBytesWritten = other.writerBytesWritten;
+//        recordNumber = other.recordNumber;
+//
+//        addingTrailer = other.addingTrailer;
+//        addTrailerIndex = other.addTrailerIndex;
+//        closed = other.closed;
+//        opened = other.opened;
+//
+//        if (opened) {
+//            if (toFile) {
+//                // Need to set outFile properly, best done this way
+//                open(fileName, userHeader, userHeaderLength);
+//            } else {
+//                open(buffer, userHeader, userHeaderLength);
+//            }
+//        }
+//
+//        return *this;
+//    }
+//}
 
 
 /**
