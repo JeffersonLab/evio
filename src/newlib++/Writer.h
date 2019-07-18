@@ -127,7 +127,7 @@ public:
     }
 
 
-    Writer & operator=(Writer&& other) noexcept;
+//    Writer & operator=(Writer&& other) noexcept;
     Writer & operator=(const Writer& other);
 
 
