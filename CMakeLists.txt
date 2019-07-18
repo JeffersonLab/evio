@@ -88,6 +88,7 @@ set(CPP_HEADER_FILES_NEW
         src/newlib++/Writer.h
         src/newlib++/WriterMT.h
         src/newlib++/ReadWriteTest.h
+        src/newlib++/Reader.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -100,7 +101,8 @@ set(CPP_LIB_FILES_NEW
         src/newlib++/RecordOutput.cpp
         src/newlib++/Writer.cpp
         src/newlib++/WriterMT.cpp
-        src/newlib++/ReadWriteTest.cpp)
+        src/newlib++/ReadWriteTest.cpp src/newlib++/Reader.cpp
+        )
 
 
 file(GLOB TEST_FILES_C src/test/*.c)
