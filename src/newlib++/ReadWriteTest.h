@@ -7,9 +7,11 @@
 
 
 #include <cstdint>
+#include <chrono>
 #include "ByteBuffer.h"
 #include "Writer.h"
 #include "WriterMT.h"
+#include "HipoException.h"
 
 class ReadWriteTest {
 
@@ -30,48 +32,48 @@ public:
 
     static void testStreamRecord() {
 
-            // Variables to track record build rate
-            double freqAvg;
-            long t1, t2, deltaT, totalC=0;
-            // Ignore the first N values found for freq in order
-            // to get better avg statistics. Since the JIT compiler in java
-            // takes some time to analyze & compile code, freq may initially be low.
-            long ignore = 10000;
-            long loops  = 2000000;
+        // Variables to track record build rate
+        double freqAvg;
+        long totalC=0;
+        // Ignore the first N values found for freq in order
+        // to get better avg statistics. Since the JIT compiler in java
+        // takes some time to analyze & compile code, freq may initially be low.
+        long ignore = 10000;
+        long loops  = 2000000;
 
-            // Create file
-            auto writer = Writer();
-            writer.getRecordHeader().setCompressionType(Compressor::CompressionType);
-            writer.open("/daqfs/home/timmer/exampleFile.v6.evio");
+        // Create file
+        auto writer = Writer();
+        writer.getRecordHeader().setCompressionType(Compressor::CompressionType);
+        writer.open("/daqfs/home/timmer/exampleFile.v6.evio");
 
 
         uint8_t* buffer = generateBuffer(400);
 
-            t1 = System.currentTimeMillis();
+        auto t1 = std::chrono::high_resolution_clock::now();
 
-            while (true) {
-                // random data array
-                writer.addEvent(buffer);
+        while (true) {
+            // random data array
+            writer.addEvent(buffer);
 
 //System.out.println(""+ (20000000 - loops));
-                // Ignore beginning loops to remove JIT compile time
-                if (ignore-- > 0) {
-                    t1 = System.currentTimeMillis();
-                }
-                else {
-                    totalC++;
-                }
-
-                if (--loops < 1) break;
+            // Ignore beginning loops to remove JIT compile time
+            if (ignore-- > 0) {
+                t1 = std::chrono::high_resolution_clock::now();
+            }
+            else {
+                totalC++;
             }
 
-            t2 = System.currentTimeMillis();
-            deltaT = t2 - t1; // millisec
-            freqAvg = (double) totalC / deltaT * 1000;
+            if (--loops < 1) break;
+        }
 
-            System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1);
 
-            System.out.println("Finished all loops, count = " + totalC);
+        freqAvg = (double) totalC / deltaT.count() * 1000;
+
+        cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
+        cout << "Finished all loops, count = " << totalC << endl;
 
 //        // Create our own record
 //        RecordOutputStream myRecord = new RecordOutputStream(writer.getByteOrder());
@@ -82,9 +84,10 @@ public:
 
 //        writer.addTrailer(true);
 //        writer.addTrailerWithIndex(true);
-            writer.close();
 
-            System.out.println("Finished writing file");
+        writer.close();
+
+        cout << "Finished writing file" << endl;
 
 
     }
@@ -94,9 +97,7 @@ public:
 
         // Variables to track record build rate
         double freqAvg;
-        long t1, t2, deltaT,
-
-                totalC=0;
+        long totalC=0;
         // Ignore the first N values found for freq in order
         // to get better avg statistics. Since the JIT compiler in java
         // takes some time to analyze & compile code, freq may initially be low.
@@ -106,16 +107,16 @@ public:
         string fileName = "/daqfs/home/timmer/exampleFile.v6.evio";
 
         // Create files
-        WriterMT writer1 = new WriterMT(fileName + ".1", ByteOrder::ENDIAN_LITTLE, 0, 0,
-                                        1, 1, 8);
-        WriterMT writer2 = new WriterMT(fileName + ".2", ByteOrder::ENDIAN_LITTLE, 0, 0,
-                                        1, 2, 8);
-        WriterMT writer3 = new WriterMT(fileName + ".3", ByteOrder::ENDIAN_LITTLE, 0, 0,
-                                        1, 3, 8);
+        string finalFilename = fileName + ".1";
+        WriterMT writer1 = WriterMT(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
+        finalFilename = fileName + ".2";
+        WriterMT writer2 = WriterMT(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 2);
+        finalFilename = fileName + ".3";
+        WriterMT writer3 = WriterMT(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 3);
 
-        byte[] buffer = generateBuffer(400);
+        uint8_t* buffer = generateBuffer(400);
 
-        t1 = System.currentTimeMillis();
+        auto t1 = std::chrono::high_resolution_clock::now();
 
         while (true) {
             // random data array
@@ -126,7 +127,7 @@ public:
 //System.out.println(""+ (20000000 - loops));
             // Ignore beginning loops to remove JIT compile time
             if (ignore-- > 0) {
-                t1 = System.currentTimeMillis();
+                t1 = std::chrono::high_resolution_clock::now();
             }
             else {
                 totalC++;
@@ -135,13 +136,13 @@ public:
             if (--loops < 1) break;
         }
 
-        t2 = System.currentTimeMillis();
-        deltaT = t2 - t1; // millisec
-        freqAvg = (double) totalC / deltaT * 1000;
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1);
 
-        System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
+        freqAvg = (double) totalC / deltaT.count() * 1000;
 
-        System.out.println("Finished all loops, count = " + totalC);
+        cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
+        cout << "Finished all loops, count = " << totalC << endl;
 
 
         writer1.addTrailer(true);
@@ -160,51 +161,22 @@ public:
 
         // Doing a diff between files shows they're identical!
 
-        System.out.println("Finished writing files");
-
-
+        cout << "Finished writing files" << endl;
     }
 
 
-public static void streamRecord() throws HipoException {
-            RecordOutputStream stream = new RecordOutputStream();
-            byte[] buffer = TestWriter.generateBuffer();
-            while(true){
-                //byte[] buffer = TestWriter.generateBuffer();
-                boolean flag = stream.addEvent(buffer);
-                if(flag==false){
-                    stream.build();
-                    stream.reset();
-                }
-            }
-
-    }
-
-public static void writerTest() throws IOException {
-            Writer writer = new Writer("compressed_file.evio",
-            ByteOrder.BIG_ENDIAN, 0, 0);
-            //byte[] array = TestWriter.generateBuffer();
-            for(int i = 0; i < 340000; i++){
-                byte[] array = TestWriter.generateBuffer();
-                writer.addEvent(array);
-            }
-            writer.close();
-    }
-
-
-public static void convertor() {
-        String filename = "/Users/gavalian/Work/Software/project-1a.0.0/clas_000810.evio.324";
+    static void convertor() {
+        string filename = "/Users/gavalian/Work/Software/project-1a.0.0/clas_000810.evio.324";
         try {
             EvioCompactReader  reader = new EvioCompactReader(filename);
             int nevents = reader.getEventCount();
-            String userHeader = "File is written with new version=6 format";
-            Writer writer = new Writer("converted_000810.evio",ByteOrder.LITTLE_ENDIAN,
-                                       10000,8*1024*1024);
-            writer.setCompressionType(2);
+            string userHeader = "File is written with new version=6 format";
+            Writer writer = Writer("converted_000810.evio",ByteOrder::ENDIAN_LITTLE, 10000, 8*1024*1024);
+            writer.setCompressionType(Compressor::LZ4);
 
             System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
 
-            byte[] myHeader = new byte[233];
+            auto myHeader = new uint8_t[233];
             ByteBuffer header = ByteBuffer.wrap(myHeader);
             //nevents = 560;
             for(int i = 1; i < nevents; i++){
@@ -216,83 +188,17 @@ public static void convertor() {
                 //System.out.println(" EVENT # " + i + "  size = " + buffer.array().length );
             }
             writer.close();
-        } catch (EvioException ex) {
-            Logger.getLogger(TestWriter.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(TestWriter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (HipoException ex) {
+            //Logger.getLogger(TestWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
 
-public static void createEmptyFile() throws IOException, HipoException {
-            String userHeader = "Example of creating a new header file.......?";
-            System.out.println("STRING LENGTH = " + userHeader.length());
-            Writer writer = new Writer();
-            writer.open("example_file.evio", userHeader.getBytes());
-            for(int i = 0; i < 5; i++){
-                byte[] array = TestWriter.generateBuffer();
-                writer.addEvent(array);
-            }
-
-            writer.close();
-    }
-
-public static void main(String[] args){
+    static int main(int argc, char **argv) {
 
         testStreamRecordMT();
 
-        /*Writer writer = new Writer();
-
-        writer.open("new_header_test.evio",new byte[]{'a','b','c','d','e'});
-        writer.close(); */
-
-        //writer.createHeader(new byte[17]);
-
-        //TestWriter.convertor();
-
-        //TestWriter.writerTest();
-
-        //TestWriter.streamRecord();
-
-        //TestWriter.byteStream();
-
-        /*
-        byte[] header = TestWriter.generateBuffer(32);
-
-        Writer writer = new Writer("compressed.evio", header,1);
-
-        for(int i = 0 ; i < 425; i++){
-            byte[] array = TestWriter.generateBuffer();
-            writer.addEvent(array);
-        }
-
-        writer.close();
-
-        Reader reader = new Reader();
-        reader.open("compressed.evio");
-        reader.show();
-        Record record = reader.readRecord(0);
-        record.show();
-        */
-
-
-        /*
-        Record record = new Record();
-        for(int i = 0; i < 6; i++){
-            byte[] bytes = TestWriter.generateBuffer();
-            record.addEvent(bytes);
-        }
-
-        record.show();
-        record.setCompressionType(0);
-        byte[] data = record.build().array();
-        System.out.println(" BUILD BUFFER SIZE = " + data.length);
-        TestWriter.print(data);
-
-        Record record2 = Record.initBinary(data);
-
-        record2.show();*/
     }
 
 
