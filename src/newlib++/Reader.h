@@ -12,6 +12,7 @@
 #include "FileHeader.h"
 #include "RecordHeader.h"
 #include "FileEventIndex.h"
+#include "RecordInput.h"
 
 
 class Reader {
@@ -33,7 +34,7 @@ private:
     string fileName;
 
     /** File size in bytes. */
-    uint64_t fileSize;
+    uint64_t fileSize = 0;
 
     /** Buffer being read. */
     ByteBuffer buffer;
@@ -43,16 +44,16 @@ private:
 
 //TODO: make this 64 bit ???
     /** Initial position of buffer. */
-    uint32_t bufferOffset;
+    uint32_t bufferOffset = 0;
 
     /** Limit of buffer. */
-    uint32_t bufferLimit;
+    uint32_t bufferLimit = 0;
 
     /** Keep one record for reading in data record-by-record. */
-    RecordInputStream inputRecordStream = new RecordInputStream();
+    RecordInput inputRecordStream = RecordInput();
 
     /** Number or position of last record to be read. */
-    int currentRecordLoaded;
+    int currentRecordLoaded = 0;
 
     /** File header. */
     FileHeader fileHeader;
@@ -64,13 +65,13 @@ private:
     int recordNumberExpected = 1;
 
     /** If true, throw an exception if record numbers are out of sequence. */
-    bool checkRecordNumberSequence;
+    bool checkRecordNumberSequence = false;
 
     /** Files may have an xml format dictionary in the user header of the file header. */
     string dictionaryXML;
 
     /** Each file of a set of split CODA files may have a "first" event common to all. */
-    uint8_t*  firstEvent;
+    uint8_t*  firstEvent = nullptr;
 
     /** Object to handle event indexes in context of file and having to change records. */
     FileEventIndex eventIndex = FileEventIndex();
@@ -82,10 +83,10 @@ private:
     ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
 
     /** Is this object currently closed? */
-    bool closed;
+    bool closed = false;
 
     /** Is this data in file/buffer compressed? */
-    bool compressed;
+    bool compressed = false;
 
     /** Byte order of file/buffer being read. */
     ByteOrder byteOrder = ByteOrder::ENDIAN_BIG;
@@ -98,10 +99,10 @@ private:
     /** If true, the last sequential call was to getNextEvent or getNextEventNode.
      *  If false, the last sequential call was to getPrevEvent. Used to determine
      *  which event is prev or next. */
-    bool lastCalledSeqNext;
+    bool lastCalledSeqNext = true;
 
     /** Evio version of file/buffer being read. */
-    int evioVersion;
+    int evioVersion = 6;
 
     /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
     EvioNodeSource nodePool;
@@ -118,79 +119,79 @@ private:
      */
     class RecordPosition {
 
-    private:
-        /** Position in file/buffer. */
-        long position;
+        private:
+            /** Position in file/buffer. */
+            long position;
 
-        /** Length in bytes. */
-        int length;
+            /** Length in bytes. */
+            int length;
 
-        /** Number of entries in record. */
-        int count;
+            /** Number of entries in record. */
+            int count;
 
-    public:
+        public:
 
-        RecordPosition(long pos) { position = pos; }
+            RecordPosition(long pos) { position = pos; }
 
-        RecordPosition(long pos, int len, int cnt) {
-            position = pos;
-            length = len;
-            count = cnt;
-        }
+            RecordPosition(long pos, int len, int cnt) {
+                position = pos;
+                length = len;
+                count = cnt;
+            }
 
-        RecordPosition setPosition(long _pos) {
-            position = _pos;
-            return *this;
-        }
+            RecordPosition setPosition(long _pos) {
+                position = _pos;
+                return *this;
+            }
 
-        RecordPosition setLength(int _len) {
-            length = _len;
-            return *this;
-        }
+            RecordPosition setLength(int _len) {
+                length = _len;
+                return *this;
+            }
 
-        RecordPosition setCount(int _cnt) {
-            count = _cnt;
-            return *this;
-        }
+            RecordPosition setCount(int _cnt) {
+                count = _cnt;
+                return *this;
+            }
 
-        long getPosition() { return position; }
+            long getPosition() { return position; }
 
-        int getLength() { return length; }
+            int getLength() { return length; }
 
-        int getCount() { return count; }
+            int getCount() { return count; }
 
-        string toString() {
-            return string.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
-        }
+            string toString() {
+                return string.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
+            }
     };
 
 
 private:
 
-    void setByteOrder(ByteOrder order);
-    static int getTotalByteCounts(ByteBuffer buf, int[] info);
+    void setByteOrder(ByteOrder & order);
+    static int getTotalByteCounts(ByteBuffer & buf, int[] info);
 
 public:
 
-    Reader() noexcept;
-    Reader(string filename);
-    Reader(string filename, bool forceScan);
-    Reader(string filename, bool forceScan, bool checkRecordNumSeq);
+    Reader() noexcept = default;
+    explicit Reader(string & filename);
+    Reader(string & filename, bool forceScan);
+    Reader(string & filename, bool forceScan, bool checkRecordNumSeq);
 
-    Reader(ByteBuffer buffer);
-    Reader(ByteBuffer buffer, EvioNodeSource pool);
-    Reader(ByteBuffer buffer, EvioNodeSource pool, bool checkRecordNumSeq);
+    explicit Reader(ByteBuffer & buffer);
+    Reader(ByteBuffer & buffer, EvioNodeSource & pool);
+    Reader(ByteBuffer & buffer, EvioNodeSource & pool, bool checkRecordNumSeq);
 
-    void open(string filename);
+    void open(string & filename);
     void close();
 
     bool isClosed();
     bool isFile();
 
-    void setBuffer(ByteBuffer buf);
-    void setBuffer(ByteBuffer buf, EvioNodeSource pool);
+    void setBuffer(ByteBuffer & buf);
+    void setBuffer(ByteBuffer & buf, EvioNodeSource & pool);
 
-    ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool);
+    ByteBuffer setCompressedBuffer(ByteBuffer & buf, EvioNodeSource & pool);
 
     string getFileName();
     long getFileSize();
@@ -229,7 +230,7 @@ public:
 
     uint8_t *getEvent(int index);
     ByteBuffer getEvent(ByteBuffer buf, int index);
-    EvioNode getEventNode(int index);
+    EvioNode getEventNode(uint32_t index);
 
     bool hasNext();
     bool hasPrev();
@@ -238,7 +239,7 @@ public:
 
     int getCurrentRecord();
 
-    RecordInputStream getCurrentRecordStream();
+    RecordInput getCurrentRecordStream();
 
     bool readRecord(int index);
 
@@ -250,7 +251,7 @@ protected:
     void extractDictionaryFromFile();
 
 
-    static void findRecordInfo(ByteBuffer buf, int offset, int[] info);
+    static void findRecordInfo(ByteBuffer & buf, uint32_t offset, int* info, uint32_t infoLen);
 
 
     ByteBuffer scanBuffer();
@@ -260,7 +261,7 @@ protected:
 
 
     ByteBuffer removeStructure(EvioNode removeNode);
-    ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer);
+    ByteBuffer addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
 
     void show();
 
