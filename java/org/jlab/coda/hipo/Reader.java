@@ -6,7 +6,6 @@
  */
 package org.jlab.coda.hipo;
 
-import com.sun.scenario.effect.impl.sw.java.JSWBlend_SRC_OUTPeer;
 import org.jlab.coda.jevio.*;
 
 import java.io.IOException;
