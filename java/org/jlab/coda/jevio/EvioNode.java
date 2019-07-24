@@ -270,7 +270,7 @@ public class EvioNode implements Cloneable {
      * placing into EvioNode obtained from an EvioNodeSource.
      * @param parent parent of the object.
      */
-    final void copyParentForScan(EvioNode parent) {
+    final private void copyParentForScan(EvioNode parent) {
         blockNode  = parent.blockNode;
         buffer     = parent.buffer;
         allNodes   = parent.allNodes;
@@ -394,6 +394,7 @@ public class EvioNode implements Cloneable {
      * or tag segment.
      *
      * @param buffer     buffer to examine
+     * @param pool       pool of EvioNode objects
      * @param blockNode  object holding data about block header
      * @param position   position in buffer
      * @param place      place of event in buffer (starting at 0)
@@ -402,7 +403,7 @@ public class EvioNode implements Cloneable {
      * @throws EvioException if file/buffer too small
      */
     static final public EvioNode extractEventNode(ByteBuffer buffer,
-                                                  EvioNodeSource nodePool,
+                                                  EvioNodeSource pool,
                                                   BlockNode blockNode,
                                                   int position, int place)
             throws EvioException {
@@ -414,8 +415,8 @@ public class EvioNode implements Cloneable {
 
         // Store evio event info, without de-serializing, into EvioNode object
         EvioNode node;
-        if (nodePool != null) {
-            node = nodePool.getNode();
+        if (pool != null) {
+            node = pool.getNode();
             node.clear(); //node.clearIntArray();
             node.setData(position, place, buffer, blockNode);
         }
@@ -434,7 +435,8 @@ public class EvioNode implements Cloneable {
      * object represents an evio container - either a bank, segment,
      * or tag segment.
      *
-     * @param buffer   buffer to examine
+     * @param buffer       buffer to examine
+     * @param pool         pool of EvioNode objects
      * @param recPosition  position of containing record
      * @param position     position in buffer
      * @param place        place of event in buffer (starting at 0)
@@ -829,7 +831,6 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
                 kidNode.dataType = dataType;
                 kidNode.isEvent  = false;
 
-                kidNode.parentNode = node;
                 node.addChild(kidNode);
 
                 if (DataType.isStructure(dataType)) {
@@ -868,7 +869,6 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
                 kidNode.dataType = dataType;
                 kidNode.isEvent  = false;
 
-                kidNode.parentNode = node;
                 node.addChild(kidNode);
 
                 if (DataType.isStructure(dataType)) {
