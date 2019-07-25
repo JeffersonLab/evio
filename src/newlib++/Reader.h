@@ -6,6 +6,9 @@
 #define EVIO_6_0_READER_H
 
 #include <cstdint>
+#include <cstring>
+#include <string>
+#include <vector>
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -13,6 +16,7 @@
 #include "RecordHeader.h"
 #include "FileEventIndex.h"
 #include "RecordInput.h"
+#include "HipoException.h"
 
 
 class Reader {
@@ -20,12 +24,72 @@ class Reader {
 
 private:
 
+
     /**
-     * List of records in the file. The array is initialized
+     * Internal class to keep track of the records in the file/buffer.
+     * Each entry keeps record position in the file/buffer, length of
+     * the record and number of entries contained.
+     */
+    class RecordPosition {
+
+    private:
+        /** Position in file/buffer. */
+        long position;
+
+        /** Length in bytes. */
+        int length;
+
+        /** Number of entries in record. */
+        int count;
+
+    public:
+
+        RecordPosition(long pos) {
+            count = length = 0;
+            position = pos;
+        }
+
+        RecordPosition(long pos, int len, int cnt) {
+            position = pos;
+            length = len;
+            count = cnt;
+        }
+
+        RecordPosition setPosition(long _pos) {
+            position = _pos;
+            return *this;
+        }
+
+        RecordPosition setLength(int _len) {
+            length = _len;
+            return *this;
+        }
+
+        RecordPosition setCount(int _cnt) {
+            count = _cnt;
+            return *this;
+        }
+
+        long getPosition() { return position; }
+
+        int getLength() { return length; }
+
+        int getCount() { return count; }
+
+        string toString() {
+            return string.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
+        }
+    };
+
+
+
+
+    /**
+     * List of records in the file. The list is initialized
      * when the entire file is scanned to read out positions
      * of each record in the file (in constructor).
      */
-    List<RecordPosition> recordPositions = new ArrayList<RecordPosition>();
+    vector<RecordPosition> recordPositions = vector<RecordPosition>();
 
     /** Fastest way to read/write files. */
     RandomAccessFile inStreamRandom;
@@ -80,7 +144,7 @@ private:
     bool fromFile = true;
 
     /** Stores info of all the (top-level) events in a scanned buffer. */
-    ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
+    vector<EvioNode> eventNodes = vector<EvioNode>();
 
     /** Is this object currently closed? */
     bool closed = false;
@@ -112,64 +176,11 @@ private:
     int *headerInfo = new int[7];
 
 
-    /**
-     * Internal class to keep track of the records in the file/buffer.
-     * Each entry keeps record position in the file/buffer, length of
-     * the record and number of entries contained.
-     */
-    class RecordPosition {
-
-        private:
-            /** Position in file/buffer. */
-            long position;
-
-            /** Length in bytes. */
-            int length;
-
-            /** Number of entries in record. */
-            int count;
-
-        public:
-
-            RecordPosition(long pos) { position = pos; }
-
-            RecordPosition(long pos, int len, int cnt) {
-                position = pos;
-                length = len;
-                count = cnt;
-            }
-
-            RecordPosition setPosition(long _pos) {
-                position = _pos;
-                return *this;
-            }
-
-            RecordPosition setLength(int _len) {
-                length = _len;
-                return *this;
-            }
-
-            RecordPosition setCount(int _cnt) {
-                count = _cnt;
-                return *this;
-            }
-
-            long getPosition() { return position; }
-
-            int getLength() { return length; }
-
-            int getCount() { return count; }
-
-            string toString() {
-                return string.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
-            }
-    };
-
 
 private:
 
     void setByteOrder(ByteOrder & order);
-    static int getTotalByteCounts(ByteBuffer & buf, int[] info);
+    static int getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLen);
 
 public:
 
@@ -214,8 +225,8 @@ public:
     int getEventCount();
     int getRecordCount();
 
-    List <RecordPosition> getRecordPositions();
-    ArrayList <EvioNode> getEventNodes();
+    vector<RecordPosition> & getRecordPositions();
+    vector<EvioNode> & getEventNodes();
 
     bool getCheckRecordNumberSequence();
 
@@ -251,7 +262,7 @@ protected:
     void extractDictionaryFromFile();
 
 
-    static void findRecordInfo(ByteBuffer & buf, uint32_t offset, int* info, uint32_t infoLen);
+    static void findRecordInfo(ByteBuffer & buf, uint32_t offset, uint32_t* info, uint32_t infoLen);
 
 
     ByteBuffer scanBuffer();

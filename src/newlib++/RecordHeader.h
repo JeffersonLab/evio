@@ -371,7 +371,7 @@ public:
                              const uint32_t* index, size_t indexLen);
 
 
-    bool isCompressed(ByteBuffer & buffer, size_t offset);
+    static bool isCompressed(ByteBuffer & buffer, size_t offset);
     void readHeader(ByteBuffer & buffer, size_t offset);
     void readHeader(ByteBuffer & buffer);
 

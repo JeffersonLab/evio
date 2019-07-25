@@ -438,17 +438,17 @@ int Reader::getEventCount() {return eventIndex.getMaxEvents();}
 int Reader::getRecordCount() {return recordPositions.size();}
 
 /**
- * Returns the list of record positions in the file.
+ * Returns a reference to the list of record positions in the file.
  * @return
  */
-List<RecordPosition> Reader::getRecordPositions() {return recordPositions;}
+vector<Reader::RecordPosition> & Reader::getRecordPositions() {return recordPositions;}
 
 /**
- * Get the list of EvioNode objects contained in the buffer being read.
+ * Get a reference to the list of EvioNode objects contained in the buffer being read.
  * To be used internally to evio.
  * @return list of EvioNode objects contained in the buffer being read.
  */
-ArrayList<EvioNode> Reader::getEventNodes() {return eventNodes;}
+vector<EvioNode> & Reader::getEventNodes() {return eventNodes;}
 
 /**
  * Get whether or not record numbers are enforced to be sequential.
@@ -557,7 +557,7 @@ uint8_t* Reader::getPrevEvent() {
  */
 EvioNode Reader::getNextEventNode() {
     if (sequentialIndex >= eventIndex.getMaxEvents() || fromFile || compressed) {
-        return null;
+        return nullptr;
     }
 
     if (sequentialIndex < 0) {
@@ -569,7 +569,7 @@ EvioNode Reader::getNextEventNode() {
     }
 
     lastCalledSeqNext = true;
-    return eventNodes.get(sequentialIndex++);
+    return eventNodes[sequentialIndex++];
 }
 
 /**
@@ -579,27 +579,27 @@ EvioNode Reader::getNextEventNode() {
  * @throws IOException if error reading file
  */
 ByteBuffer Reader::readUserHeader() {
-    uint8_t* userBytes;
+    char* userBytes;
 
     if (fromFile) {
         int userLen = fileHeader.getUserHeaderLength();
-        //System.out.println("  " + fileHeader.getUserHeaderLength()
-        //                           + "  " + fileHeader.getHeaderLength() + "  " + fileHeader.getIndexLength());
-        userBytes = new uint8_t[userLen];
+//        cout << "  " << fileHeader.getUserHeaderLength() << "  " << fileHeader.getHeaderLength() <<
+//                                                            "  " << fileHeader.getIndexLength() << endl;
+        userBytes = new char[userLen];
 
         inStreamRandom.getChannel().position(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
         inStreamRandom.read(userBytes);
-        return ByteBuffer.wrap(userBytes).order(fileHeader.getByteOrder());
+        return ByteBuffer(userBytes, userLen).order(fileHeader.getByteOrder());
     }
     else {
         int userLen = firstRecordHeader.getUserHeaderLength();
-        //System.out.println("  " + firstRecordHeader.getUserHeaderLength()
-        //                           + "  " + firstRecordHeader.getHeaderLength() + "  " + firstRecordHeader.getIndexLength());
-        userBytes = new uint8_t[userLen];
+//        cout << "  " << firstRecordHeader.getUserHeaderLength() << "  " << firstRecordHeader.getHeaderLength() <<
+//                                                                   "  " << firstRecordHeader.getIndexLength() << endl;
+        userBytes = new char[userLen];
 
         buffer.position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
-        buffer.get(userBytes, 0, userLen);
-        return ByteBuffer.wrap(userBytes).order(firstRecordHeader.getByteOrder());
+        buffer.get(reinterpret_cast<uint8_t *>(userBytes), 0, userLen);
+        return ByteBuffer(userBytes, userLen).order(firstRecordHeader.getByteOrder());
     }
 }
 
@@ -678,7 +678,7 @@ EvioNode Reader::getEventNode(uint32_t index) {
         return nullptr;
     }
 //cout << "getEventNode: Getting node at index = " << index << endl;
-    return eventNodes.get(index);
+    return eventNodes[index];
 }
 
 /**
@@ -719,7 +719,7 @@ RecordInput Reader::getCurrentRecordStream() {return inputRecordStream;}
  */
 bool Reader::readRecord(int index) {
     if (index >= 0 && index < recordPositions.size()) {
-        RecordPosition pos = recordPositions.get(index);
+        RecordPosition pos = recordPositions[index];
         if (fromFile) {
             inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
         }
@@ -771,10 +771,10 @@ void Reader::extractDictionaryFromBuffer() {
         // Read user header
         auto userBytes = new uint8_t[userLen];
         buffer.get(userBytes, 0, userLen);
-        ByteBuffer userBuffer = ByteBuffer.wrap(userBytes);
+        ByteBuffer userBuffer = ByteBuffer(reinterpret_cast<char *>(userBytes), userLen);
 
         // Parse user header as record
-        record = new RecordInput(firstRecordHeader.getByteOrder());
+        record = RecordInput(firstRecordHeader.getByteOrder());
         record.readRecord(userBuffer, 0);
     }
     catch (HipoException & e) {
@@ -820,35 +820,35 @@ void Reader::extractDictionaryFromFile() {
         // Position right before file header's user header
         inStreamRandom.getChannel().position(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
         // Read user header
-        byte[] userBytes = new byte[userLen];
+        auto userBytes = new char[userLen];
         inStreamRandom.read(userBytes);
-        ByteBuffer userBuffer = ByteBuffer.wrap(userBytes);
+        ByteBuffer userBuffer = ByteBuffer(userBytes, userLen);
         // Parse user header as record
         record = RecordInput(fileHeader.getByteOrder());
         record.readRecord(userBuffer, 0);
     }
-    catch (IOException e) {
+    catch (IOException & e) {
         // Can't read file
         return;
     }
-    catch (HipoException e) {
+    catch (HipoException & e) {
         // Not in proper format
         return;
     }
 
-    int eventIndex = 0;
+    int evIndex = 0;
 
     // Dictionary always comes first in record
     if (fileHeader.hasDictionary()) {
         // Just plain ascii, not evio format
-        byte[] dict = record.getEvent(eventIndex++);
-        try {dictionaryXML = new String(dict, "US-ASCII");}
+        uint8_t* dict = record.getEvent(evIndex++);
+        try {dictionaryXML = new string(dict, "US-ASCII");}
         catch (UnsupportedEncodingException e) {/* never happen */}
     }
 
     // First event comes next
     if (fileHeader.hasFirstEvent()) {
-        firstEvent = record.getEvent(eventIndex);
+        firstEvent = record.getEvent(evIndex);
     }
 }
 
@@ -875,19 +875,19 @@ void Reader::extractDictionaryFromFile() {
  * @throws BufferUnderflowException if not enough data in buffer.
  * @throws HipoException null info arg or info.length &lt; 7.
  */
-void Reader::findRecordInfo(ByteBuffer & buf, uint32_t offset, int* info, uint32_t infoLen) {
+void Reader::findRecordInfo(ByteBuffer & buf, uint32_t offset, uint32_t* info, uint32_t infoLen) {
 
     if (info == nullptr || infoLen < 7) {
         throw HipoException("null info arg or info length < 7");
     }
 //        if (buf.capacity() - offset < 1000) {
-//            System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + offset +
-//                                       ", lim = " + buf.limit());
+//            cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << offset <<
+//                                       ", lim = " << buf.limit() << endl;
 //        }
     // Have enough bytes to read 10 words of header?
     if ((buf.capacity() - offset) < 40) {
         cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << offset << ", lim = " <<  buf.limit() << endl;
-        throw new BufferUnderflowException();
+        throw BufferUnderflowException();
     }
 
     info[0] = buf.getInt(offset + RecordHeader::BIT_INFO_OFFSET);
@@ -910,16 +910,17 @@ void Reader::findRecordInfo(ByteBuffer & buf, uint32_t offset, int* info, uint32
  *  <ol start="0">
  *      <li>compressed length in bytes</li>
  *      <li>uncompressed length in bytes</li>
-  *  </ol>
+ *  </ol>
+ * @param infoLen number of elements in info array.
  * @return total compressed hipo/evio data in bytes.
  * @throws BufferUnderflowException if not enough data in buffer.
- * @throws HipoException null arg(s), negative offset, or info.length &lt; 7.
+ * @throws HipoException null info arg or infoLen &lt; 7.
  */
-int Reader::getTotalByteCounts(ByteBuffer & buf, int[] info) {
+int Reader::getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLen) {
 
-//        if (buf == null || info == null || info.length < 7) {
-//            throw new HipoException("bad arg or info.length < 7");
-//        }
+    if (info == nullptr || infoLen < 7) {
+        throw HipoException("bad arg or infoLen < 7");
+    }
 
     int offset = buf.position();
     int totalCompressed = 0;
@@ -927,7 +928,7 @@ int Reader::getTotalByteCounts(ByteBuffer & buf, int[] info) {
 
     do {
         // Look at the record
-        findRecordInfo(buf, offset, info);
+        findRecordInfo(buf, offset, info, infoLen);
 
         // Total uncompressed length of record
         recordBytes = info[3] + info[4] + info[5] + info[6];
@@ -939,7 +940,7 @@ int Reader::getTotalByteCounts(ByteBuffer & buf, int[] info) {
         // Hop over record
         offset += info[1];
 
-    } while (!RecordHeader.isLastRecord(info[0])); // Go to the next record if any
+    } while (!RecordHeader::isLastRecord((int)info[0])); // Go to the next record if any
 
     // No longer input, we now use array for output
     info[0] = totalCompressed;
@@ -973,7 +974,7 @@ int Reader::getTotalByteCounts(ByteBuffer & buf, int[] info) {
 ByteBuffer Reader::scanBuffer() {
 
     // Quick check to see if data in buffer is compressed (pos/limit unchanged)
-    if (RecordHeader.isCompressed(buffer, bufferOffset)) {
+    if (RecordHeader::isCompressed(buffer, bufferOffset)) {
         // Since data is not compressed ...
         scanUncompressedBuffer();
         return buffer;
@@ -988,14 +989,14 @@ ByteBuffer Reader::scanBuffer() {
     ByteBuffer bigEnoughBuf;
     bool useTempBuffer = false;
 
-//System.out.println("scanBuffer: total Uncomp bytes = " + totalUncompressedBytes +
-//                " >? cap - off = " + (buffer.capacity() - bufferOffset));
+//cout << "scanBuffer: total Uncomp bytes = " << totalUncompressedBytes <<
+//                " >? cap - off = " << (buffer.capacity() - bufferOffset) << endl;
 
     // If the buffer is too small to hold the expanded data, create one that isn't
     if (totalUncompressedBytes > (buffer.capacity() - bufferOffset)) {
         // Time for a bigger buffer. Give buffer an extra 4KB
         if (buffer.isDirect()) {
-            bigEnoughBuf = ByteBuffer.allocateDirect(totalUncompressedBytes + bufferOffset + 4096);
+            bigEnoughBuf = ByteBuffer(totalUncompressedBytes + bufferOffset + 4096);
             //bigEnoughBuf.order(buffer.order()).limit(bufferOffset + totalUncompressedBytes);
             bigEnoughBuf.order(buffer.order());
 
@@ -1010,14 +1011,15 @@ ByteBuffer Reader::scanBuffer() {
         }
         else {
             // Backed by array
-            bigEnoughBuf = ByteBuffer.allocate(totalUncompressedBytes + bufferOffset + 4096);
+            bigEnoughBuf = ByteBuffer(totalUncompressedBytes + bufferOffset + 4096);
             // Put stuff starting at bigEnoughBuf.position() = bufferOffset
             //bigEnoughBuf.order(buffer.order()).limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
             bigEnoughBuf.order(buffer.order()).position(bufferOffset);
 
             // Copy in stuff up to offset
-            System.arraycopy(buffer.array(), buffer.arrayOffset(),
-                             bigEnoughBuf.array(), 0, bufferOffset);
+            std::memcpy((void *)(bigEnoughBuf.array()), (const void *)(buffer.array() + buffer.arrayOffset()), bufferOffset);
+            //System.arraycopy(buffer.array(), buffer.arrayOffset(),
+            //                 bigEnoughBuf.array(), 0, bufferOffset);
         }
     }
     else {
@@ -1026,9 +1028,9 @@ ByteBuffer Reader::scanBuffer() {
         // buffer. Don't bother to copy stuff from buffer.pos = 0 - bufferOffset, since
         // we'll be copying stuff back into buffer anyway.
         useTempBuffer = true;
-        if ((tempBuffer == null) ||
+        if ((tempBuffer == nullptr) ||
             (tempBuffer.capacity() < totalUncompressedBytes + bufferOffset)) {
-            tempBuffer = ByteBuffer.allocate(totalUncompressedBytes + bufferOffset + 4096);
+            tempBuffer = ByteBuffer(totalUncompressedBytes + bufferOffset + 4096);
         }
         tempBuffer.order(buffer.order()).limit(tempBuffer.capacity()).position(0);
 
@@ -1039,14 +1041,14 @@ ByteBuffer Reader::scanBuffer() {
     bool isArrayBacked = (bigEnoughBuf.hasArray() && buffer.hasArray());
     bool haveFirstRecordHeader = false;
 
-    RecordHeader recordHeader = new RecordHeader(HeaderType.EVIO_RECORD);
+    RecordHeader recordHeader = RecordHeader(HeaderType::EVIO_RECORD);
 
     // Start at the buffer's initial position
     int position  = bufferOffset;
     int recordPos = bufferOffset;
     int bytesLeft = totalUncompressedBytes;
 
-//System.out.println("  scanBuffer: buffer pos = " + bufferOffset + ", bytesLeft = " + bytesLeft);
+//cout << "  scanBuffer: buffer pos = " << bufferOffset << ", bytesLeft = " << bytesLeft << endl;
     // Keep track of the # of records, events, and valid words in file/buffer
     int eventCount = 0, byteLen, recordBytes, eventsInRecord;
     eventNodes.clear();
@@ -1076,7 +1078,7 @@ ByteBuffer Reader::scanBuffer() {
             byteOrder = recordHeader.getByteOrder();
             buffer.order(byteOrder);
             evioVersion = recordHeader.getVersion();
-            firstRecordHeader = new RecordHeader(recordHeader);
+            firstRecordHeader = RecordHeader(recordHeader);
             compressed = recordHeader.getCompressionType() != 0;
             haveFirstRecordHeader = true;
         }
@@ -1086,25 +1088,25 @@ ByteBuffer Reader::scanBuffer() {
 
         if (checkRecordNumberSequence) {
             if (recordHeader.getRecordNumber() != recordNumberExpected) {
-                //System.out.println("  scanBuffer: record # out of sequence, got " + recordHeader.getRecordNumber() +
-                //                   " expecting " + recordNumberExpected);
-                throw new HipoException("bad record # sequence");
+                //cout << "  scanBuffer: record # out of sequence, got " << recordHeader.getRecordNumber() <<
+                //                   " expecting " << recordNumberExpected << endl;
+                throw HipoException("bad record # sequence");
             }
             recordNumberExpected++;
         }
 
         // Check to see if the whole record is there
         if (recordHeader.getLength() > bytesLeft) {
-            System.out.println("    record size = " + recordHeader.getLength() + " >? bytesLeft = " + bytesLeft +
-                               ", pos = " + buffer.position());
-            throw new HipoException("Bad hipo format: not enough data to read record");
+            cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
+                               ", pos = " << buffer.position() << endl;
+            throw HipoException("Bad hipo format: not enough data to read record");
         }
 
         // Header is now describing the uncompressed buffer, bigEnoughBuf
         recordBytes = recordHeader.getLength();
         eventsInRecord = recordHeader.getEntries();
-        RecordPosition rp = new RecordPosition(position, recordBytes, eventsInRecord);
-        recordPositions.add(rp);
+        // Create a new RecordPosition object and store in vector
+        recordPositions.emplace_back(position, recordBytes, eventsInRecord);
         // Track # of events in this record for event index handling
         eventIndex.addEventSize(eventsInRecord);
 
@@ -1127,21 +1129,21 @@ ByteBuffer Reader::scanBuffer() {
                 node = EvioNode.extractEventNode(bigEnoughBuf, nodePool, 0,
                                                  position, eventCount + i);
             }
-            catch (EvioException e) {
-                throw new HipoException("Bad evio format: not enough data to read event (bad bank len?)", e);
+            catch (EvioException & e) {
+                throw HipoException("Bad evio format: not enough data to read event (bad bank len?), " + std::string(e.what());
             }
-//System.out.println("      event " + i + ", pos = " + node.getPosition() +
-//                           ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventCount + i + 1));
-            eventNodes.add(node);
+//cout << "      event " << i << ", pos = " << node.getPosition() <<
+//                           ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
+            eventNodes.push_back(node);
 
             // Hop over event
             byteLen   = node.getTotalBytes();
             position += byteLen;
 
             if (byteLen < 8) {
-                throw new HipoException("Bad evio format: bad bank length");
+                throw HipoException("Bad evio format: bad bank length");
             }
-//System.out.println("        hopped event " + i + ", bytesLeft = " + bytesLeft + ", pos = " + position + "\n");
+//cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << endl << endl;
         }
 
         bigEnoughBuf.position(position);
@@ -1154,7 +1156,7 @@ ByteBuffer Reader::scanBuffer() {
         // Read the next record if this is not the last one and there's enough data to
         // read a header.
 
-    } while (!recordHeader.isLastRecord() && bytesLeft >= RecordHeader.HEADER_SIZE_BYTES);
+    } while (!recordHeader.isLastRecord() && bytesLeft >= RecordHeader::HEADER_SIZE_BYTES);
 
 
     // At this point we have an uncompressed buffer in bigEnoughBuf.
@@ -1164,9 +1166,11 @@ ByteBuffer Reader::scanBuffer() {
         // Since we're using a temp buffer, it does NOT contain buffer's data
         // from position = 0 to bufferOffset.
         if (isArrayBacked) {
-            System.arraycopy(bigEnoughBuf.array(), 0,
-                             buffer.array(), bufferOffset + buffer.arrayOffset(),
-                             totalUncompressedBytes);
+            std::memcpy((void *)(buffer.array() + bufferOffset + buffer.arrayOffset()),
+                        (const void *)(bigEnoughBuf.array()), totalUncompressedBytes);
+            //System.arraycopy(bigEnoughBuf.array(), 0,
+            //                 buffer.array(), bufferOffset + buffer.arrayOffset(),
+            //                 totalUncompressedBytes);
         }
         else {
             bigEnoughBuf.limit(totalUncompressedBytes).position(0);
@@ -1202,11 +1206,11 @@ ByteBuffer Reader::scanBuffer() {
 void Reader::scanUncompressedBuffer() {
 
 // TODO: This uses memory & garbage collection
-    byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
-    ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
+    auto headerBytes = new char[RecordHeader::HEADER_SIZE_BYTES];
+    ByteBuffer headerBuffer = ByteBuffer(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
 
 // TODO: This uses memory & garbage collection
-    RecordHeader recordHeader = new RecordHeader();
+    RecordHeader recordHeader = RecordHeader();
 
 
     bool haveFirstRecordHeader = false;
@@ -1224,11 +1228,11 @@ void Reader::scanUncompressedBuffer() {
     // TODO: this should NOT change in records in 1 buffer, only BETWEEN buffers!!!!!!!!!!!!
     recordNumberExpected = 1;
 
-    while (bytesLeft >= RecordHeader.HEADER_SIZE_BYTES) {
+    while (bytesLeft >= RecordHeader::HEADER_SIZE_BYTES) {
         // Read record header
         buffer.position(position);
         // This moves the buffer's position
-        buffer.get(headerBytes, 0, RecordHeader.HEADER_SIZE_BYTES);
+        buffer.get(reinterpret_cast<uint8_t *>(headerBytes), 0, RecordHeader::HEADER_SIZE_BYTES);
         // Only sets the byte order of headerBuffer
         recordHeader.readHeader(headerBuffer);
         //System.out.println("read header ->\n" + recordHeader);
@@ -1236,9 +1240,9 @@ void Reader::scanUncompressedBuffer() {
 
         if (checkRecordNumberSequence) {
             if (recordHeader.getRecordNumber() != recordNumberExpected) {
-                //System.out.println("  scanBuffer: record # out of sequence, got " + recordHeader.getRecordNumber() +
-                //                   " expecting " + recordNumberExpected);
-                throw new HipoException("bad record # sequence");
+                //cout << "  scanBuffer: record # out of sequence, got " << recordHeader.getRecordNumber() <<
+                //                   " expecting " << recordNumberExpected << endl;
+                throw HipoException("bad record # sequence");
             }
             recordNumberExpected++;
         }
@@ -1256,19 +1260,18 @@ void Reader::scanUncompressedBuffer() {
 
         // Check to see if the whole record is there
         if (recordHeader.getLength() > bytesLeft) {
-            System.out.println("    record size = " + recordHeader.getLength() + " >? bytesLeft = " + bytesLeft +
-                               ", pos = " + buffer.position());
-            throw new HipoException("Bad hipo format: not enough data to read record");
+            cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
+                               ", pos = " << buffer.position() << endl;
+            throw HipoException("Bad hipo format: not enough data to read record");
         }
 
-        //System.out.println(">>>>>==============================================");
-        //System.out.println(recordHeader.toString());
+        //cout << ">>>>>==============================================" << endl;
+        //cout << recordHeader.toString() << endl;
         recordBytes = recordHeader.getLength();
         eventsInRecord = recordHeader.getEntries();
-        RecordPosition rp = new RecordPosition(position, recordBytes, eventsInRecord);
         recPosition = position;
         //System.out.println(" RECORD HEADER ENTRIES = " + eventsInRecord);
-        recordPositions.add(rp);
+        recordPositions.emplace_back(position, recordBytes, eventsInRecord);
         // Track # of events in this record for event index handling
         eventIndex.addEventSize(eventsInRecord);
 
@@ -1292,12 +1295,12 @@ void Reader::scanUncompressedBuffer() {
                 node = EvioNode.extractEventNode(buffer, nodePool, recPosition,
                                                  position, eventCount + i);
             }
-            catch (EvioException e) {
-                throw new HipoException("Bad evio format: not enough data to read event (bad bank len?)", e);
+            catch (EvioException & e) {
+                throw HipoException("Bad evio format: not enough data to read event (bad bank len?), " + std::string(e.what()));
             }
             //System.out.println("      event "+i+" in record: pos = " + node.getPosition() +
             //                           ", dataPos = " + node.getDataPosition() + ", ev # = " + (eventCount + i + 1));
-            eventNodes.add(node);
+            eventNodes.push_back(node);
 
             // Hop over event
             byteLen    = node.getTotalBytes();
@@ -1305,7 +1308,7 @@ void Reader::scanUncompressedBuffer() {
             bytesLeft -= byteLen;
 
             if (byteLen < 8 || bytesLeft < 0) {
-                throw new HipoException("Bad evio format: bad bank length");
+                throw HipoException("Bad evio format: bad bank length");
             }
 
             //cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << endl << endl;
@@ -1399,9 +1402,8 @@ void Reader::forceScanFile() {
         }
 
         recordLen = recordHeader.getLength();
-        RecordPosition pos = RecordPosition(recordPosition, recordLen,
-                                                recordHeader.getEntries());
-        recordPositions.add(pos);
+        // Create a new RecordPosition object and store in vector
+        recordPositions.emplace_back(recordPosition, recordLen, recordHeader.getEntries());
         // Track # of events in this record for event index handling
         eventIndex.addEventSize(recordHeader.getEntries());
         recordPosition += recordLen;
@@ -1523,12 +1525,11 @@ void Reader::scanFile(bool force) {
         for (int i=0; i < intData.length; i += 2) {
             len = intData[i];
             count = intData[i+1];
-//System.out.println("record pos = " + recordPosition + ", len = " + len + ", count = " + count);
-            RecordPosition pos = RecordPosition(recordPosition, len, count);
-            recordPositions.add(pos);
+//cout << "record pos = " << recordPosition << ", len = " << len << ", count = " << count << endl;
+            // Create a new RecordPosition object and store in vector
+            recordPositions.emplace_back(recordPosition, len, count);
             // Track # of events in this record for event index handling
-//System.out.println("scanFile: add record's event count (" + count + ") to eventIndex");
-//Utilities.printStackTrace();
+//cout << "scanFile: add record's event count (" << count << ") to eventIndex" << endl;
             eventIndex.addEventSize(count);
             recordPosition += len;
         }
@@ -1572,7 +1573,6 @@ ByteBuffer Reader::removeStructure(EvioNode removeNode) {
     bool foundNode = false;
 
     // Locate the node to be removed ...
-    outer:
     for (EvioNode ev : eventNodes) {
         // See if it's an event ...
         if (removeNode == ev) {
@@ -1584,8 +1584,12 @@ ByteBuffer Reader::removeStructure(EvioNode removeNode) {
             // The first node in allNodes is the event node,
             if (removeNode == n) {
                 foundNode = true;
-                break outer;
+                break;
             }
+        }
+
+        if (foundNode) {
+            break;
         }
     }
 
@@ -1697,10 +1701,10 @@ ByteBuffer Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
 
     EvioNode eventNode;
     try {
-        eventNode = eventNodes.get(eventNumber - 1);
+        eventNode = eventNodes[eventNumber - 1];
     }
     catch (IndexOutOfBoundsException e) {
-        throw new HipoException("event " + eventNumber + " does not exist", e);
+        throw HipoException("event " + std::to_string(eventNumber) + " does not exist, " + string(e.what()));
     }
 
     // Position in byteBuffer just past end of event
@@ -1711,7 +1715,7 @@ ByteBuffer Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
 
     // Make sure it's a multiple of 4
     if (appendDataLen % 4 != 0) {
-        throw new HipoException("data added is not in evio format");
+        throw HipoException("data added is not in evio format");
     }
 
     //--------------------------------------------
@@ -1740,7 +1744,7 @@ ByteBuffer Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
     bufferLimit  = newBuffer.limit();
 
     // Increase lengths of parent nodes
-    EvioNode addToNode = eventNodes.get(eventNumber);
+    EvioNode addToNode = eventNodes[eventNumber];
     EvioNode parent = addToNode.getParentNode();
     parent.updateLengths(appendDataLen);
 
@@ -1778,11 +1782,11 @@ int Reader::main(int argc, char **argv) {
 
         int icounter = 0;
         //reader.show();
-        while(reader.hasNext()==true){
+        while(reader.hasNext()){
             cout << " reading event # " << icounter << endl;
             try {
                 uint8_t* event = reader.getNextEvent();
-            } catch (HipoException ex) {
+            } catch (HipoException & ex) {
                 //Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -1802,8 +1806,8 @@ int Reader::main(int argc, char **argv) {
             System.out.println(data);
         }*/
     }
-    catch (Exception e) {
-        e.printStackTrace();
+    catch (Exception & e) {
+        cout << "error = " << std::string(e.what()) << endl;
     }
 
 }
