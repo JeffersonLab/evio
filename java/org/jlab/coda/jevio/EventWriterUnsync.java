@@ -3086,9 +3086,11 @@ System.out.println("                 record # = " + recordNumber);
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      * @throws IOException   if error writing file
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
      */
     private void writeToFileMT(RecordRingItem item, boolean force)
-                                throws EvioException, IOException {
+                                throws EvioException, IOException, InterruptedException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -3138,6 +3140,15 @@ System.out.println("                 record # = " + recordNumber);
                     // If this write was done the last time this method called,
                     // don't release something previously released! Bad!
                     if (prevFuture1 != future1) {
+//                        try {
+//                            // Check for errors
+//                            future1.get();
+//                        }
+//                        catch (ExecutionException e) {
+//                            e.printStackTrace();
+//                            throw new IOException(e);
+//                        }
+//
                         futureIndex = 0;
                         // Release record back to supply now that we're done writing it
                         supply.releaseWriter(ringItem1);
@@ -3146,12 +3157,29 @@ System.out.println("                 record # = " + recordNumber);
 
                     // future1 is finished and future2 might be as well
                     if (future2Done && (prevFuture2 != future2)) {
+                        try {
+                            // Check for errors
+                            future2.get();
+                        }
+                        catch (ExecutionException e) {
+                            e.printStackTrace();
+                            throw new IOException(e);
+                        }
                         supply.releaseWriter(ringItem2);
                         prevFuture2 = future2;
                     }
                 }
                 // Don't release something previously released if it's future2
                 else if (prevFuture2 != future2) {
+//                    try {
+//                        // Check for errors
+//                        future2.get();
+//                    }
+//                    catch (ExecutionException e) {
+//                        e.printStackTrace();
+//                        throw new IOException(e);
+//                    }
+//
                     futureIndex = 1;
                     supply.releaseWriter(ringItem2);
                     prevFuture2 = future2;
@@ -3167,7 +3195,8 @@ System.out.println("                 record # = " + recordNumber);
                         supply.releaseWriter(ringItem1);
                         prevFuture1 = future1;
                     }
-                    catch (Exception e) {
+                    catch (ExecutionException e) {
+                        e.printStackTrace();
                         throw new IOException(e);
                     }
                 }
@@ -3178,7 +3207,8 @@ System.out.println("                 record # = " + recordNumber);
                         supply.releaseWriter(ringItem2);
                         prevFuture2 = future2;
                     }
-                    catch (Exception e) {
+                    catch (ExecutionException e) {
+                        e.printStackTrace();
                         throw new IOException(e);
                     }
                 }
