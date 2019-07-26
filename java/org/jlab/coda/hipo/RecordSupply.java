@@ -33,6 +33,12 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  * and eventually call {@link #releaseWriter(RecordRingItem)} to indicate it is
  * finished writing and the record is available for being filled with new data.<p>
  *
+ * Due to the multithreaded nature of writing files using this class, a mechanism
+ * for reporting errors that occur in the writing and compressing threads is provided.
+ * Also, and probably more importantly, one can call errorAlert() to notify any
+ * compression or write threads that an error has occurred. That way these threads
+ * can clean up and exit.<p>
+ *
  * It transparently makes sure that all records are written in the proper order.
  *
  * <pre><code>
@@ -75,7 +81,7 @@ public class RecordSupply {
     /** Byte order of RecordOutputStream in each RecordRingItem. */
     private ByteOrder order;
     /** Ring buffer. */
-    public final RingBuffer<RecordRingItem> ringBuffer;
+    private final RingBuffer<RecordRingItem> ringBuffer;
 
     /** Max number of events each record can hold.
      *  Value of O means use default (1M). */
@@ -87,6 +93,13 @@ public class RecordSupply {
     private int compressionType;
     /** Number of threads doing compression simultaneously. */
     private int compressionThreadCount = 1;
+
+    // Stuff for reporting errors
+
+    /** Do we have an error writing and/or compressing data? */
+    private volatile boolean haveError;
+    /** Error string. */
+    private volatile String error;
 
     // Stuff for compression threads
 
@@ -140,8 +153,7 @@ public class RecordSupply {
      */
     public RecordSupply() {
         // IllegalArgumentException is never thrown here
-        this(4, ByteOrder.LITTLE_ENDIAN,
-             1, 0, 0, 1);
+        this(4, ByteOrder.LITTLE_ENDIAN, 1, 0, 0, 1);
     }
 
 
@@ -222,7 +234,21 @@ public class RecordSupply {
         ringBuffer.addGatingSequences(writeSeq);
     }
 
+    
+    /**
+     * Method to have sequence barriers throw a Disruptor's AlertException.
+     * In this case, we can use it to warn write and compress threads which
+     * are waiting on barrier.waitFor() in {@link #getToCompress(int)} and
+     * {@link #getToWrite()}. Do this in case of a write, compress, or some other error.
+     * This allows any threads waiting on these 2 methods to wake up, clean up,
+     * and exit.
+     */
+    public void errorAlert() {
+        writeBarrier.alert();
+        compressBarrier.alert();
+    }
 
+    
     /**
      * Get the byte order of all records in this supply.
      * @return byte order of all records in this supply.
@@ -287,8 +313,11 @@ public class RecordSupply {
      *                     This number cannot exceed (compressionThreadCount - 1).
      * @return next available record item in ring buffer
      *         in order to compress data already in it.
+     * @throws AlertException  if {@link #errorAlert()} called.
+     * @throws InterruptedException
      */
-    public RecordRingItem getToCompress(int threadNumber) throws InterruptedException {
+    public RecordRingItem getToCompress(int threadNumber)
+                              throws AlertException, InterruptedException {
 
         RecordRingItem item = null;
 
@@ -311,9 +340,6 @@ public class RecordSupply {
             // Never happen since we don't use timeout wait strategy
             ex.printStackTrace();
         }
-        catch (final AlertException ex) {
-            ex.printStackTrace();
-        }
 
         return item;
     }
@@ -323,8 +349,10 @@ public class RecordSupply {
      * in order to write data into it.
      * @return next available record item in ring buffer
      *         in order to write data into it.
+     * @throws AlertException  if {@link #errorAlert()} called.
+     * @throws InterruptedException
      */
-    public RecordRingItem getToWrite() throws InterruptedException {
+    public RecordRingItem getToWrite() throws AlertException, InterruptedException {
 
         RecordRingItem item = null;
 
@@ -337,9 +365,6 @@ public class RecordSupply {
             item.fromConsumer(nextWriteSeq++, writeSeq);
         }
         catch (final com.lmax.disruptor.TimeoutException ex) {
-            ex.printStackTrace();
-        }
-        catch (final AlertException ex) {
             ex.printStackTrace();
         }
 
@@ -453,5 +478,30 @@ public class RecordSupply {
     public void release(int threadNum, long sequenceNum) {
         compressSeqs[threadNum].set(sequenceNum);
     }
+
+
+    /**
+     * Has an error occurred in writing or compressing data?
+     * @return <@code>true</@code> if an error occurred in writing or compressing data.
+     */
+    public boolean haveError() {return haveError;}
+
+    /**
+     * Set whether an error occurred in writing or compressing data.
+     * @return <@code>true</@code> if an error occurred in writing or compressing data.
+     */
+    public void haveError(boolean err) {haveError = err;}
+
+    /**
+     * If there is an error, this contains the error message.
+     * @return error message if there is an error.
+     */
+    public String getError() {return error;}
+
+    /**
+     * Set the error message.
+     * @param err error message.
+     */
+    public void setError(String err) {error = err;}
 
 }
