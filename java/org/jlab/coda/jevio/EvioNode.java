@@ -1230,34 +1230,27 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
         DataType typ = getTypeObj();
         int length;
 
-        while (node != null) {
-            switch (typ) {
-                case BANK:
-                case ALSOBANK:
-                    length = buffer.getInt(node.pos) + deltaLen;
-                    buffer.putInt(node.pos, length);
-                    break;
+        switch (typ) {
+            case BANK:
+            case ALSOBANK:
+                length = buffer.getInt(node.pos) + deltaLen;
+                buffer.putInt(node.pos, length);
+                break;
 
-                case SEGMENT:
-                case ALSOSEGMENT:
-                case TAGSEGMENT:
-                    if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        length = (buffer.getShort(node.pos+2) & 0xffff) + deltaLen;
-                        buffer.putShort(node.pos+2, (short)length);
-                    }
-                    else {
-                        length = (buffer.getShort(node.pos) & 0xffff) + deltaLen;
-                        buffer.putShort(node.pos, (short)length);
-                    }
-                    break;
+            case SEGMENT:
+            case ALSOSEGMENT:
+            case TAGSEGMENT:
+                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+                    length = (buffer.getShort(node.pos+2) & 0xffff) + deltaLen;
+                    buffer.putShort(node.pos+2, (short)length);
+                }
+                else {
+                    length = (buffer.getShort(node.pos) & 0xffff) + deltaLen;
+                    buffer.putShort(node.pos, (short)length);
+                }
+                break;
 
-                default:
-            }
-
-            node = node.parentNode;
-            if (node != null) {
-                typ = node.getTypeObj();
-            }
+            default:
         }
     }
 
