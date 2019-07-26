@@ -11,6 +11,7 @@
 package org.jlab.coda.jevio;
 
 
+import com.lmax.disruptor.AlertException;
 import org.jlab.coda.hipo.*;
 
 import java.io.*;
@@ -2585,6 +2586,14 @@ System.out.println("                 record # = " + recordNumber);
             }
         }
 
+        // First, if multithreaded write, check for any errors that may have
+        // occurred asynchronously in the write or one of the compression threads.
+        if (!singleThreadedCompression && supply.haveError()) {
+            // Wake up any of these threads waiting for another record
+            supply.errorAlert();
+            throw new IOException(supply.getError());
+        }
+
         // Including this event, this is the total data size & event count for this record
         splitEventBytes += currentEventBytes;
         splitEventCount++;
@@ -2710,13 +2719,19 @@ System.out.println("                 record # = " + recordNumber);
                     supply.releaseCompressor(item);
                 }
             }
+            catch (AlertException e) {
+                // We've been woken up in getToWrite through a user calling supply.errorAlert()
+                System.out.println("Quit record writing thread through alert");
+            }
             catch (InterruptedException e) {
-                // We've been interrupted while blocked in getToCompress
+                // We've been interrupted while blocked in getToWrite
                 // which means we're all done.
+                System.out.println("Quit record writing thread through interrupt");
             }
             catch (Exception e) {
-                // Try catching problem with buffer overflow and multiple compressing threads
-                e.printStackTrace();
+                // Catch problems with buffer overflow and multiple compressing threads
+                supply.haveError(true);
+                supply.setError(e.getMessage());
             }
         }
     }
@@ -2767,13 +2782,18 @@ System.out.println("                 record # = " + recordNumber);
                     }
                 }
             }
+            catch (AlertException e) {
+                // We've been woken up in getToWrite through a user calling supply.errorAlert()
+                System.out.println("Quit record compressing thread through alert");
+            }
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToWrite
                 // which means we're all done.
+                System.out.println("Quit record compressing thread through interrupt");
             }
             catch (Exception e) {
-                e.printStackTrace();
-                // TODO: What do we do here??
+                // Error already captured and copied into supply object
+                // in the call to writeToFileMT or splitFile.
             }
         }
     }
@@ -2842,7 +2862,7 @@ System.out.println("                 record # = " + recordNumber);
         }
 
         // Which buffer do we fill next?
-        ByteBuffer unusedBuffer;
+        ByteBuffer unusedBuffer = null;
 
         // We need one of the 2 future jobs to be completed in order to proceed
 
@@ -2861,16 +2881,61 @@ System.out.println("                 record # = " + recordNumber);
         // After first 2 times, wait until one of the
         // 2 futures is finished before proceeding
         else {
-            // If future1 is finished writing, proceed
-            if (future1.isDone()) {
-                futureIndex = 0;
-                // Reuse the buffer future1 just finished using
-                unusedBuffer = usedBuffers[0];
-            }
-            // If future2 is finished writing, proceed
-            else if (future2.isDone()) {
-                futureIndex = 1;
-                unusedBuffer = usedBuffers[1];
+
+            boolean future1Done = future1.isDone();
+            boolean future2Done = future2.isDone();
+
+            // If either write is finished ...
+            if (future1Done || future2Done) {
+
+                // If first write done ...
+                if (future1Done) {
+                    // If this write was done the last time this method called,
+                    // don't release something previously released! Bad!
+                    if (prevFuture1 != future1) {
+                        try {
+                            // Check for errors
+                            future1.get();
+                        }
+                        catch (Exception e) {
+                            throw new IOException(e);
+                        }
+
+                        // Reuse the buffer future1 just finished using
+                        unusedBuffer = usedBuffers[0];
+                        futureIndex  = 0;
+                        prevFuture1  = future1;
+                    }
+
+                    // future1 is finished and future2 might be as well
+                    if (future2Done && (prevFuture2 != future2)) {
+                        try {
+                            // Check for errors
+                            future2.get();
+                        }
+                        catch (Exception e) {
+                            throw new IOException(e);
+                        }
+                        prevFuture2 = future2;
+                    }
+                }
+                // only 2nd write is done
+                else {
+                    // Don't release something previously released
+                    if (prevFuture2 != future2) {
+                        try {
+                            // Check for errors
+                            future2.get();
+                        }
+                        catch (Exception e) {
+                            throw new IOException(e);
+                        }
+                    }
+
+                    unusedBuffer = usedBuffers[1];
+                    futureIndex  = 1;
+                    prevFuture2  = future2;
+                }
             }
             // Neither are finished, so wait for one of them to finish
             else {
@@ -2879,6 +2944,7 @@ System.out.println("                 record # = " + recordNumber);
                     try {
                         // Wait for write to end before we continue
                         future1.get();
+                        prevFuture1  = future1;
                         unusedBuffer = usedBuffers[0];
                     }
                     catch (Exception e) {
@@ -2889,6 +2955,7 @@ System.out.println("                 record # = " + recordNumber);
                 else {
                     try {
                         future2.get();
+                        prevFuture2  = future2;
                         unusedBuffer = usedBuffers[1];
                     }
                     catch (Exception e) {
@@ -3140,15 +3207,21 @@ System.out.println("                 record # = " + recordNumber);
                     // If this write was done the last time this method called,
                     // don't release something previously released! Bad!
                     if (prevFuture1 != future1) {
-//                        try {
-//                            // Check for errors
-//                            future1.get();
-//                        }
-//                        catch (ExecutionException e) {
-//                            e.printStackTrace();
-//                            throw new IOException(e);
-//                        }
-//
+                        try {
+                            // Check for errors
+                            future1.get();
+                        }
+                        catch (ExecutionException e) {
+                            //StringWriter sw = new StringWriter();
+                            //PrintWriter pw  = new PrintWriter(sw);
+                            //e.printStackTrace(pw);
+                            //supply.setError(sw.toString());
+
+                            supply.haveError(true);
+                            supply.setError(e.getMessage());
+                            throw new IOException(e);
+                        }
+
                         futureIndex = 0;
                         // Release record back to supply now that we're done writing it
                         supply.releaseWriter(ringItem1);
@@ -3162,26 +3235,31 @@ System.out.println("                 record # = " + recordNumber);
                             future2.get();
                         }
                         catch (ExecutionException e) {
-                            e.printStackTrace();
+                            supply.haveError(true);
+                            supply.setError(e.getMessage());
                             throw new IOException(e);
                         }
                         supply.releaseWriter(ringItem2);
                         prevFuture2 = future2;
                     }
                 }
-                // Don't release something previously released if it's future2
-                else if (prevFuture2 != future2) {
-//                    try {
-//                        // Check for errors
-//                        future2.get();
-//                    }
-//                    catch (ExecutionException e) {
-//                        e.printStackTrace();
-//                        throw new IOException(e);
-//                    }
-//
+                // only 2nd write is done
+                else {
+                    // Don't release something previously released
+                    if (prevFuture2 != future2) {
+                        try {
+                            // Check for errors
+                            future2.get();
+                        }
+                        catch (ExecutionException e) {
+                            supply.haveError(true);
+                            supply.setError(e.getMessage());
+                            throw new IOException(e);
+                        }
+                        supply.releaseWriter(ringItem2);
+                    }
+
                     futureIndex = 1;
-                    supply.releaseWriter(ringItem2);
                     prevFuture2 = future2;
                 }
             }
@@ -3196,7 +3274,8 @@ System.out.println("                 record # = " + recordNumber);
                         prevFuture1 = future1;
                     }
                     catch (ExecutionException e) {
-                        e.printStackTrace();
+                        supply.haveError(true);
+                        supply.setError(e.getMessage());
                         throw new IOException(e);
                     }
                 }
@@ -3208,7 +3287,8 @@ System.out.println("                 record # = " + recordNumber);
                         prevFuture2 = future2;
                     }
                     catch (ExecutionException e) {
-                        e.printStackTrace();
+                        supply.haveError(true);
+                        supply.setError(e.getMessage());
                         throw new IOException(e);
                     }
                 }
@@ -3337,7 +3417,13 @@ System.out.println("                 record # = " + recordNumber);
 
         // If we can't overwrite and file exists, throw exception
         if (!overWriteOK && (currentFile.exists() && currentFile.isFile())) {
-            throw new EvioException("File exists but user requested no over-writing, "
+            // If we're doing a multithreaded write ...
+            if (supply != null) {
+                supply.haveError(true);
+                supply.setError("file exists but user requested no over-writing");
+            }
+            
+            throw new EvioException("file exists but user requested no over-writing, "
                     + currentFile.getPath());
         }
 
