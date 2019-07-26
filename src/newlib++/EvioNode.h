@@ -47,7 +47,7 @@ private:
     shared_ptr<uint32_t> data;
 
     /** Does this node represent an event (top-level bank)? */
-    bool isEvent;
+    bool izEvent;
 
     /** If the data this node represents is removed from the buffer,
 *  then this object is obsolete. */
@@ -106,6 +106,9 @@ private:
     static void scanStructure(EvioNode & node);
     static void scanStructure(EvioNode & node, EvioNodeSource & nodeSource);
     void addToAllNodes(EvioNode & node);
+    void removeFromAllNodes(shared_ptr<EvioNode> & node);
+    void removeChild(shared_ptr<EvioNode> & node);
+    RecordNode & getRecordNode(); // public?
 
 
 protected:
@@ -147,6 +150,38 @@ public:
                                        uint32_t recPosition, uint32_t position, uint32_t place);
 
     static EvioNode & extractNode(EvioNode & bankNode, uint32_t position);
+
+    bool isObsolete();
+    void setObsolete(bool obsolete);
+    vector<shared_ptr<EvioNode>> & getAllNodes();
+    vector<shared_ptr<EvioNode>> & getChildNodes();
+    void getAllDescendants(vector<shared_ptr<EvioNode>> & descendants);
+    shared_ptr<EvioNode> getChildAt(uint32_t index);
+    uint32_t getChildCount();
+
+    ByteBuffer & getBuffer();
+
+    uint32_t getLength();
+    uint32_t getTotalBytes();
+    uint32_t getTag();
+    uint32_t getNum();
+    uint32_t getPad();
+    uint32_t getPosition();
+    uint32_t getType();
+    DataType getTypeObj();
+    uint32_t getDataLength();
+    uint32_t getDataPosition();
+    uint32_t getDataType();
+    DataType getDataTypeObj();
+    uint32_t getRecordPosition();
+    uint32_t getPlace();
+
+    shared_ptr<EvioNode> getParentNode();
+    uint32_t getEventNumber();
+    bool isEvent();
+
+    void updateLengths(int deltaLen);
+    void updateTag(uint32_t newTag);
 
 
 

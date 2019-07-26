@@ -35,7 +35,7 @@ EvioNode::EvioNode() {
     recordPos = 0;
     place = 0;
 
-    isEvent  = false;
+    izEvent  = false;
     obsolete = false;
     scanned  = false;
 
@@ -63,7 +63,7 @@ EvioNode::EvioNode(const EvioNode & src) : EvioNode() {
     recordPos = src.recordPos;
     place = src.place;
 
-    isEvent  = src.isEvent;
+    izEvent  = src.izEvent;
     obsolete = src.obsolete;
     scanned  = src.scanned;
 
@@ -94,7 +94,7 @@ EvioNode::EvioNode(EvioNode && src) noexcept : EvioNode() {
     recordPos = src.recordPos;
     place = src.place;
 
-    isEvent  = src.isEvent;
+    izEvent  = src.izEvent;
     obsolete = src.obsolete;
     scanned  = src.scanned;
 
@@ -135,7 +135,7 @@ EvioNode::EvioNode(uint32_t pos, uint32_t place, ByteBuffer & buffer, RecordNode
     this->recordNode = recordNode;
     this->buffer = buffer;
     // This is an event by definition
-    this->isEvent = true;
+    this->izEvent = true;
     // Event is a Bank by definition
     this->type = DataType::BANK.getValue();
 }
@@ -156,7 +156,7 @@ EvioNode::EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, ByteBuffer 
     this->place = place;
     this->recordPos = recordPos;
     this->buffer = buffer;
-    this->isEvent = true;
+    this->izEvent = true;
     this->type = DataType::BANK.getValue();
 }
 
@@ -217,7 +217,7 @@ EvioNode & EvioNode::operator=(const EvioNode& src) {
         recordPos = src.recordPos;
         place = src.place;
 
-        isEvent  = src.isEvent;
+        izEvent  = src.izEvent;
         obsolete = src.obsolete;
         scanned  = src.scanned;
 
@@ -302,7 +302,7 @@ void EvioNode::clearLists() {
     childNodes.clear();
 
     // Should only be defined if this is an event (isEvent == true)
-    if (isEvent) {
+    if (izEvent) {
         allNodes.clear();
         // Remember to add event's node into list
         if (eventNode == nullptr) {
@@ -327,7 +327,7 @@ void EvioNode::clear() {
 void EvioNode::clearObjects() {
     childNodes.clear();
 
-    isEvent = obsolete = scanned = false;
+    izEvent = obsolete = scanned = false;
     data       = nullptr;
     recordNode = null;
     buffer     = null;
@@ -372,7 +372,7 @@ void EvioNode::setData(uint32_t position, uint32_t plc, ByteBuffer & buf, Record
     recordNode  = recNode;
     pos = position;
     place = plc;
-    isEvent = true;
+    izEvent = true;
     type = DataType::BANK.getValue();
     allNodes.push_back(make_shared<EvioNode>(*this));
 }
@@ -391,7 +391,7 @@ void EvioNode::setData(uint32_t position, uint32_t plc, uint32_t recPos, ByteBuf
     recordPos  = recPos;
     pos        = position;
     place      = plc;
-    isEvent    = true;
+    izEvent    = true;
     type       = DataType::BANK.getValue();
     allNodes.push_back(make_shared<EvioNode>(*this));
 }
@@ -596,7 +596,7 @@ void EvioNode::scanStructure(EvioNode & node) {
             kidNode.dataLen = dataLen;
             kidNode.dataPos = position;
             kidNode.dataType = dataType;
-            kidNode.isEvent = false;
+            kidNode.izEvent = false;
 
             // Create the tree structure
             kidNode.parentNode = shared_ptr<EvioNode>(&node);
@@ -642,7 +642,7 @@ void EvioNode::scanStructure(EvioNode & node) {
             kidNode.dataLen  = len;
             kidNode.dataPos  = position;
             kidNode.dataType = dataType;
-            kidNode.isEvent  = false;
+            kidNode.izEvent  = false;
 
             kidNode.parentNode = shared_ptr<EvioNode>(&node);
             node.addChild(pkidNode);
@@ -683,7 +683,7 @@ void EvioNode::scanStructure(EvioNode & node) {
             kidNode.dataLen  = len;
             kidNode.dataPos  = position;
             kidNode.dataType = dataType;
-            kidNode.isEvent  = false;
+            kidNode.izEvent  = false;
 
             kidNode.parentNode = shared_ptr<EvioNode>(&node);
             node.addChild(pkidNode);
@@ -758,7 +758,7 @@ void EvioNode::scanStructure(EvioNode & node, EvioNodeSource & nodeSource) {
             kidNode.dataLen = dataLen;
             kidNode.dataPos = position;
             kidNode.dataType = dataType;
-            kidNode.isEvent = false;
+            kidNode.izEvent = false;
 
             // Add this to list of children and to list of all nodes in the event
             node.addChild(&kidNode);
@@ -798,7 +798,7 @@ void EvioNode::scanStructure(EvioNode & node, EvioNodeSource & nodeSource) {
             kidNode.dataLen  = len;
             kidNode.dataPos  = position;
             kidNode.dataType = dataType;
-            kidNode.isEvent  = false;
+            kidNode.izEvent  = false;
 
             node.addChild(&kidNode);
 
@@ -835,7 +835,7 @@ void EvioNode::scanStructure(EvioNode & node, EvioNodeSource & nodeSource) {
             kidNode.dataLen  = len;
             kidNode.dataPos  = position;
             kidNode.dataType = dataType;
-            kidNode.isEvent  = false;
+            kidNode.izEvent  = false;
 
             node.addChild(&kidNode);
 
@@ -874,18 +874,23 @@ void EvioNode::addToAllNodes(EvioNode & node) {
  * contained in event.
  * @param node node & descendants to remove from the list of all nodes
  */
-final private void EvioNode::removeFromAllNodes(EvioNode node) {
-    if (allNodes == null || node == null) {
+void EvioNode::removeFromAllNodes(shared_ptr<EvioNode> & node) {
+    if (node == nullptr) {
         return;
     }
 
-    allNodes.remove(node);
+//    allNodes.remove(node);
+
+    // Remove form allNodes (very hard in C++ !!!)
+    for (int i=0; i < allNodes.size(); i++) {
+        if (allNodes[i] == node) {
+            allNodes.erase(node, i);
+        }
+    }
 
     // Remove descendants also
-    if (node.childNodes != null) {
-        for (EvioNode n : node.childNodes) {
-            removeFromAllNodes(n);
-        }
+    for (shared_ptr<EvioNode> & n : node->childNodes) {
+        removeFromAllNodes(n);
     }
 
     // NOTE: only one "allNodes" exists - at event/top level
@@ -917,16 +922,12 @@ void EvioNode::addChild(EvioNode* node) {
  * If not a child, do nothing.
  * @param node node to remove from child & allNodes lists.
  */
-final void EvioNode::removeChild(EvioNode node) {
-    if (node == null) {
+void EvioNode::removeChild(shared_ptr<EvioNode> & node) {
+    if (node == nullptr) {
         return;
     }
 
-    boolean isChild = false;
-
-    if (childNodes != null) {
-        isChild = childNodes.remove(node);
-    }
+    bool isChild = childNodes.remove(node);
 
     if (isChild) {
         removeFromAllNodes(node);
@@ -934,20 +935,16 @@ final void EvioNode::removeChild(EvioNode node) {
 }
 
 /**
- * Get the object representing the block header.
- * @return object representing the block header.
+ * Get the object representing the record.
+ * @return object representing the record.
  */
-final RecordNode EvioNode::getRecordNode() {
-    return recordNode;
-}
+RecordNode & EvioNode::getRecordNode() {return recordNode;}
 
 /**
  * Has the data this node represents in the buffer been removed?
  * @return true if node no longer represents valid buffer data, else false.
  */
-final public boolean EvioNode::isObsolete() {
-    return obsolete;
-}
+bool EvioNode::isObsolete() {return obsolete;}
 
 /**
  * Set whether this node & descendants are now obsolete because the
@@ -956,37 +953,33 @@ final public boolean EvioNode::isObsolete() {
  * @param obsolete true if node & descendants no longer represent valid
  *                 buffer data, else false.
  */
-final public void EvioNode::setObsolete(boolean obsolete) {
-    this.obsolete = obsolete;
+void EvioNode::setObsolete(bool ob) {
+    obsolete = ob;
 
     // Set for all descendants.
-    if (childNodes != null) {
-        for (EvioNode n : childNodes) {
-            n.setObsolete(obsolete);
-        }
+    for (shared_ptr<EvioNode> & n : childNodes) {
+        n.get()->setObsolete(ob);
     }
 }
 
 /**
- * Get the list of all nodes that this node contains,
+ * Get the vector of all nodes that this node contains,
  * always including itself. This is meaningful only if this
  * node has been scanned, otherwise it contains only itself.
  *
  * @return list of all nodes that this node contains; null if not top-level node
  */
-final public ArrayList<EvioNode> EvioNode::getAllNodes() {return allNodes;}
+vector<shared_ptr<EvioNode>> & EvioNode::getAllNodes() {return allNodes;}
 
 /**
- * Get the list of all child nodes that this node contains.
+ * Get the vector of all child nodes that this node contains.
  * This is meaningful only if this node has been scanned,
  * otherwise it is null.
  *
  * @return list of all child nodes that this node contains;
  *         null if not scanned or no children
  */
-final public ArrayList<EvioNode> EvioNode::getChildNodes() {
-    return childNodes;
-}
+vector<shared_ptr<EvioNode>> &  EvioNode::getChildNodes() {return childNodes;}
 
 /**
  * Get the list of all descendant nodes that this node contains -
@@ -996,13 +989,13 @@ final public ArrayList<EvioNode> EvioNode::getChildNodes() {
  *
  * @param descendants list to be filled with EvioNodes of all descendants
  */
-final public void EvioNode::getAllDescendants(List<EvioNode> descendants) {
-    if (childNodes == null || descendants == null) return;
+void EvioNode::getAllDescendants(vector<shared_ptr<EvioNode>> & descendants) {
+//    if (descendants == nullptr) return;
 
     // Add children recursively
-    for (EvioNode n : childNodes) {
-        descendants.add(n);
-        n.getAllDescendants(descendants);
+    for (shared_ptr<EvioNode> & n : childNodes) {
+        descendants.push_back(n);
+        n->getAllDescendants(descendants);
     }
 }
 
@@ -1015,9 +1008,9 @@ final public void EvioNode::getAllDescendants(List<EvioNode> descendants) {
  * @return child node at the given index;
  *         null if not scanned or no child at that index
  */
-final public EvioNode EvioNode::getChildAt(int index) {
-    if ((childNodes == null) || (childNodes.size() < index+1)) return null;
-    return childNodes.get(index);
+shared_ptr<EvioNode> EvioNode::getChildAt(uint32_t index) {
+    if (childNodes.size() < index+1) return nullptr;
+    return childNodes[index];
 }
 
 /**
@@ -1028,18 +1021,13 @@ final public EvioNode EvioNode::getChildAt(int index) {
  * @return number of children that this node contains;
  *         0 if not scanned
  */
-final public int EvioNode::getChildCount() {
-    if (childNodes == null) return 0;
-    return childNodes.size();
-}
+uint32_t EvioNode::getChildCount() {return childNodes.size();}
 
 /**
  * Get the object containing the buffer that this node is associated with.
  * @return object containing the buffer that this node is associated with.
  */
-final public ByteBuffer EvioNode::getBuffer() {
-    return buffer;
-}
+ByteBuffer & EvioNode::getBuffer() {return buffer;}
 
 /**
  * Get the length of this evio structure (not including length word itself)
@@ -1047,49 +1035,39 @@ final public ByteBuffer EvioNode::getBuffer() {
  * @return length of this evio structure (not including length word itself)
  *         in 32-bit words
  */
-final public int EvioNode::getLength() {
-    return len;
-}
+uint32_t EvioNode::getLength() {return len;}
 
 /**
  * Get the length of this evio structure including entire header in bytes.
  * @return length of this evio structure including entire header in bytes.
  */
-final public int EvioNode::getTotalBytes() {
-    return 4*dataLen + dataPos - pos;
-}
+uint32_t EvioNode::getTotalBytes() {return 4*dataLen + dataPos - pos;}
 
 /**
  * Get the tag of this evio structure.
  * @return tag of this evio structure
  */
-final public int EvioNode::getTag() {
-    return tag;
-}
+uint32_t EvioNode::getTag() {return tag;}
 
 /**
  * Get the num of this evio structure.
  * Will be zero for tagsegments.
  * @return num of this evio structure
  */
-final public int EvioNode::getNum() {
-    return num;
-}
+uint32_t EvioNode::getNum() {return num;}
 
 /**
  * Get the padding of this evio structure.
  * Will be zero for segments and tagsegments.
  * @return padding of this evio structure
  */
-final public int EvioNode::getPad() {
-    return pad;
-}
+uint32_t EvioNode::getPad() {return pad;}
 
 /**
  * Get the file/buffer byte position of this evio structure.
  * @return file/buffer byte position of this evio structure
  */
-final public int EvioNode::getPosition() {return pos;}
+uint32_t EvioNode::getPosition() {return pos;}
 
 /**
  * Get the evio type of this evio structure, not what it contains.
@@ -1097,15 +1075,13 @@ final public int EvioNode::getPosition() {return pos;}
  * returned value to get the object representation.
  * @return evio type of this evio structure, not what it contains
  */
-final public int EvioNode::getType() {return type;}
+uint32_t EvioNode::getType() {return type;}
 
 /**
  * Get the evio type of this evio structure as an object.
  * @return evio type of this evio structure as an object.
  */
-final public DataType EvioNode::getTypeObj() {
-    return DataType.getDataType(type);
-}
+DataType EvioNode::getTypeObj() {return DataType::getDataType(type);}
 
 /**
  * Get the length of this evio structure's data only (no header words)
@@ -1113,17 +1089,13 @@ final public DataType EvioNode::getTypeObj() {
  * @return length of this evio structure's data only (no header words)
  *         in 32-bit words.
  */
-final public int EvioNode::getDataLength() {
-    return dataLen;
-}
+uint32_t EvioNode::getDataLength() {return dataLen;}
 
 /**
  * Get the file/buffer byte position of this evio structure's data.
  * @return file/buffer byte position of this evio structure's data
  */
-final public int EvioNode::getDataPosition() {
-    return dataPos;
-}
+uint32_t EvioNode::getDataPosition() {return dataPos;}
 
 /**
  * Get the evio type of the data this evio structure contains.
@@ -1131,35 +1103,33 @@ final public int EvioNode::getDataPosition() {
  * returned value to get the object representation.
  * @return evio type of the data this evio structure contains
  */
-final public int EvioNode::getDataType() {
-    return dataType;
-}
+uint32_t EvioNode::getDataType() {return dataType;}
 
 /**
  * Get the evio type of the data this evio structure contains as an object.
  * @return evio type of the data this evio structure contains as an object.
  */
-final public DataType EvioNode::getDataTypeObj() {return DataType.getDataType(dataType);}
+DataType EvioNode::getDataTypeObj() {return DataType.getDataType(dataType);}
 
 /**
  * Get the file/buffer byte position of the record containing this node.
  * @since version 6.
  * @return file/buffer byte position of the record containing this node.
  */
-public int EvioNode::getRecordPosition() {return recordPos;}
+uint32_t EvioNode::getRecordPosition() {return recordPos;}
 
 /**
  * Get the place of containing event in file/buffer. First event = 0, second = 1, etc.
  * Only for internal use.
  * @return place of containing event in file/buffer.
  */
-final public int EvioNode::getPlace() {return place;}
+uint32_t EvioNode::getPlace() {return place;}
 
 /**
  * Get this node's parent node.
  * @return this node's parent node or null if none.
  */
-final public EvioNode EvioNode::getParentNode() {return parentNode;}
+shared_ptr<EvioNode> EvioNode::getParentNode() {return parentNode;}
 
 /**
  * If this object represents an event (top-level, evio bank),
@@ -1167,10 +1137,7 @@ final public EvioNode EvioNode::getParentNode() {return parentNode;}
  * with 1. If not, return -1.
  * @return event number if representing an event, else -1
  */
-final public int EvioNode::getEventNumber() {
-    // TODO: This does not seems right as place defaults to a value of 0!!!
-    return (place + 1);
-}
+uint32_t EvioNode::getEventNumber() {return (place + 1);}
 
 
 /**
@@ -1178,9 +1145,7 @@ final public int EvioNode::getEventNumber() {
  * @return <code>true</code> if this object represents an event,
  *         else <code>false</code>
  */
-final public boolean EvioNode::isEvent() {
-    return isEvent;
-}
+bool EvioNode::isEvent() {return izEvent;}
 
 
 /**
@@ -1188,39 +1153,27 @@ final public boolean EvioNode::isEvent() {
  * For internal use only.
  * @param deltaLen change in length (words). Negative value reduces lengths.
  */
-final public void EvioNode::updateLengths(int deltaLen) {
+void EvioNode::updateLengths(int deltaLen) {
 
-    EvioNode node = this;
-    DataType typ = getTypeObj();
+    EvioNode* node = this;
+    uint32_t typ = getType();
     int length;
 
-    while (node != null) {
-        switch (typ) {
-            case BANK:
-            case ALSOBANK:
-                length = buffer.getInt(node.pos) + deltaLen;
-                buffer.putInt(node.pos, length);
-                break;
+    if ((typ == DataType::BANK.getValue()) || (typ == DataType::ALSOBANK.getValue())) {
+        length = buffer.getInt(node->pos) + deltaLen;
+        buffer.putInt(node->pos, length);
+    }
+    else if ((typ == DataType::SEGMENT.getValue())     ||
+             (typ == DataType::ALSOSEGMENT.getValue()) ||
+             (typ == DataType::TAGSEGMENT.getValue()))   {
 
-            case SEGMENT:
-            case ALSOSEGMENT:
-            case TAGSEGMENT:
-                if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                    length = (buffer.getShort(node.pos+2) & 0xffff) + deltaLen;
-                    buffer.putShort(node.pos+2, (short)length);
-                }
-                else {
-                    length = (buffer.getShort(node.pos) & 0xffff) + deltaLen;
-                    buffer.putShort(node.pos, (short)length);
-                }
-                break;
-
-            default:
+        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
+            length = (buffer.getShort(node->pos+2) & 0xffff) + deltaLen;
+            buffer.putShort(node->pos+2, (short)length);
         }
-
-        node = node.parentNode;
-        if (node != null) {
-            typ = node.getTypeObj();
+        else {
+            length = (buffer.getShort(node->pos) & 0xffff) + deltaLen;
+            buffer.putShort(node->pos, (short)length);
         }
     }
 }
@@ -1233,32 +1186,30 @@ final public void EvioNode::updateLengths(int deltaLen) {
  *
  * @param newTag new tag value
  */
-final public void EvioNode::updateTag(int newTag) {
+void EvioNode::updateTag(uint32_t newTag) {
 
-    switch (DataType.getDataType(type)) {
-        case BANK:
-        case ALSOBANK:
-            if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                buffer.putShort(pos+4, (short) newTag);
-            }
-            else {
-                buffer.putShort(pos+6, (short) newTag);
-            }
-            return;
-
+    if ((type == DataType::BANK.getValue()) || (type == DataType::ALSOBANK.getValue())) {
+        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
+            buffer.putShort(pos + 4, (short) newTag);
+        } else {
+            buffer.putShort(pos + 6, (short) newTag);
+        }
+        return;
+    }
+    else {
         case SEGMENT:
         case ALSOSEGMENT:
-            if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                buffer.put(pos, (byte)newTag);
+            if (buffer.order() == ByteOrder::ENDIAN_BIG) {
+                buffer.put(pos, (uint8_t)newTag);
             }
             else {
-                buffer.put(pos+3, (byte)newTag);
+                buffer.put(pos+3, (uint8_t)newTag);
             }
             return;
 
         case TAGSEGMENT:
             short compositeWord = (short) ((tag << 4) | (dataType & 0xf));
-            if (buffer.order() == ByteOrder.BIG_ENDIAN) {
+            if (buffer.order() == ByteOrder::ENDIAN_BIG) {
                 buffer.putShort(pos, compositeWord);
             }
             else {
@@ -1266,7 +1217,6 @@ final public void EvioNode::updateTag(int newTag) {
             }
             return;
 
-        default:
     }
 }
 
