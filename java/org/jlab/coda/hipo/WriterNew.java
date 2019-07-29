@@ -825,30 +825,30 @@ System.out.println("createRecord: add first event to record");
             // never happen
         }
 
-        if (toFile) {
-            // Find & update file header's trailer position word
-            headerBuffer.limit(8).position(0);
-            headerBuffer.putLong(0, trailerPosition);
-
-            Future f = asyncFileChannel.write(headerBuffer, FileHeader.TRAILER_POSITION_OFFSET);
-            try {f.get();}
-            catch (Exception e) {
-                throw new IOException(e);
-            }
-            
-            // Find & update file header's bit-info word
-            if (addTrailerIndex) {
-                int bitInfo = fileHeader.setBitInfo(false, false, true);
-                headerBuffer.limit(4).position(0);
-                headerBuffer.putInt(0, bitInfo);
-
-                f = asyncFileChannel.write(headerBuffer, FileHeader.BIT_INFO_OFFSET);
-                try {f.get();}
-                catch (Exception e) {
-                    throw new IOException(e);
-                }
-            }
-        }
+//        if (toFile) {
+//            // Find & update file header's trailer position word
+//            headerBuffer.limit(8).position(0);
+//            headerBuffer.putLong(0, trailerPosition);
+//
+//            Future f = asyncFileChannel.write(headerBuffer, FileHeader.TRAILER_POSITION_OFFSET);
+//            try {f.get();}
+//            catch (Exception e) {
+//                throw new IOException(e);
+//            }
+//
+//            // Find & update file header's bit-info word
+//            if (addTrailerIndex) {
+//                int bitInfo = fileHeader.setBitInfo(false, false, true);
+//                headerBuffer.limit(4).position(0);
+//                headerBuffer.putInt(0, bitInfo);
+//
+//                f = asyncFileChannel.write(headerBuffer, FileHeader.BIT_INFO_OFFSET);
+//                try {f.get();}
+//                catch (Exception e) {
+//                    throw new IOException(e);
+//                }
+//            }
+//        }
     }
 
     /**

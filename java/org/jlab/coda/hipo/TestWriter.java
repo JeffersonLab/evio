@@ -6,9 +6,15 @@
 package org.jlab.coda.hipo;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jlab.coda.jevio.EvioCompactReader;
@@ -124,6 +130,80 @@ public class TestWriter {
 
         System.out.println("Finished writing file");
 
+
+    }
+
+    public static void testWriterVsWriterNew() throws IOException, HipoException {
+
+        // Variables to track record build rate
+        double freqAvg;
+        long t1, t2, deltaT, totalC=0;
+        // Ignore the first N values found for freq in order
+        // to get better avg statistics. Since the JIT compiler in java
+        // takes some time to analyze & compile code, freq may initially be low.
+        long ignore = 0;
+        long loops  = 200000;
+
+        // Create 1 file with Writer
+        Writer writer = new Writer(ByteOrder.BIG_ENDIAN, 100000, 8000000);
+        writer.getRecordHeader().setCompressionType(1);
+        String file1 = "/daqfs/home/timmer/dataFile.v6.writer";
+        writer.open(file1);
+
+        // Create 1 file with WriterNew
+        WriterNew writerN = new WriterNew(ByteOrder.BIG_ENDIAN, 100000, 8000000);
+        writerN.getRecordHeader().setCompressionType(1);
+        String file2 = "/daqfs/home/timmer/dataFile.v6.writerNew";
+        writerN.open(file2);
+
+        // Buffer with random dta
+        byte[] buffer = TestWriter.generateBuffer(400);
+
+        t1 = System.currentTimeMillis();
+
+        while (true) {
+            // write data with Writer class
+            writer.addEvent(buffer);
+
+            // write data with WriterNew class
+            writerN.addEvent(buffer);
+
+            // Ignore beginning loops to remove JIT compile time
+            if (ignore-- > 0) {
+                t1 = System.currentTimeMillis();
+            }
+            else {
+                totalC++;
+            }
+
+            if (--loops < 1) break;
+        }
+
+        t2 = System.currentTimeMillis();
+        deltaT = t2 - t1; // millisec
+        freqAvg = (double) totalC / deltaT * 1000;
+
+        System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
+
+        System.out.println("Finished all loops, count = " + totalC);
+
+        writer.close();
+        writerN.close();
+
+        System.out.println("Finished writing 2 files, now compare");
+        
+        FileInputStream fileStream1 = new FileInputStream(file1);
+        FileChannel fileChannel = fileStream1.getChannel();
+        long fSize = fileChannel.size();
+
+        FileInputStream fileStream2 = new FileInputStream(file2);
+
+
+        for (long l=0; l < fSize; l++) {
+            if (fileStream1.read() != fileStream2.read()) {
+                System.out.println("Files differ at byte = " + l);
+            }
+        }
 
     }
 
@@ -278,7 +358,16 @@ public class TestWriter {
     
     public static void main(String[] args){
 
-        testStreamRecordMT();
+        try {
+            testWriterVsWriterNew();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (HipoException e) {
+            e.printStackTrace();
+        }
+        //testStreamRecordMT();
        //testStreamRecord();
        // TestWriter.createEmptyFile();
         
