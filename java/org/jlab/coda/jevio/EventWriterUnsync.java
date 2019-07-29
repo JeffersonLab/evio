@@ -1435,7 +1435,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
         // If events have been written already, forget about it
         if (eventsWrittenTotal > 0) return;
         recordNumber = startingRecordNumber;
-System.out.println("setStartingBLOCKNumber: set to " + recordNumber);
+//System.out.println("setStartingBLOCKNumber: set to " + recordNumber);
     }
 
 
@@ -1448,7 +1448,7 @@ System.out.println("setStartingBLOCKNumber: set to " + recordNumber);
         // If events have been written already, forget about it
         if (eventsWrittenTotal > 0) return;
         recordNumber = startingRecordNumber;
-System.out.println("setStartingRecordNumber: set to " + recordNumber);
+//System.out.println("setStartingRecordNumber: set to " + recordNumber);
     }
 
 
@@ -2000,7 +2000,7 @@ System.out.println("setStartingRecordNumber: set to " + recordNumber);
             throw new EvioException("need to be in append mode");
         }
 
-        System.out.println("    toAppendPosition: IN");
+//        System.out.println("    toAppendPosition: IN");
 
         // Jump over the file header, index array, and user header & padding
         long pos = FileHeader.HEADER_SIZE_BYTES + indexLength +
@@ -2026,7 +2026,7 @@ System.out.println("setStartingRecordNumber: set to " + recordNumber);
         // reasonable # instead of incrementing from the last existing
         // record.
         recordNumber = 1;
-        System.out.println("toAppendPos:     record # = 1");
+//        System.out.println("toAppendPos:     record # = 1");
 
         while (true) {
             nBytes = 0;
@@ -2098,7 +2098,7 @@ System.out.println("setStartingRecordNumber: set to " + recordNumber);
             eventsWrittenTotal += eventCount;
 
             recordNumber++;
-System.out.println("                 record # = " + recordNumber);
+//System.out.println("                 record # = " + recordNumber);
 
             // Stop at the last record. The file may not have a last record if
             // improperly terminated. Running into an End-Of-File will flag
@@ -2143,7 +2143,7 @@ System.out.println("                 record # = " + recordNumber);
             // It turns out we need to do nothing. The constructor that
             // calls this method will write out the next record header.
             recordNumber--;
-System.out.println("                 record # = " + recordNumber);
+//System.out.println("                 record # = " + recordNumber);
         }
         // If last record has event(s) in it ...
         else if (eventCount > 0) {
@@ -2181,7 +2181,7 @@ System.out.println("                 record # = " + recordNumber);
             // We already partially read in the record header, now back up so we can overwrite it.
             // If using buffer, we never incremented the position, so we're OK.
             recordNumber--;
-System.out.println("                 record # = " + recordNumber);
+//System.out.println("                 record # = " + recordNumber);
             fileWritingPosition -= 24;
 //System.out.println("toAppendPos: position (bkup) = " + fileWritingPosition);
         }
@@ -2601,7 +2601,16 @@ System.out.println("                 record # = " + recordNumber);
         // If event is big enough to split the file ...
         if (splittingFile) {
             if (singleThreadedCompression) {
-                compressAndWriteToFile(false);
+                try {
+                    compressAndWriteToFile(false);
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
+                
                 splitFile();
             }
             else {
@@ -2633,7 +2642,15 @@ System.out.println("                 record # = " + recordNumber);
         // If no room or too many events ...
         if (!fitInRecord) {
             if (singleThreadedCompression) {
-                compressAndWriteToFile(false);
+                try {
+                    compressAndWriteToFile(false);
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
             }
             else {
                 // Send current record back to ring without adding event
@@ -2656,7 +2673,15 @@ System.out.println("                 record # = " + recordNumber);
         // If event must be physically written to disk ...
         if (force) {
             if (singleThreadedCompression) {
-                compressAndWriteToFile(true);
+                try {
+                    compressAndWriteToFile(true);
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
             }
             else {
                 // Tell writer to force this record to disk
@@ -2721,12 +2746,12 @@ System.out.println("                 record # = " + recordNumber);
             }
             catch (AlertException e) {
                 // We've been woken up in getToWrite through a user calling supply.errorAlert()
-                System.out.println("Quit record writing thread through alert");
+                System.out.println("Quit record compressing thread through alert");
             }
             catch (InterruptedException e) {
-                // We've been interrupted while blocked in getToWrite
+                // We've been interrupted while blocked in getToCompress
                 // which means we're all done.
-                System.out.println("Quit record writing thread through interrupt");
+                System.out.println("Quit record compressing thread through interrupt");
             }
             catch (Exception e) {
                 // Catch problems with buffer overflow and multiple compressing threads
@@ -2783,17 +2808,24 @@ System.out.println("                 record # = " + recordNumber);
                 }
             }
             catch (AlertException e) {
-                // We've been woken up in getToWrite through a user calling supply.errorAlert()
-                System.out.println("Quit record compressing thread through alert");
+                // Woken up in getToWrite through user call to supply.errorAlert()
+                System.out.println("Quit record writing thread through alert");
             }
             catch (InterruptedException e) {
-                // We've been interrupted while blocked in getToWrite
-                // which means we're all done.
-                System.out.println("Quit record compressing thread through interrupt");
+                // Interrupted while blocked in getToWrite which means we're all done
+                System.out.println("Quit record writing thread through interrupt");
             }
             catch (Exception e) {
-                // Error already captured and copied into supply object
-                // in the call to writeToFileMT or splitFile.
+                // Here if error in file writing
+                System.out.println("Quit record writing thread through file writing error");
+
+                //StringWriter sw = new StringWriter();
+                //PrintWriter pw  = new PrintWriter(sw);
+                //e.printStackTrace(pw);
+                //supply.setError(sw.toString());
+
+                supply.haveError(true);
+                supply.setError(e.getMessage());
             }
         }
     }
@@ -2805,13 +2837,17 @@ System.out.println("                 record # = " + recordNumber);
      *
      * @param force force it to write event to the disk.
      *
-     * @throws IOException   if error writing file
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
      */
     private void compressAndWriteToFile(boolean force)
-                                throws EvioException, IOException {
+                        throws EvioException, IOException,
+                               InterruptedException, ExecutionException {
         RecordHeader header = currentRecord.getHeader();
         header.setRecordNumber(recordNumber);
         header.setCompressionType(compressionType);
@@ -2833,10 +2869,14 @@ System.out.println("                 record # = " + recordNumber);
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
      */
     private void writeToFile(boolean force)
-                                throws EvioException, IOException {
+                                throws EvioException, IOException,
+                                       InterruptedException, ExecutionException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -2862,7 +2902,7 @@ System.out.println("                 record # = " + recordNumber);
         }
 
         // Which buffer do we fill next?
-        ByteBuffer unusedBuffer = null;
+        ByteBuffer unusedBuffer;
 
         // We need one of the 2 future jobs to be completed in order to proceed
 
@@ -2885,82 +2925,38 @@ System.out.println("                 record # = " + recordNumber);
             boolean future1Done = future1.isDone();
             boolean future2Done = future2.isDone();
 
-            // If either write is finished ...
-            if (future1Done || future2Done) {
+            // If first write done ...
+            if (future1Done) {
+                future1.get();
 
-                // If first write done ...
-                if (future1Done) {
-                    // If this write was done the last time this method called,
-                    // don't release something previously released! Bad!
-                    if (prevFuture1 != future1) {
-                        try {
-                            // Check for errors
-                            future1.get();
-                        }
-                        catch (Exception e) {
-                            throw new IOException(e);
-                        }
+                // Reuse the buffer future1 just finished using
+                unusedBuffer = usedBuffers[0];
+                futureIndex  = 0;
 
-                        // Reuse the buffer future1 just finished using
-                        unusedBuffer = usedBuffers[0];
-                        futureIndex  = 0;
-                        prevFuture1  = future1;
-                    }
-
-                    // future1 is finished and future2 might be as well
-                    if (future2Done && (prevFuture2 != future2)) {
-                        try {
-                            // Check for errors
-                            future2.get();
-                        }
-                        catch (Exception e) {
-                            throw new IOException(e);
-                        }
-                        prevFuture2 = future2;
-                    }
+                // future1 is finished, and future2 might be as
+                // well but just check for errors right now
+                if (future2Done) {
+                    future2.get();
                 }
-                // only 2nd write is done
-                else {
-                    // Don't release something previously released
-                    if (prevFuture2 != future2) {
-                        try {
-                            // Check for errors
-                            future2.get();
-                        }
-                        catch (Exception e) {
-                            throw new IOException(e);
-                        }
-                    }
-
-                    unusedBuffer = usedBuffers[1];
-                    futureIndex  = 1;
-                    prevFuture2  = future2;
-                }
+            }
+            // only 2nd write is done
+            else if (future2Done) {
+                future2.get();
+                unusedBuffer = usedBuffers[1];
+                futureIndex  = 1;
             }
             // Neither are finished, so wait for one of them to finish
             else {
                 // If the last write to be submitted was future2, wait for 1
                 if (futureIndex == 0) {
-                    try {
-                        // Wait for write to end before we continue
-                        future1.get();
-                        prevFuture1  = future1;
-                        unusedBuffer = usedBuffers[0];
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    // Wait for write to end before we continue
+                    future1.get();
+                    unusedBuffer = usedBuffers[0];
                 }
                 // Otherwise, wait for 2
                 else {
-                    try {
-                        future2.get();
-                        prevFuture2  = future2;
-                        unusedBuffer = usedBuffers[1];
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    future2.get();
+                    unusedBuffer = usedBuffers[1];
                 }
             }
         }
@@ -3152,12 +3148,14 @@ System.out.println("                 record # = " + recordNumber);
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
      * @throws InterruptedException   if this thread was interrupted while waiting
      *                                for file write to complete.
      */
     private void writeToFileMT(RecordRingItem item, boolean force)
-                                throws EvioException, IOException, InterruptedException {
+                      throws EvioException, IOException,
+                             InterruptedException, ExecutionException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -3199,98 +3197,50 @@ System.out.println("                 record # = " + recordNumber);
             boolean future1Done = future1.isDone();
             boolean future2Done = future2.isDone();
 
-            // If either write is finished ...
-            if (future1Done || future2Done) {
-
-                // If first write done ...
-                if (future1Done) {
-                    // If this write was done the last time this method called,
-                    // don't release something previously released! Bad!
-                    if (prevFuture1 != future1) {
-                        try {
-                            // Check for errors
-                            future1.get();
-                        }
-                        catch (ExecutionException e) {
-                            //StringWriter sw = new StringWriter();
-                            //PrintWriter pw  = new PrintWriter(sw);
-                            //e.printStackTrace(pw);
-                            //supply.setError(sw.toString());
-
-                            supply.haveError(true);
-                            supply.setError(e.getMessage());
-                            throw new IOException(e);
-                        }
-
-                        futureIndex = 0;
-                        // Release record back to supply now that we're done writing it
-                        supply.releaseWriter(ringItem1);
-                        prevFuture1 = future1;
-                    }
-
-                    // future1 is finished and future2 might be as well
-                    if (future2Done && (prevFuture2 != future2)) {
-                        try {
-                            // Check for errors
-                            future2.get();
-                        }
-                        catch (ExecutionException e) {
-                            supply.haveError(true);
-                            supply.setError(e.getMessage());
-                            throw new IOException(e);
-                        }
-                        supply.releaseWriter(ringItem2);
-                        prevFuture2 = future2;
-                    }
+            // If first write done ...
+            if (future1Done) {
+                // If this write was done the last time this method called,
+                // don't release something previously released! Bad!
+                if (prevFuture1 != future1) {
+                    future1.get();
+                    futureIndex = 0;
+                    // Release record back to supply now that we're done writing it
+                    supply.releaseWriter(ringItem1);
+                    prevFuture1 = future1;
                 }
-                // only 2nd write is done
-                else {
-                    // Don't release something previously released
-                    if (prevFuture2 != future2) {
-                        try {
-                            // Check for errors
-                            future2.get();
-                        }
-                        catch (ExecutionException e) {
-                            supply.haveError(true);
-                            supply.setError(e.getMessage());
-                            throw new IOException(e);
-                        }
-                        supply.releaseWriter(ringItem2);
-                    }
 
-                    futureIndex = 1;
+                // future1 is finished and future2 might be as well
+                if (future2Done && (prevFuture2 != future2)) {
+                    future2.get();
+                    supply.releaseWriter(ringItem2);
                     prevFuture2 = future2;
                 }
+            }
+            // only 2nd write is done
+            else if (future2Done) {
+                // Don't release something previously released
+                if (prevFuture2 != future2) {
+                    future2.get();
+                    supply.releaseWriter(ringItem2);
+                }
+
+                futureIndex = 1;
+                prevFuture2 = future2;
             }
             // Neither are finished, so wait for one of them to finish
             else {
                 // If the last write to be submitted was future2, wait for 1
                 if (futureIndex == 0) {
-                    try {
-                        // Wait for write to end before we continue
-                        future1.get();
-                        supply.releaseWriter(ringItem1);
-                        prevFuture1 = future1;
-                    }
-                    catch (ExecutionException e) {
-                        supply.haveError(true);
-                        supply.setError(e.getMessage());
-                        throw new IOException(e);
-                    }
+                    // Wait for write to end before we continue
+                    future1.get();
+                    supply.releaseWriter(ringItem1);
+                    prevFuture1 = future1;
                 }
                 // Otherwise, wait for 2
                 else {
-                    try {
-                        future2.get();
-                        supply.releaseWriter(ringItem2);
-                        prevFuture2 = future2;
-                    }
-                    catch (ExecutionException e) {
-                        supply.haveError(true);
-                        supply.setError(e.getMessage());
-                        throw new IOException(e);
-                    }
+                    future2.get();
+                    supply.releaseWriter(ringItem2);
+                    prevFuture2 = future2;
                 }
             }
         }
