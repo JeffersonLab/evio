@@ -427,7 +427,10 @@ public class RecordSupply {
      * it to be reused and reset called on it.<p>
      *
      * In order to prevent such a scenario, releaseWriter ensures that items are only
-     * released in sequence.
+     * released in sequence.<p>
+     *
+     * If the same item is released more than once, bad things will happen.
+     * Thus the caller must take steps to prevent it.
      *
      * @param item item in ring buffer to release for reuse.
      * @return false if item not released since item is null, else true.
