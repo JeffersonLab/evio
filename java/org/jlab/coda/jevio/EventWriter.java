@@ -11,6 +11,7 @@
 package org.jlab.coda.jevio;
 
 
+import com.lmax.disruptor.AlertException;
 import org.jlab.coda.hipo.*;
 
 import java.io.*;
@@ -22,9 +23,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * An EventWriter object is used for writing events to a file or to a byte buffer.
@@ -438,10 +437,10 @@ final public class EventWriter implements AutoCloseable {
                 }
 
                 // Release resources back to the ring
-                if (releaseItem1)
+                if (releaseItem1 && (item1 != null))
                     supply.releaseWriter(item1);
 
-                if (releaseItem2)
+                if (releaseItem2 && (item2 != null))
                     supply.releaseWriter(item2);
 
                 try {
@@ -2501,6 +2500,14 @@ final public class EventWriter implements AutoCloseable {
             }
         }
 
+        // First, if multithreaded write, check for any errors that may have
+        // occurred asynchronously in the write or one of the compression threads.
+        if (!singleThreadedCompression && supply.haveError()) {
+            // Wake up any of these threads waiting for another record
+            supply.errorAlert();
+            throw new IOException(supply.getError());
+        }
+
         // Including this event, this is the total data size & event count for this record
         splitEventBytes += currentEventBytes;
         splitEventCount++;
@@ -2508,7 +2515,16 @@ final public class EventWriter implements AutoCloseable {
         // If event is big enough to split the file ...
         if (splittingFile) {
             if (singleThreadedCompression) {
-                compressAndWriteToFile(false);
+                try {
+                    compressAndWriteToFile(false);
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
+
                 splitFile();
             }
             else {
@@ -2539,7 +2555,15 @@ final public class EventWriter implements AutoCloseable {
         // If no room or too many events ...
         if (!fitInRecord) {
             if (singleThreadedCompression) {
-                compressAndWriteToFile(false);
+                try {
+                    compressAndWriteToFile(false);
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
             }
             else {
                 // Send current record back to ring without adding event
@@ -2562,7 +2586,15 @@ final public class EventWriter implements AutoCloseable {
         // If event must be physically written to disk ...
         if (force) {
             if (singleThreadedCompression) {
-                compressAndWriteToFile(true);
+                try {
+                    compressAndWriteToFile(true);
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
             }
             else {
                 // Tell writer to force this record to disk
@@ -2625,12 +2657,19 @@ final public class EventWriter implements AutoCloseable {
                     supply.releaseCompressor(item);
                 }
             }
+            catch (AlertException e) {
+                // We've been woken up in getToWrite through a user calling supply.errorAlert()
+                System.out.println("Quit record compressing thread through alert");
+            }
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToCompress
                 // which means we're all done.
+                System.out.println("Quit record compressing thread through interrupt");
             }
             catch (Exception e) {
-                e.printStackTrace();
+                // Catch problems with buffer overflow and multiple compressing threads
+                supply.haveError(true);
+                supply.setError(e.getMessage());
             }
         }
     }
@@ -2681,13 +2720,25 @@ final public class EventWriter implements AutoCloseable {
                     }
                 }
             }
+            catch (AlertException e) {
+                // Woken up in getToWrite through user call to supply.errorAlert()
+                System.out.println("Quit record writing thread through alert");
+            }
             catch (InterruptedException e) {
-                // We've been interrupted while blocked in getToWrite
-                // which means we're all done.
+                // Interrupted while blocked in getToWrite which means we're all done
+                System.out.println("Quit record writing thread through interrupt");
             }
             catch (Exception e) {
-                e.printStackTrace();
-                // TODO: What do we do here??
+                // Here if error in file writing
+                System.out.println("Quit record writing thread through file writing error");
+
+                //StringWriter sw = new StringWriter();
+                //PrintWriter pw  = new PrintWriter(sw);
+                //e.printStackTrace(pw);
+                //supply.setError(sw.toString());
+
+                supply.haveError(true);
+                supply.setError(e.getMessage());
             }
         }
     }
@@ -2700,13 +2751,17 @@ final public class EventWriter implements AutoCloseable {
      *
      * @param force force it to write event to the disk.
      *
-     * @throws IOException   if error writing file
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
      */
     private void compressAndWriteToFile(boolean force)
-                                throws EvioException, IOException {
+                        throws EvioException, IOException,
+                               InterruptedException, ExecutionException {
         RecordHeader header = currentRecord.getHeader();
         header.setRecordNumber(recordNumber);
         header.setCompressionType(compressionType);
@@ -2728,10 +2783,14 @@ final public class EventWriter implements AutoCloseable {
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
      */
     synchronized private void writeToFile(boolean force)
-                                throws EvioException, IOException {
+            throws EvioException, IOException,
+                   InterruptedException, ExecutionException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -2776,39 +2835,42 @@ final public class EventWriter implements AutoCloseable {
         // After first 2 times, wait until one of the
         // 2 futures is finished before proceeding
         else {
-            // If future1 is finished writing, proceed
-            if (future1.isDone()) {
-                futureIndex = 0;
+
+            boolean future1Done = future1.isDone();
+            boolean future2Done = future2.isDone();
+
+            // If first write done ...
+            if (future1Done) {
+                future1.get();
+
                 // Reuse the buffer future1 just finished using
                 unusedBuffer = usedBuffers[0];
+                futureIndex  = 0;
+
+                // future1 is finished, and future2 might be as
+                // well but just check for errors right now
+                if (future2Done) {
+                    future2.get();
+                }
             }
-            // If future2 is finished writing, proceed
-            else if (future2.isDone()) {
-                futureIndex = 1;
+            // only 2nd write is done
+            else if (future2Done) {
+                future2.get();
                 unusedBuffer = usedBuffers[1];
+                futureIndex  = 1;
             }
             // Neither are finished, so wait for one of them to finish
             else {
                 // If the last write to be submitted was future2, wait for 1
                 if (futureIndex == 0) {
-                    try {
-                        // Wait for write to end before we continue
-                        future1.get();
-                        unusedBuffer = usedBuffers[0];
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    // Wait for write to end before we continue
+                    future1.get();
+                    unusedBuffer = usedBuffers[0];
                 }
                 // Otherwise, wait for 2
                 else {
-                    try {
-                        future2.get();
-                        unusedBuffer = usedBuffers[1];
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    future2.get();
+                    unusedBuffer = usedBuffers[1];
                 }
             }
         }
@@ -2873,10 +2935,14 @@ final public class EventWriter implements AutoCloseable {
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
      */
     synchronized private void writeToFileMT(RecordRingItem item, boolean force)
-                                throws EvioException, IOException {
+            throws EvioException, IOException,
+                   InterruptedException, ExecutionException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -2917,57 +2983,50 @@ final public class EventWriter implements AutoCloseable {
             boolean future1Done = future1.isDone();
             boolean future2Done = future2.isDone();
 
-            // If either write is finished ...
-            if (future1Done || future2Done) {
-
-                // If first write done ...
-                if (future1Done) {
-                    // If this write was done the last time this method called,
-                    // don't release something previously released! Bad!
-                    if (prevFuture1 != future1) {
-                        futureIndex = 0;
-                        // Release record back to supply now that we're done writing it
-                        supply.releaseWriter(ringItem1);
-                        prevFuture1 = future1;
-                    }
-
-                    // future1 is finished and future2 might be as well
-                    if (future2Done && (prevFuture2 != future2)) {
-                        supply.releaseWriter(ringItem2);
-                        prevFuture2 = future2;
-                    }
+            // If first write done ...
+            if (future1Done) {
+                // If this write was done the last time this method called,
+                // don't release something previously released! Bad!
+                if (prevFuture1 != future1) {
+                    future1.get();
+                    futureIndex = 0;
+                    // Release record back to supply now that we're done writing it
+                    supply.releaseWriter(ringItem1);
+                    prevFuture1 = future1;
                 }
-                // Don't release something previously released if it's future2
-                else if (prevFuture2 != future2) {
-                    futureIndex = 1;
+
+                // future1 is finished and future2 might be as well
+                if (future2Done && (prevFuture2 != future2)) {
+                    future2.get();
                     supply.releaseWriter(ringItem2);
                     prevFuture2 = future2;
                 }
+            }
+            // only 2nd write is done
+            else if (future2Done) {
+                // Don't release something previously released
+                if (prevFuture2 != future2) {
+                    future2.get();
+                    supply.releaseWriter(ringItem2);
+                }
+
+                futureIndex = 1;
+                prevFuture2 = future2;
             }
             // Neither are finished, so wait for one of them to finish
             else {
                 // If the last write to be submitted was future2, wait for 1
                 if (futureIndex == 0) {
-                    try {
-                        // Wait for write to end before we continue
-                        future1.get();
-                        supply.releaseWriter(ringItem1);
-                        prevFuture1 = future1;
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    // Wait for write to end before we continue
+                    future1.get();
+                    supply.releaseWriter(ringItem1);
+                    prevFuture1 = future1;
                 }
                 // Otherwise, wait for 2
                 else {
-                    try {
-                        future2.get();
-                        supply.releaseWriter(ringItem2);
-                        prevFuture2 = future2;
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    future2.get();
+                    supply.releaseWriter(ringItem2);
+                    prevFuture2 = future2;
                 }
             }
         }
@@ -3044,7 +3103,9 @@ final public class EventWriter implements AutoCloseable {
                                       ringItem1, ringItem2);
             
             // Reset for next write
-            prevFuture1 = prevFuture2 = future1 = future2 = null;
+            if (!singleThreadedCompression) {
+                prevFuture1 = prevFuture2 = future1 = future2 = null;
+            }
             recordLengths.clear();
             // Right now no file is open for writing
             asyncFileChannel = null;
@@ -3060,7 +3121,13 @@ final public class EventWriter implements AutoCloseable {
 
         // If we can't overwrite and file exists, throw exception
         if (!overWriteOK && (currentFile.exists() && currentFile.isFile())) {
-            throw new EvioException("File exists but user requested no over-writing, "
+            // If we're doing a multithreaded write ...
+            if (supply != null) {
+                supply.haveError(true);
+                supply.setError("file exists but user requested no over-writing");
+            }
+
+            throw new EvioException("file exists but user requested no over-writing, "
                     + currentFile.getPath());
         }
 
