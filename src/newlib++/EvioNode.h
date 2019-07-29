@@ -183,6 +183,8 @@ public:
     void updateLengths(int deltaLen);
     void updateTag(uint32_t newTag);
 
+    void updateNum(uint8_t newNum);
+    ByteBuffer getByteData(bool copy);
 
 
     };

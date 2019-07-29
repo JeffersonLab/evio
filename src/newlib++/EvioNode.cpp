@@ -1188,7 +1188,8 @@ void EvioNode::updateLengths(int deltaLen) {
  */
 void EvioNode::updateTag(uint32_t newTag) {
 
-    if ((type == DataType::BANK.getValue()) || (type == DataType::ALSOBANK.getValue())) {
+    if ((type == DataType::BANK.getValue()) ||
+        (type == DataType::ALSOBANK.getValue())) {
         if (buffer.order() == ByteOrder::ENDIAN_BIG) {
             buffer.putShort(pos + 4, (short) newTag);
         } else {
@@ -1196,27 +1197,24 @@ void EvioNode::updateTag(uint32_t newTag) {
         }
         return;
     }
-    else {
-        case SEGMENT:
-        case ALSOSEGMENT:
-            if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-                buffer.put(pos, (uint8_t)newTag);
-            }
-            else {
-                buffer.put(pos+3, (uint8_t)newTag);
-            }
-            return;
-
-        case TAGSEGMENT:
-            short compositeWord = (short) ((tag << 4) | (dataType & 0xf));
-            if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-                buffer.putShort(pos, compositeWord);
-            }
-            else {
-                buffer.putShort(pos+2, compositeWord);
-            }
-            return;
-
+    else  if ((type == DataType::SEGMENT.getValue()) ||
+              (type == DataType::ALSOSEGMENT.getValue())) {
+        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
+            buffer.put(pos, (uint8_t) newTag);
+        } else {
+            buffer.put(pos + 3, (uint8_t) newTag);
+        }
+        return;
+    }
+    else if (type == DataType::TAGSEGMENT.getValue()) {
+        auto compositeWord = (short) ((tag << 4) | (dataType & 0xf));
+        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
+            buffer.putShort(pos, compositeWord);
+        }
+        else {
+            buffer.putShort(pos+2, compositeWord);
+        }
+        return;
     }
 }
 
@@ -1228,20 +1226,18 @@ void EvioNode::updateTag(uint32_t newTag) {
  * .
  * @param newNum new num value
  */
-final public void EvioNode::updateNum(int newNum) {
+void EvioNode::updateNum(uint8_t newNum) {
 
-    switch (DataType.getDataType(type)) {
-        case BANK:
-        case ALSOBANK:
-            if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                buffer.put(pos+7, (byte) newNum);
-            }
-            else {
-                buffer.put(pos+4, (byte)newNum);
-            }
-            return;
+    if ((type == DataType::BANK.getValue()) ||
+        (type == DataType::ALSOBANK.getValue())) {
 
-        default:
+        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
+            buffer.put(pos+7, newNum);
+        }
+        else {
+            buffer.put(pos+4, newNum);
+        }
+        return;
     }
 }
 
@@ -1258,7 +1254,7 @@ final public void EvioNode::updateNum(int newNum) {
  * @return ByteBuffer containing data.
  *         Position and limit are set for reading.
  */
-final public ByteBuffer EvioNode::getByteData(boolean copy) {
+ByteBuffer EvioNode::getByteData(bool copy) {
 
     // The tricky thing to keep in mind is that the buffer
     // which this node uses may also be used by other nodes.
@@ -1271,7 +1267,7 @@ final public ByteBuffer EvioNode::getByteData(boolean copy) {
     buffer2.limit(dataPos + 4*dataLen - pad).position(dataPos);
 
     if (copy) {
-        ByteBuffer newBuf = ByteBuffer.allocate(4*dataLen - pad).order(order);
+        ByteBuffer newBuf = ByteBuffer(4*dataLen - pad).order(order);
         newBuf.put(buffer2);
         newBuf.flip();
         return newBuf;
