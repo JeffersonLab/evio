@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.BitSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -2154,6 +2155,8 @@ public class EventWriter {
                 resetBuffer(false);
             }
         }
+        catch (InterruptedException e) {}
+        catch (ExecutionException e) {}
         catch (EvioException e) {}
         catch (IOException e)   {}
     }
@@ -2184,6 +2187,8 @@ public class EventWriter {
                 writeNewHeader(0, blockNumber, null, false, true);
             }
         }
+        catch (InterruptedException e) {}
+        catch (ExecutionException e) {}
         catch (EvioException e) {}
         catch (IOException e)   {}
 
@@ -3236,7 +3241,15 @@ System.err.println("ERROR endOfBuffer " + a);
         // Do we flush?
         if (doFlush) {
 //System.out.println("evWrite: call flushToFile 1");
-            flushToFile(false);
+            try {
+                flushToFile(false);
+            }
+            catch (InterruptedException e) {
+                return;
+            }
+            catch (ExecutionException e) {
+                throw new IOException(e);
+            }
         }
 
         // Do we split the file?
@@ -3317,7 +3330,16 @@ System.err.println("ERROR endOfBuffer " + a);
         // If caller wants to flush the event to disk (say, prestart event) ...
         if (force && toFile) {
             // This will kill performance!
-            flushToFile(true);
+            try {
+                flushToFile(true);
+            }
+            catch (InterruptedException e) {
+                return;
+            }
+            catch (ExecutionException e) {
+                throw new IOException(e);
+            }
+
             // Start a new block
             resetBuffer(false);
         }
@@ -3335,9 +3357,14 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error writing file
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
      */
-    private boolean flushToFile(boolean force) throws EvioException, IOException {
+    private boolean flushToFile(boolean force)
+                    throws EvioException, IOException,
+                           InterruptedException, ExecutionException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -3400,42 +3427,46 @@ System.err.println("ERROR endOfBuffer " + a);
         // After first 2 times, wait until one of the
         // 2 futures is finished before proceeding
         else {
-            // If future1 is finished writing, proceed
-            if (future1.isDone()) {
-                futureIndex = 0;
+
+            boolean future1Done = future1.isDone();
+            boolean future2Done = future2.isDone();
+
+            // If first write done ...
+            if (future1Done) {
+                future1.get();
+
                 // Reuse the buffer future1 just finished using
                 unusedBuffer = usedBuffers[0];
+                futureIndex  = 0;
+
+                // future1 is finished, and future2 might be as
+                // well but just check for errors right now
+                if (future2Done) {
+                    future2.get();
+                }
             }
-            // If future2 is finished writing, proceed
-            else if (future2.isDone()) {
-                futureIndex = 1;
+            // only 2nd write is done
+            else if (future2Done) {
+                future2.get();
                 unusedBuffer = usedBuffers[1];
+                futureIndex  = 1;
             }
             // Neither are finished, so wait for one of them to finish
             else {
                 // If the last write to be submitted was future2, wait for 1
                 if (futureIndex == 0) {
-                    try {
-                        // Wait for write to end before we continue
-                        future1.get();
-                        unusedBuffer = usedBuffers[0];
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    // Wait for write to end before we continue
+                    future1.get();
+                    unusedBuffer = usedBuffers[0];
                 }
                 // Otherwise, wait for 2
                 else {
-                    try {
-                        future2.get();
-                        unusedBuffer = usedBuffers[1];
-                    }
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
+                    future2.get();
+                    unusedBuffer = usedBuffers[1];
                 }
             }
         }
+
 
         if (futureIndex == 0) {
             //buffer.position(buffer.limit() - 20);
