@@ -441,6 +441,9 @@ public class EvioCompactReaderUnsync {
         validDataWords = 0;
         BlockNode blockNode=null, previousBlockNode=null;
 
+System.out.println("generateEventPositionTable:");
+int blockCounter = 0;
+
         try {
 
             while (bytesLeft > 0) {
@@ -457,10 +460,12 @@ public class EvioCompactReaderUnsync {
                 blockEventCount = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
                 magicNum        = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_MAGIC);
 
-//                System.out.println("    genEvTablePos: blk ev count = " + blockEventCount +
-//                                           ", blockSize = " + blockSize +
-//                                           ", blockHdrSize = " + blockHdrSize +
-//                                           ", byteInfo  = " + byteInfo);
+                System.out.println("    read block header " + blockCounter++ + ": " +
+                                           "ev count = " + blockEventCount +
+                                           ", blockSize = " + blockSize +
+                                           ", blockHdrSize = " + blockHdrSize +
+                                           ", byteInfo/ver  = 0x" + Integer.toHexString(byteInfo) +
+                                           ", magicNum = 0x" + Integer.toHexString(magicNum));
 
                 // If magic # is not right, file is not in proper format
                 if (magicNum != BlockHeaderV4.MAGIC_NUMBER) {
@@ -587,9 +592,9 @@ System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() 
         try {
             // Set the byte order to match the file's ordering.
 
-System.out.println("EvioCompactReader: read first header (assume endian = " + byteOrder + ") :");
             // Check the magic number for endianness (buffer defaults to big endian)
             byteOrder = byteBuffer.order();
+System.out.println("EvioCompactReader: read first header (assume endian = " + byteOrder + ") :");
 
             int magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
 System.out.println("     magic # = 0x" + Integer.toHexString(magicNumber));
@@ -617,6 +622,8 @@ Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
 
             // Check the version number
             int bitInfo = byteBuffer.getInt(pos + VERSION_OFFSET);
+System.out.println("     bitinfo/version word = 0x" + Integer.toHexString(bitInfo));
+
             evioVersion = bitInfo & VERSION_MASK;
             if (evioVersion < 4)  {
 System.out.println("     unsupported evio version (" + evioVersion + ")");
@@ -654,6 +661,7 @@ System.out.println("     unsupported evio version (" + evioVersion + ")");
             byteBuffer.clear();
             return ReadStatus.UNKNOWN_ERROR;
         }
+System.out.println("     successfully parsed header");
 
         return ReadStatus.SUCCESS;
     }
