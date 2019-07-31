@@ -423,8 +423,7 @@ public class EvioCompactReaderUnsync {
     private void generateEventPositionTable() throws EvioException {
 
         int      byteInfo, byteLen, blockHdrSize, blockSize, blockEventCount, magicNum;
-        boolean  firstBlock=true, hasDictionary=false;
-        //boolean  curLastBlock=false;
+        boolean  firstBlock=true, hasDictionary=false, isLastBlock=false;
 
 //        long t2, t1 = System.currentTimeMillis();
 // TODO: memory allocation
@@ -441,8 +440,8 @@ public class EvioCompactReaderUnsync {
         validDataWords = 0;
         BlockNode blockNode=null, previousBlockNode=null;
 
-System.out.println("generateEventPositionTable:");
-int blockCounter = 0;
+//        int blockCounter = 0;
+//        System.out.println("generateEventPositionTable:");
 
         try {
 
@@ -459,13 +458,14 @@ int blockCounter = 0;
                 blockHdrSize    = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_HEADERSIZE);
                 blockEventCount = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_COUNT);
                 magicNum        = byteBuffer.getInt(position + 4*BlockHeaderV4.EV_MAGIC);
+                isLastBlock     = BlockHeaderV4.isLastBlock(byteInfo);
 
-                System.out.println("    read block header " + blockCounter++ + ": " +
-                                           "ev count = " + blockEventCount +
-                                           ", blockSize = " + blockSize +
-                                           ", blockHdrSize = " + blockHdrSize +
-                                           ", byteInfo/ver  = 0x" + Integer.toHexString(byteInfo) +
-                                           ", magicNum = 0x" + Integer.toHexString(magicNum));
+//                System.out.println("    read block header " + blockCounter++ + ": " +
+//                                           "ev count = " + blockEventCount +
+//                                           ", blockSize = " + blockSize +
+//                                           ", blockHdrSize = " + blockHdrSize +
+//                                           ", byteInfo/ver  = 0x" + Integer.toHexString(byteInfo) +
+//                                           ", magicNum = 0x" + Integer.toHexString(magicNum));
 
                 // If magic # is not right, file is not in proper format
                 if (magicNum != BlockHeaderV4.MAGIC_NUMBER) {
@@ -506,14 +506,13 @@ int blockCounter = 0;
 //                }
 
                 validDataWords += blockSize;
-//                curLastBlock    = BlockHeaderV4.isLastBlock(byteInfo);
                 if (firstBlock) hasDictionary = BlockHeaderV4.hasDictionary(byteInfo);
 
                 // Hop over block header to events
                 position  += 4*blockHdrSize;
                 bytesLeft -= 4*blockHdrSize;
 
-//System.out.println("    hopped blk hdr, pos = " + position + ", is last blk = " + curLastBlock);
+//System.out.println("    hopped blk hdr, pos = " + position + ", is last blk = " + isLastBlock);
 
                 // Check for a dictionary - the first event in the first block.
                 // It's not included in the header block count, but we must take
@@ -557,6 +556,8 @@ int blockCounter = 0;
                 }
 
                 eventCount += blockEventCount;
+
+                if (isLastBlock) break;
             }
         }
         catch (IndexOutOfBoundsException e) {
