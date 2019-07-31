@@ -753,11 +753,11 @@ public class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader {
         sb.append(String.format("event count:    %d\n", eventCount));
         sb.append(String.format("reserved 1:     %d\n", reserved1));
         sb.append(String.format("bitInfo bits:   %s\n", bitInfo));
-        sb.append(String.format("bitInfo/ver:    %8x\n", getSixthWord()));
+        sb.append(String.format("bitInfo/ver:    0x%8x\n", getSixthWord()));
         sb.append(String.format("has dictionary: %b\n", hasDictionary()));
         sb.append(String.format("is last blk:    %b\n", isLastBlock()));
         sb.append(String.format("version:        %d\n", version));
-		sb.append(String.format("magicNumber:    %8x\n", magicNumber));
+		sb.append(String.format("magicNumber:    0x%8x\n", magicNumber));
 		sb.append(String.format(" *buffer start: %d\n", getBufferStartingPosition()));
 		sb.append(String.format(" *next   start: %d\n", nextBufferStartingPosition()));
 		return sb.toString();
