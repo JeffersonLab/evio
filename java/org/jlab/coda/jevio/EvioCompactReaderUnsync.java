@@ -587,10 +587,12 @@ System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() 
         try {
             // Set the byte order to match the file's ordering.
 
+System.out.println("EvioCompactReader: read first header (assume endian = " + byteOrder + ") :");
             // Check the magic number for endianness (buffer defaults to big endian)
             byteOrder = byteBuffer.order();
 
             int magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
+System.out.println("     magic # = 0x" + Integer.toHexString(magicNumber));
 
             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
 
@@ -600,13 +602,14 @@ System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() 
                 else {
                     byteOrder = ByteOrder.BIG_ENDIAN;
                 }
-//System.out.println("EvioCompactReader: switch endianness to " + byteOrder);
+System.out.println("     switch endianness to " + byteOrder);
                 byteBuffer.order(byteOrder);
 
                 // Reread magic number to make sure things are OK
                 magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
+System.out.println("     reread magic # = 0x" + Integer.toHexString(magicNumber));
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-System.out.println("ERROR reread magic # (" + magicNumber + ") & still not right");
+System.out.println("     ERROR: reread magic # (0x" + Integer.toHexString(magicNumber) + ") & still not right");
 Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
                     return ReadStatus.EVIO_EXCEPTION;
                 }
@@ -616,7 +619,7 @@ Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
             int bitInfo = byteBuffer.getInt(pos + VERSION_OFFSET);
             evioVersion = bitInfo & VERSION_MASK;
             if (evioVersion < 4)  {
-System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion + ")");
+System.out.println("     unsupported evio version (" + evioVersion + ")");
                 return ReadStatus.EVIO_EXCEPTION;
             }
 
@@ -639,6 +642,7 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             blockHeader.setReserved2(0);  // not used
             blockHeader.setMagicNumber(magicNumber);
             blockHeader.setByteOrder(byteOrder);
+            System.out.println("     block header = " + blockHeader);
         }
         catch (EvioException a) {
             byteBuffer.clear();
