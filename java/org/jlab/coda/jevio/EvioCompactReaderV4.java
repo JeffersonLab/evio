@@ -522,7 +522,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
     void generateEventPositionTable() throws EvioException {
 
         int      byteInfo, byteLen, blockHdrSize, blockSize, blockEventCount, magicNum;
-        boolean  firstBlock=true, hasDictionary=false, isLastBlock=false;
+        boolean  firstBlock=true, hasDictionary=false, isLastBlock;
 
 //        long t2, t1 = System.currentTimeMillis();
 
