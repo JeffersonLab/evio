@@ -595,10 +595,10 @@ System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() 
 
             // Check the magic number for endianness (buffer defaults to big endian)
             byteOrder = byteBuffer.order();
-System.out.println("EvioCompactReader: read first header (assume endian = " + byteOrder + ") :");
+//System.out.println("EvioCompactReader: read first header (assume endian = " + byteOrder + ") :");
 
             int magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
-System.out.println("     magic # = 0x" + Integer.toHexString(magicNumber));
+//System.out.println("     magic # = 0x" + Integer.toHexString(magicNumber));
 
             if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
 
@@ -608,12 +608,12 @@ System.out.println("     magic # = 0x" + Integer.toHexString(magicNumber));
                 else {
                     byteOrder = ByteOrder.BIG_ENDIAN;
                 }
-System.out.println("     switch endianness to " + byteOrder);
+//System.out.println("     switch endianness to " + byteOrder);
                 byteBuffer.order(byteOrder);
 
                 // Reread magic number to make sure things are OK
                 magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
-System.out.println("     reread magic # = 0x" + Integer.toHexString(magicNumber));
+//System.out.println("     reread magic # = 0x" + Integer.toHexString(magicNumber));
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
 System.out.println("     ERROR: reread magic # (0x" + Integer.toHexString(magicNumber) + ") & still not right");
 Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
@@ -623,7 +623,7 @@ Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
 
             // Check the version number
             int bitInfo = byteBuffer.getInt(pos + VERSION_OFFSET);
-System.out.println("     bitinfo/version word = 0x" + Integer.toHexString(bitInfo));
+//System.out.println("     bitinfo/version word = 0x" + Integer.toHexString(bitInfo));
 
             evioVersion = bitInfo & VERSION_MASK;
             if (evioVersion < 4)  {
@@ -650,7 +650,7 @@ System.out.println("     unsupported evio version (" + evioVersion + ")");
             blockHeader.setReserved2(0);  // not used
             blockHeader.setMagicNumber(magicNumber);
             blockHeader.setByteOrder(byteOrder);
-            System.out.println("     block header = " + blockHeader);
+//System.out.println("     block header = " + blockHeader);
         }
         catch (EvioException a) {
             byteBuffer.clear();
@@ -662,7 +662,7 @@ System.out.println("     unsupported evio version (" + evioVersion + ")");
             byteBuffer.clear();
             return ReadStatus.UNKNOWN_ERROR;
         }
-System.out.println("     successfully parsed header");
+//System.out.println("     successfully parsed header");
 
         return ReadStatus.SUCCESS;
     }
