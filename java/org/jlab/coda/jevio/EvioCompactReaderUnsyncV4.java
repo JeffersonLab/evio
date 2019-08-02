@@ -104,9 +104,6 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
     /** The buffer being read. */
     private ByteBuffer byteBuffer;
 
-    /** Buffer being read. */
-    ByteBuffer buffer;
-
     /** Initial position of buffer (mappedByteBuffer if reading a file). */
     private int initialPosition;
 
@@ -555,7 +552,7 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
                         throw new EvioException("Bad evio format: not enough data to read event (bad bank len?)");
                     }
 
-                    EvioNode node = EvioNode.extractEventNode(buffer, nodePool, blockNode,
+                    EvioNode node = EvioNode.extractEventNode(byteBuffer, nodePool, blockNode,
                                                               position, eventCount + i);
 //System.out.println("      event "+i+" in block: pos = " + node.pos +
 //                           ", dataPos = " + node.dataPos + ", ev # = " + (eventCount + i + 1));
@@ -580,7 +577,6 @@ class EvioCompactReaderUnsyncV4 implements IEvioCompactReader {
             }
         }
         catch (IndexOutOfBoundsException e) {
-            buffer = null;
             throw new EvioException("Bad evio format", e);
         }
 
