@@ -343,8 +343,7 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
     }
 
     /**
-     * Sets the evio version. Should be 4 but no check is performed here, see
-     * {@link EvioReader#processNextBlock()}.
+     * Sets the evio version. Should be 4 but no check is performed here.
      *
      * @param version the evio version of evio.
      */
