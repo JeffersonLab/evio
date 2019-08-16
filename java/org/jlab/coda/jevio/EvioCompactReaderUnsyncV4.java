@@ -654,6 +654,21 @@ System.out.println("EvioCompactReader: unsupported evio version (" + evioVersion
             blockHeader.setEventCount(byteBuffer.getInt(pos + BLOCK_EVENT_COUNT));
             blockHeader.setReserved1(byteBuffer.getInt(pos + BLOCK_RESERVED_1));   // used from ROC
 
+// TODO: do the equivalent in hipo library ...
+            if (blockHeader.getSize() < 8) {
+                System.out.println("     readFirstHeader: block size too small, " + blockHeader.getSize());
+                byteBuffer.clear();
+                Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
+                return ReadStatus.EVIO_EXCEPTION;
+            }
+
+            if (blockHeader.getHeaderLength() < 8) {
+                System.out.println("     readFirstHeader: block header too small, " + blockHeader.getHeaderLength());
+                byteBuffer.clear();
+                Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
+                return ReadStatus.EVIO_EXCEPTION;
+            }
+
             // Use 6th word to set bit info & version
             blockHeader.parseToBitInfo(bitInfo);
             blockHeader.setVersion(evioVersion);
