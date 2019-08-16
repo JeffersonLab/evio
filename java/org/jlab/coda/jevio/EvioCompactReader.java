@@ -163,6 +163,7 @@ public class EvioCompactReader implements IEvioCompactReader {
                 reader = new EvioCompactReaderV4(byteBuffer, pool);
             }
             else {
+System.out.println("     EvioCompactReader const: call evio version 4, unsynced");
                 reader = new EvioCompactReaderUnsyncV4(byteBuffer, pool);
             }
         }
@@ -220,6 +221,7 @@ public class EvioCompactReader implements IEvioCompactReader {
          // Find the version number
          int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
          evioVersion = bitInfo & RecordHeader.VERSION_MASK;
+System.out.println("     findEvioVersion: evio version = " + evioVersion);
 
          return evioVersion;
      }
