@@ -585,7 +585,7 @@ public class EvioCompactReaderUnsync {
 
         // Have enough remaining bytes to read header?
         if (byteBuffer.limit() - pos < 32) {
-System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() - pos));
+System.out.println("     readFirstHeader: EOF, remaining = " + (byteBuffer.limit() - pos));
             byteBuffer.clear();
             return ReadStatus.END_OF_FILE;
         }
@@ -615,7 +615,7 @@ System.out.println("EvioCompactReader: EOF, remaining = " + (byteBuffer.limit() 
                 magicNumber = byteBuffer.getInt(pos + MAGIC_OFFSET);
 //System.out.println("     reread magic # = 0x" + Integer.toHexString(magicNumber));
                 if (magicNumber != IBlockHeader.MAGIC_NUMBER) {
-System.out.println("     ERROR: reread magic # (0x" + Integer.toHexString(magicNumber) + ") & still not right");
+System.out.println("     readFirstHeader: reread magic # (0x" + Integer.toHexString(magicNumber) + ") & still not right");
 Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
                     return ReadStatus.EVIO_EXCEPTION;
                 }
@@ -627,7 +627,7 @@ Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
 
             evioVersion = bitInfo & VERSION_MASK;
             if (evioVersion < 4)  {
-System.out.println("     unsupported evio version (" + evioVersion + ")");
+System.out.println("     readFirstHeader: unsupported evio version (" + evioVersion + ")");
                 return ReadStatus.EVIO_EXCEPTION;
             }
 
@@ -644,6 +644,20 @@ System.out.println("     unsupported evio version (" + evioVersion + ")");
             blockHeader.setEventCount(byteBuffer.getInt(pos + BLOCK_EVENT_COUNT));
             blockHeader.setReserved1(byteBuffer.getInt(pos + BLOCK_RESERVED_1));   // used from ROC
 
+            if (blockHeader.getSize() < 8) {
+                System.out.println("     readFirstHeader: block size too small, " + blockHeader.getSize());
+                byteBuffer.clear();
+                Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
+                return ReadStatus.EVIO_EXCEPTION;
+            }
+
+            if (blockHeader.getHeaderLength() < 8) {
+                System.out.println("     readFirstHeader: block header too small, " + blockHeader.getHeaderLength());
+                byteBuffer.clear();
+                Utilities.printBuffer(byteBuffer, 0, 8, "Tried to parse this as block header");
+                return ReadStatus.EVIO_EXCEPTION;
+            }
+
             // Use 6th word to set bit info & version
             blockHeader.parseToBitInfo(bitInfo);
             blockHeader.setVersion(evioVersion);
@@ -658,7 +672,7 @@ System.out.println("     unsupported evio version (" + evioVersion + ")");
             return ReadStatus.EVIO_EXCEPTION;
         }
         catch (BufferUnderflowException a) {
-            System.err.println("EvioCompactReader: end of Buffer: " + a.getMessage());
+            System.err.println("     EvioCompactReader: end of Buffer: " + a.getMessage());
             byteBuffer.clear();
             return ReadStatus.UNKNOWN_ERROR;
         }
