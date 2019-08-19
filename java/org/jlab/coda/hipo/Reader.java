@@ -411,8 +411,7 @@ public class Reader {
      */
     public ByteBuffer setCompressedBuffer(ByteBuffer buf, EvioNodeSource pool)
             throws HipoException {
-        nodePool = pool;
-        setBuffer(buf);
+        setBuffer(buf, pool);
         return buffer;
     }
 
@@ -1322,7 +1321,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
          eventNodes.clear();
          recordPositions.clear();
          eventIndex.clear();
-         // TODO: this should NOT change in records in 1 buffer, only BETWEEN buffers!!!!!!!!!!!!
+// TODO: this should NOT change in records in 1 buffer, only BETWEEN buffers!!!!!!!!!!!!
          recordNumberExpected = 1;
 
          while (bytesLeft >= RecordHeader.HEADER_SIZE_BYTES) {
