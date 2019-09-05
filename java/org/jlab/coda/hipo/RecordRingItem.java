@@ -8,6 +8,7 @@ package org.jlab.coda.hipo;
 
 import com.lmax.disruptor.Sequence;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
@@ -41,9 +42,22 @@ public class RecordRingItem {
     /** Do we force the record to be physically written to disk? */
     private volatile boolean forceToDisk;
 
+    /** If a new file needs to be created ({@link #splitFileAfterWrite} is true),
+     * but there is not enough free space on the disk partition for the
+     * next, complete file, return without creating or writing to file.
+     * If {@link #forceToDisk} is true, write anyway. */
+    private volatile boolean checkDisk;
+
     /** Processing thread may need to know if this is the last item
      *  to be processed so thread can shutdown. */
     private volatile boolean lastItem;
+
+    /** Keep track of whether this item has already been released. */
+    private boolean alreadyReleased;
+
+    /** We may want to track a particular record. */
+    private long id;
+
 
      //--------------------------------
 
@@ -62,15 +76,57 @@ public class RecordRingItem {
     }
 
 
+    /**
+     * Copy constructor (sort of). Used in EventWriter(Unsync) for when disk is full and a copy
+     * of the item to be written is made for later writing. Original item is released
+     * so ring can function. Note, not everything is copied (sequenceObj) since in usage,
+     * the original item has already been released. Also, {@link #alreadyReleased} is true. <p>
+     * <b>Not to be used except internally by evio.</b>
+     *
+     * @param item ring item to copy.
+     */
+    public RecordRingItem(RecordRingItem item) {
+        this.id = item.id;
+        this.order = item.order;
+        this.sequence = item.sequence;
+        this.lastItem = item.lastItem;
+        this.checkDisk = item.checkDisk;
+        this.forceToDisk = item.forceToDisk;
+        this.splitFileAfterWrite = item.splitFileAfterWrite;
+        alreadyReleased = true;
+
+        // This does some extra memory allocation we don't need, but good enough for now
+
+        // Copy data to write
+        ByteBuffer dataBuf = item.record.getBinaryBuffer();
+        ByteBuffer buf = ByteBuffer.allocate(dataBuf.capacity());
+        if (buf.hasArray()) {
+            System.arraycopy(dataBuf.array(), dataBuf.arrayOffset() + dataBuf.position(),
+                             buf.array(), 0, dataBuf.remaining());
+        }
+        else {
+            buf.put(dataBuf);
+        }
+
+        record = new RecordOutputStream(buf,
+                                        item.record.getMaxEventCount(),
+                                        item.record.getHeader().getCompressionType(),
+                                        item.record.getHeader().getHeaderType());
+    }
+
+
     /** Method to reset this item each time it is retrieved from the supply. */
     public void reset() {
         record.reset();
 
+        id = 0L;
         sequence = 0L;
         sequenceObj = null;
         
         lastItem = false;
+        checkDisk = false;
         forceToDisk = false;
+        alreadyReleased = false;
         splitFileAfterWrite = false;
     }
 
@@ -141,6 +197,22 @@ public class RecordRingItem {
     public void forceToDisk(boolean force) {forceToDisk = force;}
 
     /**
+     * Get whether there is not enough free space on the disk partition for the
+     * next, complete file to be written, resulting in not creating or writing to file.
+     * @return true if there is not enough free space on the disk partition for the
+     *         next, complete file to be written, resulting in not creating or writing to file.
+     */
+    public boolean isCheckDisk() {return checkDisk;}
+
+    /**
+     * Set whether there is not enough free space on the disk partition for the
+     * next, complete file to be written, resulting in not creating or writing to file.
+     * @param check  if true, there is not enough free space on the disk partition for the
+     *               next, complete file to be written, resulting in not creating or writing to file.
+     */
+    public void setCheckDisk(boolean check) {checkDisk = check;}
+
+    /**
      * Get whether this is the last item in the supply to be used.
      * @return true this is the last item in the supply to be used.
      */
@@ -152,5 +224,30 @@ public class RecordRingItem {
      * @param last if true, this is the last item in the supply to be used.
      */
     public void setLastItem(boolean last) {lastItem = last;}
+
+    /**
+     * Has this item already been released by the RecordSupply?
+     * @return true if item already been released by the RecordSupply.
+     */
+    public boolean isAlreadyReleased() {return alreadyReleased;}
+
+    /**
+     * Set whether this item has already been released by the RecordSupply.
+     * @param released true if this item has already been released by the RecordSupply,
+     *                 else false.
+     */
+    public void setAlreadyReleased(boolean released) {alreadyReleased = released;}
+
+    /**
+     *  Get item's id. Id is 0 if unused.
+     * @return id number.
+     */
+    public long getId() {return id;}
+
+    /**
+     * Set this item's id number.
+     * @param id id number.
+     */
+    public void setId(long id) {this.id = id;}
 
 }
