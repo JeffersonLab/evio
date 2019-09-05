@@ -93,6 +93,8 @@ public class RecordSupply {
     private int compressionType;
     /** Number of threads doing compression simultaneously. */
     private int compressionThreadCount = 1;
+    /** Number of records held in this supply. */
+    private int ringSize;
 
     // Stuff for reporting errors
 
@@ -100,6 +102,12 @@ public class RecordSupply {
     private volatile boolean haveError;
     /** Error string. */
     private volatile String error;
+
+    // Stuff for reporting conditions (disk is full)
+
+    /** Writing of a RecordRingItem to disk has been stopped
+     * due to the disk partition being full. */
+    private volatile boolean diskFull;
 
     // Stuff for compression threads
 
@@ -194,6 +202,7 @@ public class RecordSupply {
         }
 
         this.order = order;
+        this.ringSize = ringSize;
         this.maxEventCount = maxEventCount;
         this.maxBufferSize = maxBufferSize;
         this.compressionType = compressionType;
@@ -249,6 +258,12 @@ public class RecordSupply {
     }
 
     
+    /**
+     * Get the number of records in this supply.
+     * @return number of records in this supply.
+     */
+    public int getRingSize() {return ringSize;}
+
     /**
      * Get the byte order of all records in this supply.
      * @return byte order of all records in this supply.
@@ -421,7 +436,7 @@ public class RecordSupply {
      * asynchronous writes to a file - both in separate threads to the thread which
      * calls the "write" method. If the writing of the later item finishes first, it
      * releases it's item and sequence which, unfortunately, also releases the
-     * previous item's sequence (which is still being written   ). When the first write is complete,
+     * previous item's sequence (which is still being written). When the first write is complete,
      * it also releases its item. However item.getSequenceObj() will return null
      * (causing NullPointerException) because it was already released thereby allowing
      * it to be reused and reset called on it.<p>
@@ -430,13 +445,20 @@ public class RecordSupply {
      * released in sequence.<p>
      *
      * If the same item is released more than once, bad things will happen.
-     * Thus the caller must take steps to prevent it.
+     * Thus the caller must take steps to prevent it. To avoid problems,
+     * call {@link RecordRingItem#setAlreadyReleased(boolean)} and set to true if
+     * item is released but will still be used in some manner.
      *
      * @param item item in ring buffer to release for reuse.
      * @return false if item not released since item is null, else true.
      */
     public boolean releaseWriter(RecordRingItem item) {
         if (item == null) {
+            return false;
+        }
+
+        if (item.isAlreadyReleased()) {
+            System.out.println("RecordSupply: item already released!");
             return false;
         }
 
@@ -506,5 +528,21 @@ public class RecordSupply {
      * @param err error message.
      */
     public void setError(String err) {error = err;}
+
+    /**
+     * Has the writing of a RecordRingItem to disk has been stopped
+     * due to the disk partition being full?
+     * @return  true if he writing of a RecordRingItem to disk has been stopped
+     *          due to the disk partition being full.
+     */
+    public boolean isDiskFull() {return diskFull;}
+
+    /**
+     * Set whether the writing of a RecordRingItem to disk has been stopped
+     * due to the disk partition being full.
+     * @param full true if he writing of a RecordRingItem to disk has been stopped
+     *             due to the disk partition being full.
+     */
+    public void setDiskFull(boolean full) {diskFull = full;}
 
 }
