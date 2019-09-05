@@ -280,6 +280,8 @@ public class RecordOutputStream {
             System.out.println("setBuffer(): warning, changing buffer's byte order!");
         }
 
+// TODO: we set the startingPositin to buf.position(), but the reset sets buffer pos to 0!!!
+
         recordBinary = buf;
         recordBinary.order(byteOrder);
         userProvidedBuffer = true;
@@ -383,6 +385,12 @@ public class RecordOutputStream {
         }
     }
 
+
+    /**
+     * Get the max number of events that can be accepted into this record.
+     * @return max number of events that can be accepted into this record.
+     */
+    public int getMaxEventCount() {return MAX_EVENT_COUNT;}
 
     /**
      * Get the number of initially available bytes to be written into in the user-given buffer,
@@ -880,6 +888,7 @@ public class RecordOutputStream {
             header.setIndexLength(0);
             header.setCompressedDataLength(0);
             header.setLength(RecordHeader.HEADER_SIZE_BYTES);
+            recordBinary.limit(startingPosition + RecordHeader.HEADER_SIZE_BYTES);
             recordBinary.position(startingPosition);
             try {
                 header.writeHeader(recordBinary);
@@ -887,7 +896,6 @@ public class RecordOutputStream {
             catch (HipoException e) {/* never happen */}
 //            System.out.println("build: buf lim = " + recordBinary.limit() +
 //                    ", cap = " + recordBinary.capacity());
-            recordBinary.limit(RecordHeader.HEADER_SIZE_BYTES);
             return;
         }
 
@@ -916,6 +924,8 @@ public class RecordOutputStream {
 //            recordData.position(0);
 //            recordData.put(  recordIndex.array(), 0, indexSize);
 //            recordData.put( recordEvents.array(), 0, eventSize);
+            recordData.clear();
+            recordBinary.clear();
             System.arraycopy(recordIndex.array(),  0, recordData.array(), 0,         indexSize);
             System.arraycopy(recordEvents.array(), 0, recordData.array(), indexSize, eventSize);
             recordData.position(indexSize + eventSize);
@@ -926,6 +936,8 @@ public class RecordOutputStream {
 //System.out.println("build: recordBinary len = " + userBufferSize +
 //                   ", start pos = " + startingPosition + ", data to write = " +
 //                   (RecordHeader.HEADER_SIZE_BYTES + indexSize + eventSize));
+
+            recordBinary.clear();
 
             if (recBinHasArray) {
                 System.arraycopy(recordIndex.array(),  0, recordBinary.array(),
@@ -1105,6 +1117,9 @@ public class RecordOutputStream {
 
         // If compressing data ...
         if (compressionType > 0) {
+            recordData.clear();
+            recordBinary.clear();
+
             // Write into a single, temporary buffer the following:
 
             // 1) uncompressed index array
@@ -1146,6 +1161,7 @@ public class RecordOutputStream {
         // If NOT compressing data ...
         else {
             // Write directly into final buffer, past where header will go
+            recordBinary.clear();
 
             // 1) uncompressed index array
             if (recBinHasArray) {
