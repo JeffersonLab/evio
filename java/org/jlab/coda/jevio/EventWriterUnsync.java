@@ -3179,8 +3179,9 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
         boolean checkIfDiskFull() {
             // How much free space is available on the disk?
             long freeBytes = currentFile.getParentFile().getFreeSpace();
-            // If there isn't enough free space to write the complete, projected size file ...
-            boolean full = freeBytes < split;
+            // If there isn't enough free space to write the complete, projected size file
+            // plus 1MB extra ...
+            boolean full = freeBytes < split + 1000000;
             supply.setDiskFull(full);
             return full;
         }
@@ -3389,8 +3390,8 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                     long freeBytes = currentFile.getParentFile().getFreeSpace();
 
                     // If there isn't enough free space to write the complete, projected
-                    // size file, and we're not trying to force the write ...
-                    if ((freeBytes < split) && !force) {
+                    // size file (and 1MB extra), and we're not trying to force the write ...
+                    if ((freeBytes < split + 1000000) && !force) {
                         return false;
                     }
                 }

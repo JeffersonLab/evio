@@ -3096,8 +3096,9 @@ final public class EventWriter implements AutoCloseable {
         boolean checkIfDiskFull() {
             // How much free space is available on the disk?
             long freeBytes = currentFile.getParentFile().getFreeSpace();
-            // If there isn't enough free space to write the complete, projected size file ...
-            boolean full = freeBytes < split;
+            // If there isn't enough free space to write the complete, projected size file
+            // plus 1MB extra ...
+            boolean full = freeBytes < split + 1000000;
             supply.setDiskFull(full);
             return full;
         }
@@ -3310,7 +3311,7 @@ final public class EventWriter implements AutoCloseable {
 
                     // If there isn't enough free space to write the complete, projected
                     // size file, and we're not trying to force the write ...
-                    if ((freeBytes < split) && !force) {
+                    if ((freeBytes < split + 1000000) && !force) {
                         return false;
                     }
                 }
