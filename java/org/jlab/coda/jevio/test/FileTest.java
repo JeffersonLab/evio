@@ -16,9 +16,23 @@ import java.util.List;
  */
 public class FileTest {
 
-
     /** For WRITING a local file. */
     public static void main(String args[]) {
+        File f = new File("/dev/shm/someTestFile");
+        long freeSpace = f.getFreeSpace();
+        File f2 = new File("/dev/shm");
+        long freeSpace2 = f2.getFreeSpace();
+        File f3 = new File("/tmp");
+        long freeSpace3 = f3.getFreeSpace();
+        System.out.println("Free space on partition for " + f.getName() + " = " + freeSpace);
+        System.out.println("Free space on partition for " + f2.getName() + " = " + freeSpace2);
+        System.out.println("Free space on partition for " + f3.getName() + " = " + freeSpace3);
+
+    }
+
+
+    /** For WRITING a local file. */
+    public static void main2(String args[]) {
 
         // String fileName  = "./myData.ev";
         String fileName  = "/home/timmer/fileTestSmall.ev";
