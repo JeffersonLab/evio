@@ -53,7 +53,7 @@ public class RecordSupplyTester {
                     //System.out.println("  Compressor " + num + ": released item");
                 }
             }
-            catch (InterruptedException e) {
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -72,7 +72,7 @@ public class RecordSupplyTester {
                     //System.out.println("    Writer: released item");
                 }
             }
-            catch (InterruptedException e) {
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }
