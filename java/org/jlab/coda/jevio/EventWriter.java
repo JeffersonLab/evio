@@ -239,6 +239,9 @@ final public class EventWriter implements AutoCloseable {
     // File related members
     //-----------------------
 
+    /** When forcing events to disk, this identifies which events for the writing thread. */
+    private long idCounter = 0;
+
     /** Header for file only. */
     private FileHeader fileHeader;
 
@@ -623,7 +626,7 @@ final public class EventWriter implements AutoCloseable {
              0, 0, 0, 0,
              ByteOrder.nativeOrder(), dictionary, false,
              append, null, 0, 0, 1, 1,
-             0, 1, 8);
+             0, 1, 8, 0);
 
     }
 
@@ -674,7 +677,7 @@ final public class EventWriter implements AutoCloseable {
              0, 0, 0, 0,
              byteOrder, null, false,
              append, null, 0, 0, 1, 1,
-             0, 1, 8);
+             0, 1, 8, 0);
     }
 
     /**
@@ -745,6 +748,9 @@ final public class EventWriter implements AutoCloseable {
      * @param ringSize           number of records in supply ring. If set to &lt; compressionThreads,
      *                           it is forced to equal that value and is also forced to be a multiple of
      *                           2, rounded up.
+     * @param bufferSize    number of bytes to make each internal buffer which will
+     *                      be storing events before writing them to a file.
+     *                      9MB = default if bufferSize = 0.
      *
      * @throws EvioException if maxRecordSize or maxEventCount exceed limits;
      *                       if streamCount &gt; 1 and streamId &lt; 0;
@@ -762,7 +768,8 @@ final public class EventWriter implements AutoCloseable {
                              boolean overWriteOK, boolean append,
                              EvioBank firstEvent, int streamId,
                              int splitNumber, int splitIncrement, int streamCount,
-                             int compressionType, int compressionThreads, int ringSize)
+                             int compressionType, int compressionThreads,
+                             int ringSize, int bufferSize)
             throws EvioException {
 
         if (baseName == null) {
@@ -877,10 +884,19 @@ final public class EventWriter implements AutoCloseable {
         // The reason there are 3 internal buffers is that we'll be able to
         // do 2 asynchronous writes at once will still filling up the third
         // simultaneously.
+
+        // Allow the user to set the size of the internal buffers up to a point.
+        // Value of 0 means use default of 9MB. This value is consistent with
+        // RecordOutputStream's own default. Won't use any size < 1MB.
         // One downside of the following constructor of currentRecord (supplying
         // an external buffer), is that trying to write a single event of over
-        // 9MB will fail. C. Timmer
-        bufferSize = 9437184; // 9MB so it's consistent with RecordOutputStream default
+        // bufferSize will fail. C. Timmer
+        if (bufferSize < 1) {
+            bufferSize = 9437184;
+        }
+        else {
+            bufferSize = bufferSize < 1000000 ? 1000000 : bufferSize;
+        }
         usedBuffers     = new ByteBuffer[2];
         internalBuffers = new ByteBuffer[3];
         internalBuffers[0] = ByteBuffer.allocateDirect(bufferSize);
@@ -2248,6 +2264,74 @@ final public class EventWriter implements AutoCloseable {
     }
 
     /**
+     * Write an event (bank) into a record and eventually to a file in evio/hipo
+     * version 6 format.
+     * Once the record is full and if writing with multiple compression
+     * threads, the record will be sent to a thread which may compress the data,
+     * then it will be sent to a thread to write the record to file.
+     * If there is only 1 compression thread, it's all done in the thread which
+     * call this method.<p>
+     *
+     * <b>
+     * If splitting files, this method returns false if disk partition is too full
+     * to write the complete, next split file. If force arg is true, write anyway.
+     * DO NOT mix calling this method with calling {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
+     * (or the methods which it). Results are unpredictable as it messes up the
+     * logic used to quit writing to full disk.
+     * </b>
+     *
+     * The buffer must contain only the event's data (event header and event data)
+     * and must <b>not</b> be in complete evio file format.<p>
+     *
+     * Be warned that injudicious use of a true 2nd arg, the force flag, will
+     * <b>kill</b> performance when writing to a file.
+     * A true 3rd arg can be used when the backing buffer
+     * of the node is accessed by multiple threads simultaneously. This allows
+     * that buffer's limit and position to be changed without interfering
+     * with the other threads.<p>
+     *
+     * This method is not used to write the dictionary or the first event
+     * which are both placed in the common record which, in turn, is the
+     * user header part of the file header.<p>
+     *
+     * @param node       object representing the event to write in buffer form
+     * @param force      if writing to disk, force it to write event to the disk.
+     * @param duplicate  if true, duplicate node's buffer so its position and limit
+     *                   can be changed without issue.
+     * @return if writing to buffer: true if event was added to record, false if buffer full,
+     *         record event count limit exceeded, or bank and bankBuffer args are both null.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if null node arg;
+     */
+    public boolean writeEventToFile(EvioNode node, boolean force, boolean duplicate)
+            throws EvioException, IOException {
+
+        if (node == null) {
+            throw new EvioException("null node arg");
+        }
+
+        ByteBuffer eventBuffer, bb = node.getBuffer();
+
+        // Duplicate buffer so we can set pos & limit without messing others up
+        if (duplicate) {
+            eventBuffer = bb.duplicate().order(bb.order());
+        }
+        else {
+            eventBuffer = bb;
+        }
+
+        int pos = node.getPosition();
+        eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
+        return writeEventToFile(null, eventBuffer, force);
+    }
+
+    /**
      * Write an event (bank) into a record in evio/hipo version 6 format.
      * Once the record is full and if writing to a file (for multiple compression
      * threads), the record will be sent to a thread which may compress the data,
@@ -2508,7 +2592,8 @@ final public class EventWriter implements AutoCloseable {
             throw new IOException(supply.getError());
         }
 
-        // Including this event, this is the total data size & event count for this record
+        // Including this event, this is the total data size & event count
+        // for this split file.
         splitEventBytes += currentEventBytes;
         splitEventCount++;
 
@@ -2611,6 +2696,268 @@ final public class EventWriter implements AutoCloseable {
         return true;
     }
 
+    /**
+     * Write an event (bank) into a record and eventually to a file in evio/hipo
+     * version 6 format.
+     * Once the record is full and if writing with multiple compression
+     * threads, the record will be sent to a thread which may compress the data,
+     * then it will be sent to a thread to write the record to file.
+     * If there is only 1 compression thread, it's all done in the thread which
+     * call this method.<p>
+     *
+     * <b>
+     * If splitting files, this method returns false if disk partition is too full
+     * to write the complete, next split file. If force arg is true, write anyway.
+     * DO NOT mix calling this method with calling {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
+     * (or the methods which it). Results are unpredictable as it messes up the
+     * logic used to quit writing to full disk.
+     * </b>
+     *
+     * The event to be written may be in one of two forms.
+     * The first is as an EvioBank object and the second is as a ByteBuffer
+     * containing only the event's data (event header and event data) and must
+     * <b>not</b> be in complete evio file format.
+     * The first non-null of the bank arguments will be written.<p>
+     *
+     * Be warned that injudicious use of a true 2nd arg, the force flag, will
+     *<b>kill</b> performance when writing to a file.<p>
+     *
+     * This method is not used to write the dictionary or the first event
+     * which are both placed in the common record which, in turn, is the
+     * user header part of the file header.<p>
+     *
+     * @param bank       the bank (as an EvioBank object) to write.
+     * @param bankBuffer the bank (as a ByteBuffer object) to write.
+     * @param force      if writing to disk, force it to write event to the disk.
+     * @return true if event was added to record. If splitting files, false if disk
+     *         partition too full to write the complete, next split file.
+     *         False if interrupted. If force arg is true, write anyway.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if both buffer args are null;
+     *                       if bad bankBuffer format;
+     *                       if close() already called;
+     *                       if not writing to file;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing.
+     */
+    synchronized public boolean writeEventToFile(EvioBank bank, ByteBuffer bankBuffer, boolean force)
+            throws EvioException, IOException {
+
+        if (closed) {
+            throw new EvioException("close() has already been called");
+        }
+
+        if (!toFile) {
+            throw new EvioException("cannot write to buffer with this method");
+        }
+
+        // If here, we're writing to a file ...
+
+        boolean fitInRecord;
+        boolean splittingFile = false;
+        // See how much space the event will take up
+        int currentEventBytes;
+
+        // Which bank do we write?
+        if (bankBuffer != null) {
+            if (bankBuffer.order() != byteOrder) {
+                throw new EvioException("event buf is " + bankBuffer.order() + ", and writer is " + byteOrder);
+            }
+
+            // Event size in bytes (from buffer ready to read)
+            currentEventBytes = bankBuffer.remaining();
+
+            // Size must be multiple of 4 bytes (whole 32-bit ints)
+            // The following is the equivalent of the mod operation:
+            //  (currentEventBytes % 4 != 0) but is much faster (x mod 2^n == x & (2^n - 1))
+            if ((currentEventBytes & 3) != 0) {
+                throw new EvioException("bad bankBuffer format");
+            }
+
+            // Check for inconsistent lengths
+            if (currentEventBytes != 4 * (bankBuffer.getInt(bankBuffer.position()) + 1)) {
+                throw new EvioException("inconsistent event lengths: total bytes from event = " +
+                                       (4*(bankBuffer.getInt(bankBuffer.position()) + 1)) +
+                                        ", from buffer = " + currentEventBytes);
+            }
+        }
+        else if (bank != null) {
+            currentEventBytes = bank.getTotalBytes();
+        }
+        else {
+            throw new EvioException("both buffer args are null");
+        }
+
+        // If we're splitting files,
+        // we must have written at least one real event before we
+        // can actually split the file.
+        if ((split > 0) && (splitEventCount > 0)) {
+            // Is event, along with the previous events, large enough to split the file?
+            // For simplicity ignore the headers which will take < 2Kb.
+            // Take any compression roughly into account.
+            long totalSize = (currentEventBytes + splitEventBytes)*compressionFactor/100;
+
+            // If we're going to split the file, set a couple flags
+            if (totalSize > split) {
+                splittingFile = true;
+            }
+        }
+
+        // First, if multithreaded write, check for any errors that may have
+        // occurred asynchronously in the write or one of the compression threads.
+        // Also check to see if disk is full.
+        if (!singleThreadedCompression) {
+            if (supply.haveError()) {
+                // Wake up any of these threads waiting for another record
+                supply.errorAlert();
+                throw new IOException(supply.getError());
+            }
+
+            if (supply.isDiskFull() && !force) {
+//System.out.println("writeEventToFile: disk is full, check again");
+                // Check again to see if it's still full
+                if (recordWriterThread.checkIfDiskFull()) {
+//System.out.println("writeEventToFile: disk is still full");
+                    // Still full
+                    return false;
+                }
+                System.out.println("writeEventToFile: disk is NOT full, emptied");
+            }
+        }
+
+        // Including this event, this is the total data size & event count
+        // for this split file.
+        splitEventBytes += currentEventBytes;
+        splitEventCount++;
+
+        // If event is big enough to split the file, write what we already have
+        // (not including current event).
+        if (splittingFile) {
+            if (singleThreadedCompression) {
+                try {
+                    // Should always be able to finish writing current file
+                    compressAndWriteToFile(force);
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
+
+                splitFile();
+            }
+            else {
+                // Set flag to split file
+                currentRingItem.splitFileAfterWrite(true);
+                // Check disk partition space. Don't create next file
+                // if it can't hold that next, complete file.
+                currentRingItem.setCheckDisk(true);
+                // Send current record back to ring without adding event
+                supply.publish(currentRingItem);
+
+                // Get another empty record from ring
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
+            }
+
+            // Reset split-tracking variables
+            splitEventBytes = 0L;
+            splitEventCount = 0;
+//System.out.println("Will split, reset splitEventBytes = "  + splitEventBytes);
+        }
+
+        // Try adding event to current record.
+        // One event is guaranteed to fit in a record no matter the size.
+        if (bankBuffer != null) {
+            fitInRecord = currentRecord.addEvent(bankBuffer);
+        }
+        else {
+            fitInRecord = currentRecord.addEvent(bank);
+        }
+
+        // If no room or too many events in record, write out current record first,
+        // then start working on a new record with this event.
+
+        // If no room or too many events ...
+        if (!fitInRecord) {
+
+            // We will not end up here if the file just split, so
+            // splitEventBytes and splitEventCount will NOT have
+            // just been set to 0.
+
+            if (singleThreadedCompression) {
+                try {
+                    // This might be the first write after the file split.
+                    // If so, return false if disk is full,
+                    // otherwise write what we already have first.
+                    if (!tryCompressAndWriteToFile(force)) {
+                        // Undo stuff since we're no longer writing
+                        splitEventCount--;
+                        splitEventBytes -= currentEventBytes;
+                        return false;
+                    }
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
+            }
+            else {
+                supply.publish(currentRingItem);
+                currentRingItem.setCheckDisk(true);
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
+            }
+
+            // Add event to it (guaranteed to fit)
+            if (bankBuffer != null) {
+                currentRecord.addEvent(bankBuffer);
+            }
+            else {
+                currentRecord.addEvent(bank);
+            }
+        }
+
+        // If event must be physically written to disk ...
+        if (force) {
+            if (singleThreadedCompression) {
+                try {
+                    if (!tryCompressAndWriteToFile(true)) {
+                        splitEventCount--;
+                        splitEventBytes -= currentEventBytes;
+                        return false;
+                    }
+                }
+                catch (InterruptedException e) {
+                    return false;
+                }
+                catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
+            }
+            else {
+                currentRingItem.forceToDisk(true);
+                currentRingItem.setCheckDisk(true);
+
+                // Tell writing thread which event started the force to disk.
+                // Once it's written, we can go back to the normal of not
+                // forcing things to disk.
+                currentRingItem.setId(++idCounter);
+                recordWriterThread.setForcedRecordId(idCounter);
+
+                supply.publish(currentRingItem);
+                currentRingItem = supply.get();
+                currentRecord = currentRingItem.getRecord();
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Class used to take data-filled record from supply, compress it,
@@ -2685,6 +3032,44 @@ final public class EventWriter implements AutoCloseable {
         /** The highest sequence to have been currently processed. */
         private volatile long lastSeqProcessed = -1;
 
+        /** Place to store event when disk is full. */
+        private RecordRingItem storedItem;
+
+        /** Force write to disk. */
+        private volatile boolean forceToDisk;
+
+        /** Id of RecordRingItem that initiated the forced write. */
+        private volatile long forcedRecordId;
+
+
+        /**
+         * Store the id of the record which is forcing a write to disk,
+         * even if disk is "full".
+         * The idea is that we look for this record and once it has been
+         * written, then we don't force any following records to disk
+         * (unless we're told to again by the calling of this function).
+         * Generally, for an emu, this method gets called when control events
+         * arrive. In particular, when the END event comes, it must be written
+         * to disk with all the events that preceded it.
+         *
+         * @param id id of record causing the forced write to disk.
+         */
+        void setForcedRecordId(long id) {
+            forcedRecordId = id;
+            forceToDisk = true;
+        }
+
+        /**
+         * Force records to disk, even if disk is "full".
+         * Generally, for an emu, this happens when control events arrive.
+         * In particular, when the END event comes, it must be written to
+         * disk with all the events that preceded it.
+         *
+         * @param force true if current records are to be written to disk
+         *              regardless of whether it's full or not.
+         */
+        void setForceToDisk(boolean force) {forceToDisk = force;}
+
         /** Wait for the last item to be processed, then exit thread. */
         void waitForLastItem() {
             while (supply.getLastSequence() > lastSeqProcessed) {
@@ -2694,10 +3079,34 @@ final public class EventWriter implements AutoCloseable {
             this.interrupt();
         }
 
+        private RecordRingItem storeRecordCopy(RecordRingItem rec) {
+            storedItem = new RecordRingItem(rec);
+            return storedItem;
+        }
+
+        /**
+         * Check to see if the disk is full. This is necessary whenever
+         * {@link #writeEventToFile(EvioBank, ByteBuffer, boolean)} is called
+         * since once disk is full, this thread will tell the method to stop sending
+         * events to ring to be written. To unstop things, each time that write
+         * method is called, it needs to recheck to see if the disk is now free.
+         *
+         * @return  true if full, else false.
+         */
+        boolean checkIfDiskFull() {
+            // How much free space is available on the disk?
+            long freeBytes = currentFile.getParentFile().getFreeSpace();
+            // If there isn't enough free space to write the complete, projected size file ...
+            boolean full = freeBytes < split;
+            supply.setDiskFull(full);
+            return full;
+        }
+
         @Override
         public void run() {
             try {
                 long currentSeq;
+                boolean checkDisk;
 
                 while (true) {
                     if (Thread.interrupted()) {
@@ -2708,8 +3117,65 @@ final public class EventWriter implements AutoCloseable {
                     RecordRingItem item = supply.getToWrite();
                     currentSeq = item.getSequence();
 
-                    // Write to file
-                    writeToFileMT(item, item.forceToDisk());
+                    // If checkDisk is true for one item, it should be true for all,
+                    // if this writer is being used properly. Don't mix writeEvent()
+                    // with writeEventToFile() calls or there will be confusion.
+                    checkDisk = item.isCheckDisk();
+
+                    // Check the disk before we try to write
+                    if (checkDisk) {
+
+                        // If there isn't enough free space to write the complete, projected
+                        // size file, and we're not trying to force the write ...
+                        // store a COPY of the record for now and release the original so
+                        // that writeEvent() does not block.
+                        //
+                        // So here is the problem. We are stuck in a loop here if disk is full.
+                        // If events are flowing and since writing data to file is the bottleneck,
+                        // it is likely that all records have been filled and published onto
+                        // the ring. AND, writeEvent() blocks in a spin as it tries to get the
+                        // next record from the ring which, unfortunately, never comes.
+                        //
+                        // When writeEvent() blocks, it can't respond by returning a "false" value.
+                        // This plays havoc with code like the emu which is not expecting writeEvent()
+                        // to block (at least not for very long).
+                        //
+                        // To break writeEvent() out of its spinning block, we make a copy of the
+                        // item we're trying to write and release the original record. This allows
+                        // writeEvent() to grab a new (newly released) record, write an event into
+                        // it, and return to the caller. From then on, writeEvent() can prevent
+                        // blocking by checking for a full disk (which it couldn't do before since
+                        // the signal came too late).
+                        while ((checkIfDiskFull()) && !forceToDisk) {
+
+                            // Wait for a sec and try again
+                            Thread.sleep(1000);
+
+                            // If we released the item in a previous loop, don't do it again
+                            if (!item.isAlreadyReleased()) {
+                                // Copy item
+                                RecordRingItem copiedItem = storeRecordCopy(item);
+                                // Release original so we don't block writeEvent()
+                                supply.releaseWriter(item);
+                                item = copiedItem;
+                            }
+
+                            // Wait until space opens up
+                        }
+
+                        // If we're here, there must be free space available even
+                        // if there previously wasn't.
+                    }
+
+                    // Write current item to file
+                    writeToFileMT(item, forceToDisk);
+
+                    // Turn off forced write to disk, if the record which
+                    // initially triggered it, has now been written.
+                    if (forceToDisk && (forcedRecordId == item.getId()))  {
+//System.out.println("  write: WROTE the record that triggered force, reset to false");
+                        forceToDisk = false;
+                    }
 
                     // Now we're done with this sequence
                     lastSeqProcessed = currentSeq;
@@ -2749,7 +3215,7 @@ final public class EventWriter implements AutoCloseable {
      * Used when doing compression & writing to file in a single thread.
      * Only called from synchronized context.
      *
-     * @param force force it to write event to the disk.
+     * @param force  if true, force writing event physically to disk.
      *
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
@@ -2762,12 +3228,44 @@ final public class EventWriter implements AutoCloseable {
     private void compressAndWriteToFile(boolean force)
                         throws EvioException, IOException,
                                InterruptedException, ExecutionException {
+
         RecordHeader header = currentRecord.getHeader();
         header.setRecordNumber(recordNumber);
         header.setCompressionType(compressionType);
         currentRecord.build();
-        writeToFile(force);
-        currentRecord.reset();
+        // Resets currentRecord too
+        writeToFile(force, false);
+     }
+
+
+    /**
+     * Compress data and write record to file. Does nothing if close() already called.
+     * Used when doing compression & writing to file in a single thread.
+     * Only called from synchronized context.
+     *
+     * @param force  if true, force writing event physically to disk.
+     * @return true if everything normal; false if a new file needs to be created
+     *         (first write after a split) but there is not enough free space on
+     *         the disk partition for the next, complete file.
+     *         If force arg is true, write anyway.
+     *
+     * @throws EvioException if this object already closed;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     * @throws IOException   if error opening or forcing file write.
+     * @throws ExecutionException     if error writing file.
+     * @throws InterruptedException   if this thread was interrupted while waiting
+     *                                for file write to complete.
+     */
+    private boolean tryCompressAndWriteToFile(boolean force)
+                        throws EvioException, IOException,
+                               InterruptedException, ExecutionException {
+
+        RecordHeader header = currentRecord.getHeader();
+        header.setRecordNumber(recordNumber);
+        header.setCompressionType(compressionType);
+        currentRecord.build();
+        return writeToFile(force, true);
      }
 
 
@@ -2779,16 +3277,24 @@ final public class EventWriter implements AutoCloseable {
      * Does nothing if close() already called.
      *
      * @param force force it to write event to the disk.
+     * @param checkDisk if true and if a new file needs to be created but there is
+     *                  not enough free space on the disk partition for the
+     *                  complete intended file, return false without creating or
+     *                  writing to file. If force arg is true, write anyway.
+     *
+     * @return true if everything normal; false if a new file needs to be created
+     *         (first write after a split) but there is not enough free space on
+     *         the disk partition for the next, complete file and checkDisk arg is true.
      *
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error opening or forcing file write.
-     * @throws ExecutionException     if error writing file.
-     * @throws InterruptedException   if this thread was interrupted while waiting
-     *                                for file write to complete.
+     * @throws IOException          if error opening or forcing file write.
+     * @throws ExecutionException   if error writing file.
+     * @throws InterruptedException if this thread was interrupted while waiting
+     *                              for file write to complete.
      */
-    synchronized private void writeToFile(boolean force)
+    synchronized private boolean writeToFile(boolean force, boolean checkDisk)
             throws EvioException, IOException,
                    InterruptedException, ExecutionException {
         if (closed) {
@@ -2798,6 +3304,17 @@ final public class EventWriter implements AutoCloseable {
         // This actually creates the file so do it only once
         if (bytesWritten < 1) {
             try {
+                if (checkDisk) {
+                    // How much free space is available on the disk?
+                    long freeBytes = currentFile.getParentFile().getFreeSpace();
+
+                    // If there isn't enough free space to write the complete, projected
+                    // size file, and we're not trying to force the write ...
+                    if ((freeBytes < split) && !force) {
+                        return false;
+                    }
+                }
+
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
                                                                 StandardOpenOption.CREATE,
@@ -2903,6 +3420,8 @@ final public class EventWriter implements AutoCloseable {
 
         // Next buffer to work with
         buffer = unusedBuffer;
+        // Clear buffer since we don't know what state it was left in
+        // after write to file AND setBuffer uses its position to start from
         buffer.clear();
         record.setBuffer(buffer);
         record.reset();
@@ -2920,6 +3439,8 @@ final public class EventWriter implements AutoCloseable {
         fileWritingPosition += bytesToWrite;
         eventsWrittenToFile += eventCount;
         eventsWrittenTotal  += eventCount;
+        
+        return true;
     }
 
 
@@ -2935,11 +3456,10 @@ final public class EventWriter implements AutoCloseable {
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
-     * @throws IOException   if error opening or forcing file write.
-     * @throws ExecutionException     if error writing file.
-     * @throws InterruptedException   if this thread was interrupted while waiting
-     *                                for file write to complete.
-     */
+     * @throws IOException          if error opening or forcing file write.
+     * @throws ExecutionException   if error writing file.
+     * @throws InterruptedException if this thread was interrupted while waiting
+      */
     synchronized private void writeToFileMT(RecordRingItem item, boolean force)
             throws EvioException, IOException,
                    InterruptedException, ExecutionException {
@@ -3075,7 +3595,7 @@ final public class EventWriter implements AutoCloseable {
 
 
     /**
-     * Split the file.
+     * Split the file for multithreaded compression.
      * Never called when output is to buffer.
      * It writes the trailer which includes an index of all records.
      * Then it closes the old file (forcing unflushed data to be written)
@@ -3142,6 +3662,7 @@ final public class EventWriter implements AutoCloseable {
     /**
      * Write a general header as the last "header" or trailer in the file
      * optionally followed by an index of all record lengths.
+     * This writes synchronously.
      *
      * @param writeIndex if true, write an index of all record lengths in trailer.
      * @throws IOException if problems writing to file.
