@@ -7,6 +7,7 @@
 
 package org.jlab.coda.hipo;
 
+import com.lmax.disruptor.AlertException;
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioException;
 import org.jlab.coda.jevio.Utilities;
@@ -242,7 +243,11 @@ public class WriterMT implements AutoCloseable {
                 // which means we're all done.
 System.out.println("   Compressor: thread " + num + " INTERRUPTED");
             }
-        }
+            catch (AlertException e) {
+                 // We've been notified that an error has occurred
+ System.out.println("   Compressor: thread " + num + " exiting due to error of some sort");
+             }
+         }
     }
 
 
@@ -323,6 +328,10 @@ System.out.println("   Compressor: thread " + num + " INTERRUPTED");
                 // which means we're all done.
 System.out.println("   Writer: thread INTERRUPTED");
             }
+            catch (AlertException e) {
+                 // We've been notified that an error has occurred
+ System.out.println("   Writer: thread exiting due to error of some sort");
+             }
         }
     }
 
