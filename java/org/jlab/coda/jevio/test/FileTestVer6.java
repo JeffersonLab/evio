@@ -402,7 +402,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                         false, append, null,
                         0, 0, 1,
                         1, 2, 1,
-                        8);
+                        8, 0);
 //
 //                public EventWriter(String baseName, String directory, String runType,
 //                         int runNumber, long split,
@@ -411,7 +411,8 @@ System.out.println("FileTest, write to file " + fileName + "\n");
 //                         boolean overWriteOK, boolean append,
 //                         EvioBank firstEvent, int streamId,
 //                         int splitNumber, int splitIncrement, int streamCount,
-//                         int compressionType, int compressionThreads, int ringSize)
+//                         int compressionType, int compressionThreads,
+//                         int ringSize, int bufferSize)
 
             // Write prestart event, force to file
             writer.writeEvent(prestartBuf, true);
