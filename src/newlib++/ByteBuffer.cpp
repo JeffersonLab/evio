@@ -53,21 +53,7 @@ ByteBuffer::ByteBuffer(size_t size) {
  * @param srcBuf ByteBuffer to copy.
  */
 ByteBuffer::ByteBuffer(const ByteBuffer & srcBuf) {
-
-    // Avoid self copy ...
-    if (this != &srcBuf) {
-        // A copy should not use the same shared pointer
-        buf = shared_ptr<uint8_t>(new uint8_t[srcBuf.cap], default_delete<uint8_t[]>());
-
-        pos = srcBuf.pos;
-        cap = srcBuf.cap;
-        lim = srcBuf.lim;
-        mrk = srcBuf.mrk;
-        byteOrder = srcBuf.byteOrder;
-        isHostEndian = srcBuf.isHostEndian;
-        isLittleEndian = srcBuf.isLittleEndian;
-        memcpy((void *) buf.get(), (const void *) srcBuf.buf.get(), cap);
-    }
+    copy(srcBuf);
 }
 
 /**
@@ -147,6 +133,29 @@ ByteBuffer::ByteBuffer(char* byteArray, size_t len) {
     byteOrder = ByteOrder::ENDIAN_LITTLE;
     isLittleEndian = true;
     isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
+}
+
+
+/**
+ * Copy data and everything else from arg.
+ * @param srcBuf ByteBuffer to copy.
+ */
+void ByteBuffer::copy(const ByteBuffer & srcBuf) {
+
+    // Avoid self copy ...
+    if (this != &srcBuf) {
+        // A copy should not use the same shared pointer, copy data over
+        buf = shared_ptr<uint8_t>(new uint8_t[srcBuf.cap], default_delete<uint8_t[]>());
+
+        pos = srcBuf.pos;
+        cap = srcBuf.cap;
+        lim = srcBuf.lim;
+        mrk = srcBuf.mrk;
+        byteOrder = srcBuf.byteOrder;
+        isHostEndian = srcBuf.isHostEndian;
+        isLittleEndian = srcBuf.isLittleEndian;
+        memcpy((void *) buf.get(), (const void *) srcBuf.buf.get(), cap);
+    }
 }
 
 

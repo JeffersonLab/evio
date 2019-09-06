@@ -74,6 +74,7 @@ class ByteBuffer {
         ByteBuffer & operator=(const ByteBuffer& other);
         ByteBuffer & compact();
 
+        void copy(const ByteBuffer & srcBuf);
         bool equals(const ByteBuffer & other);
 
         bool isDirect()     const;

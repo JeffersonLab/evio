@@ -9,6 +9,7 @@
 #include <sstream>
 #include <memory>
 #include <vector>
+#include <algorithm>
 #include "ByteBuffer.h"
 #include "DataType.h"
 #include "RecordNode.h"
@@ -44,7 +45,8 @@ private:
     uint32_t recordPos;
 
     /** Store data in int array form if calculated. */
-    shared_ptr<uint32_t> data;
+//shared_ptr<uint32_t> data1;
+    vector<uint32_t> data;
 
     /** Does this node represent an event (top-level bank)? */
     bool izEvent;
@@ -114,7 +116,7 @@ private:
 protected:
 
     EvioNode();
-    explicit EvioNode(EvioNode* firstNode);
+    explicit EvioNode(shared_ptr<EvioNode> & firstNode);
 
 public:
 
@@ -128,6 +130,7 @@ public:
     //~EvioNode();
 
     EvioNode & operator=(const EvioNode& other);
+    bool operator==(const EvioNode& src) const;
 
     EvioNode & shift(int deltaPos);
     // instead of clone, let's do copy constructor
@@ -184,7 +187,14 @@ public:
     void updateTag(uint32_t newTag);
 
     void updateNum(uint8_t newNum);
-    ByteBuffer getByteData(bool copy);
+    ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
+
+    vector<uint32_t> & getIntData();
+    void getIntData(vector<uint32_t> & intData);
+    void getLongData(vector<uint64_t> & longData);
+    void getShortData(vector<uint16_t> & shortData);
+    ByteBuffer & getStructureBuffer(ByteBuffer & dest, bool copy);
+
 
 
     };

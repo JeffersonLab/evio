@@ -110,11 +110,10 @@ EvioNode::EvioNode(EvioNode && src) noexcept : EvioNode() {
 
 
 /** Constructor used when swapping data. */
-EvioNode::EvioNode(EvioNode* firstNode)  : EvioNode() {
+EvioNode::EvioNode(shared_ptr<EvioNode> & firstNode)  : EvioNode() {
     scanned = true;
     eventNode = firstNode;
 }
-
 
 
 //----------------------------------
@@ -231,6 +230,16 @@ EvioNode & EvioNode::operator=(const EvioNode& src) {
         recordNode = src.recordNode;
     }
     return *this;
+}
+
+/**
+ * Comparison operator.
+ * @param src right side object.
+ * @return left side object.
+ */
+bool EvioNode::operator==(const EvioNode & src) const {
+    // Same object, must be equal
+    return this == &src;
 }
 
 
@@ -857,9 +866,6 @@ void EvioNode::scanStructure(EvioNode & node, EvioNodeSource & nodeSource) {
  * @param node child node to add to the list of all nodes
  */
 void EvioNode::addToAllNodes(EvioNode & node) {
-    if (node == nullptr) {
-        return;
-    }
 
     allNodes.push_back(shared_ptr<EvioNode>(&node));
     // NOTE: do not have to do this recursively for all descendants.
@@ -879,14 +885,8 @@ void EvioNode::removeFromAllNodes(shared_ptr<EvioNode> & node) {
         return;
     }
 
-//    allNodes.remove(node);
-
-    // Remove form allNodes (very hard in C++ !!!)
-    for (int i=0; i < allNodes.size(); i++) {
-        if (allNodes[i] == node) {
-            allNodes.erase(node, i);
-        }
-    }
+    // Remove from allNodes (very strange in C++ !)
+    allNodes.erase(std::remove(allNodes.begin(), allNodes.end(), node), allNodes.end());
 
     // Remove descendants also
     for (shared_ptr<EvioNode> & n : node->childNodes) {
@@ -927,9 +927,12 @@ void EvioNode::removeChild(shared_ptr<EvioNode> & node) {
         return;
     }
 
-    bool isChild = childNodes.remove(node);
+    uint64_t sizeBefore = childNodes.size();
+    childNodes.erase(std::remove(childNodes.begin(), childNodes.end(), node), childNodes.end());
+    uint64_t sizeAfter = childNodes.size();
 
-    if (isChild) {
+    // Remove from allNodes too since it was contained in childNodes
+    if (sizeBefore > sizeAfter) {
         removeFromAllNodes(node);
     }
 }
@@ -1109,7 +1112,7 @@ uint32_t EvioNode::getDataType() {return dataType;}
  * Get the evio type of the data this evio structure contains as an object.
  * @return evio type of the data this evio structure contains as an object.
  */
-DataType EvioNode::getDataTypeObj() {return DataType.getDataType(dataType);}
+DataType EvioNode::getDataTypeObj() {return DataType::getDataType(dataType);}
 
 /**
  * Get the file/buffer byte position of the record containing this node.
@@ -1244,246 +1247,117 @@ void EvioNode::updateNum(uint8_t newNum) {
 
 /**
  * Get the data associated with this node in ByteBuffer form.
- * Depending on the copy argument, the returned buffer will either be
+ * Depending on the copy argument, the given buffer will be filled with either
  * a copy of or a view into this node's buffer.
  * Position and limit are set for reading.<p>
- * This method is not synchronized.
  *
+ * @param dest buffer in which to place data.
  * @param copy if <code>true</code>, then return a copy as opposed to a
  *             view into this node's buffer.
- * @return ByteBuffer containing data.
+ * @return dest arg ByteBuffer containing data.
  *         Position and limit are set for reading.
  */
-ByteBuffer EvioNode::getByteData(bool copy) {
-
-    // The tricky thing to keep in mind is that the buffer
-    // which this node uses may also be used by other nodes.
-    // That means setting its limit and position may interfere
-    // with other operations being done to it.
-    // So even though it is less efficient, use a duplicate of the
-    // buffer which gives us our own limit and position.
-    ByteOrder order    = buffer.order();
-    ByteBuffer buffer2 = buffer.duplicate().order(order);
-    buffer2.limit(dataPos + 4*dataLen - pad).position(dataPos);
-
+ByteBuffer & EvioNode::getByteData(ByteBuffer & dest, bool copy) {
     if (copy) {
-        ByteBuffer newBuf = ByteBuffer(4*dataLen - pad).order(order);
-        newBuf.put(buffer2);
-        newBuf.flip();
-        return newBuf;
+        // copy data & everything else
+        dest.copy(buffer);
+    } else {
+        // dest now has shared pointer to buffer's data
+        buffer.duplicate(dest);
     }
-
-    //return  buffer2.slice().order(order);
-    return  buffer2;
+    dest.limit(dataPos + 4*dataLen - pad).position(dataPos);
+    return dest;
 }
 
 
 /**
- * Get the data associated with this node as an 32-bit integer array.
- * Store it for future 2nd gets (like in event builder).
+ * Get the data associated with this node as an 32-bit integer vector.
+ * Store it and return it in future calls (like in event builder).
  * If data is of a type less than 32 bits, the last int will be junk.
- * Call this to avoid calling {@link #getByteData(boolean)} and converting
- * it to an int array which involves creating additional objects and calling
- * additional methods.
- * This method is not synchronized.
  *
  * @return integer array containing data.
  */
-final public int[] EvioNode::getIntData() {
-    if (data != null) {
-        return data;
-    }
-
-    data = new int[dataLen];
-
-    for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
-        data[(i-dataPos)/4] = buffer.getInt(i);
+vector<uint32_t> & EvioNode::getIntData() {
+    if (data.empty()) {
+        for (int i = dataPos; i < dataPos + 4 * dataLen; i += 4) {
+            data[(i - dataPos) / 4] = buffer.getInt(i);
+        }
     }
     return data;
 }
 
 
+// TODO: This method can probably be deleted since it's only used in Evio.java in emu package
 /**
- * Get the data associated with this node as an 32-bit integer array.
- * Place data in the given array. Only allocate memory if array is too small.
+ * Get the data associated with this node as an 32-bit integer vector.
+ * Place data in the given vector.
  * If data is of a type less than 32 bits, the last int will be junk.
- * Call this to avoid calling {@link #getByteData(boolean)} and converting
- * it to an int array which involves creating additional objects and calling
- * additional methods.
- * This method is not synchronized.
  *
- * @param intData integer array in which to store data.
- * @param length  set first element to contain number of valid array elements of the returned array.
- * @return integer array containing data, or null if length array arg is null or 0 length.
+ * @param intData vector in which to store data.
  */
-final public int[] EvioNode::getIntData(int[] intData, int[] length) {
-    if (length == null || length.length < 1) return null;
-
-    // If supplied array is null or too small, create one
-    if (intData == null || intData.length < dataLen) {
-        intData = new int[dataLen];
-    }
+void EvioNode::getIntData(vector<uint32_t> & intData) {
+    intData.clear();
 
     for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
         intData[(i-dataPos)/4] = buffer.getInt(i);
     }
 
-    // Return number of valid array elements through this array
-    length[0] = dataLen;
-
-    // Return data here
-    return intData;
-}
-
-/**
- * Get the data associated with this node as an 64-bit integer array.
- * If data is of a type less than 64 bits, the last long will be junk.
- * Make sure we don't try to read beyond the end.
- * Call this to avoid calling {@link #getByteData(boolean)} and converting
- * it to a long array which involves creating additional objects and calling
- * additional methods.
- * This method is not synchronized.
- *
- * @return long array containing data.
- */
-final public long[] EvioNode::getLongData() {
-    int numLongs = dataLen/2;
-
-    long[] data = new long[numLongs];
-
-    for (int i = dataPos; i < dataPos + 8*numLongs; i+= 8) {
-        data[(i-dataPos)/8] = buffer.getLong(i);
-    }
-    return data;
+    // added dataLen number of elements
 }
 
 
 /**
- * Get the data associated with this node as an 64-bit integer array.
- * Place data in the given array. Only allocate memory if array is too small.
+ * Get the data associated with this node as an 64-bit integer vector.
+ * Place data in the given vector.
  * If data is of a type less than 64 bits, the last element may be junk.
- * Call this to avoid calling {@link #getByteData(boolean)} and converting
- * it to an long array which involves creating additional objects and calling
- * additional methods.
- * This method is not synchronized.
  *
- * @param longData long array in which to store data.
- * @param length   set first element to contain number of valid array elements of the returned array.
- * @return long array containing data, or null if length array arg is null or 0 length.
+ * @param longData vector in which to store data.
  */
-final public long[] EvioNode::getLongData(long[] longData, int[] length) {
-    if (length == null || length.length < 1) return null;
+void EvioNode::getLongData(vector<uint64_t> & longData) {
+    longData.clear();
 
-    int numLongs = dataLen/2;
-
-    // If supplied array is null or too small, create one
-    if (longData == null || longData.length < numLongs) {
-        longData = new long[numLongs];
-    }
-
-    for (int i = dataPos; i < dataPos + 8*numLongs; i+= 8) {
+    for (int i = dataPos; i < dataPos + 4*dataLen; i+= 8) {
         longData[(i-dataPos)/8] = buffer.getLong(i);
     }
-
-    // Return number of valid array elements through this array
-    length[0] = numLongs;
-
-    // Return data here
-    return longData;
 }
 
 
 /**
- * Get the data associated with this node as an 16-bit integer array.
- * If data is of a type less than 16 bits, the last int will be junk.
- * Call this to avoid calling {@link #getByteData(boolean)} and converting
- * it to a short array which involves creating additional objects and calling
- * additional methods.
- * This method is not synchronized.
- *
- * @return short array containing data.
- */
-final public short[] EvioNode::getShortData() {
-    int numShorts = 2*dataLen;
-    short[] data = new short[numShorts];
-
-    for (int i = dataPos; i < dataPos + 2*numShorts; i+= 2) {
-        data[(i-dataPos)/2] = buffer.getShort(i);
-    }
-    return data;
-}
-
-
-/**
- * Get the data associated with this node as an 16-bit integer array.
- * Place data in the given array. Only allocate memory if array is too small.
+ * Get the data associated with this node as an 16-bit integer vector.
+ * Place data in the given vector.
  * If data is of a type less than 16 bits, the last element may be junk.
- * Call this to avoid calling {@link #getByteData(boolean)} and converting
- * it to an short array which involves creating additional objects and calling
- * additional methods.
- * This method is not synchronized.
  *
- * @param shortData short array in which to store data.
- * @param length    set first element to contain number of valid array elements of the returned array.
- * @return short array containing data, or null if length array arg is null or 0 length.
+ * @param shortData vectro in which to store data.
  */
-final public short[] EvioNode::getShortData(short[] shortData, int[] length) {
-    if (length == null || length.length < 1) return null;
+void EvioNode::getShortData(vector<uint16_t> & shortData) {
+    shortData.clear();
 
-    int numShorts = 2*dataLen;
-
-    // If supplied array is null or too small, create one
-    if (shortData == null || shortData.length < numShorts) {
-        shortData = new short[numShorts];
-    }
-
-    for (int i = dataPos; i < dataPos + 2*numShorts; i+= 2) {
+    for (int i = dataPos; i < dataPos + 4*dataLen; i+= 2) {
         shortData[(i-dataPos)/2] = buffer.getShort(i);
     }
-
-    // Return number of valid array elements through this array
-    length[0] = numShorts;
-
-    // Return data here
-    return shortData;
 }
 
 
 /**
  * Get this node's entire evio structure in ByteBuffer form.
- * Depending on the copy argument, the returned buffer will either be
+ * Depending on the copy argument, the returned buffer will either have
  * a copy of or a view into the data of this node's buffer.
- * Position and limit are set for reading.<p>
- * This method is not synchronized.
+ * Position and limit are set for reading.
  *
- * @param copy if <code>true</code>, then return a copy as opposed to a
+ * @param copy if <code>true</code>, then use a copy of as opposed to a
  *        view into this node's buffer.
- * @return ByteBuffer object containing evio structure's bytes.
+ * @return dest arg ByteBuffer containing evio structure's bytes.
  *         Position and limit are set for reading.
  */
-final public ByteBuffer EvioNode::getStructureBuffer(boolean copy)  {
-
-    // The tricky thing to keep in mind is that the buffer
-    // which this node uses may also be used by other nodes.
-    // That means setting its limit and position may interfere
-    // with other operations being done to it.
-    // So even though it is less efficient, use a duplicate of the
-    // buffer which gives us our own limit and position.
-
-    ByteOrder order    = buffer.order();
-    ByteBuffer buffer2 = buffer.duplicate().order(order);
-    buffer2.limit(dataPos + 4*dataLen).position(pos);
-
+ByteBuffer & EvioNode::getStructureBuffer(ByteBuffer & dest, bool copy) {
     if (copy) {
-        ByteBuffer newBuf = ByteBuffer.allocate(getTotalBytes()).order(order);
-        newBuf.put(buffer2);
-        newBuf.flip();
-        return newBuf;
+        // copy data & everything else
+        dest.copy(buffer);
+    } else {
+        // dest now has shared pointer to buffer's data
+        buffer.duplicate(dest);
     }
-
-    //return buffer2.slice().order(order);
-    return buffer2;
+    dest.limit(dataPos + 4 * dataLen).position(pos);
+    return dest;
 }
 
-
-}
