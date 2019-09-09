@@ -268,6 +268,10 @@ public class EventWriterUnsync {
     // File related members
     //-----------------------
 
+    /** Variable used to stop accepting events to be included in the inner buffer
+     * holding the current block. Used when disk space is inadequate. */
+    private boolean diskIsFull;
+
     /** Number of available bytes in partition where file is being written. */
     private long freeBytes;
 
@@ -1233,6 +1237,11 @@ public class EventWriterUnsync {
 
         // Number of available bytes in file's disk partition
         freeBytes = currentFile.getParentFile().getFreeSpace();
+        // If there isn't enough to accommodate 1 split of the file + 1 full block + 1MB,
+        // then don't start writing ...
+        if (freeBytes < split + 4*blockSizeMax + 1000000) {
+            diskIsFull = true;
+        }
 
         // Create internal storage buffer
         // Since we're doing I/O to a file, a direct buffer is more efficient.
@@ -3656,6 +3665,14 @@ System.err.println("ERROR endOfBuffer " + a);
             // Now continue with writing the event ...
         }
 
+        // If we can't allow any more events in due to limited disk space
+        if (diskIsFull && !force) {
+            // Check disk again
+            if (fullDisk()) {
+                return false;
+            }
+        }
+
         // Write new block header if required
         if (writeNewBlockHeader) {
             writeNewHeader(1, blockNumber++, null, false, false);
@@ -3684,6 +3701,26 @@ System.err.println("ERROR endOfBuffer " + a);
         }
 
         return true;
+    }
+
+
+    /**
+     * Check if disk is able to store 1 full split, 1 max block, and 1MB buffer zone.
+     * @return  false if disk is not able to accommodate needs, else true.
+     */
+    private boolean fullDisk() {
+        // How much free space is available on the disk?
+        freeBytes = currentFile.getParentFile().getFreeSpace();
+
+        // If there isn't enough free space to write the complete, projected
+        // size file, and we're not trying to force the write, don't flush to file.
+        //
+        // Note that at this point we are trying to write an entire block just
+        // after the file was split. We need to create a new file to do it.
+        // So ... we need to leave enough room for both a full split and the
+        // current block and a little extra (1MB).
+        diskIsFull = freeBytes < split + bytesWrittenToBuffer + 1000000;
+        return diskIsFull;
     }
 
 
@@ -3727,25 +3764,16 @@ System.err.println("ERROR endOfBuffer " + a);
             return false;
         }
 
+        // If we're told to check the disk, and we're not forcing things,
+        // AND disk is full, don't write block.
+        if (checkDisk && (!force) && fullDisk()) {
+            return false;
+        }
+
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
+
             try {
-                if (checkDisk) {
-                    // How much free space is available on the disk?
-                    freeBytes = currentFile.getParentFile().getFreeSpace();
-
-                    // If there isn't enough free space to write the complete, projected
-                    // size file, and we're not trying to force the write, don't flush to file.
-                    //
-                    // Note that at this point we are trying to write an entire block just
-                    // after the file was split. We need to create a new file to do it.
-                    // So ... we need to leave enough room for both a full split and the
-                    // current block and a little extra (1MB).
-                    if ((freeBytes < split + bytesWrittenToBuffer + 1000000) && !force) {
-                        return false;
-                    }
-                }
-
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
                                                                 StandardOpenOption.CREATE,
