@@ -11,7 +11,9 @@
 package org.jlab.coda.jevio;
 
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -3764,15 +3766,26 @@ System.err.println("ERROR endOfBuffer " + a);
             return false;
         }
 
-        // If we're told to check the disk, and we're not forcing things,
-        // AND disk is full, don't write block.
-        if (checkDisk && (!force) && fullDisk()) {
+        // Normally we want to check to see if there is enough room to write the
+        // next split, before it's written. Thus, before writing the first block
+        // of a new file, we check to see if there's space for the whole thing.
+        // (Actually, the whole split + current block + some extra for safety).
+        // Thus we only need to check when bytesWrittenToFile == 0.
+        //
+        // However, the reason why we check if < 100 is because the first event
+        // of the very first file is PRESTART (52 bytes). That event is always forced,
+        // thus the disk space would never be checked if looking for bytesWrittenToFile < 1.
+        // If the disk is almost full when a run starts, what may happen is a full
+        // block is accumulated and written, which will cause a crash.
+        // So ... we also check if only a prestart has been written in order to avoid this.
+        if (checkDisk && (!force) && (bytesWrittenToFile < 100) && fullDisk()) {
+            // If we're told to check the disk, and we're not forcing things,
+            // AND disk is full, don't write the block.
             return false;
         }
 
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
-
             try {
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
