@@ -274,9 +274,6 @@ public class EventWriterUnsync {
      * holding the current block. Used when disk space is inadequate. */
     private boolean diskIsFull;
 
-    /** Number of available bytes in partition where file is being written. */
-    private long freeBytes;
-
     /** File object corresponding to file currently being written. */
     private File currentFile;
     
@@ -1238,7 +1235,7 @@ public class EventWriterUnsync {
         }
 
         // Number of available bytes in file's disk partition
-        freeBytes = currentFile.getParentFile().getFreeSpace();
+        long freeBytes = currentFile.getParentFile().getFreeSpace();
         // If there isn't enough to accommodate 1 split of the file + 1 full block + 1MB,
         // then don't start writing ...
         if (freeBytes < split + 4*blockSizeMax + 1000000) {
@@ -3712,7 +3709,7 @@ System.err.println("ERROR endOfBuffer " + a);
      */
     private boolean fullDisk() {
         // How much free space is available on the disk?
-        freeBytes = currentFile.getParentFile().getFreeSpace();
+        long freeBytes = currentFile.getParentFile().getFreeSpace();
 
         // If there isn't enough free space to write the complete, projected
         // size file, and we're not trying to force the write, don't flush to file.
