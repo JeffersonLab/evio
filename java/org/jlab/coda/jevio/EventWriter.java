@@ -267,6 +267,10 @@ public class EventWriter {
     // File related members
     //-----------------------
 
+    /** Variable used to stop accepting events to be included in the inner buffer
+     * holding the current block. Used when disk space is inadequate. */
+    private boolean diskIsFull;
+
     /** File object corresponding to file currently being written. */
     private File currentFile;
 
@@ -1228,6 +1232,14 @@ public class EventWriter {
                                             + currentFile.getPath());
         }
 
+        // Number of available bytes in file's disk partition
+        long freeBytes = currentFile.getParentFile().getFreeSpace();
+        // If there isn't enough to accommodate 1 split of the file + 10MB extra,
+        // then don't start writing ...
+        if (freeBytes < split + 10000000) {
+            diskIsFull = true;
+        }
+
         // Create internal storage buffer
         // Since we're doing I/O to a file, a direct buffer is more efficient.
         // Besides, the JVM will convert a non-direct to a direct one anyway
@@ -1701,6 +1713,19 @@ public class EventWriter {
 
 
     /**
+     * If writing file, is the partition it resides on full?
+     * Not full, in this context, means there's enough space to write
+     * a full split file + a full record + an extra 10MB as a safety factor.
+     *
+     * @return true if the partition the file resides on is full, else false.
+     */
+    public boolean isDiskFull() {
+        if (!toFile) return false;
+        return diskIsFull;
+    }
+
+
+    /**
      * If writing to a buffer, get the number of bytes written to it
      * including the ending header.
      * @return number of bytes written to buffer
@@ -2150,7 +2175,7 @@ public class EventWriter {
         // Write any remaining data
         try {
             // This will kill performance!
-            if (flushToFile(true)) {
+            if (flushToFile(true, false)) {
                 // If we actually wrote some data, start a new block.
                 resetBuffer(false);
             }
@@ -2180,7 +2205,7 @@ public class EventWriter {
                 // however, it will not be a "last" block header.
                 // Add that now.
                 writeNewHeader(0, blockNumber, null, false, true);
-                flushToFile(false);
+                flushToFile(false, false);
             }
             else {
                 // Data is written, but need to write empty last header
@@ -2741,10 +2766,10 @@ System.err.println("ERROR endOfBuffer " + a);
 
 
     /**
-     * This method expands the size of the internal buffer used when
+     * This method expands the size of the internal buffers used when
      * writing to files. Some variables are updated.
      *
-     * @param newSize size in bytes to make the new buffer
+     * @param newSize size in bytes to make the new buffers
      */
     private void expandBuffer(int newSize) {
         // No need to increase it
@@ -2929,6 +2954,69 @@ System.err.println("ERROR endOfBuffer " + a);
 //                bb.limit(origLim).position(origPos);
 //            }
 //        }
+    }
+
+    /**
+     * Write an event (bank) into a record and eventually to a file in evio
+     * version 4 format.
+     * If the internal buffer is full, it will be flushed to the file.
+     * Otherwise an exception will be thrown.<p>
+     *
+     * <b>
+     * If splitting files, this method returns false if disk partition is too full
+     * to write the complete, next split file. If force arg is true, write anyway.
+     * DO NOT mix calling this method with calling {@link #writeEvent(EvioNode, boolean, boolean)}
+     * (or the methods which call it). Results are unpredictable as it messes up the
+     * logic used to quit writing to full disk.
+     * </b>
+     *
+     * The buffer must contain only the event's data (event header and event data)
+     * and must <b>not</b> be in complete evio file format.<p>
+     *
+     * Be warned that injudicious use of a true 2nd arg, the force flag, will
+     * <b>kill</b> performance when writing to a file.
+     * A true 3rd arg can be used when the backing buffer
+     * of the node is accessed by multiple threads simultaneously. This allows
+     * that buffer's limit and position to be changed without interfering
+     * with the other threads.<p>
+     *
+     * @param node       object representing the event to write in buffer form
+     * @param force      if writing to disk, force it to write event to the disk.
+     * @param duplicate  if true, duplicate node's buffer so its position and limit
+     *                   can be changed without issue.
+     * @return true if event was added to record. If splitting files, false if disk
+     *         partition too full to write the complete, next split file.
+     *         False if interrupted. If force arg is true, write anyway.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if close() already called;
+     *                       if bad eventBuffer format;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     *                       if null node arg;
+     */
+    public boolean writeEventToFile(EvioNode node, boolean force, boolean duplicate)
+            throws EvioException, IOException {
+
+        if (node == null) {
+            throw new EvioException("null node arg");
+        }
+
+        ByteBuffer eventBuffer, bb = node.getBufferNode().getBuffer();
+
+        // Duplicate buffer so we can set pos & limit without messing others up
+        if (duplicate) {
+// TODO: garbage producing call
+            eventBuffer = bb.duplicate().order(bb.order());
+        }
+        else {
+            eventBuffer = bb;
+        }
+
+        int pos = node.getPosition();
+        eventBuffer.limit(pos + node.getTotalBytes()).position(pos);
+        return writeEventToFile(null, eventBuffer, force);
     }
 
     /**
@@ -3242,7 +3330,7 @@ System.err.println("ERROR endOfBuffer " + a);
         if (doFlush) {
 //System.out.println("evWrite: call flushToFile 1");
             try {
-                flushToFile(false);
+                flushToFile(false, false);
             }
             catch (InterruptedException e) {
                 return;
@@ -3331,7 +3419,7 @@ System.err.println("ERROR endOfBuffer " + a);
         if (force && toFile) {
             // This will kill performance!
             try {
-                flushToFile(true);
+                flushToFile(true, false);
             }
             catch (InterruptedException e) {
                 return;
@@ -3347,12 +3435,307 @@ System.err.println("ERROR endOfBuffer " + a);
 
 
     /**
+     * Write an event (bank) into a block and eventually to a file in evio
+     * version 4 format. This method will <b>not</b> work with this object setup
+     * to write into a buffer.
+     *
+     * <b>
+     * If splitting files, this method returns false if disk partition is too full
+     * to write the complete, next split file. If force arg is true, write anyway.
+     * DO NOT mix calling this method with calling {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
+     * (or the methods which call it). Results are unpredictable as it messes up the
+     * logic used to quit writing to full disk.
+     * </b>
+     * <p>
+     * The event to be written may be in one of two forms.
+     * The first is as an EvioBank object and the second is as a ByteBuffer
+     * containing only the event's data (event header and event data) and must
+     * <b>not</b> be in complete evio file format.
+     * The first non-null of the bank arguments will be written.<p>
+     *
+     * Be warned that injudicious use of a true 2nd arg, the force flag, will
+     *<b>kill</b> performance.<p>
+     *
+     * This method is not used to write the dictionary or the first event
+     * (common block). That is only done with the method {@link #writeCommonBlock}.
+     *
+     * @param bank the bank (as an EvioBank object) to write.
+     * @param bankBuffer the bank (as a ByteBuffer object) to write.
+     * @param force      if writing to disk, force it to write event to the disk.
+     *
+     * @return true if event was added to block. If splitting files, false if disk
+     *         partition too full to write the complete, next split file.
+     *         False if interrupted. If force arg is true, write anyway.
+     *
+     * @throws IOException   if error writing file
+     * @throws EvioException if event is opposite byte order of internal buffer;
+     *                       if bad bankBuffer format;
+     *                       if close() already called;
+     *                       if not writing to file;
+     *                       if file could not be opened for writing;
+     *                       if file exists but user requested no over-writing;
+     */
+    synchronized public boolean writeEventToFile(EvioBank bank, ByteBuffer bankBuffer, boolean force)
+            throws EvioException, IOException {
+
+        if (closed) {
+            throw new EvioException("close() has already been called");
+        }
+
+        if (!toFile) {
+            throw new EvioException("cannot write to buffer with this method");
+        }
+
+        boolean doFlush = false;
+        boolean roomInBuffer = true;
+        boolean splittingFile = false;
+        boolean needBiggerBuffer = false;
+        boolean writeNewBlockHeader = true;
+
+        // See how much space the event will take up
+        int newBufSize = 0;
+        int currentEventBytes;
+
+        // Which bank do we write?
+        if (bankBuffer != null) {
+            if (bankBuffer.order() != byteOrder) {
+                throw new EvioException("event buf is " + bankBuffer.order() + ", and writer is " + byteOrder);
+            }
+
+            // Event size in bytes (from buffer ready to read)
+            currentEventBytes = bankBuffer.remaining();
+
+            // Size must be multiple of 4 bytes (whole 32-bit ints)
+            // The following is the equivalent of the mod operation:
+            //  (currentEventBytes % 4 != 0) but is much faster (x mod 2^n == x & (2^n - 1))
+            if ((currentEventBytes & 3) != 0) {
+                throw new EvioException("bad bankBuffer format");
+            }
+
+            // Check for inconsistent lengths
+            if (currentEventBytes != 4*(bankBuffer.getInt(bankBuffer.position()) + 1)) {
+                throw new EvioException("inconsistent event lengths: total bytes from event = " +
+                                       (4*(bankBuffer.getInt(bankBuffer.position()) + 1)) +
+                                        ", from buffer = " + currentEventBytes);
+            }
+        }
+        else if (bank != null) {
+            currentEventBytes = bank.getTotalBytes();
+        }
+        else {
+            return false;
+        }
+
+        // If we have enough room in the current block and have not exceeded
+        // the number of allowed events, write it in the current block.
+        // Worry about memory later.
+        if ( ((currentEventBytes + 4*currentBlockSize) <= targetBlockSize) &&
+                  (currentBlockEventCount < blockCountMax)) {
+            writeNewBlockHeader = false;
+        }
+
+        // Are we splitting files in general?
+        while (split > 0) {
+            // If it's the first block and all that has been written so far are
+            // the dictionary and first event, don't split after writing it.
+            if (blockNumber == 2 && eventsWrittenToBuffer <= commonBlockCount) {
+                break;
+            }
+
+            // Is this event (with the current buffer, current file,
+            // and ending block header) large enough to split the file?
+            long totalSize = currentEventBytes + bytesWrittenToFile +
+                             bytesWrittenToBuffer + headerBytes;
+
+            // If we have to add another block header (before this event), account for it.
+            if (writeNewBlockHeader) {
+                totalSize += headerBytes;
+            }
+
+            // If we're going to split the file ...
+            if (totalSize > split) {
+                // Yep, we're gonna do it
+                splittingFile = true;
+
+                // Flush the current buffer if any events contained and prepare
+                // for a new file (split) to hold the current event.
+                if (eventsWrittenToBuffer > 0) {
+                    doFlush = true;
+                }
+            }
+
+            break;
+        }
+
+        // Is this event (by itself) too big for the current internal buffer?
+        // Internal buffer needs room for first block header, event, and ending empty block.
+        if (bufferSize < currentEventBytes + 2*headerBytes) {
+            roomInBuffer = false;
+            needBiggerBuffer = true;
+        }
+        // Is this event plus ending block header, in combination with events previously written
+        // to the current internal buffer, too big for it?
+        else if ((!writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + headerBytes)) ||
+                 ( writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + 2*headerBytes)))  {
+            roomInBuffer = false;
+        }
+
+        // If there is no room in the buffer for this event ...
+        if (!roomInBuffer) {
+            // If we need more room for a single event ...
+            if (needBiggerBuffer) {
+                // We're here because there is not enough room in the internal buffer
+                // to write this single large event.
+                newBufSize = currentEventBytes + 2*headerBytes;
+            }
+            // Flush what we have to file (if anything)
+            doFlush = true;
+        }
+
+        // Do we flush?
+        if (doFlush) {
+            try {
+                // If disk full (not enough room to write another whole split),
+                // this will fail if it's the first write after a split and a
+                // new file needs to be created.
+                if (!flushToFile(false, true)) {
+                    return false;
+                }
+            }
+            catch (InterruptedException e) {
+                return false;
+            }
+            catch (ExecutionException e) {
+                throw new IOException(e);
+            }
+        }
+
+        // Do we split the file?
+        if (splittingFile) {
+            // We are always able to finishing writing a file
+            splitFile();
+        }
+
+        // Do we expand buffer?
+        if (needBiggerBuffer) {
+            // If here, we just flushed.
+            expandBuffer(newBufSize);
+        }
+
+        // If we either flushed events or split the file, reset the
+        // internal buffer to prepare it for writing another event.
+        // Start a new block.
+        if (doFlush || splittingFile) {
+            resetBuffer(false);
+            // We have a newly initialized buffer ready to write
+            // to, so we don't need a new block header.
+            writeNewBlockHeader = false;
+        }
+
+        //********************************************************************
+        // Now we have enough room for the event in the buffer, block & file
+        //********************************************************************
+
+        //********************************************************************
+        // Before we go on, if the file was actually split, we must add any
+        // existing common block (dictionary & first event & block) in the
+        // new file before we write the event.
+        //********************************************************************
+        if (splittingFile && (xmlDictionary != null || haveFirstEvent)) {
+            // Memory needed to write: dictionary + first event + 3 block headers
+            // (beginning, after dict & first event, and ending) + event
+            int neededBytes = commonBlockByteSize + 3*headerBytes + currentEventBytes;
+
+            // Write block header after dictionary + first event
+            writeNewBlockHeader = true;
+
+            // Give us more buffer memory if we need it
+            expandBuffer(neededBytes);
+
+            // Reset internal buffer as it was just
+            // before writing dictionary in constructor
+            resetBuffer(true);
+
+            // Write common block to the internal buffer
+            writeCommonBlock();
+
+            // Now continue with writing the event ...
+        }
+
+        // If we can't allow any more events in due to limited disk space
+        if (diskIsFull && !force) {
+            // Check disk again
+            if (fullDisk()) {
+                return false;
+            }
+        }
+
+        // Write new block header if required
+        if (writeNewBlockHeader) {
+            writeNewHeader(1, blockNumber++, null, false, false);
+        }
+
+        // Write out the event
+        writeEventToBuffer(bank, bankBuffer, currentEventBytes);
+
+        // If caller wants to flush the event to disk (say, prestart event) ...
+        if (force) {
+            // This will kill performance!
+            try {
+                // If forcing, we ignore any warning of a full disk
+                // (not enough room to write another whole split).
+                flushToFile(true, false);
+            }
+            catch (InterruptedException e) {
+                return false;
+            }
+            catch (ExecutionException e) {
+                throw new IOException(e);
+            }
+
+            // Start a new block
+            resetBuffer(false);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Check if disk is able to store 1 full split, 1 max block, and 10MB buffer zone.
+     * @return  false if disk is not able to accommodate needs, else true.
+     */
+    private boolean fullDisk() {
+        // How much free space is available on the disk?
+        long freeBytes = currentFile.getParentFile().getFreeSpace();
+
+        // If there isn't enough free space to write the complete, projected
+        // size file, and we're not trying to force the write, don't flush to file.
+        //
+        // Note that at this point we are trying to write an entire block just
+        // after the file was split. We need to create a new file to do it.
+        // So ... we need to leave enough room for both a full split and the
+        // current block and a little extra (10MB).
+        diskIsFull = freeBytes < split + bytesWrittenToBuffer + 10000000;
+        return diskIsFull;
+    }
+
+
+    /**
      * Flush everything in buffer to file.
      * Does nothing if object already closed.
      * Only called by synchronized methods.<p>
      *
      * @param force     if true, force it to write event to the disk.
-     * @return {@code false} if no data written, else {@code true}
+     * @param checkDisk if true and if a new file needs to be created but there is
+     *                  not enough free space on the disk partition for the
+     *                  complete intended file, return false without creating or
+     *                  writing to file. If force arg is true, write anyway.
+     *
+     * @return true if everything normal; false if a new file needs to be created
+     *         (first write after a split) but there is not enough free space on
+     *         the disk partition for the next, complete file and checkDisk arg is true.
+     *         Will return false if not writing to file.
      *
      * @throws EvioException if this object already closed;
      *                       if file could not be opened for writing;
@@ -3362,9 +3745,9 @@ System.err.println("ERROR endOfBuffer " + a);
      * @throws InterruptedException   if this thread was interrupted while waiting
      *                                for file write to complete.
      */
-    private boolean flushToFile(boolean force)
-                    throws EvioException, IOException,
-                           InterruptedException, ExecutionException {
+    private boolean flushToFile(boolean force, boolean checkDisk)
+                        throws EvioException, IOException,
+                               InterruptedException, ExecutionException {
         if (closed) {
             throw new EvioException("close() has already been called");
         }
@@ -3376,18 +3759,29 @@ System.err.println("ERROR endOfBuffer " + a);
 
         // If nothing to write...
         if (buffer.position() < 1) {
-//System.out.println("    flushToFile: nothing to write, return");
             return false;
         }
 
-        // The byteBuffer position is just after the last event or
-        // the last, empty block header. Get buffer ready to write.
-        buffer.flip();
-//System.out.println("    flushToFile: try writing " + eventsWrittenToBuffer + " events");
+        // Normally we want to check to see if there is enough room to write the
+        // next split, before it's written. Thus, before writing the first block
+        // of a new file, we check to see if there's space for the whole thing.
+        // (Actually, the whole split + current block + some extra for safety).
+        // Thus we only need to check when bytesWrittenToFile == 0.
+        //
+        // However, the reason why we check if < 100 is because the first event
+        // of the very first file is PRESTART (52 bytes). That event is always forced,
+        // thus the disk space would never be checked if looking for bytesWrittenToFile < 1.
+        // If the disk is almost full when a run starts, what may happen is a full
+        // block is accumulated and written, which will cause a crash.
+        // So ... we also check if only a prestart has been written in order to avoid this.
+        if (checkDisk && (!force) && (bytesWrittenToFile < 100) && fullDisk()) {
+            // If we're told to check the disk, and we're not forcing things,
+            // AND disk is full, don't write the block.
+            return false;
+        }
 
         // This actually creates the file. Do it only once.
         if (bytesWrittenToFile < 1) {
-//System.out.println("    flushToFile: create file " + currentFile.getName());
             try {
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
@@ -3400,9 +3794,13 @@ System.err.println("ERROR endOfBuffer " + a);
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
-                        currentFile.getPath(), e);
+                                        currentFile.getPath(), e);
             }
         }
+
+        // The byteBuffer position is just after the last event or
+        // the last, empty block header. Get buffer ready to write.
+        buffer.flip();
 
         // Which buffer do we fill next?
         ByteBuffer unusedBuffer;
@@ -3539,7 +3937,7 @@ System.err.println("ERROR endOfBuffer " + a);
                 // however, it will not be a "last" block header.
                 // Add that now.
                 writeNewHeader(0, blockNumber, null, false, true);
-                flushToFile(false);
+                flushToFile(false, false);
 //System.out.println("    split file: flushToFile for file being closed");
             }
             catch (Exception e) {

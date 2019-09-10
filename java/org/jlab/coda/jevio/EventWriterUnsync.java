@@ -1236,9 +1236,9 @@ public class EventWriterUnsync {
 
         // Number of available bytes in file's disk partition
         long freeBytes = currentFile.getParentFile().getFreeSpace();
-        // If there isn't enough to accommodate 1 split of the file + 1 full block + 1MB,
+        // If there isn't enough to accommodate 1 split of the file + 10MB extra,
         // then don't start writing ...
-        if (freeBytes < split + 4*blockSizeMax + 1000000) {
+        if (freeBytes < split + 10000000) {
             diskIsFull = true;
         }
 
@@ -1713,6 +1713,19 @@ public class EventWriterUnsync {
         writeCommonBlock();
     }
 
+
+    /**
+     * If writing file, is the partition it resides on full?
+     * Not full, in this context, means there's enough space to write
+     * a full split file + a full record + an extra 10MB as a safety factor.
+     *
+     * @return true if the partition the file resides on is full, else false.
+     */
+    public boolean isDiskFull() {
+        if (!toFile) return false;
+        return diskIsFull;
+    }
+    
 
     /**
      * If writing to a buffer, get the number of bytes written to it
@@ -3704,7 +3717,7 @@ System.err.println("ERROR endOfBuffer " + a);
 
 
     /**
-     * Check if disk is able to store 1 full split, 1 max block, and 1MB buffer zone.
+     * Check if disk is able to store 1 full split, 1 max block, and 10MB buffer zone.
      * @return  false if disk is not able to accommodate needs, else true.
      */
     private boolean fullDisk() {
@@ -3717,8 +3730,8 @@ System.err.println("ERROR endOfBuffer " + a);
         // Note that at this point we are trying to write an entire block just
         // after the file was split. We need to create a new file to do it.
         // So ... we need to leave enough room for both a full split and the
-        // current block and a little extra (1MB).
-        diskIsFull = freeBytes < split + bytesWrittenToBuffer + 1000000;
+        // current block and a little extra (10MB).
+        diskIsFull = freeBytes < split + bytesWrittenToBuffer + 10000000;
         return diskIsFull;
     }
 
@@ -3795,7 +3808,7 @@ System.err.println("ERROR endOfBuffer " + a);
             }
             catch (FileNotFoundException e) {
                 throw new EvioException("File could not be opened for writing, " +
-                                                currentFile.getPath(), e);
+                                        currentFile.getPath(), e);
             }
         }
 
