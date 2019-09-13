@@ -280,7 +280,7 @@ public class RecordOutputStream {
             System.out.println("setBuffer(): warning, changing buffer's byte order!");
         }
 
-// TODO: we set the startingPositin to buf.position(), but the reset sets buffer pos to 0!!!
+// TODO: we set the startingPosition to buf.position(), but the reset sets buffer pos to 0!!!
 
         recordBinary = buf;
         recordBinary.order(byteOrder);
@@ -298,6 +298,8 @@ public class RecordOutputStream {
             allocate();
         }
         else {
+// TODO: bug, if we have a real small buf (100 bytes), then a bigger buf next time (1000), memory is allocated
+// TODO: for recordData and recordEvents, but may not be necessary! (underlying bufs = 8MB !)
             MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
             RECORD_BUFFER_SIZE = userBufferSize;
             //System.out.println("setBuffer: changed MAX_BUFFER_SIZE to " + MAX_BUFFER_SIZE + ", did NOT reallocate");
