@@ -506,7 +506,7 @@ public class CompactReaderTest {
             EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                  4*300, 1000, null, null,
                                                  true, false, null,
-                                                 0, 0, 1, 1, 0, 0, 0);
+                                                 0, 0, 1, 1, 0, 0, 0, 0);
 
             long t2, t1 = System.currentTimeMillis();
 
@@ -592,7 +592,7 @@ public class CompactReaderTest {
                 EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                                     0, 0, 1, 1, 0, 0, 0);
+                                                     0, 0, 1, 1, 0, 0, 0, 0);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -622,7 +622,7 @@ public class CompactReaderTest {
                 EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                                     0, 0, 1, 1, 0, 0, 0);
+                                                     0, 0, 1, 1, 0, 0, 0, 0);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
@@ -632,7 +632,7 @@ public class CompactReaderTest {
                 writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                         0, 0, 1, 1, 0, 0, 0);
+                                         0, 0, 1, 1, 0, 0, 0, 0);
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
@@ -640,7 +640,7 @@ public class CompactReaderTest {
                 writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                         0, 0, 1, 1, 0, 0, 0);
+                                         0, 0, 1, 1, 0, 0, 0, 0);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -712,6 +712,16 @@ public class CompactReaderTest {
             ByteBuffer evBuf3 = ByteBuffer.allocate(event3.getTotalBytes());
             event3.write(evBuf3);
             evBuf3.flip();
+                                                                       //
+//                public EventWriter(String baseName, String directory, String runType,
+//                         int runNumber, long split,
+//                         int maxRecordSize, int maxEventCount,
+//                         ByteOrder byteOrder, String xmlDictionary,
+//                         boolean overWriteOK, boolean append,
+//                         EvioBank firstEvent, int streamId,
+//                         int splitNumber, int splitIncrement, int streamCount,
+//                         int compressionType, int compressionThreads, int ringSize)
+
 
 
             if (false) {
@@ -826,7 +836,7 @@ public class CompactReaderTest {
             EventWriter writer = new EventWriter("file", null, null, 1, 0,
                                                  4*64000, 20000, null, null,
                                                  true, false, null,
-                                                 0, 0, 1, 1, 0, 0, 0);
+                                                 0, 0, 1, 1, 0, 0, 0, 0);
             ByteBuffer evBuf1 = ByteBuffer.allocate(event1.getTotalBytes());
             event1.write(evBuf1);
             evBuf1.flip();
