@@ -502,18 +502,19 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                         false, append, null,
                         0, 0, 1,
                         1, 0, 1,
-                        8);
-//
-//                public EventWriter(String baseName, String directory, String runType,
-//                         int runNumber, long split,
-//                         int maxRecordSize, int maxEventCount,
-//                         ByteOrder byteOrder, String xmlDictionary,
-//                         boolean overWriteOK, boolean append,
-//                         EvioBank firstEvent, int streamId,
-//                         int splitNumber, int splitIncrement, int streamCount,
-//                         int compressionType, int compressionThreads, int ringSize)
+                        8, 0);
 
-            }
+
+//                public EventWriter(String baseName, String directory, String runType,
+//                                         int runNumber, long split,
+//                                         int maxRecordSize, int maxEventCount,
+//                                         ByteOrder byteOrder, String xmlDictionary,
+//                                         boolean overWriteOK, boolean append,
+//                                         EvioBank firstEvent, int streamId,
+//                                         int splitNumber, int splitIncrement, int streamCount,
+//                                         int compressionType, int compressionThreads,
+//                                         int ringSize, int bufferSize)
+                            }
             else {
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
@@ -1016,7 +1017,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                              4*16, 1000,
                                              ByteOrder.nativeOrder(), null,
                                              true, true, null,
-                                             0, 0, 1, 1, 0, 1, 8);
+                                             0, 0, 1, 1, 0, 1, 8, 0);
         for (int i=0; i < count; i++) {
             // append event to file
             writer.writeEvent(ev);
@@ -1060,7 +1061,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                          4*1000, 3,
                                                          ByteOrder.BIG_ENDIAN, dictionary,
                                                          true, false, null,
-                                                         0, 0, 1, 1, 0, 1, 8);
+                                                         0, 0, 1, 1, 0, 1, 8, 0);
 
             // event - bank of banks
             EventBuilder eventBuilder2 = new EventBuilder(1, DataType.BANK, 1);
@@ -1325,7 +1326,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                              4*1000, 3,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8);
+                                                             0, 0, 1, 1, 0, 1, 8, 0);
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
                 event = eventBuilder2.getEvent();
@@ -1361,7 +1362,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                              4*10000000, 100000,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8);
+                                                             0, 0, 1, 1, 0, 1, 8, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -1398,7 +1399,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                               4*10000000, 6535,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8);
+                                                             0, 0, 1, 1, 0, 1, 8, 0);
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
                 event = eventBuilder2.getEvent();
@@ -1433,7 +1434,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                               4*1000, 3,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8);
+                                                             0, 0, 1, 1, 0, 1, 8, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);

@@ -110,7 +110,7 @@ public class SplitTest {
                                                  4*blockSizeMax, blockCountMax,
                                                  ByteOrder.BIG_ENDIAN, xmlDictionary,
                                                  true, append, null,
-                                                 0, 0, 1, 1, 0, 0, 0);
+                                                 0, 0, 1, 1, 0, 0, 0, 0);
 
 //            ByteBuffer buf = ByteBuffer.allocateDirect(bufferSize);
 //            EventWriter writer = new  EventWriter(buf, 4*blockSizeMax, blockCountMax, xmlDictionary, 1, null, 0);

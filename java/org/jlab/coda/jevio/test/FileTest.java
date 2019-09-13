@@ -118,7 +118,7 @@ public class FileTest {
                                          4*targetBlockSize, 1000,
                                          ByteOrder.nativeOrder(), xmlDictionary,
                                          true, append, eventFirst,
-                                         0, 0, 1, 1, 0, 0, 0);
+                                         0, 0, 1, 1, 0, 0, 0, 0);
             }
             else {
                 // Create an event writer to write to buffer
@@ -329,7 +329,7 @@ public class FileTest {
                                  4*16, 1000,
                                  ByteOrder.nativeOrder(), null,
                                  true, true, null,
-                                             0, 0, 1, 1, 0, 0, 0);
+                                             0, 0, 1, 1, 0, 0, 0, 0);
 
         for (int i=0; i < count; i++) {
             // append event to file
@@ -501,7 +501,7 @@ public class FileTest {
                                                          4*1000, 3,
                                                          ByteOrder.BIG_ENDIAN, dictionary,
                                                          true, false, null,
-                                                         0, 0, 1, 1, 0, 0, 0);
+                                                         0, 0, 1, 1, 0, 0, 0, 0);
 
             // event - bank of banks
             EventBuilder eventBuilder2 = new EventBuilder(1, DataType.BANK, 1);
@@ -766,7 +766,7 @@ public class FileTest {
                                                              4*1000, 3,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -803,7 +803,7 @@ public class FileTest {
                                                              4*10000000, 100000,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -840,7 +840,7 @@ public class FileTest {
                                                               4*10000000, 6535,
                                                               ByteOrder.BIG_ENDIAN, null,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -876,7 +876,7 @@ public class FileTest {
                                                               4*1000, 3,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0);
+                                                             0, 0, 1, 1, 0, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
