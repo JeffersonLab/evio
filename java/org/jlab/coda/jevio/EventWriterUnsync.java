@@ -125,6 +125,9 @@ final public class EventWriterUnsync implements AutoCloseable {
     /** Fast supply of record items for filling, compressing and writing. */
     private RecordSupply supply;
 
+    /** Max number of bytes held by all records in the supply. */
+    private int maxSupplyBytes;
+
     /** Type of compression being done on data
      *  (0=none, 1=LZ4fastest, 2=LZ4best, 3=gzip). */
     private int compressionType;
@@ -238,6 +241,15 @@ final public class EventWriterUnsync implements AutoCloseable {
     //-----------------------
     // File related members
     //-----------------------
+
+    /** Variable used to stop accepting events to be included in the inner buffer
+     * holding the current block. Used when disk space is inadequate. */
+    private boolean diskIsFull;
+
+    /** Variable used to stop accepting events to be included in the inner buffer
+     * holding the current block. Used when disk space is inadequate.
+     * This is volatile and therefore works between threads. */
+    private volatile boolean diskIsFullVolatile;
 
     /** When forcing events to disk, this identifies which events for the writing thread. */
     private long idCounter = 0;
@@ -964,14 +976,29 @@ System.out.println("EventWriterUnsync constr: record # set to 1");
                 ringSize = compressionThreads + 3;
             }
 
-            ringSize = 32;
+            ringSize = 8;
 
             // AND must be power of 2
             ringSize = Utilities.powerOfTwo(ringSize, true);
- System.out.println("EventWriterUnsync constr: record ring size set to " + ringSize);
+//System.out.println("EventWriterUnsync constr: record ring size set to " + ringSize);
 
             supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
                                       maxEventCount, maxRecordSize, compressionType);
+
+            // Do a quick calculation as to how much data a ring full
+            // of records can hold since we may have to write that to
+            // disk before we can shut off the spigot when disk is full.
+            maxSupplyBytes = supply.getMaxRingBytes();
+//System.out.println("EventWriterUnsync constr: max supply bytes = " + maxSupplyBytes);
+            // Number of available bytes in file's disk partition
+            long freeBytes = currentFile.getParentFile().getFreeSpace();
+            // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
+            // then don't even start writing ...
+            if (freeBytes < split + maxSupplyBytes + 10000000) {
+System.out.println("EventWriterUnsync constr: Disk is FULL");
+                diskIsFull = true;
+                diskIsFullVolatile = true;
+            }
 
             // Create and start compression threads
             recordCompressorThreads = new RecordCompressor[compressionThreads];
@@ -1198,6 +1225,19 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
         // Only necessary to do this when using EventWriter in EMU's
         // RocSimulation module. Only the ROC sends sourceId in header.
         header.setUserRegisterFirst(sourceId);
+    }
+
+
+    /**
+     * If writing file, is the partition it resides on full?
+     * Not full, in this context, means there's enough space to write
+     * a full split file + a full record + an extra 10MB as a safety factor.
+     *
+     * @return true if the partition the file resides on is full, else false.
+     */
+    public boolean isDiskFull() {
+        if (!toFile) return false;
+        return diskIsFull;
     }
 
 
@@ -1856,17 +1896,21 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             else {
                 // If we're building a record, send it off
                 // to compressing thread since we're done.
+                // This should never happen as END event forces things through.
                 if (currentRecord.getEventCount() > 0) {
-                    // Put it back in supply for compressing
+                    // Put it back in supply for compressing and force to disk
                     supply.publish(currentRingItem);
                 }
 
                 // Since the writer thread is the last to process each record,
                 // wait until it's done with the last item, then exit the thread.
+System.out.println("EventWriterUnsync: close waiting for writing thd");
                 recordWriterThread.waitForLastItem();
+System.out.println("EventWriterUnsync: close done waiting for writing thd");
 
                 // Stop all compressing threads which by now are stuck on get
                 for (RecordCompressor rc : recordCompressorThreads) {
+//System.out.println("EventWriterUnsync: interrupt compress thd");
                     rc.interrupt();
                 }
             }
@@ -1919,6 +1963,17 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             }
             catch (IOException e) {}
         }
+
+        // Since the supply takes a lot of mem, allow for GC to operate here
+        if (toFile) {
+            supply = null;
+            currentRecord = null;
+            recordWriterThread = null;
+            recordCompressorThreads = null;
+        }
+        ringItem1 = null;
+        ringItem2 = null;
+        currentRingItem = null;
 
         recordLengths.clear();
         closed = true;
@@ -2838,6 +2893,37 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
 
         // If here, we're writing to a file ...
 
+        // First, if multithreaded write, check for any errors that may have
+        // occurred asynchronously in the write or one of the compression threads.
+        // Also check to see if disk is full.
+        if (!singleThreadedCompression) {
+            if (supply.haveError()) {
+                // Wake up any of these threads waiting for another record
+                supply.errorAlert();
+                throw new IOException(supply.getError());
+            }
+
+            // With multithreaded writing, if the writing thread discovers that
+            // the disk partition is full, everything that has made it past this check
+            // and all the records in the pipeline (ring in this case) will be
+            // written.
+            if (diskIsFullVolatile && !force) {
+                // Check again to see if it's still full
+                if (fullDisk()) {
+                    // Still full
+                    return false;
+                }
+                System.out.println("writeEventToFile: disk is NOT full, emptied");
+            }
+        }
+        // If single threaded write, and we can't allow more events in due to limited disk space
+        else if (diskIsFull && !force) {
+            // Actually check disk again
+            if (fullDisk()) {
+                return false;
+            }
+        }
+
         boolean fitInRecord;
         boolean splittingFile = false;
         // See how much space the event will take up
@@ -2888,28 +2974,6 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             }
         }
 
-        // First, if multithreaded write, check for any errors that may have
-        // occurred asynchronously in the write or one of the compression threads.
-        // Also check to see if disk is full.
-        if (!singleThreadedCompression) {
-            if (supply.haveError()) {
-                // Wake up any of these threads waiting for another record
-                supply.errorAlert();
-                throw new IOException(supply.getError());
-            }
-
-            if (supply.isDiskFull() && !force) {
-//System.out.println("writeEventToFile: disk is full, check again");
-                // Check again to see if it's still full
-                if (recordWriterThread.checkIfDiskFull()) {
-//System.out.println("writeEventToFile: disk is still full");
-                    // Still full
-                    return false;
-                }
-                System.out.println("writeEventToFile: disk is NOT full, emptied");
-            }
-        }
-
         // Including this event, this is the total data size & event count
         // for this split file.
         splitEventBytes += currentEventBytes;
@@ -2933,11 +2997,11 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 splitFile();
             }
             else {
-                // Set flag to split file
+                // Set flag to split file. In this case, allow split to happen
+                // even if disk partition is "full" since we've allowed enough
+                // space for that.
                 currentRingItem.splitFileAfterWrite(true);
-                // Check disk partition space. Don't create next file
-                // if it can't hold that next, complete file.
-                currentRingItem.setCheckDisk(true);
+                currentRingItem.setCheckDisk(false);
                 // Send current record back to ring without adding event
                 supply.publish(currentRingItem);
 
@@ -2991,8 +3055,8 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 }
             }
             else {
-                supply.publish(currentRingItem);
                 currentRingItem.setCheckDisk(true);
+                supply.publish(currentRingItem);
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
             }
@@ -3024,10 +3088,10 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 }
             }
             else {
-                currentRingItem.forceToDisk(true);
-                currentRingItem.setCheckDisk(true);
-
-                // Tell writing thread which event started the force to disk.
+                // Force things to disk by telling the writing
+                // thread which record started the force to disk.
+                // This will force this record, along with all preceeding records in
+                // the pipeline, to the file.
                 // Once it's written, we can go back to the normal of not
                 // forcing things to disk.
                 currentRingItem.setId(++idCounter);
@@ -3041,6 +3105,26 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
 
         return true;
     }
+
+
+    /**
+     * Check to see if the disk is full.
+     * Is it able to store 1 full split, 1 supply of records, and a 10MB buffer zone?
+     * Two variables are set, one volatile and one not, depending on needs.
+     * @return  true if full, else false.
+     */
+    private boolean fullDisk() {
+        // How much free space is available on the disk?
+        long freeBytes = currentFile.getParentFile().getFreeSpace();
+        // If there isn't enough free space to write the complete, projected size file
+        // plus full records + 10MB extra ...
+        diskIsFull = freeBytes < split + maxSupplyBytes + 10000000;
+        if (!singleThreadedCompression) {
+            diskIsFullVolatile = diskIsFull;
+        }
+        return diskIsFull;
+    }
+
 
     /**
      * Class used to take data-filled record from supply, compress it,
@@ -3068,6 +3152,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
 
                 while (true) {
                     if (Thread.interrupted()) {
+//System.out.println("RecordCompressor:  quit thread through interrupt 1");
                         return;
                     }
 
@@ -3089,17 +3174,18 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             }
             catch (AlertException e) {
                 // We've been woken up in getToWrite through a user calling supply.errorAlert()
-                System.out.println("Quit record compressing thread through alert");
+//System.out.println("RecordCompressor:  quit thread through alert");
             }
             catch (InterruptedException e) {
                 // We've been interrupted while blocked in getToCompress
                 // which means we're all done.
-                System.out.println("Quit record compressing thread through interrupt");
+//System.out.println("RecordCompressor:  quit thread through interrupt 2");
             }
             catch (Exception e) {
                 // Catch problems with buffer overflow and multiple compressing threads
                 supply.haveError(true);
                 supply.setError(e.getMessage());
+//System.out.println("RecordCompressor:  quit thread through error");
             }
         }
     }
@@ -3142,16 +3228,6 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             forceToDisk = true;
         }
 
-        /**
-         * Force records to disk, even if disk is "full".
-         * Generally, for an emu, this happens when control events arrive.
-         * In particular, when the END event comes, it must be written to
-         * disk with all the events that preceded it.
-         *
-         * @param force true if current records are to be written to disk
-         *              regardless of whether it's full or not.
-         */
-        void setForceToDisk(boolean force) {forceToDisk = force;}
 
         /** Wait for the last item to be processed, then exit thread. */
         void waitForLastItem() {
@@ -3167,25 +3243,6 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             return storedItem;
         }
 
-        /**
-         * Check to see if the disk is full. This is necessary whenever
-         * {@link #writeEventToFile(EvioBank, ByteBuffer, boolean)} is called
-         * since once disk is full, this thread will tell the method to stop sending
-         * events to ring to be written. To unstop things, each time that write
-         * method is called, it needs to recheck to see if the disk is now free.
-         *
-         * @return  true if full, else false.
-         */
-        boolean checkIfDiskFull() {
-            // How much free space is available on the disk?
-            long freeBytes = currentFile.getParentFile().getFreeSpace();
-            // If there isn't enough free space to write the complete, projected size file
-            // plus 1MB extra ...
-            boolean full = freeBytes < split + 1000000;
-            supply.setDiskFull(full);
-            return full;
-        }
-
         @Override
         public void run() {
             try {
@@ -3194,6 +3251,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
 
                 while (true) {
                     if (Thread.interrupted()) {
+//System.out.println("RecordWriter: quit thread through interrupt 1");
                         return;
                     }
 
@@ -3201,37 +3259,38 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                     RecordRingItem item = supply.getToWrite();
                     currentSeq = item.getSequence();
 
-                    // If checkDisk is true for one item, it should be true for all,
-                    // if this writer is being used properly. Don't mix writeEvent()
-                    // with writeEventToFile() calls or there will be confusion.
+                    // Only need to check the disk when writing the first record following
+                    // a file split. That first write will create the file. If there isn't
+                    // enough room, then flag will be set.
                     checkDisk = item.isCheckDisk();
 
-                    // Check the disk before we try to write
-                    if (checkDisk) {
+                    // Check the disk before we try to write if about to create another file,
+                    // we're told to check the disk and we're not forcing to disk
+                    if ((bytesWritten < 1) && checkDisk && (!forceToDisk)) {
 
                         // If there isn't enough free space to write the complete, projected
                         // size file, and we're not trying to force the write ...
                         // store a COPY of the record for now and release the original so
-                        // that writeEvent() does not block.
+                        // that writeEventToFile() does not block.
                         //
                         // So here is the problem. We are stuck in a loop here if disk is full.
                         // If events are flowing and since writing data to file is the bottleneck,
                         // it is likely that all records have been filled and published onto
-                        // the ring. AND, writeEvent() blocks in a spin as it tries to get the
+                        // the ring. AND, writeEventToFile() blocks in a spin as it tries to get the
                         // next record from the ring which, unfortunately, never comes.
                         //
-                        // When writeEvent() blocks, it can't respond by returning a "false" value.
-                        // This plays havoc with code like the emu which is not expecting writeEvent()
+                        // When writeEventToFile() blocks, it can't respond by returning a "false" value.
+                        // This plays havoc with code like the emu which is not expecting the write
                         // to block (at least not for very long).
                         //
-                        // To break writeEvent() out of its spinning block, we make a copy of the
+                        // To break writeEventToFile() out of its spinning block, we make a copy of the
                         // item we're trying to write and release the original record. This allows
-                        // writeEvent() to grab a new (newly released) record, write an event into
-                        // it, and return to the caller. From then on, writeEvent() can prevent
+                        // writeEventToFile() to grab a new (newly released) record, write an event into
+                        // it, and return to the caller. From then on, writeEventToFile() can prevent
                         // blocking by checking for a full disk (which it couldn't do before since
                         // the signal came too late).
-                        while ((checkIfDiskFull()) && !forceToDisk) {
 
+                        while (fullDisk() && (!forceToDisk)) {
                             // Wait for a sec and try again
                             Thread.sleep(1000);
 
@@ -3272,15 +3331,15 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             }
             catch (AlertException e) {
                 // Woken up in getToWrite through user call to supply.errorAlert()
-                System.out.println("Quit record writing thread through alert");
+//System.out.println("RecordWriter: quit thread through alert");
             }
             catch (InterruptedException e) {
                 // Interrupted while blocked in getToWrite which means we're all done
-                System.out.println("Quit record writing thread through interrupt");
+//System.out.println("RecordWriter: quit thread through interrupt 2");
             }
             catch (Exception e) {
                 // Here if error in file writing
-                System.out.println("Quit record writing thread through file writing error");
+//System.out.println("RecordWriter: quit thread through file writing error");
 
                 //StringWriter sw = new StringWriter();
                 //PrintWriter pw  = new PrintWriter(sw);
@@ -3382,20 +3441,20 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             throw new EvioException("close() has already been called");
         }
 
-        // This actually creates the file so do it only once
+       // This actually creates the file so do it only once
         if (bytesWritten < 1) {
+
+            // We want to check to see if there is enough room to write the
+            // next split, before it's written. Thus, before writing the first block
+            // of a new file, we check to see if there's space for the whole thing.
+            // (Actually, the whole split + current block + some extra for safety).
+            if (checkDisk && (!force) && fullDisk()) {
+                // If we're told to check the disk, and we're not forcing things,
+                // AND disk is full, don't write the block.
+                return false;
+            }
+
             try {
-                if (checkDisk) {
-                    // How much free space is available on the disk?
-                    long freeBytes = currentFile.getParentFile().getFreeSpace();
-
-                    // If there isn't enough free space to write the complete, projected
-                    // size file (and 1MB extra), and we're not trying to force the write ...
-                    if ((freeBytes < split + 1000000) && !force) {
-                        return false;
-                    }
-                }
-
                 asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
                                                                 StandardOpenOption.TRUNCATE_EXISTING,
                                                                 StandardOpenOption.CREATE,
@@ -3792,6 +3851,22 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             }
             ringItem1 = item;
             futureIndex = 1;
+
+            // If forcing to disk, wait here until done
+            if (force) {
+                // Wait for write to end before we continue
+                future1.get();
+                supply.releaseWriter(ringItem1);
+                prevFuture1 = future1;
+                futureIndex = 0;
+
+                // Make sure the other, possibly unfinished, write is done as well
+                if (prevFuture2 != future2) {
+                    future2.get();
+                    supply.releaseWriter(ringItem2);
+                    prevFuture2 = future2;
+                }
+            }
         }
         else {
             //buf.position(buffer.limit() - 20);
@@ -3801,7 +3876,6 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                     public boolean isCancelled() {return false;}
                     public Integer get() {return null;}
                     public Integer get(long timeout, TimeUnit unit) {return null;}
-                    // Simulate the write being done immediately
                     public boolean isDone() {return true;}
                 };
             }
@@ -3810,12 +3884,24 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             }
             ringItem2 = item;
             futureIndex = 0;
+
+            if (force) {
+                future2.get();
+                supply.releaseWriter(ringItem2);
+                prevFuture2 = future2;
+                futureIndex = 1;
+
+                if (prevFuture1 != future1) {
+                    future1.get();
+                    supply.releaseWriter(ringItem1);
+                    prevFuture1 = future1;
+                }
+            }
         }
 
         // Force it to write to physical disk (KILLS PERFORMANCE!!!, 15x-20x slower),
         // but don't bother writing the metadata (arg to force()) since that slows it
         // down even more.
-        // TODO: This may not work since data may NOT have been written yet!
         if (force) asyncFileChannel.force(false);
 
         // Keep track of what is written to this, one, file
