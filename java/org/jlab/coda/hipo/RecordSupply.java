@@ -259,6 +259,12 @@ public class RecordSupply {
 
     
     /**
+     * Get the max number of bytes the records in this supply can hold all together.
+     * @return max number of bytes the records in this supply can hold all together.
+     */
+    public int getMaxRingBytes() {return (int) (ringSize*1.1*maxBufferSize);}
+
+    /**
      * Get the number of records in this supply.
      * @return number of records in this supply.
      */
@@ -283,8 +289,8 @@ public class RecordSupply {
     }
 
     /**
-     * Get the sequence of last ring buffer obtained with get (seq starts at 0).
-     * @return sequence of last ring buffer obtained with get (seq starts at 0).
+     * Get the sequence of last ring buffer item obtained with get (seq starts at 0).
+     * @return sequence of last ring buffer item obtained with get (seq starts at 0).
      */
     public long getLastSequence() {
         return ringBuffer.getCursor();
@@ -458,7 +464,7 @@ public class RecordSupply {
         }
 
         if (item.isAlreadyReleased()) {
-            System.out.println("RecordSupply: item already released!");
+//System.out.println("RecordSupply: item already released!");
             return false;
         }
 
