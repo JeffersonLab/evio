@@ -972,15 +972,14 @@ System.out.println("EventWriterUnsync constr: record # set to 1");
         else {
             // Number of ring items must be >= # of compressionThreads, plus 2 which
             // are being written, plus 1 being filled - all simultaneously.
+            ringSize = 16;
             if (ringSize < compressionThreads + 3) {
                 ringSize = compressionThreads + 3;
             }
 
-            ringSize = 8;
-
             // AND must be power of 2
             ringSize = Utilities.powerOfTwo(ringSize, true);
-//System.out.println("EventWriterUnsync constr: record ring size set to " + ringSize);
+System.out.println("EventWriterUnsync constr: record ring size set to " + ringSize);
 
             supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
                                       maxEventCount, maxRecordSize, compressionType);
@@ -989,7 +988,6 @@ System.out.println("EventWriterUnsync constr: record # set to 1");
             // of records can hold since we may have to write that to
             // disk before we can shut off the spigot when disk is full.
             maxSupplyBytes = supply.getMaxRingBytes();
-//System.out.println("EventWriterUnsync constr: max supply bytes = " + maxSupplyBytes);
             // Number of available bytes in file's disk partition
             long freeBytes = currentFile.getParentFile().getFreeSpace();
             // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
@@ -1904,9 +1902,9 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
 
                 // Since the writer thread is the last to process each record,
                 // wait until it's done with the last item, then exit the thread.
-System.out.println("EventWriterUnsync: close waiting for writing thd");
+//System.out.println("EventWriterUnsync: close waiting for writing thd");
                 recordWriterThread.waitForLastItem();
-System.out.println("EventWriterUnsync: close done waiting for writing thd");
+//System.out.println("EventWriterUnsync: close done waiting for writing thd");
 
                 // Stop all compressing threads which by now are stuck on get
                 for (RecordCompressor rc : recordCompressorThreads) {
@@ -2830,8 +2828,6 @@ System.out.println("EventWriterUnsync: close done waiting for writing thd");
         return true;
     }
 
-
-
     /**
      * Write an event (bank) into a record and eventually to a file in evio/hipo
      * version 6 format.
@@ -3379,6 +3375,7 @@ System.out.println("EventWriterUnsync: close done waiting for writing thd");
         writeToFile(force, false);
      }
 
+
     /**
      * Compress data and write record to file. Does nothing if close() already called.
      * Used when doing compression & writing to file in a single thread.
@@ -3441,7 +3438,7 @@ System.out.println("EventWriterUnsync: close done waiting for writing thd");
             throw new EvioException("close() has already been called");
         }
 
-       // This actually creates the file so do it only once
+        // This actually creates the file so do it only once
         if (bytesWritten < 1) {
 
             // We want to check to see if there is enough room to write the
