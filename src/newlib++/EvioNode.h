@@ -95,8 +95,15 @@ private:
     /** Node containing this node. Is null if this is an event node. */
     shared_ptr<EvioNode> parentNode;
 
+    //-------------------------------
+    // For testing
+    //-------------------------------
+    /** If in pool, the pool's id. */
+    int poolId = -1;
 
-public:
+
+
+private:
 
     /** Record containing this node. */
     RecordNode recordNode;
@@ -105,8 +112,6 @@ private:
 
     void copyParentForScan(EvioNode* parent);
     void addChild(EvioNode* node);
-    static void scanStructure(EvioNode & node);
-    static void scanStructure(EvioNode & node, EvioNodeSource & nodeSource);
     void addToAllNodes(EvioNode & node);
     void removeFromAllNodes(shared_ptr<EvioNode> & node);
     void removeChild(shared_ptr<EvioNode> & node);
@@ -115,11 +120,12 @@ private:
 
 protected:
 
-    EvioNode();
     explicit EvioNode(shared_ptr<EvioNode> & firstNode);
 
 public:
 
+    EvioNode();
+    EvioNode(int id);
     EvioNode(const EvioNode & firstNode);
     EvioNode(EvioNode && src) noexcept ;
     EvioNode(uint32_t pos, uint32_t place, ByteBuffer & buffer, RecordNode & blockNode);
@@ -146,11 +152,6 @@ public:
     void setBuffer(ByteBuffer & buf);
     void setData(uint32_t position, uint32_t plc, ByteBuffer & buf, RecordNode & recNode);
     void setData(uint32_t position, uint32_t plc, uint32_t recPos, ByteBuffer & buf);
-
-    static EvioNode & extractEventNode(ByteBuffer & buffer, EvioNodeSource & nodePool,
-                                       RecordNode & recNode, uint32_t position, uint32_t place);
-    static EvioNode & extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
-                                       uint32_t recPosition, uint32_t position, uint32_t place);
 
     static EvioNode & extractNode(EvioNode & bankNode, uint32_t position);
 

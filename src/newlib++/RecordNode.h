@@ -38,6 +38,10 @@ public:
         len = pos = count = place = 0;
     }
 
+    void clear() {
+        len = count = pos = place = 0;
+    }
+
 
     uint32_t getLen() {return len;}
     void setLen(uint32_t l) {len = l;}
