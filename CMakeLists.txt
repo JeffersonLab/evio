@@ -93,6 +93,8 @@ set(CPP_HEADER_FILES_NEW
         src/newlib++/EvioNode.h
         src/newlib++/DataType.h
         src/newlib++/RecordNode.h
+        src/newlib++/EvioNodeSource.h
+        src/newlib++/Util.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -108,7 +110,8 @@ set(CPP_LIB_FILES_NEW
         src/newlib++/ReadWriteTest.cpp
         src/newlib++/Reader.cpp
         src/newlib++/EvioNode.cpp
-        src/newlib++/RecordNode.h)
+        src/newlib++/RecordNode.h
+        src/newlib++/EvioNodeSource.cpp)
 
 
 file(GLOB TEST_FILES_C src/test/*.c)
