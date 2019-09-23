@@ -6,6 +6,11 @@
 #include "ByteBuffer.h"
 
 
+
+/** Set static array to help find number of bytes to pad data. */
+uint32_t FileHeader::padValue[4] = {0,3,2,1};
+
+
 /** Default, no-arg constructor. */
 FileHeader::FileHeader() {
     reset();

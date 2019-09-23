@@ -17,6 +17,8 @@
 #include "FileEventIndex.h"
 #include "RecordInput.h"
 #include "HipoException.h"
+#include "EvioNode.h"
+#include "EvioNodeSource.h"
 
 
 class Reader {
@@ -168,8 +170,12 @@ private:
     /** Evio version of file/buffer being read. */
     int evioVersion = 6;
 
-    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
-    EvioNodeSource nodePool;
+    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer (NOT file!). */
+    EvioNodeSource & nodePool;
+
+    /** Use this to initialize Reader objects in constructor when no nodePool is needed but
+     *  must be inititalized anyway. */
+    const static EvioNodeSource nodePoolStatic;
 
 
     int lastRecordNum = 0;
@@ -184,7 +190,7 @@ private:
 
 public:
 
-    Reader() noexcept = default;
+//    Reader() noexcept = default;
     explicit Reader(string & filename);
     Reader(string & filename, bool forceScan);
     Reader(string & filename, bool forceScan, bool checkRecordNumSeq);
@@ -235,13 +241,13 @@ public:
     uint8_t *getNextEvent();
     uint8_t *getPrevEvent();
 
-    EvioNode getNextEventNode();
+    EvioNode *getNextEventNode();
 
     ByteBuffer readUserHeader();
 
     uint8_t *getEvent(int index);
-    ByteBuffer getEvent(ByteBuffer buf, int index);
-    EvioNode getEventNode(uint32_t index);
+    ByteBuffer *getEvent(ByteBuffer buf, int index);
+    EvioNode *getEventNode(uint32_t index);
 
     bool hasNext();
     bool hasPrev();
@@ -279,5 +285,6 @@ protected:
     static int main(int argc, char **argv);
 
 };
+
 
 #endif //EVIO_6_0_READER_H

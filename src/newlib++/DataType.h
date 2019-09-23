@@ -70,10 +70,10 @@ private:
     string name;
 
     /** Fast way to convert integer values into DataType objects. */
-    static DataType intToType[0x24 + 1];
+    static DataType intToType[37];  // 37 = 0x24 + 1
 
     /** Store a name for each DataType object. */
-    static string names[];
+    static string names[37];
 
 private:
 
@@ -85,8 +85,6 @@ private:
     DataType(uint32_t value, string name) {
         this->value = value;
         this->name  = name;
-        intToType[value] = *this;
-        names[value] = name;
     }
 
 public:
@@ -210,73 +208,6 @@ public:
     const DataType & operator=(const DataType &rhs);
 
 };
-
-// Enum value DEFINITIONS
-// The initialization occurs in the scope of the class,
-// so the private DataType constructor can be used.
-
-/** Unknown data type. */
-const DataType DataType::UNKNOWN32 = DataType(0x0, "UNKNOWN32");
-/** Unsigned 32 bit int. */
-const DataType DataType::UINT32 = DataType(0x1, "UINT32");
-/** 32 bit float. */
-const DataType DataType::FLOAT32 = DataType(0x2, "FLOAT32");
-/** ASCII characters. */
-const DataType DataType::CHARSTAR8 = DataType(0x3, "CHARSTAR8");
-/** 16 bit int. */
-const DataType DataType::SHORT16 = DataType(0x4, "SHORT16");
-/** Unsigned 16 bit int. */
-const DataType DataType::USHORT16 = DataType(0x5, "USHORT16");
-/** 8 bit int. */
-const DataType DataType::CHAR8 = DataType(0x6, "CHAR8");
-/** Unsigned 8 bit int. */
-const DataType DataType::UCHAR8 = DataType(0x7, "UCHAR8");
-/** 64 bit double.. */
-const DataType DataType::DOUBLE64 = DataType(0x8, "DOUBLE64");
-/** 64 bit int. */
-const DataType DataType::LONG64 = DataType(0x9, "LONG64");
-/** Unsigned 64 bit int. */
-const DataType DataType::ULONG64 = DataType(0xa, "ULONG64");
-/** 32 bit int. */
-const DataType DataType::INT32 = DataType(0xb, "INT32");
-
-
-/** Tag segment. */
-const DataType DataType::TAGSEGMENT = DataType(0xc, "TAGSEGMENT");
-/** Segment alternate value. */
-const DataType DataType::ALSOSEGMENT = DataType(0xd, "ALSOSEGMENT");
-/** Bank alternate value. */
-const DataType DataType::ALSOBANK = DataType(0xe, "ALSOBANK");
-/** Composite data type. */
-const DataType DataType::COMPOSITE = DataType(0xf, "COMPOSITE");
-/** Bank. */
-const DataType DataType::BANK = DataType(0x10, "BANK");
-/** Segment. */
-const DataType DataType::SEGMENT = DataType(0x20, "SEGMENT");
-
-
-/** In composite data, Hollerit type. */
-const DataType DataType::HOLLERIT = DataType(0x21, "HOLLERIT");
-/** In composite data, N value. */
-const DataType DataType::NVALUE = DataType(0x22, "NVALUE");
-/** In composite data, n value. */
-const DataType DataType::nVALUE = DataType(0x23, "nVALUE");
-/** In composite data, m value. */
-const DataType DataType::mVALUE = DataType(0x24, "mVALUE");
-
-
-
-bool DataType::operator==(const DataType &rhs) const {
-    return value == rhs.value;
-}
-
-bool DataType::operator!=(const DataType &rhs) const {
-    return value != rhs.value;
-}
-
-const DataType & DataType::operator=(const DataType &rhs) {
-    return rhs;
-}
 
 
 #endif //EVIO_6_0_DATATYPE_H

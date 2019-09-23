@@ -37,11 +37,18 @@ private:
 
 public:
 
+    /** Default constructor with pool size = 0. */
+    EvioNodeSource() {
+        id = idCounter.fetch_add(1);
+        size = 0;
+    }
+
+
     /**
      * Constructor.
      * @param initialSize number of EvioNode objects in pool initially.
      */
-    EvioNodeSource(int initialSize) {
+    EvioNodeSource(uint32_t initialSize) {
         id = idCounter.fetch_add(1);
         size = initialSize;
         nodePool.reserve(initialSize);
@@ -57,19 +64,19 @@ public:
      * Used for debugging.
      * @return id number of this pool.
      */
-    int getId() {return id;}
+    uint32_t getId() {return id;}
 
     /**
      * Get the number of nodes taken from pool.
      * @return number of nodes taken from pool.
      */
-    int getUsed() {return poolIndex;}
+    uint32_t getUsed() {return poolIndex;}
 
     /**
      * Get the number of nodes in the pool.
      * @return number of nodes in the pool.
      */
-    int getSize() {return size;}
+    uint32_t getSize() {return size;}
 
     /**
      * Get a single EvioNode object.
@@ -95,10 +102,10 @@ public:
 
 private:
 
-    /** Increase the size of the pool by 20% or at least 1. */
+    /** Increase the size of the pool by about 20% or at least 1. */
     void increasePool() {
         // Grow it by 20% at a shot
-        int newPoolSize = size + (size + 4)/5;
+        int newPoolSize = size + (size + 5)/5;
 
         nodePool.reserve(newPoolSize);
 

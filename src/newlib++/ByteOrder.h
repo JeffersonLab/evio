@@ -41,39 +41,6 @@ using std::string;
 
 
 
-// Template to swap stuff in place
-template <typename T>
-void byteSwapInPlace(T& var)
-{
-    char* varArray = reinterpret_cast<char*>(&var);
-    for (size_t i = 0;  i < sizeof(T)/2;  i++)
-        std::swap(varArray[sizeof(var) - 1 - i],varArray[i]);
-}
-
-// Methods to swap and return floats and doubles
-float byteSwap(float var)
-{
-    char* varArray = reinterpret_cast<char*>(&var);
-    for (size_t i = 0;  i < 2;  i++)
-        std::swap(varArray[3 - i],varArray[i]);
-    return var;
-}
-
-double byteSwap(double var)
-{
-    char* varArray = reinterpret_cast<char*>(&var);
-    for (size_t i = 0;  i < 4;  i++)
-        std::swap(varArray[7 - i],varArray[i]);
-    return var;
-}
-
-void byteSwap(uint32_t *array, size_t elements) {
-    for (size_t i=0; i < elements; i++) {
-        array[i] = SWAP_32(array[i]);
-    }
-}
-
-
 
 
 ///* Read little-endian 16 bit unsigned integer */
@@ -167,32 +134,17 @@ public:
     }
 
 
+    // Template to swap stuff in place
+    template <typename T>
+    static void byteSwapInPlace(T& var);
+
+    // Methods to swap and return floats and doubles
+    static float byteSwap(float var);
+
+    static double byteSwap(double var);
+
+    static void byteSwap(uint32_t *array, size_t elements);
 };
-
-// Enum value DEFINITIONS
-// The initialization occurs in the scope of the class,
-// so the private constructor can be used.
-
-/** Little endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_LITTLE = ByteOrder(0, "ENDIAN_LITTLE");
-/** Big endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_BIG = ByteOrder(1, "ENDIAN_BIG");
-/** Unknown endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_UNKNOWN = ByteOrder(2, "ENDIAN_UNKNOWN");
-/** Local host's byte order. */
-const ByteOrder ByteOrder::ENDIAN_LOCAL = ByteOrder::getLocalByteOrder();
-
-bool ByteOrder::operator==(const ByteOrder &rhs) const {
-    return value == rhs.value;
-}
-
-bool ByteOrder::operator!=(const ByteOrder &rhs) const {
-    return value != rhs.value;
-}
-
-const ByteOrder & ByteOrder::operator=(const ByteOrder &rhs) {
-    return rhs;
-}
 
 
 #endif //EVIO_6_0_BYTEORDER_H

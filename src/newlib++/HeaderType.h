@@ -16,6 +16,7 @@
 #define EVIO_6_0_HEADERTYPE_H
 
 #include <string>
+#include "Util.h"
 
 using std::string;
 
@@ -46,26 +47,23 @@ public:
 
 private:
 
-    /** Value of this header type. */
-    uint32_t value;
-
     /** Fast way to convert integer values into HeaderType objects. */
     static HeaderType intToType[16];
 
     /** Store a name for each HeaderType object. */
-    static string names[];
+    static std::string names[16];
+
+    /** Value of this header type. */
+    uint32_t value;
 
 private:
 
     /**
      * Constructor.
-     * @param value int value of this headerType object.
-     * @param name  name (string representation) of this headerType object.
+     * @param value int value of this HeaderType object.
      */
-    HeaderType(uint32_t value, string name) {
+    HeaderType(uint32_t value) {
         this->value = value;
-        intToType[value] = *this;
-        names[value] = name;
     }
 
 public:
@@ -122,41 +120,5 @@ public:
 
 };
 
-// Enum value DEFINITIONS
-// The initialization occurs in the scope of the class,
-// so the private HeaderType constructor can be used.
-
-/** Header for a general evio record. */
-const HeaderType HeaderType::EVIO_RECORD = HeaderType(0, "EVIO_RECORD");
-/** Header for an evio file. */
-const HeaderType HeaderType::EVIO_FILE = HeaderType(1, "EVIO_FILE");
-/** Header for an extended evio file. Currently not used. */
-const HeaderType HeaderType::EVIO_FILE_EXTENDED = HeaderType(2, "EVIO_FILE_EXTENDED");
-/** Header for an evio trailer record. */
-const HeaderType HeaderType::EVIO_TRAILER = HeaderType(3, "EVIO_TRAILER");
-
-/** Header for a general hipo record. */
-const HeaderType HeaderType::HIPO_RECORD = HeaderType(4, "HIPO_RECORD");
-/** Header for an hipo file. */
-const HeaderType HeaderType::HIPO_FILE = HeaderType(5, "HIPO_FILE");
-/** Header for an extended hipo file. Currently not used. */
-const HeaderType HeaderType::HIPO_FILE_EXTENDED = HeaderType(6, "HIPO_FILE_EXTENDED");
-/** Header for an hipo trailer record. */
-const HeaderType HeaderType::HIPO_TRAILER = HeaderType(7, "HIPO_TRAILER");
-
-/** Unknown header. */
-const HeaderType HeaderType::UNKNOWN = HeaderType(15, "UNKNOWN");
-
-bool HeaderType::operator==(const HeaderType &rhs) const {
-    return value == rhs.value;
-}
-
-bool HeaderType::operator!=(const HeaderType &rhs) const {
-    return value != rhs.value;
-}
-
-const HeaderType & HeaderType::operator=(const HeaderType &rhs) {
-    return rhs;
-}
 
 #endif //EVIO_6_0_HEADERTYPE_H

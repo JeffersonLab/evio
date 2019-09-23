@@ -17,6 +17,11 @@
 
 using namespace std;
 
+
+/** Set static array to help find number of bytes to pad data. */
+uint32_t RecordHeader::padValue[4] = {0,3,2,1};
+
+
 /** Default, no-arg constructor. */
 RecordHeader::RecordHeader() {
     headerType = HeaderType::EVIO_FILE;
@@ -879,7 +884,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
             memcpy((void *)(array+56+off), (const void *)index, indexLen);
             // Swap in place if necessary
             if (!order.isLocalEndian()) {
-                byteSwap(reinterpret_cast<uint32_t *>(array+56+off), indexLen/4);
+                ByteOrder::byteSwap(reinterpret_cast<uint32_t *>(array+56+off), indexLen/4);
             }
         }
     }

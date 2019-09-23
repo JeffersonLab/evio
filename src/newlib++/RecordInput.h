@@ -132,7 +132,7 @@ private:
 public:
 
     RecordInput();
-    explicit RecordInput(ByteOrder & order);
+    explicit RecordInput(const ByteOrder & order);
     RecordInput(const RecordInput & recordIn);
     RecordInput(RecordInput && srcRec) noexcept;
 

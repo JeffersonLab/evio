@@ -10,15 +10,26 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "DataType.h"
 #include "RecordNode.h"
 #include "EvioException.h"
 
+// Forward declaration to fix chicken-egg problem in compilation
+class EvioNodeSource;
+
 
 class EvioNode {
 
 private:
+
+    /**
+     * Static methods that use this class and EvioNodeSource together
+     * were moved to Util.h to enable compilation of this class and EvioNodeSource.
+     */
+    friend class Util;
+
 
     /** Header's length value (32-bit words). */
     uint32_t len;
@@ -45,7 +56,6 @@ private:
     uint32_t recordPos;
 
     /** Store data in int array form if calculated. */
-//shared_ptr<uint32_t> data1;
     vector<uint32_t> data;
 
     /** Does this node represent an event (top-level bank)? */
@@ -125,7 +135,7 @@ protected:
 public:
 
     EvioNode();
-    EvioNode(int id);
+    explicit EvioNode(int id);
     EvioNode(const EvioNode & firstNode);
     EvioNode(EvioNode && src) noexcept ;
     EvioNode(uint32_t pos, uint32_t place, ByteBuffer & buffer, RecordNode & blockNode);
@@ -134,6 +144,23 @@ public:
              DataType & type, DataType & dataType, ByteBuffer & buffer);
 
     //~EvioNode();
+
+    static void scanStructure(EvioNode & node);
+    static void scanStructure(EvioNode & node, EvioNodeSource & nodeSource);
+
+    static EvioNode & extractNode(EvioNode & bankNode, uint32_t position);
+    static EvioNode & extractEventNode(ByteBuffer & buffer,
+                                       RecordNode & recNode,
+                                       uint32_t position, uint32_t place);
+    static EvioNode & extractEventNode(ByteBuffer & buffer,
+                                       EvioNodeSource & pool,
+                                       RecordNode & recNode,
+                                       uint32_t position, uint32_t place);
+    static EvioNode & extractEventNode(ByteBuffer & buffer,
+                                       uint32_t recPosition,
+                                       uint32_t position, uint32_t place);
+    static EvioNode & extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
+                                       uint32_t recPosition, uint32_t position, uint32_t place);
 
     EvioNode & operator=(const EvioNode& other);
     bool operator==(const EvioNode& src) const;
@@ -153,7 +180,6 @@ public:
     void setData(uint32_t position, uint32_t plc, ByteBuffer & buf, RecordNode & recNode);
     void setData(uint32_t position, uint32_t plc, uint32_t recPos, ByteBuffer & buf);
 
-    static EvioNode & extractNode(EvioNode & bankNode, uint32_t position);
 
     bool isObsolete();
     void setObsolete(bool obsolete);

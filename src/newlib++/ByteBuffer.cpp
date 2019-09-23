@@ -889,7 +889,7 @@ float ByteBuffer::getFloat() const {
     if (isHostEndian) {
         return read<float>();
     }
-    return byteSwap(read<float>());
+    return ByteOrder::byteSwap(read<float>());
 }
 
 
@@ -907,7 +907,7 @@ float ByteBuffer::getFloat(size_t index) const {
     if (isHostEndian) {
         return read<float>(index);
     }
-    return byteSwap(read<float>(index));
+    return ByteOrder::byteSwap(read<float>(index));
 }
 
 
@@ -924,7 +924,7 @@ double ByteBuffer::getDouble() const {
     if (isHostEndian) {
         return read<double>();
     }
-    return byteSwap(read<double>());
+    return ByteOrder::byteSwap(read<double>());
 }
 
 
@@ -942,7 +942,7 @@ double ByteBuffer::getDouble(size_t index) const {
     if (isHostEndian) {
         return read<double>(index);
     }
-    return byteSwap(read<double>(index));
+    return ByteOrder::byteSwap(read<double>(index));
 }
 
 
@@ -1242,7 +1242,7 @@ ByteBuffer & ByteBuffer::putFloat(float val) {
         write(val);
     }
     else {
-        float f = byteSwap(val);
+        float f = ByteOrder::byteSwap(val);
         write(f);
     }
     return *this;
@@ -1264,7 +1264,7 @@ ByteBuffer & ByteBuffer::putFloat(size_t index, float val) {
         write(val, index);
     }
     else {
-        float f = byteSwap(val);
+        float f = ByteOrder::byteSwap(val);
         write(f, index);
     }
     return *this;
@@ -1285,7 +1285,7 @@ ByteBuffer & ByteBuffer::putDouble(double val) {
         write(val);
     }
     else {
-        double d = byteSwap(val);
+        double d = ByteOrder::byteSwap(val);
         write(d);
     }
     return *this;
@@ -1307,7 +1307,7 @@ ByteBuffer & ByteBuffer::putDouble(size_t index, double val) {
         write(val, index);
     }
     else {
-        double d = byteSwap(val);
+        double d = ByteOrder::byteSwap(val);
         write(d, index);
     }
     return *this;

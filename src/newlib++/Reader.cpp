@@ -104,7 +104,7 @@
  * @throws IOException   if error reading file
  * @throws HipoException if file is not in the proper format or earlier than version 6
  */
-Reader::Reader(string & filename) {
+Reader::Reader(string & filename) : nodePool(nodePoolStatic) {
     // inStreamRandom & nodePool not defined
     open(filename);
     scanFile(false);
@@ -132,7 +132,7 @@ Reader::Reader(string & filename, bool forceScan) :
  * @throws HipoException if file is not in the proper format or earlier than version 6;
  *                       if checkRecordNumSeq is true and records are out of sequence.
  */
-Reader::Reader(string & filename, bool forceScan, bool checkRecordNumSeq) {
+Reader::Reader(string & filename, bool forceScan, bool checkRecordNumSeq) : nodePool(nodePoolStatic) {
 
     checkRecordNumberSequence = checkRecordNumSeq;
 
@@ -151,7 +151,7 @@ Reader::Reader(string & filename, bool forceScan, bool checkRecordNumSeq) {
  * @param buffer buffer with evio data.
  * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
  */
-Reader::Reader(ByteBuffer & buffer) {
+Reader::Reader(ByteBuffer & buffer): nodePool(nodePoolStatic) {
 
     this->buffer = buffer;
     bufferOffset = buffer.position();
@@ -182,12 +182,11 @@ Reader::Reader(ByteBuffer & buffer, EvioNodeSource & pool) :
  * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6;
  *                       if checkRecordNumSeq is true and records are out of sequence.
  */
-Reader::Reader(ByteBuffer & buffer, EvioNodeSource & pool, bool checkRecordNumSeq) {
+Reader::Reader(ByteBuffer & buffer, EvioNodeSource & pool, bool checkRecordNumSeq) : nodePool(pool) {
     this->buffer = buffer;
     bufferOffset = buffer.position();
     bufferLimit  = buffer.limit();
 
-    nodePool = pool;
     fromFile = false;
     checkRecordNumberSequence = checkRecordNumSeq;
     scanBuffer();
@@ -255,23 +254,6 @@ bool Reader::isFile() {return fromFile;}
  *                       not in the proper format, or earlier than version 6
  */
 void Reader::setBuffer(ByteBuffer & buf) {
-    setBuffer(buf, nullptr);
-}
-
-/**
- * This method can be used to avoid creating additional Reader
- * objects by reusing this one with another buffer. The method
- * {@link #close()} is called before anything else.  The pool is <b>not</b>
- * reset in this method. Caller may do that prior to calling method.
- *
- * @param buf ByteBuffer to be read
- * @param pool pool of EvioNode objects to use when parsing buf.
- * @throws HipoException if buffer too small,
- *                       not in the proper format, or earlier than version 6
- */
-void Reader::setBuffer(ByteBuffer & buf, EvioNodeSource & pool) {
-
-    nodePool     = pool;
     buffer       = buf;
     bufferLimit  = buffer.limit();
     bufferOffset = buffer.position();
@@ -292,6 +274,22 @@ void Reader::setBuffer(ByteBuffer & buf, EvioNodeSource & pool) {
     scanBuffer();
 
     closed = false;
+}
+
+/**
+ * This method can be used to avoid creating additional Reader
+ * objects by reusing this one with another buffer. The method
+ * {@link #close()} is called before anything else.  The pool is <b>not</b>
+ * reset in this method. Caller may do that prior to calling method.
+ *
+ * @param buf ByteBuffer to be read
+ * @param pool pool of EvioNode objects to use when parsing buf.
+ * @throws HipoException if buffer too small,
+ *                       not in the proper format, or earlier than version 6
+ */
+void Reader::setBuffer(ByteBuffer & buf, EvioNodeSource & pool) {
+    nodePool = pool;
+    setBuffer(buf);
 }
 
 /**
@@ -555,7 +553,7 @@ uint8_t* Reader::getPrevEvent() {
  * @return EvioNode representing the next event or null if no more events,
  *         reading a file or data is compressed.
  */
-EvioNode Reader::getNextEventNode() {
+EvioNode * Reader::getNextEventNode() {
     if (sequentialIndex >= eventIndex.getMaxEvents() || fromFile || compressed) {
         return nullptr;
     }
@@ -569,7 +567,7 @@ EvioNode Reader::getNextEventNode() {
     }
 
     lastCalledSeqNext = true;
-    return eventNodes[sequentialIndex++];
+    return & eventNodes[sequentialIndex++];
 }
 
 /**
@@ -585,10 +583,14 @@ ByteBuffer Reader::readUserHeader() {
         int userLen = fileHeader.getUserHeaderLength();
 //        cout << "  " << fileHeader.getUserHeaderLength() << "  " << fileHeader.getHeaderLength() <<
 //                                                            "  " << fileHeader.getIndexLength() << endl;
+
+        // This is turned into shared memory in ByteBuffer constructor below
         userBytes = new char[userLen];
 
         inStreamRandom.getChannel().position(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
         inStreamRandom.read(userBytes);
+// TODO: This is a local object and will go out of scope!! Copy is necessary but data is in shared_ptr
+// BAD !!! Because ByteBuffer copy constructor COPIES the data!!!
         return ByteBuffer(userBytes, userLen).order(fileHeader.getByteOrder());
     }
     else {
@@ -645,7 +647,7 @@ uint8_t* Reader::getEvent(int index) {
  *                       if buf has insufficient space to contain event
  *                       (buf.capacity() < event size).
  */
-ByteBuffer Reader::getEvent(ByteBuffer buf, int index) {
+ByteBuffer * Reader::getEvent(ByteBuffer buf, int index) {
 
     if (index < 0 || index >= eventIndex.getMaxEvents()) {
         return nullptr;
@@ -659,7 +661,7 @@ ByteBuffer Reader::getEvent(ByteBuffer buf, int index) {
         //cout << "[READER] first time reading buffer" << endl;
         readRecord(eventIndex.getRecordNumber());
     }
-    return inputRecordStream.getEvent(buf, eventIndex.getRecordEventNumber());
+    return & inputRecordStream.getEvent(buf, eventIndex.getRecordEventNumber());
 }
 
 /**
@@ -670,7 +672,7 @@ ByteBuffer Reader::getEvent(ByteBuffer buf, int index) {
  * @return EvioNode representing the specified event or null if
  *         index is out of bounds, reading a file or data is compressed.
  */
-EvioNode Reader::getEventNode(uint32_t index) {
+EvioNode * Reader::getEventNode(uint32_t index) {
 //cout << "getEventNode: index = " << index + " >? " << eventIndex.getMaxEvents() <<
 //                   ", fromFile = " << fromFile << ", compressed = " << compressed << endl;
     if (index >= eventIndex.getMaxEvents() || fromFile) {
@@ -678,7 +680,7 @@ EvioNode Reader::getEventNode(uint32_t index) {
         return nullptr;
     }
 //cout << "getEventNode: Getting node at index = " << index << endl;
-    return eventNodes[index];
+    return & eventNodes[index];
 }
 
 /**
@@ -736,7 +738,7 @@ bool Reader::readRecord(int index) {
 /** Extract dictionary and first event from file/buffer if possible, else do nothing. */
 void Reader::extractDictionaryAndFirstEvent() {
     // If already read & parsed ...
-    if (dictionaryXML != nullptr || firstEvent != nullptr) {
+    if (dictionaryXML.length() > 0 || firstEvent != nullptr) {
         return;
     }
 
@@ -782,19 +784,19 @@ void Reader::extractDictionaryFromBuffer() {
         return;
     }
 
-    int eventIndex = 0;
+    int evIndex = 0;
 
     // Dictionary always comes first in record
     if (firstRecordHeader.hasDictionary()) {
         // Just plain ascii, not evio format
-        uint8_t * dict = record.getEvent(eventIndex++);
+        uint8_t * dict = record.getEvent(evIndex++);
         try {dictionaryXML = string(dict, "US-ASCII");}
         catch (UnsupportedEncodingException e) {/* never happen */}
     }
 
     // First event comes next
     if (firstRecordHeader.hasFirstEvent()) {
-        firstEvent = record.getEvent(eventIndex);
+        firstEvent = record.getEvent(evIndex);
     }
 }
 

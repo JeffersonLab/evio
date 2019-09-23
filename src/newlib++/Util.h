@@ -28,7 +28,7 @@ public:
      *
      * @param node node being scanned
      */
-    static void EvioNode::scanStructure(EvioNode & node) {
+    static void scanStructure(EvioNode & node) {
 
         uint32_t dType = node.dataType;
 
@@ -195,7 +195,7 @@ public:
      * @param node node being scanned
      * @param nodeSource source of EvioNode objects to use while parsing evio data.
      */
-    static void EvioNode::scanStructure(EvioNode & node, EvioNodeSource & nodeSource) {
+    static void scanStructure(EvioNode & node, EvioNodeSource & nodeSource) {
 
         int dType = node.dataType;
 
@@ -353,7 +353,7 @@ public:
      * @return EvioNode object containing evio event information
      * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
      */
-    static EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer,
+    static EvioNode & extractEventNode(ByteBuffer & buffer,
                                                  RecordNode & recNode,
                                                  uint32_t position, uint32_t place) {
 
@@ -369,40 +369,40 @@ public:
     }
 
 
-    /**
- * This method extracts an EvioNode object representing an
- * evio event (top level evio bank) from a given buffer, a
- * location in the buffer, and a few other things. An EvioNode
- * object represents an evio container - either a bank, segment,
- * or tag segment.
- *
- * @param buffer     buffer to examine
- * @param pool       pool of EvioNode objects
- * @param recordNode object holding data about block header
- * @param position   position in buffer
- * @param place      place of event in buffer (starting at 0)
- *
- * @return EvioNode object containing evio event information
- * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
- */
-    static EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer,
-                                                 EvioNodeSource & pool,
-                                                 RecordNode & recNode,
-                                                 uint32_t position, uint32_t place) {
-
-        // Make sure there is enough data to at least read evio header
-        if (buffer.remaining() < 8) {
-            throw EvioException("buffer underflow");
-        }
-
-        // Store evio event info, without de-serializing, into EvioNode object
-        EvioNode & node = pool.getNode();
-        node.clear(); //node.clearIntArray();
-        node.setData(position, place, buffer, recNode);
-        return extractNode(node, position);
-    }
-
-
+//    /**
+// * This method extracts an EvioNode object representing an
+// * evio event (top level evio bank) from a given buffer, a
+// * location in the buffer, and a few other things. An EvioNode
+// * object represents an evio container - either a bank, segment,
+// * or tag segment.
+// *
+// * @param buffer     buffer to examine
+// * @param pool       pool of EvioNode objects
+// * @param recordNode object holding data about block header
+// * @param position   position in buffer
+// * @param place      place of event in buffer (starting at 0)
+// *
+// * @return EvioNode object containing evio event information
+// * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
+// */
+//    static EvioNode & extractEventNode(ByteBuffer & buffer,
+//                                                 EvioNodeSource & pool,
+//                                                 RecordNode & recNode,
+//                                                 uint32_t position, uint32_t place) {
+//
+//        // Make sure there is enough data to at least read evio header
+//        if (buffer.remaining() < 8) {
+//            throw EvioException("buffer underflow");
+//        }
+//
+//        // Store evio event info, without de-serializing, into EvioNode object
+//        EvioNode & node = pool.getNode();
+//        node.clear(); //node.clearIntArray();
+//        node.setData(position, place, buffer, recNode);
+//        return extractNode(node, position);
+//    }
+//
+//
 
 //TODO: these may have to return shared pointers!
 
@@ -421,7 +421,7 @@ public:
      * @return EvioNode object containing evio event information
      * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
      */
-    static EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer,
+    static EvioNode & extractEventNode(ByteBuffer & buffer,
                                                  uint32_t recPosition, uint32_t position, uint32_t place) {
 
         // Make sure there is enough data to at least read evio header
@@ -451,7 +451,7 @@ public:
       * @return EvioNode object containing evio event information
       * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
       */
-    static EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
+    static EvioNode & extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
                                                  uint32_t recPosition, uint32_t position, uint32_t place) {
 
         // Make sure there is enough data to at least read evio header
@@ -465,6 +465,61 @@ public:
         node.setData(position, place, recPosition, buffer);
         // This will return a reference to the actual node in the pool
         return extractNode(node, position);
+    }
+
+
+
+/**
+ * This method populates an EvioNode object that will represent an
+ * evio bank from that same node containing a reference to the
+ * backing buffer and given a position in that buffer.
+ *
+ * @param bankNode   EvioNode to represent a bank and containing,
+ *                   at least, a reference to backing buffer.
+ * @param position   position in backing buffer
+ *
+ * @return EvioNode bankNode arg filled with appropriate data.
+ * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
+ */
+    static EvioNode & extractNode(EvioNode & bankNode, uint32_t position) {
+
+        // Make sure there is enough data to at least read evio header
+        ByteBuffer & buffer = bankNode.buffer;
+        if (buffer.remaining() < 8) {
+            throw EvioException("buffer underflow");
+        }
+
+        // Get length of current bank
+        int len = buffer.getInt(position);
+        bankNode.len = len;
+        bankNode.pos = position;
+        bankNode.type = DataType::BANK.getValue();
+
+        // Position of data for a bank
+        bankNode.dataPos = position + 8;
+        // Len of data for a bank
+        bankNode.dataLen = len - 1;
+
+        // Make sure there is enough data to read full bank
+        // even though it is NOT completely read at this time.
+        if (buffer.remaining() < 4*(len + 1)) {
+            cout << "ERROR: remaining = " << buffer.remaining() <<
+                 ", node len bytes = " << ( 4*(len + 1)) << ", len = " << len << endl;
+            throw EvioException("buffer underflow");
+        }
+
+        // Hop over length word
+        position += 4;
+
+        // Read and parse second header word
+        uint32_t word = buffer.getInt(position);
+        bankNode.tag = (word >> 16) & 0xffff;
+        uint32_t dt  = (word >> 8) & 0xff;
+        bankNode.dataType = dt & 0x3f;
+        bankNode.pad = dt >> 6;
+        bankNode.num = word & 0xff;
+
+        return bankNode;
     }
 
 

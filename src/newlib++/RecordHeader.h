@@ -187,7 +187,7 @@ private:
     static const uint32_t HEADER_TYPE_MASK = 0xF0000000;
 
     /** Array to help find number of bytes to pad data. */
-    static constexpr uint32_t padValue[4] = {0,3,2,1};
+    static uint32_t padValue[4];
 
     //-------------------
 

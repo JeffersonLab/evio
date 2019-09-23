@@ -99,7 +99,9 @@ set(CPP_HEADER_FILES_NEW
 
 set(CPP_LIB_FILES_NEW
         src/newlib++/FileEventIndex.cpp
+        src/newlib++/ByteOrder.cpp
         src/newlib++/ByteBuffer.cpp
+        src/newlib++/HeaderType.cpp
         src/newlib++/Compressor.cpp
         src/newlib++/FileHeader.cpp
         src/newlib++/RecordHeader.cpp
@@ -107,11 +109,11 @@ set(CPP_LIB_FILES_NEW
         src/newlib++/RecordOutput.cpp
         src/newlib++/Writer.cpp
         src/newlib++/WriterMT.cpp
-        src/newlib++/ReadWriteTest.cpp
         src/newlib++/Reader.cpp
         src/newlib++/EvioNode.cpp
-        src/newlib++/RecordNode.h
-        src/newlib++/EvioNodeSource.cpp)
+        src/newlib++/RecordNode.cpp
+        src/newlib++/EvioNodeSource.cpp
+        src/newlib++/DataType.cpp)
 
 
 file(GLOB TEST_FILES_C src/test/*.c)

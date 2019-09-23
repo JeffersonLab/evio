@@ -19,7 +19,7 @@ RecordInput::RecordInput() {
  * Constructor with argument.
  * @param order byte order of internal byte arrays.
  */
-RecordInput::RecordInput(ByteOrder & order) {
+RecordInput::RecordInput(const ByteOrder & order) {
     byteOrder = order;
     header = RecordHeader();
     allocate(DEFAULT_BUF_SIZE);
