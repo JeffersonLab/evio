@@ -241,7 +241,7 @@ bool ByteBuffer::equals(const ByteBuffer & other) {
  * This always returns false since it is backed by an array.
  * @return false.
  */
-inline bool ByteBuffer::isDirect() const {return false;}
+bool ByteBuffer::isDirect() const {return false;}
 
 
 /**
@@ -249,7 +249,7 @@ inline bool ByteBuffer::isDirect() const {return false;}
  * This always returns true since it is backed by an array.
  * @return true.
  */
-inline bool ByteBuffer::hasArray() const {return true;}
+bool ByteBuffer::hasArray() const {return true;}
 
 
 /**
@@ -257,21 +257,21 @@ inline bool ByteBuffer::hasArray() const {return true;}
  * i.e. {@link #position()} &lt; {@link #limit()}.
  * @return position < limit.
  */
-inline bool ByteBuffer::hasRemaining() const {return pos < lim;}
+bool ByteBuffer::hasRemaining() const {return pos < lim;}
 
 
 /**
  * Returns whether this buffer is read only. Always returns false;
  * @return false.
  */
-inline bool ByteBuffer::isReadOnly() const {return false;}
+bool ByteBuffer::isReadOnly() const {return false;}
 
 
 /**
  * Get the byte order of the data.
  * @return byte order of the data.
  */
-inline const ByteOrder & ByteBuffer::order() const {return byteOrder;}
+const ByteOrder & ByteBuffer::order() const {return byteOrder;}
 
 
 /**
@@ -279,14 +279,14 @@ inline const ByteOrder & ByteBuffer::order() const {return byteOrder;}
  * Do not free or delete this array!
  * @return pointer to the data array.
  */
-inline uint8_t * ByteBuffer::array() const {return buf.get();}
+uint8_t * ByteBuffer::array() const {return buf.get();}
 
 
 /**
  * Get a shared pointer to this buffer's backing array which contains the data.
  * @return shared pointer to the data array.
  */
-inline shared_ptr<uint8_t> ByteBuffer::getDataSharedPtr() const {return buf;}
+shared_ptr<uint8_t> ByteBuffer::getDataSharedPtr() const {return buf;}
 
 
 /**
@@ -294,42 +294,42 @@ inline shared_ptr<uint8_t> ByteBuffer::getDataSharedPtr() const {return buf;}
  * There is no offset for this implementation.
  * @return 0.
  */
-inline size_t ByteBuffer::arrayOffset() const {return 0;}
+size_t ByteBuffer::arrayOffset() const {return 0;}
 
 
 /**
  * Returns the number of bytes from the current position to the end of the data.
  * @return Number of bytes from position({@link #position()}) to the end ({@link #limit()}).
  */
-inline size_t ByteBuffer::remaining() const {return lim - pos;}
+size_t ByteBuffer::remaining() const {return lim - pos;}
 
 
 /**
  * Returns the total available bytes in this buffer.
  * @return the total available bytes in this buffer.
  */
-inline size_t ByteBuffer::capacity() const {return cap;};
+size_t ByteBuffer::capacity() const {return cap;};
 
 
 /**
  * Returns the limit, the position of the last valid data byte.
  * @return the position of the last valid data byte.
  */
-inline size_t ByteBuffer::limit() const {return lim;};
+size_t ByteBuffer::limit() const {return lim;};
 
 
 /**
  * Returns the position of the buffer.
  * @return the position of the buffer.
  */
-inline size_t ByteBuffer::position() const {return pos;};
+size_t ByteBuffer::position() const {return pos;};
 
 
 /**
  * Sets the buffer's mark at its position.
  * @return this buffer.
  */
-inline ByteBuffer & ByteBuffer::mark() {
+ByteBuffer & ByteBuffer::mark() {
     mrk = pos;
     return *this;
 };
@@ -340,7 +340,7 @@ inline ByteBuffer & ByteBuffer::mark() {
  * and the mark is discarded. Data remains untouched.
  * @return this buffer.
  */
-inline ByteBuffer & ByteBuffer::clear() {
+ByteBuffer & ByteBuffer::clear() {
     pos = 0;
     lim = cap;
     mrk = -1;
@@ -353,7 +353,7 @@ inline ByteBuffer & ByteBuffer::clear() {
  * position is set to 0. The mark is discarded. Gets buffer ready for reading.
  * @return this buffer.
  */
-inline ByteBuffer & ByteBuffer::flip() {
+ByteBuffer & ByteBuffer::flip() {
     lim = pos;
     pos = 0;
     mrk = -1;
@@ -365,7 +365,7 @@ inline ByteBuffer & ByteBuffer::flip() {
  * Resets this buffer's position to the previously-marked position.
  * @return this buffer.
  */
-inline ByteBuffer & ByteBuffer::reset() {
+ByteBuffer & ByteBuffer::reset() {
     int m = mrk;
     if (m < 0) {
         throw HipoException("invalid mark");
@@ -378,8 +378,8 @@ inline ByteBuffer & ByteBuffer::reset() {
 /**
  * Rewinds this buffer. The position is set to 0 and the mark is discarded.
  * @return this buffer.
-ß     */
-inline ByteBuffer & ByteBuffer::rewind() {
+ */
+ByteBuffer & ByteBuffer::rewind() {
     pos = 0;
     mrk = -1;
     return *this;
@@ -392,7 +392,7 @@ inline ByteBuffer & ByteBuffer::rewind() {
  * @return this buffer.
  * @throws HipoException if p &gt; capacity.
  */
-inline ByteBuffer & ByteBuffer::position(size_t p) {
+ByteBuffer & ByteBuffer::position(size_t p) {
     if (p > lim) {
         throw HipoException("position may not exceed capacity");
     }
@@ -410,7 +410,7 @@ inline ByteBuffer & ByteBuffer::position(size_t p) {
  * @return this buffer.
  * @throws HipoException if l &gt; capacity.
  */
-inline ByteBuffer & ByteBuffer::limit(size_t l) {
+ByteBuffer & ByteBuffer::limit(size_t l) {
     if (l > capacity()) {
         throw HipoException("limit may not exceed capacity");
     }
