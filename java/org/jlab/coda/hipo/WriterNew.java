@@ -22,6 +22,9 @@ import java.util.concurrent.Future;
 
 /**
  * Class to write Evio/HIPO files.
+ * This class replaces the Writer class with a more efficient writing system.
+ * Two asynchronous writes are done simultaneously in this class for greater
+ * file writing speed.
  *
  * @version 6.0
  * @since 6.0 8/10/17
@@ -688,8 +691,7 @@ System.out.println("createRecord: add first event to record");
         System.out.println("createHeader: IN, fe bit = " + fileHeader.hasFirstEvent());
 
         // Amount of user data in bytes
-        int userHeaderBytes;
-        userHeaderBytes = 0;
+        int userHeaderBytes = 0;
         if (userHeader == null) {
             fileHeader.setUserHeaderLength(0);
         }
@@ -743,7 +745,7 @@ System.out.println("createRecord: add first event to record");
     public void writeTrailer(boolean writeIndex) throws IOException {
 
         // Keep track of where we are right now which is just before trailer
-        long trailerPosition = fileWritingPosition;
+//        long trailerPosition = fileWritingPosition;
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
@@ -987,7 +989,6 @@ System.out.println("createRecord: add first event to record");
             outputRecord.addEvent(node);
         }
     }
-
 
     /**
      * Write internal record with incremented record # to file or buffer.
