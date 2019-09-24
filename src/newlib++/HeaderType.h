@@ -16,7 +16,6 @@
 #define EVIO_6_0_HEADERTYPE_H
 
 #include <string>
-#include "Util.h"
 
 using std::string;
 
