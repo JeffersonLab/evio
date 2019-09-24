@@ -959,6 +959,7 @@ void RecordOutput::build() {
 
             case 3:
                 // GZIP compression
+#ifdef USE_GZIP
                 gzippedData = Compressor::getInstance().compressGZIP(recordData.array(), 0,
                                                                  uncompressedDataSize, &compressedSize);
                 recordBinary.position(recBinPastHdr);
@@ -967,6 +968,7 @@ void RecordOutput::build() {
                 header.setCompressedDataLength(compressedSize);
                 header.setLength(4*header.getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
+#endif
                 break;
 
             case 0:
@@ -1118,6 +1120,7 @@ void RecordOutput::build(ByteBuffer & userHeader) {
 
             case 3:
                 // GZIP compression
+#ifdef USE_GZIP
                 gzippedData = Compressor::getInstance().compressGZIP(recordData.array(), 0,
                                                                      uncompressedDataSize, &compressedSize);
                 recordBinary.position(recBinPastHdr);
@@ -1126,6 +1129,7 @@ void RecordOutput::build(ByteBuffer & userHeader) {
                 header.setCompressedDataLength(compressedSize);
                 header.setLength(4*header.getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
+#endif
                 break;
 
             case 0:

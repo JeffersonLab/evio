@@ -459,6 +459,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
             //file.read(recordBuffer.array(), 0, cLength);
             //uint8_t* unzipped = Compressor::getInstance().uncompressGZIP(recordBuffer.array(), 0, cLength);
             //dataBuffer.put(unzipped);
+#ifdef USE_GZIP
         {
             file.read(reinterpret_cast<char *>(recordBuffer.array()), cLength);
             uint32_t uncompLen;
@@ -467,6 +468,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
             dataBuffer.put(ungzipped, 0, uncompLen);
             delete[] ungzipped;
         }
+#endif
             break;
 
         case 0:
@@ -541,6 +543,7 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
             break;
 
         case 3:
+#ifdef USE_GZIP
             {
                 // Read GZIP compressed data
                 uint32_t uncompLen;
@@ -549,7 +552,7 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
                 dataBuffer.put(ungzipped, 0, uncompLen);
                 delete[] ungzipped;
             }
-
+#endif
             break;
 
         case 0:
@@ -654,6 +657,7 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
 
         case 3:
             // Read GZIP compressed data
+#ifdef USE_GZIP
             {
                 uint32_t uncompLen;
                 srcBuf.limit(compressedDataOffset + compressedDataLength).position(compressedDataOffset);
@@ -661,6 +665,7 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
                 dstBuf.put(ungzipped, 0, uncompLen);
                 delete[] ungzipped;
             }
+#endif
             break;
 
         case 0:
