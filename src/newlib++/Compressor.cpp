@@ -220,7 +220,11 @@ int Compressor::getMaxCompressedLength(CompressionType compressionType, uint32_t
     }
 }
 
+//---------------------------
+// GZIP Compression
+//---------------------------
 
+#ifdef USE_GZIP
 /**
  * GZIP compression. Returns locally allocated compressed byte array.
  * Caller must delete[] it.
@@ -312,8 +316,6 @@ uint8_t* Compressor::uncompressGZIP(uint8_t* gzipped, uint32_t off,
 int Compressor::compressGZIP(uint8_t* dest, uint32_t *destLen,
                              const uint8_t* source, uint32_t sourceLen) {
 
-#ifdef USE_GZIP
-
     if (destLen == nullptr) {
         throw HipoException("null pointer for destLen arg");
     }
@@ -338,13 +340,6 @@ int Compressor::compressGZIP(uint8_t* dest, uint32_t *destLen,
     deflateReset(&strmDeflate);
 
     return err == Z_STREAM_END ? Z_OK : err;
-
-#else
-
-    return Z_OK;
-
-#endif
-
 }
 
 
@@ -380,8 +375,6 @@ int Compressor::uncompressGZIP(uint8_t* dest, uint32_t *destLen,
                                const uint8_t* source, uint32_t *sourceLen,
                                uint32_t uncompLen) {
 
-#ifdef USE_GZIP
-
     if (destLen == nullptr || sourceLen == nullptr) {
         throw HipoException("null pointer for destLen and/or sourceLen arg(s)");
     }
@@ -416,13 +409,6 @@ int Compressor::uncompressGZIP(uint8_t* dest, uint32_t *destLen,
            err == Z_NEED_DICT ? Z_DATA_ERROR  :
            err == Z_BUF_ERROR && left + avail_out ? Z_DATA_ERROR :
            err;
-
-#else
-
-    return err = Z_OK;
-
-#endif
-
 }
 
 /**
@@ -435,8 +421,6 @@ int Compressor::uncompressGZIP(uint8_t* dest, uint32_t *destLen,
  * @throws HipoException if error in uncompressing gzipped data.
  */
 uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) {
-
-#ifdef USE_GZIP
 
     // Length of compressed data
     uint32_t srcLen = gzipped.remaining();
@@ -455,14 +439,9 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
     *uncompLen = dstLen;
 
     return ungzipped;
-
-#else
-
-    return nullptr;
-
+}
 #endif
 
-}
 
 //---------------------------
 // LZ4 Fast Compression
