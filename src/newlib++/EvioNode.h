@@ -24,13 +24,6 @@ class EvioNode {
 
 private:
 
-    /**
-     * Static methods that use this class and EvioNodeSource together
-     * were moved to Util.h to enable compilation of this class and EvioNodeSource.
-     */
-    friend class Util;
-
-
     /** Header's length value (32-bit words). */
     uint32_t len;
     /** Header's tag value. */
