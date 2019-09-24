@@ -98,6 +98,7 @@ class ByteBuffer {
         ByteBuffer & rewind();
         ByteBuffer & position(size_t p);
         ByteBuffer & limit(size_t l);
+
         ByteBuffer & order(ByteOrder const & order);
         ByteBuffer & duplicate(ByteBuffer &destBuf);
         // ByteBuffer & slice();
