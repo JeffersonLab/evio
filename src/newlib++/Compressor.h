@@ -6,7 +6,7 @@
 #define EVIO_6_0_COMPRESSOR_H
 
 
-#define USE_GZIP
+//#define USE_GZIP
 
 
 #include <string>
@@ -85,7 +85,7 @@ public:
     //---------------
     // GZIP
     //---------------
-
+#ifdef USE_GZIP
     static uint8_t* compressGZIP(uint8_t* ungzipped, uint32_t offset,
                                  uint32_t length, uint32_t *compLen);
 
@@ -100,6 +100,7 @@ public:
                               uint32_t uncompLen);
 
     static uint8_t* uncompressGZIP(ByteBuffer & gzipped, uint32_t *uncompLen);
+#endif
 
     //---------------
     // LZ4
