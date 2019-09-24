@@ -136,8 +136,8 @@ execLibs = ['']
 
 
 # Platform dependent quantities. Default to standard Linux libs.
-#execLibs = ['pthread', 'expat', 'z', 'dl', 'm', 'lz4']
-execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
+execLibs = ['pthread', 'expat', 'z', 'dl', 'm', 'lz4']
+#execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
 
 if platform == 'Darwin':
     execLibs = ['pthread', 'dl', 'expat', 'z','lz4']
@@ -241,9 +241,9 @@ Help('tar                 create tar file (in ./tar)\n')
 Export('env archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix')
 
 # Run lower level build files
-env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
-env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
-env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
-env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
+#env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
+#env.SConscript('src/libsrc++/SConscript', variant_dir='src/libsrc++/'+archDir, duplicate=0)
+#env.SConscript('src/execsrc/SConscript',  variant_dir='src/execsrc/'+archDir,  duplicate=0)
+#env.SConscript('src/examples/SConscript', variant_dir='src/examples/'+archDir, duplicate=0)
 #env.SConscript('src/test/SConscript',     variant_dir='src/test/'+archDir,     duplicate=0)
 env.SConscript('src/newlib++/SConscript', variant_dir='src/newlib++/'+archDir,   duplicate=0)
