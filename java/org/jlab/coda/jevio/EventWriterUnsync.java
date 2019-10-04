@@ -2800,21 +2800,39 @@ System.err.println("ERROR endOfBuffer " + a);
      *
      * @param currentEventBytes  number of bytes to write from buffer
      */
-    private void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes)
-                                            throws EvioException{
+    private void writeEventToBuffer(EvioBank bank, ByteBuffer bankBuffer, int currentEventBytes) {
 
 //if (debug) System.out.println("  writeEventToBuffer: before write, bytesToBuf = " +
 //                bytesWrittenToBuffer);
 
         // Write event to internal buffer
+        int bankLim = -1,bankPos = -1,bankCap = -1;
         if (bankBuffer != null) {
-            buffer.put(bankBuffer);
+            bankLim = bankBuffer.limit();
+            bankPos = bankBuffer.position();
+            bankCap = bankBuffer.capacity();
         }
-        else if (bank != null) {
-            bank.write(buffer);
+
+        int rbankLim = buffer.limit();
+        int rbankPos = buffer.position();
+        int rbankCap = buffer.capacity();
+
+        try {
+            if (bankBuffer != null) {
+                buffer.put(bankBuffer);
+            }
+            else if (bank != null) {
+                bank.write(buffer);
+            }
+            else {
+                return;
+            }
         }
-        else {
-            return;
+        catch (Exception e) {
+            System.out.println("Error trying to write event buf (lim = " + bankLim + ", cap = " + bankCap +
+                    ", pos = " + bankPos + ") to internal buf (lim = " + rbankLim + ", cap = " + rbankCap +
+                    ", pos = " + rbankPos + ")");
+            throw e;
         }
 
         // Update the current block header's size and event count
@@ -3588,10 +3606,10 @@ System.err.println("ERROR endOfBuffer " + a);
             roomInBuffer = false;
             needBiggerBuffer = true;
         }
-        // Is this event plus ending block header, in combination with events previously written
-        // to the current internal buffer, too big for it?
-        else if ((!writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + headerBytes)) ||
-                 ( writeNewBlockHeader && ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + 2*headerBytes)))  {
+        // Is this event plus ending block header (plus new block header as worst case),
+        // in combination with events previously written to the current internal buffer,
+        // too big for it?
+        else if ((bufferSize - bytesWrittenToBuffer) < currentEventBytes + 2*headerBytes) {
             roomInBuffer = false;
         }
 
