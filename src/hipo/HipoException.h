@@ -16,9 +16,11 @@
 #define EVIO_6_0_HIPOEXCEPTION_H
 
 #include <iostream>
-#include <exception>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
-class HipoException : public std::exception {
+class HipoException : public std::runtime_error {
 
 private:
 
@@ -26,11 +28,25 @@ private:
 
 public:
 
-    explicit HipoException(const std::string msg) noexcept : errorMsg(msg) {}
+    explicit HipoException(const std::string & msg) noexcept : std::runtime_error(msg) {
+        errorMsg = msg;
+    }
 
-    virtual const char* what() const noexcept {return errorMsg.c_str();}
+
+    HipoException(const std::string & msg, const char *file, int line)
+                                                    noexcept : std::runtime_error(msg) {
+        std::ostringstream o;
+        o << file << ":" << line << ":" << msg;
+        errorMsg = o.str();
+    }
+
+     ~HipoException() override = default;
+
+    const char* what() const noexcept override {return errorMsg.c_str();}
 
 };
+
+#define throwHipoLine(arg) throw HipoException(arg, __FILE__, __LINE__);
 
 
 #endif //EVIO_6_0_HIPOEXCEPTION_H

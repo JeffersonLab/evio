@@ -154,8 +154,6 @@ private:
     /** Position of this header in a file. */
     size_t position;
 
-    /** Type of header this is. Normal HIPO record by default. */
-    HeaderType headerType = HeaderType::HIPO_FILE;
     /** Event or record count. 4th word. */
     uint32_t  entries;
     /** BitInfo & version. 6th word. */
@@ -175,21 +173,22 @@ private:
      *  Not stored in any word. */
     uint32_t  totalLength = HEADER_SIZE_BYTES;
 
-
     /** Evio format version number. It is 6 when being written, else
      * the version of file/buffer being read. Lowest byte of 6th word. */
     uint32_t  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
     uint32_t  headerMagicWord = HEADER_MAGIC;
+
+    /** Number of bytes required to bring uncompressed
+      * user header to 4-byte boundary. Stored in 6th word.
+      * Updated automatically when lengths are set. */
+    uint32_t  userHeaderLengthPadding;
+
     /** Byte order of file. */
     ByteOrder  byteOrder = ByteOrder::ENDIAN_LITTLE;
 
-    // These quantities are updated automatically when lengths are set
-
-    /** Number of bytes required to bring uncompressed
-      * user header to 4-byte boundary. Stored in 6th word. */
-    uint32_t  userHeaderLengthPadding;
-
+    /** Type of header this is. Normal HIPO record by default. */
+    HeaderType headerType = HeaderType::HIPO_FILE;
 
 public:
 

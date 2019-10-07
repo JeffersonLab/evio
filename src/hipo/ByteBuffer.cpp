@@ -209,6 +209,29 @@ ByteBuffer & ByteBuffer::compact() {
 
 
 /**
+ * This method expands the size of this buffer if it's less than the given size.
+ * Useful in C++, but has no counterpart in Java.
+ * Any additional bytes added to the underlying array are 0.
+ * All other internals are kept the same, including all data within the limit.
+ * @param size new size (in bytes) of space to allocate internally.
+ */
+void ByteBuffer::expand(size_t size) {
+    if (size <= cap) return;
+
+    // If there's data copy it over
+    if (lim > 0) {
+        shared_ptr<uint8_t> tempBuf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+        std::memcpy((void *)(tempBuf.get()), (const void *)(buf.get()), lim);
+        buf = tempBuf;
+    }
+    else {
+        buf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+    }
+    cap = size;
+}
+
+
+/**
  * This method tests for data equivilancy. Two byte buffers are equal if, and only if,
  * they have the same number of remaining elements, and the two sequences of remaining
  * elements, considered independently of their starting positions, are pointwise equal.

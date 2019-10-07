@@ -10,7 +10,9 @@
  * <b>No</b> file is opened. Any file will have little endian byte order.
  */
 Writer::Writer() {
+    cout << "Writer() : before outputRecord created" << endl;
     outputRecord = RecordOutput();
+    cout << "Writer() : after outputRecord created" << endl;
     fileHeader   = FileHeader(true);
     recordLengths.reserve(1500);
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
@@ -84,7 +86,10 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEv
 
     recordLengths.reserve(1500);
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+
+    cout << "Writer(...) : before outputRecord created" << endl;
     outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compressionType);
+    cout << "Writer(...) : after outputRecord created" << endl;
 
     if ((dictionary.length() > 0) ||
         (firstEvent != nullptr && firstEventLen > 0))  {
@@ -175,7 +180,9 @@ Writer::Writer(ByteBuffer & buf, const ByteOrder & order, uint32_t maxEventCount
     this->firstEventLength = firstEventLen;
 
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+    cout << "Writer(...) : BUFFER before outputRecord created" << endl;
     outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
+    cout << "Writer(...) : BUFFER after outputRecord created" << endl;
 
     if ( (dictionary.length() > 0) ||
          (firstEvent != nullptr && firstEventLen > 0))  {

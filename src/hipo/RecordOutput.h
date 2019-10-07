@@ -95,6 +95,10 @@ private:
     static constexpr int ONE_MEG = 1024*1024;
 
 
+    /** The starting position of a user-given buffer.
+    * No data will be written before this position. */
+    size_t startingPosition;
+
     /** Maximum number of events per record. */
     uint32_t MAX_EVENT_COUNT = 1000000;
 
@@ -118,6 +122,21 @@ private:
      */
     uint32_t RECORD_BUFFER_SIZE = 9*ONE_MEG;
 
+    /** The number of initially available bytes to be written into in the user-given buffer,
+     *  that go from position to limit. The user-given buffer is stored in recordBinary.
+     */
+    uint32_t userBufferSize;
+
+    /** Number of events written to this Record. */
+    uint32_t eventCount;
+
+    /** Number of valid bytes in recordIndex buffer.
+     *  Will always be multiple of 4 since indexes are ints. */
+    uint32_t indexSize;
+
+    /** Number of valid bytes in recordEvents buffer. */
+    uint32_t eventSize;
+
     /** This buffer stores event lengths ONLY. */
     ByteBuffer recordIndex;
 
@@ -131,41 +150,25 @@ private:
      * Code is written so that it works whether or not it's backed by an array. */
     ByteBuffer recordBinary;
 
-    /** The number of initially available bytes to be written into in the user-given buffer,
-     * that go from position to limit. The user-given buffer is stored in recordBinary.
-     */
-    uint32_t userBufferSize;
-
-    /** Is recordBinary a user provided buffer? */
-    bool userProvidedBuffer;
-
     /** Header of this Record. */
     RecordHeader header;
 
-    /** Number of events written to this Record. */
-    uint32_t eventCount;
-
-    /** Number of valid bytes in recordIndex buffer.
-     *  Will always be multiple of 4 since indexes are ints. */
-    uint32_t indexSize;
-
-    /** Number of valid bytes in recordEvents buffer. */
-    uint32_t eventSize;
-
-    /** The starting position of a user-given buffer.
-     * No data will be written before this position. */
-    size_t startingPosition;
-
     /** Byte order of record byte arrays to build. */
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+
+    /** Is recordBinary a user provided buffer? */
+    bool userProvidedBuffer;
 
 
 public:
 
     RecordOutput();
 
-    RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-                 Compressor::CompressionType compressionType, HeaderType hType = HeaderType::HIPO_RECORD);
+    explicit RecordOutput(const ByteOrder & order,
+                          uint32_t maxEventCount = 1000000,
+                          uint32_t maxBufferSize = 8*ONE_MEG,
+                          Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
+                          HeaderType hType = HeaderType::HIPO_RECORD);
 
     RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
                  Compressor::CompressionType compressionType, HeaderType & hType);

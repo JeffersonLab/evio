@@ -52,16 +52,16 @@ class ByteBuffer {
          * in order to implement the duplicate() method. */
         shared_ptr<uint8_t> buf;
 
+        /** Byte order of data. In java, default is big endian. */
+        ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+
         /** Is the data the same endian as the host? Convenience variable. */
         bool isHostEndian;
 
         /** Is the data little endian? Convenience variable. */
         bool isLittleEndian;
 
-        /** Byte order of data. In java, default is big endian. */
-        ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
-
-    public:
+public:
 
         ByteBuffer();
         explicit ByteBuffer(size_t size);
@@ -70,12 +70,13 @@ class ByteBuffer {
         ByteBuffer(char* byteArray, size_t len);
         ~ByteBuffer() = default;
 
-        ByteBuffer & operator=(ByteBuffer&& other) noexcept ;
+        ByteBuffer & operator=(ByteBuffer&& other) noexcept;
         ByteBuffer & operator=(const ByteBuffer& other);
         ByteBuffer & compact();
 
         void copy(const ByteBuffer & srcBuf);
         bool equals(const ByteBuffer & other);
+        void expand(size_t newSize);
 
         bool isDirect()     const;
         bool hasArray()     const;

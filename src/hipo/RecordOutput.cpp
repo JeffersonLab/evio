@@ -9,6 +9,13 @@
 /** Default, no-arg constructor. Little endian. LZ4 compression. */
 RecordOutput::RecordOutput() {
 
+    eventSize = 0;
+    indexSize = 0;
+    eventCount = 0;
+    userBufferSize = 0;
+    startingPosition = 0;
+    userProvidedBuffer = false;
+
     header = RecordHeader();
     header.setCompressionType(Compressor::LZ4);
 
@@ -31,7 +38,14 @@ RecordOutput::RecordOutput() {
  */
 RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                            Compressor::CompressionType compressionType, HeaderType hType) {
-    //dataCompressor = Compressor::getInstance();
+
+    eventSize = 0;
+    indexSize = 0;
+    eventCount = 0;
+    userBufferSize = 0;
+    startingPosition = 0;
+    userProvidedBuffer = false;
+
     try {
         if (hType.isEvioFileHeader()) {
             hType = HeaderType::EVIO_RECORD;
@@ -76,7 +90,10 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
 RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
                            Compressor::CompressionType compressionType, HeaderType & hType) {
 
-    //dataCompressor = Compressor.getInstance();
+    eventSize = 0;
+    indexSize = 0;
+    eventCount = 0;
+
     try {
         if (hType.isEvioFileHeader()) {
             hType = HeaderType::EVIO_RECORD;
@@ -447,9 +464,12 @@ void RecordOutput::allocate() {
     recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
     recordEvents.order(byteOrder);
 
+    cout << "RecordOutput: recordEvents = cap/lim " << recordEvents.capacity() << "/" << recordEvents.limit() << endl;
+
     // Making this a direct buffer slows it down by 6%
     recordData = ByteBuffer(MAX_BUFFER_SIZE);
     recordData.order(byteOrder);
+    cout << "RecordOutput: recordData = cap/lim " << recordData.capacity() << "/" << recordData.limit() << endl;
 
     if (!userProvidedBuffer) {
         // Trying to compress random data will expand it, so create a cushion.
@@ -457,6 +477,10 @@ void RecordOutput::allocate() {
         //recordBinary = ByteBuffer.allocateDirect(RECORD_BUFFER_SIZE);
         recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
         recordBinary.order(byteOrder);
+        cout << "RecordOutput: recordBinary = cap/lim " << recordBinary.capacity() << "/" << recordBinary.limit() << endl << endl;
+    }
+    else {
+        cout << "RecordOutput: EXTERNAL recordBinary = cap/lim " << recordBinary.capacity() << "/" << recordBinary.limit() << endl << endl;
     }
 }
 

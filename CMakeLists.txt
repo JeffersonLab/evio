@@ -20,12 +20,12 @@ set(CMAKE_INSTALL_PREFIX ./)
 
 cmake_minimum_required(VERSION 3.2)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 
 project(evio_6_0)
 
 # Find include files here
-include_directories(src/libsrc src/libsrc++ src/newlib++)
+include_directories(src/libsrc src/libsrc++ src/hipo)
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
@@ -72,52 +72,55 @@ set(CPP_LIB_FILES
 )
 
 set(CPP_HEADER_FILES_NEW
-        src/newlib++/FileEventIndex.h
-        src/newlib++/HipoException.h
-        src/newlib++/EvioException.h
-        src/newlib++/ByteOrder.h
-        src/newlib++/ByteBuffer.h
-        src/newlib++/HeaderType.h
-        src/newlib++/Stoppable.h
-        src/newlib++/ConcurrentFixedQueue.h
-        src/newlib++/Compressor.h
-        src/newlib++/CompressionType.h
-        src/newlib++/FileHeader.h
-        src/newlib++/RecordHeader.h
-        src/newlib++/RecordInput.h
-        src/newlib++/RecordOutput.h
-        src/newlib++/Writer.h
-        src/newlib++/WriterMT.h
-        src/newlib++/ReadWriteTest.h
-        src/newlib++/Reader.h
-        src/newlib++/EvioNode.h
-        src/newlib++/DataType.h
-        src/newlib++/RecordNode.h
-        src/newlib++/EvioNodeSource.h
-        src/newlib++/Util.h
+        src/hipo/FileEventIndex.h
+        src/hipo/HipoException.h
+        src/hipo/EvioException.h
+        src/hipo/ByteOrder.h
+        src/hipo/ByteBuffer.h
+        src/hipo/HeaderType.h
+        src/hipo/Stoppable.h
+        src/hipo/ConcurrentFixedQueue.h
+        src/hipo/Compressor.h
+        src/hipo/CompressionType.h
+        src/hipo/FileHeader.h
+        src/hipo/RecordHeader.h
+        src/hipo/RecordInput.h
+        src/hipo/RecordOutput.h
+        src/hipo/Writer.h
+        src/hipo/WriterMT.h
+        src/hipo/EvioNode.h
+        src/hipo/DataType.h
+        src/hipo/RecordNode.h
+        src/hipo/EvioNodeSource.h
+        src/hipo/TestWriter.h
+        src/hipo/ReadWriteTest.h
+        src/hipo/Reader.h
         )
 
 set(CPP_LIB_FILES_NEW
-        src/newlib++/FileEventIndex.cpp
-        src/newlib++/ByteOrder.cpp
-        src/newlib++/ByteBuffer.cpp
-        src/newlib++/HeaderType.cpp
-        src/newlib++/Compressor.cpp
-        src/newlib++/FileHeader.cpp
-        src/newlib++/RecordHeader.cpp
-        src/newlib++/RecordInput.cpp
-        src/newlib++/RecordOutput.cpp
-        src/newlib++/Writer.cpp
-        src/newlib++/WriterMT.cpp
-        src/newlib++/Reader.cpp
-        src/newlib++/EvioNode.cpp
-        src/newlib++/RecordNode.cpp
-        src/newlib++/EvioNodeSource.cpp
-        src/newlib++/DataType.cpp)
+        src/hipo/FileEventIndex.cpp
+        src/hipo/ByteOrder.cpp
+        src/hipo/ByteBuffer.cpp
+        src/hipo/HeaderType.cpp
+        src/hipo/Compressor.cpp
+        src/hipo/FileHeader.cpp
+        src/hipo/RecordHeader.cpp
+        src/hipo/RecordInput.cpp
+        src/hipo/RecordOutput.cpp
+        src/hipo/Writer.cpp
+        src/hipo/WriterMT.cpp
+        src/hipo/EvioNode.cpp
+        src/hipo/DataType.cpp
+        src/hipo/Reader.cpp
+        )
+
+set(TEST_FILES_CC
+        src/hipo/ReadWriteTest.cpp
+        )
 
 
 file(GLOB TEST_FILES_C src/test/*.c)
-file(GLOB TEST_FILES_CC src/test/*.cc)
+#file(GLOB TEST_FILES_CC src/test/*.cc)
 
 #file(GLOB EXAMPLE_FILES_C src/examples/*.c)
 #file(GLOB EXAMPLE_FILES_CC src/examples/*.cc)
@@ -134,10 +137,13 @@ target_include_directories(evio PUBLIC src/libsrc)
 
 # Shared hipo C++ library
 add_library(hipo SHARED ${CPP_LIB_FILES_NEW})
-target_include_directories(hipo PUBLIC src/newlib++)
+target_include_directories(hipo PUBLIC src/hipo)
 
 
 # Main Executables
+add_executable(ReadWriteTest src/hipo/ReadWriteTest.cpp)
+target_link_libraries(ReadWriteTest pthread expat z hipo)
+
 add_executable(evio2xml src/execsrc/evio2xml.c)
 target_link_libraries(evio2xml pthread expat z evio)
 

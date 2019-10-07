@@ -70,7 +70,7 @@ private:
     string name;
 
     /** Fast way to convert integer values into DataType objects. */
-    static DataType intToType[37];  // 37 = 0x24 + 1
+    static DataType intToType[37];  // min size -> 37 = 0x24 + 1
 
     /** Store a name for each DataType object. */
     static string names[37];

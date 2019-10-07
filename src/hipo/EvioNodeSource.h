@@ -20,6 +20,9 @@ class EvioNodeSource {
 
 private:
 
+    /** For assigning pool id numbers. Initialized in EvioNode.cpp. */
+    static std::atomic<unsigned int> poolIdCounter;
+
     /** Index into nodePool array of the next pool object to use. */
     uint32_t poolIndex;
 
@@ -32,14 +35,11 @@ private:
     /** EvioNode objects used for parsing Evio data in EBs. */
     vector<EvioNode> nodePool;
 
-    /** For assigning pool id numbers. */
-    static std::atomic<unsigned int> idCounter;
-
 public:
 
     /** Default constructor with pool size = 0. */
     EvioNodeSource() {
-        id = idCounter.fetch_add(1);
+        id = poolIdCounter.fetch_add(1);
         size = 0;
     }
 
@@ -49,7 +49,7 @@ public:
      * @param initialSize number of EvioNode objects in pool initially.
      */
     EvioNodeSource(uint32_t initialSize) {
-        id = idCounter.fetch_add(1);
+        id = poolIdCounter.fetch_add(1);
         size = initialSize;
         nodePool.reserve(initialSize);
         // Create pool objects
@@ -64,19 +64,19 @@ public:
      * Used for debugging.
      * @return id number of this pool.
      */
-    uint32_t getId() {return id;}
+    uint32_t getId() const {return id;}
 
     /**
      * Get the number of nodes taken from pool.
      * @return number of nodes taken from pool.
      */
-    uint32_t getUsed() {return poolIndex;}
+    uint32_t getUsed() const {return poolIndex;}
 
     /**
      * Get the number of nodes in the pool.
      * @return number of nodes in the pool.
      */
-    uint32_t getSize() {return size;}
+    uint32_t getSize() const {return size;}
 
     /**
      * Get a single EvioNode object.

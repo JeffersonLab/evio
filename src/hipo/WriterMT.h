@@ -250,36 +250,45 @@ private:
 
 private:
 
+    /** Number of bytes written to file/buffer at current moment. */
+    size_t writerBytesWritten;
+    /** Byte array containing user Header. */
+    uint8_t* userHeader;
+    /** Size in bytes of userHeader array. */
+    uint32_t userHeaderLength;
+    /** Evio format "first" event to store in file header's user header. */
+    uint8_t* firstEvent;
+    /** Length in bytes of firstEvent. */
+    uint32_t firstEventLength;
+    /** Max number of events an internal record can hold. */
+    uint32_t maxEventCount;
+    /** Max number of uncompressed data bytes an internal record can hold. */
+    uint32_t maxBufferSize;
+    /** Number which is incremented and stored with each successive written record starting at 1. */
+    uint32_t recordNumber = 1;
+    /** Number of threads doing compression simultaneously. */
+    uint32_t compressionThreadCount;
+    /** Next queue in which a record to be compressed will be placed. */
+    uint32_t nextQueueIndex = 0;
+
+
     /** Object for writing file. */
     std::ofstream outFile;
+
     /** Header to write to file, created in constructor. */
     FileHeader fileHeader;
 
     /** Buffer containing user Header. */
     ByteBuffer userHeaderBuffer;
-    /** Byte array containing user Header. */
-    uint8_t* userHeader;
-    /** Size in bytes of userHeader array. */
-    uint32_t userHeaderLength;
-
-    /** Has the first record been written already? */
-    bool firstRecordWritten;
 
     /** String containing evio-format XML dictionary to store in file header's user header. */
     string dictionary;
-    /** Evio format "first" event to store in file header's user header. */
-    uint8_t* firstEvent;
-    /** Length in bytes of firstEvent. */
-    uint32_t firstEventLength;
+
     /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
     ByteBuffer dictionaryFirstEventBuffer;
 
     /** Byte order of data to write to file/buffer. */
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
-    /** Max number of events an internal record can hold. */
-    uint32_t maxEventCount;
-    /** Max number of uncompressed data bytes an internal record can hold. */
-    uint32_t maxBufferSize;
 
     /** Internal Record. */
     RecordOutput outputRecord;
@@ -290,10 +299,21 @@ private:
     /** Type of compression to use on file. Default is none. */
     Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
 
-    /** Number of bytes written to file/buffer at current moment. */
-    size_t writerBytesWritten;
-    /** Number which is incremented and stored with each successive written record starting at 1. */
-    uint32_t recordNumber = 1;
+    /** List of record lengths interspersed with record event counts
+     * to be optionally written in trailer. */
+    vector<uint32_t> recordLengths;
+
+    /** Takes the place of disruptor ring buffers used in Java. */
+    ConcurrentFixedQueue<RecordOutput> writeQueue;
+
+    /** Takes the place of disruptor ring buffers used in Java. */
+    vector<ConcurrentFixedQueue<RecordOutput>> queues;
+
+    /** Thread used to write data to file/buffer. */
+    WritingThread recordWriterThread;
+
+    /** Threads used to compress data. */
+    vector<CompressingThread> recordCompressorThreads;
 
     /** Do we add a last header or trailer to file/buffer? */
     bool addingTrailer;
@@ -303,27 +323,10 @@ private:
     bool closed;
     /** Has open() been called? */
     bool opened;
+    /** Has the first record been written already? */
+    bool firstRecordWritten;
 
-    /** List of record lengths interspersed with record event counts
-     * to be optionally written in trailer. */
-    //ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
-    vector<uint32_t> recordLengths;
 
-    /** Number of threads doing compression simultaneously. */
-    uint32_t compressionThreadCount;
-
-    /** Next queue in which a record to be compressed will be placed. */
-    uint32_t nextQueueIndex = 0;
-
-    /** Takes the place of disruptor ring buffers used in Java. */
-    ConcurrentFixedQueue<RecordOutput> writeQueue;
-    vector<ConcurrentFixedQueue<RecordOutput>> queues;
-
-    /** Thread used to write data to file/buffer. */
-    WritingThread recordWriterThread;
-
-    /** Threads used to compress data. */
-    vector<CompressingThread> recordCompressorThreads;
 
 public:
 

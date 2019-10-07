@@ -29,25 +29,25 @@ const HeaderType & HeaderType::operator=(const HeaderType &rhs) {
 // "Enum" value DEFINITIONS
 
 /** Header for a general evio record. */
-const HeaderType HeaderType::EVIO_RECORD = HeaderType(0);
+const HeaderType HeaderType::EVIO_RECORD = HeaderType(0, "EVIO_RECORD");
 /** Header for an evio file. */
-const HeaderType HeaderType::EVIO_FILE = HeaderType(1);
+const HeaderType HeaderType::EVIO_FILE = HeaderType(1, "EVIO_FILE");
 /** Header for an extended evio file. Currently not used. */
-const HeaderType HeaderType::EVIO_FILE_EXTENDED = HeaderType(2);
+const HeaderType HeaderType::EVIO_FILE_EXTENDED = HeaderType(2, "EVIO_FILE_EXTENDED");
 /** Header for an evio trailer record. */
-const HeaderType HeaderType::EVIO_TRAILER = HeaderType(3);
+const HeaderType HeaderType::EVIO_TRAILER = HeaderType(3, "EVIO_TRAILER");
 
 /** Header for a general hipo record. */
-const HeaderType HeaderType::HIPO_RECORD = HeaderType(4);
+const HeaderType HeaderType::HIPO_RECORD = HeaderType(4, "HIPO_RECORD");
 /** Header for an hipo file. */
-const HeaderType HeaderType::HIPO_FILE = HeaderType(5);
+const HeaderType HeaderType::HIPO_FILE = HeaderType(5, "HIPO_FILE");
 /** Header for an extended hipo file. Currently not used. */
-const HeaderType HeaderType::HIPO_FILE_EXTENDED = HeaderType(6);
+const HeaderType HeaderType::HIPO_FILE_EXTENDED = HeaderType(6, "HIPO_FILE_EXTENDED");
 /** Header for an hipo trailer record. */
-const HeaderType HeaderType::HIPO_TRAILER = HeaderType(7);
+const HeaderType HeaderType::HIPO_TRAILER = HeaderType(7, "HIPO_TRAILER");
 
 /** Unknown header. */
-const HeaderType HeaderType::UNKNOWN = HeaderType(15);
+const HeaderType HeaderType::UNKNOWN = HeaderType(15, "UNKNOWN");
 
 
 // Initialize static members

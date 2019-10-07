@@ -21,6 +21,10 @@
 // Static methods first
 //-----------------------------------------------
 
+// Put this here instead of all by itself in a EvioNodeSource.cpp file.
+std::atomic<unsigned int> EvioNodeSource::poolIdCounter(0);
+
+
 /**
  * This method recursively stores, in the given list, all the information
  * about an evio structure's children found in the given ByteBuffer object.

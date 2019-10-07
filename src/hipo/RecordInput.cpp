@@ -180,7 +180,7 @@ bool RecordInput::hasUserHeader() {return (header.getUserHeaderLength() > 0);}
  *               set to last index.
  * @return byte array containing event.
  */
-uint8_t* RecordInput::getEvent(uint32_t index) {
+shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index) {
 
     uint32_t firstPosition = 0;
 
@@ -197,10 +197,11 @@ uint8_t* RecordInput::getEvent(uint32_t index) {
     uint32_t length = lastPosition - firstPosition;
 
 // TODO: Allocating memory here!!!
-    auto event = new uint8_t[length];
+    //auto event = new uint8_t[length];
+    auto event = shared_ptr<uint8_t>(new uint8_t[length], default_delete<uint8_t[]>());
     uint32_t offset = eventsOffset + firstPosition;
 
-    std::memcpy((void *)event, (const void *)(dataBuffer.array() + offset), length);
+    std::memcpy((void *)event.get(), (const void *)(dataBuffer.array() + offset), length);
     //System.arraycopy(dataBuffer.array(), offset, event, 0, length);
 
 //cout << "getEvent: reading from " << offset << "  length = " << length << endl;

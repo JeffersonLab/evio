@@ -211,7 +211,7 @@ string FileEventIndex::toString() {
     return ss.str();
 }
 
-void FileEventIndex::main(string args[]) {
+int FileEventIndex::main(int argc, char **argv) {
 
     FileEventIndex index;
     int nevents = 10;

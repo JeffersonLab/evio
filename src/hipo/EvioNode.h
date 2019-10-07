@@ -51,18 +51,18 @@ private:
     /** Store data in int array form if calculated. */
     vector<uint32_t> data;
 
+    /** List of child nodes ordered according to placement in buffer. */
+    vector<shared_ptr<EvioNode>> childNodes;
+
+    /** ByteBuffer that this node is associated with. */
+    ByteBuffer buffer;
+
     /** Does this node represent an event (top-level bank)? */
     bool izEvent;
 
     /** If the data this node represents is removed from the buffer,
 *  then this object is obsolete. */
     bool obsolete;
-
-    /** ByteBuffer that this node is associated with. */
-    ByteBuffer buffer;
-
-    /** List of child nodes ordered according to placement in buffer. */
-    vector<shared_ptr<EvioNode>> childNodes;
 
     //-------------------------------
     // For event-level node
@@ -74,19 +74,17 @@ private:
      */
     uint32_t place;
 
+    /** List of all nodes in the event including the top-level object
+     *  ordered according to placement in buffer.
+     *  Only created at the top-level (with constructor).
+     *  All nodes have a reference to the top-level allNodes object. */
+    vector<shared_ptr<EvioNode>> allNodes;
+
     /**
      * If top-level event node, was I scanned and all my banks
      * already placed into a list?
      */
     bool scanned;
-
-// TODO: put pointers in here???
-    /** List of all nodes in the event including the top-level object
-     *  ordered according to placement in buffer.
-     *  Only created at the top-level (with constructor). All lower-level
-     *  nodes are created with clone() so all nodes have a reference to
-     *  the top-level allNodes object. */
-    vector<shared_ptr<EvioNode>> allNodes;
 
     //-------------------------------
     // For sub event-level node

@@ -92,19 +92,6 @@ private:
     /** Default internal buffer size in bytes. */
     static const uint32_t DEFAULT_BUF_SIZE = 8 * 1024 * 1024;
 
-    /** General header of this record. */
-    RecordHeader header;
-
-    /** This buffer contains uncompressed data consisting of, in order,
-     *  1) index array, 2) user header, 3) events. */
-    ByteBuffer dataBuffer;
-
-    /** This buffer contains compressed data. */
-    ByteBuffer recordBuffer;
-
-    /** Record's header is read into this buffer. */
-    ByteBuffer headerBuffer;
-
     /** Number of event in record. */
     uint32_t nEntries;
 
@@ -122,6 +109,20 @@ private:
 
     /** Byte order of internal ByteBuffers. */
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+
+    /** General header of this record. */
+    RecordHeader header;
+
+    /** This buffer contains uncompressed data consisting of, in order,
+     *  1) index array, 2) user header, 3) events. */
+    ByteBuffer dataBuffer;
+
+    /** This buffer contains compressed data. */
+    ByteBuffer recordBuffer;
+
+    /** Record's header is read into this buffer. */
+    ByteBuffer headerBuffer;
+
 
 private:
 
@@ -152,7 +153,7 @@ public:
     ByteBuffer & getEvent(ByteBuffer & buffer, size_t bufOffset, uint32_t index);
     ByteBuffer & getUserHeader(ByteBuffer & buffer, size_t bufOffset);
 
-    uint8_t* getEvent(uint32_t index);
+    shared_ptr<uint8_t> getEvent(uint32_t index);
     uint32_t getEventLength(uint32_t index);
     uint8_t* getUserHeader();
     uint32_t getEntries();

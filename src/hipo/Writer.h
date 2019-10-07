@@ -39,7 +39,7 @@ private:
     // If writing to file ...
 
     /** File name. */
-    std::string fileName = nullptr;
+    std::string fileName = "";
     /** Object for writing file. */
     std::ofstream outFile;
     /** Header to write to file, created in constructor. */
@@ -56,19 +56,25 @@ private:
 
     // For both files & buffers
 
-    /** Buffer containing user Header. */
-    ByteBuffer userHeaderBuffer;
     /** Byte array containing user Header. */
     uint8_t* userHeader;
     /** Size in bytes of userHeader array. */
     uint32_t userHeaderLength;
-
-    /** String containing evio-format XML dictionary to store in file header's user header. */
-    string dictionary;
     /** Evio format "first" event to store in file header's user header. */
     uint8_t* firstEvent;
     /** Length in bytes of firstEvent. */
     uint32_t firstEventLength;
+    /** Number of bytes written to file/buffer at current moment. */
+    size_t writerBytesWritten;
+    /** Number which is incremented and stored with each successive written record starting at 1. */
+    uint32_t recordNumber = 1;
+
+    /** String containing evio-format XML dictionary to store in file header's user header. */
+    string dictionary;
+
+    /** Buffer containing user Header. */
+    ByteBuffer userHeaderBuffer;
+
     /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
     ByteBuffer dictionaryFirstEventBuffer;
 
@@ -90,10 +96,6 @@ private:
 
     /** Type of compression to use on file. Default is none. */
     Compressor::CompressionType compressionType;
-    /** Number of bytes written to file/buffer at current moment. */
-    size_t writerBytesWritten;
-    /** Number which is incremented and stored with each successive written record starting at 1. */
-    uint32_t recordNumber = 1;
 
     /** Do we add a last header or trailer to file/buffer? */
     bool addingTrailer;
@@ -104,6 +106,7 @@ private:
     /** Has open() been called? */
     bool opened;
 
+
 public:
 
     // Writing to file
@@ -113,18 +116,16 @@ public:
     Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize);
     Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
            const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
-    Writer(string & filename);
+    explicit Writer(string & filename);
     Writer(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize);
 
     // Writing to buffer
 
-    Writer(ByteBuffer & buf);
+    explicit Writer(ByteBuffer & buf);
     Writer(ByteBuffer & buf, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
            const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
 
-    ~Writer() {
-       // delete[] headerArray;
-    }
+    ~Writer() = default;
 
 
 //    Writer & operator=(Writer&& other) noexcept;

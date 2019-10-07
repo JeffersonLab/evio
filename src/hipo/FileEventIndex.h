@@ -25,23 +25,25 @@ class FileEventIndex {
 
 private:
 
-    /**
-     * Each entry corresponds to a record.
-     * The value of each entry is the total number of events in
-     * the file up to and including the record of that entry.
-     * The only exception is the first entry which corresponds to no
-     * record and its value is always 0. Thus, an index of 1 in this
-     * list corresponds to the first record.
-     */
-    vector<uint32_t> recordIndex;
     /** Index number of the current event in the file. */
     uint32_t currentEvent = 0;
+
     /** Index number of the current record.
      *  First record has value of 0. Add one to use with recordIndex. */
     uint32_t currentRecord = 0;
+
     /** Index number of the current event in the current record. */
     uint32_t currentRecordEvent = 0;
 
+    /**
+      * Each entry corresponds to a record.
+      * The value of each entry is the total number of events in
+      * the file up to and including the record of that entry.
+      * The only exception is the first entry which corresponds to no
+      * record and its value is always 0. Thus, an index of 1 in this
+      * list corresponds to the first record.
+      */
+    vector<uint32_t> recordIndex;
 
 public:
 
@@ -66,7 +68,7 @@ public:
 
     string toString();
 
-    static void main(string args[]);
+    int main(int argc, char **argv);
 
     // TODO: overwrite = operator ???
 

@@ -55,17 +55,28 @@ private:
     /** Value of this header type. */
     uint32_t value;
 
+    /** Store a name for each ByteOrder object. */
+    string name;
+
+
 private:
 
     /**
      * Constructor.
      * @param value int value of this HeaderType object.
      */
-    HeaderType(uint32_t value) {
+    HeaderType(uint32_t value, string name) {
         this->value = value;
+        this->name = name;
     }
 
 public:
+
+    /**
+    * Get the object name.
+    * @return the object name.
+    */
+    string getName() const {return name;}
 
     /**
      * Get the integer value associated with this header type.

@@ -2,18 +2,18 @@
 Import('env', 'archDir', 'incInstallDir', 'libInstallDir', 'binInstallDir', 'archIncInstallDir', 'execLibs', 'debugSuffix')
 
 # Headers to install
-#headerList = Glob('*.h',  strings=True)
-headerList = Glob('*.h',  strings=True, exclude='Reader.h, ReadWriteTest.h')
+headerList = Glob('*.h',  strings=True)
+#headerList = Glob('*.h',  strings=True, exclude='Reader.h')
 
 # Files to compile
-#fileList = Glob('*.cpp',  strings=True)
-fileList = Glob('*.cpp',  strings=True, exclude='Reader.cpp')
+fileList = Glob('*.cpp',  strings=True)
+#fileList = Glob('*.cpp',  strings=True, exclude='ReadWriteTest.cpp')
 
 env.AppendUnique(CCFLAGS = ['-std=c++11'])
 env.AppendUnique(CPPPATH = ['.'], LIBPATH = ['/usr/lib', '/usr/local/lib'])
 
-#evioNewLib = env.StaticLibrary(target = 'evioNew'+debugSuffix, source = fileList)
-evioNewLib = env.SharedLibrary(target = 'evioNew'+debugSuffix, source = fileList)
+#evioNewLib = env.StaticLibrary(target = 'hipo'+debugSuffix, source = fileList)
+evioNewLib = env.SharedLibrary(target = 'hipo'+debugSuffix, source = fileList)
 
 if 'install' in COMMAND_LINE_TARGETS:
     env.Alias("install", env.Install(target = [incInstallDir, archIncInstallDir], source = headerList))
@@ -22,9 +22,9 @@ if 'install' in COMMAND_LINE_TARGETS:
 # Compile C++ files and install
 
 compiledFile = env.Program(source  = 'ReadWriteTest.cpp',
-                           LIBS    = ['evioNew'+debugSuffix, execLibs],
-                           LIBPATH = ['#src/newlib++/'+archDir],
-                           CPPPATH = ['.', '#src/newlib++'])
+                           LIBS    = ['hipo'+debugSuffix, execLibs],
+                           LIBPATH = ['#src/hipo/'+archDir],
+                           CPPPATH = ['.', '#src/hipo'])
 
 if 'install' in COMMAND_LINE_TARGETS:
     env.Alias('install', env.Install(target = binInstallDir, source = compiledFile))

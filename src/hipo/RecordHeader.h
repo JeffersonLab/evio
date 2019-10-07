@@ -191,6 +191,10 @@ private:
 
     //-------------------
 
+    /** First user-defined 64-bit register. 11th and 12th words. */
+    uint64_t recordUserRegisterFirst;
+    /** Second user-defined 64-bit register. 13th and 14th words. */
+    uint64_t recordUserRegisterSecond;
     /** Position of this header in a file. */
     size_t position;
     /** Length of the entire record this header is a part of (bytes). */
@@ -199,14 +203,8 @@ private:
     uint32_t  recordLengthWords;
     /** Record number. 2nd word. */
     uint32_t  recordNumber;
-    /** First user-defined 64-bit register. 11th and 12th words. */
-    uint64_t recordUserRegisterFirst;
-    /** Second user-defined 64-bit register. 13th and 14th words. */
-    uint64_t recordUserRegisterSecond;
 
 
-    /** Type of header this is. Normal HIPO record by default. */
-    HeaderType headerType = HeaderType::HIPO_RECORD;
     /** Event or record count. 4th word. */
     uint32_t  entries;
     /** BitInfo & version. 6th word. */
@@ -235,28 +233,36 @@ private:
     uint32_t  compressedDataLength;
     /** Compressed data length (words) when padded. Lowest 28 bits of 10th word. */
     uint32_t  compressedDataLengthWords;
-    /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
-      * Highest 4 bits of 10th word. */
-    Compressor::CompressionType  compressionType;
     /** Evio format version number. It is 6 when being written, else
      * the version of file/buffer being read. Lowest byte of 6th word. */
     uint32_t  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
     uint32_t  headerMagicWord = HEADER_MAGIC;
-    /** Byte order of file/buffer this header was read from. */
-    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
 
     // These quantities are updated automatically when lengths are set
 
     /** Number of bytes required to bring uncompressed
-      * user header to 4-byte boundary. Stored in 6th word. */
+      * user header to 4-byte boundary. Stored in 6th word.
+      * Updated automatically when lengths are set. */
     uint32_t  userHeaderLengthPadding;
     /** Number of bytes required to bring uncompressed
-      * data to 4-byte boundary. Stored in 6th word. */
+     * data to 4-byte boundary. Stored in 6th word.
+     * Updated automatically when lengths are set. */
     uint32_t  dataLengthPadding;
     /** Number of bytes required to bring compressed
-      * data to 4-byte boundary. Stored in 6th word. */
+     * data to 4-byte boundary. Stored in 6th word.
+     * Updated automatically when lengths are set. */
     uint32_t  compressedDataLengthPadding;
+
+    /** Type of header this is. Normal HIPO record by default. */
+    HeaderType headerType = HeaderType::HIPO_RECORD;
+
+    /** Byte order of file/buffer this header was read from. */
+    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+
+    /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
+      * Highest 4 bits of 10th word. */
+    Compressor::CompressionType  compressionType;
 
 
 public:
