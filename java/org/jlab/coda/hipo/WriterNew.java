@@ -246,7 +246,7 @@ public class WriterNew implements AutoCloseable {
      * @param buf buffer in to which to write events and/or records.
      */
     public WriterNew(ByteBuffer buf) {
-        this(buf, buf.order(), 0, 0, null, null);
+        this(buf, 0, 0, null, null);
     }
 
     /**
@@ -255,7 +255,6 @@ public class WriterNew implements AutoCloseable {
      * No compression.
      *
      * @param buf           buffer in to which to write events and/or records.
-     * @param order         byte order of data to be written. Little endian if null.
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
@@ -264,19 +263,17 @@ public class WriterNew implements AutoCloseable {
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
      */
-    public WriterNew(ByteBuffer buf, ByteOrder order, int maxEventCount, int maxBufferSize,
+    public WriterNew(ByteBuffer buf, int maxEventCount, int maxBufferSize,
                   String dictionary, byte[] firstEvent) {
 
-        if (order != null) {
-            byteOrder = order;
-        }
+        byteOrder = buf.order();
         buffer = buf;
         buf.order(byteOrder);
         headerBuffer.order(byteOrder);
 
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
-        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, CompressionType.RECORD_UNCOMPRESSED);
+        outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize, CompressionType.RECORD_UNCOMPRESSED);
 
         if ( (dictionary != null && dictionary.length() > 0) ||
              (firstEvent != null && firstEvent.length   > 0))  {
