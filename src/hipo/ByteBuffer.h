@@ -37,29 +37,29 @@ class ByteBuffer {
 
         /** This is the current position in data buffer. Making it mutable means
          * the value can be altered even if an object of this class is const. */
-        mutable size_t pos;
+        mutable size_t pos = 0;
 
         /** Limit is the position just past the last valid data byte. */
-        size_t lim;
+        size_t lim = 0;
 
         /** Capacity is the total size of this buffer in bytes. */
-        size_t cap;
+        size_t cap = 0;
 
         /** Mark is set to mark a position in the buffer. */
-        size_t mrk;
+        size_t mrk = 0;
 
         /** This buffer is implemented with an array. Has shared pointer access
          * in order to implement the duplicate() method. */
-        shared_ptr<uint8_t> buf;
+        shared_ptr<uint8_t> buf = nullptr;
 
         /** Byte order of data. In java, default is big endian. */
         ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
 
         /** Is the data the same endian as the host? Convenience variable. */
-        bool isHostEndian;
+        bool isHostEndian = false;
 
         /** Is the data little endian? Convenience variable. */
-        bool isLittleEndian;
+        bool isLittleEndian = false;
 
 public:
 
