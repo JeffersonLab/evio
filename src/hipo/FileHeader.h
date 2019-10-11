@@ -144,30 +144,30 @@ private:
     /** File number or split file number, starting at 1. 2nd word. */
     uint32_t  fileNumber = 1;
     /** User-defined 64-bit register. 9th and 10th words. */
-    uint64_t userRegister;
+    uint64_t userRegister = 0L;
     /** Position of trailing header from start of file in bytes. 11th word. */
-    uint64_t trailerPosition;
+    uint64_t trailerPosition = 0L;
     /** First user-defined integer in file header. 13th word. */
-    uint32_t  userIntFirst;
+    uint32_t  userIntFirst = 0;
     /** Second user-defined integer in file header. 14th word. */
-    uint32_t  userIntSecond;
+    uint32_t  userIntSecond = 0;
     /** Position of this header in a file. */
-    size_t position;
+    size_t position = 0;
 
     /** Event or record count. 4th word. */
-    uint32_t  entries;
+    uint32_t  entries = 0;
     /** BitInfo & version. 6th word. */
-    uint32_t  bitInfo;
+    uint32_t  bitInfo = 0;
     /** Length of this header (bytes). */
     uint32_t  headerLength = HEADER_SIZE_BYTES;
     /** Length of this header (words). 3rd word. */
     uint32_t  headerLengthWords = HEADER_SIZE_WORDS;
     /** Length of user-defined header (bytes). 7th word. */
-    uint32_t  userHeaderLength;
+    uint32_t  userHeaderLength = 0;
     /** Length of user-defined header when padded (words). */
-    uint32_t  userHeaderLengthWords;
+    uint32_t  userHeaderLengthWords = 0;
     /** Length of index array (bytes). 5th word. */
-    uint32_t  indexLength;
+    uint32_t  indexLength = 0;
 
     /** Final, total length of header + index + user header (bytes) + padding.
      *  Not stored in any word. */
@@ -182,7 +182,7 @@ private:
     /** Number of bytes required to bring uncompressed
       * user header to 4-byte boundary. Stored in 6th word.
       * Updated automatically when lengths are set. */
-    uint32_t  userHeaderLengthPadding;
+    uint32_t  userHeaderLengthPadding = 0;
 
     /** Byte order of file. */
     ByteOrder  byteOrder = ByteOrder::ENDIAN_LITTLE;
