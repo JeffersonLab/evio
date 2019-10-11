@@ -417,7 +417,7 @@ ByteBuffer & ByteBuffer::rewind() {
  */
 ByteBuffer & ByteBuffer::position(size_t p) {
     if (p > lim) {
-        throw HipoException("position may not exceed capacity");
+        throw HipoException("buffer pos of " + to_string(p) + " will exceed cap of " + to_string(cap));
     }
     pos = p;
     if (mrk > pos) {
@@ -435,7 +435,7 @@ ByteBuffer & ByteBuffer::position(size_t p) {
  */
 ByteBuffer & ByteBuffer::limit(size_t l) {
     if (l > capacity()) {
-        throw HipoException("limit may not exceed capacity");
+        throw HipoException("buffer lim of " + to_string(l) + " will exceed cap of " + to_string(cap));
     }
     lim = l;
 
