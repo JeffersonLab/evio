@@ -192,47 +192,47 @@ private:
     //-------------------
 
     /** First user-defined 64-bit register. 11th and 12th words. */
-    uint64_t recordUserRegisterFirst;
+    uint64_t recordUserRegisterFirst = 0L;
     /** Second user-defined 64-bit register. 13th and 14th words. */
-    uint64_t recordUserRegisterSecond;
+    uint64_t recordUserRegisterSecond = 0L;
     /** Position of this header in a file. */
-    size_t position;
+    size_t position = 0;
     /** Length of the entire record this header is a part of (bytes). */
-    uint32_t  recordLength;
+    uint32_t  recordLength = 0;
     /** Length of the entire record this header is a part of (32-bit words). 1st word. */
-    uint32_t  recordLengthWords;
+    uint32_t  recordLengthWords = 0;
     /** Record number. 2nd word. */
-    uint32_t  recordNumber;
+    uint32_t  recordNumber = 1;
 
 
     /** Event or record count. 4th word. */
-    uint32_t  entries;
+    uint32_t  entries = 0;
     /** BitInfo & version. 6th word. */
-    uint32_t  bitInfo;
+    uint32_t  bitInfo = 0;
     /**
      * Type of events in record, encoded in bitInfo word
      * (0=ROC raw, 1=Physics, 2=Partial Physics, 3=Disentangled,
      * 4=User, 5=Control, 15=Other).
      */
-    uint32_t  eventType;
+    uint32_t  eventType = 0;
     /** Length of this header NOT including user header or index (bytes). */
     uint32_t  headerLength = HEADER_SIZE_BYTES;
     /** Length of this header (words). 3rd word. */
     uint32_t  headerLengthWords = HEADER_SIZE_WORDS;
     /** Length of user-defined header (bytes). 7th word. */
-    uint32_t  userHeaderLength;
+    uint32_t  userHeaderLength = 0;
     /** Length of user-defined header when padded (words). */
-    uint32_t  userHeaderLengthWords;
+    uint32_t  userHeaderLengthWords = 0;
     /** Length of index array (bytes). 5th word. */
-    uint32_t  indexLength;
+    uint32_t  indexLength = 0;
     /** Uncompressed data length (bytes). 9th word. */
-    uint32_t  dataLength;
+    uint32_t  dataLength = 0;
     /** Uncompressed data length when padded (words). */
-    uint32_t  dataLengthWords;
+    uint32_t  dataLengthWords = 0;
     /** Compressed data length (bytes). */
-    uint32_t  compressedDataLength;
+    uint32_t  compressedDataLength = 0;
     /** Compressed data length (words) when padded. Lowest 28 bits of 10th word. */
-    uint32_t  compressedDataLengthWords;
+    uint32_t  compressedDataLengthWords = 0;
     /** Evio format version number. It is 6 when being written, else
      * the version of file/buffer being read. Lowest byte of 6th word. */
     uint32_t  headerVersion = 6;
@@ -244,15 +244,15 @@ private:
     /** Number of bytes required to bring uncompressed
       * user header to 4-byte boundary. Stored in 6th word.
       * Updated automatically when lengths are set. */
-    uint32_t  userHeaderLengthPadding;
+    uint32_t  userHeaderLengthPadding = 0;
     /** Number of bytes required to bring uncompressed
      * data to 4-byte boundary. Stored in 6th word.
      * Updated automatically when lengths are set. */
-    uint32_t  dataLengthPadding;
+    uint32_t  dataLengthPadding = 0;
     /** Number of bytes required to bring compressed
      * data to 4-byte boundary. Stored in 6th word.
      * Updated automatically when lengths are set. */
-    uint32_t  compressedDataLengthPadding;
+    uint32_t  compressedDataLengthPadding = 0;
 
     /** Type of header this is. Normal HIPO record by default. */
     HeaderType headerType = HeaderType::HIPO_RECORD;
