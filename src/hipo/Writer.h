@@ -46,26 +46,28 @@ private:
     FileHeader fileHeader;
     /** Used to write file asynchronously. Allow 1 write with 1 simultaneous record filling. */
     std::future<void> future;
+    /** The location of the next write in the file. */
+    uint64_t fileWritingPosition = 0L;
 
     // If writing to buffer ...
 
     /** Buffer being written to. */
     ByteBuffer buffer;
-    /** Has the first record been written already? */
-    bool firstRecordWritten;
+    /** Has the first record been written to buffer already? */
+    bool firstRecordWritten = false;
 
     // For both files & buffers
 
     /** Byte array containing user Header. */
-    uint8_t* userHeader;
+    uint8_t* userHeader = nullptr;
     /** Size in bytes of userHeader array. */
-    uint32_t userHeaderLength;
+    uint32_t userHeaderLength = 0;
     /** Evio format "first" event to store in file header's user header. */
-    uint8_t* firstEvent;
+    uint8_t* firstEvent = nullptr;
     /** Length in bytes of firstEvent. */
-    uint32_t firstEventLength;
+    uint32_t firstEventLength = 0;
     /** Number of bytes written to file/buffer at current moment. */
-    size_t writerBytesWritten;
+    size_t writerBytesWritten = 0;
     /** Number which is incremented and stored with each successive written record starting at 1. */
     uint32_t recordNumber = 1;
 
@@ -90,21 +92,29 @@ private:
 
     /** Byte array large enough to hold a header/trailer. This array may increase. */
     vector<uint8_t> headerArray;
+
+
+    /** Byte array large enough to hold a header/trailer. */
+    uint8_t* headerArrayNew;
+    /** Byte array large enough to hold a header/trailer. */
+    ByteBuffer headerBuffer;
+
+
     /** List of record lengths interspersed with record event counts
      * to be optionally written in trailer. */
     vector<uint32_t> recordLengths;
 
     /** Type of compression to use on file. Default is none. */
-    Compressor::CompressionType compressionType;
+    Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
 
     /** Do we add a last header or trailer to file/buffer? */
-    bool addingTrailer;
+    bool addingTrailer = false;
     /** Do we add a record index to the trailer? */
-    bool addTrailerIndex;
+    bool addTrailerIndex = false;
     /** Has close() been called? */
-    bool closed;
+    bool closed = false;
     /** Has open() been called? */
-    bool opened;
+    bool opened = false;
 
 
 public:
@@ -113,9 +123,9 @@ public:
 
     Writer();
     Writer(const ByteOrder  & order, uint32_t maxEventCount, uint32_t maxBufferSize);
-    Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize);
     Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-           const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
+           const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength,
+           const Compressor::CompressionType compressionType);
     explicit Writer(string & filename);
     Writer(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize);
 
