@@ -111,7 +111,7 @@ void RecordHeader::reset() {
     position = 0ULL;
 
     recordLength = 0;
-    recordNumber = 0;
+    recordNumber = 1;
     recordLengthWords = 0;
     recordUserRegisterFirst = 0ULL;
     recordUserRegisterSecond = 0ULL;
