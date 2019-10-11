@@ -97,7 +97,7 @@ private:
 
     /** The starting position of a user-given buffer.
     * No data will be written before this position. */
-    size_t startingPosition;
+    size_t startingPosition = 0;
 
     /** Maximum number of events per record. */
     uint32_t MAX_EVENT_COUNT = 1000000;
@@ -125,17 +125,17 @@ private:
     /** The number of initially available bytes to be written into in the user-given buffer,
      *  that go from position to limit. The user-given buffer is stored in recordBinary.
      */
-    uint32_t userBufferSize;
+    uint32_t userBufferSize = 0;
 
     /** Number of events written to this Record. */
-    uint32_t eventCount;
+    uint32_t eventCount = 0;
 
     /** Number of valid bytes in recordIndex buffer.
      *  Will always be multiple of 4 since indexes are ints. */
-    uint32_t indexSize;
+    uint32_t indexSize = 0;
 
     /** Number of valid bytes in recordEvents buffer. */
-    uint32_t eventSize;
+    uint32_t eventSize = 0;
 
     /** This buffer stores event lengths ONLY. */
     ByteBuffer recordIndex;
@@ -157,7 +157,7 @@ private:
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
 
     /** Is recordBinary a user provided buffer? */
-    bool userProvidedBuffer;
+    bool userProvidedBuffer = false;
 
 
 public:
@@ -190,11 +190,13 @@ private:
 public:
 
     void setBuffer(ByteBuffer & buf);
-    void copy(const RecordOutput & rec);
+    // Not used since we don't use RingBuffers
+    //void copy(const RecordOutput & rec);
 
     int getUserBufferSize() const;
     int getUncompressedSize() const;
     int getInternalBufferCapacity() const;
+    int getMaxEventCount() const;
     int getEventCount() const;
 
     RecordHeader & getHeader();
