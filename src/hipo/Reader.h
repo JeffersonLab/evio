@@ -149,7 +149,7 @@ private:
     ifstream inStreamRandom;
 
     /** File name. */
-    string fileName = nullptr;
+    string fileName;
 
     /** Buffer being read. */
     ByteBuffer buffer;
@@ -239,8 +239,8 @@ public:
     ByteBuffer & getBuffer();
     int getBufferOffset();
 
-    FileHeader getFileHeader();
-    RecordHeader getFirstRecordHeader();
+    FileHeader & getFileHeader();
+    RecordHeader & getFirstRecordHeader();
 
     ByteOrder getByteOrder();
     int getVersion();
