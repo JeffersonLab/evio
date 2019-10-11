@@ -160,7 +160,7 @@ public class RecordOutputStream {
     public RecordOutputStream() {
         dataCompressor = Compressor.getInstance();
         header = new RecordHeader();
-        header.setCompressionType(Compressor.RECORD_COMPRESSION_LZ4);
+        header.setCompressionType(CompressionType.RECORD_UNCOMPRESSED);
         byteOrder = ByteOrder.LITTLE_ENDIAN;
         allocate();
     }
@@ -176,7 +176,7 @@ public class RecordOutputStream {
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      */
     public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize,
-                              int compressionType) {
+                              CompressionType compressionType) {
         this(order, maxEventCount, maxBufferSize, compressionType, null);
     }
 
@@ -191,7 +191,7 @@ public class RecordOutputStream {
      * @param hType           type of record header to use.
      */
     public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize,
-                              int compressionType, HeaderType hType) {
+                              CompressionType compressionType, HeaderType hType) {
         dataCompressor = Compressor.getInstance();
         try {
             if (hType != null) {
@@ -229,7 +229,7 @@ public class RecordOutputStream {
      * @param hType           type of record header to use.
      */
     public RecordOutputStream(ByteBuffer buffer, int maxEventCount,
-                              int compressionType, HeaderType hType) {
+                              CompressionType compressionType, HeaderType hType) {
 
         dataCompressor = Compressor.getInstance();
         try {
@@ -901,7 +901,7 @@ public class RecordOutputStream {
             return;
         }
 
-        int compressionType = header.getCompressionType();
+        CompressionType compressionType = header.getCompressionType();
 
         // Does the recordBinary buffer have an array backing?
         boolean recBinHasArray = recordBinary.hasArray();
@@ -921,7 +921,7 @@ public class RecordOutputStream {
         // Write index & event arrays
 
         // If compressing data ...
-        if (compressionType > 0) {
+        if (compressionType.isCompressed()) {
             // Write into a single, temporary buffer
 //            recordData.position(0);
 //            recordData.put(  recordIndex.array(), 0, indexSize);
@@ -969,7 +969,7 @@ public class RecordOutputStream {
         // (skipping over where record header will be written).
         try {
             switch (compressionType) {
-                case 1:
+                case RECORD_COMPRESSION_LZ4:
                     // LZ4 fastest compression
                     if (recBinHasArray) {
                         //System.out.println("1. uncompressed size = " + uncompressedDataSize);
@@ -992,7 +992,7 @@ public class RecordOutputStream {
                                              RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
-                case 2:
+                case RECORD_COMPRESSION_LZ4_BEST:
                     // LZ4 highest compression
                     if (recBinHasArray) {
                         compressedSize = dataCompressor.compressLZ4Best(
@@ -1023,7 +1023,7 @@ public class RecordOutputStream {
 //        header.getCompressedDataLengthPadding() + ", rec len = " + header.getLength());
                     break;
 
-                case 3:                    
+                case RECORD_COMPRESSION_GZIP:
                     // GZIP compression
                     byte[] gzippedData = dataCompressor.compressGZIP(recordData.array(), 0,
                                                                      uncompressedDataSize);
@@ -1035,7 +1035,7 @@ public class RecordOutputStream {
                                              RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
-                case 0:
+                case RECORD_UNCOMPRESSED:
                 default:
                     // No compression. The uncompressed data size may not be padded to a 4byte boundary,
                     // so make sure that's accounted for here.
@@ -1098,7 +1098,7 @@ public class RecordOutputStream {
 //        System.out.println("  INDEX = 0 " + indexSize + "  " + (indexSize + userHeaderSize)
 //                + "  DIFF " + userHeaderSize);
 
-        int compressionType = header.getCompressionType();
+        CompressionType compressionType = header.getCompressionType();
         int uncompressedDataSize = indexSize;
 
         // Does the recordBinary buffer have an array backing?
@@ -1118,7 +1118,7 @@ public class RecordOutputStream {
 
 
         // If compressing data ...
-        if (compressionType > 0) {
+        if (compressionType.isCompressed()) {
             recordData.clear();
             recordBinary.clear();
 
@@ -1210,7 +1210,7 @@ public class RecordOutputStream {
         int compressedSize;
         try {
             switch (compressionType) {
-                case 1:
+                case RECORD_COMPRESSION_LZ4:
                     // LZ4 fastest compression
                     if (recBinHasArray) {
                         compressedSize = dataCompressor.compressLZ4(
@@ -1233,7 +1233,7 @@ public class RecordOutputStream {
                                              RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
-                case 2:
+                case RECORD_COMPRESSION_LZ4_BEST:
                     // LZ4 highest compression
                     if (recBinHasArray) {
                         compressedSize = dataCompressor.compressLZ4Best(
@@ -1254,7 +1254,7 @@ public class RecordOutputStream {
                                              RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
-                case 3:
+                case RECORD_COMPRESSION_GZIP:
                     // GZIP compression
                     byte[] gzippedData = dataCompressor.compressGZIP(recordData.array(), 0,
                                                                      uncompressedDataSize);
@@ -1266,7 +1266,7 @@ public class RecordOutputStream {
                                              RecordHeader.HEADER_SIZE_BYTES);
                     break;
 
-                case 0:
+                case RECORD_UNCOMPRESSED:
                 default:
                     // No compression. The uncompressed data size may not be padded to a 4byte boundary,
                     // so make sure that's accounted for here.

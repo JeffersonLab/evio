@@ -180,7 +180,7 @@ public class RecordHeader implements IBlockHeader {
     /** Length of the entire record this header is a part of (32-bit words). 1st word. */
     private int  recordLengthWords;
     /** Record number. 2nd word. */
-    private int  recordNumber;
+    private int  recordNumber = 1;
     /** First user-defined 64-bit register. 11th and 12th words. */
     private long recordUserRegisterFirst;
     /** Second user-defined 64-bit register. 13th and 14th words. */
@@ -219,7 +219,7 @@ public class RecordHeader implements IBlockHeader {
     private int  compressedDataLengthWords;
     /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
       * Highest 4 bits of 10th word. */
-    private int  compressionType;
+    private CompressionType compressionType;
     /** Evio format version number. It is 6 when being written, else
      * the version of file/buffer being read. Lowest byte of 6th word. */
     private int  headerVersion = 6;
@@ -322,7 +322,7 @@ public class RecordHeader implements IBlockHeader {
         position = 0L;
 
         recordLength = 0;
-        recordNumber = 0;
+        recordNumber = 1;
         recordLengthWords = 0;
         recordUserRegisterFirst = 0L;
         recordUserRegisterSecond = 0L;
@@ -380,7 +380,7 @@ public class RecordHeader implements IBlockHeader {
      * @return padded length in bytes of the entire compressed record, else -1 if not compressed.
      */
     public int getCompressedRecordLength() {
-        if (compressionType != 0) {
+        if (compressionType != CompressionType.RECORD_UNCOMPRESSED) {
             return (recordLength + compressedDataLengthPadding);
         }
         return  -1;
@@ -421,7 +421,7 @@ public class RecordHeader implements IBlockHeader {
      * Get the type of compression used. 0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip.
      * @return type of compression used.
      */
-    public int  getCompressionType() {return compressionType;}
+    public CompressionType getCompressionType() {return compressionType;}
 
     /**
      * Get the length of the user-defined header in bytes.
@@ -909,11 +909,7 @@ public class RecordHeader implements IBlockHeader {
      * @param type compression type.
      * @return this object.
      */
-    public RecordHeader  setCompressionType(int type) {
-        // Set to no compression if arg out-of-bounds
-        if (type < 0 || type > 3) {
-            type = 0;
-        }
+    public RecordHeader  setCompressionType(CompressionType type) {
         compressionType = type;
         return this;
     }
@@ -985,7 +981,7 @@ public class RecordHeader implements IBlockHeader {
         }
 
         int compressedWord =  (compressedDataLengthWords & 0x0FFFFFFF) |
-                              (compressionType << 28);
+                              (compressionType.getValue() << 28);
 
         buf.putInt (     off, recordLengthWords);        //  0*4
         buf.putInt ( 4 + off, recordNumber);             //  1*4
@@ -1298,7 +1294,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
         setDataLength(dataLength);
 
         int compressionWord = buffer.getInt(36 + offset);        //  9*4
-        compressionType     = (compressionWord >>> 28);
+        compressionType     = CompressionType.getCompressionType(compressionWord >>> 28);
         compressedDataLengthWords = (compressionWord & 0x0FFFFFFF);
         compressedDataLengthPadding = (bitInfo >>> 24) & 0x3;
         compressedDataLength = compressedDataLengthWords*4 - compressedDataLengthPadding;
@@ -1332,7 +1328,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
 
         StringBuilder str = new StringBuilder();
         str.append(String.format("%24s : %d\n","version",headerVersion));
-        str.append(String.format("%24s : %b\n","compressed", (compressionType != 0)));
+        str.append(String.format("%24s : %b\n","compressed", (compressionType.isCompressed())));
         str.append(String.format("%24s : %d\n","record #",recordNumber));
 
         str.append(String.format("%24s :     bytes,     words,    padding\n",""));
@@ -1492,7 +1488,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
         header.setRecordNumber(23);
         header.setEntries(3245);
         header.setHeaderLength(14);
-        header.setCompressionType(1);
+        header.setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
         System.out.println(header);
 
         byte[] array = new byte[14*4];

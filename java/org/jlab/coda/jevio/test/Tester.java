@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -700,7 +701,8 @@ System.out.println("Tag, int = " + tag + ", str = " + tagStr + ", bad entry = " 
                 dbanks = new EvioBank(3, DataType.DOUBLE64, 3);
                 dbanks.appendDoubleData(da);
                 eb.addChild(ev, dbanks);
-                EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(32), 4*550000, 200, null, 1, null, 0);
+                EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(32), 4*550000, 200, null, 1, null,
+                                                        CompressionType.RECORD_UNCOMPRESSED);
                 evWriter.close();
 
                 ByteBuffer buffer = ByteBuffer.allocate(4000);

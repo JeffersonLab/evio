@@ -87,7 +87,7 @@ public class Record {
      * In general it is recommended to use one of the LZ4 compressions
      * since decompression speed for LZ4 is far superior to GZIP.
      */
-    private Integer  compressionType = 0;
+    private CompressionType compressionType = CompressionType.RECORD_UNCOMPRESSED;
     
     
     private RecordHeader  recordHeader = null; 
@@ -98,22 +98,37 @@ public class Record {
        //recordHeader.setVersion(6);
        recordHeader.setHeaderLength(14);
     }
+
     /**
-     * sets compression type for the record. It will be used when
+     * Sets compression type for the record. It will be used when
      * the build() method is called.
-     * @param compression
+     * @param compression compression type as enum.
      * @return 
      */
-    public Record setCompressionType(int compression){
-        if(compression>=0||compression<=3){
-            this.compressionType = compression;
-        }
+    public Record setCompressionType(CompressionType compression) {
+        this.compressionType = compression;
         return this;
     }
     
-    public Integer getCompressionType(){
+    /**
+     * Sets compression type for the record. It will be used when
+     * the build() method is called.
+     * @param compression compression type as int.
+     * @return
+     */
+    public Record setCompressionType(int compression) {
+        this.compressionType = CompressionType.getCompressionType(compression);
+        return this;
+    }
+
+    /**
+     * Gets the compression type for the record.
+     * @return  compression type for the record.
+     */
+    public CompressionType getCompressionType(){
         return this.compressionType;
     }
+
     /**
      * Sets the maximum capacity of the record. No data
      * will be added if the this limit is reached.
@@ -209,7 +224,7 @@ public class Record {
         byteBuffer.putInt(  0,  recordUID);
         byteBuffer.putInt(  4,  recordBuffer.length);
         byteBuffer.putInt(  8,  dataBuffer.length);
-        byteBuffer.putInt( 12,  Record.encodeCompressionWord(compressionType, compressedData.length));
+        byteBuffer.putInt( 12,  Record.encodeCompressionWord(compressionType.getValue(), compressedData.length));
         byteBuffer.putInt( 16,  recordEvents.size());
         byteBuffer.putInt( 20,  0);
         byteBuffer.putInt( 24,  4*recordEvents.size());
@@ -272,7 +287,7 @@ public class Record {
         Integer  indexLength = byteBuffer.getInt( 24);
         
         Integer compressionLength = Record.decodeCompressionLength(uncompWord);
-        Integer compression = Record.decodeCompressionType(uncompWord);
+        CompressionType compression = CompressionType.getCompressionType(Record.decodeCompressionType(uncompWord));
         
         record.setCompressionType(compression);
         

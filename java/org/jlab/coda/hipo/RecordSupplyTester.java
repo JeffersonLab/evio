@@ -82,7 +82,7 @@ public class RecordSupplyTester {
     RecordSupplyTester(int threadCount) {
 
         supply = new RecordSupply(8, order, threadCount,
-                                  0, 0, 1);
+                                  0, 0, CompressionType.RECORD_COMPRESSION_LZ4);
         compressThreadCount = threadCount;
 
         Writerr writer = new Writerr();

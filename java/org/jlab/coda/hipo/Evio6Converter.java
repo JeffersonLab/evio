@@ -35,7 +35,7 @@ public class Evio6Converter {
             
             System.out.println(" THE FILE ORDER = " + order);
             Writer writer = new Writer(outFile,order,10000,8*1024*1024);
-            writer.setCompressionType(2);
+            writer.setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4_BEST);
             System.out.println("OPENED FILE: ENTRIES = " + nevents);
             long start_writer = System.currentTimeMillis();
             for(int i = 1; i < nevents; i++){
@@ -79,7 +79,7 @@ public class Evio6Converter {
         }
     }
     
-    public static void convert(String inFile, String outFile, int nthreads, int compressionType){
+    public static void convert(String inFile, String outFile, int nthreads, CompressionType compressionType){
         //EvioCompactReader  reader;
         EvioReader  reader;
         try {

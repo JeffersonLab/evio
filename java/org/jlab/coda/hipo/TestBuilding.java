@@ -75,7 +75,7 @@ System.out.println("getRealData: successfully read in file " + filename);
 
         // Create file
         RecordOutputStream ros = new RecordOutputStream();
-        ros.getHeader().setCompressionType(1);
+        ros.getHeader().setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
 
 
         // position in realData to get data from

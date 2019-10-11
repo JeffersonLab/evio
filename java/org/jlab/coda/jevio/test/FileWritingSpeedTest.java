@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import java.io.File;
@@ -85,14 +86,14 @@ public class FileWritingSpeedTest {
                                                      4*16, 1000,
                                                      ByteOrder.BIG_ENDIAN, null,
                                                      true, false, null,
-                                                     0, 0, 1, 1, 0, 0, 0, 0);
+                                                     0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
             }
             else {
                 writer = new EventWriter(filename, null, null, 1, splitBytes,
                                          4*16, 1000,
                                          ByteOrder.BIG_ENDIAN, null,
                                          true, false, null,
-                                         0, 0, 1, 1, 0, 0, 0, 0);
+                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
             }
 
             ByteBuffer eventBuf = createEventBuffer();

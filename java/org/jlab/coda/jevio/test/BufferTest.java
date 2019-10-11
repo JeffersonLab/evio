@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import java.io.File;
@@ -155,7 +156,8 @@ public class BufferTest {
             ev.appendIntData(dat);
 
             // create writer with max block size of 256 ints
-            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*256, 20, null, 1, null, 0);
+            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*256, 20, null, 1, null,
+                                                    CompressionType.RECORD_UNCOMPRESSED);
             evWriter.close();
 
             // create buffer to write to of size 274 ints (> 8 + 244 + 8 + 6 + 8)
@@ -208,7 +210,8 @@ public class BufferTest {
             double[] da = new double[] {1., 2., 3.};
             ev.appendDoubleData(da);
 
-            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null, 0);
+            EventWriter evWriter = new  EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null,
+                                                    CompressionType.RECORD_UNCOMPRESSED);
             evWriter.close();
 
             ByteBuffer buffer = ByteBuffer.allocate(4000);
@@ -250,7 +253,8 @@ public class BufferTest {
             ev.appendByteData(da);
 
             ByteBuffer buffer = ByteBuffer.allocate(100);
-            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null, 0);
+            EventWriter evWriter = new EventWriter(ByteBuffer.allocate(64), 4*550000, 200, null, 1, null,
+                                                   CompressionType.RECORD_UNCOMPRESSED);
             evWriter.writeEvent(ev);
             evWriter.close();
 

@@ -11,6 +11,7 @@
 
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import java.nio.*;
@@ -111,7 +112,8 @@ public class CompactReaderAddSubtractTest {
         try {
             // Create an event writer to write into "myBuf"
             //EventWriter writer = new EventWriter(myBuf);
-            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1, null, 0);
+            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1, null,
+                                                  CompressionType.RECORD_UNCOMPRESSED);
 
             EvioEvent ev1 = createComplexEvent(1);
             EvioEvent ev2 = createSingleEvent(100);
@@ -142,7 +144,8 @@ public class CompactReaderAddSubtractTest {
         try {
             // Create an event writer to write into "myBuf"
             //EventWriter writer = new EventWriter(myBuf);
-            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1, null, 0);
+            EventWriter writer = new  EventWriter(myBuf, 4*1000, 1, null, 1, null,
+                                                  CompressionType.RECORD_UNCOMPRESSED);
 
             EvioEvent ev1 = createSingleEvent(1);
             EvioEvent ev2 = createSingleEvent(100);

@@ -1177,7 +1177,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
                 buffer.order(byteOrder);
                 evioVersion = recordHeader.getVersion();
                 firstRecordHeader = new RecordHeader(recordHeader);
-                compressed = recordHeader.getCompressionType() != 0;
+                compressed = recordHeader.getCompressionType() != CompressionType.RECORD_UNCOMPRESSED;
                 haveFirstRecordHeader = true;
             }
 
@@ -1350,7 +1350,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
                  buffer.order(byteOrder);
                  evioVersion = recordHeader.getVersion();
                  firstRecordHeader = new RecordHeader(recordHeader);
-                 compressed = recordHeader.getCompressionType() != 0;
+                 compressed = recordHeader.getCompressionType() != CompressionType.RECORD_UNCOMPRESSED;
                  haveFirstRecordHeader = true;
              }
 
@@ -1494,7 +1494,7 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
             // Save the first record header
             if (!haveFirstRecordHeader) {
                 firstRecordHeader = new RecordHeader(recordHeader);
-                compressed = firstRecordHeader.getCompressionType() != 0;
+                compressed = firstRecordHeader.getCompressionType().isCompressed();
                 haveFirstRecordHeader = true;
             }
 
@@ -1588,7 +1588,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
         inStreamRandom.read(headerBytes);
         firstRecordHeader = new RecordHeader(recordHeader);
         firstRecordHeader.readHeader(headerBuffer);
-        compressed = firstRecordHeader.getCompressionType() != 0;
+        compressed = firstRecordHeader.getCompressionType().isCompressed();
 
         int indexLength;
 
@@ -1664,7 +1664,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
             return buffer;
         }
 
-        if (firstRecordHeader.getCompressionType() != 0) {
+        if (firstRecordHeader.getCompressionType().isCompressed()) {
             throw new HipoException("cannot remove node from buffer of compressed data");
         }
 

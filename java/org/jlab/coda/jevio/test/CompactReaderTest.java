@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import java.io.File;
@@ -341,7 +342,8 @@ public class CompactReaderTest {
 
         try {
             // Create an event writer to write into "myBuf" with 10000 ints or 100 events/block max
-            EventWriter writer = new  EventWriter(myBuf, 4*10000, 100, xmlDict, 1, null, 0);
+            EventWriter writer = new  EventWriter(myBuf, 4*10000, 100, xmlDict, 1, null,
+                                                  CompressionType.RECORD_UNCOMPRESSED);
 
 //            EvioEvent ev = createSingleEvent(1);
             EvioEvent ev = createSimpleSingleEvent(1);
@@ -429,7 +431,8 @@ public class CompactReaderTest {
 
 
             ByteBuffer buffie = ByteBuffer.allocate(7664);
-            EventWriter writer = new EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
+            EventWriter writer = new EventWriter(buffie, 4*300, 1000, null, 1, null,
+                                                 CompressionType.RECORD_UNCOMPRESSED);
 
             long t2, t1 = System.currentTimeMillis();
 
@@ -506,7 +509,7 @@ public class CompactReaderTest {
             EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                  4*300, 1000, null, null,
                                                  true, false, null,
-                                                 0, 0, 1, 1, 0, 0, 0, 0);
+                                                 0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
             long t2, t1 = System.currentTimeMillis();
 
@@ -592,7 +595,7 @@ public class CompactReaderTest {
                 EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                                     0, 0, 1, 1, 0, 0, 0, 0);
+                                                     0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -622,7 +625,7 @@ public class CompactReaderTest {
                 EventWriter writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                                     0, 0, 1, 1, 0, 0, 0, 0);
+                                                     0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
@@ -632,7 +635,7 @@ public class CompactReaderTest {
                 writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                         0, 0, 1, 1, 0, 0, 0, 0);
+                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
@@ -640,7 +643,7 @@ public class CompactReaderTest {
                 writer = new EventWriter("/dev/shm/carlTest/file", null, null, 1, 1000,
                                                      4*300, 1000, null, null,
                                                      true, false, null,
-                                         0, 0, 1, 1, 0, 0, 0, 0);
+                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -726,7 +729,8 @@ public class CompactReaderTest {
 
             if (false) {
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
+                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                                                      CompressionType.RECORD_UNCOMPRESSED);
 
                 long t2, t1 = System.currentTimeMillis();
 
@@ -758,19 +762,22 @@ public class CompactReaderTest {
                 long t2, t1 = System.currentTimeMillis();
 
                 ByteBuffer buffie = ByteBuffer.allocate(7664);
-                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
+                EventWriter writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                                                      CompressionType.RECORD_UNCOMPRESSED);
 
                 writer.writeEvent(evBuf2);  // small
                 evBuf2.flip();
                 writer.close();
 
-                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
+                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                                          CompressionType.RECORD_UNCOMPRESSED);
 
                 writer.writeEvent(evBuf1);  // med
                 evBuf1.flip();
                 writer.close();
 
-                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null, 0);
+                writer = new  EventWriter(buffie, 4*300, 1000, null, 1, null,
+                                          CompressionType.RECORD_UNCOMPRESSED);
 
                 writer.writeEvent(evBuf3);  // big
                 evBuf3.flip();
@@ -836,7 +843,7 @@ public class CompactReaderTest {
             EventWriter writer = new EventWriter("file", null, null, 1, 0,
                                                  4*64000, 20000, null, null,
                                                  true, false, null,
-                                                 0, 0, 1, 1, 0, 0, 0, 0);
+                                                 0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
             ByteBuffer evBuf1 = ByteBuffer.allocate(event1.getTotalBytes());
             event1.write(evBuf1);
             evBuf1.flip();

@@ -85,7 +85,7 @@ public class TestWriter {
 
         // Create file
         Writer writer = new Writer();
-        writer.getRecordHeader().setCompressionType(1);
+        writer.getRecordHeader().setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
         writer.open("/daqfs/home/timmer/exampleFile.v6.evio");
 
 
@@ -146,13 +146,13 @@ public class TestWriter {
 
         // Create 1 file with Writer
         Writer writer = new Writer(ByteOrder.BIG_ENDIAN, 100000, 8000000);
-        writer.getRecordHeader().setCompressionType(1);
+        writer.getRecordHeader().setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
         String file1 = "/daqfs/home/timmer/dataFile.v6.writer";
         writer.open(file1);
 
         // Create 1 file with WriterNew
         WriterNew writerN = new WriterNew(ByteOrder.BIG_ENDIAN, 100000, 8000000);
-        writerN.getRecordHeader().setCompressionType(1);
+        writerN.getRecordHeader().setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
         String file2 = "/daqfs/home/timmer/dataFile.v6.writerNew";
         writerN.open(file2);
 
@@ -225,11 +225,11 @@ public class TestWriter {
 
         // Create files
         WriterMT writer1 = new WriterMT(fileName + ".1", ByteOrder.LITTLE_ENDIAN, 0, 0,
-                                       1, 1, 8);
+                                        CompressionType.RECORD_COMPRESSION_LZ4, 1, 8);
         WriterMT writer2 = new WriterMT(fileName + ".2", ByteOrder.LITTLE_ENDIAN, 0, 0,
-                                       1, 2, 8);
+                                        CompressionType.RECORD_COMPRESSION_LZ4, 2, 8);
         WriterMT writer3 = new WriterMT(fileName + ".3", ByteOrder.LITTLE_ENDIAN, 0, 0,
-                                       1, 3, 8);
+                                        CompressionType.RECORD_COMPRESSION_LZ4, 3, 8);
 
         byte[] buffer = TestWriter.generateBuffer(400);
 
@@ -318,7 +318,7 @@ public class TestWriter {
             String userHeader = "File is written with new version=6 format";
             Writer writer = new Writer("converted_000810.evio",ByteOrder.LITTLE_ENDIAN,
                     10000,8*1024*1024);
-            writer.setCompressionType(2);
+            writer.setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4_BEST);
             
             System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
             

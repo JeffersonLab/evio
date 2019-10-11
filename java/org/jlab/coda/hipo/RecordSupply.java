@@ -90,7 +90,7 @@ public class RecordSupply {
      *  Value of < 8MB results in default of 8MB. */
     private int maxBufferSize;
     /** Type type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip). */
-    private int compressionType;
+    private CompressionType compressionType;
     /** Number of threads doing compression simultaneously. */
     private int compressionThreadCount = 1;
     /** Number of records held in this supply. */
@@ -161,7 +161,7 @@ public class RecordSupply {
      */
     public RecordSupply() {
         // IllegalArgumentException is never thrown here
-        this(4, ByteOrder.LITTLE_ENDIAN, 1, 0, 0, 1);
+        this(4, ByteOrder.LITTLE_ENDIAN, 1, 0, 0, CompressionType.RECORD_COMPRESSION_LZ4);
     }
 
 
@@ -175,13 +175,13 @@ public class RecordSupply {
      *                        Value <= O means use default (1M).
      * @param maxBufferSize   max number of uncompressed data bytes each record can hold.
      *                        Value of < 8MB results in default of 8MB.
-     * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     * @param compressionType type of data compression to do.
      * @throws IllegalArgumentException if args < 1, ringSize not power of 2,
-     *                                  threadCount > ringSize, compression type invalid.
+     *                                  threadCount > ringSize.
      */
     public RecordSupply(int ringSize, ByteOrder order,
                         int threadCount, int maxEventCount,
-                        int maxBufferSize, int compressionType)
+                        int maxBufferSize, CompressionType compressionType)
             throws IllegalArgumentException {
 
         if (ringSize < 1 || Integer.bitCount(ringSize) != 1) {
@@ -190,10 +190,6 @@ public class RecordSupply {
 
         if (ringSize < threadCount) {
             throw new IllegalArgumentException("threadCount must be <= ringSize");
-        }
-
-        if (compressionType < 0 || compressionType > 3) {
-            throw new IllegalArgumentException("compressionType must be 0,1,2,or 3");
         }
 
         // # compression threads defaults to 1 if given bad value

@@ -401,7 +401,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                         targetRecordBytes, 0, order, xmlDictionary,
                         false, append, null,
                         0, 0, 1,
-                        1, 2, 1,
+                        1, CompressionType.RECORD_COMPRESSION_LZ4_BEST, 1,
                         8, 0);
 //
 //                public EventWriter(String baseName, String directory, String runType,
@@ -501,7 +501,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                          ByteOrder.BIG_ENDIAN, xmlDictionary,
                         false, append, null,
                         0, 0, 1,
-                        1, 0, 1,
+                        1, CompressionType.RECORD_UNCOMPRESSED, 1,
                         8, 0);
 
 
@@ -521,7 +521,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                 myBuf.order(order);
                 writer = new EventWriter(myBuf, targetRecordBytes,
                         10000, null,
-                        1, null, 0);
+                        1, null, CompressionType.RECORD_UNCOMPRESSED);
 //                public EventWriter(ByteBuffer buf, int maxRecordSize, int maxEventCount,
 //                            String xmlDictionary, int recordNumber,
 //                            EvioBank firstEvent, int compressionType)
@@ -1017,7 +1017,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                              4*16, 1000,
                                              ByteOrder.nativeOrder(), null,
                                              true, true, null,
-                                             0, 0, 1, 1, 0, 1, 8, 0);
+                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
         for (int i=0; i < count; i++) {
             // append event to file
             writer.writeEvent(ev);
@@ -1061,7 +1061,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                          4*1000, 3,
                                                          ByteOrder.BIG_ENDIAN, dictionary,
                                                          true, false, null,
-                                                         0, 0, 1, 1, 0, 1, 8, 0);
+                                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
 
             // event - bank of banks
             EventBuilder eventBuilder2 = new EventBuilder(1, DataType.BANK, 1);
@@ -1326,7 +1326,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                              4*1000, 3,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
                 event = eventBuilder2.getEvent();
@@ -1362,7 +1362,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                              4*10000000, 100000,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -1399,7 +1399,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                               4*10000000, 6535,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
                 event = eventBuilder2.getEvent();
@@ -1434,7 +1434,7 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                                                               4*1000, 3,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 1, 8, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);

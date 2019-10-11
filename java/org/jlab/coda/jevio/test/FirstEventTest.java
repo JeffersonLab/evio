@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import java.io.File;
@@ -61,7 +62,7 @@ public class FirstEventTest {
                                                  4*1000, 4,
                                                  ByteOrder.BIG_ENDIAN, dictionary,
                                                  true, false, eventFirst,
-                                                 0, 0, 1, 1, 0, 0, 0, 0);
+                                                 0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 System.out.println("FirstEventTest: write event #1");
                 ER.writeEvent(event);
@@ -82,7 +83,7 @@ public class FirstEventTest {
                                                    4*1000, 4,
                                                    ByteOrder.BIG_ENDIAN, null,
                                                    true, true, null,
-                                         0, 0, 1, 1, 0, 0, 0, 0);
+                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                     System.out.println("FirstEventTest: append event #1");
                     ER.writeEvent(event);
@@ -93,7 +94,8 @@ public class FirstEventTest {
             else {
                 System.out.println("FirstEventTest: create EventWriter for buffer");
 
-                EventWriter ER = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, eventFirst, 0);
+                EventWriter ER = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, eventFirst,
+                                                  CompressionType.RECORD_UNCOMPRESSED);
 
                 System.out.println("FirstEventTest: write event #1");
                 ER.writeEvent(event);
@@ -167,7 +169,8 @@ public class FirstEventTest {
 
             // Create buffer writer
             System.out.println("FirstEventTest: create EventWriter for buffer w/o first event");
-            EventWriter bufWriter = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, null, 0);
+            EventWriter bufWriter = new  EventWriter(myBuf, 4*1000, 3, dictionary, 1, null,
+                                                     CompressionType.RECORD_UNCOMPRESSED);
 
             // Write first event into buf as a regular event
             bufWriter.writeEvent(eventFirst);
@@ -186,7 +189,7 @@ public class FirstEventTest {
                                              4*1000, 4,
                                              ByteOrder.BIG_ENDIAN, dictionary,
                                              true, false, null,
-                                             0, 0, 1, 1, 0, 0, 0, 0);
+                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
 
             System.out.println("FirstEventTest: write event #1");

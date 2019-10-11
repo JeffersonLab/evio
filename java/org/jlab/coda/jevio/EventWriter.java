@@ -130,7 +130,7 @@ final public class EventWriter implements AutoCloseable {
 
     /** Type of compression being done on data
      *  (0=none, 1=LZ4fastest, 2=LZ4best, 3=gzip). */
-    private int compressionType;
+    private CompressionType compressionType;
 
     /** The estimated ratio of compressed to uncompressed data.
      *  (Used to figure out when to split a file). Percentage of original size. */
@@ -638,7 +638,7 @@ final public class EventWriter implements AutoCloseable {
              0, 0, 0, 0,
              ByteOrder.nativeOrder(), dictionary, false,
              append, null, 0, 0, 1, 1,
-             0, 1, 8, 0);
+             CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
 
     }
 
@@ -689,7 +689,7 @@ final public class EventWriter implements AutoCloseable {
              0, 0, 0, 0,
              byteOrder, null, false,
              append, null, 0, 0, 1, 1,
-             0, 1, 8, 0);
+             CompressionType.RECORD_UNCOMPRESSED, 1, 8, 0);
     }
 
     /**
@@ -780,7 +780,7 @@ final public class EventWriter implements AutoCloseable {
                              boolean overWriteOK, boolean append,
                              EvioBank firstEvent, int streamId,
                              int splitNumber, int splitIncrement, int streamCount,
-                             int compressionType, int compressionThreads,
+                             CompressionType compressionType, int compressionThreads,
                              int ringSize, int bufferSize)
             throws EvioException {
 
@@ -835,25 +835,21 @@ final public class EventWriter implements AutoCloseable {
             createCommonRecord(xmlDictionary, firstEvent, null, null);
         }
 
-        // Don't compress if bad value
-        if (compressionType < 0 || compressionType > 3) {
-            compressionType = 0;
-        }
         this.compressionType = compressionType;
 
         // How much compression will data experience? Percentage of original size.
         switch (compressionType) {
-            case 1:  // LZ4
+            case RECORD_COMPRESSION_LZ4:  // LZ4
                 compressionFactor = 58;
                 break;
-            case 2: // LZ4 best
+            case RECORD_COMPRESSION_LZ4_BEST: // LZ4 best
                 compressionFactor = 47;
                 break;
-            case 3: // GZIP
+            case RECORD_COMPRESSION_GZIP: // GZIP
                 compressionFactor = 42;
                 break;
 
-            case 0: // NONE
+            case RECORD_UNCOMPRESSED: // NONE
             default:
                 compressionFactor = 100;
         }
@@ -1038,7 +1034,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      */
     public EventWriter(ByteBuffer buf) throws EvioException {
 
-        this(buf, 0, 0, null, 1, null, 0);
+        this(buf, 0, 0, null, 1, null, CompressionType.RECORD_UNCOMPRESSED);
     }
 
     /**
@@ -1051,7 +1047,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      */
     public EventWriter(ByteBuffer buf, String xmlDictionary) throws EvioException {
 
-        this(buf, 0, 0, xmlDictionary, 1, null, 0);
+        this(buf, 0, 0, xmlDictionary, 1, null, CompressionType.RECORD_UNCOMPRESSED);
     }
 
 
@@ -1078,7 +1074,7 @@ System.out.println("EventWriter contr: Disk is FULL");
      */
     public EventWriter(ByteBuffer buf, int maxRecordSize, int maxEventCount,
                              String xmlDictionary, int recordNumber,
-                             EvioBank firstEvent, int compressionType)
+                             EvioBank firstEvent, CompressionType compressionType)
             throws EvioException {
 
         if (buf == null) {
@@ -1092,25 +1088,21 @@ System.out.println("EventWriter contr: Disk is FULL");
         this.recordNumber    = recordNumber;
 
         this.xmlDictionary   = xmlDictionary;
-
-        if (compressionType < 0 || compressionType > 3) {
-            compressionType = 0;
-        }
         this.compressionType = compressionType;
 
         // How much compression will data experience? Percentage of original size.
         switch (compressionType) {
-            case 1:  // LZ4
+            case RECORD_COMPRESSION_LZ4:
                 compressionFactor = 58;
                 break;
-            case 2: // LZ4 best
+            case RECORD_COMPRESSION_LZ4_BEST:
                 compressionFactor = 47;
                 break;
-            case 3: // GZIP
+            case RECORD_COMPRESSION_GZIP:
                 compressionFactor = 42;
                 break;
 
-            case 0: // NONE
+            case RECORD_UNCOMPRESSED:
             default:
                 compressionFactor = 100;
         }
@@ -1645,7 +1637,7 @@ System.out.println("EventWriter contr: Disk is FULL");
         // Create record if necessary, else clear it
         if (commonRecord == null) {
             // No compression please ...
-            commonRecord = new RecordOutputStream(byteOrder, 0, 0, 0);
+            commonRecord = new RecordOutputStream(byteOrder, 0, 0, CompressionType.RECORD_UNCOMPRESSED);
         }
         else {
             commonRecord.reset();

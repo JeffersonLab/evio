@@ -68,7 +68,7 @@ public class WriterMT implements AutoCloseable {
     private byte[] headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
 
     /** Type of compression to use on file. Default is none. */
-    private int compressionType;
+    private CompressionType compressionType;
 
     /** Number of bytes written to file/buffer at current moment. */
     private long writerBytesWritten;
@@ -93,7 +93,7 @@ public class WriterMT implements AutoCloseable {
     public WriterMT() {
         compressionThreadCount = 1;
         fileHeader = new FileHeader(true); // evio file
-        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, 1);
+        supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, CompressionType.RECORD_COMPRESSION_LZ4);
 
         // Get a single blank record to start writing into
         ringItem = supply.get();
@@ -119,19 +119,14 @@ public class WriterMT implements AutoCloseable {
      * @throws IllegalArgumentException if invalid compression type.
      */
     public WriterMT(ByteOrder order, int maxEventCount, int maxBufferSize,
-                    int compressionType, int compressionThreads, int ringSize)
+                    CompressionType compressionType, int compressionThreads, int ringSize)
             throws IllegalArgumentException {
 
         if (order != null) {
             byteOrder = order;
         }
         
-        if (compressionType > -1 && compressionType < 4) {
-            this.compressionType = compressionType;
-        }
-        else {
-            throw new IllegalArgumentException("compressionType must be 0,1,2,or 3");
-        }
+        this.compressionType = compressionType;
 
         compressionThreadCount = compressionThreads;
 
@@ -182,7 +177,7 @@ public class WriterMT implements AutoCloseable {
      *                      and >= compressionThreads.
      */
     public WriterMT(String filename, ByteOrder order, int maxEventCount, int maxBufferSize,
-                    int compressionType, int compressionThreads, int ringSize) {
+                    CompressionType compressionType, int compressionThreads, int ringSize) {
         this(order, maxEventCount, maxBufferSize, compressionType, compressionThreads, ringSize);
         open(filename);
     }
@@ -451,10 +446,8 @@ System.out.println("   Writer: thread INTERRUPTED");
      * @param compression compression type
      * @return this object
      */
-    public final WriterMT setCompressionType(int compression){
-        if (compression > -1 && compression < 4) {
-            compressionType = compression;
-        }
+    public final WriterMT setCompressionType(CompressionType compression) {
+        compressionType = compression;
         return this;
     }
 

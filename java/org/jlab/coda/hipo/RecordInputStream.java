@@ -507,8 +507,8 @@ public class RecordInputStream {
 
             // Decompress data
             switch (header.getCompressionType()) {
-                case 1:
-                case 2:
+                case RECORD_COMPRESSION_LZ4:
+                case RECORD_COMPRESSION_LZ4_BEST:
                     // LZ4
                     // Read compressed data
                     file.read(recordBuffer.array(), 0, cLength);
@@ -516,14 +516,14 @@ public class RecordInputStream {
                     compressor.uncompressLZ4(recordBuffer, cLength, dataBuffer);
                     break;
 
-                case 3:
+                case RECORD_COMPRESSION_GZIP:
                     // GZIP
                     file.read(recordBuffer.array(), 0, cLength);
                     byte[] unzipped = compressor.uncompressGZIP(recordBuffer.array(), 0, cLength);
                     dataBuffer.put(unzipped);
                     break;
 
-                case 0:
+                case RECORD_UNCOMPRESSED:
                 default:
                     // None
                     // Read uncompressed data - rest of record
@@ -595,20 +595,20 @@ public class RecordInputStream {
 
             // Decompress data
             switch (header.getCompressionType()) {
-                case 1:
-                case 2:
+                case RECORD_COMPRESSION_LZ4:
+                case RECORD_COMPRESSION_LZ4_BEST:
                     // Read LZ4 compressed data (WARNING: this does set limit on dataBuffer!)
                     compressor.uncompressLZ4(buffer, compDataOffset, cLength, dataBuffer);
                     break;
 
-                case 3:
+                case RECORD_COMPRESSION_GZIP:
                     // Read GZIP compressed data
                     buffer.limit(compDataOffset + cLength).position(compDataOffset);
                     byte[] unzipped = compressor.uncompressGZIP(buffer);
                     dataBuffer.put(unzipped);
                     break;
 
-                case 0:
+                case RECORD_UNCOMPRESSED:
                 default:
 // TODO: See if we can avoid this unnecessary copy!
                     // Read uncompressed data - rest of record
@@ -661,7 +661,7 @@ public class RecordInputStream {
      * @throws HipoException if srcBuf is null, contains too little data,
      *                       is not in proper format, or version earlier than 6.
      */
-    static int uncompressRecord(ByteBuffer srcBuf, int srcOff, ByteBuffer dstBuf,
+    static int  uncompressRecord(ByteBuffer srcBuf, int srcOff, ByteBuffer dstBuf,
                                 boolean arrayBacked, RecordHeader header)
             throws HipoException {
 
@@ -675,8 +675,8 @@ public class RecordInputStream {
         header.readHeader(srcBuf, srcOff);
 //System.out.println("\nuncompressRecord: header --> \n" + header);
 
+        CompressionType compressionType = header.getCompressionType();
         int headerBytes              = header.getHeaderLength();
-        int compressionType          = header.getCompressionType();
         int origRecordBytes          = header.getLength();
         int compressedDataLength     = header.getCompressedDataLength();
         int uncompressedRecordLength = header.getUncompressedRecordLength();
@@ -688,7 +688,7 @@ public class RecordInputStream {
         // Make sure destination buffer has the same byte order
         //dstBuf.order(srcBuf.order());
 
-        if (compressionType != 0) {
+        if (compressionType.isCompressed()) {
             // Copy (uncompressed) general record header to destination buffer
             if (arrayBacked) {
                 System.arraycopy(srcBuf.array(), srcOff + srcBuf.arrayOffset(),
@@ -723,22 +723,22 @@ public class RecordInputStream {
 
         // Decompress data
         switch (compressionType) {
-            case 1:
-            case 2:
+            case RECORD_COMPRESSION_LZ4:
+            case RECORD_COMPRESSION_LZ4_BEST:
                 // Read LZ4 compressed data
                 compressor.uncompressLZ4(srcBuf, compressedDataOffset,
                                          compressedDataLength, dstBuf);
                 dstBuf.limit(dstBuf.capacity());
                 break;
 
-            case 3:
+            case RECORD_COMPRESSION_GZIP:
                 // Read GZIP compressed data
                 srcBuf.limit(compressedDataOffset + compressedDataLength).position(compressedDataOffset);
                 byte[] unzipped = compressor.uncompressGZIP(srcBuf);
                 dstBuf.put(unzipped);
                 break;
 
-            case 0:
+            case RECORD_UNCOMPRESSED:
             default:
                 // Everything copied over above
         }
@@ -751,7 +751,7 @@ public class RecordInputStream {
 
         // Reset the compression type and length in header to 0
         dstBuf.putInt(dstOff + RecordHeader.COMPRESSION_TYPE_OFFSET, 0);
-        header.setCompressionType(0).setCompressedDataLength(0);
+        header.setCompressionType(CompressionType.RECORD_UNCOMPRESSED).setCompressedDataLength(0);
 
         // Reset the header length
         dstBuf.putInt(dstOff + RecordHeader.RECORD_LENGTH_OFFSET, uncompressedRecordLength);

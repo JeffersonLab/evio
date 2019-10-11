@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio.test;
 
+import org.jlab.coda.hipo.CompressionType;
 import org.jlab.coda.jevio.*;
 
 import java.io.*;
@@ -118,13 +119,14 @@ public class FileTest {
                                          4*targetBlockSize, 1000,
                                          ByteOrder.nativeOrder(), xmlDictionary,
                                          true, append, eventFirst,
-                                         0, 0, 1, 1, 0, 0, 0, 0);
+                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
             }
             else {
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
                 //myBuf.order(ByteOrder.LITTLE_ENDIAN);
-                writer = new  EventWriter(myBuf, 4*28, 1000, null, 1, null, 0);
+                writer = new  EventWriter(myBuf, 4*28, 1000, null, 1, null,
+                                          CompressionType.RECORD_UNCOMPRESSED);
             }
 
 
@@ -329,7 +331,7 @@ public class FileTest {
                                  4*16, 1000,
                                  ByteOrder.nativeOrder(), null,
                                  true, true, null,
-                                             0, 0, 1, 1, 0, 0, 0, 0);
+                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
         for (int i=0; i < count; i++) {
             // append event to file
@@ -501,7 +503,7 @@ public class FileTest {
                                                          4*1000, 3,
                                                          ByteOrder.BIG_ENDIAN, dictionary,
                                                          true, false, null,
-                                                         0, 0, 1, 1, 0, 0, 0, 0);
+                                                         0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
             // event - bank of banks
             EventBuilder eventBuilder2 = new EventBuilder(1, DataType.BANK, 1);
@@ -766,7 +768,7 @@ public class FileTest {
                                                              4*1000, 3,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -803,7 +805,7 @@ public class FileTest {
                                                              4*10000000, 100000,
                                                              ByteOrder.BIG_ENDIAN, null,
                                                              true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -840,7 +842,7 @@ public class FileTest {
                                                               4*10000000, 6535,
                                                               ByteOrder.BIG_ENDIAN, null,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);
@@ -876,7 +878,7 @@ public class FileTest {
                                                               4*1000, 3,
                                                               ByteOrder.BIG_ENDIAN, dictionary,
                                                               true, false, null,
-                                                             0, 0, 1, 1, 0, 0, 0, 0);
+                                                             0, 0, 1, 1, CompressionType.RECORD_UNCOMPRESSED, 0, 0, 0);
 
                 // event - bank of banks
                 EventBuilder eventBuilder2 = new EventBuilder(1, DataType.INT32, 1);

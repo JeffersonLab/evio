@@ -23,15 +23,7 @@ import net.jpountz.lz4.*;
  * @author timmer
  */
 public class Compressor {
-    
-    /** No data compression. */
-    public static final int     RECORD_UNCOMPRESSED = 0;
-    /** Data compression using fastest LZ4 method. */
-    public static final int     RECORD_COMPRESSION_LZ4 = 1;
-    /** Data compression using slowest but most compact LZ4 method. */
-    public static final int     RECORD_COMPRESSION_LZ4_BEST = 2;
-    /** Data compression using gzip method. */
-    public static final int     RECORD_COMPRESSION_GZIP = 3;
+
 
     /** Do we have an AHA374 data compression board on the local host? */
     private static boolean haveHardwareGzipCompression = false;
@@ -258,8 +250,8 @@ public class Compressor {
      * @param uncompressedLength uncompressed data length in bytes.
      * @return maximum compressed length in bytes or -1 if unknown.
      */
-    public static int getMaxCompressedLength(int compressionType, int uncompressedLength) {
-        switch(compressionType) {
+    public static int getMaxCompressedLength(CompressionType compressionType, int uncompressedLength) {
+        switch (compressionType) {
             case RECORD_COMPRESSION_GZIP:
                 return -1;
             case RECORD_COMPRESSION_LZ4_BEST:
@@ -280,7 +272,7 @@ public class Compressor {
      * @param buffer uncompressed buffer.
      * @return compressed buffer.
      */
-    public static byte[] getCompressedBuffer(int compressionType, byte[] buffer){
+    public static byte[] getCompressedBuffer(CompressionType compressionType, byte[] buffer) {
         switch(compressionType) {
             case RECORD_COMPRESSION_GZIP:
                 return Compressor.compressGZIP(buffer);
@@ -304,7 +296,7 @@ public class Compressor {
      * @throws LZ4Exception if not enough room in allocated array
      *                      (3x compressed) to hold LZ4 uncompressed data.
      */
-    public static byte[] getUnCompressedBuffer(int compressionType, byte[] compressedBuffer)
+    public static byte[] getUnCompressedBuffer(CompressionType compressionType, byte[] compressedBuffer)
                                 throws LZ4Exception {
         switch(compressionType) {
             case RECORD_COMPRESSION_GZIP:

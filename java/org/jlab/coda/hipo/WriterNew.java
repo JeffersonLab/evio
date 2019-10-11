@@ -68,7 +68,7 @@ public class WriterNew implements AutoCloseable {
     private int userHeaderOffset;
     /** Number of valid bytes in userHeader (starting at userHeaderOffset). */
     private int userHeaderLength;
-    /** Has the first record been written already? */
+    /** Has the first record been written to buffer already? */
     private boolean firstRecordWritten;
 
     // For both files & buffers
@@ -89,7 +89,7 @@ public class WriterNew implements AutoCloseable {
     /** Byte array large enough to hold a header/trailer. */
     private ByteBuffer headerBuffer = ByteBuffer.wrap(headerArray);
     /** Type of compression to use on file. Default is none. */
-    private int compressionType;
+    private CompressionType compressionType;
     /** Number of bytes written to file/buffer at current moment. */
     private long writerBytesWritten;
     /** Number which is incremented and stored with each successive written record starting at 1. */
@@ -142,7 +142,7 @@ public class WriterNew implements AutoCloseable {
      *                      Value of &lt; 8MB results in default of 8MB.
      */
     public WriterNew(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize) {
-        this(hType, order, maxEventCount, maxBufferSize, null, null);
+        this(hType, order, maxEventCount, maxBufferSize, null, null, CompressionType.RECORD_UNCOMPRESSED);
     }
 
     /**
@@ -162,13 +162,14 @@ public class WriterNew implements AutoCloseable {
      *                      It must be in the same byte order as the order argument.
      */
     public WriterNew(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize,
-                  String dictionary, byte[] firstEvent) {
+                  String dictionary, byte[] firstEvent, CompressionType compType) {
 
         if (order != null) {
             byteOrder = order;
         }
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
+        this.compressionType = compType;
         headerBuffer.order(byteOrder);
 
         // Create a place to store records currently being written
@@ -179,11 +180,11 @@ public class WriterNew implements AutoCloseable {
         internalRecords = new RecordOutputStream[3];
 
         internalRecords[0] = new RecordOutputStream(byteOrder, maxEventCount,
-                                                    maxBufferSize, 1, hType);
+                                                    maxBufferSize, compType, hType);
         internalRecords[1] = new RecordOutputStream(byteOrder, maxEventCount,
-                                                    maxBufferSize, 1, hType);
+                                                    maxBufferSize, compType, hType);
         internalRecords[2] = new RecordOutputStream(byteOrder, maxEventCount,
-                                                    maxBufferSize, 1, hType);
+                                                    maxBufferSize, compType, hType);
         outputRecord = internalRecords[0];
 
         if ( (dictionary != null && dictionary.length() > 0) ||
@@ -275,7 +276,7 @@ public class WriterNew implements AutoCloseable {
 
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
-        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, 0);
+        outputRecord = new RecordOutputStream(order, maxEventCount, maxBufferSize, CompressionType.RECORD_UNCOMPRESSED);
 
         if ( (dictionary != null && dictionary.length() > 0) ||
              (firstEvent != null && firstEvent.length   > 0))  {
@@ -563,7 +564,7 @@ public class WriterNew implements AutoCloseable {
 
         // Create record.
         // Bit of chicken&egg problem, so start with default internal buf size.
-        RecordOutputStream record = new RecordOutputStream(byteOrder, 2, 0, 0);
+        RecordOutputStream record = new RecordOutputStream(byteOrder, 2, 0, CompressionType.RECORD_UNCOMPRESSED);
 
         // How much data we got?
         int bytes = 0;
@@ -578,7 +579,7 @@ System.out.println("createRecord: add first event bytes " + firstEvent.length);
 
         // If we have huge dictionary/first event ...
         if (bytes > record.getInternalBufferCapacity()) {
-            record = new RecordOutputStream(byteOrder, 2, bytes, 0);
+            record = new RecordOutputStream(byteOrder, 2, bytes, CompressionType.RECORD_UNCOMPRESSED);
         }
 
         // Add dictionary to record
@@ -613,7 +614,7 @@ System.out.println("createRecord: add first event to record");
      * @param compression compression type
      * @return this object
      */
-    public final WriterNew setCompressionType(int compression){
+    public final WriterNew setCompressionType(CompressionType compression){
         outputRecord.getHeader().setCompressionType(compression);
         compressionType = outputRecord.getHeader().getCompressionType();
         return this;
@@ -623,7 +624,7 @@ System.out.println("createRecord: add first event to record");
      * Convenience method that gets compression type for the file being written.
      * @return compression type for the file being written.
      */
-    public int getCompressionType() {return outputRecord.getHeader().getCompressionType();}
+    public CompressionType getCompressionType() {return outputRecord.getHeader().getCompressionType();}
 
     /**
      * Create and return a buffer containing a general file header
