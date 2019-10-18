@@ -26,11 +26,11 @@ public:
 
     static uint8_t* generateArray() {
         //double d = static_cast<double> (rand()) / static_cast<double> (RAND_MAX);
-        int size = (35*rand()/RAND_MAX);
+        int size = rand() % 35;
         size += 100;
-        uint8_t* buffer = new uint8_t[size];
+        auto buffer = new uint8_t[size];
         for(int i = 0; i < size; i++){
-            buffer[i] = (uint8_t)(126*rand()/RAND_MAX);
+            buffer[i] = (uint8_t)(rand() % 126);
         }
         return buffer;
     }
@@ -38,7 +38,7 @@ public:
     static uint8_t* generateArray(int size) {
         uint8_t* buffer = new uint8_t[size];
         for(int i = 0; i < size; i++){
-            buffer[i] =  (uint8_t) (125*rand()/RAND_MAX + 1.0);
+            buffer[i] =  (uint8_t) ((rand() % 125) + 1);
         }
         return buffer;
     }
@@ -62,24 +62,16 @@ public:
         // Ignore the first N values found for freq in order
         // to get better avg statistics. Since the JIT compiler in java
         // takes some time to analyze & compile code, freq may initially be low.
-        long ignoreLoops = 1L;
-        long loops  = 20L;
+        long ignoreLoops = 0L;
+        long loops  = 4L;
 
         try {
             // Create file
             string filename("/dev/shm/hipoTest1.evio");
 
-            cout << "testStreamRecord: 1.5, " << ByteOrder::ENDIAN_LITTLE.getName() << ", " <<HeaderType::EVIO_FILE.getName() << endl;
             Writer writer(ByteOrder::ENDIAN_LITTLE, 10000, 10000000);
-            cout << "testStreamRecord: 2" << endl;
             writer.getRecordHeader().setCompressionType(Compressor::CompressionType::UNCOMPRESSED);
-            cout << "testStreamRecord: 3" << endl;
             writer.open(filename);
-
-            cout << "testStreamRecord: 4" << endl;
-
-            cout << "output record size = " << writer.getRecord().getInternalBufferCapacity() << " bytes" << endl;
-            cout << "bin buf lim = " << writer.getBuffer().limit() << " bytes" << endl;
 
             uint8_t* array = generateArray(100);
 
@@ -88,7 +80,6 @@ public:
             while (true) {
                 // random data array
                 writer.addEvent(array, 0, 100);
-                cout << "bin buf lim = " << writer.getBuffer().limit() << " bytes" << endl;
 
                 //cout << int(20000000 - loops) << endl;
                 // Ignore beginning loops to remove JIT compile time
@@ -214,18 +205,22 @@ public:
         try {
             Reader reader(filenameIn);
             uint32_t nevents = reader.getEventCount();
-            string userHeader("File is written with new version=6 format");
+
+            cout << "     OPENED FILE " << filenameOut << " for writing " << nevents << " events to " << filenameOut << endl;
             Writer writer(filenameOut, ByteOrder::ENDIAN_LITTLE, 10000, 8*1024*1024);
-            writer.setCompressionType(Compressor::LZ4);
+            //writer.setCompressionType(Compressor::LZ4);
+            writer.setCompressionType(Compressor::UNCOMPRESSED);
 
-            cout << " OPENED FILE EVENT COUNT = " << nevents << endl;
-
-            for(int i = 1; i < nevents; i++){
+            for (int i = 0; i < nevents; i++) {
+                cout << "     Try getting EVENT # " << i << endl;
                 shared_ptr<uint8_t> pEvent = reader.getEvent(i);
+                cout << "     Got event " << i << endl;
                 uint32_t eventLen = reader.getEventLength(i);
+                cout << "     Got event len = " << eventLen << endl;
+
                 writer.addEvent(pEvent.get(), 0, eventLen);
-                cout << " EVENT # " << i << "  size = " << eventLen << endl;
             }
+            cout << "     converter END" << endl;
             writer.close();
         } catch (HipoException & ex) {
             cout << ex.what() << endl;
