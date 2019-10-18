@@ -6,25 +6,17 @@
 
 
 
-/** Default, no-arg constructor. Little endian. LZ4 compression. */
+/** Default, no-arg constructor. Little endian. No compression. */
 RecordOutput::RecordOutput() {
 
-    eventSize = 0;
-    indexSize = 0;
-    eventCount = 0;
-    userBufferSize = 0;
-    startingPosition = 0;
-    userProvidedBuffer = false;
-
     header = RecordHeader();
-    header.setCompressionType(Compressor::LZ4);
+    header.setCompressionType(Compressor::UNCOMPRESSED);
 
     recordIndex = ByteBuffer(MAX_EVENT_COUNT * 4);
     recordIndex.order(byteOrder);
 
     allocate();
 }
-
 
 /**
  * Constructor with arguments.
@@ -38,13 +30,6 @@ RecordOutput::RecordOutput() {
  */
 RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                            Compressor::CompressionType compressionType, HeaderType hType) {
-
-    eventSize = 0;
-    indexSize = 0;
-    eventCount = 0;
-    userBufferSize = 0;
-    startingPosition = 0;
-    userProvidedBuffer = false;
 
     try {
         if (hType.isEvioFileHeader()) {
@@ -88,11 +73,7 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
  * @param hType           type of record header to use.
  */
 RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
-                           Compressor::CompressionType compressionType, HeaderType & hType) {
-
-    eventSize = 0;
-    indexSize = 0;
-    eventCount = 0;
+                           Compressor::CompressionType compressionType, HeaderType hType) {
 
     try {
         if (hType.isEvioFileHeader()) {
@@ -134,7 +115,6 @@ RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
 
     allocate();
 }
-
 
 /**
  * Copy constructor.
@@ -191,8 +171,8 @@ RecordOutput::RecordOutput(const RecordOutput & rec) {
         recordData.order(byteOrder);
     }
 
-    if (rec.eventCount > MAX_EVENT_COUNT) {
-        MAX_EVENT_COUNT = rec.eventCount;
+    if (rec.MAX_EVENT_COUNT > MAX_EVENT_COUNT) {
+        MAX_EVENT_COUNT = rec.MAX_EVENT_COUNT;
         recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
         recordIndex.order(byteOrder);
     }
@@ -209,7 +189,6 @@ RecordOutput::RecordOutput(const RecordOutput & rec) {
     recordIndex.limit(rec.recordIndex.limit()).position(rec.recordIndex.position());
 }
 
-
 /**
  * Move constructor.
  * @param srcBuf ByteBuffer to move.
@@ -218,7 +197,6 @@ RecordOutput::RecordOutput(RecordOutput && rec) noexcept {
     // Use code below in move assignment operator
     *this = std::move(rec);
 }
-
 
 /**
  * Move assignment operator.
@@ -235,7 +213,7 @@ RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
         eventSize  = other.eventSize;
         byteOrder  = other.byteOrder;
 
-        MAX_EVENT_COUNT    = other.eventCount;
+        MAX_EVENT_COUNT    = other.MAX_EVENT_COUNT;
         MAX_BUFFER_SIZE    = other.MAX_BUFFER_SIZE;
         RECORD_BUFFER_SIZE = other.RECORD_BUFFER_SIZE;
 
@@ -256,7 +234,6 @@ RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
 
     return *this;
 }
-
 
 /**
  * Assignment operator.
@@ -312,8 +289,8 @@ RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
             recordData.order(byteOrder);
         }
 
-        if (other.eventCount > MAX_EVENT_COUNT) {
-            MAX_EVENT_COUNT = other.eventCount;
+        if (other.MAX_EVENT_COUNT > MAX_EVENT_COUNT) {
+            MAX_EVENT_COUNT = other.MAX_EVENT_COUNT;
             recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
             recordIndex.order(byteOrder);
         }
@@ -332,7 +309,6 @@ RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
 
     return *this;
 }
-
 
 /**
  * Reset internal buffers and set the buffer in which to build this record.
@@ -368,6 +344,11 @@ void RecordOutput::setBuffer(ByteBuffer & buf) {
     reset();
 }
 
+/**
+ * Get the maximum number of events allowed in this record.
+ * @return maximum number of events allowed in this record.
+ */
+int RecordOutput::getMaxEventCount() const {return MAX_EVENT_COUNT;}
 
 /**
  * Get the number of initially available bytes to be written into in the user-given buffer,
@@ -430,6 +411,24 @@ const ByteOrder & RecordOutput::getByteOrder() const {return byteOrder;}
  */
 void RecordOutput::setByteOrder(const ByteOrder & order) {byteOrder = order;}
 
+/** Allocates all buffers for constructing the record stream. */
+void RecordOutput::allocate() {
+
+    recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
+    recordEvents.order(byteOrder);
+
+    // Making this a direct buffer slows it down by 6%
+    recordData = ByteBuffer(MAX_BUFFER_SIZE);
+    recordData.order(byteOrder);
+
+    if (!userProvidedBuffer) {
+        // Trying to compress random data will expand it, so create a cushion.
+        // Using a direct buffer takes 2/3 the time of an array-backed buffer
+        //recordBinary = ByteBuffer.allocateDirect(RECORD_BUFFER_SIZE);
+        recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
+        recordBinary.order(byteOrder);
+    }
+}
 
 /**
  * Is there room in this record's memory for an additional event
@@ -448,42 +447,6 @@ bool RecordOutput::roomForEvent(uint32_t length) const {
  */
 bool RecordOutput::oneTooMany() const {return (eventCount + 1 > MAX_EVENT_COUNT);}
 
-//---------------------
-// private
-//---------------------
-
-/** Allocates all buffers for constructing the record stream. */
-void RecordOutput::allocate() {
-
-//    if (recordIndex == null) {
-//        // This only needs to be done once
-//        recordIndex = ByteBuffer(MAX_EVENT_COUNT * 4);
-//        recordIndex.order(byteOrder);
-//    }
-//
-    recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
-    recordEvents.order(byteOrder);
-
-    cout << "RecordOutput: recordEvents = cap/lim " << recordEvents.capacity() << "/" << recordEvents.limit() << endl;
-
-    // Making this a direct buffer slows it down by 6%
-    recordData = ByteBuffer(MAX_BUFFER_SIZE);
-    recordData.order(byteOrder);
-    cout << "RecordOutput: recordData = cap/lim " << recordData.capacity() << "/" << recordData.limit() << endl;
-
-    if (!userProvidedBuffer) {
-        // Trying to compress random data will expand it, so create a cushion.
-        // Using a direct buffer takes 2/3 the time of an array-backed buffer
-        //recordBinary = ByteBuffer.allocateDirect(RECORD_BUFFER_SIZE);
-        recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
-        recordBinary.order(byteOrder);
-        cout << "RecordOutput: recordBinary = cap/lim " << recordBinary.capacity() << "/" << recordBinary.limit() << endl << endl;
-    }
-    else {
-        cout << "RecordOutput: EXTERNAL recordBinary = cap/lim " << recordBinary.capacity() << "/" << recordBinary.limit() << endl << endl;
-    }
-}
-
 /**
  * Is another event of the given length allowed into this record's memory?
  * It may not be allowed if its exceeds the memory or count limit.
@@ -493,28 +456,6 @@ void RecordOutput::allocate() {
 bool RecordOutput::allowedIntoRecord(uint32_t length) {
     return (eventCount < 1 && !roomForEvent(length));
 }
-
-
-//------------------------
-
-
-///**
-// * Adds an event's ByteBuffer into the record.
-// * If a single event is too large for the internal buffers,
-// * more memory is allocated.
-// * On the other hand, if the buffer was provided by the user,
-// * then obviously the buffer cannot be expanded and false is returned.<p>
-// * <b>The byte order of event must match the byte order given in constructor!</b>
-// *
-// *
-// * @param event  event's byte array.
-// * @return true if event was added; false if the event was not added because the
-// *         count limit would be exceeded or the buffer is full and cannot be
-// *         expanded since it's user-provided.
-// */
-//bool RecordOutput::addEvent(uint8_t event[]) {
-//    return addEvent(event, 0, event.length, 0);
-//}
 
 /**
  * Adds an event's ByteBuffer into the record.
@@ -596,6 +537,7 @@ bool RecordOutput::addEvent(const uint8_t* event, size_t offset, uint32_t eventL
     indexSize += 4;
 
     eventCount++;
+//cout << "addEvent: event cnt = " << to_string(eventCount) << ", event size = " << to_string(eventSize) << endl;
 
     return true;
 }
@@ -653,21 +595,13 @@ bool RecordOutput::addEvent(const ByteBuffer & event, uint32_t extraDataLen) {
         return false;
     }
 
-    if (event.hasArray()) {
-        // recordEvents backing array's offset = 0
-        size_t pos = recordEvents.position();
+    // recordEvents backing array's offset = 0
+    size_t pos = recordEvents.position();
 
-        std::memcpy((void *)(recordEvents.array() + pos),
-                     (const void *)(event.array() + event.arrayOffset() + event.position()), eventLen);
-//        System.arraycopy(event.array(),
-//                         event.arrayOffset() + event.position(),
-//                         recordEvents.array(), pos, eventLen);
+    std::memcpy((void *)(recordEvents.array() + pos),
+                (const void *)(event.array() + event.arrayOffset() + event.position()), eventLen);
 
-        recordEvents.position(pos + eventLen);
-    }
-    else {
-        recordEvents.put(event);
-    }
+    recordEvents.position(pos + eventLen);
 
     eventSize += eventLen;
     recordIndex.putInt(indexSize, eventLen);
@@ -678,95 +612,89 @@ bool RecordOutput::addEvent(const ByteBuffer & event, uint32_t extraDataLen) {
 }
 
 
-//
-///**
-// * Adds an event's ByteBuffer into the record.
-// * If a single event is too large for the internal buffers,
-// * more memory is allocated.
-// * On the other hand, if the buffer was provided by the user,
-// * then obviously the buffer cannot be expanded and false is returned.<p>
-// * <b>The byte order of event must match the byte order given in constructor!</b>
-// * This method is not thread-safe with respect to the node as it's backing
-// * ByteBuffer's limit and position may be concurrently changed.
-// *
-// * @param node         event's EvioNode object
-// * @return true if event was added; false if the event was not added because the
-// *         count limit would be exceeded or the buffer is full and cannot be
-// *         expanded since it's user-provided.
-// * @throws HipoException if node does not correspond to a bank.
-// */
-//bool RecordOutput::addEvent(EvioNode & node) {
-//    return addEvent(node, 0);
-//}
-//
-///**
-// * Adds an event's ByteBuffer into the record.
-// * Can specify the length of additional data to follow the event
-// * (such as an evio trailer record) to see if by adding this event
-// * everything will fit in the available memory.<p>
-// * If a single event is too large for the internal buffers,
-// * more memory is allocated.
-// * On the other hand, if the buffer was provided by the user,
-// * then obviously the buffer cannot be expanded and false is returned.<p>
-// * <b>The byte order of event must match the byte order given in constructor!</b>
-// * This method is not thread-safe with respect to the node as it's backing
-// * ByteBuffer's limit and position may be concurrently changed.
-// *
-// * @param node         event's EvioNode object
-// * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
-// * @return true if event was added; false if the event was not added because the
-// *         count limit would be exceeded or the buffer is full and cannot be
-// *         expanded since it's user-provided.
-// * @throws HipoException if node does not correspond to a bank.
-// */
-//bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
-//
-//    int eventLen = node.getTotalBytes();
-//
-//    if (!node.getTypeObj().isBank()) {
-//        throw HipoException("node does not represent a bank");
-//    }
-//
-//    if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
-//        if (userProvidedBuffer) {
-//            return false;
-//        }
-//
-//        MAX_BUFFER_SIZE = eventLen + ONE_MEG;
-//        RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
-//        allocate();
-//        reset();
-//    }
-//
-//    if (oneTooMany() || !roomForEvent(eventLen)) {
-//        return false;
-//    }
-//
-//    ByteBuffer buf = node.getStructureBuffer(false);
-//    if (buf.hasArray()) {
-//        size_t pos = recordEvents.position();
-//
-//        std::memcpy((void *)(recordEvents.array() + pos),
-//                       (const void *)(buf.array() + buf.arrayOffset() + buf.position()),
-//                    eventLen);
-////        System.arraycopy(buf.array(),
-////                         buf.arrayOffset() + buf.position(),
-////                         recordEvents.array(), pos, eventLen);
-//
-//        recordEvents.position(pos + eventLen);
-//    }
-//    else {
-//        recordEvents.put(buf);
-//    }
-//
-//    eventSize += eventLen;
-//    recordIndex.putInt(indexSize, eventLen);
-//    indexSize += 4;
-//    eventCount++;
-//
-//    return true;
-//}
-//
+
+/**
+ * Adds an event's ByteBuffer into the record.
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ * This method is not thread-safe with respect to the node as it's backing
+ * ByteBuffer's limit and position may be concurrently changed.
+ *
+ * @param node         event's EvioNode object
+ * @return true if event was added; false if the event was not added because the
+ *         count limit would be exceeded or the buffer is full and cannot be
+ *         expanded since it's user-provided.
+ * @throws HipoException if node does not correspond to a bank.
+ */
+bool RecordOutput::addEvent(EvioNode & node) {
+    return addEvent(node, 0);
+}
+
+/**
+ * Adds an event's ByteBuffer into the record.
+ * Can specify the length of additional data to follow the event
+ * (such as an evio trailer record) to see if by adding this event
+ * everything will fit in the available memory.<p>
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ * This method is not thread-safe with respect to the node as it's backing
+ * ByteBuffer's limit and position may be concurrently changed.
+ *
+ * @param node         event's EvioNode object
+ * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+ * @return true if event was added; false if the event was not added because the
+ *         count limit would be exceeded or the buffer is full and cannot be
+ *         expanded since it's user-provided.
+ * @throws HipoException if node does not correspond to a bank.
+ */
+bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
+
+    int eventLen = node.getTotalBytes();
+
+    if (!node.getTypeObj().isBank()) {
+        throw HipoException("node does not represent a bank");
+    }
+
+    if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
+        if (userProvidedBuffer) {
+            return false;
+        }
+
+        MAX_BUFFER_SIZE = eventLen + ONE_MEG;
+        RECORD_BUFFER_SIZE = MAX_BUFFER_SIZE + ONE_MEG;
+        allocate();
+        reset();
+    }
+
+    if (oneTooMany() || !roomForEvent(eventLen)) {
+        return false;
+    }
+
+
+    ByteBuffer buf(eventLen);
+    node.getStructureBuffer(buf, false);
+    size_t pos = recordEvents.position();
+
+    std::memcpy((void *)(recordEvents.array() + pos),
+                (const void *)(buf.array() + buf.arrayOffset() + buf.position()),
+                eventLen);
+
+    recordEvents.position(pos + eventLen);
+
+    eventSize += eventLen;
+    recordIndex.putInt(indexSize, eventLen);
+    indexSize += 4;
+    eventCount++;
+
+    return true;
+}
+
 ///**
 // * Adds an event's ByteBuffer into the record.
 // * If a single event is too large for the internal buffers,
@@ -879,6 +807,7 @@ void RecordOutput::build() {
         header.setIndexLength(0);
         header.setCompressedDataLength(0);
         header.setLength(RecordHeader::HEADER_SIZE_BYTES);
+        recordBinary.limit(startingPosition + RecordHeader::HEADER_SIZE_BYTES);
         recordBinary.position(startingPosition);
         try {
             header.writeHeader(recordBinary);
@@ -886,9 +815,10 @@ void RecordOutput::build() {
         catch (HipoException & e) {/* never happen */}
 //            cout << "build: buf lim = " << recordBinary.limit() <<
 //                    ", cap = " << recordBinary.capacity() << endl;
-        recordBinary.limit(RecordHeader::HEADER_SIZE_BYTES);
         return;
     }
+
+    uint32_t compressionType = header.getCompressionType();
 
     // Position in recordBinary buffer of just past the record header
     size_t recBinPastHdr = startingPosition + RecordHeader::HEADER_SIZE_BYTES;
@@ -901,14 +831,13 @@ void RecordOutput::build() {
     // recBinPastHdr = recBinPastHdrAbsolute.
     size_t recBinPastHdrAbsolute = recBinPastHdr + recordBinary.arrayOffset();
 
-    uint32_t compressionType = header.getCompressionType();
-
     // Write index & event arrays
 
     // If compressing data ...
     if (compressionType > 0) {
         // Write into a single, temporary buffer
-        recordData.position(0);
+        recordBinary.clear();
+        recordData.clear();
         recordData.put( recordIndex.array(), 0, indexSize);
         recordData.put(recordEvents.array(), 0, eventSize);
     }
@@ -917,6 +846,8 @@ void RecordOutput::build() {
 //cout << "build: recordBinary len = " << userBufferSize <<
 //        ", start pos = " << startingPosition << ", data to write = " <<
 //        (RecordHeader::HEADER_SIZE_BYTES + indexSize + eventSize) << endl;
+
+        recordBinary.clear();
 
         // Write directly into final buffer, past where header will go
         recordBinary.position(recBinPastHdr);
@@ -928,8 +859,6 @@ void RecordOutput::build() {
 
         recordBinary.put(recordEvents.array(), 0, eventSize);
 
-//cout << "build: writing index of size " << indexSize << endl <<
-//        "build: events of size " << eventSize << endl;
     }
 
     // Evio data is padded, but not necessarily all hipo data.
@@ -937,6 +866,8 @@ void RecordOutput::build() {
     uint32_t uncompressedDataSize = indexSize + eventSize;
     uint32_t compressedSize = 0;
     uint8_t* gzippedData;
+//cout << "build: writing index of size " << indexSize << ", events of size " <<
+//         eventSize << ", total = " << uncompressedDataSize << endl;
 
     // Compress that temporary buffer into destination buffer
     // (skipping over where record header will be written).
@@ -1003,6 +934,7 @@ void RecordOutput::build() {
                 int words = uncompressedDataSize/4;
                 if (uncompressedDataSize % 4 != 0) words++;
                 header.setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
+//cout << "set header length = " << header.getLength() << ", uncompressed data size = " << uncompressedDataSize << endl;
         }
     }
     catch (HipoException & e) {/* should not happen */}
@@ -1012,7 +944,7 @@ void RecordOutput::build() {
     header.setDataLength(eventSize);
     header.setIndexLength(indexSize);
 
-//    cout << " COMPRESSED = " << compressedSize << "  events size = " << eventSize << "  type = " <<
+//    cout << " COMPRESSED = " << compressedSize << "  events size (data  len) = " << eventSize << "  type = " <<
 //            compressionType << "  uncompressed = " << uncompressedDataSize <<
 //            " record bytes = " << header.getLength() << endl << endl;
 
@@ -1050,6 +982,9 @@ void RecordOutput::build(ByteBuffer & userHeader) {
 //    cout << "  INDEX = 0 " << indexSize << "  " << (indexSize + userHeaderSize) <<
 //            "  DIFF " << userHeaderSize << endl;
 
+    uint32_t compressionType = header.getCompressionType();
+    uint32_t uncompressedDataSize = indexSize;
+
     // Position in recordBinary buffer of just past the record header
     size_t recBinPastHdr = startingPosition + RecordHeader::HEADER_SIZE_BYTES;
 
@@ -1061,20 +996,19 @@ void RecordOutput::build(ByteBuffer & userHeader) {
     // recBinPastHdr = recBinPastHdrAbsolute.
     size_t recBinPastHdrAbsolute = recBinPastHdr + recordBinary.arrayOffset();
 
-    uint32_t compressionType = header.getCompressionType();
-    uint32_t uncompressedDataSize = indexSize;
-
     // If compressing data ...
     if (compressionType > 0) {
+        recordData.clear();
+        recordBinary.clear();
+
         // Write into a single, temporary buffer the following:
 
         // 1) uncompressed index array
-        recordData.position(0);
         // Note, put() will increment position
         recordData.put(recordIndex.array(), 0, indexSize);
 
         // 2) uncompressed user header
-        recordData.put(userHeader.array(), 0, userHeaderSize);
+        recordData.put(userHeader.array(), userHeader.position(), userHeaderSize);
 
         // Account for unpadded user header.
         // This will find the user header length in words & account for padding.
@@ -1083,21 +1017,23 @@ void RecordOutput::build(ByteBuffer & userHeader) {
         uncompressedDataSize += 4*header.getUserHeaderLengthWords();
         recordData.position(uncompressedDataSize);
 
-        // 3) uncompressed data array (hipo/evio data is already padded)
+        // 3) uncompressed data array
         recordData.put(recordEvents.array(), 0, eventSize);
-        // May not be padded
+        // Evio data is padded, but not necessarily all hipo data.
+        // Uncompressed data length is NOT padded, but the record length is.
         uncompressedDataSize += eventSize;
     }
     // If NOT compressing data ...
     else {
         // Write directly into final buffer, past where header will go
+        recordBinary.clear();
         recordBinary.position(recBinPastHdr);
 
         // 1) uncompressed index array
         recordBinary.put(recordIndex.array(), 0, indexSize);
 
         // 2) uncompressed user header array
-        recordBinary.put(userHeader.array(), 0, userHeaderSize);
+        recordBinary.put(userHeader.array(), userHeader.position(), userHeaderSize);
 
         header.setUserHeaderLength(userHeaderSize);
         uncompressedDataSize += 4*header.getUserHeaderLengthWords();

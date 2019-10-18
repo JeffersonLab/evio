@@ -18,12 +18,13 @@
 #include "FileHeader.h"
 #include "ByteBuffer.h"
 #include "ByteOrder.h"
+#include "EvioNode.h"
 #include "RecordOutput.h"
 #include "RecordHeader.h"
 #include "Compressor.h"
 
 /**
- * Class to write Evio/HIPO files.
+ * Class to write Evio-6.0/HIPO files.
  *
  * @version 6.0
  * @since 6.0 8/10/17
@@ -46,8 +47,8 @@ private:
     FileHeader fileHeader;
     /** Used to write file asynchronously. Allow 1 write with 1 simultaneous record filling. */
     std::future<void> future;
-    /** The location of the next write in the file. */
-    uint64_t fileWritingPosition = 0L;
+    /** Temp storage for next record to be written to. */
+    RecordOutput unusedRecord;
 
     // If writing to buffer ...
 
@@ -58,63 +59,51 @@ private:
 
     // For both files & buffers
 
+    /** Buffer containing user Header. */
+    ByteBuffer userHeaderBuffer;
     /** Byte array containing user Header. */
     uint8_t* userHeader = nullptr;
     /** Size in bytes of userHeader array. */
     uint32_t userHeaderLength = 0;
     /** Evio format "first" event to store in file header's user header. */
+
+    /** String containing evio-format XML dictionary to store in file header's user header. */
+    string dictionary;
+    /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
+    ByteBuffer dictionaryFirstEventBuffer;
+    /** Evio format "first" event to store in file header's user header. */
     uint8_t* firstEvent = nullptr;
     /** Length in bytes of firstEvent. */
     uint32_t firstEventLength = 0;
+
+    /** Byte order of data to write to file/buffer. */
+    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+    /** Record currently being filled. */
+    RecordOutput outputRecord;
+    /** Record currently being written to file. */
+    RecordOutput beingWrittenRecord;
+    /** Byte array large enough to hold a header/trailer. This array may increase. */
+    vector<uint8_t> headerArray;
+
+    /** Type of compression to use on file. Default is none. */
+    Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
     /** Number of bytes written to file/buffer at current moment. */
     size_t writerBytesWritten = 0;
     /** Number which is incremented and stored with each successive written record starting at 1. */
     uint32_t recordNumber = 1;
-
-    /** String containing evio-format XML dictionary to store in file header's user header. */
-    string dictionary;
-
-    /** Buffer containing user Header. */
-    ByteBuffer userHeaderBuffer;
-
-    /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
-    ByteBuffer dictionaryFirstEventBuffer;
-
-    /** Byte order of data to write to file/buffer. */
-    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
-
-    /** Record currently being filled. */
-    RecordOutput outputRecord;
-    /** Temp storage for next record to be written to. */
-    RecordOutput unusedRecord;
-    /** Record currently being written to file. */
-    RecordOutput beingWrittenRecord;
-
-    /** Byte array large enough to hold a header/trailer. This array may increase. */
-    vector<uint8_t> headerArray;
-
-
-    /** Byte array large enough to hold a header/trailer. */
-    uint8_t* headerArrayNew;
-    /** Byte array large enough to hold a header/trailer. */
-    ByteBuffer headerBuffer;
-
-
-    /** List of record lengths interspersed with record event counts
-     * to be optionally written in trailer. */
-    vector<uint32_t> recordLengths;
-
-    /** Type of compression to use on file. Default is none. */
-    Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
-
     /** Do we add a last header or trailer to file/buffer? */
     bool addingTrailer = false;
     /** Do we add a record index to the trailer? */
     bool addTrailerIndex = false;
+
     /** Has close() been called? */
     bool closed = false;
     /** Has open() been called? */
     bool opened = false;
+
+    /** List of record lengths interspersed with record event counts
+     * to be optionally written in trailer. */
+    vector<uint32_t> recordLengths;
 
 
 public:
@@ -132,7 +121,7 @@ public:
     // Writing to buffer
 
     explicit Writer(ByteBuffer & buf);
-    Writer(ByteBuffer & buf, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
+    Writer(ByteBuffer & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
            const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
 
     ~Writer() = default;
@@ -163,7 +152,7 @@ public:
     FileHeader   & getFileHeader();
     RecordHeader & getRecordHeader();
     RecordOutput & getRecord();
-    uint32_t getCompressionType();
+    Compressor::CompressionType getCompressionType();
 
     bool addTrailer() const;
     void addTrailer(bool add);
@@ -171,8 +160,8 @@ public:
     void addTrailerWithIndex(bool addTrailingIndex);
 
     void open(string & filename);
-    void open(string & filename, uint8_t* userHdr, uint32_t userLen);
-    void open(ByteBuffer & buf,  uint8_t* userHdr, uint32_t userLen);
+    void open(string & filename, uint8_t* userHdr, uint32_t len);
+    void open(ByteBuffer & buf,  uint8_t* userHdr, uint32_t len);
 
     static ByteBuffer createRecord(const string & dictionary,
                                      uint8_t* firstEvent, uint32_t firstEventLen,
@@ -199,7 +188,7 @@ public:
     void addEvent(uint8_t* buffer, uint32_t offset, uint32_t length);
     void addEvent(ByteBuffer & buffer);
 //    void addEvent(EvioBank & bank);
-//    void addEvent(EvioNode & node);
+    void addEvent(EvioNode & node);
 
     void reset();
     void close();

@@ -4,6 +4,7 @@
 
 #include "RecordInput.h"
 
+
 /** Default constructor. */
 RecordInput::RecordInput() {
     header = RecordHeader();
@@ -13,7 +14,6 @@ RecordInput::RecordInput() {
     headerBuffer = ByteBuffer(RecordHeader::HEADER_SIZE_BYTES);
     headerBuffer.order(byteOrder);
 }
-
 
 /**
  * Constructor with argument.
@@ -29,6 +29,17 @@ RecordInput::RecordInput(const ByteOrder & order) {
     headerBuffer.order(byteOrder);
 }
 
+/**
+ * Allocates data & record buffers for constructing a record from the input.
+ * @param size number of bytes to allocate for each internal ByteBuffer.
+ */
+void RecordInput::allocate(size_t size) {
+    dataBuffer = ByteBuffer(size);
+    dataBuffer.order(byteOrder);
+
+    recordBuffer = ByteBuffer(size);
+    recordBuffer.order(byteOrder);
+}
 
 /** Copy constructor. */
 RecordInput::RecordInput(const RecordInput & srcRec) {
@@ -48,7 +59,6 @@ RecordInput::RecordInput(const RecordInput & srcRec) {
     }
 }
 
-
 /**
  * Move constructor.
  * @param srcRec RecordInput to move.
@@ -57,7 +67,6 @@ RecordInput::RecordInput(RecordInput && srcRec) noexcept {
     // Use code below in move assignment operator
     *this = std::move(srcRec);
 }
-
 
 /**
  * Move assignment operator.
@@ -105,34 +114,17 @@ RecordInput & RecordInput::operator=(const RecordInput& other) {
     return *this;
 }
 
-
-/**
- * Allocates data & record buffers for constructing a record from the input.
- * @param size number of bytes to allocate for each internal ByteBuffer.
- */
-void RecordInput::allocate(size_t size) {
-
-    dataBuffer = ByteBuffer(size);
-    dataBuffer.order(byteOrder);
-
-    recordBuffer = ByteBuffer(size);
-    recordBuffer.order(byteOrder);
-}
-
-
 /**
  * Get the header of this record.
  * @return header of this record.
  */
 RecordHeader & RecordInput::getHeader() {return header;}
 
-
 /**
  * Get the byte order of the internal buffers.
  * @return byte order of the internal buffers.
  */
 const ByteOrder & RecordInput::getByteOrder() {return byteOrder;}
-
 
 /**
  * Set the byte order of the internal buffers.
@@ -145,7 +137,6 @@ void RecordInput::setByteOrder(const ByteOrder & order) {
     headerBuffer.order(order);
 }
 
-
 /**
  * Get the buffer with all uncompressed data in it.
  * It's position and limit are set to read only event data.
@@ -157,20 +148,17 @@ ByteBuffer & RecordInput::getUncompressedDataBuffer() {
     return dataBuffer;
 }
 
-
 /**
  * Does this record contain an event index?
  * @return true if record contains an event index, else false.
  */
 bool RecordInput::hasIndex() {return (header.getIndexLength() > 0);}
 
-
 /**
  * Does this record contain a user header?
  * @return true if record contains a user header, else false.
  */
 bool RecordInput::hasUserHeader() {return (header.getUserHeaderLength() > 0);}
-
 
 /**
  * Get the event at the given index and return it in an allocated array.
@@ -197,12 +185,10 @@ shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index) {
     uint32_t length = lastPosition - firstPosition;
 
 // TODO: Allocating memory here!!!
-    //auto event = new uint8_t[length];
     auto event = shared_ptr<uint8_t>(new uint8_t[length], default_delete<uint8_t[]>());
     uint32_t offset = eventsOffset + firstPosition;
 
     std::memcpy((void *)event.get(), (const void *)(dataBuffer.array() + offset), length);
-    //System.arraycopy(dataBuffer.array(), offset, event, 0, length);
 
 //cout << "getEvent: reading from " << offset << "  length = " << length << endl;
     return event;
@@ -216,12 +202,19 @@ shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index) {
  *         does not coresspond to a valid event.
  */
 uint32_t RecordInput::getEventLength(uint32_t index) {
+
     if (index >= getEntries()) return 0;
 
-    uint32_t firstPosition = dataBuffer.getUInt((index - 1) * 4);
-    uint32_t lastPosition  = dataBuffer.getUInt(index * 4);
-    uint32_t length = lastPosition - firstPosition;
-    return length;
+    uint32_t firstPosition = 0;
+    if (index > 0) {
+        if (index >= header.getEntries()) {
+            index = header.getEntries() - 1;
+        }
+        firstPosition = dataBuffer.getInt( (index-1)*4 );
+    }
+
+    uint32_t lastPosition = dataBuffer.getUInt(index*4);
+    return lastPosition - firstPosition;
 }
 
 
@@ -277,8 +270,6 @@ ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32
 
     std::memcpy((void *)(buffer.array() + buffer.arrayOffset() + bufOffset),
                 (const void *)(dataBuffer.array() + offset), length);
-//    System.arraycopy(dataBuffer.array(), offset, buffer.array(),
-//                     buffer.arrayOffset() + bufOffset, length);
 
     // Make buffer ready to read.
     // Always set limit first, else you can cause exception.
@@ -304,7 +295,6 @@ uint8_t* RecordInput::getUserHeader() {
 
     std::memcpy((void *)(userHeader),
                 (const void *)(dataBuffer.array() + userHeaderOffset), length);
-//    System.arraycopy(dataBuffer.array(), userHeaderOffset, userHeader, 0, length);
 
     return userHeader;
 }
@@ -313,7 +303,9 @@ uint8_t* RecordInput::getUserHeader() {
 /**
  * Get any existing user header and write it into the given byte buffer.
  * The given byte buffer must be large enough to contain user header.
- * Note that the buffer.limit() is ignored & reset.
+ * Buffer's byte order is set to that of the internal buffers.
+ * Buffer's position is set to bufOffset and limit is set to bufOffset +
+ * userHeader size.
  *
  * @param buffer    buffer to be filled with user header.
  * @param bufOffset offset into buffer to place user header.
@@ -337,10 +329,8 @@ ByteBuffer & RecordInput::getUserHeader(ByteBuffer & buffer, size_t bufOffset) {
 
     buffer.order(byteOrder);
 
-    std::memcpy((void *)(buffer.array() + bufOffset),
+    std::memcpy((void *)(buffer.array() + buffer.arrayOffset() + bufOffset),
                 (const void *)(dataBuffer.array() + userHeaderOffset), length);
-//    System.arraycopy(dataBuffer.array(), userHeaderOffset, buffer.array(),
-//                             buffer.arrayOffset() + bufOffset, length);
 
     // Make buffer ready to read.
     // Always set limit first, else you can cause exception.
@@ -397,28 +387,20 @@ bool RecordInput::getUserHeaderAsRecord(ByteBuffer & buffer, size_t bufOffset,
  */
 void RecordInput::readRecord(ifstream & file, size_t position) {
 
-//    if (file == null || position < 0L) {
-//        throw HipoException("bad argument(s)");
-//    }
-
-        //FileChannel channel = file.getChannel();
-
     // Read header
     if (!file.is_open()) {
         throw HipoException("file not open");
     }
     file.seekg(position);
-    //channel.position(position);
-
     file.read(reinterpret_cast<char *>(headerBuffer.array()), RecordHeader::HEADER_SIZE_BYTES);
-    //file.read(headerBuffer.array());
 
     // This will switch headerBuffer to proper byte order
     header.readHeader(headerBuffer);
+//cout << "readRecord: record header = " << endl << header.toString() << endl;
     // Make sure all internal buffers have the same byte order
     setByteOrder(headerBuffer.order());
 
-    int recordLengthWords = header.getLength();
+    int recordLengthBytes = header.getLength();
     int headerLength      = header.getHeaderLength();
     int cLength           = header.getCompressedDataLength();
 
@@ -441,7 +423,6 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
 
     // Go here to read rest of record
     file.seekg(position + headerLength);
-    //channel.position(position + headerLength);
 
     // Decompress data
     switch (header.getCompressionType()) {
@@ -450,16 +431,11 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
             // LZ4
             // Read compressed data
             file.read(reinterpret_cast<char *>(recordBuffer.array()), cLength);
-            //file.read(recordBuffer.array(), 0, cLength);
-            //file.read(recordBuffer.array(), 0, (recordLengthWords - headerLength));
             Compressor::getInstance().uncompressLZ4(recordBuffer, cLength, dataBuffer);
             break;
 
         case 3:
             // GZIP
-            //file.read(recordBuffer.array(), 0, cLength);
-            //uint8_t* unzipped = Compressor::getInstance().uncompressGZIP(recordBuffer.array(), 0, cLength);
-            //dataBuffer.put(unzipped);
 #ifdef USE_GZIP
         {
             file.read(reinterpret_cast<char *>(recordBuffer.array()), cLength);
@@ -476,8 +452,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
         default:
             // None
             // Read uncompressed data - rest of record
-            file.read(reinterpret_cast<char *>(recordBuffer.array()), cLength);
-            //file.read(dataBuffer.array(), 0, (recordLengthWords - headerLength));
+            file.read(reinterpret_cast<char *>(dataBuffer.array()), recordLengthBytes - headerLength);
     }
 
     // Number of entries in index
@@ -508,6 +483,8 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
  *                       error in uncompressing gzipped data.
  */
 void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
+
+cout << "readRecord: from buffer, IN" << endl;
 
     // This will switch buffer to proper byte order
     header.readHeader(buffer, offset);
@@ -563,8 +540,6 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
             int len = recordLengthBytes - headerLength;
             std::memcpy((void *)dataBuffer.array(),
                         (const void *)(buffer.array() + buffer.arrayOffset() + compDataOffset), len);
-//                System.arraycopy(buffer.array(), buffer.arrayOffset() + compDataOffset,
-//                                     dataBuffer.array(), 0, len);
     }
 
     // Number of entries in index
@@ -627,10 +602,6 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
         std::memcpy((void *)(dstBuf.array() + dstOff + dstBuf.arrayOffset()),
                     (const void *)(srcBuf.array() + srcOff + srcBuf.arrayOffset()), headerBytes);
 
-//        System.arraycopy(srcBuf.array(), srcOff + srcBuf.arrayOffset(),
-//                         dstBuf.array(), dstOff + dstBuf.arrayOffset(),
-//                         headerBytes);
-
         dstBuf.position(dstOff + headerBytes);
     }
     else {
@@ -639,9 +610,6 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
 
         std::memcpy((void *)(dstBuf.array() + dstOff + dstBuf.arrayOffset()),
                     (const void *)(srcBuf.array() + srcOff + srcBuf.arrayOffset()), headerBytes + copyBytes);
-//        System.arraycopy(srcBuf.array(), srcOff + srcBuf.arrayOffset(),
-//                         dstBuf.array(), dstOff + dstBuf.arrayOffset(),
-//                         headerBytes  + copyBytes);
 
         dstBuf.position(dstOff + headerBytes);
     }

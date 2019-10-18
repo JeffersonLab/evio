@@ -43,47 +43,47 @@ private:
 
     private:
         /** Position in file/buffer. */
-        long position;
+        uint64_t position;
 
         /** Length in bytes. */
-        int length;
+        uint32_t length;
 
         /** Number of entries in record. */
-        int count;
+        uint32_t count;
 
     public:
 
-        RecordPosition(long pos) {
+        explicit RecordPosition(uint64_t pos) {
             count = length = 0;
             position = pos;
         }
 
-        RecordPosition(long pos, int len, int cnt) {
+        RecordPosition(long pos, uint32_t len, uint32_t cnt) {
             position = pos;
             length = len;
             count = cnt;
         }
 
-        RecordPosition setPosition(long _pos) {
+        RecordPosition setPosition(uint64_t _pos) {
             position = _pos;
             return *this;
         }
 
-        RecordPosition setLength(int _len) {
+        RecordPosition setLength(uint32_t _len) {
             length = _len;
             return *this;
         }
 
-        RecordPosition setCount(int _cnt) {
+        RecordPosition setCount(uint32_t _cnt) {
             count = _cnt;
             return *this;
         }
 
-        long getPosition() { return position; }
+        uint64_t getPosition() { return position; }
 
-        int getLength() { return length; }
+        uint32_t getLength() { return length; }
 
-        int getCount() { return count; }
+        uint32_t getCount() { return count; }
 
         string toString() {
             stringstream ss;
@@ -96,44 +96,9 @@ private:
     /** Use this to initialize Reader objects in constructor when no nodePool is needed but
      *  must be inititalized anyway. */
     static EvioNodeSource nodePoolStatic;
-
     /** Size of array in which to store record header info. */
     static const uint32_t headerInfoLen = 7;
 
-
-    // Try to store members in memory somewhat efficiently
-
-
-    /** File size in bytes. */
-    uint64_t fileSize = 0;
-
-    //TODO: make this 64 bit ???
-    /** Initial position of buffer. */
-    uint32_t bufferOffset = 0;
-
-    /** Limit of buffer. */
-    uint32_t bufferLimit = 0;
-
-    /** Number or position of last record to be read. */
-    uint32_t currentRecordLoaded = 0;
-
-    /** Record number expected when reading. Used to check sequence of records. */
-    uint32_t recordNumberExpected = 1;
-
-    /** Keep track of next EvioNode when calling {@link #getNextEventNode()},
-    * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
-    int sequentialIndex = -1;
-
-    /** Evio version of file/buffer being read. */
-    int evioVersion = 6;
-
-    uint32_t lastRecordNum = 0;
-
-    /** Place to store data read in from record header. */
-    uint32_t *headerInfo = new uint32_t[headerInfoLen];
-
-    /** Each file of a set of split CODA files may have a "first" event common to all. */
-    shared_ptr<uint8_t> firstEvent = nullptr;
 
     /**
      * List of records in the file. The list is initialized
@@ -141,60 +106,75 @@ private:
      * of each record in the file (in constructor).
      */
     vector<RecordPosition> recordPositions = vector<RecordPosition>();
-
-    /** Stores info of all the (top-level) events in a scanned buffer. */
-    vector<EvioNode> eventNodes = vector<EvioNode>();
-
     /** Object for reading file. */
     ifstream inStreamRandom;
-
     /** File name. */
     string fileName;
-
-    /** Buffer being read. */
-    ByteBuffer buffer;
-
-    /** Buffer used to temporarily hold data while decompressing. */
-    ByteBuffer tempBuffer;
-
-    /** Keep one record for reading in data record-by-record. */
-    RecordInput inputRecordStream = RecordInput();
-
+    /** File size in bytes. */
+    uint64_t fileSize = 0;
     /** File header. */
     FileHeader fileHeader;
-
-// TODO: Look at this
-    /** First record's header. */
-    RecordHeader firstRecordHeader;
-
-    /** Files may have an xml format dictionary in the user header of the file header. */
-    string dictionaryXML;
-
-    /** Object to handle event indexes in context of file and having to change records. */
-    FileEventIndex eventIndex = FileEventIndex();
-
-    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer (NOT file!). */
-    EvioNodeSource & nodePool;
-
-    /** Byte order of file/buffer being read. */
-    ByteOrder byteOrder = ByteOrder::ENDIAN_BIG;
-
-    /** If true, throw an exception if record numbers are out of sequence. */
-    bool checkRecordNumberSequence = false;
-
     /** Are we reading from file (true) or buffer? */
     bool fromFile = true;
 
+
+    /** Buffer being read. */
+    ByteBuffer buffer;
+    /** Buffer used to temporarily hold data while decompressing. */
+    ByteBuffer tempBuffer;
+    //TODO: make this 64 bit ???
+    /** Initial position of buffer. */
+    uint32_t bufferOffset = 0;
+    /** Limit of buffer. */
+    uint32_t bufferLimit = 0;
+
+
+    /** Keep one record for reading in data record-by-record. */
+    RecordInput inputRecordStream = RecordInput();
+    /** Number or position of last record to be read. */
+    uint32_t currentRecordLoaded = 0;
+    // TODO: Look at this
+    /** First record's header. */
+    RecordHeader firstRecordHeader;
+    /** Record number expected when reading. Used to check sequence of records. */
+    uint32_t recordNumberExpected = 1;
+    /** If true, throw an exception if record numbers are out of sequence. */
+    bool checkRecordNumberSequence = false;
+    /** Object to handle event indexes in context of file and having to change records. */
+    FileEventIndex eventIndex = FileEventIndex();
+
+
+    /** Files may have an xml format dictionary in the user header of the file header. */
+    string dictionaryXML;
+    /** Each file of a set of split CODA files may have a "first" event common to all. */
+    shared_ptr<uint8_t> firstEvent = nullptr;
+    /** Stores info of all the (top-level) events in a scanned buffer. */
+    vector<EvioNode> eventNodes = vector<EvioNode>();
+
+
     /** Is this object currently closed? */
     bool closed = false;
-
     /** Is this data in file/buffer compressed? */
     bool compressed = false;
+    /** Byte order of file/buffer being read. */
+    ByteOrder byteOrder = ByteOrder::ENDIAN_BIG;
+    /** Keep track of next EvioNode when calling {@link #getNextEventNode()},
+    * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
+    int sequentialIndex = -1;
+
 
     /** If true, the last sequential call was to getNextEvent or getNextEventNode.
      *  If false, the last sequential call was to getPrevEvent. Used to determine
      *  which event is prev or next. */
     bool lastCalledSeqNext = true;
+    /** Evio version of file/buffer being read. */
+    int evioVersion = 6;
+    /** Source (pool) of EvioNode objects used for parsing Evio data in buffer (NOT file!). */
+    EvioNodeSource & nodePool;
+
+
+    /** Place to store data read in from record header. */
+    uint32_t *headerInfo = new uint32_t[headerInfoLen];
 
 
 private:
@@ -212,7 +192,6 @@ public:
     Reader();
     explicit Reader(string & filename);
     Reader(string & filename, bool forceScan);
-    Reader(string & filename, bool forceScan, bool checkRecordNumSeq);
 
     explicit Reader(ByteBuffer & buffer);
     Reader(ByteBuffer & buffer, EvioNodeSource & pool);
@@ -231,7 +210,7 @@ public:
     void setBuffer(ByteBuffer & buf);
     void setBuffer(ByteBuffer & buf, EvioNodeSource & pool);
 
-    ByteBuffer setCompressedBuffer(ByteBuffer & buf, EvioNodeSource & pool);
+    ByteBuffer & setCompressedBuffer(ByteBuffer & buf, EvioNodeSource & pool);
 
     string getFileName();
     long getFileSize();
@@ -268,8 +247,8 @@ public:
 
     ByteBuffer readUserHeader();
 
-    shared_ptr<uint8_t> getEvent(int index);
-    ByteBuffer *getEvent(ByteBuffer buf, int index);
+    shared_ptr<uint8_t> getEvent(uint32_t index);
+    ByteBuffer *getEvent(ByteBuffer & buf, uint32_t index);
     uint32_t getEventLength(uint32_t index);
     EvioNode *getEventNode(uint32_t index);
 
@@ -280,9 +259,9 @@ public:
 
     uint32_t getCurrentRecord();
 
-    RecordInput getCurrentRecordStream();
+    RecordInput & getCurrentRecordStream();
 
-    bool readRecord(int index);
+    bool readRecord(uint32_t index);
 
 
 protected:
@@ -301,9 +280,8 @@ protected:
     void scanFile(bool force);
 
 
-    ByteBuffer removeStructure(EvioNode removeNode);
     ByteBuffer addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
-    ByteBuffer removeStructure(EvioNode & removeNode);
+    ByteBuffer & removeStructure(EvioNode & removeNode);
 
     void show();
 

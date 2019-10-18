@@ -12,6 +12,7 @@
 
 #include "ByteBuffer.h"
 #include "ByteOrder.h"
+#include "EvioNode.h"
 #include "RecordHeader.h"
 #include "FileHeader.h"
 #include "Compressor.h"
@@ -83,8 +84,7 @@
  * </pre>
  *
  * @version 6.0
- * @since 6.0 9/6/17
- * @author gavalian
+ * @since 6.0 10/6/2019
  * @author timmer
  */
 class RecordOutput {
@@ -94,10 +94,6 @@ private:
     /** Maximum number of events per record. */
     static constexpr int ONE_MEG = 1024*1024;
 
-
-    /** The starting position of a user-given buffer.
-    * No data will be written before this position. */
-    size_t startingPosition = 0;
 
     /** Maximum number of events per record. */
     uint32_t MAX_EVENT_COUNT = 1000000;
@@ -137,6 +133,10 @@ private:
     /** Number of valid bytes in recordEvents buffer. */
     uint32_t eventSize = 0;
 
+    /** The starting position of a user-given buffer.
+     * No data will be written before this position. */
+    size_t startingPosition = 0;
+
     /** This buffer stores event lengths ONLY. */
     ByteBuffer recordIndex;
 
@@ -171,7 +171,7 @@ public:
                           HeaderType hType = HeaderType::HIPO_RECORD);
 
     RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
-                 Compressor::CompressionType compressionType, HeaderType & hType);
+                 Compressor::CompressionType compressionType, HeaderType hType);
 
     RecordOutput(const RecordOutput & srcRec);
     RecordOutput(RecordOutput && srcBuf) noexcept;
@@ -214,8 +214,8 @@ public:
     bool addEvent(const ByteBuffer & event);
     bool addEvent(const ByteBuffer & event, uint32_t extraDataLen);
 
-//    bool addEvent(EvioNode & node);
-//    bool addEvent(EvioNode & node, uint32_t extraDataLen);
+    bool addEvent(EvioNode & node);
+    bool addEvent(EvioNode & node, uint32_t extraDataLen);
 //    bool addEvent(EvioBank & event);
 //    bool addEvent(EvioBank & event, uint32_t extraDataLen);
 
