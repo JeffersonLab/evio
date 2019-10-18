@@ -168,7 +168,7 @@ public class FileEventIndex {
 
     /** Prints the content of the event index array on the screen. */
     public void show(){
-        System.out.println("[FILERECORDINDEX] number of records    : " + recordIndex.size());
+        System.out.println("[FILERECORDINDEX] number of records    : " + (recordIndex.size()-1));
         System.out.println("[FILERECORDINDEX] max number of events : " + getMaxEvents());
         for(int i = 0; i < recordIndex.size(); i++){
             System.out.print(String.format("%6d ", recordIndex.get(i)));
@@ -207,6 +207,7 @@ public class FileEventIndex {
             currentEvent  = event;
             currentRecordEvent = currentEvent - recordIndex.get(currentRecord);
         }
+System.out.println("  event #" + event + " found at record index " + currentRecord);
         return hasRecordChanged;
     }
     
