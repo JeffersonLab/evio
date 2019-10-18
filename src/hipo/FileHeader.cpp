@@ -13,7 +13,6 @@ uint32_t FileHeader::padValue[4] = {0,3,2,1};
 
 /** Default, no-arg constructor. */
 FileHeader::FileHeader() {
-    reset();
     fileId = HIPO_FILE_UNIQUE_WORD;
     headerType = HeaderType::HIPO_FILE;
 }
@@ -31,8 +30,6 @@ FileHeader::FileHeader(const FileHeader & header) {
  * @param isEvio if true, file has EVIO file id and header type, else is HIPO.
  */
 FileHeader::FileHeader(bool isEvio) {
-    reset();
-
     if (isEvio) {
         fileId = EVIO_FILE_UNIQUE_WORD;
         headerType = HeaderType::EVIO_FILE;
