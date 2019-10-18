@@ -55,11 +55,15 @@ public class WriterNew implements AutoCloseable {
     /** The location of the next write in the file. */
     private long fileWritingPosition;
 
-
     // If writing to buffer ...
     
     /** Buffer being written to. */
     private ByteBuffer buffer;
+    /** Has the first record been written to buffer already? */
+    private boolean firstRecordWritten;
+
+    // For both files & buffers
+
     /** Buffer containing user Header. */
     private ByteBuffer userHeaderBuffer;
     /** Byte array containing user Header. */
@@ -68,26 +72,23 @@ public class WriterNew implements AutoCloseable {
     private int userHeaderOffset;
     /** Number of valid bytes in userHeader (starting at userHeaderOffset). */
     private int userHeaderLength;
-    /** Has the first record been written to buffer already? */
-    private boolean firstRecordWritten;
-
-    // For both files & buffers
 
     /** String containing evio-format XML dictionary to store in file header's user header. */
     private String dictionary;
-    /** Evio format "first" event to store in file header's user header. */
-    private byte[] firstEvent;
     /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
     private ByteBuffer dictionaryFirstEventBuffer;
+    /** Evio format "first" event to store in file header's user header. */
+    private byte[] firstEvent;
 
     /** Byte order of data to write to file/buffer. */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-    /** Internal Record. */
+    /** Record currently being filled. */
     private RecordOutputStream outputRecord;
     /** Byte array large enough to hold a header/trailer. */
     private byte[] headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
     /** Byte array large enough to hold a header/trailer. */
     private ByteBuffer headerBuffer = ByteBuffer.wrap(headerArray);
+
     /** Type of compression to use on file. Default is none. */
     private CompressionType compressionType;
     /** Number of bytes written to file/buffer at current moment. */
@@ -268,7 +269,6 @@ public class WriterNew implements AutoCloseable {
 
         byteOrder = buf.order();
         buffer = buf;
-        buf.order(byteOrder);
         headerBuffer.order(byteOrder);
 
         this.dictionary = dictionary;
@@ -329,11 +329,11 @@ public class WriterNew implements AutoCloseable {
 
     /**
      * Set whether this writer adds a trailer to the end of the file/buffer.
-     * @param addTrailer if true, at the end of file/buffer, add an ending header (trailer)
-     *                   with no index of records and no following data.
-     *                   Update the file header to contain a file offset to the trailer.
+     * @param add if true, at the end of file/buffer, add an ending header (trailer)
+     *            with no index of records and no following data.
+     *            Update the file header to contain a file offset to the trailer.
      */
-    public void addTrailer(boolean addTrailer) {this.addTrailer = addTrailer;}
+    public void addTrailer(boolean add) {this.addTrailer = add;}
 
     /**
      * Does this writer add a trailer with a record index to the end of the file?
@@ -400,21 +400,21 @@ public class WriterNew implements AutoCloseable {
             throw new HipoException("filename arg is null");
         }
 
-        ByteBuffer headerBuffer;
+        ByteBuffer headBuffer;
 
         // User header given as arg has precedent
         if (userHeader != null) {
-            headerBuffer = createHeader(userHeader);
+            headBuffer = createHeader(userHeader);
         }
         else {
             // If dictionary & firstEvent not defined and user header not given ...
             if (dictionaryFirstEventBuffer == null) {
                 userHeader = new byte[0];
-                headerBuffer = createHeader(userHeader);
+                headBuffer = createHeader(userHeader);
             }
             // else treat buffer containing dictionary and/or firstEvent as user header
             else {
-                headerBuffer = createHeader(dictionaryFirstEventBuffer);
+                headBuffer = createHeader(dictionaryFirstEventBuffer);
             }
         }
 
@@ -428,13 +428,8 @@ public class WriterNew implements AutoCloseable {
                                 StandardOpenOption.CREATE,
                                 StandardOpenOption.WRITE);
 
-        asyncFileChannel.write(headerBuffer, 0L);
+        asyncFileChannel.write(headBuffer, 0L);
         fileWritingPosition = fileHeader.getLength();
-
-//        outStream = new RandomAccessFile(filename, "rw");
-//        fileChannel = outStream.getChannel();
-//        outStream.write(headerBuffer.array());
-
         writerBytesWritten = (long) (fileHeader.getLength());
         opened = true;
     }
@@ -502,7 +497,7 @@ public class WriterNew implements AutoCloseable {
                 userHeaderLength = 0;
             }
         }
-        else if (userHdr.length > 0) {
+        else if (userHdr.length > 0 && len > 0) {
             userHeader = userHdr;
             userHeaderBuffer = ByteBuffer.wrap(userHdr).order(byteOrder);
             userHeaderOffset = off;
@@ -561,10 +556,12 @@ public class WriterNew implements AutoCloseable {
 
         // Create record.
         // Bit of chicken&egg problem, so start with default internal buf size.
-        RecordOutputStream record = new RecordOutputStream(byteOrder, 2, 0, CompressionType.RECORD_UNCOMPRESSED);
+        RecordOutputStream record = new RecordOutputStream(byteOrder, 2, 0,
+                                                           CompressionType.RECORD_UNCOMPRESSED);
 
         // How much data we got?
         int bytes = 0;
+        
         if (dictionary != null) {
             bytes += dictionary.length();
         }
@@ -576,7 +573,8 @@ System.out.println("createRecord: add first event bytes " + firstEvent.length);
 
         // If we have huge dictionary/first event ...
         if (bytes > record.getInternalBufferCapacity()) {
-            record = new RecordOutputStream(byteOrder, 2, bytes, CompressionType.RECORD_UNCOMPRESSED);
+            record = new RecordOutputStream(byteOrder, 2, bytes,
+                                            CompressionType.RECORD_UNCOMPRESSED);
         }
 
         // Add dictionary to record
@@ -591,7 +589,7 @@ System.out.println("createRecord: add first event bytes " + firstEvent.length);
         if (firstEvent != null) {
 System.out.println("createRecord: add first event to record");
             record.addEvent(firstEvent);
-            if (fileHeader != null)   fileHeader.hasFirstEvent(true);
+            if (fileHeader   != null)   fileHeader.hasFirstEvent(true);
             if (recordHeader != null) recordHeader.hasFirstEvent(true);
         }
 
@@ -601,7 +599,6 @@ System.out.println("createRecord: add first event to record");
         // Ready-to-read buffer contains record data
         return record.getBinaryBuffer();
     }
-
 
     /**
      * Convenience method that sets compression type for the file.
@@ -621,7 +618,9 @@ System.out.println("createRecord: add first event to record");
      * Convenience method that gets compression type for the file being written.
      * @return compression type for the file being written.
      */
-    public CompressionType getCompressionType() {return outputRecord.getHeader().getCompressionType();}
+    public CompressionType getCompressionType() {
+        return outputRecord.getHeader().getCompressionType();
+    }
 
     /**
      * Create and return a buffer containing a general file header
@@ -636,30 +635,24 @@ System.out.println("createRecord: add first event to record");
             throw new HipoException("call only if writing to file");
         }
 
-        System.out.println("createHeader: IN, fe bit = " + fileHeader.hasFirstEvent());
+//System.out.println("createHeader: IN, fe bit = " + fileHeader.hasFirstEvent());
 
         // Amount of user data in bytes
         int userHeaderBytes = 0;
-        if (userHeader == null) {
-            fileHeader.setUserHeaderLength(0);
-        }
-        else {
+        if (userHeader != null) {
             userHeaderBytes = userHeader.length;
-            fileHeader.setUserHeaderLength(userHeaderBytes);
-            if (userHeaderBytes < 1) {
-                userHeaderBytes = 0;
-                fileHeader.setUserHeaderLength(0);
-            }
         }
+        fileHeader.reset();
+        fileHeader.setUserHeaderLength(userHeaderBytes);
 
-        System.out.println("createHeader: after set user header len, fe bit = " + fileHeader.hasFirstEvent());
+//System.out.println("createHeader: after set user header len, fe bit = " + fileHeader.hasFirstEvent());
         int totalLen = fileHeader.getLength();
         byte[] array = new byte[totalLen];
         ByteBuffer buffer = ByteBuffer.wrap(array);
         buffer.order(byteOrder);
 
         try {
-            System.out.println("createHeader: will write file header into buffer: hasFE = " + fileHeader.hasFirstEvent());
+//System.out.println("createHeader: will write file header into buffer: hasFE = " + fileHeader.hasFirstEvent());
             fileHeader.writeHeader(buffer, 0);
         }
         catch (HipoException e) {/* never happen */}
@@ -686,30 +679,24 @@ System.out.println("createRecord: add first event to record");
         if (!toFile) {
             throw new HipoException("call only if writing to file");
         }
-        System.out.println("createHeader: IN, fe bit = " + fileHeader.hasFirstEvent());
+//System.out.println("createHeader: IN, fe bit = " + fileHeader.hasFirstEvent());
 
         // Amount of user data in bytes
         int userHeaderBytes = 0;
-        if (userHeader == null) {
-            fileHeader.setUserHeaderLength(0);
-        }
-        else {
+        if (userHeader != null) {
             userHeaderBytes = userHeader.remaining();
-            fileHeader.setUserHeaderLength(userHeaderBytes);
-            if (userHeaderBytes < 1) {
-                userHeaderBytes = 0;
-                fileHeader.setUserHeaderLength(0);
-            }
         }
+        fileHeader.reset();
+        fileHeader.setUserHeaderLength(userHeaderBytes);
 
-        System.out.println("createHeader: after set user header len, fe bit = " + fileHeader.hasFirstEvent());
+//System.out.println("createHeader: after set user header len, fe bit = " + fileHeader.hasFirstEvent());
         int totalLen = fileHeader.getLength();
         byte[] array = new byte[totalLen];
         ByteBuffer buffer = ByteBuffer.wrap(array);
         buffer.order(byteOrder);
 
         try {
-            System.out.println("createHeader: will write file header into buffer: hasFE = " + fileHeader.hasFirstEvent());
+//System.out.println("createHeader: will write file header into buffer: hasFE = " + fileHeader.hasFirstEvent());
             fileHeader.writeHeader(buffer, 0);
         }
         catch (HipoException e) {/* never happen */}
@@ -824,31 +811,6 @@ System.out.println("createRecord: add first event to record");
         catch (HipoException ex) {
             // never happen
         }
-
-//        if (toFile) {
-//            // Find & update file header's trailer position word
-//            headerBuffer.limit(8).position(0);
-//            headerBuffer.putLong(0, trailerPosition);
-//
-//            Future f = asyncFileChannel.write(headerBuffer, FileHeader.TRAILER_POSITION_OFFSET);
-//            try {f.get();}
-//            catch (Exception e) {
-//                throw new IOException(e);
-//            }
-//
-//            // Find & update file header's bit-info word
-//            if (addTrailerIndex) {
-//                int bitInfo = fileHeader.setBitInfo(false, false, true);
-//                headerBuffer.limit(4).position(0);
-//                headerBuffer.putInt(0, bitInfo);
-//
-//                f = asyncFileChannel.write(headerBuffer, FileHeader.BIT_INFO_OFFSET);
-//                try {f.get();}
-//                catch (Exception e) {
-//                    throw new IOException(e);
-//                }
-//            }
-//        }
     }
 
     /**
@@ -882,7 +844,6 @@ System.out.println("createRecord: add first event to record");
             catch (Exception e) {
                 throw new IOException(e);
             }
-            //outStream.write(record.getBinaryBuffer().array(), 0, bytesToWrite);
         }
         else {
             buffer.put(record.getBinaryBuffer().array(), 0, bytesToWrite);
@@ -1064,7 +1025,7 @@ System.out.println("createRecord: add first event to record");
         int bytesToWrite = header.getLength();
         int eventCount   = header.getEntries();
 
-        // Trailer's index has count following length
+        // Trailer's index has length followed by count
         recordLengths.add(bytesToWrite);
         recordLengths.add(eventCount);
         writerBytesWritten += bytesToWrite;
@@ -1092,40 +1053,6 @@ System.out.println("createRecord: add first event to record");
         fileWritingPosition += bytesToWrite;
     }
 
-
-//    /**
-//     * Write internal record with incremented record # to file or buffer.
-//     * @throws IOException if cannot write to file.
-//     */
-//    private void writeOutput() throws IOException {
-//        if (!toFile) {
-//            writeOutputToBuffer();
-//            return;
-//        }
-//
-//        RecordHeader header = outputRecord.getHeader();
-//        header.setRecordNumber(recordNumber++);
-//        // --- Added on SEP 21 - gagik
-//        header.setCompressionType(compressionType);
-//        outputRecord.build();
-//        int bytesToWrite = header.getLength();
-//        //int wordsToWrite = bytesToWrite/4;
-//        //int remainder    = bytesToWrite%4;
-//        // Record length of this record
-//        recordLengths.add(bytesToWrite);
-//        // Followed by events in record
-//        recordLengths.add(header.getEntries());
-//        writerBytesWritten += bytesToWrite;
-//        //System.out.println(" bytes to write = " + bytesToWrite);
-//        if (outputRecord.getBinaryBuffer().hasArray()) {
-//            outStream.write(outputRecord.getBinaryBuffer().array(), 0, bytesToWrite);
-//        }
-//        else {
-//            // binary buffer is ready to read after build()
-//            fileChannel.write(outputRecord.getBinaryBuffer());
-//        }
-//        outputRecord.reset();
-//    }
 
     /** Write internal record with incremented record # to buffer. */
     private void writeOutputToBuffer() {

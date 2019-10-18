@@ -73,7 +73,7 @@ import java.util.logging.Logger;
  *    |                                  |
  *    |            Record N              |
  *    |                                  |
- *    |                                  |
+ *    |                                  |              RecordPosition
  *    |                                  |
  *    +----------------------------------+
  *    +----------------------------------+
@@ -98,92 +98,113 @@ import java.util.logging.Logger;
  * @see RecordInputStream
  */
 public class Reader {
+
+    /**
+     * Internal class to keep track of the records in the file/buffer.
+     * Each entry keeps record position in the file/buffer, length of
+     * the record and number of entries contained.
+     */
+    public static class RecordPosition {
+        /** Position in file/buffer. */
+        private long position;
+        /** Length in bytes. */
+        private int  length;
+        /** Number of entries in record. */
+        private int  count;
+
+        RecordPosition(long pos) {position = pos;}
+        RecordPosition(long pos, int len, int cnt) {
+            position = pos; length = len; count = cnt;
+        }
+
+        public RecordPosition setPosition(long _pos){ position = _pos; return this; }
+        public RecordPosition setLength(int _len)   { length = _len;   return this; }
+        public RecordPosition setCount( int _cnt)   { count = _cnt;    return this; }
+
+        public long getPosition(){ return position;}
+        public int  getLength(){   return   length;}
+        public int  getCount(){    return    count;}
+
+        @Override
+        public String toString(){
+            return String.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
+        }
+    }
+
+
     /**
      * List of records in the file. The array is initialized
      * when the entire file is scanned to read out positions
      * of each record in the file (in constructor).
      */
     protected final List<RecordPosition> recordPositions = new ArrayList<RecordPosition>();
-
     /** Fastest way to read/write files. */
     protected RandomAccessFile inStreamRandom;
-
     /** File being read. */
     protected String fileName;
-
     /** File size in bytes. */
     protected long fileSize;
-
-    /** Buffer being read. */
-    protected ByteBuffer buffer;
-
-    /** Buffer used to temporarily hold data while decompressing. */
-    protected ByteBuffer tempBuffer;
-
-    /** Initial position of buffer. */
-    protected int bufferOffset;
-
-    /** Limit of buffer. */
-    protected int bufferLimit;
-
-    /** Keep one record for reading in data record-by-record. */
-    protected final RecordInputStream inputRecordStream = new RecordInputStream();
-    
-    /** Number or position of last record to be read. */
-    protected int currentRecordLoaded;
-
     /** File header. */
     protected FileHeader fileHeader;
-
-    /** First record's header. */
-    protected RecordHeader firstRecordHeader;
-
-    /** Record number expected when reading. Used to check sequence of records. */
-    protected int recordNumberExpected = 1;
-
-    /** If true, throw an exception if record numbers are out of sequence. */
-    protected boolean checkRecordNumberSequence;
-
-    /** Files may have an xml format dictionary in the user header of the file header. */
-    protected String dictionaryXML;
-
-    /** Each file of a set of split CODA files may have a "first" event common to all. */
-    protected byte[] firstEvent;
-
-    /** Object to handle event indexes in context of file and having to change records. */
-    protected FileEventIndex eventIndex = new FileEventIndex();
-
     /** Are we reading from file (true) or buffer? */
     protected boolean fromFile = true;
 
+
+    /** Buffer being read. */
+    protected ByteBuffer buffer;
+    /** Buffer used to temporarily hold data while decompressing. */
+    protected ByteBuffer tempBuffer;
+    /** Initial position of buffer. */
+    protected int bufferOffset;
+    /** Limit of buffer. */
+    protected int bufferLimit;
+
+
+    /** Keep one record for reading in data record-by-record. */
+    protected final RecordInputStream inputRecordStream = new RecordInputStream();
+    /** Number or position of last record to be read. */
+    protected int currentRecordLoaded;
+    /** First record's header. */
+    protected RecordHeader firstRecordHeader;
+    /** Record number expected when reading. Used to check sequence of records. */
+    protected int recordNumberExpected = 1;
+    /** If true, throw an exception if record numbers are out of sequence. */
+    protected boolean checkRecordNumberSequence;
+    /** Object to handle event indexes in context of file and having to change records. */
+    protected FileEventIndex eventIndex = new FileEventIndex();
+
+
+    /** Files may have an xml format dictionary in the user header of the file header. */
+    protected String dictionaryXML;
+    /** Each file of a set of split CODA files may have a "first" event common to all. */
+    protected byte[] firstEvent;
     /** Stores info of all the (top-level) events in a scanned buffer. */
     protected final ArrayList<EvioNode> eventNodes = new ArrayList<>(1000);
 
     /** Is this object currently closed? */
     protected boolean closed;
-
     /** Is this data in file/buffer compressed? */
     protected boolean compressed;
-
     /** Byte order of file/buffer being read. */
     protected ByteOrder byteOrder;
-
     /** Keep track of next EvioNode when calling {@link #getNextEventNode()},
      * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
     protected int sequentialIndex = -1;
 
+    
     /** If true, the last sequential call was to getNextEvent or getNextEventNode.
      *  If false, the last sequential call was to getPrevEvent. Used to determine
      *  which event is prev or next. */
     protected boolean lastCalledSeqNext;
-
     /** Evio version of file/buffer being read. */
     protected int evioVersion;
-
     /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
     protected EvioNodeSource nodePool;
 
+    /** Place to store data read in from record header. */
+    private int[] headerInfo = new int[7];
 
+    
     /**
      * Default constructor. Does nothing.
      * The {@link #open(String)} method has to be called to open the input stream.
@@ -220,25 +241,6 @@ public class Reader {
      * @throws HipoException if file is not in the proper format or earlier than version 6
      */
     public Reader(String filename, boolean forceScan) throws IOException, HipoException {
-        this(filename, forceScan, false);
-    }
-
-    /**
-     * Constructor with filename. Creates instance and opens
-     * the input stream with given name.
-     * @param filename input file name.
-     * @param forceScan if true, force a scan of file, else use existing indexes first.
-     * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
-     *                          if not throw exception.
-     * @throws IOException   if error reading file
-     * @throws HipoException if file is not in the proper format or earlier than version 6;
-     *                       if checkRecordNumSeq is true and records are out of sequence.
-     */
-    public Reader(String filename, boolean forceScan, boolean checkRecordNumSeq)
-            throws IOException, HipoException {
-
-        checkRecordNumberSequence = checkRecordNumSeq;
-
         open(filename);
         if (forceScan){
             forceScanFile();
@@ -285,6 +287,7 @@ public class Reader {
         nodePool = pool;
         fromFile = false;
         checkRecordNumberSequence = checkRecordNumSeq;
+        
         scanBuffer();
     }
 
@@ -374,8 +377,10 @@ public class Reader {
         bufferLimit = buffer.limit();
         bufferOffset = buffer.position();
         eventIndex = new FileEventIndex();
+
         eventNodes.clear();
         recordPositions.clear();
+        
         fromFile = false;
         compressed = false;
         firstEvent = null;
@@ -710,17 +715,19 @@ public class Reader {
     public byte[] getEvent(int index) throws HipoException {
         
         if (index < 0 || index >= eventIndex.getMaxEvents()) {
-//System.out.println("getEvent: index = " + index + ", max events = " + eventIndex.getMaxEvents());
+            //System.out.println("[READER] getEvent: index = " + index + ", max events = " +
+            //               eventIndex.getMaxEvents());
             return null;
         }
 
         if (eventIndex.setEvent(index)) {
             // If here, the event is in the next record
+            //System.out.println("[READER] getEvent: read record");
             readRecord(eventIndex.getRecordNumber());
         }
 
-        if (inputRecordStream.getEntries()==0){
-            //System.out.println("[READER] first time reading");
+        if (inputRecordStream.getEntries() == 0) {
+            //System.out.println("[READER] getEvent: first time reading");
             readRecord(eventIndex.getRecordNumber());
         }
         
@@ -813,6 +820,8 @@ public class Reader {
      * @throws HipoException if file/buffer not in hipo format
      */
     public boolean readRecord(int index) throws HipoException {
+        System.out.println("Reader.readRecord:  index = " + index + ", recPos.size() = " +
+                                   recordPositions.size());
         if (index >= 0 && index < recordPositions.size()) {
             RecordPosition pos = recordPositions.get(index);
             if (fromFile) {
@@ -946,11 +955,6 @@ public class Reader {
     }
 
     //-----------------------------------------------------------------
-
-
-    int lastRecordNum = 0;
-    private int[] headerInfo = new int[7];
-
     
     /**
      * Reads data from a record header in order to determine things
@@ -1017,9 +1021,9 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
     static private int getTotalByteCounts(ByteBuffer buf, int[] info)
             throws HipoException, BufferUnderflowException {
 
-//        if (buf == null || info == null || info.length < 7) {
-//            throw new HipoException("bad arg or info.length < 7");
-//        }
+        if (buf == null || info == null || info.length < 7) {
+            throw new HipoException("bad arg or info.length < 7");
+        }
 
         int offset = buf.position();
         int totalCompressed = 0;
@@ -1182,7 +1186,6 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
             }
 
             //System.out.println("read header ->\n" + recordHeader);
-            lastRecordNum = recordHeader.getRecordNumber();
 
             if (checkRecordNumberSequence) {
                 if (recordHeader.getRecordNumber() != recordNumberExpected) {
@@ -1304,11 +1307,9 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
 // TODO: This uses memory & garbage collection
          byte[] headerBytes = new byte[RecordHeader.HEADER_SIZE_BYTES];
          ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
-
 // TODO: This uses memory & garbage collection
          RecordHeader recordHeader = new RecordHeader();
 
-         
          boolean haveFirstRecordHeader = false;
 
          // Start at the buffer's initial position
@@ -1332,7 +1333,6 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
              // Only sets the byte order of headerBuffer
              recordHeader.readHeader(headerBuffer);
  //System.out.println("read header ->\n" + recordHeader);
-             lastRecordNum = recordHeader.getRecordNumber();
 
              if (checkRecordNumberSequence) {
                  if (recordHeader.getRecordNumber() != recordNumberExpected) {
@@ -1365,8 +1365,8 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
              //System.out.println(recordHeader.toString());
              recordBytes = recordHeader.getLength();
              eventsInRecord = recordHeader.getEntries();
-             RecordPosition rp = new RecordPosition(position, recordBytes, eventsInRecord);
              recPosition = position;
+             RecordPosition rp = new RecordPosition(position, recordBytes, eventsInRecord);
  //System.out.println(" RECORD HEADER ENTRIES = " + eventsInRecord);
              recordPositions.add(rp);
              // Track # of events in this record for event index handling
@@ -1472,15 +1472,16 @@ int recordCount = 0;
             channel.position(recordPosition);
 //System.out.println("forceScanFile: record " + recordCount +  " @ pos = " + recordPosition +
 //                   ", maxSize = " + maximumSize);
-            recordCount++;
             inStreamRandom.read(headerBytes);
             recordHeader.readHeader(headerBuffer);
 //System.out.println("forceScanFile: record header " + recordCount + " -->" + "\n" + recordHeader);
+            recordCount++;
 
-// TODO: checking record # sequence does NOT make sense when reading a file!
-// It only makes sense when reading from a stream and checking to see
-// if the record id, set by the sender, is sequential.
 
+            // Checking record # sequence does NOT make sense when reading a file.
+            // It only makes sense when reading from a stream and checking to see
+            // if the record id, set by the sender, is sequential.
+            // So feature turned off if reading from file.
             if (checkRecordNumberSequence) {
                 if (recordHeader.getRecordNumber() != recordNumberExpected) {
 System.out.println("forceScanFile: record # out of sequence, got " + recordHeader.getRecordNumber() +
@@ -1519,7 +1520,6 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
      * @throws HipoException if file is not in the proper format or earlier than version 6
      */
     public void scanFile(boolean force) throws IOException, HipoException {
-        System.out.println("\nscanFile IN:");
 
         if (force) {
             forceScanFile();
@@ -1581,7 +1581,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
 
         // First record position (past file's header + index + user header)
         long recordPosition = fileHeader.getLength();
-        //System.out.println("record position = " + recordPosition);
+//System.out.println("record position = " + recordPosition);
 
         // Move to first record and save the header
         channel.position(recordPosition);
@@ -1768,7 +1768,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
      *                  i.e. no record headers)
      * @return a new ByteBuffer object which is created and filled with all the data
      *         including what was just added.
-     * @throws HipoException if eventNumber &lt; 1;
+     * @throws HipoException if eventNumber out of bounds;
      *                       if addBuffer is null;
      *                       if addBuffer arg is empty or has non-evio format;
      *                       if addBuffer is opposite endian to current event buffer;
@@ -1787,8 +1787,8 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
             throw new HipoException("trying to add wrong endian buffer");
         }
 
-        if (eventNumber < 1) {
-            throw new HipoException("event number must be > 0");
+        if (eventNumber < 1 || eventNumber > eventNodes.size()) {
+            throw new HipoException("event number out of bounds");
         }
 
         if (closed) {
@@ -1873,45 +1873,13 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
         }
     }
     
-    /**
-     * Internal class to keep track of the records in the file/buffer.
-     * Each entry keeps record position in the file/buffer, length of
-     * the record and number of entries contained.
-     */
-    public static class RecordPosition {
-        /** Position in file/buffer. */
-        private long position;
-        /** Length in bytes. */
-        private int  length;
-        /** Number of entries in record. */
-        private int  count;
-
-        RecordPosition(long pos) {position = pos;}
-        RecordPosition(long pos, int len, int cnt) {
-            position = pos; length = len; count = cnt;
-        }
-
-        public RecordPosition setPosition(long _pos){ position = _pos; return this; }
-        public RecordPosition setLength(int _len)   { length = _len;   return this; }
-        public RecordPosition setCount( int _cnt)   { count = _cnt;    return this; }
-        
-        public long getPosition(){ return position;}
-        public int  getLength(){   return   length;}
-        public int  getCount(){    return    count;}
-        
-        @Override
-        public String toString(){
-            return String.format(" POSITION = %16d, LENGTH = %12d, COUNT = %8d", position, length, count);
-        }
-    }
-    
     public static void main(String[] args){
         try {
             Reader reader = new Reader("/Users/gavalian/Work/Software/project-3a.0.0/Distribution/clas12-offline-software/coatjava/clas_000810_324.hipo",true);
 
             int icounter = 0;
             //reader.show();
-            while(reader.hasNext()==true){
+            while (reader.hasNext()) {
                 System.out.println(" reading event # " + icounter);
                 try {
                     byte[] event = reader.getNextEvent();
@@ -1923,17 +1891,17 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
             }
 
             //reader.open("test.evio");
-            /*reader.readRecord(0);
-            int nevents = reader.getRecordEventCount();
-            System.out.println("-----> events = " + nevents);
-            for(int i = 0; i < 10 ; i++){
-                byte[] event = reader.getEvent(i);
-                System.out.println("---> events length = " + event.length);
-                ByteBuffer buffer = ByteBuffer.wrap(event);
-                buffer.order(ByteOrder.LITTLE_ENDIAN);
-                String data = DataUtils.getStringArray(buffer, 10,30);
-                System.out.println(data);
-            }*/
+//            reader.readRecord(0);
+//            int nevents = reader.getRecordEventCount();
+//            System.out.println("-----> events = " + nevents);
+//            for(int i = 0; i < 10 ; i++){
+//                byte[] event = reader.getEvent(i);
+//                System.out.println("---> events length = " + event.length);
+//                ByteBuffer buffer = ByteBuffer.wrap(event);
+//                buffer.order(ByteOrder.LITTLE_ENDIAN);
+//                String data = DataUtils.getStringArray(buffer, 10,30);
+//                System.out.println(data);
+//            }
         }
         catch (Exception e) {
             e.printStackTrace();

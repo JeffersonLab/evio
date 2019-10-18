@@ -112,32 +112,10 @@ public class RecordOutputStream {
      */
     private int RECORD_BUFFER_SIZE = 9*ONE_MEG;
 
-    /** This buffer stores event lengths ONLY. */
-    private ByteBuffer recordIndex;
-    
-    /** This buffer stores event data ONLY. */
-    private ByteBuffer recordEvents;
-    
-    /** This buffer stores data that will be compressed. */
-    private ByteBuffer recordData;
-
-    /** Buffer in which to put constructed (& compressed) binary record.
-     * Code is written so that it works whether or not it's backed by an array. */
-    private ByteBuffer recordBinary;
-
     /** The number of initially available bytes to be written into in the user-given buffer,
      * that go from position to limit. The user-given buffer is stored in recordBinary.
      */
     private int userBufferSize;
-
-    /** Is recordBinary a user provided buffer? */
-    private boolean userProvidedBuffer;
-    
-    /** Compression information & type. */
-    private Compressor dataCompressor;
-
-    /** Header of this Record. */
-    private RecordHeader header;
 
     /** Number of events written to this Record. */
     private int eventCount;
@@ -152,16 +130,37 @@ public class RecordOutputStream {
      * No data will be written before this position. */
     private int startingPosition;
 
-    /** Byte order of record byte arrays to build. */
-    private ByteOrder byteOrder;
+    /** This buffer stores event lengths ONLY. */
+    private ByteBuffer recordIndex;
 
-    
+    /** This buffer stores event data ONLY. */
+    private ByteBuffer recordEvents;
+
+    /** This buffer stores data that will be compressed. */
+    private ByteBuffer recordData;
+
+    /** Buffer in which to put constructed (& compressed) binary record.
+     * Code is written so that it works whether or not it's backed by an array. */
+    private ByteBuffer recordBinary;
+
+    /** Compression information & type. */
+    private Compressor dataCompressor;
+
+    /** Header of this Record. */
+    private RecordHeader header;
+
+    /** Byte order of record byte arrays to build. */
+    private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+
+    /** Is recordBinary a user provided buffer? */
+    private boolean userProvidedBuffer;
+
+
     /** Default, no-arg constructor. Little endian. LZ4 compression. */
     public RecordOutputStream() {
         dataCompressor = Compressor.getInstance();
         header = new RecordHeader();
         header.setCompressionType(CompressionType.RECORD_UNCOMPRESSED);
-        byteOrder = ByteOrder.LITTLE_ENDIAN;
         allocate();
     }
 
@@ -240,8 +239,8 @@ public class RecordOutputStream {
             header = new RecordHeader(hType);
         }
         catch (HipoException e) {/* never happen */}
-        header.setCompressionType(compressionType);
 
+        header.setCompressionType(compressionType);
         userProvidedBuffer = true;
         recordBinary = buffer;
         byteOrder = buffer.order();
@@ -318,13 +317,14 @@ public class RecordOutputStream {
      *                       expanded since it was provided by the user.
      */
     public void copy(RecordOutputStream rec) throws HipoException {
-        if (rec == null) return;
+        if (rec == null || rec == this) return;
 
         // Copy primitive types & immutable objects
         eventCount = rec.eventCount;
         indexSize  = rec.indexSize;
         eventSize  = rec.eventSize;
         byteOrder  = rec.byteOrder;
+        startingPosition = rec.startingPosition;
 
         // Copy header
         header.copy(rec.header);
@@ -669,20 +669,12 @@ public class RecordOutputStream {
 
         int pos=0;
         if (event.hasArray()) {
-//            try {
-                // recordEvents backing array's offset = 0
-                pos = recordEvents.position();
-                System.arraycopy(event.array(),
-                                 event.arrayOffset() + event.position(),
-                                 recordEvents.array(), pos, eventLen);
-                recordEvents.position(pos + eventLen);
-//            }
-//            catch (Exception e) {
-//                System.out.println("addEvent, pos in recordEvent = " + pos + ", lim = " + recordEvents.limit() +
-//                                           ", next pos = " + (pos + eventLen));
-//
-//                e.printStackTrace();
-//            }
+            // recordEvents backing array's offset = 0
+            pos = recordEvents.position();
+            System.arraycopy(event.array(),
+                             event.arrayOffset() + event.position(),
+                             recordEvents.array(), pos, eventLen);
+            recordEvents.position(pos + eventLen);
         }
         else {
             recordEvents.put(event);
@@ -923,11 +915,9 @@ public class RecordOutputStream {
         // If compressing data ...
         if (compressionType.isCompressed()) {
             // Write into a single, temporary buffer
-//            recordData.position(0);
-//            recordData.put(  recordIndex.array(), 0, indexSize);
-//            recordData.put( recordEvents.array(), 0, eventSize);
-            recordData.clear();
+            // recordData, recordIndex, and recordEvents are always array-backed ...
             recordBinary.clear();
+            recordData.clear();
             System.arraycopy(recordIndex.array(),  0, recordData.array(), 0,         indexSize);
             System.arraycopy(recordEvents.array(), 0, recordData.array(), indexSize, eventSize);
             recordData.position(indexSize + eventSize);
@@ -1041,7 +1031,7 @@ public class RecordOutputStream {
                     // so make sure that's accounted for here.
                     header.setCompressedDataLength(0);
                     int words = uncompressedDataSize/4;
-                    if(uncompressedDataSize % 4 != 0) words++;
+                    if (uncompressedDataSize % 4 != 0) words++;
                     header.setLength(words*4 + RecordHeader.HEADER_SIZE_BYTES);                    
                     //header.setLength(uncompressedDataSize + RecordHeader.HEADER_SIZE_BYTES);
             }
@@ -1116,7 +1106,6 @@ public class RecordOutputStream {
             recBinPastHdrAbsolute += recordBinary.arrayOffset();
         }
 
-
         // If compressing data ...
         if (compressionType.isCompressed()) {
             recordData.clear();
@@ -1125,7 +1114,6 @@ public class RecordOutputStream {
             // Write into a single, temporary buffer the following:
 
             // 1) uncompressed index array
-            // recordData.position(0);
             // Note, put() will increment position
             // recordData.put(recordIndex.array(), 0, indexSize);
             System.arraycopy(recordIndex.array(),  0, recordData.array(), 0, indexSize);
@@ -1134,8 +1122,9 @@ public class RecordOutputStream {
 
             // If there is a backing array, do it the fast way ...
             if (userHeader.hasArray()) {
-                //recordData.put(userHeader.array(), 0, userHeaderSize);
-                System.arraycopy(userHeader.array(), 0, recordData.array(), indexSize, userHeaderSize);
+                //recordData.put(userHeader.array(), userHeader.position(), userHeaderSize);
+                System.arraycopy(userHeader.array(), userHeader.position(),
+                                 recordData.array(), indexSize, userHeaderSize);
             }
             else {
                 int pos = userHeader.position();
@@ -1150,7 +1139,6 @@ public class RecordOutputStream {
             header.setUserHeaderLength(userHeaderSize);
             // Hop over padded user header length
             uncompressedDataSize += 4*header.getUserHeaderLengthWords();
-            //recordData.position(uncompressedDataSize);
 
             // 3) uncompressed data array
             //recordData.put(recordEvents.array(), 0, eventSize);
@@ -1177,8 +1165,8 @@ public class RecordOutputStream {
 
             // 2) uncompressed user header array
             if (recBinHasArray && userHeader.hasArray()) {
-                //recordBinary.put(userHeader.array(), 0, userHeaderSize);
-                System.arraycopy(userHeader.array(), 0, recordBinary.array(),
+                //recordBinary.put(userHeader.array(), userHeader.position(), userHeaderSize);
+                System.arraycopy(userHeader.array(), userHeader.position(), recordBinary.array(),
                                  recBinPastHdrAbsolute+indexSize, userHeaderSize);
             }
             else {
@@ -1215,15 +1203,13 @@ public class RecordOutputStream {
                     if (recBinHasArray) {
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData.array(), 0, uncompressedDataSize,
-                                recordBinary.array(),
-                                recBinPastHdrAbsolute,
+                                recordBinary.array(), recBinPastHdrAbsolute,
                                 (recordBinary.array().length - recBinPastHdrAbsolute));
                     }
                     else {
                         compressedSize = dataCompressor.compressLZ4(
                                 recordData, 0, uncompressedDataSize,
-                                recordBinary,
-                                recBinPastHdr,
+                                recordBinary, recBinPastHdr,
                                (recordBinary.capacity() - recBinPastHdr));
                     }
                     // Length of compressed data in bytes
@@ -1238,15 +1224,13 @@ public class RecordOutputStream {
                     if (recBinHasArray) {
                         compressedSize = dataCompressor.compressLZ4Best(
                                 recordData.array(), 0, uncompressedDataSize,
-                                recordBinary.array(),
-                                recBinPastHdrAbsolute,
+                                recordBinary.array(), recBinPastHdrAbsolute,
                                 (recordBinary.array().length - recBinPastHdrAbsolute));
                     }
                     else {
                         compressedSize = dataCompressor.compressLZ4Best(
                                 recordData, 0, uncompressedDataSize,
-                                recordBinary,
-                                recBinPastHdr,
+                                recordBinary, recBinPastHdr,
                                (recordBinary.capacity() - recBinPastHdr));
                     }
                     header.setCompressedDataLength(compressedSize);

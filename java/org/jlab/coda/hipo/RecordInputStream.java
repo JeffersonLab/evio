@@ -91,22 +91,6 @@ public class RecordInputStream {
     /** Default internal buffer size in bytes. */
     private static final int DEFAULT_BUF_SIZE = 8*1024*1024;
 
-    /** General header of this record. */
-    private RecordHeader  header;
-
-    /** This buffer contains uncompressed data consisting of, in order,
-     *  1) index array, 2) user header, 3) events. */
-    private ByteBuffer  dataBuffer;
-
-    /** This buffer contains compressed data. */
-    private ByteBuffer  recordBuffer;
-
-    /** Record's header is read into this buffer. */
-    private ByteBuffer  headerBuffer;
-
-    /** Singleton used to decompress data. */
-    private static Compressor compressor = Compressor.getInstance();
-    
     /** Number of event in record. */
     private int  nEntries;
 
@@ -123,12 +107,28 @@ public class RecordInputStream {
     private int  uncompressedEventsLength;
 
     /** Byte order of internal ByteBuffers. */
-    private ByteOrder byteOrder;
+    private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+
+    /** General header of this record. */
+    private RecordHeader  header;
+
+    /** This buffer contains uncompressed data consisting of, in order,
+     *  1) index array, 2) user header, 3) events. */
+    private ByteBuffer  dataBuffer;
+
+    /** This buffer contains compressed data. */
+    private ByteBuffer  recordBuffer;
+
+    /** Record's header is read into this buffer. */
+    private ByteBuffer  headerBuffer;
+
+    /** Singleton used to decompress data. */
+    private static Compressor compressor = Compressor.getInstance();
+    
 
 
     /** Default, no-arg constructor. */
     public RecordInputStream(){
-        byteOrder = ByteOrder.LITTLE_ENDIAN;
         header = new RecordHeader();
         allocate(DEFAULT_BUF_SIZE);
 
@@ -251,12 +251,21 @@ public class RecordInputStream {
      * @param index index of the event
      * @return length of the data in bytes.
      */
-    public int getEventLength(int index){
-        if(index<0||index>=getEntries()) return 0;
-        int firstPosition = dataBuffer.getInt((index - 1) * 4);
-        int lastPosition = dataBuffer.getInt(index * 4);
-        int length = lastPosition - firstPosition;
-        return length;
+    public int getEventLength(int index) {
+        if (index < 0 || index >= getEntries()) return 0;
+
+        int firstPosition = 0;
+        if (index > 0) {
+            if (index >= header.getEntries()) {
+                index = header.getEntries() - 1;
+            }
+            // Remember, the index array of events lengths (at beginning of dataBuffer)
+            // was overwritten in readRecord() to contain offsets to events.
+            firstPosition = dataBuffer.getInt( (index-1)*4 );
+        }
+
+        int lastPosition = dataBuffer.getInt(index*4);
+        return lastPosition - firstPosition;
     }
     
     /**
@@ -363,9 +372,10 @@ public class RecordInputStream {
     /**
      * Get any existing user header and write it into the given byte buffer.
      * The given byte buffer must be large enough to contain user header.
-     * Note that the buffer.limit() is ignored & reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
+     * Buffer's position is set to bufOffset and limit is set to bufOffset +
+     * userHeader size.
      *
      * @param buffer    buffer to be filled with user header. If null, create one and
      *                  return that.
@@ -381,6 +391,9 @@ public class RecordInputStream {
 
         int length = header.getUserHeaderLength();
         if (length < 1) {
+            if (buffer != null) {
+                buffer.limit(bufOffset + length).position(bufOffset);
+            }
             return null;
         }
 
@@ -481,7 +494,7 @@ public class RecordInputStream {
             // Make sure all internal buffers have the same byte order
             setByteOrder(headerBuffer.order());
 
-            int recordLengthWords = header.getLength();
+            int recordLengthBytes = header.getLength();
             int headerLength      = header.getHeaderLength();
             int cLength           = header.getCompressedDataLength();
 
@@ -512,7 +525,6 @@ public class RecordInputStream {
                     // LZ4
                     // Read compressed data
                     file.read(recordBuffer.array(), 0, cLength);
-                    //file.read(recordBuffer.array(), 0, (recordLengthWords - headerLength));
                     compressor.uncompressLZ4(recordBuffer, cLength, dataBuffer);
                     break;
 
@@ -527,7 +539,7 @@ public class RecordInputStream {
                 default:
                     // None
                     // Read uncompressed data - rest of record
-                    file.read(dataBuffer.array(), 0, (recordLengthWords - headerLength));
+                    file.read(dataBuffer.array(), 0, (recordLengthBytes - headerLength));
             }
 
             // Number of entries in index
@@ -588,10 +600,10 @@ public class RecordInputStream {
                                 uncompressedEventsLength;
 
             // Make room to handle all data to be read & uncompressed
-            dataBuffer.clear();
             if (dataBuffer.capacity() < neededSpace) {
                 allocate(neededSpace);
             }
+            dataBuffer.clear();
 
             // Decompress data
             switch (header.getCompressionType()) {
@@ -658,16 +670,16 @@ public class RecordInputStream {
      * @param arrayBacked true if both srcBuf and dstBuf are backed by arrays.
      * @param header RecordHeader object to be used to read the record header in srcBuf.
      * @return the original record size in srcBuf (bytes).
-     * @throws HipoException if srcBuf is null, contains too little data,
+     * @throws HipoException if srcBuf/dstBuf/header is null, contains too little data,
      *                       is not in proper format, or version earlier than 6.
      */
     static int  uncompressRecord(ByteBuffer srcBuf, int srcOff, ByteBuffer dstBuf,
                                 boolean arrayBacked, RecordHeader header)
             throws HipoException {
 
-//        if (srcBuf == null || srcOff < 0 || destBuf == null || destOff < 0 || header == null) {
-//            throw new HipoException("bad argument(s)");
-//        }
+        if (srcBuf == null || srcOff < 0 || dstBuf == null || header == null) {
+            throw new HipoException("bad argument(s)");
+        }
 
         int dstOff = dstBuf.position();
 
