@@ -145,7 +145,7 @@ bool FileEventIndex::retreat() {
 
 /** Prints the content of the event index array on the screen. */
 void FileEventIndex::show() {
-    cout << "[FILERECORDINDEX] number of records    : " << recordIndex.size() << endl;
+    cout << "[FILERECORDINDEX] number of records    : " << (recordIndex.size() - 1) << endl;
     cout << "[FILERECORDINDEX] max number of events : " << getMaxEvents() << endl;
 
     for (int i = 0; i < recordIndex.size(); i++) {
@@ -156,6 +156,7 @@ void FileEventIndex::show() {
     }
     cout << "\n--\n" << endl;
 }
+
 
 /**
  * Set the current event to the desired position. The current record and event
@@ -172,30 +173,26 @@ bool FileEventIndex::setEvent(uint32_t event) {
         return false;
     }
 
-    // The search returns an iterator pointing to the first element in the range [first, last)
-    // that is not less than (i.e. greater or equal to) event, or last if no such element is found.
-    // This is exactly what the java Collections.binarySearch(recordIndex, event) does, although
-    // the java return value is more complicated.
-    auto it = std::lower_bound(recordIndex.cbegin(), recordIndex.cend(), event);
-    uint32_t index = *it;
+//    cout << "RecordIndex vector: size = " << recordIndex.size() << endl;
+//    for (int i=0; i < recordIndex.size(); i++) {
+//        cout << "    element " << i << " = " << recordIndex[i] << endl;
+//    }
 
-    if (index >= 0) {
-        if (currentRecord == index) {
-            hasRecordChanged = false;
-        }
-        currentRecord = index;
-        currentRecordEvent = 0;
-        currentEvent = event;
+    // The search returns an iterator pointing to the first element in the range [first, last)
+    // that is greater than event, or last if no such element is found.
+    auto it = std::upper_bound(recordIndex.cbegin(), recordIndex.cend(), event);
+    uint32_t index = std::distance(recordIndex.cbegin(), it);
+    // The first element in recordIndex is fake, shift by 1 for index into recordPositions of Reader
+    index--;
+cout << "  setEvent: event #" << event << " found at index " << index << endl;
+
+    if (currentRecord == index) {
+        hasRecordChanged = false;
     }
-    else {
-        if (currentRecord == (-index-2)) {
-            hasRecordChanged = false;
-        }
-        // One less than index into recordIndex
-        currentRecord = -index-2;
-        currentEvent  = event;
-        currentRecordEvent = currentEvent - recordIndex[currentRecord];
-    }
+    currentRecord = index;
+    currentRecordEvent = 0;
+    currentEvent = event;
+
     return hasRecordChanged;
 }
 
