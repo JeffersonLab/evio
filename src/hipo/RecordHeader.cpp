@@ -1105,6 +1105,7 @@ void RecordHeader::readHeader(ByteBuffer & buffer, size_t offset) {
     entries             = buffer.getInt(12 + offset);        //  3*4
 
     indexLength         = buffer.getInt(16 + offset);        //  4*4
+cout << "readHeader (Record): indexLen = " << indexLength << endl;
     setIndexLength(indexLength);
 
     userHeaderLength    = buffer.getInt(24 + offset);        //  6*4
@@ -1151,69 +1152,37 @@ string RecordHeader::toString() const {
     // show 0x for hex and true for boolean
     ss << showbase << boolalpha;
 
-    ss << setw(24) << "version"    << " : " << headerVersion << endl;
-    ss << setw(24) << "compressed" << " : " << (compressionType != Compressor::UNCOMPRESSED) << endl;
-    ss << setw(24) << "record #"   << " : " << recordNumber << endl;
-    ss << setw(24) << "" << " :     bytes,     words,    padding" << endl;
+    ss << setw(24) << "version"    << "   : " << headerVersion << endl;
+    ss << setw(24) << "compressed" << "   : " << (compressionType != Compressor::UNCOMPRESSED) << endl;
+    ss << setw(24) << "record #"   << "   : " << recordNumber << endl;
+    ss << setw(24) << "" << "   :     bytes,     words,    padding" << endl;
 
-//    printf("%24s : %d\n","version",headerVersion);
-//    printf("%24s : %b\n","compressed", (compressionType != UNCOMPRESSED));
-//    printf("%24s : %d\n","record #",recordNumber);
-//    printf("%24s :     bytes,     words,    padding\n","");
-
-    ss << setw(24) << "user header length" << " : " << setw(8) << userHeaderLength <<
+    ss << setw(24) << "user header length" << "   : " << setw(8) << userHeaderLength <<
           setw(10) << userHeaderLengthWords << setw(10) << userHeaderLengthPadding << endl;
     ss << setw(24) << "uncompressed header length" << " : " << setw(8) << dataLength <<
           setw(10) << dataLengthWords << setw(10) << dataLengthPadding << endl;
-    ss << setw(24) << "record length" << " : " << setw(8) << recordLength <<
+    ss << setw(24) << "record length" << "   : " << setw(8) << recordLength <<
           setw(10) << recordLengthWords << endl;
-    ss << setw(24) << "compressed length" << " : " << setw(8) << compressedDataLength <<
-       setw(10) << compressedDataLengthWords << setw(10) << compressedDataLengthPadding << endl;
+    ss << setw(24) << "compressed length" << "   : " << setw(8) << compressedDataLength <<
+          setw(10) << compressedDataLengthWords << setw(10) << compressedDataLengthPadding << endl;
 
-//    printf("%24s : %8d  %8d  %8d\n","user header length",
-//                             userHeaderLength, userHeaderLengthWords, userHeaderLengthPadding);
-//    printf("%24s : %8d  %8d  %8d\n","uncompressed data length",
-//                             dataLength, dataLengthWords, dataLengthPadding);
-//    printf("%24s : %8d  %8d\n","record length",
-//                             recordLength, recordLengthWords);
-//    printf("%24s : %8d  %8d  %8d\n","compressed length",
-//                             compressedDataLength, compressedDataLengthWords,
-//                             compressedDataLengthPadding);
-
-    ss << setw(24) << "header length" << " : " << headerLength << endl;
-    ss << setw(24) << "index length"  << " : " << indexLength << endl;
+    ss << setw(24) << "header length" << "   : " << headerLength << endl;
+    ss << setw(24) << "index length"  << "   : " << indexLength << endl;
     ss << hex;
-    ss << setw(24) << "magic word"    << " : " << headerMagicWord << endl;
+    ss << setw(24) << "magic word"    << "   : " << headerMagicWord << endl;
 
-//    printf("%24s : %d\n","header length",headerLength);
-//    printf("%24s : %d\n","index length",indexLength);
-//    printf("%24s : 0x%X\n","magic word",headerMagicWord);
-
-    ss << setw(24) << "bit info word"   << " : " << bitInfo         << endl;
-    ss << setw(24) << "has dictionary"  << " : " << hasDictionary() << endl;
-    ss << setw(24) << "has 1st event"   << " : " << hasFirstEvent() << endl;
-    ss << setw(24) << "is last record"  << " : " << isLastRecord()  << endl;
-
-//    printf("%24s : %s\n","bit info word bin",Integer.toBinaryString(bitInfo));
-//    printf("%24s : 0x%s\n","bit info word hex",Integer.toHexString(bitInfo));
-//    printf("%24s : %b\n","has dictionary",hasDictionary());
-//    printf("%24s : %b\n","has 1st event",hasFirstEvent());
-//    printf("%24s : %b\n","is last record",isLastRecord());
+    ss << setw(24) << "bit info word"   << "   : " << bitInfo         << endl;
+    ss << setw(24) << "has dictionary"  << "   : " << hasDictionary() << endl;
+    ss << setw(24) << "has 1st event"   << "   : " << hasFirstEvent() << endl;
+    ss << setw(24) << "is last record"  << "   : " << isLastRecord()  << endl;
 
     ss << dec;
-    ss << setw(24) << "data type"  << " : " << eventTypeToString() << " (" << eventType << ")" << endl;
-    ss << setw(24) << "event count"   << " : " << entries << endl;
-    ss << setw(24) << "compression type"   << " : " << compressionType << endl;
+    ss << setw(24) << "data type"  << "   : " << eventTypeToString() << " (" << eventType << ")" << endl;
+    ss << setw(24) << "event count"   << "   : " << entries << endl;
+    ss << setw(24) << "compression type"   << "   : " << compressionType << endl;
     ss << hex;
-    ss << setw(24) << "user register #1"   << " : " << recordUserRegisterFirst << endl;
-    ss << setw(24) << "user register #2"   << " : " << recordUserRegisterSecond << endl;
-
-//    printf("%24s : %s (%d)\n","data type", eventTypeToString(), eventType);
-//    printf("%24s : %d\n","event count",entries);
-//    printf("%24s : %d\n","compression type",compressionType);
-//
-//    printf("%24s : %ull\n","user register #1",recordUserRegisterFirst);
-//    printf("%24s : %ull\n","user register #2",recordUserRegisterSecond);
+    ss << setw(24) << "user register #1"   << "   : " << recordUserRegisterFirst << endl;
+    ss << setw(24) << "user register #2"   << "   : " << recordUserRegisterSecond << endl;
 
     return ss.str();
 }
