@@ -341,6 +341,40 @@ public class TestWriter {
         }
         
     }
+
+
+
+    public static void convertorCpp() {
+        String filenameIn = "/dev/shm/hipoTest1.evio";
+        String filenameOut = "/dev/shm/hipoTestOut.evio";
+        try {
+            Reader reader = new Reader(filenameIn);
+            int nevents = reader.getEventCount();
+            System.out.println("     file header: \n" + reader.getFileHeader().toString());
+
+            Writer writer = new Writer (filenameOut, ByteOrder.LITTLE_ENDIAN, 10000, 8*1024*1024);
+            writer.setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
+
+            System.out.println(" OPENED FILE EVENT COUNT = " + nevents);
+
+            for (int i = 0; i < nevents; i++) {
+                System.out.println(" Try getting EVENT # " + (i+1));
+                byte[] pEvent = reader.getEvent(i);
+                int eventLen = pEvent.length;
+                System.out.println("        size = " + eventLen);
+
+
+                writer.addEvent(pEvent, 0, eventLen);
+            }
+            System.out.println("     converter 5");
+            writer.close();
+        } catch (Exception  ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+
     
     
     public static void createEmptyFile() throws IOException, HipoException {
@@ -358,16 +392,8 @@ public class TestWriter {
     
     public static void main(String[] args){
 
-        try {
-            testWriterVsWriterNew();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (HipoException e) {
-            e.printStackTrace();
-        }
-        //testStreamRecordMT();
+            convertorCpp();
+       //testStreamRecordMT();
        //testStreamRecord();
        // TestWriter.createEmptyFile();
         
