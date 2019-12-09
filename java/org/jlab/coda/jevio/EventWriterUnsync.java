@@ -3026,6 +3026,10 @@ System.err.println("ERROR endOfBuffer " + a);
             throw new EvioException("null node arg");
         }
 
+        BufferNode bn = node.getBufferNode();
+        if (bn == null) {
+            throw new EvioException("EvioNode backing buf = null! race condition?");
+        }
         ByteBuffer eventBuffer, bb = node.getBufferNode().getBuffer();
 
         // Duplicate buffer so we can set pos & limit without messing others up
@@ -3547,6 +3551,10 @@ System.err.println("ERROR endOfBuffer " + a);
 
             // Check for inconsistent lengths
             if (currentEventBytes != 4*(bankBuffer.getInt(bankBuffer.position()) + 1)) {
+
+                Utilities.printBufferBytes(bankBuffer, bankBuffer.position(), 100,
+                                           "Bad event, 100 bytes starting at buf pos = " + bankBuffer.position());
+
                 throw new EvioException("inconsistent event lengths: total bytes from event = " +
                                        (4*(bankBuffer.getInt(bankBuffer.position()) + 1)) +
                                         ", from buffer = " + currentEventBytes);
