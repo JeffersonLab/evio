@@ -221,7 +221,7 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
          // Find the version number
          int bitInfo = byteBuffer.getInt(initialPosition + RecordHeader.BIT_INFO_OFFSET);
          evioVersion = bitInfo & RecordHeader.VERSION_MASK;
-System.out.println("     findEvioVersion: evio version = " + evioVersion);
+//System.out.println("     findEvioVersion: evio version = " + evioVersion);
 
          return evioVersion;
      }
