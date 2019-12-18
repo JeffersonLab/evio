@@ -90,7 +90,7 @@ public:
                                  uint32_t length, uint32_t *compLen);
 
     static uint8_t* uncompressGZIP(uint8_t* gzipped, uint32_t off,
-                                   uint32_t length, uint32_t *uncompLen);
+                                   uint32_t length, uint32_t *uncompLen, uint32_t origUncompLen);
 
     static int compressGZIP(uint8_t* dest, uint32_t *destLen,
                             const uint8_t* source, uint32_t sourceLen);

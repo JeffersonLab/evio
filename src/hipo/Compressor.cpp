@@ -10,6 +10,10 @@
  * @author timmer
  */
 
+#ifdef USE_GZIP
+z_stream Compressor::strmDeflate;
+z_stream Compressor::strmInflate;
+#endif
 
 Compressor::Compressor() {
     setUpCompressionHardware();
@@ -266,6 +270,10 @@ uint8_t* Compressor::compressGZIP(uint8_t* ungzipped, uint32_t offset,
  * @param uncompLen upon entry, *uncompLen is the size of destination buffer
  *                  to be locally allocated. Upon exit, *uncompLen is the size
  *                  of the uncompressed data in that buffer.
+ * @param origUncompLen size of originally uncompressed data in bytes.
+ *                      (The size of the uncompressed data must have been saved previously
+ *                      by the compressor and transmitted to the decompressor by some
+ *                      mechanism outside the scope of this compression library.)
  * @return uncompressed data.
  * @throws HipoException if gzipped or uncompLen pointer(s) are null,
  *                       if there was not enough room in the output buffer, or
@@ -273,17 +281,17 @@ uint8_t* Compressor::compressGZIP(uint8_t* ungzipped, uint32_t offset,
  *                       an incomplete stream.
  */
 uint8_t* Compressor::uncompressGZIP(uint8_t* gzipped, uint32_t off,
-                                    uint32_t length, uint32_t *uncompLen) {
+                                    uint32_t length, uint32_t *uncompLen,
+                                    uint32_t origUncompLen) {
 
     if (gzipped == nullptr || uncompLen == nullptr) {
         throw HipoException("gzipped and/or uncompLen arg is null");
     }
 
-    uint32_t ucLen = *uncompLen;
-    auto ungzipped = new uint8_t[ucLen];
-    uint32_t destLen = ucLen;
+    uint32_t destLen = *uncompLen;
+    auto ungzipped = new uint8_t[destLen];
 
-    int err = uncompressGZIP(ungzipped, &destLen, gzipped + off, &length, ucLen);
+    int err = uncompressGZIP(ungzipped, &destLen, gzipped + off, &length, origUncompLen);
     if (err != Z_OK) {
         delete [] ungzipped;
         throw HipoException("error uncompressing data");
