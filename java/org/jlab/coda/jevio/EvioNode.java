@@ -283,7 +283,7 @@ public class EvioNode implements Cloneable {
 
  //TODO: figure out which clears are needed
     /**
-     * Clear the childNode it is exists.
+     * Clear childNodes.
      * Place only this or eventNode object into the allNodes list if it exists.
      */
     final public void clearLists() {
@@ -323,11 +323,13 @@ public class EvioNode implements Cloneable {
         parentNode = null;
     }
 
+    /** Clear everything in this object and set allNodes object to null. */
     final public void clearAll() {
+        clear();
         allNodes = null;
-        clearObjects();
     }
 
+    /** Only clear the data array. */
     final public void clearIntArray() {data = null;}
 
 
@@ -352,13 +354,14 @@ public class EvioNode implements Cloneable {
      */
     void setData(int position, int place,
                  ByteBuffer buffer, BlockNode blockNode) {
-        this.buffer = buffer;
-        this.blockNode  = blockNode;
-        this.pos = position;
-        this.place = place;
-        this.isEvent = true;
-        this.type = DataType.BANK.getValue();
-        //allNodes = new ArrayList<>(50);
+        this.buffer    = buffer;
+        this.blockNode = blockNode;
+        this.pos       = position;
+        this.place     = place;
+        this.isEvent   = true;
+        this.type      = DataType.BANK.getValue();
+        // The only time there is no allNodes is internally to CompactEventBuilder
+        // so we're ok.
         allNodes.add(this);
     }
 
@@ -378,7 +381,8 @@ public class EvioNode implements Cloneable {
         this.place      = place;
         this.isEvent    = true;
         this.type       = DataType.BANK.getValue();
-        //allNodes = new ArrayList<>(50);
+        // The only time there is no allNodes is internally to CompactEventBuilder
+        // so we're ok.
         allNodes.add(this);
     }
 
@@ -881,7 +885,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
     }
 
     //-------------------------------
-    // Setters & Getters & ...
+    // End of static methods
     //-------------------------------
 
     /**
@@ -1394,6 +1398,7 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
      * it to an int array which involves creating additional objects and calling
      * additional methods.
      * This method is not synchronized.
+     * This method is only used in Evio.java in emu package.
      *
      * @param intData integer array in which to store data.
      * @param length  set first element to contain number of valid array elements of the returned array.
