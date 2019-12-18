@@ -13,6 +13,7 @@
 #define EVIO_6_0_BYTEORDER_H
 
 #include <string>
+#include <iostream>
 
 using std::string;
 
@@ -87,17 +88,12 @@ private:
     /** Store a name for each ByteOrder object. */
     string name;
 
-public:
-
     /**
      * Constructor.
      * @param value int value of this headerType object.
      * @param name  name (string representation) of this headerType object.
      */
-    ByteOrder(int value, string name) {
-        this->value = value;
-        this->name = name;
-    }
+    ByteOrder(int val, string name) : value(val), name(std::move(name)) {}
 
 public:
 
@@ -119,8 +115,6 @@ public:
 
     bool operator!=(const ByteOrder &rhs) const;
 
-    const ByteOrder & operator=(const ByteOrder &rhs);
-
     static ByteOrder const & getLocalByteOrder() {
         if (isLocalHostBigEndian()) {
             return ENDIAN_BIG;
@@ -133,6 +127,9 @@ public:
         return !*((char *) &i);
     }
 
+    static bool needToSwap(ByteOrder & order) {
+        return !(order == getLocalByteOrder());
+    }
 
     // Template to swap stuff in place
     template <typename T>

@@ -49,13 +49,14 @@ void ByteOrder::byteSwap(uint32_t *array, size_t elements) {
 
 // Enum value DEFINITIONS
 /** Little endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_LITTLE = ByteOrder(0, "ENDIAN_LITTLE");
+const ByteOrder ByteOrder::ENDIAN_LITTLE(0, "ENDIAN_LITTLE");
 /** Big endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_BIG = ByteOrder(1, "ENDIAN_BIG");
+const ByteOrder ByteOrder::ENDIAN_BIG(1, "ENDIAN_BIG");
 /** Unknown endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_UNKNOWN = ByteOrder(2, "ENDIAN_UNKNOWN");
+const ByteOrder ByteOrder::ENDIAN_UNKNOWN(2, "ENDIAN_UNKNOWN");
 /** Local host's byte order. */
 const ByteOrder ByteOrder::ENDIAN_LOCAL = ByteOrder::getLocalByteOrder();
+
 
 bool ByteOrder::operator==(const ByteOrder &rhs) const {
     return value == rhs.value;
@@ -63,9 +64,5 @@ bool ByteOrder::operator==(const ByteOrder &rhs) const {
 
 bool ByteOrder::operator!=(const ByteOrder &rhs) const {
     return value != rhs.value;
-}
-
-const ByteOrder & ByteOrder::operator=(const ByteOrder &rhs) {
-    return rhs;
 }
 
