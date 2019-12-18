@@ -272,14 +272,12 @@ public class RecordOutputStream {
      * The given buffer should be made ready to receive new data by setting its
      * position and limit properly. Its byte order is set to the same as this writer's.
      * The argument ByteBuffer can be retrieved by calling {@link #getBinaryBuffer()}.
-     * @param buf buffer in which to build record.
+     * @param buf buffer in which to build this record.
      */
     public void setBuffer(ByteBuffer buf) {
         if (buf.order() != byteOrder) {
             System.out.println("setBuffer(): warning, changing buffer's byte order!");
         }
-
-// TODO: we set the startingPosition to buf.position(), but the reset sets buffer pos to 0!!!
 
         recordBinary = buf;
         recordBinary.order(byteOrder);
@@ -289,34 +287,27 @@ public class RecordOutputStream {
         userBufferSize = buf.capacity() - startingPosition;
         buf.limit(buf.capacity());
 
-        // Only allocate memory if current buffers are too small
+        MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
+        RECORD_BUFFER_SIZE = userBufferSize;
+
+        // Only re-allocate memory if current buffers are too small
         if (userBufferSize > RECORD_BUFFER_SIZE) {
-            MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
-            RECORD_BUFFER_SIZE = userBufferSize;
-            //System.out.println("setBuffer: changed MAX_BUFFER_SIZE to " + MAX_BUFFER_SIZE + ", reallocate");
             allocate();
-        }
-        else {
-// TODO: bug, if we have a real small buf (100 bytes), then a bigger buf next time (1000), memory is allocated
-// TODO: for recordData and recordEvents, but may not be necessary! (underlying bufs = 8MB !)
-            MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
-            RECORD_BUFFER_SIZE = userBufferSize;
-            //System.out.println("setBuffer: changed MAX_BUFFER_SIZE to " + MAX_BUFFER_SIZE + ", did NOT reallocate");
         }
 
         reset();
     }
 
-    // TODO: This method needs some serious attention!
     /**
-     * Copy the contents of the arg into this object.
+     * Copy the contents of the arg into this object and get data buffer ready for reading.
+     * Copy all data up to the buffer limit (not capacity).
      * If the arg has more data than will fit, increase buffer sizes.
      * If the arg has more events than our allowed max, increase the max.
-     * @param rec object to copy
+     * @param rec object to copy, must be read to read.
      * @throws HipoException if we cannot replace internal buffer if it needs to be
      *                       expanded since it was provided by the user.
      */
-    public void copy(RecordOutputStream rec) throws HipoException {
+    public void transferDataForReading(RecordOutputStream rec) throws HipoException {
         if (rec == null || rec == this) return;
 
         // Copy primitive types & immutable objects
@@ -364,26 +355,33 @@ public class RecordOutputStream {
             recordIndex.order(byteOrder);
         }
 
-        // Copy data over
+        // Copy data over & get buffers read to read
+        // (recordData is just a temporary holding buffer and does NOT need to be copied)
         System.arraycopy(rec.recordIndex.array(),  0, recordIndex.array(),  0, indexSize);
         System.arraycopy(rec.recordEvents.array(), 0, recordEvents.array(), 0, eventSize);
 
-        // recordData is just a temporary holding buffer and does NOT need to be copied
+        recordEvents.limit(eventSize).position(0);
+        recordIndex.limit(indexSize).position(0);
 
         // recordBinary holds built record and may or may NOT have a backing array.
         // Assume that buffer is ready to read as is the case right after build() is called.
         if (rec.recordBinary.hasArray() && recordBinary.hasArray()) {
             System.arraycopy(rec.recordBinary.array(), 0,
-                             recordBinary.array(), 0, rec.recordBinary.limit());
-            // Get buffer ready to read
-            recordBinary.position(0).limit(rec.recordBinary.limit());
+                                 recordBinary.array(), 0, rec.recordBinary.limit());
+            // Get data buffer ready to read
+            recordBinary.limit(rec.recordBinary.limit()).position(0);
         }
         else {
+            // Assume everything up to limit is valid data
+            int recPos = rec.recordBinary.position();
+            rec.recordBinary.position(0);
+            // Copy data
             recordBinary.position(0);
             recordBinary.put(rec.recordBinary);
-            // Get buffers ready to read
+            // Get local data buffer ready to read
             recordBinary.flip();
-            rec.recordBinary.flip();
+            // Return copied buffer to original state
+            rec.recordBinary.position(recPos);
         }
     }
 
@@ -837,11 +835,13 @@ public class RecordOutputStream {
     /**
      * Reset internal buffers. The buffer is ready to receive new data.
      * Also resets the header including removing any compression.
+     * If data buffer externally provided, the starting position is set to 0.
      */
     public void reset() {
         indexSize  = 0;
         eventSize  = 0;
         eventCount = 0;
+        startingPosition = 0;
 
         recordData.clear();
         recordIndex.clear();
