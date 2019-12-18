@@ -23,6 +23,7 @@ ByteBuffer::ByteBuffer() {
 
     // Will work for C++ 11 and later
     buf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+//    std::memset(buf.get(),0, size);
     cap = size;
     clear();
 
@@ -41,6 +42,7 @@ ByteBuffer::ByteBuffer() {
 ByteBuffer::ByteBuffer(size_t size) {
 
     buf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+//    std::memset(buf.get(),0, size);
     cap = size;
     clear();
 
@@ -135,6 +137,25 @@ ByteBuffer::ByteBuffer(char* byteArray, size_t len) {
     isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
 }
 
+/**
+ * This constructor is equivalent to the ByteBuffer.wrap() method in Java.
+ * There is some risk here if caller continues to use byteArray pointer
+ * independently of this object. <b>Don't do it!</b>
+ *
+ * @param byteArray pointer to array which this object will wrap.
+ * @param len length of array in bytes.
+ */
+ByteBuffer::ByteBuffer(uint8_t* byteArray, size_t len) {
+
+    buf = shared_ptr<uint8_t>(byteArray, default_delete<uint8_t[]>());
+    cap = len;
+    clear();
+
+    byteOrder = ByteOrder::ENDIAN_LITTLE;
+    isLittleEndian = true;
+    isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
+}
+
 
 /**
  * Copy data and everything else from arg.
@@ -211,6 +232,7 @@ ByteBuffer & ByteBuffer::compact() {
 /**
  * This method expands the size of this buffer if it's less than the given size.
  * Useful in C++, but has no counterpart in Java.
+ * Bytes up to limit are copied.
  * Any additional bytes added to the underlying array are 0.
  * All other internals are kept the same, including all data within the limit.
  * @param size new size (in bytes) of space to allocate internally.
@@ -220,7 +242,7 @@ void ByteBuffer::expand(size_t size) {
 
     // If there's data copy it over
     if (lim > 0) {
-        shared_ptr<uint8_t> tempBuf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+        auto tempBuf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
         std::memcpy((void *)(tempBuf.get()), (const void *)(buf.get()), lim);
         buf = tempBuf;
     }
@@ -309,7 +331,7 @@ uint8_t * ByteBuffer::array() const {return buf.get();}
  * Get a shared pointer to this buffer's backing array which contains the data.
  * @return shared pointer to the data array.
  */
-shared_ptr<uint8_t> ByteBuffer::getDataSharedPtr() const {return buf;}
+shared_ptr<uint8_t> ByteBuffer::getData() const {return buf;}
 
 
 /**
@@ -1363,7 +1385,7 @@ void ByteBuffer::printBytes(size_t offset, size_t bytes, string const & label) {
             cout << "  ";
         }
 
-        printf("0x%02x ", buf.get()[i]);
+        printf("%02x ", buf.get()[i]);
     }
     cout << endl << endl;
 }
