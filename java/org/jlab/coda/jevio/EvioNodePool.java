@@ -19,9 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class EvioNodePool implements EvioNodeSource {
 
-    /** Pool of EvioNode objects used for parsing Evio data in EBs. */
-    private EvioNode[] nodePool;
-
     /** Index into nodePool array of the next pool object to use. */
     private int poolIndex;
 
@@ -30,6 +27,9 @@ public class EvioNodePool implements EvioNodeSource {
 
     /** Id of this pool. For debugging. */
     private int id;
+
+    /** Pool of EvioNode objects used for parsing Evio data in EBs. */
+    private EvioNode[] nodePool;
 
     /** For assigning pool id numbers. */
     static private AtomicInteger idCounter = new AtomicInteger();
@@ -41,6 +41,9 @@ public class EvioNodePool implements EvioNodeSource {
      * @param initialSize number of EvioNode objects in pool initially.
      */
     public EvioNodePool(int initialSize) {
+        if (initialSize < 1) {
+            initialSize = 1;
+        }
         id = idCounter.getAndIncrement();
         size = initialSize;
         nodePool = new EvioNode[size];
