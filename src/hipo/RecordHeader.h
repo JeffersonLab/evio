@@ -105,8 +105,13 @@ using std::string;
  * @since 6.0 4/9/19
  * @author timmer
  */
-//class RecordHeader /*: IBlockHeader*/ {
+
 class RecordHeader {
+
+private:
+
+    /** Array to help find number of bytes to pad data. */
+    static uint32_t padValue[4];
 
 public:
 
@@ -186,17 +191,15 @@ private:
     /** Header type mask. */
     static const uint32_t HEADER_TYPE_MASK = 0xF0000000;
 
-    /** Array to help find number of bytes to pad data. */
-    static uint32_t padValue[4];
 
     //-------------------
 
     /** First user-defined 64-bit register. 11th and 12th words. */
-    uint64_t recordUserRegisterFirst = 0L;
+    uint64_t recordUserRegisterFirst = 0ULL;
     /** Second user-defined 64-bit register. 13th and 14th words. */
-    uint64_t recordUserRegisterSecond = 0L;
+    uint64_t recordUserRegisterSecond = 0ULL;
     /** Position of this header in a file. */
-    size_t position = 0;
+    size_t position = 0ULL;
     /** Length of the entire record this header is a part of (bytes). */
     uint32_t  recordLength = 0;
     /** Length of the entire record this header is a part of (32-bit words). 1st word. */
@@ -239,8 +242,6 @@ private:
     /** Magic number for tracking endianness. 8th word. */
     uint32_t  headerMagicWord = HEADER_MAGIC;
 
-    // These quantities are updated automatically when lengths are set
-
     /** Number of bytes required to bring uncompressed
       * user header to 4-byte boundary. Stored in 6th word.
       * Updated automatically when lengths are set. */
@@ -255,14 +256,14 @@ private:
     uint32_t  compressedDataLengthPadding = 0;
 
     /** Type of header this is. Normal HIPO record by default. */
-    HeaderType headerType = HeaderType::HIPO_RECORD;
+    HeaderType headerType {HeaderType::HIPO_RECORD};
 
     /** Byte order of file/buffer this header was read from. */
-    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+    ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
     /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
       * Highest 4 bits of 10th word. */
-    Compressor::CompressionType  compressionType;
+    Compressor::CompressionType compressionType {Compressor::UNCOMPRESSED};
 
 
 public:
@@ -272,6 +273,8 @@ public:
     explicit RecordHeader(const HeaderType & type);
     RecordHeader(long pos, int l, int e);
     ~RecordHeader() = default;
+
+    RecordHeader & operator=(const RecordHeader& head);
 
 private:
 
@@ -376,8 +379,8 @@ public:
     static void writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNumber,
                              const uint32_t* index, size_t indexLen);
 
-
     static bool isCompressed(ByteBuffer & buffer, size_t offset);
+
     void readHeader(ByteBuffer & buffer, size_t offset);
     void readHeader(ByteBuffer & buffer);
 
@@ -402,6 +405,9 @@ public:
     size_t nextBufferStartingPosition() const;
     size_t firstEventStartingPosition() const;
     size_t bytesRemaining(size_t pos) const;
+
+
+    int main(int argc, char **argv);
 
 };
 

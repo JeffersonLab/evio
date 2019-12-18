@@ -23,12 +23,7 @@ uint32_t RecordHeader::padValue[4] = {0,3,2,1};
 
 
 /** Default, no-arg constructor. */
-RecordHeader::RecordHeader() {
-    headerType = HeaderType::EVIO_FILE;
-    reset();
-    compressionType = Compressor::UNCOMPRESSED;
-    bitInfoInit();
-}
+RecordHeader::RecordHeader() {bitInfoInit();}
 
 /**
  * Constructor which sets the type of header this is.
@@ -36,15 +31,11 @@ RecordHeader::RecordHeader() {
  * @throws HipoException if type is for file
  */
 RecordHeader::RecordHeader(const HeaderType & type) {
-
     headerType = type;
 
     if (headerType.isFileHeader()) {
         throw HipoException("RecordHeader cannot be set to FileHeader type");
     }
-
-    reset();
-    compressionType = Compressor::UNCOMPRESSED;
     bitInfoInit();
 }
 
@@ -72,44 +63,85 @@ RecordHeader::RecordHeader(long pos, int len, int ent) {
 RecordHeader::RecordHeader(const RecordHeader & head) {
 
     if (this != &head) {
-        position = head.position;
-
-        recordLength = head.recordLength;
-        recordNumber = head.recordNumber;
-        recordLengthWords = head.recordLengthWords;
-        recordUserRegisterFirst = head.recordUserRegisterFirst;
+        position                 = head.position;
+        recordLength             = head.recordLength;
+        recordNumber             = head.recordNumber;
+        recordLengthWords        = head.recordLengthWords;
+        recordUserRegisterFirst  = head.recordUserRegisterFirst;
         recordUserRegisterSecond = head.recordUserRegisterSecond;
 
-        headerType = head.headerType;
-        entries = head.entries;
-        bitInfo = head.bitInfo;
-        eventType = head.eventType;
-        headerLength = head.headerLength;
-        headerLengthWords = head.headerLengthWords;
-        userHeaderLength = head.userHeaderLength;
-        userHeaderLengthWords = head.userHeaderLengthWords;
-        indexLength = head.indexLength;
-        dataLength = head.dataLength;
-        dataLengthWords = head.dataLengthWords;
-        compressedDataLength = head.compressedDataLength;
+        entries                   = head.entries;
+        bitInfo                   = head.bitInfo;
+        eventType                 = head.eventType;
+        headerLength              = head.headerLength;
+        headerLengthWords         = head.headerLengthWords;
+        userHeaderLength          = head.userHeaderLength;
+        userHeaderLengthWords     = head.userHeaderLengthWords;
+        indexLength               = head.indexLength;
+        dataLength                = head.dataLength;
+        dataLengthWords           = head.dataLengthWords;
+        compressedDataLength      = head.compressedDataLength;
         compressedDataLengthWords = head.compressedDataLengthWords;
-        compressionType = head.compressionType;
-        headerMagicWord = head.headerMagicWord;
-        byteOrder = head.byteOrder;
+        headerMagicWord           = head.headerMagicWord;
         // don't bother with version as must be same
 
-        userHeaderLengthPadding = head.userHeaderLengthPadding;
-        dataLengthPadding = head.dataLengthPadding;
+        userHeaderLengthPadding     = head.userHeaderLengthPadding;
+        dataLengthPadding           = head.dataLengthPadding;
         compressedDataLengthPadding = head.compressedDataLengthPadding;
+
+        byteOrder                   = head.byteOrder;
+        headerType                  = head.headerType;
+        compressionType             = head.compressionType;
     }
+}
+
+RecordHeader & RecordHeader::operator=(const RecordHeader& head) {
+
+    if (this != &head) {
+        position                 = head.position;
+        recordLength             = head.recordLength;
+        recordNumber             = head.recordNumber;
+        recordLengthWords        = head.recordLengthWords;
+        recordUserRegisterFirst  = head.recordUserRegisterFirst;
+        recordUserRegisterSecond = head.recordUserRegisterSecond;
+
+        entries                   = head.entries;
+        bitInfo                   = head.bitInfo;
+        eventType                 = head.eventType;
+        headerLength              = head.headerLength;
+        headerLengthWords         = head.headerLengthWords;
+        userHeaderLength          = head.userHeaderLength;
+        userHeaderLengthWords     = head.userHeaderLengthWords;
+        indexLength               = head.indexLength;
+        dataLength                = head.dataLength;
+        dataLengthWords           = head.dataLengthWords;
+        compressedDataLength      = head.compressedDataLength;
+        compressedDataLengthWords = head.compressedDataLengthWords;
+        headerMagicWord           = head.headerMagicWord;
+        // don't bother with version as must be same
+
+        userHeaderLengthPadding     = head.userHeaderLengthPadding;
+        dataLengthPadding           = head.dataLengthPadding;
+        compressedDataLengthPadding = head.compressedDataLengthPadding;
+
+        byteOrder                   = head.byteOrder;
+        headerType                  = head.headerType;
+        compressionType             = head.compressionType;
+    }
+
+    return *this;
 }
 
 /** Reset generated data. */
 void RecordHeader::reset() {
     // Do NOT reset header type which is only set in constructor!
     // Do NOT reset the compression type
-    position = 0ULL;
 
+    // What about byteOrder?
+    // When reading, it's automatically set. When writing,
+    // it's determined by the ByteBuffer we're writing into.
+
+    position = 0ULL;
     recordLength = 0;
     recordNumber = 1;
     recordLengthWords = 0;
@@ -128,8 +160,6 @@ void RecordHeader::reset() {
     dataLengthWords = 0;
     compressedDataLength = 0;
     compressedDataLengthWords = 0;
-    // TODO: what about byteOrder???
-    byteOrder = ByteOrder::ENDIAN_LITTLE;
 
     userHeaderLengthPadding = 0;
     dataLengthPadding = 0;
@@ -168,14 +198,14 @@ uint32_t RecordHeader::getUncompressedRecordLength() const {
 
 /**
  * Get the padded length in bytes of the entire compressed record.
- * If the data is not compressed, then this returns -1;
- * @return padded length in bytes of the entire compressed record, else -1 if not compressed.
+ * If the data is not compressed, then this returns 0;
+ * @return padded length in bytes of the entire compressed record, else 0 if not compressed.
  */
 uint32_t RecordHeader::getCompressedRecordLength() const {
     if (compressionType != Compressor::UNCOMPRESSED) {
         return (recordLength + compressedDataLengthPadding);
     }
-    return  -1;
+    return 0;
 }
 
 /**
@@ -320,8 +350,8 @@ void RecordHeader::bitInfoInit() {
  * @return new bit info word.
  */
 uint32_t  RecordHeader::setBitInfo(bool isLastRecord,
-                bool haveFirstEvent,
-                bool haveDictionary) {
+                                   bool haveFirstEvent,
+                                   bool haveDictionary) {
 
     bitInfo = (headerType.getValue()       << 28) |
               (compressedDataLengthPadding << 24) |
@@ -457,7 +487,7 @@ void RecordHeader::decodeBitInfoWord(uint32_t word) {
     headerVersion = (word & 0xff);
 
     // Header type
-    headerType = headerType.getHeaderType((word >> 28) & 0x0fffffff);
+    headerType = headerType.getHeaderType((word >> 28) & 0xf);
     if (headerType == HeaderType::UNKNOWN) {
         headerType = HeaderType::EVIO_RECORD;
     }
@@ -612,6 +642,8 @@ uint32_t  RecordHeader::setBitInfoEventType (uint32_t type) {
     return bitInfo;
 }
 
+// Setters
+
 /**
  * Set this header's type. Normally done in constructor. Limited access.
  * @param type type of header.
@@ -649,8 +681,8 @@ RecordHeader & RecordHeader::setRecordNumber(uint32_t num) {recordNumber = num; 
 RecordHeader & RecordHeader::setLength(uint32_t length) {
     recordLength      = length;
     recordLengthWords = length/4;
-    //printf(" LENGTH = " + recordLength + "  WORDS = " + this.recordLengthWords
-    //+ "  SIZE = " + recordLengthWords*4 );
+//    cout << " LENGTH = " << recordLength << "  WORDS = " << recordLengthWords <<
+//    "  SIZE = " << (recordLengthWords*4) << endl;
     return *this;
 }
 
@@ -781,8 +813,8 @@ RecordHeader & RecordHeader::setUserRegisterSecond(uint64_t reg) {
 void RecordHeader::writeHeader(ByteBuffer & buf, size_t off) {
 
     // Check args
-    if ((buf.capacity() - off) < HEADER_SIZE_BYTES) {
-        throw HipoException("buffer null or too small");
+    if ((buf.limit() - off) < HEADER_SIZE_BYTES) {
+        throw HipoException("buffer too small");
     }
 
     uint32_t compressedWord = (compressedDataLengthWords & 0x0FFFFFFF) |
@@ -897,6 +929,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
   * @param data int to convert
   * @param byteOrder byte order of returned bytes (big endian if null)
   * @param dest array in which to store transformed int
+  * @param destLen number of available bytes in dest to write into.
   * @param off offset into dest array where returned bytes are placed
   * @throws HipoException if dest is null or too small or offset negative
   */
@@ -961,7 +994,7 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
 
     // Check arg
     if (buf.capacity() - off < wholeLen) {
-        throw HipoException("null or too small buf arg");
+        throw HipoException("buf too small");
     }
 
     // Make sure the limit allows writing
@@ -1105,7 +1138,7 @@ void RecordHeader::readHeader(ByteBuffer & buffer, size_t offset) {
     entries             = buffer.getInt(12 + offset);        //  3*4
 
     indexLength         = buffer.getInt(16 + offset);        //  4*4
-cout << "readHeader (Record): indexLen = " << indexLength << endl;
+//cout << "readHeader (Record): indexLen = " << indexLength << endl;
     setIndexLength(indexLength);
 
     userHeaderLength    = buffer.getInt(24 + offset);        //  6*4
@@ -1236,84 +1269,72 @@ uint32_t RecordHeader::write(ByteBuffer & byteBuffer) {
     return HEADER_SIZE_BYTES;
 }
 
-//
-///** {@inheritDoc} */
-//uint32_t RecordHeader::write(ByteBuffer & byteBuffer) {
-//    try {
-//        writeHeader(byteBuffer, byteBuffer.position());
-//    }
-//    catch (HipoException e) {
-//        System.out.println("RecordHeader.write(): buffer is null or contains too little room");
-//        return 0;
-//    }
-//    return HEADER_SIZE_BYTES;
-//}
-
-
 // Following methods are not used in this class but must be part of IBlockHeader interface
 
 /** {@inheritDoc} */
-size_t RecordHeader::getBufferEndingPosition() const {return 0L;}
+size_t RecordHeader::getBufferEndingPosition() const {return 0ULL;}
 
 /** {@inheritDoc} */
-size_t RecordHeader::getBufferStartingPosition() const {return 0L;}
+size_t RecordHeader::getBufferStartingPosition() const {return 0ULL;}
 
 /** {@inheritDoc} */
 void RecordHeader::setBufferStartingPosition(size_t bufferStartingPosition) {}
 
 /** {@inheritDoc} */
-size_t RecordHeader::nextBufferStartingPosition() const {return 0;}
+size_t RecordHeader::nextBufferStartingPosition() const {return 0ULL;}
 
 /** {@inheritDoc} */
-size_t RecordHeader::firstEventStartingPosition() const {return 0;}
+size_t RecordHeader::firstEventStartingPosition() const {return 0ULL;}
 
 /** {@inheritDoc} */
-size_t RecordHeader::bytesRemaining(size_t pos) const {return 0;}
+size_t RecordHeader::bytesRemaining(size_t pos) const {return 0ULL;}
 
 //----------------------------------------------------------------------------
 // Utility methods
 //----------------------------------------------------------------------------
 
 
-///**
-// * Run this class as an executable which tests the writing and reading of a record.
-// * @param args
-// */
-//void RecordHeader::main(string args[]){
-//
-//    RecordHeader header;
-//
-//    header.setCompressedDataLength(861);
-//    header.setDataLength(12457);
-//    header.setUserHeaderLength(459);
-//    header.setIndexLength(324);
-//    header.setLength(16 + header.getCompressedDataLengthWords());
-//    header.setUserRegisterFirst(1234567L);
-//    header.setUserRegisterSecond(4567890L);
-//    header.setRecordNumber(23);
-//    header.setEntries(3245);
-//    header.setHeaderLength(14);
-//    header.setCompressionType(1);
-//
-//    cout << header.toString();
-//
-//    ByteBuffer buffer(4*14);
-//    buffer.order(ByteOrder::ENDIAN_LITTLE);
-//
-//
-//    try {
-//        header.writeHeader(buffer);
-//    }
-//    catch (HipoException e) {/* never happen */}
-//
-//
-//    RecordHeader header2;
-//    try {
-//        header2.readHeader(buffer);
-//        cout << header2.toString();
-//    }
-//    catch (HipoException e) {
-//        cout << "error" << endl;
-//    }
-//}
+/**
+ * Run this class as an executable which tests the writing and reading of a record.
+ * @param args
+ */
+int RecordHeader::main(int argc, char **argv) {
+
+    RecordHeader header;
+
+    header.setCompressedDataLength(861);
+    header.setDataLength(12457);
+    header.setUserHeaderLength(459);
+    header.setIndexLength(324);
+    header.setLength(16 + header.getCompressedDataLengthWords());
+    header.setUserRegisterFirst(1234567L);
+    header.setUserRegisterSecond(4567890L);
+    header.setRecordNumber(23);
+    header.setEntries(3245);
+    header.setHeaderLength(14);
+    header.setCompressionType(Compressor::LZ4);
+
+    cout << header.toString();
+
+    ByteBuffer buffer(14*4);
+    buffer.order(ByteOrder::ENDIAN_LITTLE);
+
+
+    try {
+        header.writeHeader(buffer);
+    }
+    catch (HipoException e) {/* never happen */}
+
+
+    RecordHeader header2;
+    try {
+        header2.readHeader(buffer);
+        cout << header2.toString();
+    }
+    catch (HipoException e) {
+        cout << "error" << endl;
+    }
+
+    return 0;
+}
 
