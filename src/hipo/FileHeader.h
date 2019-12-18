@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <bitset>
 
 #include "ByteOrder.h"
 #include "HeaderType.h"
@@ -72,8 +73,7 @@
  * </pre>
  *
  * @version 6.0
- * @since 6.0 9/6/17
- * @author gavalian
+ * @since 6.0 10/16/19
  * @author timmer
  */
 class FileHeader {
@@ -96,10 +96,6 @@ public:
     static const uint32_t   HEADER_SIZE_BYTES = 56;
     /** Magic number used to track endianness. */
     static const uint32_t   HEADER_MAGIC = 0xc0da0100;
-    /** Magic number for HIPO's little endian uses. */
-    static const uint32_t   HEADER_MAGIC_LE = HEADER_MAGIC;
-    /** Magic number for HIPO's big endian uses (byte swapped from HEADER_MAGIC_LE). */
-    static const uint32_t   HEADER_MAGIC_BE = SWAP_32(HEADER_MAGIC);
 
     // Byte offset to header words
 
@@ -185,10 +181,10 @@ private:
     uint32_t  userHeaderLengthPadding = 0;
 
     /** Byte order of file. */
-    ByteOrder  byteOrder = ByteOrder::ENDIAN_LITTLE;
+    ByteOrder  byteOrder {ByteOrder::ENDIAN_LITTLE};
 
     /** Type of header this is. Normal HIPO record by default. */
-    HeaderType headerType = HeaderType::HIPO_FILE;
+    HeaderType headerType {HeaderType::HIPO_FILE};
 
 public:
 

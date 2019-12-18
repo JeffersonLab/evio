@@ -12,18 +12,7 @@ uint32_t FileHeader::padValue[4] = {0,3,2,1};
 
 
 /** Default, no-arg constructor. */
-FileHeader::FileHeader() {
-    fileId = HIPO_FILE_UNIQUE_WORD;
-    headerType = HeaderType::HIPO_FILE;
-}
-
-/**
- * Copy constructor.
- * @param header file header to copy.
- */
-FileHeader::FileHeader(const FileHeader & header) {
-    copy(header);
-}
+FileHeader::FileHeader() {bitInfoInit();}
 
 /**
  * Constructor which sets the type of header this is and file id.
@@ -38,6 +27,15 @@ FileHeader::FileHeader(bool isEvio) {
         fileId = HIPO_FILE_UNIQUE_WORD;
         headerType = HeaderType::HIPO_FILE;
     }
+    bitInfoInit();
+}
+
+/**
+ * Copy constructor.
+ * @param header file header to copy.
+ */
+FileHeader::FileHeader(const FileHeader & header) {
+    copy(header);
 }
 
 /**
@@ -47,26 +45,25 @@ FileHeader::FileHeader(bool isEvio) {
 void FileHeader::copy(const FileHeader & head) {
 
     if (this != &head) {
-        fileId = head.fileId;
-        headerType = head.headerType;
-
-        fileNumber = head.fileNumber;
-        userRegister = head.userRegister;
-        trailerPosition = head.trailerPosition;
-        userIntFirst = head.userIntFirst;
-        userIntSecond = head.userIntSecond;
-        position = head.position;
-        entries = head.entries;
-        bitInfo = head.bitInfo;
-        totalLength = head.totalLength;
-        headerLength = head.headerLength;
-        headerLengthWords = head.headerLengthWords;
-        userHeaderLength = head.userHeaderLength;
-        userHeaderLengthWords = head.userHeaderLengthWords;
-        indexLength = head.indexLength;
-        headerMagicWord = head.headerMagicWord;
+        fileId                  = head.fileId;
+        fileNumber              = head.fileNumber;
+        userRegister            = head.userRegister;
+        trailerPosition         = head.trailerPosition;
+        userIntFirst            = head.userIntFirst;
+        userIntSecond           = head.userIntSecond;
+        position                = head.position;
+        totalLength             = head.totalLength;
+        headerType              = head.headerType;
+        entries                 = head.entries;
+        bitInfo                 = head.bitInfo;
+        headerLength            = head.headerLength;
+        headerLengthWords       = head.headerLengthWords;
+        userHeaderLength        = head.userHeaderLength;
+        userHeaderLengthWords   = head.userHeaderLengthWords;
+        indexLength             = head.indexLength;
+        headerMagicWord         = head.headerMagicWord;
         userHeaderLengthPadding = head.userHeaderLengthPadding;
-        headerVersion = head.headerVersion;
+        headerVersion           = head.headerVersion;
     }
 }
 
@@ -208,9 +205,9 @@ uint32_t  FileHeader::getIndexLength() const {return indexLength;}
 uint32_t  FileHeader::getHeaderLength() const {return headerLength;}
 
 /**
-* Get the total length of header + index + user header in bytes.
+* Get the total length of header + index + user header (including padding) in bytes.
 * Never compressed.
-* @return total length of header + index + user header in bytes.
+* @return total length of header + index + user header (including padding) in bytes.
 */
 uint32_t FileHeader::getLength() const {return totalLength;}
 
@@ -311,6 +308,13 @@ uint32_t FileHeader::hasFirstEvent(bool hasFirst) {
 bool FileHeader::hasFirstEvent() const {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
 
 /**
+  * Does this bitInfo arg indicate the existence of a first event in the file header? Static.
+  * @param bitInfo bitInfo word.
+  * @return true if header has a first event in the file header, else false.
+  */
+bool FileHeader::hasFirstEvent(uint32_t bitInfo) {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
+
+/**
  * Set the bit in the file header which says there is a dictionary.
  * @param hasDictionary  true if file has a dictionary.
  * @return new bitInfo word.
@@ -333,6 +337,13 @@ uint32_t FileHeader::hasDictionary(bool hasDictionary) {
  * @return true if header has a dictionary in the file header, else false.
  */
 bool FileHeader::hasDictionary() const {return ((bitInfo & DICTIONARY_BIT) != 0);}
+
+/**
+ * Does this bitInfo arg indicate the existence of a dictionary in the file header?
+ * @param bitInfo bitInfo word.
+ * @return true if header has a dictionary in the file header, else false.
+ */
+bool FileHeader::hasDictionary(uint32_t bitInfo) {return ((bitInfo & DICTIONARY_BIT) != 0);}
 
 /**
  * Set the bit in the file header which says there is a trailer with a record length index.
@@ -359,6 +370,14 @@ uint32_t FileHeader::hasTrailerWithIndex(bool hasTrailerWithIndex) {
 bool FileHeader::hasTrailerWithIndex() const {return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);}
 
 /**
+* Does this bitInfo arg indicate the existence of a trailer with a record length index?
+* @param bitInfo bitInfo word.
+* @return true if file has a trailer with a record length index, else false.
+*/
+bool FileHeader::hasTrailerWithIndex(uint32_t bitInfo) {
+    return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);
+}
+/**
  * Is this header followed by a user header?
  * @return true if header followed by a user header, else false.
  */
@@ -371,31 +390,6 @@ bool FileHeader::hasUserHeader() const {return userHeaderLength > 0;}
  * @return true if file has a valid index, else false.
  */
 bool FileHeader::hasIndex() const {return ((indexLength > 3) && (indexLength % 4 == 0));}
-
-// Static --------------
-
-/**
-  * Does this bitInfo arg indicate the existence of a first event in the file header?
-  * @param bitInfo bitInfo word.
-  * @return true if header has a first event in the file header, else false.
-  */
-bool FileHeader::hasFirstEvent(uint32_t bitInfo) {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
-
-/**
- * Does this bitInfo arg indicate the existence of a dictionary in the file header?
- * @param bitInfo bitInfo word.
- * @return true if header has a dictionary in the file header, else false.
- */
-bool FileHeader::hasDictionary(uint32_t bitInfo) {return ((bitInfo & DICTIONARY_BIT) != 0);}
-
-/**
-* Does this bitInfo arg indicate the existence of a trailer with a record length index?
-* @param bitInfo bitInfo word.
-* @return true if file has a trailer with a record length index, else false.
-*/
-bool FileHeader::hasTrailerWithIndex(uint32_t bitInfo) {
-    return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);
-}
 
 //-----------
 // Setters
@@ -475,6 +469,15 @@ FileHeader & FileHeader::setUserHeaderLength(uint32_t length) {
     return *this;
 }
 
+/**
+  * Set the user header's padding - the number of bytes required to bring uncompressed
+  * user header to 4-byte boundary. Sets the associated value in bitInfo word.
+  * @param padding user header's padding.
+  */
+void FileHeader::setUserHeaderLengthPadding(uint32_t padding) {
+    userHeaderLengthPadding = padding;
+    bitInfo = bitInfo | (userHeaderLengthPadding << 20);
+}
 
 /**
  * Set the this header's length in bytes & words.
@@ -502,16 +505,6 @@ FileHeader & FileHeader::setLength(uint32_t length) {
     return *this;
 }
 
-/**
-  * Set the user header's padding - the number of bytes required to bring uncompressed
-  * user header to 4-byte boundary. Sets the associated value in bitInfo word.
-  * @param padding user header's padding.
-  */
-void FileHeader::setUserHeaderLengthPadding(uint32_t padding) {
-    userHeaderLengthPadding = padding;
-    bitInfo = bitInfo | (userHeaderLengthPadding << 20);
-}
-
 //-------------------------------------------------
 
 /**
@@ -532,6 +525,8 @@ void FileHeader::writeHeader(ByteBuffer & buf, size_t off) {
     buf.putInt (12 + off, entries);           //  3*4
     buf.putInt (16 + off, indexLength);       //  4*4
     buf.putInt (20 + off, getBitInfoWord());  //  5*4
+
+    cout << "      writeHeader: bit info = " << hex << getBitInfoWord() << dec << endl;
     buf.putInt (24 + off, userHeaderLength);  //  6*4
     buf.putInt (28 + off, headerMagicWord);   //  7*4
     buf.putLong(32 + off, userRegister);      //  8*4
@@ -563,7 +558,7 @@ void FileHeader::writeHeader(ByteBuffer & buffer) {
 void FileHeader::readHeader(ByteBuffer & buffer, size_t offset) {
 
     if ((buffer.limit() - offset) < HEADER_SIZE_BYTES) {
-        throw HipoException("null or too small buffer arg");
+        throw HipoException("buf is too small");
     }
 
     // First read the magic word to establish endianness
@@ -580,6 +575,7 @@ void FileHeader::readHeader(ByteBuffer & buffer, size_t offset) {
                 byteOrder = ByteOrder::ENDIAN_BIG;
             }
             buffer.order(byteOrder);
+            headerMagicWord = HEADER_MAGIC;
         }
         else {
             // ERROR condition, bad magic word
@@ -646,7 +642,7 @@ string FileHeader::toString() const {
     ss << setw(24) << "ID" << " : " << fileId << (fileId == EVIO_FILE_UNIQUE_WORD ? ", Evio" : ", Hipo") << " file" << endl;
     ss << dec;
     ss << setw(24) << "version" << " : " << headerVersion << endl;
-    ss << setw(24) << "file #" << " : " << fileNumber << "    bytes,     words,    padding" << endl;
+    ss << setw(24) << "file #" << " : " << fileNumber << ",  bytes,     words,    padding" << endl;
 
     ss << setw(24) << "user header length" << " : " << setw(8) << userHeaderLength << " / " <<
           setw(8) << userHeaderLengthWords << " / " << setw(8) << userHeaderLengthPadding << endl;
@@ -654,8 +650,12 @@ string FileHeader::toString() const {
     ss << setw(24) << "header length"    << " : " << headerLength << endl;
     ss << hex;
     ss << setw(24) << "magic word"       << " : " << headerMagicWord << endl;
+    std::bitset<32> infoBits(bitInfo);
+    ss << setw(24) << "bit info bits"    << " : " << infoBits << endl;
     ss << setw(24) << "bit info word"    << " : " << bitInfo         << endl;
     ss << setw(24) << "has dictionary"   << " : " << hasDictionary() << endl;
+    ss << setw(24) << "has firstEvent"   << " : " << hasFirstEvent() << endl;
+    ss << setw(24) << "has trailer w/ index" << " : " << hasTrailerWithIndex() << endl;
     ss << dec;
     ss << setw(24) << "record entries"   << " : " << entries << endl;
     ss << setw(24) << "index length"     << " : " << indexLength << endl;
@@ -665,62 +665,7 @@ string FileHeader::toString() const {
     ss << setw(24) << "user int #1"      << " : " << userIntFirst << endl;
     ss << setw(24) << "user int #2"      << " : " << userIntSecond << endl;
 
-//    str.append(String.format("%24s : 0x%x, %s file\n","ID",fileId,
-//                             (fileId == EVIO_FILE_UNIQUE_WORD ? "Evio" : "Hipo")));
-//    str.append(String.format("%24s : %d\n","version",headerVersion));
-//    str.append(String.format("%24s : %d    bytes,     words,    padding\n","file #",fileNumber));
-//    str.append(String.format("%24s : %8d / %8d / %8d\n","user header length",
-//                             userHeaderLength, userHeaderLengthWords, userHeaderLengthPadding));
-//    str.append(String.format("%24s : %d\n","header length",headerLength));
-//    str.append(String.format("%24s : 0x%X\n","magic word",headerMagicWord));
-//    Integer bitInfo = getBitInfoWord();
-//    str.append(String.format("%24s : %s\n","bit info bits",Integer.toBinaryString(bitInfo)));
-//    str.append(String.format("%24s : 0x%x\n","bit info word",bitInfo));
-//    str.append(String.format("%24s : %b\n","has dictionary",FileHeader.hasDictionary(bitInfo)));
-//    str.append(String.format("%24s : %d\n","record entries",entries));
-//
-//    str.append(String.format("%24s : %d\n","  index length", indexLength));
-//
-//    str.append(String.format("%24s : %d\n","trailer position", trailerPosition));
-//    str.append(String.format("%24s : 0x%X\n","user register", userRegister));
-//    str.append(String.format("%24s : 0x%X\n","user int #1", userIntFirst));
-//    str.append(String.format("%24s : 0x%X\n","user int #2", userIntSecond));
-
     return ss.str();
 }
 
 
-///**
-// * Run this class as an executable which tests the writing and reading of a record.
-// * @param args
-// */
-//void FileHeader::main(string args[]) {
-//    FileHeader header;
-//
-//    header.setUserHeaderLength(459);
-//    header.setIndexLength(324);
-//    header.setUserRegister(123123123123123L);
-//    header.setUserIntFirst(1234567);
-//    header.setUserIntSecond(4567890);
-//    header.setFileNumber(23);
-//    header.setEntries(3245);
-//    header.setHeaderLength(14);
-//
-//    cout << header.toString();
-//
-//    ByteBuffer buffer(4*14);
-//    buffer.order(ByteOrder::ENDIAN_LITTLE);
-//
-//    try {
-//        header.writeHeader(buffer);
-//    }
-//    catch (HipoException e) {/* never happen */}
-//
-//    FileHeader header2;
-//    try {
-//        header2.readHeader(buffer);
-//    }
-//    catch (HipoException e) {
-//        cout << "error" << endl;
-//    }
-//}
