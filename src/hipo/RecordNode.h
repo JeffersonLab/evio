@@ -21,41 +21,38 @@ class RecordNode {
 private:
 
     /** Record's length value (32-bit words). */
-    uint32_t len;
+    uint32_t len = 0;
     /** Number of events in record. */
-    uint32_t count;
+    uint32_t count = 0;
     /** Position of record in file/buffer.  */
-    uint32_t pos;
+    uint32_t pos = 0;
     /**
      * Place of this record in file/buffer. First record = 0, second = 1, etc.
      * Useful for appending banks to EvioEvent object.
      */
-    uint32_t place;
+    uint32_t place = 0;
 
 public:
 
-    RecordNode() {
-        len = pos = count = place = 0;
-    }
+    RecordNode() = default;
 
     void clear() {
         len = count = pos = place = 0;
     }
 
-
-    uint32_t getLen() {return len;}
+    uint32_t getLen() const {return len;}
     void setLen(uint32_t l) {len = l;}
 
-    uint32_t getCount() {return count;}
+    uint32_t getCount() const {return count;}
     void setCount(uint32_t c) {count = c;}
 
-    uint32_t getPos() {return pos;}
+    uint32_t getPos() const {return pos;}
     void setPos(uint32_t p) {pos = p;}
 
-    uint32_t getPlace() {return place;}
+    uint32_t getPlace() const {return place;}
     void setPlace(uint32_t p) {place = p;}
 
-    string toString() {
+    string toString() const {
         stringstream ss;
 
         ss << "len = "      << len;
@@ -65,7 +62,6 @@ public:
 
         return ss.str();
     }
-
 
 };
 
