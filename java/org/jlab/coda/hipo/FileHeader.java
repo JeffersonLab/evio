@@ -141,8 +141,6 @@ public class FileHeader {
     /** Position of this header in a file. */
     private long position;
 
-    /** Type of header this is. Normal HIPO record by default. */
-    private HeaderType headerType = HeaderType.HIPO_FILE;
     /** Event or record count. 4th word. */
     private int  entries;
     /** BitInfo & version. 6th word. */
@@ -162,20 +160,22 @@ public class FileHeader {
      *  Not stored in any word. */
     private int  totalLength = HEADER_SIZE_BYTES;
 
-
     /** Evio format version number. It is 6 when being written, else
      * the version of file/buffer being read. Lowest byte of 6th word. */
     private int  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
     private int  headerMagicWord = HEADER_MAGIC;
+
+    /** Number of bytes required to bring uncompressed
+      * user header to 4-byte boundary. Stored in 6th word.
+      * Updated automatically when lengths are set. */
+    private int  userHeaderLengthPadding;
+
     /** Byte order of file. */
     private ByteOrder  byteOrder = ByteOrder.LITTLE_ENDIAN;
 
-    // These quantities are updated automatically when lengths are set
-
-    /** Number of bytes required to bring uncompressed
-      * user header to 4-byte boundary. Stored in 6th word. */
-    private int  userHeaderLengthPadding;
+    /** Type of header this is. Normal HIPO record by default. */
+    private HeaderType headerType = HeaderType.HIPO_FILE;
 
 
 
@@ -374,9 +374,9 @@ public class FileHeader {
     public HeaderType getHeaderType() {return headerType;}
 
     /**
-     * Get the total length of header + index + user header in bytes.
+     * Get the total length of header + index + user header (including padding) in bytes.
      * Never compressed.
-     * @return total length of header + index + user header in bytes.
+     * @return total length of header + index + user header (including padding) in bytes.
      */
     public int getLength() {return totalLength;}
 
@@ -389,6 +389,24 @@ public class FileHeader {
 
     // Bit info methods
 
+    /**
+     * Decodes the bit-info word into version, padding and header type.
+     * @param word bit-info word.
+     */
+    private void decodeBitInfoWord(int word) {
+        // Padding
+        userHeaderLengthPadding = (word >>> 20) & 0x3;
+
+        // Evio version
+        headerVersion = (word & 0xff);
+
+        // Header type
+        headerType =  HeaderType.getHeaderType(word >>> 28);
+        if (headerType == null) {
+            headerType = HeaderType.EVIO_RECORD;
+        }
+    }
+
     /** Initialize bitInfo word to this value. */
     private void bitInfoInit() {
         bitInfo = (headerType.getValue() << 28) | (headerVersion & 0xFF);
@@ -399,6 +417,15 @@ public class FileHeader {
      * @return bit info word.
      */
     public int getBitInfoWord() {return bitInfo;}
+
+    /**
+     * Set the bit info word and related values.
+     * @param word  bit info word.
+     */
+    void  setBitInfoWord(int word) {
+        bitInfo = word;
+        decodeBitInfoWord(word);
+    }
 
     /**
      * Set the bit info word for a file header.
@@ -516,33 +543,6 @@ public class FileHeader {
      */
     static public boolean hasTrailerWithIndex(int bitInfo) {
         return ((bitInfo & TRAILER_WITH_INDEX_BIT) != 0);
-    }
-
-    /**
-     * Set the bit info word and related values.
-     * @param word  bit info word.
-     */
-    void  setBitInfoWord(int word) {
-        bitInfo = word;
-        decodeBitInfoWord(word);
-    }
-
-    /**
-     * Decodes the bit-info word into version, padding and header type.
-     * @param word bit-info word.
-     */
-    private void decodeBitInfoWord(int word) {
-        // Padding
-        userHeaderLengthPadding = (word >>> 20) & 0x3;
-
-        // Evio version
-        headerVersion = (word & 0xff);
-
-        // Header type
-        headerType =  HeaderType.getHeaderType(word >>> 28);
-        if (headerType == null) {
-            headerType = HeaderType.EVIO_RECORD;
-        }
     }
 
     //--------------------------------------------------------------
@@ -681,9 +681,9 @@ public class FileHeader {
      * @throws HipoException if buffer is null or contains too little room.
      */
      public void writeHeader(ByteBuffer buf, int off) throws HipoException {
-// TODO: shouldn't this be buf.limit - off ?????
-         if (buf == null || (buf.capacity() - off) < HEADER_SIZE_BYTES) {
-             throw new HipoException("null or too small buf arg");
+
+         if (buf == null || (buf.limit() - off) < HEADER_SIZE_BYTES) {
+             throw new HipoException("buf is null or too small");
          }
 
          buf.putInt (     off, fileId);            //  0*4
@@ -717,13 +717,14 @@ public class FileHeader {
      *
      * @param buffer buffer to read from.
      * @param offset position of first word to be read.
-     * @throws HipoException if buffer is null, contains too little data,
-     *                       is not in proper format, or version earlier than 6.
+     * @throws HipoException if buffer is null,
+     *                       remaining buffer space (limit - off) is too small,
+     *                       data is not in proper format, or version earlier than 6.
      */
     public void readHeader(ByteBuffer buffer, int offset) throws HipoException {
-// TODO: shouldn't this be buf.limit - off ?????
-        if (buffer == null || (buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
-            throw new HipoException("null or too small buffer arg");
+
+        if (buffer == null || (buffer.limit() - offset) < HEADER_SIZE_BYTES) {
+            throw new HipoException("buffer is null or too small");
         }
 
         // First read the magic word to establish endianness
@@ -740,11 +741,12 @@ public class FileHeader {
                     byteOrder = ByteOrder.BIG_ENDIAN;
                 }
                 buffer.order(byteOrder);
+                headerMagicWord = HEADER_MAGIC;
             }
             else {
                 // ERROR condition, bad magic word
-                
-                throw new HipoException("buffer arg not in evio/hipo format");
+                throw new HipoException("buffer not in evio/hipo format? magic int = 0x" +
+                                        Integer.toHexString(headerMagicWord));
             }
         }
         else {
@@ -815,6 +817,8 @@ public class FileHeader {
         str.append(String.format("%24s : %s\n","bit info bits",Integer.toBinaryString(bitInfo)));
         str.append(String.format("%24s : 0x%x\n","bit info word",bitInfo));
         str.append(String.format("%24s : %b\n","has dictionary",FileHeader.hasDictionary(bitInfo)));
+        str.append(String.format("%24s : %b\n","has first event",FileHeader.hasFirstEvent(bitInfo)));
+        str.append(String.format("%24s : %b\n","has trailer w/ index",FileHeader.hasTrailerWithIndex(bitInfo)));
         str.append(String.format("%24s : %d\n","record entries",entries));
 
         str.append(String.format("%24s : %d\n","  index length", indexLength));

@@ -97,6 +97,7 @@ public class RecordHeader implements IBlockHeader {
 
     /** Array to help find number of bytes to pad data. */
     private final static int[] padValue = {0,3,2,1};
+
     /** Number of 32-bit words in a normal sized header. */
     public final static int   HEADER_SIZE_WORDS = 14;
     /** Number of bytes in a normal sized header. */
@@ -173,6 +174,10 @@ public class RecordHeader implements IBlockHeader {
 
     //-------------------
 
+    /** First user-defined 64-bit register. 11th and 12th words. */
+    private long recordUserRegisterFirst;
+    /** Second user-defined 64-bit register. 13th and 14th words. */
+    private long recordUserRegisterSecond;
     /** Position of this header in a file. */
     private long position;
     /** Length of the entire record this header is a part of (bytes). */
@@ -181,14 +186,8 @@ public class RecordHeader implements IBlockHeader {
     private int  recordLengthWords;
     /** Record number. 2nd word. */
     private int  recordNumber = 1;
-    /** First user-defined 64-bit register. 11th and 12th words. */
-    private long recordUserRegisterFirst;
-    /** Second user-defined 64-bit register. 13th and 14th words. */
-    private long recordUserRegisterSecond;
 
 
-    /** Type of header this is. Normal HIPO record by default. */
-    private HeaderType headerType = HeaderType.HIPO_RECORD;
     /** Event or record count. 4th word. */
     private int  entries;
     /** BitInfo & version. 6th word. */
@@ -217,30 +216,36 @@ public class RecordHeader implements IBlockHeader {
     private int  compressedDataLength;
     /** Compressed data length (words) when padded. Lowest 28 bits of 10th word. */
     private int  compressedDataLengthWords;
-    /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
-      * Highest 4 bits of 10th word. */
-    private CompressionType compressionType;
     /** Evio format version number. It is 6 when being written, else
      * the version of file/buffer being read. Lowest byte of 6th word. */
     private int  headerVersion = 6;
     /** Magic number for tracking endianness. 8th word. */
     private int  headerMagicWord = HEADER_MAGIC;
+
+    /** Number of bytes required to bring uncompressed
+      * user header to 4-byte boundary. Stored in 6th word.
+      * Updated automatically when lengths are set. */
+    private int  userHeaderLengthPadding;
+    /** Number of bytes required to bring uncompressed
+      * data to 4-byte boundary. Stored in 6th word.
+      * Updated automatically when lengths are set. */
+    private int  dataLengthPadding;
+    /** Number of bytes required to bring compressed
+      * data to 4-byte boundary. Stored in 6th word.
+      * Updated automatically when lengths are set. */
+    private int  compressedDataLengthPadding;
+
+    /** Type of header this is. Normal HIPO record by default. */
+    private HeaderType headerType = HeaderType.HIPO_RECORD;
+    
     /** Byte order of file/buffer this header was read from. */
     private ByteOrder  byteOrder = ByteOrder.LITTLE_ENDIAN;
 
-    // These quantities are updated automatically when lengths are set
+    /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
+      * Highest 4 bits of 10th word. */
+    private CompressionType compressionType = CompressionType.RECORD_UNCOMPRESSED;
 
-    /** Number of bytes required to bring uncompressed
-      * user header to 4-byte boundary. Stored in 6th word. */
-    private int  userHeaderLengthPadding;
-    /** Number of bytes required to bring uncompressed
-      * data to 4-byte boundary. Stored in 6th word. */
-    private int  dataLengthPadding;
-    /** Number of bytes required to bring compressed
-      * data to 4-byte boundary. Stored in 6th word. */
-    private int  compressedDataLengthPadding;
 
-    
 
     /** Default, no-arg constructor. */
     public RecordHeader() {bitInfoInit();}
@@ -286,14 +291,12 @@ public class RecordHeader implements IBlockHeader {
         if (head == null) return;
 
         position                 = head.position;
-
         recordLength             = head.recordLength;
         recordNumber             = head.recordNumber;
         recordLengthWords        = head.recordLengthWords;
         recordUserRegisterFirst  = head.recordUserRegisterFirst;
         recordUserRegisterSecond = head.recordUserRegisterSecond;
 
-        headerType = head.headerType;
         entries                   = head.entries;
         bitInfo                   = head.bitInfo;
         eventType                 = head.eventType;
@@ -306,21 +309,28 @@ public class RecordHeader implements IBlockHeader {
         dataLengthWords           = head.dataLengthWords;
         compressedDataLength      = head.compressedDataLength;
         compressedDataLengthWords = head.compressedDataLengthWords;
-        compressionType           = head.compressionType;
         headerMagicWord           = head.headerMagicWord;
         // don't bother with version as must be same
 
         userHeaderLengthPadding     = head.userHeaderLengthPadding;
         dataLengthPadding           = head.dataLengthPadding;
         compressedDataLengthPadding = head.compressedDataLengthPadding;
+
+        byteOrder                   = head.byteOrder;
+        headerType                  = head.headerType;
+        compressionType             = head.compressionType;
     }
 
     /** Reset generated data. */
     public void reset(){
         // Do NOT reset header type which is only set in constructor!
         // Do NOT reset the compression type
-        position = 0L;
 
+        // What about byteOrder?
+        // When reading, it's automatically set. When writing,
+        // it's determined by the ByteBuffer we're writing into.
+
+        position = 0L;
         recordLength = 0;
         recordNumber = 1;
         recordLengthWords = 0;
@@ -816,7 +826,6 @@ public class RecordHeader implements IBlockHeader {
         return bitInfo;
     }
 
-
     // Setters
 
     /**
@@ -856,7 +865,7 @@ public class RecordHeader implements IBlockHeader {
     public RecordHeader  setLength(int length) {
         recordLength      = length;
         recordLengthWords = length/4;
-        //System.out.println(" LENGTH = " + recordLength + "  WORDS = " + this.recordLengthWords
+        //System.out.println(" LENGTH = " + recordLength + "  WORDS = " + recordLengthWords
         //+ "  SIZE = " + recordLengthWords*4 );
         return this;
     }
@@ -976,8 +985,8 @@ public class RecordHeader implements IBlockHeader {
     public void writeHeader(ByteBuffer buf, int off) throws HipoException {
 
         // Check arg
-        if (buf == null || (buf.capacity() - off) < HEADER_SIZE_BYTES) {
-            throw new HipoException("null or too small buf arg");
+        if (buf == null || (buf.limit() - off) < HEADER_SIZE_BYTES) {
+            throw new HipoException("buf null or too small");
         }
 
         int compressedWord =  (compressedDataLengthWords & 0x0FFFFFFF) |
@@ -1084,21 +1093,25 @@ public class RecordHeader implements IBlockHeader {
 
          try {
              // First the general header part
-             ByteDataTransformer.toBytes(wholeLength/4,  order, array, off);        // 0*4
-             ByteDataTransformer.toBytes(recordNumber, order, array, 4 + off);      // 1*4
-             ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8 + off); // 2*4
-             ByteDataTransformer.toBytes(0, order, array, 12 + off);                // 3*4
-             ByteDataTransformer.toBytes(indexLength, order, array, 16 + off);      // 4*4
-             ByteDataTransformer.toBytes(bitInfo, order, array, 20 + off);          // 5*4
-             ByteDataTransformer.toBytes(0, order, array, 24 + off);                // 6*4
-             ByteDataTransformer.toBytes(HEADER_MAGIC, order, array, 28 + off);     // 7*4
+             ByteDataTransformer.toBytes(wholeLength/4,     order, array,      off); // 0*4
+             ByteDataTransformer.toBytes(recordNumber,      order, array, 4  + off); // 1*4
+             ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8  + off); // 2*4
+             ByteDataTransformer.toBytes(0,                 order, array, 12 + off); // 3*4
+             ByteDataTransformer.toBytes(indexLength,       order, array, 16 + off); // 4*4
+             ByteDataTransformer.toBytes(bitInfo,           order, array, 20 + off); // 5*4
+             ByteDataTransformer.toBytes(0,                 order, array, 24 + off); // 6*4
+             ByteDataTransformer.toBytes(HEADER_MAGIC,      order, array, 28 + off); // 7*4
+
              // The rest is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
              Arrays.fill(array, 32 + off, 56 + off, (byte)0);
 
              // Second the index
              if (indexLength > 0) {
-// TODO: ENDIAN ISSUES HERE??????
-                 System.arraycopy(index, 0, array, 14 * 4 + off, indexLength);
+                 System.arraycopy(index, 0, array, 56 + off, indexLength);
+                 // Swap in place if necessary
+                 if (order == ByteOrder.LITTLE_ENDIAN) {
+                     ByteDataTransformer.swapArray32(array, 56+off, indexLength);
+                 }
              }
          }
          catch (EvioException e) {/* never happen */}
@@ -1143,7 +1156,7 @@ public class RecordHeader implements IBlockHeader {
 
         // Check arg
         if (buf == null || (buf.capacity() - off < wholeLength)) {
-            throw new HipoException("null or too small buf arg");
+            throw new HipoException("buf null or too small");
         }
 
         // Make sure the limit allows writing
@@ -1354,7 +1367,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
 
 
         str.append(String.format("%24s : %d\n","event count",entries));
-        str.append(String.format("%24s : %d\n","compression type",compressionType));
+        str.append(String.format("%24s : %s\n","compression type",compressionType));
 
         str.append(String.format("%24s : %d\n","user register #1",recordUserRegisterFirst));
         str.append(String.format("%24s : %d\n","user register #2",recordUserRegisterSecond));

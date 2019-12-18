@@ -55,7 +55,7 @@ public class RecordRingItem {
     /** Keep track of whether this item has already been released. */
     private boolean alreadyReleased;
 
-    /** We may want to track a particular record. */
+    /** We may want to track a particular record for debugging. */
     private long id;
 
 
@@ -118,16 +118,14 @@ public class RecordRingItem {
     /** Method to reset this item each time it is retrieved from the supply. */
     public void reset() {
         record.reset();
-
-        id = 0L;
+        // id is not automatically reset, use setter
         sequence = 0L;
         sequenceObj = null;
-        
         lastItem = false;
         checkDisk = false;
         forceToDisk = false;
-        alreadyReleased = false;
         splitFileAfterWrite = false;
+        alreadyReleased = false;
     }
 
     /**

@@ -17,6 +17,14 @@ import java.util.List;
  */
 public class FileEventIndex {
 
+    /** Index number of the current event in the file. */
+    private int currentEvent = 0;
+    /** Index number of the current record.
+     *  First record has value of 0. Add one to use with recordIndex. */
+    private int currentRecord = 0;
+    /** Index number of the current event in the current record. */
+    private int currentRecordEvent = 0;
+
     /**
      * Each entry corresponds to a record.
      * The value of each entry is the total number of events in
@@ -25,16 +33,10 @@ public class FileEventIndex {
      * record and its value is always 0. Thus, an index of 1 in this
      * list corresponds to the first record.
      */
-    private List<Integer>       recordIndex  = new ArrayList<Integer>();
-    /** Index number of the current event in the file. */
-    private int                 currentEvent = 0;
-    /** Index number of the current record.
-     *  First record has value of 0. Add one to use with recordIndex. */
-    private int                currentRecord = 0;
-    /** Index number of the current event in the current record. */
-    private int           currentRecordEvent = 0;
+    private List<Integer> recordIndex  = new ArrayList<Integer>();
 
 
+    
     /** Constructor. */
     public FileEventIndex() {}
 
@@ -49,7 +51,10 @@ public class FileEventIndex {
      * Resets the current index to 0. The corresponding
      * record number is recalculated by calling setEvent() method.
      */
-    public void resetIndex() {currentEvent = 0; setEvent(currentEvent);}
+    public void resetIndex() {
+        currentEvent = 0;
+        setEvent(currentEvent);
+    }
 
     /**
      * Adds the number of events in the next record to the index of records.
@@ -57,11 +62,12 @@ public class FileEventIndex {
      * the file up to and including the record of this entry.
      * @param size number of events in the next record.
      */
-    public void addEventSize(int size){
-        if(recordIndex.isEmpty()){
+    public void addEventSize(int size) {
+        if (recordIndex.isEmpty()) {
             recordIndex.add(0);
             recordIndex.add(size);
-        } else {
+        }
+        else {
             int cz = recordIndex.get(recordIndex.size()-1) + size;
             recordIndex.add(cz);
         }
@@ -91,11 +97,19 @@ public class FileEventIndex {
     public int getRecordEventNumber() {return currentRecordEvent;}
 
     /**
+     * Gets the total number of events in file.
+     * @return returns the number of events corresponding to the all records.
+     */
+    public int getMaxEvents() {
+        return recordIndex.isEmpty() ? 0 : recordIndex.get(recordIndex.size()-1);
+    }
+
+    /**
      * Checks to see if the event counter reached the end.
      * @return true if there are more events to advance to, false otherwise.
      */
     public boolean canAdvance() {
-        //System.out.println(" current event = " + currentEvent + " MAX = " + getMaxEvents());
+//System.out.println(" current event = " + currentEvent + " MAX = " + getMaxEvents());
         return (currentEvent < (getMaxEvents()-1));
     }
 
@@ -110,7 +124,7 @@ public class FileEventIndex {
     public boolean advance() {
         // If no data entered into recordIndex yet ...
         if (recordIndex.isEmpty()) {
-            System.out.println("advance(): Warning, no entries in recordIndex!");
+//System.out.println("advance(): Warning, no entries in recordIndex!");
             return false;
         }
 
@@ -122,7 +136,7 @@ public class FileEventIndex {
         
         // Trying to advance beyond the limit of list
         if (recordIndex.size() < currentRecord + 2 + 1) {
-            System.out.println("advance(): Warning, reached recordIndex limit!");
+//System.out.println("advance(): Warning, reached recordIndex limit!");
             return false;
         }
 
@@ -156,14 +170,6 @@ public class FileEventIndex {
             currentRecordEvent = currentEvent - recordIndex.get(currentRecord);
         }
         return true; 
-    }
-
-    /**
-     * Gets the total number of events in file.
-     * @return returns the number of events corresponding to the all records.
-     */
-    public int getMaxEvents() {
-        return recordIndex.isEmpty() ? 0 : recordIndex.get(recordIndex.size()-1);
     }
 
     /** Prints the content of the event index array on the screen. */
@@ -207,7 +213,7 @@ public class FileEventIndex {
             currentEvent  = event;
             currentRecordEvent = currentEvent - recordIndex.get(currentRecord);
         }
-System.out.println("  event #" + event + " found at record index " + currentRecord);
+//System.out.println("  event #" + event + " found at record index " + currentRecord);
         return hasRecordChanged;
     }
     

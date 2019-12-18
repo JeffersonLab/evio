@@ -180,8 +180,8 @@ public class RecordSupply {
      *                                  threadCount > ringSize.
      */
     public RecordSupply(int ringSize, ByteOrder order,
-                        int threadCount, int maxEventCount,
-                        int maxBufferSize, CompressionType compressionType)
+                        int threadCount, int maxEventCount, int maxBufferSize,
+                        CompressionType compressionType)
             throws IllegalArgumentException {
 
         if (ringSize < 1 || Integer.bitCount(ringSize) != 1) {
@@ -208,8 +208,7 @@ public class RecordSupply {
                                           new SpinCountBackoffWaitStrategy(10000, new LiteBlockingWaitStrategy()));
                                     //      new YieldingWaitStrategy());
 
-        // The thread which fills records is considered the "producer"
-        // and doesn't need a barrier.
+        // Thread which fills records is considered the "producer" and doesn't need a barrier
 
         // Barrier & sequences so record-COMPRESSING threads can get records.
         // This is the first group of consumers which all share the same barrier.
@@ -217,14 +216,20 @@ public class RecordSupply {
         compressSeqs = new Sequence[compressionThreadCount];
         nextCompressSeqs = new long[compressionThreadCount];
         availableCompressSeqs = new long[compressionThreadCount];
-        // Initialize with -1's
-        Arrays.fill(availableCompressSeqs, -1);
 
         for (int i=0; i < compressionThreadCount; i++) {
             compressSeqs[i] = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
             // Each thread will get different records from each other.
             // First thread gets 0, 2nd thread gets 1, etc.
-            nextCompressSeqs[i] = compressSeqs[i].get() + 1 + i;
+            long firstSeqToGet = Sequencer.INITIAL_CURSOR_VALUE + 1 + i;
+            nextCompressSeqs[i] = firstSeqToGet;
+            // Release, in advance, records to be skipped next.
+            // This keeps things from hanging up.
+            if (i != 0) {
+                compressSeqs[i].set(firstSeqToGet - 1);
+            }
+            // Initialize with -1's
+            availableCompressSeqs[i] = -1L;
         }
 
         // Barrier & sequence so a single record-WRITING thread can get records.
@@ -404,7 +409,6 @@ public class RecordSupply {
     public void releaseCompressor(RecordRingItem item) {
         if (item == null) return;
         item.getSequenceObj().set(item.getSequence() + compressionThreadCount - 1);
-        return;
     }
 
     /**
