@@ -13,20 +13,8 @@
  */
 WriterMT::WriterMT() :
     WriterMT(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LITTLE, 0, 0,
-             Compressor::LZ4, 1, "", nullptr, 0) {
+             Compressor::LZ4, 1, true, "", nullptr, 0, 16) {
 }
-
-//
-///**
-// * Copy constructor.
-// * @param other writer to copy.
-// */
-//WriterMT::WriterMT(const WriterMT & other) {
-//    // Avoid self copy ...
-//    if (this != &other) {
-//        // TODO:
-//    }
-//}
 
 
 /**
@@ -44,7 +32,7 @@ WriterMT::WriterMT() :
 WriterMT::WriterMT(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                    Compressor::CompressionType compType, uint32_t compressionThreads) :
     WriterMT(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize,
-             compType, compressionThreads, "", nullptr, 0) {
+             compType, compressionThreads, true, "", nullptr, 0, 16) {
 }
 
 
@@ -59,44 +47,40 @@ WriterMT::WriterMT(const ByteOrder & order, uint32_t maxEventCount, uint32_t max
  *                      Value of O means use default (1M).
  * @param maxBufferSize max number of uncompressed data bytes a record can hold.
  *                      Value of < 8MB results in default of 8MB.
+ * @param compType      type of data compression to do (one, lz4 fast, lz4 best, gzip)
+ * @param compressionThreads number of threads doing compression simultaneously
+ * @param addTrailerIndex if true, we add a record index to the trailer.
  * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
  * @param firstEvent    byte array containing an evio event to be included in userHeader.
  *                      It must be in the same byte order as the order argument.
- * @param firstEventLen number of bytes in firstEvent.
+ * @param firstEventLen number of valid bytes in firstEvent.
+ * @param ringSize      number of records in supply ring, must be multiple of 2
+ *                      and >= compressionThreads.
  */
 WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
                    uint32_t maxEventCount, uint32_t maxBufferSize,
                    Compressor::CompressionType compType, uint32_t compressionThreads,
-                   const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen) {
+                   bool addTrailerIndex,
+                   const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen,
+                   uint32_t ringSize) :
+
+                   byteOrder(order) {
 
     this->dictionary = dictionary;
     this->firstEvent = firstEvent;
+    if (firstEvent == nullptr) {
+        firstEventLen = 0;
+    }
     firstEventLength = firstEventLen;
     this->maxEventCount = maxEventCount;
     this->maxBufferSize = maxBufferSize;
+    this->addTrailerIndex = addTrailerIndex;
 
-    byteOrder = order;
     compressionType = compType;
     compressionThreadCount = compressionThreads;
 
-    userHeader = nullptr;
-    userHeaderLength = 0;
-    writerBytesWritten = 0;
-
-    closed             = false;
-    opened             = false;
-    addingTrailer      = false;
-    addTrailerIndex    = false;
-    firstRecordWritten = false;
-
     recordLengths.reserve(1500);
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
-    outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType);
-
-    if ((dictionary.length() > 0) ||
-        (firstEvent != nullptr && firstEventLen > 0))  {
-        dictionaryFirstEventBuffer = createDictionaryRecord();
-    }
 
     if (hType == HeaderType::HIPO_FILE) {
         fileHeader = FileHeader(false);
@@ -104,25 +88,50 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
         fileHeader = FileHeader(true);
     }
 
-    // Create uncompressed record Queues - one for each compression thread input
-    queues = vector<ConcurrentFixedQueue<RecordOutput>>();
-    for (int i=0; i < compressionThreadCount; i++) {
-        queues.emplace_back(ConcurrentFixedQueue<RecordOutput>(4));
+    haveDictionary = dictionary.length() > 0;
+    haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
+
+    if (haveDictionary) {
+        cout << "WriterMT CON: create dict, len = " << dictionary.length() << endl;
     }
 
-    // Create 1 queue for compressed records. Q max size = 20
-    writeQueue = ConcurrentFixedQueue<RecordOutput>(20);
-
-    // 1 thread used to write data to file/buffer
-    recordWriterThread = WritingThread(this, queues);
-
-    // Multiple threads used to compress data
-    uint32_t recNum = 1;
-    recordCompressorThreads = vector<CompressingThread>();
-    for (int i=0; i < compressionThreadCount; i++) {
-        recordCompressorThreads.emplace_back(CompressingThread(i, recNum, compressionType,
-                                                               queues[i], writeQueue));
+    if (haveFirstEvent) {
+        cout << "WriterMT CON: create first event, len = " << firstEventLen << endl;
     }
+
+    if (haveDictionary || haveFirstEvent)  {
+        dictionaryFirstEventBuffer = createDictionaryRecord();
+cout << "WriterMT CON: created dict/firstEv buffer, order = " << byteOrder.getName() <<
+       ", dic/fe buff remaining = " << dictionaryFirstEventBuffer.remaining() << endl;
+    }
+    else {
+        // Tell open() there is no dictionary/first event data
+        dictionaryFirstEventBuffer.limit(0);
+    }
+
+    // Number of ring items must be >= compressionThreads
+    int32_t finalRingSize = ringSize;
+    if (finalRingSize < compressionThreads) {
+        finalRingSize = compressionThreads;
+    }
+    // AND is must be multiple of 2
+    finalRingSize = Disruptor::Util::ceilingNextPowerOfTwo(finalRingSize);
+
+    if (finalRingSize != ringSize) {
+        cout << "WriterMT: started w/ ring size = " << ringSize <<
+        ", change to " << finalRingSize << endl;
+    }
+
+    supply = std::make_shared<RecordSupply>(finalRingSize, byteOrder,
+                                            compressionThreads,
+                                            maxEventCount, maxBufferSize,
+                                            compressionType);
+
+    // Get a single blank record to start writing into
+    ringItem = supply->get();
+    outputRecord = ringItem->getRecord();
+
+    // TODO: start up threads ?????
 }
 
 
@@ -140,6 +149,8 @@ WriterMT::WriterMT(string & filename) : WriterMT() {
 /**
  * Constructor with filename & byte order.
  * The output file will be created with no user header.
+ * Ring size is 16.
+ *
  * @param filename      output file name
  * @param order         byte order of written file or null for default (little endian)
  * @param maxEventCount max number of events a record can hold.
@@ -154,7 +165,7 @@ WriterMT::WriterMT(string & filename) : WriterMT() {
 WriterMT::WriterMT(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                    Compressor::CompressionType compType, uint32_t compressionThreads) :
          WriterMT(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize,
-                  compType, compressionThreads, "", nullptr, 0) {
+                  compType, compressionThreads, true, "", nullptr, 0, 4) {
 
     open(filename);
 }
@@ -170,7 +181,8 @@ WriterMT::WriterMT(string & filename, const ByteOrder & order, uint32_t maxEvent
  *         of zero size if first event and dictionary don't exist.
  */
 ByteBuffer WriterMT::createDictionaryRecord() {
-    return Writer::createRecord(dictionary, firstEvent, firstEventLength, byteOrder, &fileHeader, nullptr);
+    return Writer::createRecord(dictionary, firstEvent, firstEventLength,
+                                byteOrder, &fileHeader, nullptr);
 }
 
 
@@ -184,7 +196,7 @@ ByteBuffer WriterMT::createDictionaryRecord() {
  * Get the file's byte order.
  * @return file's byte order.
  */
-const ByteOrder &  WriterMT::getByteOrder() const {return byteOrder;}
+const ByteOrder & WriterMT::getByteOrder() const {return byteOrder;}
 
 /**
  * Get the file header.
@@ -192,23 +204,23 @@ const ByteOrder &  WriterMT::getByteOrder() const {return byteOrder;}
  */
 FileHeader & WriterMT::getFileHeader() {return fileHeader;}
 
-/**
- * Get the internal record's header.
- * @return internal record's header.
- */
-RecordHeader & WriterMT::getRecordHeader() {return outputRecord.getHeader();}
-
-/**
- * Get the internal record used to add events to file.
- * @return internal record used to add events to file.
- */
-RecordOutput & WriterMT::getRecord() {return outputRecord;}
+///**
+// * Get the internal record's header.
+// * @return internal record's header.
+// */
+//RecordHeader & WriterMT::getRecordHeader() {return outputRecord->getHeader();}
+//
+///**
+// * Get the internal record used to add events to file.
+// * @return internal record used to add events to file.
+// */
+//RecordOutput & WriterMT::getRecord() {return outputRecord;}
 
 /**
  * Convenience method that gets compression type for the file being written.
  * @return compression type for the file being written.
  */
-uint32_t WriterMT::getCompressionType() {return outputRecord.getHeader().getCompressionType();}
+uint32_t WriterMT::getCompressionType() {return compressionType;}
 
 /**
  * Does this writer add a trailer to the end of the file/buffer?
@@ -257,7 +269,7 @@ void WriterMT::addTrailerWithIndex(bool addTrailingIndex) {
  * @throws IOException if file cannot be found or IO error writing to file
  */
 void WriterMT::open(string & filename) {
-    outFile.open(filename, ios::binary);
+    open(filename, nullptr, 0);
 }
 
 
@@ -270,7 +282,7 @@ void WriterMT::open(string & filename) {
  *                   the dictionary and/or first event will be placed in its
  *                   own record and written as the user header.
  * @param userLen   length of userHdr in bytes.
- * @throws HipoException filename arg is null, if constructor specified writing to a buffer,
+ * @throws HipoException if filename arg is bad,
  *                       or if open() was already called without being followed by reset().
  * @throws IOException   if file cannot be found or IO error writing to file
  */
@@ -280,38 +292,54 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
         throw HipoException("currently open, call reset() first");
     }
 
-    ByteBuffer headerBuffer;
+    if (filename.length() < 1) {
+        throw HipoException("bad filename");
+    }
+
+    ByteBuffer fileHeaderBuffer;
+    haveUserHeader = false;
 
     // User header given as arg has precedent
     if (userHdr != nullptr) {
-        headerBuffer = createHeader(userHdr, userLen);
+        haveUserHeader = true;
+cout << "writerMT::open: given a valid user header to write" << endl;
+        fileHeaderBuffer = createHeader(userHdr, userLen);
     }
     else {
         // If dictionary & firstEvent not defined and user header not given ...
         if (dictionaryFirstEventBuffer.remaining() < 1) {
-            headerBuffer = createHeader(nullptr, 0);
+cout << "writerMT::open: given a null user header to write, userLen = " << userLen <<  endl;
+            fileHeaderBuffer = createHeader(nullptr, 0);
         }
         // else place dictionary and/or firstEvent into
         // record which becomes user header
         else {
-            headerBuffer = createHeader(dictionaryFirstEventBuffer);
+cout << "writerMT::open: given a valid dict/first ev header to write" << endl;
+            fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
         }
     }
 
     // Write this to file
     // TODO: what flags??? instead of "rw"
     outFile.open(filename, ios::binary);
-    outFile.write(reinterpret_cast<const char*>(headerBuffer.array()), headerBuffer.remaining());
+    outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer.array()), fileHeaderBuffer.remaining());
 
     writerBytesWritten = (size_t) (fileHeader.getLength());
+
+    // Create compression threads
+    recordCompressorThreads.reserve(compressionThreadCount);
+    for (int i=0; i < compressionThreadCount; i++) {
+        recordCompressorThreads.emplace_back(i, compressionType, supply);
+    }
 
     // Start compression threads
     for (int i=0; i < compressionThreadCount; i++) {
         recordCompressorThreads[i].startThread();
     }
 
-    // Start writing thread
-    recordWriterThread.startThread();
+    // Create & start writing thread
+    recordWriterThreads.emplace_back(this,supply);
+    recordWriterThreads[0].startThread();
 
     opened = true;
 }
@@ -319,15 +347,14 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
 
 /**
  * Convenience method that sets compression type for the file.
- * The compression type is also set for internal record.
- * When writing to the file, record data will be compressed
- * according to the given type.
+ * The compression type is set for internal record.
+ * The record data will be compressed according to the given type.
  * @param compression compression type
  * @return this object
  */
 WriterMT & WriterMT::setCompressionType(Compressor::CompressionType compression) {
-    outputRecord.getHeader().setCompressionType(compression);
-    compressionType = outputRecord.getHeader().getCompressionType();
+    outputRecord->getHeader().setCompressionType(compression);
+    compressionType = compression;
     return *this;
 }
 
@@ -339,11 +366,11 @@ WriterMT & WriterMT::setCompressionType(Compressor::CompressionType compression)
  *
  * @param userHdr byte array containing a user-defined header, may be null.
  * @param userLen array length in bytes.
- * @return buffer (same as buf arg).
+ * @return ByteBuffer containing a file header followed by the user-defined header
  */
 ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
 
-    cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
+cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
 
     // Amount of user data in bytes
     int userHeaderBytes = 0;
@@ -351,15 +378,21 @@ ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
         userHeaderBytes = userLen;
     }
     fileHeader.reset();
+    if (haveUserHeader) {
+        fileHeader.setBitInfo(false, false, addTrailerIndex);
+    }
+    else {
+        fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+    }
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
-    cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
+cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
     uint32_t totalLen = fileHeader.getLength();
     ByteBuffer buf(totalLen);
     buf.order(byteOrder);
 
     try {
-        cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
+cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
         fileHeader.writeHeader(buf, 0);
     }
     catch (HipoException & e) {/* never happen */}
@@ -367,7 +400,6 @@ ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr), userHeaderBytes);
-//            System.arraycopy(userHdr, 0, buf.array(), RecordHeader::HEADER_SIZE_BYTES, userHeaderBytes);
     }
 
     // Get ready to read, buffer position is still 0
@@ -377,7 +409,7 @@ ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
 
 
 /**
- * Fill given buffer (buf) with a general file header followed by the given user header (userHdr).
+ * Return a buffer with a general file header followed by the given user header (userHdr).
  * The buffer is cleared and set to desired byte order prior to writing.
  * If user header is not padded to 4-byte boundary, it's done here.
  *
@@ -389,6 +421,14 @@ ByteBuffer WriterMT::createHeader(ByteBuffer & userHdr) {
 
     int userHeaderBytes = userHdr.remaining();
     fileHeader.reset();
+    cout << "WriterMT::createHeader: haveFirstEv = " << haveFirstEvent << ", have Dict = " << haveDictionary <<
+    ", add Trailer w/ index = " << addTrailerIndex << endl;
+    if (haveUserHeader) {
+        fileHeader.setBitInfo(false, false, addTrailerIndex);
+    }
+    else {
+        fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+    }
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
     uint32_t totalLen = fileHeader.getLength();
@@ -402,7 +442,8 @@ ByteBuffer WriterMT::createHeader(ByteBuffer & userHdr) {
 
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
-                    (const void *)(userHdr.array() + userHdr.arrayOffset()+ userHdr.position()), userHeaderBytes);
+                    (const void *)(userHdr.array() + userHdr.arrayOffset()+ userHdr.position()),
+                    userHeaderBytes);
     }
 
     // Get ready to read, buffer position is still 0
@@ -444,12 +485,12 @@ void WriterMT::toBytes(uint32_t data, const ByteOrder & byteOrder,
 
 
 /**
- * Write a general header as the last "header" or trailer
+ * Write a general header as the last "header" or trailer in the file
  * optionally followed by an index of all record lengths.
+ *
  * It's best <b>NOT</b> to call this directly. The way to write a trailer to
- * file or buffer is to call {@link #addTrailer(bool)} or
- * {@link #addTrailerWithIndex(bool)}. Then when {@link #close()} is
- * called, the trailer will be written.
+ * fis to call {@link #addTrailer(bool)} or {@link #addTrailerWithIndex(bool)}.
+ * Then when {@link #close()} is called, the trailer will be written.
  *
  * @param writeIndex if true, write an index of all record lengths in trailer.
  * @throws IOException if error writing to file.
@@ -462,62 +503,57 @@ void WriterMT::writeTrailer(bool writeIndex) {
     // If we're NOT adding a record index, just write trailer
     if (!writeIndex) {
         try {
-            RecordHeader::writeTrailer(&headerArray[0], headerArray.max_size(), 0,
+            RecordHeader::writeTrailer(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES, 0,
                                        recordNumber, byteOrder, nullptr, 0);
 
-            // TODO: not really necessary to keep track here?
             writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
-            outFile.write(reinterpret_cast<const char*>(&headerArray[0]), headerArray.size());
+            outFile.write(reinterpret_cast<const char *>(&headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
         }
-        catch (HipoException & ex) {
-            // never happen
-        }
-        return;
+        catch (HipoException &ex) {/*never happen*/ }
     }
+    else {
+        // Create the index of record lengths & entries in proper byte order
+        size_t recordLengthsBytes = 4 * recordLengths.size();
+        auto recordIndex = new uint8_t[recordLengthsBytes];
 
-    // Create the index of record lengths & entries in proper byte order
-    size_t recordLengthsBytes = 4*recordLengths.size();
-    auto recordIndex = new uint8_t[recordLengthsBytes];
-
-    try {
-        for (int i = 0; i < recordLengths.size(); i++) {
-            toBytes(recordLengths[i], byteOrder, recordIndex, 4*i, recordLengthsBytes);
-//cout << "Writing record length = " << recordLengths[i] << showbase << hex <<
+        try {
+            // Transform ints to bytes in local endian. It'll be swapped below in writeTrailer().
+            for (int i = 0; i < recordLengths.size(); i++) {
+                toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
+//cout << "WriterMT::writeTrailer: writing record length = " << recordLengths[i] << showbase << hex <<
 //                ", = " << recordLengths[i] << endl;
+            }
         }
-    }
-    catch (HipoException & e) {/* never happen */}
+        catch (HipoException &e) {/* never happen */}
 
-    // Write trailer with index
+        // Write trailer with index
 
-    // How many bytes are we writing here?
-    int dataBytes = RecordHeader::HEADER_SIZE_BYTES + recordLengthsBytes;
+        // How many bytes are we writing here?
+        int dataBytes = RecordHeader::HEADER_SIZE_BYTES + recordLengthsBytes;
 
-    // Make sure our array can hold everything
-    if (headerArray.max_size() < dataBytes) {
-//cout << "Allocating byte array of " << dataBytes << " bytes in size" << endl;
-        headerArray.reserve(dataBytes);
-    }
+        // Make sure our array can hold everything
+        if (headerArray.capacity() < dataBytes) {
+//cout << "WriterMT::writeTrailer: allocating byte array of " << dataBytes << " bytes in size" << endl;
+            headerArray.reserve(dataBytes);
+        }
 
-    try {
-        // Place data into headerArray - both header and index
-        RecordHeader::writeTrailer(&headerArray[0], headerArray.max_size(), 0,
-                                   recordNumber, byteOrder, (const uint32_t*)recordIndex,
-                                   recordLengthsBytes);
+        try {
+            // Place data into headerArray - both header and index
+            RecordHeader::writeTrailer(&headerArray[0], dataBytes, 0,
+                                       recordNumber, byteOrder, (const uint32_t *) recordIndex,
+                                       recordLengthsBytes);
 
-//            RecordHeader::writeTrailer(headerArray, RecordHeader::HEADER_SIZE_BYTES, 0,
-//                                       recordNumber, byteOrder, recordIndex, indexLen);
-        // TODO: not really necessary to keep track here?
-        writerBytesWritten += dataBytes;
-        outFile.write(reinterpret_cast<const char*>(&headerArray[0]), dataBytes);
-    }
-    catch (HipoException & ex) {
-        // never happen
+            writerBytesWritten += dataBytes;
+            outFile.write(reinterpret_cast<const char *>(&headerArray[0]), dataBytes);
+        }
+        catch (HipoException &ex) {/*never happen*/}
+
+        delete[] recordIndex;
     }
 
     // Find & update file header's trailer position word
     outFile.seekp(FileHeader::TRAILER_POSITION_OFFSET);
-    if (byteOrder == ByteOrder::ENDIAN_LITTLE) {
+    if (byteOrder != ByteOrder::ENDIAN_LOCAL) {
         uint64_t pos = SWAP_64(trailerPosition);
         outFile.write(reinterpret_cast<const char *>(&pos), sizeof(uint64_t));
     }
@@ -526,10 +562,10 @@ void WriterMT::writeTrailer(bool writeIndex) {
     }
 
     // Find & update file header's bit-info word
-    if (addTrailerIndex) {
+    if (writeIndex && addTrailerIndex) {
         outFile.seekp(RecordHeader::BIT_INFO_OFFSET);
-        int bitInfo = fileHeader.setBitInfo(false, false, true);
-        if (byteOrder == ByteOrder::ENDIAN_LITTLE) {
+        int bitInfo = fileHeader.getBitInfoWord();
+        if (byteOrder != ByteOrder::ENDIAN_LOCAL) {
             uint32_t bitSwap = SWAP_32(bitInfo);
             outFile.write(reinterpret_cast<const char *>(&bitSwap), sizeof(uint32_t));
         }
@@ -537,61 +573,48 @@ void WriterMT::writeTrailer(bool writeIndex) {
             outFile.write(reinterpret_cast<const char *>(&bitInfo), sizeof(uint32_t));
         }
     }
-
-    delete[] recordIndex;
 }
 
 
 /**
  * Appends the record to the file.
- * Using this method in conjunction with addEvent() is not thread-safe.
- * @param record record object
+ * Using this method in conjunction with {@link #addEvent()} is not thread-safe.
+ * @param rec record object
+ * @throws HipoException if arg's byte order is opposite to output endian.
  */
-void WriterMT::writeRecord(RecordOutput & record) {
+void WriterMT::writeRecord(RecordOutput & rec) {
 
-    RecordHeader header = record.getHeader();
+    // Need to ensure that the given record has a byte order the same as output
+    if (rec.getByteOrder() != byteOrder) {
+        throw HipoException("byte order of record is wrong");
+    }
+
+    // If we have already written stuff into our current internal record ...
+    if (outputRecord->getEventCount() > 0) {
+        // Put it back in supply for compressing
+        supply->publish(ringItem);
+
+        // Now get another, empty record.
+        // This may block if threads are busy compressing
+        // and/or writing all records in supply.
+        ringItem = supply->get();
+        outputRecord = ringItem->getRecord();
+    }
+
+    // Copy rec into an empty record taken from the supply
+    outputRecord->transferDataForReading(rec);
 
     // Make sure given record is consistent with this writer
+    RecordHeader & header = outputRecord->getHeader();
     header.setCompressionType(compressionType);
     header.setRecordNumber(recordNumber++);
-    record.getHeader().setCompressionType(compressionType);
-    record.setByteOrder(byteOrder);
 
-    record.build();
+    // Put it back in supply for compressing (building)
+    supply->publish(ringItem);
 
-// TODO: we only write the trailer at the VERY VERY end!!!
-    int bytesToWrite = header.getLength();
-    // Record length of this record
-    recordLengths.push_back(bytesToWrite);
-    // Followed by events in record
-    recordLengths.push_back(header.getEntries());
-    writerBytesWritten += bytesToWrite;
-
-    // Place record ready to be written onto queue for writing thread. This will block.
-    queues[nextQueueIndex++].push(record);
-}
-
-
-/**
- * Appends the internal record to the file.
- * @param record internal record object
- */
-void WriterMT::writeInternalRecord(RecordOutput & internalRecord) {
-
-    RecordHeader header = internalRecord.getHeader();
-    header.setRecordNumber(recordNumber++);
-
-    internalRecord.build();
-
-    int bytesToWrite = header.getLength();
-    // Record length of this record
-    recordLengths.push_back(bytesToWrite);
-    // Followed by events in record
-    recordLengths.push_back(header.getEntries());
-    writerBytesWritten += bytesToWrite;
-
-    // Place record ready to be written onto queue for writing thread. This will block.
-    queues[nextQueueIndex++].push(internalRecord);
+    // Get another
+    ringItem = supply->get();
+    outputRecord = ringItem->getRecord();
 }
 
 
@@ -609,18 +632,21 @@ void WriterMT::writeInternalRecord(RecordOutput & internalRecord) {
  */
 void WriterMT::addEvent(uint8_t * buffer, uint32_t offset, uint32_t length) {
     // Try putting data into current record being filled
-    bool status = outputRecord.addEvent(buffer, offset, length);
+    bool status = outputRecord->addEvent(buffer, offset, length);
 
     // If record is full ...
     if (!status) {
-        // Put record onto queue for compressing
-        writeInternalRecord(outputRecord);
+        // Put it back in supply for compressing
+        supply->publish(ringItem);
 
-        // Now create another, empty record.
-        outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, compressionType);
+        // Now get another, empty record.
+        // This may block if threads are busy compressing
+        // and/or writing all records in supply.
+        ringItem = supply->get();
+        outputRecord = ringItem->getRecord();
 
         // Adding the first event to a record is guaranteed to work
-        outputRecord.addEvent(buffer, offset, length);
+        outputRecord->addEvent(buffer, offset, length);
     }
 }
 
@@ -636,20 +662,29 @@ void WriterMT::addEvent(uint8_t * buffer, uint32_t offset, uint32_t length) {
  *
  * @param buffer array to add to the file.
  * @throws IOException if cannot write to file.
+ * @throws HipoException if buffer arg's byte order is wrong.
  */
 void WriterMT::addEvent(ByteBuffer & buffer) {
-    bool status = outputRecord.addEvent(buffer);
+
+    if (buffer.order() != byteOrder) {
+        throw HipoException("buffer arg byte order is wrong");
+    }
+
+    bool status = outputRecord->addEvent(buffer);
 
     // If record is full ...
     if (!status) {
-        // Put record onto queue for compressing
-        writeInternalRecord(outputRecord);
+        // Put it back in supply for compressing
+        supply->publish(ringItem);
 
-        // Now create another, empty record.
-        outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, compressionType);
+        // Now get another, empty record.
+        // This may block if threads are busy compressing
+        // and/or writing all records in supply.
+        ringItem = supply->get();
+        outputRecord = ringItem->getRecord();
 
         // Adding the first event to a record is guaranteed to work
-        outputRecord.addEvent(buffer);
+        outputRecord->addEvent(buffer);
     }
 }
 
@@ -659,7 +694,7 @@ void WriterMT::addEvent(ByteBuffer & buffer) {
 /** Get this object ready for re-use.
  * Follow calling this with call to {@link #open(String)}. */
 void WriterMT::reset() {
-    outputRecord.reset();
+    outputRecord->reset();
     fileHeader.reset();
     writerBytesWritten = 0L;
     recordNumber = 1;
@@ -676,19 +711,23 @@ void WriterMT::reset() {
 void WriterMT::close() {
 
     // If we're in the middle of building a record, send it off since we're done
-    if (outputRecord.getEventCount() > 0) {
+    if (outputRecord->getEventCount() > 0) {
         // Put it in queue for compressing
-        writeQueue.push(outputRecord);
+        supply->publish(ringItem);
     }
 
     // Since the writer thread is the last to process each record,
     // wait until it's done with the last item, then exit the thread.
-    recordWriterThread.waitForLastItem();
+    recordWriterThreads[0].waitForLastItem();
 
     // Stop all compressing threads
-    for (CompressingThread &thd : recordCompressorThreads) {
+    for (RecordCompressor &thd : recordCompressorThreads) {
         thd.stopThread();
     }
+
+    // Don't hang on to thread objects and therefore boost threads & RecordSupply objects
+    recordCompressorThreads.clear();
+    recordWriterThreads.clear();
 
     try {
         if (addingTrailer) {
@@ -706,11 +745,12 @@ void WriterMT::close() {
             outFile.write(reinterpret_cast<const char *>(&intData), sizeof(uint32_t));
         }
         outFile.close();
-
     }
     catch (HipoException & ex) {
+        cout << "WriterMT::close ERROR!!!" << endl;
     }
 
+    ringItem = nullptr;
     closed = true;
     opened = false;
 }
