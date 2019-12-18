@@ -76,14 +76,10 @@ uint32_t FileEventIndex::getMaxEvents() const {
  * Checks to see if the event counter reached the end.
  * @return true if there are more events to advance to, false otherwise.
  */
-bool FileEventIndex::canAdvance() const {return (currentEvent < (getMaxEvents()-1));}
-
-/**
- * Checks if the event index can retreat (decrease). Convenience function.
- * @return true if the event index can be lowered by one.
- */
-bool FileEventIndex::canRetreat() const {return (currentEvent > 0);}
-
+bool FileEventIndex::canAdvance() const {
+//cout << " current event = " << currentEvent << " MAX = " << getMaxEvents() << endl;
+    return (currentEvent < (getMaxEvents()-1));
+}
 
 /**
  * Advances the current event number by one. If the event is not from current
@@ -96,7 +92,7 @@ bool FileEventIndex::canRetreat() const {return (currentEvent > 0);}
 bool FileEventIndex::advance() {
     // If no data entered into recordIndex yet ...
     if (recordIndex.empty()) {
-        cout << "advance(): Warning, no entries in recordIndex!" << endl;
+//cout << "advance(): Warning, no entries in recordIndex!" << endl;
         return false;
     }
 
@@ -108,7 +104,7 @@ bool FileEventIndex::advance() {
 
     // Trying to advance beyond the limit of list
     if (recordIndex.size() < currentRecord + 2 + 1) {
-        cout << "advance(): Warning, reached recordIndex limit!" << endl;
+//cout << "advance(): Warning, reached recordIndex limit!" << endl;
         return false;
     }
 
@@ -118,6 +114,12 @@ bool FileEventIndex::advance() {
 
     return true;
 }
+
+/**
+ * Checks if the event index can retreat (decrease). Convenience function.
+ * @return true if the event index can be lowered by one.
+ */
+bool FileEventIndex::canRetreat() const {return (currentEvent > 0);}
 
 /**
  * Reduces current event number by one.
@@ -184,7 +186,7 @@ bool FileEventIndex::setEvent(uint32_t event) {
     uint32_t index = std::distance(recordIndex.cbegin(), it);
     // The first element in recordIndex is fake, shift by 1 for index into recordPositions of Reader
     index--;
-cout << "  setEvent: event #" << event << " found at index " << index << endl;
+//cout << "  setEvent: event #" << event << " found at index " << index << endl;
 
     if (currentRecord == index) {
         hasRecordChanged = false;
@@ -213,8 +215,7 @@ int FileEventIndex::main(int argc, char **argv) {
     FileEventIndex index;
     int nevents = 10;
     index.addEventSize(nevents);
-    for(int i = 0; i < 5; i++){
-        //int nevents = (int) (Math.random()*40+120);
+    for (int i = 0; i < 5; i++) {
         index.addEventSize(5+i*2);
     }
 
@@ -223,20 +224,22 @@ int FileEventIndex::main(int argc, char **argv) {
 
     cout << index.toString() << endl;
     cout << " **** START ADVANCING ****" << endl;
-    for(int i = 0 ; i < 60; i++) {
+    for (int i = 0 ; i < 60; i++) {
         bool status = index.advance();
         cout << index.toString() + ", status = " + to_string(status) << endl;
     }
     cout << " **** START RETREATING ****" << endl;
-    for(int i = 0 ; i < 54; i++) {
+    for (int i = 0 ; i < 54; i++) {
         bool status = index.retreat();
         cout << index.toString() + ", status = " + to_string(status) << endl;
     }
 
     cout << " **** START SETTING EVENT NUMBER ****" << endl;
-    for(int i = 0 ; i < 55; i++){
+    for (int i = 0 ; i < 55; i++) {
         bool status = index.setEvent(i);
         cout << index.toString() + ", status = " + to_string(status) << endl;
     }
+
+    return 0;
 }
 

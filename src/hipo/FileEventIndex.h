@@ -41,7 +41,7 @@ private:
       * the file up to and including the record of that entry.
       * The only exception is the first entry which corresponds to no
       * record and its value is always 0. Thus, an index of 1 in this
-      * list corresponds to the first record.
+      * vector corresponds to the first record.
       */
     vector<uint32_t> recordIndex;
 
