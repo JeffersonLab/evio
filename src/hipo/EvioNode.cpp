@@ -17,543 +17,16 @@
  */
 
 
-//-----------------------------------------------
-// Static methods first
-//-----------------------------------------------
-
 // Put this here instead of all by itself in a EvioNodeSource.cpp file.
 std::atomic<unsigned int> EvioNodeSource::poolIdCounter(0);
 
 
-/**
- * This method recursively stores, in the given list, all the information
- * about an evio structure's children found in the given ByteBuffer object.
- * It uses absolute gets so buffer's position does <b>not</b> change.
- *
- * @param node node being scanned
- */
-void EvioNode::scanStructure(EvioNode & node) {
-
-    uint32_t dType = node.dataType;
-
-    // If node does not contain containers, return since we can't drill any further down
-    if (!DataType::isStructure(dType)) {
-        return;
-    }
-
-    // Start at beginning position of evio structure being scanned
-    uint32_t position = node.dataPos;
-    // Don't go past the data's end which is (position + length)
-    // of evio structure being scanned in bytes.
-    uint32_t endingPos = position + 4*node.dataLen;
-    // Buffer we're using
-    ByteBuffer & buffer = node.buffer;
-
-    uint32_t dt, dataType, dataLen, len, word;
-
-    // Do something different depending on what node contains
-    if (DataType::isBank(dType)) {
-        // Extract all the banks from this bank of banks.
-        // Make allowance for reading header (2 ints).
-        endingPos -= 8;
-        while (position <= endingPos) {
-
-            // Copy node for setting stuff that's the same as the parent
-            auto pkidNode = new EvioNode(node);
-            EvioNode & kidNode = *pkidNode;
-            // Clear children & data
-            kidNode.childNodes.clear();
-            kidNode.data.clear();
-            // EvioNode kidNode = (EvioNode) node.clone();
-
-            // Read first header word
-            len = buffer.getInt(position);
-            kidNode.pos = position;
-
-            // Len of data (no header) for a bank
-            dataLen = len - 1;
-            position += 4;
-
-            // Read and parse second header word
-            word = buffer.getInt(position);
-            position += 4;
-            kidNode.tag = (word >> 16) & 0xffff;
-            dt = (word >> 8) & 0xff;
-            dataType = dt & 0x3f;
-            kidNode.pad = dt >> 6;
-            kidNode.num = word & 0xff;
-
-
-            kidNode.len = len;
-            kidNode.type = DataType::BANK.getValue();  // This is a bank
-            kidNode.dataLen = dataLen;
-            kidNode.dataPos = position;
-            kidNode.dataType = dataType;
-            kidNode.izEvent = false;
-
-            // Create the tree structure
-            kidNode.parentNode = shared_ptr<EvioNode>(&node);
-            // Add this to list of children and to list of all nodes in the event
-            node.addChild(pkidNode);
-
-            // Only scan through this child if it's a container
-            if (DataType::isStructure(dataType)) {
-                scanStructure(kidNode);
-            }
-
-            // Set position to start of next header (hop over kid's data)
-            position += 4 * dataLen;
-        }
-    }
-    else if (DataType::isSegment(dType)) {
-
-        // Extract all the segments from this bank of segments.
-        // Make allowance for reading header (1 int).
-        endingPos -= 4;
-        while (position <= endingPos) {
-            // Copy node for setting stuff that's the same as the parent
-            auto pkidNode = new EvioNode(node);
-            EvioNode & kidNode = *pkidNode;
-            // Clear children & data
-            kidNode.childNodes.clear();
-            kidNode.data.clear();
-
-            kidNode.pos = position;
-
-            word = buffer.getInt(position);
-            position += 4;
-            kidNode.tag = (word >> 24) & 0xff;
-            dt = (word >> 16) & 0xff;
-            dataType = dt & 0x3f;
-            kidNode.pad = dt >> 6;
-            len = word & 0xffff;
-
-
-            kidNode.num      = 0;
-            kidNode.len      = len;
-            kidNode.type     = DataType::SEGMENT.getValue();  // This is a segment
-            kidNode.dataLen  = len;
-            kidNode.dataPos  = position;
-            kidNode.dataType = dataType;
-            kidNode.izEvent  = false;
-
-            kidNode.parentNode = shared_ptr<EvioNode>(&node);
-            node.addChild(pkidNode);
-
-            if (DataType::isStructure(dataType)) {
-                scanStructure(kidNode);
-            }
-
-            position += 4*len;
-        }
-    }
-        // Only one type of structure left - tagsegment
-    else {
-
-        // Extract all the tag segments from this bank of tag segments.
-        // Make allowance for reading header (1 int).
-        endingPos -= 4;
-        while (position <= endingPos) {
-            // Copy node for setting stuff that's the same as the parent
-            auto pkidNode = new EvioNode(node);
-            EvioNode & kidNode = *pkidNode;
-            // Clear children & data
-            kidNode.childNodes.clear();
-            kidNode.data.clear();
-
-            kidNode.pos = position;
-
-            word = buffer.getInt(position);
-            position += 4;
-            kidNode.tag = (word >> 20) & 0xfff;
-            dataType    = (word >> 16) & 0xf;
-            len         =  word & 0xffff;
-
-            kidNode.pad      = 0;
-            kidNode.num      = 0;
-            kidNode.len      = len;
-            kidNode.type     = DataType::TAGSEGMENT.getValue();  // This is a tag segment
-            kidNode.dataLen  = len;
-            kidNode.dataPos  = position;
-            kidNode.dataType = dataType;
-            kidNode.izEvent  = false;
-
-            kidNode.parentNode = shared_ptr<EvioNode>(&node);
-            node.addChild(pkidNode);
-
-            if (DataType::isStructure(dataType)) {
-                scanStructure(kidNode);
-            }
-
-            position += 4*len;
-        }
-    }
-}
-
-
-/**
- * This method recursively stores, in the given list, all the information
- * about an evio structure's children found in the given ByteBuffer object.
- * It uses absolute gets so buffer's position does <b>not</b> change.
- *
- * @param node node being scanned
- * @param nodeSource source of EvioNode objects to use while parsing evio data.
- */
-void EvioNode::scanStructure(EvioNode & node, EvioNodeSource & nodeSource) {
-
-    int dType = node.dataType;
-
-    // If node does not contain containers, return since we can't drill any further down
-    if (!DataType::isStructure(dType)) {
-        return;
-    }
-
-    // Start at beginning position of evio structure being scanned
-    int position = node.dataPos;
-    // Don't go past the data's end which is (position + length)
-    // of evio structure being scanned in bytes.
-    int endingPos = position + 4*node.dataLen;
-    // Buffer we're using
-    ByteBuffer & buffer = node.buffer;
-
-    uint32_t dt, dataType, dataLen, len, word;
-
-    // Do something different depending on what node contains
-    if (DataType::isBank(dType)) {
-        // Extract all the banks from this bank of banks.
-        // Make allowance for reading header (2 ints).
-        endingPos -= 8;
-        while (position <= endingPos) {
-
-            EvioNode kidNode = nodeSource.getNode();
-            kidNode.copyParentForScan(&node);
-
-            // Read first header word
-            len = buffer.getInt(position);
-            kidNode.pos = position;
-
-            // Len of data (no header) for a bank
-            dataLen = len - 1;
-            position += 4;
-
-            // Read and parse second header word
-            word = buffer.getInt(position);
-            position += 4;
-            kidNode.tag = (word >> 16) & 0xffff;
-            dt = (word >> 8) & 0xff;
-            dataType = dt & 0x3f;
-            kidNode.pad = dt >> 6;
-            kidNode.num = word & 0xff;
-
-
-            kidNode.len = len;
-            kidNode.type = DataType::BANK.getValue();  // This is a bank
-            kidNode.dataLen = dataLen;
-            kidNode.dataPos = position;
-            kidNode.dataType = dataType;
-            kidNode.izEvent = false;
-
-            // Add this to list of children and to list of all nodes in the event
-            node.addChild(&kidNode);
-
-            // Only scan through this child if it's a container
-            if (DataType::isStructure(dataType)) {
-                scanStructure(kidNode, nodeSource);
-            }
-
-            // Set position to start of next header (hop over kid's data)
-            position += 4 * dataLen;
-        }
-    }
-    else if (DataType::isSegment(dType)) {
-
-        // Extract all the segments from this bank of segments.
-        // Make allowance for reading header (1 int).
-        endingPos -= 4;
-        while (position <= endingPos) {
-            EvioNode kidNode = nodeSource.getNode();
-            kidNode.copyParentForScan(&node);
-
-            kidNode.pos = position;
-
-            word = buffer.getInt(position);
-            position += 4;
-            kidNode.tag = (word >> 24) & 0xff;
-            dt = (word >> 16) & 0xff;
-            dataType = dt & 0x3f;
-            kidNode.pad = dt >> 6;
-            len = word & 0xffff;
-
-
-            kidNode.num      = 0;
-            kidNode.len      = len;
-            kidNode.type     = DataType::SEGMENT.getValue();  // This is a segment
-            kidNode.dataLen  = len;
-            kidNode.dataPos  = position;
-            kidNode.dataType = dataType;
-            kidNode.izEvent  = false;
-
-            node.addChild(&kidNode);
-
-            if (DataType::isStructure(dataType)) {
-                scanStructure(kidNode, nodeSource);
-            }
-
-            position += 4*len;
-        }
-    }
-        // Only one type of structure left - tagsegment
-    else {
-
-        // Extract all the tag segments from this bank of tag segments.
-        // Make allowance for reading header (1 int).
-        endingPos -= 4;
-        while (position <= endingPos) {
-
-            EvioNode kidNode = nodeSource.getNode();
-            kidNode.copyParentForScan(&node);
-
-            kidNode.pos = position;
-
-            word = buffer.getInt(position);
-            position += 4;
-            kidNode.tag = (word >> 20) & 0xfff;
-            dataType    = (word >> 16) & 0xf;
-            len         =  word & 0xffff;
-
-            kidNode.pad      = 0;
-            kidNode.num      = 0;
-            kidNode.len      = len;
-            kidNode.type     = DataType::TAGSEGMENT.getValue();  // This is a tag segment
-            kidNode.dataLen  = len;
-            kidNode.dataPos  = position;
-            kidNode.dataType = dataType;
-            kidNode.izEvent  = false;
-
-            node.addChild(&kidNode);
-
-            if (DataType::isStructure(dataType)) {
-                scanStructure(kidNode, nodeSource);
-            }
-
-            position += 4*len;
-        }
-    }
-}
-
-
-/**
- * This method extracts an EvioNode object representing an
- * evio event (top level evio bank) from a given buffer, a
- * location in the buffer, and a few other things. An EvioNode
- * object represents an evio container - either a bank, segment,
- * or tag segment.
- *
- * @param buffer     buffer to examine
- * @param recordNode object holding data about block header
- * @param position   position in buffer
- * @param place      place of event in buffer (starting at 0)
- *
- * @return EvioNode object containing evio event information
- * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
- */
-EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer,
-                                      RecordNode & recNode,
-                                      uint32_t position, uint32_t place) {
-
-    // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
-        throw EvioException("buffer underflow");
-    }
-
-    // Store evio event info, without de-serializing, into EvioNode object
-    // Create node here and pass reference back
-    auto pNode = new EvioNode(position, place, buffer, recNode);
-    return extractNode(*pNode, position);
-}
-
-
-/**
-* This method extracts an EvioNode object representing an
-* evio event (top level evio bank) from a given buffer, a
-* location in the buffer, and a few other things. An EvioNode
-* object represents an evio container - either a bank, segment,
-* or tag segment.
-*
-* @param buffer     buffer to examine
-* @param pool       pool of EvioNode objects
-* @param recordNode object holding data about block header
-* @param position   position in buffer
-* @param place      place of event in buffer (starting at 0)
-*
-* @return EvioNode object containing evio event information
-* @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
-*/
-EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer,
-                                      EvioNodeSource & pool,
-                                      RecordNode & recNode,
-                                      uint32_t position, uint32_t place) {
-
-    // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
-        throw EvioException("buffer underflow");
-    }
-
-    // Store evio event info, without de-serializing, into EvioNode object
-    EvioNode & node = pool.getNode();
-    node.clear(); //node.clearIntArray();
-    node.setData(position, place, buffer, recNode);
-    return extractNode(node, position);
-}
-
-
-
-//TODO: these may have to return shared pointers!
-
-/**
- * This method extracts an EvioNode object representing an
- * evio event (top level evio bank) from a given buffer, a
- * location in the buffer, and a few other things. An EvioNode
- * object represents an evio container - either a bank, segment,
- * or tag segment.
- *
- * @param buffer       buffer to examine
- * @param recPosition  position of containing record
- * @param position     position in buffer
- * @param place        place of event in buffer (starting at 0)
- *
- * @return EvioNode object containing evio event information
- * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
- */
-EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer,
-                                      uint32_t recPosition,
-                                      uint32_t position, uint32_t place) {
-
-    // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
-        throw EvioException("buffer underflow");
-    }
-
-    // Store evio event info, without de-serializing, into EvioNode object
-    // Create node here and pass reference back
-    auto pNode = new EvioNode(position, place, recPosition, buffer);
-    return extractNode(*pNode, position);
-}
-
-
-/**
-  * This method extracts an EvioNode object representing an
-  * evio event (top level evio bank) from a given buffer, a
-  * location in the buffer, and a few other things. An EvioNode
-  * object represents an evio container - either a bank, segment,
-  * or tag segment.
-  *
-  * @param buffer       buffer to examine
-  * @param pool         pool of EvioNode objects
-  * @param recPosition  position of containing record
-  * @param position     position in buffer
-  * @param place        place of event in buffer (starting at 0)
-  *
-  * @return EvioNode object containing evio event information
-  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
-  */
-EvioNode & EvioNode::extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
-                                      uint32_t recPosition, uint32_t position, uint32_t place) {
-
-    // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
-        throw EvioException("buffer underflow");
-    }
-
-    // Store evio event info, without de-serializing, into EvioNode object
-    EvioNode & node = pool.getNode();
-    node.clear(); //node.clearIntArray();
-    node.setData(position, place, recPosition, buffer);
-    // This will return a reference to the actual node in the pool
-    return extractNode(node, position);
-}
-
-
-/**
- * This method populates an EvioNode object that will represent an
- * evio bank from that same node containing a reference to the
- * backing buffer and given a position in that buffer.
- *
- * @param bankNode   EvioNode to represent a bank and containing,
- *                   at least, a reference to backing buffer.
- * @param position   position in backing buffer
- *
- * @return EvioNode bankNode arg filled with appropriate data.
- * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
- */
-EvioNode & EvioNode::extractNode(EvioNode & bankNode, uint32_t position) {
-
-    // Make sure there is enough data to at least read evio header
-    ByteBuffer & buffer = bankNode.buffer;
-    if (buffer.remaining() < 8) {
-        throw EvioException("buffer underflow");
-    }
-
-    // Get length of current bank
-    int len = buffer.getInt(position);
-    bankNode.len = len;
-    bankNode.pos = position;
-    bankNode.type = DataType::BANK.getValue();
-
-    // Position of data for a bank
-    bankNode.dataPos = position + 8;
-    // Len of data for a bank
-    bankNode.dataLen = len - 1;
-
-    // Make sure there is enough data to read full bank
-    // even though it is NOT completely read at this time.
-    if (buffer.remaining() < 4*(len + 1)) {
-        cout << "ERROR: remaining = " << buffer.remaining() <<
-             ", node len bytes = " << ( 4*(len + 1)) << ", len = " << len << endl;
-        throw EvioException("buffer underflow");
-    }
-
-    // Hop over length word
-    position += 4;
-
-    // Read and parse second header word
-    uint32_t word = buffer.getInt(position);
-    bankNode.tag = (word >> 16) & 0xffff;
-    uint32_t dt  = (word >> 8) & 0xff;
-    bankNode.dataType = dt & 0x3f;
-    bankNode.pad = dt >> 6;
-    bankNode.num = word & 0xff;
-
-    return bankNode;
-}
-
-
 //----------------------------------
-// End of static methods
-//----------------------------------
-
-//----------------------------------
-// Constructors (package accessible)
+// Constructors
 //----------------------------------
 
 /** Constructor when fancy features not needed. */
 EvioNode::EvioNode() {
-
-    len = 0;
-    tag = 0;
-    num = 0;
-    pad = 0;
-    pos = 0;
-    type = 0;
-    dataLen = 0;
-    dataPos = 0;
-    dataType = 0;
-    recordPos = 0;
-    place = 0;
-
-    izEvent  = false;
-    obsolete = false;
-    scanned  = false;
 
     data.clear();
     eventNode  = nullptr;
@@ -564,6 +37,12 @@ EvioNode::EvioNode() {
 }
 
 
+/** Constructor used when swapping data. */
+EvioNode::EvioNode(shared_ptr<EvioNode> & firstNode) : EvioNode() {
+    scanned = true;
+    eventNode = firstNode;
+}
+
 
 /** Constructor when fancy features not needed but has id numbers for debugging. */
 EvioNode::EvioNode(int id) : EvioNode() {
@@ -572,7 +51,6 @@ EvioNode::EvioNode(int id) : EvioNode() {
 
 
 /** Copy constructor. */
-//EvioNode::EvioNode(const EvioNode & src) : EvioNode() {
 EvioNode::EvioNode(const EvioNode & src) {
 
     len = src.len;
@@ -603,8 +81,38 @@ EvioNode::EvioNode(const EvioNode & src) {
 }
 
 
+/** Copy constructor. */
+EvioNode::EvioNode(const std::shared_ptr<EvioNode> & src) {
+
+    len = src->len;
+    tag = src->tag;
+    num = src->num;
+    pad = src->pad;
+    pos = src->pos;
+    type = src->type;
+    dataLen = src->dataLen;
+    dataPos = src->dataPos;
+    dataType = src->dataType;
+    recordPos = src->recordPos;
+    place = src->place;
+
+    izEvent  = src->izEvent;
+    obsolete = src->obsolete;
+    scanned  = src->scanned;
+
+    data       = src->data;
+    eventNode  = src->eventNode;
+    parentNode = src->parentNode;
+
+    // Replace elements from this with src's
+    allNodes   = src->allNodes;
+    childNodes = src->childNodes;
+
+    recordNode = src->recordNode;
+}
+
+
 /** Move constructor. */
-//EvioNode::EvioNode(EvioNode && src) noexcept : EvioNode() {
 EvioNode::EvioNode(EvioNode && src) noexcept {
 
     len = src.len;
@@ -631,13 +139,6 @@ EvioNode::EvioNode(EvioNode && src) noexcept {
     childNodes = std::move(src.childNodes);
 
     recordNode = src.recordNode;
-}
-
-
-/** Constructor used when swapping data. */
-EvioNode::EvioNode(shared_ptr<EvioNode> & firstNode) : EvioNode() {
-    scanned = true;
-    eventNode = firstNode;
 }
 
 
@@ -708,17 +209,6 @@ EvioNode::EvioNode(uint32_t tag, uint32_t num, uint32_t pos, uint32_t dataPos,
     this->buffer = buffer;
 }
 
-
-//// TODO: pointers need attention
-///**
-// * Destructor.
-// */
-//EvioNode::~EvioNode() {
-//    delete[](data);
-//    delete(eventNode);
-//    delete(parentNode);
-//}
-//
 
 /**
  * Assignment operator.
@@ -814,7 +304,7 @@ string EvioNode::toString() {
  * placing into EvioNode obtained from an EvioNodeSource.
  * @param parent parent of the object.
  */
-void EvioNode::copyParentForScan(EvioNode* parent) {
+void EvioNode::copyParentForScan(std::shared_ptr<EvioNode> & parent) {
     recordNode = parent->recordNode;
     buffer     = parent->buffer;
     allNodes   = parent->allNodes;
@@ -822,29 +312,25 @@ void EvioNode::copyParentForScan(EvioNode* parent) {
     place      = parent->place;
     scanned    = parent->scanned;
     recordPos  = parent->recordPos;
-// TODO: MUST LOOK AT THIS
-    parentNode = make_shared<EvioNode>(*parent);
+    parentNode = parent;
 }
 
 
 //TODO: figure out which clears are needed
 /**
- * Clear the childNode it is exists.
- * Place only this or eventNode object into the allNodes list if it exists.
+ * Clear childNodes.
+ * Place only this or eventNode object into the allNodes.
  */
 void EvioNode::clearLists() {
     childNodes.clear();
 
-    // Should only be defined if this is an event (isEvent == true)
-    if (izEvent) {
-        allNodes.clear();
-        // Remember to add event's node into list
-        if (eventNode == nullptr) {
-            allNodes.push_back(make_shared<EvioNode>(*this));
-        }
-        else {
-            allNodes.push_back(eventNode);
-        }
+    allNodes.clear();
+    // Remember to add event's node into list
+    if (eventNode == nullptr) {
+        allNodes.push_back(make_shared<EvioNode>(*this));
+    }
+    else {
+        allNodes.push_back(eventNode);
     }
 }
 
@@ -869,17 +355,9 @@ void EvioNode::clearObjects() {
     parentNode = nullptr;
 }
 
-void EvioNode::clearAll() {
-    allNodes.clear();
-    clearObjects();
-}
 
-void EvioNode::clearIntArray() {
-    // TODO: I think nothing needs to be done here ???
-
-   // delete[] data;
-   // data = nullptr;
-}
+/** Only clear the data vector. */
+void EvioNode::clearIntArray() {data.clear();}
 
 
 //-------------------------------
@@ -901,14 +379,15 @@ void EvioNode::setBuffer(ByteBuffer & buf) {buffer = buf;}
  * @param buffer      buffer to examine
  * @param recordNode  object holding data about header of block containing event
  */
-void EvioNode::setData(uint32_t position, uint32_t plc, ByteBuffer & buf, RecordNode & recNode) {
-    buffer = buf;
-    recordNode  = recNode;
-    pos = position;
-    place = plc;
-    izEvent = true;
-    type = DataType::BANK.getValue();
-    allNodes.push_back(make_shared<EvioNode>(*this));
+void EvioNode::setData(uint32_t position, uint32_t plc,
+                       ByteBuffer & buf, RecordNode & recNode) {
+    buffer     = buf;
+    recordNode = recNode;
+    pos        = position;
+    place      = plc;
+    izEvent    = true;
+    type       = DataType::BANK.getValue();
+    allNodes.push_back(std::make_shared<EvioNode>(*this));
 }
 
 /**
@@ -927,75 +406,522 @@ void EvioNode::setData(uint32_t position, uint32_t plc, uint32_t recPos, ByteBuf
     place      = plc;
     izEvent    = true;
     type       = DataType::BANK.getValue();
-    allNodes.push_back(make_shared<EvioNode>(*this));
+    allNodes.push_back(std::make_shared<EvioNode>(*this));
 }
 
-//
-///**
-// * This method populates an EvioNode object that will represent an
-// * evio bank from that same node containing a reference to the
-// * backing buffer and given a position in that buffer.
-// *
-// * @param bankNode   EvioNode to represent a bank and containing,
-// *                   at least, a reference to backing buffer.
-// * @param position   position in backing buffer
-// *
-// * @return EvioNode bankNode arg filled with appropriate data.
-// * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
-// */
-//EvioNode & EvioNode::extractNode(EvioNode & bankNode, uint32_t position) {
-//
-//        // Make sure there is enough data to at least read evio header
-//        ByteBuffer & buffer = bankNode.buffer;
-//        if (buffer.remaining() < 8) {
-//            throw EvioException("buffer underflow");
-//        }
-//
-//        // Get length of current bank
-//        int len = buffer.getInt(position);
-//        bankNode.len = len;
-//        bankNode.pos = position;
-//        bankNode.type = DataType::BANK.getValue();
-//
-//        // Position of data for a bank
-//        bankNode.dataPos = position + 8;
-//        // Len of data for a bank
-//        bankNode.dataLen = len - 1;
-//
-//        // Make sure there is enough data to read full bank
-//        // even though it is NOT completely read at this time.
-//        if (buffer.remaining() < 4*(len + 1)) {
-//            cout << "ERROR: remaining = " << buffer.remaining() <<
-//                    ", node len bytes = " << ( 4*(len + 1)) << ", len = " << len << endl;
-//            throw EvioException("buffer underflow");
-//        }
-//
-//        // Hop over length word
-//        position += 4;
-//
-//        // Read and parse second header word
-//        uint32_t word = buffer.getInt(position);
-//        bankNode.tag = (word >> 16) & 0xffff;
-//        uint32_t dt  = (word >> 8) & 0xff;
-//        bankNode.dataType = dt & 0x3f;
-//        bankNode.pad = dt >> 6;
-//        bankNode.num = word & 0xff;
-//
-//        return bankNode;
-//}
-//
-//
-//-------------------------------
-// Setters & Getters & ...
-//-------------------------------
+//-----------------------------------------------
+// Static methods
+//-----------------------------------------------
+
+/**
+ * This method extracts an EvioNode object representing an
+ * evio event (top level evio bank) from a given buffer, a
+ * location in the buffer, and a few other things. An EvioNode
+ * object represents an evio container - either a bank, segment,
+ * or tag segment.
+ *
+ * @param buffer     buffer to examine
+ * @param recordNode object holding data about block header
+ * @param position   position in buffer
+ * @param place      place of event in buffer (starting at 0)
+ *
+ * @return EvioNode object containing evio event information
+ * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
+ */
+std::shared_ptr<EvioNode> & EvioNode::extractEventNode(ByteBuffer & buffer,
+                                                     RecordNode & recNode,
+                                                     uint32_t position, uint32_t place) {
+
+    // Make sure there is enough data to at least read evio header
+    if (buffer.remaining() < 8) {
+        throw EvioException("buffer underflow");
+    }
+
+    // Store evio event info, without de-serializing, into EvioNode object
+    // Create node here and pass reference back
+    auto node = std::make_shared<EvioNode>(position, place, buffer, recNode);
+    return extractNode(node, position);
+}
+
+
+/**
+* This method extracts an EvioNode object representing an
+* evio event (top level evio bank) from a given buffer, a
+* location in the buffer, and a few other things. An EvioNode
+* object represents an evio container - either a bank, segment,
+* or tag segment.
+*
+* @param buffer     buffer to examine
+* @param pool       pool of EvioNode objects
+* @param recordNode object holding data about block header
+* @param position   position in buffer
+* @param place      place of event in buffer (starting at 0)
+*
+* @return EvioNode object containing evio event information
+* @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
+*/
+std::shared_ptr<EvioNode> & EvioNode::extractEventNode(ByteBuffer & buffer,
+                                      EvioNodeSource & pool,
+                                      RecordNode & recNode,
+                                      uint32_t position, uint32_t place) {
+
+    // Make sure there is enough data to at least read evio header
+    if (buffer.remaining() < 8) {
+        throw EvioException("buffer underflow");
+    }
+
+    // Store evio event info, without de-serializing, into EvioNode object
+    auto node = pool.getNode();
+    node->clear(); //node.clearIntArray();
+    node->setData(position, place, buffer, recNode);
+    return extractNode(node, position);
+}
+
+
+
+//TODO: these may have to return shared pointers!
+
+/**
+ * This method extracts an EvioNode object representing an
+ * evio event (top level evio bank) from a given buffer, a
+ * location in the buffer, and a few other things. An EvioNode
+ * object represents an evio container - either a bank, segment,
+ * or tag segment.
+ *
+ * @param buffer       buffer to examine
+ * @param recPosition  position of containing record
+ * @param position     position in buffer
+ * @param place        place of event in buffer (starting at 0)
+ *
+ * @return EvioNode object containing evio event information
+ * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
+ */
+std::shared_ptr<EvioNode> & EvioNode::extractEventNode(ByteBuffer & buffer,
+                                      uint32_t recPosition,
+                                      uint32_t position, uint32_t place) {
+
+    // Make sure there is enough data to at least read evio header
+    if (buffer.remaining() < 8) {
+        throw EvioException("buffer underflow");
+    }
+
+    // Store evio event info, without de-serializing, into EvioNode object
+    // Create node here and pass reference back
+    auto node = std::make_shared<EvioNode>(position, place, recPosition, buffer);
+    return extractNode(node, position);
+}
+
+
+/**
+  * This method extracts an EvioNode object representing an
+  * evio event (top level evio bank) from a given buffer, a
+  * location in the buffer, and a few other things. An EvioNode
+  * object represents an evio container - either a bank, segment,
+  * or tag segment.
+  *
+  * @param buffer       buffer to examine
+  * @param pool         pool of EvioNode objects
+  * @param recPosition  position of containing record
+  * @param position     position in buffer
+  * @param place        place of event in buffer (starting at 0)
+  *
+  * @return EvioNode object containing evio event information
+  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
+  */
+std::shared_ptr<EvioNode> & EvioNode::extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
+                                      uint32_t recPosition, uint32_t position, uint32_t place) {
+
+    // Make sure there is enough data to at least read evio header
+    if (buffer.remaining() < 8) {
+        throw EvioException("buffer underflow");
+    }
+
+    // Store evio event info, without de-serializing, into EvioNode object
+    auto node = pool.getNode();
+    node->clear(); //node.clearIntArray();
+    node->setData(position, place, recPosition, buffer);
+    // This will return a reference to the actual node in the pool
+    return extractNode(node, position);
+}
+
+
+/**
+ * This method populates an EvioNode object that will represent an
+ * evio bank from that same node containing a reference to the
+ * backing buffer and given a position in that buffer.
+ *
+ * @param bankNode   EvioNode to represent a bank and containing,
+ *                   at least, a reference to backing buffer.
+ * @param position   position in backing buffer
+ *
+ * @return EvioNode bankNode arg filled with appropriate data.
+ * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
+ */
+std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position) {
+
+    // Make sure there is enough data to at least read evio header
+    ByteBuffer & buffer = bankNode->buffer;
+    if (buffer.remaining() < 8) {
+        throw EvioException("buffer underflow");
+    }
+
+    // Get length of current bank
+    int length = buffer.getInt(position);
+    bankNode->len = length;
+    bankNode->pos = position;
+    bankNode->type = DataType::BANK.getValue();
+
+    // Position of data for a bank
+    bankNode->dataPos = position + 8;
+    // Len of data for a bank
+    bankNode->dataLen = length - 1;
+
+    // Make sure there is enough data to read full bank
+    // even though it is NOT completely read at this time.
+    if (buffer.remaining() < 4*(length + 1)) {
+        cout << "ERROR: remaining = " << buffer.remaining() <<
+             ", node len bytes = " << ( 4*(length + 1)) << ", len = " << length << endl;
+        throw EvioException("buffer underflow");
+    }
+
+    // Hop over length word
+    position += 4;
+
+    // Read and parse second header word
+    uint32_t word = buffer.getInt(position);
+    bankNode->tag = (word >> 16) & 0xffff;
+    uint32_t dt  = (word >> 8) & 0xff;
+    bankNode->dataType = dt & 0x3f;
+    bankNode->pad = dt >> 6;
+    bankNode->num = word & 0xff;
+
+    return bankNode;
+}
+
+
+/**
+ * This method recursively stores, in the given list, all the information
+ * about an evio structure's children found in the given ByteBuffer object.
+ * It uses absolute gets so buffer's position does <b>not</b> change.
+ *
+ * @param node node being scanned
+ */
+void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
+
+    uint32_t dType = node->dataType;
+
+    // If node does not contain containers, return since we can't drill any further down
+    if (!DataType::isStructure(dType)) {
+        return;
+    }
+
+    // Start at beginning position of evio structure being scanned
+    uint32_t position = node->dataPos;
+    // Don't go past the data's end which is (position + length)
+    // of evio structure being scanned in bytes.
+    uint32_t endingPos = position + 4*node->dataLen;
+    // Buffer we're using
+    ByteBuffer & buffer = node->buffer;
+
+    uint32_t dt, dataType, dataLen, len, word;
+
+    // Do something different depending on what node contains
+    if (DataType::isBank(dType)) {
+        // Extract all the banks from this bank of banks.
+        // Make allowance for reading header (2 ints).
+        endingPos -= 8;
+        while (position <= endingPos) {
+
+            // Copy node for setting stuff that's the same as the parent
+            auto kidNode = std::shared_ptr<EvioNode>(new EvioNode(node));
+            // Clear children & data
+            kidNode->childNodes.clear();
+            kidNode->data.clear();
+
+            // Read first header word
+            len = buffer.getInt(position);
+            kidNode->pos = position;
+
+            // Len of data (no header) for a bank
+            dataLen = len - 1;
+            position += 4;
+
+            // Read and parse second header word
+            word = buffer.getInt(position);
+            position += 4;
+            kidNode->tag = (word >> 16) & 0xffff;
+            dt = (word >> 8) & 0xff;
+            dataType = dt & 0x3f;
+            kidNode->pad = dt >> 6;
+            kidNode->num = word & 0xff;
+
+
+            kidNode->len = len;
+            kidNode->type = DataType::BANK.getValue();  // This is a bank
+            kidNode->dataLen = dataLen;
+            kidNode->dataPos = position;
+            kidNode->dataType = dataType;
+            kidNode->izEvent = false;
+
+            // Create the tree structure
+            kidNode->parentNode = node;
+            // Add this to list of children and to list of all nodes in the event
+            node->addChild(kidNode);
+
+            // Only scan through this child if it's a container
+            if (DataType::isStructure(dataType)) {
+                scanStructure(kidNode);
+            }
+
+            // Set position to start of next header (hop over kid's data)
+            position += 4 * dataLen;
+        }
+    }
+    else if (DataType::isSegment(dType)) {
+
+        // Extract all the segments from this bank of segments.
+        // Make allowance for reading header (1 int).
+        endingPos -= 4;
+        while (position <= endingPos) {
+            // Copy node for setting stuff that's the same as the parent
+            auto kidNode = std::shared_ptr<EvioNode>(new EvioNode(node));
+            // Clear children & data
+            kidNode->childNodes.clear();
+            kidNode->data.clear();
+
+            kidNode->pos = position;
+
+            word = buffer.getInt(position);
+            position += 4;
+            kidNode->tag = (word >> 24) & 0xff;
+            dt = (word >> 16) & 0xff;
+            dataType = dt & 0x3f;
+            kidNode->pad = dt >> 6;
+            len = word & 0xffff;
+
+
+            kidNode->num      = 0;
+            kidNode->len      = len;
+            kidNode->type     = DataType::SEGMENT.getValue();  // This is a segment
+            kidNode->dataLen  = len;
+            kidNode->dataPos  = position;
+            kidNode->dataType = dataType;
+            kidNode->izEvent  = false;
+
+            kidNode->parentNode = node;
+            node->addChild(kidNode);
+
+            if (DataType::isStructure(dataType)) {
+                scanStructure(kidNode);
+            }
+
+            position += 4*len;
+        }
+    }
+        // Only one type of structure left - tagsegment
+    else {
+
+        // Extract all the tag segments from this bank of tag segments.
+        // Make allowance for reading header (1 int).
+        endingPos -= 4;
+        while (position <= endingPos) {
+            // Copy node for setting stuff that's the same as the parent
+            auto kidNode = std::shared_ptr<EvioNode>(new EvioNode(node));
+            // Clear children & data
+            kidNode->childNodes.clear();
+            kidNode->data.clear();
+
+            kidNode->pos = position;
+
+            word = buffer.getInt(position);
+            position += 4;
+            kidNode->tag = (word >> 20) & 0xfff;
+            dataType    = (word >> 16) & 0xf;
+            len         =  word & 0xffff;
+
+            kidNode->pad      = 0;
+            kidNode->num      = 0;
+            kidNode->len      = len;
+            kidNode->type     = DataType::TAGSEGMENT.getValue();  // This is a tag segment
+            kidNode->dataLen  = len;
+            kidNode->dataPos  = position;
+            kidNode->dataType = dataType;
+            kidNode->izEvent  = false;
+
+            kidNode->parentNode = node;
+            node->addChild(kidNode);
+
+            if (DataType::isStructure(dataType)) {
+                scanStructure(kidNode);
+            }
+
+            position += 4*len;
+        }
+    }
+}
+
+
+/**
+ * This method recursively stores, in the given list, all the information
+ * about an evio structure's children found in the given ByteBuffer object.
+ * It uses absolute gets so buffer's position does <b>not</b> change.
+ *
+ * @param node node being scanned
+ * @param nodeSource source of EvioNode objects to use while parsing evio data.
+ */
+void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & nodeSource) {
+
+    int dType = node->dataType;
+
+    // If node does not contain containers, return since we can't drill any further down
+    if (!DataType::isStructure(dType)) {
+        return;
+    }
+
+    // Start at beginning position of evio structure being scanned
+    int position = node->dataPos;
+    // Don't go past the data's end which is (position + length)
+    // of evio structure being scanned in bytes.
+    int endingPos = position + 4*node->dataLen;
+    // Buffer we're using
+    ByteBuffer & buffer = node->buffer;
+
+    uint32_t dt, dataType, dataLen, len, word;
+
+    // Do something different depending on what node contains
+    if (DataType::isBank(dType)) {
+        // Extract all the banks from this bank of banks.
+        // Make allowance for reading header (2 ints).
+        endingPos -= 8;
+        while (position <= endingPos) {
+
+            auto kidNode = nodeSource.getNode();
+            kidNode->copyParentForScan(node);
+
+            // Read first header word
+            len = buffer.getInt(position);
+            kidNode->pos = position;
+
+            // Len of data (no header) for a bank
+            dataLen = len - 1;
+            position += 4;
+
+            // Read and parse second header word
+            word = buffer.getInt(position);
+            position += 4;
+            kidNode->tag = (word >> 16) & 0xffff;
+            dt = (word >> 8) & 0xff;
+            dataType = dt & 0x3f;
+            kidNode->pad = dt >> 6;
+            kidNode->num = word & 0xff;
+
+
+            kidNode->len = len;
+            kidNode->type = DataType::BANK.getValue();  // This is a bank
+            kidNode->dataLen = dataLen;
+            kidNode->dataPos = position;
+            kidNode->dataType = dataType;
+            kidNode->izEvent = false;
+
+            // Add this to list of children and to list of all nodes in the event
+            node->addChild(kidNode);
+
+            // Only scan through this child if it's a container
+            if (DataType::isStructure(dataType)) {
+                scanStructure(kidNode, nodeSource);
+            }
+
+            // Set position to start of next header (hop over kid's data)
+            position += 4 * dataLen;
+        }
+    }
+    else if (DataType::isSegment(dType)) {
+
+        // Extract all the segments from this bank of segments.
+        // Make allowance for reading header (1 int).
+        endingPos -= 4;
+        while (position <= endingPos) {
+            auto kidNode = nodeSource.getNode();
+            kidNode->copyParentForScan(node);
+
+            kidNode->pos = position;
+
+            word = buffer.getInt(position);
+            position += 4;
+            kidNode->tag = (word >> 24) & 0xff;
+            dt = (word >> 16) & 0xff;
+            dataType = dt & 0x3f;
+            kidNode->pad = dt >> 6;
+            len = word & 0xffff;
+
+
+            kidNode->num      = 0;
+            kidNode->len      = len;
+            kidNode->type     = DataType::SEGMENT.getValue();  // This is a segment
+            kidNode->dataLen  = len;
+            kidNode->dataPos  = position;
+            kidNode->dataType = dataType;
+            kidNode->izEvent  = false;
+
+            node->addChild(kidNode);
+
+            if (DataType::isStructure(dataType)) {
+                scanStructure(kidNode, nodeSource);
+            }
+
+            position += 4*len;
+        }
+    }
+        // Only one type of structure left - tagsegment
+    else {
+
+        // Extract all the tag segments from this bank of tag segments.
+        // Make allowance for reading header (1 int).
+        endingPos -= 4;
+        while (position <= endingPos) {
+
+            auto kidNode = nodeSource.getNode();
+            kidNode->copyParentForScan(node);
+
+            kidNode->pos = position;
+
+            word = buffer.getInt(position);
+            position += 4;
+            kidNode->tag = (word >> 20) & 0xfff;
+            dataType    = (word >> 16) & 0xf;
+            len         =  word & 0xffff;
+
+            kidNode->pad      = 0;
+            kidNode->num      = 0;
+            kidNode->len      = len;
+            kidNode->type     = DataType::TAGSEGMENT.getValue();  // This is a tag segment
+            kidNode->dataLen  = len;
+            kidNode->dataPos  = position;
+            kidNode->dataType = dataType;
+            kidNode->izEvent  = false;
+
+            node->addChild(kidNode);
+
+            if (DataType::isStructure(dataType)) {
+                scanStructure(kidNode, nodeSource);
+            }
+
+            position += 4*len;
+        }
+    }
+}
+
+//----------------------------------
+// End of static methods
+//----------------------------------
 
 /**
  * Add a node to the end of the list of all nodes contained in event.
  * @param node child node to add to the list of all nodes
  */
-void EvioNode::addToAllNodes(EvioNode & node) {
+void EvioNode::addToAllNodes(shared_ptr<EvioNode> & node) {
 
-    allNodes.push_back(shared_ptr<EvioNode>(&node));
+    allNodes.push_back(node);
     // NOTE: do not have to do this recursively for all descendants.
     // That's because when events are scanned and EvioNode objects are created,
     // they are done so by using clone(). This means that all descendants have
@@ -1034,14 +960,13 @@ void EvioNode::removeFromAllNodes(shared_ptr<EvioNode> & node) {
  *
  * @param node child node to add to the end of the child list.
  */
-void EvioNode::addChild(EvioNode* node) {
+void EvioNode::addChild(shared_ptr<EvioNode> & node) {
     if (node == nullptr) {
         return;
     }
 
-    shared_ptr<EvioNode> sp = shared_ptr<EvioNode>(node);
-    childNodes.push_back(sp);
-    allNodes.push_back(sp);
+    childNodes.push_back(node);
+    allNodes.push_back(node);
 }
 
 /**
@@ -1121,8 +1046,6 @@ vector<shared_ptr<EvioNode>> &  EvioNode::getChildNodes() {return childNodes;}
  * @param descendants list to be filled with EvioNodes of all descendants
  */
 void EvioNode::getAllDescendants(vector<shared_ptr<EvioNode>> & descendants) {
-//    if (descendants == nullptr) return;
-
     // Add children recursively
     for (shared_ptr<EvioNode> & n : childNodes) {
         descendants.push_back(n);
@@ -1415,7 +1338,6 @@ vector<uint32_t> & EvioNode::getIntData() {
 }
 
 
-// TODO: This method can probably be deleted since it's only used in Evio.java in emu package
 /**
  * Get the data associated with this node as an 32-bit integer vector.
  * Place data in the given vector.

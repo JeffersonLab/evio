@@ -25,44 +25,44 @@ class EvioNode {
 private:
 
     /** Header's length value (32-bit words). */
-    uint32_t len;
+    uint32_t len = 0;
     /** Header's tag value. */
-    uint32_t tag;
+    uint32_t tag = 0;
     /** Header's num value. */
-    uint32_t num;
+    uint32_t num = 0;
     /** Header's padding value. */
-    uint32_t pad;
+    uint32_t pad = 0;
     /** Position of header in buffer in bytes.  */
-    uint32_t pos;
+    uint32_t pos = 0;
     /** This node's (evio container's) type. Must be bank, segment, or tag segment. */
-    uint32_t type;
+    uint32_t type = 0;
 
     /** Length of node's data in 32-bit words. */
-    uint32_t dataLen;
+    uint32_t dataLen = 0;
     /** Position of node's data in buffer in bytes. */
-    uint32_t dataPos;
+    uint32_t dataPos = 0;
     /** Type of data stored in node. */
-    uint32_t dataType;
+    uint32_t dataType = 0;
 
     /** Position of the record in buffer containing this node in bytes
      *  @since version 6. */
-    uint32_t recordPos;
+    uint32_t recordPos = 0;
 
     /** Store data in int array form if calculated. */
     vector<uint32_t> data;
 
-    /** List of child nodes ordered according to placement in buffer. */
-    vector<shared_ptr<EvioNode>> childNodes;
+    /** Does this node represent an event (top-level bank)? */
+    bool izEvent = false;
+
+    /** If the data this node represents is removed from the buffer,
+*  then this object is obsolete. */
+    bool obsolete = false;
 
     /** ByteBuffer that this node is associated with. */
     ByteBuffer buffer;
 
-    /** Does this node represent an event (top-level bank)? */
-    bool izEvent;
-
-    /** If the data this node represents is removed from the buffer,
-*  then this object is obsolete. */
-    bool obsolete;
+    /** List of child nodes ordered according to placement in buffer. */
+    vector<shared_ptr<EvioNode>> childNodes;
 
     //-------------------------------
     // For event-level node
@@ -72,19 +72,19 @@ private:
      * Place of containing event in file/buffer. First event = 0, second = 1, etc.
      * Useful for converting node to EvioEvent object (de-serializing).
      */
-    uint32_t place;
+    uint32_t place = 0;
+
+    /**
+     * If top-level event node, was I scanned and all my banks
+     * already placed into a list?
+     */
+    bool scanned = false;
 
     /** List of all nodes in the event including the top-level object
      *  ordered according to placement in buffer.
      *  Only created at the top-level (with constructor).
      *  All nodes have a reference to the top-level allNodes object. */
     vector<shared_ptr<EvioNode>> allNodes;
-
-    /**
-     * If top-level event node, was I scanned and all my banks
-     * already placed into a list?
-     */
-    bool scanned;
 
     //-------------------------------
     // For sub event-level node
@@ -111,9 +111,9 @@ private:
 
 private:
 
-    void copyParentForScan(EvioNode* parent);
-    void addChild(EvioNode* node);
-    void addToAllNodes(EvioNode & node);
+    void copyParentForScan(std::shared_ptr<EvioNode> & parent);
+    void addChild(shared_ptr<EvioNode> & node);
+    void addToAllNodes(shared_ptr<EvioNode> & node);
     void removeFromAllNodes(shared_ptr<EvioNode> & node);
     void removeChild(shared_ptr<EvioNode> & node);
     RecordNode & getRecordNode(); // public?
@@ -128,43 +128,42 @@ public:
     EvioNode();
     explicit EvioNode(int id);
     EvioNode(const EvioNode & firstNode);
+    EvioNode(const std::shared_ptr<EvioNode> & src);
     EvioNode(EvioNode && src) noexcept ;
     EvioNode(uint32_t pos, uint32_t place, ByteBuffer & buffer, RecordNode & blockNode);
     EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, ByteBuffer & buffer);
     EvioNode(uint32_t tag, uint32_t num, uint32_t pos, uint32_t dataPos,
              DataType & type, DataType & dataType, ByteBuffer & buffer);
 
-    //~EvioNode();
+    ~EvioNode() = default;
 
-    static void scanStructure(EvioNode & node);
-    static void scanStructure(EvioNode & node, EvioNodeSource & nodeSource);
+    static void scanStructure(std::shared_ptr<EvioNode> & node);
+    static void scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & nodeSource);
 
-    static EvioNode & extractNode(EvioNode & bankNode, uint32_t position);
-    static EvioNode & extractEventNode(ByteBuffer & buffer,
-                                       RecordNode & recNode,
-                                       uint32_t position, uint32_t place);
-    static EvioNode & extractEventNode(ByteBuffer & buffer,
-                                       EvioNodeSource & pool,
-                                       RecordNode & recNode,
-                                       uint32_t position, uint32_t place);
-    static EvioNode & extractEventNode(ByteBuffer & buffer,
-                                       uint32_t recPosition,
-                                       uint32_t position, uint32_t place);
-    static EvioNode & extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
-                                       uint32_t recPosition, uint32_t position, uint32_t place);
+    static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position);
+    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer,
+                                                        RecordNode & recNode,
+                                                        uint32_t position, uint32_t place);
+    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer,
+                                                        EvioNodeSource & pool,
+                                                        RecordNode & recNode,
+                                                        uint32_t position, uint32_t place);
+    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer,
+                                                        uint32_t recPosition,
+                                                        uint32_t position, uint32_t place);
+    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
+                                                        uint32_t recPosition, uint32_t position,
+                                                        uint32_t place);
 
     EvioNode & operator=(const EvioNode& other);
     bool operator==(const EvioNode& src) const;
 
     EvioNode & shift(int deltaPos);
-    // instead of clone, let's do copy constructor
-    //EvioNode & clone();
     string toString();
 
     void clearLists();
     void clear();
     void clearObjects();
-    void clearAll();
     void clearIntArray();
 
     void setBuffer(ByteBuffer & buf);
