@@ -7,12 +7,9 @@
 
 
 /** Default, no-arg constructor. Little endian. No compression. */
-RecordOutput::RecordOutput() {
+RecordOutput::RecordOutput() : recordIndex(MAX_EVENT_COUNT * 4) {
 
-    header = RecordHeader();
     header.setCompressionType(Compressor::UNCOMPRESSED);
-
-    recordIndex = ByteBuffer(MAX_EVENT_COUNT * 4);
     recordIndex.order(byteOrder);
 
     allocate();
@@ -29,7 +26,8 @@ RecordOutput::RecordOutput() {
  * @param hType           type of record header to use.
  */
 RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-                           Compressor::CompressionType compressionType, HeaderType hType) {
+                           Compressor::CompressionType compressionType, HeaderType hType) :
+                                recordIndex(MAX_EVENT_COUNT * 4)  {
 
     try {
         if (hType.isEvioFileHeader()) {
@@ -57,7 +55,6 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
         RECORD_BUFFER_SIZE = (int) (1.1 * MAX_BUFFER_SIZE);
     }
 
-    recordIndex = ByteBuffer(MAX_EVENT_COUNT * 4);
     recordIndex.order(byteOrder);
 
     allocate();
@@ -73,7 +70,8 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
  * @param hType           type of record header to use.
  */
 RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
-                           Compressor::CompressionType compressionType, HeaderType hType) {
+                           Compressor::CompressionType compressionType, HeaderType hType) :
+                                recordIndex(MAX_EVENT_COUNT * 4)  {
 
     try {
         if (hType.isEvioFileHeader()) {
@@ -88,6 +86,8 @@ RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
 
     header.setCompressionType(compressionType);
     userProvidedBuffer = true;
+
+    // TODO: THIS SHOULD NOT BE COPIED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     recordBinary = buffer;
     byteOrder = buffer.order();
 
@@ -110,7 +110,6 @@ RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
     // but change it anyway for use in copy(RecordOutput)
     RECORD_BUFFER_SIZE = userBufferSize;
 
-    recordIndex = ByteBuffer(MAX_EVENT_COUNT * 4);
     recordIndex.order(byteOrder);
 
     allocate();
@@ -123,65 +122,7 @@ RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
  *                       internal buffer was provided by user.
  */
 RecordOutput::RecordOutput(const RecordOutput & rec) {
-
-    // Avoid self copy ...
-    if (this == &rec) {
-        return;
-    }
-
-    // Copy primitive types & immutable objects
-    eventCount = rec.eventCount;
-    indexSize  = rec.indexSize;
-    eventSize  = rec.eventSize;
-    byteOrder  = rec.byteOrder;
-    startingPosition = rec.startingPosition;
-
-    // Copy construct header
-    header = RecordHeader(rec.header);
-
-    // For now, we're not going to use a RecordSupply class (from Java).
-    // We're just going to use queues instead, thus we don't have to
-    // worry about trying to leave MAX_EVENT_COUNT as is so RecordSupply
-    // has consistent behavior.
-
-    // Choose the larger of rec's or this object's buffer sizes
-    if (rec.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE ||
-        rec.RECORD_BUFFER_SIZE > RECORD_BUFFER_SIZE) {
-
-        MAX_BUFFER_SIZE = rec.MAX_BUFFER_SIZE;
-        RECORD_BUFFER_SIZE = rec.RECORD_BUFFER_SIZE;
-
-        // Reallocate memory
-        if (!userProvidedBuffer) {
-            recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
-            recordBinary.order(byteOrder);
-        }
-        else {
-            // If this record has a user-provided recordBinary buffer,
-            // then the user is expecting data to be built into that same buffer.
-            // If the data to be copied is larger than can be contained by the
-            // user-provided buffer, then we throw an exception.
-            throw HipoException("trying to copy bigger record which may not fit into buffer provided by user");
-        }
-
-        recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
-        recordEvents.order(byteOrder);
-
-        recordData = ByteBuffer(MAX_BUFFER_SIZE);
-        recordData.order(byteOrder);
-    }
-
-    if (rec.MAX_EVENT_COUNT > MAX_EVENT_COUNT) {
-        MAX_EVENT_COUNT = rec.MAX_EVENT_COUNT;
-        recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
-        recordIndex.order(byteOrder);
-    }
-
-    // Copy data (recordData is just a temporary holding buffer and does NOT need to be copied)
-    std::memcpy((void *)recordIndex.array(),  (const void *)rec.recordIndex.array(),  indexSize);
-    std::memcpy((void *)recordEvents.array(), (const void *)rec.recordEvents.array(), eventSize);
-    std::memcpy((void *)recordBinary.array(), (const void *)rec.recordBinary.array(),
-                        rec.recordBinary.limit());
+    copy(rec);
 
     // Copy buffer limits & positions:
     recordBinary.limit(rec.recordBinary.limit()).position(rec.recordBinary.position());
@@ -205,7 +146,7 @@ RecordOutput::RecordOutput(RecordOutput && rec) noexcept {
  */
 RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
 
-    // Avoid self assignment ...
+    // Avoid self assignment
     if (this != &other) {
         // Copy primitive types & immutable objects
         eventCount = other.eventCount;
@@ -243,69 +184,12 @@ RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
  *                       internal buffer was provided by user.
  */
 RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
+    copy(other);
 
-    // Avoid self assignment ...
-    if (this != &other) {
-
-        // Copy primitive types & immutable objects
-        eventCount = other.eventCount;
-        indexSize  = other.indexSize;
-        eventSize  = other.eventSize;
-        byteOrder  = other.byteOrder;
-        startingPosition = other.startingPosition;
-
-        // Copy construct header
-        header = RecordHeader(other.header);
-
-        // For now, we're not going to use a RecordSupply class (from Java).
-        // We're just going to use queues instead, thus we don't have to
-        // worry about trying to leave MAX_EVENT_COUNT as is so RecordSupply
-        // has consistent behavior.
-
-        // Choose the larger of rec's or this object's buffer sizes
-        if (other.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE ||
-            other.RECORD_BUFFER_SIZE > RECORD_BUFFER_SIZE) {
-
-            MAX_BUFFER_SIZE = other.MAX_BUFFER_SIZE;
-            RECORD_BUFFER_SIZE = other.RECORD_BUFFER_SIZE;
-
-            // Reallocate memory
-            if (!userProvidedBuffer) {
-                recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
-                recordBinary.order(byteOrder);
-            }
-            else {
-                // If this record has a user-provided recordBinary buffer,
-                // then the user is expecting data to be built into that same buffer.
-                // If the data to be copied is larger than can be contained by the
-                // user-provided buffer, then we throw an exception.
-                throw HipoException("trying to copy bigger record which may not fit into buffer provided by user");
-            }
-
-            recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
-            recordEvents.order(byteOrder);
-
-            recordData = ByteBuffer(MAX_BUFFER_SIZE);
-            recordData.order(byteOrder);
-        }
-
-        if (other.MAX_EVENT_COUNT > MAX_EVENT_COUNT) {
-            MAX_EVENT_COUNT = other.MAX_EVENT_COUNT;
-            recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
-            recordIndex.order(byteOrder);
-        }
-
-        // Copy data (recordData is just a temporary holding buffer and does NOT need to be copied)
-        std::memcpy((void *)recordIndex.array(),  (const void *)other.recordIndex.array(),  indexSize);
-        std::memcpy((void *)recordEvents.array(), (const void *)other.recordEvents.array(), eventSize);
-        std::memcpy((void *)recordBinary.array(), (const void *)other.recordBinary.array(),
-                    other.recordBinary.limit());
-
-        // Copy buffer limits & positions:
-        recordBinary.limit(other.recordBinary.limit()).position(other.recordBinary.position());
-        recordEvents.limit(other.recordEvents.limit()).position(other.recordEvents.position());
-        recordIndex.limit(other.recordIndex.limit()).position(other.recordIndex.position());
-    }
+    // Copy buffer limits & positions:
+    recordBinary.limit(other.recordBinary.limit()).position(other.recordBinary.position());
+    recordEvents.limit(other.recordEvents.limit()).position(other.recordEvents.position());
+    recordIndex.limit(other.recordIndex.limit()).position(other.recordIndex.position());
 
     return *this;
 }
@@ -315,7 +199,7 @@ RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
  * The given buffer should be made ready to receive new data by setting its
  * position and limit properly. Its byte order is set to the same as this writer's.
  * The argument ByteBuffer can be retrieved by calling {@link #getBinaryBuffer()}.
- * @param buf buffer in which to build record.
+ * @param buf buffer in which to build this record.
  */
 void RecordOutput::setBuffer(ByteBuffer & buf) {
     if (buf.order() != byteOrder) {
@@ -330,19 +214,105 @@ void RecordOutput::setBuffer(ByteBuffer & buf) {
     userBufferSize = buf.capacity() - startingPosition;
     buf.limit(buf.capacity());
 
-    // Only allocate memory if current buffers are too small
+    MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
+    RECORD_BUFFER_SIZE = userBufferSize;
+
+    // Only re-allocate memory if current buffers are too small
     if (userBufferSize > RECORD_BUFFER_SIZE) {
-        MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
-        RECORD_BUFFER_SIZE = userBufferSize;
         allocate();
-    }
-    else {
-        MAX_BUFFER_SIZE = (int) (0.91*userBufferSize);
-        RECORD_BUFFER_SIZE = userBufferSize;
     }
 
     reset();
 }
+
+/**
+ * Copy the contents of the arg into this object and get data buffer ready for reading.
+ * If the arg has more data than will fit, increase buffer sizes.
+ * If the arg has more events than our allowed max, increase the max.
+ * @param rec object to copy, must be ready to read
+ * @throws HipoException if we cannot replace internal buffer if it needs to be
+ *                       expanded since it was provided by the user.
+ */
+void RecordOutput::transferDataForReading(const RecordOutput & rec) {
+    copy(rec);
+
+    // Get buffers ready to read
+    recordBinary.limit(rec.recordBinary.limit()).position(0);
+    recordEvents.limit(eventSize).position(0);
+    recordIndex.limit(indexSize).position(0);
+}
+
+/**
+ * Copy data from arg into this object, but don't set positions/limits of data buffer.
+ * Copy all data up to the buffer limit (not capacity).
+ * @param rec RecordOutput to copy.
+ * @throws HipoException if trying to copy bigger record and
+ *                       internal buffer was provided by user.
+ */
+void RecordOutput::copy(const RecordOutput & rec) {
+
+    // Avoid self copy
+    if (this == &rec) {
+        return;
+    }
+
+    // Copy primitive types & immutable objects
+    eventCount = rec.eventCount;
+    indexSize  = rec.indexSize;
+    eventSize  = rec.eventSize;
+    byteOrder  = rec.byteOrder;
+    startingPosition = rec.startingPosition;
+
+    // Copy construct header
+    header = RecordHeader(rec.header);
+
+    // It would be nice to leave MAX_EVENT_COUNT as is so RecordSupply
+    // has consistent behavior. But I don't think that's possible if
+    // the record output stream being copied is larger. Since the record
+    // being copied may not have had build() called, go by the max sizes
+    // and not how much data are in the buffers.
+
+    // Choose the larger of rec's or this object's buffer sizes
+    if (rec.MAX_BUFFER_SIZE > MAX_BUFFER_SIZE ||
+        rec.RECORD_BUFFER_SIZE > RECORD_BUFFER_SIZE) {
+
+        MAX_BUFFER_SIZE = rec.MAX_BUFFER_SIZE;
+        RECORD_BUFFER_SIZE = rec.RECORD_BUFFER_SIZE;
+
+        // Reallocate memory
+        if (!userProvidedBuffer) {
+            recordBinary = ByteBuffer(RECORD_BUFFER_SIZE);
+            recordBinary.order(byteOrder);
+        }
+        else {
+            // If this record has a user-provided recordBinary buffer,
+            // then the user is expecting data to be built into that same buffer.
+            // If the data to be copied is larger than can be contained by the
+            // user-provided buffer, then we throw an exception.
+            throw HipoException("trying to copy bigger record which may not fit into buffer provided by user");
+        }
+
+        recordEvents = ByteBuffer(MAX_BUFFER_SIZE);
+        recordEvents.order(byteOrder);
+
+        recordData = ByteBuffer(MAX_BUFFER_SIZE);
+        recordData.order(byteOrder);
+    }
+
+    if (rec.MAX_EVENT_COUNT > MAX_EVENT_COUNT) {
+        MAX_EVENT_COUNT = rec.MAX_EVENT_COUNT;
+        recordIndex = ByteBuffer(MAX_EVENT_COUNT*4);
+        recordIndex.order(byteOrder);
+    }
+
+    // Copy data (recordData is just a temporary holding buffer and does NOT need to be copied)
+    std::memcpy((void *)recordIndex.array(),  (const void *)rec.recordIndex.array(),  indexSize);
+    std::memcpy((void *)recordEvents.array(), (const void *)rec.recordEvents.array(), eventSize);
+    std::memcpy((void *)recordBinary.array(), (const void *)rec.recordBinary.array(), rec.recordBinary.limit());
+
+    // Don't set limits or positions of buffers in this method
+}
+
 
 /**
  * Get the maximum number of events allowed in this record.
@@ -390,7 +360,27 @@ int RecordOutput::getEventCount() const {return eventCount;}
  * Get the internal ByteBuffer used to construct binary representation of this record.
  * @return internal ByteBuffer used to construct binary representation of this record.
  */
-ByteBuffer & RecordOutput::getBinaryBuffer() {return recordBinary;}
+const ByteBuffer & RecordOutput::getBinaryBuffer() const {return recordBinary;}
+
+/**
+ * Get the compression type of the contained record.
+ * Implemented to allow "const" in {@link RecordRingItem} equal operator
+ * and copy constructor.
+ * @return compression type of the contained record.
+ */
+const Compressor::CompressionType RecordOutput::getCompressionType() const {
+    return header.getCompressionType();
+}
+
+/**
+ * Get the header type of the contained record.
+ * Implemented to allow "const" in {@link RecordRingItem} equal operator
+ * and copy constructor.
+ * @return compression type of the contained record.
+ */
+const HeaderType RecordOutput::getHeaderType() const {
+    return header.getHeaderType();
+}
 
 /**
  * Was the internal buffer provided by the user?
@@ -519,25 +509,15 @@ bool RecordOutput::addEvent(const uint8_t* event, size_t offset, uint32_t eventL
         return false;
     }
 
-    // Where do we start writing in buffer?
-    size_t pos = recordEvents.position();
-    // Add event data
-
-    std::memcpy((void *)(recordEvents.array() + pos), (const void *)(event + offset), eventLen);
-    //System.arraycopy(event, position, recordEvents.array(), pos, eventLen);
-
-    // Make sure we write in the correct position next time
-    recordEvents.position(pos + eventLen);
-    // Same as above, but above method is a lot faster:
-    //recordEvents.put(event, position, length);
+    // Add event data.
+    // Uses memcpy underneath since, unlike Java, there is no "direct" buffer
+    recordEvents.put(event, offset, eventLen);
     eventSize += eventLen;
 
     // Add 1 more index
     recordIndex.putInt(indexSize, eventLen);
     indexSize += 4;
-
     eventCount++;
-//cout << "addEvent: event cnt = " << to_string(eventCount) << ", event size = " << to_string(eventSize) << endl;
 
     return true;
 }
@@ -763,11 +743,13 @@ bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
 /**
  * Reset internal buffers. The buffer is ready to receive new data.
  * Also resets the header including removing any compression.
+ * If data buffer externally provided, the starting position is set to 0.
  */
 void RecordOutput::reset() {
     indexSize  = 0;
     eventSize  = 0;
     eventCount = 0;
+    startingPosition = 0;
 
     recordData.clear();
     recordIndex.clear();
@@ -834,7 +816,7 @@ void RecordOutput::build() {
     // Write index & event arrays
 
     // If compressing data ...
-    if (compressionType > 0) {
+    if (compressionType != Compressor::UNCOMPRESSED) {
         // Write into a single, temporary buffer
         recordBinary.clear();
         recordData.clear();
@@ -997,7 +979,7 @@ void RecordOutput::build(ByteBuffer & userHeader) {
     size_t recBinPastHdrAbsolute = recBinPastHdr + recordBinary.arrayOffset();
 
     // If compressing data ...
-    if (compressionType > 0) {
+    if (compressionType != Compressor::UNCOMPRESSED) {
         recordData.clear();
         recordBinary.clear();
 

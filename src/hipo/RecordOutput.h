@@ -89,7 +89,7 @@
  */
 class RecordOutput {
 
-private:
+public:
 
     /** Maximum number of events per record. */
     static constexpr int ONE_MEG = 1024*1024;
@@ -146,15 +146,14 @@ private:
     /** This buffer stores data that will be compressed. */
     ByteBuffer recordData;
 
-    /** Buffer in which to put constructed (& compressed) binary record.
-     * Code is written so that it works whether or not it's backed by an array. */
+    /** Buffer in which to put constructed (& compressed) binary record. */
     ByteBuffer recordBinary;
 
     /** Header of this Record. */
     RecordHeader header;
 
     /** Byte order of record byte arrays to build. */
-    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+    ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
     /** Is recordBinary a user provided buffer? */
     bool userProvidedBuffer = false;
@@ -186,12 +185,13 @@ private:
 
     void allocate();
     bool allowedIntoRecord(uint32_t length);
+    void copy(const RecordOutput & rec);
+
 
 public:
 
     void setBuffer(ByteBuffer & buf);
-    // Not used since we don't use RingBuffers
-    //void copy(const RecordOutput & rec);
+    void transferDataForReading(const RecordOutput & rec);
 
     int getUserBufferSize() const;
     int getUncompressedSize() const;
@@ -200,8 +200,10 @@ public:
     int getEventCount() const;
 
     RecordHeader & getHeader();
-    const ByteOrder & getByteOrder() const;
-    ByteBuffer & getBinaryBuffer();
+    const ByteOrder    & getByteOrder() const;
+    const ByteBuffer   & getBinaryBuffer() const;
+    const Compressor::CompressionType getCompressionType() const;
+    const HeaderType getHeaderType() const;
 
     bool hasUserProvidedBuffer() const;
     bool roomForEvent(uint32_t length) const;
