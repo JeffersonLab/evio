@@ -6,6 +6,7 @@
 #define EVIO_6_0_READWRITETEST_H
 
 
+#include <functional>
 #include <string>
 #include <cstdint>
 #include <cstdlib>
@@ -17,6 +18,11 @@
 #include "WriterMT.h"
 #include "RecordHeader.h"
 #include "HipoException.h"
+#include "RecordRingItem.h"
+#include "EvioNode.h"
+#include "Compressor.h"
+
+
 
 class ReadWriteTest {
 
@@ -43,6 +49,48 @@ public:
         return buffer;
     }
 
+    /**
+     * Write ints.
+     * @param size number of INTS
+     * @param order byte order of ints in memory
+     * @return
+     */
+    static uint8_t* generateSequentialInts(int size, ByteOrder & order) {
+        auto buffer = new uint32_t[size];
+        for(int i = 0; i < size; i++) {
+            if (ByteOrder::needToSwap(order)) {
+                buffer[i] = SWAP_32(i);
+                //buffer[i] = SWAP_32(1);
+            }
+            else {
+                buffer[i] = i;
+                //buffer[i] = 1;
+            }
+        }
+        return reinterpret_cast<uint8_t *>(buffer);
+    }
+
+    /**
+     * Write shorts.
+     * @param size number of SHORTS
+     * @param order byte order of shorts in memory
+     * @return
+     */
+    static uint8_t* generateSequentialShorts(int size, ByteOrder & order) {
+        auto buffer = new uint16_t[size];
+        for(int i = 0; i < size; i++) {
+            if (ByteOrder::needToSwap(order)) {
+                buffer[i] = SWAP_16(i);
+                //buffer[i] = SWAP_16(1);
+            }
+            else {
+                buffer[i] = i;
+                //buffer[i] = 1;
+            }
+        }
+        return reinterpret_cast<uint8_t *>(buffer);
+    }
+
     static void print(uint8_t* array, int arrayLen) {
         int wrap = 20;
         for (int i = 0; i < arrayLen; i++) {
@@ -57,20 +105,17 @@ public:
     static void testStreamRecord() {
 
         // Variables to track record build rate
-        double freqAvg=0.;
-        long totalC=0L;
-        // Ignore the first N values found for freq in order
-        // to get better avg statistics. Since the JIT compiler in java
-        // takes some time to analyze & compile code, freq may initially be low.
-        long ignoreLoops = 0L;
-        long loops  = 4L;
+        double freqAvg;
+        long totalC = 0L;
+        long loops  = 40000L;
 
         try {
             // Create file
             string filename("/dev/shm/hipoTest1.evio");
+            Compressor::CompressionType compressionType = Compressor::CompressionType::LZ4;
 
             Writer writer(ByteOrder::ENDIAN_LITTLE, 10000, 10000000);
-            writer.getRecordHeader().setCompressionType(Compressor::CompressionType::UNCOMPRESSED);
+            writer.getRecordHeader().setCompressionType(compressionType);
             writer.open(filename);
 
             uint8_t* array = generateArray(100);
@@ -82,13 +127,7 @@ public:
                 writer.addEvent(array, 0, 100);
 
                 //cout << int(20000000 - loops) << endl;
-                // Ignore beginning loops to remove JIT compile time
-                if (ignoreLoops-- > 0) {
-                    t1 = std::chrono::high_resolution_clock::now();
-                }
-                else {
-                    totalC++;
-                }
+                totalC++;
 
                 if (--loops < 1) break;
             }
@@ -112,7 +151,18 @@ public:
 
             writer.close();
 
-            cout << "Finished writing file" << endl;
+            switch (compressionType) {
+                case Compressor::UNCOMPRESSED :
+                    cout << "File compression = UNCOMPRESSED" << endl; break;
+                case Compressor::LZ4 :
+                    cout << "File compression = LZ4" << endl; break;
+                case Compressor::LZ4_BEST :
+                    cout << "File compression = LZ$ Best" << endl; break;
+                case Compressor::GZIP :
+                    cout << "File compression = Gzip" << endl; break;
+            }
+
+            cout << "Finished writing file " << filename << endl;
         }
         catch (std::exception & ex) {
             if (ex.what() == nullptr) {
@@ -127,51 +177,61 @@ public:
     }
 
 
-    static void testStreamRecordMT(){
+    static void testStreamRecordMT() {
 
         // Variables to track record build rate
         double freqAvg;
-        long totalC=0;
-        // Ignore the first N values found for freq in order
-        // to get better avg statistics. Since the JIT compiler in java
-        // takes some time to analyze & compile code, freq may initially be low.
-        long ignoreLoops = 0;
-        long loops  = 6;
+        long totalC = 0;
+        long loops = 11;
 
         string fileName = "/dev/shm/hipoTest2.evio";
 
         // Create files
         string finalFilename = fileName + ".1";
-        WriterMT writer1(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
+//        WriterMT writer1(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
+//cout << "Past creating writer1" << endl;
         finalFilename = fileName + ".2";
-        WriterMT writer2(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 2);
-        finalFilename = fileName + ".3";
-        WriterMT writer3(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 3);
+        //WriterMT writer2(ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::UNCOMPRESSED, 2);
+        string dictionary = "This is a dictionary";
+        //dictionary = "";
+        uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        uint32_t firstEventLen = 10;
+        ByteOrder order  =  ByteOrder::ENDIAN_LITTLE;
+        WriterMT writer2(HeaderType::EVIO_FILE, order, 0, 0,
+                         Compressor::GZIP, 2, true, dictionary, firstEvent, 10, 16);
 
-        uint8_t* buffer = generateArray(400);
+        auto userHdr = new uint8_t[10];
+        for (uint8_t i = 0; i < 10; i++) {
+            userHdr[i] = i;
+        }
+
+        //writer2.open(finalFilename, userHdr, 10);
+        writer2.open(finalFilename);
+        cout << "Past creating writer2" << endl;
+//        finalFilename = fileName + ".3";
+//        WriterMT writer3(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
+//cout << "Past creating writer3" << endl;
+
+        //uint8_t *buffer = generateSequentialInts(100, order);
+        uint8_t *buffer = generateSequentialShorts(13, order);
 
         auto t1 = std::chrono::high_resolution_clock::now();
 
         while (true) {
             // random data array
-            writer1.addEvent(buffer, 0, 400);
-            writer2.addEvent(buffer, 0, 400);
-            writer3.addEvent(buffer, 0, 400);
+            //writer1.addEvent(buffer, 0, 400);
+            //writer2.addEvent(buffer, 0, 400);
+            writer2.addEvent(buffer, 0, 26);
+//            writer3.addEvent(buffer, 0, 400);
 
 //cout << int(20000000 - loops) << endl;
-            // Ignore beginning loops to remove JIT compile time
-            if (ignoreLoops-- > 0) {
-                t1 = std::chrono::high_resolution_clock::now();
-            }
-            else {
-                totalC++;
-            }
+            totalC++;
 
             if (--loops < 1) break;
         }
 
         auto t2 = std::chrono::high_resolution_clock::now();
-        auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1);
+        auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 
         freqAvg = (double) totalC / deltaT.count() * 1000;
 
@@ -179,23 +239,93 @@ public:
         cout << "Finished all loops, count = " << totalC << endl;
 
 
-        writer1.addTrailer(true);
-        writer1.addTrailerWithIndex(true);
+//        writer1.addTrailer(true);
+//        writer1.addTrailerWithIndex(true);
+//        cout << "Past write 1" << endl;
 
-        writer2.addTrailer(true);
-        writer2.addTrailerWithIndex(true);
+        //      writer2.addTrailer(true);
+        //      writer2.addTrailerWithIndex(true);
 
-        writer3.addTrailer(true);
-        writer3.addTrailerWithIndex(true);
+        cout << "Past write 2" << endl;
+//        writer3.addTrailer(true);
+//        writer3.addTrailerWithIndex(true);
 
+//        cout << "Past write 3" << endl;
 
-        writer1.close();
+//        writer1.close();
+//        cout << "Past close 1" << endl;
         writer2.close();
-        writer3.close();
+        cout << "Past close 2" << endl;
+//        writer3.close();
 
         // Doing a diff between files shows they're identical!
 
-        cout << "Finished writing files" << endl;
+        cout << "Finished writing files " << fileName << " + .1, .2, .3" << endl;
+        cout << "Now read file " << fileName << " + .1, .2, .3" << endl;
+
+        Reader reader(finalFilename);
+
+        int32_t evCount = reader.getEventCount();
+        cout << "Read in file " << finalFilename << ", got " << evCount << " events" << endl;
+
+        string dict = reader.getDictionary();
+        cout << "   Got dictionary = " << dict << endl;
+
+        shared_ptr<uint8_t> & pFE = reader.getFirstEvent();
+        if (pFE != nullptr) {
+            int32_t feBytes = reader.getFirstEventSize();
+            cout << "   First Event bytes = " << feBytes << endl;
+            cout << "   First Event values = " << endl << "   ";
+            for (int i = 0; i < feBytes; i++) {
+                cout << (uint32_t) ((pFE.get())[i]) << ",  ";
+            }
+            cout << endl;
+        }
+
+        cout << "reader.getEvent(0)" << endl;
+        shared_ptr<uint8_t> data = reader.getEvent(0);
+        cout << "got event" << endl;
+//        uint32_t wordLen = reader.getEventLength(0)/4;
+//        cout << "got event len" << endl;
+//
+//        if (data != nullptr) {
+//            int *pData = reinterpret_cast<int *>(data.get());
+//            cout <<  "   Event #0, values =" << endl << "   ";
+//            for (int i = 0; i < wordLen; i++) {
+//                if (order.isLocalEndian()) {
+//                    cout << *pData << ",  ";
+//                }
+//                else {
+//                    cout << SWAP_32(*pData) <<",  ";
+//                }
+//                pData++;
+//                if ((i+1)%5 == 0) cout << endl;
+//            }
+//            cout << endl;
+//        }
+
+        uint32_t wordLen = reader.getEventLength(0)/2;
+        if (data != nullptr) {
+            short *pData = reinterpret_cast<short *>(data.get());
+            cout <<  "   Event #0, values =" << endl << "   ";
+            for (int i = 0; i < wordLen; i++) {
+                if (order.isLocalEndian()) {
+                    cout << *pData << ",  ";
+                }
+                else {
+                    cout << SWAP_16(*pData) <<",  ";
+                }
+                pData++;
+                if ((i+1)%5 == 0) cout << endl;
+            }
+            cout << endl;
+        }
+
+
+        delete[] buffer;
+        delete[] userHdr;
+
+        //for (reader)
     }
 
 
@@ -229,25 +359,43 @@ public:
     }
 
 
-
-
+//    static void disruptorTest() {
+//
+//        const size_t ringBufSize = 8;
+//
+//        std::array<int, ringBufSize> events;
+//        for (size_t i = 0; i < ringBufSize; i++) events[i] = 2*i;
+//
+//
+//        // For single threaded producer which spins to wait.
+//        // This creates and contains a RingBuffer object.
+//        disruptor::Sequencer<int, ringBufSize, disruptor::SingleThreadedStrategy<ringBufSize>,
+//                disruptor::BusySpinStrategy> sequencer(events);
+//
+//        disruptor::Sequence readSequence(disruptor::kInitialCursorValue);
+//        std::vector<disruptor::Sequence*> dependents = {&readSequence};
+//
+////        int64_t cursor = sequencer.GetCursor();
+////        bool hasCap = sequencer.HasAvailableCapacity();
+////
+////        const disruptor::SequenceBarrier<disruptor::BusySpinStrategy> & barrier = sequencer.NewBarrier(dependents);
+////        int64_t seq = barrier.get_sequence();
+//
+//        disruptor::Sequence & cursorSequence = sequencer.GetCursorSequence();
+//        disruptor::SequenceBarrier<disruptor::BusySpinStrategy> barrier(cursorSequence, dependents);
+//
+//        shared_ptr<disruptor::SequenceBarrier<disruptor::BusySpinStrategy>> barrierPtr = sequencer.NewBarrier(dependents);
+//        int64_t seq = barrierPtr->get_sequence();
+//
+//    }
 
 };
 
 
 
+
 int main(int argc, char **argv) {
-
-//    const char ascii[] = {67,79,68,65}; // CODA in ascii
-//    std::string str = std::string(ascii, 4);
-//    cout << "This string = " << str << endl;
-
-cout << "Try writing to file /dev/shm/hipoTest1.evio" << endl;
-    ReadWriteTest::testStreamRecord();
-cout << "Try converting from file /dev/shm/hipoTest1.evio" << endl;
-    ReadWriteTest::convertor();
-cout << "DONE" << endl;
-
+    ReadWriteTest::testStreamRecordMT();
     return 0;
 }
 
