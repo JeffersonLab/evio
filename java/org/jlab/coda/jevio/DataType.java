@@ -74,7 +74,6 @@ public enum DataType {
         return intToType[val];
     }
 
-
     /**
      * Obtain the name from the value.
      *
@@ -88,85 +87,16 @@ public enum DataType {
         return type.name();
     }
 
-
-    /**
-     * Return a string which is usually the same as the name of the
-     * enumerated value, except in the cases of ALSOSEGMENT and
-     * ALSOBANK which return SEGMENT and BANK respectively.
-     *
-     * @return name of the enumerated type
-     */
-    public String toString() {
-        if      (this == ALSOBANK) return "BANK";
-        else if (this == ALSOSEGMENT) return "SEGMENT";
-        return super.toString();
-    }
-
-
-    /**
-     * Constructor.
-     * @param value
-     */
-	private DataType(int value) {
-		this.value = value;
-	}
-
-
-	/**
-	 * Get the enum's value.
-	 * 
-	 * @return the value, e.g., 0xe for a BANK
-	 */
-	public int getValue() {
-		return value;
-	}
-
-
-    /**
-   	 * Convenience routine to see if "this" data type is a structure (a container.)
-   	 * @return <code>true</code> if the data type corresponds to one of the structure
-   	 * types: BANK, SEGMENT, or TAGSEGMENT.
-   	 */
-   	public boolean isStructure() {
-   		switch (this) {
-   		case BANK:
-   		case SEGMENT:
-   		case TAGSEGMENT:
-   		case ALSOBANK:
-   		case ALSOSEGMENT:
-   //		case ALSOTAGSEGMENT:
-   			return true;
-   		default:
-   			return false;
-   		}
-   	}
-
-    /**
-   	 * Convenience routine to see if "this" data type is a bank structure.
-   	 * @return <code>true</code> if this data type corresponds to a bank structure.
-   	 */
-   	public boolean isBank() {return (this == BANK || this == ALSOBANK);}
-
-//	/**
-//	 * Convenience routine to see if the given integer arg represents a data type which
-//     * is a structure (a container).
-//	 * @return <code>true</code> if the data type corresponds to one of the structure
-//	 * types: BANK, SEGMENT, or TAGSEGMENT.
-//	 */
-//	static public boolean isStructure(int dataType) {
-//		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
-//				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
-//				dataType == TAGSEGMENT.value;
-//	}
-
 	/**
 	 * Convenience routine to see if the given integer arg represents a data type which
-     * is a structure (a container).
+	 * is a structure (a container).
 	 * @return <code>true</code> if the data type corresponds to one of the structure
-	 * types: BANK, SEGMENT, TAGSEGMENT, ALSOBANK, or ALSOSEGMENT.
+	 * types: BANK, SEGMENT, or TAGSEGMENT.
 	 */
 	static public boolean isStructure(int dataType) {
-		return  (((dataType > 0xb && dataType < 0x11) && dataType != 0xf) || dataType == 0x20);
+		return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
+				dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
+				dataType == TAGSEGMENT.value;
 	}
 
 	/**
@@ -194,23 +124,81 @@ public enum DataType {
 	}
 
 	/**
+	 * Constructor.
+	 * @param value
+	 */
+	private DataType(int value) {
+		this.value = value;
+	}
+
+
+	/**
+	 * Get the enum's value.
+	 *
+	 * @return the value, e.g., 0xe for a BANK
+	 */
+	public int getValue() {
+		return value;
+	}
+
+
+	/**
+	 * Return a string which is usually the same as the name of the
+	 * enumerated value, except in the cases of ALSOSEGMENT and
+	 * ALSOBANK which return SEGMENT and BANK respectively.
+	 *
+	 * @return name of the enumerated type
+	 */
+	public String toString() {
+		if      (this == ALSOBANK) return "BANK";
+		else if (this == ALSOSEGMENT) return "SEGMENT";
+		return super.toString();
+	}
+
+
+	/**
+	 * Convenience routine to see if "this" data type is a structure (a container.)
+	 * @return <code>true</code> if the data type corresponds to one of the structure
+	 * types: BANK, SEGMENT, or TAGSEGMENT.
+	 */
+	public boolean isStructure() {
+		switch (this) {
+			case BANK:
+			case SEGMENT:
+			case TAGSEGMENT:
+			case ALSOBANK:
+			case ALSOSEGMENT:
+//		case ALSOTAGSEGMENT:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Convenience routine to see if "this" data type is a bank structure.
+	 * @return <code>true</code> if this data type corresponds to a bank structure.
+	 */
+	public boolean isBank() {return (this == BANK || this == ALSOBANK);}
+	
+	/**
 	 * Convenience routine to see if "this" data type is an integer of some kind -
 	 * either 8, 16, 32, or 64 bits worth.
 	 * @return <code>true</code> if the data type corresponds to an integer type
 	 */
 	public boolean isInteger() {
 		switch (this) {
-		case UCHAR8:
-		case CHAR8:
-		case USHORT16:
-		case SHORT16:
-		case UINT32:
-	    case INT32:
-		case ULONG64:
-		case LONG64:
-			return true;
-		default:
-			return false;
+			case UCHAR8:
+			case CHAR8:
+			case USHORT16:
+			case SHORT16:
+			case UINT32:
+			case INT32:
+			case ULONG64:
+			case LONG64:
+				return true;
+			default:
+				return false;
 		}
 	}
 
