@@ -42,6 +42,10 @@ final public class BlockNode {
     // Methods
     //-------------------------------
 
+    final void clear() {
+        len = count = pos = place = 0;
+    }
+
     final public int getLen() {return len;}
     final public void setLen(int len) {this.len = len;}
 
