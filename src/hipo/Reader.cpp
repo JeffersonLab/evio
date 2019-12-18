@@ -194,13 +194,13 @@ void Reader::open(string & filename) {
 
     fileName = filename;
 
-    //cout << "[READER] ----> opening file : " << filename << endl;
+cout << "[READER] ----> opening file : " << filename << endl;
     // "ate" mode flag will go immediately to file's end (do this to get its size)
     inStreamRandom.open(filename, std::ios::binary | std::ios::ate);
     fileSize = inStreamRandom.tellg();
     // Go back to beginning of file
     inStreamRandom.seekg(0);
-    //cout << "[READER] ---> open successful, size : " << fileSize << endl;
+cout << "[READER] ---> open successful, size : " << fileSize << endl;
 }
 
 /**
@@ -344,7 +344,7 @@ RecordHeader & Reader::getFirstRecordHeader() {return firstRecordHeader;}
  * Get the byte order of the file/buffer being read.
  * @return byte order of the file/buffer being read.
  */
-ByteOrder Reader::getByteOrder() {return byteOrder;}
+ByteOrder & Reader::getByteOrder() {return byteOrder;}
 
 /**
  * Set the byte order of the file/buffer being read.
@@ -390,10 +390,20 @@ bool Reader::hasDictionary() {
  * Get a byte array representing the first event.
  * @return byte array representing the first event. Null if none.
  */
-shared_ptr<uint8_t> Reader::getFirstEvent() {
+shared_ptr<uint8_t> & Reader::getFirstEvent() {
     // Read in first event if necessary
     extractDictionaryAndFirstEvent();
     return firstEvent;
+}
+
+/**
+ * Get size, in bytes, of byte array representing the first event.
+ * @return size, in bytes, of byte array representing the first event. 0 if none.
+ */
+uint32_t Reader::getFirstEventSize() {
+    // Read in first event if necessary
+    extractDictionaryAndFirstEvent();
+    return firstEventSize;
 }
 
 /**
@@ -473,7 +483,7 @@ shared_ptr<uint8_t> Reader::getNextEvent() {
         if (debug) cout << "getNextEvent extra increment to " << sequentialIndex << endl;
     }
 
-    shared_ptr<uint8_t> array = getEvent(sequentialIndex++);
+    auto array = getEvent(sequentialIndex++);
     lastCalledSeqNext = true;
 
     if (array == nullptr) {
@@ -513,7 +523,7 @@ shared_ptr<uint8_t> Reader::getPrevEvent() {
         if (debug) cout << "getPrevEvent extra decrement to " << sequentialIndex << endl;
     }
 
-    shared_ptr<uint8_t> array = getEvent(--sequentialIndex);
+    auto array = getEvent(--sequentialIndex);
     lastCalledSeqNext = false;
 
     if (array == nullptr) {
@@ -562,7 +572,6 @@ EvioNode * Reader::getNextEventNode() {
  * @throws IOException if error reading file
  */
 ByteBuffer Reader::readUserHeader() {
-    char* userBytes;
 
     if (fromFile) {
         int userLen = fileHeader.getUserHeaderLength();
@@ -570,7 +579,7 @@ ByteBuffer Reader::readUserHeader() {
         //         "  " << fileHeader.getIndexLength() << endl;
 
         // This is turned into shared memory in ByteBuffer constructor below
-        userBytes = new char[userLen];
+        auto userBytes = new char[userLen];
 
         inStreamRandom.seekg(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
         inStreamRandom.read(userBytes, userLen);
@@ -582,10 +591,10 @@ ByteBuffer Reader::readUserHeader() {
         int userLen = firstRecordHeader.getUserHeaderLength();
         // cout << "  " << firstRecordHeader.getUserHeaderLength() << "  " << firstRecordHeader.getHeaderLength() <<
         //         "  " << firstRecordHeader.getIndexLength() << endl;
-        userBytes = new char[userLen];
+        auto userBytes = new uint8_t[userLen];
 
         buffer.position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
-        buffer.get(reinterpret_cast<uint8_t *>(userBytes), 0, userLen);
+        buffer.get(userBytes, 0, userLen);
         return std::move(ByteBuffer(userBytes, userLen).order(firstRecordHeader.getByteOrder()));
     }
 }
@@ -602,21 +611,22 @@ ByteBuffer Reader::readUserHeader() {
 shared_ptr<uint8_t> Reader::getEvent(uint32_t index) {
 
     if (index >= eventIndex.getMaxEvents()) {
-        //cout << "[READER] getEvent: index = " << index << ", max events = " << eventIndex.getMaxEvents() << endl;
+        cout << "[READER] getEvent: index = " << index << ", max events = " << eventIndex.getMaxEvents() << endl;
         return nullptr;
     }
 
     if (eventIndex.setEvent(index)) {
         // If here, the event is in another record
-        //cout << "[READER] getEvent: read record at index = " << eventIndex.getRecordNumber() << endl;
+        cout << "[READER] getEvent: read record at index = " << eventIndex.getRecordNumber() << endl;
         readRecord(eventIndex.getRecordNumber());
     }
 
     if (inputRecordStream.getEntries() == 0) {
-        //cout << "[READER] getEvent: first time reading record at index = " << eventIndex.getRecordNumber() << endl;
+        cout << "[READER] getEvent: first time reading record at index = " << eventIndex.getRecordNumber() << endl;
         readRecord(eventIndex.getRecordNumber());
     }
 
+    cout << "[READER] getEvent: try doing inputStream.getEvent(...)" << endl;
     return inputRecordStream.getEvent(eventIndex.getRecordEventNumber());
 }
 
@@ -629,14 +639,15 @@ shared_ptr<uint8_t> Reader::getEvent(uint32_t index) {
  * @param index index of specified event within the entire file/buffer,
  *              contiguous starting at 0.
  * @return buf or null if buf is null or index out of bounds.
- * @throws HipoException if file/buffer not in hipo format, or
+ * @throws HipoException if file/buffer not in hipo format,
  *                       if buf has insufficient space to contain event
- *                       (buf.capacity() < event size).
+ *                       (buf.capacity() < event size), or
+ *                       index too large.
  */
-ByteBuffer * Reader::getEvent(ByteBuffer & buf, uint32_t index) {
+ByteBuffer & Reader::getEvent(ByteBuffer & buf, uint32_t index) {
 
     if (index >= eventIndex.getMaxEvents()) {
-        return nullptr;
+        throw HipoException("index too large");
     }
 
     if (eventIndex.setEvent(index)) {
@@ -647,7 +658,7 @@ ByteBuffer * Reader::getEvent(ByteBuffer & buf, uint32_t index) {
         //cout << "[READER] first time reading buffer" << endl;
         readRecord(eventIndex.getRecordNumber());
     }
-    return & inputRecordStream.getEvent(buf, eventIndex.getRecordEventNumber());
+    return inputRecordStream.getEvent(buf, eventIndex.getRecordEventNumber());
 }
 
 /**
@@ -678,21 +689,22 @@ uint32_t Reader::getEventLength(uint32_t index) {
 
 /**
  * Get an EvioNode representing the specified event from the buffer.
- * If index is out of bounds, null is returned.
+ * If index is out of bounds, nullptr is returned.
  * @param index index of specified event within the entire buffer,
  *              starting at 0.
  * @return EvioNode representing the specified event or null if
  *         index is out of bounds, reading a file or data is compressed.
+ * @throws HipoException index too large or reading from file.
  */
-EvioNode * Reader::getEventNode(uint32_t index) {
+EvioNode & Reader::getEventNode(uint32_t index) {
 //cout << "getEventNode: index = " << index + " >? " << eventIndex.getMaxEvents() <<
 //                   ", fromFile = " << fromFile << ", compressed = " << compressed << endl;
     if (index >= eventIndex.getMaxEvents() || fromFile) {
 //cout << "getEventNode: index out of range, from file or compressed so node = NULL" << endl;
-        return nullptr;
+        throw HipoException("index too large or reading from file");
     }
 //cout << "getEventNode: Getting node at index = " << index << endl;
-    return & eventNodes[index];
+    return eventNodes[index];
 }
 
 /**
@@ -732,11 +744,12 @@ RecordInput & Reader::getCurrentRecordStream() {return inputRecordStream;}
  * @throws HipoException if file/buffer not in hipo format
  */
 bool Reader::readRecord(uint32_t index) {
-    //cout << "Reader.readRecord:  index = " << index << ", recPos.size() = " << recordPositions.size() << endl;
+    cout << "Reader.readRecord:  index = " << index << ", recPos.size() = " << recordPositions.size() << endl;
 
     if (index < recordPositions.size()) {
         RecordPosition pos = recordPositions[index];
         if (fromFile) {
+            cout << "Reader.readRecord:  inputRecStream.readRecord(...)" << endl;
             inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
         }
         else {
@@ -787,7 +800,7 @@ void Reader::extractDictionaryFromBuffer() {
         // Read user header
         auto userBytes = new uint8_t[userLen];
         buffer.get(userBytes, 0, userLen);
-        ByteBuffer userBuffer(reinterpret_cast<char *>(userBytes), userLen);
+        ByteBuffer userBuffer(userBytes, userLen);
 
         // Parse user header as record
         record = RecordInput(firstRecordHeader.getByteOrder());
@@ -803,13 +816,14 @@ void Reader::extractDictionaryFromBuffer() {
     // Dictionary always comes first in record
     if (firstRecordHeader.hasDictionary()) {
         // Just plain ascii, not evio format
-        shared_ptr<uint8_t> dict = record.getEvent(evIndex++);
+        auto dict = record.getEvent(evIndex++);
         dictionaryXML = string(reinterpret_cast<const char *>(dict.get()));
     }
 
     // First event comes next
     if (firstRecordHeader.hasFirstEvent()) {
         firstEvent = record.getEvent(evIndex);
+        firstEventSize = record.getEventLength(evIndex);
     }
 }
 
@@ -857,13 +871,14 @@ void Reader::extractDictionaryFromFile() {
     // Dictionary always comes first in record
     if (fileHeader.hasDictionary()) {
         // Just plain ascii, not evio format
-        shared_ptr<uint8_t> dict = record.getEvent(evIndex++);
+        auto dict = record.getEvent(evIndex++);
         dictionaryXML = string(reinterpret_cast<const char *>(dict.get()));
     }
 
     // First event comes next
     if (fileHeader.hasFirstEvent()) {
         firstEvent = record.getEvent(evIndex);
+        firstEventSize = record.getEventLength(evIndex);
     }
 }
 
@@ -1187,9 +1202,9 @@ ByteBuffer Reader::scanBuffer() {
   */
 void Reader::scanUncompressedBuffer() {
 
-    auto headerBytes = new char[RecordHeader::HEADER_SIZE_BYTES];
+    auto headerBytes = new uint8_t[RecordHeader::HEADER_SIZE_BYTES];
     ByteBuffer headerBuffer(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
-    RecordHeader recordHeader = RecordHeader();
+    RecordHeader recordHeader;
 
     bool haveFirstRecordHeader = false;
 
@@ -1210,7 +1225,7 @@ void Reader::scanUncompressedBuffer() {
         // Read record header
         buffer.position(position);
         // This moves the buffer's position
-        buffer.get(reinterpret_cast<uint8_t *>(headerBytes), 0, RecordHeader::HEADER_SIZE_BYTES);
+        buffer.get(headerBytes, 0, RecordHeader::HEADER_SIZE_BYTES);
         // Only sets the byte order of headerBuffer
         recordHeader.readHeader(headerBuffer);
 //cout << "read header ->" << endl << recordHeader.toString() << endl;
@@ -1307,6 +1322,8 @@ cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " <
  */
 void Reader::forceScanFile() {
 
+    cout << "[READER] ---> force a file scan" << endl;
+
     auto headerBytes = new char[RecordHeader::HEADER_SIZE_BYTES];
     ByteBuffer headerBuffer(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
 
@@ -1315,6 +1332,7 @@ void Reader::forceScanFile() {
     // Go to file beginning
     inStreamRandom.seekg(0L);
     inStreamRandom.read(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
+    // headerBuffer position does not change in following call
     fileHeader.readHeader(headerBuffer);
     byteOrder = fileHeader.getByteOrder();
     evioVersion = fileHeader.getVersion();
@@ -1324,9 +1342,10 @@ cout << "forceScanFile: file header -->" << endl << fileHeader.toString() << end
     eventIndex.clear();
     recordPositions.clear();
     recordNumberExpected = 1;
-    RecordHeader recordHeader = RecordHeader();
+    RecordHeader recordHeader;
     bool haveFirstRecordHeader = false;
 
+cout << "forceScanFile: 1" << endl;
     // Scan file by reading each record header and
     // storing its position, length, and event count.
 
@@ -1336,15 +1355,19 @@ cout << "forceScanFile: file header -->" << endl << fileHeader.toString() << end
     // First record position (past file's header + index + user header)
     uint64_t recordPosition = fileHeader.getHeaderLength() +
                               fileHeader.getUserHeaderLength() +
-                              fileHeader.getIndexLength();
+                              fileHeader.getIndexLength() +
+                              fileHeader.getUserHeaderLengthPadding();
 
+cout << "forceScanFile: 2, file user header padding = " << fileHeader.getUserHeaderLengthPadding() << endl;
     int recordCount = 0;
     while (recordPosition < maximumSize) {
+cout << "forceScanFile: 3" << endl;
         inStreamRandom.seekg(recordPosition);
         inStreamRandom.read(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
+cout << "forceScanFile: 4" << endl;
         recordHeader.readHeader(headerBuffer);
-//cout << "forceScanFile: record header " << recordCount << " @ pos = " <<
-//recordPosition << " -->" << endl << recordHeader.toString() << endl;
+cout << "forceScanFile: record header " << recordCount << " @ pos = " <<
+recordPosition << " -->" << endl << recordHeader.toString() << endl;
         recordCount++;
 
 
@@ -1364,7 +1387,7 @@ cout << "forceScanFile: file header -->" << endl << fileHeader.toString() << end
 
         // Save the first record header
         if (!haveFirstRecordHeader) {
-            firstRecordHeader = RecordHeader(recordHeader);
+            firstRecordHeader = recordHeader;
             compressed = firstRecordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
             haveFirstRecordHeader = true;
         }
@@ -1376,8 +1399,8 @@ cout << "forceScanFile: file header -->" << endl << fileHeader.toString() << end
         eventIndex.addEventSize(recordHeader.getEntries());
         recordPosition += recordLen;
     }
-//eventIndex.show();
-//cout << "NUMBER OF RECORDS " << recordPositions.size() << endl;
+eventIndex.show();
+cout << "NUMBER OF RECORDS " << recordPositions.size() << endl;
 }
 
 /**
@@ -1399,12 +1422,12 @@ void Reader::scanFile(bool force) {
     recordPositions.clear();
 //        recordNumberExpected = 1;
 
-    //cout << "[READER] ---> scanning the file" << endl;
+cout << "[READER] ---> scanning the file" << endl;
     auto headerBytes = new char[RecordHeader::HEADER_SIZE_BYTES];
     ByteBuffer headerBuffer(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
 
     fileHeader = FileHeader();
-    RecordHeader recordHeader = RecordHeader();
+    RecordHeader recordHeader;
 
     // Go to file beginning
     inStreamRandom.seekg(0L);
@@ -1414,18 +1437,19 @@ void Reader::scanFile(bool force) {
     fileHeader.readHeader(headerBuffer);
     byteOrder = fileHeader.getByteOrder();
     evioVersion = fileHeader.getVersion();
-//cout << "scanFile: file header: " << endl << fileHeader.toString() << endl;
+cout << "scanFile: file header: " << endl << fileHeader.toString() << endl;
 
     // Is there an existing record length index?
     // Index in trailer gets first priority.
     // Index in file header gets next priority.
     bool fileHasIndex = fileHeader.hasTrailerWithIndex() || (fileHeader.hasIndex());
-//cout << "scanFile: file has index = " << fileHasIndex <<
-//        ", has trailer with index =  " << fileHeader.hasTrailerWithIndex() <<
-//        ", file header has index " << fileHeader.hasIndex() << endl;
+cout << "scanFile: file has index = " << fileHasIndex <<
+        ", has trailer with index =  " << fileHeader.hasTrailerWithIndex() <<
+        ", file header has index " << fileHeader.hasIndex() << endl;
 
     // If there is no index, scan file
     if (!fileHasIndex) {
+        cout << "scanFile: CALL forceScanFile" << endl;
         forceScanFile();
         return;
     }
@@ -1451,12 +1475,12 @@ cout << "scanFile: bad trailer position, " << fileHeader.getTrailerPosition() <<
 
     // First record position (past file's header + index + user header)
     uint32_t recordPosition = fileHeader.getLength();
-//cout << "record position = " << recordPosition << endl;
+cout << "scanFile: record position = " << recordPosition << endl;
 
     // Move to first record and save the header
     inStreamRandom.seekg(recordPosition);
     inStreamRandom.read(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
-    firstRecordHeader = RecordHeader(recordHeader);
+    firstRecordHeader = recordHeader;
     firstRecordHeader.readHeader(headerBuffer);
     compressed = firstRecordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
 
@@ -1466,7 +1490,7 @@ cout << "scanFile: bad trailer position, " << fileHeader.getTrailerPosition() <<
     if (useTrailer) {
         // Position read right before trailing header
         inStreamRandom.seekg(fileHeader.getTrailerPosition());
-//cout << "position file to trailer = " << fileHeader.getTrailerPosition() << endl;
+cout << "scanFile: position file to trailer = " << fileHeader.getTrailerPosition() << endl;
         // Read trailer
         inStreamRandom.read(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
         recordHeader.readHeader(headerBuffer);
@@ -1487,6 +1511,7 @@ cout << "scanFile: bad trailer position, " << fileHeader.getTrailerPosition() <<
     auto intData = new int[indexLength/4];
 
     try {
+cout << "scanFile: transform int array from " << fileHeader.getByteOrder().getName() << endl;
         Reader::toIntArray(index, 0, indexLength, fileHeader.getByteOrder(), intData, 0);
 
         // Turn record lengths into file positions and store in list
@@ -1494,11 +1519,11 @@ cout << "scanFile: bad trailer position, " << fileHeader.getTrailerPosition() <<
         for (int i=0; i < indexLength/4; i += 2) {
             int len = intData[i];
             int count = intData[i+1];
-//cout << "record pos = " << recordPosition << ", len = " << len << ", count = " << count << endl;
+cout << "scanFile: record pos = " << recordPosition << ", len = " << len << ", count = " << count << endl;
             // Create a new RecordPosition object and store in vector
             recordPositions.emplace_back(recordPosition, len, count);
             // Track # of events in this record for event index handling
-//cout << "scanFile: add record's event count (" << count << ") to eventIndex" << endl;
+cout << "scanFile: add record's event count (" << count << ") to eventIndex" << endl;
             eventIndex.addEventSize(count);
             recordPosition += len;
         }
@@ -1707,7 +1732,7 @@ ByteBuffer & Reader::removeStructure(EvioNode & removeNode) {
  *                       if there is an internal programming error;
  *                       if object closed
  */
-ByteBuffer Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
+ByteBuffer & Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
 
     if (addBuffer.remaining() < 8) {
         throw HipoException("empty or non-evio format buffer arg");
@@ -1765,7 +1790,7 @@ ByteBuffer Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
 
     // Increase lengths of parent nodes
     EvioNode & addToNode = eventNodes[eventNumber];
-    shared_ptr<EvioNode> parent = addToNode.getParentNode();
+    auto parent = addToNode.getParentNode();
     parent->updateLengths(appendDataLen);
 
     // Increase containing record's length
@@ -1832,6 +1857,8 @@ int Reader::main(int argc, char **argv) {
     catch (exception & e) {
         cout << "error = " << string(e.what()) << endl;
     }
+
+    return 0;
 }
 
 /**

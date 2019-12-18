@@ -101,15 +101,15 @@ private:
 
 
     /**
-     * List of records in the file. The list is initialized
+     * Vector of records in the file. The vector is initialized
      * when the entire file is scanned to read out positions
      * of each record in the file (in constructor).
      */
-    vector<RecordPosition> recordPositions = vector<RecordPosition>();
+    vector<RecordPosition> recordPositions;
     /** Object for reading file. */
     ifstream inStreamRandom;
     /** File name. */
-    string fileName;
+    string fileName {""};
     /** File size in bytes. */
     uint64_t fileSize = 0;
     /** File header. */
@@ -130,7 +130,7 @@ private:
 
 
     /** Keep one record for reading in data record-by-record. */
-    RecordInput inputRecordStream = RecordInput();
+    RecordInput inputRecordStream;
     /** Number or position of last record to be read. */
     uint32_t currentRecordLoaded = 0;
     // TODO: Look at this
@@ -141,15 +141,17 @@ private:
     /** If true, throw an exception if record numbers are out of sequence. */
     bool checkRecordNumberSequence = false;
     /** Object to handle event indexes in context of file and having to change records. */
-    FileEventIndex eventIndex = FileEventIndex();
+    FileEventIndex eventIndex;
 
 
     /** Files may have an xml format dictionary in the user header of the file header. */
-    string dictionaryXML;
+    string dictionaryXML {""};
     /** Each file of a set of split CODA files may have a "first" event common to all. */
     shared_ptr<uint8_t> firstEvent = nullptr;
+    /** First event size in bytes. */
+    uint32_t firstEventSize = 0;
     /** Stores info of all the (top-level) events in a scanned buffer. */
-    vector<EvioNode> eventNodes = vector<EvioNode>();
+    vector<EvioNode> eventNodes;
 
 
     /** Is this object currently closed? */
@@ -160,13 +162,13 @@ private:
     ByteOrder byteOrder = ByteOrder::ENDIAN_BIG;
     /** Keep track of next EvioNode when calling {@link #getNextEventNode()},
     * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
-    int sequentialIndex = -1;
+    int32_t sequentialIndex = -1;
 
 
     /** If true, the last sequential call was to getNextEvent or getNextEventNode.
      *  If false, the last sequential call was to getPrevEvent. Used to determine
      *  which event is prev or next. */
-    bool lastCalledSeqNext = true;
+    bool lastCalledSeqNext = false;
     /** Evio version of file/buffer being read. */
     int evioVersion = 6;
     /** Source (pool) of EvioNode objects used for parsing Evio data in buffer (NOT file!). */
@@ -174,7 +176,7 @@ private:
 
 
     /** Place to store data read in from record header. */
-    uint32_t *headerInfo = new uint32_t[headerInfoLen];
+    uint32_t headerInfo[headerInfoLen];
 
 
 private:
@@ -221,13 +223,14 @@ public:
     FileHeader & getFileHeader();
     RecordHeader & getFirstRecordHeader();
 
-    ByteOrder getByteOrder();
+    ByteOrder & getByteOrder();
     int getVersion();
     bool isCompressed();
     string getDictionary();
     bool hasDictionary();
 
-    shared_ptr<uint8_t> getFirstEvent();
+    shared_ptr<uint8_t> & getFirstEvent();
+    uint32_t getFirstEventSize();
     bool hasFirstEvent();
 
     uint32_t getEventCount();
@@ -240,17 +243,17 @@ public:
 
     uint32_t getNumEventsRemaining();
 
-    shared_ptr<uint8_t>getNextEvent();
-    shared_ptr<uint8_t>getPrevEvent();
+    shared_ptr<uint8_t> getNextEvent();
+    shared_ptr<uint8_t> getPrevEvent();
 
     EvioNode *getNextEventNode();
 
     ByteBuffer readUserHeader();
 
     shared_ptr<uint8_t> getEvent(uint32_t index);
-    ByteBuffer *getEvent(ByteBuffer & buf, uint32_t index);
+    ByteBuffer & getEvent(ByteBuffer & buf, uint32_t index);
     uint32_t getEventLength(uint32_t index);
-    EvioNode *getEventNode(uint32_t index);
+    EvioNode & getEventNode(uint32_t index);
 
     bool hasNext();
     bool hasPrev();
@@ -280,7 +283,7 @@ protected:
     void scanFile(bool force);
 
 
-    ByteBuffer addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
+    ByteBuffer & addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
     ByteBuffer & removeStructure(EvioNode & removeNode);
 
     void show();
