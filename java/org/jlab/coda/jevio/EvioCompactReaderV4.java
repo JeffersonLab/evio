@@ -1246,7 +1246,9 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         return byteBuffer;
     }
 
-
+// TODO: This method will change a memory mapped buffer into one this is NOT!!!
+// Map is opened as READ_ONLY
+    
     /**
      * This method adds an evio container (bank, segment, or tag segment) as the last
      * structure contained in an event. It is the responsibility of the caller to make
