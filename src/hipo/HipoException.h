@@ -48,5 +48,4 @@ public:
 
 #define throwHipoLine(arg) throw HipoException(arg, __FILE__, __LINE__);
 
-
 #endif //EVIO_6_0_HIPOEXCEPTION_H
