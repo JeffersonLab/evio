@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <vector>
+#include <memory>
 #include "EvioNode.h"
 
 
@@ -20,9 +21,6 @@ class EvioNodeSource {
 
 private:
 
-    /** For assigning pool id numbers. Initialized in EvioNode.cpp. */
-    static std::atomic<unsigned int> poolIdCounter;
-
     /** Index into nodePool array of the next pool object to use. */
     uint32_t poolIndex;
 
@@ -33,14 +31,18 @@ private:
     uint32_t id;
 
     /** EvioNode objects used for parsing Evio data in EBs. */
-    vector<EvioNode> nodePool;
+    vector<std::shared_ptr<EvioNode>> nodePool;
+
+    /** For assigning pool id numbers. Initialized in EvioNode.cpp. */
+    static std::atomic<unsigned int> poolIdCounter;
 
 public:
 
-    /** Default constructor with pool size = 0. */
+    /** Default constructor with pool size = 1. */
     EvioNodeSource() {
         id = poolIdCounter.fetch_add(1);
-        size = 0;
+        nodePool.push_back(std::make_shared<EvioNode>(id));
+        size = 1;
     }
 
 
@@ -49,12 +51,15 @@ public:
      * @param initialSize number of EvioNode objects in pool initially.
      */
     EvioNodeSource(uint32_t initialSize) {
+        if (initialSize < 1) {
+            initialSize = 1;
+        }
         id = poolIdCounter.fetch_add(1);
         size = initialSize;
         nodePool.reserve(initialSize);
         // Create pool objects
         for (int i = 0; i < size; i++) {
-            nodePool.emplace_back(id);
+            nodePool.push_back(std::make_shared<EvioNode>(id));
         }
     }
 
@@ -82,7 +87,7 @@ public:
      * Get a single EvioNode object.
      * @return EvioNode object.
      */
-    EvioNode & getNode() {
+    std::shared_ptr<EvioNode> getNode() {
         int currentIndex = poolIndex;
         if (poolIndex++ >= size) {
             // It's better to increase the pool so these objects
@@ -95,7 +100,7 @@ public:
     /** Reset the source to initial condition. */
     void reset() {
         for (int i=0; i < poolIndex; i++) {
-            nodePool[i].clear();
+            nodePool[i]->clear();
         }
         poolIndex = 0;
     }
@@ -105,13 +110,13 @@ private:
     /** Increase the size of the pool by about 20% or at least 1. */
     void increasePool() {
         // Grow it by 20% at a shot
-        int newPoolSize = size + (size + 5)/5;
+        int newPoolSize = size + (size + 4)/5;
 
         nodePool.reserve(newPoolSize);
 
         // Create new pool objects
         for (int i = size; i < newPoolSize; i++) {
-            nodePool.emplace_back(id);
+            nodePool.push_back(std::make_shared<EvioNode>(id));
         }
 
         size = newPoolSize;
