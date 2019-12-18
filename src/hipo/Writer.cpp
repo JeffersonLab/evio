@@ -54,7 +54,7 @@ Writer::Writer(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBuff
  */
 Writer::Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                const string & dictionary = string(""), uint8_t* firstEvent = nullptr, uint32_t firstEventLen = 0,
-               const Compressor::CompressionType compType = Compressor::UNCOMPRESSED) {
+               const Compressor::CompressionType & compType = Compressor::UNCOMPRESSED) {
 
     byteOrder = order;
     this->dictionary = dictionary;
@@ -291,9 +291,9 @@ Writer::Writer(ByteBuffer & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
                 open(buffer, userHeader, userHeaderLength);
             }
         }
-
-        return *this;
     }
+
+    return *this;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -495,7 +495,7 @@ void Writer::open(ByteBuffer & buf, uint8_t* userHdr, uint32_t len) {
     }
     else if (len > 0) {
         userHeader = userHdr;
-        userHeaderBuffer = ByteBuffer(reinterpret_cast<char *>(userHdr), len);
+        userHeaderBuffer = std::move(ByteBuffer(userHdr, len));
         userHeaderBuffer.order(byteOrder);
         userHeaderLength = len;
     }
@@ -821,7 +821,7 @@ void Writer::writeTrailer(bool writeIndex) {
 
     // If we're NOT adding a record index, just write trailer
     if (!writeIndex) {
-        RecordHeader::writeTrailer(&headerArray[0], headerArray.max_size(), 0,
+        RecordHeader::writeTrailer(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES, 0,
                                    recordNumber, byteOrder, nullptr, 0);
 
         // TODO: not really necessary to keep track here?
@@ -843,8 +843,9 @@ void Writer::writeTrailer(bool writeIndex) {
     size_t recordLengthsBytes = 4*recordLengths.size();
     auto recordIndex = new uint8_t[recordLengthsBytes];
 
+    // Transform ints to bytes in local endian. It'll be swapped below in writeTrailer().
     for (int i = 0; i < recordLengths.size(); i++) {
-        toBytes(recordLengths[i], byteOrder, recordIndex, 4*i, recordLengthsBytes);
+        toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
 //cout << "Writing record length = " << recordLengths[i] << showbase << hex <<
 //                ", = " << recordLengths[i] << endl;
     }
@@ -855,13 +856,13 @@ void Writer::writeTrailer(bool writeIndex) {
     int dataBytes = RecordHeader::HEADER_SIZE_BYTES + recordLengthsBytes;
 
     // Make sure our array can hold everything
-    if (headerArray.max_size() < dataBytes) {
+    if (headerArray.capacity() < dataBytes) {
 //cout << "Allocating byte array of " << dataBytes << " bytes in size" << endl;
         headerArray.reserve(dataBytes);
     }
 
     // Place data into headerArray - both header and index
-    RecordHeader::writeTrailer(&headerArray[0], headerArray.max_size(), 0,
+    RecordHeader::writeTrailer(&headerArray[0], dataBytes, 0,
                                recordNumber, byteOrder, (const uint32_t*)recordIndex,
                                recordLengthsBytes);
 

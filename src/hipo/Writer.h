@@ -114,7 +114,7 @@ public:
     Writer(const ByteOrder  & order, uint32_t maxEventCount, uint32_t maxBufferSize);
     Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
            const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength,
-           const Compressor::CompressionType compressionType);
+           const Compressor::CompressionType & compressionType);
     explicit Writer(string & filename);
     Writer(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize);
 
