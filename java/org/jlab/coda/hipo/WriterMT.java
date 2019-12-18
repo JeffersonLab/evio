@@ -34,6 +34,25 @@ import java.util.logging.Logger;
 
 public class WriterMT implements AutoCloseable {
 
+    /** Number of bytes written to file/buffer at current moment. */
+    private long writerBytesWritten;
+    /** Byte array containing user Header. */
+    private byte[] userHeader;
+    /** Size in bytes of userHeader array. */
+    int userHeaderLength;
+    /** Evio format "first" event to store in file header's user header. */
+    private byte[] firstEvent;
+    /** Length in bytes of firstEvent. */
+    private int firstEventLength;
+    /** Max number of events an internal record can hold. */
+    private int maxEventCount;
+    /** Max number of uncompressed data bytes an internal record can hold. */
+    private int maxBufferSize;
+    /** Number which is incremented and stored with each successive written record starting at 1. */
+    private int recordNumber = 1;
+    /** Number of threads doing compression simultaneously. */
+    private int compressionThreadCount = 1;
+
     /** Object for writing file. */
     private RandomAccessFile outStream;
 
@@ -43,66 +62,73 @@ public class WriterMT implements AutoCloseable {
     /** Header to write to file. */
     private FileHeader fileHeader;
 
-    /** Fast, thread-safe, lock-free supply of records. */
-    private RecordSupply supply;
+    /** String containing evio-format XML dictionary to store in file header's user header. */
+    String dictionary;
 
-    /** Number of threads doing compression simultaneously. */
-    private int compressionThreadCount = 1;
+    /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
+    ByteBuffer dictionaryFirstEventBuffer;
 
-    /** Threads used to compress data. */
-    private RecordCompressor[] recordCompressorThreads;
-
-    /** Thread used to write data to file/buffer. */
-    private RecordWriter recordWriterThread;
-
-    /** Byte order of data to write to file/buffer. */
+    /** Byte order of data to write to file. */
     private ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
     /** Current record being filled with data. */
-    private RecordOutputStream record;
-
-    /** Current ring Item from which current record is taken. */
-    private RecordRingItem ringItem;
+    private RecordOutputStream outputRecord;
 
     /** Byte array large enough to hold a header/trailer. */
     private byte[] headerArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
 
     /** Type of compression to use on file. Default is none. */
-    private CompressionType compressionType;
-
-    /** Number of bytes written to file/buffer at current moment. */
-    private long writerBytesWritten;
-
-    /** Number which is incremented and stored with each successive written record starting at 1. */
-    private int recordNumber = 1;
-
-    /** Do we add a last header or trailer to file/buffer? */
-    private boolean addingTrailer;
-
-    /** Do we add a record index to the trailer? */
-    private boolean addTrailerIndex;
+    private CompressionType compressionType = CompressionType.RECORD_UNCOMPRESSED;
 
     /** List of record lengths interspersed with record event counts
-     * to be optionally written in trailer. */
+      * to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
 
+    /** Fast, thread-safe, lock-free supply of records. */
+    private RecordSupply supply;
+
+    /** Thread used to write data to file/buffer. */
+    private RecordWriter recordWriterThread;
+
+    /** Threads used to compress data. */
+    private RecordCompressor[] recordCompressorThreads;
+
+    /** Current ring Item from which current record is taken. */
+    private RecordRingItem ringItem;
+
+    /** Do we add a last header or trailer to file/buffer? */
+    private boolean addingTrailer = true;
+    /** Do we add a record index to the trailer? */
+    private boolean addTrailerIndex;
+    /** Has close() been called? */
+    private boolean closed;
+    /** Has open() been called? */
+    private boolean opened;
+    /** Has the first record been written already? */
+    private boolean firstRecordWritten;
+    /** Has a dictionary been defined? */
+    private boolean haveDictionary;
+    /** Has a first event been defined? */
+    private boolean haveFirstEvent;
+    /** Has caller defined a file header's user-header which is not dictionary/first-event? */
+    private boolean haveUserHeader;
+
+    
     /**
      * Default constructor. Compression is single-threaded LZ4. Little endian.
      * <b>No</b> file is opened. Any file will have little endian byte order.
      */
     public WriterMT() {
-        compressionThreadCount = 1;
         fileHeader = new FileHeader(true); // evio file
         supply = new RecordSupply(8, byteOrder, compressionThreadCount, 0, 0, CompressionType.RECORD_COMPRESSION_LZ4);
 
         // Get a single blank record to start writing into
         ringItem = supply.get();
-        record   = ringItem.getRecord();
+        outputRecord = ringItem.getRecord();
     }
 
     /**
-     * Constructor with byte order.
-     * <b>No</b> file is opened.
+     * Constructor with byte order. <b>No</b> file is opened.
      * Any dictionary will be placed in the user header which will create a conflict if
      * user tries to call {@link #open(String, byte[])} with another user header array.
      *
@@ -122,13 +148,84 @@ public class WriterMT implements AutoCloseable {
                     CompressionType compressionType, int compressionThreads, int ringSize)
             throws IllegalArgumentException {
 
+        this(HeaderType.EVIO_FILE, order, maxEventCount, maxBufferSize,
+             compressionType, compressionThreads, false, null, null, 0, ringSize);
+    }
+
+
+    /**
+     * Constructor with byte order.
+     * <b>No</b> file is opened.
+     * Any dictionary will be placed in the user header which will create a conflict if
+     * user tries to call {@link #open(String, byte[])} with another user header array.
+     *
+     * @param hType         the type of the file. If set to {@link HeaderType#HIPO_FILE},
+     *                      the header will be written with the first 4 bytes set to HIPO.
+     * @param order         byte order of written file
+     * @param maxEventCount max number of events a record can hold.
+     *                      Value <= O means use default (1M).
+     * @param maxBufferSize max number of uncompressed data bytes a record can hold.
+     *                      Value of < 8MB results in default of 8MB.
+     * @param compType      type of data compression to do (one, lz4 fast, lz4 best, gzip)
+     * @param compressionThreads number of threads doing compression simultaneously
+     * @param addTrailerIndex if true, we add a record index to the trailer.
+     * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
+     * @param firstEvent    byte array containing an evio event to be included in userHeader.
+     *                      It must be in the same byte order as the order argument.
+     * @param firstEventLen number of valid bytes in firstEvent.
+     * @param ringSize      number of records in supply ring, must be multiple of 2
+     *                      and >= compressionThreads.
+     *
+     * @throws IllegalArgumentException if invalid compression type.
+     */
+    public WriterMT(HeaderType hType, ByteOrder order,
+                    int maxEventCount, int maxBufferSize,
+                    CompressionType compType, int compressionThreads,
+                    boolean addTrailerIndex,
+                    String dictionary, byte[] firstEvent, int firstEventLen,
+                    int ringSize)
+            throws IllegalArgumentException {
+
+        this.dictionary = dictionary;
+        this.firstEvent = firstEvent;
+        if (firstEvent == null || firstEventLen < 0) {
+            firstEventLen = 0;
+        }
+        firstEventLength     = firstEventLen;
+        this.maxEventCount   = maxEventCount;
+        this.maxBufferSize   = maxBufferSize;
+        this.addTrailerIndex = addTrailerIndex;
+
         if (order != null) {
             byteOrder = order;
         }
-        
-        this.compressionType = compressionType;
-
+        if (compType != null) {
+            compressionType = compType;
+        }
         compressionThreadCount = compressionThreads;
+
+        if (hType == HeaderType.HIPO_FILE) {
+            fileHeader = new FileHeader(false);
+        } else {
+            fileHeader = new FileHeader(true);
+        }
+
+        haveDictionary = dictionary.length() > 0;
+        haveFirstEvent = (firstEvent != null && firstEventLen > 0);
+
+        if (haveDictionary) {
+            System.out.println("WriterMT CON: create dict, len = " + dictionary.length());
+        }
+
+        if (haveFirstEvent) {
+            System.out.println("WriterMT CON: create first event, len = " + firstEventLen);
+        }
+
+        if (haveDictionary || haveFirstEvent)  {
+            dictionaryFirstEventBuffer = createDictionaryRecord();
+System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteOrder +
+        ", dic/fe buff remaining = " + dictionaryFirstEventBuffer.remaining());
+        }
 
         // Number of ring items must be >= compressionThreads
         int finalRingSize = ringSize;
@@ -142,22 +239,26 @@ public class WriterMT implements AutoCloseable {
             System.out.println("WriterMT: change to ring size = " + finalRingSize);
         }
 
-        fileHeader = new FileHeader(true);  // evio file
         supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
                                   maxEventCount, maxBufferSize, compressionType);
 
         // Get a single blank record to start writing into
         ringItem = supply.get();
-        record   = ringItem.getRecord();
+        outputRecord = ringItem.getRecord();
+
+        // TODO: start up threads ?????
     }
+
 
     /**
      * Constructor with filename.
      * The output file will be created with no user header.
      * File byte order is little endian.
+     * 
      * @param filename output file name
+     * @throws HipoException if filename arg is null or bad.
      */
-    public WriterMT(String filename){
+    public WriterMT(String filename) throws HipoException {
         this();
         open(filename);
     }
@@ -165,6 +266,7 @@ public class WriterMT implements AutoCloseable {
     /**
      * Constructor with filename & byte order.
      * The output file will be created with no user header.
+     * 
      * @param filename      output file name
      * @param order         byte order of written file or null for default (little endian)
      * @param maxEventCount max number of events a record can hold.
@@ -175,13 +277,18 @@ public class WriterMT implements AutoCloseable {
      * @param compressionThreads number of threads doing compression simultaneously
      * @param ringSize      number of records in supply ring, must be multiple of 2
      *                      and >= compressionThreads.
+     *
+     * @throws HipoException if filename arg is null or bad.
      */
     public WriterMT(String filename, ByteOrder order, int maxEventCount, int maxBufferSize,
-                    CompressionType compressionType, int compressionThreads, int ringSize) {
+                    CompressionType compressionType, int compressionThreads, int ringSize)
+        throws HipoException {
+
         this(order, maxEventCount, maxBufferSize, compressionType, compressionThreads, ringSize);
         open(filename);
     }
 
+    //////////////////////////////////////////////////////////////////////
 
     /**
      * Class used to take data-filled record from supply, compress it,
@@ -332,6 +439,18 @@ System.out.println("   Writer: thread INTERRUPTED");
 
 
     /**
+     * Create a buffer representation of a record
+     * containing the dictionary and/or the first event.
+     * No compression.
+     * @return buffer representation of record containing dictionary and/or first event,
+     *         of zero size if first event and dictionary don't exist.
+     */
+    ByteBuffer createDictionaryRecord() {
+        return Writer.createRecord(dictionary, firstEvent,
+                                   byteOrder, fileHeader, null);
+    }
+
+    /**
      * Get the file's byte order.
      * @return file's byte order.
      */
@@ -354,6 +473,12 @@ System.out.println("   Writer: thread INTERRUPTED");
 //     * @return internal record used to add events to file.
 //     */
 //    public RecordOutputStream getRecord() {return record;}
+
+    /**
+     * Get the compression type for the file being written.
+     * @return compression type for the file being written.
+     */
+    CompressionType getCompressionType() {return compressionType;}
 
     /**
      * Does this writer add a trailer to the end of the file?
@@ -392,28 +517,59 @@ System.out.println("   Writer: thread INTERRUPTED");
     /**
      * Open a new file and write file header with no user header.
      * @param filename output file name
+     * @throws HipoException if filename arg is null or bad,
+     *                       if this method already called without being
+     *                       followed by reset.
      */
-    public final void open(String filename) {open(filename, new byte[]{});}
+    public final void open(String filename) throws HipoException {
+        open(filename, null);
+    }
 
     /**
      * Open a file and write file header with given user's header.
      * User header is automatically padded when written.
      * @param filename disk file name.
-     * @param userHeader byte array representing the optional user's header.
+     * @param userHdr byte array representing the optional user's header.
+     * @throws HipoException if filename arg is null or bad,
+     *                       if this method already called without being
+     *                       followed by reset.
      */
-    public final void open(String filename, byte[] userHeader){
+    public final void open(String filename, byte[] userHdr) throws HipoException {
 
-        if (userHeader == null) {
-            userHeader = new byte[0];
+        if (opened) {
+           throw new HipoException("currently open, call reset() first");
+        }
+
+        if (filename == null || filename.length() < 1) {
+            throw new HipoException("bad filename");
+        }
+
+        ByteBuffer fileHeaderBuffer;
+        haveUserHeader = false;
+
+        // User header given as arg has precedent
+        if (userHdr != null) {
+            haveUserHeader = true;
+System.out.println("writerMT::open: given a valid user header to write");
+            fileHeaderBuffer = createHeader(userHdr);
+        }
+        else {
+            // If dictionary & firstEvent not defined and user header not given ...
+            if (dictionaryFirstEventBuffer.remaining() < 1) {
+                fileHeaderBuffer = createHeader((byte []) null);
+            }
+            // else place dictionary and/or firstEvent into
+            // record which becomes user header
+            else {
+System.out.println("writerMT::open: given a valid dict/first ev header to write");
+                fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
+            }
         }
 
         try {
             outStream = new RandomAccessFile(filename, "rw");
             fileChannel = outStream.getChannel();
-            // Create complete file header here (general file header + index array + user header)
-            ByteBuffer headerBuffer = createHeader(userHeader);
-            // Write this to file
-            outStream.write(headerBuffer.array());
+            outStream.write(fileHeaderBuffer.array());
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
@@ -434,59 +590,128 @@ System.out.println("   Writer: thread INTERRUPTED");
         recordWriterThread = new RecordWriter();
         recordWriterThread.start();
 
-//        // Get a single blank record to start writing into
-//        ringItem = supply.get();
-//        record   = ringItem.getRecord();
+        opened = true;
     }
     
     /**
      * Convenience method that sets compression type for the file.
-     * When writing to the file, record data will be compressed
-     * according to the given type.
+     * The compression type is set for internal record.
+     * The record data will be compressed according to the given type.
      * @param compression compression type
      * @return this object
      */
     public final WriterMT setCompressionType(CompressionType compression) {
+        outputRecord.getHeader().setCompressionType(compression);
         compressionType = compression;
         return this;
     }
 
     /**
-     * Create and return a byte array containing a general file header
+     * Create and return a buffer containing a general file header
      * followed by the user header given in the argument.
      * If user header is not padded to 4-byte boundary, it's done here.
-     * @param userHeader byte array containing a user-defined header
-     * @return byte array containing a file header followed by the user-defined header
+     * @param userHdr byte array containing a user-defined header, may be null.
+     * @return ByteBuffer containing a file header followed by the user-defined header
      */
-    public ByteBuffer createHeader(byte[] userHeader){
+    public ByteBuffer createHeader(byte[] userHdr) {
+
         // Amount of user data in bytes
-        int userHeaderBytes = userHeader.length;
-
+        int userHeaderBytes = 0;
+        if (userHdr != null) {
+            userHeaderBytes = userHdr.length;
+        }
         fileHeader.reset();
+        if (haveUserHeader) {
+            fileHeader.setBitInfo(false, false, addTrailerIndex);
+        }
+        else {
+            fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+        }
         fileHeader.setUserHeaderLength(userHeaderBytes);
-        // Amount of user data in bytes + padding
-        int userHeaderPaddedBytes = 4*fileHeader.getUserHeaderLengthWords();
-        int bytes = RecordHeader.HEADER_SIZE_BYTES + userHeaderPaddedBytes;
-        fileHeader.setLength(bytes);
 
-        byte[] array = new byte[bytes];
-        ByteBuffer buffer = ByteBuffer.wrap(array);
-        buffer.order(byteOrder);
+        // Amount of user data in bytes + padding
+        int totalLen = fileHeader.getLength();
+        byte[] array = new byte[totalLen];
+        ByteBuffer buf = ByteBuffer.wrap(array);
+        buf.order(byteOrder);
 
         try {
-            fileHeader.writeHeader(buffer, 0);
+            fileHeader.writeHeader(buf, 0);
         }
         catch (HipoException e) {/* never happen */}
-        System.arraycopy(userHeader, 0, array,
-                         RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
 
-        return buffer;
+        if (userHeaderBytes > 0) {
+            System.arraycopy(userHdr, 0, array,
+                             RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
+        }
+
+        // Get ready to read, buffer position is still 0
+        buf.limit(totalLen);
+        return buf;
+    }
+
+
+    /**
+     * Return a buffer with a general file header followed by the given user header (userHdr).
+     * The buffer is cleared and set to desired byte order prior to writing.
+     * If user header is not padded to 4-byte boundary, it's done here.
+     *
+     * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
+     * @return buffer containing a file header followed by the user-defined header.
+     * @throws HipoException if writing to buffer, not file.
+     */
+    ByteBuffer createHeader(ByteBuffer userHdr) {
+
+        // Amount of user data in bytes
+        int userHeaderBytes = 0;
+        if (userHdr != null) {
+            userHeaderBytes = userHdr.remaining();
+        }
+        fileHeader.reset();
+        if (haveUserHeader) {
+            fileHeader.setBitInfo(false, false, addTrailerIndex);
+        }
+        else {
+            fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+        }
+        fileHeader.setUserHeaderLength(userHeaderBytes);
+
+        int totalLen = fileHeader.getLength();
+        byte[] array = new byte[totalLen];
+        ByteBuffer buf = ByteBuffer.wrap(array);
+        buf.order(byteOrder);
+
+        try {
+            fileHeader.writeHeader(buf, 0);
+        }
+        catch (HipoException e) {/* never happen */}
+
+        if (userHeaderBytes > 0) {
+            if (userHdr.hasArray()) {
+                System.arraycopy(userHdr.array(), userHdr.arrayOffset() + userHdr.position(),
+                                 array, RecordHeader.HEADER_SIZE_BYTES, userHeaderBytes);
+            }
+            else {
+                buf.position(RecordHeader.HEADER_SIZE_BYTES);
+                buf.put(userHdr);
+                buf.position(0);
+            }
+        }
+
+        // Get ready to read, buffer position is still 0
+        buf.limit(totalLen);
+        return buf;
     }
 
 
     /**
      * Write a general header as the last "header" or trailer in the file
      * optionally followed by an index of all record lengths.
+     *
+     * It's best <b>NOT</b> to call this directly. The way to write a trailer to
+     * is to call {@link #addTrailer(boolean)} or {@link #addTrailerWithIndex(boolean)}.
+     * Then when {@link #close()} is called, the trailer will be written.
+
      * @param writeIndex if true, write an index of all record lengths in trailer.
      * @throws IOException if problems writing to file.
      */
@@ -501,6 +726,7 @@ System.out.println("   Writer: thread INTERRUPTED");
                 RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
             }
             catch (HipoException e) {/* never happen */}
+            
             writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
             outStream.write(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
         }
@@ -508,8 +734,10 @@ System.out.println("   Writer: thread INTERRUPTED");
             // Create the index of record lengths in proper byte order
             byte[] recordIndex = new byte[4*recordLengths.size()];
             try {
+                // Transform ints to bytes in local endian.
+                // It'll be swapped below in writeTrailer().
                 for (int i = 0; i < recordLengths.size(); i++) {
-                    ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
+                    ByteDataTransformer.toBytes(recordLengths.get(i), ByteOrder.BIG_ENDIAN,
                                                 recordIndex, 4*i);
 //System.out.println("Writing record length = " + recordOffsets.get(i) +
 //", = 0x" + Integer.toHexString(recordOffsets.get(i)));
@@ -534,6 +762,7 @@ System.out.println("   Writer: thread INTERRUPTED");
                                           byteOrder, recordIndex);
             }
             catch (HipoException e) {/* never happen */}
+            
             writerBytesWritten += dataBytes;
             outStream.write(headerArray, 0, dataBytes);
         }
@@ -548,18 +777,15 @@ System.out.println("   Writer: thread INTERRUPTED");
         }
 
         // Find & update file header's bit-info word
-        if (addTrailerIndex) {
+        if (writeIndex && addTrailerIndex) {
             outStream.seek(FileHeader.BIT_INFO_OFFSET);
-            int bitInfo = fileHeader.setBitInfo(false, false, true);
             if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-                outStream.writeInt(Integer.reverseBytes(bitInfo));
+                outStream.writeInt(Integer.reverseBytes(fileHeader.getBitInfoWord()));
             }
             else {
-                outStream.writeInt(bitInfo);
+                outStream.writeInt(fileHeader.getBitInfoWord());
             }
         }
-
-        return;
     }
 
 
@@ -567,11 +793,11 @@ System.out.println("   Writer: thread INTERRUPTED");
 
 
     /**
-     * Write this record into one taken from the supply.
+     * Appends the record to the file.
      * Using this method in conjunction with {@link #addEvent(byte[], int, int)}
      * is not thread-safe.
      * @param rec record object
-     * @throws IllegalArgumentException if arg's byte order is opposite to record supply.
+     * @throws IllegalArgumentException if arg's byte order is opposite to output endian.
      * @throws HipoException if we cannot replace internal buffer of the current record
      *                       if it needs to be expanded since the buffer was provided
      *                       by the user.
@@ -579,14 +805,13 @@ System.out.println("   Writer: thread INTERRUPTED");
     public void writeRecord(RecordOutputStream rec)
             throws IllegalArgumentException, HipoException {
 
-        // Need to ensure that the given record has a byte order the same
-        // as all the records in the supply.
+        // Need to ensure that the given record has a byte order the same as output
         if (rec.getByteOrder() != byteOrder) {
             throw new IllegalArgumentException("byte order of record is wrong");
         }
 
         // If we have already written stuff into our current internal record ...
-        if (record.getEventCount() > 0) {
+        if (outputRecord.getEventCount() > 0) {
             // Put it back in supply for compressing
             supply.publish(ringItem);
 
@@ -594,24 +819,23 @@ System.out.println("   Writer: thread INTERRUPTED");
             // This may block if threads are busy compressing
             // and/or writing all records in supply.
             ringItem = supply.get();
-            record = ringItem.getRecord();
+            outputRecord = ringItem.getRecord();
         }
 
         // Copy rec into an empty record taken from the supply
-        record.copy(rec);
+        outputRecord.transferDataForReading(rec);
 
         // Make sure given record is consistent with this writer
-        RecordHeader header = record.getHeader();
+        RecordHeader header = outputRecord.getHeader();
         header.setCompressionType(compressionType);
         header.setRecordNumber(recordNumber++);
-        record.setByteOrder(byteOrder);
 
-        // Put it back in supply for compressing
+        // Put it back in supply for compressing (building)
         supply.publish(ringItem);
 
         // Get another
         ringItem = supply.get();
-        record = ringItem.getRecord();
+        outputRecord = ringItem.getRecord();
     }
 
     /**
@@ -628,7 +852,7 @@ System.out.println("   Writer: thread INTERRUPTED");
      */
     public void addEvent(byte[] buffer, int offset, int length) {
         // Try putting data into current record being filled
-        boolean status = record.addEvent(buffer, offset, length);
+        boolean status = outputRecord.addEvent(buffer, offset, length);
 
         // If record is full ...
         if (!status) {
@@ -639,10 +863,10 @@ System.out.println("   Writer: thread INTERRUPTED");
             // This may block if threads are busy compressing
             // and/or writing all records in supply.
             ringItem = supply.get();
-            record   = ringItem.getRecord();
+            outputRecord = ringItem.getRecord();
 
             // Adding the first event to a record is guaranteed to work
-            record.addEvent(buffer, offset, length);
+            outputRecord.addEvent(buffer, offset, length);
         }
     }
 
@@ -660,12 +884,50 @@ System.out.println("   Writer: thread INTERRUPTED");
         addEvent(buffer, 0, buffer.length);
     }
 
+    /**
+     * Add a ByteBuffer to the internal record. If the length of
+     * the buffer exceeds the maximum size of the record, the record
+     * will be written to the file (compressed if the flag is set).
+     * And another record will be obtained from the supply to receive the buffer.
+     * Using this method in conjunction with writeRecord() is not thread-safe.
+     * <b>The byte order of event's data must
+     * match the byte order given in constructor!</b>
+     *
+     * @param buffer array to add to the file.
+     * @throws IOException if cannot write to file.
+     * @throws HipoException if buffer arg's byte order is wrong.
+     */
+    public void addEvent(ByteBuffer buffer) throws HipoException {
+
+        if (buffer.order() != byteOrder) {
+            throw new HipoException("buffer arg byte order is wrong");
+        }
+
+        boolean status = outputRecord.addEvent(buffer);
+
+        // If record is full ...
+        if (!status) {
+            // Put it back in supply for compressing
+            supply.publish(ringItem);
+
+            // Now get another, empty record.
+            // This may block if threads are busy compressing
+            // and/or writing all records in supply.
+            ringItem = supply.get();
+            outputRecord = ringItem.getRecord();
+
+            // Adding the first event to a record is guaranteed to work
+            outputRecord.addEvent(buffer);
+        }
+    }
+
+
     //---------------------------------------------------------------------
 
     /** Get this object ready for re-use.
      * Follow calling this with call to {@link #open(String)}. */
     public void reset() {
-        record.reset();
+        outputRecord.reset();
         fileHeader.reset();
         writerBytesWritten = 0L;
         recordNumber = 1;
@@ -678,10 +940,10 @@ System.out.println("   Writer: thread INTERRUPTED");
      * written if requested.<p>
      * <b>The addEvent or addRecord methods must no longer be called.</b>
      */
-    public void close(){
+    public void close() {
 
         // If we're in the middle of building a record, send it off since we're done
-        if (record.getEventCount() > 0) {
+        if (outputRecord.getEventCount() > 0) {
             // Put it back in supply for compressing
             supply.publish(ringItem);
         }
@@ -714,5 +976,8 @@ System.out.println("   Writer: thread INTERRUPTED");
         } catch (IOException ex) {
             Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        closed = true;
+        opened = false;
     }
 }
