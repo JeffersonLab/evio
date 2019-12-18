@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "RecordHeader.h"
@@ -93,22 +94,22 @@ private:
     static const uint32_t DEFAULT_BUF_SIZE = 8 * 1024 * 1024;
 
     /** Number of event in record. */
-    uint32_t nEntries;
+    uint32_t nEntries = 0;
 
     /** Offset, in uncompressed dataBuffer, from just past header to user header
      *  (past index). */
-    uint32_t userHeaderOffset;
+    uint32_t userHeaderOffset = 0;
 
     /** Offset, in uncompressed dataBuffer, from just past header to event data
      *  (past index + user header). */
-    uint32_t eventsOffset;
+    uint32_t eventsOffset = 0;
 
     /** Length in bytes of uncompressed data (events) in dataBuffer, not including
      * header, index or user header. */
-    uint32_t uncompressedEventsLength;
+    uint32_t uncompressedEventsLength = 0;
 
     /** Byte order of internal ByteBuffers. */
-    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+    ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
     /** General header of this record. */
     RecordHeader header;
@@ -155,10 +156,11 @@ public:
 
     shared_ptr<uint8_t> getEvent(uint32_t index);
     uint32_t getEventLength(uint32_t index);
-    uint8_t* getUserHeader();
+    std::shared_ptr<uint8_t> getUserHeader();
     uint32_t getEntries();
 
-    bool getUserHeaderAsRecord(ByteBuffer & buffer, size_t bufOffset, RecordInput & record);
+    std::shared_ptr<RecordInput> getUserHeaderAsRecord(ByteBuffer & buffer,
+                                                       size_t bufOffset);
 
     void readRecord(ifstream & file, size_t position);
     void readRecord(ByteBuffer & buffer, size_t offset);
