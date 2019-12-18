@@ -113,6 +113,8 @@ Help('--bindir=<dir>      copy binary  files to directory <dir> when doing insta
 # Compile flags
 #########################
 
+print (subprocess.call(["gcc", "-v"]) )
+
 # Debug/optimization flags
 debugSuffix = ''
 if debug:
@@ -121,8 +123,10 @@ if debug:
     env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 
 # code for newlib++ written in C++11
-env.Append(CCFLAGS = ['-O3', '-std=c++11'])
+env.Append(CCFLAGS = ['-std=c++11'])
 
+# location of C++ version of disruptor
+disruptorHome = os.getenv('DISRUPTOR_CPP_HOME')
 
 # Take care of 64/32 bit issues
 if is64bits:
@@ -136,8 +140,10 @@ execLibs = ['']
 
 
 # Platform dependent quantities. Default to standard Linux libs.
-execLibs = ['pthread', 'expat', 'z', 'dl', 'm', 'lz4']
+execLibs = ['pthread', 'expat', 'z', 'lz4', 'dl', 'm']
 #execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
+
+env.AppendUnique(CPPDEFINES = ['USE_GZIP'])
 
 if platform == 'Darwin':
     execLibs = ['pthread', 'dl', 'expat', 'z','lz4']
@@ -238,7 +244,7 @@ Help('tar                 create tar file (in ./tar)\n')
 ######################################################
 
 # Make available to lower level scons files
-Export('env archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix')
+Export('env archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix disruptorHome')
 
 # Run lower level build files
 #env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)

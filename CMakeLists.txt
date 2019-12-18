@@ -20,12 +20,12 @@ set(CMAKE_INSTALL_PREFIX ./)
 
 cmake_minimum_required(VERSION 3.2)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 project(evio_6_0)
 
 # Find include files here
-include_directories(src/libsrc src/libsrc++ src/hipo)
+include_directories(src/libsrc src/libsrc++ src/hipo src/disruptor src src/Disruptor /usr/include/boost)
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
@@ -37,6 +37,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread -lexpat -ldl -lz -lm")
 set(C_HEADER_FILES
     src/libsrc/evio.h
     src/libsrc/msinttypes.h
+
+    src/Disruptor/*.h
+#    src/disruptor/*.h
+#    src/disruptor/claim_strategy.h
+#    src/disruptor/ring_buffer.h
+#    src/disruptor/sequence_barrier.h
+#    src/disruptor/sequence.h
+#    src/disruptor/sequencer.h
+#    src/disruptor/utils.h
+#    src/disruptor/wait_strategy.h
 )
 
 set(C_LIB_FILES
@@ -95,6 +105,8 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/TestWriter.h
         src/hipo/ReadWriteTest.h
         src/hipo/Reader.h
+        src/hipo/RecordSupply.h
+        src/hipo/RecordRingItem.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -112,14 +124,28 @@ set(CPP_LIB_FILES_NEW
         src/hipo/EvioNode.cpp
         src/hipo/DataType.cpp
         src/hipo/Reader.cpp
+        src/hipo/RecordSupply.cpp
+        src/hipo/RecordRingItem.cpp
         )
 
 set(TEST_FILES_CC
         src/hipo/ReadWriteTest.cpp
         )
 
+#set(CPP_LIB_FILES_DISRUPTOR
+#        src/disruptorTest/claim_strategy_test.cc
+#        src/disruptorTest/ring_buffer_test.cc
+#        src/disruptorTest/sequence_barrier_test.cc
+#        src/disruptorTest/sequence_test.cc
+#        src/disruptorTest/sequencer_test.cc
+#        src/disruptorTest/wait_strategy_test.cc
+#        src/disruptorTest/benchmark/one_publisher_to_one_unicast_throughput_test.cc
+#        src/disruptorTest/benchmark/one_publisher_to_three_pipeline_throughput_test.cc
+#        )
 
-file(GLOB TEST_FILES_C src/test/*.c)
+
+
+#file(GLOB TEST_FILES_C src/test/*.c)
 #file(GLOB TEST_FILES_CC src/test/*.cc)
 
 #file(GLOB EXAMPLE_FILES_C src/examples/*.c)
@@ -154,17 +180,17 @@ target_link_libraries(eviocopy pthread evio)
 #target_link_libraries(evioCat evio evioxx)
 
 
-# Test programs
-foreach(fileName ${TEST_FILES_C})
-    # Get file name with no directory or extension as executable name
-    get_filename_component(execName ${fileName} NAME_WE)
-    # Create executable from file
-    add_executable(${execName} ${fileName})
-    # Needs these libs
-    target_link_libraries(${execName} evio)
-    # Install into bin/test dir
-    install(TARGETS ${execName} DESTINATION bin/test)
-endforeach(fileName)
+## Test programs
+#foreach(fileName ${TEST_FILES_C})
+#    # Get file name with no directory or extension as executable name
+#    get_filename_component(execName ${fileName} NAME_WE)
+#    # Create executable from file
+#    add_executable(${execName} ${fileName})
+#    # Needs these libs
+#    target_link_libraries(${execName} evio)
+#    # Install into bin/test dir
+#    install(TARGETS ${execName} DESTINATION bin/test)
+#endforeach(fileName)
 
 
 # Example programs
@@ -181,5 +207,5 @@ endforeach(fileName)
 install(TARGETS evio hipo DESTINATION lib)
 #install(TARGETS evio DESTINATION lib)
 #install(TARGETS evio2xml eviocopy evioCat DESTINATION bin)
-install(TARGETS evio2xml eviocopy DESTINATION bin)
+#install(TARGETS evio2xml eviocopy DESTINATION bin)
 install(FILES ${C_HEADER_FILES} ${CPP_HEADER_FILES_NEW} DESTINATION inc)
