@@ -197,7 +197,7 @@ public class Reader {
      *  which event is prev or next. */
     protected boolean lastCalledSeqNext;
     /** Evio version of file/buffer being read. */
-    protected int evioVersion;
+    protected int evioVersion = 6;
     /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
     protected EvioNodeSource nodePool;
 
@@ -1465,7 +1465,9 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
         // First record position (past file's header + index + user header)
         long recordPosition = fileHeader.getHeaderLength() +
                               fileHeader.getUserHeaderLength() +
-                              fileHeader.getIndexLength();
+                              fileHeader.getIndexLength() +
+                              fileHeader.getUserHeaderLengthPadding();
+
 //System.out.println("forceScanFile: record 1 pos = 0");
 int recordCount = 0;
         while (recordPosition < maximumSize) {
@@ -1545,6 +1547,7 @@ System.out.println("forceScanFile: record # out of sequence, got " + recordHeade
         fileHeader.readHeader(headerBuffer);
         byteOrder = fileHeader.getByteOrder();
         evioVersion = fileHeader.getVersion();
+System.out.println("scanFile: file header: \n" + fileHeader.toString());
 
         // Is there an existing record length index?
         // Index in trailer gets first priority.
@@ -1581,7 +1584,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
 
         // First record position (past file's header + index + user header)
         long recordPosition = fileHeader.getLength();
-//System.out.println("record position = " + recordPosition);
+System.out.println("scanFile: record position = " + recordPosition);
 
         // Move to first record and save the header
         channel.position(recordPosition);
@@ -1596,7 +1599,7 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
         if (useTrailer) {
             // Position read right before trailing header
             channel.position(fileHeader.getTrailerPosition());
-//System.out.println("position file to trailer = " + fileHeader.getTrailerPosition());
+System.out.println("scanFile: position file to trailer = " + fileHeader.getTrailerPosition());
             // Read trailer
             inStreamRandom.read(headerBytes);
             recordHeader.readHeader(headerBuffer);
@@ -1616,13 +1619,14 @@ System.out.println("scanFile: bad trailer position, " + fileHeader.getTrailerPos
         int len, count;
         try {
             // Turn bytes into record lengths & event counts
+System.out.println("scanFile: transform int array from " + fileHeader.getByteOrder());
             int[] intData = ByteDataTransformer.toIntArray(index, fileHeader.getByteOrder());
             // Turn record lengths into file positions and store in list
             recordPositions.clear();
             for (int i=0; i < intData.length; i += 2) {
                 len = intData[i];
                 count = intData[i+1];
-//System.out.println("record pos = " + recordPosition + ", len = " + len + ", count = " + count);
+System.out.println("scanFile: record pos = " + recordPosition + ", len = " + len + ", count = " + count);
                 RecordPosition pos = new RecordPosition(recordPosition, len, count);
                 recordPositions.add(pos);
                 // Track # of events in this record for event index handling
