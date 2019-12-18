@@ -108,6 +108,8 @@ public class Evio6Converter {
             long end_writer = System.currentTimeMillis();
             double time = (end_writer-start_writer)/1000.0;
             System.out.println(String.format("\nWRITING TIME : %.2f\n", time));
+        } catch (HipoException ex) {
+            Logger.getLogger(Evio6Converter.class.getName()).log(Level.SEVERE, null, ex);
         } catch (EvioException ex) {
             Logger.getLogger(Evio6Converter.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
