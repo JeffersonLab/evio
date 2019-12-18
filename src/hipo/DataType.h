@@ -82,10 +82,7 @@ private:
      * @param value int value of this DataType object.
      * @param name  name (string representation) of this DataType object.
      */
-    DataType(uint32_t value, string name) {
-        this->value = value;
-        this->name  = name;
-    }
+    DataType(uint32_t val, string name) : value(val), name(std::move(name)) {}
 
 public:
 
@@ -116,7 +113,9 @@ public:
      * types: BANK, SEGMENT, TAGSEGMENT, ALSOBANK, or ALSOSEGMENT.
      */
     static bool isStructure(uint32_t dataType) {
-        return  (((dataType > 0xb && dataType < 0x11) && dataType != 0xf) || dataType == 0x20);
+        return  dataType == BANK.value    || dataType == ALSOBANK.value    ||
+                dataType == SEGMENT.value || dataType == ALSOSEGMENT.value ||
+                dataType == TAGSEGMENT.value;
     }
 
     /**
@@ -204,9 +203,6 @@ public:
     bool operator==(const DataType &rhs) const;
 
     bool operator!=(const DataType &rhs) const;
-
-    const DataType & operator=(const DataType &rhs);
-
 };
 
 

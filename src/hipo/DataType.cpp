@@ -13,10 +13,6 @@ bool DataType::operator!=(const DataType &rhs) const {
     return value != rhs.value;
 }
 
-const DataType & DataType::operator=(const DataType &rhs) {
-    return rhs;
-}
-
 
 // "Enum" value DEFINITIONS
 
