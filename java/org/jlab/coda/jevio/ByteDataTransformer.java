@@ -1857,6 +1857,48 @@ public class ByteDataTransformer {
 
 
     // =========================
+    // Swapping Data
+    // =========================
+
+
+    /**
+     * Swap byte array in place assuming bytes are 32 bit ints.
+     * Number of array elements must be multiple of 4.
+     *
+     * @param data       byte array to convert.
+     * @param dataOffset offset into data array.
+     * @param dataLen    number of bytes to convert.
+     * @throws EvioException if data is null; data offset and length are improper
+     */
+    public static void swapArray32(byte[] data, int dataOffset, int dataLen)
+            throws EvioException {
+
+        if (data == null || dataOffset < 0 || dataLen < 0 ||
+            (dataLen > (data.length - dataOffset)) || (dataLen % 4 != 0)) {
+            
+            throw new EvioException("bad arg");
+        }
+
+        int index;
+        byte b1,b2,b3,b4;
+
+        for (int i=0; i < dataLen; i+=4) {
+            index = i + dataOffset;
+            
+            b1 = (data[index]);
+            b2 = (data[index+1]);
+            b3 = (data[index+2]);
+            b4 = (data[index+3]);
+
+            data[index]   = b4;
+            data[index+1] = b3;
+            data[index+2] = b2;
+            data[index+3] = b1;
+        }
+    }
+
+
+    // =========================
     // Swapping Evio Data
     // =========================
 
