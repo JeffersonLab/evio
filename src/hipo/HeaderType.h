@@ -65,10 +65,7 @@ private:
      * Constructor.
      * @param value int value of this HeaderType object.
      */
-    HeaderType(uint32_t value, string name) {
-        this->value = value;
-        this->name = name;
-    }
+    HeaderType(uint32_t val, string name) : value(val), name(std::move(name)) {}
 
 public:
 
@@ -125,9 +122,6 @@ public:
     bool operator==(const HeaderType &rhs) const;
 
     bool operator!=(const HeaderType &rhs) const;
-
-    const HeaderType & operator=(const HeaderType &rhs);
-
 };
 
 

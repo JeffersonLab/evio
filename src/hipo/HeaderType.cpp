@@ -21,10 +21,6 @@ bool HeaderType::operator!=(const HeaderType &rhs) const {
     return value != rhs.value;
 }
 
-const HeaderType & HeaderType::operator=(const HeaderType &rhs) {
-    return rhs;
-}
-
 
 // "Enum" value DEFINITIONS
 
