@@ -3550,14 +3550,14 @@ System.err.println("ERROR endOfBuffer " + a);
             }
 
             // Check for inconsistent lengths
-            if (currentEventBytes != 4*(bankBuffer.getInt(bankBuffer.position()) + 1)) {
+            int lengthFromBankData = 4*(bankBuffer.getInt(bankBuffer.position()) + 1);
+            if (currentEventBytes != lengthFromBankData) {
 
                 Utilities.printBufferBytes(bankBuffer, bankBuffer.position(), 100,
                                            "Bad event, 100 bytes starting at buf pos = " + bankBuffer.position());
 
                 throw new EvioException("inconsistent event lengths: total bytes from event = " +
-                                       (4*(bankBuffer.getInt(bankBuffer.position()) + 1)) +
-                                        ", from buffer = " + currentEventBytes);
+                                       lengthFromBankData + ", from buffer = " + currentEventBytes);
             }
         }
         else if (bank != null) {
