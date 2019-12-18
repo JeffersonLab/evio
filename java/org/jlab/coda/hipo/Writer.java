@@ -658,8 +658,10 @@ System.out.println("createRecord: add first event to record");
         // Create the index of record lengths & entries in proper byte order
         byte[] recordIndex = new byte[4*recordLengths.size()];
         try {
+            // Transform ints to bytes in local endian.
+            // It'll be swapped below in writeTrailer().
             for (int i = 0; i < recordLengths.size(); i++) {
-                ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
+                ByteDataTransformer.toBytes(recordLengths.get(i), ByteOrder.BIG_ENDIAN,
                                             recordIndex, 4*i);
 //System.out.println("Writing record length = " + recordOffsets.get(i) +
 //", = 0x" + Integer.toHexString(recordOffsets.get(i)));
