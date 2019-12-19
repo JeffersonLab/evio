@@ -13,6 +13,7 @@
 #include <chrono>
 
 #include "ByteBuffer.h"
+#include "ByteOrder.h"
 #include "Writer.h"
 #include "Reader.h"
 #include "WriterMT.h"
@@ -102,115 +103,34 @@ public:
 
 
 
-    static void testStreamRecord() {
 
-        // Variables to track record build rate
-        double freqAvg;
-        long totalC = 0L;
-        long loops  = 40000L;
-
-        try {
-            // Create file
-            string filename("/dev/shm/hipoTest1.evio");
-            Compressor::CompressionType compressionType = Compressor::CompressionType::LZ4;
-
-            Writer writer(ByteOrder::ENDIAN_LITTLE, 10000, 10000000);
-            writer.getRecordHeader().setCompressionType(compressionType);
-            writer.open(filename);
-
-            uint8_t* array = generateArray(100);
-
-            auto t1 = std::chrono::high_resolution_clock::now();
-
-            while (true) {
-                // random data array
-                writer.addEvent(array, 0, 100);
-
-                //cout << int(20000000 - loops) << endl;
-                totalC++;
-
-                if (--loops < 1) break;
-            }
-
-            auto t2 = std::chrono::high_resolution_clock::now();
-            auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1);
-
-            freqAvg = (double) totalC / deltaT.count() * 1000;
-
-            cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
-            cout << "Finished all loops, count = " << totalC << endl;
-
-            //        // Create our own record
-            //        RecordOutput myRecord(ByteOrder::ENDIAN_LOCAL);
-            //        buffer = generateArray(200);
-            //        myRecord.addEvent(buffer, 0, 200);
-            //        myRecord.addEvent(buffer, 0, 200);
-            //        writer.writeRecord(myRecord);
-            //        writer.addTrailer(true);
-            //        writer.addTrailerWithIndex(true);
-
-            writer.close();
-
-            switch (compressionType) {
-                case Compressor::UNCOMPRESSED :
-                    cout << "File compression = UNCOMPRESSED" << endl; break;
-                case Compressor::LZ4 :
-                    cout << "File compression = LZ4" << endl; break;
-                case Compressor::LZ4_BEST :
-                    cout << "File compression = LZ$ Best" << endl; break;
-                case Compressor::GZIP :
-                    cout << "File compression = Gzip" << endl; break;
-            }
-
-            cout << "Finished writing file " << filename << endl;
-        }
-        catch (std::exception & ex) {
-            if (ex.what() == nullptr) {
-                cout << "error msg is NULL!!!!" << endl;
-            } else {
-            cout << ex.what() << endl;
-        }
-
-        }
-
-
-    }
-
-
-    static void testStreamRecordMT() {
+    static void testFile() {
 
         // Variables to track record build rate
         double freqAvg;
         long totalC = 0;
-        long loops = 11;
+        long loops = 3;
 
-        string fileName = "/dev/shm/hipoTest2.evio";
+        string fileName = "/dev/shm/hipoTestRegular.evio";
 
-        // Create files
-        string finalFilename = fileName + ".1";
-//        WriterMT writer1(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
-//cout << "Past creating writer1" << endl;
-        finalFilename = fileName + ".2";
-        //WriterMT writer2(ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::UNCOMPRESSED, 2);
         string dictionary = "This is a dictionary";
         //dictionary = "";
         uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         uint32_t firstEventLen = 10;
-        ByteOrder order  =  ByteOrder::ENDIAN_LITTLE;
-        WriterMT writer2(HeaderType::EVIO_FILE, order, 0, 0,
-                         Compressor::GZIP, 2, true, dictionary, firstEvent, 10, 16);
+        ByteOrder order = ByteOrder::ENDIAN_LITTLE;
 
+        // Possible user header data
         auto userHdr = new uint8_t[10];
         for (uint8_t i = 0; i < 10; i++) {
             userHdr[i] = i;
         }
 
-        //writer2.open(finalFilename, userHdr, 10);
-        writer2.open(finalFilename);
-        cout << "Past creating writer2" << endl;
-//        finalFilename = fileName + ".3";
-//        WriterMT writer3(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
-//cout << "Past creating writer3" << endl;
+        // Create files
+        string finalFilename1 = fileName + ".1";
+        Writer writer(HeaderType::EVIO_FILE, order, 0, 0,
+                      dictionary, firstEvent, 10, Compressor::LZ4);
+        writer.open(finalFilename1);
+        cout << "Past creating writer1" << endl;
 
         //uint8_t *buffer = generateSequentialInts(100, order);
         uint8_t *buffer = generateSequentialShorts(13, order);
@@ -220,9 +140,8 @@ public:
         while (true) {
             // random data array
             //writer1.addEvent(buffer, 0, 400);
-            //writer2.addEvent(buffer, 0, 400);
-            writer2.addEvent(buffer, 0, 26);
-//            writer3.addEvent(buffer, 0, 400);
+
+            writer.addEvent(buffer, 0, 26);
 
 //cout << int(20000000 - loops) << endl;
             totalC++;
@@ -238,42 +157,29 @@ public:
         cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
         cout << "Finished all loops, count = " << totalC << endl;
 
+        //writer1.addTrailer(true);
+        writer.addTrailerWithIndex(true);
+        cout << "Past write 1" << endl;
 
-//        writer1.addTrailer(true);
-//        writer1.addTrailerWithIndex(true);
-//        cout << "Past write 1" << endl;
-
-        //      writer2.addTrailer(true);
-        //      writer2.addTrailerWithIndex(true);
-
-        cout << "Past write 2" << endl;
-//        writer3.addTrailer(true);
-//        writer3.addTrailerWithIndex(true);
-
-//        cout << "Past write 3" << endl;
-
-//        writer1.close();
-//        cout << "Past close 1" << endl;
-        writer2.close();
-        cout << "Past close 2" << endl;
-//        writer3.close();
+        writer.close();
+        cout << "Past close 1" << endl;
 
         // Doing a diff between files shows they're identical!
 
-        cout << "Finished writing files " << fileName << " + .1, .2, .3" << endl;
-        cout << "Now read file " << fileName << " + .1, .2, .3" << endl;
+        cout << "Finished writing files " << fileName << " + .1, .2" << endl;
+        cout << "Now read file " << fileName << " + .1, .2" << endl;
 
-        Reader reader(finalFilename);
+        Reader reader1(finalFilename1);
 
-        int32_t evCount = reader.getEventCount();
-        cout << "Read in file " << finalFilename << ", got " << evCount << " events" << endl;
+        int32_t evCount = reader1.getEventCount();
+        cout << "Read in file " << finalFilename1 << ", got " << evCount << " events" << endl;
 
-        string dict = reader.getDictionary();
+        string dict = reader1.getDictionary();
         cout << "   Got dictionary = " << dict << endl;
 
-        shared_ptr<uint8_t> & pFE = reader.getFirstEvent();
+        shared_ptr<uint8_t> & pFE = reader1.getFirstEvent();
         if (pFE != nullptr) {
-            int32_t feBytes = reader.getFirstEventSize();
+            int32_t feBytes = reader1.getFirstEventSize();
             cout << "   First Event bytes = " << feBytes << endl;
             cout << "   First Event values = " << endl << "   ";
             for (int i = 0; i < feBytes; i++) {
@@ -283,7 +189,7 @@ public:
         }
 
         cout << "reader.getEvent(0)" << endl;
-        shared_ptr<uint8_t> data = reader.getEvent(0);
+        shared_ptr<uint8_t> data = reader1.getEvent(0);
         cout << "got event" << endl;
 //        uint32_t wordLen = reader.getEventLength(0)/4;
 //        cout << "got event len" << endl;
@@ -304,7 +210,7 @@ public:
 //            cout << endl;
 //        }
 
-        uint32_t wordLen = reader.getEventLength(0)/2;
+        uint32_t wordLen = reader1.getEventLength(0)/2;
         if (data != nullptr) {
             short *pData = reinterpret_cast<short *>(data.get());
             cout <<  "   Event #0, values =" << endl << "   ";
@@ -327,6 +233,197 @@ public:
 
         //for (reader)
     }
+
+
+
+    static void testFileMT() {
+
+        // Variables to track record build rate
+        double freqAvg;
+        long totalC = 0;
+        long loops = 3;
+
+        string fileName = "/dev/shm/hipoTestMT.evio";
+
+        string dictionary = "This is a dictionary";
+        //dictionary = "";
+        uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        uint32_t firstEventLen = 10;
+        bool onlyOneWriter = true;
+        ByteOrder order = ByteOrder::ENDIAN_LITTLE;
+
+        // Possible user header data
+        auto userHdr = new uint8_t[10];
+        for (uint8_t i = 0; i < 10; i++) {
+            userHdr[i] = i;
+        }
+
+        // Create files
+        string finalFilename1 = fileName + ".1";
+        WriterMT writer1(HeaderType::EVIO_FILE, order, 0, 0,
+                         Compressor::LZ4, 2, true, dictionary, firstEvent, 10, 16);
+        writer1.open(finalFilename1);
+        cout << "Past creating writer1" << endl;
+
+        string finalFilename2 = fileName + ".2";
+        //WriterMT writer2(ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::UNCOMPRESSED, 2);
+        WriterMT writer2(HeaderType::EVIO_FILE, order, 0, 0,
+                         Compressor::LZ4, 2, true, dictionary, firstEvent, 10, 16);
+
+        if (!onlyOneWriter) {
+            //writer2.open(finalFilename, userHdr, 10);
+            writer2.open(finalFilename2);
+            cout << "Past creating writer2" << endl;
+        }
+
+        //uint8_t *buffer = generateSequentialInts(100, order);
+        uint8_t *buffer = generateSequentialShorts(13, order);
+
+        auto t1 = std::chrono::high_resolution_clock::now();
+
+        while (true) {
+            // random data array
+            //writer1.addEvent(buffer, 0, 400);
+            //if (!onlyOneWriter) {
+            //    writer2.addEvent(buffer, 0, 400);
+            //}
+
+            writer1.addEvent(buffer, 0, 26);
+
+            if (!onlyOneWriter) {
+                writer2.addEvent(buffer, 0, 26);
+            }
+
+//cout << int(20000000 - loops) << endl;
+            totalC++;
+
+            if (--loops < 1) break;
+        }
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+
+        freqAvg = (double) totalC / deltaT.count() * 1000;
+
+        cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
+        cout << "Finished all loops, count = " << totalC << endl;
+
+        //writer1.addTrailer(true);
+        writer1.addTrailerWithIndex(true);
+        cout << "Past write 1" << endl;
+
+        if (!onlyOneWriter) {
+            //writer2.addTrailer(true);
+            writer2.addTrailerWithIndex(true);
+            cout << "Past write 2" << endl;
+        }
+
+        writer1.close();
+        cout << "Past close 1" << endl;
+
+        if (!onlyOneWriter) {
+            writer2.close();
+            cout << "Past close 2" << endl;
+        }
+
+        // Doing a diff between files shows they're identical!
+
+        cout << "Finished writing files " << fileName << " + .1, .2" << endl;
+        cout << "Now read file " << fileName << " + .1, .2" << endl;
+
+        Reader reader1(finalFilename1);
+
+        int32_t evCount = reader1.getEventCount();
+        cout << "Read in file " << finalFilename1 << ", got " << evCount << " events" << endl;
+
+        string dict = reader1.getDictionary();
+        cout << "   Got dictionary = " << dict << endl;
+
+        shared_ptr<uint8_t> & pFE = reader1.getFirstEvent();
+        if (pFE != nullptr) {
+            int32_t feBytes = reader1.getFirstEventSize();
+            cout << "   First Event bytes = " << feBytes << endl;
+            cout << "   First Event values = " << endl << "   ";
+            for (int i = 0; i < feBytes; i++) {
+                cout << (uint32_t) ((pFE.get())[i]) << ",  ";
+            }
+            cout << endl;
+        }
+
+        cout << "reader.getEvent(0)" << endl;
+        shared_ptr<uint8_t> data = reader1.getEvent(0);
+        cout << "got event" << endl;
+//        uint32_t wordLen = reader.getEventLength(0)/4;
+//        cout << "got event len" << endl;
+//
+//        if (data != nullptr) {
+//            int *pData = reinterpret_cast<int *>(data.get());
+//            cout <<  "   Event #0, values =" << endl << "   ";
+//            for (int i = 0; i < wordLen; i++) {
+//                if (order.isLocalEndian()) {
+//                    cout << *pData << ",  ";
+//                }
+//                else {
+//                    cout << SWAP_32(*pData) <<",  ";
+//                }
+//                pData++;
+//                if ((i+1)%5 == 0) cout << endl;
+//            }
+//            cout << endl;
+//        }
+
+        uint32_t wordLen = reader1.getEventLength(0)/2;
+        if (data != nullptr) {
+            short *pData = reinterpret_cast<short *>(data.get());
+            cout <<  "   Event #0, values =" << endl << "   ";
+            for (int i = 0; i < wordLen; i++) {
+                if (order.isLocalEndian()) {
+                    cout << *pData << ",  ";
+                }
+                else {
+                    cout << SWAP_16(*pData) <<",  ";
+                }
+                pData++;
+                if ((i+1)%5 == 0) cout << endl;
+            }
+            cout << endl;
+        }
+
+        if (!onlyOneWriter) {
+            Reader reader2(finalFilename1);
+
+            int32_t evCount2 = reader2.getEventCount();
+            cout << "    Read in file2 " << finalFilename2 << ", got " << evCount2 << " events" << endl;
+
+            cout << "reader2.getEvent(0)" << endl;
+            shared_ptr<uint8_t> data = reader2.getEvent(0);
+            cout << "    got event" << endl;
+
+            uint32_t wordLen = reader2.getEventLength(0)/2;
+            if (data != nullptr) {
+                short *pData = reinterpret_cast<short *>(data.get());
+                cout <<  "       Event #0, values =" << endl << "   ";
+                for (int i = 0; i < wordLen; i++) {
+                    if (order.isLocalEndian()) {
+                        cout << *pData << ",  ";
+                    }
+                    else {
+                        cout << SWAP_16(*pData) <<",  ";
+                    }
+                    pData++;
+                    if ((i+1)%5 == 0) cout << endl;
+                }
+                cout << endl;
+            }
+        }
+
+
+        delete[] buffer;
+        delete[] userHdr;
+
+        //for (reader)
+    }
+
 
 
     static void convertor() {
@@ -395,7 +492,7 @@ public:
 
 
 int main(int argc, char **argv) {
-    ReadWriteTest::testStreamRecordMT();
+    ReadWriteTest::testFileMT();
     return 0;
 }
 
