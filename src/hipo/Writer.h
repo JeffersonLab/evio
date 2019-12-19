@@ -54,8 +54,8 @@ private:
 
     /** Buffer being written to. */
     ByteBuffer buffer;
-    /** Has the first record been written to buffer already? */
-    bool firstRecordWritten = false;
+//    /** Has the first record been written to buffer already? */
+//    bool firstRecordWritten = false;
 
     // For both files & buffers
 
@@ -77,7 +77,7 @@ private:
     uint32_t firstEventLength = 0;
 
     /** Byte order of data to write to file/buffer. */
-    ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
+    ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
     /** Record currently being filled. */
     RecordOutput outputRecord;
     /** Record currently being written to file. */
@@ -86,37 +86,58 @@ private:
     vector<uint8_t> headerArray;
 
     /** Type of compression to use on file. Default is none. */
-    Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
-    /** Number of bytes written to file/buffer at current moment. */
-    size_t writerBytesWritten = 0;
-    /** Number which is incremented and stored with each successive written record starting at 1. */
-    uint32_t recordNumber = 1;
-    /** Do we add a last header or trailer to file/buffer? */
-    bool addingTrailer = false;
-    /** Do we add a record index to the trailer? */
-    bool addTrailerIndex = false;
-
-    /** Has close() been called? */
-    bool closed = false;
-    /** Has open() been called? */
-    bool opened = false;
+    Compressor::CompressionType compressionType {Compressor::UNCOMPRESSED};
 
     /** List of record lengths interspersed with record event counts
      * to be optionally written in trailer. */
     vector<uint32_t> recordLengths;
 
+    /** Number of bytes written to file/buffer at current moment. */
+    size_t writerBytesWritten = 0;
+    /** Number which is incremented and stored with each successive written record starting at 1. */
+    uint32_t recordNumber = 1;
+
+    /** Do we add a last header or trailer to file/buffer? */
+    bool addingTrailer = true;
+    /** Do we add a record index to the trailer? */
+    bool addTrailerIndex = false;
+    /** Has close() been called? */
+    bool closed = false;
+    /** Has open() been called? */
+    bool opened = false;
+    /** Has the first record been written already? */
+    bool firstRecordWritten = false;
+    /** Has a dictionary been defined? */
+    bool haveDictionary = false;
+    /** Has a first event been defined? */
+    bool haveFirstEvent = false;
+    /** Has caller defined a file header's user-header which is not dictionary/first-event? */
+    bool haveUserHeader = false;
 
 public:
 
     // Writing to file
 
     Writer();
-    Writer(const ByteOrder  & order, uint32_t maxEventCount, uint32_t maxBufferSize);
-    Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-           const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength,
-           const Compressor::CompressionType & compressionType);
-    explicit Writer(string & filename);
-    Writer(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize);
+
+    explicit Writer(const ByteOrder & order,
+                    uint32_t maxEventCount = 0,
+                    uint32_t maxBufferSize = 0);
+
+    Writer(string & filename,
+           const ByteOrder & order,
+           uint32_t maxEventCount = 0,
+           uint32_t maxBufferSize = 0);
+
+    explicit Writer(const HeaderType & hType,
+                    const ByteOrder & order = ByteOrder::ENDIAN_LITTLE,
+                    uint32_t maxEventCount = 0,
+                    uint32_t maxBufferSize = 0,
+                    const string & dictionary = string(""),
+                    uint8_t* firstEvent = nullptr,
+                    uint32_t firstEventLength = 0,
+                    const Compressor::CompressionType & compressionType = Compressor::UNCOMPRESSED,
+                    bool addTrailerIndex = false);
 
     // Writing to buffer
 
@@ -127,13 +148,13 @@ public:
     ~Writer() = default;
 
 
-//    Writer & operator=(Writer&& other) noexcept;
-    Writer & operator=(const Writer& other);
-
-
 //////////////////////////////////////////////////////////////////////
 
 private:
+
+    //    Writer & operator=(Writer&& other) noexcept;
+    // Don't allow assignment
+    Writer & operator=(const Writer& other);
 
     ByteBuffer createDictionaryRecord();
     void writeOutput();
@@ -150,8 +171,8 @@ public:
     const ByteOrder & getByteOrder() const;
     ByteBuffer   & getBuffer();
     FileHeader   & getFileHeader();
-    RecordHeader & getRecordHeader();
-    RecordOutput & getRecord();
+//    RecordHeader & getRecordHeader();
+//    RecordOutput & getRecord();
     Compressor::CompressionType getCompressionType();
 
     bool addTrailer() const;
@@ -168,9 +189,6 @@ public:
                                      const ByteOrder & byteOrder,
                                      FileHeader* fileHeader,
                                      RecordHeader* recordHeader);
-
-    Writer & setCompressionType(Compressor::CompressionType compression);
-
 
     //ByteBuffer & createHeader(uint8_t* userHeader, size_t len);
     ByteBuffer createHeader(uint8_t* userHdr, uint32_t userLen);

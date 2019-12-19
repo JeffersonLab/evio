@@ -9,15 +9,8 @@
  * Default constructor.
  * <b>No</b> file is opened. Any file will have little endian byte order.
  */
-Writer::Writer() {
-    outputRecord = RecordOutput();
-    fileHeader   = FileHeader(true);
-    recordLengths.reserve(1500);
-    headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
-
-    // Set these as having no data
-    userHeaderBuffer.limit(0);
-    dictionaryFirstEventBuffer.limit(0);
+Writer::Writer() :
+        Writer(ByteOrder::ENDIAN_LITTLE, 0, 0) {
 }
 
 /**
@@ -32,68 +25,7 @@ Writer::Writer() {
  */
 Writer::Writer(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize) :
         Writer(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize,
-               string(""), nullptr, 0, Compressor::UNCOMPRESSED) {
-}
-
-
-/**
- * Constructor with byte order. The given file is opened so any subsequent call to open will fail.
- * This method places the dictionary and first event into the file header's user header.
- *
- * @param hType         the type of the file. If set to {@link HeaderType#HIPO_FILE},
- *                      the header will be written with the first 4 bytes set to HIPO.
- * @param order         byte order of written file.
- * @param maxEventCount max number of events a record can hold.
- *                      Value of O means use default (1M).
- * @param maxBufferSize max number of uncompressed data bytes a record can hold.
- *                      Value of < 8MB results in default of 8MB.
- * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
- * @param firstEvent    byte array containing an evio event to be included in userHeader.
- *                      It must be in the same byte order as the order argument.
- * @param firstEventLen number of bytes in firstEvent.
- */
-Writer::Writer(const HeaderType & hType, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
-               const string & dictionary = string(""), uint8_t* firstEvent = nullptr, uint32_t firstEventLen = 0,
-               const Compressor::CompressionType & compType = Compressor::UNCOMPRESSED) {
-
-    byteOrder = order;
-    this->dictionary = dictionary;
-    this->firstEvent = firstEvent;
-    this->compressionType = compType;
-
-    firstEventLength = firstEventLen;
-    recordLengths.reserve(1500);
-    headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
-    // Set as having no data
-    userHeaderBuffer.limit(0);
-
-    outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType, hType);
-
-    if ((dictionary.length() > 0) ||
-        (firstEvent != nullptr && firstEventLen > 0))  {
-        dictionaryFirstEventBuffer = createDictionaryRecord();
-    }
-    else {
-        // Set as having no data
-        dictionaryFirstEventBuffer.limit(0);
-    }
-
-    if (hType == HeaderType::HIPO_FILE) {
-        fileHeader = FileHeader(false);
-    } else {
-        fileHeader = FileHeader(true);
-    }
-}
-
-/**
- * Constructor with filename.
- * The output file will be created with no user header.
- * File byte order is little endian.
- * @param filename output file name
- * @throws HipoException  if file cannot be found or IO error writing to file
- */
-Writer::Writer(string & filename) : Writer() {
-    open(filename);
+               string(""), nullptr, 0, Compressor::UNCOMPRESSED, false) {
 }
 
 /**
@@ -113,6 +45,66 @@ Writer::Writer(string & filename, const ByteOrder & order,
         Writer(order, maxEventCount, maxBufferSize) {
 
     open(filename);
+}
+
+/**
+ * Constructor with byte order. The given file is opened so any subsequent call to open will fail.
+ * This method places the dictionary and first event into the file header's user header.
+ *
+ * @param hType           the type of the file. If set to {@link HeaderType#HIPO_FILE},
+ *                        the header will be written with the first 4 bytes set to HIPO.
+ * @param order           byte order of written file.
+ * @param maxEventCount   max number of events a record can hold.
+ *                        Value of O means use default (1M).
+ * @param maxBufferSize   max number of uncompressed data bytes a record can hold.
+ *                        Value of < 8MB results in default of 8MB.
+ * @param dictionary      string holding an evio format dictionary to be placed in userHeader.
+ * @param firstEvent      byte array containing an evio event to be included in userHeader.
+ *                        It must be in the same byte order as the order argument.
+ * @param firstEventLen   number of bytes in firstEvent.
+ * @param compType        type of data compression to do (one, lz4 fast, lz4 best, gzip)
+ * @param addTrailerIndex if true, we add a record index to the trailer.
+ */
+Writer::Writer(const HeaderType & hType, const ByteOrder & order,
+               uint32_t maxEventCount, uint32_t maxBufferSize,
+               const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen,
+               const Compressor::CompressionType & compType, bool addTrailerIndex) {
+
+    byteOrder = order;
+    this->dictionary = dictionary;
+    this->firstEvent = firstEvent;
+    this->compressionType = compType;
+    this->addTrailerIndex = addTrailerIndex;
+
+    if (firstEvent == nullptr) {
+        firstEventLen = 0;
+    }
+    firstEventLength = firstEventLen;
+
+    // Set as having no data
+    userHeaderBuffer.limit(0);
+
+    outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType, hType);
+
+    recordLengths.reserve(1500);
+    headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+
+    if (hType == HeaderType::HIPO_FILE) {
+        fileHeader = FileHeader(false);
+    } else {
+        fileHeader = FileHeader(true);
+    }
+
+    haveDictionary = dictionary.length() > 0;
+    haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
+
+    if (haveDictionary || haveFirstEvent)  {
+        dictionaryFirstEventBuffer = createDictionaryRecord();
+    }
+    else {
+        // Tell open() there is no dictionary/first event data
+        dictionaryFirstEventBuffer.limit(0);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -329,17 +321,23 @@ const ByteOrder & Writer::getByteOrder() const {return byteOrder;}
  */
 FileHeader & Writer::getFileHeader() {return fileHeader;}
 
-/**
- * Get the internal record's header.
- * @return internal record's header.
- */
-RecordHeader & Writer::getRecordHeader() {return outputRecord.getHeader();}
+///**
+// * Get the internal record's header.
+// * @return internal record's header.
+// */
+//RecordHeader & Writer::getRecordHeader() {return outputRecord.getHeader();}
+//
+///**
+// * Get the internal record used to add events to file.
+// * @return internal record used to add events to file.
+// */
+//RecordOutput & Writer::getRecord() {return outputRecord;}
 
 /**
- * Get the internal record used to add events to file.
- * @return internal record used to add events to file.
+ * Convenience method that gets compression type for the file being written.
+ * @return compression type for the file being written.
  */
-RecordOutput & Writer::getRecord() {return outputRecord;}
+Compressor::CompressionType Writer::getCompressionType() {return compressionType;}
 
 /**
  * Does this writer add a trailer to the end of the file/buffer?
@@ -402,13 +400,13 @@ void Writer::open(string & filename) {
  *                   If this is null AND dictionary and/or first event are given,
  *                   the dictionary and/or first event will be placed in its
  *                   own record and written as the user header.
- * @param len        length of valid data (bytes) in userHdr (starting at off).
+ * @param userLen    length of valid data (bytes) in userHdr (starting at off).
  * @throws HipoException filename arg is null, if constructor specified writing to a buffer,
  *                       if open() was already called without being followed by reset(),
  *                       if file cannot be found, if IO error writing to file,
  *                       or if filename is empty.
  */
-void Writer::open(string & filename, uint8_t* userHdr, uint32_t len) {
+void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
 
     if (opened) {
         throw HipoException("currently open, call reset() first");
@@ -418,27 +416,29 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t len) {
     }
 
     if (filename.length() < 1) {
-        throw HipoException("filename arg is empty");
+        throw HipoException("bad filename");
     }
 
-    ByteBuffer headBuffer(0);
+    ByteBuffer fileHeaderBuffer(0);
+    haveUserHeader = false;
 
     // User header given as arg has precedent
     if (userHdr != nullptr) {
-        headBuffer = createHeader(userHdr, len);
+        haveUserHeader = true;
+cout << "writer::open: given a valid user header to write" << endl;
+        fileHeaderBuffer = createHeader(userHdr, userLen);
     }
     else {
-//cout << "open: try creating header with blank user array "   << endl;
         // If dictionary & firstEvent not defined and user header not given ...
         if (dictionaryFirstEventBuffer.remaining() < 1) {
-//cout << "open: create header with blank user array "   << endl;
-            headBuffer = createHeader(nullptr, 0);
+cout << "writer::open: given a null user header to write, userLen = " << userLen <<  endl;
+            fileHeaderBuffer = createHeader(nullptr, 0);
         }
         // else place dictionary and/or firstEvent into
         // record which becomes user header
         else {
-//cout << "open: create header with dictionary "   << endl;
-            headBuffer = createHeader(dictionaryFirstEventBuffer);
+cout << "writer::open: given a valid dict/first ev header to write" << endl;
+            fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
         }
     }
 
@@ -446,12 +446,12 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t len) {
     fileName = filename;
     // TODO: what flags??? instead of "rw"
     outFile.open(filename, ios::binary);
-    outFile.write(reinterpret_cast<const char*>(headBuffer.array()), headBuffer.remaining());
+    outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer.array()), fileHeaderBuffer.remaining());
     if (outFile.fail()) {
         throw HipoException("error opening file " + filename);
     }
 
-    writerBytesWritten = fileHeader.getLength();
+    writerBytesWritten = (size_t) fileHeader.getLength();
 //cout << "open: wrote " << writerBytesWritten << " bytes to file for file header only " << endl;
     opened = true;
 }
@@ -516,6 +516,7 @@ void Writer::open(ByteBuffer & buf, uint8_t* userHdr, uint32_t len) {
     opened = true;
 }
 
+
 /**
  * Create a buffer representation of a record
  * containing the dictionary and/or the first event.
@@ -524,8 +525,10 @@ void Writer::open(ByteBuffer & buf, uint8_t* userHdr, uint32_t len) {
  *         of zero size if first event and dictionary don't exist.
  */
 ByteBuffer Writer::createDictionaryRecord() {
-    return createRecord(dictionary, firstEvent, firstEventLength, byteOrder, &fileHeader, nullptr);
+    return createRecord(dictionary, firstEvent, firstEventLength,
+                        byteOrder, &fileHeader, nullptr);
 }
+
 
 /**
  * STATIC.
@@ -594,27 +597,6 @@ cout << "createRecord: add first event to record" << endl;
     return std::move(record.getBinaryBuffer());
 }
 
-/**
- * Convenience method that sets compression type for the file.
- * The compression type is also set for internal record.
- * When writing to the file, record data will be compressed
- * according to the given type.
- * @param compression compression type
- * @return this object
- */
-Writer & Writer::setCompressionType(Compressor::CompressionType compression) {
-    outputRecord.getHeader().setCompressionType(compression);
-    compressionType = outputRecord.getHeader().getCompressionType();
-    return *this;
-}
-
-/**
- * Convenience method that gets compression type for the file being written.
- * @return compression type for the file being written.
- */
-Compressor::CompressionType Writer::getCompressionType() {
-    return outputRecord.getHeader().getCompressionType();
-}
 
 /**
  * Create and return a buffer containing a general file header
@@ -640,6 +622,12 @@ ByteBuffer Writer::createHeader(uint8_t* userHdr, uint32_t userLen) {
     }
 // TODO: make sure next line is necessary (taken from WriterMT)
     fileHeader.reset();
+    if (haveUserHeader) {
+        fileHeader.setBitInfo(false, false, addTrailerIndex);
+    }
+    else {
+        fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+    }
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
 //cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -695,6 +683,12 @@ void Writer::createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) 
         userHeaderBytes = userLen;
     }
     fileHeader.reset();
+    if (haveUserHeader) {
+        fileHeader.setBitInfo(false, false, addTrailerIndex);
+    }
+    else {
+        fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+    }
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
 //cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -734,6 +728,12 @@ ByteBuffer Writer::createHeader(ByteBuffer & userHdr) {
 
     int userHeaderBytes = userHdr.remaining();
     fileHeader.reset();
+    if (haveUserHeader) {
+        fileHeader.setBitInfo(false, false, addTrailerIndex);
+    }
+    else {
+        fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+    }
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
 //cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -783,6 +783,12 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
     }
 
     fileHeader.reset();
+    if (haveUserHeader) {
+        fileHeader.setBitInfo(false, false, addTrailerIndex);
+    }
+    else {
+        fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+    }
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
 //cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -804,6 +810,39 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
 
     // Get ready to read, buffer position is still 0
     buf.limit(totalLen);
+}
+
+
+
+/**
+ * Turn int into byte array.
+ *
+ * @param data        int to convert.
+ * @param byteOrder   byte order of returned bytes.
+ * @param dest        array in which to store returned bytes.
+ * @param off         offset into dest array where returned bytes are placed.
+ * @param destMaxSize max size in bytes of dest array.
+ * @throws HipoException if dest is null or too small.
+ */
+void Writer::toBytes(uint32_t data, const ByteOrder & byteOrder,
+                     uint8_t* dest, uint32_t off, uint32_t destMaxSize) {
+
+    if (dest == nullptr || destMaxSize < 4+off) {
+        throw HipoException("bad arg(s)");
+    }
+
+    if (byteOrder == ByteOrder::ENDIAN_BIG) {
+        dest[off  ] = (uint8_t)(data >> 24);
+        dest[off+1] = (uint8_t)(data >> 16);
+        dest[off+2] = (uint8_t)(data >>  8);
+        dest[off+3] = (uint8_t)(data      );
+    }
+    else {
+        dest[off  ] = (uint8_t)(data      );
+        dest[off+1] = (uint8_t)(data >>  8);
+        dest[off+2] = (uint8_t)(data >> 16);
+        dest[off+3] = (uint8_t)(data >> 24);
+    }
 }
 
 
@@ -870,7 +909,7 @@ void Writer::writeTrailer(bool writeIndex) {
     writerBytesWritten += dataBytes;
     if (toFile) {
         outFile.write(reinterpret_cast<const char*>(&headerArray[0]), dataBytes);
-        if (outFile.bad() || outFile.fail()) {
+        if (outFile.fail()) {
             throw HipoException("error opening file " + fileName);
         }
     }
@@ -881,46 +920,13 @@ void Writer::writeTrailer(bool writeIndex) {
     delete[] recordIndex;
 }
 
-
-/**
- * Turn int into byte array.
- *
- * @param data        int to convert.
- * @param byteOrder   byte order of returned bytes.
- * @param dest        array in which to store returned bytes.
- * @param off         offset into dest array where returned bytes are placed.
- * @param destMaxSize max size in bytes of dest array.
- * @throws HipoException if dest is null or too small.
- */
-void Writer::toBytes(uint32_t data, const ByteOrder & byteOrder,
-             uint8_t* dest, uint32_t off, uint32_t destMaxSize) {
-
-    if (dest == nullptr || destMaxSize < 4+off) {
-        throw HipoException("bad arg(s)");
-    }
-
-    if (byteOrder == ByteOrder::ENDIAN_BIG) {
-        dest[off  ] = (uint8_t)(data >> 24);
-        dest[off+1] = (uint8_t)(data >> 16);
-        dest[off+2] = (uint8_t)(data >>  8);
-        dest[off+3] = (uint8_t)(data      );
-    }
-    else {
-        dest[off  ] = (uint8_t)(data      );
-        dest[off+1] = (uint8_t)(data >>  8);
-        dest[off+2] = (uint8_t)(data >> 16);
-        dest[off+3] = (uint8_t)(data >> 24);
-    }
-}
-
-
 /**
  * Appends the record to the file.
  * Using this method in conjunction with addEvent() is not thread-safe.
- * @param record record object
+ * @param rec record object
  * @throws HipoException if error writing to file.
  */
-void Writer::writeRecord(RecordOutput & record) {
+void Writer::writeRecord(RecordOutput & rec) {
 
     // Wait for previous (if any) write to finish
     if (toFile && future.valid()) {
@@ -932,16 +938,15 @@ void Writer::writeRecord(RecordOutput & record) {
         }
     }
 
-    RecordHeader header = record.getHeader();
+    RecordHeader & header = rec.getHeader();
 
     // Make sure given record is consistent with this writer
     header.setCompressionType(compressionType);
     header.setRecordNumber(recordNumber++);
     //cout << " set compression type = " << compressionType << endl;
-    record.getHeader().setCompressionType(compressionType);
-    record.setByteOrder(byteOrder);
+    rec.setByteOrder(byteOrder);
 
-    record.build();
+    rec.build();
     int bytesToWrite = header.getLength();
     // Record length of this record
     recordLengths.push_back(bytesToWrite);
@@ -955,7 +960,7 @@ void Writer::writeRecord(RecordOutput & record) {
                       std::async(std::launch::async,  // run in a separate thread
                            staticWriteFunction, // function to run
                            this,                // arguments to function ...
-                           reinterpret_cast<const char *>(record.getBinaryBuffer().array()),
+                           reinterpret_cast<const char *>(rec.getBinaryBuffer().array()),
                            bytesToWrite));
 
         // Next record to work with
@@ -963,7 +968,7 @@ void Writer::writeRecord(RecordOutput & record) {
         outputRecord.reset();
     }
     else {
-        buffer.put(record.getBinaryBuffer().array(), 0, bytesToWrite);
+        buffer.put(rec.getBinaryBuffer().array(), 0, bytesToWrite);
     }
 }
 
@@ -1001,9 +1006,13 @@ void Writer::addEvent(uint8_t* buf, uint32_t offset, uint32_t length) {
  * match the byte order given in constructor!</b>
  *
  * @param buffer array to add to the file.
- * @throws HipoException if cannot write to file.
+ * @throws HipoException if cannot write to file or buf arg's byte order is wrong.
  */
 void Writer::addEvent(ByteBuffer & buf) {
+    if (buffer.order() != byteOrder) {
+        throw HipoException("buffer arg byte order is wrong");
+    }
+
     bool status = outputRecord.addEvent(buf);
     if (!status){
         writeOutput();
