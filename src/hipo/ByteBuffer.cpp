@@ -14,25 +14,9 @@ Your class doesn't have a default constructor
 */
 
 /**
- * Default constructor.
- * @param size size (in bytes) of space to preallocate internally.
+ * Default constructor, size of 4096 bytes.
  */
-ByteBuffer::ByteBuffer() {
-
-    size_t size = 4096;
-
-    // Will work for C++ 11 and later
-    buf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
-//    std::memset(buf.get(),0, size);
-    cap = size;
-    clear();
-
-    // Byte order of this buffer
-    isLittleEndian = true;
-
-    // Is this buffer's byte order the same as the local host's?
-    isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
-}
+ByteBuffer::ByteBuffer() : ByteBuffer(4096) {}
 
 
 /**
