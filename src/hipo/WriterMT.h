@@ -332,7 +332,7 @@ private:
     uint8_t headerArray2[RecordHeader::HEADER_SIZE_BYTES];
 
     /** Type of compression to use on file. Default is none. */
-    Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
+    Compressor::CompressionType compressionType {Compressor::UNCOMPRESSED};
 
     /** List of record lengths interspersed with record event counts
       * to be optionally written in trailer. */
@@ -414,7 +414,7 @@ public:
     FileHeader   & getFileHeader();
 //    RecordHeader & getRecordHeader();
 //    RecordOutput & getRecord();
-    uint32_t getCompressionType();
+    Compressor::CompressionType getCompressionType();
 
     bool addTrailer() const;
     void addTrailer(bool add);
@@ -423,8 +423,6 @@ public:
 
     void open(string & filename);
     void open(string & filename, uint8_t* userHdr, uint32_t userLen);
-
-    WriterMT & setCompressionType(Compressor::CompressionType compression);
 
     ByteBuffer createHeader(uint8_t* userHdr, uint32_t userLen);
     ByteBuffer createHeader(ByteBuffer & userHdr);

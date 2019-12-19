@@ -62,10 +62,9 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
                    Compressor::CompressionType compType, uint32_t compressionThreads,
                    bool addTrailerIndex,
                    const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLen,
-                   uint32_t ringSize) :
+                   uint32_t ringSize) {
 
-                   byteOrder(order) {
-
+    byteOrder = order;
     this->dictionary = dictionary;
     this->firstEvent = firstEvent;
     if (firstEvent == nullptr) {
@@ -91,18 +90,8 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
     haveDictionary = dictionary.length() > 0;
     haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
 
-    if (haveDictionary) {
-        cout << "WriterMT CON: create dict, len = " << dictionary.length() << endl;
-    }
-
-    if (haveFirstEvent) {
-        cout << "WriterMT CON: create first event, len = " << firstEventLen << endl;
-    }
-
     if (haveDictionary || haveFirstEvent)  {
         dictionaryFirstEventBuffer = createDictionaryRecord();
-cout << "WriterMT CON: created dict/firstEv buffer, order = " << byteOrder.getName() <<
-       ", dic/fe buff remaining = " << dictionaryFirstEventBuffer.remaining() << endl;
     }
     else {
         // Tell open() there is no dictionary/first event data
@@ -220,7 +209,8 @@ FileHeader & WriterMT::getFileHeader() {return fileHeader;}
  * Convenience method that gets compression type for the file being written.
  * @return compression type for the file being written.
  */
-uint32_t WriterMT::getCompressionType() {return compressionType;}
+Compressor::CompressionType WriterMT::getCompressionType() {return compressionType;}
+
 
 /**
  * Does this writer add a trailer to the end of the file/buffer?
@@ -296,7 +286,7 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
         throw HipoException("bad filename");
     }
 
-    ByteBuffer fileHeaderBuffer;
+    ByteBuffer fileHeaderBuffer(0);
     haveUserHeader = false;
 
     // User header given as arg has precedent
@@ -342,20 +332,6 @@ cout << "writerMT::open: given a valid dict/first ev header to write" << endl;
     recordWriterThreads[0].startThread();
 
     opened = true;
-}
-
-
-/**
- * Convenience method that sets compression type for the file.
- * The compression type is set for internal record.
- * The record data will be compressed according to the given type.
- * @param compression compression type
- * @return this object
- */
-WriterMT & WriterMT::setCompressionType(Compressor::CompressionType compression) {
-    outputRecord->getHeader().setCompressionType(compression);
-    compressionType = compression;
-    return *this;
 }
 
 
