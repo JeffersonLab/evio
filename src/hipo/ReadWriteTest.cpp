@@ -436,7 +436,6 @@ public:
             cout << "     OPENED FILE " << filenameOut << " for writing " << nevents << " events to " << filenameOut << endl;
             Writer writer(filenameOut, ByteOrder::ENDIAN_LITTLE, 10000, 8*1024*1024);
             //writer.setCompressionType(Compressor::LZ4);
-            writer.setCompressionType(Compressor::UNCOMPRESSED);
 
             for (int i = 0; i < nevents; i++) {
                 cout << "     Try getting EVENT # " << i << endl;
