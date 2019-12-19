@@ -25,7 +25,7 @@ set(CMAKE_CXX_STANDARD 14)
 project(evio_6_0)
 
 # Find include files here
-include_directories(src/libsrc src/libsrc++ src/hipo src/disruptor src src/Disruptor /usr/include/boost)
+include_directories(src/libsrc src/libsrc++ src/hipo /usr/include/boost $ENV{DISRUPTOR_CPP_HOME})
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
@@ -37,16 +37,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread -lexpat -ldl -lz -lm")
 set(C_HEADER_FILES
     src/libsrc/evio.h
     src/libsrc/msinttypes.h
-
-    src/Disruptor/*.h
-#    src/disruptor/*.h
-#    src/disruptor/claim_strategy.h
-#    src/disruptor/ring_buffer.h
-#    src/disruptor/sequence_barrier.h
-#    src/disruptor/sequence.h
-#    src/disruptor/sequencer.h
-#    src/disruptor/utils.h
-#    src/disruptor/wait_strategy.h
 )
 
 set(C_LIB_FILES
