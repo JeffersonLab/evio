@@ -162,19 +162,6 @@ WriterMT::WriterMT(string & filename, const ByteOrder & order, uint32_t maxEvent
 
 //////////////////////////////////////////////////////////////////////
 
-/**
- * Create a buffer representation of a record
- * containing the dictionary and/or the first event.
- * No compression.
- * @return buffer representation of record containing dictionary and/or first event,
- *         of zero size if first event and dictionary don't exist.
- */
-ByteBuffer WriterMT::createDictionaryRecord() {
-    return Writer::createRecord(dictionary, firstEvent, firstEventLength,
-                                byteOrder, &fileHeader, nullptr);
-}
-
-
 ///**
 // * Get the buffer being written to.
 // * @return buffer being written to.
@@ -310,9 +297,13 @@ cout << "writerMT::open: given a valid dict/first ev header to write" << endl;
     }
 
     // Write this to file
+    fileName = filename;
     // TODO: what flags??? instead of "rw"
     outFile.open(filename, ios::binary);
     outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer.array()), fileHeaderBuffer.remaining());
+    if (outFile.fail()) {
+        throw HipoException("error opening file " + filename);
+    }
 
     writerBytesWritten = (size_t) (fileHeader.getLength());
 
@@ -332,6 +323,19 @@ cout << "writerMT::open: given a valid dict/first ev header to write" << endl;
     recordWriterThreads[0].startThread();
 
     opened = true;
+}
+
+
+/**
+ * Create a buffer representation of a record
+ * containing the dictionary and/or the first event.
+ * No compression.
+ * @return buffer representation of record containing dictionary and/or first event,
+ *         of zero size if first event and dictionary don't exist.
+ */
+ByteBuffer WriterMT::createDictionaryRecord() {
+    return Writer::createRecord(dictionary, firstEvent, firstEventLength,
+                                byteOrder, &fileHeader, nullptr);
 }
 
 
@@ -469,7 +473,7 @@ void WriterMT::toBytes(uint32_t data, const ByteOrder & byteOrder,
  * Then when {@link #close()} is called, the trailer will be written.
  *
  * @param writeIndex if true, write an index of all record lengths in trailer.
- * @throws IOException if error writing to file.
+ * @throws HipoException if error writing to file.
  */
 void WriterMT::writeTrailer(bool writeIndex) {
 
@@ -478,29 +482,26 @@ void WriterMT::writeTrailer(bool writeIndex) {
 
     // If we're NOT adding a record index, just write trailer
     if (!writeIndex) {
-        try {
-            RecordHeader::writeTrailer(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES, 0,
-                                       recordNumber, byteOrder, nullptr, 0);
+        RecordHeader::writeTrailer(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES, 0,
+                                   recordNumber, byteOrder, nullptr, 0);
 
-            writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
-            outFile.write(reinterpret_cast<const char *>(&headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
+        writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
+        outFile.write(reinterpret_cast<const char *>(&headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
+        if (outFile.fail()) {
+            throw HipoException("error writing file " + fileName);
         }
-        catch (HipoException &ex) {/*never happen*/ }
     }
     else {
         // Create the index of record lengths & entries in proper byte order
         size_t recordLengthsBytes = 4 * recordLengths.size();
         auto recordIndex = new uint8_t[recordLengthsBytes];
 
-        try {
-            // Transform ints to bytes in local endian. It'll be swapped below in writeTrailer().
-            for (int i = 0; i < recordLengths.size(); i++) {
-                toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
+        // Transform ints to bytes in local endian. It'll be swapped below in writeTrailer().
+        for (int i = 0; i < recordLengths.size(); i++) {
+            toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
 //cout << "WriterMT::writeTrailer: writing record length = " << recordLengths[i] << showbase << hex <<
 //                ", = " << recordLengths[i] << endl;
-            }
         }
-        catch (HipoException &e) {/* never happen */}
 
         // Write trailer with index
 
@@ -513,16 +514,16 @@ void WriterMT::writeTrailer(bool writeIndex) {
             headerArray.reserve(dataBytes);
         }
 
-        try {
-            // Place data into headerArray - both header and index
-            RecordHeader::writeTrailer(&headerArray[0], dataBytes, 0,
-                                       recordNumber, byteOrder, (const uint32_t *) recordIndex,
-                                       recordLengthsBytes);
+        // Place data into headerArray - both header and index
+        RecordHeader::writeTrailer(&headerArray[0], dataBytes, 0,
+                                   recordNumber, byteOrder, (const uint32_t *) recordIndex,
+                                   recordLengthsBytes);
 
-            writerBytesWritten += dataBytes;
-            outFile.write(reinterpret_cast<const char *>(&headerArray[0]), dataBytes);
+        writerBytesWritten += dataBytes;
+        outFile.write(reinterpret_cast<const char *>(&headerArray[0]), dataBytes);
+        if (outFile.fail()) {
+            throw HipoException("error opening file " + fileName);
         }
-        catch (HipoException &ex) {/*never happen*/}
 
         delete[] recordIndex;
     }
@@ -637,8 +638,7 @@ void WriterMT::addEvent(uint8_t * buffer, uint32_t offset, uint32_t length) {
  * match the byte order given in constructor!</b>
  *
  * @param buffer array to add to the file.
- * @throws IOException if cannot write to file.
- * @throws HipoException if buffer arg's byte order is wrong.
+ * @throws HipoException if cannot write to file or buffer arg's byte order is wrong.
  */
 void WriterMT::addEvent(ByteBuffer & buffer) {
 
