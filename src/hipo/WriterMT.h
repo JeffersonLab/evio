@@ -306,6 +306,9 @@ private:
     /** Number of threads doing compression simultaneously. */
     uint32_t compressionThreadCount = 1;
 
+    /** File name. */
+    std::string fileName = "";
+
     /** Object for writing file. */
     std::ofstream outFile;
 
