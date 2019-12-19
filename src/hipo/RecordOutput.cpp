@@ -7,12 +7,9 @@
 
 
 /** Default, no-arg constructor. Little endian. No compression. */
-RecordOutput::RecordOutput() : recordIndex(MAX_EVENT_COUNT * 4) {
-
-    header.setCompressionType(Compressor::UNCOMPRESSED);
-    recordIndex.order(byteOrder);
-
-    allocate();
+RecordOutput::RecordOutput() :
+        RecordOutput(ByteOrder::ENDIAN_LITTLE, 0, 0,
+                     Compressor::UNCOMPRESSED, HeaderType::EVIO_RECORD) {
 }
 
 /**
