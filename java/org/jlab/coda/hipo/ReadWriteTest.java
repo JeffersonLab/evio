@@ -84,8 +84,8 @@ public class ReadWriteTest {
             int firstEventLen = 10;
             ByteOrder order  =  ByteOrder.LITTLE_ENDIAN;
             WriterMT writer2 = new WriterMT(HeaderType.EVIO_FILE, order, 0, 0,
-                                            CompressionType.RECORD_COMPRESSION_GZIP, 2, true,
-                                            dictionary, firstEvent, firstEventLen, 16);
+                                            dictionary, firstEvent, firstEventLen,
+                                            CompressionType.RECORD_COMPRESSION_GZIP, 2, true, 16);
 
             byte[] userHdr = new byte[10];
             for (byte i = 0; i < 10; i++) {
