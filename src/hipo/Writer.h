@@ -22,6 +22,7 @@
 #include "RecordOutput.h"
 #include "RecordHeader.h"
 #include "Compressor.h"
+#include "Util.h"
 
 /**
  * Class to write Evio-6.0/HIPO files.
