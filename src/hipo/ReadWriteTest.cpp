@@ -118,6 +118,8 @@ public:
         uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         uint32_t firstEventLen = 10;
         ByteOrder order = ByteOrder::ENDIAN_LITTLE;
+        //Compressor::CompressionType compType = Compressor::LZ4;
+        Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
 
         // Possible user header data
         auto userHdr = new uint8_t[10];
@@ -128,7 +130,7 @@ public:
         // Create files
         string finalFilename1 = fileName + ".1";
         Writer writer(HeaderType::EVIO_FILE, order, 0, 0,
-                      dictionary, firstEvent, 10, Compressor::LZ4);
+                      dictionary, firstEvent, 10, compType);
         writer.open(finalFilename1);
         cout << "Past creating writer1" << endl;
 
@@ -156,6 +158,16 @@ public:
 
         cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
         cout << "Finished all loops, count = " << totalC << endl;
+
+        //------------------------------
+        // Add entire record at once
+        //------------------------------
+
+        RecordOutput recOut(order);
+        recOut.addEvent(buffer, 0, 26);
+        writer.writeRecord(recOut);
+
+        //------------------------------
 
         //writer1.addTrailer(true);
         writer.addTrailerWithIndex(true);
@@ -314,7 +326,7 @@ public:
         // Add entire record at once
         //------------------------------
 
-        RecordOutput recOut(ByteOrder::ENDIAN_BIG);
+        RecordOutput recOut(order);
         recOut.addEvent(buffer, 0, 26);
         writer1.writeRecord(recOut);
 
@@ -503,7 +515,7 @@ public:
 
 
 int main(int argc, char **argv) {
-    ReadWriteTest::testFileMT();
+    ReadWriteTest::testFile();
     return 0;
 }
 
