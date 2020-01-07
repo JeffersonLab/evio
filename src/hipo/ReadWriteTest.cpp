@@ -261,14 +261,14 @@ public:
         // Create files
         string finalFilename1 = fileName + ".1";
         WriterMT writer1(HeaderType::EVIO_FILE, order, 0, 0,
-                         Compressor::LZ4, 2, true, dictionary, firstEvent, 10, 16);
+                         dictionary, firstEvent, 10, Compressor::LZ4, 2, true, 16);
         writer1.open(finalFilename1);
         cout << "Past creating writer1" << endl;
 
         string finalFilename2 = fileName + ".2";
         //WriterMT writer2(ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::UNCOMPRESSED, 2);
         WriterMT writer2(HeaderType::EVIO_FILE, order, 0, 0,
-                         Compressor::LZ4, 2, true, dictionary, firstEvent, 10, 16);
+                         dictionary, firstEvent, 10, Compressor::LZ4, 2, true, 16);
 
         if (!onlyOneWriter) {
             //writer2.open(finalFilename, userHdr, 10);
