@@ -97,6 +97,7 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/Reader.h
         src/hipo/RecordSupply.h
         src/hipo/RecordRingItem.h
+        src/hipo/Util.h
         )
 
 set(CPP_LIB_FILES_NEW
