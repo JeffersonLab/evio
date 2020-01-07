@@ -890,9 +890,14 @@ void Writer::writeTrailer(bool writeIndex) {
  * Appends the record to the file/buffer.
  * Using this method in conjunction with addEvent() is not thread-safe.
  * @param rec record object
- * @throws HipoException if error writing to file.
+ * @throws HipoException if error writing to file or
+ *                       record's byte order is opposite to output endian.
  */
 void Writer::writeRecord(RecordOutput & rec) {
+
+    if (rec.getByteOrder() != byteOrder) {
+        throw HipoException("record byte order is wrong");
+    }
 
     // If we have already written stuff into our current internal record,
     // write that first.
@@ -914,7 +919,6 @@ void Writer::writeRecord(RecordOutput & rec) {
     RecordHeader & header = rec.getHeader();
     header.setCompressionType(compressionType);
     header.setRecordNumber(recordNumber++);
-    rec.setByteOrder(byteOrder);
     rec.build();
 
     int bytesToWrite = header.getLength();

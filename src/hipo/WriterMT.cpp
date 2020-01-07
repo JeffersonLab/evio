@@ -524,9 +524,13 @@ void WriterMT::writeTrailer(bool writeIndex) {
  * Appends the record to the file.
  * Using this method in conjunction with {@link #addEvent()} is not thread-safe.
  * @param rec record object
- * @throws HipoException if arg's byte order is opposite to output endian.
+ * @throws HipoException if record's byte order is opposite to output endian.
  */
 void WriterMT::writeRecord(RecordOutput & rec) {
+
+    if (rec.getByteOrder() != byteOrder) {
+        throw HipoException("record byte order is wrong");
+    }
 
     // If we have already written stuff into our current internal record ...
     if (outputRecord->getEventCount() > 0) {
@@ -539,9 +543,6 @@ void WriterMT::writeRecord(RecordOutput & rec) {
         ringItem = supply->get();
         outputRecord = ringItem->getRecord();
     }
-
-    // Make sure given record endian is consistent with this writer
-    rec.setByteOrder(byteOrder);
 
     // Copy rec into an empty record taken from the supply
     outputRecord->transferDataForReading(rec);
