@@ -149,7 +149,7 @@ public class WriterMT implements AutoCloseable {
             throws IllegalArgumentException {
 
         this(HeaderType.EVIO_FILE, order, maxEventCount, maxBufferSize,
-             compressionType, compressionThreads, false, null, null, 0, ringSize);
+             null, null, 0, compressionType, compressionThreads, false, ringSize);
     }
 
 
@@ -166,13 +166,13 @@ public class WriterMT implements AutoCloseable {
      *                      Value <= O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
      *                      Value of < 8MB results in default of 8MB.
-     * @param compType      type of data compression to do (one, lz4 fast, lz4 best, gzip)
-     * @param compressionThreads number of threads doing compression simultaneously
-     * @param addTrailerIndex if true, we add a record index to the trailer.
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
      * @param firstEventLen number of valid bytes in firstEvent.
+     * @param compType      type of data compression to do (one, lz4 fast, lz4 best, gzip)
+     * @param compressionThreads number of threads doing compression simultaneously
+     * @param addTrailerIndex if true, we add a record index to the trailer.
      * @param ringSize      number of records in supply ring, must be multiple of 2
      *                      and >= compressionThreads.
      *
@@ -180,10 +180,9 @@ public class WriterMT implements AutoCloseable {
      */
     public WriterMT(HeaderType hType, ByteOrder order,
                     int maxEventCount, int maxBufferSize,
-                    CompressionType compType, int compressionThreads,
-                    boolean addTrailerIndex,
                     String dictionary, byte[] firstEvent, int firstEventLen,
-                    int ringSize)
+                    CompressionType compType, int compressionThreads,
+                    boolean addTrailerIndex, int ringSize)
             throws IllegalArgumentException {
 
         this.dictionary = dictionary;
