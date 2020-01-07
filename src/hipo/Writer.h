@@ -161,10 +161,6 @@ private:
     void writeOutput();
     void writeOutputToBuffer();
 
-    // TODO: this should be part of an Utilities class ...
-    static void toBytes(uint32_t data, const ByteOrder & byteOrder,
-                        uint8_t* dest, uint32_t off, uint32_t destMaxSize);
-
     static void staticWriteFunction(Writer *pWriter, const char* data, size_t len);
 
 public:
