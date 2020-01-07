@@ -25,6 +25,7 @@
 #include "Compressor.h"
 #include "Writer.h"
 #include "RecordSupply.h"
+#include "Util.h"
 
 #include "Disruptor/Util.h"
 #include <boost/thread.hpp>
@@ -385,12 +386,12 @@ public:
              const ByteOrder & order = ByteOrder::ENDIAN_LITTLE,
              uint32_t maxEventCount = 0,
              uint32_t maxBufferSize = 0,
-             Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
-             uint32_t compressionThreads = 1,
-             bool addTrailerIndex = false,
              const string & dictionary = "",
              uint8_t* firstEvent = nullptr,
              uint32_t firstEventLen = 0,
+             Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
+             uint32_t compressionThreads = 1,
+             bool addTrailerIndex = false,
              uint32_t ringSize = 16);
 
     explicit WriterMT(string & filename);
@@ -438,7 +439,7 @@ public:
     void addEvent(uint8_t* buffer, uint32_t offset, uint32_t length);
     void addEvent(ByteBuffer & buffer);
 //    void addEvent(EvioBank & bank);
-//    void addEvent(EvioNode & node);
+    void addEvent(EvioNode & node);
 
     void reset();
     void close();
