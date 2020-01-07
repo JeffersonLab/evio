@@ -251,6 +251,8 @@ public:
         uint32_t firstEventLen = 10;
         bool onlyOneWriter = true;
         ByteOrder order = ByteOrder::ENDIAN_LITTLE;
+        //Compressor::CompressionType compType = Compressor::LZ4;
+        Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
 
         // Possible user header data
         auto userHdr = new uint8_t[10];
@@ -261,14 +263,14 @@ public:
         // Create files
         string finalFilename1 = fileName + ".1";
         WriterMT writer1(HeaderType::EVIO_FILE, order, 0, 0,
-                         dictionary, firstEvent, 10, Compressor::LZ4, 2, true, 16);
+                         dictionary, firstEvent, 10, compType, 2, true, 16);
         writer1.open(finalFilename1);
         cout << "Past creating writer1" << endl;
 
         string finalFilename2 = fileName + ".2";
-        //WriterMT writer2(ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::UNCOMPRESSED, 2);
+        //WriterMT writer2(ByteOrder::ENDIAN_LITTLE, 0, 0, compType, 2);
         WriterMT writer2(HeaderType::EVIO_FILE, order, 0, 0,
-                         dictionary, firstEvent, 10, Compressor::LZ4, 2, true, 16);
+                         dictionary, firstEvent, 10, compType, 2, true, 16);
 
         if (!onlyOneWriter) {
             //writer2.open(finalFilename, userHdr, 10);
@@ -307,6 +309,16 @@ public:
 
         cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
         cout << "Finished all loops, count = " << totalC << endl;
+
+        //------------------------------
+        // Add entire record at once
+        //------------------------------
+
+        RecordOutput recOut(ByteOrder::ENDIAN_BIG);
+        recOut.addEvent(buffer, 0, 26);
+        writer1.writeRecord(recOut);
+
+        //------------------------------
 
         //writer1.addTrailer(true);
         writer1.addTrailerWithIndex(true);
