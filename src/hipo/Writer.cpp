@@ -73,13 +73,12 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order,
     byteOrder = order;
     this->dictionary = dictionary;
     this->firstEvent = firstEvent;
-    this->compressionType = compType;
-    this->addTrailerIndex = addTrailerIndex;
-
     if (firstEvent == nullptr) {
         firstEventLen = 0;
     }
     firstEventLength = firstEventLen;
+    compressionType = compType;
+    this->addTrailerIndex = addTrailerIndex;
 
     // Set as having no data
     userHeaderBuffer.limit(0);
@@ -141,7 +140,7 @@ Writer::Writer(ByteBuffer & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
 
     this->dictionary = dictionary;
     this->firstEvent = firstEvent;
-    this->firstEventLength = firstEventLen;
+    firstEventLength = firstEventLen;
 
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
     outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
@@ -813,39 +812,6 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
 }
 
 
-
-/**
- * Turn int into byte array.
- *
- * @param data        int to convert.
- * @param byteOrder   byte order of returned bytes.
- * @param dest        array in which to store returned bytes.
- * @param off         offset into dest array where returned bytes are placed.
- * @param destMaxSize max size in bytes of dest array.
- * @throws HipoException if dest is null or too small.
- */
-void Writer::toBytes(uint32_t data, const ByteOrder & byteOrder,
-                     uint8_t* dest, uint32_t off, uint32_t destMaxSize) {
-
-    if (dest == nullptr || destMaxSize < 4+off) {
-        throw HipoException("bad arg(s)");
-    }
-
-    if (byteOrder == ByteOrder::ENDIAN_BIG) {
-        dest[off  ] = (uint8_t)(data >> 24);
-        dest[off+1] = (uint8_t)(data >> 16);
-        dest[off+2] = (uint8_t)(data >>  8);
-        dest[off+3] = (uint8_t)(data      );
-    }
-    else {
-        dest[off  ] = (uint8_t)(data      );
-        dest[off+1] = (uint8_t)(data >>  8);
-        dest[off+2] = (uint8_t)(data >> 16);
-        dest[off+3] = (uint8_t)(data >> 24);
-    }
-}
-
-
 /**
  * Write a general header as the last "header" or trailer
  * optionally followed by an index of all record lengths.
@@ -884,7 +850,7 @@ void Writer::writeTrailer(bool writeIndex) {
 
     // Transform ints to bytes in local endian. It'll be swapped below in writeTrailer().
     for (int i = 0; i < recordLengths.size(); i++) {
-        toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
+        Util::toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
 //cout << "Writing record length = " << recordLengths[i] << showbase << hex <<
 //                ", = " << recordLengths[i] << endl;
     }
@@ -921,12 +887,18 @@ void Writer::writeTrailer(bool writeIndex) {
 }
 
 /**
- * Appends the record to the file.
+ * Appends the record to the file/buffer.
  * Using this method in conjunction with addEvent() is not thread-safe.
  * @param rec record object
  * @throws HipoException if error writing to file.
  */
 void Writer::writeRecord(RecordOutput & rec) {
+
+    // If we have already written stuff into our current internal record,
+    // write that first.
+    if (outputRecord.getEventCount() > 0) {
+        writeOutput();
+    }
 
     // Wait for previous (if any) write to finish
     if (toFile && future.valid()) {
@@ -938,15 +910,13 @@ void Writer::writeRecord(RecordOutput & rec) {
         }
     }
 
-    RecordHeader & header = rec.getHeader();
-
     // Make sure given record is consistent with this writer
+    RecordHeader & header = rec.getHeader();
     header.setCompressionType(compressionType);
     header.setRecordNumber(recordNumber++);
-    //cout << " set compression type = " << compressionType << endl;
     rec.setByteOrder(byteOrder);
-
     rec.build();
+
     int bytesToWrite = header.getLength();
     // Record length of this record
     recordLengths.push_back(bytesToWrite);
@@ -1237,5 +1207,6 @@ void Writer::close() {
     }
 
     closed = true;
+    opened = false;
 //cout << "[writer] ---> bytes written " << writerBytesWritten << endl;
 }
