@@ -224,7 +224,6 @@ public:
     void reset();
 
     void setStartingBufferPosition(size_t pos);
-    void setByteOrder(const ByteOrder & order);
 
     void build();
     void build(ByteBuffer & userHeader);

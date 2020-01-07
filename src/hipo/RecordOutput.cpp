@@ -391,13 +391,6 @@ bool RecordOutput::hasUserProvidedBuffer() const {return userProvidedBuffer;}
  */
 const ByteOrder & RecordOutput::getByteOrder() const {return byteOrder;}
 
-/**
- * Set the byte order of the record to be built.
- * Only use this internally to the package.
- * @param order byte order of the record to be built.
- */
-void RecordOutput::setByteOrder(const ByteOrder & order) {byteOrder = order;}
-
 /** Allocates all buffers for constructing the record stream. */
 void RecordOutput::allocate() {
 
