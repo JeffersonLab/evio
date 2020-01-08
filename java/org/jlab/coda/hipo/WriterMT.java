@@ -712,9 +712,10 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      * Then when {@link #close()} is called, the trailer will be written.
 
      * @param writeIndex if true, write an index of all record lengths in trailer.
+     * @param recordNum record number for trailing record.
      * @throws IOException if problems writing to file.
      */
-    private void writeTrailer(boolean writeIndex) throws IOException {
+    private void writeTrailer(boolean writeIndex, int recordNum) throws IOException {
 
         // Keep track of where we are right now which is just before trailer
         long trailerPosition = writerBytesWritten;
@@ -722,7 +723,7 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             try {
-                RecordHeader.writeTrailer(headerArray, recordNumber, byteOrder, null);
+                RecordHeader.writeTrailer(headerArray, recordNum, byteOrder, null);
             }
             catch (HipoException e) {/* never happen */}
             
@@ -757,8 +758,7 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
 
             // Place data into headerArray - both header and index
             try {
-                RecordHeader.writeTrailer(headerArray, recordNumber,
-                                          byteOrder, recordIndex);
+                RecordHeader.writeTrailer(headerArray, recordNum, byteOrder, recordIndex);
             }
             catch (HipoException e) {/* never happen */}
             
@@ -786,9 +786,6 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
             }
         }
     }
-
-
-
 
 
     /**
@@ -823,11 +820,6 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
 
         // Copy rec into an empty record taken from the supply
         outputRecord.transferDataForReading(rec);
-
-        // Make sure given record is consistent with this writer
-        RecordHeader header = outputRecord.getHeader();
-        header.setCompressionType(compressionType);
-        header.setRecordNumber(recordNumber++);
 
         // Put it back in supply for compressing (building)
         supply.publish(ringItem);
@@ -957,21 +949,25 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
         }
 
         try {
+            int recordCount = (int)supply.getLastSequence() + 1;
+
             if (addingTrailer) {
+                recordCount++;
                 // Write the trailer
-                writeTrailer(addTrailerIndex);
+                writeTrailer(addTrailerIndex, recordCount);
             }
 
             // Need to update the record count in file header
             outStream.seek(FileHeader.RECORD_COUNT_OFFSET);
             if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-                outStream.writeInt(Integer.reverseBytes(recordNumber - 1));
+                outStream.writeInt(Integer.reverseBytes(recordCount));
             }
             else {
-                outStream.writeInt(recordNumber - 1);
+                outStream.writeInt(recordCount);
             }
             outStream.close();
-           //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
+            recordLengths.clear();
+
         } catch (IOException ex) {
             Logger.getLogger(WriterMT.class.getName()).log(Level.SEVERE, null, ex);
         }
