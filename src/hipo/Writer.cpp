@@ -820,14 +820,15 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
  * {@link #addTrailerWithIndex(bool)}. Then when {@link #close()} is
  * called, the trailer will be written.
  * @param writeIndex if true, write an index of all record lengths in trailer.
+ * @param recordNum record number for trailing record.
  * @throws HipoException if error writing to file.
  */
-void Writer::writeTrailer(bool writeIndex) {
+void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
 
     // If we're NOT adding a record index, just write trailer
     if (!writeIndex) {
         RecordHeader::writeTrailer(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES, 0,
-                                   recordNumber, byteOrder, nullptr, 0);
+                                   recordNum, byteOrder, nullptr, 0);
 
         // TODO: not really necessary to keep track here?
         writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
@@ -868,7 +869,7 @@ void Writer::writeTrailer(bool writeIndex) {
 
     // Place data into headerArray - both header and index
     RecordHeader::writeTrailer(&headerArray[0], dataBytes, 0,
-                               recordNumber, byteOrder, (const uint32_t*)recordIndex,
+                               recordNum, byteOrder, (const uint32_t*)recordIndex,
                                recordLengthsBytes);
 
     // TODO: not really necessary to keep track here?
@@ -1169,12 +1170,16 @@ void Writer::close() {
         }
     }
 
+    uint32_t recordCount = recordNumber - 1;
+
     if (addingTrailer) {
+        recordCount++;
+
         // Keep track of where we are right now which is just before trailer
         uint64_t trailerPosition = writerBytesWritten;
 
         // Write the trailer
-        writeTrailer(addTrailerIndex);
+        writeTrailer(addTrailerIndex, recordCount);
 
         if (toFile) {
             // Find & update file header's trailer position word
@@ -1198,13 +1203,12 @@ void Writer::close() {
 
     if (toFile) {
         // Need to update the record count in file header
-        uint32_t recIndexCnt = recordNumber - 1;
         if (byteOrder != ByteOrder::ENDIAN_LOCAL) {
-            recIndexCnt = SWAP_32(recIndexCnt);
+            recordCount = SWAP_32(recordCount);
         }
 
         outFile.seekp(FileHeader::RECORD_COUNT_OFFSET);
-        outFile.write(reinterpret_cast<const char *>(&recIndexCnt), sizeof(uint32_t));
+        outFile.write(reinterpret_cast<const char *>(&recordCount), sizeof(uint32_t));
 
         outFile.close();
         recordLengths.clear();
