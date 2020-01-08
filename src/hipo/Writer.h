@@ -194,7 +194,6 @@ public:
     void createHeader(ByteBuffer & buf, ByteBuffer & userHdr);
         //ByteBuffer & createHeader(ByteBuffer & userHeader);
 
-    void writeTrailer(bool writeIndex);
     void writeRecord(RecordOutput & record);
 
     // Use internal RecordOutput to write individual events
@@ -207,6 +206,10 @@ public:
 
     void reset();
     void close();
+
+private:
+
+    void writeTrailer(bool writeIndex, uint32_t recordNum);
 
 };
 

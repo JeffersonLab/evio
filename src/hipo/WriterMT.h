@@ -427,7 +427,6 @@ public:
     ByteBuffer createHeader(uint8_t* userHdr, uint32_t userLen);
     ByteBuffer createHeader(ByteBuffer & userHdr);
 
-    void writeTrailer(bool writeIndex);
     void writeRecord(RecordOutput & record);
 
     // Use internal RecordOutput to write individual events
@@ -439,6 +438,10 @@ public:
 
     void reset();
     void close();
+
+private:
+
+    void writeTrailer(bool writeIndex, uint32_t recordNum);
 
 };
 
