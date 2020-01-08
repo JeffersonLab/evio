@@ -117,6 +117,7 @@ public:
         //dictionary = "";
         uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         uint32_t firstEventLen = 10;
+        bool addTrailerIndex = true;
         ByteOrder order = ByteOrder::ENDIAN_LITTLE;
         //Compressor::CompressionType compType = Compressor::LZ4;
         Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
@@ -170,7 +171,7 @@ public:
         //------------------------------
 
         //writer1.addTrailer(true);
-        writer.addTrailerWithIndex(true);
+        writer.addTrailerWithIndex(addTrailerIndex);
         cout << "Past write 1" << endl;
 
         writer.close();
@@ -262,6 +263,7 @@ public:
         uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         uint32_t firstEventLen = 10;
         bool onlyOneWriter = true;
+        bool addTrailerIndex = true;
         ByteOrder order = ByteOrder::ENDIAN_LITTLE;
         //Compressor::CompressionType compType = Compressor::LZ4;
         Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
@@ -275,14 +277,14 @@ public:
         // Create files
         string finalFilename1 = fileName + ".1";
         WriterMT writer1(HeaderType::EVIO_FILE, order, 0, 0,
-                         dictionary, firstEvent, 10, compType, 2, true, 16);
+                         dictionary, firstEvent, 10, compType, 2, addTrailerIndex, 16);
         writer1.open(finalFilename1);
         cout << "Past creating writer1" << endl;
 
         string finalFilename2 = fileName + ".2";
         //WriterMT writer2(ByteOrder::ENDIAN_LITTLE, 0, 0, compType, 2);
         WriterMT writer2(HeaderType::EVIO_FILE, order, 0, 0,
-                         dictionary, firstEvent, 10, compType, 2, true, 16);
+                         dictionary, firstEvent, 10, compType, 2, addTrailerIndex, 16);
 
         if (!onlyOneWriter) {
             //writer2.open(finalFilename, userHdr, 10);
@@ -333,12 +335,12 @@ public:
         //------------------------------
 
         //writer1.addTrailer(true);
-        writer1.addTrailerWithIndex(true);
+        writer1.addTrailerWithIndex(addTrailerIndex);
         cout << "Past write 1" << endl;
 
         if (!onlyOneWriter) {
             //writer2.addTrailer(true);
-            writer2.addTrailerWithIndex(true);
+            writer2.addTrailerWithIndex(addTrailerIndex);
             cout << "Past write 2" << endl;
         }
 
