@@ -26,6 +26,7 @@
 #include "ByteBuffer.h"
 #include "HipoException.h"
 #include "Compressor.h"
+#include "Util.h"
 
 using std::string;
 
@@ -361,9 +362,6 @@ public:
     RecordHeader & setUserRegisterFirst(uint64_t reg);
     RecordHeader & setUserRegisterSecond(uint64_t reg);
 
-
-    static void toBytes(uint32_t data, const ByteOrder & byteOrder,
-                        uint8_t* dest, size_t destLen, size_t off);
 
     void writeHeader(ByteBuffer & buf, size_t off);
     void writeHeader(ByteBuffer & buffer);
