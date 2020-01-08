@@ -8,9 +8,6 @@
 #include "HipoException.h"
 #include "ByteOrder.h"
 #include <iostream>
-//#include <sstream>
-//#include <stdexcept>
-//#include <string>
 
 
 /**
@@ -54,8 +51,6 @@ public:
             dest[off+3] = (uint8_t)(data >> 24);
         }
     }
-
-
 };
 
 
