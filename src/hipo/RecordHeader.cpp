@@ -899,14 +899,14 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
 
     try {
         // First the general header part
-        toBytes(wholeLength/4,     order, array, arrayLen,      off); // 0*4
-        toBytes(recordNumber,      order, array, arrayLen, 4  + off); // 1*4
-        toBytes(HEADER_SIZE_WORDS, order, array, arrayLen, 8  + off); // 2*4
-        toBytes(0,                 order, array, arrayLen, 12 + off); // 3*4
-        toBytes(indexLen,          order, array, arrayLen, 16 + off); // 4*4
-        toBytes(bitInfo,           order, array, arrayLen, 20 + off); // 5*4
-        toBytes(0,                 order, array, arrayLen, 24 + off); // 6*4
-        toBytes(HEADER_MAGIC,      order, array, arrayLen, 28 + off); // 7*4
+        Util::toBytes(wholeLength/4,     order, array,      off, arrayLen); // 0*4
+        Util::toBytes(recordNumber,      order, array, 4  + off, arrayLen); // 1*4
+        Util::toBytes(HEADER_SIZE_WORDS, order, array, 8  + off, arrayLen); // 2*4
+        Util::toBytes(0,                 order, array, 12 + off, arrayLen); // 3*4
+        Util::toBytes(indexLen,          order, array, 16 + off, arrayLen); // 4*4
+        Util::toBytes(bitInfo,           order, array, 20 + off, arrayLen); // 5*4
+        Util::toBytes(0,                 order, array, 24 + off, arrayLen); // 6*4
+        Util::toBytes(HEADER_MAGIC,      order, array, 28 + off, arrayLen); // 7*4
 
         // The rest of header is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
         memset((void *)(array + 32 + off), 0, 24);
@@ -922,38 +922,6 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
     }
     catch (HipoException & e) {/* never happen */}
 }
-
-/**
-  * Write int into byte array.
-  *
-  * @param data int to convert
-  * @param byteOrder byte order of returned bytes (big endian if null)
-  * @param dest array in which to store transformed int
-  * @param destLen number of available bytes in dest to write into.
-  * @param off offset into dest array where returned bytes are placed
-  * @throws HipoException if dest is null or too small or offset negative
-  */
-void RecordHeader::toBytes(uint32_t data, const ByteOrder & byteOrder,
-                           uint8_t* dest, size_t destLen, size_t off) {
-
-    if (dest == nullptr || destLen < 4+off) {
-        throw HipoException("bad arg(s)");
-    }
-
-    if (byteOrder == ByteOrder::ENDIAN_BIG) {
-        dest[off  ] = (uint8_t)(data >> 24);
-        dest[off+1] = (uint8_t)(data >> 16);
-        dest[off+2] = (uint8_t)(data >>  8);
-        dest[off+3] = (uint8_t)(data      );
-    }
-    else {
-        dest[off  ] = (uint8_t)(data      );
-        dest[off+1] = (uint8_t)(data >>  8);
-        dest[off+2] = (uint8_t)(data >> 16);
-        dest[off+3] = (uint8_t)(data >> 24);
-    }
-}
-
 
 /**
  * Writes an empty trailer into the given buffer.
@@ -1171,7 +1139,7 @@ void RecordHeader::readHeader(ByteBuffer & buffer) {
 }
 
 //-----------------------------------------------------
-// Additional methods for implementing IBlockHeader
+// Additional methods
 //-----------------------------------------------------
 
 /**
@@ -1220,22 +1188,43 @@ string RecordHeader::toString() const {
     return ss.str();
 }
 
-/** {@inheritDoc} */
+
+/**
+ * Get the size of the record)in 32 bit words.
+ * @return size of the record)in 32 bit words.
+ */
 uint32_t RecordHeader::getSize() const {return recordLengthWords;}
 
-/** {@inheritDoc} */
+/**
+ * Get the block number for this record)
+ * In a file, this is usually sequential.
+ * @return the number for this record)
+ */
 uint32_t RecordHeader::getNumber() const {return recordNumber;}
 
-/** {@inheritDoc} */
+/**
+ * Get the magic number the record)header which should be 0xc0da0100.
+ * @return magic number in the record)
+ */
 uint32_t RecordHeader::getMagicNumber() const {return headerMagicWord;}
 
-/** {@inheritDoc} */
+/**
+ * Is this the last record in the file or being sent over the network?
+ * @return <code>true</code> if this is the last record in the file or being sent
+ *         over the network, else <code>false</code>.
+ */
 bool RecordHeader::isLastBlock() const {return isLastRecord();}
 
-/** {@inheritDoc} */
+/**
+ * Get the source ID number if in CODA online context and data is coming from ROC.
+ * @return source ID number if in CODA online context and data is coming from ROC.
+ */
 uint32_t RecordHeader::getSourceId() const {return (uint32_t)recordUserRegisterFirst;}
 
-/** {@inheritDoc} */
+/**
+ * Get the type of events in record (see values of {@link DataType}.
+ * @return type of events in record.
+ */
 uint32_t RecordHeader::getEventType() const {return eventType;}
 
 /**
@@ -1263,30 +1252,70 @@ string RecordHeader::eventTypeToString() const {
         }
     }
 
-/** {@inheritDoc} */
+/**
+ * Write myself out into a byte buffer. This write is relative--i.e.,
+ * it uses the current position of the buffer.
+ * @param byteBuffer the byteBuffer to write to.
+ * @return the number of bytes written.
+ */
 uint32_t RecordHeader::write(ByteBuffer & byteBuffer) {
     writeHeader(byteBuffer, byteBuffer.position());
     return HEADER_SIZE_BYTES;
 }
 
-// Following methods are not used in this class but must be part of IBlockHeader interface
-
-/** {@inheritDoc} */
+/**
+ * Get the position in the buffer (bytes) of this record's last data word.<br>
+ * @return position in the buffer (bytes) of this record's last data word.
+ */
 size_t RecordHeader::getBufferEndingPosition() const {return 0ULL;}
 
-/** {@inheritDoc} */
+/**
+ * Get the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
+ * This is not part of the record header proper. It is a position in a memory buffer of the start of the record
+ * It is kept for convenience. It is up to the reader to set it.
+ *
+ * @return starting position in buffer (bytes) from which this header was read--if that happened.
+ */
 size_t RecordHeader::getBufferStartingPosition() const {return 0ULL;}
 
-/** {@inheritDoc} */
+/**
+ * Set the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
+ * This is not part of the record header proper. It is a position in a memory buffer of the start of the record
+ * It is kept for convenience. It is up to the reader to set it.
+ *
+ * @param bufferStartingPosition starting position in buffer from which this header was read--if that
+ *            happened.
+ */
 void RecordHeader::setBufferStartingPosition(size_t bufferStartingPosition) {}
 
-/** {@inheritDoc} */
+/**
+ * Determines where the start of the next record header in some buffer is located (bytes).
+ * This assumes the start position has been maintained by the object performing the buffer read.
+ *
+ * @return the start of the next record header in some buffer is located (bytes).
+ */
 size_t RecordHeader::nextBufferStartingPosition() const {return 0ULL;}
 
-/** {@inheritDoc} */
+/**
+ * Determines where the start of the first event in this record is located
+ * (bytes). This assumes the start position has been maintained by the object performing the buffer read.
+ *
+ * @return where the start of the first event in this record is located
+ *         (bytes). In evio format version 2, returns 0 if start is 0, signaling
+ *         that this entire record is part of a logical record that spans at least
+ *         three physical records.
+ */
 size_t RecordHeader::firstEventStartingPosition() const {return 0ULL;}
 
-/** {@inheritDoc} */
+/**
+ * Gives the bytes remaining in this record given a buffer position. The position is an absolute
+ * position in a byte buffer. This assumes that the absolute position in <code>bufferStartingPosition</code> is
+ * being maintained properly by the reader.
+ *
+ * @param position the absolute current position in a byte buffer.
+ * @return the number of bytes remaining in this record.
+ * @throws EvioException if position out of bounds
+ */
 size_t RecordHeader::bytesRemaining(size_t pos) const {return 0ULL;}
 
 //----------------------------------------------------------------------------
