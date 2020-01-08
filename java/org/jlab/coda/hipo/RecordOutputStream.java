@@ -446,12 +446,12 @@ public class RecordOutputStream {
      */
     public ByteOrder getByteOrder() {return byteOrder;}
 
-    /**
-     * Set the byte order of the record to be built.
-     * Only use this internally to the package.
-     * @param order byte order of the record to be built.
-     */
-    void setByteOrder(ByteOrder order) {byteOrder = order;}
+//    /**
+//     * Set the byte order of the record to be built.
+//     * Only use this internally to the package.
+//     * @param order byte order of the record to be built.
+//     */
+//    void setByteOrder(ByteOrder order) {byteOrder = order;}
 
     /** Allocates all buffers for constructing the record stream. */
     private void allocate() {
