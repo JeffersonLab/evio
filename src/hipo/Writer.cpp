@@ -145,9 +145,10 @@ Writer::Writer(ByteBuffer & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
     outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
 
-    if ( (dictionary.length() > 0) ||
-         (firstEvent != nullptr && firstEventLen > 0))  {
+    haveDictionary = dictionary.length() > 0;
+    haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
 
+    if (haveDictionary || haveFirstEvent)  {
         dictionaryFirstEventBuffer = createDictionaryRecord();
         // make this the user header by default since open() may not get called for buffers
 // TODO: SHOULD NOT AVOID the shared pointer!!!!! Look at userHeader uses!!!
@@ -337,6 +338,21 @@ FileHeader & Writer::getFileHeader() {return fileHeader;}
  * @return compression type for the file being written.
  */
 Compressor::CompressionType Writer::getCompressionType() {return compressionType;}
+
+/**
+ * Convenience method that sets compression type for the file.
+ * The compression type is also set for internal record.
+ * When writing to the file, record data will be compressed
+ * according to the given type.
+ * @param compression compression type
+ * @return this object
+ */
+void Writer::setCompressionType(Compressor::CompressionType compression) {
+    if (toFile) {
+        compressionType = compression;
+        outputRecord.getHeader().setCompressionType(compression);
+    }
+}
 
 /**
  * Does this writer add a trailer to the end of the file/buffer?
@@ -702,7 +718,7 @@ void Writer::createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) 
     catch (HipoException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
-        std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
+        std::memcpy((void *)(buf.array() + buf.arrayOffset() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr), userHeaderBytes);
     }
 
@@ -747,7 +763,7 @@ ByteBuffer Writer::createHeader(ByteBuffer & userHdr) {
     catch (HipoException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
-        std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
+        std::memcpy((void *)(buf.array() + buf.arrayOffset() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr.array() + userHdr.arrayOffset()+ userHdr.position()),
                     userHeaderBytes);
     }
@@ -1103,7 +1119,7 @@ void Writer::writeOutput() {
 
 /** Write internal record with incremented record # to buffer. */
 void Writer::writeOutputToBuffer() {
-    RecordHeader header = outputRecord.getHeader();
+    RecordHeader & header = outputRecord.getHeader();
     header.setRecordNumber(recordNumber++);
     header.setCompressionType(compressionType);
 
