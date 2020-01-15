@@ -55,8 +55,6 @@ private:
 
     /** Buffer being written to. */
     ByteBuffer buffer;
-//    /** Has the first record been written to buffer already? */
-//    bool firstRecordWritten = false;
 
     // For both files & buffers
 
@@ -171,6 +169,7 @@ public:
 //    RecordHeader & getRecordHeader();
 //    RecordOutput & getRecord();
     Compressor::CompressionType getCompressionType();
+    void setCompressionType(Compressor::CompressionType compression);
 
     bool addTrailer() const;
     void addTrailer(bool add);
