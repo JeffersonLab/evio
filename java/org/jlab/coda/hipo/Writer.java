@@ -62,8 +62,6 @@ public class Writer implements AutoCloseable {
     
     /** Buffer being written to. */
     private ByteBuffer buffer;
-    /** Has the first record been written to buffer already? */
-    private boolean firstRecordWritten;
 
     // For both files & buffers
 
@@ -93,30 +91,39 @@ public class Writer implements AutoCloseable {
     private ByteBuffer headerBuffer = ByteBuffer.wrap(headerArray);
 
     /** Type of compression to use on file. Default is none. */
-    private CompressionType compressionType;
-    /** Number of bytes written to file/buffer at current moment. */
-    private long writerBytesWritten;
-    /** Number which is incremented and stored with each successive written record starting at 1. */
-    private int recordNumber = 1;
-    /** Do we add a last header or trailer to file/buffer? */
-    private boolean addTrailer = true;
-    /** Do we add a record index to the trailer? */
-    private boolean addTrailerIndex;
-
-    /** Has close() been called? */
-    private boolean closed;
-    /** Has open() been called? */
-    private boolean opened;
+    private CompressionType compressionType = CompressionType.RECORD_UNCOMPRESSED;
 
     /** List of record lengths interspersed with record event counts
      * to be optionally written in trailer. */
     private ArrayList<Integer> recordLengths = new ArrayList<Integer>(1500);
 
+    /** Number of bytes written to file/buffer at current moment. */
+    private long writerBytesWritten;
+    /** Number which is incremented and stored with each successive written record starting at 1. */
+    private int recordNumber = 1;
+
+    /** Do we add a last header or trailer to file/buffer? */
+    private boolean addTrailer = true;
+    /** Do we add a record index to the trailer? */
+    private boolean addTrailerIndex;
+    /** Has close() been called? */
+    private boolean closed;
+    /** Has open() been called? */
+    private boolean opened;
+    /** Has the first record been written to buffer already? */
+    private boolean firstRecordWritten;
+    /** Has a dictionary been defined? */
+    private boolean haveDictionary;
+    /** Has a first event been defined? */
+    private boolean haveFirstEvent;
+    /** Has caller defined a file header's user-header which is not dictionary/first-event? */
+    private boolean haveUserHeader;
+
     /**
      * Default constructor.
      * <b>No</b> file is opened. Any file will have little endian byte order.
      */
-    public Writer(){
+    public Writer() {
         outputRecord = new RecordOutputStream();
         fileHeader = new FileHeader(true);
         headerBuffer.order(byteOrder);
@@ -131,7 +138,7 @@ public class Writer implements AutoCloseable {
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
      *                      Value of &lt; 8MB results in default of 8MB.
      */
-    public Writer(ByteOrder order, int maxEventCount, int maxBufferSize){
+    public Writer(ByteOrder order, int maxEventCount, int maxBufferSize) {
         this(HeaderType.EVIO_FILE, order, maxEventCount, maxBufferSize);
     }
 
@@ -191,17 +198,19 @@ public class Writer implements AutoCloseable {
                                                     maxBufferSize, compType, hType);
         outputRecord = internalRecords[0];
 
-        if ( (dictionary != null && dictionary.length() > 0) ||
-             (firstEvent != null && firstEvent.length   > 0))  {
-            dictionaryFirstEventBuffer = createDictionaryRecord();
-        }
-
         if (hType == HeaderType.HIPO_FILE){
             fileHeader = new FileHeader(false);
         } else {
             fileHeader = new FileHeader(true);
         }
-    }
+
+        haveDictionary = dictionary != null;
+        haveFirstEvent = (firstEvent != null && firstEvent.length > 0);
+
+        if (haveDictionary || haveFirstEvent)  {
+            dictionaryFirstEventBuffer = createDictionaryRecord();
+        }
+     }
 
     /**
      * Constructor with filename.
@@ -278,9 +287,10 @@ public class Writer implements AutoCloseable {
         this.firstEvent = firstEvent;
         outputRecord = new RecordOutputStream(byteOrder, maxEventCount, maxBufferSize, CompressionType.RECORD_UNCOMPRESSED);
 
-        if ( (dictionary != null && dictionary.length() > 0) ||
-             (firstEvent != null && firstEvent.length   > 0))  {
+        haveDictionary = dictionary != null;
+        haveFirstEvent = (firstEvent != null && firstEvent.length > 0);
 
+        if (haveDictionary || haveFirstEvent)  {
             dictionaryFirstEventBuffer = createDictionaryRecord();
             // make this the user header by default since open() may not get called for buffers
             userHeader = dictionaryFirstEventBuffer.array();
@@ -312,17 +322,41 @@ public class Writer implements AutoCloseable {
      */
     public FileHeader getFileHeader() {return fileHeader;}
 
-    /**
-     * Get the internal record's header.
-     * @return internal record's header.
-     */
-    public RecordHeader getRecordHeader() {return outputRecord.getHeader();}
+//    /**
+//     * Get the internal record's header.
+//     * @return internal record's header.
+//     */
+//    public RecordHeader getRecordHeader() {return outputRecord.getHeader();}
+//
+//    /**
+//     * Get the internal record used to add events to file.
+//     * @return internal record used to add events to file.
+//     */
+//    public RecordOutputStream getRecord() {return outputRecord;}
 
     /**
-     * Get the internal record used to add events to file.
-     * @return internal record used to add events to file.
+     * Convenience method that gets compression type for the file being written.
+     * @return compression type for the file being written.
      */
-    public RecordOutputStream getRecord() {return outputRecord;}
+    public CompressionType getCompressionType() {return compressionType;}
+
+    /**
+     * Convenience method that sets compression type for the file.
+     * The compression type is also set for internal record(s).
+     * When writing to the file, record data will be compressed
+     * according to the given type.
+     * @param compression compression type
+     * @return this object
+     */
+    public final Writer setCompressionType(CompressionType compression) {
+        if (toFile) {
+            compressionType = compression;
+            internalRecords[0].getHeader().setCompressionType(compression);
+            internalRecords[1].getHeader().setCompressionType(compression);
+            internalRecords[2].getHeader().setCompressionType(compression);
+        }
+        return this;
+    }
 
     /**
      * Does this writer add a trailer to the end of the file/buffer?
@@ -336,7 +370,7 @@ public class Writer implements AutoCloseable {
      *            with no index of records and no following data.
      *            Update the file header to contain a file offset to the trailer.
      */
-    public void addTrailer(boolean add) {this.addTrailer = add;}
+    public void addTrailer(boolean add) {addTrailer = add;}
 
     /**
      * Does this writer add a trailer with a record index to the end of the file?
@@ -404,9 +438,11 @@ public class Writer implements AutoCloseable {
         }
 
         ByteBuffer headBuffer;
+        haveUserHeader = false;
 
         // User header given as arg has precedent
         if (userHeader != null) {
+            haveUserHeader = true;
             headBuffer = createHeader(userHeader);
         }
         else {
@@ -604,28 +640,6 @@ System.out.println("createRecord: add first event to record");
     }
 
     /**
-     * Convenience method that sets compression type for the file.
-     * The compression type is also set for internal record.
-     * When writing to the file, record data will be compressed
-     * according to the given type.
-     * @param compression compression type
-     * @return this object
-     */
-    public final Writer setCompressionType(CompressionType compression){
-        outputRecord.getHeader().setCompressionType(compression);
-        compressionType = outputRecord.getHeader().getCompressionType();
-        return this;
-    }
-
-    /**
-     * Convenience method that gets compression type for the file being written.
-     * @return compression type for the file being written.
-     */
-    public CompressionType getCompressionType() {
-        return outputRecord.getHeader().getCompressionType();
-    }
-
-    /**
      * Create and return a buffer containing a general file header
      * followed by the user header given in the argument.
      * If user header is not padded to 4-byte boundary, it's done here.
@@ -646,6 +660,12 @@ System.out.println("createRecord: add first event to record");
             userHeaderBytes = userHeader.length;
         }
         fileHeader.reset();
+        if (haveUserHeader) {
+            fileHeader.setBitInfo(false, false, addTrailerIndex);
+        }
+        else {
+            fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+        }
         fileHeader.setUserHeaderLength(userHeaderBytes);
 
 //System.out.println("createHeader: after set user header len, fe bit = " + fileHeader.hasFirstEvent());
@@ -690,6 +710,12 @@ System.out.println("createRecord: add first event to record");
             userHeaderBytes = userHeader.remaining();
         }
         fileHeader.reset();
+        if (haveUserHeader) {
+            fileHeader.setBitInfo(false, false, addTrailerIndex);
+        }
+        else {
+            fileHeader.setBitInfo(haveFirstEvent, haveDictionary, addTrailerIndex);
+        }
         fileHeader.setUserHeaderLength(userHeaderBytes);
 
 //System.out.println("createHeader: after set user header len, fe bit = " + fileHeader.hasFirstEvent());
@@ -908,9 +934,14 @@ System.out.println("createRecord: add first event to record");
      * match the byte order given in constructor!</b>
      *
      * @param buffer array to add to the file.
+     * @throws HipoException if buf arg's byte order is wrong.
      * @throws IOException if cannot write to file.
      */
-    public void addEvent(ByteBuffer buffer) throws IOException {
+    public void addEvent(ByteBuffer buffer) throws IOException, HipoException {
+        if (buffer.order() != byteOrder) {
+            throw new HipoException("buffer arg byte order is wrong");
+        }
+
         boolean status = outputRecord.addEvent(buffer);
         if (!status){
             writeOutput();
@@ -1235,7 +1266,8 @@ System.out.println("createRecord: add first event to record");
         }
         
         closed = true;
-        //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
+        opened = false;
+       //System.out.println("[writer] ---> bytes written " + writerBytesWritten);
     }
 
 }
