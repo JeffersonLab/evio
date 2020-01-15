@@ -132,7 +132,7 @@ cout << "   Compressor " << threadNumber << ": try getting record to compress" <
                         // Pull record out of wrapping object
                         std::shared_ptr<RecordOutput> & record = item->getRecord();
                         // Set compression type and record #
-                        RecordHeader &header = record->getHeader();
+                        RecordHeader & header = record->getHeader();
                         // Fortunately for us, the record # is also the sequence # + 1 !
                         header.setRecordNumber((uint32_t) (item->getSequence() + 1L));
                         header.setCompressionType(compressionType);
@@ -252,7 +252,7 @@ cout << "   RecordWriter: try getting record to write" << endl;
                         std::shared_ptr<RecordOutput> & record = item->getRecord();
 
                         // Do write
-                        RecordHeader header = record->getHeader();
+                        RecordHeader & header = record->getHeader();
                         int bytesToWrite = header.getLength();
                         // Record length of this record
                         writer->recordLengths.push_back(bytesToWrite);
