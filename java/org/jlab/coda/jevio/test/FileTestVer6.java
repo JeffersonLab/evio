@@ -626,7 +626,8 @@ System.out.println("FileTest, write to file " + fileName + "\n");
 
             if (useFile) {
                 writer = new Writer(HeaderType.HIPO_FILE, order,
-                                    10, targetBlockBytes, dictionary, efArray);
+                                    10, targetBlockBytes, dictionary, efArray,
+                                    CompressionType.RECORD_UNCOMPRESSED, false);
 
                 writer.getFileHeader().setUserIntFirst(111);
                 writer.getFileHeader().setUserIntSecond(222);
@@ -640,9 +641,8 @@ System.out.println("FileTest, write to file " + fileName + "\n");
                 // Create an event writer to write to buffer
                 myBuf = ByteBuffer.allocate(10000);
                 myBuf.order(order);
-                writer = new Writer(myBuf, order, targetBlockBytes, 10, null, null);
+                writer = new Writer(myBuf, 10, targetBlockBytes, null, null);
             }
-
 
             if (useFile) {
                 for (int i = 0; i < 6; i++) {
