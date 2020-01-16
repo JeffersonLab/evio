@@ -68,12 +68,11 @@ public class ReadWriteTest {
             // Variables to track record build rate
             double freqAvg;
             long totalC = 0;
-            long loops = 11;
+            long loops = 3;
 
-            String fileName = "/dev/shm/hipoTest1.evio";
+            String finalFilename = "/dev/shm/hipoTest-j.evio";
 
             // Create files
-            String finalFilename = fileName + ".1";
             String dictionary = "This is a dictionary";
             //dictionary = "";
             boolean addTrailerIndex = true;
@@ -85,7 +84,8 @@ public class ReadWriteTest {
             ByteOrder order  =  ByteOrder.LITTLE_ENDIAN;
 
             Writer writer = new Writer(HeaderType.EVIO_FILE, order, 0, 0,
-                                       dictionary, firstEvent, compType);
+                                       dictionary, firstEvent, compType,
+                                       addTrailerIndex);
 
             byte[] userHdr = new byte[10];
             for (byte i = 0; i < 10; i++) {
@@ -125,6 +125,14 @@ public class ReadWriteTest {
             System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
             System.out.println("Finished all loops, count = " + totalC);
 
+            //------------------------------
+           // Add entire record at once
+           //------------------------------
+
+           RecordOutputStream recOut = new RecordOutputStream();
+           recOut.addEvent(buffer, 0, 26);
+           writer.writeRecord(recOut);
+
 
             //        writer1.addTrailer(true);
             //        writer1.addTrailerWithIndex(true);
@@ -146,8 +154,7 @@ public class ReadWriteTest {
 
             // Doing a diff between files shows they're identical!
 
-            System.out.println("Finished writing files " + fileName + " + .1, .2, .3");
-            System.out.println("Now read file " + fileName + " + .1, .2, .3");
+            System.out.println("Finished writing files " + finalFilename + ", now read it in");
 
             Reader reader = new Reader(finalFilename);
 
@@ -205,20 +212,22 @@ public class ReadWriteTest {
             // Variables to track record build rate
             double freqAvg;
             long totalC = 0;
-            long loops = 11;
+            long loops = 3;
 
-            String fileName = "/dev/shm/hipoTest2.evio";
+            String fileName = "/dev/shm/hipoTestMT-j.evio";
 
             // Create files
-            String finalFilename = fileName + ".1";
+            String finalFilename = fileName;
+            //String finalFilename = fileName + ".1";
             //        WriterMT writer1(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
             //cout << "Past creating writer1" << endl;
-            finalFilename = fileName + ".2";
+            //finalFilename = fileName + ".2";
             //WriterMT writer(ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::UNCOMPRESSED, 2);
             String dictionary = "This is a dictionary";
             //dictionary = "";
             boolean addTrailerIndex = true;
-            CompressionType compType = CompressionType.RECORD_COMPRESSION_GZIP;
+            //CompressionType compType = CompressionType.RECORD_COMPRESSION_GZIP;
+            CompressionType compType = CompressionType.RECORD_UNCOMPRESSED;
 
             byte firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
             int firstEventLen = 10;
@@ -265,6 +274,13 @@ public class ReadWriteTest {
             System.out.println("Time = " + deltaT + " msec,  Hz = " + freqAvg);
             System.out.println("Finished all loops, count = " + totalC);
 
+            //------------------------------
+           // Add entire record at once
+           //------------------------------
+
+           RecordOutputStream recOut = new RecordOutputStream();
+           recOut.addEvent(buffer, 0, 26);
+           writer.writeRecord(recOut);
 
             //        writer1.addTrailer(true);
             //        writer1.addTrailerWithIndex(true);
@@ -286,8 +302,7 @@ public class ReadWriteTest {
 
             // Doing a diff between files shows they're identical!
 
-            System.out.println("Finished writing files " + fileName + " + .1, .2, .3");
-            System.out.println("Now read file " + fileName + " + .1, .2, .3");
+            System.out.println("Finished writing files " + finalFilename + ", now read it in");
 
             Reader reader = new Reader(finalFilename);
 
@@ -342,6 +357,7 @@ public class ReadWriteTest {
     public static void main(String[] args){
 
         testStreamRecord();
+        testStreamRecordMT();
 
     }
 
