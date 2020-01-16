@@ -256,8 +256,8 @@ private:
      * Updated automatically when lengths are set. */
     uint32_t  compressedDataLengthPadding = 0;
 
-    /** Type of header this is. Normal HIPO record by default. */
-    HeaderType headerType {HeaderType::HIPO_RECORD};
+    /** Type of header this is. Normal EVIO record by default. */
+    HeaderType headerType {HeaderType::EVIO_RECORD};
 
     /** Byte order of file/buffer this header was read from. */
     ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
