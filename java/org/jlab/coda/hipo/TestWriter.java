@@ -85,7 +85,7 @@ public class TestWriter {
 
         // Create file
         Writer writer = new Writer();
-        writer.getRecordHeader().setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
+        writer.setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
         writer.open("/daqfs/home/timmer/exampleFile.v6.evio");
 
 
@@ -146,13 +146,13 @@ public class TestWriter {
 
         // Create 1 file with Writer
         Writer writer = new Writer(ByteOrder.BIG_ENDIAN, 100000, 8000000);
-        writer.getRecordHeader().setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
+        writer.setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
         String file1 = "/daqfs/home/timmer/dataFile.v6.writer";
         writer.open(file1);
 
         // Create 1 file with WriterNew
-        WriterNew writerN = new WriterNew(ByteOrder.BIG_ENDIAN, 100000, 8000000);
-        writerN.getRecordHeader().setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
+        Writer writerN = new Writer(ByteOrder.BIG_ENDIAN, 100000, 8000000);
+        writerN.setCompressionType(CompressionType.RECORD_COMPRESSION_LZ4);
         String file2 = "/daqfs/home/timmer/dataFile.v6.writerNew";
         writerN.open(file2);
 
