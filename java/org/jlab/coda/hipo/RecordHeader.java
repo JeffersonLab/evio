@@ -236,7 +236,7 @@ public class RecordHeader implements IBlockHeader {
     private int  compressedDataLengthPadding;
 
     /** Type of header this is. Normal HIPO record by default. */
-    private HeaderType headerType = HeaderType.HIPO_RECORD;
+    private HeaderType headerType = HeaderType.EVIO_RECORD;
     
     /** Byte order of file/buffer this header was read from. */
     private ByteOrder  byteOrder = ByteOrder.LITTLE_ENDIAN;
