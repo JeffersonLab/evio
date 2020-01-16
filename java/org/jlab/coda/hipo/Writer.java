@@ -153,7 +153,8 @@ public class Writer implements AutoCloseable {
      *                      Value of &lt; 8MB results in default of 8MB.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize) {
-        this(hType, order, maxEventCount, maxBufferSize, null, null, CompressionType.RECORD_UNCOMPRESSED);
+        this(hType, order, maxEventCount, maxBufferSize, null, null,
+             CompressionType.RECORD_UNCOMPRESSED, false);
     }
 
     /**
@@ -171,9 +172,11 @@ public class Writer implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
+     * @param addTrailerIndex if true, we add a record index to the trailer.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize,
-                  String dictionary, byte[] firstEvent, CompressionType compType) {
+                  String dictionary, byte[] firstEvent,
+                  CompressionType compType, boolean addTrailerIndex) {
 
         if (order != null) {
             byteOrder = order;
@@ -181,6 +184,7 @@ public class Writer implements AutoCloseable {
         this.dictionary = dictionary;
         this.firstEvent = firstEvent;
         this.compressionType = compType;
+        this.addTrailerIndex = addTrailerIndex;
         headerBuffer.order(byteOrder);
 
         // Create a place to store records currently being written
@@ -787,10 +791,13 @@ System.out.println("createRecord: add first event to record");
         }
 
         // Create the index of record lengths & entries in proper byte order
+        // Transform ints to bytes in local endian.
+        // It'll be swapped below in RecordHeader.writeTrailer().
         byte[] recordIndex = new byte[4*recordLengths.size()];
         try {
             for (int i = 0; i < recordLengths.size(); i++) {
-                ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
+                ByteDataTransformer.toBytes(recordLengths.get(i),
+                                            ByteOrder.BIG_ENDIAN,
                                             recordIndex, 4*i);
 //System.out.println("Writing record length = " + recordLengths.get(i) +
 //", = 0x" + Integer.toHexString(recordLengths.get(i)));
@@ -878,6 +885,7 @@ System.out.println("createRecord: add first event to record");
             catch (Exception e) {
                 throw new IOException(e);
             }
+            fileWritingPosition += bytesToWrite;
         }
         else {
             buffer.put(record.getBinaryBuffer().array(), 0, bytesToWrite);
@@ -993,11 +1001,18 @@ System.out.println("createRecord: add first event to record");
     private void waitForFileWrites() {
         if (!toFile) return;
 
-        while (!(future1.isDone() && future2.isDone())) {
+        boolean write1IsDone = true, write2IsDone = true;
+        if (future1 != null) write1IsDone = future1.isDone();
+        if (future2 != null) write2IsDone = future2.isDone();
+
+        while (!(write1IsDone && write2IsDone)) {
             try {
                 Thread.sleep(1);
             }
             catch (InterruptedException e) {}
+
+            if (future1 != null) write1IsDone = future1.isDone();
+            if (future2 != null) write2IsDone = future2.isDone();
         }
     }
 
