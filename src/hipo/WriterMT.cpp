@@ -720,12 +720,10 @@ void WriterMT::close() {
 
         // Need to update the record count in file header
         outFile.seekp(FileHeader::RECORD_COUNT_OFFSET);
-        if (byteOrder == ByteOrder::ENDIAN_LITTLE) {
-            uint32_t bitSwap = SWAP_32(recordCount);
-            outFile.write(reinterpret_cast<const char *>(&bitSwap), sizeof(uint32_t));
-        } else {
-            outFile.write(reinterpret_cast<const char *>(&recordCount), sizeof(uint32_t));
+        if (byteOrder != ByteOrder::ENDIAN_LOCAL) {
+            recordCount = SWAP_32(recordCount);
         }
+        outFile.write(reinterpret_cast<const char *>(&recordCount), sizeof(uint32_t));
         outFile.close();
         recordLengths.clear();
     }
