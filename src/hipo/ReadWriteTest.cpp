@@ -111,7 +111,7 @@ public:
         long totalC = 0;
         long loops = 3;
 
-        string fileName = "/dev/shm/hipoTestRegular.evio";
+        string finalFilename = "/dev/shm/hipoTest.evio";
 
         string dictionary = "This is a dictionary";
         //dictionary = "";
@@ -129,10 +129,9 @@ public:
         }
 
         // Create files
-        string finalFilename1 = fileName + ".1";
         Writer writer(HeaderType::EVIO_FILE, order, 0, 0,
-                      dictionary, firstEvent, 10, compType);
-        writer.open(finalFilename1);
+                      dictionary, firstEvent, 10, compType, addTrailerIndex);
+        writer.open(finalFilename);
         cout << "Past creating writer1" << endl;
 
         //uint8_t *buffer = generateSequentialInts(100, order);
@@ -171,7 +170,7 @@ public:
         //------------------------------
 
         //writer1.addTrailer(true);
-        writer.addTrailerWithIndex(addTrailerIndex);
+        //writer.addTrailerWithIndex(addTrailerIndex);
         cout << "Past write 1" << endl;
 
         writer.close();
@@ -179,13 +178,12 @@ public:
 
         // Doing a diff between files shows they're identical!
 
-        cout << "Finished writing files " << fileName << " + .1, .2" << endl;
-        cout << "Now read file " << fileName << " + .1, .2" << endl;
+        cout << "Finished writing files " << finalFilename << " now read it" << endl;
 
-        Reader reader1(finalFilename1);
+        Reader reader1(finalFilename);
 
         int32_t evCount = reader1.getEventCount();
-        cout << "Read in file " << finalFilename1 << ", got " << evCount << " events" << endl;
+        cout << "Read in file " << finalFilename << ", got " << evCount << " events" << endl;
 
         string dict = reader1.getDictionary();
         cout << "   Got dictionary = " << dict << endl;
@@ -275,7 +273,8 @@ public:
         }
 
         // Create files
-        string finalFilename1 = fileName + ".1";
+        //string finalFilename1 = fileName + ".1";
+        string finalFilename1 = fileName;
         WriterMT writer1(HeaderType::EVIO_FILE, order, 0, 0,
                          dictionary, firstEvent, 10, compType, 2, addTrailerIndex, 16);
         writer1.open(finalFilename1);
@@ -354,8 +353,7 @@ public:
 
         // Doing a diff between files shows they're identical!
 
-        cout << "Finished writing files " << fileName << " + .1, .2" << endl;
-        cout << "Now read file " << fileName << " + .1, .2" << endl;
+        cout << "Finished writing files " << fileName << ", now read it in" << endl;
 
         Reader reader1(finalFilename1);
 
@@ -518,6 +516,7 @@ public:
 
 int main(int argc, char **argv) {
     ReadWriteTest::testFile();
+    ReadWriteTest::testFileMT();
     return 0;
 }
 
