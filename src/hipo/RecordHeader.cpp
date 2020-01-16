@@ -46,7 +46,6 @@ RecordHeader::RecordHeader(const HeaderType & type) {
  * @param ent   number of events
  */
 RecordHeader::RecordHeader(long pos, int len, int ent) {
-    headerType = HeaderType::EVIO_FILE;
     reset();
     compressionType = Compressor::UNCOMPRESSED;
     bitInfoInit();
