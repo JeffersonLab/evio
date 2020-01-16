@@ -865,7 +865,8 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
     size_t recordLengthsBytes = 4*recordLengths.size();
     auto recordIndex = new uint8_t[recordLengthsBytes];
 
-    // Transform ints to bytes in local endian. It'll be swapped below in writeTrailer().
+    // Transform ints to bytes in local endian.
+    // It'll be swapped below in RecordHeader::writeTrailer().
     for (int i = 0; i < recordLengths.size(); i++) {
         Util::toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
 //cout << "Writing record length = " << recordLengths[i] << showbase << hex <<
