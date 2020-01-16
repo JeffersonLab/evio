@@ -167,7 +167,7 @@ public:
                           uint32_t maxEventCount = 1000000,
                           uint32_t maxBufferSize = 8*ONE_MEG,
                           Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
-                          HeaderType hType = HeaderType::HIPO_RECORD);
+                          HeaderType hType = HeaderType::EVIO_RECORD);
 
     RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
                  Compressor::CompressionType compressionType, HeaderType hType);
