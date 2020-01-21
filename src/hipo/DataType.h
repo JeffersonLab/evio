@@ -1,16 +1,15 @@
-/*
- * Copyright (c) 2019, Jefferson Science Associates, all rights reserved.
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
  *
  * Thomas Jefferson National Accelerator Facility
  * Data Acquisition Group
  *
- * 12000 Jefferson Ave, Newport News, VA 23606
+ * 12000, Jefferson Ave, Newport News, VA 23606
  * Phone : (757)-269-7100
+ *
+ * @date 04/10/2019
+ * @author timmer
  */
-
-//
-// Created by timmer on 4/10/19.
-//
 
 #ifndef EVIO_6_0_DATATYPE_H
 #define EVIO_6_0_DATATYPE_H
@@ -18,6 +17,10 @@
 #include <string>
 
 using std::string;
+
+
+namespace evio {
+
 
 /**
  * Numerical values associated with evio data types.
@@ -52,7 +55,7 @@ public:
     static const DataType COMPOSITE;
     static const DataType BANK;
     static const DataType SEGMENT;
-    
+
     // These types are only used when dealing with COMPOSITE data.
     // They are never transported independently and are stored in integers.
     static const DataType HOLLERIT;
@@ -204,6 +207,8 @@ public:
 
     bool operator!=(const DataType &rhs) const;
 };
+
+}
 
 
 #endif //EVIO_6_0_DATATYPE_H

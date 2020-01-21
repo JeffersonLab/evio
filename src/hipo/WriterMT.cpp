@@ -1,9 +1,20 @@
-//
-// Created by Carl Timmer on 2019-05-13.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 05/13/2019
+ * @author timmer
+ */
 
 #include "WriterMT.h"
 
+
+namespace evio {
 
 
 /**
@@ -12,8 +23,8 @@
  * 1M max event count and 8M max buffer size.
  */
 WriterMT::WriterMT() :
-    WriterMT(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LITTLE, 0, 0,
-             "", nullptr, 0, Compressor::LZ4, 1, true, 16) {
+        WriterMT(HeaderType::EVIO_FILE, ByteOrder::ENDIAN_LITTLE, 0, 0,
+                 "", nullptr, 0, Compressor::LZ4, 1, true, 16) {
 }
 
 
@@ -31,8 +42,8 @@ WriterMT::WriterMT() :
  */
 WriterMT::WriterMT(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                    Compressor::CompressionType compType, uint32_t compressionThreads) :
-    WriterMT(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize, "", nullptr, 0,
-             compType, compressionThreads, true, 16) {
+        WriterMT(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize, "", nullptr, 0,
+                 compType, compressionThreads, true, 16) {
 }
 
 
@@ -107,7 +118,7 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
 
     if (finalRingSize != ringSize) {
         cout << "WriterMT: started w/ ring size = " << ringSize <<
-        ", change to " << finalRingSize << endl;
+             ", change to " << finalRingSize << endl;
     }
 
     supply = std::make_shared<RecordSupply>(finalRingSize, byteOrder,
@@ -152,8 +163,8 @@ WriterMT::WriterMT(string & filename) : WriterMT() {
  */
 WriterMT::WriterMT(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                    Compressor::CompressionType compType, uint32_t compressionThreads) :
-         WriterMT(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize,
-                  "", nullptr, 0, compType, compressionThreads, true, 4) {
+        WriterMT(HeaderType::EVIO_FILE, order, maxEventCount, maxBufferSize,
+                 "", nullptr, 0, compType, compressionThreads, true, 4) {
 
     open(filename);
 }
@@ -278,19 +289,19 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     // User header given as arg has precedent
     if (userHdr != nullptr) {
         haveUserHeader = true;
-cout << "writerMT::open: given a valid user header to write" << endl;
+        cout << "writerMT::open: given a valid user header to write" << endl;
         fileHeaderBuffer = createHeader(userHdr, userLen);
     }
     else {
         // If dictionary & firstEvent not defined and user header not given ...
         if (dictionaryFirstEventBuffer.remaining() < 1) {
-cout << "writerMT::open: given a null user header to write, userLen = " << userLen <<  endl;
+            cout << "writerMT::open: given a null user header to write, userLen = " << userLen <<  endl;
             fileHeaderBuffer = createHeader(nullptr, 0);
         }
-        // else place dictionary and/or firstEvent into
-        // record which becomes user header
+            // else place dictionary and/or firstEvent into
+            // record which becomes user header
         else {
-cout << "writerMT::open: given a valid dict/first ev header to write" << endl;
+            cout << "writerMT::open: given a valid dict/first ev header to write" << endl;
             fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
         }
     }
@@ -349,7 +360,7 @@ ByteBuffer WriterMT::createDictionaryRecord() {
  */
 ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
 
-cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
+    cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
 
     // Amount of user data in bytes
     int userHeaderBytes = 0;
@@ -365,13 +376,13 @@ cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
     }
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
-cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
+    cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
     uint32_t totalLen = fileHeader.getLength();
     ByteBuffer buf(totalLen);
     buf.order(byteOrder);
 
     try {
-cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
+        cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
         fileHeader.writeHeader(buf, 0);
     }
     catch (HipoException & e) {/* never happen */}
@@ -401,7 +412,7 @@ ByteBuffer WriterMT::createHeader(ByteBuffer & userHdr) {
     int userHeaderBytes = userHdr.remaining();
     fileHeader.reset();
     cout << "WriterMT::createHeader: haveFirstEv = " << haveFirstEvent << ", have Dict = " << haveDictionary <<
-    ", add Trailer w/ index = " << addTrailerIndex << endl;
+         ", add Trailer w/ index = " << addTrailerIndex << endl;
     if (haveUserHeader) {
         fileHeader.setBitInfo(false, false, addTrailerIndex);
     }
@@ -734,4 +745,6 @@ void WriterMT::close() {
     ringItem = nullptr;
     closed = true;
     opened = false;
+}
+
 }

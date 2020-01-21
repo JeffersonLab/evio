@@ -1,12 +1,22 @@
-//
-// Created by Carl Timmer on 2019-04-25.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/25/2019
+ * @author timmer
+ */
 
 #include "FileEventIndex.h"
 
 using namespace std;
 
 
+namespace evio {
 
 
 /** Clear the entire object. */
@@ -171,7 +181,7 @@ bool FileEventIndex::setEvent(uint32_t event) {
     bool hasRecordChanged = true;
     if (event >= getMaxEvents()) {
         cout << "[record-index] ** error ** can't change event to " <<
-                event << ". Choose value [ 0 - " << (getMaxEvents()-1) << " ]" << endl;
+             event << ". Choose value [ 0 - " << (getMaxEvents()-1) << " ]" << endl;
         return false;
     }
 
@@ -241,5 +251,7 @@ int FileEventIndex::main(int argc, char **argv) {
     }
 
     return 0;
+}
+
 }
 

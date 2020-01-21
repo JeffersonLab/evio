@@ -1,6 +1,15 @@
-//
-// Created by timmer on 7/22/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 07/22/2019
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_EVIONODE_H
 #define EVIO_6_0_EVIONODE_H
@@ -16,10 +25,23 @@
 #include "RecordNode.h"
 #include "EvioException.h"
 
+
+namespace evio {
+
+
 // Forward declaration to fix chicken-egg problem in compilation
 class EvioNodeSource;
 
 
+/**
+ * This class is used to store relevant info about an evio container
+ * (bank, segment, or tag segment), without having
+ * to de-serialize it into many objects and arrays.
+ * It is not thread-safe and is designed for speed.
+ *
+ * @author timmer
+ * @date 07/22/2019
+ */
 class EvioNode {
 
 private:
@@ -142,18 +164,18 @@ public:
 
     static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position);
     static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
-                                                        RecordNode & recNode,
-                                                        uint32_t position, uint32_t place);
+                                                      RecordNode & recNode,
+                                                      uint32_t position, uint32_t place);
     static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
-                                                        EvioNodeSource & pool,
-                                                        RecordNode & recNode,
-                                                        uint32_t position, uint32_t place);
+                                                      EvioNodeSource & pool,
+                                                      RecordNode & recNode,
+                                                      uint32_t position, uint32_t place);
     static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
-                                                        uint32_t recPosition,
-                                                        uint32_t position, uint32_t place);
+                                                      uint32_t recPosition,
+                                                      uint32_t position, uint32_t place);
     static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
-                                                        uint32_t recPosition, uint32_t position,
-                                                        uint32_t place);
+                                                      uint32_t recPosition, uint32_t position,
+                                                      uint32_t place);
 
     EvioNode & operator=(const EvioNode& other);
     bool operator==(const EvioNode& src) const;
@@ -211,9 +233,8 @@ public:
     void getLongData(vector<uint64_t> & longData);
     void getShortData(vector<uint16_t> & shortData);
     ByteBuffer & getStructureBuffer(ByteBuffer & dest, bool copy);
+};
 
-
-
-    };
+}
 
 #endif //EVIO_6_0_EVIONODE_H

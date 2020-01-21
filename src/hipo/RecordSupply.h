@@ -1,6 +1,15 @@
-//
-// Created by timmer on 11/5/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 11/05/2019
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_RECORDSUPPLY_H
 #define EVIO_6_0_RECORDSUPPLY_H
@@ -11,7 +20,6 @@
 #include <atomic>
 #include <mutex>
 
-//#include "disruptor.h"
 #include "ByteOrder.h"
 #include "Compressor.h"
 #include "RecordRingItem.h"
@@ -23,6 +31,73 @@
 #include "Disruptor/ISequenceBarrier.h"
 #include "Disruptor/TimeoutException.h"
 
+
+namespace evio {
+
+
+/**
+ * This thread-safe, lock-free class is used to provide a very fast supply
+ * of RecordRingItems which are reused (using Disruptor software package).<p>
+ *
+ * It is a supply of RecordRingItems in which a single producer does a {@link #get()},
+ * fills the record with data, and finally does a {@link #publish(RecordRingItem)}
+ * to let consumers know the data is ready.<p>
+ *
+ * This class is setup to handle 2 types of consumers.
+ * The first type is a thread which compresses a record's data.
+ * The number of such consumers is set in the constructor.
+ * Each of these will call {@link #getToCompress(int)} to get a record
+ * and eventually call {@link #releaseCompressor(RecordRingItem)} to indicate it is
+ * finished compressing and the record is available for writing to disk.<p>
+ *
+ * The second type of consumer is a single thread which writes all compressed
+ * records to a file. This will call {@link #getToWrite()} to get a record
+ * and eventually call {@link #releaseWriter(RecordRingItem)} to indicate it is
+ * finished writing and the record is available for being filled with new data.<p>
+ *
+ * Due to the multithreaded nature of writing files using this class, a mechanism
+ * for reporting errors that occur in the writing and compressing threads is provided.
+ * Also, and probably more importantly, one can call errorAlert() to notify any
+ * compression or write threads that an error has occurred. That way these threads
+ * can clean up and exit.<p>
+ *
+ * It transparently makes sure that all records are written in the proper order.
+ *
+ * <pre><code>
+ *
+ *   This is a graphical representation of how our ring buffer is set up.
+ *
+ *   (1) The producer who calls get() will get a ring item allowing a record to be
+ *       filled. That same user does a publish() when done with the record.
+ *
+ *   (2) The consumer who calls getToCompress() will get that ring item and will
+ *       compress its data. There may be any number of compression threads
+ *       as long as <b># threads <= # of ring items!!!</b>.
+ *       That same user does a releaseCompressor() when done with the record.
+ *
+ *   (3) The consumer who calls getToWrite() will get that ring item and will
+ *       write its data to a file or another buffer. There may be only 1
+ *       such thread. This same user does a releaseWriter() when done with the record.
+ *
+ *                       ||
+ *                       ||  writeBarrier
+ *           >           ||
+ *         /            _____
+ *    Write thread     /  |  \
+ *              --->  /1 _|_ 2\  <---- Compression Threads 1-M
+ *  ================ |__/   \__|               |
+ *                   |6 |   | 3|               V
+ *             ^     |__|___|__| ==========================
+ *             |      \ 5 | 4 /       compressBarrier
+ *         Producer->  \__|__/
+ *
+ *
+ * </code></pre>
+ *
+ * @version 6.0
+ * @since 6.0 11/5/19
+ * @author timmer
+ */
 class RecordSupply {
 
 private:
@@ -159,6 +234,8 @@ public:
     void setDiskFull(bool full);
 
 };
+
+}
 
 
 #endif //EVIO_6_0_RECORDSUPPLY_H

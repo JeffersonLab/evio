@@ -1,6 +1,15 @@
-//
-// Created by timmer on 4/9/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/09/2019
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_RECORDOUTPUT_H
 #define EVIO_6_0_RECORDOUTPUT_H
@@ -16,6 +25,10 @@
 #include "RecordHeader.h"
 #include "FileHeader.h"
 #include "Compressor.h"
+
+
+namespace evio {
+
 
 /**
  * Class which handles the creation and use of Evio & HIPO Records.<p>
@@ -229,6 +242,8 @@ public:
     void build(ByteBuffer & userHeader);
 
 };
+
+}
 
 
 #endif //EVIO_6_0_RECORDOUTPUT_H

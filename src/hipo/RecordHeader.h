@@ -1,11 +1,14 @@
-/*
- * Copyright (c) 2019, Jefferson Science Associates, all rights reserved.
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
  *
  * Thomas Jefferson National Accelerator Facility
  * Data Acquisition Group
  *
- * 12000 Jefferson Ave, Newport News, VA 23606
+ * 12000, Jefferson Ave, Newport News, VA 23606
  * Phone : (757)-269-7100
+ *
+ * @date 04/09/2019
+ * @author timmer
  */
 
 
@@ -29,6 +32,11 @@
 #include "Util.h"
 
 using std::string;
+
+
+
+namespace evio {
+
 
 /**
  * <pre>
@@ -408,6 +416,8 @@ public:
     int main(int argc, char **argv);
 
 };
+
+}
 
 
 #endif //EVIO_6_0_RECORDHEADER_H

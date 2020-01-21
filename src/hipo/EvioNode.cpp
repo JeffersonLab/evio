@@ -1,20 +1,21 @@
-//
-// Created by timmer on 7/22/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 07/22/2019
+ * @author timmer
+ */
 
 #include "EvioNode.h"
 #include "EvioNodeSource.h"
 
 
-/**
- * This class is used to store relevant info about an evio container
- * (bank, segment, or tag segment), without having
- * to de-serialize it into many objects and arrays.
- * It is not thread-safe and is designed for speed.
- *
- * @author timmer
- * Date: 11/13/12
- */
+namespace evio {
 
 
 // Put this here instead of all by itself in a EvioNodeSource.cpp file.
@@ -461,9 +462,9 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
 * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
 */
 std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
-                                      EvioNodeSource & pool,
-                                      RecordNode & recNode,
-                                      uint32_t position, uint32_t place) {
+                                                     EvioNodeSource & pool,
+                                                     RecordNode & recNode,
+                                                     uint32_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
     if (buffer.remaining() < 8) {
@@ -497,8 +498,8 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
  */
 std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
-                                      uint32_t recPosition,
-                                      uint32_t position, uint32_t place) {
+                                                     uint32_t recPosition,
+                                                     uint32_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
     if (buffer.remaining() < 8) {
@@ -529,7 +530,7 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
   * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
   */
 std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
-                                      uint32_t recPosition, uint32_t position, uint32_t place) {
+                                                     uint32_t recPosition, uint32_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
     if (buffer.remaining() < 8) {
@@ -558,7 +559,7 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer, EvioNo
  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
  */
 std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position) {
-cout << "        1" << endl;
+    cout << "        1" << endl;
     // Make sure there is enough data to at least read evio header
     ByteBuffer & buffer = bankNode->buffer;
     if (buffer.remaining() < 8) {
@@ -1414,5 +1415,7 @@ ByteBuffer & EvioNode::getStructureBuffer(ByteBuffer & dest, bool copy) {
     }
     dest.limit(dataPos + 4 * dataLen).position(pos);
     return dest;
+}
+
 }
 

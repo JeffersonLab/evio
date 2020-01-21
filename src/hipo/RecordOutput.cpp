@@ -1,9 +1,20 @@
-//
-// Created by timmer on 4/9/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/09/2019
+ * @author timmer
+ */
 
 #include "RecordOutput.h"
 
+
+namespace evio {
 
 
 /** Default, no-arg constructor. Little endian. No compression. */
@@ -24,7 +35,7 @@ RecordOutput::RecordOutput() :
  */
 RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                            Compressor::CompressionType compressionType, HeaderType hType) :
-                                recordIndex(MAX_EVENT_COUNT * 4)  {
+        recordIndex(MAX_EVENT_COUNT * 4)  {
 
     try {
         if (hType.isEvioFileHeader()) {
@@ -68,7 +79,7 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
  */
 RecordOutput::RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
                            Compressor::CompressionType compressionType, HeaderType hType) :
-                                recordIndex(MAX_EVENT_COUNT * 4)  {
+        recordIndex(MAX_EVENT_COUNT * 4)  {
 
     try {
         if (hType.isEvioFileHeader()) {
@@ -813,7 +824,7 @@ void RecordOutput::build() {
         recordData.put( recordIndex.array(), 0, indexSize);
         recordData.put(recordEvents.array(), 0, eventSize);
     }
-    // If NOT compressing data ...
+        // If NOT compressing data ...
     else {
 //cout << "build: recordBinary len = " << userBufferSize <<
 //        ", start pos = " << startingPosition << ", data to write = " <<
@@ -995,7 +1006,7 @@ void RecordOutput::build(ByteBuffer & userHeader) {
         // Uncompressed data length is NOT padded, but the record length is.
         uncompressedDataSize += eventSize;
     }
-    // If NOT compressing data ...
+        // If NOT compressing data ...
     else {
         // Write directly into final buffer, past where header will go
         recordBinary.clear();
@@ -1035,7 +1046,7 @@ void RecordOutput::build(ByteBuffer & userHeader) {
                 header.setCompressedDataLength(compressedSize);
                 // Length of entire record in bytes (don't forget padding!)
                 header.setLength(4*header.getCompressedDataLengthWords() +
-                                         RecordHeader::HEADER_SIZE_BYTES);
+                                 RecordHeader::HEADER_SIZE_BYTES);
                 break;
 
             case 2:
@@ -1091,4 +1102,6 @@ void RecordOutput::build(ByteBuffer & userHeader) {
 
     // Make ready to read
     recordBinary.limit(startingPosition + header.getLength()).position(0);
+}
+
 }

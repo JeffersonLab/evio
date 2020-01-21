@@ -1,19 +1,27 @@
-//
-// Created by Carl Timmer on 2019-04-29.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/29/2019
+ * @author timmer
+ */
 
 #include "Compressor.h"
 
 
-/**
- * Singleton class used to provide data compression and decompression in a variety of formats.
- * @author timmer
- */
+namespace evio {
+
 
 #ifdef USE_GZIP
-z_stream Compressor::strmDeflate;
-z_stream Compressor::strmInflate;
+    z_stream Compressor::strmDeflate;
+    z_stream Compressor::strmInflate;
 #endif
+
 
 Compressor::Compressor() {
     setUpCompressionHardware();
@@ -505,7 +513,7 @@ int Compressor::compressLZ4(uint8_t* src, int srcOff, int srcSize,
     }
 
     int size = LZ4_compress_fast((const char*)(src + srcOff), (char*)(dst + dstOff),
-                                  srcSize, maxSize, lz4Acceleration);
+                                 srcSize, maxSize, lz4Acceleration);
     if (size < 1) {
         throw HipoException("compression failed");
     }
@@ -626,7 +634,7 @@ int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
     }
 
     int size = LZ4_compress_HC((const char*)(src.array() + srcOff),
-                                 (char*)(dst.array() + dstOff),
+                               (char*)(dst.array() + dstOff),
                                srcSize, maxSize, 1);
     if (size < 1) {
         throw HipoException("compression failed");
@@ -729,11 +737,13 @@ int Compressor::uncompressLZ4(uint8_t src[], int srcOff, int srcSize, uint8_t ds
                               int dstOff, int dstCapacity) {
 
     int size = LZ4_decompress_safe((const char*)(src + srcOff),
-                                     (char*)(dst + dstOff),
-                                     srcSize, dstCapacity);
+                                   (char*)(dst + dstOff),
+                                   srcSize, dstCapacity);
     if (size < 0) {
         throw HipoException("destination buffer too small or data malformed");
     }
 
     return size;
+}
+
 }

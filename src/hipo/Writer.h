@@ -1,6 +1,15 @@
-//
-// Created by Carl Timmer on 2019-05-06.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 11/05/2019
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_WRITER_H
 #define EVIO_6_0_WRITER_H
@@ -23,6 +32,10 @@
 #include "RecordHeader.h"
 #include "Compressor.h"
 #include "Util.h"
+
+
+namespace evio {
+
 
 /**
  * Class to write Evio-6.0/HIPO files.
@@ -181,17 +194,17 @@ public:
     void open(ByteBuffer & buf,  uint8_t* userHdr, uint32_t len);
 
     static ByteBuffer createRecord(const string & dictionary,
-                                     uint8_t* firstEvent, uint32_t firstEventLen,
-                                     const ByteOrder & byteOrder,
-                                     FileHeader* fileHeader,
-                                     RecordHeader* recordHeader);
+                                   uint8_t* firstEvent, uint32_t firstEventLen,
+                                   const ByteOrder & byteOrder,
+                                   FileHeader* fileHeader,
+                                   RecordHeader* recordHeader);
 
     //ByteBuffer & createHeader(uint8_t* userHeader, size_t len);
     ByteBuffer createHeader(uint8_t* userHdr, uint32_t userLen);
     ByteBuffer createHeader(ByteBuffer & userHdr);
     void createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen);
     void createHeader(ByteBuffer & buf, ByteBuffer & userHdr);
-        //ByteBuffer & createHeader(ByteBuffer & userHeader);
+    //ByteBuffer & createHeader(ByteBuffer & userHeader);
 
     void writeRecord(RecordOutput & record);
 
@@ -212,6 +225,7 @@ private:
 
 };
 
+}
 
 
 #endif //EVIO_6_0_WRITER_H

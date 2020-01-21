@@ -1,21 +1,22 @@
-/*
- * Copyright (c) 2019, Jefferson Science Associates, all rights reserved.
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
  *
  * Thomas Jefferson National Accelerator Facility
  * Data Acquisition Group
  *
- * 12000 Jefferson Ave, Newport News, VA 23606
+ * 12000, Jefferson Ave, Newport News, VA 23606
  * Phone : (757)-269-7100
+ *
+ * @date 04/09/2019
+ * @author timmer
  */
-
-//
-// Created by timmer on 4/9/19.
-//
-
 
 #include "RecordHeader.h"
 
 using namespace std;
+
+
+namespace evio {
 
 
 /** Set static array to help find number of bytes to pad data. */
@@ -451,8 +452,8 @@ uint32_t RecordHeader::generateSixthWord(uint32_t version, bool hasDictionary,
   * @return generated sixth word of this header.
   */
 uint32_t RecordHeader::generateSixthWord(std::bitset<24> const & set,
-                                        uint32_t version, bool hasDictionary,
-                                        bool isEnd, uint32_t eventType) {
+                                         uint32_t version, bool hasDictionary,
+                                         bool isEnd, uint32_t eventType) {
     uint32_t v = version; // version
 
     for (int i=0; i < set.size(); i++) {
@@ -1158,13 +1159,13 @@ string RecordHeader::toString() const {
     ss << setw(24) << "" << "   :     bytes,     words,    padding" << endl;
 
     ss << setw(24) << "user header length" << "   : " << setw(8) << userHeaderLength <<
-          setw(10) << userHeaderLengthWords << setw(10) << userHeaderLengthPadding << endl;
+       setw(10) << userHeaderLengthWords << setw(10) << userHeaderLengthPadding << endl;
     ss << setw(24) << "uncompressed header length" << " : " << setw(8) << dataLength <<
-          setw(10) << dataLengthWords << setw(10) << dataLengthPadding << endl;
+       setw(10) << dataLengthWords << setw(10) << dataLengthPadding << endl;
     ss << setw(24) << "record length" << "   : " << setw(8) << recordLength <<
-          setw(10) << recordLengthWords << endl;
+       setw(10) << recordLengthWords << endl;
     ss << setw(24) << "compressed length" << "   : " << setw(8) << compressedDataLength <<
-          setw(10) << compressedDataLengthWords << setw(10) << compressedDataLengthPadding << endl;
+       setw(10) << compressedDataLengthWords << setw(10) << compressedDataLengthPadding << endl;
 
     ss << setw(24) << "header length" << "   : " << headerLength << endl;
     ss << setw(24) << "index length"  << "   : " << indexLength << endl;
@@ -1232,24 +1233,24 @@ uint32_t RecordHeader::getEventType() const {return eventType;}
  */
 string RecordHeader::eventTypeToString() const {
     switch (eventType) {
-            case 0:
-                return "ROC Raw";
-            case 1:
-                return "Physics";
-            case 2:
-                return "Partial Physics";
-            case 3:
-                return "Disentangled";
-            case 4:
-                return "User";
-            case 5:
-                return "Control";
-            case 15:
-                return "Other";
-            default:
-                return "Unknown";
-        }
+        case 0:
+            return "ROC Raw";
+        case 1:
+            return "Physics";
+        case 2:
+            return "Partial Physics";
+        case 3:
+            return "Disentangled";
+        case 4:
+            return "User";
+        case 5:
+            return "Control";
+        case 15:
+            return "Other";
+        default:
+            return "Unknown";
     }
+}
 
 /**
  * Write myself out into a byte buffer. This write is relative--i.e.,
@@ -1364,5 +1365,7 @@ int RecordHeader::main(int argc, char **argv) {
     }
 
     return 0;
+}
+
 }
 

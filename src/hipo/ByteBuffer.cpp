@@ -1,17 +1,21 @@
-//
-// Created by Carl Timmer on 2019-04-18.
-//
+/**
+ * Copyright (c) 2018, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/18/2018
+ * @author timmer
+ */
 
 #include "ByteBuffer.h"
 
-/*
-When do you HAVE TO use member Initializer list?
-You will be forced to use a Member Initializer list if:
 
-Your class has a reference member
-Your class has a const member or
-Your class doesn't have a default constructor
-*/
+namespace evio {
+
 
 /**
  * Default constructor, size of 4096 bytes.
@@ -26,7 +30,6 @@ ByteBuffer::ByteBuffer() : ByteBuffer(4096) {}
 ByteBuffer::ByteBuffer(size_t size) {
 
     buf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
-//    std::memset(buf.get(),0, size);
     cap = size;
     clear();
 
@@ -162,6 +165,14 @@ void ByteBuffer::copy(const ByteBuffer & srcBuf) {
         memcpy((void *) buf.get(), (const void *) srcBuf.buf.get(), cap);
     }
 }
+
+
+/**
+ * This method writes zeroes into the buffer memory.
+ * Although this method does not exist in the original Java ByteBuffer class,
+ * in Java, all objects have their memory zeroed so this may be useful.
+ */
+ByteBuffer & ByteBuffer::zero() {std::memset(buf.get(), 0, cap);}
 
 
 /**
@@ -1045,7 +1056,7 @@ ByteBuffer & ByteBuffer::put(const ByteBuffer & src) {
  *
  * @throws  HipoException if insufficient space in this buffer
  */
- ByteBuffer & ByteBuffer::put(const uint8_t* src, size_t offset, size_t length) {
+ByteBuffer & ByteBuffer::put(const uint8_t* src, size_t offset, size_t length) {
     // check args
     if (length > remaining()) {
         throw HipoException("buffer overflow");
@@ -1373,3 +1384,6 @@ void ByteBuffer::printBytes(size_t offset, size_t bytes, string const & label) {
     }
     cout << endl << endl;
 }
+
+
+} // namespace evio

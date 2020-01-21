@@ -1,16 +1,20 @@
-//
-// Created by timmer on 9/20/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/20/2019
+ * @author timmer
+ */
 
 #include "HeaderType.h"
 
 
-/**
- * This class is used to hold methods of HeaderType class.
- *
- * @author timmer
- * Date: 9/20/2019
- */
+namespace evio {
 
 
 bool HeaderType::operator==(const HeaderType &rhs) const {
@@ -56,20 +60,22 @@ std::string HeaderType::names[16] =
          "HIPO_FILE",
          "HIPO_FILE_EXTENDED",
          "HIPO_TRAILER",
-         // Line of unused elements, just fill with unknown
+                // Line of unused elements, just fill with unknown
          "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN",
          "UNKNOWN"};
 
 HeaderType HeaderType::intToType[16] =
-       {HeaderType::EVIO_RECORD,
-        HeaderType::EVIO_FILE,
-        HeaderType::EVIO_FILE_EXTENDED,
-        HeaderType::EVIO_TRAILER,
-        HeaderType::HIPO_RECORD,
-        HeaderType::HIPO_FILE,
-        HeaderType::HIPO_FILE_EXTENDED,
-        HeaderType::HIPO_TRAILER,
-        // 2 Lines of unused elements, just fill with unknown
-        HeaderType::UNKNOWN, HeaderType::UNKNOWN, HeaderType::UNKNOWN, HeaderType::UNKNOWN,
-        HeaderType::UNKNOWN, HeaderType::UNKNOWN, HeaderType::UNKNOWN,
-        HeaderType::UNKNOWN};
+        {HeaderType::EVIO_RECORD,
+         HeaderType::EVIO_FILE,
+         HeaderType::EVIO_FILE_EXTENDED,
+         HeaderType::EVIO_TRAILER,
+         HeaderType::HIPO_RECORD,
+         HeaderType::HIPO_FILE,
+         HeaderType::HIPO_FILE_EXTENDED,
+         HeaderType::HIPO_TRAILER,
+                // 2 Lines of unused elements, just fill with unknown
+         HeaderType::UNKNOWN, HeaderType::UNKNOWN, HeaderType::UNKNOWN, HeaderType::UNKNOWN,
+         HeaderType::UNKNOWN, HeaderType::UNKNOWN, HeaderType::UNKNOWN,
+         HeaderType::UNKNOWN};
+
+}

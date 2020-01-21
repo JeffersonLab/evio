@@ -1,6 +1,15 @@
-//
-// Created by Carl Timmer on 2019-05-13.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 05/13/2019
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_WRITERMT_H
 #define EVIO_6_0_WRITERMT_H
@@ -30,6 +39,10 @@
 #include "Disruptor/Util.h"
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
+
+
+namespace evio {
+
 
 /**
  * Class to write Evio/HIPO files only (not to buffers).
@@ -120,7 +133,7 @@ private:
         void run() {
             try {
                 while (true) {
-cout << "   Compressor " << threadNumber << ": try getting record to compress" << endl;
+                    cout << "   Compressor " << threadNumber << ": try getting record to compress" << endl;
 
                     // Get the next record for this thread to compress
                     auto item = supply->getToCompress(threadNumber);
@@ -136,7 +149,7 @@ cout << "   Compressor " << threadNumber << ": try getting record to compress" <
                         // Fortunately for us, the record # is also the sequence # + 1 !
                         header.setRecordNumber((uint32_t) (item->getSequence() + 1L));
                         header.setCompressionType(compressionType);
-cout << "   Compressor " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
+                        cout << "   Compressor " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
                         // Do compression
                         record->build();
                         const ByteBuffer & buf = record->getBinaryBuffer();
@@ -239,7 +252,7 @@ cout << "   Compressor " << threadNumber << ": got record, set rec # to " << hea
             try {
                 while (true) {
 
-cout << "   RecordWriter: try getting record to write" << endl;
+                    cout << "   RecordWriter: try getting record to write" << endl;
                     // Get the next record for this thread to write
                     auto item = supply->getToWrite();
 
@@ -261,7 +274,7 @@ cout << "   RecordWriter: try getting record to write" << endl;
                         writer->writerBytesWritten += bytesToWrite;
 
                         const ByteBuffer &buf = record->getBinaryBuffer();
- cout << "   RecordWriter: use outFile to write file, buf pos = " << buf.position() <<
+                        cout << "   RecordWriter: use outFile to write file, buf pos = " << buf.position() <<
                              ", lim = " << buf.limit() << ", bytesToWrite = " << bytesToWrite << endl;
                         writer->outFile.write(reinterpret_cast<const char *>(buf.array()), bytesToWrite);
                         if (writer->outFile.fail()) {
@@ -382,17 +395,17 @@ public:
              Compressor::CompressionType compType, uint32_t compressionThreads);
 
     explicit WriterMT(
-             const HeaderType & hType,
-             const ByteOrder & order = ByteOrder::ENDIAN_LITTLE,
-             uint32_t maxEventCount = 0,
-             uint32_t maxBufferSize = 0,
-             const string & dictionary = "",
-             uint8_t* firstEvent = nullptr,
-             uint32_t firstEventLen = 0,
-             Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
-             uint32_t compressionThreads = 1,
-             bool addTrailerIndex = false,
-             uint32_t ringSize = 16);
+            const HeaderType & hType,
+            const ByteOrder & order = ByteOrder::ENDIAN_LITTLE,
+            uint32_t maxEventCount = 0,
+            uint32_t maxBufferSize = 0,
+            const string & dictionary = "",
+            uint8_t* firstEvent = nullptr,
+            uint32_t firstEventLen = 0,
+            Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
+            uint32_t compressionThreads = 1,
+            bool addTrailerIndex = false,
+            uint32_t ringSize = 16);
 
     explicit WriterMT(string & filename);
 
@@ -441,6 +454,8 @@ public:
     void close();
 
 };
+
+}
 
 
 #endif //EVIO_6_0_WRITERMT_H

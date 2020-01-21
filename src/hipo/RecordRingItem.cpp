@@ -1,14 +1,27 @@
-#include <memory>
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 11/05/2019
+ * @author timmer
+ */
 
-//
-// Created by timmer on 11/5/19.
-//
+#include <memory>
 
 #include "RecordRingItem.h"
 
-//--------------------------------
 
+namespace evio {
+
+
+//--------------------------------
 // STATIC INITIALIZATION
+//--------------------------------
 
 uint64_t RecordRingItem::idValue = 0ULL;
 
@@ -26,6 +39,8 @@ const std::function< std::shared_ptr<RecordRingItem> () >& RecordRingItem::event
     });
     return result;
 }
+
+// --------------------------------
 
 
 /** Method to set RecordRingItem parameters for objects created by eventFactory. */
@@ -283,3 +298,6 @@ uint64_t RecordRingItem::getId() {return id;}
  * @param id id number.
  */
 void RecordRingItem::setId(uint64_t idVal) {id = idVal;}
+
+
+}

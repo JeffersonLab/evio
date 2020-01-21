@@ -1,8 +1,20 @@
-//
-// Created by Carl Timmer on 2019-05-06.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 05/06/2019
+ * @author timmer
+ */
 
 #include "Writer.h"
+
+
+namespace evio {
 
 
 /**
@@ -114,7 +126,7 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order,
  * @param buf buffer in to which to write events and/or records.
  */
 Writer::Writer(ByteBuffer & buf) :
-    Writer(buf, 0, 0, "", nullptr, 0) {
+        Writer(buf, 0, 0, "", nullptr, 0) {
 }
 
 /**
@@ -233,7 +245,7 @@ Writer::Writer(ByteBuffer & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
  * @param other right side object.
  * @return left side object.
  */
-    Writer & Writer::operator=(const Writer& other) {
+Writer & Writer::operator=(const Writer& other) {
 
     // Avoid self assignment ...
     if (this != &other) {
@@ -440,19 +452,19 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     // User header given as arg has precedent
     if (userHdr != nullptr) {
         haveUserHeader = true;
-cout << "writer::open: given a valid user header to write" << endl;
+        cout << "writer::open: given a valid user header to write" << endl;
         fileHeaderBuffer = createHeader(userHdr, userLen);
     }
     else {
         // If dictionary & firstEvent not defined and user header not given ...
         if (dictionaryFirstEventBuffer.remaining() < 1) {
-cout << "writer::open: given a null user header to write, userLen = " << userLen <<  endl;
+            cout << "writer::open: given a null user header to write, userLen = " << userLen <<  endl;
             fileHeaderBuffer = createHeader(nullptr, 0);
         }
-        // else place dictionary and/or firstEvent into
-        // record which becomes user header
+            // else place dictionary and/or firstEvent into
+            // record which becomes user header
         else {
-cout << "writer::open: given a valid dict/first ev header to write" << endl;
+            cout << "writer::open: given a valid dict/first ev header to write" << endl;
             fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
         }
     }
@@ -580,7 +592,7 @@ ByteBuffer Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t 
     }
 
     if (firstEv != nullptr) {
-cout << "createRecord: add first event bytes " << firstEvLen << endl;
+        cout << "createRecord: add first event bytes " << firstEvLen << endl;
         bytes += firstEvLen;
     }
 
@@ -599,7 +611,7 @@ cout << "createRecord: add first event bytes " << firstEvLen << endl;
 
     // Add first event to record
     if (firstEv != nullptr) {
-cout << "createRecord: add first event to record" << endl;
+        cout << "createRecord: add first event to record" << endl;
         record.addEvent(firstEv, 0, firstEvLen);
         if (fileHdr   != nullptr)   fileHdr->hasFirstEvent(true);
         if (recordHdr != nullptr) recordHdr->hasFirstEvent(true);
@@ -949,7 +961,7 @@ void Writer::writeRecord(RecordOutput & rec) {
     if (toFile) {
         // Launch async write in separate thread.
         future = std::future<void>(
-                      std::async(std::launch::async,  // run in a separate thread
+                std::async(std::launch::async,  // run in a separate thread
                            staticWriteFunction, // function to run
                            this,                // arguments to function ...
                            reinterpret_cast<const char *>(rec.getBinaryBuffer().array()),
@@ -1234,4 +1246,6 @@ void Writer::close() {
     closed = true;
     opened = false;
 //cout << "[writer] ---> bytes written " << writerBytesWritten << endl;
+}
+
 }

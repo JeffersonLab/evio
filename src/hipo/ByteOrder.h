@@ -1,11 +1,14 @@
-/*
- * Copyright (c) 2019, Jefferson Science Associates, all rights reserved.
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
  *
  * Thomas Jefferson National Accelerator Facility
  * Data Acquisition Group
  *
- * 12000 Jefferson Ave, Newport News, VA 23606
+ * 12000, Jefferson Ave, Newport News, VA 23606
  * Phone : (757)-269-7100
+ *
+ * @date 09/20/2019
+ * @author timmer
  */
 
 
@@ -16,6 +19,9 @@
 #include <iostream>
 
 using std::string;
+
+
+namespace evio {
 
 
 /* Macros for swapping constant values in the preprocessing stage.
@@ -76,7 +82,7 @@ public:
 
     static const ByteOrder ENDIAN_LITTLE;
     static const ByteOrder ENDIAN_BIG;
-    
+
     static const ByteOrder ENDIAN_UNKNOWN;
     static const ByteOrder ENDIAN_LOCAL;
 
@@ -142,6 +148,7 @@ public:
 
     static void byteSwap(uint32_t *array, size_t elements);
 };
+}
 
 
 #endif //EVIO_6_0_BYTEORDER_H

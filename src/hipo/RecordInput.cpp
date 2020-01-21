@@ -1,8 +1,20 @@
-//
-// Created by timmer on 4/9/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/09/2019
+ * @author timmer
+ */
 
 #include "RecordInput.h"
+
+
+namespace evio {
 
 
 /** Default constructor. */
@@ -397,7 +409,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
     uncompressedEventsLength = 4*header.getDataLengthWords();
     // Everything except the header & don't forget padding:
     int neededSpace =   header.getIndexLength() +
-                      4*header.getUserHeaderLengthWords() +
+                        4*header.getUserHeaderLengthWords() +
                         uncompressedEventsLength;
 
     // Handle rare situation in which compressed data takes up more room
@@ -425,7 +437,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
         case 3:
             // GZIP
 #ifdef USE_GZIP
-        {
+            {
             file.read(reinterpret_cast<char *>(recordBuffer.array()), cLength);
             // size of destination buffer on entry, uncompressed bytes on exit
             uint32_t uncompLen = recordBuffer.capacity();
@@ -474,7 +486,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
  */
 void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
 
-cout << "readRecord: from buffer, IN" << endl;
+    cout << "readRecord: from buffer, IN" << endl;
 
     // This will switch buffer to proper byte order
     header.readHeader(buffer, offset);
@@ -493,7 +505,7 @@ cout << "readRecord: from buffer, IN" << endl;
     uncompressedEventsLength = 4*header.getDataLengthWords();
     // Everything except the header & don't forget padding:
     uint32_t neededSpace =  header.getIndexLength() +
-                          4*header.getUserHeaderLengthWords() +
+                            4*header.getUserHeaderLengthWords() +
                             uncompressedEventsLength;
 
     // Make room to handle all data to be read & uncompressed
@@ -610,7 +622,7 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
         case 2:
             // Read LZ4 compressed data
             Compressor::getInstance().uncompressLZ4(srcBuf, compressedDataOffset,
-                                     compressedDataLength, dstBuf);
+                                                    compressedDataLength, dstBuf);
             dstBuf.limit(dstBuf.capacity());
             break;
 
@@ -684,5 +696,7 @@ void RecordInput::showIndex() {
         cout << setw(3) << dataBuffer.getInt(i*4) << "  ";
     }
     cout << endl;
+}
+
 }
 

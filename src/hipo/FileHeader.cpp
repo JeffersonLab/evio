@@ -1,10 +1,21 @@
-//
-// Created by timmer on 4/9/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/09/2019
+ * @author timmer
+ */
 
 #include "FileHeader.h"
 #include "ByteBuffer.h"
 
+
+namespace evio {
 
 
 /** Set static array to help find number of bytes to pad data. */
@@ -645,7 +656,7 @@ string FileHeader::toString() const {
     ss << setw(24) << "file #" << " : " << fileNumber << ",  bytes,     words,    padding" << endl;
 
     ss << setw(24) << "user header length" << " : " << setw(8) << userHeaderLength << " / " <<
-          setw(8) << userHeaderLengthWords << " / " << setw(8) << userHeaderLengthPadding << endl;
+       setw(8) << userHeaderLengthWords << " / " << setw(8) << userHeaderLengthPadding << endl;
 
     ss << setw(24) << "header length"    << " : " << headerLength << endl;
     ss << hex;
@@ -666,6 +677,8 @@ string FileHeader::toString() const {
     ss << setw(24) << "user int #2"      << " : " << userIntSecond << endl;
 
     return ss.str();
+}
+
 }
 
 

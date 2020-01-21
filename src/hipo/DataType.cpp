@@ -1,8 +1,20 @@
-//
-// Created by timmer on 9/23/19.
-//
+/**
+ * Copyright (c) 2019, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 09/23/2019
+ * @author timmer
+ */
 
 #include "DataType.h"
+
+
+namespace evio {
 
 
 bool DataType::operator==(const DataType &rhs) const {
@@ -86,7 +98,7 @@ std::string DataType::names[37] =
          "COMPOSITE",
          "BANK",
 
-         // Unused, just fill with unknown
+                // Unused, just fill with unknown
          "UNKNOWN32", "UNKNOWN32", "UNKNOWN32", "UNKNOWN32", "UNKNOWN32",
          "UNKNOWN32", "UNKNOWN32", "UNKNOWN32", "UNKNOWN32", "UNKNOWN32",
          "UNKNOWN32", "UNKNOWN32", "UNKNOWN32", "UNKNOWN32", "UNKNOWN32",
@@ -96,7 +108,7 @@ std::string DataType::names[37] =
          "NVALUE",
          "nVALUE",
          "mVALUE"
-         };
+        };
 
 DataType DataType::intToType[37] =
         {DataType::UNKNOWN32,
@@ -126,3 +138,5 @@ DataType DataType::intToType[37] =
          DataType::NVALUE,
          DataType::nVALUE,
          DataType::mVALUE};
+
+}

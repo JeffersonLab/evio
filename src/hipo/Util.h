@@ -1,6 +1,15 @@
-//
-// Created by timmer on 1/2/20.
-//
+/**
+ * Copyright (c) 2020, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 11/02/2020
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_UTIL_H
 #define EVIO_6_0_UTIL_H
@@ -9,6 +18,9 @@
 #include "ByteOrder.h"
 #include <iostream>
 #include <iomanip>
+
+
+namespace evio {
 
 
 /**
@@ -73,7 +85,7 @@ public:
         cout << "pos = " << position << ", lim = " << buf.limit() << ", cap = " << buf.capacity() << ", bytes = " << bytes << endl;
 
         bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
-cout << "printing out " << bytes << " number of bytes" << endl;
+        cout << "printing out " << bytes << " number of bytes" << endl;
         if (label.size() > 0) cout << label << ":" << endl;
 
         for (int i=0; i < bytes; i++) {
@@ -92,6 +104,8 @@ cout << "printing out " << bytes << " number of bytes" << endl;
     }
 
 };
+
+}
 
 
 #endif //EVIO_6_0_UTIL_H
