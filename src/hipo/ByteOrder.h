@@ -24,18 +24,19 @@ using std::string;
 namespace evio {
 
 
-/* Macros for swapping constant values in the preprocessing stage.
- * Note, there's no sign extension for unsigned types. */
+/** Macro for swapping 16 bit types. */
 #define SWAP_16(x) \
     ((uint16_t)((((uint16_t)(x)) >> 8) | \
                 (((uint16_t)(x)) << 8)))
 
+/** Macro for swapping 32 bit types. */
 #define SWAP_32(x) \
     ((uint32_t)((((uint32_t)(x)) >> 24) | \
                 (((uint32_t)(x) & 0x00ff0000) >>  8) | \
                 (((uint32_t)(x) & 0x0000ff00) <<  8) | \
                 (((uint32_t)(x)) << 24)))
 
+/** Macro for swapping 64 bit types. */
 #define SWAP_64(x) \
     ((uint64_t)((((uint64_t)(x)) >> 56) | \
                 (((uint64_t)(x) & 0x00ff000000000000ULL) >> 40) | \
@@ -47,23 +48,20 @@ namespace evio {
                 (((uint64_t)(x)) << 56)))
 
 
-
-
-
-///* Read little-endian 16 bit unsigned integer */
+//Read little-endian 16 bit unsigned integer
 //#define READ_16LE(a) ( ((((unsigned char *) (a))[1]) <<  8) | \
 //                       ((((unsigned char *) (a))[0])) )
 //
-///* Read big-endian 16 bit unsigned integer */
+//Read big-endian 16 bit unsigned integer
 //#define READ_16BE(a) ( ((((unsigned char *) (a))[0]) <<  8) | \
 //                       ((((unsigned char *) (a)[1])) )
 //
-///* Read little-endian 32 bit unsigned integer */
+//Read little-endian 32 bit unsigned integer
 //#define READ_32LE(a) ( ((((unsigned char *) a)[3]) << 24) | \
 //                       ((((unsigned char *) a)[2]) << 16) | \
 //                       ((((unsigned char *) a)[1]) <<  8) | \
 //                       ((((unsigned char *) a)[0])) )
-///* Read big-endian 32 bit unsigned integer */
+//Read big-endian 32 bit unsigned integer
 //#define READ_32BE(a) ( ((((unsigned char *) a)[0]) << 24) | \
 //                       ((((unsigned char *) a)[1]) << 16) | \
 //                       ((((unsigned char *) a)[2]) <<  8) | \
