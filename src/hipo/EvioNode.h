@@ -141,17 +141,17 @@ public:
     static void scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & nodeSource);
 
     static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position);
-    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer,
+    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
                                                         RecordNode & recNode,
                                                         uint32_t position, uint32_t place);
-    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer,
+    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
                                                         EvioNodeSource & pool,
                                                         RecordNode & recNode,
                                                         uint32_t position, uint32_t place);
-    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer,
+    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
                                                         uint32_t recPosition,
                                                         uint32_t position, uint32_t place);
-    static std::shared_ptr<EvioNode> & extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
+    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
                                                         uint32_t recPosition, uint32_t position,
                                                         uint32_t place);
 
