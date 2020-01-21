@@ -406,6 +406,7 @@ public:
 private:
 
     ByteBuffer createDictionaryRecord();
+    void writeTrailer(bool writeIndex, uint32_t recordNum);
 
 public:
 
@@ -438,10 +439,6 @@ public:
 
     void reset();
     void close();
-
-private:
-
-    void writeTrailer(bool writeIndex, uint32_t recordNum);
 
 };
 

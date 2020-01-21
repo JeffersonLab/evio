@@ -156,7 +156,7 @@ public:
         ByteBuffer evioDataBuf = generateEvioBuffer(order);
         // Create node from this buffer
         std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
-        
+
         auto t1 = std::chrono::high_resolution_clock::now();
 
         while (true) {
