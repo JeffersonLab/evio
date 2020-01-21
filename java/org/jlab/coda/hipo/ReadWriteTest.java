@@ -9,7 +9,9 @@ package org.jlab.coda.hipo;
 
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.EvioNode;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
@@ -22,6 +24,7 @@ public class ReadWriteTest {
 
     /**
      * Write ints.
+     *
      * @param size number of INTS
      * @return byte array
      */
@@ -42,16 +45,16 @@ public class ReadWriteTest {
 
     /**
      * Write shorts.
-     * @param size number of SHORTS
+     *
+     * @param size  number of SHORTS
      * @param order byte order of shorts in memory
-     * @return
      */
     static byte[] generateSequentialShorts(int size, ByteOrder order) {
         try {
             short[] buffer = new short[size];
             for (short i = 0; i < size; i++) {
-                 buffer[i] = i;
-                 //buffer[i] = (short)1;
+                buffer[i] = i;
+                //buffer[i] = (short)1;
             }
             return ByteDataTransformer.toBytes(buffer, order);
         }
@@ -61,7 +64,20 @@ public class ReadWriteTest {
         return null;
     }
 
-    static void testStreamRecord() {
+
+    static ByteBuffer generateEvioBuffer(ByteOrder order) {
+        // Create an evio bank of ints
+        ByteBuffer evioDataBuf = ByteBuffer.allocate(20).order(order); // 5 ints
+        evioDataBuf.putInt(0, 4);  // length in words
+        evioDataBuf.putInt(4, 0xffd10100);  // 2nd evio header word   (prestart event)
+        evioDataBuf.putInt(8, 0x1234);  // time
+        evioDataBuf.putInt(12, 0x5);  // run #
+        evioDataBuf.putInt(16, 0x6);  // run type
+        return evioDataBuf;
+    }
+
+
+    static void writeFile(String finalFilename) {
 
         try {
 
@@ -69,8 +85,6 @@ public class ReadWriteTest {
             double freqAvg;
             long totalC = 0;
             long loops = 3;
-
-            String finalFilename = "/dev/shm/hipoTest-j.evio";
 
             // Create files
             String dictionary = "This is a dictionary";
@@ -81,7 +95,7 @@ public class ReadWriteTest {
 
             byte firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
             int firstEventLen = 10;
-            ByteOrder order  =  ByteOrder.LITTLE_ENDIAN;
+            ByteOrder order = ByteOrder.LITTLE_ENDIAN;
 
             Writer writer = new Writer(HeaderType.EVIO_FILE, order, 0, 0,
                                        dictionary, firstEvent, compType,
@@ -92,30 +106,33 @@ public class ReadWriteTest {
                 userHdr[i] = i;
             }
 
-            //writer.open(finalFilename, userHdr);
-            writer.open(finalFilename);
+            writer.open(finalFilename, userHdr);
+            //writer.open(finalFilename);
             System.out.println("Past creating writer");
-            //        finalFilename = fileName + ".3";
-            //        WriterMT writer3(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
-            //cout << "Past creating writer3" << endl;
 
             //byte[] buffer = generateSequentialInts(100, order);
-            byte[] buffer = generateSequentialShorts(13, order);
+            byte[] dataArray = generateSequentialShorts(13, order);
+            ByteBuffer dataBuffer = ByteBuffer.wrap(dataArray).order(order);
+
+            // Create an evio bank of ints
+            ByteBuffer evioDataBuf = generateEvioBuffer(order);
+            // Create node from this buffer
+            EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0, 0, 0);
 
             long t1 = System.currentTimeMillis();
 
             while (true) {
                 // random data array
-                //            writer1.addEvent(buffer, 0, 400);
-                //writer.addEvent(buffer, 0, 400);
-                writer.addEvent(buffer, 0, 26);
-                //            writer3.addEvent(buffer, 0, 400);
+                //writer.addEvent(dataArray, 0, 26);
+                writer.addEvent(dataBuffer);
 
                 //cout << int(20000000 - loops) << endl;
                 totalC++;
 
                 if (--loops < 1) break;
             }
+
+            writer.addEvent(node);
 
             long t2 = System.currentTimeMillis();
             long deltaT = (t2 - t1);
@@ -126,12 +143,12 @@ public class ReadWriteTest {
             System.out.println("Finished all loops, count = " + totalC);
 
             //------------------------------
-           // Add entire record at once
-           //------------------------------
+            // Add entire record at once
+            //------------------------------
 
-           RecordOutputStream recOut = new RecordOutputStream();
-           recOut.addEvent(buffer, 0, 26);
-           writer.writeRecord(recOut);
+            RecordOutputStream recOut = new RecordOutputStream();
+            recOut.addEvent(dataArray, 0, 26);
+            writer.writeRecord(recOut);
 
 
             //        writer1.addTrailer(true);
@@ -155,74 +172,24 @@ public class ReadWriteTest {
             // Doing a diff between files shows they're identical!
 
             System.out.println("Finished writing files " + finalFilename + ", now read it in");
-
-            Reader reader = new Reader(finalFilename);
-
-            int evCount = reader.getEventCount();
-            System.out.println("Read in file " + finalFilename + ", got " + evCount + " events");
-
-            String dict = reader.getDictionary();
-            System.out.println("   Got dictionary = " + dict);
-
-            byte[] pFE = reader.getFirstEvent();
-            if (pFE != null) {
-                int feBytes = pFE.length;
-                System.out.println("   First Event bytes = " + feBytes);
-                System.out.print("   First Event values = \n   ");
-                for (int i = 0; i < feBytes; i++) {
-                    System.out.print(pFE[i] + ",  ");
-                }
-                System.out.println();
-            }
-
-            byte[] data = reader.getEvent(0);
-
-            if (data != null) {
-//                int[] intData = ByteDataTransformer.toIntArray(data, order);
-//                System.out.print("   Event #0, values =\n   ");
-//                int pos = 0;
-//                for (int i: intData) {
-//                    System.out.print(i + ",  ");
-//                    if ((++pos)%5 == 0) System.out.println();
-//                }
-
-
-                short[] sData = ByteDataTransformer.toShortArray(data, order);
-                System.out.print("   Event #0, values =\n   ");
-                int pos = 0;
-                for (short i: sData) {
-                    System.out.print(i + ",  ");
-                    if ((++pos)%5 == 0) System.out.println();
-                }
-
-                System.out.println();
-            }
-
         }
-        catch (Exception e) {
+        catch(Exception e) {
             e.printStackTrace();
             return;
         }
     }
 
-    static void testStreamRecordMT() {
+
+
+    static void writeFileMT(String finalFilename) {
 
         try {
-
             // Variables to track record build rate
             double freqAvg;
             long totalC = 0;
             long loops = 3;
 
-            String fileName = "/dev/shm/hipoTestMT-j.evio";
-
             // Create files
-            String finalFilename = fileName;
-            //String finalFilename = fileName + ".1";
-            //        WriterMT writer1(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
-            //cout << "Past creating writer1" << endl;
-            //finalFilename = fileName + ".2";
-            //WriterMT writer(ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::UNCOMPRESSED, 2);
             String dictionary = "This is a dictionary";
             //dictionary = "";
             boolean addTrailerIndex = true;
@@ -231,40 +198,43 @@ public class ReadWriteTest {
 
             byte firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
             int firstEventLen = 10;
-            ByteOrder order  =  ByteOrder.LITTLE_ENDIAN;
+            ByteOrder order = ByteOrder.LITTLE_ENDIAN;
             WriterMT writer = new WriterMT(HeaderType.EVIO_FILE, order, 0, 0,
-                                            dictionary, firstEvent, firstEventLen,
-                                            compType, 2, addTrailerIndex, 16);
+                                           dictionary, firstEvent, firstEventLen,
+                                           compType, 2, addTrailerIndex, 16);
 
             byte[] userHdr = new byte[10];
             for (byte i = 0; i < 10; i++) {
                 userHdr[i] = i;
             }
 
-            //writer.open(finalFilename, userHdr);
-            writer.open(finalFilename);
+            writer.open(finalFilename, userHdr);
+            //writer.open(finalFilename);
             System.out.println("Past creating writer");
-            //        finalFilename = fileName + ".3";
-            //        WriterMT writer3(finalFilename, ByteOrder::ENDIAN_LITTLE, 0, 0, Compressor::LZ4, 1);
-            //cout << "Past creating writer3" << endl;
 
             //byte[] buffer = generateSequentialInts(100, order);
-            byte[] buffer = generateSequentialShorts(13, order);
+            byte[] dataArray = generateSequentialShorts(13, order);
+            ByteBuffer dataBuffer = ByteBuffer.wrap(dataArray).order(order);
+
+            // Create an evio bank of ints
+            ByteBuffer evioDataBuf = generateEvioBuffer(order);
+            // Create node from this buffer
+            EvioNode node = EvioNode.extractEventNode(evioDataBuf, null, 0, 0, 0);
 
             long t1 = System.currentTimeMillis();
 
             while (true) {
                 // random data array
-                //            writer1.addEvent(buffer, 0, 400);
-                //writer.addEvent(buffer, 0, 400);
-                writer.addEvent(buffer, 0, 26);
-                //            writer3.addEvent(buffer, 0, 400);
+                //writer.addEvent(dataArray, 0, 26);
+                writer.addEvent(dataBuffer);
 
                 //cout << int(20000000 - loops) << endl;
                 totalC++;
 
                 if (--loops < 1) break;
             }
+
+            writer.addEvent(node);
 
             long t2 = System.currentTimeMillis();
             long deltaT = (t2 - t1);
@@ -275,36 +245,31 @@ public class ReadWriteTest {
             System.out.println("Finished all loops, count = " + totalC);
 
             //------------------------------
-           // Add entire record at once
-           //------------------------------
+            // Add entire record at once
+            //------------------------------
 
-           RecordOutputStream recOut = new RecordOutputStream();
-           recOut.addEvent(buffer, 0, 26);
-           writer.writeRecord(recOut);
+            RecordOutputStream recOut = new RecordOutputStream();
+            recOut.addEvent(dataArray, 0, 26);
+            writer.writeRecord(recOut);
 
-            //        writer1.addTrailer(true);
-            //        writer1.addTrailerWithIndex(true);
-            //        cout << "Past write 1" << endl;
-
-            //      writer.addTrailer(true);
-            //      writer.addTrailerWithIndex(true);
-
-            //        writer3.addTrailer(true);
-            //        writer3.addTrailerWithIndex(true);
-
-            //        cout << "Past write 3" << endl;
-
-            //        writer1.close();
-            //        cout << "Past close 1" << endl;
             writer.close();
-            System.out.println("Past close 2");
-            //        writer3.close();
+            System.out.println("Past close ");
 
             // Doing a diff between files shows they're identical!
 
             System.out.println("Finished writing files " + finalFilename + ", now read it in");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
 
+    static void readFile(String finalFilename) {
+
+        try {
             Reader reader = new Reader(finalFilename);
+            ByteOrder order = reader.getByteOrder();
 
             int evCount = reader.getEventCount();
             System.out.println("Read in file " + finalFilename + ", got " + evCount + " events");
@@ -356,9 +321,19 @@ public class ReadWriteTest {
 
     public static void main(String[] args){
 
-        testStreamRecord();
-        testStreamRecordMT();
+//        String filename   = "/dev/shm/hipoTest.evio";
+//        String filenameMT = "/dev/shm/hipoTest.evio";
+        String filename   = "/dev/shm/hipoTest-j.evio";
+        String filenameMT = "/dev/shm/hipoTestMT-j.evio";
 
+        // Write files
+        writeFile(filename);
+        writeFileMT(filenameMT);
+
+        // Now read the written files
+        readFile(filename);
+        System.out.println("\n\n----------------------------------------\n\n");
+        readFile(filenameMT);
     }
 
 }
