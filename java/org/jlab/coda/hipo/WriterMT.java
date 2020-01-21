@@ -10,6 +10,7 @@ package org.jlab.coda.hipo;
 import com.lmax.disruptor.AlertException;
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.EvioNode;
 import org.jlab.coda.jevio.Utilities;
 
 import java.io.FileNotFoundException;
@@ -909,6 +910,45 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
 
             // Adding the first event to a record is guaranteed to work
             outputRecord.addEvent(buffer);
+        }
+    }
+
+    /**
+     * Add an EvioNode to the internal record. If the length of
+     * the data exceeds the maximum size of the record, the record
+     * will be written to the file (compressed if the flag is set).
+     * Internal record will be reset to receive new buffers.
+     * Using this method in conjunction with writeRecord() is not thread-safe.
+     * <b>The byte order of node's data must
+     * match the byte order given in constructor!</b>
+     *
+     * @param node node to add to the file.
+     * @throws HipoException if node does not correspond to a bank.
+     * @throws IOException if cannot write to file.
+     */
+    public void addEvent(EvioNode node) throws HipoException {
+
+        ByteBuffer buffer = node.getBuffer();
+
+        if (buffer.order() != byteOrder) {
+            throw new HipoException("node arg's buffer's byte order is wrong");
+        }
+
+        boolean status = outputRecord.addEvent(node);
+
+        // If record is full ...
+        if (!status) {
+            // Put it back in supply for compressing
+            supply.publish(ringItem);
+
+            // Now get another, empty record.
+            // This may block if threads are busy compressing
+            // and/or writing all records in supply.
+            ringItem = supply.get();
+            outputRecord = ringItem.getRecord();
+
+            // Adding the first event to a record is guaranteed to work
+            outputRecord.addEvent(node);
         }
     }
 
