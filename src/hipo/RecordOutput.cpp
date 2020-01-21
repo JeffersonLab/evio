@@ -628,7 +628,7 @@ bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
     int eventLen = node.getTotalBytes();
 
     if (!node.getTypeObj().isBank()) {
-        throw HipoException("node does not represent a bank");
+        throw HipoException("node does not represent a bank (" + node.getTypeObj().toString() + ")");
     }
 
     if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
