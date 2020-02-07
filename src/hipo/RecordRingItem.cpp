@@ -89,48 +89,35 @@ RecordRingItem::RecordRingItem() : order(ByteOrder::ENDIAN_LITTLE) {
 //}
 
 
-///**
-// * Copy constructor (sort of). Used in EventWriter(Unsync) for when disk is full and a copy
-// * of the item to be written is made for later writing. Original item is released
-// * so ring can function. Note, not everything is copied (sequenceObj) since in usage,
-// * the original item has already been released. Also, {@link #alreadyReleased} is true. <p>
-// * <b>Not to be used except internally by evio.</b>
-// *
-// * @param item ring item to copy.
-// */
-//RecordRingItem::RecordRingItem(const RecordRingItem & item) : order(item.order) {
-//    // Avoid self copy ...
-//    if (this != &item) {
-//        id = item.id;
-//        sequence = item.sequence;
-//        lastItem.store(item.lastItem);
-//        checkDisk.store(item.checkDisk);
-//        forceToDiskBool.store(item.forceToDiskBool);
-//        splitFileAfterWriteBool.store(item.splitFileAfterWriteBool);
-//        alreadyReleased = true;
-//
-//        // This does some extra memory allocation we don't need, but good enough for now
-//
-//        // Copy data to write
-//        const ByteBuffer &dataBuf = item.record->getBinaryBuffer();
-//        ByteBuffer buf(dataBuf.capacity());
-//        std::memcpy(buf.array(),
-//                    dataBuf.array() + dataBuf.arrayOffset() + dataBuf.position(),
-//                    dataBuf.remaining());
-//// TODO: buf must not be on the STACK since it's stored in record !!!!!!!!!!!!!!!!!!!!!!!
-////        RecordOutput & record2 = RecordOutput(buf,
-////                              item.record.getMaxEventCount(),
-////                              item.record.getCompressionType(),
-////                              item.record.getHeaderType());
-//        // Which ONE? This
-//        record = item.record;
-//        // or this ? Does buf get copied if given by user??
-//        std::make_shared<RecordOutput>(buf,
-//                                       item.record->getMaxEventCount(),
-//                                       item.record->getCompressionType(),
-//                                       item.record->getHeaderType());
-//    }
-//}
+/**
+ * Copy constructor (sort of). Used in EventWriter for when disk is full and a copy
+ * of the item to be written is made for later writing. Original item is released
+ * so ring can function. Note, not everything is copied (sequenceObj) since in usage,
+ * the original item has already been released. Also, {@link #alreadyReleased} is true. <p>
+ * <b>NOT to be used except internally by evio.</b>
+ *
+ * @param item ring item to copy.
+ */
+RecordRingItem::RecordRingItem(const RecordRingItem & item) : order(item.order) {
+
+    // Avoid self copy ...
+    if (this != &item) {
+        id = item.id;
+        order = item.order;
+        sequence = item.sequence;
+        lastItem.store(item.lastItem);
+        checkDisk.store(item.checkDisk);
+        forceToDiskBool.store(item.forceToDiskBool);
+        splitFileAfterWriteBool.store(item.splitFileAfterWriteBool);
+        alreadyReleased = true;
+
+        // Copying this object disconnects it from the ring, so the
+        // sequence used to obtain it is irrelevant. Forget about sequenceObj.
+
+        // Need to copy construct record and them make shared pointer out of it
+        record = std::make_shared<RecordOutput>(*(item.record.get()));
+    }
+}
 
 
 ///**
@@ -143,6 +130,7 @@ RecordRingItem::RecordRingItem() : order(ByteOrder::ENDIAN_LITTLE) {
 //    // Avoid self assignment ...
 //    if (this != &other) {
 //        id = other.id;
+//        order = other.order;
 //        sequence = other.sequence;
 //        lastItem.store(other.lastItem);
 //        checkDisk.store(other.checkDisk);
@@ -150,17 +138,8 @@ RecordRingItem::RecordRingItem() : order(ByteOrder::ENDIAN_LITTLE) {
 //        splitFileAfterWriteBool.store(other.splitFileAfterWriteBool);
 //        alreadyReleased = other.alreadyReleased;
 //
-//        // Copy data to write
-//        const ByteBuffer & dataBuf = other.record.getBinaryBuffer();
-//        ByteBuffer buf(dataBuf.capacity());
-//        std::memcpy(buf.array(),
-//                    dataBuf.array() + dataBuf.arrayOffset() + dataBuf.position(),
-//                    dataBuf.remaining());
-//
-//        record = RecordOutput(buf,
-//                              other.record.getMaxEventCount(),
-//                              other.record.getCompressionType(),
-//                              other.record.getHeaderType());
+//        // Need to copy construct record & make shared pointer out of it
+//        record = std::make_shared<RecordOutput>(*(item.record.get()));
 //    }
 //    return *this;
 //}

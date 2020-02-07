@@ -95,9 +95,9 @@ public:
 
 
     RecordRingItem();
-    //RecordRingItem(const RecordRingItem & item);
+    RecordRingItem(const RecordRingItem & item);
     // No copies
-    RecordRingItem(const RecordRingItem & item) = delete;
+    //RecordRingItem(const RecordRingItem & item) = delete;
     // TODO: NOT PUBLIC
     //RecordRingItem(ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
     //               Compressor::CompressionType & compressionType);
