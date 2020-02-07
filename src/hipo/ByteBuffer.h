@@ -84,7 +84,9 @@ public:
     ByteBuffer & compact();
     ByteBuffer & zero();
 
+    static std::shared_ptr<ByteBuffer> copyBuffer(const std::shared_ptr<const ByteBuffer> & srcBuf);
     void copy(const ByteBuffer & srcBuf);
+    void copy(const std::shared_ptr<const ByteBuffer> & srcBuf);
     bool equals(const ByteBuffer & other);
     void expand(size_t newSize);
 
@@ -112,15 +114,16 @@ public:
 
     ByteBuffer & order(ByteOrder const & order);
     ByteBuffer & duplicate(ByteBuffer &destBuf);
+    std::shared_ptr<ByteBuffer> duplicate();
     // ByteBuffer & slice();
 
     // Read
 
-    const ByteBuffer & get(uint8_t * dst, size_t offset, size_t length) const;
+    const ByteBuffer & getBytes(uint8_t * dst, size_t offset, size_t length) const;
 
     uint8_t  peek() const;
-    uint8_t  get()  const;
-    uint8_t  get(size_t index) const;
+    uint8_t  getByte()  const;
+    uint8_t  getByte(size_t index) const;
 
     wchar_t  getChar() const; // Relative
     wchar_t  getChar(size_t index) const; // Absolute
@@ -148,6 +151,7 @@ public:
     // Write
 
     ByteBuffer & put(const ByteBuffer & src);
+    ByteBuffer & put(const std::shared_ptr<ByteBuffer> & src);
     ByteBuffer & put(const uint8_t* src, size_t offset, size_t length);
 
     ByteBuffer & put(uint8_t val); // Relative write

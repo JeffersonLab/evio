@@ -166,13 +166,41 @@ void ByteBuffer::copy(const ByteBuffer & srcBuf) {
     }
 }
 
+/**
+ * Copy data and everything else from arg.
+ * @param srcBuf ByteBuffer to copy.
+ */
+void ByteBuffer::copy(const std::shared_ptr<const ByteBuffer> & srcBuf) {
+    return copy(*(srcBuf.get()));
+}
+
+/**
+ * Copy the given buffer into a new buffer which is accessed thru shared pointer.
+ * @param srcBuf ByteBuffer to copy.
+ */
+std::shared_ptr<ByteBuffer> ByteBuffer::copyBuffer(const std::shared_ptr<const ByteBuffer> & srcBuf) {
+
+    std::shared_ptr<ByteBuffer> newBuf = std::make_shared<ByteBuffer>(srcBuf->capacity());
+    newBuf->pos = srcBuf->pos;
+    newBuf->cap = srcBuf->cap;
+    newBuf->lim = srcBuf->lim;
+    newBuf->mrk = srcBuf->mrk;
+    newBuf->byteOrder = srcBuf->byteOrder;
+    newBuf->isHostEndian = srcBuf->isHostEndian;
+    newBuf->isLittleEndian = srcBuf->isLittleEndian;
+    memcpy((void *) newBuf->buf.get(), (const void *) srcBuf->buf.get(), srcBuf->cap);
+    return newBuf;
+}
 
 /**
  * This method writes zeroes into the buffer memory.
  * Although this method does not exist in the original Java ByteBuffer class,
  * in Java, all objects have their memory zeroed so this may be useful.
  */
-ByteBuffer & ByteBuffer::zero() {std::memset(buf.get(), 0, cap);}
+ByteBuffer & ByteBuffer::zero() {
+    std::memset(buf.get(), 0, cap);
+    return *this;
+}
 
 
 /**
@@ -451,7 +479,7 @@ ByteBuffer & ByteBuffer::position(size_t p) {
  * @throws HipoException if l &gt; capacity.
  */
 ByteBuffer & ByteBuffer::limit(size_t l) {
-    if (l > capacity()) {
+    if (l > cap) {
         throw HipoException("buffer lim of " + to_string(l) + " will exceed cap of " + to_string(cap));
     }
     lim = l;
@@ -481,30 +509,30 @@ ByteBuffer & ByteBuffer::order(ByteOrder const & order) {
 
 
 /**
-  * Returns a byte buffer that shares this buffer's content.
-  *
-  * <p> The content of the returned buffer will be that of this buffer.  Changes
-  * to this buffer's content will be visible in the returned buffer, and vice
-  * versa; the two buffers' position, limit, and mark values will be
-  * independent.
-  *
-  * <p> The returned buffer's capacity, limit, position, and mark values will
-  * initially be identical to those of this buffer.  </p>
-  *
-  * <p> The C++ version of this method departs from the Java which has no argument.
-  * To implement this method, one could return a unique pointer to a locally created
-  * ByteBuffer object which would eliminate the need for an argument. However, handling
-  * the new buffer would be different from handling those created by the constructor
-  * since the caller would have a unique pointer instead of a ByteBuffer reference.
-  *
-  * <p> A cleaner way to do this is for the caller to create their own, new ByteBuffer
-  * object and pass it in as an argument. This method then makes it identical to this
-  * buffer and the data (implemented as a shared pointer) is shared between
-  * the objects. The buffer passed in as an argument is also the one returned.
-  *
-  * @param destBuf byte buffer to be made a duplicate of this one.
-  * @return  the same byte buffer as passed in as the argument.
-  */
+ * Returns a byte buffer that shares this buffer's content.
+ *
+ * <p> The content of the returned buffer will be that of this buffer.  Changes
+ * to this buffer's content will be visible in the returned buffer, and vice
+ * versa; the two buffers' position, limit, and mark values will be
+ * independent.
+ *
+ * <p> The returned buffer's capacity, limit, position, and mark values will
+ * initially be identical to those of this buffer.  </p>
+ *
+ * <p> The C++ version of this method departs from the Java which has no argument.
+ * To implement this method, one could return a unique pointer to a locally created
+ * ByteBuffer object which would eliminate the need for an argument. However, handling
+ * the new buffer would be different from handling those created by the constructor
+ * since the caller would have a unique pointer instead of a ByteBuffer reference.
+ *
+ * <p> A cleaner way to do this is for the caller to create their own, new ByteBuffer
+ * object and pass it in as an argument. This method then makes it identical to this
+ * buffer and the data (implemented as a shared pointer) is shared between
+ * the objects. The buffer passed in as an argument is also the one returned.
+ *
+ * @param destBuf byte buffer to be made a duplicate of this one.
+ * @return  the same byte buffer as passed in as the argument.
+ */
 ByteBuffer & ByteBuffer::duplicate(ByteBuffer & destBuf) {
     destBuf.cap = cap;
     destBuf.lim = lim;
@@ -517,6 +545,48 @@ ByteBuffer & ByteBuffer::duplicate(ByteBuffer & destBuf) {
 
     // shared pointers
     destBuf.buf = buf;
+
+    return destBuf;
+}
+
+
+/**
+ * Returns a byte buffer that shares this buffer's content.
+ *
+ * <p> The content of the returned buffer will be that of this buffer.  Changes
+ * to this buffer's content will be visible in the returned buffer, and vice
+ * versa; the two buffers' position, limit, and mark values will be
+ * independent.
+ *
+ * <p> The returned buffer's capacity, limit, position, and mark values will
+ * initially be identical to those of this buffer.  </p>
+ *
+ * <p> The C++ version of this method departs from the Java which has no argument.
+ * To implement this method, one could return a unique pointer to a locally created
+ * ByteBuffer object which would eliminate the need for an argument. However, handling
+ * the new buffer would be different from handling those created by the constructor
+ * since the caller would have a unique pointer instead of a ByteBuffer reference.
+ *
+ * <p> A cleaner way to do this is for the caller to create their own, new ByteBuffer
+ * object and pass it in as an argument. This method then makes it identical to this
+ * buffer and the data (implemented as a shared pointer) is shared between
+ * the objects. The buffer passed in as an argument is also the one returned.
+ *
+ * @param destBuf byte buffer to be made a duplicate of this one.
+ * @return  the same byte buffer as passed in as the argument.
+ */
+std::shared_ptr<ByteBuffer> ByteBuffer::duplicate() {
+    auto destBuf = std::make_shared<ByteBuffer>(cap);
+    destBuf->lim = lim;
+    destBuf->pos = pos;
+    destBuf->mrk = mrk;
+
+    destBuf->byteOrder = byteOrder;
+    destBuf->isHostEndian = isHostEndian;
+    destBuf->isLittleEndian = isLittleEndian;
+
+    // shared pointers
+    destBuf->buf = buf;
 
     return destBuf;
 }
@@ -560,7 +630,7 @@ ByteBuffer & ByteBuffer::duplicate(ByteBuffer & destBuf) {
 //    // Smart pointers
 //    destBuf.buf = buf;
 //
-//    // TODO: use capacity() instead of cap, limit() instead of lim,  position instead of pos.
+//    // TODO: use capacity() instead of cap, limit() instead of lim,  position() instead of pos.
 //    // redefine these if isSlice is true. Place to start anyway.
 //    // Or define macro? SHIFT_POS(p,off) (p - off) to shift by sliceBasePos ...
 //
@@ -595,7 +665,7 @@ ByteBuffer & ByteBuffer::duplicate(ByteBuffer & destBuf) {
  * @return  this buffer.
  * @throws  HipoException if fewer than <tt>length</tt> bytes remaining in buffer.
  */
-const ByteBuffer & ByteBuffer::get(uint8_t * dst, size_t offset, size_t length) const {
+const ByteBuffer & ByteBuffer::getBytes(uint8_t * dst, size_t offset, size_t length) const {
     // check args
     if (length > remaining()) {
         throw HipoException("buffer underflow");
@@ -623,7 +693,7 @@ uint8_t ByteBuffer::peek() const {return read<uint8_t>(pos);}
  * @return  byte at buffer's current position.
  * @throws  HipoException if buffer's current position is not smaller than its limit.
  */
-uint8_t ByteBuffer::get()  const {return read<uint8_t>();}
+uint8_t ByteBuffer::getByte()  const {return read<uint8_t>();}
 
 
 /**
@@ -633,7 +703,7 @@ uint8_t ByteBuffer::get()  const {return read<uint8_t>();}
  * @return  byte at the given index
  * @throws  HipoException if index is not smaller than buffer's limit.
  */
-uint8_t ByteBuffer::get(size_t index) const {return read<uint8_t>(index);}
+uint8_t ByteBuffer::getByte(size_t index) const {return read<uint8_t>(index);}
 
 
 /**
@@ -1026,6 +1096,32 @@ ByteBuffer & ByteBuffer::put(const ByteBuffer & src) {
     pos += srcBytes;
     src.pos += srcBytes;
     return *this;
+}
+
+
+/**
+ * Relative bulk <i>put</i> method.<p>
+ *
+ * This method transfers the bytes remaining in the given source
+ * buffer into this buffer. If there are more bytes remaining in the
+ * source buffer than in this buffer, that is, if
+ * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
+ * then no bytes are transferred and a {@link #HipoException} is thrown.<p>
+ *
+ * Otherwise, this method copies
+ * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> bytes from the given
+ * buffer into this buffer, starting at each buffer's current position.
+ * The positions of both buffers are then incremented by <i>n</i>.
+ *
+ * @param  src source buffer from which bytes are to be read;
+ *             must not be this buffer.
+ * @return  this buffer.
+ * @throws  HipoException if insufficient space in this buffer
+ *          for the remaining bytes in the source buffer.
+ * @throws  IllegalArgumentException if source buffer is this buffer.
+ */
+ByteBuffer & ByteBuffer::put(const std::shared_ptr<ByteBuffer> & src) {
+    return (put(*(src.get())));
 }
 
 
