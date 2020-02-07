@@ -348,7 +348,7 @@ public:
 
     uint32_t    isLastRecord(bool isLast);
     bool        isLastRecord() const;
-    static bool isLastRecord(int bitInfo);
+    static bool isLastRecord(uint32_t bitInfo);
 
 
     // Setters
@@ -373,6 +373,7 @@ public:
 
     void writeHeader(ByteBuffer & buf, size_t off);
     void writeHeader(ByteBuffer & buffer);
+    void writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off);
 
     static void writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
                              uint32_t recordNumber, const ByteOrder & order);

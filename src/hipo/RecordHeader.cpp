@@ -582,7 +582,7 @@ bool RecordHeader::isLastRecord() const {return ((bitInfo & LAST_RECORD_BIT) != 
  * @param bitInfo bitInfo word.
  * @return true this is the header of the last record, else false.
  */
-bool RecordHeader::isLastRecord(int bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
+bool RecordHeader::isLastRecord(uint32_t bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
 
 
 // Setters
@@ -844,6 +844,16 @@ void RecordHeader::writeHeader(ByteBuffer & buf, size_t off) {
  */
 void RecordHeader::writeHeader(ByteBuffer & buffer) {writeHeader(buffer,0);}
 
+/**
+ * Writes this header into the given byte buffer.
+ * Position & limit of given buffer does NOT change.
+ * @param buf  byte buffer to write header into.
+ * @param off  position in buffer to begin writing.
+ * @throws HipoException if buffer contains too little room.
+ */
+void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off) {
+    writeHeader(*(buffer.get()), off);
+}
 
 /**
  * Writes an empty trailer into the given byte array.
