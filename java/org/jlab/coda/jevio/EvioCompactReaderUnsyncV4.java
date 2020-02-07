@@ -1016,10 +1016,15 @@ System.err.println("     readFirstHeader: end of Buffer: " + a.getMessage());
         // Length of data to move in bytes
         int moveLen = initialPosition + 4*validDataWords - startPos;
 
-        // Duplicate backing buffer
-        ByteBuffer moveBuffer = byteBuffer.duplicate().order(byteBuffer.order());
+        // Can't use duplicate(), must copy the backing buffer
+        ByteBuffer moveBuffer = ByteBuffer.allocate(moveLen).order(byteBuffer.order());
+        int bufferLim = byteBuffer.limit();
+        byteBuffer.limit(startPos + moveLen).position(startPos);
+        moveBuffer.put(byteBuffer);
+        byteBuffer.limit(bufferLim);
+
         // Prepare to move data currently sitting past the removed node
-        moveBuffer.position(startPos).limit(startPos + moveLen);
+        moveBuffer.clear();
 
         // Set place to put the data being moved - where removed node starts
         byteBuffer.position(removeNode.pos);

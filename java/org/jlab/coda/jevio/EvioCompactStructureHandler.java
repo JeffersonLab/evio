@@ -691,16 +691,21 @@ public class EvioCompactStructureHandler {
             byteBuffer.limit(copyToPos);
         }
         else {
-            // Duplicate buffer to use a data source,
+            // Can't use duplicate(), must copy the backing buffer
             // (limit is already set to end of valid data).
-            ByteBuffer srcBuf = byteBuffer.duplicate().order(byteOrder);
-            srcBuf.position(copyFromPos);
+            int bufferLim = byteBuffer.limit();
+            ByteBuffer moveBuffer = ByteBuffer.allocate(bufferLim - copyFromPos).order(byteBuffer.order());
+            byteBuffer.limit(bufferLim).position(copyFromPos);
+            moveBuffer.put(byteBuffer);
+
+            // Prepare to move data currently sitting past the removed node
+            moveBuffer.clear();
 
             // Get buffer ready to receiving data
             byteBuffer.limit(byteBuffer.capacity()).position(copyToPos);
 
             // Copy
-            byteBuffer.put(srcBuf);
+            byteBuffer.put(moveBuffer);
             byteBuffer.flip();
         }
 
