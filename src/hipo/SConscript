@@ -5,7 +5,8 @@ Import('env', 'archDir', 'incInstallDir', 'libInstallDir', 'binInstallDir', 'arc
 headerList = Glob('*.h', strings=True)
 
 # Files to compile
-fileList = Glob('*.cpp',  strings=True, exclude='ReadWriteTest.cpp')
+#fileList = Glob('*.cpp',  strings=True, exclude=['ReadWriteTest.cpp', 'EventWriter.cpp', 'EventWriter.h'])
+fileList = Glob('*.cpp',  strings=True, exclude=['ReadWriteTest.cpp'])
 
 env.AppendUnique(CPPPATH = ['#src/hipo', disruptorHome, '/usr/include/boost'])
 
