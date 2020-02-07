@@ -16,8 +16,11 @@
 #include <string>
 #include <cstdint>
 #include <cstdlib>
+#include <cstdio>
 #include <chrono>
 #include <memory>
+#include <regex>
+#include <experimental/filesystem>
 
 #include "ByteBuffer.h"
 #include "ByteOrder.h"
@@ -29,6 +32,9 @@
 #include "RecordRingItem.h"
 #include "EvioNode.h"
 #include "Compressor.h"
+
+using namespace std;
+namespace fs = std::experimental::filesystem;
 
 
 namespace evio {
@@ -111,17 +117,17 @@ public:
     }
 
 
-    static ByteBuffer generateEvioBuffer(ByteOrder & order) {
+    static std::shared_ptr<ByteBuffer> generateEvioBuffer(ByteOrder & order) {
         // Create an evio bank of ints
-        ByteBuffer evioDataBuf(20);
-        evioDataBuf.order(order);
-        evioDataBuf.putInt(4);  // length in words, 5 ints
-        evioDataBuf.putInt(0xffd10100);  // 2nd evio header word   (prestart event)
-        evioDataBuf.putInt(0x1234);  // time
-        evioDataBuf.putInt(0x5);  // run #
-        evioDataBuf.putInt(0x6);  // run type
-        evioDataBuf.flip();
-        Util::printBytes(evioDataBuf, 0, 20, "Original buffer");
+        auto evioDataBuf = std::make_shared<ByteBuffer>(20);
+        evioDataBuf->order(order);
+        evioDataBuf->putInt(4);  // length in words, 5 ints
+        evioDataBuf->putInt(0xffd10100);  // 2nd evio header word   (prestart event)
+        evioDataBuf->putInt(0x1234);  // time
+        evioDataBuf->putInt(0x5);  // run #
+        evioDataBuf->putInt(0x6);  // run type
+        evioDataBuf->flip();
+        Util::printBytes(*(evioDataBuf.get()), 0, 20, "Original buffer");
         return evioDataBuf;
     }
 
@@ -161,7 +167,7 @@ public:
         ByteBuffer dataBuffer(dataArray, 26);
 
         // Create an evio bank of ints
-        ByteBuffer evioDataBuf = generateEvioBuffer(order);
+        auto evioDataBuf = generateEvioBuffer(order);
         // Create node from this buffer
         std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
 
@@ -251,7 +257,7 @@ public:
         ByteBuffer dataBuffer(dataArray, 26);
 
         // Create an evio bank of ints
-        ByteBuffer evioDataBuf = generateEvioBuffer(order);
+        auto evioDataBuf = generateEvioBuffer(order);
         // Create node from this buffer
         std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
 
@@ -459,8 +465,6 @@ public:
 
 }
 
-
-
 int main(int argc, char **argv) {
     string filename   = "/dev/shm/hipoTest.evio";
     string filenameMT = "/dev/shm/hipoTestMT.evio";
@@ -479,3 +483,174 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+
+static void expandEnvironmentalVariables(string & text) {
+    static std::regex env("\\$\\(([^)]+)\\)");
+    std::smatch match;
+    while ( std::regex_search(text, match, env) ) {
+        const char * s = getenv(match[1].str().c_str());
+        const std::string var(s == nullptr ? "" : s);
+        text.replace(match[0].first, match[0].second, var);
+    }
+}
+
+static uint32_t countAndFixIntSpecifiers1(string & text) {
+    static std::regex specifier("%(\\d*)([xd])");
+    uint32_t specifierCount = 0;
+    std::smatch match;
+
+    while ( std::regex_search(text, match, specifier) ) {
+        specifierCount++;
+        cout << "spec count = " << specifierCount << endl;
+        // Make sure any number preceding "x" or "d" starts with a 0 or else
+        // there will be empty spaces in the resulting string (i.e. file name).
+        std::string specWidth = match[1].str();
+        if (specWidth.length() > 0 && specWidth[0] != '0') {
+            cout << "in fix it loop" << endl;
+            text.replace(match[1].first, match[1].second, "0" + specWidth);
+        }
+    }
+
+    return specifierCount;
+}
+
+static uint32_t countAndFixIntSpecifiers(string text, string & returnString) {
+    static std::regex specifier("%(\\d*)([xd])");
+
+    auto begin = std::sregex_iterator(text.begin(), text.end(), specifier);
+    auto end   = std::sregex_iterator();
+    uint32_t specifierCount = std::distance(begin, end);
+    std::cout << "countAndFixIntSpecifiers: Found " << specifierCount << " specs" << endl;
+
+    // Make sure any number preceding "x" or "d" starts with a 0 or else
+    // there will be empty spaces in the resulting string (i.e. file name).
+    // We have to fix, at most, specifierCount number of specs.
+
+    std::sregex_iterator i = begin;
+
+    // Go thru all specifiers in text, only once
+    for (int j = 0; j < specifierCount; j++) {
+        if (j > 0) {
+            // skip over specifiers previously dealt with (text can change each loop)
+            i = std::sregex_iterator(text.begin(), text.end(), specifier);
+            int k=j;
+            while (k-- > 0) i++;
+        }
+
+        std::smatch match = *i;
+        std::string specWidth = match[1].str();
+        if (specWidth.length() > 0 && specWidth[0] != '0') {
+            text.replace(match[1].first, match[1].second, "0" + specWidth);
+        }
+    }
+
+    returnString = text;
+
+    return specifierCount;
+}
+
+
+int main2(int argc, char **argv) {
+
+    // TEST experimental file stuff
+    string fileName = "/daqfs/home/timmer/coda/evio-6.0/README";
+    cout << "orig file name = " << fileName << endl;
+    fs::path currentFilePath(fileName);
+    //currentFile = currentFilePath.toFile();
+    fs::path filePath = currentFilePath.filename();
+    string file_name = filePath.generic_string();
+    cout << "file name from path = " << file_name << endl;
+    cout << "dir  name from path = " << currentFilePath.parent_path() << endl;
+
+    bool fileExists = fs::exists(filePath);
+    bool isRegFile = fs::is_regular_file(filePath);
+
+    cout << "file is really there? = " << fileExists << endl;
+    cout << "file is regular file? = " << isRegFile << endl;
+
+    cout << "file " << currentFilePath.parent_path() << " is dir ? " <<
+                       fs::is_directory(currentFilePath.parent_path()) << endl;
+
+    fs::space_info dirInfo = fs::space(currentFilePath);
+
+    cout << "free space for dir in bytes is " << dirInfo.free << endl;
+    cout << "available space for dir in bytes is " << dirInfo.available << endl;
+    cout << "capacity of file system in bytes is " << dirInfo.capacity << endl;
+
+    cout << "size of file in bytes = " << fs::file_size(filePath) << endl;
+
+//    string s  = "myfilename.$(ENV_1).junk$(ENV_2).otherJunk";
+//    cout << s << endl << endl;
+//
+//    regex regExp("\\$\\((.*?)\\)");
+//
+//
+//    // reset string
+//    s = "myfilename.$(ENV_1).junk$(ENV_2).otherJunk";
+//    regex rep("\\$\\((.*?)\\)");
+//    cout << regex_replace(s, rep, "Sub1") << endl;
+//
+//    s = "myfilename.$(ENV_1).junk$(ENV_2).otherJunk";
+//    expandEnvironmentalVariables(s);
+//
+//    cout << "call function, final string = " << s << endl;
+//
+//    s = "myfilename.%3d.junk%7x.otherJunk--%0123d---%x--%d";
+//    cout << "fix specs, orig string = " << s << endl;
+//    string another = s;
+//    string returnStr("blah blah");
+//    countAndFixIntSpecifiers(another, returnStr);
+//    cout << "fix specs, final string = " << returnStr << endl;
+//    cout << "fix specs, arg string = " << another << endl;
+//
+//
+//    //fileName = string.format(fileName, runNumber);
+//    int runNumber = 123;
+//    int splitNumber = 45;
+//    int streamId = 6;
+//
+//    s = "myfilename--%3d--0x%x--%012d--%03d";
+//    char *temp = new char[1000];
+//    cout << "string = " << s << endl;
+//
+//    std::sprintf(temp, s.c_str(), runNumber, splitNumber, streamId, streamId, streamId);
+//    cout << "sub runNumber temp, string = " << temp << endl;
+//
+//    string fileName(temp);
+//    cout << "string version of temp = " << fileName << endl;
+//
+//    fileName += "." + std::to_string(streamId) +
+//                "." + std::to_string(splitNumber);
+//
+//    cout << "tack onto string = " << fileName << endl;
+//
+//
+//
+//    string a("twoSpecs%03d-----%4d~~~~~");
+//    cout << endl << "try remove 2nd os spec into = " << a << endl;
+//
+//    static std::regex specifier("(%\\d*[xd])");
+//    auto begin = std::sregex_iterator(a.begin(), a.end(), specifier);
+//
+//    // Go to 2nd match
+//    begin++;
+//
+//    std::smatch match = *begin;
+//    a.replace(match[0].first, match[0].second, "");
+//
+////    static std::regex specifier("(%\\d*[xd])");
+////    auto begin = std::sregex_iterator(a.begin(), a.end(), specifier);
+////    //auto end   = std::sregex_iterator();
+////    // uint32_t specifierCount = std::distance(begin, end);
+////
+////    // Go to 2nd match
+////    begin++;
+////
+////    std::smatch match = *begin;
+////    a.replace(match[0].first, match[0].second, "%d." + match.str());
+//
+//    cout << "final tacked string = " << a << endl;
+//
+
+    return 0;
+}
