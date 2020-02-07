@@ -22,6 +22,7 @@
 #include <ios>
 #include <iostream>
 #include <stdexcept>
+#include <memory>
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -130,9 +131,9 @@ private:
 
 
     /** Buffer being read. */
-    ByteBuffer buffer;
+    std::shared_ptr<ByteBuffer> buffer;
     /** Buffer used to temporarily hold data while decompressing. */
-    ByteBuffer tempBuffer;
+    std::shared_ptr<ByteBuffer> tempBuffer;
     //TODO: make this 64 bit ???
     /** Initial position of buffer. */
     uint32_t bufferOffset = 0;
@@ -206,9 +207,9 @@ public:
     explicit Reader(string & filename);
     Reader(string & filename, bool forceScan);
 
-    explicit Reader(ByteBuffer & buffer);
-    Reader(ByteBuffer & buffer, EvioNodeSource & pool);
-    Reader(ByteBuffer & buffer, EvioNodeSource & pool, bool checkRecordNumSeq);
+    explicit Reader(std::shared_ptr<ByteBuffer> & buffer);
+    Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool);
+    Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq);
 
     ~Reader() {
         //delete(inStreamRandom);
@@ -220,15 +221,15 @@ public:
     bool isClosed();
     bool isFile();
 
-    void setBuffer(ByteBuffer & buf);
-    void setBuffer(ByteBuffer & buf, EvioNodeSource & pool);
+    void setBuffer(std::shared_ptr<ByteBuffer> & buf);
+    void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
 
-    ByteBuffer & setCompressedBuffer(ByteBuffer & buf, EvioNodeSource & pool);
+    std::shared_ptr<ByteBuffer> & setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
 
     string getFileName();
     long getFileSize();
 
-    ByteBuffer & getBuffer();
+    std::shared_ptr<ByteBuffer> & getBuffer();
     int getBufferOffset();
 
     FileHeader & getFileHeader();
@@ -294,8 +295,8 @@ protected:
     void scanFile(bool force);
 
 
-    ByteBuffer & addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
-    ByteBuffer & removeStructure(EvioNode & removeNode);
+    std::shared_ptr<ByteBuffer> & addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
+    std::shared_ptr<ByteBuffer> & removeStructure(EvioNode & removeNode);
 
     void show();
 

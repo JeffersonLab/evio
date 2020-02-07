@@ -151,11 +151,11 @@ Reader::Reader(string & filename, bool forceScan) : nodePool(nodePoolStatic) {
  * @param buffer buffer with evio data.
  * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
  */
-Reader::Reader(ByteBuffer & buffer): nodePool(nodePoolStatic) {
+Reader::Reader(std::shared_ptr<ByteBuffer> & buffer): nodePool(nodePoolStatic) {
 
     this->buffer = buffer;
-    bufferOffset = buffer.position();
-    bufferLimit  = buffer.limit();
+    bufferOffset = buffer->position();
+    bufferLimit  = buffer->limit();
     fromFile = false;
 
     scanBuffer();
@@ -168,7 +168,7 @@ Reader::Reader(ByteBuffer & buffer): nodePool(nodePoolStatic) {
  * @param pool pool of EvioNode objects for garbage-free operation.
  * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
  */
-Reader::Reader(ByteBuffer & buffer, EvioNodeSource & pool) :
+Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool) :
         Reader(buffer, pool, false) {
 }
 
@@ -182,10 +182,10 @@ Reader::Reader(ByteBuffer & buffer, EvioNodeSource & pool) :
  * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6;
  *                       if checkRecordNumSeq is true and records are out of sequence.
  */
-Reader::Reader(ByteBuffer & buffer, EvioNodeSource & pool, bool checkRecordNumSeq) : nodePool(pool) {
+Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq) : nodePool(pool) {
     this->buffer = buffer;
-    bufferOffset = buffer.position();
-    bufferLimit  = buffer.limit();
+    bufferOffset = buffer->position();
+    bufferLimit  = buffer->limit();
     fromFile = false;
     checkRecordNumberSequence = checkRecordNumSeq;
 
@@ -252,10 +252,10 @@ bool Reader::isFile() {return fromFile;}
  * @throws HipoException if buf arg is null, buffer too small,
  *                       not in the proper format, or earlier than version 6
  */
-void Reader::setBuffer(ByteBuffer & buf) {
+void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
     buffer       = buf;
-    bufferLimit  = buffer.limit();
-    bufferOffset = buffer.position();
+    bufferLimit  = buffer->limit();
+    bufferOffset = buffer->position();
     eventIndex   = FileEventIndex();
 
     eventNodes.clear();
@@ -286,7 +286,7 @@ void Reader::setBuffer(ByteBuffer & buf) {
  * @throws HipoException if buffer too small,
  *                       not in the proper format, or earlier than version 6
  */
-void Reader::setBuffer(ByteBuffer & buf, EvioNodeSource & pool) {
+void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
     nodePool = pool;
     setBuffer(buf);
 }
@@ -311,7 +311,7 @@ void Reader::setBuffer(ByteBuffer & buf, EvioNodeSource & pool) {
  * @throws HipoException if buf arg is null, buffer too small,
  *                       not in the proper format, or earlier than version 6
  */
-ByteBuffer & Reader::setCompressedBuffer(ByteBuffer & buf, EvioNodeSource & pool) {
+std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
     setBuffer(buf, pool);
     return buffer;
 }
@@ -332,7 +332,7 @@ long Reader::getFileSize() {return fileSize;}
  * Get the buffer being read, if any.
  * @return buffer being read, if any.
  */
-ByteBuffer & Reader::getBuffer() {return buffer;}
+std::shared_ptr<ByteBuffer> & Reader::getBuffer() {return buffer;}
 
 /**
  * Get the beginning position of the buffer being read.
@@ -605,8 +605,8 @@ ByteBuffer Reader::readUserHeader() {
         //         "  " << firstRecordHeader.getIndexLength() << endl;
         auto userBytes = new uint8_t[userLen];
 
-        buffer.position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
-        buffer.get(userBytes, 0, userLen);
+        buffer->position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
+        buffer->getBytes(userBytes, 0, userLen);
         return std::move(ByteBuffer(userBytes, userLen).order(firstRecordHeader.getByteOrder()));
     }
 }
@@ -765,7 +765,7 @@ bool Reader::readRecord(uint32_t index) {
             inputRecordStream.readRecord(inStreamRandom, pos.getPosition());
         }
         else {
-            inputRecordStream.readRecord(buffer, pos.getPosition());
+            inputRecordStream.readRecord(*(buffer.get()), pos.getPosition());
         }
         currentRecordLoaded = index;
         return true;
@@ -806,12 +806,12 @@ void Reader::extractDictionaryFromBuffer() {
 
     try {
         // Position right before record header's user header
-        buffer.position(bufferOffset +
-                        firstRecordHeader.getHeaderLength() +
-                        firstRecordHeader.getIndexLength());
+        buffer->position(bufferOffset +
+                         firstRecordHeader.getHeaderLength() +
+                         firstRecordHeader.getIndexLength());
         // Read user header
         auto userBytes = new uint8_t[userLen];
-        buffer.get(userBytes, 0, userLen);
+        buffer->getBytes(userBytes, 0, userLen);
         ByteBuffer userBuffer(userBytes, userLen);
 
         // Parse user header as record
@@ -981,7 +981,7 @@ int Reader::getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLe
         // Hop over record
         offset += info[1];
 
-    } while (!RecordHeader::isLastRecord((int)info[0])); // Go to the next record if any
+    } while (!RecordHeader::isLastRecord((uint32_t)info[0])); // Go to the next record if any
 
     // No longer input, we now use array for output
     info[0] = totalCompressed;
@@ -989,6 +989,8 @@ int Reader::getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLe
 
     return totalCompressed;
 }
+
+// TODO: THIS method is inefficient as it copies data once too many times!!! FIX IT!!!
 
 /**
  * This method scans a buffer to find all records and store their position, length,
@@ -1014,36 +1016,38 @@ int Reader::getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLe
  */
 ByteBuffer Reader::scanBuffer() {
 
+    ByteBuffer & buf = *(buffer.get());
+
     // Quick check to see if data in buffer is compressed (pos/limit unchanged)
-    if (RecordHeader::isCompressed(buffer, bufferOffset)) {
+    if (!RecordHeader::isCompressed(buf, bufferOffset)) {
         // Since data is not compressed ...
         scanUncompressedBuffer();
-        return buffer;
+        return buf;
     }
 
     // The previous method call will set the endianness of the buffer properly.
     // Hop through ALL RECORDS to find their total lengths. This does NOT
     // change pos/limit of buffer.
-    int totalCompressedBytes = getTotalByteCounts(buffer, headerInfo, headerInfoLen);
+    int totalCompressedBytes = getTotalByteCounts(buf, headerInfo, headerInfoLen);
     int totalUncompressedBytes = headerInfo[1];
 
-    ByteBuffer bigEnoughBuf;
+    std::shared_ptr<ByteBuffer> bigEnoughBuf;
     bool useTempBuffer = false;
 
 //cout << "scanBuffer: total Uncomp bytes = " << totalUncompressedBytes <<
 //                " >? cap - off = " << (buffer.capacity() - bufferOffset) << endl;
 
     // If the buffer is too small to hold the expanded data, create one that isn't
-    if (totalUncompressedBytes > (buffer.capacity() - bufferOffset)) {
+    if (totalUncompressedBytes > (buf.capacity() - bufferOffset)) {
         // Time for a bigger buffer. Give buffer an extra 4KB, backed by array
-        bigEnoughBuf = ByteBuffer(totalUncompressedBytes + bufferOffset + 4096);
-        // Put stuff starting at bigEnoughBuf.position() = bufferOffset
-        //bigEnoughBuf.order(buffer.order()).limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
-        bigEnoughBuf.order(buffer.order()).position(bufferOffset);
+        bigEnoughBuf = std::make_shared<ByteBuffer>(totalUncompressedBytes + bufferOffset + 4096);
+        // Put stuff starting at bigEnoughBuf->position() = bufferOffset
+        //bigEnoughBuf->order(buffer.order()).limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
+        bigEnoughBuf->order(buf.order()).position(bufferOffset);
 
         // Copy in stuff up to offset
-        std::memcpy((void *)(bigEnoughBuf.array()),
-                    (const void *)(buffer.array() + buffer.arrayOffset()), bufferOffset);
+        std::memcpy((void *)(bigEnoughBuf->array()),
+                    (const void *)(buf.array() + buf.arrayOffset()), bufferOffset);
     }
     else {
         // "buffer" is big enough to hold everything. However, we need another buffer
@@ -1051,13 +1055,16 @@ ByteBuffer Reader::scanBuffer() {
         // buffer. Don't bother to copy stuff from buffer.pos = 0 - bufferOffset, since
         // we'll be copying stuff back into buffer anyway.
         useTempBuffer = true;
-        if (tempBuffer.capacity() < totalUncompressedBytes + bufferOffset) {
-            tempBuffer.expand(totalUncompressedBytes + bufferOffset + 4096);
+        if (tempBuffer == nullptr) {
+            tempBuffer = std::make_shared<ByteBuffer>(totalUncompressedBytes + bufferOffset + 4096);
         }
-        tempBuffer.order(buffer.order()).limit(tempBuffer.capacity()).position(0);
+        else if (tempBuffer->capacity() < totalUncompressedBytes + bufferOffset) {
+            tempBuffer->expand(totalUncompressedBytes + bufferOffset + 4096);
+        }
+        tempBuffer->order(buf.order()).limit(tempBuffer->capacity()).position(0);
 
         bigEnoughBuf = tempBuffer;
-        // Put stuff starting at bigEnoughBuf.position() = 0.
+        // Put stuff starting at bigEnoughBuf->position() = 0.
     }
 
     bool haveFirstRecordHeader = false;
@@ -1083,20 +1090,19 @@ ByteBuffer Reader::scanBuffer() {
         // If this is not the first record anymore, then the limit of bigEnoughBuf,
         // set above, may not be big enough.
 
-
         // Uncompress record in buffer and place into bigEnoughBuf
-        int origRecordBytes = inputRecordStream.uncompressRecord(
-                buffer, recordPos, bigEnoughBuf, recordHeader);
+        int origRecordBytes = RecordInput::uncompressRecord(
+                buf, recordPos, *(bigEnoughBuf.get()), recordHeader);
 
         // The only certainty at this point about pos/limit is that
-        // bigEnoughBuf.position = after header/index/user, just before data.
+        // bigEnoughBuf->position = after header/index/user, just before data.
         // What exactly the decompression methods do is unknown.
 
         // uncompressRecord(), above, read the header. Save the first header.
         if (!haveFirstRecordHeader) {
             // First time through, save byte order and version
             byteOrder = recordHeader.getByteOrder();
-            buffer.order(byteOrder);
+            buf.order(byteOrder);
             evioVersion = recordHeader.getVersion();
             firstRecordHeader = RecordHeader(recordHeader);
             compressed = recordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
@@ -1117,7 +1123,7 @@ ByteBuffer Reader::scanBuffer() {
         // Check to see if the whole record is there
         if (recordHeader.getLength() > bytesLeft) {
             cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
-                 ", pos = " << buffer.position() << endl;
+                 ", pos = " << buf.position() << endl;
             throw HipoException("Bad hipo format: not enough data to read record");
         }
 
@@ -1137,11 +1143,11 @@ ByteBuffer Reader::scanBuffer() {
 
         // After calling uncompressRecord(), bigEnoughBuf will be positioned
         // right before where the events start.
-        position = bigEnoughBuf.position();
+        position = bigEnoughBuf->position();
 
         // For each event in record, store its location
         for (int i=0; i < eventsInRecord; i++) {
-            EvioNode node;
+            std::shared_ptr<EvioNode> node;
             try {
 //System.out.println("      try extracting event " + i + ", pos = " + position +
 //                                               ", place = " + (eventCount + i));
@@ -1153,10 +1159,10 @@ ByteBuffer Reader::scanBuffer() {
             }
 //cout << "      event " << i << ", pos = " << node.getPosition() <<
 //                           ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
-            eventNodes.push_back(node);
+            eventNodes.push_back(*(node.get()));
 
             // Hop over event
-            byteLen   = node.getTotalBytes();
+            byteLen   = node->getTotalBytes();
             position += byteLen;
 
             if (byteLen < 8) {
@@ -1165,7 +1171,7 @@ ByteBuffer Reader::scanBuffer() {
 //cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << endl << endl;
         }
 
-        bigEnoughBuf.position(position);
+        bigEnoughBuf->position(position);
         eventCount += eventsInRecord;
 
         // If the evio buffer was written with the DAQ Java evio library,
@@ -1184,11 +1190,11 @@ ByteBuffer Reader::scanBuffer() {
     if (useTempBuffer) {
         // Since we're using a temp buffer, it does NOT contain buffer's data
         // from position = 0 to bufferOffset.
-        std::memcpy((void *)(buffer.array() + bufferOffset + buffer.arrayOffset()),
-                    (const void *)(bigEnoughBuf.array()), totalUncompressedBytes);
+        std::memcpy((void *)(buf.array() + bufferOffset + buf.arrayOffset()),
+                    (const void *)(bigEnoughBuf->array()), totalUncompressedBytes);
 
         // Restore the original position and set new limit
-        buffer.limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
+        buf.limit(bufferOffset + totalUncompressedBytes).position(bufferOffset);
 
         // We've copied data from one buffer to another,
         // so adjust the nodes to compensate.
@@ -1199,11 +1205,11 @@ ByteBuffer Reader::scanBuffer() {
     else {
         // We had to allocate memory in this method since buffer was too small,
         // so return the new larger buffer.
-        bigEnoughBuf.position(bufferOffset);
-        buffer = bigEnoughBuf;
+        bigEnoughBuf->position(bufferOffset);
+        return *(bigEnoughBuf.get());
     }
 
-    return buffer;
+    return buf;
 }
 
 /**
@@ -1235,9 +1241,9 @@ void Reader::scanUncompressedBuffer() {
 
     while (bytesLeft >= RecordHeader::HEADER_SIZE_BYTES) {
         // Read record header
-        buffer.position(position);
+        buffer->position(position);
         // This moves the buffer's position
-        buffer.get(headerBytes, 0, RecordHeader::HEADER_SIZE_BYTES);
+        buffer->getBytes(headerBytes, 0, RecordHeader::HEADER_SIZE_BYTES);
         // Only sets the byte order of headerBuffer
         recordHeader.readHeader(headerBuffer);
 //cout << "read header ->" << endl << recordHeader.toString() << endl;
@@ -1255,7 +1261,7 @@ void Reader::scanUncompressedBuffer() {
         if (!haveFirstRecordHeader) {
             // First time through, save byte order and version
             byteOrder = recordHeader.getByteOrder();
-            buffer.order(byteOrder);
+            buffer->order(byteOrder);
             evioVersion = recordHeader.getVersion();
             firstRecordHeader = RecordHeader(recordHeader);
             compressed = recordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
@@ -1265,7 +1271,7 @@ void Reader::scanUncompressedBuffer() {
         // Check to see if the whole record is there
         if (recordHeader.getLength() > bytesLeft) {
             cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
-                 ", pos = " << buffer.position() << endl;
+                 ", pos = " << buffer->position() << endl;
             throw HipoException("Bad hipo format: not enough data to read record");
         }
 
@@ -1287,12 +1293,12 @@ void Reader::scanUncompressedBuffer() {
         bytesLeft -= byteLen;
 
         // Do this because extractEventNode uses the buffer position
-        buffer.position(position);
+        buffer->position(position);
 //cout << "    hopped to data, pos = " << position << endl;
 
         // For each event in record, store its location
         for (int i=0; i < eventsInRecord; i++) {
-            EvioNode node;
+            std::shared_ptr<EvioNode> node;
             try {
 //cout << "      try extracting event " << i << " in record pos = " << recPosition <<
 //        ", pos = " << position << ", place = " << (eventCount + i) << endl;
@@ -1304,10 +1310,10 @@ void Reader::scanUncompressedBuffer() {
             }
 //cout << "      event " << i << " in record: pos = " << node.getPosition() <<
 //        ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
-            eventNodes.push_back(node);
+            eventNodes.push_back(*(node.get()));
 
             // Hop over event
-            byteLen    = node.getTotalBytes();
+            byteLen    = node->getTotalBytes();
             position  += byteLen;
             bytesLeft -= byteLen;
 
@@ -1321,7 +1327,7 @@ void Reader::scanUncompressedBuffer() {
         eventCount += eventsInRecord;
     }
 
-    buffer.position(bufferOffset);
+    buffer->position(bufferOffset);
 }
 
 
@@ -1619,7 +1625,7 @@ int Reader::toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrde
  *                       if internal programming error;
  *                       if buffer has compressed data;
  */
-ByteBuffer & Reader::removeStructure(EvioNode & removeNode) {
+std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
 
     if (closed) {
         throw HipoException("object closed");
@@ -1676,21 +1682,20 @@ ByteBuffer & Reader::removeStructure(EvioNode & removeNode) {
     // Just after removed node (start pos of data being moved)
     uint32_t startPos = removeNode.getPosition() + removeDataLen;
 
-    // Duplicate backing buffer
-    ByteBuffer moveBuffer;
-    buffer.duplicate(moveBuffer).order(buffer.order());
+    // Duplicate buffer shares data, but we need to copy it so use copy constructor.
+    ByteBuffer moveBuffer(*(buffer.get()));
     // Prepare to move data currently sitting past the removed node
-    moveBuffer.position(startPos).limit(bufferLimit);
+    moveBuffer.limit(bufferLimit).position(startPos);
 
     // Set place to put the data being moved - where removed node starts
-    buffer.position(removeNode.getPosition());
+    buffer->position(removeNode.getPosition());
     // Copy it over
-    buffer.put(moveBuffer);
+    buffer->put(moveBuffer);
 
     // Reset some buffer values
-    buffer.position(bufferOffset);
+    buffer->position(bufferOffset);
     bufferLimit -= removeDataLen;
-    buffer.limit(bufferLimit);
+    buffer->limit(bufferLimit);
 
     // Reduce lengths of parent node
     removeNode.getParentNode()->updateLengths(-removeDataLen);
@@ -1698,11 +1703,11 @@ ByteBuffer & Reader::removeStructure(EvioNode & removeNode) {
     // Reduce containing record's length
     uint32_t pos = removeNode.getRecordPosition();
     // Header length in words
-    uint32_t oldLen = 4*buffer.getInt(pos);
-    buffer.putInt(pos, (oldLen - removeDataLen)/4);
+    uint32_t oldLen = 4*buffer->getInt(pos);
+    buffer->putInt(pos, (oldLen - removeDataLen)/4);
     // Uncompressed data length in bytes
-    oldLen = buffer.getInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
-    buffer.putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen - removeDataLen);
+    oldLen = buffer->getInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
+    buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen - removeDataLen);
 
     // Invalidate all nodes obtained from the last buffer scan
     for (EvioNode ev : eventNodes) {
@@ -1744,7 +1749,7 @@ ByteBuffer & Reader::removeStructure(EvioNode & removeNode) {
  *                       if there is an internal programming error;
  *                       if object closed
  */
-ByteBuffer & Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
+std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
 
     if (addBuffer.remaining() < 8) {
         throw HipoException("empty or non-evio format buffer arg");
@@ -1780,25 +1785,25 @@ ByteBuffer & Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) 
     //--------------------------------------------
 
     // Create a new buffer
-    ByteBuffer newBuffer(bufferLimit - bufferOffset + appendDataLen);
-    newBuffer.order(byteOrder);
+    std::shared_ptr<ByteBuffer> newBuffer = std::make_shared<ByteBuffer>(bufferLimit - bufferOffset + appendDataLen);
+    newBuffer->order(byteOrder);
 
     // Copy beginning part of existing buffer into new buffer
-    buffer.limit(endPos).position(bufferOffset);
-    newBuffer.put(buffer);
+    buffer->limit(endPos).position(bufferOffset);
+    newBuffer->put(buffer);
 
     // Copy new structure into new buffer
-    newBuffer.put(addBuffer);
+    newBuffer->put(addBuffer);
 
     // Copy ending part of existing buffer into new buffer
-    buffer.limit(bufferLimit).position(endPos);
-    newBuffer.put(buffer);
+    buffer->limit(bufferLimit).position(endPos);
+    newBuffer->put(buffer);
 
     // Get new buffer ready for reading
-    newBuffer.flip();
-    buffer = newBuffer;
+    newBuffer->flip();
     bufferOffset = 0;
-    bufferLimit  = newBuffer.limit();
+    bufferLimit  = newBuffer->limit();
+    buffer = newBuffer;
 
     // Increase lengths of parent nodes
     EvioNode & addToNode = eventNodes[eventNumber];
@@ -1808,11 +1813,11 @@ ByteBuffer & Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) 
     // Increase containing record's length
     uint32_t pos = addToNode.getRecordPosition();
     // Header length in words
-    uint32_t oldLen = 4*buffer.getInt(pos);
-    buffer.putInt(pos, (oldLen + appendDataLen)/4);
+    uint32_t oldLen = 4*buffer->getInt(pos);
+    buffer->putInt(pos, (oldLen + appendDataLen)/4);
     // Uncompressed data length in bytes
-    oldLen = buffer.getInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
-    buffer.putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen + appendDataLen);
+    oldLen = buffer->getInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET);
+    buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen + appendDataLen);
 
     // Invalidate all nodes obtained from the last buffer scan
     for (EvioNode ev : eventNodes) {
