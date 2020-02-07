@@ -98,6 +98,10 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/RecordSupply.h
         src/hipo/RecordRingItem.h
         src/hipo/Util.h
+        src/hipo/EventWriter.h
+        src/hipo/RecordWriter.h
+        src/hipo/RecordCompressor.h
+        src/hipo/EvioBank.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -117,6 +121,8 @@ set(CPP_LIB_FILES_NEW
         src/hipo/Reader.cpp
         src/hipo/RecordSupply.cpp
         src/hipo/RecordRingItem.cpp
+        src/hipo/EventWriter.cpp
+        src/hipo/EvioBank.cpp
         )
 
 set(TEST_FILES_CC
