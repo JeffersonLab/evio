@@ -33,14 +33,15 @@ final public class Utilities {
     /**
      * This method generates part of a file name given a base file name as an argument.<p>
      *
-     * The base file name may contain up to 2, C-style integer format specifiers
-     * (such as <b>%03d</b>, or <b>%x</b>). If more than 2 are found, an exception
+     * The base file name may contain up to 3, C-style integer format specifiers
+     * (such as <b>%03d</b>, or <b>%x</b>). If more than 3 are found, an exception
      * will be thrown.
      * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
      * it will be added automatically in order to avoid spaces in the returned string.
      * In the {@link #generateFileName(String, int, int, long, int, int, int)} method,
      * the first occurrence will be substituted with the given runNumber value.
-     * If the file is being split, the second will be substituted with the split number.<p>
+     * If the file is being split, the second will be substituted with the split number.
+     * If there are multiple streams, the third will be substituted with the stream id.<p>
      *
      * The base file name may contain characters of the form <b>$(ENV_VAR)</b>
      * which will be substituted with the value of the associated environmental
@@ -325,7 +326,7 @@ final public class Utilities {
                 }
             }
             // For 2 specifiers: insert run # and split # at specified locations
-            // and place tack stream id immediately before split #.
+            // and place stream id immediately before split #.
             else if (specifierCount == 2) {
                 if (!oneStream) {
                     // In order to place streamId before split#, place a %d in the filename
