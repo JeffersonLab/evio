@@ -556,6 +556,17 @@ void FileHeader::writeHeader(ByteBuffer & buffer) {
 }
 
 /**
+ * Writes the file (not record!) header into the given byte buffer.
+ * @param buf byte buffer to write file header into.
+ * @param off position in buffer to begin writing.
+ * @throws HipoException if remaining buffer space (limit - off) is too small.
+ */
+void FileHeader::writeHeader(std::shared_ptr<ByteBuffer> & buf, size_t off) {
+    return writeHeader(*(buf.get()), off);
+}
+
+
+/**
  * Reads the file header information from a byte buffer and validates
  * it by checking the magic word (8th word). This magic word
  * also determines the byte order. The given buffer's position does
@@ -563,13 +574,13 @@ void FileHeader::writeHeader(ByteBuffer & buffer) {
  *
  * @param buffer buffer to read from.
  * @param offset position of first word to be read.
- * @throws HipoException if remaining buffer space (limit - off) is too small,
+ * @throws EvioException if remaining buffer space (limit - off) is too small,
  *                       data is not in proper format, or version earlier than 6.
  */
 void FileHeader::readHeader(ByteBuffer & buffer, size_t offset) {
 
     if ((buffer.limit() - offset) < HEADER_SIZE_BYTES) {
-        throw HipoException("buf is too small");
+        throw EvioException("buf is too small");
     }
 
     // First read the magic word to establish endianness
@@ -593,7 +604,7 @@ void FileHeader::readHeader(ByteBuffer & buffer, size_t offset) {
             buffer.printBytes(0, 40, "Bad Magic Word, buffer:");
             stringstream ss;
             ss << "buffer not in evio/hipo format? magic int = 0x" << hex << headerMagicWord;
-            throw HipoException(ss.str());
+            throw EvioException(ss.str());
         }
     }
     else {
@@ -604,7 +615,7 @@ void FileHeader::readHeader(ByteBuffer & buffer, size_t offset) {
     bitInfo = buffer.getInt(BIT_INFO_OFFSET + offset);
     decodeBitInfoWord(bitInfo);
     if (headerVersion < 6) {
-        throw HipoException("evio version < 6, = " + to_string(headerVersion));
+        throw EvioException("evio version < 6, = " + to_string(headerVersion));
     }
 
     fileId            = buffer.getInt(FILE_ID_OFFSET + offset);
@@ -632,7 +643,7 @@ void FileHeader::readHeader(ByteBuffer & buffer, size_t offset) {
  * NOT change.
  *
  * @param buffer buffer to read from starting at the beginning.
- * @throws HipoException if remaining buffer space (limit) is too small,
+ * @throws EvioException if remaining buffer space (limit) is too small,
  *                       data is not in proper format, or version earlier than 6.
  */
 void FileHeader::readHeader(ByteBuffer & buffer) {

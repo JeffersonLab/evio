@@ -25,6 +25,7 @@
 #include "HeaderType.h"
 #include "ByteBuffer.h"
 #include "Compressor.h"
+#include "EvioException.h"
 
 
 namespace evio {
@@ -286,6 +287,7 @@ public:
     // Writing, reading, printing
     void writeHeader(ByteBuffer & buffer);
     void writeHeader(ByteBuffer & buf, size_t off);
+    void writeHeader(std::shared_ptr<ByteBuffer> & buf, size_t off);
     void readHeader(ByteBuffer & buffer, size_t offset);
     void readHeader(ByteBuffer & buffer);
 
