@@ -122,8 +122,8 @@ if debug:
 # Compile with -g and add debugSuffix to all executable names
     env.Append(CCFLAGS = ['-g'], PROGSUFFIX = debugSuffix)
 
-# code for newlib++ written in C++11
-env.Append(CCFLAGS = ['-std=c++11'])
+# code for newlib++ written in C++17
+env.Append(CCFLAGS = ['-std=c++17'])
 
 # location of C++ version of disruptor
 disruptorHome = os.getenv('DISRUPTOR_CPP_HOME')
@@ -140,7 +140,8 @@ execLibs = ['']
 
 
 # Platform dependent quantities. Default to standard Linux libs.
-execLibs = ['pthread', 'expat', 'z', 'lz4', 'dl', 'm']
+# -lstdc++fs is a library needed for the experimental <filesystem> header in C++17
+execLibs = ['stdc++fs', 'pthread', 'expat', 'z', 'lz4', 'dl', 'm']
 #execLibs = ['pthread', 'expat', 'z', 'dl', 'm']
 
 env.AppendUnique(CPPDEFINES = ['USE_GZIP'])
