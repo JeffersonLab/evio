@@ -97,7 +97,7 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
         fileHeader = FileHeader(true);
     }
 
-    haveDictionary = dictionary.length() > 0;
+    haveDictionary = !dictionary.empty();
     haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
 
     if (haveDictionary || haveFirstEvent)  {
@@ -105,7 +105,7 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
     }
     else {
         // Tell open() there is no dictionary/first event data
-        dictionaryFirstEventBuffer.limit(0);
+        dictionaryFirstEventBuffer->limit(0);
     }
 
     // Number of ring items must be >= compressionThreads
@@ -279,11 +279,11 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
         throw HipoException("currently open, call reset() first");
     }
 
-    if (filename.length() < 1) {
+    if (filename.empty()) {
         throw HipoException("bad filename");
     }
 
-    ByteBuffer fileHeaderBuffer(0);
+    std::shared_ptr<ByteBuffer> fileHeaderBuffer;
     haveUserHeader = false;
 
     // User header given as arg has precedent
@@ -294,7 +294,7 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     }
     else {
         // If dictionary & firstEvent not defined and user header not given ...
-        if (dictionaryFirstEventBuffer.remaining() < 1) {
+        if (dictionaryFirstEventBuffer->remaining() < 1) {
             cout << "writerMT::open: given a null user header to write, userLen = " << userLen <<  endl;
             fileHeaderBuffer = createHeader(nullptr, 0);
         }
@@ -302,7 +302,7 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
             // record which becomes user header
         else {
             cout << "writerMT::open: given a valid dict/first ev header to write" << endl;
-            fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
+            fileHeaderBuffer = createHeader(*(dictionaryFirstEventBuffer.get()));
         }
     }
 
@@ -310,7 +310,7 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     fileName = filename;
     // TODO: what flags??? instead of "rw"
     outFile.open(filename, ios::binary);
-    outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer.array()), fileHeaderBuffer.remaining());
+    outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer->array()), fileHeaderBuffer->remaining());
     if (outFile.fail()) {
         throw HipoException("error opening file " + filename);
     }
@@ -343,7 +343,7 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
  * @return buffer representation of record containing dictionary and/or first event,
  *         of zero size if first event and dictionary don't exist.
  */
-ByteBuffer WriterMT::createDictionaryRecord() {
+std::shared_ptr<ByteBuffer> WriterMT::createDictionaryRecord() {
     return Writer::createRecord(dictionary, firstEvent, firstEventLength,
                                 byteOrder, &fileHeader, nullptr);
 }
@@ -358,7 +358,7 @@ ByteBuffer WriterMT::createDictionaryRecord() {
  * @param userLen array length in bytes.
  * @return ByteBuffer containing a file header followed by the user-defined header
  */
-ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
+std::shared_ptr<ByteBuffer> WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
 
     cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
 
@@ -378,8 +378,8 @@ ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
 
     cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
     uint32_t totalLen = fileHeader.getLength();
-    ByteBuffer buf(totalLen);
-    buf.order(byteOrder);
+    std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(totalLen);
+    buf->order(byteOrder);
 
     try {
         cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
@@ -388,12 +388,12 @@ ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
     catch (HipoException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
-        std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
+        std::memcpy((void *)(buf->array() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr), userHeaderBytes);
     }
 
     // Get ready to read, buffer position is still 0
-    buf.limit(totalLen);
+    buf->limit(totalLen);
     return std::move(buf);
 }
 
@@ -407,7 +407,7 @@ ByteBuffer WriterMT::createHeader(uint8_t* userHdr, uint32_t userLen) {
  * @return buffer containing a file header followed by the user-defined header.
  * @throws HipoException if writing to buffer, not file.
  */
-ByteBuffer WriterMT::createHeader(ByteBuffer & userHdr) {
+std::shared_ptr<ByteBuffer> WriterMT::createHeader(ByteBuffer & userHdr) {
 
     int userHeaderBytes = userHdr.remaining();
     fileHeader.reset();
@@ -422,8 +422,8 @@ ByteBuffer WriterMT::createHeader(ByteBuffer & userHdr) {
     fileHeader.setUserHeaderLength(userHeaderBytes);
 
     uint32_t totalLen = fileHeader.getLength();
-    ByteBuffer buf(totalLen);
-    buf.order(byteOrder);
+    std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(totalLen);
+    buf->order(byteOrder);
 
     try {
         fileHeader.writeHeader(buf, 0);
@@ -431,13 +431,13 @@ ByteBuffer WriterMT::createHeader(ByteBuffer & userHdr) {
     catch (HipoException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
-        std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
+        std::memcpy((void *)(buf->array() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr.array() + userHdr.arrayOffset()+ userHdr.position()),
                     userHeaderBytes);
     }
 
     // Get ready to read, buffer position is still 0
-    buf.limit(totalLen);
+    buf->limit(totalLen);
     return std::move(buf);
 }
 
@@ -652,7 +652,7 @@ void WriterMT::addEvent(ByteBuffer & buffer) {
  */
 void WriterMT::addEvent(EvioNode & node) {
 
-    if (node.getBuffer().order() != byteOrder) {
+    if (node.getBuffer()->order() != byteOrder) {
         throw HipoException("buffer arg byte order is wrong");
     }
 

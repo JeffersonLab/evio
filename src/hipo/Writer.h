@@ -23,6 +23,7 @@
 #include <string>
 #include <future>
 #include <chrono>
+#include <memory>
 
 #include "FileHeader.h"
 #include "ByteBuffer.h"
@@ -72,7 +73,7 @@ private:
     // For both files & buffers
 
     /** Buffer containing user Header. */
-    ByteBuffer userHeaderBuffer;
+    std::shared_ptr<ByteBuffer> userHeaderBuffer = nullptr;
     /** Byte array containing user Header. */
     uint8_t* userHeader = nullptr;
     /** Size in bytes of userHeader array. */
@@ -82,7 +83,7 @@ private:
     /** String containing evio-format XML dictionary to store in file header's user header. */
     string dictionary;
     /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
-    ByteBuffer dictionaryFirstEventBuffer;
+    std::shared_ptr<ByteBuffer> dictionaryFirstEventBuffer;
     /** Evio format "first" event to store in file header's user header. */
     uint8_t* firstEvent = nullptr;
     /** Length in bytes of firstEvent. */
@@ -168,7 +169,7 @@ private:
     // Don't allow assignment
     Writer & operator=(const Writer& other);
 
-    ByteBuffer createDictionaryRecord();
+    std::shared_ptr<ByteBuffer> createDictionaryRecord();
     void writeOutput();
     void writeOutputToBuffer();
 
@@ -193,24 +194,21 @@ public:
     void open(string & filename, uint8_t* userHdr, uint32_t len);
     void open(ByteBuffer & buf,  uint8_t* userHdr, uint32_t len);
 
-    static ByteBuffer createRecord(const string & dictionary,
+    static std::shared_ptr<ByteBuffer> createRecord(const string & dictionary,
                                    uint8_t* firstEvent, uint32_t firstEventLen,
                                    const ByteOrder & byteOrder,
                                    FileHeader* fileHeader,
                                    RecordHeader* recordHeader);
 
-    //ByteBuffer & createHeader(uint8_t* userHeader, size_t len);
-    ByteBuffer createHeader(uint8_t* userHdr, uint32_t userLen);
-    ByteBuffer createHeader(ByteBuffer & userHdr);
+    std::shared_ptr<ByteBuffer> createHeader(uint8_t* userHdr, uint32_t userLen);
+    std::shared_ptr<ByteBuffer> createHeader(ByteBuffer & userHdr);
     void createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen);
     void createHeader(ByteBuffer & buf, ByteBuffer & userHdr);
-    //ByteBuffer & createHeader(ByteBuffer & userHeader);
 
     void writeRecord(RecordOutput & record);
 
     // Use internal RecordOutput to write individual events
 
-//    void addEvent(uint8_t* buffer);
     void addEvent(uint8_t* buffer, uint32_t offset, uint32_t length);
     void addEvent(ByteBuffer & buffer);
 //    void addEvent(EvioBank & bank);

@@ -30,10 +30,10 @@
 #include "ByteOrder.h"
 #include "RecordOutput.h"
 #include "RecordHeader.h"
-#include "ConcurrentFixedQueue.h"
 #include "Compressor.h"
 #include "Writer.h"
 #include "RecordSupply.h"
+#include "RecordCompressor.h"
 #include "Util.h"
 
 #include "Disruptor/Util.h"
@@ -57,113 +57,6 @@ class WriterMT {
 
 
 private:
-
-    /**
-     * Class used to create a thread which takes data-filled records from a RingBuffer-backed
-     * RecordSupply, compresses them, and places them back into the supply.
-     * It is an interruptible thread from the boost library.
-     */
-    class RecordCompressor {
-
-    private:
-
-        /** Keep track of this thread with id number. */
-        uint32_t threadNumber;
-        /** Type of compression to perform. */
-        Compressor::CompressionType compressionType;
-        /** Supply of RecordRingItems. */
-        std::shared_ptr<RecordSupply> supply;
-        /** Thread which does the compression. */
-        boost::thread thd;
-
-    public:
-
-        /**
-         * Constructor.
-         * @param thdNum   unique thread number starting at 0.
-         * @param type     type of compression to do.
-         * @param qIn      input queue of records to compress.
-         * @param qOut     output queue of compressed records.
-         */
-        RecordCompressor(uint32_t thdNum, Compressor::CompressionType & type,
-                         std::shared_ptr<RecordSupply> & recordSupply) :
-                threadNumber(thdNum),
-                compressionType(type),
-                supply(recordSupply) {
-        }
-
-        RecordCompressor(RecordCompressor && obj) noexcept :
-                threadNumber(obj.threadNumber),
-                compressionType(obj.compressionType),
-                supply(std::move(obj.supply)),
-                thd(std::move(obj.thd)) {
-        }
-
-        RecordCompressor & operator=(RecordCompressor && obj) noexcept {
-            if (this != &obj) {
-                threadNumber = obj.threadNumber;
-                compressionType = obj.compressionType;
-                supply = std::move(obj.supply);
-                thd  = std::move(obj.thd);
-            }
-            return *this;
-        }
-
-        ~RecordCompressor() {
-            thd.interrupt();
-            if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                cout << "RecordCompressor thread did not quit after 1/2 sec" << endl;
-            }
-        }
-
-        /** Create and start a thread to execute the run() method of this class. */
-        void startThread() {
-            thd = boost::thread([this]() {this->run();});
-        }
-
-        /** Stop the thread. */
-        void stopThread() {
-            // Send signal to interrupt it
-            thd.interrupt();
-            // Wait for it to stop
-            thd.join();
-        }
-
-        /** Method to run in the thread. */
-        void run() {
-            try {
-                while (true) {
-                    cout << "   Compressor " << threadNumber << ": try getting record to compress" << endl;
-
-                    // Get the next record for this thread to compress
-                    auto item = supply->getToCompress(threadNumber);
-
-                    {
-                        // Only allow interruption when blocked on trying to get item
-                        boost::this_thread::disable_interruption d1;
-
-                        // Pull record out of wrapping object
-                        std::shared_ptr<RecordOutput> & record = item->getRecord();
-                        // Set compression type and record #
-                        RecordHeader & header = record->getHeader();
-                        // Fortunately for us, the record # is also the sequence # + 1 !
-                        header.setRecordNumber((uint32_t) (item->getSequence() + 1L));
-                        header.setCompressionType(compressionType);
-                        cout << "   Compressor " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
-                        // Do compression
-                        record->build();
-                        const ByteBuffer & buf = record->getBinaryBuffer();
-                        // Release back to supply
-                        supply->releaseCompressor(item);
-                    }
-                }
-            }
-            catch (boost::thread_interrupted & e) {
-                //cout << "   Compressor " << threadNumber << ": INTERRUPTED, return" << endl;
-            }
-        }
-    };
-
 
     /**
      * Class used to take data-filled records from a RingBuffer-backed
@@ -273,10 +166,10 @@ private:
                         writer->recordLengths.push_back(header.getEntries());
                         writer->writerBytesWritten += bytesToWrite;
 
-                        const ByteBuffer &buf = record->getBinaryBuffer();
-                        cout << "   RecordWriter: use outFile to write file, buf pos = " << buf.position() <<
-                             ", lim = " << buf.limit() << ", bytesToWrite = " << bytesToWrite << endl;
-                        writer->outFile.write(reinterpret_cast<const char *>(buf.array()), bytesToWrite);
+                        auto buf = record->getBinaryBuffer();
+                        cout << "   RecordWriter: use outFile to write file, buf pos = " << buf->position() <<
+                             ", lim = " << buf->limit() << ", bytesToWrite = " << bytesToWrite << endl;
+                        writer->outFile.write(reinterpret_cast<const char *>(buf->array()), bytesToWrite);
                         if (writer->outFile.fail()) {
                             throw HipoException("failed write to file");
                         }
@@ -333,10 +226,10 @@ private:
 //    ByteBuffer userHeaderBuffer;
 
     /** String containing evio-format XML dictionary to store in file header's user header. */
-    string dictionary;
+    std::string dictionary;
 
     /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
-    ByteBuffer dictionaryFirstEventBuffer;
+    std::shared_ptr<ByteBuffer> dictionaryFirstEventBuffer;
 
     /** Byte order of data to write to file/buffer. */
     ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
@@ -346,7 +239,6 @@ private:
 
     /** Byte array large enough to hold a header/trailer. This array may increase. */
     std::vector<uint8_t> headerArray;
-    uint8_t headerArray2[RecordHeader::HEADER_SIZE_BYTES];
 
     /** Type of compression to use on file. Default is none. */
     Compressor::CompressionType compressionType {Compressor::UNCOMPRESSED};
@@ -418,7 +310,7 @@ public:
 
 private:
 
-    ByteBuffer createDictionaryRecord();
+    std::shared_ptr<ByteBuffer> createDictionaryRecord();
     void writeTrailer(bool writeIndex, uint32_t recordNum);
 
 public:
@@ -438,8 +330,8 @@ public:
     void open(string & filename);
     void open(string & filename, uint8_t* userHdr, uint32_t userLen);
 
-    ByteBuffer createHeader(uint8_t* userHdr, uint32_t userLen);
-    ByteBuffer createHeader(ByteBuffer & userHdr);
+    std::shared_ptr<ByteBuffer> createHeader(uint8_t* userHdr, uint32_t userLen);
+    std::shared_ptr<ByteBuffer> createHeader(ByteBuffer & userHdr);
 
     void writeRecord(RecordOutput & record);
 

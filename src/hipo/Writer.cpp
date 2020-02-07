@@ -92,8 +92,8 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order,
     compressionType = compType;
     this->addTrailerIndex = addTrailerIndex;
 
-    // Set as having no data
-    userHeaderBuffer.limit(0);
+//    // Set as having no data
+//    userHeaderBuffer->limit(0);
 
     outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType, hType);
 
@@ -106,7 +106,7 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order,
         fileHeader = FileHeader(true);
     }
 
-    haveDictionary = dictionary.length() > 0;
+    haveDictionary = !dictionary.empty();
     haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
 
     if (haveDictionary || haveFirstEvent)  {
@@ -114,7 +114,7 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order,
     }
     else {
         // Tell open() there is no dictionary/first event data
-        dictionaryFirstEventBuffer.limit(0);
+        dictionaryFirstEventBuffer->limit(0);
     }
 }
 
@@ -157,21 +157,21 @@ Writer::Writer(ByteBuffer & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
     outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
 
-    haveDictionary = dictionary.length() > 0;
+    haveDictionary = !dictionary.empty();
     haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
 
     if (haveDictionary || haveFirstEvent)  {
         dictionaryFirstEventBuffer = createDictionaryRecord();
         // make this the user header by default since open() may not get called for buffers
 // TODO: SHOULD NOT AVOID the shared pointer!!!!! Look at userHeader uses!!!
-        userHeader = dictionaryFirstEventBuffer.array();
-        userHeaderLength = dictionaryFirstEventBuffer.remaining();
+        userHeader = dictionaryFirstEventBuffer->array();
+        userHeaderLength = dictionaryFirstEventBuffer->remaining();
         userHeaderBuffer = dictionaryFirstEventBuffer;
     }
     else {
-        // Set these as having no data
-        userHeaderBuffer.limit(0);
-        dictionaryFirstEventBuffer.limit(0);
+//        // Set these as having no data
+//        userHeaderBuffer->limit(0);
+        dictionaryFirstEventBuffer->limit(0);
     }
 
     toFile = false;
@@ -442,11 +442,11 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
         throw HipoException("can only write to a buffer, call open(buffer, userHdr, userLen)");
     }
 
-    if (filename.length() < 1) {
+    if (filename.empty()) {
         throw HipoException("bad filename");
     }
 
-    ByteBuffer fileHeaderBuffer(0);
+    std::shared_ptr<ByteBuffer> fileHeaderBuffer;
     haveUserHeader = false;
 
     // User header given as arg has precedent
@@ -457,7 +457,7 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     }
     else {
         // If dictionary & firstEvent not defined and user header not given ...
-        if (dictionaryFirstEventBuffer.remaining() < 1) {
+        if (dictionaryFirstEventBuffer->remaining() < 1) {
             cout << "writer::open: given a null user header to write, userLen = " << userLen <<  endl;
             fileHeaderBuffer = createHeader(nullptr, 0);
         }
@@ -465,7 +465,7 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
             // record which becomes user header
         else {
             cout << "writer::open: given a valid dict/first ev header to write" << endl;
-            fileHeaderBuffer = createHeader(dictionaryFirstEventBuffer);
+            fileHeaderBuffer = createHeader(*(dictionaryFirstEventBuffer.get()));
         }
     }
 
@@ -473,7 +473,7 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     fileName = filename;
     // TODO: what flags??? instead of "rw"
     outFile.open(filename, ios::binary);
-    outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer.array()), fileHeaderBuffer.remaining());
+    outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer->array()), fileHeaderBuffer->remaining());
     if (outFile.fail()) {
         throw HipoException("error opening file " + filename);
     }
@@ -509,31 +509,31 @@ void Writer::open(ByteBuffer & buf, uint8_t* userHdr, uint32_t len) {
     }
 
     if (userHdr == nullptr) {
-        if (dictionaryFirstEventBuffer.remaining() > 0) {
-            userHeader = dictionaryFirstEventBuffer.array();
+        if (dictionaryFirstEventBuffer->remaining() > 0) {
+            userHeader = dictionaryFirstEventBuffer->array();
             userHeaderBuffer = dictionaryFirstEventBuffer;
-            userHeaderLength = dictionaryFirstEventBuffer.remaining();
+            userHeaderLength = dictionaryFirstEventBuffer->remaining();
         }
         else {
             userHeader = nullptr;
-            userHeaderBuffer.clear();
+            userHeaderBuffer->clear();
             userHeaderLength = 0;
         }
     }
     else if (len > 0) {
         userHeader = userHdr;
-        userHeaderBuffer = std::move(ByteBuffer(userHdr, len));
-        userHeaderBuffer.order(byteOrder);
+        userHeaderBuffer = std::make_shared<ByteBuffer>(userHdr, len);
+        userHeaderBuffer->order(byteOrder);
         userHeaderLength = len;
     }
-    else if (dictionaryFirstEventBuffer.remaining() > 0) {
-        userHeader = dictionaryFirstEventBuffer.array();
+    else if (dictionaryFirstEventBuffer->remaining() > 0) {
+        userHeader = dictionaryFirstEventBuffer->array();
         userHeaderBuffer = dictionaryFirstEventBuffer;
-        userHeaderLength = dictionaryFirstEventBuffer.remaining();
+        userHeaderLength = dictionaryFirstEventBuffer->remaining();
     }
     else {
         userHeader = nullptr;
-        userHeaderBuffer.clear();
+        userHeaderBuffer->clear();
         userHeaderLength = 0;
     }
 
@@ -549,9 +549,9 @@ void Writer::open(ByteBuffer & buf, uint8_t* userHdr, uint32_t len) {
  * containing the dictionary and/or the first event.
  * No compression.
  * @return buffer representation of record containing dictionary and/or first event,
- *         of zero size if first event and dictionary don't exist.
+ *         Null pointer if first event and dictionary don't exist.
  */
-ByteBuffer Writer::createDictionaryRecord() {
+std::shared_ptr<ByteBuffer> Writer::createDictionaryRecord() {
     return createRecord(dictionary, firstEvent, firstEventLength,
                         byteOrder, &fileHeader, nullptr);
 }
@@ -570,14 +570,14 @@ ByteBuffer Writer::createDictionaryRecord() {
  * @param fileHdr   file header to update with dictionary/first-event info (may be null).
  * @param recordHdr record header to update with dictionary/first-event info (may be null).
  * @return buffer representation of record containing dictionary and/or first event.
- *         Empty buffer if both are empty/null.
+ *         Null pointer if both are empty/null.
  */
-ByteBuffer Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t firstEvLen,
+std::shared_ptr<ByteBuffer> Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t firstEvLen,
                                 const ByteOrder & order, FileHeader* fileHdr,
                                 RecordHeader* recordHdr) {
 
-    if (dict.length() < 1 && firstEv == nullptr) {
-        return ByteBuffer(0).order(order);
+    if (dict.empty() && firstEv == nullptr) {
+        return nullptr;
     }
 
     // Create record.
@@ -587,7 +587,7 @@ ByteBuffer Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t 
     // How much data we got?
     int bytes=0;
 
-    if (dict.length() > 0) {
+    if (!dict.empty()) {
         bytes += dict.length();
     }
 
@@ -602,7 +602,7 @@ ByteBuffer Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t 
     }
 
     // Add dictionary to record
-    if (dict.length() > 0) {
+    if (!dict.empty()) {
         record.addEvent(reinterpret_cast<const uint8_t*>(&dict[0]), 0, dict.length());
         // Also need to set bits in headers
         if (fileHdr   != nullptr)   fileHdr->hasDictionary(true);
@@ -621,7 +621,7 @@ ByteBuffer Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t 
     record.build();
 
     // Ready-to-read buffer contains record data
-    return std::move(record.getBinaryBuffer());
+    return record.getBinaryBuffer();
 }
 
 
@@ -635,7 +635,7 @@ ByteBuffer Writer::createRecord(const string & dict, uint8_t* firstEv, uint32_t 
  * @return buffer (same as buf arg).
  * @throws HipoException if writing to buffer, not file.
  */
-ByteBuffer Writer::createHeader(uint8_t* userHdr, uint32_t userLen) {
+std::shared_ptr<ByteBuffer> Writer::createHeader(uint8_t* userHdr, uint32_t userLen) {
     if (!toFile) {
         throw HipoException("call only if writing to file");
     }
@@ -659,8 +659,8 @@ ByteBuffer Writer::createHeader(uint8_t* userHdr, uint32_t userLen) {
 
 //cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
     uint32_t totalLen = fileHeader.getLength();
-    ByteBuffer buf(totalLen);
-    buf.order(byteOrder);
+    std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(totalLen);
+    buf->order(byteOrder);
 
     try {
 //cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
@@ -669,12 +669,12 @@ ByteBuffer Writer::createHeader(uint8_t* userHdr, uint32_t userLen) {
     catch (HipoException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
-        std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
+        std::memcpy((void *)(buf->array() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr), userHeaderBytes);
     }
 
     // Get ready to read, buffer position is still 0
-    buf.limit(totalLen);
+    buf->limit(totalLen);
     return std::move(buf);
 }
 
@@ -747,7 +747,7 @@ void Writer::createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) 
  * @return buffer containing a file header followed by the user-defined header.
  * @throws HipoException if writing to buffer, not file.
  */
-ByteBuffer Writer::createHeader(ByteBuffer & userHdr) {
+std::shared_ptr<ByteBuffer> Writer::createHeader(ByteBuffer & userHdr) {
     if (!toFile) {
         throw HipoException("call only if writing to file");
     }
@@ -765,8 +765,8 @@ ByteBuffer Writer::createHeader(ByteBuffer & userHdr) {
 
 //cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << endl;
     uint32_t totalLen = fileHeader.getLength();
-    ByteBuffer buf(totalLen);
-    buf.order(byteOrder);
+    std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(totalLen);
+    buf->order(byteOrder);
 
     try {
 //cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
@@ -775,13 +775,13 @@ ByteBuffer Writer::createHeader(ByteBuffer & userHdr) {
     catch (HipoException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
-        std::memcpy((void *)(buf.array() + buf.arrayOffset() + FileHeader::HEADER_SIZE_BYTES),
+        std::memcpy((void *)(buf->array() + buf->arrayOffset() + FileHeader::HEADER_SIZE_BYTES),
                     (const void *)(userHdr.array() + userHdr.arrayOffset()+ userHdr.position()),
                     userHeaderBytes);
     }
 
     // Get ready to read, buffer position is still 0
-    buf.limit(totalLen);
+    buf->limit(totalLen);
     return std::move(buf);
 }
 
@@ -964,7 +964,7 @@ void Writer::writeRecord(RecordOutput & rec) {
                 std::async(std::launch::async,  // run in a separate thread
                            staticWriteFunction, // function to run
                            this,                // arguments to function ...
-                           reinterpret_cast<const char *>(rec.getBinaryBuffer().array()),
+                           reinterpret_cast<const char *>(rec.getBinaryBuffer()->array()),
                            bytesToWrite));
 
         // Next record to work with
@@ -972,7 +972,7 @@ void Writer::writeRecord(RecordOutput & rec) {
         outputRecord.reset();
     }
     else {
-        buffer.put(rec.getBinaryBuffer().array(), 0, bytesToWrite);
+        buffer.put(rec.getBinaryBuffer()->array(), 0, bytesToWrite);
     }
 }
 
@@ -1118,7 +1118,7 @@ void Writer::writeOutput() {
             std::async(std::launch::async,  // run in a separate thread
                        staticWriteFunction, // function to run
                        this,                // arguments to function ...
-                       reinterpret_cast<const char *>(outputRecord.getBinaryBuffer().array()),
+                       reinterpret_cast<const char *>(outputRecord.getBinaryBuffer()->array()),
                        bytesToWrite));
 
     // Keep track of which record is being written
@@ -1141,7 +1141,7 @@ void Writer::writeOutputToBuffer() {
     // first record header instead.
     if (!firstRecordWritten) {
         // This will take care of any unpadded user header data
-        outputRecord.build(userHeaderBuffer);
+        outputRecord.build(*(userHeaderBuffer.get()));
         firstRecordWritten = true;
     }
     else {
@@ -1156,7 +1156,7 @@ void Writer::writeOutputToBuffer() {
     writerBytesWritten += bytesToWrite;
 
     std::memcpy((void *)(buffer.array() + buffer.arrayOffset() + buffer.position()),
-                (const void *)(outputRecord.getBinaryBuffer().array()), bytesToWrite);
+                (const void *)(outputRecord.getBinaryBuffer()->array()), bytesToWrite);
 
     outputRecord.reset();
 }
