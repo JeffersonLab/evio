@@ -18,9 +18,12 @@
 #include <cstdlib>
 #include <cstdint>
 #include <cstdio>
+#include <vector>
+#include <memory>
 
 #include "ByteBuffer.h"
 #include "ByteOrder.h"
+#include "EvioBank.h"
 #include "EvioNode.h"
 #include "RecordHeader.h"
 #include "FileHeader.h"
@@ -151,16 +154,17 @@ public:
     size_t startingPosition = 0;
 
     /** This buffer stores event lengths ONLY. */
-    ByteBuffer recordIndex;
+    std::shared_ptr<ByteBuffer> recordIndex;
 
     /** This buffer stores event data ONLY. */
-    ByteBuffer recordEvents;
+    std::shared_ptr<ByteBuffer> recordEvents;
 
     /** This buffer stores data that will be compressed. */
-    ByteBuffer recordData;
+    std::shared_ptr<ByteBuffer> recordData;
 
-    /** Buffer in which to put constructed (& compressed) binary record. */
-    ByteBuffer recordBinary;
+    /** Buffer in which to put constructed (& compressed) binary record.
+     *  May be provided by user. */
+    std::shared_ptr<ByteBuffer> recordBinary;
 
     /** Header of this Record. */
     RecordHeader header;
@@ -182,7 +186,7 @@ public:
                           Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
                           HeaderType hType = HeaderType::EVIO_RECORD);
 
-    RecordOutput(ByteBuffer & buffer, uint32_t maxEventCount,
+    RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEventCount,
                  Compressor::CompressionType compressionType, HeaderType hType);
 
     RecordOutput(const RecordOutput & srcRec);
@@ -203,18 +207,18 @@ private:
 
 public:
 
-    void setBuffer(ByteBuffer & buf);
+    void setBuffer(std::shared_ptr<ByteBuffer> & buf);
     void transferDataForReading(const RecordOutput & rec);
 
-    int getUserBufferSize() const;
-    int getUncompressedSize() const;
-    int getInternalBufferCapacity() const;
-    int getMaxEventCount() const;
-    int getEventCount() const;
+    uint32_t getUserBufferSize() const;
+    uint32_t getUncompressedSize() const;
+    uint32_t getInternalBufferCapacity() const;
+    uint32_t getMaxEventCount() const;
+    uint32_t getEventCount() const;
 
     RecordHeader & getHeader();
     const ByteOrder    & getByteOrder() const;
-    const ByteBuffer   & getBinaryBuffer() const;
+    const std::shared_ptr<ByteBuffer> getBinaryBuffer() const;
     const Compressor::CompressionType getCompressionType() const;
     const HeaderType getHeaderType() const;
 
@@ -226,20 +230,23 @@ public:
     bool addEvent(const uint8_t* event, size_t position, uint32_t eventLen);
     bool addEvent(const uint8_t* event, size_t position, uint32_t eventLen, uint32_t extraDataLen);
 
+    bool addEvent(const vector<uint8_t> & event);
+    bool addEvent(const vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen);
+
     bool addEvent(const ByteBuffer & event);
     bool addEvent(const ByteBuffer & event, uint32_t extraDataLen);
 
     bool addEvent(EvioNode & node);
     bool addEvent(EvioNode & node, uint32_t extraDataLen);
-//    bool addEvent(EvioBank & event);
-//    bool addEvent(EvioBank & event, uint32_t extraDataLen);
+    bool addEvent(EvioBank & event);
+    bool addEvent(EvioBank & event, uint32_t extraDataLen);
 
     void reset();
 
     void setStartingBufferPosition(size_t pos);
 
     void build();
-    void build(ByteBuffer & userHeader);
+    void build(const ByteBuffer & userHeader);
 
 };
 
