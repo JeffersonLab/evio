@@ -180,7 +180,7 @@ public:
     RecordSupply();
     // No need to copy these things
     RecordSupply(const RecordSupply & supply) = delete;
-    RecordSupply(uint32_t ringSize, ByteOrder & order,
+    RecordSupply(uint32_t ringSize, ByteOrder order,
                  uint32_t threadCount, uint32_t maxEventCount, uint32_t maxBufferSize,
                  Compressor::CompressionType & compressionType);
 
