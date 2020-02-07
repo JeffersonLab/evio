@@ -126,6 +126,10 @@ public:
         return ENDIAN_LITTLE;
     }
 
+    static ByteOrder const & nativeOrder() {
+        return getLocalByteOrder();
+    };
+
     static bool isLocalHostBigEndian() {
         int i = 1;
         return !*((char *) &i);
