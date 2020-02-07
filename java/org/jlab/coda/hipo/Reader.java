@@ -1077,7 +1077,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
     public ByteBuffer scanBuffer() throws HipoException, BufferUnderflowException {
 
         // Quick check to see if data in buffer is compressed (pos/limit unchanged)
-        if (RecordHeader.isCompressed(buffer, bufferOffset)) {
+        if (!RecordHeader.isCompressed(buffer, bufferOffset)) {
             // Since data is not compressed ...
             scanUncompressedBuffer();
             return buffer;
@@ -1712,10 +1712,15 @@ System.out.println("scanFile: record pos = " + recordPosition + ", len = " + len
         // Just after removed node (start pos of data being moved)
         int startPos = removeNode.getPosition() + removeDataLen;
 
-        // Duplicate backing buffer
-        ByteBuffer moveBuffer = buffer.duplicate().order(buffer.order());
+        // Can't use duplicate(), must copy the backing buffer
+        ByteBuffer moveBuffer = ByteBuffer.allocate(bufferLimit-startPos).order(buffer.order());
+        int bufferLim = buffer.limit();
+        buffer.limit(bufferLimit).position(startPos);
+        moveBuffer.put(buffer);
+        buffer.limit(bufferLim);
+
         // Prepare to move data currently sitting past the removed node
-        moveBuffer.position(startPos).limit(bufferLimit);
+        moveBuffer.clear();
 
         // Set place to put the data being moved - where removed node starts
         buffer.position(removeNode.getPosition());
