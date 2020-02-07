@@ -31,16 +31,16 @@ Compressor::Compressor() {
 
 uint32_t Compressor::getYear(ByteBuffer & buf) {
     uint32_t rv = 0;
-    rv |= (uint32_t)buf.get(6);
+    rv |= (uint32_t)buf.getByte(6);
     rv &= 0x000000ff;
-    rv |= (uint32_t)buf.get(7) << 8;
+    rv |= (uint32_t)buf.getByte(7) << 8;
     rv &= 0x0000ffff;
     return rv;
 }
 
 uint32_t Compressor::getRevisionId(ByteBuffer & buf, uint32_t board_id) {
     uint32_t rv = 0;
-    rv |= buf.get((9 + board_id));
+    rv |= buf.getByte((9 + board_id));
     rv &= 0x000000ff;
     return rv;
 }
@@ -48,9 +48,9 @@ uint32_t Compressor::getRevisionId(ByteBuffer & buf, uint32_t board_id) {
 uint32_t Compressor::getSubsystemId(ByteBuffer & buf, uint32_t board_id) {
     uint32_t rv = 0;
     uint32_t offset = (26 + (board_id * 2));
-    rv |= buf.get(offset);
+    rv |= buf.getByte(offset);
     rv &= 0x000000ff;
-    rv |= buf.get((offset + 1)) << 8;
+    rv |= buf.getByte((offset + 1)) << 8;
     rv &= 0x0000ffff;
     return rv;
 }
@@ -58,9 +58,9 @@ uint32_t Compressor::getSubsystemId(ByteBuffer & buf, uint32_t board_id) {
 uint32_t Compressor::getDeviceId(ByteBuffer & buf, uint32_t board_id) {
     uint32_t rv = 0;
     uint32_t offset = (58 + (board_id * 2));
-    rv |= buf.get(offset);
+    rv |= buf.getByte(offset);
     rv &= 0x000000ff;
-    rv |= buf.get((offset + 1)) << 8;
+    rv |= buf.getByte((offset + 1)) << 8;
     rv &= 0x0000ffff;
     return rv;
 }
