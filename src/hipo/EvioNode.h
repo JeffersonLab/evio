@@ -81,7 +81,7 @@ private:
     bool obsolete = false;
 
     /** ByteBuffer that this node is associated with. */
-    ByteBuffer buffer;
+    shared_ptr<ByteBuffer> buffer;
 
     /** List of child nodes ordered according to placement in buffer. */
     vector<shared_ptr<EvioNode>> childNodes;
@@ -134,12 +134,12 @@ private:
 private:
 
     void copyParentForScan(std::shared_ptr<EvioNode> & parent);
-    void addChild(shared_ptr<EvioNode> & node);
-    void addToAllNodes(shared_ptr<EvioNode> & node);
-    void removeFromAllNodes(shared_ptr<EvioNode> & node);
-    void removeChild(shared_ptr<EvioNode> & node);
+    void addChild(std::shared_ptr<EvioNode> & node);
+    void addToAllNodes(std::shared_ptr<EvioNode> & node);
+    void removeFromAllNodes(std::shared_ptr<EvioNode> & node);
+    void removeChild(std::shared_ptr<EvioNode> & node);
     RecordNode & getRecordNode(); // public?
-
+    void copy(const EvioNode & src);
 
 protected:
 
@@ -148,14 +148,14 @@ protected:
 public:
 
     EvioNode();
-    explicit EvioNode(int id);
     EvioNode(const EvioNode & firstNode);
-    EvioNode(const std::shared_ptr<EvioNode> & src);
-    EvioNode(EvioNode && src) noexcept ;
-    EvioNode(uint32_t pos, uint32_t place, ByteBuffer & buffer, RecordNode & blockNode);
-    EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, ByteBuffer & buffer);
+    explicit EvioNode(int id);
+    explicit EvioNode(const std::shared_ptr<EvioNode> & src);
+    EvioNode(EvioNode && src) noexcept;
+    EvioNode(uint32_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
+    EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, std::shared_ptr<ByteBuffer> & buffer);
     EvioNode(uint32_t tag, uint32_t num, uint32_t pos, uint32_t dataPos,
-             DataType & type, DataType & dataType, ByteBuffer & buffer);
+             DataType & type, DataType & dataType, shared_ptr<ByteBuffer> & buffer);
 
     ~EvioNode() = default;
 
@@ -163,17 +163,17 @@ public:
     static void scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & nodeSource);
 
     static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position);
-    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
+    static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
                                                       RecordNode & recNode,
                                                       uint32_t position, uint32_t place);
-    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
+    static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
                                                       EvioNodeSource & pool,
                                                       RecordNode & recNode,
                                                       uint32_t position, uint32_t place);
-    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer,
+    static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
                                                       uint32_t recPosition,
                                                       uint32_t position, uint32_t place);
-    static std::shared_ptr<EvioNode> extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
+    static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool,
                                                       uint32_t recPosition, uint32_t position,
                                                       uint32_t place);
 
@@ -188,20 +188,20 @@ public:
     void clearObjects();
     void clearIntArray();
 
-    void setBuffer(ByteBuffer & buf);
-    void setData(uint32_t position, uint32_t plc, ByteBuffer & buf, RecordNode & recNode);
-    void setData(uint32_t position, uint32_t plc, uint32_t recPos, ByteBuffer & buf);
+    void setBuffer(shared_ptr<ByteBuffer> & buf);
+    void setData(uint32_t position, uint32_t plc, std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode);
+    void setData(uint32_t position, uint32_t plc, uint32_t recPos, std::shared_ptr<ByteBuffer> & buf);
 
 
     bool isObsolete();
     void setObsolete(bool obsolete);
-    vector<shared_ptr<EvioNode>> & getAllNodes();
-    vector<shared_ptr<EvioNode>> & getChildNodes();
-    void getAllDescendants(vector<shared_ptr<EvioNode>> & descendants);
-    shared_ptr<EvioNode> getChildAt(uint32_t index);
+    std::vector<std::shared_ptr<EvioNode>> & getAllNodes();
+    std::vector<std::shared_ptr<EvioNode>> & getChildNodes();
+    void getAllDescendants(std::vector<std::shared_ptr<EvioNode>> & descendants);
+    std::shared_ptr<EvioNode> getChildAt(uint32_t index);
     uint32_t getChildCount();
 
-    ByteBuffer & getBuffer();
+    std::shared_ptr<ByteBuffer> getBuffer();
 
     uint32_t getLength();
     uint32_t getTotalBytes();
@@ -218,17 +218,16 @@ public:
     uint32_t getRecordPosition();
     uint32_t getPlace();
 
-    shared_ptr<EvioNode> getParentNode();
+    std::shared_ptr<EvioNode> getParentNode();
     uint32_t getEventNumber();
     bool isEvent();
 
     void updateLengths(int deltaLen);
     void updateTag(uint32_t newTag);
-
     void updateNum(uint8_t newNum);
-    ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
 
-    vector<uint32_t> & getIntData();
+    ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
+    std::vector<uint32_t> & getIntData();
     void getIntData(vector<uint32_t> & intData);
     void getLongData(vector<uint64_t> & longData);
     void getShortData(vector<uint16_t> & shortData);

@@ -51,174 +51,9 @@ EvioNode::EvioNode(int id) : EvioNode() {
 }
 
 
-/** Copy constructor. */
-EvioNode::EvioNode(const EvioNode & src) {
+/** Copy method. */
+void EvioNode::copy(const EvioNode & src) {
 
-    len = src.len;
-    tag = src.tag;
-    num = src.num;
-    pad = src.pad;
-    pos = src.pos;
-    type = src.type;
-    dataLen = src.dataLen;
-    dataPos = src.dataPos;
-    dataType = src.dataType;
-    recordPos = src.recordPos;
-    place = src.place;
-
-    izEvent  = src.izEvent;
-    obsolete = src.obsolete;
-    scanned  = src.scanned;
-
-    data       = src.data;
-    eventNode  = src.eventNode;
-    parentNode = src.parentNode;
-
-    // Replace elements from this with src's
-    allNodes   = src.allNodes;
-    childNodes = src.childNodes;
-
-    recordNode = src.recordNode;
-}
-
-
-/** Copy constructor. */
-EvioNode::EvioNode(const std::shared_ptr<EvioNode> & src) {
-
-    len = src->len;
-    tag = src->tag;
-    num = src->num;
-    pad = src->pad;
-    pos = src->pos;
-    type = src->type;
-    dataLen = src->dataLen;
-    dataPos = src->dataPos;
-    dataType = src->dataType;
-    recordPos = src->recordPos;
-    place = src->place;
-
-    izEvent  = src->izEvent;
-    obsolete = src->obsolete;
-    scanned  = src->scanned;
-
-    data       = src->data;
-    eventNode  = src->eventNode;
-    parentNode = src->parentNode;
-
-    // Replace elements from this with src's
-    allNodes   = src->allNodes;
-    childNodes = src->childNodes;
-
-    recordNode = src->recordNode;
-}
-
-
-/** Move constructor. */
-EvioNode::EvioNode(EvioNode && src) noexcept {
-
-    len = src.len;
-    tag = src.tag;
-    num = src.num;
-    pad = src.pad;
-    pos = src.pos;
-    type = src.type;
-    dataLen = src.dataLen;
-    dataPos = src.dataPos;
-    dataType = src.dataType;
-    recordPos = src.recordPos;
-    place = src.place;
-
-    izEvent  = src.izEvent;
-    obsolete = src.obsolete;
-    scanned  = src.scanned;
-
-    data       = std::move(src.data);
-    eventNode  = std::move(src.eventNode);
-    parentNode = std::move(src.parentNode);
-
-    allNodes   = std::move(src.allNodes);
-    childNodes = std::move(src.childNodes);
-
-    recordNode = src.recordNode;
-}
-
-
-//----------------------------------
-
-/**
- * Constructor which creates an EvioNode associated with
- * an event (top level) evio container when parsing buffers
- * for evio data.
- *
- * @param pos         position of event in buffer (number of bytes)
- * @param place       containing event's place in buffer (starting at 0)
- * @param buffer      buffer containing this event
- * @param recordNode  block containing this event
- */
-EvioNode::EvioNode(uint32_t pos, uint32_t place, ByteBuffer & buffer, RecordNode & recordNode) : EvioNode() {
-    this->pos = pos;
-    this->place = place;
-    this->recordNode = recordNode;
-    this->buffer = buffer;
-    // This is an event by definition
-    this->izEvent = true;
-    // Event is a Bank by definition
-    this->type = DataType::BANK.getValue();
-}
-
-
-/**
- * Constructor which creates an EvioNode associated with
- * an event (top level) evio container when parsing buffers
- * for evio data.
- *
- * @param pos        position of event in buffer (number of bytes).
- * @param place      containing event's place in buffer (starting at 0).
- * @param recordPos  position of record containing this node.
- * @param buffer     buffer containing this event.
- */
-EvioNode::EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, ByteBuffer & buffer) : EvioNode() {
-    this->pos = pos;
-    this->place = place;
-    this->recordPos = recordPos;
-    this->buffer = buffer;
-    this->izEvent = true;
-    this->type = DataType::BANK.getValue();
-}
-
-
-/**
- * Constructor which creates an EvioNode in the CompactEventBuilder.
- *
- * @param tag        the tag for the event (or bank) header.
-    * @param num        the num for the event (or bank) header.
- * @param pos        position of event in buffer (bytes).
- * @param dataPos    position of event's data in buffer (bytes.)
- * @param type       the type of this evio structure.
- * @param dataType   the data type contained in this evio event.
- * @param buffer     buffer containing this event.
- */
-EvioNode::EvioNode(uint32_t tag, uint32_t num, uint32_t pos, uint32_t dataPos,
-                   DataType & type, DataType & dataType, ByteBuffer & buffer) : EvioNode() {
-    this->tag = tag;
-    this->num = num;
-    this->pos = pos;
-    this->dataPos = dataPos;
-
-    this->type = type.getValue();
-    this->dataType = dataType.getValue();
-    this->buffer = buffer;
-}
-
-
-/**
- * Assignment operator.
- * @param src right side object.
- * @return left side object.
- */
-EvioNode & EvioNode::operator=(const EvioNode& src) {
-
-    // Avoid self assignment ...
     if (this != &src) {
         len = src.len;
         tag = src.tag;
@@ -240,11 +75,134 @@ EvioNode & EvioNode::operator=(const EvioNode& src) {
         eventNode  = src.eventNode;
         parentNode = src.parentNode;
 
+        // Replace elements from this with src's
         allNodes   = src.allNodes;
         childNodes = src.childNodes;
 
         recordNode = src.recordNode;
     }
+}
+
+
+/** Copy constructor. */
+EvioNode::EvioNode(const EvioNode & src) {
+    copy(src);
+}
+
+
+/** Copy constructor. */
+EvioNode::EvioNode(const std::shared_ptr<EvioNode> & src) {
+    copy(*(src.get()));
+}
+
+
+/** Move constructor. */
+EvioNode::EvioNode(EvioNode && src) noexcept {
+
+    if (this != &src) {
+        len = src.len;
+        tag = src.tag;
+        num = src.num;
+        pad = src.pad;
+        pos = src.pos;
+        type = src.type;
+        dataLen = src.dataLen;
+        dataPos = src.dataPos;
+        dataType = src.dataType;
+        recordPos = src.recordPos;
+        place = src.place;
+
+        izEvent = src.izEvent;
+        obsolete = src.obsolete;
+        scanned = src.scanned;
+
+        data = std::move(src.data);
+        eventNode = std::move(src.eventNode);
+        parentNode = std::move(src.parentNode);
+
+        allNodes = std::move(src.allNodes);
+        childNodes = std::move(src.childNodes);
+
+        recordNode = src.recordNode;
+    }
+}
+
+
+//----------------------------------
+
+/**
+ * Constructor which creates an EvioNode associated with
+ * an event (top level) evio container when parsing buffers
+ * for evio data.
+ *
+ * @param pos         position of event in buffer (number of bytes)
+ * @param place       containing event's place in buffer (starting at 0)
+ * @param buffer      buffer containing this event
+ * @param recordNode  block containing this event
+ */
+EvioNode::EvioNode(uint32_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & recordNode) : EvioNode() {
+    this->pos = pos;
+    this->place = place;
+    this->recordNode = recordNode;
+    this->buffer = buffer;
+    // This is an event by definition
+    this->izEvent = true;
+    // Event is a Bank by definition
+    this->type = DataType::BANK.getValue();
+}
+
+
+/**
+ * Constructor which creates an EvioNode associated with
+ * an event (top level) evio container when parsing buffers
+ * for evio data.
+ *
+ * @param pos        position of event in buffer (number of bytes).
+ * @param place      containing event's place in buffer (starting at 0).
+ * @param recordPos  position of record containing this node.
+ * @param buffer     buffer containing this event.
+ */
+EvioNode::EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, shared_ptr<ByteBuffer> & buffer) : EvioNode() {
+    this->pos = pos;
+    this->place = place;
+    this->recordPos = recordPos;
+    this->buffer = buffer;
+    this->izEvent = true;
+    this->type = DataType::BANK.getValue();
+}
+
+
+/**
+ * Constructor which creates an EvioNode in the CompactEventBuilder.
+ *
+ * @param tag        the tag for the event (or bank) header.
+    * @param num        the num for the event (or bank) header.
+ * @param pos        position of event in buffer (bytes).
+ * @param dataPos    position of event's data in buffer (bytes.)
+ * @param type       the type of this evio structure.
+ * @param dataType   the data type contained in this evio event.
+ * @param buffer     buffer containing this event.
+ */
+EvioNode::EvioNode(uint32_t tag, uint32_t num, uint32_t pos, uint32_t dataPos,
+                   DataType & type, DataType & dataType, shared_ptr<ByteBuffer> & buffer) : EvioNode() {
+    this->tag = tag;
+    this->num = num;
+    this->pos = pos;
+    this->dataPos = dataPos;
+
+    this->type = type.getValue();
+    this->dataType = dataType.getValue();
+    this->buffer = buffer;
+}
+
+
+/**
+ * Assignment operator.
+ * @param src right side object.
+ * @return left side object.
+ */
+EvioNode & EvioNode::operator=(const EvioNode& src) {
+    copy(src);
     return *this;
 }
 
@@ -351,7 +309,7 @@ void EvioNode::clearObjects() {
     izEvent = obsolete = scanned = false;
     data.clear();
     recordNode.clear();
-    buffer.clear();
+    buffer->clear();
     eventNode  = nullptr;
     parentNode = nullptr;
 }
@@ -369,7 +327,7 @@ void EvioNode::clearIntArray() {data.clear();}
  * Set the buffer.
  * @param buf buffer associated with this object.
  */
-void EvioNode::setBuffer(ByteBuffer & buf) {buffer = buf;}
+void EvioNode::setBuffer(shared_ptr<ByteBuffer> & buf) {buffer = buf;}
 
 /**
  * Once this node is cleared, it may be reused and then re-initialized
@@ -381,7 +339,7 @@ void EvioNode::setBuffer(ByteBuffer & buf) {buffer = buf;}
  * @param recordNode  object holding data about header of block containing event
  */
 void EvioNode::setData(uint32_t position, uint32_t plc,
-                       ByteBuffer & buf, RecordNode & recNode) {
+                       shared_ptr<ByteBuffer> & buf, RecordNode & recNode) {
     buffer     = buf;
     recordNode = recNode;
     pos        = position;
@@ -400,7 +358,7 @@ void EvioNode::setData(uint32_t position, uint32_t plc,
  * @param recordPos  place of event in containing record (bytes)
  * @param buffer     buffer to examine
  */
-void EvioNode::setData(uint32_t position, uint32_t plc, uint32_t recPos, ByteBuffer & buf) {
+void EvioNode::setData(uint32_t position, uint32_t plc, uint32_t recPos, shared_ptr<ByteBuffer> & buf) {
     buffer     = buf;
     recordPos  = recPos;
     pos        = position;
@@ -429,12 +387,12 @@ void EvioNode::setData(uint32_t position, uint32_t plc, uint32_t recPos, ByteBuf
  * @return EvioNode object containing evio event information
  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
  */
-std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
+std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
                                                      RecordNode & recNode,
                                                      uint32_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
+    if (buffer->remaining() < 8) {
         throw EvioException("buffer underflow");
     }
 
@@ -461,13 +419,13 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
 * @return EvioNode object containing evio event information
 * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
 */
-std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
+std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
                                                      EvioNodeSource & pool,
                                                      RecordNode & recNode,
                                                      uint32_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
+    if (buffer->remaining() < 8) {
         throw EvioException("buffer underflow");
     }
 
@@ -497,12 +455,12 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
  * @return EvioNode object containing evio event information
  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
  */
-std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
+std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
                                                      uint32_t recPosition,
                                                      uint32_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
+    if (buffer->remaining() < 8) {
         throw EvioException("buffer underflow");
     }
 
@@ -529,11 +487,11 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer,
   * @return EvioNode object containing evio event information
   * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
   */
-std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer, EvioNodeSource & pool,
+std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool,
                                                      uint32_t recPosition, uint32_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
-    if (buffer.remaining() < 8) {
+    if (buffer->remaining() < 8) {
         throw EvioException("buffer underflow");
     }
 
@@ -561,14 +519,14 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(ByteBuffer & buffer, EvioNo
 std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position) {
     cout << "        1" << endl;
     // Make sure there is enough data to at least read evio header
-    ByteBuffer & buffer = bankNode->buffer;
-    if (buffer.remaining() < 8) {
+    ByteBuffer* buffer = bankNode->buffer.get();
+    if (buffer->remaining() < 8) {
         throw EvioException("buffer underflow");
     }
     cout << "        2" << endl;
 
     // Get length of current bank
-    int length = buffer.getInt(position);
+    int length = buffer->getInt(position);
     bankNode->len = length;
     bankNode->pos = position;
     bankNode->type = DataType::BANK.getValue();
@@ -582,8 +540,8 @@ std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & ba
 
     // Make sure there is enough data to read full bank
     // even though it is NOT completely read at this time.
-    if (buffer.remaining() < 4*(length + 1)) {
-        cout << "ERROR: remaining = " << buffer.remaining() <<
+    if (buffer->remaining() < 4*(length + 1)) {
+        cout << "ERROR: remaining = " << buffer->remaining() <<
              ", node len bytes = " << ( 4*(length + 1)) << ", len = " << length << endl;
         throw EvioException("buffer underflow");
     }
@@ -593,7 +551,7 @@ std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & ba
     position += 4;
 
     // Read and parse second header word
-    uint32_t word = buffer.getInt(position);
+    uint32_t word = buffer->getInt(position);
     bankNode->tag = (word >> 16) & 0xffff;
     uint32_t dt  = (word >> 8) & 0xff;
     bankNode->dataType = dt & 0x3f;
@@ -627,7 +585,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
     // of evio structure being scanned in bytes.
     uint32_t endingPos = position + 4*node->dataLen;
     // Buffer we're using
-    ByteBuffer & buffer = node->buffer;
+    ByteBuffer* buffer = node->buffer.get();
 
     uint32_t dt, dataType, dataLen, len, word;
 
@@ -645,7 +603,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
             kidNode->data.clear();
 
             // Read first header word
-            len = buffer.getInt(position);
+            len = buffer->getInt(position);
             kidNode->pos = position;
 
             // Len of data (no header) for a bank
@@ -653,7 +611,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
             position += 4;
 
             // Read and parse second header word
-            word = buffer.getInt(position);
+            word = buffer->getInt(position);
             position += 4;
             kidNode->tag = (word >> 16) & 0xffff;
             dt = (word >> 8) & 0xff;
@@ -697,7 +655,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
 
             kidNode->pos = position;
 
-            word = buffer.getInt(position);
+            word = buffer->getInt(position);
             position += 4;
             kidNode->tag = (word >> 24) & 0xff;
             dt = (word >> 16) & 0xff;
@@ -739,7 +697,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
 
             kidNode->pos = position;
 
-            word = buffer.getInt(position);
+            word = buffer->getInt(position);
             position += 4;
             kidNode->tag = (word >> 20) & 0xfff;
             dataType    = (word >> 16) & 0xf;
@@ -790,7 +748,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & 
     // of evio structure being scanned in bytes.
     int endingPos = position + 4*node->dataLen;
     // Buffer we're using
-    ByteBuffer & buffer = node->buffer;
+    ByteBuffer* buffer = node->buffer.get();
 
     uint32_t dt, dataType, dataLen, len, word;
 
@@ -805,7 +763,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & 
             kidNode->copyParentForScan(node);
 
             // Read first header word
-            len = buffer.getInt(position);
+            len = buffer->getInt(position);
             kidNode->pos = position;
 
             // Len of data (no header) for a bank
@@ -813,7 +771,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & 
             position += 4;
 
             // Read and parse second header word
-            word = buffer.getInt(position);
+            word = buffer->getInt(position);
             position += 4;
             kidNode->tag = (word >> 16) & 0xffff;
             dt = (word >> 8) & 0xff;
@@ -852,7 +810,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & 
 
             kidNode->pos = position;
 
-            word = buffer.getInt(position);
+            word = buffer->getInt(position);
             position += 4;
             kidNode->tag = (word >> 24) & 0xff;
             dt = (word >> 16) & 0xff;
@@ -891,7 +849,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & 
 
             kidNode->pos = position;
 
-            word = buffer.getInt(position);
+            word = buffer->getInt(position);
             position += 4;
             kidNode->tag = (word >> 20) & 0xfff;
             dataType    = (word >> 16) & 0xf;
@@ -1068,7 +1026,7 @@ void EvioNode::getAllDescendants(vector<shared_ptr<EvioNode>> & descendants) {
  * @return child node at the given index;
  *         null if not scanned or no child at that index
  */
-shared_ptr<EvioNode> EvioNode::getChildAt(uint32_t index) {
+std::shared_ptr<EvioNode> EvioNode::getChildAt(uint32_t index) {
     if (childNodes.size() < index+1) return nullptr;
     return childNodes[index];
 }
@@ -1087,7 +1045,7 @@ uint32_t EvioNode::getChildCount() {return childNodes.size();}
  * Get the object containing the buffer that this node is associated with.
  * @return object containing the buffer that this node is associated with.
  */
-ByteBuffer & EvioNode::getBuffer() {return buffer;}
+std::shared_ptr<ByteBuffer> EvioNode::getBuffer() {return buffer;}
 
 /**
  * Get the length of this evio structure (not including length word itself)
@@ -1220,20 +1178,20 @@ void EvioNode::updateLengths(int deltaLen) {
     int length;
 
     if ((typ == DataType::BANK.getValue()) || (typ == DataType::ALSOBANK.getValue())) {
-        length = buffer.getInt(node->pos) + deltaLen;
-        buffer.putInt(node->pos, length);
+        length = buffer->getInt(node->pos) + deltaLen;
+        buffer->putInt(node->pos, length);
     }
     else if ((typ == DataType::SEGMENT.getValue())     ||
              (typ == DataType::ALSOSEGMENT.getValue()) ||
              (typ == DataType::TAGSEGMENT.getValue()))   {
 
-        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-            length = (buffer.getShort(node->pos+2) & 0xffff) + deltaLen;
-            buffer.putShort(node->pos+2, (short)length);
+        if (buffer->order() == ByteOrder::ENDIAN_BIG) {
+            length = (buffer->getShort(node->pos+2) & 0xffff) + deltaLen;
+            buffer->putShort(node->pos+2, (short)length);
         }
         else {
-            length = (buffer.getShort(node->pos) & 0xffff) + deltaLen;
-            buffer.putShort(node->pos, (short)length);
+            length = (buffer->getShort(node->pos) & 0xffff) + deltaLen;
+            buffer->putShort(node->pos, (short)length);
         }
     }
 }
@@ -1250,29 +1208,29 @@ void EvioNode::updateTag(uint32_t newTag) {
 
     if ((type == DataType::BANK.getValue()) ||
         (type == DataType::ALSOBANK.getValue())) {
-        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-            buffer.putShort(pos + 4, (short) newTag);
+        if (buffer->order() == ByteOrder::ENDIAN_BIG) {
+            buffer->putShort(pos + 4, (short) newTag);
         } else {
-            buffer.putShort(pos + 6, (short) newTag);
+            buffer->putShort(pos + 6, (short) newTag);
         }
         return;
     }
     else  if ((type == DataType::SEGMENT.getValue()) ||
               (type == DataType::ALSOSEGMENT.getValue())) {
-        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-            buffer.put(pos, (uint8_t) newTag);
+        if (buffer->order() == ByteOrder::ENDIAN_BIG) {
+            buffer->put(pos, (uint8_t) newTag);
         } else {
-            buffer.put(pos + 3, (uint8_t) newTag);
+            buffer->put(pos + 3, (uint8_t) newTag);
         }
         return;
     }
     else if (type == DataType::TAGSEGMENT.getValue()) {
         auto compositeWord = (short) ((tag << 4) | (dataType & 0xf));
-        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-            buffer.putShort(pos, compositeWord);
+        if (buffer->order() == ByteOrder::ENDIAN_BIG) {
+            buffer->putShort(pos, compositeWord);
         }
         else {
-            buffer.putShort(pos+2, compositeWord);
+            buffer->putShort(pos+2, compositeWord);
         }
         return;
     }
@@ -1291,11 +1249,11 @@ void EvioNode::updateNum(uint8_t newNum) {
     if ((type == DataType::BANK.getValue()) ||
         (type == DataType::ALSOBANK.getValue())) {
 
-        if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-            buffer.put(pos+7, newNum);
+        if (buffer->order() == ByteOrder::ENDIAN_BIG) {
+            buffer->put(pos+7, newNum);
         }
         else {
-            buffer.put(pos+4, newNum);
+            buffer->put(pos+4, newNum);
         }
         return;
     }
@@ -1320,7 +1278,7 @@ ByteBuffer & EvioNode::getByteData(ByteBuffer & dest, bool copy) {
         dest.copy(buffer);
     } else {
         // dest now has shared pointer to buffer's data
-        buffer.duplicate(dest);
+        buffer->duplicate(dest);
     }
     dest.limit(dataPos + 4*dataLen - pad).position(dataPos);
     return dest;
@@ -1337,7 +1295,7 @@ ByteBuffer & EvioNode::getByteData(ByteBuffer & dest, bool copy) {
 vector<uint32_t> & EvioNode::getIntData() {
     if (data.empty()) {
         for (int i = dataPos; i < dataPos + 4 * dataLen; i += 4) {
-            data[(i - dataPos) / 4] = buffer.getInt(i);
+            data[(i - dataPos) / 4] = buffer->getInt(i);
         }
     }
     return data;
@@ -1355,7 +1313,7 @@ void EvioNode::getIntData(vector<uint32_t> & intData) {
     intData.clear();
 
     for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
-        intData[(i-dataPos)/4] = buffer.getInt(i);
+        intData[(i-dataPos)/4] = buffer->getInt(i);
     }
 
     // added dataLen number of elements
@@ -1373,7 +1331,7 @@ void EvioNode::getLongData(vector<uint64_t> & longData) {
     longData.clear();
 
     for (int i = dataPos; i < dataPos + 4*dataLen; i+= 8) {
-        longData[(i-dataPos)/8] = buffer.getLong(i);
+        longData[(i-dataPos)/8] = buffer->getLong(i);
     }
 }
 
@@ -1389,7 +1347,7 @@ void EvioNode::getShortData(vector<uint16_t> & shortData) {
     shortData.clear();
 
     for (int i = dataPos; i < dataPos + 4*dataLen; i+= 2) {
-        shortData[(i-dataPos)/2] = buffer.getShort(i);
+        shortData[(i-dataPos)/2] = buffer->getShort(i);
     }
 }
 
@@ -1411,7 +1369,7 @@ ByteBuffer & EvioNode::getStructureBuffer(ByteBuffer & dest, bool copy) {
         dest.copy(buffer);
     } else {
         // dest now has shared pointer to buffer's data
-        buffer.duplicate(dest);
+        buffer->duplicate(dest);
     }
     dest.limit(dataPos + 4 * dataLen).position(pos);
     return dest;
