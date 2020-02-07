@@ -112,6 +112,464 @@ import java.util.concurrent.*;
  */
 final public class EventWriter implements AutoCloseable {
 
+     /**
+      * Class used to take data-filled record from supply, compress it,
+      * and release it back to the supply.
+      */
+     class RecordCompressor extends Thread {
+         /** Keep track of this thread with id number. */
+         private final int num;
+
+         /**
+          * Constructor.
+          * @param threadNumber unique thread number starting at 0.
+          */
+         RecordCompressor(int threadNumber) {num = threadNumber;}
+
+         @Override
+         public void run() {
+             try {
+                 // The first time through, we need to release all records coming before
+                 // our first in case there are < num records before close() is called.
+                 // This way close() is not waiting for thread #12 to get and subsequently
+                 // release items 0 - 11 when there were only 5 records total.
+                 // (threadNumber starts at 0).
+                 supply.release(num, num - 1);
+
+                 while (true) {
+                     if (Thread.interrupted()) {
+ //System.out.println("RecordCompressor:  quit thread through interrupt 1");
+                         return;
+                     }
+
+                     // Get the next record for this thread to compress
+                     RecordRingItem item = supply.getToCompress(num);
+                     // Pull record out of wrapping object
+                     RecordOutputStream record = item.getRecord();
+                     // Set compression type
+                     RecordHeader header = record.getHeader();
+                     header.setCompressionType(compressionType);
+
+                     // Do compression
+                     record.build();
+                     // Release back to supply
+                     supply.releaseCompressor(item);
+                 }
+             }
+             catch (AlertException e) {
+                 // We've been woken up in getToWrite through a user calling supply.errorAlert()
+ //System.out.println("RecordCompressor:  quit thread through alert");
+             }
+             catch (InterruptedException e) {
+                 // We've been interrupted while blocked in getToCompress
+                 // which means we're all done.
+ //System.out.println("RecordCompressor:  quit thread through interrupt 2");
+             }
+             catch (Exception e) {
+                 // Catch problems with buffer overflow and multiple compressing threads
+                 supply.haveError(true);
+                 supply.setError(e.getMessage());
+             }
+         }
+     }
+
+
+  /**
+     * Class used to take data-filled record from supply, write it,
+     * and release it back to the supply. Only one of these exists
+     * which makes tracking indexes and lengths easy.
+     */
+    class RecordWriter extends Thread {
+
+        /** The highest sequence to have been currently processed. */
+        private volatile long lastSeqProcessed = -1;
+
+        /** Place to store event when disk is full. */
+        private RecordRingItem storedItem;
+
+        /** Force write to disk. */
+        private volatile boolean forceToDisk;
+
+        /** Id of RecordRingItem that initiated the forced write. */
+        private volatile long forcedRecordId;
+
+
+        /**
+         * Store the id of the record which is forcing a write to disk,
+         * even if disk is "full".
+         * The idea is that we look for this record and once it has been
+         * written, then we don't force any following records to disk
+         * (unless we're told to again by the calling of this function).
+         * Generally, for an emu, this method gets called when control events
+         * arrive. In particular, when the END event comes, it must be written
+         * to disk with all the events that preceded it.
+         *
+         * @param id id of record causing the forced write to disk.
+         */
+        void setForcedRecordId(long id) {
+            forcedRecordId = id;
+            forceToDisk = true;
+        }
+
+
+        /** Wait for the last item to be processed, then exit thread. */
+        void waitForLastItem() {
+            while (supply.getLastSequence() > lastSeqProcessed) {
+                Thread.yield();
+            }
+            // Interrupt this thread, not the thread calling this method
+            this.interrupt();
+        }
+
+        private RecordRingItem storeRecordCopy(RecordRingItem rec) {
+            storedItem = new RecordRingItem(rec);
+            return storedItem;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                while (true) {
+                    if (Thread.interrupted()) {
+                        return;
+                    }
+
+                    // Get the next record for this thread to write
+                    RecordRingItem item = supply.getToWrite();
+                    long currentSeq = item.getSequence();
+
+                    // Only need to check the disk when writing the first record following
+                    // a file split. That first write will create the file. If there isn't
+                    // enough room, then flag will be set.
+                    boolean checkDisk = item.isCheckDisk();
+
+                    // Check the disk before we try to write if about to create another file,
+                    // we're told to check the disk and we're not forcing to disk
+                    if ((bytesWritten < 1) && checkDisk && (!forceToDisk)) {
+
+                        // If there isn't enough free space to write the complete, projected
+                        // size file, and we're not trying to force the write ...
+                        // store a COPY of the record for now and release the original so
+                        // that writeEventToFile() does not block.
+                        //
+                        // So here is the problem. We are stuck in a loop here if disk is full.
+                        // If events are flowing and since writing data to file is the bottleneck,
+                        // it is likely that all records have been filled and published onto
+                        // the ring. AND, writeEventToFile() blocks in a spin as it tries to get the
+                        // next record from the ring which, unfortunately, never comes.
+                        //
+                        // When writeEventToFile() blocks, it can't respond by returning a "false" value.
+                        // This plays havoc with code like the emu which is not expecting the write
+                        // to block (at least not for very long).
+                        //
+                        // To break writeEventToFile() out of its spinning block, we make a copy of the
+                        // item we're trying to write and release the original record. This allows
+                        // writeEventToFile() to grab a new (newly released) record, write an event into
+                        // it, and return to the caller. From then on, writeEventToFile() can prevent
+                        // blocking by checking for a full disk (which it couldn't do before since
+                        // the signal came too late).
+
+                        while (fullDisk() && (!forceToDisk)) {
+                            // Wait for a sec and try again
+                            Thread.sleep(1000);
+
+                            // If we released the item in a previous loop, don't do it again
+                            if (!item.isAlreadyReleased()) {
+                                // Copy item
+                                RecordRingItem copiedItem = storeRecordCopy(item);
+                                // Release original so we don't block writeEvent()
+                                supply.releaseWriter(item);
+                                item = copiedItem;
+                            }
+
+                            // Wait until space opens up
+                        }
+
+                        // If we're here, there must be free space available even
+                        // if there previously wasn't.
+                    }
+
+                    // Write current item to file
+                    writeToFileMT(item, forceToDisk);
+
+                    // Turn off forced write to disk, if the record which
+                    // initially triggered it, has now been written.
+                    if (forceToDisk && (forcedRecordId == item.getId()))  {
+//System.out.println("  write: WROTE the record that triggered force, reset to false");
+                        forceToDisk = false;
+                    }
+
+                    // Now we're done with this sequence
+                    lastSeqProcessed = currentSeq;
+
+                    // Split file if needed
+                    if (item.splitFileAfterWrite()) {
+                        splitFile();
+                    }
+
+// TODO: do we need this???
+                    // Release back to supply
+                    //supply.releaseWriter(item);
+
+                }
+            }
+            catch (AlertException e) {
+                // Woken up in getToWrite through user call to supply.errorAlert()
+//System.out.println("RecordWriter: quit thread through alert");
+            }
+            catch (InterruptedException e) {
+                // Interrupted while blocked in getToWrite which means we're all done
+//System.out.println("RecordWriter: quit thread through interrupt 2");
+            }
+            catch (Exception e) {
+                // Here if error in file writing
+//System.out.println("RecordWriter: quit thread through file writing error");
+
+                //StringWriter sw = new StringWriter();
+                //PrintWriter pw  = new PrintWriter(sw);
+                //e.printStackTrace(pw);
+                //supply.setError(sw.toString());
+
+                supply.haveError(true);
+                supply.setError(e.getMessage());
+            }
+        }
+    }
+
+
+    /** Class used to close files in order received, each in its own thread,
+     *  to avoid slowing down while file splitting. */
+    private final class FileCloser {
+
+        /** Thread pool with 1 thread. */
+        private final ExecutorService threadPool;
+
+        /** Constructor. */
+        private FileCloser() {threadPool = Executors.newSingleThreadExecutor();}
+
+        /** Close the thread pool in this object while executing all existing tasks. */
+        void close() {threadPool.shutdown();}
+
+
+
+        /**
+         * Close the given file, in the order received, in a separate thread.
+         * @param afc file channel to close
+         */
+        void closeAsyncFile(AsynchronousFileChannel afc, Future future1, Future future2,
+                            FileHeader fileHeader, ArrayList<Integer> recordLengths,
+                            long bytesWritten, long fileWritingPosition,  int recordNumber,
+                            boolean addingTrailer, boolean writeIndex,
+                            boolean release1, boolean release2,
+                            RecordRingItem ringItem1, RecordRingItem ringItem2) {
+
+            threadPool.submit(new CloseAsyncFChan(afc, future1, future2,
+                                                 fileHeader, recordLengths,
+                                                 bytesWritten, fileWritingPosition,
+                                                 recordNumber, addingTrailer, writeIndex,
+                                                 release1, release2, ringItem1, ringItem2 ));
+        }
+
+
+        private class CloseAsyncFChan implements Runnable {
+
+            // Quantities that may change between when this object is created and
+            // when this thread is run. Store these values so they maintain the
+            // correct value.
+            private long filePos;
+            private int recordNum;
+            private boolean writeIndx;
+            private Future ftr1, ftr2;
+            private boolean addTrailer;
+            private FileHeader fHeader;
+            private long bytesWrittenToFile;
+            private RecordRingItem item1, item2;
+            private ArrayList<Integer> recLengths;
+            private AsynchronousFileChannel afChannel;
+            private boolean releaseItem1, releaseItem2;
+
+            // Local storage
+            private byte[] hdrArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
+            private ByteBuffer hdrBuffer = ByteBuffer.wrap(hdrArray);
+
+
+            CloseAsyncFChan(AsynchronousFileChannel afc, Future future1, Future future2,
+                            FileHeader fileHeader, ArrayList<Integer> recordLengths,
+                            long bytesWritten, long fileWritingPosition,  int recordNumber,
+                            boolean addingTrailer, boolean writeIndex,
+                            boolean release1, boolean release2,
+                            RecordRingItem ringItem1, RecordRingItem ringItem2) {
+
+                afChannel = afc;
+                ftr1 = future1;
+                ftr2 = future2;
+                item1 = ringItem1;
+                item2 = ringItem2;
+                writeIndx = writeIndex;
+                recordNum = recordNumber;
+                releaseItem1 = release1;
+                releaseItem2 = release2;
+                addTrailer = addingTrailer;
+                filePos = fileWritingPosition;
+                bytesWrittenToFile = bytesWritten;
+
+                // Fastest way to copy objects
+                fHeader = (FileHeader) fileHeader.clone();
+                recLengths = (ArrayList<Integer>) recordLengths.clone();
+            }
+
+
+            public void run() {
+                // Finish writing to current file
+                if (ftr1 != null) {
+                    try {
+                        // Wait for last write to end before we continue
+                        ftr1.get();
+                    }
+                    catch (Exception e) {}
+                }
+
+                if (ftr2 != null) {
+                    try {
+                        ftr2.get();
+                    }
+                    catch (Exception e) {}
+                }
+
+                // Release resources back to the ring
+                if (releaseItem1 && (item1 != null))
+                    supply.releaseWriter(item1);
+
+                if (releaseItem2 && (item2 != null))
+                    supply.releaseWriter(item2);
+
+                try {
+                    if (addTrailer) {
+                        writeTrailerToFile();
+                    }
+                }
+                catch (Exception e) {}
+
+                try {
+                    afChannel.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            /**
+             * Write a general header as the last "header" or trailer in the file
+             * optionally followed by an index of all record lengths.
+             * This writes synchronously.
+             * This is a modified version of {@link #writeTrailerToFile()} that allows
+             * writing the trailer to the file being closed without affecting the
+             * file currently being written.
+             *
+             * @throws IOException if problems writing to file.
+             */
+            private void writeTrailerToFile() throws IOException {
+
+                // Our position, right now, is just before trailer
+
+                // If we're NOT adding a record index, just write trailer
+                if (!writeIndx) {
+                    try {
+                        // hdrBuffer is only used in this method
+                        hdrBuffer.position(0).limit(RecordHeader.HEADER_SIZE_BYTES);
+                        RecordHeader.writeTrailer(hdrBuffer, 0, recordNum, null);
+                    }
+                    catch (HipoException e) {/* never happen */}
+
+                    // We don't want to let the closer thread do the work of seeing that
+                    // this write completes since it'll just complicate the code.
+                    // As this is the absolute last write to the file,
+                    // just make sure it gets done right here.
+                    Future f = afChannel.write(hdrBuffer, filePos);
+                    try {f.get();}
+                    catch (Exception e) {
+                        throw new IOException(e);
+                    }
+                }
+                else {
+                    // Create the index of record lengths in proper byte order
+                    byte[] recordIndex = new byte[4 * recLengths.size()];
+                    try {
+                        for (int i = 0; i < recLengths.size(); i++) {
+                            ByteDataTransformer.toBytes(recLengths.get(i), byteOrder,
+                                                        recordIndex, 4 * i);
+                        }
+                    }
+                    catch (EvioException e) {/* never happen */}
+
+                    // Write trailer with index
+
+                    // How many bytes are we writing here?
+                    int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+
+                    // Make sure our array can hold everything
+                    if (hdrArray.length < bytesToWrite) {
+                        hdrArray = new byte[bytesToWrite];
+                        hdrBuffer = ByteBuffer.wrap(hdrArray);
+                    }
+                    hdrBuffer.limit(bytesToWrite).position(0);
+
+                    // Place data into hdrBuffer - both header and index
+                    try {
+                        RecordHeader.writeTrailer(hdrBuffer, 0, recordNum,
+                                                  recordIndex);
+                    }
+                    catch (HipoException e) {/* never happen */}
+                    Future f = afChannel.write(hdrBuffer, filePos);
+                    try {f.get();}
+                    catch (Exception e) {
+                        throw new IOException(e);
+                    }
+                }
+
+                // Update file header's trailer position word
+                hdrBuffer.position(0).limit(8);
+                hdrBuffer.putLong(0, bytesWrittenToFile);
+                Future f = afChannel.write(hdrBuffer, FileHeader.TRAILER_POSITION_OFFSET);
+                try {f.get();}
+                catch (Exception e) {
+                    throw new IOException(e);
+                }
+
+                // Update file header's bit-info word
+                if (addTrailerIndex) {
+                    int bitInfo = fHeader.setBitInfo(fHeader.hasFirstEvent(),
+                                                     fHeader.hasDictionary(),
+                                                        true);
+                    hdrBuffer.position(0).limit(4);
+                    hdrBuffer.putInt(0, bitInfo);
+                    f = afChannel.write(hdrBuffer, FileHeader.BIT_INFO_OFFSET);
+                    try {f.get();}
+                    catch (Exception e) {
+                        throw new IOException(e);
+                    }
+                }
+
+                // Update file header's record count word
+                ByteBuffer bb = ByteBuffer.allocate(4);
+                bb.order(byteOrder);
+                bb.putInt(0, recordNum - 1);
+                f = afChannel.write(bb, FileHeader.RECORD_COUNT_OFFSET);
+                try {f.get();}
+                catch (Exception e) {
+                    throw new IOException(e);
+                }
+
+                return;
+            }
+
+        };
+
+    }
+
+
     /** Dictionary and first event are stored in user header part of file header.
      *  They're written as a record which allows multiple events. */
     private RecordOutputStream commonRecord;
@@ -350,238 +808,6 @@ final public class EventWriter implements AutoCloseable {
     private int indexLength;
 
     //-----------------------
-
-
-    /** Class used to close files in order received, each in its own thread,
-     *  to avoid slowing down while file splitting. */
-    private final class FileCloser {
-
-        /** Thread pool with 1 thread. */
-        private final ExecutorService threadPool;
-
-        /** Constructor. */
-        private FileCloser() {threadPool = Executors.newSingleThreadExecutor();}
-
-        /** Close the thread pool in this object while executing all existing tasks. */
-        void close() {threadPool.shutdown();}
-
-        
-
-        /**
-         * Close the given file, in the order received, in a separate thread.
-         * @param afc file channel to close
-         */
-        void closeAsyncFile(AsynchronousFileChannel afc, Future future1, Future future2,
-                            FileHeader fileHeader, ArrayList<Integer> recordLengths,
-                            long bytesWritten, long fileWritingPosition,  int recordNumber,
-                            boolean addingTrailer, boolean writeIndex,
-                            boolean release1, boolean release2,
-                            RecordRingItem ringItem1, RecordRingItem ringItem2) {
-
-            threadPool.submit(new CloseAsyncFChan(afc, future1, future2,
-                                                 fileHeader, recordLengths,
-                                                 bytesWritten, fileWritingPosition,
-                                                 recordNumber, addingTrailer, writeIndex,
-                                                 release1, release2, ringItem1, ringItem2 ));
-        }
-
-
-        private class CloseAsyncFChan implements Runnable {
-
-            // Quantities that may change between when this object is created and
-            // when this thread is run. Store these values so they maintain the
-            // correct value.
-            private long filePos;
-            private int recordNum;
-            private boolean writeIndx;
-            private Future ftr1, ftr2;
-            private boolean addTrailer;
-            private FileHeader fHeader;
-            private long bytesWrittenToFile;
-            private RecordRingItem item1, item2;
-            private ArrayList<Integer> recLengths;
-            private AsynchronousFileChannel afChannel;
-            private boolean releaseItem1, releaseItem2;
-
-            // Local storage
-            private byte[] hdrArray = new byte[RecordHeader.HEADER_SIZE_BYTES];
-            private ByteBuffer hdrBuffer = ByteBuffer.wrap(hdrArray);
-
-
-            CloseAsyncFChan(AsynchronousFileChannel afc, Future future1, Future future2,
-                            FileHeader fileHeader, ArrayList<Integer> recordLengths,
-                            long bytesWritten, long fileWritingPosition,  int recordNumber,
-                            boolean addingTrailer, boolean writeIndex,
-                            boolean release1, boolean release2,
-                            RecordRingItem ringItem1, RecordRingItem ringItem2) {
-
-                ftr1 = future1;
-                ftr2 = future2;
-                afChannel = afc;
-                item1 = ringItem1;
-                item2 = ringItem2;
-                writeIndx = writeIndex;
-                recordNum = recordNumber;
-                releaseItem1 = release1;
-                releaseItem2 = release2;
-                addTrailer = addingTrailer;
-                filePos = fileWritingPosition;
-                bytesWrittenToFile = bytesWritten;
-
-                // Fastest way to copy objects
-                fHeader = (FileHeader) fileHeader.clone();
-                recLengths = (ArrayList<Integer>) recordLengths.clone();
-            }
-
-
-            public void run() {
-                // Finish writing to current file
-                if (ftr1 != null) {
-                    try {
-                        // Wait for last write to end before we continue
-                        ftr1.get();
-                    }
-                    catch (Exception e) {}
-                }
-
-                if (ftr2 != null) {
-                    try {
-                        ftr2.get();
-                    }
-                    catch (Exception e) {}
-                }
-
-                // Release resources back to the ring
-                if (releaseItem1 && (item1 != null))
-                    supply.releaseWriter(item1);
-
-                if (releaseItem2 && (item2 != null))
-                    supply.releaseWriter(item2);
-
-                try {
-                    if (addTrailer) {
-                        writeTrailerToFile();
-                    }
-                }
-                catch (Exception e) {}
-
-                try {
-                    afChannel.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-            /**
-             * Write a general header as the last "header" or trailer in the file
-             * optionally followed by an index of all record lengths.
-             * This writes synchronously.
-             * This is a modified version of {@link #writeTrailerToFile()} that allows
-             * writing the trailer to the file being closed without affecting the
-             * file currently being written.
-             *
-             * @throws IOException if problems writing to file.
-             */
-            private void writeTrailerToFile() throws IOException {
-
-                // Our position, right now, is just before trailer
-
-                // If we're NOT adding a record index, just write trailer
-                if (!writeIndx) {
-                    try {
-                        // hdrBuffer is only used in this method
-                        hdrBuffer.position(0).limit(RecordHeader.HEADER_SIZE_BYTES);
-                        RecordHeader.writeTrailer(hdrBuffer, 0, recordNum, null);
-                    }
-                    catch (HipoException e) {/* never happen */}
-
-                    // We don't want to let the closer thread do the work of seeing that
-                    // this write completes since it'll just complicate the code.
-                    // As this is the absolute last write to the file,
-                    // just make sure it gets done right here.
-                    Future f = afChannel.write(hdrBuffer, filePos);
-                    try {f.get();}
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
-                }
-                else {
-                    // Create the index of record lengths in proper byte order
-                    byte[] recordIndex = new byte[4 * recLengths.size()];
-                    try {
-                        for (int i = 0; i < recLengths.size(); i++) {
-                            ByteDataTransformer.toBytes(recLengths.get(i), byteOrder,
-                                                        recordIndex, 4 * i);
-                        }
-                    }
-                    catch (EvioException e) {/* never happen */}
-
-                    // Write trailer with index
-
-                    // How many bytes are we writing here?
-                    int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
-
-                    // Make sure our array can hold everything
-                    if (hdrArray.length < bytesToWrite) {
-                        hdrArray = new byte[bytesToWrite];
-                        hdrBuffer = ByteBuffer.wrap(hdrArray);
-                    }
-                    hdrBuffer.position(0).limit(bytesToWrite);
-
-                    // Place data into hdrBuffer - both header and index
-                    try {
-                        RecordHeader.writeTrailer(hdrBuffer, 0, recordNum,
-                                                  recordIndex);
-                    }
-                    catch (HipoException e) {/* never happen */}
-                    Future f = afChannel.write(hdrBuffer, filePos);
-                    try {f.get();}
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
-                }
-
-                // Update file header's trailer position word
-                hdrBuffer.position(0).limit(8);
-                hdrBuffer.putLong(0, bytesWrittenToFile);
-                Future f = afChannel.write(hdrBuffer, FileHeader.TRAILER_POSITION_OFFSET);
-                try {f.get();}
-                catch (Exception e) {
-                    throw new IOException(e);
-                }
-
-                // Update file header's bit-info word
-                if (addTrailerIndex) {
-                    int bitInfo = fHeader.setBitInfo(fHeader.hasFirstEvent(),
-                                                     fHeader.hasDictionary(),
-                                                        true);
-                    hdrBuffer.position(0).limit(4);
-                    hdrBuffer.putInt(0, bitInfo);
-                    f = afChannel.write(hdrBuffer, FileHeader.BIT_INFO_OFFSET);
-                    try {f.get();}
-                    catch (Exception e) {
-                        throw new IOException(e);
-                    }
-                }
-
-                // Update file header's record count word
-                ByteBuffer bb = ByteBuffer.allocate(4);
-                bb.order(byteOrder);
-                bb.putInt(0, recordNum - 1);
-                f = afChannel.write(bb, FileHeader.RECORD_COUNT_OFFSET);
-                try {f.get();}
-                catch (Exception e) {
-                    throw new IOException(e);
-                }
-
-                return;
-            }
-
-        };
-
-    }
 
     /** Object used to close files in a separate thread when splitting
      *  so as to allow writing speed not to dip so low. */
@@ -890,7 +1116,7 @@ final public class EventWriter implements AutoCloseable {
         // when doing the I/O (and copy all that data again).
         // Make sure these are DIRECT buffers or performance suffers!
         // The reason there are 3 internal buffers is that we'll be able to
-        // do 2 asynchronous writes at once will still filling up the third
+        // do 2 asynchronous writes at once while still filling up the third
         // simultaneously.
 
         // Allow the user to set the size of the internal buffers up to a point.
@@ -945,8 +1171,10 @@ final public class EventWriter implements AutoCloseable {
             // of records can hold since we may have to write that to
             // disk before we can shut off the spigot when disk is full.
             maxSupplyBytes = supply.getMaxRingBytes();
+
             // Number of available bytes in file's disk partition
             long freeBytes = currentFile.getParentFile().getFreeSpace();
+
             // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
             // then don't even start writing ...
             if (freeBytes < split + maxSupplyBytes + 10000000) {
@@ -1159,15 +1387,11 @@ System.out.println("EventWriter contr: Disk is FULL");
 
         // Deal with bitInfo
         RecordHeader header = currentRecord.getHeader();
-        int oldBitInfoWord = header.getBitInfoWord();
 
         // This will reset the record - header and all buffers (including buf)
         currentRecord.setBuffer(buffer);
 
-        if (useCurrentBitInfo) {
-            header.setBitInfoWord(oldBitInfoWord);
-        }
-        else {
+        if (!useCurrentBitInfo) {
             header.setBitInfoWord(bitInfo);
         }
 
@@ -1738,10 +1962,10 @@ System.out.println("EventWriter contr: Disk is FULL");
             byte[] commonArray = commonBuf.array();
             if (commonArray != null) {
                 System.arraycopy(commonArray, commonBuf.arrayOffset(),
-                                 array, RecordHeader.HEADER_SIZE_BYTES, commonRecordBytes);
+                                 array, FileHeader.HEADER_SIZE_BYTES, commonRecordBytes);
             }
             else {
-                commonBuf.get(array, RecordHeader.HEADER_SIZE_BYTES, commonRecordBytes);
+                commonBuf.get(array, FileHeader.HEADER_SIZE_BYTES, commonRecordBytes);
             }
         }
 
@@ -1891,21 +2115,19 @@ System.out.println("EventWriter contr: Disk is FULL");
                 if (fileCloser != null) fileCloser.close();
             }
             catch (IOException e) {}
-        }
 
-        // Since the supply takes a lot of mem, allow for GC to operate here
-        if (toFile) {
+            // Since the supply takes a lot of mem, allow for GC to operate here
             supply = null;
             currentRecord = null;
             recordWriterThread = null;
             recordCompressorThreads = null;
+            ringItem1 = null;
+            ringItem2 = null;
+            currentRingItem = null;
         }
-        ringItem1 = null;
-        ringItem2 = null;
-        currentRingItem = null;
 
        recordLengths.clear();
-        closed = true;
+       closed = true;
     }
 
     
@@ -2000,12 +2222,12 @@ System.out.println("EventWriter contr: Disk is FULL");
         fileWritingPosition = pos;
 
         long fileSize = asyncFileChannel.size();
+
         boolean lastRecord, readEOF = false;
         int recordLen, eventCount, nBytes, bitInfo, headerPosition;
         Future<Integer> future;
 
         long bytesLeftInFile = fileSize;
-
 
 //        int indexArrayLen, userHeaderLen, compDataLen, unCompDataLen;
 //        int userPadding, dataPadding, compPadding;
@@ -2316,8 +2538,10 @@ System.out.println("EventWriter contr: Disk is FULL");
      * <b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
-     * DO NOT mix calling this method with calling {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
-     * (or the methods which call it). Results are unpredictable as it messes up the
+     * DO NOT mix calling this method with calling
+     * {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
+     * (or the various writeEvent() methods which call it).
+     * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
      * </b>
      *
@@ -2657,12 +2881,16 @@ System.out.println("EventWriter contr: Disk is FULL");
             else {
                 // Set flag to split file
                 currentRingItem.splitFileAfterWrite(true);
+                currentRecord.getHeader().setRecordNumber(recordNumber);
                 // Send current record back to ring without adding event
                 supply.publish(currentRingItem);
 
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
+                currentRecord.getHeader().setRecordNumber(1);
+                // Reset record number for records coming after this one
+                recordNumber = 2;
             }
 
             // Reset split-tracking variables
@@ -2699,6 +2927,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
 
             // Add event to it (guaranteed to fit)
@@ -2732,6 +2961,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
         }
 
@@ -2750,8 +2980,10 @@ System.out.println("EventWriter contr: Disk is FULL");
      * <b>
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
-     * DO NOT mix calling this method with calling {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
-     * (or the methods which call it). Results are unpredictable as it messes up the
+     * DO NOT mix calling this method with calling
+     * {@link #writeEvent(EvioBank, ByteBuffer, boolean)}
+     * (or the various writeEvent() methods which call it).
+     * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
      * </b>
      *
@@ -2906,12 +3138,16 @@ System.out.println("EventWriter contr: Disk is FULL");
                 // space for that.
                 currentRingItem.splitFileAfterWrite(true);
                 currentRingItem.setCheckDisk(false);
+                currentRecord.getHeader().setRecordNumber(recordNumber);
                 // Send current record back to ring without adding event
                 supply.publish(currentRingItem);
 
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
+                currentRecord.getHeader().setRecordNumber(1);
+                // Reset record number for records coming after this one
+                recordNumber = 2;
             }
 
             // Reset split-tracking variables
@@ -2963,6 +3199,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 supply.publish(currentRingItem);
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
 
             // Add event to it (guaranteed to fit)
@@ -3004,6 +3241,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 supply.publish(currentRingItem);
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
         }
 
@@ -3027,231 +3265,6 @@ System.out.println("EventWriter contr: Disk is FULL");
             diskIsFullVolatile = diskIsFull;
         }
         return diskIsFull;
-    }
-
-
-    /**
-     * Class used to take data-filled record from supply, compress it,
-     * and release it back to the supply.
-     */
-    class RecordCompressor extends Thread {
-        /** Keep track of this thread with id number. */
-        private final int num;
-
-        /**
-         * Constructor.
-         * @param threadNumber unique thread number starting at 0.
-         */
-        RecordCompressor(int threadNumber) {num = threadNumber;}
-
-        @Override
-        public void run() {
-            try {
-                // The first time through, we need to release all records coming before
-                // our first in case there are < num records before close() is called.
-                // This way close() is not waiting for thread #12 to get and subsequently
-                // release items 0 - 11 when there were only 5 records total.
-                // (threadNumber starts at 0).
-                supply.release(num, num - 1);
-
-                while (true) {
-                    if (Thread.interrupted()) {
-//System.out.println("RecordCompressor:  quit thread through interrupt 1");
-                        return;
-                    }
-
-                    // Get the next record for this thread to compress
-                    RecordRingItem item = supply.getToCompress(num);
-                    // Pull record out of wrapping object
-                    RecordOutputStream record = item.getRecord();
-
-                    // Set compression type and record #
-                    RecordHeader header = record.getHeader();
-                    // Fortunately for us, the record # is also the sequence # + 1 !
-                    header.setRecordNumber((int)(item.getSequence() + 1L));
-                    header.setCompressionType(compressionType);
-                    // Do compression
-                    record.build();
-                    // Release back to supply
-                    supply.releaseCompressor(item);
-                }
-            }
-            catch (AlertException e) {
-                // We've been woken up in getToWrite through a user calling supply.errorAlert()
-//System.out.println("RecordCompressor:  quit thread through alert");
-            }
-            catch (InterruptedException e) {
-                // We've been interrupted while blocked in getToCompress
-                // which means we're all done.
-//System.out.println("RecordCompressor:  quit thread through interrupt 2");
-            }
-            catch (Exception e) {
-                // Catch problems with buffer overflow and multiple compressing threads
-                supply.haveError(true);
-                supply.setError(e.getMessage());
-            }
-        }
-    }
-
-
-    /**
-     * Class used to take data-filled record from supply, write it,
-     * and release it back to the supply. Only one of these exists
-     * which makes tracking indexes and lengths easy.
-     */
-    class RecordWriter extends Thread {
-
-        /** The highest sequence to have been currently processed. */
-        private volatile long lastSeqProcessed = -1;
-
-        /** Place to store event when disk is full. */
-        private RecordRingItem storedItem;
-
-        /** Force write to disk. */
-        private volatile boolean forceToDisk;
-
-        /** Id of RecordRingItem that initiated the forced write. */
-        private volatile long forcedRecordId;
-
-
-        /**
-         * Store the id of the record which is forcing a write to disk,
-         * even if disk is "full".
-         * The idea is that we look for this record and once it has been
-         * written, then we don't force any following records to disk
-         * (unless we're told to again by the calling of this function).
-         * Generally, for an emu, this method gets called when control events
-         * arrive. In particular, when the END event comes, it must be written
-         * to disk with all the events that preceded it.
-         *
-         * @param id id of record causing the forced write to disk.
-         */
-        void setForcedRecordId(long id) {
-            forcedRecordId = id;
-            forceToDisk = true;
-        }
-
-
-        /** Wait for the last item to be processed, then exit thread. */
-        void waitForLastItem() {
-            while (supply.getLastSequence() > lastSeqProcessed) {
-                Thread.yield();
-            }
-            // Interrupt this thread, not the thread calling this method
-            this.interrupt();
-        }
-
-        private RecordRingItem storeRecordCopy(RecordRingItem rec) {
-            storedItem = new RecordRingItem(rec);
-            return storedItem;
-        }
-
-        @Override
-        public void run() {
-            try {
-                long currentSeq;
-                boolean checkDisk;
-
-                while (true) {
-                    if (Thread.interrupted()) {
-                        return;
-                    }
-
-                    // Get the next record for this thread to write
-                    RecordRingItem item = supply.getToWrite();
-                    currentSeq = item.getSequence();
-
-                    // Only need to check the disk when writing the first record following
-                    // a file split. That first write will create the file. If there isn't
-                    // enough room, then flag will be set.
-                    checkDisk = item.isCheckDisk();
-
-                    // Check the disk before we try to write if about to create another file,
-                    // we're told to check the disk and we're not forcing to disk
-                    if ((bytesWritten < 1) && checkDisk && (!forceToDisk)) {
-
-                        // If there isn't enough free space to write the complete, projected
-                        // size file, and we're not trying to force the write ...
-                        // store a COPY of the record for now and release the original so
-                        // that writeEventToFile() does not block.
-                        //
-                        // So here is the problem. We are stuck in a loop here if disk is full.
-                        // If events are flowing and since writing data to file is the bottleneck,
-                        // it is likely that all records have been filled and published onto
-                        // the ring. AND, writeEventToFile() blocks in a spin as it tries to get the
-                        // next record from the ring which, unfortunately, never comes.
-                        //
-                        // When writeEventToFile() blocks, it can't respond by returning a "false" value.
-                        // This plays havoc with code like the emu which is not expecting the write
-                        // to block (at least not for very long).
-                        //
-                        // To break writeEventToFile() out of its spinning block, we make a copy of the
-                        // item we're trying to write and release the original record. This allows
-                        // writeEventToFile() to grab a new (newly released) record, write an event into
-                        // it, and return to the caller. From then on, writeEventToFile() can prevent
-                        // blocking by checking for a full disk (which it couldn't do before since
-                        // the signal came too late).
-
-                        while (fullDisk() && (!forceToDisk)) {
-                            // Wait for a sec and try again
-                            Thread.sleep(1000);
-
-                            // If we released the item in a previous loop, don't do it again
-                            if (!item.isAlreadyReleased()) {
-                                // Copy item
-                                RecordRingItem copiedItem = storeRecordCopy(item);
-                                // Release original so we don't block writeEvent()
-                                supply.releaseWriter(item);
-                                item = copiedItem;
-                            }
-
-                            // Wait until space opens up
-                        }
-
-                        // If we're here, there must be free space available even
-                        // if there previously wasn't.
-                    }
-
-                    // Write current item to file
-                    writeToFileMT(item, forceToDisk);
-
-                    // Turn off forced write to disk, if the record which
-                    // initially triggered it, has now been written.
-                    if (forceToDisk && (forcedRecordId == item.getId()))  {
-//System.out.println("  write: WROTE the record that triggered force, reset to false");
-                        forceToDisk = false;
-                    }
-
-                    // Now we're done with this sequence
-                    lastSeqProcessed = currentSeq;
-
-                    // Split file if needed
-                    if (item.splitFileAfterWrite()) {
-                        splitFile();
-                    }
-                }
-            }
-            catch (AlertException e) {
-                // Woken up in getToWrite through user call to supply.errorAlert()
-//System.out.println("RecordWriter: quit thread through alert");
-            }
-            catch (InterruptedException e) {
-                // Interrupted while blocked in getToWrite which means we're all done
-//System.out.println("RecordWriter: quit thread through interrupt 2");
-            }
-            catch (Exception e) {
-                // Here if error in file writing
-//System.out.println("RecordWriter: quit thread through file writing error");
-
-                //StringWriter sw = new StringWriter();
-                //PrintWriter pw  = new PrintWriter(sw);
-                //e.printStackTrace(pw);
-                //supply.setError(sw.toString());
-
-                supply.haveError(true);
-                supply.setError(e.getMessage());
-            }
-        }
     }
 
 
@@ -3286,6 +3299,7 @@ System.out.println("EventWriter contr: Disk is FULL");
     /**
      * Compress data and write record to file. Does nothing if close() already called.
      * Used when doing compression & writing to file in a single thread.
+     * Will not write file if no room on disk (and force arg is false).
      * Only called from synchronized context.
      *
      * @param force  if true, force writing event physically to disk.
@@ -3659,7 +3673,7 @@ System.out.println("EventWriter contr: Disk is FULL");
         if (force) asyncFileChannel.force(false);
 
         // Keep track of what is written to this, one, file
-        recordNumber++;
+        //recordNumber++;
         recordsWritten++;
         bytesWritten        += bytesToWrite;
         fileWritingPosition += bytesToWrite;
@@ -3675,15 +3689,10 @@ System.out.println("EventWriter contr: Disk is FULL");
      * Then it closes the old file (forcing unflushed data to be written)
      * and creates the name of the new one.
      *
-     * @throws EvioException if this object already closed;
-     *                       if file could not be opened for writing;
+     * @throws EvioException if file could not be opened for writing;
      *                       if file exists but user requested no over-writing;
      */
     synchronized private void splitFile() throws EvioException {
-
-        if (closed) {
-            throw new EvioException("close() has already been called");
-        }
 
         if (asyncFileChannel != null) {
             // Finish writing data & trailer and then close existing file -
@@ -3726,7 +3735,9 @@ System.out.println("EventWriter contr: Disk is FULL");
         }
 
         // Reset file values for reuse
-        recordNumber        = 1;
+        if (singleThreadedCompression) {
+            recordNumber = 1;
+        }
         recordsWritten      = 0;
         bytesWritten        = 0L;
         eventsWrittenToFile = 0;
@@ -3928,12 +3939,10 @@ System.out.println("EventWriter contr: Disk is FULL");
      */
     private void writeTrailerToBuffer(boolean writeIndex) throws EvioException {
 
-        int bytesToWrite;
-
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             // Make sure buffer can hold a trailer
-            if ((buffer.capacity() - (int)bytesWritten) < RecordHeader.HEADER_SIZE_BYTES ) {
+            if ((buffer.capacity() - (int)bytesWritten) < RecordHeader.HEADER_SIZE_BYTES) {
                 throw new EvioException("not enough room in buffer");
             }
 
@@ -3957,7 +3966,7 @@ System.out.println("EventWriter contr: Disk is FULL");
             // Write trailer with index
 
             // How many bytes are we writing here?
-            bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+            int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
 
             // Make sure our buffer can hold everything
             if ((buffer.capacity() - (int) bytesWritten) < bytesToWrite) {
