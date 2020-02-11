@@ -33,7 +33,7 @@
 #include "RecordHeader.h"
 #include "Compressor.h"
 #include "Util.h"
-
+#include "EvioException.h"
 
 namespace evio {
 

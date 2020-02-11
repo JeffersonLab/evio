@@ -96,7 +96,7 @@ void Compressor::setUpZlib() {
     int ret = deflateInit2(&strmDeflate, level, Z_DEFLATED, windowBits,
                            memLevel, Z_DEFAULT_STRATEGY);
     if (ret != Z_OK)
-        throw HipoException("error initializing gzip deflate stream");
+        throw EvioException("error initializing gzip deflate stream");
 
     //-----------------------------------------------------------------
 
@@ -109,7 +109,7 @@ void Compressor::setUpZlib() {
 
     ret = inflateInit2(&strmInflate, windowBits);
     if (ret != Z_OK)
-        throw HipoException("error initializing gzip inflate stream");
+        throw EvioException("error initializing gzip inflate stream");
 
 #endif
 
@@ -246,13 +246,13 @@ int Compressor::getMaxCompressedLength(CompressionType compressionType, uint32_t
  * @param length     length of valid data in bytes
  * @param compLen    number of bytes in returned array.
  * @return compressed data.
- * @throws HipoException if arg(s) are null.
+ * @throws EvioException if arg(s) are null.
  */
 uint8_t* Compressor::compressGZIP(uint8_t* ungzipped, uint32_t offset,
                                   uint32_t length, uint32_t *compLen) {
 
     if (ungzipped == nullptr || compLen == nullptr) {
-        throw HipoException("ungzipped and/or compLen arg is null");
+        throw EvioException("ungzipped and/or compLen arg is null");
     }
 
     uint32_t dstLen = deflateBound(&strmDeflate, length);
@@ -283,7 +283,7 @@ uint8_t* Compressor::compressGZIP(uint8_t* ungzipped, uint32_t offset,
  *                      by the compressor and transmitted to the decompressor by some
  *                      mechanism outside the scope of this compression library.)
  * @return uncompressed data.
- * @throws HipoException if gzipped or uncompLen pointer(s) are null,
+ * @throws EvioException if gzipped or uncompLen pointer(s) are null,
  *                       if there was not enough room in the output buffer, or
  *                       if the input data was corrupted, including if the input data is
  *                       an incomplete stream.
@@ -293,7 +293,7 @@ uint8_t* Compressor::uncompressGZIP(uint8_t* gzipped, uint32_t off,
                                     uint32_t origUncompLen) {
 
     if (gzipped == nullptr || uncompLen == nullptr) {
-        throw HipoException("gzipped and/or uncompLen arg is null");
+        throw EvioException("gzipped and/or uncompLen arg is null");
     }
 
     uint32_t destLen = *uncompLen;
@@ -302,7 +302,7 @@ uint8_t* Compressor::uncompressGZIP(uint8_t* gzipped, uint32_t off,
     int err = uncompressGZIP(ungzipped, &destLen, gzipped + off, &length, origUncompLen);
     if (err != Z_OK) {
         delete [] ungzipped;
-        throw HipoException("error uncompressing data");
+        throw EvioException("error uncompressing data");
     }
 
     // size of uncompressed data
@@ -326,22 +326,22 @@ uint8_t* Compressor::uncompressGZIP(uint8_t* gzipped, uint32_t off,
  *          Z_MEM_ERROR if there was not enough memory,
  *          Z_BUF_ERROR if there was not enough room in the output buffer,
  *          Z_STREAM_ERROR if the level parameter is invalid.
- * @throws HipoException if the value at destLen is too small, destLen is null,
+ * @throws EvioException if the value at destLen is too small, destLen is null,
  *                       dest is null, or source in null.
  */
 int Compressor::compressGZIP(uint8_t* dest, uint32_t *destLen,
                              const uint8_t* source, uint32_t sourceLen) {
 
     if (destLen == nullptr) {
-        throw HipoException("null pointer for destLen arg");
+        throw EvioException("null pointer for destLen arg");
     }
 
     if (dest == nullptr || source == nullptr) {
-        throw HipoException("null pointer for one or both buffer args");
+        throw EvioException("null pointer for one or both buffer args");
     }
 
     if ((deflateBound(&strmDeflate, sourceLen)) < *destLen) {
-        throw HipoException("destination buffer is too small");
+        throw EvioException("destination buffer is too small");
     }
 
     strmDeflate.next_out  = dest;
@@ -385,22 +385,22 @@ int Compressor::compressGZIP(uint8_t* dest, uint32_t *destLen,
  *         Z_BUF_ERROR if there was not enough room in the output buffer, or
  *         Z_DATA_ERROR if the input data was corrupted, including if the input data is
  *                      an incomplete stream.
- * @throws HipoException if the value at destLen is too small or destLen is null.
+ * @throws EvioException if the value at destLen is too small or destLen is null.
  */
 int Compressor::uncompressGZIP(uint8_t* dest, uint32_t *destLen,
                                const uint8_t* source, uint32_t *sourceLen,
                                uint32_t uncompLen) {
 
     if (destLen == nullptr || sourceLen == nullptr) {
-        throw HipoException("null pointer for destLen and/or sourceLen arg(s)");
+        throw EvioException("null pointer for destLen and/or sourceLen arg(s)");
     }
 
     if (dest == nullptr || source == nullptr) {
-        throw HipoException("null pointer for one or both buffer args");
+        throw EvioException("null pointer for one or both buffer args");
     }
 
     if (*destLen < uncompLen) {
-        throw HipoException("destination buffer is too small");
+        throw EvioException("destination buffer is too small");
     }
 
     uint32_t len  = *sourceLen;
@@ -434,7 +434,7 @@ int Compressor::uncompressGZIP(uint8_t* dest, uint32_t *destLen,
  * @param gzipped compressed data.
  * @param uncompLen pointer to be filled with uncompressed data size in bytes.
  * @return uncompressed data. Number of valid bytes returned in uncompLen.
- * @throws HipoException if error in uncompressing gzipped data.
+ * @throws EvioException if error in uncompressing gzipped data.
  */
 uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) {
 
@@ -449,7 +449,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
     int err = uncompressGZIP(ungzipped, &dstLen, gzipped.array(), &srcLen, dstLen);
     if (err != Z_OK) {
         delete[] ungzipped;
-        throw HipoException("error in uncompressing gzipped data");
+        throw EvioException("error in uncompressing gzipped data");
     }
 
     *uncompLen = dstLen;
@@ -471,12 +471,12 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
  * @param dst      destination buffer from position.
  * @param maxSize  maximum number of bytes to write in dst.
  * @return length of compressed data in bytes.
- * @throws HipoException if maxSize < max # of compressed bytes or compression failed.
+ * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
  */
 int Compressor::compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
 
     if (LZ4_compressBound(srcSize) > maxSize) {
-        throw HipoException("maxSize (" + to_string(maxSize) +
+        throw EvioException("maxSize (" + to_string(maxSize) +
                             ") is < max # of compressed bytes (" +
                             to_string(LZ4_compressBound(srcSize)) + ")");
     }
@@ -485,7 +485,7 @@ int Compressor::compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int
                                  (char*)(dst.array() + dst.position()),
                                  srcSize, maxSize, lz4Acceleration);
     if (size < 1) {
-        throw HipoException("compression failed");
+        throw EvioException("compression failed");
     }
 
     return size;
@@ -501,13 +501,13 @@ int Compressor::compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int
  * @param dstOff   start offset in dst.
  * @param maxSize  maximum number of bytes to write in dst.
  * @return length of compressed data in bytes.
- * @throws HipoException if maxSize < max # of compressed bytes or compression failed.
+ * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
  */
 int Compressor::compressLZ4(uint8_t* src, int srcOff, int srcSize,
                             uint8_t* dst, int dstOff, int maxSize) {
 
     if (LZ4_compressBound(srcSize) > maxSize) {
-        throw HipoException("maxSize (" + to_string(maxSize) +
+        throw EvioException("maxSize (" + to_string(maxSize) +
                             ") is < max # of compressed bytes (" +
                             to_string(LZ4_compressBound(srcSize)) + ")");
     }
@@ -515,7 +515,7 @@ int Compressor::compressLZ4(uint8_t* src, int srcOff, int srcSize,
     int size = LZ4_compress_fast((const char*)(src + srcOff), (char*)(dst + dstOff),
                                  srcSize, maxSize, lz4Acceleration);
     if (size < 1) {
-        throw HipoException("compression failed");
+        throw EvioException("compression failed");
     }
 
     return size;
@@ -531,13 +531,13 @@ int Compressor::compressLZ4(uint8_t* src, int srcOff, int srcSize,
  * @param dstOff   start offset in dst regardless of position.
  * @param maxSize  maximum number of bytes to write in dst.
  * @return length of compressed data in bytes.
- * @throws HipoException if maxSize < max # of compressed bytes or compression failed.
+ * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
  */
 int Compressor::compressLZ4(ByteBuffer & src, int srcOff, int srcSize,
                             ByteBuffer & dst, int dstOff, int maxSize) {
 
     if (LZ4_compressBound(srcSize) > maxSize) {
-        throw HipoException("maxSize (" + to_string(maxSize) +
+        throw EvioException("maxSize (" + to_string(maxSize) +
                             ") is < max # of compressed bytes (" +
                             to_string(LZ4_compressBound(srcSize)) + ")");
     }
@@ -546,7 +546,7 @@ int Compressor::compressLZ4(ByteBuffer & src, int srcOff, int srcSize,
                                  (char*)(dst.array() + dstOff),
                                  srcSize, maxSize, lz4Acceleration);
     if (size < 1) {
-        throw HipoException("compression failed");
+        throw EvioException("compression failed");
     }
 
     return size;
@@ -564,12 +564,12 @@ int Compressor::compressLZ4(ByteBuffer & src, int srcOff, int srcSize,
  * @param dst      destination buffer starting at position.
  * @param maxSize  maximum number of bytes to write in dst.
  * @return length of compressed data in bytes.
- * @throws HipoException if maxSize < max # of compressed bytes or compression failed.
+ * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
  */
 int Compressor::compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
 
     if (LZ4_compressBound(srcSize) > maxSize) {
-        throw HipoException("maxSize (" + to_string(maxSize) +
+        throw EvioException("maxSize (" + to_string(maxSize) +
                             ") is < max # of compressed bytes (" +
                             to_string(LZ4_compressBound(srcSize)) + ")");
     }
@@ -578,7 +578,7 @@ int Compressor::compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst,
                                (char*)(dst.array() + dst.position()),
                                srcSize, maxSize, 1);
     if (size < 1) {
-        throw HipoException("compression failed");
+        throw EvioException("compression failed");
     }
 
     return size;
@@ -594,12 +594,12 @@ int Compressor::compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst,
  * @param dstOff   start offset in dst.
  * @param maxSize  maximum number of bytes to write in dst.
  * @return length of compressed data in bytes.
- * @throws HipoException if maxSize < max # of compressed bytes or compression failed.
+ * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
  */
 int Compressor::compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
                                 uint8_t dst[], int dstOff, int maxSize) {
     if (LZ4_compressBound(srcSize) > maxSize) {
-        throw HipoException("maxSize (" + to_string(maxSize) +
+        throw EvioException("maxSize (" + to_string(maxSize) +
                             ") is < max # of compressed bytes (" +
                             to_string(LZ4_compressBound(srcSize)) + ")");
     }
@@ -607,7 +607,7 @@ int Compressor::compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
     int size = LZ4_compress_HC((const char*)(src + srcOff), (char*)(dst + dstOff),
                                srcSize, maxSize, 1);
     if (size < 1) {
-        throw HipoException("compression failed");
+        throw EvioException("compression failed");
     }
 
     return size;
@@ -623,12 +623,12 @@ int Compressor::compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
  * @param dstOff   start offset in dst.
  * @param maxSize  maximum number of bytes to write in dst.
  * @return length of compressed data in bytes.
- * @throws HipoException if maxSize < max # of compressed bytes or compression failed.
+ * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
  */
 int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
                                 ByteBuffer & dst, int dstOff, int maxSize) {
     if (LZ4_compressBound(srcSize) > maxSize) {
-        throw HipoException("maxSize (" + to_string(maxSize) +
+        throw EvioException("maxSize (" + to_string(maxSize) +
                             ") is < max # of compressed bytes (" +
                             to_string(LZ4_compressBound(srcSize)) + ")");
     }
@@ -637,7 +637,7 @@ int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
                                (char*)(dst.array() + dstOff),
                                srcSize, maxSize, 1);
     if (size < 1) {
-        throw HipoException("compression failed");
+        throw EvioException("compression failed");
     }
 
     return size;
@@ -654,7 +654,7 @@ int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
  * @param srcSize  number of compressed bytes.
  * @param dst      destination array.
  * @return original (uncompressed) input size.
- * @throws HipoException if destination buffer is too small to hold uncompressed data or
+ * @throws EvioException if destination buffer is too small to hold uncompressed data or
  *                       source data is malformed.
  */
 int Compressor::uncompressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst) {
@@ -670,7 +670,7 @@ int Compressor::uncompressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst) {
  * @param srcSize  number of compressed bytes.
  * @param dst      destination array.
  * @return original (uncompressed) input size.
- * @throws HipoException if destination buffer is too small to hold uncompressed data or
+ * @throws EvioException if destination buffer is too small to hold uncompressed data or
  *                       source data is malformed.
  */
 int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst) {
@@ -682,7 +682,7 @@ int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuf
                                    srcSize, dst.remaining());
 
     if (size < 0) {
-        throw HipoException("destination buffer too small or data malformed");
+        throw EvioException("destination buffer too small or data malformed");
     }
 
     // Prepare buffer for reading
@@ -701,7 +701,7 @@ int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuf
  * @param dst      destination array.
  * @param dstOff   start offset in dst.
  * @return original (uncompressed) input size.
- * @throws HipoException if destination buffer is too small to hold uncompressed data or
+ * @throws EvioException if destination buffer is too small to hold uncompressed data or
  *                       source data is malformed.
  */
 int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst, int dstOff) {
@@ -711,7 +711,7 @@ int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuf
                                    srcSize, dst.remaining());
 
     if (size < 0) {
-        throw HipoException("destination buffer too small or data malformed");
+        throw EvioException("destination buffer too small or data malformed");
     }
 
     // Prepare buffer for reading
@@ -730,7 +730,7 @@ int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuf
  * @param dstOff   start offset in dst.
  * @param dstCapacity size of destination buffer in bytes, which must be already allocated.
  * @return original (uncompressed) input size.
- * @throws HipoException if uncompressed data bytes &gt; dstCapacity or
+ * @throws EvioException if uncompressed data bytes &gt; dstCapacity or
  *                       source data is malformed.
  */
 int Compressor::uncompressLZ4(uint8_t src[], int srcOff, int srcSize, uint8_t dst[],
@@ -740,7 +740,7 @@ int Compressor::uncompressLZ4(uint8_t src[], int srcOff, int srcSize, uint8_t ds
                                    (char*)(dst + dstOff),
                                    srcSize, dstCapacity);
     if (size < 0) {
-        throw HipoException("destination buffer too small or data malformed");
+        throw EvioException("destination buffer too small or data malformed");
     }
 
     return size;

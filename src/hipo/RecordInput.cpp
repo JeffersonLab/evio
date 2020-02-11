@@ -229,7 +229,7 @@ uint32_t RecordInput::getEventLength(uint32_t index) {
  * @param buffer buffer to be filled with event starting at position = 0.
  * @param index  index of event starting at 0.
  * @return buffer.
- * @throws HipoException if index too large, or buffer has insufficient space to
+ * @throws EvioException if index too large, or buffer has insufficient space to
  *                       contain event (buffer.capacity() < event size).
  */
 ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, uint32_t index) {
@@ -247,7 +247,7 @@ ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, uint32_t index) {
  * @param bufOffset offset into buffer to place event.
  * @param index     index of event starting at 0.
  * @return buffer.
- * @throws HipoException if index too large, or buffer has insufficient space to
+ * @throws EvioException if index too large, or buffer has insufficient space to
  *                       contain event (buffer.capacity() < event size).
  */
 ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32_t index) {
@@ -255,7 +255,7 @@ ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32
     uint32_t firstPosition = 0;
     if (index > 0) {
         if (index >= header.getEntries()) {
-            throw HipoException("index too large");
+            throw EvioException("index too large");
         }
         firstPosition = dataBuffer.getUInt((index - 1) * 4);
     }
@@ -264,7 +264,7 @@ ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32
     uint32_t offset = eventsOffset + firstPosition;
 
     if (bufOffset + length > buffer.capacity()) {
-        throw HipoException("buffer with offset " + to_string(bufOffset) +
+        throw EvioException("buffer with offset " + to_string(bufOffset) +
                             " is smaller than the event.");
     }
 
@@ -311,7 +311,7 @@ std::shared_ptr<uint8_t> RecordInput::getUserHeader() {
  * @param buffer    buffer to be filled with user header.
  * @param bufOffset offset into buffer to place user header.
  * @return buffer passed in (position = limit = bufOffset if no user header exists).
- * @throws HipoException if buffer has insufficient space to contain user header
+ * @throws EvioException if buffer has insufficient space to contain user header
  *                       (buffer.capacity() - bufOffset < user header size).
  */
 ByteBuffer & RecordInput::getUserHeader(ByteBuffer & buffer, size_t bufOffset) {
@@ -323,7 +323,7 @@ ByteBuffer & RecordInput::getUserHeader(ByteBuffer & buffer, size_t bufOffset) {
 //    }
 
     if (bufOffset + length > buffer.capacity()) {
-        throw HipoException("buffer with offset " + to_string(bufOffset) +
+        throw EvioException("buffer with offset " + to_string(bufOffset) +
                             " is smaller than the user header.");
     }
 
@@ -348,7 +348,7 @@ ByteBuffer & RecordInput::getUserHeader(ByteBuffer & buffer, size_t bufOffset) {
  * @param buffer    buffer to be filled with user header
  * @param bufOffset offset into buffer to place user header.
  * @return record parsed from user header or nullptr if no user header exists.
- * @throws HipoException if buffer has insufficient space to contain user header
+ * @throws EvioException if buffer has insufficient space to contain user header
  *                       (buffer.capacity() - bufOffset < user header size), or
  *                       if buffer not in hipo format.
  */
@@ -379,7 +379,7 @@ std::shared_ptr<RecordInput> RecordInput::getUserHeaderAsRecord(ByteBuffer & buf
  *
  * @param file opened file descriptor
  * @param position position in the file
- * @throws HipoException if file contains too little data,
+ * @throws EvioException if file contains too little data,
  *                       if the input data was corrupted (including if the input data is
  *                       an incomplete stream),
  *                       is not in proper format, or version earlier than 6, or
@@ -389,7 +389,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
 
     // Read header
     if (!file.is_open()) {
-        throw HipoException("file not open");
+        throw EvioException("file not open");
     }
     file.seekg(position);
     file.read(reinterpret_cast<char *>(headerBuffer.array()), RecordHeader::HEADER_SIZE_BYTES);
@@ -480,7 +480,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
  *
  * @param buffer buffer containing record data.
  * @param offset offset into buffer to beginning of record data.
- * @throws HipoException if buffer contains too little data,
+ * @throws EvioException if buffer contains too little data,
  *                       is not in proper format, or version earlier than 6 or
  *                       error in uncompressing gzipped data.
  */
@@ -574,7 +574,7 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
  * @param dstBuf buffer into which the record is uncompressed.
  * @param header RecordHeader to be used to read the record header in srcBuf.
  * @return the original record size in srcBuf (bytes).
- * @throws HipoException if srcBuf contains too little data,
+ * @throws EvioException if srcBuf contains too little data,
  *                       is not in proper format, or version earlier than 6.
  */
 uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteBuffer & dstBuf,

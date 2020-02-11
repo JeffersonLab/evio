@@ -28,7 +28,7 @@
 #include "Reader.h"
 #include "WriterMT.h"
 #include "RecordHeader.h"
-#include "HipoException.h"
+#include "EvioException.h"
 #include "RecordRingItem.h"
 #include "EvioNode.h"
 #include "Compressor.h"
@@ -606,7 +606,7 @@ public:
             }
             cout << "     converter END" << endl;
             writer.close();
-        } catch (HipoException & ex) {
+        } catch (EvioException & ex) {
             cout << ex.what() << endl;
         }
 

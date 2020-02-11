@@ -50,7 +50,7 @@ Writer::Writer(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBuff
  *                      Value of O means use default (1M).
  * @param maxBufferSize max number of uncompressed data bytes a record can hold.
  *                      Value of < 8MB results in default of 8MB.
- * @throws HipoException  if file cannot be found or IO error writing to file
+ * @throws EvioException  if file cannot be found or IO error writing to file
  */
 Writer::Writer(string & filename, const ByteOrder & order,
                uint32_t maxEventCount, uint32_t maxBufferSize) :
@@ -412,7 +412,7 @@ void Writer::addTrailerWithIndex(bool addTrailingIndex) {
 /**
  * Open a new file and write file header with no user header.
  * @param filename output file name
- * @throws HipoException if open already called without being followed by calling close.
+ * @throws EvioException if open already called without being followed by calling close.
  * @throws IOException if file cannot be found or IO error writing to file
  */
 void Writer::open(string & filename) {
@@ -428,7 +428,7 @@ void Writer::open(string & filename) {
  *                   the dictionary and/or first event will be placed in its
  *                   own record and written as the user header.
  * @param userLen    length of valid data (bytes) in userHdr (starting at off).
- * @throws HipoException filename arg is null, if constructor specified writing to a buffer,
+ * @throws EvioException filename arg is null, if constructor specified writing to a buffer,
  *                       if open() was already called without being followed by reset(),
  *                       if file cannot be found, if IO error writing to file,
  *                       or if filename is empty.
@@ -436,14 +436,14 @@ void Writer::open(string & filename) {
 void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
 
     if (opened) {
-        throw HipoException("currently open, call reset() first");
+        throw EvioException("currently open, call reset() first");
     }
     else if (!toFile) {
-        throw HipoException("can only write to a buffer, call open(buffer, userHdr, userLen)");
+        throw EvioException("can only write to a buffer, call open(buffer, userHdr, userLen)");
     }
 
     if (filename.empty()) {
-        throw HipoException("bad filename");
+        throw EvioException("bad filename");
     }
 
     std::shared_ptr<ByteBuffer> fileHeaderBuffer;
@@ -475,7 +475,7 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     outFile.open(filename, ios::binary);
     outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer->array()), fileHeaderBuffer->remaining());
     if (outFile.fail()) {
-        throw HipoException("error opening file " + filename);
+        throw EvioException("error opening file " + filename);
     }
 
     writerBytesWritten = (size_t) fileHeader.getLength();
@@ -496,16 +496,16 @@ void Writer::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
  *                   own record and written as the user header of the first record's
  *                   header.
  * @param len        length of valid data (bytes) in userHdr (starting at off).
- * @throws HipoException if constructor specified writing to a file,
+ * @throws EvioException if constructor specified writing to a file,
  *                       or if open() was already called without being followed by reset().
  */
 void Writer::open(ByteBuffer & buf, uint8_t* userHdr, uint32_t len) {
 
     if (opened) {
-        throw HipoException("currently open, call reset() first");
+        throw EvioException("currently open, call reset() first");
     }
     else if (toFile) {
-        throw HipoException("can only write to a file, call open(filename, userHdr)");
+        throw EvioException("can only write to a file, call open(filename, userHdr)");
     }
 
     if (userHdr == nullptr) {
@@ -633,11 +633,11 @@ std::shared_ptr<ByteBuffer> Writer::createRecord(const string & dict, uint8_t* f
  * @param userHdr byte array containing a user-defined header, may be null.
  * @param userLen array length in bytes.
  * @return buffer (same as buf arg).
- * @throws HipoException if writing to buffer, not file.
+ * @throws EvioException if writing to buffer, not file.
  */
 std::shared_ptr<ByteBuffer> Writer::createHeader(uint8_t* userHdr, uint32_t userLen) {
     if (!toFile) {
-        throw HipoException("call only if writing to file");
+        throw EvioException("call only if writing to file");
     }
 
 //cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
@@ -666,7 +666,7 @@ std::shared_ptr<ByteBuffer> Writer::createHeader(uint8_t* userHdr, uint32_t user
 //cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
         fileHeader.writeHeader(buf, 0);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf->array() + FileHeader::HEADER_SIZE_BYTES),
@@ -688,17 +688,17 @@ std::shared_ptr<ByteBuffer> Writer::createHeader(uint8_t* userHdr, uint32_t user
  * @param userHdr byte array containing a user-defined header, may be null.
  * @param userLen array length in bytes.
  * @return buffer (same as buf arg).
- * @throws HipoException if writing to buffer, or buf too small
+ * @throws EvioException if writing to buffer, or buf too small
  *                       (needs to be userLen + FileHeader::HEADER_SIZE_BYTES bytes).
  */
 void Writer::createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) {
 
     if (!toFile) {
-        throw HipoException("call only if writing to file");
+        throw EvioException("call only if writing to file");
     }
 
     if (userLen + FileHeader::HEADER_SIZE_BYTES < buf.capacity()) {
-        throw HipoException("buffer too small, need " +
+        throw EvioException("buffer too small, need " +
                             to_string(userLen + FileHeader::HEADER_SIZE_BYTES) + " bytes");
     }
 
@@ -727,7 +727,7 @@ void Writer::createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) 
 //cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
         fileHeader.writeHeader(buf, 0);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf.array() + buf.arrayOffset() + FileHeader::HEADER_SIZE_BYTES),
@@ -745,11 +745,11 @@ void Writer::createHeader(ByteBuffer & buf, uint8_t* userHdr, uint32_t userLen) 
  * If user header is not padded to 4-byte boundary, it's done here.
  * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
  * @return buffer containing a file header followed by the user-defined header.
- * @throws HipoException if writing to buffer, not file.
+ * @throws EvioException if writing to buffer, not file.
  */
 std::shared_ptr<ByteBuffer> Writer::createHeader(ByteBuffer & userHdr) {
     if (!toFile) {
-        throw HipoException("call only if writing to file");
+        throw EvioException("call only if writing to file");
     }
 //cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
 
@@ -772,7 +772,7 @@ std::shared_ptr<ByteBuffer> Writer::createHeader(ByteBuffer & userHdr) {
 //cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
         fileHeader.writeHeader(buf, 0);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf->array() + buf->arrayOffset() + FileHeader::HEADER_SIZE_BYTES),
@@ -793,19 +793,19 @@ std::shared_ptr<ByteBuffer> Writer::createHeader(ByteBuffer & userHdr) {
  *
  * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
  * @return buffer containing a file header followed by the user-defined header.
- * @throws HipoException if writing to buffer, or buf too small
+ * @throws EvioException if writing to buffer, or buf too small
  *                       (needs to be userHdr.remaining() + FileHeader::HEADER_SIZE_BYTES bytes).
  */
 void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
     if (!toFile) {
-        throw HipoException("call only if writing to file");
+        throw EvioException("call only if writing to file");
     }
 //cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << endl;
 
     int userHeaderBytes = userHdr.remaining();
 
     if (userHeaderBytes + FileHeader::HEADER_SIZE_BYTES < buf.capacity()) {
-        throw HipoException("buffer too small, need " +
+        throw EvioException("buffer too small, need " +
                             to_string(userHeaderBytes + FileHeader::HEADER_SIZE_BYTES) + " bytes");
     }
 
@@ -827,7 +827,7 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
 //cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
         fileHeader.writeHeader(buf, 0);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf.array() + FileHeader::HEADER_SIZE_BYTES),
@@ -849,7 +849,7 @@ void Writer::createHeader(ByteBuffer & buf, ByteBuffer & userHdr) {
  * called, the trailer will be written.
  * @param writeIndex if true, write an index of all record lengths in trailer.
  * @param recordNum record number for trailing record.
- * @throws HipoException if error writing to file.
+ * @throws EvioException if error writing to file.
  */
 void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
 
@@ -864,7 +864,7 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
         if (toFile) {
             outFile.write(reinterpret_cast<const char*>(&headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
             if (outFile.fail()) {
-                throw HipoException("error writing file " + fileName);
+                throw EvioException("error writing file " + fileName);
             }
         }
         else {
@@ -906,7 +906,7 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
     if (toFile) {
         outFile.write(reinterpret_cast<const char*>(&headerArray[0]), dataBytes);
         if (outFile.fail()) {
-            throw HipoException("error opening file " + fileName);
+            throw EvioException("error opening file " + fileName);
         }
     }
     else {
@@ -920,13 +920,13 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
  * Appends the record to the file/buffer.
  * Using this method in conjunction with addEvent() is not thread-safe.
  * @param rec record object
- * @throws HipoException if error writing to file or
+ * @throws EvioException if error writing to file or
  *                       record's byte order is opposite to output endian.
  */
 void Writer::writeRecord(RecordOutput & rec) {
 
     if (rec.getByteOrder() != byteOrder) {
-        throw HipoException("record byte order is wrong");
+        throw EvioException("record byte order is wrong");
     }
 
     // If we have already written stuff into our current internal record,
@@ -941,7 +941,7 @@ void Writer::writeRecord(RecordOutput & rec) {
         unusedRecord = beingWrittenRecord;
 
         if (outFile.fail()) {
-            throw HipoException("problem writing to file");
+            throw EvioException("problem writing to file");
         }
     }
 
@@ -990,7 +990,7 @@ void Writer::writeRecord(RecordOutput & rec) {
  * @param buffer array to add to the file.
  * @param offset offset into array from which to start writing data.
  * @param length number of bytes to write from array.
- * @throws HipoException if cannot write to file.
+ * @throws EvioException if cannot write to file.
  */
 void Writer::addEvent(uint8_t* buf, uint32_t offset, uint32_t length) {
     bool status = outputRecord.addEvent(buf, offset, length);
@@ -1010,11 +1010,11 @@ void Writer::addEvent(uint8_t* buf, uint32_t offset, uint32_t length) {
  * match the byte order given in constructor!</b>
  *
  * @param buffer array to add to the file.
- * @throws HipoException if cannot write to file or buf arg's byte order is wrong.
+ * @throws EvioException if cannot write to file or buf arg's byte order is wrong.
  */
 void Writer::addEvent(ByteBuffer & buf) {
     if (buffer.order() != byteOrder) {
-        throw HipoException("buffer arg byte order is wrong");
+        throw EvioException("buffer arg byte order is wrong");
     }
 
     bool status = outputRecord.addEvent(buf);
@@ -1053,7 +1053,7 @@ void Writer::addEvent(ByteBuffer & buf) {
  * match the byte order given in constructor!</b>
  *
  * @param node node to add to the file.
- * @throws HipoException if node does not correspond to a bank.
+ * @throws EvioException if node does not correspond to a bank.
  * @throws IOException if cannot write to file.
  */
 void Writer::addEvent(EvioNode & node) {
@@ -1067,7 +1067,7 @@ void Writer::addEvent(EvioNode & node) {
 /**
  * Write internal record with incremented record # to file or buffer.
  * Not thread safe with {@link #writeRecord}.
- * @throws HipoException if cannot write to file.
+ * @throws EvioException if cannot write to file.
  */
 void Writer::writeOutput() {
     if (!toFile) {
@@ -1086,7 +1086,7 @@ void Writer::writeOutput() {
         unusedRecord = beingWrittenRecord;
 
         if (outFile.fail()) {
-            throw HipoException("problem writing to file");
+            throw EvioException("problem writing to file");
         }
     }
 //    else {

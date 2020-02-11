@@ -23,7 +23,7 @@
 #include <cstdio>
 
 #include "ByteOrder.h"
-#include "HipoException.h"
+#include "EvioException.h"
 
 
 using namespace std;
@@ -193,7 +193,7 @@ private:
             return *((T *) &(buf.get())[index]);
         }
         // Read would exceed limit
-        throw HipoException("buffer underflow");
+        throw EvioException("buffer underflow");
     }
 
     /** Template for relative write methods. */
@@ -202,7 +202,7 @@ private:
 
         if (lim < (pos + s)) {
             // Write would exceeded limit
-            throw HipoException("buffer overflow");
+            throw EvioException("buffer overflow");
         }
         memcpy((void *) (&(buf.get())[pos]), (void *) (&data), s);
 
@@ -213,7 +213,7 @@ private:
     template<typename T> void write(T & data, size_t index) {
         size_t s = sizeof(data);
         if ((index + s) > lim) {
-            throw HipoException("buffer overflow");
+            throw EvioException("buffer overflow");
         }
 
         memcpy((void *) (&(buf.get())[index]), (void *) (&data), s);
@@ -228,7 +228,7 @@ private:
      */
     void write(uint8_t & data) {
         if (lim < (pos + 1)) {
-            throw HipoException("buffer overflow");
+            throw EvioException("buffer overflow");
         }
         buf.get()[pos++] = data;
     }
@@ -240,21 +240,21 @@ private:
      */
     void write(char & data) {
         if (lim < (pos + 1)) {
-            throw HipoException("buffer overflow");
+            throw EvioException("buffer overflow");
         }
         buf.get()[pos++] = data;
     }
 
     void write(uint8_t & data, size_t index) {
         if ((index + 1) > lim) {
-            throw HipoException("buffer overflow");
+            throw EvioException("buffer overflow");
         }
         buf.get()[index] = data;
     }
 
     void write(char & data, size_t index) {
         if ((index + 1) > lim) {
-            throw HipoException("buffer overflow");
+            throw EvioException("buffer overflow");
         }
         buf.get()[index] = data;
     }
@@ -264,14 +264,14 @@ private:
         if (pos + 1 <= lim) {
             return buf.get()[pos];
         }
-        throw HipoException("buffer underflow");
+        throw EvioException("buffer underflow");
     }
 
     uint8_t read(size_t index) const {
         if (index + 1 <= lim) {
             return buf.get()[index];
         }
-        throw HipoException("buffer underflow");
+        throw EvioException("buffer underflow");
     }
 
 };

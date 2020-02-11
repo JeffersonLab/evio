@@ -30,7 +30,7 @@
 #include "RecordHeader.h"
 #include "FileEventIndex.h"
 #include "RecordInput.h"
-#include "HipoException.h"
+#include "EvioException.h"
 #include "EvioNode.h"
 #include "EvioNodeSource.h"
 

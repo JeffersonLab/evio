@@ -432,11 +432,12 @@ ByteBuffer & ByteBuffer::flip() {
 /**
  * Resets this buffer's position to the previously-marked position.
  * @return this buffer.
+ * @throws EvioException if mark &lt; 0.
  */
 ByteBuffer & ByteBuffer::reset() {
     int m = mrk;
     if (m < 0) {
-        throw HipoException("invalid mark");
+        throw EvioException("invalid mark");
     }
     pos = m;
     return *this;
@@ -458,11 +459,11 @@ ByteBuffer & ByteBuffer::rewind() {
  * Sets the position of the buffer.
  * @param p position of the buffer.
  * @return this buffer.
- * @throws HipoException if p &gt; capacity.
+ * @throws EvioException if p &gt; capacity.
  */
 ByteBuffer & ByteBuffer::position(size_t p) {
     if (p > lim) {
-        throw HipoException("buffer pos of " + to_string(p) + " will exceed limit of " + to_string(lim));
+        throw EvioException("buffer pos of " + to_string(p) + " will exceed limit of " + to_string(lim));
     }
     pos = p;
     if (mrk > pos) {
@@ -476,11 +477,11 @@ ByteBuffer & ByteBuffer::position(size_t p) {
  * Sets the limit of the buffer.
  * @param l limit of the buffer.
  * @return this buffer.
- * @throws HipoException if l &gt; capacity.
+ * @throws EvioException if l &gt; capacity.
  */
 ByteBuffer & ByteBuffer::limit(size_t l) {
     if (l > cap) {
-        throw HipoException("buffer lim of " + to_string(l) + " will exceed cap of " + to_string(cap));
+        throw EvioException("buffer lim of " + to_string(l) + " will exceed cap of " + to_string(cap));
     }
     lim = l;
 
@@ -663,12 +664,12 @@ std::shared_ptr<ByteBuffer> ByteBuffer::duplicate() {
  * @param  length maximum number of bytes to be written to the given
  *         array; must be no larger than dst size - offset.
  * @return  this buffer.
- * @throws  HipoException if fewer than <tt>length</tt> bytes remaining in buffer.
+ * @throws  EvioException if fewer than <tt>length</tt> bytes remaining in buffer.
  */
 const ByteBuffer & ByteBuffer::getBytes(uint8_t * dst, size_t offset, size_t length) const {
     // check args
     if (length > remaining()) {
-        throw HipoException("buffer underflow");
+        throw EvioException("buffer underflow");
     }
     memcpy((void *)(dst + offset), (void *)(buf.get() + pos), length);
     pos += length;
@@ -1078,18 +1079,18 @@ double ByteBuffer::getDouble(size_t index) const {
  * @param  src source buffer from which bytes are to be read;
  *             must not be this buffer.
  * @return  this buffer.
- * @throws  HipoException if insufficient space in this buffer
+ * @throws  EvioException if insufficient space in this buffer
  *          for the remaining bytes in the source buffer.
  * @throws  IllegalArgumentException if source buffer is this buffer.
  */
 ByteBuffer & ByteBuffer::put(const ByteBuffer & src) {
     if (&src == this) {
-        throw HipoException("may not copy data to self");
+        throw EvioException("may not copy data to self");
     }
 
     size_t srcBytes = src.remaining();
     if (srcBytes > remaining()) {
-        throw HipoException("buffer overflow");
+        throw EvioException("buffer overflow");
     }
 
     std::memcpy((void *)(buf.get() + pos), (const void *)(src.buf.get() + src.pos), srcBytes);
@@ -1150,12 +1151,12 @@ ByteBuffer & ByteBuffer::put(const std::shared_ptr<ByteBuffer> & src) {
  *         must be no larger than src array's size - offset.
  * @return  this buffer.
  *
- * @throws  HipoException if insufficient space in this buffer
+ * @throws  EvioException if insufficient space in this buffer
  */
 ByteBuffer & ByteBuffer::put(const uint8_t* src, size_t offset, size_t length) {
     // check args
     if (length > remaining()) {
-        throw HipoException("buffer overflow");
+        throw EvioException("buffer overflow");
     }
     std::memcpy((void *)(buf.get() + pos), (const void *)(src + offset), length);
     pos += length;

@@ -29,13 +29,13 @@ RecordHeader::RecordHeader() {bitInfoInit();}
 /**
  * Constructor which sets the type of header this is.
  * @param type  type of header this is
- * @throws HipoException if type is for file
+ * @throws EvioException if type is for file
  */
 RecordHeader::RecordHeader(const HeaderType & type) {
     headerType = type;
 
     if (headerType.isFileHeader()) {
-        throw HipoException("RecordHeader cannot be set to FileHeader type");
+        throw EvioException("RecordHeader cannot be set to FileHeader type");
     }
     bitInfoInit();
 }
@@ -808,13 +808,13 @@ RecordHeader & RecordHeader::setUserRegisterSecond(uint64_t reg) {
  * Position & limit of given buffer does NOT change.
  * @param buf  byte buffer to write header into.
  * @param off  position in buffer to begin writing.
- * @throws HipoException if buffer contains too little room.
+ * @throws EvioException if buffer contains too little room.
  */
 void RecordHeader::writeHeader(ByteBuffer & buf, size_t off) {
 
     // Check args
     if ((buf.limit() - off) < HEADER_SIZE_BYTES) {
-        throw HipoException("buffer too small");
+        throw EvioException("buffer too small");
     }
 
     uint32_t compressedWord = (compressedDataLengthWords & 0x0FFFFFFF) |
@@ -840,7 +840,7 @@ void RecordHeader::writeHeader(ByteBuffer & buf, size_t off) {
  * Writes this header into the given byte buffer starting at the beginning.
  * Position & limit of given buffer does NOT change.
  * @param buffer byte buffer to write header into.
- * @throws HipoException if buffer contains too little room.
+ * @throws EvioException if buffer contains too little room.
  */
 void RecordHeader::writeHeader(ByteBuffer & buffer) {writeHeader(buffer,0);}
 
@@ -849,7 +849,7 @@ void RecordHeader::writeHeader(ByteBuffer & buffer) {writeHeader(buffer,0);}
  * Position & limit of given buffer does NOT change.
  * @param buf  byte buffer to write header into.
  * @param off  position in buffer to begin writing.
- * @throws HipoException if buffer contains too little room.
+ * @throws EvioException if buffer contains too little room.
  */
 void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off) {
     writeHeader(*(buffer.get()), off);
@@ -863,7 +863,7 @@ void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off)
  * @param off       offset into array to start writing.
  * @param recordNum record number of trailer.
  * @param order     byte order of data to be written.
- * @throws HipoException if array arg is null or too small to hold trailer
+ * @throws EvioException if array arg is null or too small to hold trailer
  */
 void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
                                 uint32_t recordNum, const ByteOrder & order) {
@@ -882,7 +882,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
   *                     to be written to trailer (must be multiple of 4 bytes).
   *                     Null if no index array.
   * @param indexLen     number of valid bytes in index.
-  * @throws HipoException if array arg is null, array too small to hold trailer + index,
+  * @throws EvioException if array arg is null, array too small to hold trailer + index,
   *                       or index not multiple of 4 bytes.
   */
 void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
@@ -892,7 +892,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
     uint32_t wholeLength = HEADER_SIZE_BYTES;
     if (index != nullptr) {
         if ((indexLen % 4) != 0) {
-            throw HipoException("index length not multiple of 4 bytes");
+            throw EvioException("index length not multiple of 4 bytes");
         }
         wholeLength += indexLen;
     }
@@ -902,7 +902,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
 
     // Check args
     if (array == nullptr || arrayLen < wholeLength) {
-        throw HipoException("null or too small array arg");
+        throw EvioException("null or too small array arg");
     }
 
     int bitInfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
@@ -930,7 +930,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
             }
         }
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 }
 
 /**
@@ -938,7 +938,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
  * @param buf   ByteBuffer to write trailer into.
  * @param off   offset into buffer to start writing.
  * @param recordNum record number of trailer.
- * @throws HipoException if buf arg is null or too small to hold trailer
+ * @throws EvioException if buf arg is null or too small to hold trailer
  */
 void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum) {
     writeTrailer(buf, off, recordNum, nullptr, 0);
@@ -953,7 +953,7 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
  *              to be written to trailer
  *              (must be multiple of 4 bytes). Null if no index array.
  * @param indexLen length in bytes of index array.
- * @throws HipoException if buf too small to hold trailer + index,
+ * @throws EvioException if buf too small to hold trailer + index,
  *                       or index not multiple of 4 bytes.
  */
 void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
@@ -962,7 +962,7 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
     int wholeLen = HEADER_SIZE_BYTES;
     if (index != nullptr) {
         if ((indexLen % 4) != 0) {
-            throw HipoException("index length not multiple of 4 bytes");
+            throw EvioException("index length not multiple of 4 bytes");
         }
         wholeLen += indexLen;
     }
@@ -972,7 +972,7 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
 
     // Check arg
     if (buf.capacity() - off < wholeLen) {
-        throw HipoException("buf too small");
+        throw EvioException("buf too small");
     }
 
     // Make sure the limit allows writing
@@ -1019,13 +1019,13 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
  * @param buffer buffer to read from.
  * @param offset position of record header to be read.
  * @return true if data in record is compressed, else false.
- * @throws HipoException if buffer contains too little data,
+ * @throws EvioException if buffer contains too little data,
  *                       or is not in proper format.
  */
 bool RecordHeader::isCompressed(ByteBuffer & buffer, size_t offset) {
 
     if ((buffer.capacity() - offset) < 40) {
-        throw HipoException("data underflow");
+        throw EvioException("data underflow");
     }
 
     // First read the magic word to establish endianness
@@ -1045,7 +1045,7 @@ bool RecordHeader::isCompressed(ByteBuffer & buffer, size_t offset) {
         else {
             stringstream ss;
             ss << "buffer not in evio/hipo format? magic int = 0x" << hex << magicWord;
-            throw HipoException(ss.str());
+            throw EvioException(ss.str());
         }
     }
 
@@ -1061,12 +1061,12 @@ bool RecordHeader::isCompressed(ByteBuffer & buffer, size_t offset) {
  *
  * @param buffer buffer to read from.
  * @param offset position of first word to be read.
- * @throws HipoException if buffer contains too little data,
+ * @throws EvioException if buffer contains too little data,
  *                       is not in proper format, or version earlier than 6.
  */
 void RecordHeader::readHeader(ByteBuffer & buffer, size_t offset) {
     if ((buffer.capacity() - offset) < HEADER_SIZE_BYTES) {
-        throw HipoException("null or too small buffer arg");
+        throw EvioException("null or too small buffer arg");
     }
 
     // First read the magic word to establish endianness
@@ -1090,7 +1090,7 @@ void RecordHeader::readHeader(ByteBuffer & buffer, size_t offset) {
             buffer.printBytes(0, 40, "Bad Magic Word, buffer:");
             stringstream ss;
             ss << "buffer not in evio/hipo format? magic int = 0x" << hex << headerMagicWord;
-            throw HipoException(ss.str());
+            throw EvioException(ss.str());
         }
     }
     else {
@@ -1105,7 +1105,7 @@ void RecordHeader::readHeader(ByteBuffer & buffer, size_t offset) {
 
     // Look at the version #
     if (headerVersion < 6) {
-        throw HipoException("buffer is in evio format version " + to_string(bitInfo & 0xff));
+        throw EvioException("buffer is in evio format version " + to_string(bitInfo & 0xff));
     }
 
     recordLengthWords   = buffer.getInt(     offset);        //  0*4
@@ -1142,7 +1142,7 @@ void RecordHeader::readHeader(ByteBuffer & buffer, size_t offset) {
  * also determines the byte order.
  *
  * @param buffer buffer to read from starting at beginning.
- * @throws HipoException if buffer is not in the proper format or earlier than version 6
+ * @throws EvioException if buffer is not in the proper format or earlier than version 6
  */
 void RecordHeader::readHeader(ByteBuffer & buffer) {
     readHeader(buffer,0);
@@ -1362,7 +1362,7 @@ int RecordHeader::main(int argc, char **argv) {
     try {
         header.writeHeader(buffer);
     }
-    catch (HipoException e) {/* never happen */}
+    catch (EvioException e) {/* never happen */}
 
 
     RecordHeader header2;
@@ -1370,7 +1370,7 @@ int RecordHeader::main(int argc, char **argv) {
         header2.readHeader(buffer);
         cout << header2.toString();
     }
-    catch (HipoException e) {
+    catch (EvioException e) {
         cout << "error" << endl;
     }
 

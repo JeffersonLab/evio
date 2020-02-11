@@ -27,7 +27,7 @@
 #include "HeaderType.h"
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
-#include "HipoException.h"
+#include "EvioException.h"
 #include "Compressor.h"
 #include "Util.h"
 

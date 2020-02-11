@@ -28,7 +28,7 @@
 #include "RecordHeader.h"
 #include "FileHeader.h"
 #include "Compressor.h"
-
+#include "EvioException.h"
 
 namespace evio {
 

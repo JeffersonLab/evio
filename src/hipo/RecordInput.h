@@ -22,7 +22,7 @@
 #include "ByteBuffer.h"
 #include "RecordHeader.h"
 #include "Compressor.h"
-
+#include "EvioException.h"
 
 namespace evio {
 

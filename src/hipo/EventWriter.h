@@ -40,6 +40,7 @@
 #include "RecordSupply.h"
 #include "RecordCompressor.h"
 #include "Util.h"
+#include "EvioException.h"
 #include "EvioBank.h"
 
 #include "Disruptor/Util.h"
@@ -514,7 +515,7 @@ class EventWriter {
                             hdrBuffer.position(0).limit(RecordHeader::HEADER_SIZE_BYTES);
                             RecordHeader::writeTrailer(hdrBuffer, 0, recordNum, nullptr, 0);
                         }
-                        catch (HipoException &e) {/* never happen */}
+                        catch (EvioException &e) {/* never happen */}
 
                         afChannel->write(reinterpret_cast<char *>(hdrArray),
                                          RecordHeader::HEADER_SIZE_BYTES);
@@ -551,7 +552,7 @@ class EventWriter {
                                                        reinterpret_cast<uint32_t *>(recordIndex),
                                                        arraySize);
                         }
-                        catch (HipoException &e) {/* never happen */}
+                        catch (EvioException &e) {/* never happen */}
                         afChannel->write(reinterpret_cast<char *>(hdrArray), bytesToWrite);
                         if (afChannel->fail()) {
                             throw EvioException("error writing to file");

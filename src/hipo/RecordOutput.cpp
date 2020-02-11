@@ -45,7 +45,7 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
         }
         header = RecordHeader(hType);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     header.setCompressionType(compressionType);
     byteOrder = order;
@@ -89,7 +89,7 @@ RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEve
         }
         header = RecordHeader(hType);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     header.setCompressionType(compressionType);
     userProvidedBuffer = true;
@@ -125,7 +125,7 @@ RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEve
 /**
  * Copy constructor.
  * @param rec RecordOutput to copy.
- * @throws HipoException if trying to copy bigger record and
+ * @throws EvioException if trying to copy bigger record and
  *                       internal buffer was provided by user.
  */
 RecordOutput::RecordOutput(const RecordOutput & rec) {
@@ -187,7 +187,7 @@ RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
  * Assignment operator.
  * @param other right side object.
  * @return left side object.
- * @throws HipoException if trying to copy bigger record and
+ * @throws EvioException if trying to copy bigger record and
  *                       internal buffer was provided by user.
  */
 RecordOutput & RecordOutput::operator=(const RecordOutput& other) {
@@ -237,7 +237,7 @@ void RecordOutput::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
  * If the arg has more data than will fit, increase buffer sizes.
  * If the arg has more events than our allowed max, increase the max.
  * @param rec object to copy, must be ready to read
- * @throws HipoException if we cannot replace internal buffer if it needs to be
+ * @throws EvioException if we cannot replace internal buffer if it needs to be
  *                       expanded since it was provided by the user.
  */
 void RecordOutput::transferDataForReading(const RecordOutput & rec) {
@@ -253,7 +253,7 @@ void RecordOutput::transferDataForReading(const RecordOutput & rec) {
  * Copy data from arg into this object, but don't set positions/limits of data buffer.
  * Copy all data up to the buffer limit (not capacity).
  * @param rec RecordOutput to copy.
- * @throws HipoException if trying to copy bigger record and
+ * @throws EvioException if trying to copy bigger record and
  *                       internal buffer was provided by user.
  */
 void RecordOutput::copy(const RecordOutput & rec) {
@@ -296,7 +296,7 @@ void RecordOutput::copy(const RecordOutput & rec) {
             // then the user is expecting data to be built into that same buffer.
             // If the data to be copied is larger than can be contained by the
             // user-provided buffer, then we throw an exception.
-            throw HipoException("trying to copy bigger record which may not fit into buffer provided by user");
+            throw EvioException("trying to copy bigger record which may not fit into buffer provided by user");
         }
 
         recordEvents = std::make_shared<ByteBuffer>(MAX_BUFFER_SIZE);
@@ -647,7 +647,7 @@ bool RecordOutput::addEvent(const ByteBuffer & event, uint32_t extraDataLen) {
  * @return true if event was added; false if the event was not added because the
  *         count limit would be exceeded or the buffer is full and cannot be
  *         expanded since it's user-provided.
- * @throws HipoException if node does not correspond to a bank.
+ * @throws EvioException if node does not correspond to a bank.
  */
 bool RecordOutput::addEvent(EvioNode & node) {
     return addEvent(node, 0);
@@ -671,14 +671,14 @@ bool RecordOutput::addEvent(EvioNode & node) {
  * @return true if event was added; false if the event was not added because the
  *         count limit would be exceeded or the buffer is full and cannot be
  *         expanded since it's user-provided.
- * @throws HipoException if node does not correspond to a bank.
+ * @throws EvioException if node does not correspond to a bank.
  */
 bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
 
     int eventLen = node.getTotalBytes();
 
     if (!node.getTypeObj().isBank()) {
-        throw HipoException("node does not represent a bank (" + node.getTypeObj().toString() + ")");
+        throw EvioException("node does not represent a bank (" + node.getTypeObj().toString() + ")");
     }
 
     if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
@@ -832,7 +832,7 @@ void RecordOutput::build() {
         try {
             header.writeHeader(recordBinary, 0);
         }
-        catch (HipoException & e) {/* never happen */}
+        catch (EvioException & e) {/* never happen */}
 //            cout << "build: buf lim = " << recordBinary->limit() <<
 //                    ", cap = " << recordBinary->capacity() << endl;
         return;
@@ -956,7 +956,7 @@ void RecordOutput::build() {
 //cout << "set header length = " << header.getLength() << ", uncompressed data size = " << uncompressedDataSize << endl;
         }
     }
-    catch (HipoException & e) {/* should not happen */}
+    catch (EvioException & e) {/* should not happen */}
 
     // Set the rest of the header values
     header.setEntries(eventCount);
@@ -972,7 +972,7 @@ void RecordOutput::build() {
         // Does NOT change recordBinary pos or lim
         header.writeHeader(recordBinary, startingPosition);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     // Make ready to read
     recordBinary->limit(startingPosition + header.getLength()).position(0);
@@ -1121,7 +1121,7 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
                 header.setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
         }
     }
-    catch (HipoException & e) {/* should not happen */}
+    catch (EvioException & e) {/* should not happen */}
 
     //cout << " COMPRESSED SIZE = " << compressedSize << endl;
 
@@ -1134,7 +1134,7 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
     try {
         header.writeHeader(recordBinary, startingPosition);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     // Make ready to read
     recordBinary->limit(startingPosition + header.getLength()).position(0);

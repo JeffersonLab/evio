@@ -1125,7 +1125,7 @@ void EventWriter::writeFileHeader() {
     try {
         fileHeader.writeHeader(buf, 0);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     // Write user header into array if necessary
     if (commonRecordBytes > 0) {
@@ -2814,7 +2814,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
                                            nullptr, 0);
 
             }
-            catch (HipoException & e) {/* never happen */}
+            catch (EvioException & e) {/* never happen */}
             //bytesToWrite = RecordHeader::HEADER_SIZE_BYTES;
 
             // We don't want to let the closer thread do the work of seeing that

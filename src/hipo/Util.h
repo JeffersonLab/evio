@@ -23,7 +23,6 @@
 #include <vector>
 #include <fstream>
 
-#include "HipoException.h"
 #include "EvioException.h"
 #include "ByteOrder.h"
 

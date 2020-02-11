@@ -522,12 +522,12 @@ FileHeader & FileHeader::setLength(uint32_t length) {
  * Writes the file (not record!) header into the given byte buffer.
  * @param buf byte buffer to write file header into.
  * @param off position in buffer to begin writing.
- * @throws HipoException if remaining buffer space (limit - off) is too small.
+ * @throws EvioException if remaining buffer space (limit - off) is too small.
  */
 void FileHeader::writeHeader(ByteBuffer & buf, size_t off) {
 
     if ((buf.limit() - off) < HEADER_SIZE_BYTES) {
-        throw HipoException("buffer too small");
+        throw EvioException("buffer too small");
     }
 
     buf.putInt (     off, fileId);            //  0*4
@@ -549,7 +549,7 @@ void FileHeader::writeHeader(ByteBuffer & buf, size_t off) {
 /**
  * Writes the file (not record!) header into the given byte buffer starting at beginning.
  * @param buffer byte buffer to write file header into.
- * @throws HipoException if remaining buffer space (limit) is too small.
+ * @throws EvioException if remaining buffer space (limit) is too small.
  */
 void FileHeader::writeHeader(ByteBuffer & buffer) {
     writeHeader(buffer, 0);
@@ -559,7 +559,7 @@ void FileHeader::writeHeader(ByteBuffer & buffer) {
  * Writes the file (not record!) header into the given byte buffer.
  * @param buf byte buffer to write file header into.
  * @param off position in buffer to begin writing.
- * @throws HipoException if remaining buffer space (limit - off) is too small.
+ * @throws EvioException if remaining buffer space (limit - off) is too small.
  */
 void FileHeader::writeHeader(std::shared_ptr<ByteBuffer> & buf, size_t off) {
     return writeHeader(*(buf.get()), off);

@@ -38,7 +38,7 @@ RecordSupply::RecordSupply() : ringSize(4),
  * @param maxBufferSize   max number of uncompressed data bytes each record can hold.
  *                        Value of < 8MB results in default of 8MB.
  * @param compressionType type of data compression to do.
- * @throws HipoException if args < 1, ringSize not power of 2,
+ * @throws EvioException if args < 1, ringSize not power of 2,
  *                                  threadCount > ringSize.
  */
 RecordSupply::RecordSupply(uint32_t ringSize, ByteOrder order,
@@ -50,11 +50,11 @@ RecordSupply::RecordSupply(uint32_t ringSize, ByteOrder order,
 {
 
     if (!Disruptor::Util::isPowerOf2(ringSize)) {
-        throw HipoException("ringSize must be a power of 2");
+        throw EvioException("ringSize must be a power of 2");
     }
 
     if (ringSize < threadCount) {
-        throw HipoException("threadCount must be <= ringSize");
+        throw EvioException("threadCount must be <= ringSize");
     }
 
     // # compression threads defaults to 1 if given bad value

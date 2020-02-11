@@ -252,7 +252,7 @@ void WriterMT::addTrailerWithIndex(bool addTrailingIndex) {
 /**
  * Open a new file and write file header with no user header.
  * @param filename output file name
- * @throws HipoException if open already called without being followed by calling close.
+ * @throws EvioException if open already called without being followed by calling close.
  * @throws IOException if file cannot be found or IO error writing to file
  */
 void WriterMT::open(string & filename) {
@@ -269,18 +269,18 @@ void WriterMT::open(string & filename) {
  *                   the dictionary and/or first event will be placed in its
  *                   own record and written as the user header.
  * @param userLen   length of userHdr in bytes.
- * @throws HipoException if filename arg is bad,
+ * @throws EvioException if filename arg is bad,
  *                       or if open() was already called without being followed by reset().
  * @throws IOException   if file cannot be found or IO error writing to file
  */
 void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
 
     if (opened) {
-        throw HipoException("currently open, call reset() first");
+        throw EvioException("currently open, call reset() first");
     }
 
     if (filename.empty()) {
-        throw HipoException("bad filename");
+        throw EvioException("bad filename");
     }
 
     std::shared_ptr<ByteBuffer> fileHeaderBuffer;
@@ -312,7 +312,7 @@ void WriterMT::open(string & filename, uint8_t* userHdr, uint32_t userLen) {
     outFile.open(filename, ios::binary);
     outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer->array()), fileHeaderBuffer->remaining());
     if (outFile.fail()) {
-        throw HipoException("error opening file " + filename);
+        throw EvioException("error opening file " + filename);
     }
 
     writerBytesWritten = (size_t) (fileHeader.getLength());
@@ -385,7 +385,7 @@ std::shared_ptr<ByteBuffer> WriterMT::createHeader(uint8_t* userHdr, uint32_t us
         cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << endl;
         fileHeader.writeHeader(buf, 0);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf->array() + FileHeader::HEADER_SIZE_BYTES),
@@ -405,7 +405,7 @@ std::shared_ptr<ByteBuffer> WriterMT::createHeader(uint8_t* userHdr, uint32_t us
  *
  * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
  * @return buffer containing a file header followed by the user-defined header.
- * @throws HipoException if writing to buffer, not file.
+ * @throws EvioException if writing to buffer, not file.
  */
 std::shared_ptr<ByteBuffer> WriterMT::createHeader(ByteBuffer & userHdr) {
 
@@ -428,7 +428,7 @@ std::shared_ptr<ByteBuffer> WriterMT::createHeader(ByteBuffer & userHdr) {
     try {
         fileHeader.writeHeader(buf, 0);
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     if (userHeaderBytes > 0) {
         std::memcpy((void *)(buf->array() + FileHeader::HEADER_SIZE_BYTES),
@@ -452,7 +452,7 @@ std::shared_ptr<ByteBuffer> WriterMT::createHeader(ByteBuffer & userHdr) {
  *
  * @param writeIndex if true, write an index of all record lengths in trailer.
  * @param recordNum record number for trailing record.
- * @throws HipoException if error writing to file.
+ * @throws EvioException if error writing to file.
  */
 void WriterMT::writeTrailer(bool writeIndex, uint32_t recordNum) {
 
@@ -467,7 +467,7 @@ void WriterMT::writeTrailer(bool writeIndex, uint32_t recordNum) {
         writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
         outFile.write(reinterpret_cast<const char *>(&headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
         if (outFile.fail()) {
-            throw HipoException("error writing file " + fileName);
+            throw EvioException("error writing file " + fileName);
         }
     }
     else {
@@ -501,7 +501,7 @@ void WriterMT::writeTrailer(bool writeIndex, uint32_t recordNum) {
         writerBytesWritten += dataBytes;
         outFile.write(reinterpret_cast<const char *>(&headerArray[0]), dataBytes);
         if (outFile.fail()) {
-            throw HipoException("error opening file " + fileName);
+            throw EvioException("error opening file " + fileName);
         }
 
         delete[] recordIndex;
@@ -536,12 +536,12 @@ void WriterMT::writeTrailer(bool writeIndex, uint32_t recordNum) {
  * Appends the record to the file.
  * Using this method in conjunction with {@link #addEvent()} is not thread-safe.
  * @param rec record object
- * @throws HipoException if record's byte order is opposite to output endian.
+ * @throws EvioException if record's byte order is opposite to output endian.
  */
 void WriterMT::writeRecord(RecordOutput & rec) {
 
     if (rec.getByteOrder() != byteOrder) {
-        throw HipoException("record byte order is wrong");
+        throw EvioException("record byte order is wrong");
     }
 
     // If we have already written stuff into our current internal record ...
@@ -611,12 +611,12 @@ void WriterMT::addEvent(uint8_t *buffer, uint32_t offset, uint32_t length) {
  * match the byte order given in constructor!</b>
  *
  * @param buffer array to add to the file.
- * @throws HipoException if cannot write to file or buffer arg's byte order is wrong.
+ * @throws EvioException if cannot write to file or buffer arg's byte order is wrong.
  */
 void WriterMT::addEvent(ByteBuffer & buffer) {
 
     if (buffer.order() != byteOrder) {
-        throw HipoException("buffer arg byte order is wrong");
+        throw EvioException("buffer arg byte order is wrong");
     }
 
     bool status = outputRecord->addEvent(buffer);
@@ -648,12 +648,12 @@ void WriterMT::addEvent(ByteBuffer & buffer) {
  * match the byte order given in constructor!</b>
  *
  * @param node node to add to the file.
- * @throws HipoException if cannot write to file or node arg's byte order is wrong.
+ * @throws EvioException if cannot write to file or node arg's byte order is wrong.
  */
 void WriterMT::addEvent(EvioNode & node) {
 
     if (node.getBuffer()->order() != byteOrder) {
-        throw HipoException("buffer arg byte order is wrong");
+        throw EvioException("buffer arg byte order is wrong");
     }
 
     bool status = outputRecord->addEvent(node);
@@ -738,7 +738,7 @@ void WriterMT::close() {
         outFile.close();
         recordLengths.clear();
     }
-    catch (HipoException & ex) {
+    catch (EvioException & ex) {
         cout << "WriterMT::close ERROR!!!" << endl;
     }
 

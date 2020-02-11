@@ -35,6 +35,7 @@
 #include "RecordSupply.h"
 #include "RecordCompressor.h"
 #include "Util.h"
+#include "EvioException.h"
 
 #include "Disruptor/Util.h"
 #include <boost/thread.hpp>
@@ -171,7 +172,7 @@ private:
                              ", lim = " << buf->limit() << ", bytesToWrite = " << bytesToWrite << endl;
                         writer->outFile.write(reinterpret_cast<const char *>(buf->array()), bytesToWrite);
                         if (writer->outFile.fail()) {
-                            throw HipoException("failed write to file");
+                            throw EvioException("failed write to file");
                         }
 
                         record->reset();

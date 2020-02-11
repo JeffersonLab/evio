@@ -116,7 +116,7 @@ Reader::Reader() : nodePool(nodePoolStatic) {
  * in file before scanning.
  * @param filename input file name.
  * @throws IOException   if error reading file
- * @throws HipoException if file is not in the proper format or earlier than version 6
+ * @throws EvioException if file is not in the proper format or earlier than version 6
  */
 Reader::Reader(string & filename) : nodePool(nodePoolStatic) {
     // Throw exception if logical or read/write error on io operation
@@ -131,7 +131,7 @@ Reader::Reader(string & filename) : nodePool(nodePoolStatic) {
  * @param filename input file name.
  * @param forceScan if true, force a scan of file, else use existing indexes first.
  * @throws IOException   if error reading file
- * @throws HipoException if file is not in the proper format or earlier than version 6
+ * @throws EvioException if file is not in the proper format or earlier than version 6
  */
 Reader::Reader(string & filename, bool forceScan) : nodePool(nodePoolStatic) {
     // Throw exception if logical or read/write error on io operation
@@ -149,7 +149,7 @@ Reader::Reader(string & filename, bool forceScan) : nodePool(nodePoolStatic) {
  * Constructor for reading buffer with evio data.
  * Buffer must be ready to read with position and limit set properly.
  * @param buffer buffer with evio data.
- * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
+ * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6
  */
 Reader::Reader(std::shared_ptr<ByteBuffer> & buffer): nodePool(nodePoolStatic) {
 
@@ -166,7 +166,7 @@ Reader::Reader(std::shared_ptr<ByteBuffer> & buffer): nodePool(nodePoolStatic) {
  * Buffer must be ready to read with position and limit set properly.
  * @param buffer buffer with evio data.
  * @param pool pool of EvioNode objects for garbage-free operation.
- * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6
+ * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6
  */
 Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool) :
         Reader(buffer, pool, false) {
@@ -179,7 +179,7 @@ Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool) :
  * @param pool pool of EvioNode objects for garbage-free operation.
  * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
  *                          if not throw exception.
- * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6;
+ * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6;
  *                       if checkRecordNumSeq is true and records are out of sequence.
  */
 Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq) : nodePool(pool) {
@@ -257,7 +257,7 @@ bool Reader::isFile() {return fromFile;}
  * This method can be used to avoid creating additional Reader
  * objects by reusing this one with another buffer.
  * @param buf ByteBuffer to be read
- * @throws HipoException if buf arg is null, buffer too small,
+ * @throws EvioException if buf arg is null, buffer too small,
  *                       not in the proper format, or earlier than version 6
  */
 void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
@@ -291,7 +291,7 @@ void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
  *
  * @param buf ByteBuffer to be read
  * @param pool pool of EvioNode objects to use when parsing buf.
- * @throws HipoException if buffer too small,
+ * @throws EvioException if buffer too small,
  *                       not in the proper format, or earlier than version 6
  */
 void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
@@ -316,7 +316,7 @@ void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool)
  * @return buf arg if data is not compressed. If compressed and buf does not have the
  *         necessary space to contain all uncompressed data, a new buffer is allocated,
  *         filled, and returned.
- * @throws HipoException if buf arg is null, buffer too small,
+ * @throws EvioException if buf arg is null, buffer too small,
  *                       not in the proper format, or earlier than version 6
  */
 std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
@@ -484,7 +484,7 @@ uint32_t Reader::getNumEventsRemaining() {return (eventIndex.getMaxEvents() - se
  * If the previous call was to {@link #getPrevEvent}, this will get the event
  * past what that returned. Once the last event is returned, this will return null.
  * @return byte array representing the next event or null if there is none.
- * @throws HipoException if file/buffer not in hipo format
+ * @throws EvioException if file/buffer not in hipo format
  */
 shared_ptr<uint8_t> Reader::getNextEvent() {
     bool debug = false;
@@ -525,7 +525,7 @@ shared_ptr<uint8_t> Reader::getNextEvent() {
  * it will always return null. Once the first event is returned, this will
  * return null.
  * @return byte array representing the previous event or null if there is none.
- * @throws HipoException if the file/buffer is not in HIPO format
+ * @throws EvioException if the file/buffer is not in HIPO format
  */
 shared_ptr<uint8_t> Reader::getPrevEvent() {
     bool debug = false;
@@ -626,7 +626,7 @@ ByteBuffer Reader::readUserHeader() {
  *              contiguous starting at 0.
  * @return byte array representing the specified event or null if
  *         index is out of bounds.
- * @throws HipoException if file/buffer not in hipo format
+ * @throws EvioException if file/buffer not in hipo format
  */
 shared_ptr<uint8_t> Reader::getEvent(uint32_t index) {
 
@@ -659,7 +659,7 @@ shared_ptr<uint8_t> Reader::getEvent(uint32_t index) {
  * @param index index of specified event within the entire file/buffer,
  *              contiguous starting at 0.
  * @return buf or null if buf is null or index out of bounds.
- * @throws HipoException if file/buffer not in hipo format,
+ * @throws EvioException if file/buffer not in hipo format,
  *                       if buf has insufficient space to contain event
  *                       (buf.capacity() < event size), or
  *                       index too large.
@@ -667,7 +667,7 @@ shared_ptr<uint8_t> Reader::getEvent(uint32_t index) {
 ByteBuffer & Reader::getEvent(ByteBuffer & buf, uint32_t index) {
 
     if (index >= eventIndex.getMaxEvents()) {
-        throw HipoException("index too large");
+        throw EvioException("index too large");
     }
 
     if (eventIndex.setEvent(index)) {
@@ -714,14 +714,14 @@ uint32_t Reader::getEventLength(uint32_t index) {
  *              starting at 0.
  * @return EvioNode representing the specified event or null if
  *         index is out of bounds, reading a file or data is compressed.
- * @throws HipoException index too large or reading from file.
+ * @throws EvioException index too large or reading from file.
  */
 EvioNode & Reader::getEventNode(uint32_t index) {
 //cout << "getEventNode: index = " << index + " >? " << eventIndex.getMaxEvents() <<
 //                   ", fromFile = " << fromFile << ", compressed = " << compressed << endl;
     if (index >= eventIndex.getMaxEvents() || fromFile) {
 //cout << "getEventNode: index out of range, from file or compressed so node = NULL" << endl;
-        throw HipoException("index too large or reading from file");
+        throw EvioException("index too large or reading from file");
     }
 //cout << "getEventNode: Getting node at index = " << index << endl;
     return eventNodes[index];
@@ -761,7 +761,7 @@ RecordInput & Reader::getCurrentRecordStream() {return inputRecordStream;}
  * Reads record from the file/buffer at the given record index.
  * @param index record index  (starting at 0).
  * @return true if valid index and successful reading record, else false.
- * @throws HipoException if file/buffer not in hipo format
+ * @throws EvioException if file/buffer not in hipo format
  */
 bool Reader::readRecord(uint32_t index) {
     cout << "Reader.readRecord:  index = " << index << ", recPos.size() = " << recordPositions.size() << endl;
@@ -826,7 +826,7 @@ void Reader::extractDictionaryFromBuffer() {
         record = RecordInput(firstRecordHeader.getByteOrder());
         record.readRecord(userBuffer, 0);
     }
-    catch (HipoException & e) {
+    catch (EvioException & e) {
         // Not in proper format
         return;
     }
@@ -881,7 +881,7 @@ void Reader::extractDictionaryFromFile() {
         // Can't read file
         return;
     }
-    catch (HipoException & e) {
+    catch (EvioException & e) {
         // Not in proper format
         return;
     }
@@ -924,12 +924,12 @@ void Reader::extractDictionaryFromFile() {
  *      <li>uncompressed data length in bytes (w/o record header)</li>
  *  </ol>
  * @throws underflow_error if not enough data in buffer.
- * @throws HipoException null info arg or info.length &lt; 7.
+ * @throws EvioException null info arg or info.length &lt; 7.
  */
 void Reader::findRecordInfo(ByteBuffer & buf, uint32_t offset, uint32_t* info, uint32_t infoLen) {
 
     if (info == nullptr || infoLen < 7) {
-        throw HipoException("null info arg or info length < 7");
+        throw EvioException("null info arg or info length < 7");
     }
 //        if (buf.capacity() - offset < 1000) {
 //            cout << "findRecInfo: buf cap = " << buf.capacity() << ", offset = " << offset <<
@@ -965,12 +965,12 @@ void Reader::findRecordInfo(ByteBuffer & buf, uint32_t offset, uint32_t* info, u
  * @param infoLen number of elements in info array.
  * @return total compressed hipo/evio data in bytes.
  * @throws underflow_error if not enough data in buffer.
- * @throws HipoException null info arg or infoLen &lt; 7.
+ * @throws EvioException null info arg or infoLen &lt; 7.
  */
 int Reader::getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLen) {
 
     if (info == nullptr || infoLen < 7) {
-        throw HipoException("bad arg or infoLen < 7");
+        throw EvioException("bad arg or infoLen < 7");
     }
 
     int offset = buf.position();
@@ -1020,7 +1020,7 @@ int Reader::getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLe
  * @return buffer containing uncompressed data. This buffer may be different than the
  *         one originally scanned if the data was compressed and the uncompressed length
  *         is greater than the original buffer could hold.
- * @throws HipoException if buffer not in the proper format or earlier than version 6;
+ * @throws EvioException if buffer not in the proper format or earlier than version 6;
  *                       if checkRecordNumberSequence is true and records are out of sequence.
  * @throws BufferUnderflowException if not enough data in buffer.
  */
@@ -1125,7 +1125,7 @@ ByteBuffer Reader::scanBuffer() {
             if (recordHeader.getRecordNumber() != recordNumberExpected) {
                 //cout << "  scanBuffer: record # out of sequence, got " << recordHeader.getRecordNumber() <<
                 //                   " expecting " << recordNumberExpected << endl;
-                throw HipoException("bad record # sequence");
+                throw EvioException("bad record # sequence");
             }
             recordNumberExpected++;
         }
@@ -1134,7 +1134,7 @@ ByteBuffer Reader::scanBuffer() {
         if (recordHeader.getLength() > bytesLeft) {
             cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
                  ", pos = " << buf.position() << endl;
-            throw HipoException("Bad hipo format: not enough data to read record");
+            throw EvioException("Bad hipo format: not enough data to read record");
         }
 
         // Header is now describing the uncompressed buffer, bigEnoughBuf
@@ -1158,15 +1158,10 @@ ByteBuffer Reader::scanBuffer() {
         // For each event in record, store its location
         for (int i=0; i < eventsInRecord; i++) {
             std::shared_ptr<EvioNode> node;
-            try {
 //System.out.println("      try extracting event " + i + ", pos = " + position +
 //                                               ", place = " + (eventCount + i));
-                node = EvioNode::extractEventNode(bigEnoughBuf, nodePool, 0,
-                                                  position, eventCount + i);
-            }
-            catch (EvioException & e) {
-                throw HipoException("Bad evio format: not enough data to read event (bad bank len?), " + std::string(e.what()));
-            }
+            node = EvioNode::extractEventNode(bigEnoughBuf, nodePool, 0,
+                                              position, eventCount + i);
 //cout << "      event " << i << ", pos = " << node.getPosition() <<
 //                           ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
             eventNodes.push_back(*(node.get()));
@@ -1176,7 +1171,7 @@ ByteBuffer Reader::scanBuffer() {
             position += byteLen;
 
             if (byteLen < 8) {
-                throw HipoException("Bad evio format: bad bank length");
+                throw EvioException("Bad evio format: bad bank length");
             }
 //cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << endl << endl;
         }
@@ -1225,7 +1220,7 @@ ByteBuffer Reader::scanBuffer() {
 /**
   * Scan buffer to find all records and store their position, length, and event count.
   * Also finds all events and creates & stores their associated EvioNode objects.
-  * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6;
+  * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6;
   *                       if checkRecordNumberSequence is true and records are out of sequence.
   */
 void Reader::scanUncompressedBuffer() {
@@ -1262,7 +1257,7 @@ void Reader::scanUncompressedBuffer() {
             if (recordHeader.getRecordNumber() != recordNumberExpected) {
 //cout << "  scanBuffer: record # out of sequence, got " << recordHeader.getRecordNumber() <<
 //        " expecting " << recordNumberExpected << endl;
-                throw HipoException("bad record # sequence");
+                throw EvioException("bad record # sequence");
             }
             recordNumberExpected++;
         }
@@ -1282,7 +1277,7 @@ void Reader::scanUncompressedBuffer() {
         if (recordHeader.getLength() > bytesLeft) {
             cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
                  ", pos = " << buffer->position() << endl;
-            throw HipoException("Bad hipo format: not enough data to read record");
+            throw EvioException("Bad hipo format: not enough data to read record");
         }
 
         //cout << ">>>>>==============================================" << endl;
@@ -1309,15 +1304,10 @@ void Reader::scanUncompressedBuffer() {
         // For each event in record, store its location
         for (int i=0; i < eventsInRecord; i++) {
             std::shared_ptr<EvioNode> node;
-            try {
 //cout << "      try extracting event " << i << " in record pos = " << recPosition <<
 //        ", pos = " << position << ", place = " << (eventCount + i) << endl;
-                node = EvioNode::extractEventNode(buffer, nodePool, recPosition,
-                                                  position, eventCount + i);
-            }
-            catch (EvioException & e) {
-                throw HipoException("Bad evio format: not enough data to read event (bad bank len?), " + std::string(e.what()));
-            }
+            node = EvioNode::extractEventNode(buffer, nodePool, recPosition,
+                                              position, eventCount + i);
 //cout << "      event " << i << " in record: pos = " << node.getPosition() <<
 //        ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
             eventNodes.push_back(*(node.get()));
@@ -1328,7 +1318,7 @@ void Reader::scanUncompressedBuffer() {
             bytesLeft -= byteLen;
 
             if (byteLen < 8 || bytesLeft < 0) {
-                throw HipoException("Bad evio format: bad bank length");
+                throw EvioException("Bad evio format: bad bank length");
             }
 
 //cout << "        hopped event " << i << ", bytesLeft = " << bytesLeft << ", pos = " << position << endl << endl;
@@ -1345,7 +1335,7 @@ void Reader::scanUncompressedBuffer() {
  * Scan file to find all records and store their position, length, and event count.
  * Safe to call this method successively.
  * @throws IOException   if error reading file
- * @throws HipoException if file is not in the proper format or earlier than version 6;
+ * @throws EvioException if file is not in the proper format or earlier than version 6;
  *                       if checkRecordNumberSequence is true and records are out of sequence.
  */
 void Reader::forceScanFile() {
@@ -1408,7 +1398,7 @@ void Reader::forceScanFile() {
                 cout << "forceScanFile: record # out of sequence, got " << recordHeader.getRecordNumber() <<
                      " expecting " << recordNumberExpected << endl;
 
-                throw HipoException("bad record # sequence");
+                throw EvioException("bad record # sequence");
             }
             recordNumberExpected++;
         }
@@ -1437,7 +1427,7 @@ void Reader::forceScanFile() {
  * @param force if true, force a file scan even if header
  *              or trailer have index info.
  * @throws IOException   if error reading file
- * @throws HipoException if file is not in the proper format or earlier than version 6
+ * @throws EvioException if file is not in the proper format or earlier than version 6
  */
 void Reader::scanFile(bool force) {
 
@@ -1556,7 +1546,7 @@ void Reader::scanFile(bool force) {
             recordPosition += len;
         }
     }
-    catch (HipoException & e) {/* never happen */}
+    catch (EvioException & e) {/* never happen */}
 
     delete[](index);
     delete[](intData);
@@ -1574,13 +1564,13 @@ void Reader::scanFile(bool force) {
  * @param dest       array in which to write converted bytes.
  * @param destOffset offset into dest array.
  *
- * @throws HipoException if data or dest is null
+ * @throws EvioException if data or dest is null
  */
 void Reader::toIntArray(char const *data, uint32_t dataOffset,  uint32_t dataLen,
                         const ByteOrder & byteOrder, int *dest, uint32_t destOffset) {
 
     if (data == nullptr || dest == nullptr) {
-        throw HipoException("bad arg");
+        throw EvioException("bad arg");
     }
 
     for (int i = 0; i < dataLen-3; i+=4) {
@@ -1630,7 +1620,7 @@ int Reader::toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrde
  *
  * @param  removeNode  evio structure to remove from buffer
  * @return ByteBuffer updated to reflect the node removal
- * @throws HipoException if object closed;
+ * @throws EvioException if object closed;
  *                       if node was not found in any event;
  *                       if internal programming error;
  *                       if buffer has compressed data;
@@ -1638,7 +1628,7 @@ int Reader::toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrde
 std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
 
     if (closed) {
-        throw HipoException("object closed");
+        throw EvioException("object closed");
     }
     else if (removeNode.isObsolete()) {
         //cout << "removeStructure: node has already been removed" << endl;
@@ -1646,7 +1636,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
     }
 
     if (firstRecordHeader.getCompressionType() != Compressor::UNCOMPRESSED) {
-        throw HipoException("cannot remove node from buffer of compressed data");
+        throw EvioException("cannot remove node from buffer of compressed data");
     }
 
     bool foundNode = false;
@@ -1673,7 +1663,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
     }
 
     if (!foundNode) {
-        throw HipoException("removeNode not found in any event");
+        throw EvioException("removeNode not found in any event");
     }
 
     // The data these nodes represent will be removed from the buffer,
@@ -1751,7 +1741,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
  *                  i.e. no record headers)
  * @return a new ByteBuffer object which is created and filled with all the data
  *         including what was just added.
- * @throws HipoException if eventNumber out of bounds;
+ * @throws EvioException if eventNumber out of bounds;
  *                       if addBuffer arg is empty or has non-evio format;
  *                       if addBuffer is opposite endian to current event buffer;
  *                       if added data is not the proper length (i.e. multiple of 4 bytes);
@@ -1762,19 +1752,19 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
 std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuffer & addBuffer) {
 
     if (addBuffer.remaining() < 8) {
-        throw HipoException("empty or non-evio format buffer arg");
+        throw EvioException("empty or non-evio format buffer arg");
     }
 
     if (addBuffer.order() != byteOrder) {
-        throw HipoException("trying to add wrong endian buffer");
+        throw EvioException("trying to add wrong endian buffer");
     }
 
     if (eventNumber < 1 || eventNumber > eventNodes.size()) {
-        throw HipoException("event number out of bounds");
+        throw EvioException("event number out of bounds");
     }
 
     if (closed) {
-        throw HipoException("object closed");
+        throw EvioException("object closed");
     }
 
     EvioNode & eventNode = eventNodes[eventNumber - 1];
@@ -1787,7 +1777,7 @@ std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuf
 
     // Make sure it's a multiple of 4
     if (appendDataLen % 4 != 0) {
-        throw HipoException("data added is not in evio format");
+        throw EvioException("data added is not in evio format");
     }
 
     //--------------------------------------------
@@ -1860,7 +1850,7 @@ int Reader::main(int argc, char **argv) {
             cout << " reading event # " << icounter << endl;
             try {
                 shared_ptr<uint8_t> event = reader.getNextEvent();
-            } catch (HipoException &ex) {
+            } catch (EvioException &ex) {
                 //Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
             }
 

@@ -23,7 +23,7 @@
 #include "ByteOrder.h"
 #include "Compressor.h"
 #include "RecordRingItem.h"
-
+#include "EvioException.h"
 #include "Disruptor/Util.h"
 #include "Disruptor/Sequence.h"
 #include "Disruptor/ISequence.h"

@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <sstream>
 
+#include "EvioException.h"
 #include "ByteBuffer.h"
 #include "lz4.h"
 #include "lz4hc.h"
