@@ -7,7 +7,6 @@
 package org.jlab.coda.hipo;
 
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import com.lmax.disruptor.*;
 
@@ -290,8 +289,8 @@ public class RecordSupply {
     }
 
     /**
-     * Get the sequence of last ring buffer item obtained with get (seq starts at 0).
-     * @return sequence of last ring buffer item obtained with get (seq starts at 0).
+     * Get the sequence of last ring buffer item published (seq starts at 0).
+     * @return sequence of last ring buffer item published (seq starts at 0).
      */
     public long getLastSequence() {
         return ringBuffer.getCursor();
