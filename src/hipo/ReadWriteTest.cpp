@@ -675,7 +675,23 @@ public:
 }
 
 
+
 int main(int argc, char **argv) {
+    evio::ByteBuffer b(5);
+    b[0] = 10; b[1] = 11; b[2] = 12; b[3] = 13; b[4] = 14;
+
+    evio::Util::printBytes(b, 0, 5, "Byte subscript operator trial, b");
+
+    evio::ByteBuffer d(5);
+    d[0] = b[0]; d[1] = b[1]; d[2] = b[2]; d[3] = b[3]; d[4] = b[4];
+    evio::Util::printBytes(d, 0, 5, "Byte subscript operator trial, d");
+
+    return 0;
+}
+
+
+
+int main0(int argc, char **argv) {
     string filename   = "/dev/shm/EventWriterTest.evio";
     cout << endl << "Try writing " << filename << endl;
 

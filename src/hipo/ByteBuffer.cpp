@@ -106,6 +106,15 @@ ByteBuffer & ByteBuffer::operator=(const ByteBuffer& other) {
 }
 
 /**
+ * Subscript operator to access data bytes.
+ * @param index index into internal data vector.
+ * @return reference to internal byte in data vector at the given index.
+ */
+uint8_t & ByteBuffer::operator[] (size_t index) {
+    return (buf.get())[index];
+}
+
+/**
  * This constructor is equivalent to the ByteBuffer.wrap() method in Java.
  * There is some risk here if caller continues to use byteArray pointer
  * independently of this object. <b>Don't do it!</b>
