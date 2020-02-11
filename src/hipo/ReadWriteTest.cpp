@@ -686,6 +686,11 @@ int main(int argc, char **argv) {
     d[0] = b[0]; d[1] = b[1]; d[2] = b[2]; d[3] = b[3]; d[4] = b[4];
     evio::Util::printBytes(d, 0, 5, "Byte subscript operator trial, d");
 
+    const evio::ByteBuffer q(d);
+    evio::Util::printBytes(q, 0, 5, "Byte subscript operator trial, q");
+
+    cout << "access b[0] = " << ((int)b[0]) << ", q[2] = " << ((int)q[2]) << endl;
+
     return 0;
 }
 
