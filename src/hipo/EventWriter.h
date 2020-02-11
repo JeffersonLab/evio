@@ -1030,21 +1030,12 @@ public:
         bool writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force);
         bool writeEventToFile(EvioBank* bank, ByteBuffer* bankBuffer, bool force);
 
-    private:
-
         bool fullDisk();
 
-
-
-
-    private:
-
         void compressAndWriteToFile(bool force);
-
         bool tryCompressAndWriteToFile(bool force);
 
         bool writeToFile(bool force, bool checkDisk);
-
         void writeToFileMT(std::shared_ptr<RecordRingItem> & item, bool force);
 
         void splitFile();
