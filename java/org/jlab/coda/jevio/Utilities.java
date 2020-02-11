@@ -609,8 +609,8 @@ final public class Utilities {
 
 
     /**
-     * This method takes a byte array and prints out the desired number of bytes
-     * from the given index. Prints all bytes.
+     * This method takes a file and prints out the desired number of bytes
+     * from the given offset.
      *
      * @param fileName file to print out
      * @param offset   offset into file to start printing
@@ -633,7 +633,7 @@ final public class Utilities {
             RandomAccessFile raf = new RandomAccessFile(fileName, "rw");
             long limit = bytes + offset > raf.length() ? raf.length() : bytes + offset;
             int dataLen = (int)(limit - offset);
-            byte array[] = new byte[dataLen];
+            byte[] array = new byte[dataLen];
             raf.readFully(array);
 
             printBytes(array, 0, dataLen, label);
