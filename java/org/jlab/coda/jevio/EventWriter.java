@@ -2049,6 +2049,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 catch (Exception e) {
                     e.printStackTrace();
                 }
+// In compressAndWriteToFile, asyncFileChannel will have been created if not before
             }
             else {
                 // If we're building a record, send it off
@@ -2061,6 +2062,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 // Since the writer thread is the last to process each record,
                 // wait until it's done with the last item, then exit the thread.
                 recordWriterThread.waitForLastItem();
+// In recordWriterThread, asyncFileChannel will have been created if not before
 
                 // Stop all compressing threads which by now are stuck on get
                 for (RecordCompressor rc : recordCompressorThreads) {
@@ -2069,28 +2071,26 @@ System.out.println("EventWriter contr: Disk is FULL");
             }
 
             // Write trailer
-            if (asyncFileChannel != null) {
-                if (addingTrailer) {
-                    // Write the trailer
-                    try {
-                        writeTrailerToFile(addTrailerIndex);
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+            if (addingTrailer) {
+                // Write the trailer
                 try {
-                    // Find & update file header's record count word
-                    ByteBuffer bb = ByteBuffer.allocate(4);
-                    bb.order(byteOrder);
-                    bb.putInt(0, recordNumber - 1);
-                    Future future = asyncFileChannel.write(bb, FileHeader.RECORD_COUNT_OFFSET);
-                    future.get();
+                    writeTrailerToFile(addTrailerIndex);
                 }
-                catch (Exception e) {
+                catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+
+            try {
+                // Find & update file header's record count word
+                ByteBuffer bb = ByteBuffer.allocate(4);
+                bb.order(byteOrder);
+                bb.putInt(0, recordNumber - 1);
+                Future future = asyncFileChannel.write(bb, FileHeader.RECORD_COUNT_OFFSET);
+                future.get();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
 
             // Finish writing to current file

@@ -2129,28 +2129,26 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
             }
 
             // Write trailer
-            if (asyncFileChannel != null) {
-                if (addingTrailer) {
-                    // Write the trailer
-                    try {
-                        writeTrailerToFile(addTrailerIndex);
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+            if (addingTrailer) {
+                // Write the trailer
                 try {
-                    // Find & update file header's record count word
-                    ByteBuffer bb = ByteBuffer.allocate(4);
-                    bb.order(byteOrder);
-                    bb.putInt(0, recordNumber - 1);
-                    Future future = asyncFileChannel.write(bb, FileHeader.RECORD_COUNT_OFFSET);
-                    future.get();
+                    writeTrailerToFile(addTrailerIndex);
                 }
-                catch (Exception e) {
+                catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+
+            try {
+                // Find & update file header's record count word
+                ByteBuffer bb = ByteBuffer.allocate(4);
+                bb.order(byteOrder);
+                bb.putInt(0, recordNumber - 1);
+                Future future = asyncFileChannel.write(bb, FileHeader.RECORD_COUNT_OFFSET);
+                future.get();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
 
             // Finish writing to current file
