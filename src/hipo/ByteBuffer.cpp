@@ -106,11 +106,20 @@ ByteBuffer & ByteBuffer::operator=(const ByteBuffer& other) {
 }
 
 /**
- * Subscript operator to access data bytes.
+ * Subscript operator for absolute access to data bytes.
  * @param index index into internal data vector.
  * @return reference to internal byte in data vector at the given index.
  */
 uint8_t & ByteBuffer::operator[] (size_t index) {
+    return (buf.get())[index];
+}
+
+/**
+ * Subscript operator for absolute access to data bytes of const ByteBuffers.
+ * @param index index into internal data vector.
+ * @return reference to internal byte in data vector at the given index.
+ */
+uint8_t ByteBuffer::operator[] (size_t index) const {
     return (buf.get())[index];
 }
 

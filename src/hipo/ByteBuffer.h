@@ -82,6 +82,7 @@ public:
     ByteBuffer & operator=(ByteBuffer&& other) noexcept;
     ByteBuffer & operator=(const ByteBuffer& other);
     uint8_t    & operator[] (size_t index);
+    uint8_t      operator[] (size_t index) const;
     ByteBuffer & compact();
     ByteBuffer & zero();
 
