@@ -558,7 +558,7 @@ bool RecordOutput::addEvent(const vector<uint8_t> & event) {
  *         expanded since it's user-provided.
  */
 bool RecordOutput::addEvent(const vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen) {
-   return addEvent(reinterpret_cast<uint8_t*>(event[0]), offset, eventLen, extraDataLen);
+   return addEvent(reinterpret_cast<const uint8_t*>(event.data()), offset, eventLen, extraDataLen);
 }
 
 /**
@@ -618,7 +618,8 @@ bool RecordOutput::addEvent(const ByteBuffer & event, uint32_t extraDataLen) {
     size_t pos = recordEvents->position();
 
     std::memcpy((void *)(recordEvents->array() + pos),
-                (const void *)(event.array() + event.arrayOffset() + event.position()), eventLen);
+                reinterpret_cast<void *>(event.array() + event.arrayOffset() + event.position()),
+                eventLen);
 
     recordEvents->position(pos + eventLen);
 
