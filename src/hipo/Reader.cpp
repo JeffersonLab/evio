@@ -197,22 +197,30 @@ Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool
  * records in the file and stores record information
  * in internal array. Each record can be read from the file.
  * @param filename input file name
+ * @throws EvioException if error handling file
  */
 void Reader::open(string & filename) {
-    if (inStreamRandom.is_open()) {
-        //cout << "[READER] ---> closing current file : " << fileName << endl;
-        inStreamRandom.close();
-    }
+   try {
+       if (inStreamRandom.is_open()) {
+           //cout << "[READER] ---> closing current file : " << fileName << endl;
+           inStreamRandom.close();
+       }
 
-    fileName = filename;
+       fileName = filename;
 
-    cout << "[READER] ----> opening file : " << filename << endl;
-    // "ate" mode flag will go immediately to file's end (do this to get its size)
-    inStreamRandom.open(filename, std::ios::binary | std::ios::ate);
-    fileSize = inStreamRandom.tellg();
-    // Go back to beginning of file
-    inStreamRandom.seekg(0);
-    cout << "[READER] ---> open successful, size : " << fileSize << endl;
+       cout << "[READER] ----> opening file : " << filename << endl;
+       // "ate" mode flag will go immediately to file's end (do this to get its size)
+       inStreamRandom.open(filename, std::ios::binary | std::ios::ate);
+
+       fileSize = inStreamRandom.tellg();
+       // Go back to beginning of file
+       inStreamRandom.seekg(0);
+       cout << "[READER] ---> open successful, size : " << fileSize << endl;
+   }
+   catch (std::exception & e) {
+       // e.what() does not give any useful information...
+       throw EvioException(strerror(errno));
+   }
 }
 
 /**
@@ -841,14 +849,14 @@ void Reader::extractDictionaryFromBuffer() {
 
 /** Extract dictionary and first event from file if possible, else do nothing. */
 void Reader::extractDictionaryFromFile() {
-    // cout << "extractDictionaryFromFile: IN, hasFirst = " << fileHeader.hasFirstEvent() << endl;
+//cout << "extractDictionaryFromFile: IN, hasFirst = " << fileHeader.hasFirstEvent() << endl;
 
     // If no dictionary or first event ...
     if (!fileHeader.hasDictionary() && !fileHeader.hasFirstEvent()) {
         return;
     }
 
-    int userLen = fileHeader.getUserHeaderLength();
+    uint32_t userLen = fileHeader.getUserHeaderLength();
     // 8 byte min for evio event, more for xml dictionary
     if (userLen < 8) {
         return;
@@ -857,7 +865,7 @@ void Reader::extractDictionaryFromFile() {
     RecordInput record;
 
     try {
-        // cout << "extractDictionaryFromFile: Read" << endl;
+//cout << "extractDictionaryFromFile: Read " << userLen << " bytes for record" << endl;
         // Position right before file header's user header
         inStreamRandom.seekg(fileHeader.getHeaderLength() + fileHeader.getIndexLength());
         // Read user header
@@ -882,9 +890,11 @@ void Reader::extractDictionaryFromFile() {
 
     // Dictionary always comes first in record
     if (fileHeader.hasDictionary()) {
-        // Just plain ascii, not evio format
-        auto dict = record.getEvent(evIndex++);
-        dictionaryXML = string(reinterpret_cast<const char *>(dict.get()));
+        // Just plain ascii, not evio format,  dict of type shared_ptr<uint8_t>
+        auto dict = record.getEvent(evIndex);
+        auto eventLen = record.getEventLength(evIndex++);
+//cout << "extractDictionaryFromFile: dictionary len  " << eventLen << " bytes" << endl;
+        dictionaryXML = string(reinterpret_cast<const char *>(dict.get()), eventLen);
     }
 
     // First event comes next
