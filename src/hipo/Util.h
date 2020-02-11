@@ -21,6 +21,7 @@
 #include <string>
 #include <regex>
 #include <vector>
+#include <fstream>
 
 #include "HipoException.h"
 #include "EvioException.h"
@@ -76,26 +77,31 @@ public:
 
     /**
      * This method takes a byte buffer and prints out the desired number of bytes
-     * from the given position. Prints all bytes.
+     * from the given position, in hex. Prints all bytes.
      *
      * @param buf       buffer to print out
      * @param position  position of data (bytes) in buffer to start printing
      * @param bytes     number of bytes to print in hex
      * @param label     a label to print as header
      */
-    static void printBytes(ByteBuffer & buf, uint32_t position, uint32_t bytes, string label) {
+    static void printBytes(ByteBuffer & buf, uint32_t position, uint32_t bytes, const string & label) {
 
-        cout << "printBytes: cap = " << buf.capacity() << endl;
+//cout << "printBytes: cap = " << buf.capacity() << endl;
         int origPos = buf.position();
         int origLim = buf.limit();
         // set pos = 0, lim = cap
         buf.clear();
         buf.position(position);
-        cout << "pos = " << position << ", lim = " << buf.limit() << ", cap = " << buf.capacity() << ", bytes = " << bytes << endl;
+//cout << "pos = " << position << ", lim = " << buf.limit() << ", cap = " << buf.capacity() << ", bytes = " << bytes << endl;
 
         bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
-        cout << "printing out " << bytes << " number of bytes" << endl;
-        if (label.size() > 0) cout << label << ":" << endl;
+//cout << "printing out " << bytes << " number of bytes" << endl;
+        if (!label.empty()) cout << label << ":" << endl;
+
+        if (bytes < 1) {
+            cout << "  no data in file" << endl;
+            return;
+        }
 
         for (int i=0; i < bytes; i++) {
             if (i%20 == 0) {
@@ -110,6 +116,47 @@ public:
         cout << dec << endl << endl << setfill(' ');
 
         buf.limit(origLim).position(origPos);
+    }
+
+    /**
+     * This method takes a file and prints out the desired number of bytes
+     * from the given offset, in hex.
+     *
+     * @param fileName file to print out
+     * @param offset   offset into file to start printing
+     * @param bytes    number of bytes to print in hex
+     * @param label    a label to print as header
+     */
+    static void printBytes(const string & fileName, uint64_t offset,
+                           uint32_t bytes, const string & label) {
+
+        if (fileName.empty()) {
+            cout << "Util::printBytes: fileName arg is invalid" << endl;
+            return;
+        }
+
+        try {
+            ifstream inStreamRandom;
+
+            // "ate" mode flag will go immediately to file's end (do this to get its size)
+            inStreamRandom.open(fileName, std::ios::in | std::ios::ate);
+            size_t fileSize = inStreamRandom.tellg();
+            // Go back to beginning of file
+            inStreamRandom.seekg(0);
+
+            // read data
+            uint64_t limit = bytes + offset > fileSize ? fileSize : bytes + offset;
+            auto dataLen = (uint32_t)(limit - offset);
+            ByteBuffer buf(dataLen);
+            uint8_t * array = buf.array();
+            inStreamRandom.read(reinterpret_cast<char *>(array), dataLen);
+
+            printBytes(buf, 0, dataLen, label);
+        }
+        catch (std::exception & e) {
+            // e.what() does not give any useful information...
+            cout << "Util::printBytes: " << strerror(errno) << endl;
+        }
     }
 
     /**
@@ -162,16 +209,32 @@ public:
 
     /**
      * Return an input string as ASCII in which each character is one byte.
-     * @param input     input string.
-     * @param array     vector in which to place ASCII.
+     * @param input input string.
+     * @param array vector in which to place ASCII.
      */
-    static void stringToASCII(const string & input, std::vector<uint8_t>array) {
+    static void stringToASCII(const string & input, std::vector<uint8_t> & array) {
         size_t inputSize = input.size();
-        array.reserve(inputSize);
         array.clear();
+        array.reserve(inputSize);
 
         for (int i=0; i < inputSize; i++) {
-            array[i] = (uint8_t) input[i];
+            array.push_back((uint8_t) input[i]);
+        }
+    }
+
+    /**
+     * Return an input string as ASCII in which each character is one byte.
+     * @param input input string.
+     * @param buf   ByteBuffer in which to place ASCII. Clears existing data
+     *              and may expand internal storage.
+     */
+    static void stringToASCII(const string & input, ByteBuffer & buf) {
+        size_t inputSize = input.size();
+        buf.clear();
+        buf.expand(inputSize);
+
+        for (int i=0; i < inputSize; i++) {
+            buf.put(i, input[i]);
         }
     }
 
