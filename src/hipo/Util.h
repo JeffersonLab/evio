@@ -83,38 +83,29 @@ public:
      * @param bytes     number of bytes to print in hex
      * @param label     a label to print as header
      */
-    static void printBytes(ByteBuffer & buf, uint32_t position, uint32_t bytes, const string & label) {
+    static void printBytes(const ByteBuffer & buf, uint32_t position, uint32_t bytes, const string & label) {
 
-//cout << "printBytes: cap = " << buf.capacity() << endl;
-        int origPos = buf.position();
-        int origLim = buf.limit();
-        // set pos = 0, lim = cap
-        buf.clear();
-        buf.position(position);
-//cout << "pos = " << position << ", lim = " << buf.limit() << ", cap = " << buf.capacity() << ", bytes = " << bytes << endl;
-
+        // Make sure we stay in bounds
         bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
-//cout << "printing out " << bytes << " number of bytes" << endl;
+
         if (!label.empty()) cout << label << ":" << endl;
 
         if (bytes < 1) {
-            cout << "  no data in file" << endl;
+            cout << "  no data in buf from position = " << position << endl;
             return;
         }
 
         for (int i=0; i < bytes; i++) {
             if (i%20 == 0) {
-                cout << endl << "  Buf(" << (i + 1) << "-" << (i + 20) << ") =  ";
+                cout << endl << dec << "  Buf(" << (i + 1) << "-" << (i + 20) << ") =  ";
             }
             else if (i%4 == 0) {
                 cout << "  ";
             }
-
-            cout << hex << setfill('0') << setw(2) << (int)(buf.getByte(i)) << " ";
+            // Accessing buf in this way does not change position or limit of buffer
+            cout << hex << setfill('0') << setw(2) << (int)(buf[i]) << " ";
         }
         cout << dec << endl << endl << setfill(' ');
-
-        buf.limit(origLim).position(origPos);
     }
 
     /**
