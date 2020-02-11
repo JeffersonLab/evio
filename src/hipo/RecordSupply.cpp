@@ -163,8 +163,8 @@ uint64_t RecordSupply::getFillLevel() {
 }
 
 /**
- * Get the sequence of last ring buffer item obtained with get (seq starts at 0).
- * @return sequence of last ring buffer item obtained with get (seq starts at 0).
+ * Get the sequence of last ring buffer item published (seq starts at 0).
+ * @return sequence of last ring buffer item published (seq starts at 0).
  */
 int64_t RecordSupply::getLastSequence() {
     return ringBuffer->cursor();
