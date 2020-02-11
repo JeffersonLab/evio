@@ -1038,9 +1038,10 @@ void EventWriter::createCommonRecord(const string & xmlDictionary, EvioBank *fir
 
         // Place dictionary & first event into a single record
         if (!xmlDictionary.empty()) {
+//cout << "createCommonRecord: got dictionary, # chars = " << xmlDictionary.size() << endl;
             // 56 is the minimum number of characters for a valid xml dictionary
             if (xmlDictionary.length() < 56) {
-                throw EvioException("Dictionary improper format");
+                throw EvioException("Dictionary improper format, too few characters");
             }
 
             // Turn dictionary data into ascii (not evio bank)
@@ -1048,6 +1049,8 @@ void EventWriter::createCommonRecord(const string & xmlDictionary, EvioBank *fir
 
             // Add to record which will be our file header's "user header"
             commonRecord->addEvent(dictionaryByteArray);
+//cout << "createCommonRecord: turned dictionary into ascii & added to commonRecord, byte size = " <<
+//                    dictionaryByteArray.size() << endl;
         }
         else {
             dictionaryByteArray.clear();
@@ -1075,7 +1078,8 @@ void EventWriter::createCommonRecord(const string & xmlDictionary, EvioBank *fir
 
         commonRecord->build();
         commonRecordBytesToBuffer = 4*commonRecord->getHeader().getLengthWords();
-}
+//cout << "createCommonRecord: padded commonRecord size is " << commonRecordBytesToBuffer << " bytes" << endl;
+    }
 
 
 /**
@@ -1242,41 +1246,39 @@ void EventWriter::close() {
             }
         }
 
-        // Write trailer
-        if (asyncFileChannel->is_open()) {
-            if (addingTrailer) {
-                // Write the trailer
-                try {
-                    writeTrailerToFile(addTrailerIndex);
-                }
-                catch (std::exception & e) {
-                    cout << e.what() << endl;
-                }
+        // Finish writing record to current file
+        try {
+            if (future1 != nullptr && future1->valid()) {
+                // Wait for last write to end before we continue
+                future1->get();
             }
+        }
+        catch (std::exception & e) {}
 
+        // Write trailer
+        if (addingTrailer) {
+            // Write the trailer
             try {
-                // Find & update file header's record count word
-                ByteBuffer bb(4);
-                bb.order(byteOrder);
-                bb.putInt(0, recordNumber - 1);
-                asyncFileChannel->seekg(FileHeader::RECORD_COUNT_OFFSET);
-                asyncFileChannel->write(reinterpret_cast<char*>(bb.array()), 4);
+                writeTrailerToFile(addTrailerIndex);
             }
             catch (std::exception & e) {
                 cout << e.what() << endl;
             }
         }
 
-        // Finish writing to current file
         try {
-            if (future1->valid()) {
-                try {
-                    // Wait for last write to end before we continue
-                    future1->get();
-                }
-                catch (std::exception & e) {}
-            }
+            // Find & update file header's record count word
+            ByteBuffer bb(4);
+            bb.order(byteOrder);
+            bb.putInt(0, recordNumber - 1);
+            asyncFileChannel->seekg(FileHeader::RECORD_COUNT_OFFSET);
+            asyncFileChannel->write(reinterpret_cast<char*>(bb.array()), 4);
+        }
+        catch (std::exception & e) {
+            cout << e.what() << endl;
+        }
 
+        try {
             if (asyncFileChannel->is_open()) asyncFileChannel->close();
 
             // Shut down all file closing threads
@@ -2567,6 +2569,9 @@ bool EventWriter::writeToFile(bool force, bool checkDisk) {
         // Data to write
         auto buf = record->getBinaryBuffer();
 
+        cout << "\nwriteToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
+        fileWritingPosition << endl;
+
         future1 = std::make_shared<future<void>>(std::future<void>(
                        std::async(std::launch::async,  // run in a separate thread
                                   staticWriteFunction, // function to run
@@ -2803,7 +2808,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
         if (!writeIndex) {
             try {
                 // headerBuffer is only used in this method
-                RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray[0]),
+                RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
                                            RecordHeader::HEADER_SIZE_BYTES,
                                            0, recordNumber, byteOrder,
                                            nullptr, 0);
@@ -2817,7 +2822,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
             // As this is the absolute last write to the file,
             // just make sure it gets done right here.
             asyncFileChannel->seekg(fileWritingPosition);
-            asyncFileChannel->write(reinterpret_cast<char *>(headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
+            asyncFileChannel->write(reinterpret_cast<char *>(headerArray.data()), RecordHeader::HEADER_SIZE_BYTES);
             if (asyncFileChannel->fail()) {
                 throw EvioException("error writing to  file " + currentFileName);
             }
@@ -2841,16 +2846,23 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
             }
 
             // Place data into headerBuffer - both header and index
-            RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray[0]),
-                                       bytesToWrite, 0, recordNumber, byteOrder,
+            RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
+                                       headerArray.capacity(), 0, recordNumber, byteOrder,
                                        reinterpret_cast<uint32_t *>(recordIndex), arraySize);
+
+//cout << "\nwriteTrailerToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
+//                 fileWritingPosition << endl;
 // TODO: is this seekg really necessary?
             asyncFileChannel->seekg(fileWritingPosition);
-            asyncFileChannel->write(reinterpret_cast<char *>(headerArray[0]), bytesToWrite);
+            asyncFileChannel->write(reinterpret_cast<char *>(headerArray.data()), bytesToWrite);
             if (asyncFileChannel->fail()) {
                 throw EvioException("error writing to  file " + currentFileName);
             }
 
+//            asyncFileChannel->flush();
+//            cout << "After writing trailer to " + currentFileName << endl;
+//            Util::printBytes(currentFileName, 0, 120, "File Beginning of " + currentFileName);
+//
             delete[] recordIndex;
         }
 
@@ -2878,7 +2890,12 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
                 throw EvioException("error writing to  file " + currentFileName);
             }
         }
-}
+
+//        asyncFileChannel->flush();
+//        cout << "After writing trailer & updating file header to " + currentFileName << endl;
+//        Util::printBytes(currentFileName, 0, 120, "File Beginning of " + currentFileName);
+
+    }
 
 
 /**
