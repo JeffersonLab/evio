@@ -320,8 +320,11 @@ cout << "EventWriter constr: record ring size set to " << ringSize << endl;
             maxSupplyBytes = supply->getMaxRingBytes();
 
             // Number of available bytes in file's disk partition
-            fs::space_info spaceInfo = fs::space(currentFilePath);
+cout << "EventWriter constr: call fs::space(" << currentFilePath.parent_path().generic_string() << ")" << endl;
+            fs::space_info spaceInfo = fs::space(currentFilePath.parent_path());
             uint64_t freeBytes = spaceInfo.available;
+cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
+         currentFilePath.parent_path().generic_string() << endl;
 
             // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
             // then don't even start writing ...
@@ -2045,12 +2048,14 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 // Send current record back to ring without adding event
                 supply->publish(currentRingItem);
 
-                // Get another empty record from ring
+                // Get another empty record from ring.
+                // Record number reset for new file.
+                recordNumber = 1;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(1);
+                currentRecord->getHeader().setRecordNumber(recordNumber);
                 // Reset record number for records coming after this one
-                recordNumber = 2;
+                recordNumber++;
             }
 
             // Reset split-tracking variables
@@ -2087,7 +2092,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 // Get another empty record from ring
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader().setRecordNumber(++recordNumber);
             }
 
             // Add event to it (guaranteed to fit)
@@ -2121,7 +2126,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 // Get another empty record from ring
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader().setRecordNumber(++recordNumber);
             }
         }
 
@@ -2204,7 +2209,7 @@ bool EventWriter::writeEventToFile(EvioBank* bank, ByteBuffer* bankBuffer, bool 
             // the disk partition is full, everything that has made it past this check
             // and all the records in the pipeline (ring in this case) will be
             // written.
-            if (diskIsFullVolatile && !force) {
+            if (diskIsFullVolatile.load() && !force) {
                 // Check again to see if it's still full
                 if (fullDisk()) {
                     // Still full
@@ -2304,12 +2309,14 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 // Send current record back to ring without adding event
                 supply->publish(currentRingItem);
 
-                // Get another empty record from ring
+                // Get another empty record from ring.
+                // Record number reset for new file.
+                recordNumber = 1;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(1);
+                currentRecord->getHeader().setRecordNumber(recordNumber);
                 // Reset record number for records coming after this one
-                recordNumber = 2;
+                recordNumber++;
             }
 
             // Reset split-tracking variables
@@ -2361,7 +2368,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 supply->publish(currentRingItem);
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader().setRecordNumber(++recordNumber);
             }
 
             // Add event to it (guaranteed to fit)
@@ -2403,7 +2410,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 supply->publish(currentRingItem);
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader().setRecordNumber(++recordNumber);
             }
         }
 
@@ -2414,12 +2421,12 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
 /**
  * Check to see if the disk is full.
  * Is it able to store 1 full split, 1 supply of records, and a 10MB buffer zone?
- * Two variables are set, one volatile and one not, depending on needs.
+ * Two variables are set, one atomic and one not, depending on needs.
  * @return  true if full, else false.
  */
 bool EventWriter::fullDisk() {
     // How much free space is available on the disk?
-    fs::space_info dirInfo = fs::space(currentFilePath);
+    fs::space_info dirInfo = fs::space(currentFilePath.parent_path());
     uint64_t freeBytes = dirInfo.available;
     // If there isn't enough free space to write the complete, projected size file
     // plus full records + 10MB extra ...
@@ -2679,19 +2686,23 @@ bool EventWriter::writeToFile(bool force, bool checkDisk) {
         // Trailer's index has count following length
         recordLengths.push_back(eventCount);
 
-
         // Data to write
         auto buf = record->getBinaryBuffer();
 
         if (noFileWriting) {
             future1 = std::make_shared<future<void>>(std::future<void>(
-                std::async(std::launch::async,      // run in a separate thread
-                           staticDoNothingFunction, // function to run
-                           this)));                 // arguments to function ...
+                           std::async(std::launch::async,
+                           staticDoNothingFunction,
+                           this)));
 
         }
         else {
-            asyncFileChannel->write(reinterpret_cast<char *>(buf->array()), bytesToWrite);
+            future1 = std::make_shared<future<void>>(std::future<void>(
+                           std::async(std::launch::async,  // run in a separate thread
+                               staticWriteFunction,        // function to run
+                               this,                       // arguments to function ...
+                               reinterpret_cast<const char *>(buf->array()),
+                               bytesToWrite)));
         }
 
         ringItem1 = item;
@@ -2810,7 +2821,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
                 // headerBuffer is only used in this method
                 RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
                                            RecordHeader::HEADER_SIZE_BYTES,
-                                           0, recordNumber, byteOrder,
+                                           0, ++recordNumber, byteOrder,
                                            nullptr, 0);
 
             }
@@ -2847,7 +2858,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
 
             // Place data into headerBuffer - both header and index
             RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
-                                       headerArray.capacity(), 0, recordNumber, byteOrder,
+                                       headerArray.capacity(), 0, ++recordNumber, byteOrder,
                                        reinterpret_cast<uint32_t *>(recordIndex), arraySize);
 
 //cout << "\nwriteTrailerToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
@@ -2897,7 +2908,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
 
     }
 
-
+// TODO: THIS DOES NOT LOOK RIGHT, recordNumber may need to be incremented ..........................................
 /**
  * Flush everything in currentRecord into the buffer.
  * There is only one record containing events which is written into the buffer.
@@ -3009,7 +3020,7 @@ void EventWriter::writeTrailerToBuffer(bool writeIndex) {
                 throw EvioException("not enough room in buffer");
             }
 
-            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber);
+            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, ++recordNumber);
         }
         else {
             // Create the index of record lengths in proper byte order
@@ -3033,7 +3044,7 @@ void EventWriter::writeTrailerToBuffer(bool writeIndex) {
 
             // Place data into buffer - both header and index
 //cout << "writeTrailerToBuffer: start writing at pos = " << bytesWritten << endl;
-            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber,
+            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, ++recordNumber,
                                        reinterpret_cast<uint32_t *>(recordIndex),
                                        arraySize);
 
