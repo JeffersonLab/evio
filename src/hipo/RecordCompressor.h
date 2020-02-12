@@ -115,10 +115,11 @@ namespace evio {
                 supply->release(threadNumber, threadNumber - 1);
 
                 while (true) {
-cout << "   Compressor " << threadNumber << ": try getting record to compress" << endl;
+//cout << "   Compressor " << threadNumber << ": try getting record to compress" << endl;
 
                     // Get the next record for this thread to compress
                     auto item = supply->getToCompress(threadNumber);
+//cout << "   Compressor " << threadNumber << ": GOT record to compress" << endl;
 
                     {
                         // Only allow interruption when blocked on trying to get item
@@ -129,7 +130,7 @@ cout << "   Compressor " << threadNumber << ": try getting record to compress" <
                         // Set compression type
                         RecordHeader & header = record->getHeader();
                         header.setCompressionType(compressionType);
-cout << "   Compressor " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
+//cout << "   Compressor " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
                         // Do compression
                         record->build();
                         // Release back to supply
