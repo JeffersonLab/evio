@@ -25,6 +25,7 @@
 #include <memory>
 #include <bitset>
 #include <exception>
+#include <atomic>
 #include <algorithm>
 #include <experimental/filesystem>
 
@@ -157,14 +158,14 @@ class EventWriter {
             /** Thread which does the file writing. */
             boost::thread thd;
             /** The highest sequence to have been currently processed. */
-            volatile long lastSeqProcessed = -1;
+            atomic_long lastSeqProcessed{-1};
 
             /** Place to store event when disk is full. */
             std::shared_ptr<RecordRingItem> storedItem;
             /** Force write to disk. */
-            volatile bool forceToDisk = false;
+            atomic_bool forceToDisk{false};
             /** Id of RecordRingItem that initiated the forced write. */
-            volatile uint64_t forcedRecordId = 0ULL;
+            atomic_uint64_t forcedRecordId{0};
 
         public:
 
@@ -180,15 +181,16 @@ class EventWriter {
 
             RecordWriter(RecordWriter && obj) noexcept :
                     writer(obj.writer),
-                    lastSeqProcessed(obj.lastSeqProcessed),
                     supply(std::move(obj.supply)),
                     thd(std::move(obj.thd)) {
+
+                lastSeqProcessed.store(obj.lastSeqProcessed);
             }
 
             RecordWriter & operator=(RecordWriter && obj) noexcept {
                 if (this != &obj) {
                     writer = obj.writer;
-                    lastSeqProcessed = obj.lastSeqProcessed;
+                    lastSeqProcessed.store(obj.lastSeqProcessed);
                     supply = std::move(obj.supply);
                     thd  = std::move(obj.thd);
                 }
@@ -220,7 +222,7 @@ class EventWriter {
             void waitForLastItem() {
 //cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
 //" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
-                while (supply->getLastSequence() > lastSeqProcessed) {
+                while (supply->getLastSequence() > lastSeqProcessed.load()) {
                     std::this_thread::sleep_for(chrono::milliseconds(1));
                 }
 
@@ -262,6 +264,7 @@ class EventWriter {
                         // Get the next record for this thread to write
                         // shared_ptr<RecordRingItem>
                         auto item = supply->getToWrite();
+                        cout << "   RecordWriter: GOT record to write" << endl;
 
                         {
                             // Only allow interruption when blocked on trying to get item
@@ -278,7 +281,7 @@ class EventWriter {
 
                             // Check the disk before we try to write if about to create another file,
                             // we're told to check the disk, and we're not forcing to disk
-                            if ((writer->bytesWritten < 1) && checkDisk && (!forceToDisk)) {
+                            if ((writer->bytesWritten < 1) && checkDisk && (!forceToDisk.load())) {
 
                                 // If there isn't enough free space to write the complete, projected
                                 // size file, and we're not trying to force the write ...
@@ -302,7 +305,7 @@ class EventWriter {
                                 // blocking by checking for a full disk (which it couldn't do before since
                                 // the signal came too late).
 
-                                while (writer->fullDisk() && (!forceToDisk)) {
+                                while (writer->fullDisk() && (!forceToDisk.load())) {
                                     // Wait for a sec and try again
                                     std::this_thread::sleep_for(chrono::seconds(1));
 
@@ -324,11 +327,12 @@ class EventWriter {
 
                             // Do write
                             // Write current item to file
-                            writer->writeToFileMT(item, forceToDisk);
+cout << "   RecordWriter: call writeToFileMT ..." << endl;
+                            writer->writeToFileMT(item, forceToDisk.load());
 
                             // Turn off forced write to disk, if the record which
                             // initially triggered it, has now been written.
-                            if (forceToDisk && (forcedRecordId == item->getId())) {
+                            if (forceToDisk.load() && (forcedRecordId.load() == item->getId())) {
 //System.out.println("  write: WROTE the record that triggered force, reset to false");
                                 forceToDisk = false;
                             }
@@ -347,7 +351,7 @@ class EventWriter {
                     }
                 }
                 catch (boost::thread_interrupted & e) {
-                    //cout << "   RecordWriter: INTERRUPTED, return" << endl;
+cout << "   RecordWriter: INTERRUPTED, return" << endl;
                 }
             }
         };
@@ -789,13 +793,13 @@ class EventWriter {
         //-----------------------
 
         /** Variable used to stop accepting events to be included in the inner buffer
-         * holding the current block. Used when disk space is inadequate. */
+         *  holding the current block. Used when disk space is inadequate. */
         bool diskIsFull = false;
 
         /** Variable used to stop accepting events to be included in the inner buffer
-         * holding the current block. Used when disk space is inadequate.
-         * This is volatile and therefore works between threads. */
-        volatile bool diskIsFullVolatile = false;
+         *  holding the current block. Used when disk space is inadequate.
+         *  This is atomic and therefore works between threads. */
+        std::atomic_bool diskIsFullVolatile{false};
 
         bool fileOpen = false;
 
@@ -873,7 +877,7 @@ class EventWriter {
         uint32_t streamCount = 1;
 
         /** Writing to file with single thread? */
-        bool singleThreadedCompression = true;
+        bool singleThreadedCompression = false;
 
         /** Is it OK to overwrite a previously existing file? */
         bool overWriteOK = false;
