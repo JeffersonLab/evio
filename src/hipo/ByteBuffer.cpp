@@ -106,7 +106,8 @@ ByteBuffer & ByteBuffer::operator=(const ByteBuffer& other) {
 }
 
 /**
- * Subscript operator for absolute access to data bytes.
+ * Subscript operator for absolute access to data bytes without limit check.
+ * This has no Java counterpart.
  * @param index index into internal data vector.
  * @return reference to internal byte in data vector at the given index.
  */
@@ -115,7 +116,8 @@ uint8_t & ByteBuffer::operator[] (size_t index) {
 }
 
 /**
- * Subscript operator for absolute access to data bytes of const ByteBuffers.
+ * Subscript operator for absolute access to data bytes of const ByteBuffers without limit check.
+ * This has no Java counterpart.
  * @param index index into internal data vector.
  * @return reference to internal byte in data vector at the given index.
  */
