@@ -24,6 +24,7 @@
 #include <queue>
 #include <chrono>
 #include <memory>
+#include <atomic>
 
 #include "FileHeader.h"
 #include "ByteBuffer.h"
@@ -75,7 +76,7 @@ private:
         /** Thread which does the file writing. */
         boost::thread thd;
         /** The highest sequence to have been currently processed. */
-        volatile long lastSeqProcessed = -1;
+        atomic_long lastSeqProcessed{-1};
 
     public:
 
@@ -91,15 +92,16 @@ private:
 
         RecordWriter(RecordWriter && obj) noexcept :
                 writer(obj.writer),
-                lastSeqProcessed(obj.lastSeqProcessed),
                 supply(std::move(obj.supply)),
                 thd(std::move(obj.thd)) {
+
+            lastSeqProcessed.store(obj.lastSeqProcessed);
         }
 
         RecordWriter & operator=(RecordWriter && obj) noexcept {
             if (this != &obj) {
                 writer = obj.writer;
-                lastSeqProcessed = obj.lastSeqProcessed;
+                lastSeqProcessed.store(obj.lastSeqProcessed);
                 supply = std::move(obj.supply);
                 thd  = std::move(obj.thd);
             }
@@ -131,7 +133,7 @@ private:
         void waitForLastItem() {
 //cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
 //" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
-            while (supply->getLastSequence() > lastSeqProcessed) {
+            while (supply->getLastSequence() > lastSeqProcessed.load()) {
                 std::this_thread::sleep_for(chrono::milliseconds(1));
             }
 
