@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <chrono>
+#include <thread>
 #include <memory>
 #include <regex>
 #include <experimental/filesystem>
@@ -374,39 +375,15 @@ public:
 //
 
 
-    static void eventWriteFileMT(const string & filename) {
+    static string eventWriteFileMT(const string & filename) {
 
         // Variables to track record build rate
         double freqAvg;
         long totalC = 0;
-        long loops = 3;
+        long loops = 6;
 
 
-        string dictionary {
-                "<xmlDict>\n"
-                "  <bank name=\"HallD\"             tag=\"6-8\"  type=\"bank\" >\n"
-                "      <description format=\"New Format\" >hall_d_tag_range</description>\n"
-                "      <bank name=\"DC(%t)\"        tag=\"6\" num=\"4\" >\n"
-                "          <leaf name=\"xpos(%n)\"  tag=\"6\" num=\"5\" />\n"
-                "          <bank name=\"ypos(%n)\"  tag=\"6\" num=\"6\" />\n"
-                "      </bank >\n"
-                "      <bank name=\"TOF\"     tag=\"8\" num=\"0\" >\n"
-                "          <leaf name=\"x\"   tag=\"8\" num=\"1\" />\n"
-                "          <bank name=\"y\"   tag=\"8\" num=\"2\" />\n"
-                "      </bank >\n"
-                "      <bank name=\"BCAL\"      tag=\"7\" >\n"
-                "          <leaf name=\"x(%n)\" tag=\"7\" num=\"1-3\" />\n"
-                "      </bank >\n"
-                "  </bank >\n"
-                "  <dictEntry name=\"JUNK\" tag=\"5\" num=\"0\" />\n"
-                "  <dictEntry name=\"SEG5\" tag=\"5\" >\n"
-                "       <description format=\"Old Format\" >tag 5 description</description>\n"
-                "  </dictEntry>\n"
-                "  <bank name=\"Rangy\" tag=\"75 - 78\" >\n"
-                "      <leaf name=\"BigTag\" tag=\"76\" />\n"
-                "  </bank >\n"
-                "</xmlDict>\n"
-        };
+        string dictionary = "";
 
         uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         uint32_t firstEventLen = 10;
@@ -420,14 +397,14 @@ public:
         uint32_t runNum = 123;
         uint64_t split = 2000000; // 2 MB
         uint32_t maxRecordSize = 0; // use default
-        uint32_t maxEventCount = 0; // use default
-        bool overWriteOK = false;
+        uint32_t maxEventCount = 1; // use default
+        bool overWriteOK = true;
         bool append = false;
-        uint32_t streamId = 1;
+        uint32_t streamId = 3;
         uint32_t splitNumber = 2;
         uint32_t splitIncrement = 1;
-        uint32_t streamCount = 1;
-        uint32_t compThreads = 1;
+        uint32_t streamCount = 2;
+        uint32_t compThreads = 3;
         uint32_t ringSize = 16;
         uint32_t bufSize = 1;
 
@@ -450,7 +427,7 @@ public:
         ByteBuffer dataBuffer(dataArray, 26);
 
         // Create an event containing a bank of 100 ints
-        auto evioDataBuf = generateEvioBuffer(order, 100);
+        auto evioDataBuf = generateEvioBuffer(order, 10);
 
         // Create node from this buffer
         std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
@@ -478,14 +455,17 @@ public:
 
         //------------------------------
 
-        cout << "Past write" << endl;
+        cout << "Past write, sleep for 2 sec ..., then close" << endl;
+
+        std::this_thread::sleep_for(2s);
 
         writer.close();
         cout << "Past close" << endl;
 
         // Doing a diff between files shows they're identical!
 
-        cout << "Finished writing file " << filename << ", now read it in" << endl;
+        cout << "Finished writing file " << writer.getCurrentFilename() << ", now read it in" << endl;
+        return writer.getCurrentFilename();
     }
 
 
@@ -677,6 +657,23 @@ public:
 
 
 int main(int argc, char **argv) {
+    string filename   = "/dev/shm/EventWriterTest.evio";
+    cout << endl << "Try writing " << filename << endl;
+
+    // Write files
+    string actualFilename = evio::ReadWriteTest::eventWriteFileMT(filename);
+    cout << endl << "Finished writing, now try reading " << actualFilename << endl;
+
+    // Read files just written
+    evio::ReadWriteTest::readFile2(actualFilename);
+    cout << endl << endl << "----------------------------------------" << endl << endl;
+
+    return 0;
+}
+
+
+// For testing new ByteBuffer code
+int main0(int argc, char **argv) {
     evio::ByteBuffer b(5);
     b[0] = 10; b[1] = 11; b[2] = 12; b[3] = 13; b[4] = 14;
 
@@ -690,24 +687,6 @@ int main(int argc, char **argv) {
     evio::Util::printBytes(q, 0, 5, "Byte subscript operator trial, q");
 
     cout << "access b[0] = " << ((int)b[0]) << ", q[2] = " << ((int)q[2]) << endl;
-
-    return 0;
-}
-
-
-
-int main0(int argc, char **argv) {
-    string filename   = "/dev/shm/EventWriterTest.evio";
-    cout << endl << "Try writing " << filename << endl;
-
-    // Write files
-    evio::ReadWriteTest::eventWriteFileMT(filename);
-    cout << endl << "Finished writing, now try reading " << filename << endl;
-
-    // Read files just written
-    string readFilename   = "/dev/shm/EventWriterTest.evio.2";
-    evio::ReadWriteTest::readFile2(readFilename);
-    cout << endl << endl << "----------------------------------------" << endl << endl;
 
     return 0;
 }
