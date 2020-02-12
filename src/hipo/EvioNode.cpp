@@ -517,26 +517,23 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & bu
  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
  */
 std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position) {
-    cout << "        1" << endl;
+
     // Make sure there is enough data to at least read evio header
     ByteBuffer* buffer = bankNode->buffer.get();
     if (buffer->remaining() < 8) {
         throw EvioException("buffer underflow");
     }
-    cout << "        2" << endl;
 
     // Get length of current bank
     int length = buffer->getInt(position);
     bankNode->len = length;
     bankNode->pos = position;
     bankNode->type = DataType::BANK.getValue();
-    cout << "        3" << endl;
 
     // Position of data for a bank
     bankNode->dataPos = position + 8;
     // Len of data for a bank
     bankNode->dataLen = length - 1;
-    cout << "        4" << endl;
 
     // Make sure there is enough data to read full bank
     // even though it is NOT completely read at this time.
@@ -545,7 +542,6 @@ std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & ba
              ", node len bytes = " << ( 4*(length + 1)) << ", len = " << length << endl;
         throw EvioException("buffer underflow");
     }
-    cout << "        5" << endl;
 
     // Hop over length word
     position += 4;
@@ -557,7 +553,6 @@ std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & ba
     bankNode->dataType = dt & 0x3f;
     bankNode->pad = dt >> 6;
     bankNode->num = word & 0xff;
-    cout << "        END" << endl;
 
     return bankNode;
 }
