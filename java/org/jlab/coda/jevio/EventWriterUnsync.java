@@ -2964,12 +2964,12 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 // Send current record back to ring without adding event
                 supply.publish(currentRingItem);
 
-                // Get another empty record from ring
+                // Get another empty record from ring.
+                // Record number reset for new file.
+                recordNumber = 1;
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(1);
-                // Reset record number for records coming after this one
-                recordNumber = 2;
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
 
             // Reset split-tracking variables
@@ -3006,7 +3006,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(recordNumber++);
+                currentRecord.getHeader().setRecordNumber(++recordNumber);
             }
 
             // Add event to it (guaranteed to fit)
@@ -3040,7 +3040,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(recordNumber++);
+                currentRecord.getHeader().setRecordNumber(++recordNumber);
             }
         }
 
@@ -3223,12 +3223,12 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 // Send current record back to ring without adding event
                 supply.publish(currentRingItem);
 
-                // Get another empty record from ring
+                // Get another empty record from ring.
+                // Record number reset for new file.
+                recordNumber = 1;
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(1);
-                // Reset record number for records coming after this one
-                recordNumber = 2;
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
 
             // Reset split-tracking variables
@@ -3280,7 +3280,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 supply.publish(currentRingItem);
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(recordNumber++);
+                currentRecord.getHeader().setRecordNumber(++recordNumber);
             }
 
             // Add event to it (guaranteed to fit)
@@ -3322,7 +3322,7 @@ System.out.println("EventWriterUnsync constr: record # set to " + recordNumber);
                 supply.publish(currentRingItem);
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(recordNumber++);
+                currentRecord.getHeader().setRecordNumber(++recordNumber);
             }
         }
 
@@ -4009,7 +4009,7 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
             try {
                 // headerBuffer is only used in this method
                 headerBuffer.position(0).limit(RecordHeader.HEADER_SIZE_BYTES);
-                RecordHeader.writeTrailer(headerBuffer, 0, recordNumber, null);
+                RecordHeader.writeTrailer(headerBuffer, 0, ++recordNumber, null);
             }
             catch (HipoException e) {/* never happen */}
             //bytesToWrite = RecordHeader.HEADER_SIZE_BYTES;
@@ -4049,7 +4049,7 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
 
             // Place data into headerBuffer - both header and index
             try {
-                RecordHeader.writeTrailer(headerBuffer, 0, recordNumber,
+                RecordHeader.writeTrailer(headerBuffer, 0, ++recordNumber,
                                           recordIndex);
             }
             catch (HipoException e) {/* never happen */}
@@ -4085,6 +4085,7 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
     }
 
 
+// TODO: THIS DOES NOT LOOK RIGHT, recordNumber may need to be incremented ..........................................
     /**
      * Flush everything in currentRecord into the buffer.
      * There is only one record containing events which is written into the buffer.
@@ -4196,7 +4197,7 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
             }
 
             try {
-                RecordHeader.writeTrailer(buffer, (int)bytesWritten, recordNumber);
+                RecordHeader.writeTrailer(buffer, (int)bytesWritten, ++recordNumber);
             }
             catch (HipoException e) {/* never happen */}
         }
@@ -4226,7 +4227,7 @@ System.out.println("    splitFile: generated file name = " + fileName + ", recor
             try {
                 // Place data into buffer - both header and index
 //System.out.println("writeTrailerToBuffer: start writing at pos = " + bytesWritten);
-                RecordHeader.writeTrailer(buffer, (int) bytesWritten, recordNumber,
+                RecordHeader.writeTrailer(buffer, (int) bytesWritten, ++recordNumber,
                                           recordIndex);
             }
             catch (HipoException e) {/* never happen */}
