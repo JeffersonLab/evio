@@ -13,9 +13,9 @@ namespace evio {
     public:
         EvioBank();
 
-        int length() { return 5; };
+        int length() { return 0; };
 
-        int getTotalBytes() { return 2; }
+        int getTotalBytes() { return 0; }
 
         void write(std::shared_ptr<ByteBuffer> &recordEvents) {}
     };
