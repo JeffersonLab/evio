@@ -179,7 +179,7 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
             if (split > 0) {
                 throw EvioException("Cannot specify split when appending");
             }
-            else if ((!xmlDictionary.empty()) || (firstEvent->length() > 0)) {
+            else if ((!xmlDictionary.empty()) || (firstEvent != nullptr && firstEvent->length() > 0)) {
                 throw EvioException("Cannot specify dictionary or first event when appending");
             }
         }
@@ -289,6 +289,43 @@ cout << "EventWriter constr: record # set to 1" << endl;
         // Evio file
         fileHeader = FileHeader(true);
 
+
+        asyncFileChannel = std::make_shared<std::fstream>();
+
+        if (append) {
+            asyncFileChannel->open(currentFileName, ios::binary | ios::in | ios::out);
+            if (asyncFileChannel->fail()) {
+                throw EvioException("error opening file " + currentFileName);
+            }
+
+            // Right now file is open for writing
+            fileOpen = true;
+
+            // If we have an empty file, that's OK.
+            // Otherwise we have to examine it for compatibility
+            // and position ourselves for the first write.
+            if (fs::file_size(currentFilePath) > 0) {
+                // Look at first record header to find endianness & version.
+                // Endianness given in constructor arg, when appending, is ignored.
+                // this->byteOrder set in next call.
+                examineFileHeader();
+
+                // Oops, gotta redo this since file has different byte order
+                // than specified in constructor arg.
+                if (this->byteOrder != byteOrder) {
+                    // From now on, this->byteOrder must be used, not local byteOrder!
+                    internalBuffers[0]->order(this->byteOrder);
+                    internalBuffers[1]->order(this->byteOrder);
+                }
+
+                // Prepare for appending by moving file position to end of last record w/ data.
+                // Needs buffer to be defined and set to proper endian (which is done just above).
+                toAppendPosition();
+
+                // File position is now after the last event written.
+            }
+        }
+
         // Compression threads
         if (compressionThreads == 1) {
             // When writing single threaded, just fill/compress/write one record at a time
@@ -298,18 +335,18 @@ cout << "EventWriter constr: record # set to 1" << endl;
                                                            HeaderType::EVIO_RECORD);
         }
         else {
-            // Number of ring items must be >= # of compressionThreads, plus 2 which
-            // are being written, plus 1 being filled - all simultaneously.
+            // Number of ring items must be >= # of compressionThreads, plus 1 which
+            // is being written, plus 1 being filled - all simultaneously.
             ringSize = 16;
-            if (ringSize < compressionThreads + 3) {
-                ringSize = compressionThreads + 3;
+            if (ringSize < compressionThreads + 2) {
+                ringSize = compressionThreads + 2;
             }
 
             // AND must be power of 2
             ringSize = Util::powerOfTwo(ringSize, true);
 cout << "EventWriter constr: record ring size set to " << ringSize << endl;
 
-            supply = std::make_shared<RecordSupply>(ringSize, byteOrder,
+            supply = std::make_shared<RecordSupply>(ringSize, this->byteOrder,
                                                     compressionThreads,
                                                     maxEventCount, maxRecordSize,
                                                     compressionType);
@@ -339,6 +376,7 @@ cout << "EventWriter constr: Disk is FULL" << endl;
             for (int i = 0; i < compressionThreads; i++) {
                 recordCompressorThreads.emplace_back(i, compressionType, supply);
             }
+cout << "EventWriter constr: created " << compressionThreads << " number of comp thds" << endl;
 
             // Start compression threads
             for (int i=0; i < compressionThreads; i++) {
@@ -351,7 +389,17 @@ cout << "EventWriter constr: Disk is FULL" << endl;
 
             // Get a single blank record to start writing into
             currentRingItem = supply->get();
+cout << "EventWriter constr: get seq " << currentRingItem->getSequence() << endl;
             currentRecord   = currentRingItem->getRecord();
+
+            // When obtained from supply, record has record number = 1.
+            // This is fine when not appending, or if appending AND single
+            // threaded compression. (Single threaded compression sets runNumber
+            // just before being written, in (try)compressAndWriteToFile).
+            // But needs setting if appending w/ multiple threads:
+            if (append && !singleThreadedCompression) {
+                currentRecord->getHeader().setRecordNumber(recordNumber++);
+            }
         }
 
 
@@ -359,56 +407,7 @@ cout << "EventWriter constr: Disk is FULL" << endl;
         if (split > 0) {
             fileCloser = std::make_shared<FileCloser>();
         }
-
-// TODO: Can this be right???
-        asyncFileChannel = std::make_shared<std::fstream>();
-
-        if (append) {
-//            try {
-                asyncFileChannel->open(currentFileName, ios::binary | ios::in | ios::out);
-                if (asyncFileChannel->fail()) {
-                    throw EvioException("error opening file " + currentFileName);
-                }
-
-                // Right now file is open for writing
-                fileOpen = true;
-
-                // If we have an empty file, that's OK.
-                // Otherwise we have to examine it for compatibility
-                // and position ourselves for the first write.
-                if (fs::file_size(currentFilePath) > 0) {
-                    // Look at first record header to find endianness & version.
-                    // Endianness given in constructor arg, when appending, is ignored.
-                    // this->byteOrder set in next call.
-                    examineFirstRecordHeader();
-
-                    // Oops, gotta redo this since file has different byte order
-                    // than specified in constructor arg.
-                    if (this->byteOrder != byteOrder) {
-                        internalBuffers[0]->order(this->byteOrder);
-                        internalBuffers[1]->order(this->byteOrder);
-                    }
-
-                    // Prepare for appending by moving file position to end of last record
-                    toAppendPosition();
-
-                    // File position is now after the last event written.
-
-                    // Reset the buffer which has been used to read the header
-                    // and to prepare the file for event writing.
-                    buffer->clear();
-                }
-//            }
-//            catch (FileNotFoundException e) {
-//                throw new EvioException("File could not be opened for writing, " +
-//                                        currentFileName, e);
-//            }
-//            catch (IOException e) {
-//                throw new EvioException("File could not be positioned for appending, " +
-//                                        currentFileName, e);
-//            }
-        }
-}
+    }
 
 
 //---------------------------------------------
@@ -497,13 +496,14 @@ cout << "EventWriter constr: record # set to " << recordNumber << endl;
         headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
 
         // Write any record containing dictionary and first event, first
-        haveFirstEvent = firstEvent != nullptr;
+        haveFirstEvent = firstEvent != nullptr && firstEvent->length() > 0;
         if (!xmlDictionary.empty() || haveFirstEvent) {
             createCommonRecord(xmlDictionary, firstEvent, nullptr, nullptr);
         }
 
         // When writing to buffer, just fill/compress/write one record at a time
-        currentRecord = std::make_shared<RecordOutput>(buf, maxEventCount, compressionType,
+        currentRecord = std::make_shared<RecordOutput>(buf, maxEventCount,
+                                                       compressionType,
                                                        HeaderType::EVIO_RECORD);
 
         RecordHeader & header = currentRecord->getHeader();
@@ -523,7 +523,8 @@ cout << "EventWriter constr: record # set to " << recordNumber << endl;
  * @param useCurrentBitInfo   regardless of bitInfo arg's value, use the
  *                            current value of bitInfo in the reinitialized buffer.
  */
-void EventWriter::reInitializeBuffer(std::shared_ptr<ByteBuffer> & buf, const std::bitset<24> *bitInfo,
+void EventWriter::reInitializeBuffer(std::shared_ptr<ByteBuffer> & buf,
+                                     const std::bitset<24> *bitInfo,
                                      uint32_t recNumber, bool useCurrentBitInfo) {
 
         this->buffer       = buf;
@@ -1186,6 +1187,7 @@ void EventWriter::flush() {
             }
 
             // Get another empty record from ring
+cout << "EventWriter: flush, get ring item, seq = " << currentRingItem->getSequence() << endl;
             currentRingItem = supply->get();
             currentRecord = currentRingItem->getRecord();
         }
@@ -1205,7 +1207,6 @@ void EventWriter::close() {
     if (closed) {
         return;
     }
-
     // If buffer ...
     if (!toFile) {
         flushCurrentRecordToBuffer();
@@ -1238,13 +1239,12 @@ void EventWriter::close() {
 
             // Since the writer thread is the last to process each record,
             // wait until it's done with the last item, then exit the thread.
-//cout << "EventWriter: close waiting for writing thd" << endl;
+cout << "Close: waiting 4 writing thd" << endl;
             recordWriterThread[0].waitForLastItem();
-//cout << "EventWriter: close done waiting for writing thd" << endl;
+cout << "Close: done waiting 4 writing thd" << endl;
 
             // Stop all compressing threads which by now are stuck on get
             for (RecordCompressor &thd : recordCompressorThreads) {
-//cout << "EventWriter: interrupt compress thd" << endl;
                 thd.stopThread();
             }
         }
@@ -1300,18 +1300,18 @@ void EventWriter::close() {
 
     recordLengths.clear();
     closed = true;
-}
+    }
 
 
 /**
- * Reads part of the first file header in order to determine
+ * Reads part of the file header in order to determine
  * the evio version # and endianness of the file in question.
  *
  * @throws EvioException not in append mode, contains too little data, is not in proper format,
  *                       version earlier than 6, premature EOF or file reading error,
  *                       and all other exceptions.
  */
-void EventWriter::examineFirstRecordHeader() {
+void EventWriter::examineFileHeader() {
 
         // Only for append mode - only used for files
         if (!append) {
@@ -1321,17 +1321,17 @@ void EventWriter::examineFirstRecordHeader() {
 
         int nBytes;
 
-        auto headerBytes = new char[RecordHeader::HEADER_SIZE_BYTES];
-        ByteBuffer buf(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
+        auto headerBytes = new char[FileHeader::HEADER_SIZE_BYTES];
+        ByteBuffer buf(headerBytes, FileHeader::HEADER_SIZE_BYTES);
 
-        asyncFileChannel->read(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
+        asyncFileChannel->read(headerBytes, FileHeader::HEADER_SIZE_BYTES);
         nBytes = asyncFileChannel->gcount();
         if (asyncFileChannel->fail()) {
             throw EvioException("error reading first record header from " + currentFileName);
         }
 
         // Check to see if we read the whole header
-        if (nBytes != 32) {
+        if (nBytes != FileHeader::HEADER_SIZE_BYTES) {
             throw EvioException("bad file format");
         }
 
@@ -1343,7 +1343,6 @@ void EventWriter::examineFirstRecordHeader() {
 
         // Set the byte order to match the buffer/file's ordering.
         byteOrder = appendFileHeader.getByteOrder();
-        buf.order(byteOrder);
 
         hasAppendDictionary = appendFileHeader.hasDictionary();
         hasTrailerWithIndex = appendFileHeader.hasTrailerWithIndex();
@@ -1387,8 +1386,9 @@ void EventWriter::toAppendPosition() {
         fileWritingPosition = pos;
 
         uint64_t fileSize = fs::file_size(currentFileName);
+cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWritingPosition << endl;
 
-        bool lastRecord, readEOF = false;
+        bool lastRecord, isTrailer, readEOF = false;
         uint32_t recordLen, eventCount, nBytes, bitInfo, headerPosition;
         future<void> future;
 
@@ -1404,23 +1404,32 @@ void EventWriter::toAppendPosition() {
         // reasonable # instead of incrementing from the last existing
         // record.
         recordNumber = 1;
-//        cout << "toAppendPos:     record # = 1" << endl;
+        cout << "toAppendPos:     record # = 1" << endl;
+
+        // To read in all of the normal record header set this to 40 bytes.
+        // To read the bare minimum to do the append set this to 24 bytes,
+        // but be sure to comment out lines reading beyond this point in the header.
+        uint32_t headerBytesToRead = 40;
 
         while (true) {
             nBytes = 0;
 
-            // Read in most of the normal record header, 40 bytes.
-            // Skip the last 16 bytes which are only 2 user registers.
             buffer->clear();
-            buffer->limit(24);
+            buffer->limit(headerBytesToRead);
 
-            while (nBytes < 24) {
+            while (nBytes < headerBytesToRead) {
+                cout << "Read Header bytes" << endl;
+
                 // There is no internal asyncFileChannel position
-                asyncFileChannel->read(reinterpret_cast<char *>(buffer->array()) + nBytes, 24-nBytes);
+                asyncFileChannel->seekg(fileWritingPosition);
+                asyncFileChannel->read(reinterpret_cast<char *>(buffer->array()) + nBytes, headerBytesToRead-nBytes);
                 int partial = asyncFileChannel->gcount();
                 if (asyncFileChannel->fail()) {
                     throw EvioException("error reading record header from " + currentFileName);
                 }
+
+// TODO: handling EOF seems wrong.............
+// TODO: If eof hit with nBytes = 0, then header should NOT be parsed ....
 
                 // If EOF ...
                 if (asyncFileChannel->eof()) {
@@ -1436,19 +1445,20 @@ void EventWriter::toAppendPosition() {
             }
 
             // If we did not read correct # of bytes or didn't run into EOF right away
-            if (nBytes != 0 && nBytes != 24) {
+            if (nBytes != 0 && nBytes != headerBytesToRead) {
                 throw EvioException("internal file reading error");
             }
 
             headerPosition = 0;
-            fileWritingPosition += 24;
+            fileWritingPosition += headerBytesToRead;
 
             bitInfo    = buffer->getInt(headerPosition + RecordHeader::BIT_INFO_OFFSET);
             recordLen  = buffer->getInt(headerPosition + RecordHeader::RECORD_LENGTH_OFFSET);
             eventCount = buffer->getInt(headerPosition + RecordHeader::EVENT_COUNT_OFFSET);
             lastRecord = RecordHeader::isLastRecord(bitInfo);
+            isTrailer  = RecordHeader::isEvioTrailer(bitInfo);
 
-////          If reading entire header, change 24 to 40 above & below
+////          If reading entire header, change headerBytesToRead from 24 to 40
 //            int headerLen     = buffer->getInt(headerPosition + RecordHeader::HEADER_LENGTH_OFFSET);
 //            int userHeaderLen = buffer->getInt(headerPosition + RecordHeader::USER_LENGTH_OFFSET);
 //            int indexArrayLen = buffer->getInt(headerPosition + RecordHeader::INDEX_ARRAY_OFFSET);
@@ -1460,29 +1470,36 @@ void EventWriter::toAppendPosition() {
 //            if (compType != 0) {
 //                compDataLen = compWord & 0xfffffff;
 //            }
-//
-//            cout << "bitInfo      = 0x" << hex << bitInfo << dec << endl;
-//            cout << "recordLength = " << recordLen << endl;
-//            cout << "headerLength = " << headerLen << endl;
-//            cout << "eventCount   = " << eventCount << endl;
-//            cout << "lastRecord   = " << lastRecord << endl;
-//            cout << endl;
+
+            cout << "bitInfo      = 0x" << hex << bitInfo << dec << endl;
+            cout << "recordLength = " << recordLen << endl;
+            cout << "eventCount   = " << eventCount << endl;
+            cout << "lastRecord   = " << lastRecord << endl;
+            cout << endl;
+
+            // Update vector with record size & event count unless this is the trailer
+            if (!isTrailer) {
+cout << "                 adding to recordLengths append: " << (4 * recordLen) << ", " <<
+                     eventCount << "   ------" << endl;
+                recordLengths.push_back(4 * recordLen);
+                recordLengths.push_back(eventCount);
+            }
 
             // Track total number of events in file/buffer (minus dictionary)
             eventsWrittenTotal += eventCount;
 
             recordNumber++;
-//cout << "                 record # = " << recordNumber << <endl;
+cout << "                 next record # = " << recordNumber << endl;
 
             // Stop at the last record. The file may not have a last record if
             // improperly terminated. Running into an End-Of-File will flag
             // this condition.
-            if (lastRecord || readEOF) {
+            if (isTrailer || lastRecord || readEOF) {
                 break;
             }
 
             // Hop to next record header
-            int bytesToNextBlockHeader = 4*recordLen - 24;
+            int bytesToNextBlockHeader = 4*recordLen - headerBytesToRead;
             if (bytesLeftInFile < bytesToNextBlockHeader) {
                 throw EvioException("bad file format");
             }
@@ -1499,7 +1516,7 @@ void EventWriter::toAppendPosition() {
         }
 
         //-------------------------------------------------------------------------------
-        // If we're here, we've just read the last record header (at least 6 words of it).
+        // If we're here, we've just read the last record header (at least some of it).
         // File position is just past header, but buffer position is just before it.
         // Either that or we ran into end of file (last record header missing).
         //
@@ -1518,10 +1535,22 @@ void EventWriter::toAppendPosition() {
             // It turns out we need to do nothing. The constructor that
             // calls this method will write out the next record header.
             recordNumber--;
-//cout << "                 record # = " << recordNumber << endl;
+cout << "                 read EOF, record # = " << recordNumber << endl;
         }
-        // If last record has event(s) in it ...
-        else if (eventCount > 0) {
+        // else if last record or has NO data in it ...
+        else if (isTrailer || eventCount < 1) {
+            // We already partially read in the record header, now back up so we can overwrite it.
+            // If using buffer, we never incremented the position, so we're OK.
+
+            // Since creating next record does ++recordNumber, we decrement it first
+            recordNumber--;
+
+cout << "                 last rec has no data, is Trailer = " << isTrailer << ", record # = " << recordNumber << endl;
+            fileWritingPosition -= headerBytesToRead;
+cout << "toAppendPos: position (bkup) = " << fileWritingPosition << endl;
+            asyncFileChannel->seekg(fileWritingPosition);
+        }
+        else {
             // Clear last record bit in 6th header word
             bitInfo = RecordHeader::clearLastRecordBit(bitInfo);
 
@@ -1529,10 +1558,11 @@ void EventWriter::toAppendPosition() {
 
             // File now positioned right after the last header to be read
             // Back up to before 6th block header word
-            fileWritingPosition -= 24 - RecordHeader::BIT_INFO_OFFSET;
+            fileWritingPosition -= headerBytesToRead - RecordHeader::BIT_INFO_OFFSET;
             asyncFileChannel->seekg(fileWritingPosition);
 
-//cout << "toAppendPosition: writing over last block's 6th word, back up %d words" << (8 - 6) << endl;
+cout << "toAppendPosition: writing over last block's 6th word, back up " <<
+          (headerBytesToRead - RecordHeader::BIT_INFO_OFFSET)/4 << " words" << endl;
 
             // Write over 6th block header word
             buffer->clear();
@@ -1544,28 +1574,24 @@ void EventWriter::toAppendPosition() {
             }
 
             // Hop over the entire block
-//cout << "toAppendPosition: wrote over last block's 6th word, hop over %d words" <<
-//                   (recordLen - (6 + 4)) << endl;
+cout << "toAppendPosition: wrote over last block's 6th word, hop over whole record, " <<
+         ((4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4))/4 << " words" << endl;
             fileWritingPosition += (4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4);
             asyncFileChannel->seekg(fileWritingPosition);
         }
-        // else if last record has NO data in it ...
-        else {
-            // We already partially read in the record header, now back up so we can overwrite it.
-            // If using buffer, we never incremented the position, so we're OK.
-            recordNumber--;
-//cout << "                 record # = " << recordNumber << endl;
-            fileWritingPosition -= 24;
-//cout << "toAppendPos: position (bkup) = " << fileWritingPosition << endl;
-            asyncFileChannel->seekg(fileWritingPosition);
-        }
 
-//cout << "toAppendPos: file pos = " << fileWritingPosition << endl;
         bytesWritten = fileWritingPosition;
         recordsWritten = recordNumber - 1;
 
+//        // The when writing the NEXT record, code does an ++recordNumber,
+//        // so account for that
+//        recordNumber--;
+cout << "toAppendPos: file pos = " << fileWritingPosition <<
+        ", recordNumber = " << recordNumber << endl;
+
         // We should now be in a state identical to that if we had
         // just now written everything currently in the file/buffer.
+        buffer->clear();
 }
 
 
@@ -2044,7 +2070,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
             else {
                 // Set flag to split file
                 currentRingItem->splitFileAfterWrite(true);
-                currentRecord->getHeader().setRecordNumber(recordNumber);
+//currentRecord->getHeader().setRecordNumber(recordNumber);
                 // Send current record back to ring without adding event
                 supply->publish(currentRingItem);
 
@@ -2053,9 +2079,8 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 recordNumber = 1;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber);
+                currentRecord->getHeader().setRecordNumber(recordNumber++);
                 // Reset record number for records coming after this one
-                recordNumber++;
             }
 
             // Reset split-tracking variables
@@ -2092,7 +2117,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 // Get another empty record from ring
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(++recordNumber);
+                currentRecord->getHeader().setRecordNumber(recordNumber++);
             }
 
             // Add event to it (guaranteed to fit)
@@ -2126,7 +2151,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 // Get another empty record from ring
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(++recordNumber);
+                currentRecord->getHeader().setRecordNumber(recordNumber++);
             }
         }
 
@@ -2305,7 +2330,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 // space for that.
                 currentRingItem->splitFileAfterWrite(true);
                 currentRingItem->setCheckDisk(false);
-                currentRecord->getHeader().setRecordNumber(recordNumber);
+//currentRecord->getHeader().setRecordNumber(recordNumber);
                 // Send current record back to ring without adding event
                 supply->publish(currentRingItem);
 
@@ -2314,9 +2339,8 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 recordNumber = 1;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber);
+                currentRecord->getHeader().setRecordNumber(recordNumber++);
                 // Reset record number for records coming after this one
-                recordNumber++;
             }
 
             // Reset split-tracking variables
@@ -2368,7 +2392,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 supply->publish(currentRingItem);
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(++recordNumber);
+                currentRecord->getHeader().setRecordNumber(recordNumber++);
             }
 
             // Add event to it (guaranteed to fit)
@@ -2410,7 +2434,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 supply->publish(currentRingItem);
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(++recordNumber);
+                currentRecord->getHeader().setRecordNumber(recordNumber++);
             }
         }
 
@@ -2569,6 +2593,8 @@ bool EventWriter::writeToFile(bool force, bool checkDisk) {
         // Length of this record
         int bytesToWrite = header.getLength();
         int eventCount   = header.getEntries();
+cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
+                                                     eventCount << endl;
         recordLengths.push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths.push_back(eventCount);
@@ -2682,6 +2708,8 @@ bool EventWriter::writeToFile(bool force, bool checkDisk) {
         // Length of this record
         int bytesToWrite = header.getLength();
         int eventCount   = header.getEntries();
+        cout << "   **** added to recordLengths MT: " << bytesToWrite << ", " <<
+                                                        eventCount << endl;
         recordLengths.push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths.push_back(eventCount);
@@ -2821,7 +2849,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
                 // headerBuffer is only used in this method
                 RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
                                            RecordHeader::HEADER_SIZE_BYTES,
-                                           0, ++recordNumber, byteOrder,
+                                           0, recordNumber, byteOrder,
                                            nullptr, 0);
 
             }
@@ -2858,7 +2886,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
 
             // Place data into headerBuffer - both header and index
             RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
-                                       headerArray.capacity(), 0, ++recordNumber, byteOrder,
+                                       headerArray.capacity(), 0, recordNumber, byteOrder,
                                        reinterpret_cast<uint32_t *>(recordIndex), arraySize);
 
 //cout << "\nwriteTrailerToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
@@ -2945,6 +2973,8 @@ void EventWriter::flushCurrentRecordToBuffer() {
     uint32_t bytesToWrite = header.getLength();
     // Store length & count for possible trailer index
 
+cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " <<
+                                                           eventCount << endl;
     recordLengths.push_back(bytesToWrite);
     // Trailer's index has count following length
     recordLengths.push_back(eventCount);
@@ -3020,7 +3050,7 @@ void EventWriter::writeTrailerToBuffer(bool writeIndex) {
                 throw EvioException("not enough room in buffer");
             }
 
-            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, ++recordNumber);
+            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber);
         }
         else {
             // Create the index of record lengths in proper byte order
@@ -3044,7 +3074,7 @@ void EventWriter::writeTrailerToBuffer(bool writeIndex) {
 
             // Place data into buffer - both header and index
 //cout << "writeTrailerToBuffer: start writing at pos = " << bytesWritten << endl;
-            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, ++recordNumber,
+            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber,
                                        reinterpret_cast<uint32_t *>(recordIndex),
                                        arraySize);
 

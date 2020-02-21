@@ -201,7 +201,7 @@ class EventWriter {
             ~RecordWriter() {
                 thd.interrupt();
                 if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                    cout << "RecordWriter thread did not quit after 1/2 sec" << endl;
+                    cout << "     RecordWriter thread did not quit after 1/2 sec" << endl;
                 }
             }
 
@@ -260,11 +260,9 @@ class EventWriter {
 
                     while (true) {
 
-                        cout << "   RecordWriter: try getting record to write" << endl;
                         // Get the next record for this thread to write
                         // shared_ptr<RecordRingItem>
                         auto item = supply->getToWrite();
-                        cout << "   RecordWriter: GOT record to write" << endl;
 
                         {
                             // Only allow interruption when blocked on trying to get item
@@ -327,13 +325,12 @@ class EventWriter {
 
                             // Do write
                             // Write current item to file
-cout << "   RecordWriter: call writeToFileMT ..." << endl;
                             writer->writeToFileMT(item, forceToDisk.load());
 
                             // Turn off forced write to disk, if the record which
                             // initially triggered it, has now been written.
                             if (forceToDisk.load() && (forcedRecordId.load() == item->getId())) {
-//System.out.println("  write: WROTE the record that triggered force, reset to false");
+//System.out.println("EventWriter: WROTE the record that triggered force, reset to false");
                                 forceToDisk = false;
                             }
 
@@ -351,7 +348,7 @@ cout << "   RecordWriter: call writeToFileMT ..." << endl;
                     }
                 }
                 catch (boost::thread_interrupted & e) {
-cout << "   RecordWriter: INTERRUPTED, return" << endl;
+cout << "EventWriter: INTERRUPTED, return" << endl;
                 }
             }
         };
@@ -473,6 +470,7 @@ cout << "   RecordWriter: INTERRUPTED, return" << endl;
                     }
 
                     // Release resources back to the ring
+cout << "Closer: releaseWriterSequential, will release item seq = " << item->getSequence() << endl;
                     supply->releaseWriterSequential(item);
 
                     try {
@@ -681,7 +679,7 @@ cout << "   RecordWriter: INTERRUPTED, return" << endl;
 
         /** Type of compression being done on data
          *  (0=none, 1=LZ4fastest, 2=LZ4best, 3=gzip). */
-        Compressor::CompressionType compressionType{ Compressor::UNCOMPRESSED};
+        Compressor::CompressionType compressionType{Compressor::UNCOMPRESSED};
 
         /** The estimated ratio of compressed to uncompressed data.
          *  (Used to figure out when to split a file). Percentage of original size. */
@@ -692,6 +690,7 @@ cout << "   RecordWriter: INTERRUPTED, return" << endl;
 
         /** Number of uncompressed bytes written to the current file/buffer at the moment,
          * including ending header and NOT the total in all split files. */
+//TODO: DOES THIS NEED TO BE ATOMIC IF MT write????????????????????????????????
         size_t bytesWritten = 0ULL;
 
         /** Do we add a last header or trailer to file/buffer? */
@@ -713,7 +712,8 @@ cout << "   RecordWriter: INTERRUPTED, return" << endl;
         /** Number of records written to split-file/buffer at current moment. */
         uint32_t recordsWritten = 0;
 
-        /** Running count of the record number. The next one to use starting with 1. */
+        /** Running count of the record number. The next one to use starting with 1.
+         *  Current value is generally for the next record. */
         uint32_t recordNumber = 1;
 
         /**
@@ -1007,7 +1007,7 @@ public:
 
     protected:
 
-        void examineFirstRecordHeader();
+        void examineFileHeader();
 
     private:
 
