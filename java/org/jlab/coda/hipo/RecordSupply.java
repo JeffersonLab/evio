@@ -236,7 +236,7 @@ public class RecordSupply {
         // first releasing their records.
         writeBarrier = ringBuffer.newBarrier(compressSeqs);
         writeSeq = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-        nextWriteSeq = writeSeq.get() + 1;
+        nextWriteSeq = Sequencer.INITIAL_CURSOR_VALUE + 1;
         availableWriteSeq = -1;
         // After this writing thread releases a record, make it available for re-filling.
         // In other words, this is the last consumer.
@@ -425,7 +425,7 @@ public class RecordSupply {
      * @return false if item not released since item is null, else true.
      */
     public boolean releaseWriterSequential(RecordRingItem item) {
-        if (item == null) return false;
+        if (item == null || item.isAlreadyReleased()) return false;
         item.getSequenceObj().set(item.getSequence());
         return true;
     }
@@ -506,6 +506,7 @@ public class RecordSupply {
      * @param sequenceNum  sequence to release
      */
     public void release(int threadNum, long sequenceNum) {
+        if (sequenceNum < 0) return;
         compressSeqs[threadNum].set(sequenceNum);
     }
 
