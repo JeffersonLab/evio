@@ -37,17 +37,15 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
                            Compressor::CompressionType compressionType, HeaderType hType)  {
 
     try {
-        if (hType.isEvioFileHeader()) {
-            hType = HeaderType::EVIO_RECORD;
-        }
-        else if (hType.isHipoFileHeader()) {
-            hType = HeaderType::HIPO_RECORD;
-        }
+        if (hType.isEvioFileHeader()) hType = HeaderType::EVIO_RECORD;
+        else if (hType.isHipoFileHeader())  hType = HeaderType::HIPO_RECORD;
+        else if (hType == HeaderType::EVIO_TRAILER) hType = HeaderType::EVIO_RECORD;
+        else if (hType == HeaderType::HIPO_TRAILER) hType = HeaderType::HIPO_RECORD;
         header = RecordHeader(hType);
+        header.setCompressionType(compressionType);
     }
     catch (EvioException & e) {/* never happen */}
 
-    header.setCompressionType(compressionType);
     byteOrder = order;
 
     if (maxEventCount > 0) {
@@ -81,17 +79,15 @@ RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEve
                            Compressor::CompressionType compressionType, HeaderType hType) {
 
     try {
-        if (hType.isEvioFileHeader()) {
-            hType = HeaderType::EVIO_RECORD;
-        }
-        else if (hType.isHipoFileHeader()) {
-            hType = HeaderType::HIPO_RECORD;
-        }
+        if (hType.isEvioFileHeader()) hType = HeaderType::EVIO_RECORD;
+        else if (hType.isHipoFileHeader())  hType = HeaderType::HIPO_RECORD;
+        else if (hType == HeaderType::EVIO_TRAILER) hType = HeaderType::EVIO_RECORD;
+        else if (hType == HeaderType::HIPO_TRAILER) hType = HeaderType::HIPO_RECORD;
         header = RecordHeader(hType);
+        header.setCompressionType(compressionType);
     }
     catch (EvioException & e) {/* never happen */}
 
-    header.setCompressionType(compressionType);
     userProvidedBuffer = true;
 
     recordBinary = buffer;
