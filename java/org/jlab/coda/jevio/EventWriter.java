@@ -1145,12 +1145,55 @@ final public class EventWriter implements AutoCloseable {
         // Evio file
         fileHeader = new FileHeader(true);
 
+        if (append) {
+            try {
+                // For reading existing file and preparing for stream writes
+                asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
+                                                                StandardOpenOption.READ,
+                                                                StandardOpenOption.WRITE);
+
+                // If we have an empty file, that's OK.
+                // Otherwise we have to examine it for compatibility
+                // and position ourselves for the first write.
+                if (asyncFileChannel.size() > 0) {
+                    // Look at file header to find endianness & version.
+                    // Endianness given in constructor arg, when appending, is ignored.
+                    // this.byteOrder set in next call.
+                    examineFileHeader();
+
+                    // Oops, gotta redo this since file has different byte order
+                    // than specified in constructor arg.
+                    if (this.byteOrder != byteOrder) {
+                        byteOrder = this.byteOrder;
+                        internalBuffers[0].order(byteOrder);
+                        internalBuffers[1].order(byteOrder);
+                        internalBuffers[2].order(byteOrder);
+                    }
+
+                    // Prepare for appending by moving file position to end of last record
+                    // Needs buffer to be defined and set to proper endian (which is done just above).
+                    toAppendPosition();
+
+                    // File position is now after the last event written.
+                }
+            }
+            catch (FileNotFoundException e) {
+                throw new EvioException("File could not be opened for writing, " +
+                                                currentFile.getPath(), e);
+            }
+            catch (IOException e) {
+                throw new EvioException("File could not be positioned for appending, " +
+                                                currentFile.getPath(), e);
+            }
+        }
+
         // Compression threads
         if (compressionThreads == 1) {
             // When writing single threaded, just fill/compress/write one record at a time
             singleThreadedCompression = true;
             currentRecord = new RecordOutputStream(buffer, maxEventCount,
-                                                   compressionType, HeaderType.EVIO_RECORD);
+                                                   compressionType,
+                                                   HeaderType.EVIO_RECORD);
         }
         else {
             // Number of ring items must be >= # of compressionThreads, plus 2 which
@@ -1164,8 +1207,10 @@ final public class EventWriter implements AutoCloseable {
             ringSize = Utilities.powerOfTwo(ringSize, true);
             System.out.println("EventWriter constr: record ring size set to " + ringSize);
 
-            supply = new RecordSupply(ringSize, byteOrder, compressionThreads,
-                                      maxEventCount, maxRecordSize, compressionType);
+            supply = new RecordSupply(ringSize, byteOrder,
+                                      compressionThreads,
+                                      maxEventCount, maxRecordSize,
+                                      compressionType);
 
             // Do a quick calculation as to how much data a ring full
             // of records can hold since we may have to write that to
@@ -1197,53 +1242,20 @@ System.out.println("EventWriter contr: Disk is FULL");
             // Get a single blank record to start writing into
             currentRingItem = supply.get();
             currentRecord   = currentRingItem.getRecord();
+
+            // When obtained from supply, record has record number = 1.
+            // This is fine when not appending, or if appending AND single
+            // threaded compression. (Single threaded compression sets runNumber
+            // just before being written, in (try)compressAndWriteToFile).
+            // But needs setting if appending w/ multiple threads:
+            if (append && !singleThreadedCompression) {
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
+            }
         }
 
         // Object to close files in a separate thread when splitting, to speed things up
-        if (split > 0) fileCloser = new FileCloser();
-
-        if (append) {
-            try {
-                // For reading existing file and preparing for stream writes
-                asyncFileChannel = AsynchronousFileChannel.open(currentFilePath,
-                                                                StandardOpenOption.READ,
-                                                                StandardOpenOption.WRITE);
-
-                // If we have an empty file, that's OK.
-                // Otherwise we have to examine it for compatibility
-                // and position ourselves for the first write.
-                if (asyncFileChannel.size() > 0) {
-                    // Look at first record header to find endianness & version.
-                    // Endianness given in constructor arg, when appending, is ignored.
-                    examineFirstRecordHeader();
-
-                    // Oops, gotta redo this since file has different byte order
-                    // than specified in constructor arg.
-                    if (this.byteOrder != byteOrder) {
-                        byteOrder = this.byteOrder;
-                        internalBuffers[0].order(byteOrder);
-                        internalBuffers[1].order(byteOrder);
-                        internalBuffers[2].order(byteOrder);
-                    }
-
-                    // Prepare for appending by moving file position to end of last record
-                    toAppendPosition();
-
-                    // File position is now after the last event written.
-
-                    // Reset the buffer which has been used to read the header
-                    // and to prepare the file for event writing.
-                    buffer.clear();
-                }
-            }
-            catch (FileNotFoundException e) {
-                throw new EvioException("File could not be opened for writing, " +
-                                                currentFile.getPath(), e);
-            }
-            catch (IOException e) {
-                throw new EvioException("File could not be positioned for appending, " +
-                                                currentFile.getPath(), e);
-            }
+        if (split > 0) {
+            fileCloser = new FileCloser();
         }
     }
 
@@ -2054,6 +2066,7 @@ System.out.println("EventWriter contr: Disk is FULL");
             else {
                 // If we're building a record, send it off
                 // to compressing thread since we're done.
+                // This should never happen as END event forces things through.
                 if (currentRecord.getEventCount() > 0) {
                     // Put it back in supply for compressing
                     supply.publish(currentRingItem);
@@ -2132,14 +2145,14 @@ System.out.println("EventWriter contr: Disk is FULL");
 
     
     /**
-     * Reads part of the first file header in order to determine
+     * Reads part of the file header in order to determine
      * the evio version # and endianness of the file in question.
      *
      * @throws EvioException not in append mode, contains too little data, is not in proper format,
      *                       version earlier than 6, and all other exceptions.
      * @throws IOException   premature EOF or file reading error.
      */
-    protected void examineFirstRecordHeader() throws IOException, EvioException {
+    protected void examineFileHeader() throws IOException, EvioException {
 
         // Only for append mode - only used for files
         if (!append) {
@@ -2161,7 +2174,7 @@ System.out.println("EventWriter contr: Disk is FULL");
         }
 
         // Check to see if we read the whole header
-        if (nBytes != 32) {
+        if (nBytes != FileHeader.HEADER_SIZE_BYTES) {
             throw new EvioException("bad file format");
         }
 
@@ -2174,7 +2187,6 @@ System.out.println("EventWriter contr: Disk is FULL");
 
             // Set the byte order to match the buffer/file's ordering.
             byteOrder = appendFileHeader.getByteOrder();
-            buffer.order(byteOrder);
 
             hasAppendDictionary = appendFileHeader.hasDictionary();
             hasTrailerWithIndex = appendFileHeader.hasTrailerWithIndex();
@@ -2223,7 +2235,7 @@ System.out.println("EventWriter contr: Disk is FULL");
 
         long fileSize = asyncFileChannel.size();
 
-        boolean lastRecord, readEOF = false;
+        boolean lastRecord, isTrailer, readEOF = false;
         int recordLen, eventCount, nBytes, bitInfo, headerPosition;
         Future<Integer> future;
 
@@ -2239,6 +2251,12 @@ System.out.println("EventWriter contr: Disk is FULL");
         // reasonable # instead of incrementing from the last existing
         // record.
         recordNumber = 1;
+//        System.out.println("toAppendPos:     record # = 1");
+
+        // To read in all of the normal record header set this to 40 bytes.
+        // To read the bare minimum to do the append set this to 24 bytes,
+        // but be sure to comment out lines reading beyond this point in the header.
+        int headerBytesToRead = 40;
 
         while (true) {
             nBytes = 0;
@@ -2246,9 +2264,9 @@ System.out.println("EventWriter contr: Disk is FULL");
             // Read in most of the normal record header, 40 bytes.
             // Skip the last 16 bytes which are only 2 user registers.
             buffer.clear();
-            buffer.limit(24);
+            buffer.limit(headerBytesToRead);
 
-            while (nBytes < 24) {
+            while (nBytes < headerBytesToRead) {
                 // There is no internal asyncFileChannel position
                 int partial;
 
@@ -2274,18 +2292,20 @@ System.out.println("EventWriter contr: Disk is FULL");
             }
 
             // If we did not read correct # of bytes or didn't run into EOF right away
-            if (nBytes != 0 && nBytes != 24) {
+            if (nBytes != 0 && nBytes != headerBytesToRead) {
                 throw new EvioException("internal file reading error");
             }
 
             headerPosition = 0;
-            fileWritingPosition += 24;
+            fileWritingPosition += headerBytesToRead;
 
             bitInfo    = buffer.getInt(headerPosition + RecordHeader.BIT_INFO_OFFSET);
             recordLen  = buffer.getInt(headerPosition + RecordHeader.RECORD_LENGTH_OFFSET);
             eventCount = buffer.getInt(headerPosition + RecordHeader.EVENT_COUNT_OFFSET);
             lastRecord = RecordHeader.isLastRecord(bitInfo);
-////          If reading entire header, change 24 to 40 above & below
+            isTrailer  = RecordHeader.isEvioTrailer(bitInfo);
+
+////          If reading entire header, change headerBytesToRead from 24 to 40
 //            headerLen     = buffer.getInt(headerPosition + RecordHeader.HEADER_LENGTH_OFFSET);
 //            userHeaderLen = buffer.getInt(headerPosition + RecordHeader.USER_LENGTH_OFFSET);
 //            indexArrayLen = buffer.getInt(headerPosition + RecordHeader.INDEX_ARRAY_OFFSET);
@@ -2305,6 +2325,12 @@ System.out.println("EventWriter contr: Disk is FULL");
 //            System.out.println("lastRecord   = " + lastRecord);
 //            System.out.println();
 
+            if (!isTrailer) {
+                // Update vector with record size & event count
+                recordLengths.add(4 * recordLen);
+                recordLengths.add(eventCount);
+            }
+
             // Track total number of events in file/buffer (minus dictionary)
             eventsWrittenTotal += eventCount;
 
@@ -2313,12 +2339,12 @@ System.out.println("EventWriter contr: Disk is FULL");
             // Stop at the last record. The file may not have a last record if
             // improperly terminated. Running into an End-Of-File will flag
             // this condition.
-            if (lastRecord || readEOF) {
+            if (isTrailer || lastRecord || readEOF) {
                 break;
             }
 
             // Hop to next record header
-            int bytesToNextBlockHeader = 4*recordLen - 24;
+            int bytesToNextBlockHeader = 4*recordLen - headerBytesToRead;
             if (bytesLeftInFile < bytesToNextBlockHeader) {
                 throw new EvioException("bad file format");
             }
@@ -2354,8 +2380,17 @@ System.out.println("EventWriter contr: Disk is FULL");
             // calls this method will write out the next record header.
             recordNumber--;
         }
+        // else if last record or has NO data in it ...
+        else if (isTrailer || eventCount < 1) {
+            // We already partially read in the record header, now back up so we can overwrite it.
+            // If using buffer, we never incremented the position, so we're OK.
+            recordNumber--;
+//System.out.println("                 record # = " + recordNumber);
+            fileWritingPosition -= headerBytesToRead;
+//System.out.println("toAppendPos: position (bkup) = " + fileWritingPosition);
+        }
         // If last record has event(s) in it ...
-        else if (eventCount > 0) {
+        else {
             // Clear last record bit in 6th header word
             bitInfo = RecordHeader.clearLastRecordBit(bitInfo);
 
@@ -2363,7 +2398,7 @@ System.out.println("EventWriter contr: Disk is FULL");
 
             // File now positioned right after the last header to be read
             // Back up to before 6th block header word
-            fileWritingPosition -= 24 - RecordHeader.BIT_INFO_OFFSET;
+            fileWritingPosition -= headerBytesToRead - RecordHeader.BIT_INFO_OFFSET;
 
             // Write over 6th block header word
             buffer.clear();
@@ -2382,19 +2417,13 @@ System.out.println("EventWriter contr: Disk is FULL");
             // Hop over the entire block
             fileWritingPosition += (4 * recordLen) - (RecordHeader.BIT_INFO_OFFSET + 4);
         }
-        // else if last record has NO data in it ...
-        else {
-            // We already partially read in the record header, now back up so we can overwrite it.
-            // If using buffer, we never incremented the position, so we're OK.
-            recordNumber--;
-            fileWritingPosition -= 24;
-        }
 
         bytesWritten = fileWritingPosition;
         recordsWritten = recordNumber - 1;
 
         // We should now be in a state identical to that if we had
         // just now written everything currently in the file/buffer.
+        buffer.clear();
     }
 
 
