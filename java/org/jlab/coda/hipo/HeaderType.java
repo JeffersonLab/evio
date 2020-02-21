@@ -55,6 +55,12 @@ public enum HeaderType {
      */
     public boolean isFileHeader() {return (isEvioFileHeader() | isHipoFileHeader());}
 
+    /**
+     * Is this a trailer?
+     * @return <code>true</code> if is a trailer, else <code>false</code>
+     */
+    public boolean isTrailer() {return (this == EVIO_TRAILER || this == HIPO_TRAILER);}
+
     /** Fast way to convert integer values into HeaderType objects. */
     private static HeaderType[] intToType;
 
