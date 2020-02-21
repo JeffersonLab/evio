@@ -127,6 +127,7 @@ set(CPP_LIB_FILES_NEW
 
 set(TEST_FILES_CC
         src/hipo/ReadWriteTest.cpp
+        src/hipo/RingBufferTest.cpp
         )
 
 #set(CPP_LIB_FILES_DISRUPTOR
@@ -166,6 +167,9 @@ target_include_directories(hipo PUBLIC src/hipo)
 # Main Executables
 add_executable(ReadWriteTest src/hipo/ReadWriteTest.cpp)
 target_link_libraries(ReadWriteTest pthread expat z hipo)
+
+add_executable(RingBufferTest src/hipo/RingBufferTest.cpp)
+target_link_libraries(RingBufferTest pthread expat z hipo)
 
 add_executable(evio2xml src/execsrc/evio2xml.c)
 target_link_libraries(evio2xml pthread expat z evio)
