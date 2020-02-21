@@ -67,9 +67,12 @@ RecordSupply::RecordSupply(uint32_t ringSize, ByteOrder order,
     // Set RecordRingItem static values to be used when eventFactory is creating RecordRingItem objects
     RecordRingItem::setEventFactorySettings(order, maxEventCount, maxBufferSize, compressionType);
 
+    // Spin first then block
+    auto blockingStrategy = std::make_shared< Disruptor::BlockingWaitStrategy >();
+    auto waitStrategy = std::make_shared< Disruptor::SpinCountBackoffWaitStrategy >(10000, blockingStrategy);
     // Create ring buffer with "ringSize" # of elements
     ringBuffer = Disruptor::RingBuffer<std::shared_ptr<RecordRingItem>>::createSingleProducer(
-            RecordRingItem::eventFactory(), ringSize);
+                     RecordRingItem::eventFactory(), ringSize, waitStrategy);
 
     // Thread which fills records is considered the "producer" and doesn't need a barrier
 
@@ -83,6 +86,7 @@ RecordSupply::RecordSupply(uint32_t ringSize, ByteOrder order,
     for (int i=0; i < compressionThreadCount; i++) {
         // Create seq with usual initial value
         auto seq = std::make_shared<Disruptor::Sequence>(Disruptor::Sequence::InitialCursorValue);
+
         // Each thread will get different records from each other.
         // First thread gets 0, 2nd thread gets 1, etc.
         int64_t firstSeqToGet = Disruptor::Sequence::InitialCursorValue + 1 + i;
@@ -96,25 +100,17 @@ RecordSupply::RecordSupply(uint32_t ringSize, ByteOrder order,
         availableCompressSeqs.push_back(-1);
     }
 
-    // In order to call the ringBuffer->newBarrier method with a vector of
-    // sequences, we need to change vector from holding Sequence to ISequence.
-    // The only way I know to do this is to copy things over.
-    std:vector<std::shared_ptr<Disruptor::ISequence>> CompressSeqs_ISequence;
-    for (const auto & compressSeq : compressSeqs) {
-        CompressSeqs_ISequence.push_back(compressSeq);
-    }
-
     // Barrier & sequence so a single record-WRITING thread can get records.
     // This barrier comes after all compressing threads and depends on them
     // first releasing their records.
-    writeBarrier = ringBuffer->newBarrier( CompressSeqs_ISequence );
+    writeBarrier = ringBuffer->newBarrier(compressSeqs);
     auto seq = std::make_shared<Disruptor::Sequence>(Disruptor::Sequence::InitialCursorValue);
+    nextWriteSeq = Disruptor::Sequence::InitialCursorValue + 1;
     writeSeqs.push_back(seq);
-    nextWriteSeq = writeSeqs[0]->value() + 1;
     availableWriteSeq = -1L;
     // After this writing thread releases a record, make it available for re-filling.
     // In other words, this is the last consumer.
-    ringBuffer->addGatingSequences( { writeSeqs[0]} );
+    ringBuffer->addGatingSequences(writeSeqs);
 }
 
 
@@ -175,13 +171,12 @@ int64_t RecordSupply::getLastSequence() {
  * Use it to write data into the record.
  * @return next available record item in ring buffer in order to write data into it.
  */
-shared_ptr<RecordRingItem> RecordSupply::get() {
+std::shared_ptr<RecordRingItem> RecordSupply::get() {
     // Producer gets next available record
     int64_t getSequence = ringBuffer->next();
 
     // Get object in that position (sequence) of ring buffer
-    shared_ptr<RecordRingItem> & bufItem = (*ringBuffer.get())[getSequence];
-    //auto bufItem = ringBuffer->get(getSequence);
+    std::shared_ptr<RecordRingItem> & bufItem = (*ringBuffer.get())[getSequence];
 
     // This reset does not change compression type, fileId, or header type
     bufItem->reset();
@@ -197,7 +192,7 @@ shared_ptr<RecordRingItem> RecordSupply::get() {
  * To be used in conjunction with {@link #get()}.
  * @param item record item available for consumers' use.
  */
-void RecordSupply::publish( shared_ptr<RecordRingItem> & item) {
+void RecordSupply::publish(std::shared_ptr<RecordRingItem> & item) {
     ringBuffer->publish(item->getSequence());
 }
 
@@ -211,7 +206,7 @@ void RecordSupply::publish( shared_ptr<RecordRingItem> & item) {
  * @throws AlertException  if {@link #errorAlert()} called.
  * @throws InterruptedException
  */
-shared_ptr<RecordRingItem> RecordSupply::getToCompress(uint32_t threadNumber) {
+std::shared_ptr<RecordRingItem> RecordSupply::getToCompress(uint32_t threadNumber) {
 
     try  {
         // Only wait for read of volatile memory if necessary ...
@@ -222,7 +217,6 @@ shared_ptr<RecordRingItem> RecordSupply::getToCompress(uint32_t threadNumber) {
 
         // Get the item since we know it's available
         shared_ptr<RecordRingItem> & item = (*ringBuffer.get())[nextCompressSeqs[threadNumber]];
-        //item = ringBuffer->get(nextCompressSeqs[threadNumber]);
         // Store variables that will help free this item when release is called
         item->fromConsumer(nextCompressSeqs[threadNumber], compressSeqs[threadNumber]);
         // Set the next item we'll be trying to get.
@@ -246,15 +240,14 @@ shared_ptr<RecordRingItem> RecordSupply::getToCompress(uint32_t threadNumber) {
  * @throws AlertException  if {@link #errorAlert()} called.
  * @throws InterruptedException
  */
-shared_ptr<RecordRingItem> RecordSupply::getToWrite() {
+std::shared_ptr<RecordRingItem> RecordSupply::getToWrite() {
 
     try  {
         if (availableWriteSeq < nextWriteSeq) {
             availableWriteSeq = writeBarrier->waitFor(nextWriteSeq);
         }
 
-        // item = ringBuffer->get(nextWriteSeq);
-        shared_ptr<RecordRingItem> & item = ((*ringBuffer.get())[nextWriteSeq]);
+        std::shared_ptr<RecordRingItem> & item = ((*ringBuffer.get())[nextWriteSeq]);
         item->fromConsumer(nextWriteSeq++, writeSeqs[0]);
         return item;
     }
@@ -279,8 +272,8 @@ shared_ptr<RecordRingItem> RecordSupply::getToWrite() {
  * To be used in conjunction with {@link #getToCompress(int)}.
  * @param item item in ring buffer to release for reuse.
  */
-void RecordSupply::releaseCompressor(shared_ptr<RecordRingItem> & item) {
-    item->getSequenceObj()->setValue(item->getSequence() + compressionThreadCount - 1);
+void RecordSupply::releaseCompressor(std::shared_ptr<RecordRingItem> & item) {
+        item->getSequenceObj()->setValue(item->getSequence() + compressionThreadCount - 1);
 }
 
 /**
@@ -295,11 +288,12 @@ void RecordSupply::releaseCompressor(shared_ptr<RecordRingItem> & item) {
  * Otherwise use {@link #releaseWriter(RecordRingItem)}.
  *
  * @param item item in ring buffer to release for reuse.
- * @return false if item not released since item is null, else true.
+ * @return false if item not released or item is null, else true.
  */
-bool RecordSupply::releaseWriterSequential(shared_ptr<RecordRingItem> & item) {
-    item->getSequenceObj()->setValue(item->getSequence());
-    return true;
+bool RecordSupply::releaseWriterSequential(std::shared_ptr<RecordRingItem> & item) {
+        if (item == nullptr || item->isAlreadyReleased()) return false;
+        item->getSequenceObj()->setValue(item->getSequence());
+        return true;
 }
 
 /**
@@ -327,18 +321,18 @@ bool RecordSupply::releaseWriterSequential(shared_ptr<RecordRingItem> & item) {
  * item is released but will still be used in some manner.
  *
  * @param item item in ring buffer to release for reuse.
- * @return false if item not released since item is null, else true.
+ * @return false if item or released since item is null, else true.
  */
-bool RecordSupply::releaseWriter(shared_ptr<RecordRingItem> & item) {
+bool RecordSupply::releaseWriter(std::shared_ptr<RecordRingItem> & item) {
 
-    if (item->isAlreadyReleased()) {
+    if (item == nullptr || item->isAlreadyReleased()) {
 //cout << "RecordSupply: item already released!" << endl;
         return false;
     }
 
     supplyMutex.lock();
     {
-        long seq = item->getSequence();
+        int64_t seq = item->getSequence();
 
         // If we got a new max ...
         if (seq > maxSequence) {
@@ -377,7 +371,8 @@ bool RecordSupply::releaseWriter(shared_ptr<RecordRingItem> & item) {
  * @param threadNum    compressor thread number
  * @param sequenceNum  sequence to release
  */
-void RecordSupply::release(uint32_t threadNum, uint64_t sequenceNum) {
+void RecordSupply::release(uint32_t threadNum, int64_t sequenceNum) {
+    if (sequenceNum < 0) return;
     compressSeqs[threadNum]->setValue(sequenceNum);
 }
 

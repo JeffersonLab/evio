@@ -30,6 +30,7 @@
 #include "Disruptor/RingBuffer.h"
 #include "Disruptor/ISequenceBarrier.h"
 #include "Disruptor/TimeoutException.h"
+#include "Disruptor/SpinCountBackoffWaitStrategy.h"
 
 
 namespace evio {
@@ -144,7 +145,7 @@ private:
      *  before compression threads release them. */
     std::shared_ptr<Disruptor::ISequenceBarrier> compressBarrier;
     /** Sequences for compressing data, one per compression thread. */
-    std::vector<std::shared_ptr<Disruptor::Sequence>> compressSeqs;
+    std::vector<std::shared_ptr<Disruptor::ISequence>> compressSeqs;
     /** Array of next sequences (index of next item desired),
      *  one per compression thread. */
     std::vector<int64_t> nextCompressSeqs;
@@ -158,7 +159,7 @@ private:
      *  before write thread releases them. */
     std::shared_ptr<Disruptor::ISequenceBarrier> writeBarrier;
     /** Sequence for writing data. */
-    std::vector<std::shared_ptr<Disruptor::Sequence>> writeSeqs;
+    std::vector<std::shared_ptr<Disruptor::ISequence>> writeSeqs;
     /** Index of next item desired. */
     int64_t nextWriteSeq = 0L;
     /** Largest index of sequentially available items. */
@@ -219,7 +220,7 @@ public:
 
     bool releaseWriter(std::shared_ptr<RecordRingItem> & item);
 
-    void release(uint32_t threadNum, uint64_t sequenceNum);
+    void release(uint32_t threadNum, int64_t sequenceNum);
 
     bool haveError();
 
