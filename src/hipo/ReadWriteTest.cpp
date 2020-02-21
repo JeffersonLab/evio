@@ -380,7 +380,7 @@ public:
         // Variables to track record build rate
         double freqAvg;
         long totalC = 0;
-        long loops = 6;
+        long loops = 2;
 
 
         string dictionary = "";
@@ -395,7 +395,7 @@ public:
         // Create files
         string directory;
         uint32_t runNum = 123;
-        uint64_t split = 2000000; // 2 MB
+        uint64_t split = 000000; // 2 MB
         uint32_t maxRecordSize = 0; // use default
         uint32_t maxEventCount = 1; // use default
         bool overWriteOK = true;
@@ -408,64 +408,64 @@ public:
         uint32_t ringSize = 16;
         uint32_t bufSize = 1;
 
-        EventWriter writer(filename, directory, "runType",
-                           runNum, split, maxRecordSize, maxEventCount,
-                           order, dictionary, overWriteOK, append,
-                           nullptr, streamId, splitNumber, splitIncrement, streamCount,
-                           compType, compThreads, ringSize, bufSize);
+            EventWriter writer(filename, directory, "runType",
+                               runNum, split, maxRecordSize, maxEventCount,
+                               order, dictionary, overWriteOK, append,
+                               nullptr, streamId, splitNumber, splitIncrement, streamCount,
+                               compType, compThreads, ringSize, bufSize);
 
-        string firstEv = "This is the first event";
-        ByteBuffer firstEvBuf(firstEv.size());
-        Util::stringToASCII(firstEv, firstEvBuf);
-        writer.setFirstEvent(firstEvBuf);
+//            string firstEv = "This is the first event";
+//            ByteBuffer firstEvBuf(firstEv.size());
+//            Util::stringToASCII(firstEv, firstEvBuf);
+//            writer.setFirstEvent(firstEvBuf);
 
-        cout << "Past creating writer" << endl;
 
-        //uint8_t *dataArray = generateSequentialInts(100, order);
-        uint8_t *dataArray = generateSequentialShorts(13, order);
-        // Calling the following method makes a shared pointer out of dataArray, so don't delete
-        ByteBuffer dataBuffer(dataArray, 26);
+            //uint8_t *dataArray = generateSequentialInts(100, order);
+            uint8_t *dataArray = generateSequentialShorts(13, order);
+            // Calling the following method makes a shared pointer out of dataArray, so don't delete
+            ByteBuffer dataBuffer(dataArray, 26);
 
-        // Create an event containing a bank of 100 ints
-        auto evioDataBuf = generateEvioBuffer(order, 10);
+            // Create an event containing a bank of ints
+            auto evioDataBuf = generateEvioBuffer(order, 10);
 
-        // Create node from this buffer
-        std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
+            // Create node from this buffer
+            std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
 
-        auto t1 = std::chrono::high_resolution_clock::now();
+            auto t1 = std::chrono::high_resolution_clock::now();
 
-        while (true) {
-            // event in evio format
-            writer.writeEvent(*(evioDataBuf.get()));
+            while (true) {
+                cout << "Write event ~ ~ ~ " << endl;
+                // event in evio format
+                writer.writeEvent(*(evioDataBuf.get()));
 
-            totalC++;
+                totalC++;
 
-            if (--loops < 1) break;
-        }
+                if (--loops < 1) break;
+            }
 
-        //writer.addEvent(*node.get());
+            //writer.addEvent(*node.get());
 
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+//            auto t2 = std::chrono::high_resolution_clock::now();
+//            auto deltaT = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+//
+//            freqAvg = (double) totalC / deltaT.count() * 1000;
+//
+//            cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
+//            cout << "Finished all loops, count = " << totalC << endl;
 
-        freqAvg = (double) totalC / deltaT.count() * 1000;
+            //------------------------------
 
-        cout << "Time = " << deltaT.count() << " msec,  Hz = " << freqAvg << endl;
-        cout << "Finished all loops, count = " << totalC << endl;
+            //cout << "Past write, sleep for 2 sec ..., then close" << endl;
+            //std::this_thread::sleep_for(2s);
 
-        //------------------------------
+            writer.close();
+            cout << "Past close" << endl;
 
-        cout << "Past write, sleep for 2 sec ..., then close" << endl;
+            // Doing a diff between files shows they're identical!
 
-        std::this_thread::sleep_for(2s);
+            cout << "Finished writing file " << writer.getCurrentFilename() << ", now read it in" << endl;
+            return writer.getCurrentFilename();
 
-        writer.close();
-        cout << "Past close" << endl;
-
-        // Doing a diff between files shows they're identical!
-
-        cout << "Finished writing file " << writer.getCurrentFilename() << ", now read it in" << endl;
-        return writer.getCurrentFilename();
     }
 
 
@@ -657,16 +657,21 @@ public:
 
 
 int main(int argc, char **argv) {
-    string filename   = "/dev/shm/EventWriterTest.evio";
-    cout << endl << "Try writing " << filename << endl;
+//    try {
+        string filename   = "/dev/shm/EventWriterTest.evio";
+        cout << endl << "Try writing " << filename << endl;
 
-    // Write files
-    string actualFilename = evio::ReadWriteTest::eventWriteFileMT(filename);
-    cout << endl << "Finished writing, now try reading " << actualFilename << endl;
+        // Write files
+        string actualFilename = evio::ReadWriteTest::eventWriteFileMT(filename);
+        cout << endl << "Finished writing, now try reading " << actualFilename << endl;
 
-    // Read files just written
-    evio::ReadWriteTest::readFile2(actualFilename);
-    cout << endl << endl << "----------------------------------------" << endl << endl;
+        // Read files just written
+        evio::ReadWriteTest::readFile2(actualFilename);
+        cout << endl << endl << "----------------------------------------" << endl << endl;
+//    }
+//    catch (std::exception & e) {
+//        cout << e.what() << endl;
+//    }
 
     return 0;
 }
