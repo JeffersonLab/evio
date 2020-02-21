@@ -196,11 +196,13 @@ public class RecordOutputStream {
             if (hType != null) {
                 if      (hType.isEvioFileHeader()) hType = HeaderType.EVIO_RECORD;
                 else if (hType.isHipoFileHeader()) hType = HeaderType.HIPO_RECORD;
+                else if (hType == HeaderType.EVIO_TRAILER) hType = HeaderType.EVIO_RECORD;
+                else if (hType == HeaderType.HIPO_TRAILER) hType = HeaderType.HIPO_RECORD;
             }
             header = new RecordHeader(hType);
+            header.setCompressionType(compressionType);
         }
         catch (HipoException e) {/* never happen */}
-        header.setCompressionType(compressionType);
         byteOrder = order;
 
         if (maxEventCount > 0) {
@@ -235,12 +237,14 @@ public class RecordOutputStream {
             if (hType != null) {
                 if      (hType.isEvioFileHeader()) hType = HeaderType.EVIO_RECORD;
                 else if (hType.isHipoFileHeader()) hType = HeaderType.HIPO_RECORD;
+                else if (hType == HeaderType.EVIO_TRAILER) hType = HeaderType.EVIO_RECORD;
+                else if (hType == HeaderType.HIPO_TRAILER) hType = HeaderType.HIPO_RECORD;
             }
             header = new RecordHeader(hType);
+            header.setCompressionType(compressionType);
         }
         catch (HipoException e) {/* never happen */}
 
-        header.setCompressionType(compressionType);
         userProvidedBuffer = true;
         recordBinary = buffer;
         byteOrder = buffer.order();
