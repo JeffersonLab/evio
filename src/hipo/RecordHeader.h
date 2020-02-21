@@ -339,10 +339,10 @@ public:
 
     // Boolean setters/getters
 
-    uint32_t  hasFirstEvent(bool hasFirst);
-    bool      hasFirstEvent() const;
+    uint32_t    hasFirstEvent(bool hasFirst);
+    bool        hasFirstEvent() const;
 
-    uint32_t   hasDictionary(bool hasFirst);
+    uint32_t    hasDictionary(bool hasFirst);
     bool        hasDictionary() const;
     static bool hasDictionary(int bitInfo);
 
@@ -350,6 +350,17 @@ public:
     bool        isLastRecord() const;
     static bool isLastRecord(uint32_t bitInfo);
 
+    bool        isCompressed() const;
+
+    bool        isEvioTrailer() const;
+    bool        isEvioRecord()  const;
+    bool        isHipoTrailer() const;
+    bool        isHipoRecord()  const;
+
+    static bool isEvioTrailer(uint32_t bitInfo);
+    static bool isEvioRecord(uint32_t bitInfo);
+    static bool isHipoTrailer(uint32_t bitInfo);
+    static bool isHipoRecord(uint32_t bitInfo);
 
     // Setters
 

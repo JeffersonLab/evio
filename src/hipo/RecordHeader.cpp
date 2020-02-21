@@ -573,20 +573,16 @@ uint32_t RecordHeader::isLastRecord(bool isLast) {
 
 /**
  * Is this the header of the last record?
- * @return true this is the header of the last record, else false.
+ * @return true if this is the header of the last record, else false.
  */
 bool RecordHeader::isLastRecord() const {return ((bitInfo & LAST_RECORD_BIT) != 0);}
 
 /**
  * Does this word indicate this is the header of the last record?
  * @param bitInfo bitInfo word.
- * @return true this is the header of the last record, else false.
+ * @return true if this is the header of the last record, else false.
  */
 bool RecordHeader::isLastRecord(uint32_t bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
-
-
-// Setters
-
 
 /**
  * Clear the bit in the given arg to indicate it is NOT the last record.
@@ -594,6 +590,77 @@ bool RecordHeader::isLastRecord(uint32_t bitInfo) {return ((bitInfo & LAST_RECOR
  * @return arg with last-record bit cleared
  */
 uint32_t RecordHeader::clearLastRecordBit(uint32_t i) {return (i & ~LAST_RECORD_MASK);}
+
+/**
+ * Does this header indicate compressed data?
+ * @return true if header indicates compressed data, else false.
+ */
+bool RecordHeader::isCompressed() const {return compressionType != Compressor::UNCOMPRESSED;}
+
+/**
+ * Is this header an evio trailer?
+ * @return true if this is an evio trailer, else false.
+ */
+bool RecordHeader::isEvioTrailer() const {return headerType == HeaderType::EVIO_TRAILER;}
+
+/**
+ * Is this header a hipo trailer?
+ * @return true if this is a hipo trailer, else false.
+ */
+bool RecordHeader::isHipoTrailer() const {return headerType == HeaderType::HIPO_TRAILER;}
+
+/**
+ * Is this header an evio record?
+ * @return true if this is an evio record, else false.
+ */
+bool RecordHeader::isEvioRecord() const {return headerType == HeaderType::EVIO_RECORD;}
+
+/**
+ * Is this header a hipo record?
+ * @return true if this is a hipo record, else false.
+ */
+bool RecordHeader::isHipoRecord() const {return headerType == HeaderType::HIPO_RECORD;}
+
+
+/**
+ * Does this arg indicate its header is an evio trailer?
+ * @param bitInfo bitInfo word.
+ * @return true if arg represents an evio trailer, else false.
+ */
+bool RecordHeader::isEvioTrailer(uint32_t bitInfo) {
+    return ((bitInfo >> 28) & 0xf) == HeaderType::EVIO_TRAILER.getValue();
+}
+
+/**
+ * Does this arg indicate its header is a hipo trailer?
+ * @param bitInfo bitInfo word.
+ * @return true if arg represents a hipo trailer, else false.
+ */
+bool RecordHeader::isHipoTrailer(uint32_t bitInfo) {
+    return ((bitInfo >> 28) & 0xf) == HeaderType::HIPO_TRAILER.getValue();
+}
+
+/**
+ * Does this arg indicate its header is an evio record?
+ * @param bitInfo bitInfo word.
+ * @return true if arg represents an evio record, else false.
+ */
+bool RecordHeader::isEvioRecord(uint32_t bitInfo) {
+    return ((bitInfo >> 28) & 0xf) == HeaderType::EVIO_RECORD.getValue();
+}
+
+/**
+ * Does this arg indicate its header is a hipo record?
+ * @param bitInfo bitInfo word.
+ * @return true if arg represents a hipo record, else false.
+ */
+bool RecordHeader::isHipoRecord(uint32_t bitInfo) {
+    return ((bitInfo >> 28) & 0xf) == HeaderType::HIPO_RECORD.getValue();
+}
+
+
+// Setters
+
 
 /**
  * Set the bit info of a record header for a specified CODA event type.
@@ -650,6 +717,11 @@ uint32_t  RecordHeader::setBitInfoEventType (uint32_t type) {
  * @return this object.
  */
 RecordHeader & RecordHeader::setHeaderType(HeaderType const & type)  {
+
+//    if (isCompressed() && type.isTrailer()) {
+//cout << "Doesn't make sense to set trailer type of data is compressed" << endl;
+//    }
+
     headerType = type;
 
     // Update bitInfo by first clearing then setting the 2 header type bits
@@ -738,6 +810,11 @@ RecordHeader & RecordHeader::setIndexLength(uint32_t length) {
  * @return this object.
  */
 RecordHeader & RecordHeader::setCompressionType(Compressor::CompressionType type) {
+
+//    if (type != Compressor::UNCOMPRESSED && headerType.isTrailer()) {
+//cout << "Doesn't make sense to set compressed data if trailer" << endl;
+//    }
+
     compressionType = type;
     return *this;
 }
