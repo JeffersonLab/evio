@@ -775,6 +775,75 @@ public class RecordHeader implements IBlockHeader {
      */
     static public boolean isLastRecord(int bitInfo) {return ((bitInfo & LAST_RECORD_BIT) != 0);}
 
+
+    /**
+     * Does this header indicate compressed data?
+     * @return true if header indicates compressed data, else false.
+     */
+    public boolean isCompressed() {return compressionType != CompressionType.RECORD_UNCOMPRESSED;}
+
+    /**
+     * Is this header an evio trailer?
+     * @return true if this is an evio trailer, else false.
+     */
+    public boolean isEvioTrailer() {return headerType == HeaderType.EVIO_TRAILER;}
+
+    /**
+     * Is this header a hipo trailer?
+     * @return true if this is a hipo trailer, else false.
+     */
+    public boolean isHipoTrailer() {return headerType == HeaderType.HIPO_TRAILER;}
+
+
+    /**
+     * Is this header an evio record?
+     * @return true if this is an evio record, else false.
+     */
+    public boolean isEvioRecord() {return headerType == HeaderType.EVIO_RECORD;}
+
+    /**
+     * Is this header a hipo record?
+     * @return true if this is a hipo record, else false.
+     */
+    public boolean isHipoRecord() {return headerType == HeaderType.HIPO_RECORD;}
+
+    /**
+     * Does this arg indicate its header is an evio trailer?
+     * @param bitInfo bitInfo word.
+     * @return true if arg represents an evio trailer, else false.
+     */
+    static public boolean isEvioTrailer(int bitInfo) {
+        return (bitInfo >>> 28) == HeaderType.EVIO_TRAILER.getValue();
+    }
+
+    /**
+     * Does this arg indicate its header is a hipo trailer?
+     * @param bitInfo bitInfo word.
+     * @return true if arg represents a hipo trailer, else false.
+     */
+    static public boolean isHipoTrailer(int bitInfo) {
+        return (bitInfo >>> 28) == HeaderType.HIPO_TRAILER.getValue();
+    }
+
+    /**
+     * Does this arg indicate its header is an evio record?
+     * @param bitInfo bitInfo word.
+     * @return true if arg represents an evio record, else false.
+     */
+    static public boolean isEvioRecord(int bitInfo) {
+        return (bitInfo >>> 28) == HeaderType.EVIO_RECORD.getValue();
+    }
+
+    /**
+     * Does this arg indicate its header is a hipo record?
+     * @param bitInfo bitInfo word.
+     * @return true if arg represents a hipo record, else false.
+     */
+    static public boolean isHipoRecord(int bitInfo) {
+        return (bitInfo >>> 28) == HeaderType.HIPO_RECORD.getValue();
+    }
+
+
     /**
      * Clear the bit in the given arg to indicate it is NOT the last record.
      * @param i integer in which to clear the last-record bit
@@ -833,7 +902,12 @@ public class RecordHeader implements IBlockHeader {
      * @param type type of header.
      * @return this object.
      */
-    RecordHeader  setHeaderType(HeaderType type)  {
+    RecordHeader  setHeaderType(HeaderType type) {
+
+//        if (isCompressed() && type.isTrailer()) {
+//System.out.println("Doesn't make sense to set trailer type of data is compressed");
+//        }
+
         headerType = type;
 
         // Update bitInfo by first clearing then setting the 2 header type bits
@@ -919,6 +993,11 @@ public class RecordHeader implements IBlockHeader {
      * @return this object.
      */
     public RecordHeader  setCompressionType(CompressionType type) {
+
+//        if (type.isCompressed() && headerType.isTrailer()) {
+//System.out.println("Doesn't make sense to set compressed data if trailer");
+//        }
+
         compressionType = type;
         return this;
     }
