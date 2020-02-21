@@ -537,7 +537,6 @@ void FileHeader::writeHeader(ByteBuffer & buf, size_t off) {
     buf.putInt (16 + off, indexLength);       //  4*4
     buf.putInt (20 + off, getBitInfoWord());  //  5*4
 
-    cout << "      writeHeader: bit info = " << hex << getBitInfoWord() << dec << endl;
     buf.putInt (24 + off, userHeaderLength);  //  6*4
     buf.putInt (28 + off, headerMagicWord);   //  7*4
     buf.putLong(32 + off, userRegister);      //  8*4
