@@ -112,14 +112,15 @@ namespace evio {
                 // This way close() is not waiting for thread #12 to get and subsequently
                 // release items 0 - 11 when there were only 5 records total.
                 // (threadNumber starts at 0).
-                supply->release(threadNumber, threadNumber - 1);
+
+                // Be careful when dealing with negative numbers and unsigned ints ...
+                int64_t seqNumber = (int64_t)threadNumber - 1;
+                supply->release(threadNumber, seqNumber);
 
                 while (true) {
-//cout << "   Compressor " << threadNumber << ": try getting record to compress" << endl;
 
                     // Get the next record for this thread to compress
                     auto item = supply->getToCompress(threadNumber);
-//cout << "   Compressor " << threadNumber << ": GOT record to compress" << endl;
 
                     {
                         // Only allow interruption when blocked on trying to get item
@@ -130,7 +131,7 @@ namespace evio {
                         // Set compression type
                         RecordHeader & header = record->getHeader();
                         header.setCompressionType(compressionType);
-//cout << "   Compressor " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
+//cout << "RecordCompressor thd " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
                         // Do compression
                         record->build();
                         // Release back to supply
@@ -139,7 +140,7 @@ namespace evio {
                 }
             }
             catch (boost::thread_interrupted & e) {
-//cout << "   Compressor " << threadNumber << ": INTERRUPTED, return" << endl;
+//cout << "RecordCompressor thd " << threadNumber << ": INTERRUPTED, return" << endl;
             }
         }
     };
