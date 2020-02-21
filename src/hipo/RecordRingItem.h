@@ -58,7 +58,7 @@ private:
     int64_t sequence = 0UL;
 
     /** Sequence object allowing ring consumer to get/release this item. */
-    std::shared_ptr<Disruptor::Sequence> sequenceObj = nullptr;
+    std::shared_ptr<Disruptor::ISequence> sequenceObj = nullptr;
 
     /** Do we split a file after writing this record? */
     std::atomic<bool> splitFileAfterWriteBool{false};
@@ -80,7 +80,7 @@ private:
     bool alreadyReleased = false;
 
     /** We may want to track a particular record for debugging. */
-    uint64_t id;
+    uint64_t id = 0;
 
 
 
@@ -114,11 +114,11 @@ public:
 
     int64_t getSequence();
 
-    shared_ptr<Disruptor::Sequence> & getSequenceObj();
+    shared_ptr<Disruptor::ISequence> & getSequenceObj();
 
     void fromProducer(int64_t seq);
 
-    void fromConsumer(int64_t seq, shared_ptr<Disruptor::Sequence> & seqObj);
+    void fromConsumer(int64_t seq, shared_ptr<Disruptor::ISequence> & seqObj);
 
     bool splitFileAfterWrite();
 

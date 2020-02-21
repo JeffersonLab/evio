@@ -55,8 +55,6 @@ void RecordRingItem::setEventFactorySettings(ByteOrder & order,
 
 
 
-
-
 /** Default constructor.
  *  Used in RecordSupply by eventFactory to create RecordRingItems for supply. */
 RecordRingItem::RecordRingItem() : order(ByteOrder::ENDIAN_LITTLE) {
@@ -68,25 +66,6 @@ RecordRingItem::RecordRingItem() : order(ByteOrder::ENDIAN_LITTLE) {
     id = idValue++;
 }
 
-
-///**
-// * Constructor.
-// * @param order         byte order of built record byte arrays.
-// * @param maxEventCount max number of events record can hold.
-// *                      Value <= O means use default (1M).
-// * @param maxBufferSize max number of uncompressed data bytes record can hold.
-// *                      Value of < 8MB results in default of 8MB.
-// * @param compressionType type of data compression to do.
-// */
-//RecordRingItem::RecordRingItem(ByteOrder & byteOrder,
-//                               uint32_t maxEventCount, uint32_t maxBufferSize,
-//                               Compressor::CompressionType & compressionType) :
-//        order(byteOrder) {
-//
-//    std::make_shared<RecordOutput>(order, maxEventCount, maxBufferSize, compressionType);
-//
-//    id = idValue++;
-//}
 
 
 /**
@@ -180,7 +159,7 @@ int64_t RecordRingItem::getSequence() {return sequence;}
  * Get the Sequence object allowing ring consumer to get/release this item.
  * @return Sequence object allowing ring consumer to get/release this item.
  */
-shared_ptr<Disruptor::Sequence> & RecordRingItem::getSequenceObj() {return sequenceObj;}
+shared_ptr<Disruptor::ISequence> & RecordRingItem::getSequenceObj() {return sequenceObj;}
 
 /**
  * Set the sequence of an item obtained through {@link RecordSupply#get()}.
@@ -193,7 +172,7 @@ void RecordRingItem::fromProducer(int64_t seq) {sequence = seq;}
  * @param seq sequence used to get item.
  * @param seqObj sequence object used to get/release item.
  */
-void RecordRingItem::fromConsumer(int64_t seq, shared_ptr<Disruptor::Sequence> & seqObj) {
+void RecordRingItem::fromConsumer(int64_t seq, shared_ptr<Disruptor::ISequence> & seqObj) {
     sequence = seq;
     sequenceObj = seqObj;
 }
