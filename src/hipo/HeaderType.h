@@ -104,6 +104,12 @@ public:
     bool isFileHeader() const {return (isEvioFileHeader() | isHipoFileHeader());}
 
     /**
+     * Is this a trailer?
+     * @return <code>true</code> if is a trailer, else <code>false</code>
+     */
+    bool isTrailer() const {return (*this == EVIO_TRAILER || *this == HIPO_TRAILER);}
+
+    /**
      * Get the object from the integer value.
      * @param val the value to match.
      * @return the matching enum, or <code>null</code>.
