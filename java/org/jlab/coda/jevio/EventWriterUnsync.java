@@ -1283,13 +1283,10 @@ System.out.println("EventWriterUnsync constr: Disk is FULL");
             currentRecord   = currentRingItem.getRecord();
 
             // When obtained from supply, record has record number = 1.
-            // This is fine when not appending, or if appending AND single
-            // threaded compression. (Single threaded compression sets runNumber
-            // just before being written, in (try)compressAndWriteToFile).
-            // But needs setting if appending w/ multiple threads:
-            if (append && !singleThreadedCompression) {
-                currentRecord.getHeader().setRecordNumber(recordNumber++);
-            }
+            // This is fine in single threaded compression which sets runNumber
+            // just before being written, in (try)compressAndWriteToFile.
+            // But needs setting if multiple threads:
+            currentRecord.getHeader().setRecordNumber(recordNumber++);
         }
 
         // Object to close files in a separate thread when splitting, to speed things up
