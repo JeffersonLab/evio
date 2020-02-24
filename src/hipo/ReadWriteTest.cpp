@@ -148,14 +148,14 @@ public:
         uint32_t tag  = 0x1234;
         uint32_t type = 0x10;  // contains evio banks
         uint32_t num  = 0x12;
-        uint32_t secondWord = tag << 4 | type << 2 | num;
+        uint32_t secondWord = tag << 16 | type << 4 | num;
 
         evioDataBuf->putInt(secondWord);  // 2nd evio header word
 
         // now put in a bank of ints
         evioDataBuf->putInt(1+dataWords);  // bank of ints length in words
         tag = 0x5678; type = 0x1; num = 0x56;
-        secondWord = tag << 4 | type << 2 | num;
+        secondWord = tag << 16 | type << 4 | num;
         evioDataBuf->putInt(secondWord);  // 2nd evio header word
 
         // Int data
@@ -380,7 +380,7 @@ public:
         // Variables to track record build rate
         double freqAvg;
         long totalC = 0;
-        long loops = 2;
+        long loops = 6;
 
 
         string dictionary = "";
@@ -396,10 +396,10 @@ public:
         string directory;
         uint32_t runNum = 123;
         uint64_t split = 000000; // 2 MB
-        uint32_t maxRecordSize = 0; // use default
-        uint32_t maxEventCount = 1; // use default
+        uint32_t maxRecordSize = 0; // 0 -> use default
+        uint32_t maxEventCount = 3; // 0 -> use default
         bool overWriteOK = true;
-        bool append = false;
+        bool append = true;
         uint32_t streamId = 3;
         uint32_t splitNumber = 2;
         uint32_t splitIncrement = 1;
@@ -426,7 +426,7 @@ public:
             ByteBuffer dataBuffer(dataArray, 26);
 
             // Create an event containing a bank of ints
-            auto evioDataBuf = generateEvioBuffer(order, 10);
+            auto evioDataBuf = generateEvioBuffer(order, 7);
 
             // Create node from this buffer
             std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
