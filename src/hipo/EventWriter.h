@@ -325,12 +325,13 @@ class EventWriter {
 
                             // Do write
                             // Write current item to file
+//cout << "EventWriter: Calling writeToFileMT(item)\n";
                             writer->writeToFileMT(item, forceToDisk.load());
 
                             // Turn off forced write to disk, if the record which
                             // initially triggered it, has now been written.
                             if (forceToDisk.load() && (forcedRecordId.load() == item->getId())) {
-//System.out.println("EventWriter: WROTE the record that triggered force, reset to false");
+//cout << "EventWriter: WROTE the record that triggered force, reset to false\n";
                                 forceToDisk = false;
                             }
 
