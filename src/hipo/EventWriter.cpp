@@ -235,8 +235,8 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
 
         toFile = true;
         recordNumber = 1;
-cout << "EventWriter constr: split = "  << split << endl;
-cout << "EventWriter constr: record # set to 1" << endl;
+//cout << "EventWriter constr: split = "  << split << endl;
+//cout << "EventWriter constr: record # set to 1" << endl;
 
         // The following may not be backwards compatible.
         // Make substitutions in the baseName to create the base file name.
@@ -344,7 +344,7 @@ cout << "EventWriter constr: record # set to 1" << endl;
 
             // AND must be power of 2
             ringSize = Util::powerOfTwo(ringSize, true);
-cout << "EventWriter constr: record ring size set to " << ringSize << endl;
+//cout << "EventWriter constr: record ring size set to " << ringSize << endl;
 
             supply = std::make_shared<RecordSupply>(ringSize, this->byteOrder,
                                                     compressionThreads,
@@ -357,16 +357,16 @@ cout << "EventWriter constr: record ring size set to " << ringSize << endl;
             maxSupplyBytes = supply->getMaxRingBytes();
 
             // Number of available bytes in file's disk partition
-cout << "EventWriter constr: call fs::space(" << currentFilePath.parent_path().generic_string() << ")" << endl;
+//cout << "EventWriter constr: call fs::space(" << currentFilePath.parent_path().generic_string() << ")" << endl;
             fs::space_info spaceInfo = fs::space(currentFilePath.parent_path());
             uint64_t freeBytes = spaceInfo.available;
-cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
-         currentFilePath.parent_path().generic_string() << endl;
+//cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
+//         currentFilePath.parent_path().generic_string() << endl;
 
             // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
             // then don't even start writing ...
             if (freeBytes < split + maxSupplyBytes + 10000000) {
-cout << "EventWriter constr: Disk is FULL" << endl;
+//cout << "EventWriter constr: Disk is FULL" << endl;
                 diskIsFull = true;
                 diskIsFullVolatile = true;
             }
@@ -376,7 +376,7 @@ cout << "EventWriter constr: Disk is FULL" << endl;
             for (int i = 0; i < compressionThreads; i++) {
                 recordCompressorThreads.emplace_back(i, compressionType, supply);
             }
-cout << "EventWriter constr: created " << compressionThreads << " number of comp thds" << endl;
+//cout << "EventWriter constr: created " << compressionThreads << " number of comp thds" << endl;
 
             // Start compression threads
             for (int i=0; i < compressionThreads; i++) {
@@ -389,19 +389,15 @@ cout << "EventWriter constr: created " << compressionThreads << " number of comp
 
             // Get a single blank record to start writing into
             currentRingItem = supply->get();
-cout << "EventWriter constr: get seq " << currentRingItem->getSequence() << endl;
+//cout << "EventWriter constr: get seq " << currentRingItem->getSequence() << endl;
             currentRecord   = currentRingItem->getRecord();
 
             // When obtained from supply, record has record number = 1.
-            // This is fine when not appending, or if appending AND single
-            // threaded compression. (Single threaded compression sets runNumber
-            // just before being written, in (try)compressAndWriteToFile).
-            // But needs setting if appending w/ multiple threads:
-            if (append && !singleThreadedCompression) {
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
-            }
+            // This is fine in single threaded compression which sets runNumber
+            // just before being written, in (try)compressAndWriteToFile.
+            // But needs setting if multiple threads:
+            currentRecord->getHeader().setRecordNumber(recordNumber++);
         }
-
 
         // Object to close files in a separate thread when splitting, to speed things up
         if (split > 0) {
@@ -2080,6 +2076,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader().setRecordNumber(recordNumber++);
+//cout << "writeEvent: split after just published rec, new rec# = 1, next = " << recordNumber << endl;
                 // Reset record number for records coming after this one
             }
 
@@ -2118,6 +2115,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader().setRecordNumber(recordNumber++);
+//cout << "writeEvent: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
 
             // Add event to it (guaranteed to fit)
@@ -2152,6 +2150,7 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader().setRecordNumber(recordNumber++);
+//cout << "writeEvent: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
         }
 
@@ -2330,7 +2329,6 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 // space for that.
                 currentRingItem->splitFileAfterWrite(true);
                 currentRingItem->setCheckDisk(false);
-//currentRecord->getHeader().setRecordNumber(recordNumber);
                 // Send current record back to ring without adding event
                 supply->publish(currentRingItem);
 
@@ -2340,6 +2338,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader().setRecordNumber(recordNumber++);
+//cout << "writeEventToFile: split after just published rec, new rec# = 1, next = " << recordNumber << endl;
                 // Reset record number for records coming after this one
             }
 
@@ -2393,6 +2392,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader().setRecordNumber(recordNumber++);
+//cout << "writeEventToFile: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
 
             // Add event to it (guaranteed to fit)
@@ -2435,6 +2435,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader().setRecordNumber(recordNumber++);
+//cout << "writeEventToFile: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
         }
 
