@@ -57,7 +57,9 @@ private:
     size_t cap = 0;
 
     /** This buffer is implemented with an array. Has shared pointer access
-     * in order to implement the duplicate() method. */
+     * in order to implement the duplicate() method. Note that a shared pointer
+     * to vector is not used since in one constructor, the underlying array is
+     * passed in as an arg. */
     shared_ptr<uint8_t> buf = nullptr;
 
     /** Byte order of data. In java, default is big endian. */
