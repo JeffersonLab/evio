@@ -388,7 +388,7 @@ public:
         uint8_t firstEvent[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         uint32_t firstEventLen = 10;
         bool addTrailerIndex = true;
-        ByteOrder order = ByteOrder::ENDIAN_LITTLE;
+        ByteOrder order = ByteOrder::ENDIAN_BIG;
         //Compressor::CompressionType compType = Compressor::GZIP;
         Compressor::CompressionType compType = Compressor::UNCOMPRESSED;
 
@@ -397,14 +397,14 @@ public:
         uint32_t runNum = 123;
         uint64_t split = 000000; // 2 MB
         uint32_t maxRecordSize = 0; // 0 -> use default
-        uint32_t maxEventCount = 3; // 0 -> use default
+        uint32_t maxEventCount = 2; // 0 -> use default
         bool overWriteOK = true;
         bool append = true;
         uint32_t streamId = 3;
         uint32_t splitNumber = 2;
         uint32_t splitIncrement = 1;
         uint32_t streamCount = 2;
-        uint32_t compThreads = 3;
+        uint32_t compThreads = 2;
         uint32_t ringSize = 16;
         uint32_t bufSize = 1;
 
@@ -420,13 +420,16 @@ public:
 //            writer.setFirstEvent(firstEvBuf);
 
 
-            //uint8_t *dataArray = generateSequentialInts(100, order);
-            uint8_t *dataArray = generateSequentialShorts(13, order);
-            // Calling the following method makes a shared pointer out of dataArray, so don't delete
-            ByteBuffer dataBuffer(dataArray, 26);
+//            //uint8_t *dataArray = generateSequentialInts(100, order);
+//            uint8_t *dataArray = generateSequentialShorts(13, order);
+//            // Calling the following method makes a shared pointer out of dataArray, so don't delete
+//            ByteBuffer dataBuffer(dataArray, 26);
 
-            // Create an event containing a bank of ints
-            auto evioDataBuf = generateEvioBuffer(order, 7);
+        //  When appending, it's possible the byte order gets switched
+        order = writer.getByteOrder();
+
+        // Create an event containing a bank of ints
+            auto evioDataBuf = generateEvioBuffer(order, 10);
 
             // Create node from this buffer
             std::shared_ptr<EvioNode> node = EvioNode::extractEventNode(evioDataBuf,0,0,0);
