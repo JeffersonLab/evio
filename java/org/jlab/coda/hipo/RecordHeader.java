@@ -13,8 +13,10 @@ import org.jlab.coda.jevio.Utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 
 /**
  * <pre>
@@ -1089,7 +1091,7 @@ public class RecordHeader implements IBlockHeader {
      * Writes this header into the given byte buffer starting at the beginning.
      * Position & limit of given buffer does NOT change.
      * @param buffer byte buffer to write header into.
-     * @throws HipoException if buffer is null, contains too little room.
+     * @throws HipoException if buffer arg is null, contains too little room.
      */
     public void writeHeader(ByteBuffer buffer) throws HipoException {
         writeHeader(buffer,0);
@@ -1108,136 +1110,85 @@ public class RecordHeader implements IBlockHeader {
     }
 
     /**
-     * Writes an empty trailer into the given byte array.
+     * Writes a trailer with an optional index array into the given byte array.
      * @param array byte array to write trailer into.
      * @param off   offset into array to start writing.
      * @param recordNumber record number of trailer.
      * @param order byte order of data to be written.
-     * @throws HipoException if array arg is null or too small to hold trailer
+     * @param index list of record lengths interspersed with event counts
+     *              to be written to trailer. Null if no index list.
+     * @throws HipoException if array arg is null, array too small to hold trailer + index.
      */
     static public void writeTrailer(byte[] array, int off, int recordNumber,
-                                    ByteOrder order)
+                                    ByteOrder order, List<Integer> index)
             throws HipoException {
 
-        writeTrailer(array, off, recordNumber, order, null);
+        int indexLength = 0;
+        int wholeLength = HEADER_SIZE_BYTES;
+        if (index != null) {
+            indexLength = 4*index.size();
+            wholeLength += indexLength;
+        }
+
+        // Check arg
+        if (array == null || array.length < wholeLength + off) {
+            throw new HipoException("null or too small array arg");
+        }
+        System.out.println("writeTrailer []: writing with order = " + order);
+
+        int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
+
+        try {
+            // First the general header part
+            ByteDataTransformer.toBytes(wholeLength/4,     order, array,      off); // 0*4
+            ByteDataTransformer.toBytes(recordNumber,      order, array, 4  + off); // 1*4
+            ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8  + off); // 2*4
+            ByteDataTransformer.toBytes(0,                 order, array, 12 + off); // 3*4
+            ByteDataTransformer.toBytes(indexLength,       order, array, 16 + off); // 4*4
+            ByteDataTransformer.toBytes(bitInfo,           order, array, 20 + off); // 5*4
+            ByteDataTransformer.toBytes(0,                 order, array, 24 + off); // 6*4
+            ByteDataTransformer.toBytes(HEADER_MAGIC,      order, array, 28 + off); // 7*4
+
+            // The rest is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
+            Arrays.fill(array, 32 + off, 56 + off, (byte)0);
+
+            // Second the index
+            if (indexLength > 0) {
+                System.out.println("writeTrailer []: put index");
+                for (int i=0; i < index.size(); i++) {
+                    ByteDataTransformer.toBytes(index.get(i), order, array, 56+off+4*i);
+                }
+            }
+        }
+        catch (EvioException e) {/* never happen */}
     }
 
-    /**
-      * Writes a trailer with an optional index array into the given byte array.
-      * @param array byte array to write trailer into.
-      * @param recordNumber record number of trailer.
-      * @param order byte order of data to be written.
-      * @param index array of record lengths to be written to trailer
-      *              (must be multiple of 4 bytes). Null if no index array.
-      * @throws HipoException if array arg is null or too small to hold trailer + index
-      */
-     static public void writeTrailer(byte[] array, int recordNumber,
-                                     ByteOrder order, byte[] index)
-             throws HipoException {
-         writeTrailer(array, 0, recordNumber, order, index);
-     }
-// TODO: the index to be added has ints right? what about their endian value???
-     /**
-      * Writes a trailer with an optional index array into the given byte array.
-      * @param array byte array to write trailer into.
-      * @param off   offset into array to start writing.
-      * @param recordNumber record number of trailer.
-      * @param order byte order of data to be written.
-      * @param index array of record lengths interspersed with event counts
-      *              to be written to trailer
-      *              (must be multiple of 4 bytes). Null if no index array.
-      * @throws HipoException if array arg is null, array too small to hold trailer + index,
-      *                       or index not multiple of 4 bytes.
-      */
-     static public void writeTrailer(byte[] array, int off, int recordNumber,
-                                     ByteOrder order, byte[] index)
-             throws HipoException {
-
-         int indexLength = 0;
-         int wholeLength = HEADER_SIZE_BYTES;
-         if (index != null) {
-             indexLength = index.length;
-             if ((indexLength % 4) != 0) {
-                 throw new HipoException("index length not multiple of 4 bytes");
-             }
-             wholeLength += indexLength;
-         }
-
-         // Check arg
-         if (array == null || array.length < wholeLength) {
-             throw new HipoException("null or too small array arg");
-         }
-
-         int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
-
-         try {
-             // First the general header part
-             ByteDataTransformer.toBytes(wholeLength/4,     order, array,      off); // 0*4
-             ByteDataTransformer.toBytes(recordNumber,      order, array, 4  + off); // 1*4
-             ByteDataTransformer.toBytes(HEADER_SIZE_WORDS, order, array, 8  + off); // 2*4
-             ByteDataTransformer.toBytes(0,                 order, array, 12 + off); // 3*4
-             ByteDataTransformer.toBytes(indexLength,       order, array, 16 + off); // 4*4
-             ByteDataTransformer.toBytes(bitInfo,           order, array, 20 + off); // 5*4
-             ByteDataTransformer.toBytes(0,                 order, array, 24 + off); // 6*4
-             ByteDataTransformer.toBytes(HEADER_MAGIC,      order, array, 28 + off); // 7*4
-
-             // The rest is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
-             Arrays.fill(array, 32 + off, 56 + off, (byte)0);
-
-             // Second the index
-             if (indexLength > 0) {
-                 System.arraycopy(index, 0, array, 56 + off, indexLength);
-                 // Swap in place if necessary
-                 if (order == ByteOrder.LITTLE_ENDIAN) {
-                     ByteDataTransformer.swapArray32(array, 56+off, indexLength);
-                 }
-             }
-         }
-         catch (EvioException e) {/* never happen */}
-     }
-
-    /**
-     * Writes an empty trailer into the given buffer.
-     * @param buf   ByteBuffer to write trailer into.
-     * @param off   offset into buffer to start writing.
-     * @param recordNumber record number of trailer.
-     * @throws HipoException if buf arg is null or too small to hold trailer
-     */
-    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber)
-            throws HipoException {
-
-        writeTrailer(buf, off, recordNumber, null);
-    }
 
     /**
      * Writes a trailer with an optional index array into the given buffer.
      * @param buf   ByteBuffer to write trailer into.
      * @param off   offset into buffer to start writing.
      * @param recordNumber record number of trailer.
-     * @param index array of record lengths interspersed with event counts
-     *              to be written to trailer
-     *              (must be multiple of 4 bytes). Null if no index array.
-     * @throws HipoException if buf arg is null, buf too small to hold trailer + index,
-     *                       or index not multiple of 4 bytes.
+     * @param index list of record lengths interspersed with event counts
+     *              to be written to trailer. Null if no index list.
+     * @throws HipoException if buf arg is null, buf too small to hold trailer + index.
      */
-    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber, byte[] index)
+    static public void writeTrailer(ByteBuffer buf, int off, int recordNumber,
+                                    List<Integer> index)
             throws HipoException {
 
         int indexLength = 0;
         int wholeLength = HEADER_SIZE_BYTES;
         if (index != null) {
-            indexLength = index.length;
-            if ((indexLength % 4) != 0) {
-                throw new HipoException("index length not multiple of 4 bytes");
-            }
+            indexLength = 4*index.size();
             wholeLength += indexLength;
         }
 
         // Check arg
-        if (buf == null || (buf.capacity() - off < wholeLength)) {
+        if (buf == null || (buf.capacity() < wholeLength + off)) {
             throw new HipoException("buf null or too small");
         }
-
+System.out.println("writeTrailer buf: writing with order = " + buf.order());
         // Make sure the limit allows writing
         buf.limit(off + wholeLength).position(off);
 
@@ -1262,9 +1213,26 @@ public class RecordHeader implements IBlockHeader {
 
             // Second the index
             if (indexLength > 0) {
-                buf.put(index, 0, indexLength);
+                //public ByteBuffer put(byte[] src, int offset, int length) {
+                // relative bulk copy
+System.out.println("writeTrailer buf: put index");
+                for (int i : index) {
+                    buf.putInt(i);
+                }
             }
         }
+    }
+
+
+    /**
+     * Writes an empty trailer into the given buffer.
+     * @param buf   ByteBuffer to write trailer into.
+     * @param recordNumber record number of trailer.
+     * @throws HipoException if buf arg is null or too small to hold trailer
+     */
+    static public void writeTrailer(ByteBuffer buf, int recordNumber)
+            throws HipoException {
+        writeTrailer(buf, 0, recordNumber, null);
     }
 
 

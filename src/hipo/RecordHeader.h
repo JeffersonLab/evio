@@ -23,6 +23,8 @@
 #include <sstream>
 #include <string>
 #include <bitset>
+#include <vector>
+#include <memory>
 
 #include "HeaderType.h"
 #include "ByteOrder.h"
@@ -387,15 +389,22 @@ public:
     void writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off);
 
     static void writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
-                             uint32_t recordNumber, const ByteOrder & order);
+                             uint32_t recordNum, const ByteOrder & order);
 
     static void writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
-                             uint32_t recordNumber, const ByteOrder & order,
-                             const uint32_t* index, size_t indexLength);
+                             uint32_t recordNum, const ByteOrder & order,
+                             const std::shared_ptr<std::vector<uint32_t>> & recordLengths);
 
-    static void writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNumber);
-    static void writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNumber,
-                             const uint32_t* index, size_t indexLen);
+    static void writeTrailer(std::vector<uint8_t> & array, size_t off,
+                             uint32_t recordNum, const ByteOrder & order);
+
+    static void writeTrailer(std::vector<uint8_t> & array, size_t off,
+                             uint32_t recordNum, const ByteOrder & order,
+                             const std::shared_ptr<std::vector<uint32_t>> & recordLengths);
+
+    static void writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum);
+    static void writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
+                             const std::shared_ptr<std::vector<uint32_t>> & recordLengths);
 
     static bool isCompressed(ByteBuffer & buffer, size_t offset);
 

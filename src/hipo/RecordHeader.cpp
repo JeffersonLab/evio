@@ -944,41 +944,35 @@ void RecordHeader::writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off)
  */
 void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
                                 uint32_t recordNum, const ByteOrder & order) {
-    writeTrailer(array, arrayLen, off, recordNum, order, nullptr, 0);
+    writeTrailer(array, arrayLen, off, recordNum, order, nullptr);
 }
 
 /**
   * Writes a trailer with an optional index array into the given byte array.
   *
-  * @param array        byte array to write trailer into.
-  * @param arrayLen     number of available bytes in array to write into.
-  * @param off          offset into array to start writing.
-  * @param recordNumber record number of trailer.
-  * @param order        byte order of data to be written.
-  * @param index        array of record lengths interspersed with event counts
-  *                     to be written to trailer (must be multiple of 4 bytes).
-  *                     Null if no index array.
-  * @param indexLen     number of valid bytes in index.
-  * @throws EvioException if array arg is null, array too small to hold trailer + index,
-  *                       or index not multiple of 4 bytes.
+  * @param array         byte array to write trailer into.
+  * @param arrayLen      number of available bytes in array to write into.
+  * @param off           offset into array to start writing.
+  * @param recordNum     record number of trailer.
+  * @param order         byte order of data to be written.
+  * @param recordLengths vector containing record lengths interspersed with event counts
+  *                      to be written to trailer. Null if no index array.
+  * @param indexLen      number of valid bytes in index.
+  * @throws EvioException if array arg is null, array too small to hold trailer + index.
   */
 void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
-                                uint32_t recordNumber, const ByteOrder & order,
-                                const uint32_t* index, size_t indexLen) {
+                                uint32_t recordNum, const ByteOrder & order,
+                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
 
-    uint32_t wholeLength = HEADER_SIZE_BYTES;
-    if (index != nullptr) {
-        if ((indexLen % 4) != 0) {
-            throw EvioException("index length not multiple of 4 bytes");
-        }
-        wholeLength += indexLen;
-    }
-    else {
-        indexLen = 0;
+    uint32_t indexLen = 0;
+    uint32_t wholeLen = HEADER_SIZE_BYTES;
+    if (recordLengths != nullptr) {
+        indexLen = 4*recordLengths->size();
+        wholeLen += indexLen;
     }
 
     // Check args
-    if (array == nullptr || arrayLen < wholeLength) {
+    if (array == nullptr || arrayLen < wholeLen + off) {
         throw EvioException("null or too small array arg");
     }
 
@@ -986,8 +980,8 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
 
     try {
         // First the general header part
-        Util::toBytes(wholeLength/4,     order, array,      off, arrayLen); // 0*4
-        Util::toBytes(recordNumber,      order, array, 4  + off, arrayLen); // 1*4
+        Util::toBytes(wholeLen/4,        order, array,      off, arrayLen); // 0*4
+        Util::toBytes(recordNum,         order, array, 4  + off, arrayLen); // 1*4
         Util::toBytes(HEADER_SIZE_WORDS, order, array, 8  + off, arrayLen); // 2*4
         Util::toBytes(0,                 order, array, 12 + off, arrayLen); // 3*4
         Util::toBytes(indexLen,          order, array, 16 + off, arrayLen); // 4*4
@@ -1000,15 +994,80 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
 
         // Second the index
         if (indexLen > 0) {
-            memcpy((void *)(array+56+off), (const void *)index, indexLen);
-            // Swap in place if necessary
-            if (!order.isLocalEndian()) {
-                ByteOrder::byteSwap(reinterpret_cast<uint32_t *>(array+56+off), indexLen/4);
+            // Get vector of ints out of shared pointer
+            std::vector<uint32_t> vec = *(recordLengths.get());
+            for (int i=0; i < recordLengths->size(); i++) {
+                Util::toBytes(vec[i], order, array, HEADER_SIZE_BYTES + off + 4*i, arrayLen);
             }
         }
     }
     catch (EvioException & e) {/* never happen */}
 }
+
+/**
+ * Writes an empty trailer into the given vector.
+ *
+ * @param array     vector to write trailer into.
+ * @param off       offset into vector's array to start writing.
+ * @param recordNum record number of trailer.
+ * @param order     byte order of data to be written.
+ */
+void RecordHeader::writeTrailer(std::vector<uint8_t> & array, size_t off,
+                                uint32_t recordNum, const ByteOrder & order) {
+    writeTrailer(array, off, recordNum, order, nullptr);
+}
+
+/**
+ * Writes a trailer with an optional index array into the given vector.
+ *
+ * @param array         vector to write trailer into.
+ * @param off           offset into vector's array to start writing.
+ * @param recordNum     record number of trailer.
+ * @param order         byte order of data to be written.
+ * @param recordLengths vector containing record lengths interspersed with event counts
+ *                      to be written to trailer. Null if no index array.
+ */
+void RecordHeader::writeTrailer(std::vector<uint8_t> & array, size_t off,
+                                uint32_t recordNum, const ByteOrder & order,
+                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
+
+    uint32_t indexLen = 0;
+    uint32_t wholeLen = HEADER_SIZE_BYTES;
+    if (recordLengths != nullptr) {
+        indexLen = 4*recordLengths->size();
+        wholeLen += indexLen;
+    }
+
+    array.reserve(wholeLen + off);
+
+    int bitInfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
+
+    try {
+        // First the general header part
+        Util::toBytes(wholeLen/4,        order, array,      off); // 0*4
+        Util::toBytes(recordNum,         order, array, 4  + off); // 1*4
+        Util::toBytes(HEADER_SIZE_WORDS, order, array, 8  + off); // 2*4
+        Util::toBytes(0,                 order, array, 12 + off); // 3*4
+        Util::toBytes(indexLen,          order, array, 16 + off); // 4*4
+        Util::toBytes(bitInfo,           order, array, 20 + off); // 5*4
+        Util::toBytes(0,                 order, array, 24 + off); // 6*4
+        Util::toBytes(HEADER_MAGIC,      order, array, 28 + off); // 7*4
+
+        // The rest of header is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
+        memset((void *)(array.data() + 32 + off), 0, 24);
+
+        // Second the index
+        if (indexLen > 0) {
+            // Get vector of ints out of shared pointer
+            std::vector<uint32_t> vec = *(recordLengths.get());
+            for (int i=0; i < recordLengths->size(); i++) {
+                Util::toBytes(vec[i], order, array, HEADER_SIZE_BYTES + off + 4*i);
+            }
+        }
+    }
+    catch (EvioException & e) {/* never happen */}
+}
+
 
 /**
  * Writes an empty trailer into the given buffer.
@@ -1018,7 +1077,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
  * @throws EvioException if buf arg is null or too small to hold trailer
  */
 void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum) {
-    writeTrailer(buf, off, recordNum, nullptr, 0);
+    writeTrailer(buf, off, recordNum, nullptr);
 }
 
 /**
@@ -1026,29 +1085,22 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
  * @param buf   ByteBuffer to write trailer into.
  * @param off   offset into buffer to start writing.
  * @param recordNum record number of trailer.
- * @param index array of record lengths interspersed with event counts
- *              to be written to trailer
- *              (must be multiple of 4 bytes). Null if no index array.
- * @param indexLen length in bytes of index array.
- * @throws EvioException if buf too small to hold trailer + index,
- *                       or index not multiple of 4 bytes.
+ * @param recordLengths vector containing record lengths interspersed with event counts
+ *                      to be written to trailer. Null if no index array.
+ * @throws EvioException if buf too small to hold trailer + index.
  */
 void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum,
-                                const uint32_t* index, size_t indexLen) {
+                                const std::shared_ptr<std::vector<uint32_t>> & recordLengths) {
 
-    int wholeLen = HEADER_SIZE_BYTES;
-    if (index != nullptr) {
-        if ((indexLen % 4) != 0) {
-            throw EvioException("index length not multiple of 4 bytes");
-        }
+    uint32_t indexLen = 0;
+    uint32_t wholeLen = HEADER_SIZE_BYTES;
+    if (recordLengths != nullptr) {
+        indexLen = 4*recordLengths->size();
         wholeLen += indexLen;
-    }
-    else {
-        indexLen = 0;
     }
 
     // Check arg
-    if (buf.capacity() - off < wholeLen) {
+    if (buf.capacity() < wholeLen + off) {
         throw EvioException("buf too small");
     }
 
@@ -1057,7 +1109,7 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
 
     if (buf.hasArray()) {
         writeTrailer(buf.array(), buf.remaining(), buf.arrayOffset() + off,
-                     recordNum, buf.order(), index, indexLen);
+                     recordNum, buf.order(), recordLengths);
     }
     else {
         uint32_t bitinfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
@@ -1077,8 +1129,10 @@ void RecordHeader::writeTrailer(ByteBuffer & buf, size_t off, uint32_t recordNum
 
         // Second the index
         if (indexLen > 0) {
-            for (int i=0; i < indexLen/4; i++) {
-                buf.putInt(index[0]);
+            // Get vector of ints out of shared pointer
+            std::vector<uint32_t> vec = *(recordLengths.get());
+            for (int i=0; i < recordLengths->size(); i++) {
+                buf.putInt(vec[i]);
             }
         }
     }
