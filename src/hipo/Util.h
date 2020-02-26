@@ -44,12 +44,12 @@ class Util {
 public:
 
     /**
-     * Turn int into byte array.
+     * Write int into byte array.
      *
      * @param data        int to convert.
-     * @param byteOrder   byte order of returned bytes.
-     * @param dest        array in which to store returned bytes.
-     * @param off         offset into dest array where returned bytes are placed.
+     * @param byteOrder   byte order of array.
+     * @param dest        array in which to write int.
+     * @param off         offset into array where int is to be written.
      * @param destMaxSize max size in bytes of dest array.
      * @throws EvioException if dest is null or too small.
      */
@@ -73,6 +73,33 @@ public:
             dest[off+3] = (uint8_t)(data >> 24);
         }
     }
+
+
+    /**
+     * Write int into byte vector.
+     *
+     * @param data        int to convert.
+     * @param byteOrder   byte order of vector.
+     * @param dest        vector in which to write int.
+     * @param off         offset into vector where int is to be written.
+     */
+    static void toBytes(uint32_t data, const ByteOrder & byteOrder,
+                        std::vector<uint8_t> & dest, uint32_t off) {
+
+        if (byteOrder == ByteOrder::ENDIAN_BIG) {
+            dest[off  ] = (uint8_t)(data >> 24);
+            dest[off+1] = (uint8_t)(data >> 16);
+            dest[off+2] = (uint8_t)(data >>  8);
+            dest[off+3] = (uint8_t)(data      );
+        }
+        else {
+            dest[off  ] = (uint8_t)(data      );
+            dest[off+1] = (uint8_t)(data >>  8);
+            dest[off+2] = (uint8_t)(data >> 16);
+            dest[off+3] = (uint8_t)(data >> 24);
+        }
+    }
+
 
     /**
      * This method takes a byte buffer and prints out the desired number of bytes
