@@ -1868,7 +1868,8 @@ public class ByteDataTransformer {
      * @param data       byte array to convert.
      * @param dataOffset offset into data array.
      * @param dataLen    number of bytes to convert.
-     * @throws EvioException if data is null; data offset and length are improper
+     * @throws EvioException if data is null; data offset and length are improper;
+     *                       dataLen is not a multiple of 4.
      */
     public static void swapArray32(byte[] data, int dataOffset, int dataLen)
             throws EvioException {
