@@ -77,6 +77,7 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/EvioException.h
         src/hipo/ByteOrder.h
         src/hipo/ByteBuffer.h
+        src/hipo/ByteBufferVector.h
         src/hipo/HeaderType.h
         src/hipo/Stoppable.h
         src/hipo/ConcurrentFixedQueue.h
@@ -108,6 +109,7 @@ set(CPP_LIB_FILES_NEW
         src/hipo/FileEventIndex.cpp
         src/hipo/ByteOrder.cpp
         src/hipo/ByteBuffer.cpp
+        src/hipo/ByteBufferVecotr.cpp
         src/hipo/HeaderType.cpp
         src/hipo/Compressor.cpp
         src/hipo/FileHeader.cpp
