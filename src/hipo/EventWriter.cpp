@@ -288,7 +288,7 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
 
         // Evio file
         fileHeader = FileHeader(true);
-
+        recordLengths = std::make_shared<std::vector<uint32_t>>();
 
         asyncFileChannel = std::make_shared<std::fstream>();
 
@@ -490,6 +490,7 @@ cout << "EventWriter constr: record # set to " << recordNumber << endl;
         buffer->clear();
         bufferSize = buf->capacity();
         headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+        recordLengths = std::make_shared<std::vector<uint32_t>>();
 
         // Write any record containing dictionary and first event, first
         haveFirstEvent = firstEvent != nullptr && firstEvent->length() > 0;
@@ -1294,7 +1295,7 @@ cout << "Close: done waiting 4 writing thd" << endl;
         currentRingItem.reset();
     }
 
-    recordLengths.clear();
+    recordLengths->clear();
     closed = true;
     }
 
@@ -1477,8 +1478,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             if (!isTrailer) {
 cout << "                 adding to recordLengths append: " << (4 * recordLen) << ", " <<
                      eventCount << "   ------" << endl;
-                recordLengths.push_back(4 * recordLen);
-                recordLengths.push_back(eventCount);
+                recordLengths->push_back(4 * recordLen);
+                recordLengths->push_back(eventCount);
             }
 
             // Track total number of events in file/buffer (minus dictionary)
@@ -2596,9 +2597,9 @@ bool EventWriter::writeToFile(bool force, bool checkDisk) {
         int eventCount   = header.getEntries();
 cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
                                                      eventCount << endl;
-        recordLengths.push_back(bytesToWrite);
+        recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
-        recordLengths.push_back(eventCount);
+        recordLengths->push_back(eventCount);
 
         // Data to write
         auto buf = record->getBinaryBuffer();
@@ -2711,9 +2712,9 @@ cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
         int eventCount   = header.getEntries();
         cout << "   **** added to recordLengths MT: " << bytesToWrite << ", " <<
                                                         eventCount << endl;
-        recordLengths.push_back(bytesToWrite);
+        recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
-        recordLengths.push_back(eventCount);
+        recordLengths->push_back(eventCount);
 
         // Data to write
         auto buf = record->getBinaryBuffer();
@@ -2792,7 +2793,7 @@ void EventWriter::splitFile() {
             if (!singleThreadedCompression) {
                 future1 = nullptr;
             }
-            recordLengths.clear();
+            recordLengths->clear();
             // Right now no file is open for writing
             fileOpen = false;
         }
@@ -2842,43 +2843,26 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
         // Keep track of where we are right now which is just before trailer
         uint64_t trailerPosition = bytesWritten;
 
-        int bytesToWrite;
-
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
-            try {
-                // headerBuffer is only used in this method
-                RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
-                                           RecordHeader::HEADER_SIZE_BYTES,
-                                           0, recordNumber, byteOrder,
-                                           nullptr, 0);
-
-            }
-            catch (EvioException & e) {/* never happen */}
-            //bytesToWrite = RecordHeader::HEADER_SIZE_BYTES;
+            RecordHeader::writeTrailer(headerArray, 0, recordNumber, byteOrder, recordLengths);
 
             // We don't want to let the closer thread do the work of seeing that
             // this write completes since it'll just complicate the code.
             // As this is the absolute last write to the file,
             // just make sure it gets done right here.
             asyncFileChannel->seekg(fileWritingPosition);
-            asyncFileChannel->write(reinterpret_cast<char *>(headerArray.data()), RecordHeader::HEADER_SIZE_BYTES);
+            asyncFileChannel->write(reinterpret_cast<char *>(headerArray.data()),
+                                    RecordHeader::HEADER_SIZE_BYTES);
             if (asyncFileChannel->fail()) {
                 throw EvioException("error writing to  file " + currentFileName);
             }
         }
         else {
-            // Create the index of record lengths in proper byte order
-            uint32_t arraySize = 4 * recordLengths.size();
-            auto recordIndex = new uint8_t[arraySize];
-            for (int i = 0; i < recordLengths.size(); i++) {
-                Util::toBytes(recordLengths[i], byteOrder, recordIndex, 4*i, arraySize);
-            }
-
             // Write trailer with index
 
             // How many bytes are we writing here?
-            bytesToWrite = RecordHeader::HEADER_SIZE_BYTES + arraySize;
+            size_t bytesToWrite = RecordHeader::HEADER_SIZE_BYTES + 4*recordLengths->size();
 
             // Make sure our array can hold everything
             if (headerArray.capacity() < bytesToWrite) {
@@ -2886,9 +2870,7 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
             }
 
             // Place data into headerBuffer - both header and index
-            RecordHeader::writeTrailer(reinterpret_cast<uint8_t *>(headerArray.data()),
-                                       headerArray.capacity(), 0, recordNumber, byteOrder,
-                                       reinterpret_cast<uint32_t *>(recordIndex), arraySize);
+            RecordHeader::writeTrailer(headerArray, 0, recordNumber, byteOrder, recordLengths);
 
 //cout << "\nwriteTrailerToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
 //                 fileWritingPosition << endl;
@@ -2902,8 +2884,6 @@ void EventWriter::writeTrailerToFile(bool writeIndex) {
 //            asyncFileChannel->flush();
 //            cout << "After writing trailer to " + currentFileName << endl;
 //            Util::printBytes(currentFileName, 0, 120, "File Beginning of " + currentFileName);
-//
-            delete[] recordIndex;
         }
 
         // Update file header's trailer position word
@@ -2976,9 +2956,9 @@ void EventWriter::flushCurrentRecordToBuffer() {
 
 cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " <<
                                                            eventCount << endl;
-    recordLengths.push_back(bytesToWrite);
+    recordLengths->push_back(bytesToWrite);
     // Trailer's index has count following length
-    recordLengths.push_back(eventCount);
+    recordLengths->push_back(eventCount);
 
     // Keep track of what is written
 //        recordNumber++;
@@ -3031,7 +3011,7 @@ bool EventWriter::writeToBuffer(EvioBank* bank, ByteBuffer* bankBuffer) {
 uint32_t EventWriter::trailerBytes() {
     uint32_t len = 0;
     if (addingTrailer) len += RecordHeader::HEADER_SIZE_BYTES;
-    if (addTrailerIndex) len += 4 * recordLengths.size();
+    if (addTrailerIndex) len += 4 * recordLengths->size();
     return len;
 }
 
@@ -3055,11 +3035,7 @@ void EventWriter::writeTrailerToBuffer(bool writeIndex) {
         }
         else {
             // Create the index of record lengths in proper byte order
-            uint32_t arraySize = 4 * recordLengths.size();
-            auto recordIndex = new uint8_t[arraySize];
-            for (int i = 0; i < recordLengths.size(); i++) {
-                Util::toBytes(recordLengths[i], byteOrder, recordIndex, 4*i, arraySize);
-            }
+            uint32_t arraySize = 4*recordLengths->size();
 
             // Write trailer with index
 
@@ -3075,11 +3051,7 @@ void EventWriter::writeTrailerToBuffer(bool writeIndex) {
 
             // Place data into buffer - both header and index
 //cout << "writeTrailerToBuffer: start writing at pos = " << bytesWritten << endl;
-            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber,
-                                       reinterpret_cast<uint32_t *>(recordIndex),
-                                       arraySize);
-
-            delete[] recordIndex;
+            RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber, recordLengths);
         }
 }
 

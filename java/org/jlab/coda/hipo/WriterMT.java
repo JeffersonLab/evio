@@ -724,7 +724,7 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             try {
-                RecordHeader.writeTrailer(headerArray, recordNum, byteOrder, null);
+                RecordHeader.writeTrailer(headerArray, recordNum, byteOrder);
             }
             catch (HipoException e) {/* never happen */}
             
@@ -732,24 +732,10 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
             outStream.write(headerArray, 0, RecordHeader.HEADER_SIZE_BYTES);
         }
         else {
-            // Create the index of record lengths in proper byte order
-            byte[] recordIndex = new byte[4*recordLengths.size()];
-            try {
-                // Transform ints to bytes in local endian.
-                // It'll be swapped below in writeTrailer().
-                for (int i = 0; i < recordLengths.size(); i++) {
-                    ByteDataTransformer.toBytes(recordLengths.get(i), ByteOrder.BIG_ENDIAN,
-                                                recordIndex, 4*i);
-//System.out.println("Writing record length = " + recordOffsets.get(i) +
-//", = 0x" + Integer.toHexString(recordOffsets.get(i)));
-                }
-            }
-            catch (EvioException e) {/* never happen */}
-
             // Write trailer with index
 
             // How many bytes are we writing here?
-            int dataBytes = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+            int dataBytes = RecordHeader.HEADER_SIZE_BYTES + 4*recordLengths.size();
 
             // Make sure our array can hold everything
             if (headerArray.length < dataBytes) {
@@ -759,7 +745,8 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
 
             // Place data into headerArray - both header and index
             try {
-                RecordHeader.writeTrailer(headerArray, recordNum, byteOrder, recordIndex);
+                RecordHeader.writeTrailer(headerArray, 0, recordNum,
+                                          byteOrder, recordLengths);
             }
             catch (HipoException e) {/* never happen */}
             

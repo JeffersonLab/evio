@@ -88,7 +88,7 @@ WriterMT::WriterMT(const HeaderType & hType, const ByteOrder & order,
     compressionType = compType;
     compressionThreadCount = compressionThreads;
 
-    recordLengths.reserve(1500);
+    recordLengths = std::make_shared<std::vector<uint32_t>>();
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
 
     if (hType == HeaderType::HIPO_FILE) {
@@ -461,8 +461,7 @@ void WriterMT::writeTrailer(bool writeIndex, uint32_t recordNum) {
 
     // If we're NOT adding a record index, just write trailer
     if (!writeIndex) {
-        RecordHeader::writeTrailer(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES, 0,
-                                   recordNum, byteOrder, nullptr, 0);
+        RecordHeader::writeTrailer(headerArray, 0, recordNum, byteOrder, nullptr);
 
         writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
         outFile.write(reinterpret_cast<const char *>(&headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
@@ -471,21 +470,10 @@ void WriterMT::writeTrailer(bool writeIndex, uint32_t recordNum) {
         }
     }
     else {
-        // Create the index of record lengths & entries in proper byte order
-        size_t recordLengthsBytes = 4 * recordLengths.size();
-        auto recordIndex = new uint8_t[recordLengthsBytes];
-
-        // Transform ints to bytes in local endian. It'll be swapped below in writeTrailer().
-        for (int i = 0; i < recordLengths.size(); i++) {
-            Util::toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
-//cout << "WriterMT::writeTrailer: writing record length = " << recordLengths[i] << showbase << hex <<
-//                ", = " << recordLengths[i] << endl;
-        }
-
         // Write trailer with index
 
         // How many bytes are we writing here?
-        int dataBytes = RecordHeader::HEADER_SIZE_BYTES + recordLengthsBytes;
+        int dataBytes = RecordHeader::HEADER_SIZE_BYTES +  4*recordLengths->size();
 
         // Make sure our array can hold everything
         if (headerArray.capacity() < dataBytes) {
@@ -494,17 +482,13 @@ void WriterMT::writeTrailer(bool writeIndex, uint32_t recordNum) {
         }
 
         // Place data into headerArray - both header and index
-        RecordHeader::writeTrailer(&headerArray[0], dataBytes, 0,
-                                   recordNum, byteOrder, (const uint32_t *) recordIndex,
-                                   recordLengthsBytes);
+        RecordHeader::writeTrailer(headerArray, 0, recordNum, byteOrder, recordLengths);
 
         writerBytesWritten += dataBytes;
         outFile.write(reinterpret_cast<const char *>(&headerArray[0]), dataBytes);
         if (outFile.fail()) {
             throw EvioException("error opening file " + fileName);
         }
-
-        delete[] recordIndex;
     }
 
     // Find & update file header's trailer position word
@@ -736,7 +720,7 @@ void WriterMT::close() {
         }
         outFile.write(reinterpret_cast<const char *>(&recordCount), sizeof(uint32_t));
         outFile.close();
-        recordLengths.clear();
+        recordLengths->clear();
     }
     catch (EvioException & ex) {
         cout << "WriterMT::close ERROR!!!" << endl;

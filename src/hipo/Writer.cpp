@@ -95,9 +95,8 @@ Writer::Writer(const HeaderType & hType, const ByteOrder & order,
 //    // Set as having no data
 //    userHeaderBuffer->limit(0);
 
+    recordLengths = std::make_shared<std::vector<uint32_t>>();
     outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType, hType);
-
-    recordLengths.reserve(1500);
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
 
     if (hType == HeaderType::HIPO_FILE) {
@@ -154,6 +153,7 @@ Writer::Writer(ByteBuffer & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
     this->firstEvent = firstEvent;
     firstEventLength = firstEventLen;
 
+    recordLengths = std::make_shared<std::vector<uint32_t>>();
     headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
     outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
 
@@ -277,7 +277,9 @@ Writer & Writer::operator=(const Writer& other) {
         beingWrittenRecord = other.beingWrittenRecord;
 
         headerArray   = other.headerArray;
-        recordLengths = other.recordLengths;
+        // Copy over the vector
+        auto recLenVector = *recordLengths.get();
+        recLenVector = *(other.recordLengths.get());
 
         compressionType = other.compressionType;
         writerBytesWritten = other.writerBytesWritten;
@@ -855,8 +857,7 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
 
     // If we're NOT adding a record index, just write trailer
     if (!writeIndex) {
-        RecordHeader::writeTrailer(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES, 0,
-                                   recordNum, byteOrder, nullptr, 0);
+        RecordHeader::writeTrailer(headerArray, 0, recordNum, byteOrder, nullptr);
 
         // TODO: not really necessary to keep track here?
         writerBytesWritten += RecordHeader::HEADER_SIZE_BYTES;
@@ -873,22 +874,10 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
         return;
     }
 
-    // Create the index of record lengths & entries in proper byte order
-    size_t recordLengthsBytes = 4*recordLengths.size();
-    auto recordIndex = new uint8_t[recordLengthsBytes];
-
-    // Transform ints to bytes in local endian.
-    // It'll be swapped below in RecordHeader::writeTrailer().
-    for (int i = 0; i < recordLengths.size(); i++) {
-        Util::toBytes(recordLengths[i], ByteOrder::ENDIAN_LOCAL, recordIndex, 4*i, recordLengthsBytes);
-//cout << "Writing record length = " << recordLengths[i] << showbase << hex <<
-//                ", = " << recordLengths[i] << endl;
-    }
-
     // Write trailer with index
 
     // How many bytes are we writing here?
-    int dataBytes = RecordHeader::HEADER_SIZE_BYTES + recordLengthsBytes;
+    int dataBytes = RecordHeader::HEADER_SIZE_BYTES + 4*recordLengths->size();
 
     // Make sure our array can hold everything
     if (headerArray.capacity() < dataBytes) {
@@ -897,9 +886,7 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
     }
 
     // Place data into headerArray - both header and index
-    RecordHeader::writeTrailer(&headerArray[0], dataBytes, 0,
-                               recordNum, byteOrder, (const uint32_t*)recordIndex,
-                               recordLengthsBytes);
+    RecordHeader::writeTrailer(headerArray, 0, recordNum, byteOrder, recordLengths);
 
     // TODO: not really necessary to keep track here?
     writerBytesWritten += dataBytes;
@@ -912,8 +899,6 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
     else {
         buffer.put(&headerArray[0], 0, dataBytes);
     }
-
-    delete[] recordIndex;
 }
 
 /**
@@ -953,9 +938,9 @@ void Writer::writeRecord(RecordOutput & rec) {
 
     int bytesToWrite = header.getLength();
     // Record length of this record
-    recordLengths.push_back(bytesToWrite);
+    recordLengths->push_back(bytesToWrite);
     // Followed by events in record
-    recordLengths.push_back(header.getEntries());
+    recordLengths->push_back(header.getEntries());
     writerBytesWritten += bytesToWrite;
 
     if (toFile) {
@@ -1105,8 +1090,8 @@ void Writer::writeOutput() {
 //cout << "writeOutput: header len = " << to_string(bytesToWrite) << endl;
 
     // Trailer's index has length followed by count
-    recordLengths.push_back(bytesToWrite);
-    recordLengths.push_back(eventCount);
+    recordLengths->push_back(bytesToWrite);
+    recordLengths->push_back(eventCount);
     writerBytesWritten += bytesToWrite;
 
     // Launch async write in separate thread. That way the current thread can be filling
@@ -1150,9 +1135,9 @@ void Writer::writeOutputToBuffer() {
 
     int bytesToWrite = header.getLength();
     // Record length of this record
-    recordLengths.push_back(bytesToWrite);
+    recordLengths->push_back(bytesToWrite);
     // Followed by events in record
-    recordLengths.push_back(header.getEntries());
+    recordLengths->push_back(header.getEntries());
     writerBytesWritten += bytesToWrite;
 
     std::memcpy((void *)(buffer.array() + buffer.arrayOffset() + buffer.position()),
@@ -1240,7 +1225,7 @@ void Writer::close() {
         outFile.write(reinterpret_cast<const char *>(&recordCount), sizeof(uint32_t));
 
         outFile.close();
-        recordLengths.clear();
+        recordLengths->clear();
     }
 
     closed = true;

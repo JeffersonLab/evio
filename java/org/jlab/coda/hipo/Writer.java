@@ -766,7 +766,7 @@ System.out.println("createRecord: add first event to record");
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
             try {
-                RecordHeader.writeTrailer(headerArray, recordNum, byteOrder, null);
+                RecordHeader.writeTrailer(headerArray, recordNum, byteOrder);
                 // TODO: not really necessary to keep track here?
                 writerBytesWritten += RecordHeader.HEADER_SIZE_BYTES;
 
@@ -790,25 +790,10 @@ System.out.println("createRecord: add first event to record");
             return;
         }
 
-        // Create the index of record lengths & entries in proper byte order
-        // Transform ints to bytes in local endian.
-        // It'll be swapped below in RecordHeader.writeTrailer().
-        byte[] recordIndex = new byte[4*recordLengths.size()];
-        try {
-            for (int i = 0; i < recordLengths.size(); i++) {
-                ByteDataTransformer.toBytes(recordLengths.get(i),
-                                            ByteOrder.BIG_ENDIAN,
-                                            recordIndex, 4*i);
-//System.out.println("Writing record length = " + recordLengths.get(i) +
-//", = 0x" + Integer.toHexString(recordLengths.get(i)));
-            }
-        }
-        catch (EvioException e) {/* never happen */}
-
         // Write trailer with index
 
         // How many bytes are we writing here?
-        int dataBytes = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+        int dataBytes = RecordHeader.HEADER_SIZE_BYTES + 4*recordLengths.size();
 
         // Make sure our array can hold everything
         if (headerArray.length < dataBytes) {
@@ -820,7 +805,8 @@ System.out.println("createRecord: add first event to record");
 
         try {
             // Place data into headerArray - both header and index
-            RecordHeader.writeTrailer(headerArray, recordNum, byteOrder, recordIndex);
+            RecordHeader.writeTrailer(headerArray, 0, recordNum,
+                                      byteOrder, recordLengths);
             // TODO: not really necessary to keep track here?
             writerBytesWritten += dataBytes;
             if (toFile) {

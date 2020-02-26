@@ -494,32 +494,22 @@ final public class EventWriter implements AutoCloseable {
                     }
                 }
                 else {
-                    // Create the index of record lengths in proper byte order
-                    byte[] recordIndex = new byte[4 * recLengths.size()];
-                    try {
-                        for (int i = 0; i < recLengths.size(); i++) {
-                            ByteDataTransformer.toBytes(recLengths.get(i), byteOrder,
-                                                        recordIndex, 4 * i);
-                        }
-                    }
-                    catch (EvioException e) {/* never happen */}
-
                     // Write trailer with index
 
                     // How many bytes are we writing here?
-                    int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+                    int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + 4*recLengths.size();
 
                     // Make sure our array can hold everything
                     if (hdrArray.length < bytesToWrite) {
                         hdrArray = new byte[bytesToWrite];
-                        hdrBuffer = ByteBuffer.wrap(hdrArray);
+                        hdrBuffer = ByteBuffer.wrap(hdrArray).order(byteOrder);
                     }
                     hdrBuffer.limit(bytesToWrite).position(0);
 
                     // Place data into hdrBuffer - both header and index
                     try {
                         RecordHeader.writeTrailer(hdrBuffer, 0, recordNum,
-                                                  recordIndex);
+                                                  recLengths);
                     }
                     catch (HipoException e) {/* never happen */}
                     Future f = afChannel.write(hdrBuffer, filePos);
@@ -1168,6 +1158,7 @@ final public class EventWriter implements AutoCloseable {
                         internalBuffers[0].order(byteOrder);
                         internalBuffers[1].order(byteOrder);
                         internalBuffers[2].order(byteOrder);
+                        headerBuffer.order(byteOrder);
                     }
 
                     // Prepare for appending by moving file position to end of last record
@@ -2907,7 +2898,7 @@ System.out.println("EventWriter contr: Disk is FULL");
             else {
                 // Set flag to split file
                 currentRingItem.splitFileAfterWrite(true);
-                currentRecord.getHeader().setRecordNumber(recordNumber);
+//currentRecord.getHeader().setRecordNumber(recordNumber);
                 // Send current record back to ring without adding event
                 supply.publish(currentRingItem);
 
@@ -2953,7 +2944,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(++recordNumber);
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
 
             // Add event to it (guaranteed to fit)
@@ -2987,7 +2978,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 // Get another empty record from ring
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(++recordNumber);
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
         }
 
@@ -3164,7 +3155,6 @@ System.out.println("EventWriter contr: Disk is FULL");
                 // space for that.
                 currentRingItem.splitFileAfterWrite(true);
                 currentRingItem.setCheckDisk(false);
-                currentRecord.getHeader().setRecordNumber(recordNumber);
                 // Send current record back to ring without adding event
                 supply.publish(currentRingItem);
 
@@ -3225,7 +3215,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 supply.publish(currentRingItem);
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(++recordNumber);
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
 
             // Add event to it (guaranteed to fit)
@@ -3267,7 +3257,7 @@ System.out.println("EventWriter contr: Disk is FULL");
                 supply.publish(currentRingItem);
                 currentRingItem = supply.get();
                 currentRecord = currentRingItem.getRecord();
-                currentRecord.getHeader().setRecordNumber(++recordNumber);
+                currentRecord.getHeader().setRecordNumber(recordNumber++);
             }
         }
 
@@ -3790,7 +3780,7 @@ System.out.println("EventWriter contr: Disk is FULL");
             try {
                 // headerBuffer is only used in this method
                 headerBuffer.position(0).limit(RecordHeader.HEADER_SIZE_BYTES);
-                RecordHeader.writeTrailer(headerBuffer, 0, ++recordNumber, null);
+                RecordHeader.writeTrailer(headerBuffer, 0, recordNumber, null);
             }
             catch (HipoException e) {/* never happen */}
             //bytesToWrite = RecordHeader.HEADER_SIZE_BYTES;
@@ -3806,32 +3796,22 @@ System.out.println("EventWriter contr: Disk is FULL");
             }
         }
         else {
-            // Create the index of record lengths in proper byte order
-            byte[] recordIndex = new byte[4 * recordLengths.size()];
-            try {
-                for (int i = 0; i < recordLengths.size(); i++) {
-                    ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
-                                                recordIndex, 4 * i);
-                }
-            }
-            catch (EvioException e) {/* never happen */}
-
             // Write trailer with index
 
             // How many bytes are we writing here?
-            bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+            bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + 4*recordLengths.size();
 
             // Make sure our array can hold everything
             if (headerArray.length < bytesToWrite) {
                 headerArray = new byte[bytesToWrite];
-                headerBuffer = ByteBuffer.wrap(headerArray);
+                headerBuffer = ByteBuffer.wrap(headerArray).order(byteOrder);
             }
             headerBuffer.position(0).limit(bytesToWrite);
 
             // Place data into headerBuffer - both header and index
             try {
-                RecordHeader.writeTrailer(headerBuffer, 0, ++recordNumber,
-                                          recordIndex);
+                RecordHeader.writeTrailer(headerBuffer, 0, recordNumber,
+                                          recordLengths);
             }
             catch (HipoException e) {/* never happen */}
             Future f = asyncFileChannel.write(headerBuffer, fileWritingPosition);
@@ -3974,26 +3954,16 @@ System.out.println("EventWriter contr: Disk is FULL");
             }
 
             try {
-                RecordHeader.writeTrailer(buffer, (int)bytesWritten, ++recordNumber);
+                RecordHeader.writeTrailer(buffer, (int)bytesWritten,
+                                          recordNumber, recordLengths);
             }
             catch (HipoException e) {/* never happen */}
         }
         else {
-
-            // Create the index of record lengths in proper byte order
-            byte[] recordIndex = new byte[4 * recordLengths.size()];
-            try {
-                for (int i = 0; i < recordLengths.size(); i++) {
-                    ByteDataTransformer.toBytes(recordLengths.get(i), byteOrder,
-                                                recordIndex, 4 * i);
-                }
-            }
-            catch (EvioException e) {/* never happen */}
-
             // Write trailer with index
 
             // How many bytes are we writing here?
-            int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + recordIndex.length;
+            int bytesToWrite = RecordHeader.HEADER_SIZE_BYTES + 4*recordLengths.size();
 
             // Make sure our buffer can hold everything
             if ((buffer.capacity() - (int) bytesWritten) < bytesToWrite) {
@@ -4002,8 +3972,8 @@ System.out.println("EventWriter contr: Disk is FULL");
 
             try {
                 // Place data into buffer - both header and index
-                RecordHeader.writeTrailer(buffer, (int) bytesWritten, ++recordNumber,
-                                          recordIndex);
+                RecordHeader.writeTrailer(buffer, (int) bytesWritten,
+                                          recordNumber, recordLengths);
             }
             catch (HipoException e) {/* never happen */}
         }

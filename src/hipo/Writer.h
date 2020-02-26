@@ -103,7 +103,7 @@ private:
 
     /** List of record lengths interspersed with record event counts
      * to be optionally written in trailer. */
-    vector<uint32_t> recordLengths;
+    std::shared_ptr<std::vector<uint32_t>> recordLengths;
 
     /** Number of bytes written to file/buffer at current moment. */
     size_t writerBytesWritten = 0;

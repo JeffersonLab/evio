@@ -164,9 +164,9 @@ private:
                         RecordHeader & header = record->getHeader();
                         int bytesToWrite = header.getLength();
                         // Record length of this record
-                        writer->recordLengths.push_back(bytesToWrite);
+                        writer->recordLengths->push_back(bytesToWrite);
                         // Followed by events in record
-                        writer->recordLengths.push_back(header.getEntries());
+                        writer->recordLengths->push_back(header.getEntries());
                         writer->writerBytesWritten += bytesToWrite;
 
                         auto buf = record->getBinaryBuffer();
@@ -248,7 +248,7 @@ private:
 
     /** List of record lengths interspersed with record event counts
       * to be optionally written in trailer. */
-    std::vector<uint32_t> recordLengths;
+    std::shared_ptr<std::vector<uint32_t>> recordLengths;
 
     /** Fast, thread-safe, lock-free supply of records. */
     std::shared_ptr<RecordSupply> supply;

@@ -374,7 +374,7 @@ cout << "EventWriter: INTERRUPTED, return" << endl;
                 std::shared_ptr<RecordSupply> supply;
                 std::shared_ptr<RecordRingItem> item;
                 FileHeader fHeader;
-                std::vector<uint32_t> recLengths;
+                std::shared_ptr<std::vector<uint32_t>> recLengths;
                 uint64_t bytesWrittenToFile;
                 uint32_t recordNum;
                 bool addTrailer;
@@ -403,7 +403,7 @@ cout << "EventWriter: INTERRUPTED, return" << endl;
                                 std::shared_ptr<std::future<void>> &future1,
                                 std::shared_ptr<RecordSupply> &supply,
                                 std::shared_ptr<RecordRingItem> &ringItem,
-                                FileHeader &fileHeader, std::vector<uint32_t> &recordLengths,
+                                FileHeader &fileHeader, std::shared_ptr<std::vector<uint32_t>> recordLengths,
                                 uint64_t bytesWritten, uint32_t recordNumber,
                                 bool addingTrailer, bool writeIndex, bool noWriting,
                                 ByteOrder &order, FileCloser *fc) :
@@ -516,7 +516,7 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
                         try {
                             // hdrBuffer is only used in this method
                             hdrBuffer.position(0).limit(RecordHeader::HEADER_SIZE_BYTES);
-                            RecordHeader::writeTrailer(hdrBuffer, 0, recordNum, nullptr, 0);
+                            RecordHeader::writeTrailer(hdrBuffer, 0, recordNum, nullptr);
                         }
                         catch (EvioException &e) {/* never happen */}
 
@@ -527,20 +527,10 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
                         }
                     }
                     else {
-                        // Create the index of record lengths in proper byte order
-                        uint32_t arraySize = 4 * recLengths.size();
-                        auto recordIndex = new uint8_t[arraySize];
-                        try {
-                            for (int i = 0; i < recLengths.size(); i++) {
-                                Util::toBytes(recLengths[i], byteOrder, recordIndex, 4 * i, arraySize);
-                            }
-                        }
-                        catch (EvioException &e) {/* never happen */}
-
                         // Write trailer with index
 
                         // How many bytes are we writing here?
-                        uint32_t bytesToWrite = RecordHeader::HEADER_SIZE_BYTES + arraySize;
+                        uint32_t bytesToWrite = RecordHeader::HEADER_SIZE_BYTES + 4*recLengths->size();
 
                         // Make sure our array can hold everything
                         if (hdrBufferBytes < bytesToWrite) {
@@ -551,17 +541,13 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
 
                         // Place data into hdrBuffer - both header and index
                         try {
-                            RecordHeader::writeTrailer(hdrBuffer, 0, recordNum,
-                                                       reinterpret_cast<uint32_t *>(recordIndex),
-                                                       arraySize);
+                            RecordHeader::writeTrailer(hdrBuffer, (size_t)0, recordNum, recLengths);
                         }
                         catch (EvioException &e) {/* never happen */}
                         afChannel->write(reinterpret_cast<char *>(hdrArray), bytesToWrite);
                         if (afChannel->fail()) {
                             throw EvioException("error writing to file");
                         }
-
-                        delete[] recordIndex;
                     }
 
                     // Update file header's trailer position word
@@ -636,7 +622,7 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
                                 std::shared_ptr<std::future<void>> &future1,
                                 std::shared_ptr<RecordSupply> &supply,
                                 std::shared_ptr<RecordRingItem> &ringItem,
-                                FileHeader &fileHeader, std::vector<uint32_t> &recordLengths,
+                                FileHeader &fileHeader, std::shared_ptr<std::vector<uint32_t>> &recordLengths,
                                 uint64_t bytesWritten, uint32_t recordNumber,
                                 bool addingTrailer, bool writeIndex, bool noFileWriting,
                                 ByteOrder &order) {
@@ -686,8 +672,9 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
          *  (Used to figure out when to split a file). Percentage of original size. */
         uint32_t compressionFactor;
 
-        /** List of record length followed by count to be optionally written in trailer. */
-        std::vector<uint32_t> recordLengths;
+        /** List of record length followed by count to be optionally written in trailer.
+         *  Easiest to make this a shared pointer since it gets passed as a method arg. */
+        std::shared_ptr<std::vector<uint32_t>> recordLengths;
 
         /** Number of uncompressed bytes written to the current file/buffer at the moment,
          * including ending header and NOT the total in all split files. */
