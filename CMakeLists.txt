@@ -103,6 +103,8 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/RecordWriter.h
         src/hipo/RecordCompressor.h
         src/hipo/EvioBank.h
+        src/hipo/TreeNode.h
+        src/hipo/TreeNodeException.h
         )
 
 set(CPP_LIB_FILES_NEW

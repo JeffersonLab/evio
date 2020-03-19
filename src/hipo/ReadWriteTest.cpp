@@ -34,6 +34,8 @@
 #include "EvioNode.h"
 #include "Compressor.h"
 #include "EventWriter.h"
+#include "TreeNode.h"
+#include "TreeNodeException.h"
 
 using namespace std;
 namespace fs = std::experimental::filesystem;
@@ -658,8 +660,41 @@ public:
 }
 
 
-
 int main(int argc, char **argv) {
+    auto b1 = std::make_shared<int>(1);
+    auto b2 = std::make_shared<int>(2);
+    auto b3 = std::make_shared<int>(2);
+    auto b4 = std::make_shared<int>(2);
+    auto b5 = std::make_shared<int>(2);
+    auto b6 = std::make_shared<int>(2);
+    auto b7 = std::make_shared<int>(2);
+    auto b8 = std::make_shared<int>(2);
+
+    std::shared_ptr<evio::TreeNode<int>> n1 = evio::TreeNode<int>::getInstance(b1);
+    auto n2 = evio::TreeNode<int>::getInstance(b2);
+    auto n3 = evio::TreeNode<int>::getInstance(b3);
+    auto n4 = evio::TreeNode<int>::getInstance(b4);
+    auto n5 = evio::TreeNode<int>::getInstance(b5);
+    auto n6 = evio::TreeNode<int>::getInstance(b6);
+    auto n7 = evio::TreeNode<int>::getInstance(b7);
+    auto n8 = evio::TreeNode<int>::getInstance(b8);
+
+    n1->insert(n2,0);
+    n2->add(n3);
+    n2->add(n4);
+    n2->add(n5);
+    n1->add(n6);
+    n6->add(n7);
+    n7->add(n8);
+
+    cout << "Root # children = " << n1->getChildCount() << endl;
+    cout << "Root # leaves = " << n1->getLeafCount() << endl;
+
+    return 0;
+}
+
+
+int mainA(int argc, char **argv) {
 //    try {
         string filename   = "/dev/shm/EventWriterTest.evio";
         cout << endl << "Try writing " << filename << endl;

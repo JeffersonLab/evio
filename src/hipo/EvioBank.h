@@ -20,5 +20,6 @@ namespace evio {
         void write(std::shared_ptr<ByteBuffer> &recordEvents) {}
     };
 
+
 }
 #endif //EVIO_6_0_EVIOBANK_H

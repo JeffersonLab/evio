@@ -3,6 +3,7 @@ package org.jlab.coda.jevio.test;
 import org.jlab.coda.hipo.*;
 import org.jlab.coda.jevio.*;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -131,7 +132,7 @@ public class ReadWriteTest {
         int compThreads = 2;
         int ringSize = 16;
         int bufSize = 1;
-
+        DefaultMutableTreeNode m;
 
         try {
             EventWriterUnsync writer = new EventWriterUnsync(filename, directory, "runType",
