@@ -72,27 +72,31 @@ private:
     /** Name of this data type. */
     string name;
 
+    /** Number of bytes this data type consumes (if relevant, else = -1). */
+    int bytes;
+
+private:
+
     /** Fast way to convert integer values into DataType objects. */
     static DataType intToType[37];  // min size -> 37 = 0x24 + 1
 
     /** Store a name for each DataType object. */
     static string names[37];
 
-private:
-
     /**
      * Constructor.
      * @param value int value of this DataType object.
+     * @param byteLen number of bytes this type takes (if relevant).
      * @param name  name (string representation) of this DataType object.
      */
-    DataType(uint32_t val, string name) : value(val), name(std::move(name)) {}
+    DataType(uint32_t val, string name, int byteLen = -1) : value(val), name(std::move(name)), bytes(byteLen) {}
 
 public:
 
     /**
      * Get the object from the integer value.
      * @param val the value to match.
-     * @return the matching enum, or <code>null</code>.
+     * @return the matching DataType object.
      */
     static const DataType & getDataType(uint32_t val) {
         if (val > 0x24 || (val > 0x10 && val < 0x20)) return UNKNOWN32;
@@ -112,6 +116,7 @@ public:
     /**
      * Convenience method to see if the given integer arg represents a data type which
      * is a structure (a container).
+     * @param dataType the int value to match.
      * @return <code>true</code> if the data type corresponds to one of the structure
      * types: BANK, SEGMENT, TAGSEGMENT, ALSOBANK, or ALSOSEGMENT.
      */
@@ -123,6 +128,7 @@ public:
 
     /**
      * Convenience method to see if the given integer arg represents a BANK.
+     * @param dataType the int value to match.
      * @return <code>true</code> if the data type corresponds to a BANK.
      */
     static bool isBank(uint32_t dataType) {
@@ -131,6 +137,7 @@ public:
 
     /**
      * Convenience method to see if the given integer arg represents a SEGMENT.
+     * @param dataType the int value to match.
      * @return <code>true</code> if the data type corresponds to a SEGMENT.
      */
     static bool isSegment(uint32_t dataType) {
@@ -139,6 +146,7 @@ public:
 
     /**
      * Convenience method to see if the given integer arg represents a TAGSEGMENT.
+     * @param dataType the int value to match.
      * @return <code>true</code> if the data type corresponds to a TAGSEGMENT.
      */
     static bool isTagSegment(uint32_t dataType) {
@@ -146,6 +154,12 @@ public:
     }
 
 
+
+    /**
+     * Get the name associated with this data type.
+     * @return name associated with this data type.
+     */
+    const string & getName() const {return name;}
 
     /**
      * Get the integer value associated with this data type.
@@ -187,6 +201,18 @@ public:
     bool isBank() {return (*this == BANK || *this == ALSOBANK);}
 
     /**
+     * Convenience routine to see if "this" data type is a segment structure.
+     * @return <code>true</code> if this data type corresponds to a bank structure.
+     */
+    bool isSegment() {return (*this == SEGMENT || *this == ALSOSEGMENT);}
+
+    /**
+     * Convenience routine to see if "this" data type is a tagsegment structure.
+     * @return <code>true</code> if this data type corresponds to a tagsegment structure.
+     */
+    bool isTagSegment() {return (*this == TAGSEGMENT);}
+
+    /**
      * Convenience method to see if "this" data type is an integer of some kind -
      * either 8, 16, 32, or 64 bits worth.
      * @return <code>true</code> if the data type corresponds to an integer type
@@ -202,6 +228,11 @@ public:
                 (*this == LONG64));
     }
 
+    /**
+     *  Return the number of bytes this data type takes (if relevant).
+     * @return the number of bytes this data type takes (if relevant).
+     */
+    int getBytes() const {return bytes;}
 
     bool operator==(const DataType &rhs) const;
 
