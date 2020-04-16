@@ -21,6 +21,7 @@
 #include <memory>
 #include <iostream>
 #include <cstdio>
+#include <vector>
 
 #include "ByteOrder.h"
 #include "EvioException.h"
@@ -154,11 +155,13 @@ public:
 
     // Write
 
+    // Bulk byte writes
     ByteBuffer & put(const ByteBuffer & src);
     ByteBuffer & put(const std::shared_ptr<ByteBuffer> & src);
     ByteBuffer & put(const uint8_t* src, size_t offset, size_t length);
+    ByteBuffer & put(const std::vector<uint8_t> & src, size_t offset, size_t length);
 
-    ByteBuffer & put(uint8_t val); // Relative write
+    ByteBuffer & put(uint8_t val);               // Relative write
     ByteBuffer & put(size_t index, uint8_t val); // Absolute write at index
 
     ByteBuffer & putChar(wchar_t val);
