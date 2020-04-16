@@ -976,17 +976,17 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
         throw EvioException("null or too small array arg");
     }
 
-    int bitInfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
+    uint32_t bitInfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
 
     try {
         // First the general header part
         Util::toBytes(wholeLen/4,        order, array,      off, arrayLen); // 0*4
         Util::toBytes(recordNum,         order, array, 4  + off, arrayLen); // 1*4
         Util::toBytes(HEADER_SIZE_WORDS, order, array, 8  + off, arrayLen); // 2*4
-        Util::toBytes(0,                 order, array, 12 + off, arrayLen); // 3*4
+        Util::toBytes((uint32_t)0,       order, array, 12 + off, arrayLen); // 3*4
         Util::toBytes(indexLen,          order, array, 16 + off, arrayLen); // 4*4
         Util::toBytes(bitInfo,           order, array, 20 + off, arrayLen); // 5*4
-        Util::toBytes(0,                 order, array, 24 + off, arrayLen); // 6*4
+        Util::toBytes((uint32_t)0,       order, array, 24 + off, arrayLen); // 6*4
         Util::toBytes(HEADER_MAGIC,      order, array, 28 + off, arrayLen); // 7*4
 
         // The rest of header is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
@@ -1040,17 +1040,17 @@ void RecordHeader::writeTrailer(std::vector<uint8_t> & array, size_t off,
 
     array.reserve(wholeLen + off);
 
-    int bitInfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
+    uint32_t bitInfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
 
     try {
         // First the general header part
         Util::toBytes(wholeLen/4,        order, array,      off); // 0*4
         Util::toBytes(recordNum,         order, array, 4  + off); // 1*4
         Util::toBytes(HEADER_SIZE_WORDS, order, array, 8  + off); // 2*4
-        Util::toBytes(0,                 order, array, 12 + off); // 3*4
+        Util::toBytes((uint32_t)0,       order, array, 12 + off); // 3*4
         Util::toBytes(indexLen,          order, array, 16 + off); // 4*4
         Util::toBytes(bitInfo,           order, array, 20 + off); // 5*4
-        Util::toBytes(0,                 order, array, 24 + off); // 6*4
+        Util::toBytes((uint32_t)0,       order, array, 24 + off); // 6*4
         Util::toBytes(HEADER_MAGIC,      order, array, 28 + off); // 7*4
 
         // The rest of header is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
