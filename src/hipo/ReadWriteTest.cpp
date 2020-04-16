@@ -21,7 +21,11 @@
 #include <thread>
 #include <memory>
 #include <regex>
+#include <iterator>
+
+#ifndef __APPLE__
 #include <experimental/filesystem>
+#endif
 
 #include "ByteBuffer.h"
 #include "ByteOrder.h"
@@ -34,12 +38,16 @@
 #include "EvioNode.h"
 #include "Compressor.h"
 #include "EventWriter.h"
-#include "TreeNode.h"
+//#include "TreeNodeLite.h"
+//#include "TreeNodeLiteDerived.h"
 #include "TreeNodeException.h"
+#include "TreeNode.h"
 
 using namespace std;
-namespace fs = std::experimental::filesystem;
 
+#ifndef __APPLE__
+namespace fs = std::experimental::filesystem;
+#endif
 
 namespace evio {
 
@@ -660,38 +668,316 @@ public:
 }
 
 
+
+
+class Tree : public std::enable_shared_from_this<Tree> {
+
+protected:
+
+    /** this node in shared pointer form */
+    std::shared_ptr<Tree> parent = nullptr;
+
+    Tree() = default;
+
+
+public:
+
+    static std::shared_ptr<Tree> getInstance() {
+        std::shared_ptr<Tree> pNode(new Tree());
+        return pNode;
+    }
+
+    void setParent(const std::shared_ptr<Tree> &par) {
+        if (par == nullptr) {
+            parent = this->shared_from_this();
+            cout << "Set parent to this->shared_from_this()" << endl;
+        }
+        else {
+            parent = par;
+            cout << "Setting parent to arg" << endl;
+        }
+    }
+
+    ~Tree() {
+        cout << "In destructor" << endl
+        ;
+    };
+
+};
+
+
+
 int main(int argc, char **argv) {
-    auto b1 = std::make_shared<int>(1);
-    auto b2 = std::make_shared<int>(2);
-    auto b3 = std::make_shared<int>(2);
-    auto b4 = std::make_shared<int>(2);
-    auto b5 = std::make_shared<int>(2);
-    auto b6 = std::make_shared<int>(2);
-    auto b7 = std::make_shared<int>(2);
-    auto b8 = std::make_shared<int>(2);
 
-    std::shared_ptr<evio::TreeNode<int>> n1 = evio::TreeNode<int>::getInstance(b1);
-    auto n2 = evio::TreeNode<int>::getInstance(b2);
-    auto n3 = evio::TreeNode<int>::getInstance(b3);
-    auto n4 = evio::TreeNode<int>::getInstance(b4);
-    auto n5 = evio::TreeNode<int>::getInstance(b5);
-    auto n6 = evio::TreeNode<int>::getInstance(b6);
-    auto n7 = evio::TreeNode<int>::getInstance(b7);
-    auto n8 = evio::TreeNode<int>::getInstance(b8);
+    {
+        int i = 11;
+        auto t1 = evio::TreeNode<int>::getInstance(i);
+        auto t2 = evio::TreeNode<int>::getInstance(22);
+        auto t2_1 = evio::TreeNode<int>::getInstance(221);
+        auto t2_2 = evio::TreeNode<int>::getInstance(222);
+        auto t3 = evio::TreeNode<int>::getInstance(33);
+        auto t4 = evio::TreeNode<int>::getInstance(44);
+        auto t5 = evio::TreeNode<int>::getInstance(55);
+        auto t6 = evio::TreeNode<int>::getInstance(66);
+        auto t7 = evio::TreeNode<int>::getInstance(77);
+        auto t8 = evio::TreeNode<int>::getInstance(88);
+        auto t9 = evio::TreeNode<int>::getInstance(99);
 
-    n1->insert(n2,0);
-    n2->add(n3);
-    n2->add(n4);
-    n2->add(n5);
-    n1->add(n6);
-    n6->add(n7);
-    n7->add(n8);
 
-    cout << "Root # children = " << n1->getChildCount() << endl;
-    cout << "Root # leaves = " << n1->getLeafCount() << endl;
+        //t1->setParent(nullptr);
+        t1->setUserObject(12);
+        t1->add(t2);
+        t1->add(t2_1);
+        t1->add(t2_2);
+        t2->add(t3);
+        t2->add(t4);
+        t2->add(t5);
+        t5->add(t6);
+        t5->add(t7);
+        t5->add(t8);
+        t5->add(t9);
+
+        cout << "t1 has myInt = " << t1->getUserObject() << ", t2 = " << t2->getUserObject() << endl;
+
+        cout << "t1 has # children = " << t1->getChildCount() << endl;
+        cout << "t2 has # children = " << t2->getChildCount() << endl;
+
+        //cout << "t1 leaf count = " << t1->getLeafCount() << endl;
+        cout << "t1 first leaf id = " << t1->getFirstLeaf()->getUserObject() << endl;
+
+        cout << "t2 parent id = " << t2->getParent()->getUserObject() << endl;
+
+        cout << "t1 next node id = " << t1->getNextNode()->getUserObject() << endl;
+        cout << "t2 next node id = " << t2->getNextNode()->getUserObject() << endl;
+        cout << "t3 next node id = " << t3->getNextNode()->getUserObject() << endl;
+        cout << "t4 next node id = " << t4->getNextNode()->getUserObject() << endl;
+        auto nextNode = t5->getNextNode();
+        if (nextNode == nullptr) {
+            cout << "t5 has NO next node" << endl;
+        }
+        else {
+            cout << "t5 next node id = " << t5->getNextNode()->getUserObject() << endl;
+        }
+        cout << "t5 prev node id = " << t5->getPreviousNode()->getUserObject() << endl;
+
+        cout << "t3 sibling count = " << t3->getSiblingCount() << endl;
+        cout << "t2 get child at 2 = " << t2->getChildAt(2)->getUserObject() << endl;
+        //cout << "t2 get child at 3 = " << t2->getChildAt(3)->getUserObject() << endl;
+
+        cout << "t4 next leaf = " << t4->getNextLeaf()->getUserObject() << endl;
+        cout << "t4 prev leaf = " << t4->getPreviousLeaf()->getUserObject() << endl;
+
+        std::vector<std::shared_ptr<evio::TreeNode<int>>> path = t5->getPath();
+        cout << "Path to t5 is (size = " << path.size() << ") :" << endl;
+        for (auto const & shptr : path) {
+            cout << shptr->getUserObject() << " -> ";
+        }
+        cout << endl;
+
+        cout << "t4 get root = " << t4->getRoot()->getUserObject() << endl;
+
+        cout << "t3 level = " << t3->getLevel() << endl;
+
+        cout << "t3 & t4 shared ancestor = " << t3->getSharedAncestor(t4)->getUserObject() << endl;
+        cout << "t1 & t5 shared ancestor = " << t1->getSharedAncestor(t5)->getUserObject() << endl;
+
+        cout << "t2 child after t3 = " << t2->getChildAfter(t3)->getUserObject() << endl;
+        auto kid = t2->getChildAfter(t5);
+        if (kid == nullptr) {
+            cout << "t2 child after t5 = nullptr" << endl;
+        }
+        else {
+            cout << "t2 child after t5 = " << t2->getChildAfter(t5)->getUserObject() << endl;
+        }
+
+        cout << "t2 child before t4 = " << t2->getChildBefore(t4)->getUserObject() << endl;
+
+        cout << "t4 prev sibling = " <<t4->getPreviousSibling()->getUserObject() << endl;
+        cout << "t4 next sibling = " <<t4->getNextSibling()->getUserObject() << endl;
+
+        cout << "Is t3 ancestor of t2? " << t2->isNodeAncestor(t3) << endl;
+        cout << "Is t2 ancestor of t3? " << t3->isNodeAncestor(t2) << endl;
+
+        cout << "Is t3 descendant of t2? " << t2->isNodeDescendant(t3) << endl;
+        cout << "Is t2 descendant of t3? " << t3->isNodeDescendant(t2) << endl;
+
+        cout << "Is t3 related to t2? " << t2->isNodeRelated(t3) << endl;
+        cout << "Is t2 related to t3? " << t3->isNodeRelated(t2) << endl;
+
+        cout << "Is t3 child of t2? " << t2->isNodeChild(t3) << endl;
+        cout << "Is t2 child of t3? " << t3->isNodeChild(t2) << endl;
+
+        cout << "Is t3 sibling of t2? " << t2->isNodeSibling(t3) << endl;
+        cout << "Is t3 sibling of t3? " << t3->isNodeSibling(t3) << endl;
+        cout << "Is t3 sibling of t4? " << t3->isNodeSibling(t4) << endl;
+
+        cout << "Is t1 root? " << t1->isRoot() << endl;
+        cout << "Is t2 root? " << t2->isRoot() << endl;
+
+        cout << "Is t2 leaf? " << t1->isLeaf() << endl;
+        cout << "Is t3 leaf? " << t3->isLeaf() << endl;
+
+
+        cout << "t1 last child? " << t1->getLastChild()->getUserObject() << endl;
+        cout << "t1 last leaf? " << t1->getLastLeaf()->getUserObject() << endl;
+        cout << "t2 last leaf? "  << t2->getLastLeaf()->getUserObject() << endl;
+
+        cout << "t2 get index of child(t4) = " << t2->getIndex(t4) << endl;
+        cout << "t1 get index of child(t4) = " << t1->getIndex(t4) << endl;
+
+
+        cout << "Iterator over the tree depth-first" << endl;
+
+        auto iter = t1->begin();
+        auto endIter = t1->end();
+
+        for (; iter != endIter;) {
+            // User needs to check if ++iter is the END before using it!
+            // This will skip the first node!
+            auto nextIt = ++iter;
+            if (nextIt == endIter) {
+                cout << "pre-increment hit iterator end" << endl;
+                break;
+            }
+            cout << "pre-increment my id is " << (*nextIt)->getUserObject() << endl;
+        }
+
+        cout << "Iterator over the tree breadth-first" << endl;
+
+        auto biter = t1->bbegin();
+        auto bendIter = t1->bend();
+
+        for (; biter != bendIter; ++biter) {
+            cout << "pre-increment my id is " << (*biter)->getUserObject() << endl;
+        }
+
+
+        // Now change the tree structure
+        cout << "Now make t5 child of t1 ......." << endl;
+        t1->insert(t5, 0);
+
+        for (iter = t1->begin(); iter != endIter; iter++) {
+            cout << "my id is " << (*iter)->getUserObject() << endl;
+        }
+
+        cout << "t1 has # children = " << t1->getChildCount() << endl;
+
+        cout << "t5 next sibling = " << t5->getNextSibling()->getUserObject() << endl;
+        cout << "t4 prev sibling = " << t4->getPreviousSibling()->getUserObject() << endl;
+
+        cout << "t5 get child at 0 = " << t5->getChildAt(0)->getUserObject() << endl;
+        cout << "t5 # kids = " << t5->getChildCount() << endl;
+
+
+        // Now change the tree structure
+        cout << "Now remove 0th child of t5 ......." << endl;
+        t5->remove(0);
+        cout << "t5 get child at 0 = " << t5->getChildAt(0)->getUserObject() << endl;
+        cout << "t5 # kids = " << t5->getChildCount() << endl;
+
+        // Now change the tree structure
+        cout << "Now remove t8 child of t5 ......." << endl;
+        t5->remove(t8);
+        cout << "t5 get child at 0 = " << t5->getChildAt(0)->getUserObject() << endl;
+        cout << "t5 get child at 1 = " << t5->getChildAt(1)->getUserObject() << endl;
+        cout << "t5 # kids = " << t5->getChildCount() << endl;
+
+
+
+        cout << "Now remove all children of t5 ......." << endl;
+        t5->removeAllChildren();
+        cout << "t5 # kids = " << t5->getChildCount() << endl;
+
+        cout << "Now remove t5 from parent ......." << endl;
+        t5->removeFromParent();
+        cout << "t1 # kids = " << t1->getChildCount() << endl;
+        cout << "t1 get child at 0 = " << t1->getChildAt(0)->getUserObject() << endl;
+
+
+        for (iter = t1->begin(); iter != endIter; iter++) {
+            cout << "my id is " << (*iter)->getUserObject() << endl;
+        }
+
+
+    }
+
+
+    cout << endl << "Past the scope" << endl;
+
+//cout << "Start" << endl;
+//
+// //   auto nodeD1 = evio::TreeNodeLiteDerived();
+//    auto sptr1 = evio::TreeNodeLite::getInstance();
+//    auto sptr2 = evio::TreeNodeLite::getInstance();
+//    cout << "0" << endl;
+//    int i = sptr1->getInt();
+//    cout << "Got int = " << i << " from TNLite" << endl;
+//
+//    sptr1->insert(sptr2, 0);
+//
+//    cout << "Added child in TreeNodeLite" << endl;
+//
+//    auto sptrD1 = evio::TreeNodeLiteDerived::getInstance();
+//    auto sptrD2 = evio::TreeNodeLiteDerived::getInstance();
+//
+//    cout << "2" << endl;
+//
+//    i = sptrD1->getInt();
+//
+//    cout << "Got int = " << i << " from TNLDervied" << endl;
+//
+//    sptrD1->insert(sptrD2, 0);
+//
+//    cout << "Added child in TreeNodeLiteDerived" << endl;
+//
+//    std::shared_ptr<evio::TreeNodeLite> child = sptrD1->getChildAt(0);
+//    i = child->getInt();
+//    cout << "Got int = " << i << " from child" << endl;
+//    cout << "End" << endl;
+//
+//
 
     return 0;
 }
+
+//int mainAA(int argc, char **argv) {
+//    auto b1 = std::make_shared<int>(1);
+//    auto b2 = std::make_shared<int>(2);
+//    auto b3 = std::make_shared<int>(2);
+//    auto b4 = std::make_shared<int>(2);
+//    auto b5 = std::make_shared<int>(2);
+//    auto b6 = std::make_shared<int>(2);
+//    auto b7 = std::make_shared<int>(2);
+//    auto b8 = std::make_shared<int>(2);
+//
+//    std::shared_ptr<evio::TreeNode<int>> n1 = evio::TreeNode<int>::getInstance(b1);
+//    auto n2 = evio::TreeNode<int>::getInstance(b2);
+//    auto n3 = evio::TreeNode<int>::getInstance(b3);
+//    auto n4 = evio::TreeNode<int>::getInstance(b4);
+//    auto n5 = evio::TreeNode<int>::getInstance(b5);
+//    auto n6 = evio::TreeNode<int>::getInstance(b6);
+//    auto n7 = evio::TreeNode<int>::getInstance(b7);
+//    auto n8 = evio::TreeNode<int>::getInstance(b8);
+//
+//    n1->insert(n2,0);
+//    n2->add(n3);
+//    n2->add(n4);
+//    n2->add(n5);
+//    n1->add(n6);
+//    n6->add(n7);
+//    n7->add(n8);
+//
+//    cout << "Root # children = " << n1->getChildCount() << endl;
+//    cout << "Root # leaves = " << n1->getLeafCount() << endl;
+//
+//    n2->begin();
+//    n2->end();
+//
+//    n3->bbegin();
+//    n3->bend();
+//
+//    return 0;
+//}
 
 
 int mainA(int argc, char **argv) {
