@@ -25,6 +25,7 @@
 
 #include "EvioException.h"
 #include "ByteOrder.h"
+#include "ByteBuffer.h"
 
 using namespace std;
 
@@ -97,6 +98,56 @@ public:
             dest[off+1] = (uint8_t)(data >>  8);
             dest[off+2] = (uint8_t)(data >> 16);
             dest[off+3] = (uint8_t)(data >> 24);
+        }
+    }
+
+
+    /**
+     * Write short into byte array.
+     *
+     * @param data        short to convert.
+     * @param byteOrder   byte order of array.
+     * @param dest        array in which to write short.
+     * @param off         offset into array where short is to be written.
+     * @param destMaxSize max size in bytes of dest array.
+     * @throws EvioException if dest is null or too small.
+     */
+    static void toBytes(uint16_t data, const ByteOrder & byteOrder,
+                        uint8_t* dest, uint32_t off, uint32_t destMaxSize) {
+
+        if (dest == nullptr || destMaxSize < 2+off) {
+            throw EvioException("bad arg(s)");
+        }
+
+        if (byteOrder == ByteOrder::ENDIAN_BIG) {
+            dest[off  ] = (uint8_t)(data >>  8);
+            dest[off+1] = (uint8_t)(data      );
+        }
+        else {
+            dest[off  ] = (uint8_t)(data      );
+            dest[off+1] = (uint8_t)(data >>  8);
+        }
+    }
+
+
+    /**
+     * Write short into byte vector.
+     *
+     * @param data        short to convert.
+     * @param byteOrder   byte order of vector.
+     * @param dest        vector in which to write short.
+     * @param off         offset into vector where short is to be written.
+     */
+    static void toBytes(uint16_t data, const ByteOrder & byteOrder,
+                        std::vector<uint8_t> & dest, uint32_t off) {
+
+        if (byteOrder == ByteOrder::ENDIAN_BIG) {
+            dest[off  ] = (uint8_t)(data >>  8);
+            dest[off+1] = (uint8_t)(data      );
+        }
+        else {
+            dest[off  ] = (uint8_t)(data      );
+            dest[off+1] = (uint8_t)(data >>  8);
         }
     }
 
