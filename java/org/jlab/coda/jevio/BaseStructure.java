@@ -30,7 +30,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 	/** Holds the header of the bank. */
 	protected BaseStructureHeader header;
-
+DefaultMutableTreeNode j;
     /**
      * The raw data of the structure.
      * Storing data as raw bytes limits the # of data elements to
@@ -50,7 +50,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 	/** Used if raw data should be interpreted as doubles. */
 	protected double doubleData[];
 
-    /** Used if raw data should be interpreted as doubles. */
+    /** Used if raw data should be interpreted as floats. */
     protected float floatData[];
 
     /** Used if raw data should be interpreted as composite type. */
@@ -1132,7 +1132,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
     /**
      * This method extracts an array of strings from byte array of raw evio string data.
-     * Don't go beyond the specified max character limit and stop that the first
+     * Don't go beyond the specified max character limit and stop at the first
      * non-character value.
      *
      * @param rawBytes    raw evio string data
@@ -1765,7 +1765,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
             String s;
             String indent = String.format("\n%s", xmlIndent);
 
-			BaseStructureHeader header = getHeader();
+			//BaseStructureHeader header = getHeader();
 			switch (header.getDataType()) {
 			case DOUBLE64:
 				double doubledata[] = getDoubleData();
@@ -1985,7 +1985,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 		// only leafs write data
 		if (isLeaf()) {
-			BaseStructureHeader header = getHeader();
+			//BaseStructureHeader header = getHeader();
 
 			switch (header.getDataType()) {
 			case DOUBLE64:
