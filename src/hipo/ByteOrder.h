@@ -139,16 +139,25 @@ public:
         return !(order == getLocalByteOrder());
     }
 
-    // Template to swap stuff in place
+    // Templates to swap stuff in place
     template <typename T>
     static void byteSwapInPlace(T& var);
 
+    template <typename T>
+    static void byteSwapInPlace(T& var, size_t elements);
+
+    template <typename T>
+    static void byteSwapInPlace(T* var, size_t elements);
+
     // Methods to swap and return floats and doubles
     static float byteSwap(float var);
-
     static double byteSwap(double var);
 
-    static void byteSwap(uint32_t *array, size_t elements);
+    // Swapping arrays
+    static void byteSwap16(void* src, size_t elements, void* dst);
+    static void byteSwap32(void* src, size_t elements, void* dst);
+    static void byteSwap64(void* src, size_t elements, void* dst);
+
 };
 }
 
