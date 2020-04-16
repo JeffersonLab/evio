@@ -17,7 +17,11 @@
 namespace evio {
     
 
-// Template to swap stuff in place
+/**
+ * Templated method to swap data in place.
+ * @tparam T
+ * @param var
+ */
 template <typename T>
 void ByteOrder::byteSwapInPlace(T& var)
 {
@@ -43,11 +47,86 @@ double ByteOrder::byteSwap(double var)
     return var;
 }
 
-void ByteOrder::byteSwap(uint32_t *array, size_t elements) {
-    for (size_t i=0; i < elements; i++) {
-        array[i] = SWAP_32(array[i]);
+
+template <typename T>
+void ByteOrder::byteSwapInPlace(T& var, size_t elements)
+{
+    char *c = reinterpret_cast<char *>(&var);
+    size_t varSize = sizeof(T);
+
+    for (size_t j = 0;  j < elements;  j++) {
+        for (size_t i = 0; i < varSize/2; i++) {
+            std::swap(c[varSize - 1 - i], c[i]);
+        }
+        c += varSize;
     }
 }
+
+
+    template <typename T>
+    void ByteOrder::byteSwapInPlace(T* var, size_t elements)
+    {
+        char *c = reinterpret_cast<char *>(var);
+        size_t varSize = sizeof(T);
+
+        for (size_t j = 0;  j < elements;  j++) {
+            for (size_t i = 0; i < varSize/2; i++) {
+                std::swap(c[varSize - 1 - i], c[i]);
+            }
+            c += varSize;
+        }
+    }
+
+    /**
+     * This method swaps an array of 2-byte data.
+     * @param src pointer to data source.
+     * @param elements number of 2-byte elements to swap.
+     * @param dst pointer to destination.
+     */
+    void ByteOrder::byteSwap16(void* src, size_t elements, void* dst)
+    {
+        auto *s = reinterpret_cast<uint16_t *>(src);
+        auto *d = reinterpret_cast<uint16_t *>(dst);
+
+        for (size_t j = 0;  j < elements;  j++) {
+            *d = SWAP_16(*s);
+            ++s, ++d;
+        }
+    }
+
+    /**
+     * This method swaps an array of 4-byte data.
+     * @param src pointer to data source.
+     * @param elements number of 4-byte elements to swap.
+     * @param dst pointer to destination.
+     */
+    void ByteOrder::byteSwap32(void* src, size_t elements, void* dst)
+    {
+        auto *s = reinterpret_cast<uint32_t *>(src);
+        auto *d = reinterpret_cast<uint32_t *>(dst);
+
+        for (size_t j = 0;  j < elements;  j++) {
+            *d = SWAP_32(*s);
+            ++s, ++d;
+        }
+    }
+
+    /**
+     * This method swaps an array of 8-byte data.
+     * @param src pointer to data source.
+     * @param elements number of 8-byte elements to swap.
+     * @param dst pointer to destination.
+     */
+    void ByteOrder::byteSwap64(void* src, size_t elements, void* dst)
+    {
+        auto *s = reinterpret_cast<uint64_t *>(src);
+        auto *d = reinterpret_cast<uint64_t *>(dst);
+
+        for (size_t j = 0;  j < elements;  j++) {
+            *d = SWAP_64(*s);
+            ++s, ++d;
+        }
+    }
 
 
 // Enum value DEFINITIONS
