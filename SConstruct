@@ -147,9 +147,10 @@ execLibs = ['stdc++fs', 'pthread', 'expat', 'z', 'lz4', 'dl', 'm']
 env.AppendUnique(CPPDEFINES = ['USE_GZIP'])
 
 if platform == 'Darwin':
-    execLibs = ['pthread', 'dl', 'expat', 'z','lz4']
-    #env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined','suppress','-undefined','dynamic_lookup'])
-    env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
+    #execLibs = ['pthread', 'expat', 'z', 'lz4', 'dl', 'm']
+    execLibs = ['pthread', 'dl', 'expat', 'z', 'lz4']
+    env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-undefined','dynamic_lookup'])
+    #env.Append(CPPDEFINES = ['Darwin'], SHLINKFLAGS = ['-multiply_defined', '-undefined', '-flat_namespace'])
     env.Append(CCFLAGS = ['-fmessage-length=0'])
 #    env.AppendUnique(LIBPATH = ['/usr/lib', '/usr/local/lib'])
 
@@ -245,7 +246,7 @@ Help('tar                 create tar file (in ./tar)\n')
 ######################################################
 
 # Make available to lower level scons files
-Export('env archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix disruptorHome')
+Export('env platform archDir incInstallDir libInstallDir binInstallDir archIncInstallDir execLibs debugSuffix disruptorHome')
 
 # Run lower level build files
 #env.SConscript('src/libsrc/SConscript',   variant_dir='src/libsrc/'+archDir,   duplicate=0)
