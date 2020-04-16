@@ -31,27 +31,27 @@ bool DataType::operator!=(const DataType &rhs) const {
 /** Unknown data type. */
 const DataType DataType::UNKNOWN32 = DataType(0x0, "UNKNOWN32");
 /** Unsigned 32 bit int. */
-const DataType DataType::UINT32 = DataType(0x1, "UINT32");
+const DataType DataType::UINT32 = DataType(0x1, "UINT32", 4);
 /** 32 bit float. */
-const DataType DataType::FLOAT32 = DataType(0x2, "FLOAT32");
+const DataType DataType::FLOAT32 = DataType(0x2, "FLOAT32", 4);
 /** ASCII characters. */
 const DataType DataType::CHARSTAR8 = DataType(0x3, "CHARSTAR8");
 /** 16 bit int. */
-const DataType DataType::SHORT16 = DataType(0x4, "SHORT16");
+const DataType DataType::SHORT16 = DataType(0x4, "SHORT16", 2);
 /** Unsigned 16 bit int. */
-const DataType DataType::USHORT16 = DataType(0x5, "USHORT16");
+const DataType DataType::USHORT16 = DataType(0x5, "USHORT16, 2");
 /** 8 bit int. */
-const DataType DataType::CHAR8 = DataType(0x6, "CHAR8");
+const DataType DataType::CHAR8 = DataType(0x6, "CHAR8", 1);
 /** Unsigned 8 bit int. */
-const DataType DataType::UCHAR8 = DataType(0x7, "UCHAR8");
+const DataType DataType::UCHAR8 = DataType(0x7, "UCHAR8", 1);
 /** 64 bit double.. */
-const DataType DataType::DOUBLE64 = DataType(0x8, "DOUBLE64");
+const DataType DataType::DOUBLE64 = DataType(0x8, "DOUBLE64", 8);
 /** 64 bit int. */
-const DataType DataType::LONG64 = DataType(0x9, "LONG64");
+const DataType DataType::LONG64 = DataType(0x9, "LONG64", 8);
 /** Unsigned 64 bit int. */
-const DataType DataType::ULONG64 = DataType(0xa, "ULONG64");
+const DataType DataType::ULONG64 = DataType(0xa, "ULONG64", 8);
 /** 32 bit int. */
-const DataType DataType::INT32 = DataType(0xb, "INT32");
+const DataType DataType::INT32 = DataType(0xb, "INT32", 4);
 
 
 /** Tag segment. */
