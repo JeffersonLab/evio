@@ -12,10 +12,15 @@ public enum StructureType {
 
 	UNKNOWN32(0x0), 
 	TAGSEGMENT(0xc), 
-	SEGMENT(0xd), 
-	BANK(0xe);
+	SEGMENT(0x20, 0xd),
+	BANK(0x10, 0xe);
 
-	private int value;
+
+    /** Value of this data type. */
+    private int value;
+
+    /** The bank and segment have 2 values associated with them. */
+    private int value2;
 
     /** Fast way to convert integer values into StructureType objects. */
     private static StructureType[] intToType;
@@ -23,15 +28,23 @@ public enum StructureType {
 
     // Fill array after all enum objects created
     static {
-        intToType = new StructureType[0xe + 1];
+        intToType = new StructureType[0x20 + 1];
         for (StructureType type : values()) {
             intToType[type.value] = type;
+            if (type.value2 > 0) {
+                intToType[type.value2] = type;
+            }
         }
     }
 
 
     StructureType(int value) {
         this.value = value;
+    }
+
+    StructureType(int value, int value2) {
+        this.value  = value;
+        this.value2 = value2;
     }
 
     /**
@@ -50,7 +63,7 @@ public enum StructureType {
      * @return the name, or "UNKNOWN".
      */
     public static String getName(int val) {
-        if (val > 0xe || val < 0) return "UNKNOWN";
+        if (val > 0x20 || val < 0) return "UNKNOWN";
         StructureType type = getStructureType(val);
         if (type == null) return "UNKNOWN";
         return type.name();
@@ -63,7 +76,7 @@ public enum StructureType {
      * @return the matching enum, or <code>null</code>.
      */
     public static StructureType getStructureType(int val) {
-        if (val > 0xe || val < 0) return null;
+        if (val > 0x20 || val < 0) return null;
         return intToType[val];
     }
 }
