@@ -44,7 +44,7 @@ set(C_LIB_FILES
     src/libsrc/eviofmt.c
     src/libsrc/eviofmtdump.c
     src/libsrc/eviofmtswap.c
-    src/libsrc/evioswap.c)
+    src/libsrc/evioswap.c src/hipo/AbstractTreeNode.h src/hipo/BaseStructure.cpp src/hipo/BaseStructure.h)
 
 set(CPP_HEADER_FILES
     src/libsrc++/evioBankIndex.hxx
@@ -91,6 +91,7 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/WriterMT.h
         src/hipo/EvioNode.h
         src/hipo/DataType.h
+        src/hipo/StructureType.h
         src/hipo/RecordNode.h
         src/hipo/EvioNodeSource.h
         src/hipo/TestWriter.h
@@ -105,13 +106,14 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/EvioBank.h
         src/hipo/TreeNode.h
         src/hipo/TreeNodeException.h
+        src/hipo/BaseStructure.h
+        src/hipo/BaseStructureHeader.h
         )
 
 set(CPP_LIB_FILES_NEW
         src/hipo/FileEventIndex.cpp
         src/hipo/ByteOrder.cpp
         src/hipo/ByteBuffer.cpp
-        src/hipo/ByteBufferVecotr.cpp
         src/hipo/HeaderType.cpp
         src/hipo/Compressor.cpp
         src/hipo/FileHeader.cpp
@@ -122,11 +124,14 @@ set(CPP_LIB_FILES_NEW
         src/hipo/WriterMT.cpp
         src/hipo/EvioNode.cpp
         src/hipo/DataType.cpp
+        src/hipo/StructureType.cpp
         src/hipo/Reader.cpp
         src/hipo/RecordSupply.cpp
         src/hipo/RecordRingItem.cpp
         src/hipo/EventWriter.cpp
         src/hipo/EvioBank.cpp
+        src/hipo/BaseStructure.cpp
+        src/hipo/BaseStructureHeader.cpp
         )
 
 set(TEST_FILES_CC
