@@ -1,5 +1,5 @@
 //
-// Created by timmer on 2/26/20.
+// Created by timmer on 2/26/20.  This is just the prototype for the BaseStructure class.
 //
 
 #ifndef EVIO_6_0_TREENODE_H
@@ -10,163 +10,168 @@
 #include <iterator>
 #include <stack>
 #include <vector>
+#include <queue>
 #include <utility>
 #include "TreeNodeException.h"
 
+using namespace std::chrono_literals;
 
 namespace evio {
 
+    // Forward declarations of iterators ...
+    template <typename R>  class nodeIterator;
+    template <typename R>  class nodeBreadthIterator;
 
-// Forward declare iterator classes
-    template<typename R>   class nodeIterator;
-    template<typename S>   class nodeIterator_const;
-    template<typename T>   class nodeBreadthIterator;
-    template<typename T>   class nodeBreadthIterator_const;
-
-
-/**
- * <code>TreeNode</code> is a class, ported from Java's DefaultMutableTreeNode,
- * implementing a general-purpose node in a tree data structure.
- * <p>
- *
- * A tree node may have at most one parent and 0 or more children.
- * <code>TreeNode</code> provides operations for examining and modifying a
- * node's parent and children and also operations for examining the tree that
- * the node is a part of.  A node's tree is the set of all nodes that can be
- * reached by starting at the node and following all the possible links to
- * parents and children.  A node with no parent is the root of its tree; a
- * node with no children is a leaf.  A tree may consist of many subtrees,
- * each node acting as the root for its own subtree.
- * <p>
- * This class provides iterators for efficiently traversing a tree or
- * subtree in either depth-first, preorder traversal or breadth-first traversal.
- * A <code>TreeNode</code> may also hold a reference to a user object, the
- * use of which is left to the user.<p>
- * <b>This is not a thread safe class.</b>If you intend to use
- * a TreeNode (or a tree of TreeNodes) in more than one thread, you
- * need to do your own synchronizing. A good convention to adopt is
- * synchronizing on the root node of a tree.
- * <p>
- *
- *
- * @author Carl Timmer
- * @author Rob Davis
- */
-    template<typename T>
-
-    class TreeNode : public std::enable_shared_from_this<TreeNode<T>> {
+    /**
+     * <code>TreeNode</code> is a class, ported from Java's DefaultMutableTreeNode,
+     * implementing a general-purpose node in a tree data structure.
+     * <p>
+     *
+     * A tree node may have at most one parent and 0 or more children.
+     * <code>TreeNode</code> provides operations for examining and modifying a
+     * node's parent and children and also operations for examining the tree that
+     * the node is a part of.  A node's tree is the set of all nodes that can be
+     * reached by starting at the node and following all the possible links to
+     * parents and children.  A node with no parent is the root of its tree; a
+     * node with no children is a leaf.  A tree may consist of many subtrees,
+     * each node acting as the root for its own subtree.
+     * <p>
+     * This class provides iterators for efficiently traversing a tree or
+     * subtree in either depth-first or breadth-first traversal.
+     * A <code>TreeNode</code> may also hold a reference to a user object, the
+     * use of which is left to the user.<p>
+     * <b>This is not a thread safe class.</b>If you intend to use
+     * a TreeNode (or a tree of TreeNodes) in more than one thread, you
+     * need to do your own synchronizing. A good convention to adopt is
+     * synchronizing on the root node of a tree.
+     * <p>
+     *
+     *
+     * @author Carl Timmer
+     * @author Rob Davis
+     */
+    template<typename R>
+    class TreeNode : public std::enable_shared_from_this<TreeNode<R>> {
 
     public:
+
         // For defining our own iterator
         typedef size_t size_type;
         typedef std::ptrdiff_t difference_type;
         typedef std::input_iterator_tag iterator_category;
 
         typedef std::shared_ptr<TreeNode> value_type;
-        typedef std::shared_ptr<TreeNode> &reference;
-        typedef std::shared_ptr<TreeNode> *pointer;
+        typedef std::shared_ptr<TreeNode> reference;
+        typedef std::shared_ptr<TreeNode> pointer;
 
         typedef nodeIterator<std::shared_ptr<TreeNode>> iterator;
-        typedef nodeIterator_const<std::shared_ptr<TreeNode>> const_iterator;
         typedef nodeBreadthIterator<std::shared_ptr<TreeNode>> breadth_iterator;
-//        typedef nodeBreadthIterator_const<std::shared_ptr<const TreeNode>> breadth_iterator_const;
 
         friend class nodeIterator<std::shared_ptr<TreeNode>>;
-        friend class nodeIterator_const<std::shared_ptr<TreeNode>>;
         friend class nodeBreadthIterator<std::shared_ptr<TreeNode>>;
-//        friend class nodeBreadthIterator_const<std::shared_ptr<const TreeNode>>;
+
+        // Can't figure out how to implement a const iterator, so I give up.
+        //typedef nodeIterator_const<std::shared_ptr<const TreeNode>> const_iterator;
+        //typedef nodeBreadthIterator_const<std::shared_ptr<TreeNode>> breadth_iterator_const;
+        //friend class nodeIterator_const<std::shared_ptr<TreeNode>>;
+        //friend class nodeBreadthIterator_const<std::shared_ptr<const TreeNode>>;
+
+        iterator begin() { auto arg = getThis(); return iterator(arg, false); }
+        iterator end()   { auto arg = getThis(); return iterator(arg, true); }
+
+        breadth_iterator bbegin() { auto arg = getThis(); return breadth_iterator(arg, false); }
+        breadth_iterator bend()   { auto arg = getThis(); return breadth_iterator(arg, true); }
+
+    protected:
+
+        /** This node's parent, or null if this node has no parent.
+         *  Originally part of java's DefaultMutableTreeNode. */
+        std::shared_ptr<TreeNode> parent = nullptr;
+
+        /** Array of children, may be null if this node has no children.
+         *  Originally part of java's DefaultMutableTreeNode. */
+        std::vector<std::shared_ptr<TreeNode>> children;
+
+        /** True if the node is able to have children
+         *  Originally part of java's DefaultMutableTreeNode. */
+        bool allowsChildren = true;
+
+        /** Object attached to this node.
+         *  Originally part of java's DefaultMutableTreeNode. */
+        R userObject;
+
+    protected:
+
+//        /**
+//         * Creates a tree node that has no parent and no children, but which
+//         * allows children.
+//         */
+//        TreeNode() = default;
+
+        /**
+          * Creates a tree node with no parent, no children, initialized with
+          * the specified user object, and that allows children only if
+          * specified.
+          *
+          * @param val specifies a user object which is copied into this object.
+          * @param allows if true, the node is allowed to have child
+          *        nodes -- otherwise, it is always a leaf node
+          */
+        explicit TreeNode(R val, bool allows = true) : userObject(val), allowsChildren(allows) {}
 
     public:
 
-        iterator begin() { return iterator(this->shared_from_this(), false); }
-        iterator end()   { return iterator(this->shared_from_this(), true); }
+        std::shared_ptr<TreeNode> getThis() { return (const_cast<TreeNode *>(this))->shared_from_this(); }
+        //std::shared_ptr<const TreeNode<T>> getThisConst() const { return this->shared_from_this(); }
 
-        iterator begin() const { return const_iterator(this->shared_from_this(), false); }
-        iterator end()   const { return const_iterator(this->shared_from_this(), true); }
-
-        breadth_iterator bbegin() { return breadth_iterator(this->shared_from_this(), false); }
-        breadth_iterator bend()   { return breadth_iterator(this->shared_from_this(), true); }
-
-//        breadth_iterator_const bbegin() const { return breadth_iterator_const(this->shared_from_this(), false); }
-//        breadth_iterator_const bend()   const { return breadth_iterator_const(this->shared_from_this(), true); }
-
+        /**
+         * This method creates a TreeNode object from the given arguments.
+         * @param val specifies a user object which is copied into this object.
+         * @param allows if true, this node is allowed to have children.
+         * @return the constructed TreeNode.
+         */
+        static std::shared_ptr<TreeNode> getInstance(R val, bool allows = true) {
+            std::shared_ptr<TreeNode> pNode(new TreeNode(val, allows));
+            return pNode;
+        }
 
 
     protected:
 
-        /** this node's parent, or null if this node has no parent */
-        std::shared_ptr<TreeNode> parent = nullptr;
-
-        /** array of children, may be null if this node has no children */
-        std::vector<std::shared_ptr<TreeNode>> children;
-
-        /** optional user object */
-        std::shared_ptr<T> userObject = nullptr;
-
-        /** true if the node is able to have children */
-        bool allowsChildren = true;
-
-    private:
-
         /**
-         * Creates a tree node that has no parent and no children, but which
-         * allows children.
-         */
-        TreeNode() = default;
-
-        /**
-         * Creates a tree node with no parent, no children, but which allows
-         * children, and initializes it with the specified user object.
+         * Sets this node's parent to <code>newParent</code> but does not
+         * change the parent's child array.  This method is called from
+         * {@link #insert} and {@link #remove} to
+         * reassign a child's parent, it should not be messaged from anywhere
+         * else.
+         * Originally part of java's DefaultMutableTreeNode.
          *
-         * @param userObject an Object provided by the user that constitutes
-         *                   the node's data
+         * @param newParent this node's new parent.
          */
-        explicit TreeNode(std::shared_ptr<T> userObject) : TreeNode(userObject, true) {}
-
-        /**
-         * Creates a tree node with no parent, no children, initialized with
-         * the specified user object, and that allows children only if
-         * specified.
-         *
-         * @param userObject an Object provided by the user that constitutes
-         *        the node's data
-         * @param allowsChildren if true, the node is allowed to have child
-         *        nodes -- otherwise, it is always a leaf node
-         */
-        TreeNode(std::shared_ptr<T> userObject, bool allowsChildren) {
-            this->allowsChildren = allowsChildren;
-            this->userObject = userObject;
-        }
+        void setParent(const std::shared_ptr<TreeNode> &newParent) { parent = newParent; }
 
     public:
 
-        static std::shared_ptr<TreeNode> getInstance() {
-            // Unfortunately, make_shared chokes on private constructors when constructing objects
-            //return std::make_shared<TreeNode>(nullptr, true);
-            std::shared_ptr<TreeNode> pNode(new TreeNode(nullptr, true));
-            return pNode;
-        }
+        /**
+         * Get a reference to the attached user object.
+         * Originally part of java's DefaultMutableTreeNode.
+         * @return reference to attached user object.
+         */
+        R & getUserObject() {return userObject;}
 
-        static std::shared_ptr<TreeNode> getInstance(std::shared_ptr<T> userObject) {
-            std::shared_ptr<TreeNode> pNode(new TreeNode(userObject, true));
-            return pNode;
-        }
-
-        static std::shared_ptr<TreeNode> getInstance(std::shared_ptr<T> userObject, bool allowsChildren) {
-            std::shared_ptr<TreeNode> pNode(new TreeNode(userObject, allowsChildren));
-            return pNode;
-        }
-
-//
-//  Primitives
-//
+        /**
+         * Set the attached user object.
+         * Originally part of java's DefaultMutableTreeNode.
+         * @param val specifies a user object which is copied into this object.
+         */
+        void setUserObject(R val) {userObject = val;}
 
         /**
          * Removes <code>newChild</code> from its present parent (if it has a
          * parent), sets the child's parent to this node, and then adds the child
          * to this node's child array at index <code>childIndex</code>.
          * <code>newChild</code> must not be null and must not be an ancestor of
-         * this node.
+         * this node. Originally part of java's DefaultMutableTreeNode.
          *
          * @param   newChild        the TreeNode to insert under this node.
          * @param   childIndex      the index in this node's child array.
@@ -199,7 +204,7 @@ namespace evio {
         /**
          * Removes the child at the specified index from this node's children
          * and sets that node's parent to null. The child node to remove
-         * must be a <code>TreeNode</code>.
+         * must be a <code>TreeNode</code>. Originally part of java's DefaultMutableTreeNode.
          *
          * @param   childIndex      the index in this node's child array
          *                          of the child to remove
@@ -225,26 +230,15 @@ namespace evio {
         }
 
         /**
-         * Sets this node's parent to <code>newParent</code> but does not
-         * change the parent's child array.  This method is called from
-         * <code>insert()</code> and <code>remove()</code> to
-         * reassign a child's parent, it should not be messaged from anywhere
-         * else.
-         *
-         * @param   newParent       this node's new parent
-         */
-        void setParent(const std::shared_ptr<TreeNode> &newParent) { parent = newParent; }
-
-        /**
          * Returns this node's parent or null if this node has no parent.
-         *
+         * Originally part of java's DefaultMutableTreeNode.
          * @return  this node's parent TreeNode, or null if this node has no parent
          */
-        std::shared_ptr<TreeNode> getParent() { return parent; }
+        std::shared_ptr<TreeNode> getParent() const { return parent; }
 
         /**
          * Returns the child at the specified index in this node's child array.
-         *
+         * Originally part of java's DefaultMutableTreeNode.
          * @param   index   an index into this node's child array
          * @exception   TreeNodeException  if <code>index</code> is out of bounds
          * @return  the TreeNode in this node's child array at  the specified index
@@ -258,7 +252,7 @@ namespace evio {
 
         /**
          * Returns the number of children of this node.
-         *
+         * Originally part of java's DefaultMutableTreeNode.
          * @return  an int giving the number of children of this node
          */
         size_t getChildCount() const { return children.size(); }
@@ -268,6 +262,7 @@ namespace evio {
          * If the specified node is not a child of this node, returns
          * <code>-1</code>.  This method performs a linear search and is O(n)
          * where n is the number of children.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @param   aChild  the TreeNode to search for among this node's children.
          * @exception       TreeNodeException  if <code>aChild</code>  is null
@@ -303,6 +298,7 @@ namespace evio {
          * Creates and returns a forward-order iterator of this node's
          * children.  Modifying this node's child array invalidates any child
          * iterators created before the modification.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @return  an iterator of this node's children
          */
@@ -311,7 +307,7 @@ namespace evio {
         /**
          * Determines whether or not this node is allowed to have children.
          * If <code>allows</code> is false, all of this node's children are
-         * removed.
+         * removed. Originally part of java's DefaultMutableTreeNode.
          * <p>
          * Note: By default, a node allows children.
          *
@@ -328,24 +324,10 @@ namespace evio {
 
         /**
          * Returns true if this node is allowed to have children.
+         * Originally part of java's DefaultMutableTreeNode.
          * @return  true if this node allows children, else false
          */
         bool getAllowsChildren() { return allowsChildren; }
-
-        /**
-         * Sets the user object for this node to <code>userObject</code>.
-         * @param   userObject      the Object that constitutes this node's
-         *                          user-specified data
-         * @see     #getUserObject
-         */
-        void setUserObject(std::shared_ptr<T> &usrObject) { this->shared_from_this()->userObject = usrObject; }
-
-        /**
-         * Returns this node's user object.
-         * @return  the Object stored at this node by the user
-         * @see     #setUserObject
-         */
-        std::shared_ptr<T> getUserObject() { return userObject; }
 
 
 //
@@ -355,33 +337,18 @@ namespace evio {
         /**
          * Removes the subtree rooted at this node from the tree, giving this
          * node a null parent.  Does nothing if this node is the root of its
-         * tree.
+         * tree. Originally part of java's DefaultMutableTreeNode.
          */
         void removeFromParent() {
             auto p = getParent();
             if (p != nullptr) {
-// TODO: need to override remove to take this
-                p.remove(this);
+                p->remove(this->shared_from_this());
             }
         }
 
         /**
          * Removes <code>aChild</code> from this node's child array, giving it a
-         * null parent.
-         *
-         * @param   aChild  a child of this node to remove
-         * @exception  TreeNodeException if <code>aChild</code> is not a child of this node
-         */
-        void remove(const TreeNode *aChild) {
-            if (!isNodeChild(aChild)) {
-                throw TreeNodeException("argument is not a child");
-            }
-            remove(getIndex(aChild));       // linear search
-        }
-
-        /**
-         * Removes <code>aChild</code> from this node's child array, giving it a
-         * null parent.
+         * null parent. Originally part of java's DefaultMutableTreeNode.
          *
          * @param   aChild  a child of this node to remove
          * @exception  TreeNodeException if <code>aChild</code> is not a child of this node
@@ -396,6 +363,7 @@ namespace evio {
         /**
          * Removes all of this node's children, setting their parents to null.
          * If this node has no children, this method does nothing.
+         *  Originally part of java's DefaultMutableTreeNode.
          */
         void removeAllChildren() {
             for (int i = getChildCount() - 1; i >= 0; i--) {
@@ -406,13 +374,14 @@ namespace evio {
         /**
          * Removes <code>newChild</code> from its parent and makes it a child of
          * this node by adding it to the end of this node's child array.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
-         * @see             #insert
+         * @see     #insert
          * @param   newChild        node to add as a child of this node
          * @exception  TreeNodeException    if <code>newChild</code> is null,
          *                                  or this node does not allow children.
          */
-        void add(std::shared_ptr<TreeNode<T>> &newChild) {
+        void add(std::shared_ptr<TreeNode> &newChild) {
             if (newChild != nullptr && newChild->getParent() == this->shared_from_this())
                 insert(newChild, getChildCount() - 1);
             else
@@ -431,36 +400,7 @@ namespace evio {
          * node's parent.  (Note that a node is considered an ancestor of itself.)
          * If <code>anotherNode</code> is null, this method returns false.  This
          * operation is at worst O(h) where h is the distance from the root to
-         * this node.
-         *
-         * @see             #isNodeDescendant
-         * @see             #getSharedAncestor
-         * @param   anotherNode     node to test as an ancestor of this node
-         * @return  true if this node is a descendant of <code>anotherNode</code>
-         */
-        bool isNodeAncestor(const TreeNode *anotherNode) {
-            if (anotherNode == nullptr) {
-                return false;
-            }
-
-            TreeNode *ancestor = this;
-
-            do {
-                if (ancestor == anotherNode) {
-                    return true;
-                }
-            } while ((ancestor = ancestor->getParent()) != nullptr);
-
-            return false;
-        }
-
-        /**
-         * Returns true if <code>anotherNode</code> is an ancestor of this node
-         * -- if it is this node, this node's parent, or an ancestor of this
-         * node's parent.  (Note that a node is considered an ancestor of itself.)
-         * If <code>anotherNode</code> is null, this method returns false.  This
-         * operation is at worst O(h) where h is the distance from the root to
-         * this node.
+         * this node. Originally part of java's DefaultMutableTreeNode.
          *
          * @see             #isNodeDescendant
          * @see             #getSharedAncestor
@@ -489,7 +429,7 @@ namespace evio {
          * one of this node's children.  Note that a node is considered a
          * descendant of itself.  If <code>anotherNode</code> is null, returns
          * false.  This operation is at worst O(h) where h is the distance from the
-         * root to <code>anotherNode</code>.
+         * root to <code>anotherNode</code>. Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #isNodeAncestor
          * @see     #getSharedAncestor
@@ -508,6 +448,7 @@ namespace evio {
          * Returns null, if no such ancestor exists -- if this node and
          * <code>aNode</code> are in different trees or if <code>aNode</code> is
          * null.  A node is considered an ancestor of itself.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #isNodeAncestor
          * @see     #isNodeDescendant
@@ -636,6 +577,8 @@ namespace evio {
         /**
          * Returns true if and only if <code>aNode</code> is in the same tree
          * as this node.  Returns false if <code>aNode</code> is null.
+         * Originally part of java's DefaultMutableTreeNode.
+         *
          *
          * @see     #getSharedAncestor
          * @see     #getRoot
@@ -643,7 +586,7 @@ namespace evio {
          *          false if <code>aNode</code> is null
          */
         bool isNodeRelated(std::shared_ptr<TreeNode> &aNode) {
-            return (aNode != nullptr) && (getRoot() == aNode.getRoot());
+            return (aNode != nullptr) && (getRoot() == aNode->getRoot());
         }
 
 
@@ -652,7 +595,7 @@ namespace evio {
          * distance from this node to a leaf.  If this node has no children,
          * returns 0.  This operation is much more expensive than
          * <code>getLevel()</code> because it must effectively traverse the entire
-         * tree rooted at this node.
+         * tree rooted at this node. Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #getLevel
          * @throws  TreeNodeException if internal logic error.
@@ -663,7 +606,7 @@ namespace evio {
             auto iter2 = bend();
             auto last = iter1;
 
-            for (; iter1 < iter2; iter1++) {
+            for (; iter1 != iter2; iter1++) {
                 last = iter1;
             }
 
@@ -674,6 +617,7 @@ namespace evio {
         /**
          * Returns the number of levels above this node -- the distance from
          * the root to this node.  If this node is the root, returns 0.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #getDepth
          * @return  the number of levels above this node
@@ -693,6 +637,7 @@ namespace evio {
         /**
           * Returns the path from the root, to get to this node.  The last
           * element in the path is this node.
+          * Originally part of java's DefaultMutableTreeNode.
           *
           * @return an array of TreeNode objects giving the path, where the
           *         first element in the path is the root and the last
@@ -708,7 +653,7 @@ namespace evio {
          * Builds the parents of node up to and including the root node,
          * where the original node is the last element in the returned array.
          * The length of the returned array gives the node's depth in the
-         * tree.
+         * tree. Originally part of java's DefaultMutableTreeNode.
          *
          * @param aNode  the TreeNode to get the path for
          * @param depth  an int giving the number of steps already taken towards
@@ -716,7 +661,7 @@ namespace evio {
          * @return an array of TreeNodes giving the path from the root to the
          *         specified node
          */
-        std::vector<std::shared_ptr<TreeNode>> getPathToRoot(std::shared_ptr<TreeNode> &aNode, int depth) {
+        std::vector<std::shared_ptr<TreeNode>> getPathToRoot(const std::shared_ptr<TreeNode> & aNode, int depth) {
 
             /* Check for null, in case someone passed in a null node, or
                they passed in an element that isn't rooted at root. */
@@ -725,37 +670,23 @@ namespace evio {
                     std::vector<std::shared_ptr<TreeNode>> retNodes;
                     return retNodes;
                 } else {
-                    std::vector<std::shared_ptr<TreeNode>> retNodes[depth] = {};
+                    std::vector<std::shared_ptr<TreeNode>> retNodes;
+                    retNodes.reserve(depth);
                     return retNodes;
                 }
             }
 
             depth++;
             auto retNodes = getPathToRoot(aNode->getParent(), depth);
-            retNodes[retNodes.length - depth] = aNode;
+            retNodes.push_back(aNode);
             return retNodes;
         }
 
     public:
 
         /**
-          * Returns the user object path, from the root, to get to this node.
-          * If some of the TreeNode in the path have null user objects, the
-          * returned path will contain nulls.
-          */
-        std::vector<std::shared_ptr<T>> getUserObjectPath() {
-            auto realPath = getPath();
-            std::vector<std::shared_ptr<T>> retPath(realPath.length);
-
-            for (int counter = 0; counter < realPath.length; counter++)
-                retPath[counter] = realPath[counter]->getUserObject();
-            return retPath;
-        }
-
-
-        /**
          * Returns the root of the tree that contains this node.  The root is
-         * the ancestor with a null parent.
+         * the ancestor with a null parent. Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #isNodeAncestor
          * @return  the root of the tree that contains this node
@@ -776,7 +707,7 @@ namespace evio {
         /**
          * Returns true if this node is the root of the tree.  The root is
          * the only node in the tree with a null parent; every tree has exactly
-         * one root.
+         * one root. Originally part of java's DefaultMutableTreeNode.
          *
          * @return  true if this node is the root of its tree
          */
@@ -787,7 +718,7 @@ namespace evio {
          * Returns the node that follows this node in a preorder traversal of this
          * node's tree.  Returns null if this node is the last node of the
          * traversal.  This is an inefficient way to traverse the entire tree; use
-         * an enumeration, instead.
+         * an enumeration, instead. Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #preorderEnumeration
          * @return  the node that follows this node in a preorder traversal, or
@@ -806,12 +737,12 @@ namespace evio {
                             return nullptr;
                         }
 
-                        nextSibling = aNode.getNextSibling();
+                        nextSibling = aNode->getNextSibling();
                         if (nextSibling != nullptr) {
                             return nextSibling;
                         }
 
-                        aNode = aNode.getParent();
+                        aNode = aNode->getParent();
                     } while (true);
                 } else {
                     return nextSibling;
@@ -828,6 +759,7 @@ namespace evio {
          * first node of the traversal -- the root of the tree.
          * This is an inefficient way to
          * traverse the entire tree; use an enumeration, instead.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #preorderEnumeration
          * @return  the node that precedes this node in a preorder traversal, or
@@ -844,10 +776,10 @@ namespace evio {
             previousSibling = getPreviousSibling();
 
             if (previousSibling != nullptr) {
-                if (previousSibling.getChildCount() == 0)
+                if (previousSibling->getChildCount() == 0)
                     return previousSibling;
                 else
-                    return previousSibling.getLastLeaf();
+                    return previousSibling->getLastLeaf();
             } else {
                 return myParent;
             }
@@ -861,6 +793,7 @@ namespace evio {
         /**
          * Returns true if <code>aNode</code> is a child of this node.  If
          * <code>aNode</code> is null, this method returns false.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @return  true if <code>aNode</code> is a child of this node; false if
          *                  <code>aNode</code> is null
@@ -885,6 +818,7 @@ namespace evio {
         /**
          * Returns this node's first child.  If this node has no children,
          * throws NoSuchElementException.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @return  the first child of this node
          * @exception       TreeNodeException  if this node has no children
@@ -900,6 +834,7 @@ namespace evio {
         /**
          * Returns this node's last child.  If this node has no children,
          * throws NoSuchElementException.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @return  the last child of this node
          * @exception       TreeNodeException  if this node has no children
@@ -919,6 +854,7 @@ namespace evio {
          * performs a linear search of this node's children for
          * <code>aChild</code> and is O(n) where n is the number of children; to
          * traverse the entire array of children, use an enumeration instead.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @see             #children
          * @throws      TreeNodeException if <code>aChild</code> is null or
@@ -951,6 +887,7 @@ namespace evio {
          * <code>aChild</code> is the first child, returns null.  This method
          * performs a linear search of this node's children for <code>aChild</code>
          * and is O(n) where n is the number of children.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @throws  TreeNodeException if <code>aChild</code> is null or
          *                                    is not a child of this node.
@@ -984,6 +921,7 @@ namespace evio {
          * Returns true if <code>anotherNode</code> is a sibling of (has the
          * same parent as) this node.  A node is its own sibling.  If
          * <code>anotherNode</code> is null, returns false.
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @param   anotherNode     node to test as sibling of this node.
          * @throws TreeNodeExceptin if sibling has different parent.
@@ -1000,7 +938,7 @@ namespace evio {
                 auto myParent = getParent();
                 retval = (myParent != nullptr && myParent == anotherNode->getParent());
 
-                if (retval && !(getParent().isNodeChild(anotherNode))) {
+                if (retval && !(myParent->isNodeChild(anotherNode))) {
                     throw TreeNodeException("sibling has different parent");
                 }
             }
@@ -1013,6 +951,7 @@ namespace evio {
          * Returns the number of siblings of this node.  A node is its own sibling
          * (if it has no parent or no siblings, this method returns
          * <code>1</code>).
+         *  Originally part of java's DefaultMutableTreeNode.
          *
          * @return  the number of siblings of this node
          */
@@ -1022,7 +961,7 @@ namespace evio {
             if (myParent == nullptr) {
                 return 1;
             } else {
-                return myParent.getChildCount();
+                return myParent->getChildCount();
             }
         }
 
@@ -1033,6 +972,8 @@ namespace evio {
          * This method performs a linear search that is O(n) where n is the number
          * of children; to traverse the entire array, use the parent's child
          * enumeration instead.
+         *  Originally part of java's DefaultMutableTreeNode.         *
+
          *
          * @see     #children
          * @throws  TreeNodeException if child of parent is not a sibling.
@@ -1046,7 +987,7 @@ namespace evio {
             if (myParent == nullptr) {
                 retval = nullptr;
             } else {
-                retval = myParent.getChildAfter(this->shared_from_this());      // linear search
+                retval = myParent->getChildAfter(this->shared_from_this());      // linear search
             }
 
             if (retval != nullptr && !isNodeSibling(retval)) {
@@ -1062,6 +1003,8 @@ namespace evio {
          * array.  Returns null if this node has no parent or is the parent's
          * first child.  This method performs a linear search that is O(n) where n
          * is the number of children.
+         *  Originally part of java's DefaultMutableTreeNode.         *
+
          *
          * @throws  TreeNodeException if child of parent is not a sibling.
          * @return  the sibling of this node that immediately precedes this node
@@ -1074,7 +1017,7 @@ namespace evio {
             if (myParent == nullptr) {
                 retval = nullptr;
             } else {
-                retval = myParent.getChildBefore(this->shared_from_this());     // linear search
+                retval = myParent->getChildBefore(this->shared_from_this());     // linear search
             }
 
             if (retval != nullptr && !isNodeSibling(retval)) {
@@ -1094,7 +1037,8 @@ namespace evio {
          * Returns true if this node has no children.  To distinguish between
          * nodes that have no children and nodes that <i>cannot</i> have
          * children (e.g. to distinguish files from empty directories), use this
-         * method in conjunction with <code>getAllowsChildren</code>
+         * method in conjunction with <code>getAllowsChildren</code>.
+         *  Originally part of java's DefaultMutableTreeNode.         *
          *
          * @see     #getAllowsChildren
          * @return  true if this node has no children
@@ -1106,6 +1050,7 @@ namespace evio {
          * Finds and returns the first leaf that is a descendant of this node --
          * either this node or its first child's first leaf.
          * Returns this node if it is a leaf.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #isLeaf
          * @see     #isNodeDescendant
@@ -1114,8 +1059,8 @@ namespace evio {
         std::shared_ptr<TreeNode> getFirstLeaf() {
             auto node = this->shared_from_this();
 
-            while (!node.isLeaf()) {
-                node = node.getFirstChild();
+            while (!node->isLeaf()) {
+                node = node->getFirstChild();
             }
 
             return node;
@@ -1126,6 +1071,7 @@ namespace evio {
          * Finds and returns the last leaf that is a descendant of this node --
          * either this node or its last child's last leaf.
          * Returns this node if it is a leaf.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #isLeaf
          * @see     #isNodeDescendant
@@ -1134,8 +1080,8 @@ namespace evio {
         std::shared_ptr<TreeNode> getLastLeaf() {
             auto node = this->shared_from_this();
 
-            while (!node.isLeaf()) {
-                node = node.getLastChild();
+            while (!node->isLeaf()) {
+                node = node->getLastChild();
             }
 
             return node;
@@ -1156,6 +1102,7 @@ namespace evio {
          * leaves in the tree, you should use <code>depthFirstEnumeration</code>
          * to enumerate the nodes in the tree and use <code>isLeaf</code>
          * on each node to determine which are leaves.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #depthFirstEnumeration
          * @see     #isLeaf
@@ -1171,9 +1118,9 @@ namespace evio {
             nextSibling = getNextSibling(); // linear search
 
             if (nextSibling != nullptr)
-                return nextSibling.getFirstLeaf();
+                return nextSibling->getFirstLeaf();
 
-            return myParent.getNextLeaf();  // tail recursion
+            return myParent->getNextLeaf();  // tail recursion
         }
 
 
@@ -1191,6 +1138,7 @@ namespace evio {
          * leaves in the tree, you should use <code>depthFirstEnumeration</code>
          * to enumerate the nodes in the tree and use <code>isLeaf</code>
          * on each node to determine which are leaves.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @see             #depthFirstEnumeration
          * @see             #isLeaf
@@ -1206,9 +1154,9 @@ namespace evio {
             previousSibling = getPreviousSibling(); // linear search
 
             if (previousSibling != nullptr)
-                return previousSibling.getLastLeaf();
+                return previousSibling->getLastLeaf();
 
-            return myParent.getPreviousLeaf();              // tail recursion
+            return myParent->getPreviousLeaf();              // tail recursion
         }
 
 
@@ -1216,12 +1164,13 @@ namespace evio {
          * Returns the total number of leaves that are descendants of this node.
          * If this node is a leaf, returns <code>1</code>.  This method is O(n)
          * where n is the number of descendants of this node.
+         * Originally part of java's DefaultMutableTreeNode.
          *
          * @see     #isNodeAncestor
          * @throws  TreeNodeException if tree has zero leaves.
          * @return  the number of leaves beneath this node
          */
-        ssize_t getLeafCount() const {
+        ssize_t getLeafCount() {
             ssize_t count = 0;
 
             auto iter1 = bbegin();
@@ -1240,7 +1189,7 @@ namespace evio {
             return count;
         }
 
-    }; // End of class DefaultMutableTreeNode
+    }; // End of class TreeNode
 
 
 
@@ -1271,7 +1220,7 @@ namespace evio {
         explicit nodeIterator(R &node, bool isEnd) : currentNode(node), isEnd(isEnd) {
             // store current-element and end of vector in pair
             std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
-            stack.push_back(p);
+            stack.push(p);
         }
 
         R operator*() const { return currentNode; }
@@ -1324,8 +1273,8 @@ namespace evio {
             ++curIter;
 
             // Look at node's children
-            auto &kidIterBegin = node->children.begin();
-            auto &kidIterEnd = node->children.end();
+            auto kidIterBegin = node->children.begin();
+            auto kidIterEnd = node->children.end();
 
             // If it has children, put pair of iterators on stack
             if ((kidIterEnd - 1) - kidIterBegin > 0) {
@@ -1368,8 +1317,8 @@ namespace evio {
             ++curIter;
 
             // Look at node's children
-            auto &kidIterBegin = node->children.begin();
-            auto &kidIterEnd = node->children.end();
+            auto kidIterBegin = node->children.begin();
+            auto kidIterEnd = node->children.end();
 
             // If it has children, put pair of iterators on stack
             if ((kidIterEnd - 1) - kidIterBegin > 0) {
@@ -1383,155 +1332,155 @@ namespace evio {
     };
 
 
-// TODO: not sure what to make const here ........................
-
-    template<typename S>
-
-    class nodeIterator_const {
-
-        // iterator of vector contained shared pointers to node's children
-        typedef typename std::vector<S>::iterator KidIter;
-
-    protected:
-
-        // Stack of pair containing 2 iterators, each iterating over vector
-        // of node's children (shared pts).
-        // In each pair, first is current iterator, second is end iterator.
-        std::stack<std::pair<KidIter, KidIter>> stack;
-
-        // Where we are now in the tree
-        S currentNode;
-
-        // Is this the end iterator?
-        bool isEnd;
-
-    public:
-
-        // Copy shared pointer arg
-        explicit nodeIterator_const(S &node, bool isEnd) : currentNode(node), isEnd(isEnd) {
-            // store current-element and end of vector in pair
-            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
-            stack.push_back(p);
-        }
-
-        S operator*() const { return currentNode; }
-
-        bool operator==(const nodeIterator_const &other) const {
-            // Identify end iterator
-            if (isEnd && other.isEnd) {
-                return true;
-            }
-            return this == &other;
-        }
-
-        bool operator!=(const nodeIterator_const &other) const {
-            // Identify end iterator
-            if (isEnd && other.isEnd) {
-                return false;
-            }
-            return this != &other;
-        }
-
-        // post increment gets ignored arg of 0 to distinguish from pre, A++
-        const nodeIterator_const operator++(int) {
-
-            if (isEnd) return *this;
-
-            // copy this iterator here
-            nodeIterator_const niter = *this;
-
-            // If gone thru the whole tree ...
-            if (stack.empty()) {
-                isEnd = true;
-                return niter;
-            }
-
-            // Look at top vector of stack
-            auto &topPair = stack.top();
-            // iterator of vector @ current position
-            auto &curIter = topPair.first;
-            // end iterator of vector
-            auto &endIter = topPair.second;
-            // current element of vector
-            auto &node = *curIter;
-
-            // If this vector has no more nodes ...
-            if (curIter - (endIter - 1) == 0) {
-                stack.pop();
-            }
-
-            // Prepare to look at the next node in the vector (next call)
-            ++curIter;
-
-            // Look at node's children
-            auto &kidIterBegin = node->children.begin();
-            auto &kidIterEnd = node->children.end();
-
-            // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
-                stack.push(p);
-            }
-
-            currentNode = node;
-            // return copy of this iterator before changes
-            return niter;
-        }
-
-
-        // pre increment, ++A
-        const nodeIterator_const &operator++() {
-
-            if (isEnd) return *this;
-
-            // If gone thru the whole tree ...
-            if (stack.empty()) {
-                isEnd = true;
-                return *this;
-            }
-
-            // Look at top vector of stack
-            auto &topPair = stack.top();
-            // iterator of vector @ current position
-            auto &curIter = topPair.first;
-            // end iterator of vector
-            auto &endIter = topPair.second;
-            // current element of vector
-            auto &node = *curIter;
-
-            // If this vector has no more nodes ...
-            if (curIter - (endIter - 1) == 0) {
-                stack.pop();
-            }
-
-            // Prepare to look at the next node in the vector (next call)
-            ++curIter;
-
-            // Look at node's children
-            auto &kidIterBegin = node->children.begin();
-            auto &kidIterEnd = node->children.end();
-
-            // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
-                stack.push(p);
-            }
-
-            currentNode = node;
-            return *this;
-        }
-    };
+//// TODO: not sure what to make const here ........................
+//
+//    template<typename S>
+//
+//    class nodeIterator_const {
+//
+//        // iterator of vector contained shared pointers to node's children
+//        typedef typename std::vector<S>::iterator KidIter;
+//
+//    protected:
+//
+//        // Stack of pair containing 2 iterators, each iterating over vector
+//        // of node's children (shared pts).
+//        // In each pair, first is current iterator, second is end iterator.
+//        std::stack<std::pair<KidIter, KidIter>> stack;
+//
+//        // Where we are now in the tree
+//        S currentNode;
+//
+//        // Is this the end iterator?
+//        bool isEnd;
+//
+//    public:
+//
+//        // Copy shared pointer arg
+//        explicit nodeIterator_const(S &node, bool isEnd) : currentNode(node), isEnd(isEnd) {
+//            // store current-element and end of vector in pair
+//            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
+//            stack.push_back(p);
+//        }
+//
+//        S operator*() const { return currentNode; }
+//
+//        bool operator==(const nodeIterator_const &other) const {
+//            // Identify end iterator
+//            if (isEnd && other.isEnd) {
+//                return true;
+//            }
+//            return this == &other;
+//        }
+//
+//        bool operator!=(const nodeIterator_const &other) const {
+//            // Identify end iterator
+//            if (isEnd && other.isEnd) {
+//                return false;
+//            }
+//            return this != &other;
+//        }
+//
+//        // post increment gets ignored arg of 0 to distinguish from pre, A++
+//        const nodeIterator_const operator++(int) {
+//
+//            if (isEnd) return *this;
+//
+//            // copy this iterator here
+//            nodeIterator_const niter = *this;
+//
+//            // If gone thru the whole tree ...
+//            if (stack.empty()) {
+//                isEnd = true;
+//                return niter;
+//            }
+//
+//            // Look at top vector of stack
+//            auto &topPair = stack.top();
+//            // iterator of vector @ current position
+//            auto &curIter = topPair.first;
+//            // end iterator of vector
+//            auto &endIter = topPair.second;
+//            // current element of vector
+//            auto &node = *curIter;
+//
+//            // If this vector has no more nodes ...
+//            if (curIter - (endIter - 1) == 0) {
+//                stack.pop();
+//            }
+//
+//            // Prepare to look at the next node in the vector (next call)
+//            ++curIter;
+//
+//            // Look at node's children
+//            auto &kidIterBegin = node->children.begin();
+//            auto &kidIterEnd = node->children.end();
+//
+//            // If it has children, put pair of iterators on stack
+//            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+//                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+//                stack.push(p);
+//            }
+//
+//            currentNode = node;
+//            // return copy of this iterator before changes
+//            return niter;
+//        }
+//
+//
+//        // pre increment, ++A
+//        const nodeIterator_const &operator++() {
+//
+//            if (isEnd) return *this;
+//
+//            // If gone thru the whole tree ...
+//            if (stack.empty()) {
+//                isEnd = true;
+//                return *this;
+//            }
+//
+//            // Look at top vector of stack
+//            auto &topPair = stack.top();
+//            // iterator of vector @ current position
+//            auto &curIter = topPair.first;
+//            // end iterator of vector
+//            auto &endIter = topPair.second;
+//            // current element of vector
+//            auto &node = *curIter;
+//
+//            // If this vector has no more nodes ...
+//            if (curIter - (endIter - 1) == 0) {
+//                stack.pop();
+//            }
+//
+//            // Prepare to look at the next node in the vector (next call)
+//            ++curIter;
+//
+//            // Look at node's children
+//            auto &kidIterBegin = node->children.begin();
+//            auto &kidIterEnd = node->children.end();
+//
+//            // If it has children, put pair of iterators on stack
+//            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+//                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+//                stack.push(p);
+//            }
+//
+//            currentNode = node;
+//            return *this;
+//        }
+//    };
 
 /////////////////////////////////// BREADTH FIRST ITERATOR
 
-    template<typename T>
+    template<typename R>
 
     class nodeBreadthIterator {
 
     protected:
 
         // iterator of vector contained shared pointers to node's children
-        typedef typename std::vector<T>::iterator KidIter;
+        typedef typename std::vector<R>::iterator KidIter;
 
         // Stack of iterators of vector of shared pointers.
         // Each vector contains the children of a node,
@@ -1542,7 +1491,7 @@ namespace evio {
         std::queue<std::pair<KidIter, KidIter>> que;
 
         // Where we are now in the tree
-        T currentNode;
+        R currentNode;
 
         // Is this the end iterator?
         bool isEnd;
@@ -1550,24 +1499,37 @@ namespace evio {
     public:
 
         // Copy shared pointer arg
-        explicit nodeBreadthIterator(T & node, bool isEnd) : currentNode(node), isEnd(isEnd) {
+        nodeBreadthIterator(R & node, bool isEnd) : currentNode(node), isEnd(isEnd) {
             // store current-element and end of vector in pair
             std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
             que.push(p);
         }
 
-        T operator*() const { return currentNode; }
+        R operator*() const { return currentNode; }
 
-        bool operator==(const nodeBreadthIterator &other) const { return this == &other; }
+        bool operator==(const nodeBreadthIterator &other) const {
+            if (isEnd && other.isEnd) {
+                return true;
+            }
+            return this == &other;
+        }
 
-        bool operator!=(const nodeBreadthIterator &other) const { return this != &other; }
+        bool operator!=(const nodeBreadthIterator &other) const {
+            if (isEnd && other.isEnd) {
+                return false;
+            }
+            return this != &other;
+        }
+
 
         // TODO: How does one handle going too far???
 
         // post increment gets ignored arg of 0 to distinguish from pre, A++
         nodeBreadthIterator operator++(int) {
 
-            if (isEnd) return *this;
+            if (isEnd) {
+                return *this;
+            }
 
             // copy this iterator here
             nodeBreadthIterator niter = *this;
@@ -1596,8 +1558,8 @@ namespace evio {
             ++curIter;
 
             // Look at node's children
-            auto &kidIterBegin = node->children.begin();
-            auto &kidIterEnd = node->children.end();
+            auto kidIterBegin = node->children.begin();
+            auto kidIterEnd = node->children.end();
 
             // If it has children, put pair of iterators on stack
             if ((kidIterEnd - 1) - kidIterBegin > 0) {
@@ -1614,7 +1576,9 @@ namespace evio {
         // pre increment, ++A
         nodeBreadthIterator operator++() {
 
-            if (isEnd) return *this;
+            if (isEnd) {
+                return *this;
+            }
 
             // If gone thru the whole tree ...
             if (que.empty()) {
@@ -1654,137 +1618,144 @@ namespace evio {
         }
     };
 
-/////////////////////////////////// CONST BREADTH FIRST ITERATOR
 
-    template<typename T>
+///////////////////////////////////// CONST BREADTH FIRST ITERATOR
+//
+//    template<typename W>
+//
+//    class nodeBreadthIterator_const {
+//
+//    protected:
+//
+//        // iterator of vector contained shared pointers to node's children
+//        typedef typename std::vector<W>::const_iterator KidIter;
+//
+//        // Stack of iterators of vector of shared pointers.
+//        // Each vector contains the children of a node,
+//        // thus each iterator gives all a node's kids.
+//
+//        // Stack of iterators over node's children.
+//        // In each pair, first is current iterator, second is end
+//        std::queue<std::pair<KidIter, KidIter>> que;
+//
+//        // Where we are now in the tree
+//        const W currentNode;
+//
+//        // Is this the end iterator?
+//        bool isEnd;
+//
+//    public:
+//
+//        // Copy shared pointer arg
+//        explicit nodeBreadthIterator_const(W const & node, bool isEnd) : currentNode(node), isEnd(isEnd) {
+//            // store current-element and end of vector in pair
+//            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
+//            que.push(p);
+//        }
+//
+//        const W operator*() const { return currentNode; }
+//
+//        bool operator==(const nodeBreadthIterator_const &other) const { return this == &other; }
+//
+//        bool operator!=(const nodeBreadthIterator_const &other) const { return this != &other; }
+//
+//        // TODO: How does one handle going too far???
+//
+//        // post increment gets ignored arg of 0 to distinguish from pre, A++
+//        nodeBreadthIterator_const operator++(int) {
+//
+//            if (isEnd) return *this;
+//
+//            // copy this iterator here
+//            nodeBreadthIterator_const niter = *this;
+//
+//            // If gone thru the whole tree ...
+//            if (que.empty()) {
+//                isEnd = true;
+//                return *this;
+//            }
+//
+//            // Look at top vector of Q
+//            auto &topPair = que.front();
+//            // iterator of vector @ current position
+//            auto &curIter = topPair.first;
+//            // end iterator of vector
+//            auto &endIter = topPair.second;
+//            // current element of vector
+//            auto &node = *curIter;
+//
+//            // If this vector has no more nodes ...
+//            if (curIter - (endIter - 1) == 0) {
+//                que.pop();
+//            }
+//
+//            // Prepare to look at the next node in the vector (next call)
+//            ++curIter;
+//
+//            // Look at node's children
+//            auto kidIterBegin = node->children.begin();
+//            auto kidIterEnd   = node->children.end();
+//
+//            // If it has children, put pair of iterators on stack
+//            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+//                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+//                que.push(p);
+//            }
+//
+//            currentNode = node;
+//            // return copy of this iterator before changes
+//            return niter;
+//        }
+//
+//
+//        // pre increment, ++A
+//        nodeBreadthIterator_const operator++() {
+//
+//            if (isEnd) return *this;
+//
+//            // If gone thru the whole tree ...
+//            if (que.empty()) {
+//                isEnd = true;
+//                return *this;
+//            }
+//
+//            // Look at top vector of Q
+//            auto &topPair = que.front();
+//            // iterator of vector @ current position
+//            auto &curIter = topPair.first;
+//            // end iterator of vector
+//            auto &endIter = topPair.second;
+//            // current element of vector
+//            auto &node = *curIter;
+//
+//            // If this vector has no more nodes ...
+//            if (curIter - (endIter - 1) == 0) {
+//                que.pop();
+//            }
+//
+//            // Prepare to look at the next node in the vector (next call)
+//            ++curIter;
+//
+//            // Look at node's children
+//            auto &kidIterBegin = node->children.begin();
+//            auto &kidIterEnd = node->children.end();
+//
+//            // If it has children, put pair of iterators on stack
+//            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+//                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+//                que.push(p);
+//            }
+//
+//            currentNode = node;
+//            return *this;
+//        }
+//    };
 
-    class nodeBreadthIterator_const {
-
-    protected:
-
-        // iterator of vector contained shared pointers to node's children
-        typedef typename std::vector<T>::const_iterator KidIter;
-
-        // Stack of iterators of vector of shared pointers.
-        // Each vector contains the children of a node,
-        // thus each iterator gives all a node's kids.
-
-        // Stack of iterators over node's children.
-        // In each pair, first is current iterator, second is end
-        std::queue<std::pair<KidIter, KidIter>> que;
-
-        // Where we are now in the tree
-        const T currentNode;
-
-        // Is this the end iterator?
-        bool isEnd;
-
-    public:
-
-        // Copy shared pointer arg
-        explicit nodeBreadthIterator_const(T const & node, bool isEnd) : currentNode(node), isEnd(isEnd) {
-            // store current-element and end of vector in pair
-            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
-            que.push(p);
-        }
-
-        const T operator*() const { return currentNode; }
-
-        bool operator==(const nodeBreadthIterator_const &other) const { return this == &other; }
-
-        bool operator!=(const nodeBreadthIterator_const &other) const { return this != &other; }
-
-        // TODO: How does one handle going too far???
-
-        // post increment gets ignored arg of 0 to distinguish from pre, A++
-        nodeBreadthIterator_const operator++(int) {
-
-            if (isEnd) return *this;
-
-            // copy this iterator here
-            nodeBreadthIterator_const niter = *this;
-
-            // If gone thru the whole tree ...
-            if (que.empty()) {
-                isEnd = true;
-                return *this;
-            }
-
-            // Look at top vector of Q
-            auto &topPair = que.front();
-            // iterator of vector @ current position
-            auto &curIter = topPair.first;
-            // end iterator of vector
-            auto &endIter = topPair.second;
-            // current element of vector
-            auto &node = *curIter;
-
-            // If this vector has no more nodes ...
-            if (curIter - (endIter - 1) == 0) {
-                que.pop();
-            }
-
-            // Prepare to look at the next node in the vector (next call)
-            ++curIter;
-
-            // Look at node's children
-            auto kidIterBegin = node->children.begin();
-            auto kidIterEnd   = node->children.end();
-
-            // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
-                que.push(p);
-            }
-
-            currentNode = node;
-            // return copy of this iterator before changes
-            return niter;
-        }
 
 
-        // pre increment, ++A
-        nodeBreadthIterator_const operator++() {
 
-            if (isEnd) return *this;
 
-            // If gone thru the whole tree ...
-            if (que.empty()) {
-                isEnd = true;
-                return *this;
-            }
 
-            // Look at top vector of Q
-            auto &topPair = que.front();
-            // iterator of vector @ current position
-            auto &curIter = topPair.first;
-            // end iterator of vector
-            auto &endIter = topPair.second;
-            // current element of vector
-            auto &node = *curIter;
-
-            // If this vector has no more nodes ...
-            if (curIter - (endIter - 1) == 0) {
-                que.pop();
-            }
-
-            // Prepare to look at the next node in the vector (next call)
-            ++curIter;
-
-            // Look at node's children
-            auto &kidIterBegin = node->children.begin();
-            auto &kidIterEnd = node->children.end();
-
-            // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
-                que.push(p);
-            }
-
-            currentNode = node;
-            return *this;
-        }
-    };
 
 }
 
