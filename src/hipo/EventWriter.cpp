@@ -249,6 +249,7 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
         // All subsequent split numbers are calculated by adding the splitIncrement
         this->splitNumber += splitIncrement;
 
+#ifndef __APPLE__
         currentFilePath = fs::path(fileName);
         currentFileName = currentFilePath.generic_string();
 
@@ -258,6 +259,7 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
             throw EvioException("File exists but user requested no over-writing of or appending to "
                                 + currentFileName);
         }
+#endif
 
         // Create internal storage buffers.
         // The reason there are 2 internal buffers is that we'll be able to
@@ -304,7 +306,12 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
             // If we have an empty file, that's OK.
             // Otherwise we have to examine it for compatibility
             // and position ourselves for the first write.
+#ifdef __APPLE__
+            {
+#else
             if (fs::file_size(currentFilePath) > 0) {
+#endif
+
                 // Look at first record header to find endianness & version.
                 // Endianness given in constructor arg, when appending, is ignored.
                 // this->byteOrder set in next call.
@@ -358,11 +365,14 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
 
             // Number of available bytes in file's disk partition
 //cout << "EventWriter constr: call fs::space(" << currentFilePath.parent_path().generic_string() << ")" << endl;
+#ifdef __APPLE__
+            uint64_t freeBytes = 20000000000L;
+#else
             fs::space_info spaceInfo = fs::space(currentFilePath.parent_path());
             uint64_t freeBytes = spaceInfo.available;
 //cout << "EventWriter constr: " << freeBytes << " bytes available in dir = " <<
 //         currentFilePath.parent_path().generic_string() << endl;
-
+#endif
             // If there isn't enough to accommodate 1 split of the file + full supply + 10MB extra,
             // then don't even start writing ...
             if (freeBytes < split + maxSupplyBytes + 10000000) {
@@ -759,7 +769,13 @@ size_t EventWriter::getBytesWrittenToBuffer() {return bytesWritten;}
  * Returns empty string if no file.
  * @return the full name or path of the current file being written to.
  */
-string EventWriter::getCurrentFilePath() {return currentFilePath.generic_string();}
+string EventWriter::getCurrentFilePath() {
+#ifdef __APPLE__
+    return "myFile";
+#else
+        return currentFilePath.generic_string();}
+#endif
+}
 
 
 /**
@@ -1382,9 +1398,12 @@ void EventWriter::toAppendPosition() {
         // This puts us at the beginning of the first record header
         fileWritingPosition = pos;
 
+#ifdef __APPLE__
+        uint64_t fileSize = 20000000000L;
+#else
         uint64_t fileSize = fs::file_size(currentFileName);
 cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWritingPosition << endl;
-
+#endif
         bool lastRecord, isTrailer, readEOF = false;
         uint32_t recordLen, eventCount, nBytes, bitInfo, headerPosition;
         future<void> future;
@@ -2451,9 +2470,13 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
  * @return  true if full, else false.
  */
 bool EventWriter::fullDisk() {
+#ifdef __APPLE__
+        uint64_t freeBytes = 20000000000L;
+#else
     // How much free space is available on the disk?
     fs::space_info dirInfo = fs::space(currentFilePath.parent_path());
     uint64_t freeBytes = dirInfo.available;
+#endif
     // If there isn't enough free space to write the complete, projected size file
     // plus full records + 10MB extra ...
     diskIsFull = freeBytes < split + maxSupplyBytes + 10000000;
@@ -2803,6 +2826,9 @@ void EventWriter::splitFile() {
                                                  runNumber, split, splitNumber,
                                                  streamId, streamCount);
         splitNumber += splitIncrement;
+#ifdef __APPLE__
+#else
+
         currentFilePath = fs::path(fileName);
         currentFileName = currentFilePath.generic_string();
 
@@ -2817,6 +2843,7 @@ void EventWriter::splitFile() {
 
             throw EvioException("file " + currentFileName + " exists, but user requested no over-writing");
         }
+#endif
 
         // Reset file values for reuse
         if (singleThreadedCompression) {

@@ -27,7 +27,9 @@
 #include <exception>
 #include <atomic>
 #include <algorithm>
-#include <experimental/filesystem>
+#ifndef __APPLE__
+    #include <experimental/filesystem>
+#endif
 
 #include "HeaderType.h"
 #include "FileHeader.h"
@@ -48,7 +50,9 @@
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 
+#ifndef __APPLE__
 namespace fs = std::experimental::filesystem;
+#endif
 
 namespace evio {
 
@@ -803,8 +807,10 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
         /** File currently being written to. */
         std::string currentFileName{""};
 
+#ifndef __APPLE__
         /** Path object corresponding to file currently being written. */
         fs::path currentFilePath;
+#endif
 
         /** Objects to allow efficient, asynchronous file writing. */
         std::shared_ptr<std::future<void>> future1;
