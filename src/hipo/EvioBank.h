@@ -10,6 +10,22 @@
 namespace evio {
 
     class EvioBank {
+
+//        class MyClass
+//        {
+//        private:
+//            template <typename T> void myfunc1internal(T foo)
+//            {
+//                // do the actual work here
+//            }
+//
+//        public:
+//            void myfunc1(int foo)     { myfunc1internal(foo); }
+//            void myfunc1(double foo)  { myfunc1internal(foo); }
+//        };
+
+
+
     public:
         EvioBank();
 
