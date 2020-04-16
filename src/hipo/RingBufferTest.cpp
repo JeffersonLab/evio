@@ -24,6 +24,7 @@
 #include <thread>
 #include <memory>
 #include <regex>
+#include <iostream>
 
 
 #include "Disruptor/RingBuffer.h"
