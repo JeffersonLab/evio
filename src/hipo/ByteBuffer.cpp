@@ -1089,7 +1089,7 @@ double ByteBuffer::getDouble(size_t index) const {
  * buffer into this buffer. If there are more bytes remaining in the
  * source buffer than in this buffer, that is, if
  * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
- * then no bytes are transferred and a {@link #HipoException} is thrown.<p>
+ * then no bytes are transferred and a {@link #EvioException} is thrown.<p>
  *
  * Otherwise, this method copies
  * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> bytes from the given
@@ -1100,8 +1100,8 @@ double ByteBuffer::getDouble(size_t index) const {
  *             must not be this buffer.
  * @return  this buffer.
  * @throws  EvioException if insufficient space in this buffer
- *          for the remaining bytes in the source buffer.
- * @throws  IllegalArgumentException if source buffer is this buffer.
+ *          for the remaining bytes in the source buffer, or
+ *          if source buffer is this buffer.
  */
 ByteBuffer & ByteBuffer::put(const ByteBuffer & src) {
     if (&src == this) {
@@ -1127,7 +1127,7 @@ ByteBuffer & ByteBuffer::put(const ByteBuffer & src) {
  * buffer into this buffer. If there are more bytes remaining in the
  * source buffer than in this buffer, that is, if
  * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
- * then no bytes are transferred and a {@link #HipoException} is thrown.<p>
+ * then no bytes are transferred and a {@link #EvioException} is thrown.<p>
  *
  * Otherwise, this method copies
  * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> bytes from the given
@@ -1137,9 +1137,9 @@ ByteBuffer & ByteBuffer::put(const ByteBuffer & src) {
  * @param  src source buffer from which bytes are to be read;
  *             must not be this buffer.
  * @return  this buffer.
- * @throws  HipoException if insufficient space in this buffer
- *          for the remaining bytes in the source buffer.
- * @throws  IllegalArgumentException if source buffer is this buffer.
+ * @throws  EvioException if insufficient space in this buffer
+ *          for the remaining bytes in the source buffer, or
+ *          if source buffer is this buffer.
  */
 ByteBuffer & ByteBuffer::put(const std::shared_ptr<ByteBuffer> & src) {
     return (put(*(src.get())));
@@ -1156,7 +1156,7 @@ ByteBuffer & ByteBuffer::put(const std::shared_ptr<ByteBuffer> & src) {
  * source array.  If there are more bytes to be copied from the array
  * than remain in this buffer, that is, if
  * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
- * bytes are transferred and a {@link #HipoException} is
+ * bytes are transferred and a {@link #EvioException} is
  * thrown.<p>
  *
  * Otherwise, this method copies <tt>length</tt> bytes from the
@@ -1182,6 +1182,41 @@ ByteBuffer & ByteBuffer::put(const uint8_t* src, size_t offset, size_t length) {
     pos += length;
     return *this;
 }
+
+/**
+ * Relative bulk <i>put</i> method.<p>
+ *
+ * This method transfers bytes into this buffer from the given
+ * vector.  If there are more bytes to be copied from the vector
+ * than remain in this buffer, that is, if
+ * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
+ * bytes are transferred and a {@link #EvioException} is
+ * thrown.<p>
+ *
+ * Otherwise, this method copies <tt>length</tt> bytes from the
+ * given array into this buffer, starting at the given offset in the array
+ * and at the current position of this buffer.  The position of this buffer
+ * is then incremented by <tt>length</tt>.
+ *
+ * @param  src array from which bytes are to be read
+ * @param  offset offset (bytes) within the array of the first byte to be read;
+ *         must be no larger than src array's size.
+ * @param  length number of bytes to be read from the given array;
+ *         must be no larger than src array's size - offset.
+ * @return  this buffer.
+ *
+ * @throws  EvioException if insufficient space in this buffer
+ */
+ByteBuffer & ByteBuffer::put(const std::vector<uint8_t> & src, size_t offset, size_t length) {
+    // check args
+    if (length > (src.size() - offset)) {
+        throw EvioException("buffer overflow");
+    }
+    std::memcpy((void *)(buf.get() + pos), (const void *)(src.data() + offset), length);
+    pos += length;
+    return *this;
+}
+
 
 /**
  * Relative <i>put</i> method.
