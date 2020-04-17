@@ -30,6 +30,8 @@ namespace evio {
      */
     class BaseStructureHeader /*: IEvioWriter */ {
 
+        friend class BaseStructure;
+
       protected:
 
         /**
