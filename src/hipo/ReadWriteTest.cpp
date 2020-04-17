@@ -42,6 +42,9 @@
 //#include "TreeNodeLiteDerived.h"
 #include "TreeNodeException.h"
 #include "TreeNode.h"
+#include "TNode.h"
+#include "TNodeSuper1.h"
+#include "TNodeSuper2.h"
 
 using namespace std;
 
@@ -706,8 +709,46 @@ public:
 };
 
 
-
 int main(int argc, char **argv) {
+    //auto t1 = TNode::getInstance(5);
+    auto t2 = TNodeSuper1::getInstance(22);
+    auto t3 = TNodeSuper1::getInstance(33);
+    auto t4 = TNodeSuper2::getInstance(44);
+
+    t2->add(t3);
+    t2->add(t4);
+
+    // Now pull t3 out of the child vector of t2 ...
+    auto t10 = t2->children[0];
+    // Now pull t4 out of the child vector of t2 ...
+    auto t11 = t2->children[1];
+
+    std::cout << "main: call t10's myOverrideMethod " << endl;
+    t10->myOverrideMethod();
+    t10->whoAmI();
+    std::cout << "main: t3's use count = " << t3.use_count() << endl;
+    {
+        auto t5 = t10->shared_from_this();
+        std::shared_ptr<TNodeSuper1> t6 = static_pointer_cast<TNodeSuper1>(t10->shared_from_this());
+        std::cout << "main: t3's use count after copy of 2x t10->shared_from_this() = " << t3.use_count() << endl;
+
+        t6->sharedPtrBaseClassArg(t5);
+        t6->baseClassArg(t5.get());
+        std::cout << "main: t2 iterate over kids:" << endl;
+        t2->iterateKids();
+
+        std::shared_ptr<TNode> t7 = t6->shared_from_this();
+        std::cout << "main: t3's use count after calling t6->shared_from_this() = " << t3.use_count() << endl;
+    }
+    std::cout << "main: t3's use count after copyies out-of-scope = " << t3.use_count() << endl;
+
+
+    std::cout << "main: call t11's myOverrideMethod " << endl;
+    t11->myOverrideMethod();
+
+}
+
+int main75(int argc, char **argv) {
 
     {
         int i = 11;
