@@ -74,14 +74,12 @@ namespace evio {
         /** Used if raw data should be interpreted as composite type. */
         CompositeData *compositeData;
 
-        //------------------- STRING STUFF -------------------
-
         /**
          * Used if raw data should be interpreted as signed chars.
          * The reason rawBytes is not used directly is because
          * it may be padded and it may not, depending on whether
          * this object was created by EvioReader or by EventBuilder, etc., etc.
-         * We don't want to return rawBytes when a user calls getByteData() if there
+         * We don't want to return rawBytes when a user calls getCharData() if there
          * are padding bytes in it.
          */
         std::vector<signed char> charData;
@@ -89,8 +87,10 @@ namespace evio {
         /** Used if raw data should be interpreted as unsigned chars. */
         std::vector<unsigned char> ucharData;
 
+        //------------------- STRING STUFF -------------------
+
         /** Used if raw data should be interpreted as a string. */
-        std::vector<char> stringData;
+//        std::vector<char> stringData;
 
         /** Used if raw data should be interpreted as a string. */
         std::vector<std::string > stringList;
@@ -113,9 +113,10 @@ namespace evio {
          * The number of stored data items like number of banks, ints, floats, etc.
          * (not the size in ints or bytes). Some items may be padded such as shorts
          * and bytes. This will tell the meaningful number of such data items.
+         * In other words, no padding is included.
          * In the case of containers, returns number of bytes not in header.
          */
-        uint32_t numberDataItems = 0;
+        size_t numberDataItems = 0;
 
         /**
          * Endianness of the raw data if appropriate,
@@ -157,6 +158,7 @@ namespace evio {
         bool getLengthsUpToDate();
         void setLengthsUpToDate(bool lengthsUpToDate);
         uint32_t dataLength();
+        void stringsToRawBytes();
 
     public:
 
@@ -229,6 +231,16 @@ namespace evio {
                                             std::vector<string> & strData);
 
         void updateIntData();
+        void updateUIntData();
+        void updateShortData();
+        void updateUShortData();
+        void updateLongData();
+        void updateULongData();
+        void updateCharData();
+        void updateUCharData();
+        void updateFloatData();
+        void updateDoubleData();
+        void updateStringData();
 
 
 

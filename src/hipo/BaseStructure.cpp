@@ -37,11 +37,11 @@ namespace evio {
      */
     void BaseStructure::transform(BaseStructure & structure) {
 
-        if (structure == nullptr) return;
+        //if (structure == nullptr) return;
 
         // reinitialize this base structure first
         rawBytes.clear();
-        stringsList.clear();
+        stringList.clear();
         children.clear();
         stringEnd = 0;
 
@@ -69,9 +69,9 @@ namespace evio {
 
         if (type == DataType::CHARSTAR8) {
                 if (structure.stringsList.size() > 0) {
-                    stringsList.reserve(structure.stringsList.size());
-                    stringsList.addAll(structure.stringsList);
-                    stringData = new StringBuilder(structure.stringData);
+                    stringList.reserve(structure.stringsList.size());
+                    stringList.addAll(structure.stringsList);
+                    //stringData = new StringBuilder(structure.stringData);
                     stringEnd = structure.stringEnd;
                 }
         }
@@ -217,8 +217,8 @@ namespace evio {
 
         charData.clear();
         ucharData.clear();
-        stringData.clear();
-        stringsList.clear();
+//        stringData.clear();
+        stringList.clear();
         stringEnd = 0;
 
         numberDataItems = 0;
@@ -805,12 +805,7 @@ uint32_t BaseStructure::getNumberDataItems() {
         }
 
         // create some storage
-        int dataLen = 0;
-        for (string const & s : strings) {
-            dataLen += s.length() + 1; // don't forget the null
-        }
-        dataLen += 4; // allow room for maximum padding of 4's
-
+        int dataLen = stringsToRawSize(strings);
         string strData;
         strData.reserve(dataLen);
 
@@ -841,11 +836,66 @@ uint32_t BaseStructure::getNumberDataItems() {
         }
 
         // Transform to ASCII
-        bytes.clear();
-        bytes.reserve(dataLen);
+        bytes.resize(dataLen);
         for (int i=0; i < strData.length(); i++) {
             bytes[i] = strData[i];
         }
+    }
+
+    /**
+     * This method transforms the internal vector of strings into internal rawBytes vector
+     * of evio format data not including header.
+     *
+     * @param strings vector of strings to transform.
+     * @param bytes   vector of bytes to contain evio formatted strings.
+     */
+    void BaseStructure::stringsToRawBytes() {
+
+        if (stringList.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
+            header.setPadding(0);
+            return;
+        }
+
+        // create some storage
+        int dataLen = stringsToRawSize(stringList);
+        string strData;
+        strData.reserve(dataLen);
+
+        for (string const & s : stringList) {
+            // add string
+            strData.append(s);
+            // add ending null
+            strData.append(1, '\000');
+        }
+
+        // Add any necessary padding to 4 byte boundaries.
+        // IMPORTANT: There must be at least one '\004'
+        // character at the end. This distinguishes evio
+        // string array version from earlier version.
+        int pads[] = {4,3,2,1};
+        switch (pads[strData.length()%4]) {
+            case 4:
+                strData.append(4, '\004');
+                break;
+            case 3:
+                strData.append(3, '\004');
+                break;
+            case 2:
+                strData.append(2, '\004');
+                break;
+            case 1:
+                strData.append(1, '\004');
+        }
+
+        // Transform to ASCII
+        rawBytes.resize(dataLen);
+        for (int i=0; i < strData.length(); i++) {
+            rawBytes[i] = strData[i];
+        }
+
+        numberDataItems = stringList.size();
     }
 
 
@@ -1454,7 +1504,6 @@ uint32_t BaseStructure::getNumberDataItems() {
                         break;
                     }
                     datalen = 1 + (items - 1) / 2;
-                    break;
             }
 
             // Special cases:
@@ -1550,8 +1599,8 @@ uint32_t BaseStructure::getNumberDataItems() {
             else {
                 datalen = 0;
 
-                for (BaseStructure child : children) {
-                    len = child.setAllHeaderLengths();
+                for (auto child : children) {
+                    len = child->setAllHeaderLengths();
                     // Add this check to make sure structure is not being overfilled
                     if (std::numeric_limits<uint32_t>::max() - datalen < len) {
                         throw EvioException("added data overflowed containing structure");
@@ -1717,104 +1766,237 @@ uint32_t BaseStructure::getNumberDataItems() {
 //----------------------------------------------------------------------
 
 
-/**
- * Appends int data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param data the int data to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendIntData(int data[]) throws EvioException {
-
-        // make sure the structure is set to hold this kind of data
-        DataType dataType = header.getDataType();
-        if ((dataType != DataType.INT32) && (dataType != DataType.UINT32)) {
-            throw new EvioException("Tried to append int data to a structure of type: " + dataType);
-        }
-
-        // if no data to append, just cave
-        if (data == null) {
-            return;
-        }
-
-        // if no int data ...
-        if (intData == null) {
-            // if no raw data, things are easy
-            if (rawBytes == null) {
-                intData = data;
-                numberDataItems = data.length;
-            }
-                // otherwise expand raw data first, then add int array
-            else {
-                int size1 = rawBytes.length/4;
-                int size2 = data.length;
-
-                // TODO: Will need to revise this if using Java 9+ with long array indeces
-                if (Integer.MAX_VALUE - size1 < size2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-                intData = new int[size1 + size2];
-                // unpack existing raw data
-                ByteDataTransformer.toIntArray(rawBytes, byteOrder, intData, 0);
-                // append new data
-                System.arraycopy(data, 0, intData, size1, size2);
-                numberDataItems = size1 + size2;
-            }
-        }
-        else {
-            int size1 = intData.length; // existing data
-            int size2 = data.length;    // new data to append
-
-            // TODO: Will need to revise this if using Java 9+ with long array indeces
-            if (Integer.MAX_VALUE - size1 < size2) {
-                throw new EvioException("added data overflowed containing structure");
-            }
-            intData = Arrays.copyOf(intData, size1 + size2);  // extend existing array
-            System.arraycopy(data, 0, intData, size1, size2); // append
-            numberDataItems += size2;
-        }
-
-        // This is not necessary but results in a tremendous performance
-        // boost (10x) when writing events over a high speed network. Allows
-        // the write to be a byte array copy.
-        // Storing data as raw bytes limits the # of elements to Integer.MAX_VALUE/4.
-        rawBytes = ByteDataTransformer.toBytes(intData, byteOrder);
-
-        lengthsUpToDate(false);
-        setAllHeaderLengths();
-}
-
-
-
     /**
-     * If int data in this structure was changed by modifying the vector returned from
+     * If data in this structure was changed by modifying the vector returned from
      * {@link #getIntData()}, then this method needs to be called in order to make this
      * object internally consistent.
      *
-     * @throws EvioException if updating data to a structure of a different data type.
+     * @throws EvioException if this object corresponds to a different data type.
      */
     void BaseStructure::updateIntData() {
 
         // Make sure the structure is set to hold this kind of data
         DataType dataType = header.getDataType();
         if (dataType != DataType::INT32) {
-            throw EvioException("canot update int data to type: " + dataType.toString());
+            throw EvioException("cannot update int data when type = " + dataType.toString());
         }
 
-        // if int data was cleared ...
+        // if data was cleared ...
         if (intData.empty()) {
             rawBytes.clear();
             numberDataItems = 0;
         }
-        // make rawBytes consistent with what's in the int vector
+            // make rawBytes consistent with what's in the int vector
         else {
+            numberDataItems = intData.size();
+            rawBytes.resize(4 * numberDataItems);
+
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap32(intData.data(), intData.size(), rawBytes.data());
+                ByteOrder::byteSwap32(intData.data(), numberDataItems, rawBytes.data());
             }
             else {
-                std::memcpy(rawBytes.data(), intData.data(), 4 * intData.size());
+                std::memcpy(rawBytes.data(), intData.data(), 4 * numberDataItems);
             }
-            numberDataItems = intData.size();
+        }
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getUIntData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateUIntData() {
+
+        DataType dataType = header.getDataType();
+        if (dataType != DataType::UINT32) {
+            throw EvioException("cannot update uint data when type = " + dataType.toString());
+        }
+
+        if (uintData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
+        }
+        else {
+            numberDataItems = uintData.size();
+            rawBytes.resize(4 * numberDataItems);
+
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap32(uintData.data(), numberDataItems, rawBytes.data());
+            }
+            else {
+                std::memcpy(rawBytes.data(), uintData.data(), 4 * numberDataItems);
+            }
+        }
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getShortData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateShortData() {
+
+        DataType dataType = header.getDataType();
+        if (dataType != DataType::SHORT16) {
+            throw EvioException("cannot update short data when type = " + dataType.toString());
+        }
+
+        uint32_t pad = 0;
+
+        if (shortData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
+            header.setPadding(0);
+        }
+        else {
+            numberDataItems = shortData.size();
+            size_t itemBytes = 2 * numberDataItems;
+
+            // If odd # of shorts, there are 2 bytes of padding.
+            if (numberDataItems % 2 != 0) {
+                pad = 2;
+                rawBytes.resize(itemBytes + pad);
+                // set padding bytes to val = 0
+                rawBytes[itemBytes]   = 0;
+                rawBytes[itemBytes+1] = 0;
+            }
+            else {
+                rawBytes.resize(itemBytes);
+            }
+            header.setPadding(pad);
+
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap16(shortData.data(), numberDataItems, rawBytes.data());
+            }
+            else {
+                std::memcpy(rawBytes.data(), shortData.data(), itemBytes);
+            }
+        }
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getUShortData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateUShortData() {
+
+        DataType dataType = header.getDataType();
+        if (dataType != DataType::USHORT16) {
+            throw EvioException("cannot update ushort data when type = " + dataType.toString());
+        }
+
+        uint32_t pad = 0;
+
+        if (ushortData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
+            header.setPadding(0);
+        }
+        else {
+            numberDataItems = ushortData.size();
+            size_t itemBytes = 2 * numberDataItems;
+
+            if (numberDataItems % 2 != 0) {
+                pad = 2;
+                rawBytes.resize(itemBytes + pad);
+                rawBytes[itemBytes]   = 0;
+                rawBytes[itemBytes+1] = 0;
+            }
+            else {
+                rawBytes.resize(itemBytes);
+            }
+            header.setPadding(pad);
+
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap16(ushortData.data(), numberDataItems, rawBytes.data());
+            }
+            else {
+                std::memcpy(rawBytes.data(), ushortData.data(), itemBytes);
+            }
+        }
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getLongData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateLongData() {
+
+        DataType dataType = header.getDataType();
+        if (dataType != DataType::LONG64) {
+            throw EvioException("cannot update long data when type = " + dataType.toString());
+        }
+
+        if (longData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
+        }
+        else {
+            numberDataItems = longData.size();
+            rawBytes.resize(8 * numberDataItems);
+
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap64(longData.data(), numberDataItems, rawBytes.data());
+            }
+            else {
+                std::memcpy(rawBytes.data(), longData.data(), 8 * numberDataItems);
+            }
+        }
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getULongData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateULongData() {
+
+        DataType dataType = header.getDataType();
+        if (dataType != DataType::ULONG64) {
+            throw EvioException("cannot update ulong data when type = " + dataType.toString());
+        }
+
+        if (ulongData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
+        }
+        else {
+            numberDataItems = ulongData.size();
+            rawBytes.resize(8 * numberDataItems);
+
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap64(ulongData.data(), numberDataItems, rawBytes.data());
+            }
+            else {
+                std::memcpy(rawBytes.data(), ulongData.data(), 8 * numberDataItems);
+            }
         }
 
         setLengthsUpToDate(false);
@@ -1822,853 +2004,291 @@ public void appendIntData(int data[]) throws EvioException {
     }
 
 
-/**
- * Appends short data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param data the short data to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendShortData(short data[]) throws EvioException {
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getCharData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateCharData() {
 
         DataType dataType = header.getDataType();
-        if ((dataType != DataType.SHORT16) && (dataType != DataType.USHORT16)) {
-            throw new EvioException("Tried to append short data to a structure of type: " + dataType);
+        if (dataType != DataType::CHAR8) {
+            throw EvioException("cannot update char data when type = " + dataType.toString());
         }
 
-        if (data == null) {
-            return;
-        }
-
-        if (shortData == null) {
-            if (rawBytes == null) {
-                shortData = data;
-                numberDataItems = data.length;
-            }
-            else {
-                int size1 = (rawBytes.length - header.getPadding())/2;
-                int size2 = data.length;
-
-                if (Integer.MAX_VALUE - size1 < size2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-                shortData = new short[size1 + size2];
-                ByteDataTransformer.toShortArray(rawBytes, header.getPadding(),
-                                                 byteOrder, shortData, 0);
-                System.arraycopy(data, 0, shortData, size1, size2);
-                numberDataItems = size1 + size2;
-            }
-        }
-        else {
-            int size1 = shortData.length;
-            int size2 = data.length;
-
-            if (Integer.MAX_VALUE - size1 < size2) {
-                throw new EvioException("added data overflowed containing structure");
-            }
-            shortData = Arrays.copyOf(shortData, size1 + size2);
-            System.arraycopy(data, 0, shortData, size1, size2);
-            numberDataItems += size2;
-        }
-
-        // If odd # of shorts, there are 2 bytes of padding.
-        if (numberDataItems%2 != 0) {
-            header.setPadding(2);
-
-            if (Integer.MAX_VALUE - 2*numberDataItems < 2) {
-                throw new EvioException("added data overflowed containing structure");
-            }
-
-            // raw bytes must include padding
-            rawBytes = new byte[2*numberDataItems + 2];
-            ByteDataTransformer.toBytes(shortData, byteOrder, rawBytes, 0);
-        }
-        else {
+        if (charData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
             header.setPadding(0);
-            rawBytes = ByteDataTransformer.toBytes(shortData, byteOrder);
-        }
-
-        lengthsUpToDate(false);
-        setAllHeaderLengths();
-}
-
-/**
- * Appends short data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param byteData the data in ByteBuffer form to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendShortData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 2) {
-            return;
-        }
-
-        appendShortData(ByteDataTransformer.toShortArray(byteData));
-}
-
-/**
- * Appends long data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param data the long data to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendLongData(long data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if ((dataType != DataType.LONG64) && (dataType != DataType.ULONG64)) {
-            throw new EvioException("Tried to append long data to a structure of type: " + dataType);
-        }
-
-        if (data == null) {
-            return;
-        }
-
-        if (longData == null) {
-            if (rawBytes == null) {
-                longData = data;
-                numberDataItems = data.length;
-            }
-            else {
-                int size1 = rawBytes.length/8;
-                int size2 = data.length;
-
-                if (Integer.MAX_VALUE - size1 < size2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-                longData = new long[size1 + size2];
-                ByteDataTransformer.toLongArray(rawBytes, byteOrder, longData, 0);
-                System.arraycopy(data, 0, longData, size1, size2);
-                numberDataItems = size1 + size2;
-            }
         }
         else {
-            int size1 = longData.length;
-            int size2 = data.length;
+            numberDataItems = charData.size();
 
-            if (Integer.MAX_VALUE - size1 < size2) {
-                throw new EvioException("added data overflowed containing structure");
-            }
-            longData = Arrays.copyOf(longData, size1 + size2);
-            System.arraycopy(data, 0, longData, size1, size2);
-            numberDataItems += size2;
+            // necessary padding to 4 byte boundaries.
+            uint32_t pad = padCount[numberDataItems%4];
+            header.setPadding(pad);
+
+            rawBytes.resize((numberDataItems + pad));
+
+            std::memcpy(rawBytes.data(), charData.data(), numberDataItems);
+            std::memset(rawBytes.data()+numberDataItems, 0, pad);
         }
 
-        rawBytes = ByteDataTransformer.toBytes(longData, byteOrder);
-
-        lengthsUpToDate(false);
+        setLengthsUpToDate(false);
         setAllHeaderLengths();
-}
+    }
 
-/**
- * Appends long data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param byteData the data in ByteBuffer form to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendLongData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 8) {
-            return;
-        }
-
-        appendLongData(ByteDataTransformer.toLongArray(byteData));
-}
-
-/**
- * Appends byte data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param data the byte data to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendByteData(byte data[]) throws EvioException {
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getUCharData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateUCharData() {
 
         DataType dataType = header.getDataType();
-        if ((dataType != DataType.CHAR8) && (dataType != DataType.UCHAR8)) {
-            throw new EvioException("Tried to append byte data to a structure of type: " + dataType);
+        if (dataType != DataType::UCHAR8) {
+            throw EvioException("cannot update uchar data when type = " + dataType.toString());
         }
 
-        if (data == null) {
-            return;
-        }
-
-        if (charData == null) {
-            if (rawBytes == null) {
-                charData = data;
-                numberDataItems = data.length;
-            }
-            else {
-                int size1 = rawBytes.length - header.getPadding();
-                int size2 = data.length;
-
-                if (Integer.MAX_VALUE - size1 < size2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-                charData = new byte[size1 + size2];
-                System.arraycopy(rawBytes, 0, charData, 0, size1);
-                System.arraycopy(data, 0, charData, size1, size2);
-                numberDataItems = size1 + size2;
-            }
+        if (ucharData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
+            header.setPadding(0);
         }
         else {
-            int size1 = charData.length;
-            int size2 = data.length;
+            numberDataItems = ucharData.size();
 
-            if (Integer.MAX_VALUE - size1 < size2) {
-                throw new EvioException("added data overflowed containing structure");
-            }
-            charData = Arrays.copyOf(charData, size1 + size2);
-            System.arraycopy(data, 0, charData, size1, size2);
-            numberDataItems += data.length;
+            uint32_t pad = padCount[numberDataItems%4];
+            header.setPadding(pad);
+
+            rawBytes.resize((numberDataItems + pad));
+
+            std::memcpy(rawBytes.data(), ucharData.data(), numberDataItems);
+            std::memset(rawBytes.data()+numberDataItems, 0, pad);
         }
 
-        // store necessary padding to 4 byte boundaries.
-        int padding = padCount[numberDataItems%4];
-        header.setPadding(padding);
-//System.out.println("# data items = " + numberDataItems + ", padding = " + padding);
-
-        // Array creation sets everything to zero. Only need to copy in data.
-        if (Integer.MAX_VALUE - numberDataItems < padding) {
-            throw new EvioException("added data overflowed containing structure");
-        }
-        rawBytes = new byte[numberDataItems + padding];
-        System.arraycopy(charData,  0, rawBytes, 0, numberDataItems);
-//        System.arraycopy(padValues, 0, rawBytes, numberDataItems, padding); // unnecessary
-
-        lengthsUpToDate(false);
+        setLengthsUpToDate(false);
         setAllHeaderLengths();
-}
+    }
 
-/**
- * Appends byte data to the structure. If the structure has no data, then this
- * is the same as setting the data. Data is copied in.
- * @param byteData the data in ByteBuffer form to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendByteData(ByteBuffer byteData) throws EvioException {
 
-        if (byteData == null || byteData.remaining() < 1) {
-            return;
-        }
-
-        appendByteData(ByteDataTransformer.toByteArray(byteData));
-}
-
-/**
- * Appends float data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param data the float data to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendFloatData(float data[]) throws EvioException {
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getFloatData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateFloatData() {
 
         DataType dataType = header.getDataType();
-        if (dataType != DataType.FLOAT32) {
-            throw new EvioException("Tried to append float data to a structure of type: " + dataType);
+        if (dataType != DataType::FLOAT32) {
+            throw EvioException("cannot update float data when type = " + dataType.toString());
         }
 
-        if (data == null) {
-            return;
-        }
-
-        if (floatData == null) {
-            if (rawBytes == null) {
-                floatData = data;
-                numberDataItems = data.length;
-            }
-            else {
-                int size1 = rawBytes.length/4;
-                int size2 = data.length;
-
-                if (Integer.MAX_VALUE - size1 < size2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-                floatData = new float[size1 + size2];
-                ByteDataTransformer.toFloatArray(rawBytes, byteOrder, floatData, 0);
-                System.arraycopy(data, 0, floatData, size1, size2);
-                numberDataItems = size1 + size2;
-            }
+        if (floatData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
         }
         else {
-            int size1 = floatData.length;
-            int size2 = data.length;
+            numberDataItems = floatData.size();
+            rawBytes.resize(4 * numberDataItems);
 
-            if (Integer.MAX_VALUE - size1 < size2) {
-                throw new EvioException("added data overflowed containing structure");
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap32(floatData.data(), numberDataItems, rawBytes.data());
             }
-            floatData = Arrays.copyOf(floatData, size1 + size2);
-            System.arraycopy(data, 0, floatData, size1, size2);
-            numberDataItems += data.length;
+            else {
+                std::memcpy(rawBytes.data(), floatData.data(), 4 * numberDataItems);
+            }
         }
 
-        rawBytes = ByteDataTransformer.toBytes(floatData, byteOrder);
-
-        lengthsUpToDate(false);
+        setLengthsUpToDate(false);
         setAllHeaderLengths();
-}
+    }
 
-/**
- * Appends float data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param byteData the data in ByteBuffer form to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendFloatData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 4) {
-            return;
-        }
-
-        appendFloatData(ByteDataTransformer.toFloatArray(byteData));
-}
-
-/**
- * Appends string to the structure (as ascii). If the structure has no data, then this
- * is the same as setting the data. Don't worry about checking for size limits since
- * jevio structures will never contain a char array &gt; {@link Integer#MAX_VALUE} in size.
- * @param s the string to append (as ascii), or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type
- */
-public void appendStringData(String s) throws EvioException {
-        appendStringData(new String[] {s});
-}
-
-/**
- * Appends an array of strings to the structure (as ascii).
- * If the structure has no data, then this
- * is the same as setting the data. Don't worry about checking for size limits since
- * jevio structures will never contain a char array &gt; {@link Integer#MAX_VALUE} in size.
- * @param s the strings to append (as ascii), or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type or to
- *                       badly formatted (not proper evio) data.
- */
-public void appendStringData(String[] s) throws EvioException {
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getDoubleData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateDoubleData() {
 
         DataType dataType = header.getDataType();
-        if (dataType != DataType.CHARSTAR8) {
-            throw new EvioException("Tried to append string to a structure of type: " + dataType);
+        if (dataType != DataType::DOUBLE64) {
+            throw EvioException("cannot update double data when type = " + dataType.toString());
         }
 
-        if (s == null) {
-            return;
-        }
-
-        if (badStringFormat) {
-            throw new EvioException("cannot add to badly formatted string data");
-        }
-
-        // if no existing data ...
-        if (stringData == null) {
-            // if no raw data, things are easy
-            if (rawBytes == null) {
-                // create some storage
-                stringsList = new ArrayList<String>(s.length > 10 ? s.length : 10);
-                int len = 4; // max padding
-                for (String st : s) {
-                    len += st.length() + 1;
-                }
-                stringData = new StringBuilder(len);
-                numberDataItems = s.length;
-            }
-                // otherwise expand raw data first, then add string
-            else {
-                unpackRawBytesToStrings();
-                // Check to see if unpacking was successful before proceeding
-                if (badStringFormat) {
-                    throw new EvioException("cannot add to badly formatted string data");
-                }
-                // remove any existing padding
-                stringData.delete(stringEnd, stringData.length());
-                numberDataItems = stringsList.size() + s.length;
-            }
+        if (doubleData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
         }
         else {
-            // remove any existing padding
-            stringData.delete(stringEnd, stringData.length());
-            numberDataItems += s.length;
-        }
+            numberDataItems = doubleData.size();
+            rawBytes.resize(8 * numberDataItems);
 
-        for (String st : s) {
-            // store string
-            stringsList.add(st);
-
-            // add string
-            stringData.append(st);
-
-            // add ending null
-            stringData.append('\000');
-        }
-
-        // mark end of data before adding padding
-        stringEnd = stringData.length();
-
-        // Add any necessary padding to 4 byte boundaries.
-        // IMPORTANT: There must be at least one '\004'
-        // character at the end. This distinguishes evio
-        // string array version from earlier version.
-        int[] pads = {4,3,2,1};
-        switch (pads[stringData.length()%4]) {
-            case 4:
-                stringData.append("\004\004\004\004");
-            break;
-            case 3:
-                stringData.append("\004\004\004");
-            break;
-            case 2:
-                stringData.append("\004\004");
-            break;
-            case 1:
-                stringData.append('\004');
-            default:
-        }
-
-        // set raw data
-        try {
-            rawBytes = stringData.toString().getBytes("US-ASCII");
-        }
-        catch (UnsupportedEncodingException e) { /* will never happen */ }
-
-        lengthsUpToDate(false);
-        setAllHeaderLengths();
-}
-
-/**
- * Appends double data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param data the double data to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendDoubleData(double data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if (dataType != DataType.DOUBLE64) {
-            throw new EvioException("Tried to append double data to a structure of type: " + dataType);
-        }
-
-        if (data == null) {
-            return;
-        }
-
-        if (doubleData == null) {
-            if (rawBytes == null) {
-                doubleData = data;
-                numberDataItems = data.length;
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap64(doubleData.data(), numberDataItems, rawBytes.data());
             }
             else {
-                int size1 = rawBytes.length/8;
-                int size2 = data.length;
-
-                if (Integer.MAX_VALUE - size1 < size2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-                doubleData = new double[size1 + size2];
-                ByteDataTransformer.toDoubleArray(rawBytes, byteOrder, doubleData, 0);
-                System.arraycopy(data, 0, doubleData, size1, size2);
-                numberDataItems = size1 + size2;
+                std::memcpy(rawBytes.data(), doubleData.data(), 8 * numberDataItems);
             }
+        }
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getStringData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateStringData() {
+
+        DataType dataType = header.getDataType();
+        if (dataType != DataType::CHARSTAR8) {
+            throw EvioException("cannot update string data when type = " + dataType.toString());
+        }
+
+        stringsToRawBytes();
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+
+// TODO: this needs attention!!!
+    /**
+     * If data in this structure was changed by modifying the vector returned from
+     * {@link #getCompositeData()}, then this method needs to be called in order to make this
+     * object internally consistent.
+     *
+     * @throws EvioException if this object corresponds to a different data type.
+     */
+    void BaseStructure::updateCompositeData() {
+
+        DataType dataType = header.getDataType();
+        if (dataType != DataType::COMPOSITE) {
+            throw EvioException("cannot update composite data when type = " + dataType.toString());
+        }
+
+        if (compositeData.empty()) {
+            rawBytes.clear();
+            numberDataItems = 0;
         }
         else {
-            int size1 = doubleData.length;
-            int size2 = data.length;
+            numberDataItems = compositeData.size();
+            rawBytes.resize(8 * numberDataItems);
 
-            if (Integer.MAX_VALUE - size1 < size2) {
-                throw new EvioException("added data overflowed containing structure");
-            }
-            doubleData = Arrays.copyOf(doubleData, size1 + size2);
-            System.arraycopy(data, 0, doubleData, size1, size2);
-            numberDataItems += data.length;
-        }
-
-        rawBytes = ByteDataTransformer.toBytes(doubleData, byteOrder);
-
-        lengthsUpToDate(false);
-        setAllHeaderLengths();
-}
-
-/**
- * Appends double data to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param byteData the data in ByteBuffer form to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data has too many elements to store in raw byte array (JVM limit)
- */
-public void appendDoubleData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 8) {
-            return;
-        }
-
-        appendDoubleData(ByteDataTransformer.toDoubleArray(byteData));
-}
-
-/**
- * Appends CompositeData objects to the structure. If the structure has no data, then this
- * is the same as setting the data.
- * @param data the CompositeData objects to append, or set if there is no existing data.
- * @throws EvioException if adding data to a structure of a different data type;
- *                       if data takes up too much memory to store in raw byte array (JVM limit)
- */
-public void appendCompositeData(CompositeData data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if (dataType != DataType.COMPOSITE) {
-            throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
-        }
-
-        if (data == null || data.length < 1) {
-            return;
-        }
-
-        // Composite data is always in the local (in this case, BIG) endian
-        // because if generated in JVM that's true, and if read in, it is
-        // swapped to local if necessary. Either case it's big endian.
-        if (compositeData == null) {
-            if (rawBytes == null) {
-                compositeData   = data;
-                numberDataItems = data.length;
+            if (ByteOrder::needToSwap(byteOrder)) {
+                ByteOrder::byteSwap64(compositeData.data(), numberDataItems, rawBytes.data());
             }
             else {
-                // Decode the raw data we have
-                CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
-                if (cdArray == null) {
+                std::memcpy(rawBytes.data(), compositeData.data(), 8 * numberDataItems);
+            }
+        }
+
+        setLengthsUpToDate(false);
+        setAllHeaderLengths();
+    }
+
+
+    /**
+     * Appends CompositeData objects to the structure. If the structure has no data, then this
+     * is the same as setting the data.
+     * @param data the CompositeData objects to append, or set if there is no existing data.
+     * @throws EvioException if adding data to a structure of a different data type;
+     *                       if data takes up too much memory to store in raw byte array (JVM limit)
+     */
+    public void appendCompositeData(CompositeData data[]) throws EvioException {
+
+            DataType dataType = header.getDataType();
+            if (dataType != DataType.COMPOSITE) {
+                throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
+            }
+
+            if (data == null || data.length < 1) {
+                return;
+            }
+
+            // Composite data is always in the local (in this case, BIG) endian
+            // because if generated in JVM that's true, and if read in, it is
+            // swapped to local if necessary. Either case it's big endian.
+            if (compositeData == null) {
+                if (rawBytes == null) {
                     compositeData   = data;
                     numberDataItems = data.length;
                 }
                 else {
-                    // Allocate array to hold everything
-                    int len1 = cdArray.length, len2 = data.length;
-                    int totalLen = len1 + len2;
+                    // Decode the raw data we have
+                    CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
+                    if (cdArray == null) {
+                        compositeData   = data;
+                        numberDataItems = data.length;
+                    }
+                    else {
+                        // Allocate array to hold everything
+                        int len1 = cdArray.length, len2 = data.length;
+                        int totalLen = len1 + len2;
 
-                    if (Integer.MAX_VALUE - len1 < len2) {
-                        throw new EvioException("added data overflowed containing structure");
-                    }
-                    compositeData = new CompositeData[totalLen];
+                        if (Integer.MAX_VALUE - len1 < len2) {
+                            throw new EvioException("added data overflowed containing structure");
+                        }
+                        compositeData = new CompositeData[totalLen];
 
-                    // Fill with existing object first
-                    for (int i = 0; i < len1; i++) {
-                        compositeData[i] = cdArray[i];
+                        // Fill with existing object first
+                        for (int i = 0; i < len1; i++) {
+                            compositeData[i] = cdArray[i];
+                        }
+                        // Append new objects
+                        for (int i = len1; i < totalLen; i++) {
+                            compositeData[i] = cdArray[i];
+                        }
+                        numberDataItems = totalLen;
                     }
-                    // Append new objects
-                    for (int i = len1; i < totalLen; i++) {
-                        compositeData[i] = cdArray[i];
-                    }
-                    numberDataItems = totalLen;
                 }
             }
-        }
-        else {
-            int len1 = compositeData.length, len2 = data.length;
-            int totalLen = len1 + len2;
+            else {
+                int len1 = compositeData.length, len2 = data.length;
+                int totalLen = len1 + len2;
 
-            if (Integer.MAX_VALUE - len1 < len2) {
-                throw new EvioException("added data overflowed containing structure");
+                if (Integer.MAX_VALUE - len1 < len2) {
+                    throw new EvioException("added data overflowed containing structure");
+                }
+
+                CompositeData[] cdArray = compositeData;
+                compositeData = new CompositeData[totalLen];
+
+                // Fill with existing object first
+                for (int i=0; i < len1; i++) {
+                    compositeData[i] = cdArray[i];
+                }
+                // Append new objects
+                for (int i=len1; i < totalLen; i++) {
+                    compositeData[i] = cdArray[i];
+                }
+                numberDataItems = totalLen;
             }
 
-            CompositeData[] cdArray = compositeData;
-            compositeData = new CompositeData[totalLen];
-
-            // Fill with existing object first
-            for (int i=0; i < len1; i++) {
-                compositeData[i] = cdArray[i];
-            }
-            // Append new objects
-            for (int i=len1; i < totalLen; i++) {
-                compositeData[i] = cdArray[i];
-            }
-            numberDataItems = totalLen;
-        }
-
-        rawBytes  = CompositeData.generateRawBytes(compositeData);
+            rawBytes  = CompositeData.generateRawBytes(compositeData);
 //        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
 //        for (int i : intA) {
 //            System.out.println("Ox" + Integer.toHexString(i));
 //        }
-        byteOrder = data[0].getByteOrder();
+            byteOrder = data[0].getByteOrder();
 
-        lengthsUpToDate(false);
-        setAllHeaderLengths();
-}
-
-
-//----------------------------------------------------------------------
-// Methods to set the data, erasing what may have been there previously.
-//----------------------------------------------------------------------
+            lengthsUpToDate(false);
+            setAllHeaderLengths();
+    }
 
 
-/**
- * Set the data in this structure to the given array of ints.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#UINT32} or {@link DataType#INT32},
- * it will be reset in the header to {@link DataType#INT32}.
- *
- * @param data the int data to set to.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setIntData(int data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if ((dataType != DataType.INT32) && (dataType != DataType.UINT32)) {
-            header.setDataType(DataType.INT32);
-        }
-
-        clearData();
-        appendIntData(data);
-}
-
-/**
- * Set the data in this structure to the ints contained in the given ByteBuffer.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#UINT32} or {@link DataType#INT32},
- * it will be reset in the header to {@link DataType#INT32}.
- *
- * @param byteData the int data in ByteBuffer form.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setIntData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 4) {
-            return;
-        }
-
-        setIntData(ByteDataTransformer.toIntArray(byteData));
-}
-
-/**
- * Set the data in this structure to the given array of shorts.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#USHORT16} or {@link DataType#SHORT16},
- * it will be reset in the header to {@link DataType#SHORT16}.
- *
- * @param data the short data to set to.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setShortData(short data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if ((dataType != DataType.SHORT16) && (dataType != DataType.USHORT16)) {
-            header.setDataType(DataType.SHORT16);
-        }
-
-        clearData();
-        appendShortData(data);
-}
-
-/**
- * Set the data in this structure to the shorts contained in the given ByteBuffer.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#USHORT16} or {@link DataType#SHORT16},
- * it will be reset in the header to {@link DataType#SHORT16}.
- *
- * @param byteData the short data in ByteBuffer form.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setShortData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 2) {
-            return;
-        }
-
-        setShortData(ByteDataTransformer.toShortArray(byteData));
-}
-
-/**
- * Set the data in this structure to the given array of longs.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#ULONG64} or {@link DataType#LONG64},
- * it will be reset in the header to {@link DataType#LONG64}.
- *
- * @param data the long data to set to.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setLongData(long data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if ((dataType != DataType.LONG64) && (dataType != DataType.ULONG64)) {
-            header.setDataType(DataType.LONG64);
-        }
-
-        clearData();
-        appendLongData(data);
-}
-
-/**
- * Set the data in this structure to the longs contained in the given ByteBuffer.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#ULONG64} or {@link DataType#LONG64},
- * it will be reset in the header to {@link DataType#LONG64}.
- *
- * @param byteData the long data in ByteBuffer form.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setLongData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 4) {
-            return;
-        }
-
-        setLongData(ByteDataTransformer.toLongArray(byteData));
-}
-
-/**
- * Set the data in this structure to the given array of bytes.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#UCHAR8} or {@link DataType#CHAR8},
- * it will be reset in the header to {@link DataType#CHAR8}.
- *
- * @param data the byte data to set to.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setByteData(byte data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if ((dataType != DataType.CHAR8) && (dataType != DataType.UCHAR8)) {
-            header.setDataType(DataType.CHAR8);
-        }
-
-        clearData();
-        appendByteData(data);
-}
-
-/**
- * Set the data in this structure to the bytes contained in the given ByteBuffer.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#UCHAR8} or {@link DataType#CHAR8},
- * it will be reset in the header to {@link DataType#CHAR8}.
- *
- * @param byteData the byte data in ByteBuffer form.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setByteData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 1) {
-            return;
-        }
-
-        setByteData(ByteDataTransformer.toByteArray(byteData));
-}
-
-/**
- * Set the data in this structure to the given array of floats.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#FLOAT32}, it will be reset in the
- * header to that type.
- *
- * @param data the float data to set to.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setFloatData(float data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if (dataType != DataType.FLOAT32) {
-            header.setDataType(DataType.FLOAT32);
-        }
-
-        clearData();
-        appendFloatData(data);
-}
-
-/**
- * Set the data in this structure to the floats contained in the given ByteBuffer.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#FLOAT32}, it will be reset in the
- * header to that type.
- *
- * @param byteData the float data in ByteBuffer form.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setFloatData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 1) {
-            return;
-        }
-
-        setFloatData(ByteDataTransformer.toFloatArray(byteData));
-}
-
-/**
- * Set the data in this structure to the given array of doubles.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#DOUBLE64}, it will be reset in the
- * header to that type.
- *
- * @param data the double data to set to.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setDoubleData(double data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if (dataType != DataType.DOUBLE64) {
-            header.setDataType(DataType.DOUBLE64);
-        }
-
-        clearData();
-        appendDoubleData(data);
-}
-
-/**
- * Set the data in this structure to the doubles contained in the given ByteBuffer.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#DOUBLE64}, it will be reset in the
- * header to that type.
- *
- * @param byteData the double data in ByteBuffer form.
- * @throws EvioException if data has too many elements to store in raw byte array (JVM limit)
- */
-public void setDoubleData(ByteBuffer byteData) throws EvioException {
-
-        if (byteData == null || byteData.remaining() < 1) {
-            return;
-        }
-
-        setDoubleData(ByteDataTransformer.toDoubleArray(byteData));
-}
-
-/**
- * Set the data in this structure to the given array of Strings.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#CHARSTAR8},it will be reset in the
- * header to that type.
- *
- * @param data the String data to set to.
- */
-public void setStringData(String data[]) {
-
-DataType dataType = header.getDataType();
-if (dataType != DataType.CHARSTAR8) {
-header.setDataType(DataType.CHARSTAR8);
-}
-
-clearData();
-try {appendStringData(data);}
-catch (EvioException e) {/* never happen */}
-}
-
-/**
- * Set the data in this structure to the given array of CompositeData objects.
- * All previously existing data will be gone. If the previous data
- * type was not {@link DataType#COMPOSITE}, it will be reset in the
- * header to that type.
- *
- * @param data the array of CompositeData objects to set to.
- * @throws EvioException if data uses too much memory to store in raw byte array (JVM limit)
- */
-public void setCompositeData(CompositeData data[]) throws EvioException {
-
-        DataType dataType = header.getDataType();
-        if (dataType != DataType.COMPOSITE) {
-            header.setDataType(DataType.COMPOSITE);
-        }
-
-        clearData();
-        appendCompositeData(data);
-}
 
 }
