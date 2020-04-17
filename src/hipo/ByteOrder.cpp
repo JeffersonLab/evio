@@ -19,8 +19,8 @@ namespace evio {
 
 /**
  * Templated method to swap data in place.
- * @tparam T
- * @param var
+ * @tparam T type of data.
+ * @param var reference to data to be swapped.
  */
 template <typename T>
 void ByteOrder::byteSwapInPlace(T& var)
@@ -30,7 +30,10 @@ void ByteOrder::byteSwapInPlace(T& var)
         std::swap(varArray[sizeof(var) - 1 - i],varArray[i]);
 }
 
-// Methods to swap and return floats and doubles
+/**
+ * Convenience method to return swapped float.
+ * @param var float to swap
+ */
 float ByteOrder::byteSwap(float var)
 {
     char* varArray = reinterpret_cast<char*>(&var);
@@ -39,6 +42,10 @@ float ByteOrder::byteSwap(float var)
     return var;
 }
 
+/**
+ * Convenience method to return swapped double.
+ * @param var double to swap
+ */
 double ByteOrder::byteSwap(double var)
 {
     char* varArray = reinterpret_cast<char*>(&var);
@@ -47,7 +54,12 @@ double ByteOrder::byteSwap(double var)
     return var;
 }
 
-
+/**
+ * Templated method to swap array data in place.
+ * @tparam T data type.
+ * @param var reference to data to be swapped.
+ * @param elements number of data elements to be swapped.
+ */
 template <typename T>
 void ByteOrder::byteSwapInPlace(T& var, size_t elements)
 {
@@ -63,6 +75,12 @@ void ByteOrder::byteSwapInPlace(T& var, size_t elements)
 }
 
 
+/**
+ * Templated method to swap array data in place.
+ * @tparam T data type.
+ * @param var pointer to data to be swapped.
+ * @param elements number of data elements to be swapped.
+ */
     template <typename T>
     void ByteOrder::byteSwapInPlace(T* var, size_t elements)
     {
