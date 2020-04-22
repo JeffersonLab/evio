@@ -767,7 +767,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @return the number of bytes in a raw evio format of the given strings
      * @return 0 if vector empty.
      */
-    uint32_t BaseStructure::stringsToRawSize(std::vector<string> & strings) {
+    uint32_t BaseStructure::stringsToRawSize(std::vector<string> const & strings) {
 
         if (strings.empty()) {
             return 0;
@@ -777,6 +777,33 @@ uint32_t BaseStructure::getNumberDataItems() {
         for (string const & s : strings) {
             dataLen += s.length() + 1; // don't forget the null char after each string
         }
+
+        // Add any necessary padding to 4 byte boundaries.
+        // IMPORTANT: There must be at least one '\004'
+        // character at the end. This distinguishes evio
+        // string array version from earlier version.
+        int pads[] = {4,3,2,1};
+        dataLen += pads[dataLen%4];
+
+        return dataLen;
+    }
+
+
+    /**
+     * This method returns the number of bytes in a raw
+     * evio format of the given string array, not including header.
+     *
+     * @param strings vector of strings to size
+     * @return the number of bytes in a raw evio format of the given strings
+     * @return 0 if vector empty.
+     */
+    uint32_t BaseStructure::stringToRawSize(const string & str) {
+
+        if (str.empty()) {
+            return 0;
+        }
+
+        uint32_t dataLen = str.length() + 1; // don't forget the null char after each string
 
         // Add any necessary padding to 4 byte boundaries.
         // IMPORTANT: There must be at least one '\004'

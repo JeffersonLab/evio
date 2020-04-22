@@ -216,7 +216,9 @@ namespace evio {
         std::vector<string> & getStringData();
         uint32_t unpackRawBytesToStrings();
 
-        static uint32_t stringsToRawSize(std::vector<std::string> & strings);
+        static uint32_t stringToRawSize(const string & str);
+        static uint32_t stringsToRawSize(std::vector<std::string> const & strings);
+
         static void stringsToRawBytes(std::vector<std::string> & strings,
                                       std::vector<uint8_t> & bytes);
 
