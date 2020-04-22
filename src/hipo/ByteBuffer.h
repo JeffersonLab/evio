@@ -82,6 +82,8 @@ public:
     ByteBuffer(uint8_t* byteArray, size_t len);
     ~ByteBuffer() = default;
 
+    bool operator== (const ByteBuffer& rhs) noexcept;
+    bool operator!= (const ByteBuffer& rhs) noexcept;
     ByteBuffer & operator=(ByteBuffer&& other) noexcept;
     ByteBuffer & operator=(const ByteBuffer& other);
     uint8_t    & operator[] (size_t index);

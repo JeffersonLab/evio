@@ -106,6 +106,28 @@ ByteBuffer & ByteBuffer::operator=(const ByteBuffer& other) {
 }
 
 /**
+ * Equality operator.
+ * Way of checking if the 2 buffers are pointing to the same data.
+ * @param b1 left side object.
+ * @param b2 right side object.
+ * @return true if equal.
+ */
+bool ByteBuffer::operator== (const ByteBuffer & rhs) noexcept {
+    return (buf == rhs.buf);
+}
+
+/**
+ * Inequality operator.
+ * Way of checking if the 2 buffers are not pointing to the same data.
+ * @param b1 left side object.
+ * @param b2 right side object.
+ * @return false if equal.
+ */
+bool ByteBuffer::operator!= (const ByteBuffer & rhs) noexcept {
+    return (buf != rhs.buf);
+}
+
+/**
  * Subscript operator for absolute access to data bytes without limit check.
  * This has no Java counterpart.
  * @param index index into internal data vector.
