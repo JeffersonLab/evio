@@ -17,6 +17,7 @@
 
 #include <string>
 #include <iostream>
+#include <ios>
 #include <iomanip>
 #include <sstream>
 #include <bitset>
