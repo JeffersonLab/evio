@@ -1773,8 +1773,9 @@ public final class CompositeData {
      * @param srcOrder byte order of the src data array
      *
      * @throws EvioException if src == null or ifmt == null;
-     *                       if nBytes or ifmt size <= 0;
-     *                       if src or dest is too small
+     *                       if nBytes &lt; 8, or ifmt size &lt; 1;
+     *                       srcOff or destOff negative;
+     *                       buffer limit/position combo too small;
      */
     public static void swapData(byte[] src, int srcOff, byte[] dest, int destOff,
                                 int nBytes, List<Integer> ifmt, ByteOrder srcOrder)
@@ -1810,9 +1811,9 @@ public final class CompositeData {
      * @param nBytes   length of data to swap in bytes
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
-     * @throws EvioException if ifmt null; ifmt size or nBytes <= 0;
+     * @throws EvioException if ifmt null; ifmt size &lt; 1; nBytes &lt; 8;
      *                       srcBuf is null;
-     *                       srcBuf or destBuf is too small
+     *                       buffer limit/position combo too small;
      */
     public static void swapData(ByteBuffer srcBuf, ByteBuffer destBuf,
                                 int nBytes, List<Integer> ifmt)
@@ -1852,10 +1853,9 @@ public final class CompositeData {
      * @param nBytes   length of data to swap in bytes (be sure to account for padding)
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
-     * @throws EvioException if ifmt null; ifmt size or nBytes <= 0;
-     *                       srcBuf is null;
-     *                       srcBuf or destBuf is too small;
-     *                       if bad values for srcPos or destPos;
+     * @throws EvioException if ifmt null; ifmt size &lt; 1; nBytes &lt; 8;
+     *                       srcBuf is null; srcPos or destPos negative;
+     *                       buffer limit/position combo too small;
      */
     public static void swapData(ByteBuffer srcBuf, ByteBuffer destBuf,
                                 int srcPos, int destPos, int nBytes, List<Integer> ifmt)
@@ -1865,14 +1865,20 @@ public final class CompositeData {
         int imt, ncnf, kcnf, mcnf, lev, iterm;
 
         // check args
-        if (ifmt == null || nBytes <= 0) throw new EvioException("bad argument value(s)");
+        if (ifmt == null) {
+            throw new EvioException("ifmt arg null");
+        }
+
+        if (nBytes < 8) {
+            throw new EvioException("nBytes < 8, too small");
+        }
 
         // size of int list
         int nfmt = ifmt.size();
         if (nfmt <= 0) throw new EvioException("empty format list");
 
         if (srcBuf == null) {
-            throw new EvioException("srcBuf arg is null");
+            throw new EvioException("srcBuf arg null");
         }
 
         boolean inPlace = false;
@@ -1897,12 +1903,13 @@ public final class CompositeData {
         }
 
         // Check position args
-        if (srcPos < 0 || srcPos > srcBuf.capacity() - 8) {
-            throw new EvioException("bad value for srcPos arg");
+        if (srcPos < 0 || destPos < 0) {
+            throw new EvioException("no neg values for pos args");
         }
 
-        if (destPos < 0 || destPos > destBuf.capacity() - 8) {
-            throw new EvioException("bad value for destPos arg");
+        // Check to see if buffers are too small to handle this operation
+        if ((srcBuf.limit() < nBytes + srcPos) || (destBuf.limit() < nBytes + destPos)) {
+            throw new EvioException("buffer(s) too small to handle swap, decrease pos or increase limit");
         }
 
         LV[] lv = new LV[10];
@@ -1917,11 +1924,6 @@ public final class CompositeData {
 
         // just past end of src data
         int srcEndIndex = srcPos + nBytes;
-
-        // check to see if buffers are too small to handle this operation
-        if (srcBuf.capacity() < nBytes || destBuf.capacity() < nBytes) {
-            throw new EvioException("buffer(s) is(are) too small to handle swap");
-        }
 
         // Sergey's original comments:
         //
