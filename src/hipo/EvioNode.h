@@ -44,6 +44,8 @@ class EvioNodeSource;
  */
 class EvioNode {
 
+    friend class Util;
+
 private:
 
     /** Header's length value (32-bit words). */
@@ -69,7 +71,28 @@ private:
     /** Position of the record in buffer containing this node in bytes
      *  @since version 6. */
     uint32_t recordPos = 0;
+public:
+    void setLen(uint32_t len);
 
+    void setTag(uint32_t tag);
+
+    void setNum(uint32_t num);
+
+    void setPad(uint32_t pad);
+
+    void setPos(uint32_t pos);
+
+    void setType(uint32_t type);
+
+    void setDataLen(uint32_t dataLen);
+
+    void setDataPos(uint32_t dataPos);
+
+    void setDataType(uint32_t dataType);
+
+    void setRecordPos(uint32_t recordPos);
+
+private:
     /** Store data in int array form if calculated. */
     vector<uint32_t> data;
 

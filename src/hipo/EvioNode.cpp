@@ -1235,8 +1235,7 @@ void EvioNode::updateTag(uint32_t newTag) {
 /**
  * Update, in the buffer, the num of the bank header this object represents.
  * Sometimes it's necessary to go back and change the num of an evio
- * structure that's already been written. This will do that
- * .
+ * structure that's already been written. This will do that.
  * @param newNum new num value
  */
 void EvioNode::updateNum(uint8_t newNum) {
