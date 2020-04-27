@@ -1668,11 +1668,16 @@ public final class CompositeData {
      *
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
-     *                       if bad values for srcPos and/or destPos;
+     *                       if bad values for srcPos/destPos/len args;
      */
     static void swapAll (ByteBuffer srcBuffer, ByteBuffer destBuffer,
                          int srcPos, int destPos, int len, boolean inPlace)
                 throws EvioException {
+
+        // Minimum size of 4 words for composite data
+        if (len < 4) {
+            throw new EvioException("len arg must be >= 4");
+        }
 
         // Bytes to swap
         int srcBytesLeft = 4*len;
