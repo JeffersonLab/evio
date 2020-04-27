@@ -27,34 +27,35 @@ namespace evio {
     /**
      * Constructor used for creating this object from scratch.
      *
-     * @param format format String defining data
-     * @param formatTag tag used in tagsegment containing format
-     * @param data data in given format
-     * @param dataTag tag used in bank containing data
-     * @param dataNum num used in bank containing data
+     * @param format    format String defining data.
+     * @param formatTag tag used in tagsegment containing format.
+     * @param data      data in given format.
+     * @param dataTag   tag used in bank containing data.
+     * @param dataNum   num used in bank containing data.
+     * @param order     byte order in which data is stored in internal buffer.
      *
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    CompositeData::CompositeData(string & format, uint16_t formatTag,
-        CompositeData::Data data, uint16_t dataTag, uint8_t dataNum) {
+    CompositeData::CompositeData(string & format, uint16_t formatTag, CompositeData::Data & data,
+                                 uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
 
         bool debug = false;
 
         this->format = format;
-        byteOrder = ByteOrder::ENDIAN_BIG;
+        byteOrder = order;
 
         if (debug) std::cout << "Analyzing composite data:" << std::endl;
 
         // Check args
-        if (format.empty() || data == null) {
-            throw EvioException("format and/or data arg is null");
+        if (format.empty()) {
+            throw EvioException("format arg is empty");
         }
 
         // Analyze format string
-        formatInts = compositeFormatToInt(format);
-        if (formatInts.size() < 1) {
-            throw EvioException("bad format string data");
+        compositeFormatToInt(format, formatInts);
+        if (formatInts.empty()) {
+            throw EvioException("format string is empty");
         }
 
         items = data.dataItems;
@@ -64,7 +65,7 @@ namespace evio {
         mList = data.mlist;
 
         // Create the tag segment
-        EvioTagSegment tagSegment = new EvioTagSegment(formatTag, DataType.CHARSTAR8);
+        EvioTagSegment tagSegment(formatTag, DataType::CHARSTAR8);
         try {
         // Add format string
         tagSegment.appendStringData(format);
@@ -73,7 +74,7 @@ namespace evio {
         tsHeader = (TagSegmentHeader) tagSegment.getHeader();
 
         // Now create data bank
-        EvioBank bank = new EvioBank(dataTag, DataType.COMPOSITE, dataNum);
+        EvioBank bank = new EvioBank(dataTag, DataType::COMPOSITE, dataNum);
         bHeader = (BankHeader) bank.getHeader();
         bHeader.setPadding(data.getPadding());
 
@@ -95,10 +96,11 @@ namespace evio {
         int totalByteLen = dataBytes + 4*dataOffset;
 
         // Create a big enough array to hold everything
-        rawBytes = new byte[totalByteLen];
+        rawBytes.reserve(totalByteLen);
 
         // Create ByteBuffer object around array
-        ByteBuffer allDataBuffer = ByteBuffer.wrap(rawBytes, 0, totalByteLen);
+        ByteBuffer allDataBuffer;
+        allDataBuffer.put(rawBytes, 0, totalByteLen);
         allDataBuffer.order(byteOrder);
 
         // Write tagsegment to buffer
@@ -107,8 +109,11 @@ namespace evio {
         // Write bank header to buffer
         bHeader.write(allDataBuffer);
 
+        dataBuffer.expand(dataBytes);
+// TODO: MAJOR CHANGE NEEDED HERE
         // Write data into the dataBuffer
-        dataToRawBytes(allDataBuffer, data, formatInts);
+        dataBuffer.order(byteOrder);
+        dataToRawBytes(dataBuffer, data, formatInts);
 
         // Set data buffer for completeness
         dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
@@ -125,24 +130,20 @@ namespace evio {
      * @param rawBytes  raw data defining this composite type item
      * @param byteOrder byte order of rawBytes
      */
-    CompositeData::CompositeData(uint8_t rawBytes[], ByteOrder byteOrder) {
+    CompositeData::CompositeData(uint8_t *rawBytes, ByteOrder const & byteOrder) {
 
         bool debug = false;
 
-        if (rawBytes == null) {
-            throw new EvioException("null argument(s)");
+        if (rawBytes == nullptr) {
+            throw EvioException("null argument(s)");
         }
 
         if (debug) System.out.println("CompositeData constr: incoming byte order = " + byteOrder);
 
-        if (byteOrder == null) {
-            byteOrder = ByteOrder.BIG_ENDIAN;
-        }
-
         if (debug) System.out.println("Analyzing composite data:");
 
-        this.rawBytes  = rawBytes;
-        this.byteOrder = byteOrder;
+        this->rawBytes  = rawBytes;
+        this->byteOrder = byteOrder;
 
         // First read the tag segment header
         tsHeader = EventParser.createTagSegmentHeader(rawBytes, 0, byteOrder);
@@ -224,7 +225,7 @@ namespace evio {
         bool debug = false;
 
         if (rawBytes == null) {
-            throw new EvioException("null argument(s)");
+            throw EvioException("null argument(s)");
         }
 
         if (debug) System.out.println("CompositeData parse: incoming byte order = " + byteOrder);
@@ -976,7 +977,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
   * @throws EvioException if internal error
   */
 void CompositeData::swap() {
-            swapAll(rawBytes, 0, null, 0, rawBytes.length/4, byteOrder);
+            swapAll(rawBytes, 0, nullptr, 0, rawBytes.size()/4, byteOrder);
             byteOrder = (byteOrder == ByteOrder::ENDIAN_LITTLE) ?
                             ByteOrder::ENDIAN_BIG : ByteOrder::ENDIAN_LITTLE;
             dataBuffer.order(byteOrder);
@@ -988,148 +989,145 @@ void CompositeData::swap() {
      * little endian. It swaps the entire type including the beginning tagsegment
      * header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src array may contain an array of
-     * composite type items and all will be swapped. If swapping in place,
-     * destOff set equal to srcOff.
+     * composite type items and all will be swapped.
      *
-     * @param src      source data array (of 32 bit words)
-     * @param srcOff   # of bytes offset into source data array
-     * @param dest     destination data array (of 32 bit words)
-     * @param destOff  # of bytes offset into destination data array
-     * @param length   length of data array in 32 bit words
-     * @param srcOrder the byte order of data in src
+     * @param src      source data pointer.
+     * @param dest     destination data pointer.
+     * @param length   length of data array in 32 bit words.
+     * @param srcOrder the byte order of src data.
      *
      * @throws EvioException if offsets or length < 0; if src = null;
      *                       if src or dest is too small
      */
-public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
-                            int length, ByteOrder srcOrder) throws EvioException {
+    void swapAll (int32_t *src, int32_t *dest, size_t length, bool srcIsLocal) {
 
-            if (src == null) {
-                throw new EvioException("null argument(s)");
-            }
+        if (src == nullptr) {
+            throw EvioException("src pointer null");
+        }
 
-            boolean inPlace = false;
-            if (dest == null || dest == src) {
-                dest = src;
-                destOff = srcOff;
-                inPlace = true;
-            }
+        bool inPlace = false;
+        if (dest == nullptr || dest == src) {
+            dest = src;
+            inPlace = true;
+        }
 
-            if (srcOff < 0 || destOff < 0 || length < 0) {
-                throw new EvioException("offsets or length must be >= 0");
-            }
+        if (length < 4) {
+            throw EvioException("length must be >= 4");
+        }
 
-            // Byte order of swapped data
-            ByteOrder destOrder = (srcOrder == ByteOrder.BIG_ENDIAN) ?
-            ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+        // Byte order
+        ByteOrder srcOrder = ByteOrder::ENDIAN_LOCAL;
+        if (!srcIsLocal) {
+            srcOrder = srcOrder.getOppositeEndian();
+        }
+        ByteOrder destOrder = srcOrder.getOppositeEndian();
+
+        // How many unused bytes are left in the src array?
+        int srcBytesLeft = 4*length;
 
 
-            // How many unused bytes are left in the src array?
-            int srcBytesLeft = 4*length;
 
-            // How many bytes taken for this CompositeData object?
-            int dataOffset;
 
-            // Wrap input & output arrays in ByteBuffers for convenience
-            ByteBuffer  srcBuffer = ByteBuffer.wrap( src, srcOff,  4*length);
-            ByteBuffer destBuffer = ByteBuffer.wrap(dest, destOff, 4*length);
+        // Wrap input & output arrays in ByteBuffers for convenience
+        ByteBuffer  srcBuffer = ByteBuffer.wrap( src, srcOff,  4*length);
+        ByteBuffer destBuffer = ByteBuffer.wrap(dest, destOff, 4*length);
 
-            // Here is where we do some of the swapping
-            srcBuffer.order(srcOrder);
-            destBuffer.order(destOrder);
+        // Here is where we do some of the swapping
+        srcBuffer.order(srcOrder);
+        destBuffer.order(destOrder);
 
-            // Start here
-            dataOffset = 0;
+        // How many bytes taken for this CompositeData object?
+        int dataOffset = 0;
 //System.out.println("start src offset = " + (srcOff + dataOffset));
 
-            // First read the tag segment header
-            TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOffset, srcOrder);
-            int headerLen  = tsHeader.getHeaderLength();
-            int dataLength = tsHeader.getLength() - (headerLen - 1);
+        // First read the tag segment header
+        TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOffset, srcOrder);
+        int headerLen  = tsHeader.getHeaderLength();
+        int dataLength = tsHeader.getLength() - (headerLen - 1);
 
 //System.out.println("tag len = " + tsHeader.getLength() + ", dataLen = " + dataLength);
 
-            // Oops, no format data
-            if (dataLength < 1) {
-                throw new EvioException("no format data");
-            }
+        // Oops, no format data
+        if (dataLength < 1) {
+            throw EvioException("no format data");
+        }
 
-            // Got all we needed from the tagseg header, now swap as it's written out.
-            tsHeader.write(destBuffer);
+        // Got all we needed from the tagseg header, now swap as it's written out.
+        tsHeader.write(destBuffer);
 
-            // Move to beginning of string data
-            dataOffset += 4*headerLen;
+        // Move to beginning of string data
+        dataOffset += 4*headerLen;
 
-            // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
-            4*(tsHeader.getLength()));
+        // Read the format string it contains
+        String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
+                                                              4*(tsHeader.getLength()));
 
-            if (strs.length < 1) {
-                throw new EvioException("bad format string data");
-            }
-            String format = strs[0];
+        if (strs.length < 1) {
+            throw EvioException("bad format string data");
+        }
+        String format = strs[0];
 
-            // Transform string format into int array format
-            List<Integer> formatInts = compositeFormatToInt(format);
-            if (formatInts.size() < 1) {
-                throw new EvioException("bad format string data");
-            }
+        // Transform string format into int array format
+        List<Integer> formatInts = compositeFormatToInt(format);
+        if (formatInts.size() < 1) {
+            throw EvioException("bad format string data");
+        }
 
-            // Char data does not get swapped but needs
-            // to be copied if not swapping in place.
-            if (!inPlace) {
-                System.arraycopy(src,   srcOff + dataOffset,
-                                 dest, destOff + dataOffset, 4*dataLength);
-            }
+        // Char data does not get swapped but needs
+        // to be copied if not swapping in place.
+        if (!inPlace) {
+            System.arraycopy(src,   srcOff + dataOffset,
+                             dest, destOff + dataOffset, 4*dataLength);
+        }
 
-            // Move to beginning of bank header
-            dataOffset += 4*dataLength;
+        // Move to beginning of bank header
+        dataOffset += 4*dataLength;
 
-            // Read the data bank header
-            BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOffset, srcOrder);
-            headerLen  = bHeader.getHeaderLength();
-            dataLength = bHeader.getLength() - (headerLen - 1);
+        // Read the data bank header
+        BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOffset, srcOrder);
+        headerLen  = bHeader.getHeaderLength();
+        dataLength = bHeader.getLength() - (headerLen - 1);
 
 //System.out.println("swapAll: bank len = " + bHeader.getLength() + ", dataLen = " + dataLength +
 //", tag = " + bHeader.getTag() + ", num = " + bHeader.getNumber() + ", type = " + bHeader.getDataTypeName() +
 //", pad = " + bHeader.getPadding());
 
-            // Oops, no data
-            if (dataLength < 1) {
-                throw new EvioException("no data");
-            }
+        // Oops, no data
+        if (dataLength < 1) {
+            throw new EvioException("no data");
+        }
 
-            // Adjust data length by switching units from
-            // ints to bytes and accounting for padding.
-            int padding = bHeader.getPadding();
-            dataLength = 4*dataLength - padding;
+        // Adjust data length by switching units from
+        // ints to bytes and accounting for padding.
+        int padding = bHeader.getPadding();
+        dataLength = 4*dataLength - padding;
 
-            // Got all we needed from the bank header, now swap as it's written out.
-            destBuffer.position(destOff + dataOffset);
-            bHeader.write(destBuffer);
+        // Got all we needed from the bank header, now swap as it's written out.
+        destBuffer.position(destOff + dataOffset);
+        bHeader.write(destBuffer);
 
-            // Move to beginning of data
-            dataOffset += 4*headerLen;
-            srcBuffer.position(  srcOff + dataOffset);
-            destBuffer.position(destOff + dataOffset);
+        // Move to beginning of data
+        dataOffset += 4*headerLen;
+        srcBuffer.position(  srcOff + dataOffset);
+        destBuffer.position(destOff + dataOffset);
 
-            // Swap data
-            swapData(srcBuffer, destBuffer, dataLength, formatInts);
+        // Swap data
+        swapData(srcBuffer, destBuffer, dataLength, formatInts);
 
-            // Set buffer positions and offset
-            dataOffset += dataLength;
-            srcBuffer.position( srcOff + dataOffset);
-            destBuffer.position(srcOff + dataOffset);
+        // Set buffer positions and offset
+        dataOffset += dataLength;
+        srcBuffer.position( srcOff + dataOffset);
+        destBuffer.position(srcOff + dataOffset);
 
-            srcBytesLeft -= dataOffset + padding;
+        srcBytesLeft -= dataOffset + padding;
 
 //System.out.println("bytes left = " + srcBytesLeft + ", padding = " + padding);
 //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
 
-            // Oops, things aren't coming out evenly
-            if (srcBytesLeft != 0) {
-                throw new EvioException("bad format");
-            }
+        // Oops, things aren't coming out evenly
+        if (srcBytesLeft != 0) {
+            throw EvioException("bad format");
+        }
     }
 
 
@@ -1137,7 +1135,8 @@ public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
      * This method converts (swaps) a buffer, containing EVIO composite type,
      * between big & little endian. It swaps the entire type including the beginning
      * tagsegment header, the following format string it contains, the data's bank header,
-     * and finally the data itself.
+     * and finally the data itself.<p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param srcBuffer   source data buffer
      * @param destBuffer  destination data buffer
@@ -1148,87 +1147,94 @@ public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
      *
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
-     *                       if bad values for srcPos and/or destPos;
+     *                       if bad values for srcPos/destPos/len args;
      */
-    static void swapAll (ByteBuffer srcBuffer, ByteBuffer destBuffer,
-                         int srcPos, int destPos, int len, bool inPlace) {
+    void CompositeData::swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+                                uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace) {
 
-            // Bytes to swap
-            int srcBytesLeft = 4*len;
-            int dataOffset, byteLen;
+        // Minimum size of 4 words for composite data
+        if (len < 4) {
+            throw EvioException("len arg must be >= 4");
+        }
 
-            // Initialize
-            dataOffset = 0;
+        // Bytes to swap
+        int srcBytesLeft = 4*len;
+        int dataOffset, byteLen;
 
-            // Read & swap string tagsegment header
-            EvioNode node = new EvioNode();
-            ByteDataTransformer.swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+        // Initialize
+        dataOffset = 0;
 
-            // Move to beginning of string data
-            srcPos     += 4;
-            destPos    += 4;
-            dataOffset += 4;
+        // Read & swap string tagsegment header
+        EvioNode node;
+        Util::swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
-            // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(srcBuffer, srcPos, 4*node.dataLen);
+        // Move to beginning of string data
+        srcPos     += 4;
+        destPos    += 4;
+        dataOffset += 4;
 
-            if (strs.length < 1) {
-                throw new EvioException("bad format string data");
+        // String data length in bytes
+        byteLen = 4*node.getDataLength();
+
+        // Read the format string it contains
+        std::vector<string> strs;
+        BaseStructure::unpackRawBytesToStrings(srcBuffer, srcPos, byteLen, strs);
+
+        if (strs.empty()) {
+            throw EvioException("bad format string data");
+        }
+        string format = strs[0];
+
+        // Transform string format into int array format
+        std::vector<uint16_t> formatInts;
+        CompositeData::compositeFormatToInt(format, formatInts);
+        if (formatInts.empty()) {
+            throw EvioException("bad format string data");
+        }
+
+        // Char data does not get swapped but needs
+        // to be copied if not swapping in place.
+        if (!inPlace) {
+            for (int i=0; i < byteLen; i++) {
+                destBuffer.put(destPos+i, srcBuffer.getByte(srcPos+i));
             }
-            String format = strs[0];
+        }
 
-            // Transform string format into int array format
-            List<Integer> formatInts = compositeFormatToInt(format);
-            if (formatInts.size() < 1) {
-                throw new EvioException("bad format string data");
-            }
+        // Move to beginning of bank header
+        srcPos     += byteLen;
+        destPos    += byteLen;
+        dataOffset += byteLen;
 
-            // String data length in bytes
-            byteLen = 4*node.dataLen;
+        // Read & swap data bank header
+        Util::swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
-            // Char data does not get swapped but needs
-            // to be copied if not swapping in place.
-            if (!inPlace) {
-                for (int i=0; i < byteLen; i++) {
-                    destBuffer.put(destPos+i, srcBuffer.get(srcPos+i));
-                }
-            }
+        // Oops, no data
+        if (node.getDataLength() < 1) {
+            throw EvioException("no data");
+        }
 
-            // Move to beginning of bank header
-            srcPos     += byteLen;
-            destPos    += byteLen;
-            dataOffset += byteLen;
+        // Move to beginning of bank data
+        srcPos     += 8;
+        destPos    += 8;
+        dataOffset += 8;
 
-            // Read & swap data bank header
-            ByteDataTransformer.swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+        // Bank data length in bytes
+        byteLen = 4*node.getDataLength();
 
-            // Oops, no data
-            if (node.dataLen < 1) {
-                throw new EvioException("no data");
-            }
+        // Swap data (accounting for padding)
+        CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.getPad()), formatInts);
 
-            // Move to beginning of bank data
-            srcPos     += 8;
-            destPos    += 8;
-            dataOffset += 8;
+        // Move past bank data
+        dataOffset   += byteLen;
+        srcBytesLeft -= dataOffset;
 
-            // Bank data length in bytes
-            byteLen = 4*node.dataLen;
+        //std::cout << "bytes left = " << srcBytesLeft << std::endl;
+        //std::cout << "src pos = " << srcBuffer.position() << ", dest pos = " << destBuffer.position() << std::endl;
 
-            // Swap data (accounting for padding)
-            swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.pad), formatInts);
-
-            // Move past bank data
-            dataOffset   += byteLen;
-            srcBytesLeft -= dataOffset;
-
-            //System.out.println("bytes left = " + srcBytesLeft);
-            //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
-
-            // Oops, things aren't coming out evenly
-            if (srcBytesLeft != 0) {
-                throw new EvioException("bad format");
-            }
+        // Oops, things aren't coming out evenly
+        if (srcBytesLeft != 0) {
+            throw EvioException("bad format");
+        }
     }
 
 
@@ -2016,9 +2022,6 @@ void CompositeData::swapData(int32_t *src, int32_t *dest, size_t nwrd,
 }
 
 
-// eviofmtswap
-
-
 /**
  * This method converts (swaps) an array of EVIO composite type data
  * between IEEE (big endian) and DECS (little endian) in place. This
@@ -2047,6 +2050,8 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                             uint32_t padding) {
     swapData(iarr, iarr, nwrd, ifmt, padding, false);
 }
+
+// TODO: Following is Sergui's original function (eviofmtswap) which is now implemented immediately above.
 
 ///**
 // * This method converts (swaps) an array of EVIO composite type data
@@ -2349,13 +2354,6 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
 //}
 
 
-
-
-
-
-
-
-
 /**
  * This method takes a CompositeData object and a transformed format string
  * and uses that to write data into a buffer/array in raw form.
@@ -2367,28 +2365,26 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
  * @throws EvioException if ifmt size <= 0; if srcBuf or destBuf is too
  *                       small; not enough dataItems for the given format
  */
-void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
-            List<Integer> ifmt) {
+void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & data,
+            std::vector<uint16_t> & ifmt) {
 
             bool debug = false;
-            int imt, ncnf, kcnf, mcnf, lev, iterm;
+            int kcnf, mcnf;
 
             // check args
-            if (ifmt == null || data == null || rawBuf == null) throw new EvioException("arg is null");
 
             // size of format list
             int nfmt = ifmt.size();
-            if (nfmt <= 0) throw new EvioException("empty format list");
-
-            LV[] lv = new LV[10];
-            for (int i=0; i < lv.length; i++) {
-                lv[i] = new LV();
+            if (ifmt.empty()) {
+                throw EvioException("empty format list");
             }
 
-            imt   = 0;  // ifmt[] index
-            lev   = 0;  // parenthesis level
-            ncnf  = 0;  // how many times must repeat a format
-            iterm = 0;
+            LV lv[10];
+
+            int imt   = 0;  // ifmt[] index
+            int lev   = 0;  // parenthesis level
+            int ncnf  = 0;  // how many times must repeat a format
+            int iterm = 0;
 
             int itemIndex = 0;
             int itemCount = data.dataItems.size();
@@ -2404,7 +2400,7 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
                         imt = 0;
                     }
                         // meet right parenthesis, so we're finished processing format(s) in parenthesis
-                    else if (ifmt.get(imt-1) == 0) {
+                    else if (ifmt[imt-1] == 0) {
                         // increment counter
                         lv[lev-1].irepeat++;
 
@@ -2422,9 +2418,9 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
                         }
                     }
                     else {
-                        ncnf = (ifmt.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
-                        kcnf =  ifmt.get(imt-1) & 0xFF;        /* format code */
-                        mcnf = (ifmt.get(imt-1) >> 14) & 0x3;  /* repeat code */
+                        ncnf = (ifmt[imt-1] >> 8) & 0x3F;  /* how many times to repeat format code */
+                        kcnf =  ifmt[imt-1] & 0xFF;        /* format code */
+                        mcnf = (ifmt[imt-1] >> 14) & 0x3;  /* repeat code */
 
                         // left parenthesis - set new lv[]
                         if (kcnf == 0) {
@@ -2437,11 +2433,13 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
                                 mcnf = 0;
 
                                 // get "N" value from List
-                                if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                                    throw new EvioException("Data type mismatch");
+                                if (data.dataTypes[itemIndex] != DataType::INT32) {
+                                    throw EvioException("Data type mismatch");
                                 }
-                                ncnf = (Integer)data.dataItems.get(itemIndex++);
-                                if (debug) System.out.println("ncnf from list = " + ncnf + " (code 15)");
+                                ncnf = data.dataItems[itemIndex++].i32;
+#ifdef COMPOSITE_DEBUG
+                                std::cout << "ncnf from list = " << ncnf << " (code 15)" << std::endl;
+#endif
 
                                 // put into buffer (relative put)
                                 rawBuf.putInt(ncnf);
@@ -2452,15 +2450,17 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
                                 mcnf = 0;
 
                                 // get "n" value from List
-                                if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                                    throw new EvioException("Data type mismatch");
+                                if (data.dataTypes[itemIndex] != DataType::SHORT16) {
+                                    throw EvioException("Data type mismatch");
                                 }
                                 // Get rid of sign extension to allow n to be unsigned
-                                ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
-                                if (debug) System.out.println("ncnf from list = " + ncnf + " (code 14)");
+                                ncnf = data.dataItems[itemIndex++].s16;
+#ifdef COMPOSITE_DEBUG
+                                std::cout << "ncnf from list = " << ncnf << " (code 14)" << std::endl;
+#endif
 
                                 // put into buffer (relative put)
-                                rawBuf.putShort((short)ncnf);
+                                rawBuf.putShort((int16_t)ncnf);
                             }
 
                             // left parenthesis, SPECIAL case: #repeats must be taken from data as byte
@@ -2468,15 +2468,18 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
                                 mcnf = 0;
 
                                 // get "m" value from List
-                                if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                                    throw new EvioException("Data type mismatch");
+                                if (data.dataTypes[itemIndex] != DataType::CHAR8) {
+                                    throw EvioException("Data type mismatch");
                                 }
                                 // Get rid of sign extension to allow m to be unsigned
-                                ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
-                                if (debug) System.out.println("ncnf from list = " + ncnf + " (code 13)");
+                                ncnf = data.dataItems[itemIndex++].b8;
+
+#ifdef COMPOSITE_DEBUG
+                                std::cout << "ncnf from list = " << ncnf << " (code 13)" << std::endl;
+#endif
 
                                 // put into buffer (relative put)
-                                rawBuf.put((byte)ncnf);
+                                rawBuf.put((uint8_t)ncnf);
                             }
 
                             // store ifmt[] index
@@ -2488,15 +2491,15 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
                             // increase parenthesis level
                             lev++;
                         }
-                            // format F or I or ...
+                        // format F or I or ...
                         else {
                             // there are no parenthesis, just simple format, go to processing
                             if (lev == 0) {
                             }
-                                // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
+                            // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
                             else if (imt != (nfmt-1)) {
                             }
-                                // have parenthesis, NOT the first format after the left parenthesis
+                            // have parenthesis, NOT the first format after the left parenthesis
                             else if (imt != lv[lev-1].left+1) {
                             }
                             else {
@@ -2515,34 +2518,34 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
 
                     if (mcnf == 1) {
                         // get "N" value from List
-                        if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                            throw new EvioException("Data type mismatch");
+                        if (data.dataTypes[itemIndex] != DataType::INT32) {
+                            throw EvioException("Data type mismatch");
                         }
-                        ncnf = (Integer) data.dataItems.get(itemIndex++);
+                        ncnf = data.dataItems[itemIndex++].i32;
 
                         // put into buffer (relative put)
                         rawBuf.putInt(ncnf);
-
-                        if (debug) System.out.println("ncnf32 = " + ncnf);
                     }
                     else if (mcnf == 2) {
                         // get "n" value from List
-                        if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                            throw new EvioException("Data type mismatch");
+                        if (data.dataTypes[itemIndex] != DataType::SHORT16) {
+                            throw EvioException("Data type mismatch");
                         }
-                        ncnf = ((Short)data.dataItems.get(itemIndex++)).intValue() & 0xffff;
-                        rawBuf.putShort((short)ncnf);
-                        if (debug) System.out.println("ncnf16 = " + ncnf);
+                        ncnf = data.dataItems[itemIndex++].s16;
+                        rawBuf.putShort((int16_t)ncnf);
                     }
                     else if (mcnf == 3) {
                         // get "m" value from List
-                        if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                            throw new EvioException("Data type mismatch");
+                        if (data.dataTypes[itemIndex] != DataType::CHAR8) {
+                            throw EvioException("Data type mismatch");
                         }
-                        ncnf = ((Byte)data.dataItems.get(itemIndex++)).intValue() & 0xff;
-                        rawBuf.put((byte)ncnf);
-                        if (debug) System.out.println("ncnf08 = " + ncnf);
+                        ncnf = data.dataItems[itemIndex++].b8;
+                        rawBuf.put((int8_t)ncnf);
                     }
+
+#ifdef COMPOSITE_DEBUG
+            std::cout << "ncnf from data = " << ncnf << std::endl;
+#endif
                 }
 
 
@@ -2552,140 +2555,144 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
                 //     ncnf - how many times format repeated
 
                 // Convert data type kcnf
-                if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = " + itemIndex);
+#ifdef COMPOSITE_DEBUG
+                std::cout << "Convert data of type = " << kcnf << ", itemIndex = " << itemIndex << std::endl;
+#endif
                 switch (kcnf) {
                     // 64 Bits
                     case 8:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.DOUBLE64) {
-                                throw new EvioException("Data type mismatch, expecting DOUBLE64, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::DOUBLE64) {
+                                throw EvioException("Data type mismatch, expecting DOUBLE64, got " +
+                                                    data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putDouble((Double)data.dataItems.get(itemIndex++));
+                            rawBuf.putDouble(data.dataItems[itemIndex++].dbl);
                         }
                         break;
 
                     case 9:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.LONG64) {
-                                throw new EvioException("Data type mismatch, expecting LONG64, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::LONG64) {
+                                throw EvioException("Data type mismatch, expecting LONG64, got " +
+                                                     data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putLong((Long)data.dataItems.get(itemIndex++));
+                            rawBuf.putLong(data.dataItems[itemIndex++].l64);
                         }
                         break;
 
                     case 10:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.ULONG64) {
-                                throw new EvioException("Data type mismatch, expecting ULONG64, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::ULONG64) {
+                                throw EvioException("Data type mismatch, expecting ULONG64, got " +
+                                                     data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putLong((Long)data.dataItems.get(itemIndex++));
+                            rawBuf.putLong(data.dataItems[itemIndex++].ul64);
                         }
                         break;
 
-                        // 32 Bits
+                    // 32 Bits
                     case 11:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.INT32) {
-                                throw new EvioException("Data type mismatch, expecting INT32, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::INT32) {
+                                throw EvioException("Data type mismatch, expecting INT32, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putInt((Integer)data.dataItems.get(itemIndex++));
+                            rawBuf.putInt(data.dataItems[itemIndex++].i32);
                         }
                         break;
 
                     case 1:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.UINT32) {
-                                throw new EvioException("Data type mismatch, expecting UINT32, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::UINT32) {
+                                throw EvioException("Data type mismatch, expecting UINT32, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putInt((Integer)data.dataItems.get(itemIndex++));
+                            rawBuf.putInt(data.dataItems[itemIndex++].ui32);
                         }
                         break;
 
                     case 2:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.FLOAT32) {
-                                throw new EvioException("Data type mismatch, expecting FLOAT32, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::FLOAT32) {
+                                throw EvioException("Data type mismatch, expecting FLOAT32, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putFloat((Float)data.dataItems.get(itemIndex++));
+                            rawBuf.putFloat(data.dataItems[itemIndex++].flt);
                         }
                         break;
 
                     case 12:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.HOLLERIT) {
-                                throw new EvioException("Data type mismatch, expecting HOLLERIT, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::HOLLERIT) {
+                                throw EvioException("Data type mismatch, expecting HOLLERIT, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putInt((Integer)data.dataItems.get(itemIndex++));
+                            rawBuf.putInt(data.dataItems[itemIndex++].i32);
                         }
                         break;
 
-                        // 16 bits
+                    // 16 bits
                     case 4:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.SHORT16) {
-                                throw new EvioException("Data type mismatch, expecting SHORT16, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::SHORT16) {
+                                throw EvioException("Data type mismatch, expecting SHORT16, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putShort((Short)data.dataItems.get(itemIndex++));
+                            rawBuf.putShort(data.dataItems[itemIndex++].s16);
                         }
                         break;
 
                     case 5:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.USHORT16) {
-                                throw new EvioException("Data type mismatch, expecting USHORT16, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::USHORT16) {
+                                throw EvioException("Data type mismatch, expecting USHORT16, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putShort((Short)data.dataItems.get(itemIndex++));
+                            rawBuf.putShort(data.dataItems[itemIndex++].us16);
                         }
                         break;
 
-                        // 8 bits
+                    // 8 bits
                     case 6:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.CHAR8) {
-                                throw new EvioException("Data type mismatch, expecting CHAR8, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::CHAR8) {
+                                throw EvioException("Data type mismatch, expecting CHAR8, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.put((Byte)data.dataItems.get(itemIndex++));
+                            rawBuf.put(data.dataItems[itemIndex++].b8);
                         }
                         break;
 
                     case 7:
                         for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes.get(itemIndex) != DataType.UCHAR8) {
-                                throw new EvioException("Data type mismatch, expecting UCHAR8, got " +
-                                                        data.dataTypes.get(itemIndex));
+                            if (data.dataTypes[itemIndex] != DataType::UCHAR8) {
+                                throw EvioException("Data type mismatch, expecting UCHAR8, got " +
+                                                                data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.put((Byte)data.dataItems.get(itemIndex++));
+                            rawBuf.put(data.dataItems[itemIndex++].ub8);
                         }
                         break;
 
-                        // String array
+                    // String array
                     case 3:
-                        if (data.dataTypes.get(itemIndex) != DataType.CHARSTAR8) {
-                            throw new EvioException("Data type mismatch, expecting string, got " +
-                                                    data.dataTypes.get(itemIndex));
+                        if (data.dataTypes[itemIndex] != DataType::CHARSTAR8) {
+                            throw EvioException("Data type mismatch, expecting string, got " +
+                                                            data.dataTypes[itemIndex].toString());
                         }
 
                         // Convert String array into evio byte representation
-                        String[] strs = (String[]) data.dataItems.get(itemIndex++);
-                        byte[] rb = BaseStructure.stringsToRawBytes(strs);
-                        rawBuf.put(rb);
+                        auto strs = data.dataItems[itemIndex++].strVec;
+                        std::vector<uint8_t> rb;
+                        BaseStructure::stringsToRawBytes(strs, rb);
+                        rawBuf.put(rb, 0, rb.size());
 
-                        if (ncnf != rb.length) {
-                            throw new EvioException("String format mismatch with string (array)");
+                        if (ncnf != rb.size()) {
+                            throw EvioException("String format mismatch with string (array)");
                         }
-                        break;
+                        //break;
 
-                    default:
+                    //default:
+
                 }
             }
     }
@@ -2697,29 +2704,31 @@ void CompositeData::dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
      * if currently little endian (DECS). It also extracts and stores all the data
      * items and their types in 2 lists.
      */
-void CompositeData::process() {
+    void CompositeData::process() {
 
-        bool debug = false;
-        int imt, ncnf, kcnf, mcnf, lev, iterm;
+        int kcnf, mcnf;
 
         // size of int list
         int nfmt = formatInts.size();
 
-        items = new ArrayList<Object>(100);
-        types = new ArrayList<DataType>(100);
-        NList = new ArrayList<Integer>(100);
-        nList = new ArrayList<Short>(100);
-        mList = new ArrayList<Byte>(100);
+        items.reserve(100);
+        types.reserve(100);
+        NList.reserve(100);
+        nList.reserve(100);
+        mList.reserve(100);
 
-        LV[] lv = new LV[10];
-        for (int i=0; i < lv.length; i++) {
-            lv[i] = new LV();
-        }
+        items.clear();
+        types.clear();
+        NList.clear();
+        nList.clear();
+        mList.clear();
 
-        imt   = 0;  // formatInts[] index
-        lev   = 0;  // parenthesis level
-        ncnf  = 0;  // how many times must repeat a format
-        iterm = 0;
+        LV lv[10];
+
+        int imt   = 0;  // formatInts[] index
+        int lev   = 0;  // parenthesis level
+        int ncnf  = 0;  // how many times must repeat a format
+        int iterm = 0;
 
         // start of data, index into data array
         int dataIndex = 0;
@@ -2728,110 +2737,82 @@ void CompositeData::process() {
 
 
         while (dataIndex < endIndex) {
-            if (debug) System.out.println(String.format("+++ %d %d\n", dataIndex, endIndex));
 
-            // get next format code
             while (true) {
                 imt++;
-                // end of format statement reached, back to iterm - last parenthesis or format begining
                 if (imt > nfmt) {
                     imt = 0;
                 }
-                    // meet right parenthesis, so we're finished processing format(s) in parenthesis
-                else if (formatInts.get(imt-1) == 0) {
-                    // increment counter
+                else if (formatInts[imt-1] == 0) {
                     lv[lev-1].irepeat++;
 
-                    // if format in parenthesis was processed the required number of times
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
-                        // store left parenthesis index minus 1
                         iterm = lv[lev-1].left - 1;
-                        // done with this level - decrease parenthesis level
                         lev--;
                     }
-                        // go for another round of processing by setting 'imt' to the left parenthesis
                     else {
-                        // points formatInts[] index to the left parenthesis from the same level 'lev'
                         imt = lv[lev-1].left;
                     }
                 }
                 else {
+                    ncnf = (formatInts[imt-1] >> 8) & 0x3F;
+                    kcnf =  formatInts[imt-1] & 0xFF;
+                    mcnf = (formatInts[imt-1] >> 14) & 0x3;
 
-                    ncnf = (formatInts.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
-                    kcnf =  formatInts.get(imt-1) & 0xFF;        /* format code */
-                    mcnf = (formatInts.get(imt-1) >> 14) & 0x3;  /* repeat code */
-
-                    // left parenthesis - set new lv[]
                     if (kcnf == 0) {
 
-                        // left parenthesis, SPECIAL case: #repeats must be taken from int data
                         if (mcnf == 1) {
-                            // set it to regular left parenthesis code
                             mcnf = 0;
-
-                            // read "N" value from buffer
                             ncnf = dataBuffer.getInt(dataIndex);
 
-                            NList.add(ncnf);
-                            items.add(ncnf);
-                            types.add(DataType.NVALUE);
+                            NList.push_back(ncnf);
+                            DataItemMember mem;
+                            mem.i32 = ncnf;
+                            items.push_back(mem);
+                            types.push_back(DataType::NVALUE);
 
                             dataIndex += 4;
                         }
 
-                        // left parenthesis, SPECIAL case: #repeats must be taken from short data
                         if (mcnf == 2) {
                             mcnf = 0;
-                            // read "n" value from buffer
-                            ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
-                            nList.add((short)ncnf);
-                            items.add((short)ncnf);
-                            types.add(DataType.nVALUE);
+                            ncnf = dataBuffer.getShort(dataIndex);
+
+                            nList.push_back((int16_t)ncnf);
+                            DataItemMember mem;
+                            mem.s16 = ncnf;
+                            items.push_back(mem);
+                            types.push_back(DataType::nVALUE);
+
                             dataIndex += 2;
                         }
 
-                        // left parenthesis, SPECIAL case: #repeats must be taken from byte data
                         if (mcnf == 3) {
                             mcnf = 0;
-                            // read "m" value from buffer
-                            ncnf = (dataBuffer.get(dataIndex)) & 0xff;
-                            mList.add((byte)ncnf);
-                            items.add((byte)ncnf);
-                            types.add(DataType.mVALUE);
+                            ncnf = dataBuffer.getByte(dataIndex);
+
+                            mList.push_back((int8_t)ncnf);
+                            DataItemMember mem;
+                            mem.b8 = ncnf;
+                            items.push_back(mem);
+                            types.push_back(DataType::mVALUE);
+
                             dataIndex++;
                         }
 
-//                        if (ncnf == 0) { //special case: if N=0, skip to the right paren
-//                            iterm = imt-1;
-//                            while (formatInts.get(imt-1) != 0) {
-//                                imt++;
-//                            }
-//                            continue;
-//                        }
-
-                        // store formatInts[] index
                         lv[lev].left = imt;
-                        // how many time will repeat format code inside parenthesis
                         lv[lev].nrepeat = ncnf;
-                        // cleanup place for the right parenthesis (do not get it yet)
                         lv[lev].irepeat = 0;
-                        // increase parenthesis level
                         lev++;
                     }
-                        // format F or I or ...
                     else {
-                        // there are no parenthesis, just simple format, go to processing
                         if (lev == 0) {
                         }
-                            // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
                         else if (imt != (nfmt-1)) {
                         }
-                            // have parenthesis, NOT the first format after the left parenthesis
                         else if (imt != lv[lev-1].left+1) {
                         }
                         else {
-                            // If none of above, we are in the end of format
-                            // so set format repeat to a big number.
                             ncnf = 999999999;
                         }
                         break;
@@ -2845,25 +2826,31 @@ void CompositeData::process() {
                 if (mcnf == 1) {
                     // read "N" value from buffer
                     ncnf = dataBuffer.getInt(dataIndex);
-                    NList.add(ncnf);
-                    items.add(ncnf);
-                    types.add(DataType.NVALUE);
+                    NList.push_back(ncnf);
+                    DataItemMember mem;
+                    mem.i32 = ncnf;
+                    items.push_back(mem);
+                    types.push_back(DataType::NVALUE);
                     dataIndex += 4;
                 }
                 else if (mcnf == 2) {
                     // read "n" value from buffer
-                    ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
-                    nList.add((short)ncnf);
-                    items.add((short)ncnf);
-                    types.add(DataType.nVALUE);
+                    ncnf = dataBuffer.getShort(dataIndex);
+                    nList.push_back((int16_t)ncnf);
+                    DataItemMember mem;
+                    mem.s16 = ncnf;
+                    items.push_back(mem);
+                    types.push_back(DataType::nVALUE);
                     dataIndex += 2;
                 }
                 else if (mcnf == 3) {
                     // read "m" value from buffer
-                    ncnf = (dataBuffer.get(dataIndex)) & 0xff;
-                    mList.add((byte)ncnf);
-                    items.add((byte)ncnf);
-                    types.add(DataType.mVALUE);
+                    ncnf = dataBuffer.getByte(dataIndex);
+                    mList.push_back((int8_t)ncnf);
+                    DataItemMember mem;
+                    mem.b8 = ncnf;
+                    items.push_back(mem);
+                    types.push_back(DataType::mVALUE);
                     dataIndex++;
                 }
             }
@@ -2879,74 +2866,95 @@ void CompositeData::process() {
 
             // If 64-bit
             if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
-                long lng;
                 int b64EndIndex = dataIndex + 8*ncnf;
                 // make sure we don't go past end of data
                 if (b64EndIndex > endIndex) b64EndIndex = endIndex;
 
                 while (dataIndex < b64EndIndex) {
-                    lng = dataBuffer.getLong(dataIndex);
-
                     // store its data type
-                    types.add(DataType.getDataType(kcnf));
+                    types.push_back(DataType::getDataType(kcnf));
+
+                    DataItemMember mem;
 
                     // double
                     if (kcnf == 8) {
-                        items.add(Double.longBitsToDouble(lng));
+                        mem.dbl = dataBuffer.getDouble(dataIndex);
+                        items.push_back(mem);
                     }
-                        // 64 bit int/uint
+                    // 64 bit int/uint
+                    else if (kcnf == 9) {
+                        mem.l64 = dataBuffer.getLong(dataIndex);
+                        items.push_back(mem);
+                    }
                     else {
-                        items.add(lng);
+                        mem.ul64 = dataBuffer.getULong(dataIndex);;
+                        items.push_back(mem);
                     }
 
                     dataIndex += 8;
                 }
             }
-                // 32-bit
+            // 32-bit
             else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
-                int i, b32EndIndex = dataIndex + 4*ncnf;
+                int b32EndIndex = dataIndex + 4*ncnf;
                 // make sure we don't go past end of data
                 if (b32EndIndex > endIndex) b32EndIndex = endIndex;
 
                 while (dataIndex < b32EndIndex) {
-                    i = dataBuffer.getInt(dataIndex);
+                    DataItemMember mem;
 
                     // Hollerit
                     if (kcnf == 12) {
-                        types.add(DataType.HOLLERIT);
-                        items.add(i);
+                        mem.i32 = dataBuffer.getInt(dataIndex);
+                        items.push_back(mem);
+                        types.push_back(DataType::HOLLERIT);
                     }
-                        // 32 bit float
+                    // 32 bit float
                     else if (kcnf == 2) {
-                        types.add(DataType.getDataType(kcnf));
-                        items.add(Float.intBitsToFloat(i));
+                        mem.flt = dataBuffer.getFloat(dataIndex);
+                        items.push_back(mem);
+                        types.push_back(DataType::getDataType(kcnf));
                     }
-                        // 32 bit int/uint
+                    // 32 bit int/uint
+                    else if (kcnf == 1) {
+                        mem.ui32 = dataBuffer.getUInt(dataIndex);
+                        items.push_back(mem);
+                        types.push_back(DataType::getDataType(kcnf));
+                    }
                     else {
-                        types.add(DataType.getDataType(kcnf));
-                        items.add(i);
+                        mem.i32 = dataBuffer.getInt(dataIndex);
+                        items.push_back(mem);
+                        types.push_back(DataType::getDataType(kcnf));
                     }
 
                     dataIndex += 4;
                 }
             }
-                // 16 bits
+            // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
-                short s;
                 int b16EndIndex = dataIndex + 2*ncnf;
                 // make sure we don't go past end of data
                 if (b16EndIndex > endIndex) b16EndIndex = endIndex;
 
                 // swap all 16 bit items
                 while (dataIndex < b16EndIndex) {
-                    s = dataBuffer.getShort(dataIndex);
+                    types.push_back(DataType::getDataType(kcnf));
 
-                    types.add(DataType.getDataType(kcnf));
-                    items.add(s);
+                    DataItemMember mem;
+
+                    if (kcnf == 5) {
+                        mem.us16 = dataBuffer.getUShort(dataIndex);
+                        items.push_back(mem);
+                    }
+                    else {
+                        mem.s16 = dataBuffer.getShort(dataIndex);
+                        items.push_back(mem);
+                    }
+
                     dataIndex += 2;
                 }
             }
-                // 8 bits
+            // 8 bits
             else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
                 int b8EndIndex = dataIndex + ncnf;
                 // make sure we don't go past end of data
@@ -2957,24 +2965,38 @@ void CompositeData::process() {
                 }
 
                 dataBuffer.position(dataIndex);
-                byte[] bytes = new byte[ncnf];
+                DataItemMember mem;
+
+                std::vector<uint8_t> bytes(ncnf);
                 // relative read
-                dataBuffer.get(bytes);
+                dataBuffer.getBytes(bytes, 0, ncnf);
 
                 // string array
                 if (kcnf == 3) {
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0, ncnf);
-                    items.add(strs);
+                    std::vector<string> strs;
+                    BaseStructure::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
+                    mem.strVec = strs;
+                    items.push_back(mem);
                 }
-                    // char & unsigned char ints
+                // char
+                else if (kcnf == 6) {
+                    for (int i=0; i < ncnf; i++) {
+                        mem.b8 = bytes[i];
+                        items.push_back(mem);
+                    }
+                }
+                // uchar
                 else {
-                    for (int i=0; i < ncnf; i++) items.add(bytes[i]);
+                    for (int i=0; i < ncnf; i++) {
+                        mem.ub8 = bytes[i];
+                        items.push_back(mem);
+                    }
                 }
 
                 // reset position
                 dataBuffer.position(0);
 
-                types.add(DataType.getDataType(kcnf));
+                types.push_back(DataType::getDataType(kcnf));
                 dataIndex += ncnf;
             }
 
@@ -2997,77 +3019,82 @@ void CompositeData::process() {
      * Useful for writing data in xml format.
      *
      * @param  indent a string to insert in front of each group of 5 items
+     * @param  hex    if true, display numbers in hexadecimal.
      * @return a string representation of the composite data.
      */
-    string CompositeData::toString(string indent) {
-        getIndex = 0;
-        StringBuilder sb = new StringBuilder(1024);
+    string CompositeData::toString(const string & indent, bool hex) {
+        stringstream ss;
+        if (hex) {
+            ss << hex << showbase;
+        }
+
         int numItems = items.size();
 
-        for (int i=0; i < numItems; i++) {
-            if (i%5 == 0) sb.append(indent);
+        for (int i=0; i < items.size(); i++) {
+            if (i%5 == 0) ss << indent;
 
-            switch (types.get(i)) {
-                case NVALUE:
-                    sb.append("N="); sb.append(getNValue());
-                    break;
-                case nVALUE:
-                    sb.append("n="); sb.append(getnValue());
-                    break;
-                case mVALUE:
-                    sb.append("m="); sb.append(getmValue());
-                    break;
-                case INT32:
-                    sb.append("I="); sb.append(getInt());
-                    break;
-                case UINT32:
-                    sb.append("i="); sb.append(getInt());
-                    break;
-                case HOLLERIT:
-                    sb.append("A="); sb.append(getInt());
-                    break;
-                case CHAR8:
-                    sb.append("C="); sb.append(getByte());
-                    break;
-                case UCHAR8:
-                    sb.append("c="); sb.append(getByte());
-                    break;
-                case SHORT16:
-                    sb.append("S="); sb.append(getShort());
-                    break;
-                case USHORT16:
-                    sb.append("s="); sb.append(getShort());
-                    break;
-                case LONG64:
-                    sb.append("L="); sb.append(getLong());
-                    break;
-                case ULONG64:
-                    sb.append("l="); sb.append(getLong());
-                    break;
-                case DOUBLE64:
-                    sb.append("D="); sb.append(getDouble());
-                    break;
-                case FLOAT32:
-                    sb.append("F="); sb.append(getFloat());
-                    break;
-                case CHARSTAR8:
-                    sb.append("a=");
-                    String[] strs = getStrings();
-                    for (int j=0; j < strs.length; j++) {
-                        sb.append(strs[j]);
-                        if (j < strs.length - 1) sb.append(",");
+            DataType typ = types[i];
+
+            if (typ == DataType::NVALUE) {
+                ss << "N=" << getNValue();
+            }
+            else if (typ == DataType::nVALUE) {
+                ss << "n=" << getnValue();
+            }
+            else if (typ == DataType::mVALUE) {
+                ss << "m=" << getmValue();
+            }
+            else if (typ == DataType::INT32) {
+                ss << "I=" << getInt();
+            }
+            else if (typ == DataType::UINT32) {
+                ss << "i=" << getUInt();
+            }
+            else if (typ == DataType::HOLLERIT) {
+                ss << "A=" << getHollerit();
+            }
+            else if (typ == DataType::CHAR8) {
+                ss << "C=" << getChar();
+            }
+            else if (typ == DataType::UCHAR8) {
+                ss << "c=" << getUChar();
+            }
+            else if (typ == DataType::SHORT16) {
+                ss << "S=" << getShort();
+            }
+            else if (typ == DataType::USHORT16) {
+                ss << "s=" << getUShort();
+            }
+            else if (typ == DataType::LONG64) {
+                ss << "L=" << getLong();
+            }
+            else if (typ == DataType::ULONG64) {
+                ss << "l=" << getULong();
+            }
+            else if (typ == DataType::DOUBLE64) {
+                ss << "D=" << getDouble();
+            }
+            else if (typ == DataType::FLOAT32) {
+                ss << "F=" << getFloat();
+            }
+            else if (typ == DataType::CHARSTAR8) {
+                ss << "a=" << getFloat();
+
+                auto strs = getStrings();
+                for (int j=0; j < strs.size(); j++) {
+                    ss << strs[j];
+                    if (j < strs.size() - 1) {
+                        ss << ",";
                     }
-                    break;
-                default:
+                }
             }
 
-            if (i < numItems - 1) sb.append(", ");
-            if (((i+1)%5 == 0) && (i < numItems - 1)) sb.append("\n");
+            if (i < numItems - 1) ss << ", ";
+            if (((i+1)%5 == 0) && (i < numItems - 1)) ss << std::endl;
         }
-        return sb.toString();
+
+        return ss.str();
     }
-
-
 
     /**
      * This method returns a string representation of this CompositeData object
@@ -3079,17 +3106,15 @@ void CompositeData::process() {
      * @return  a string representation of this CompositeData object.
      */
     string CompositeData::toString(bool hex) {
-
-        StringBuilder sb = new StringBuilder(1000);
+        stringstream ss;
+        if (hex) {
+            ss << hex << showbase;
+        }
 
         // size of int list
         int nfmt = formatInts.size();
 
-        LV[] lv = new LV[10];
-        for (int i=0; i < lv.length; i++) {
-            lv[i] = new LV();
-        }
-
+        LV lv[10];
         int imt   = 0;  // formatInts[] index
         int lev   = 0;  // parenthesis level
         int ncnf  = 0;  // how many times must repeat a format
@@ -3104,8 +3129,8 @@ void CompositeData::process() {
         //---------------------------------
         // First we have the format string
         //---------------------------------
-        sb.append(format);
-        sb.append("\n");
+        ss << format;
+        ss << std::endl;
 
         while (dataIndex < endIndex) {
 
@@ -3115,10 +3140,10 @@ void CompositeData::process() {
                 // end of format statement reached, back to format beginning
                 if (imt > nfmt) {
                     imt = 0;
-                    sb.append("\n");  // end of one & beginning of another row
+                    ss << std::endl;  // end of one & beginning of another row
                 }
                     // right parenthesis, so we're finished processing format(s) in parenthesis
-                else if (formatInts.get(imt-1) == 0) {
+                else if (formatInts[imt-1] == 0) {
                     lv[lev-1].irepeat++;
                     // if format in parenthesis was processed
                     if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
@@ -3128,18 +3153,16 @@ void CompositeData::process() {
                         // go for another round of processing by setting 'imt' to the left parenthesis
                     else {
                         imt = lv[lev-1].left;
-                        sb.append("\n");
+                        ss << std::endl;
                     }
                 }
                 else {
-                    ncnf = (formatInts.get(imt-1) >> 8) & 0x3F;  /* how many times to repeat format code */
-                    kcnf =  formatInts.get(imt-1) & 0xFF;        /* format code */
-                    mcnf = (formatInts.get(imt-1) >> 14) & 0x3;  /* repeat code */
+                    ncnf = (formatInts[imt-1] >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  formatInts[imt-1] & 0xFF;        /* format code */
+                    mcnf = (formatInts[imt-1] >> 14) & 0x3;  /* repeat code */
 
-                    // left parenthesis - set new lv[]
                     if (kcnf == 0) {
 
-                        // left parenthesis, SPECIAL case: #repeats must be taken from int data
                         if (mcnf == 1) {
                             mcnf = 0;
                             // read "N" value from buffer
@@ -3147,18 +3170,16 @@ void CompositeData::process() {
                             dataIndex += 4;
                         }
 
-                        // left parenthesis, SPECIAL case: #repeats must be taken from short data
                         if (mcnf == 2) {
                             mcnf = 0;
                             // read "N" value from buffer
-                            ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                            ncnf = dataBuffer.getShort(dataIndex);
                             dataIndex += 2;
                         }
-                        // left parenthesis, SPECIAL case: #repeats must be taken from byte data
                         if (mcnf == 3) {
                             mcnf = 0;
                             // read "N" value from buffer
-                            ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                            ncnf = dataBuffer.getByte(dataIndex);
                             dataIndex++;
                         }
 
@@ -3167,10 +3188,10 @@ void CompositeData::process() {
                         lv[lev].nrepeat = ncnf;
                         lv[lev].irepeat = 0;
 
-                        sb.append("\n");  // start of a repeat
+                        ss << std::endl; // start of a repeat
                         lev++;
                     }
-                        // single format (e.g. F, I, etc.)
+                    // single format (e.g. F, I, etc.)
                     else {
                         if ((lev == 0) ||
                             (imt != (nfmt-1)) ||
@@ -3195,152 +3216,213 @@ void CompositeData::process() {
                 }
                 else if (mcnf == 2) {
                     // read "n" value from buffer
-                    ncnf = (dataBuffer.getShort(dataIndex)) & 0xffff;
+                    ncnf = dataBuffer.getShort(dataIndex);
                     dataIndex += 2;
                 }
                 else if (mcnf == 3) {
                     // read "m" value from buffer
-                    ncnf = (dataBuffer.get(dataIndex)) & 0xff;
+                    ncnf = dataBuffer.getByte(dataIndex);
                     dataIndex++;
                 }
             }
 
             // If 64-bit
             if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
-                long lng;
-                double d;
                 int count=1, itemsOnLine=2;
 
-                sb.append("\n");
+                ss << std::endl;
 
                 int b64EndIndex = dataIndex + 8*ncnf;
                 if (b64EndIndex > endIndex) b64EndIndex = endIndex;
 
                 while (dataIndex < b64EndIndex) {
-                    lng = dataBuffer.getLong(dataIndex);
-
                     // double
                     if (kcnf == 8) {
-                        d = Double.longBitsToDouble(lng);
-                        sb.append(String.format("%-23.16g ",d));
+                        double d = dataBuffer.getDouble(dataIndex);
+                        ss << scientific << std::setprecision(std::numeric_limits<double>::digits10 + 1) << d;
                     }
-                        // 64 bit int/uint
+                    // 64 bit int
+                    else if (kcnf == 9) {
+                        int64_t lng = dataBuffer.getLong(dataIndex);
+                        if (hex) {
+                            ss << hex << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                        }
+                        else {
+                            ss << dec << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                        }
+                    }
+                    // 64 bit uint
                     else {
-                        if (hex) sb.append(String.format("0x%016x  ",lng));
-                        else     sb.append(String.format("%-18d ",lng));
+                        uint64_t lng = dataBuffer.getULong(dataIndex);
+                        if (hex) {
+                            ss << hex << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                        }
+                        else {
+                            ss << dec << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                        }
                     }
 
                     if (count++ % itemsOnLine == 0) {
-                        sb.append("\n");
+                        ss << std::endl;
                     }
                     dataIndex += 8;
                 }
 
                 if ((count - 1) % itemsOnLine != 0) {
-                    sb.append("\n");
+                    ss << std::endl;
                 }
             }
-
-                // 32-bit
+            // 32-bit
             else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
-                float f;
                 int count=1, itemsOnLine=4;
 
-                sb.append("\n");
+                ss << std::endl;
 
-                int i, b32EndIndex = dataIndex + 4*ncnf;
+                int b32EndIndex = dataIndex + 4*ncnf;
                 if (b32EndIndex > endIndex) b32EndIndex = endIndex;
 
                 while (dataIndex < b32EndIndex) {
-                    i = dataBuffer.getInt(dataIndex);
 
-                    // float
-                    if (kcnf == 2) {
-                        f = Float.intBitsToFloat(i);
-                        sb.append(String.format("%-14.8g ",f));
+                    // Hollerit, 32 bit int
+                    if (kcnf == 12 || kcnf == 11) {
+                        int32_t i = dataBuffer.getInt(dataIndex);
+                        if (hex) {
+                            ss << hex << std::setprecision(std::numeric_limits<int32_t>::digits10 + 1) << i;
+                        }
+                        else {
+                            ss << dec << std::setprecision(std::numeric_limits<int32_t>::digits10 + 1) << i;
+                        }
                     }
-                        // Hollerit, 32 bit int/uint
+                    // float
+                    else if (kcnf == 2) {
+                        float f = dataBuffer.getFloat(dataIndex);
+                        ss << scientific << std::setprecision(std::numeric_limits<float>::digits10 + 1) << f;
+                    }
+                    // 32 bit uint
                     else {
-                        if (hex) sb.append(String.format("0x%08x  ",i));
-                        else     sb.append(String.format("%-10d ",i));
+                        int32_t i = dataBuffer.getUInt(dataIndex);
+                        if (hex) {
+                            ss << hex << std::setprecision(std::numeric_limits<uint32_t>::digits10 + 1) << i;
+                        }
+                        else {
+                            ss << dec << std::setprecision(std::numeric_limits<uint32_t>::digits10 + 1) << i;
+                        }
                     }
 
                     if (count++ % itemsOnLine == 0) {
-                        sb.append("\n");
+                        ss << std::endl;
                     }
                     dataIndex += 4;
                 }
 
                 if ((count - 1) % itemsOnLine != 0) {
-                    sb.append("\n");
+                    ss << std::endl;
                 }
             }
-
-                // 16 bits
+            // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
-                short s;
                 int count=1, itemsOnLine=6;
 
-                sb.append("\n");
+                ss << std::endl;
 
                 int b16EndIndex = dataIndex + 2*ncnf;
                 if (b16EndIndex > endIndex) b16EndIndex = endIndex;
 
                 // swap all 16 bit items
                 while (dataIndex < b16EndIndex) {
-                    s = dataBuffer.getShort(dataIndex);
 
-                    if (hex) sb.append(String.format("0x%04x  ", s));
-                    else     sb.append(String.format("%-6d ", s));
+                    // 16 bit int
+                    if (kcnf == 4) {
+                        int16_t s = dataBuffer.getShort(dataIndex);
+                        if (hex) {
+                            ss << hex << std::setprecision(std::numeric_limits<int16_t>::digits10 + 1) << s;
+                        }
+                        else {
+                            ss << dec << std::setprecision(std::numeric_limits<int16_t>::digits10 + 1) << s;
+                        }
+                    }
+                    // 16 bit uint
+                    else {
+                        uint16_t s = dataBuffer.getUShort(dataIndex);
+                        if (hex) {
+                            ss << hex << std::setprecision(std::numeric_limits<uint16_t>::digits10 + 1) << s;
+                        }
+                        else {
+                            ss << dec << std::setprecision(std::numeric_limits<uint16_t>::digits10 + 1) << s;
+                        }
+                    }
 
                     if (count++ % itemsOnLine == 0) {
-                        sb.append("\n");
+                        ss << std::endl;
                     }
                     dataIndex += 2;
                 }
 
                 if ((count - 1) % itemsOnLine != 0) {
-                    sb.append("\n");
+                    ss << std::endl;
                 }
             }
-                // 8 bits
+            // 8 bits
             else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
                 dataBuffer.position(dataIndex);
-                byte[] bytes = new byte[ncnf];
+
+                std::vector<uint8_t> bytes(ncnf);
                 // relative read
-                dataBuffer.get(bytes);
+                dataBuffer.getBytes(bytes, 0, ncnf);
+
 
                 // string array
                 if (kcnf == 3) {
-                    sb.append("\n");
+                    ss << std::endl;
 
-                    String[] strs = BaseStructure.unpackRawBytesToStrings(bytes, 0);
-                    for (String s: strs) {
-                        sb.append(s);
-                        sb.append("\n");
+                    std::vector<string> strs;
+                    BaseStructure::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
+                    for (string const & s: strs) {
+                        ss << s << std::endl;
                     }
                 }
-                    // char & unsigned char ints
-                else {
+                // char
+                else if (kcnf == 6) {
                     int count=1, itemsOnLine=8;
-
-                    sb.append("\n");
+                    ss << std::endl;
 
                     for (int i=0; i < ncnf; i++) {
                         if (hex) {
-                            sb.append(String.format("0x%02x  ", bytes[i]));
+                            ss << hex << std::setprecision(2) << (int8_t)(bytes[i]);
                         }
                         else {
-                            sb.append(String.format("%-4d ", bytes[i]));
+                            ss << dec << std::setprecision(4) << (int8_t)(bytes[i]);
                         }
 
                         if (count++ % itemsOnLine == 0) {
-                            sb.append("\n");
+                            ss << std::endl;
                         }
                     }
 
                     if ((count - 1) % itemsOnLine != 0) {
-                        sb.append("\n");
+                        ss << std::endl;
+                    }
+                }
+                // uchar
+                else {
+                    int count=1, itemsOnLine=8;
+                    ss << std::endl;
+
+                    for (int i=0; i < ncnf; i++) {
+                        if (hex) {
+                            ss << hex << std::setprecision(2) << bytes[i];
+                        }
+                        else {
+                            ss << dec << std::setprecision(4) << bytes[i];
+                        }
+
+                        if (count++ % itemsOnLine == 0) {
+                            ss << std::endl;
+                        }
+                    }
+
+                    if ((count - 1) % itemsOnLine != 0) {
+                        ss << std::endl;
                     }
                 }
 
@@ -3352,8 +3434,8 @@ void CompositeData::process() {
 
         } //while
 
-        sb.append("\n");
-        return sb.toString();
+        ss << std::endl;
+        return ss.str();
     }
 
 

@@ -9,11 +9,15 @@
 #include <iomanip>
 #include <exception>
 #include <stdexcept>
+#include <sstream>
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "DataType.h"
 #include "BaseStructure.h"
+#include "TagSegmentHeader.h"
+#include "BankHeader.h"
+#include "EvioNode.h"
 
 //#include <ctype.h>
 //#include <limits.h>
@@ -26,8 +30,7 @@
 #define MIN(a,b)  ( (a) < (b) ? (a) : (b) )
 
 
-#define debugprint(ii) \
-  printf("  [%3d] %3d (16 * %2d + %2d), nr=%d\n",ii,ifmt[ii],ifmt[ii]/16,ifmt[ii]-(ifmt[ii]/16)*16,nr)
+//#define debugprint(ii) printf("  [%3d] %3d (16 * %2d + %2d), nr=%d\n",ii,ifmt[ii],ifmt[ii]/16,ifmt[ii]-(ifmt[ii]/16)*16,nr)
 
 
 
@@ -77,7 +80,7 @@ namespace evio {
 *
 * This is the class defining the composite data type.
 * It is a mixture of header and raw data.
- * This class is <b>NOT</b> thread safe.
+* This class is <b>NOT</b> thread safe.
 *
 * @author timmer
 * @date 4/17/2020
@@ -91,15 +94,15 @@ class CompositeData {
         uint64_t ul64;
         int64_t   l64;
         uint32_t ui32;
-        int32_t   i32;
+        int32_t   i32; // used for N, Hollerit
         uint16_t us16;
-        int16_t   s16;
+        int16_t   s16; // used for n
         uint8_t   ub8;
-        int8_t     b8;
+        int8_t     b8; // used for m
 
         std::vector<string> strVec;
 
-        DataItemMember() {};
+        DataItemMember() {l64 = 0L;};
 
         ~DataItemMember() {};
     };
@@ -142,15 +145,15 @@ class CompositeData {
 
         /** List of "N" (32 bit) values - multiplier values read from data instead
          *  of being part of the format string. */
-        std::vector<uint32_t> Nlist;
+        std::vector<int32_t> Nlist;
 
         /** List of "n" (16 bit) values - multiplier values read from data instead
         *  of being part of the format string. */
-        std::vector<uint16_t> nlist;
+        std::vector<int16_t> nlist;
 
         /** List of "m" (8 bit) values - multiplier values read from data instead
          *  of being part of the format string. */
-        std::vector<uint8_t> mlist;
+        std::vector<int8_t> mlist;
 
         /** Though currently not used, this is the tag in the segment containing format string. */
         uint16_t formatTag = 0;
@@ -362,7 +365,7 @@ class CompositeData {
          * Add an unsigned 16 bit short to the data.
          * @param s unsigned short to add.
          */
-        void addUshort(uint16_t s) {
+        void addUShort(uint16_t s) {
             DataItemMember mem;
             mem.us16 = s;
             dataItems.push_back(mem);
@@ -374,7 +377,7 @@ class CompositeData {
          * Add an vector of unsigned 16 bit shorts to the data.
          * @param s vector of unsigned shorts to add.
          */
-        void addUshort(std::vector<uint16_t> const & s) {
+        void addUShort(std::vector<uint16_t> const & s) {
             for (auto ii : s) {
                 DataItemMember mem;
                 mem.us16 = ii;
@@ -416,7 +419,7 @@ class CompositeData {
          * Add an unsigned 64 bit long to the data.
          * @param l unsigned long to add.
          */
-        void addUlong(uint64_t l) {
+        void addULong(uint64_t l) {
             DataItemMember mem;
             mem.ul64 = l;
             dataItems.push_back(mem);
@@ -428,7 +431,7 @@ class CompositeData {
          * Add an vector of unsigned 64 bit longs to the data.
          * @param l vector of unsigned longs to add.
          */
-        void addUlong(std::vector<uint64_t> const & l) {
+        void addULong(std::vector<uint64_t> const & l) {
             for (auto ii : l) {
                 DataItemMember mem;
                 mem.ul64 = ii;
@@ -471,7 +474,7 @@ class CompositeData {
          * Add an unsigned 8 bit byte (uchar) to the data.
          * @param b unsigned byte to add.
          */
-        void addUchar(uint8_t b) {
+        void addUChar(uint8_t b) {
             DataItemMember mem;
             mem.ub8 = b;
             dataItems.push_back(mem);
@@ -554,13 +557,12 @@ class CompositeData {
          * @param s string to add.
          */
         void addString(string const & s) {
-            std::vector<string> v {s};
+            std::vector<std::string> v {s};
             DataItemMember mem;
             mem.strVec = v;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::CHARSTAR8);
             addBytesToData(BaseStructure::stringsToRawSize(v));
-
         }
 
         /**
@@ -583,7 +585,7 @@ private:
     string format;
 
     /** List of ints obtained from transforming format string. */
-    std::vector<int32_t> formatInts;
+    std::vector<uint16_t> formatInts;
 
     /** List of extracted data items from raw bytes. */
     std::vector<CompositeData::DataItemMember> items;
@@ -598,7 +600,7 @@ private:
     std::vector<int16_t> nList;
 
     /** List of the "m" (8 bit) values extracted from the raw data. */
-    std::vector<uint8_t> mList;
+    std::vector<int8_t> mList;
 
     /** Tagsegment header of tagsegment containing format string. */
     TagSegmentHeader tsHeader;
@@ -637,7 +639,10 @@ public:
     CompositeData(string & format, CompositeData::Data const & data);
 
     CompositeData(string & format, uint16_t formatTag,
-                         CompositeData::Data data, uint16_t dataTag, uint8_t dataNum);
+                                 CompositeData::Data & data,
+                                 uint16_t dataTag, uint8_t dataNum,
+                                 ByteOrder const & order = ByteOrder::ENDIAN_LITTLE);
+
     CompositeData(uint8_t rawBytes[], ByteOrder byteOrder);
 
     CompositeData* parse(uint8_t rawBytes[], ByteOrder byteOrder);
@@ -694,11 +699,11 @@ public:
     static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
                                 int length, ByteOrder srcOrder);
 
+private:
+    static void swapAll (ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+                                 uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
 
-    static void swapAll (ByteBuffer srcBuffer, ByteBuffer destBuffer,
-                         int srcPos, int destPos, int len, bool inPlace);
-
-
+public:
 
 //////////////
 
@@ -720,12 +725,13 @@ public:
         static void swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
                              uint32_t padding);
 
-
-        static void dataToRawBytes(ByteBuffer rawBuf, CompositeData::Data data,
-                                   List<Integer> ifmt);
+        static void dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & data,
+                                           std::vector<uint16_t> & ifmt);
 
 
      void process();
+
+    string toString(const string & indent, bool hex);
 
     string toString();
     string toString(string indent);
