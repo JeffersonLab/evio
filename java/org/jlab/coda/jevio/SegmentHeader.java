@@ -53,19 +53,13 @@ public final class SegmentHeader extends BaseStructureHeader {
     }
 
 	/**
-	 * Obtain a string representation of the bank header.
-	 * 
-	 * @return a string representation of the bank header.
+	 * Obtain a string representation of the segment header.
+	 * @return a string representation of the segment header.
 	 */
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(512);
-		sb.append(String.format("segment length: %d\n", length));
-		sb.append(String.format("number:         %d\n", number));
-		sb.append(String.format("data type:      %s\n", getDataTypeName()));
-		sb.append(String.format("tag:            %d\n", tag));
-        sb.append(String.format("padding:        %d\n", padding));
-		return sb.toString();
+		return String.format("segment length: %d\ndata type:      %s\ntag:            %d\npadding:        %d\n",
+				length, getDataTypeName(), tag, padding);
 	}
 	
 	/**
