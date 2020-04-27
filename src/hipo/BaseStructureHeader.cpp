@@ -1,5 +1,11 @@
 //
-// Created by Carl Timmer on 2020-04-02.
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
 //
 
 #include "BaseStructureHeader.h"
@@ -88,68 +94,6 @@ namespace evio {
     void BaseStructureHeader::setLength(uint32_t len) {length = len;}
 
     /**
-     * Get the length of the structure's header in ints. This includes the first header word itself
-     * (which contains the length) and in the case of banks, it also includes the second header word.
-     * This implementation is correct for banks but is overridden for segments and tagsegments.
-     * @return Get the length of the structure's header in ints.
-     */
-    uint32_t BaseStructureHeader::getHeaderLength() {return 2;}
-
-    /**
-     * Write myself out as evio format data
-     * into the given byte array in the specified byte order.
-     * This implementation is correct for banks but is overridden for segments and tagsegments.
-     *
-	 * @param bArray array into which evio data is written (destination).
-	 * @param offset offset into bArray at which to write.
-	 * @param order  byte order in which to write the data.
-     * @param destMaxSize max size in bytes of destination array.
-     * @throws EvioException if destination array too small to hold data.
-     */
-    void BaseStructureHeader::toArray(uint8_t *bArray, uint32_t offset,
-                                      ByteOrder & order, uint32_t destMaxSize) {
-            // length first
-            Util::toBytes(length, order, bArray, offset, destMaxSize);
-
-            if (order == ByteOrder::ENDIAN_BIG) {
-                Util::toBytes((uint16_t)tag, order, bArray, offset+4, destMaxSize);
-                // lowest 6 bits are dataType, upper 2 bits are padding
-                bArray[offset+6] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-                bArray[offset+7] = (uint8_t)number;
-            }
-            else {
-                bArray[offset+4] = (uint8_t)number;
-                bArray[offset+5] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-                Util::toBytes((uint16_t)tag, order, bArray, offset+6, destMaxSize);
-            }
-    }
-
-    /**
-     * Write myself out as evio format data
-     * into the given vector of bytes in the specified byte order.
-     * This implementation is correct for banks but is overridden for segments and tagsegments.
-     *
-	 * @param bArray vector into which evio data is written (destination).
-	 * @param offset offset into bVec at which to write.
-	 * @param order  byte order in which to write the data.
-     */
-    void BaseStructureHeader::toVector(std::vector<uint8_t> & bVec, uint32_t offset, ByteOrder & order) {
-
-        Util::toBytes(length, order, bVec, offset);
-
-        if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes((uint16_t)tag, order, bVec, offset+4);
-            bVec[offset+6] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            bVec[offset+7] = (uint8_t)number;
-        }
-        else {
-            bVec[offset+4] = (uint8_t)number;
-            bVec[offset+5] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)tag, order, bVec, offset+6);
-        }
-    }
-
-    /**
      * Get the structure tag.
      * @return the structure tag.
      */
@@ -157,23 +101,8 @@ namespace evio {
 
     /**
      * Set the structure tag.
-     * @param tag the structure tag.
+     * @param t the structure tag.
      */
-    void BaseStructureHeader::setTag(uint32_t tag) {this->tag = tag;}
-
-    /**
-     * Obtain a string representation of the structure header.
-     * @return a string representation of the structure header.
-     */
-    string BaseStructureHeader::toString() {
-        stringstream ss;
-
-        ss << "structure length: " << length << endl;
-        ss << "       data type: " << getDataTypeName() << endl;
-        ss << "             tag: " << tag << endl;
-        ss << "         padding: " << padding;
-
-        return ss.str();
-    }
+    void BaseStructureHeader::setTag(uint32_t t) {tag = t;}
 }
 

@@ -1,5 +1,11 @@
 //
-// Created by Carl Timmer on 2020-04-02.
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
 //
 
 #ifndef EVIO_6_0_BASESTRUCTUREHEADER_H
@@ -19,14 +25,15 @@
 
 namespace evio {
 
-
     /**
-     * This the  header for the base structure (<code>BaseStructure</code>). It does not contain the raw data, just the
-     * header. The three headers for the actual structures found in evio (BANK, SEGMENT, and TAGSEMENT) all extend this.
+     * This the  header for the base structure (<code>BaseStructure</code>).
+     * It does not contain the raw data, just the header.
+     * The three headers for the actual structures found in evio
+     * (BANK, SEGMENT, and TAGSEMENT) all extend this.
      *
      * @author heddle (original Java version)
      * @author timmer
-     *
+     * @date 4/2/2020
      */
     class BaseStructureHeader /*: IEvioWriter */ {
 
@@ -59,11 +66,12 @@ namespace evio {
          */
         uint32_t number = 0;
 
-      protected:
+
 
         void setPadding(uint32_t padding);
-        virtual void toArray(uint8_t *bArray, uint32_t offset, ByteOrder & order, uint32_t destMaxSize);
-        virtual void toVector(std::vector<uint8_t> & bArray, uint32_t offset, ByteOrder & order);
+
+        virtual void toArray(uint8_t *bArray, uint32_t offset, ByteOrder & order, uint32_t destMaxSize) = 0;
+        virtual void toVector(std::vector<uint8_t> & bArray, uint32_t offset, ByteOrder & order) = 0;
 
       public:
 
@@ -85,15 +93,13 @@ namespace evio {
         uint32_t getLength();
         void setLength(uint32_t length);
 
-        virtual uint32_t getHeaderLength();
-
         uint32_t getTag();
         void setTag(uint32_t tag);
 
-        virtual string toString();
-
+        virtual uint32_t getHeaderLength() = 0;
+        virtual string   toString() = 0;
+        virtual uint32_t write(ByteBuffer & byteBuffer) = 0;
     };
-
 }
 
 #endif //EVIO_6_0_BASESTRUCTUREHEADER_H
