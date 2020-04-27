@@ -2056,7 +2056,8 @@ public class ByteDataTransformer {
     /**
      * This method reads and swaps an evio bank header.
      * It can also return information about the bank.
-     * Position and limit of neither buffer argument is changed.
+     * Position and limit of neither buffer argument is changed.<p></p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the bank
      *                   in destBuffer after swap; may be null
@@ -2065,7 +2066,7 @@ public class ByteDataTransformer {
      * @param srcPos     position in srcBuffer to start reading bank header
      * @param destPos    position in destBuffer to start writing swapped bank header
      *
-     * @throws EvioException if srcBuffer is not properly formatted;
+     * @throws EvioException if srcBuffer too little data;
      *                       if destBuffer is too small to contain swapped data
      */
     static void swapBankHeader(EvioNode node, ByteBuffer srcBuffer,
@@ -2109,7 +2110,7 @@ public class ByteDataTransformer {
             throw new EvioException("destBuffer too small to hold swapped data");
         }
         catch (BufferUnderflowException e) {
-            throw new EvioException("srcBuffer not evio format");
+            throw new EvioException("srcBuffer data underflow");
         }
     }
 
@@ -2117,7 +2118,8 @@ public class ByteDataTransformer {
     /**
      * This method reads and swaps an evio segment header.
      * It can also return information about the segment.
-     * Position and limit of neither buffer argument is changed.
+     * Position and limit of neither buffer argument is changed.<p></p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the segment
      *                   in destBuffer after swap; may be null
@@ -2126,7 +2128,7 @@ public class ByteDataTransformer {
      * @param srcPos     position in srcBuffer to start reading segment header
      * @param destPos    position in destBuffer to start writing swapped segment header
      *
-     * @throws EvioException if srcBuffer is not properly formatted;
+     * @throws EvioException if srcBuffer too little data;
      *                       if destBuffer is too small to contain swapped data
      */
     static void swapSegmentHeader(EvioNode node, ByteBuffer srcBuffer,
@@ -2164,7 +2166,7 @@ public class ByteDataTransformer {
             throw new EvioException("destBuffer too small to hold swapped data");
         }
         catch (BufferUnderflowException e) {
-            throw new EvioException("srcBuffer not evio format");
+            throw new EvioException("srcBuffer data underflow");
         }
     }
 
@@ -2172,7 +2174,8 @@ public class ByteDataTransformer {
     /**
      * This method reads and swaps an evio tagsegment header.
      * It can also return information about the tagsegment.
-     * Position and limit of neither buffer argument is changed.
+     * Position and limit of neither buffer argument is changed.<p></p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param node       object in which to store data about the tagsegment
      *                   in destBuffer after swap; may be null
@@ -2181,7 +2184,7 @@ public class ByteDataTransformer {
      * @param srcPos     position in srcBuffer to start reading tagsegment header
      * @param destPos    position in destBuffer to start writing swapped tagsegment header
      *
-     * @throws EvioException if srcBuffer is not properly formatted;
+     * @throws EvioException if srcBuffer too little data;
      *                       if destBuffer is too small to contain swapped data
      */
     static void swapTagSegmentHeader(EvioNode node, ByteBuffer srcBuffer,
@@ -2207,7 +2210,7 @@ public class ByteDataTransformer {
             throw new EvioException("destBuffer too small to hold swapped data");
         }
         catch (BufferUnderflowException e) {
-            throw new EvioException("srcBuffer not evio format");
+            throw new EvioException("srcBuffer data underflow");
         }
     }
 
