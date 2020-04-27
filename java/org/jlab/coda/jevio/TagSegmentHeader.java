@@ -11,7 +11,7 @@ import java.nio.ByteOrder;
  * 
  */
 public final class TagSegmentHeader extends BaseStructureHeader {
-	
+
 	/**
 	 * Null constructor.
 	 */
@@ -54,17 +54,12 @@ public final class TagSegmentHeader extends BaseStructureHeader {
     
 	/**
 	 * Obtain a string representation of the bank header.
-	 * 
 	 * @return a string representation of the bank header.
 	 */
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(512);
-		sb.append(String.format("tag-seg length: %d\n", length));
-		sb.append(String.format("number:         %d\n", number));
-		sb.append(String.format("data type:      %s\n", getDataTypeName()));
-		sb.append(String.format("tag:            %d\n", tag));
-		return sb.toString();
+		return String.format("tag-seg length: %d\ndata type:      %s\ntag:            %d\n",
+				length, getDataTypeName(), tag);
 	}
 	
 	/**
