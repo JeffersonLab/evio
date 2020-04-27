@@ -114,6 +114,10 @@ public:
 
     bool isLocalEndian()  const {return (value == ENDIAN_LOCAL.value);}
 
+    ByteOrder getOppositeEndian() const {
+        return isBigEndian() ? ENDIAN_LITTLE : ENDIAN_BIG;
+    }
+
 
     bool operator==(const ByteOrder &rhs) const;
 
