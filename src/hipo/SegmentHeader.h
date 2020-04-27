@@ -1,16 +1,32 @@
 //
-// Created by Carl Timmer on 2020-04-23.
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
 //
 
-#ifndef EVIO_6_0_BANKHEADER_H
-#define EVIO_6_0_BANKHEADER_H
+#ifndef EVIO_6_0_SEGMENTHEADER_H
+#define EVIO_6_0_SEGMENTHEADER_H
 
+#include "Util.h"
 #include "BaseStructureHeader.h"
 
 namespace evio {
 
 
-    class BankHeader : BaseStructureHeader {
+    /**
+     * This the header for an evio segment structure (<code>EvioSegment</code>).
+     * It does not contain the raw data, just the header.
+     * Copied from the java class of identical name.
+     *
+     * @author heddle (original Java version)
+     * @author timmer
+     * @date 4/27/2020
+     */
+    class SegmentHeader : BaseStructureHeader {
 
     protected:
 
@@ -20,8 +36,8 @@ namespace evio {
 
     public:
 
-        BankHeader() = default;
-        BankHeader(uint32_t tag, DataType & dataType, uint32_t num = 0);
+        SegmentHeader() = default;
+        SegmentHeader(uint32_t tag, DataType & dataType);
 
         virtual uint32_t getHeaderLength();
         virtual string toString();
@@ -31,4 +47,4 @@ namespace evio {
 }
 
 
-#endif //EVIO_6_0_BANKHEADER_H
+#endif //EVIO_6_0_SEGMENTHEADER_H
