@@ -1,5 +1,11 @@
 //
-// Created by Carl Timmer on 2020-04-02.
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
 //
 
 #ifndef EVIO_6_0_BASESTRUCTURE_H
@@ -20,6 +26,7 @@
 #include "StructureType.h"
 #include "EvioException.h"
 #include "BaseStructureHeader.h"
+#include "CompositeData.h"
 
 
 namespace evio {
@@ -35,6 +42,7 @@ namespace evio {
      *
      * @author heddle
      * @author timmer - add byte order tracking, make setAllHeaderLengths more efficient
+     * @date 4/2/2020
      *
      */
     class BaseStructure : TreeNode<int> {
@@ -72,7 +80,9 @@ namespace evio {
         std::vector<float> floatData;
 
         /** Used if raw data should be interpreted as composite type. */
-        CompositeData *compositeData;
+        CompositeData *compositeDataArray;
+
+        std::vector<std::shared_ptr<CompositeData>> compositeData;
 
         /**
          * Used if raw data should be interpreted as signed chars.
@@ -213,6 +223,8 @@ namespace evio {
         std::vector<signed char> & getCharData();
         std::vector<unsigned char> & getUCharData();
 
+        std::vector<std::shared_ptr<ComopositeData>> & getCompositeData();
+
         std::vector<string> & getStringData();
         uint32_t unpackRawBytesToStrings();
 
@@ -243,8 +255,14 @@ namespace evio {
         void updateFloatData();
         void updateDoubleData();
         void updateStringData();
+        void updateCompositeData();
 
 
+        void vistAllStructures(IEvioListener & listener);
+        void vistAllStructures(IEvioListener & listener, IEvioFilter & filter);
+        void visitAllDescendants(BaseStructure & structure, IEvioListener & listener,
+                                 IEvioFilter & filter);
+        std::vector<BaseStructure> getMatchingStructures(IEvioFilter & filter);
 
 
             private:
@@ -253,7 +271,7 @@ namespace evio {
                                            std::vector<std::string> & strings);
 
 
-        };
+    };
 }
 
 

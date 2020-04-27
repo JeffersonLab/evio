@@ -1,18 +1,23 @@
 //
-// Created by Carl Timmer on 2020-04-02.
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
 //
 
 #include "BaseStructure.h"
-#include "StructureType.h"
 
 
 namespace evio {
 
     /** Bytes with which to pad short and byte data. */
-    uint8_t padValues[4] = {0, 0, 0};
+    static uint8_t padValues[4] = {0, 0, 0};
 
     /** Number of bytes to pad short and byte data. */
-    uint32_t padCount[4] = {0, 3, 2, 1};
+    static uint32_t padCount[4] = {0, 3, 2, 1};
 
     /**
      * Constructor using a provided header
@@ -21,75 +26,74 @@ namespace evio {
      * @see BaseStructureHeader
      */
     BaseStructure::BaseStructure(BaseStructureHeader & hdr, ByteOrder order) :
-                                    header(hdr), byteOrder(order) {
-    }
+                                    header(hdr), byteOrder(order) {}
 
-    /**
-     * This method does a partial copy and is designed to help convert
-     * between banks, segments,and tagsegments in the {@link StructureTransformer}
-     * class (hence the name "transform").
-     * It copies all the data from another BaseStructure object.
-     * Children are <b>not</b> copied in the deep clone way,
-     * but their references are added to this structure.
-     * It does <b>not</b> copy header data or the parent either.
-     *
-     * @param structure BaseStructure from which to copy data.
-     */
-    void BaseStructure::transform(BaseStructure & structure) {
-
-        //if (structure == nullptr) return;
-
-        // reinitialize this base structure first
-        rawBytes.clear();
-        stringList.clear();
-        children.clear();
-        stringEnd = 0;
-
-        // copy over some stuff from other structure
-        isLeaf = structure.isLeaf;
-        lengthsUpToDate = structure.lengthsUpToDate;
-        byteOrder = structure.byteOrder;
-        numberDataItems = structure.numberDataItems;
-
-        size_t rawSize = structure.rawBytes.size();
-        if (rawSize > 0) {
-            rawBytes.reserve(rawSize);
-            std::memcpy(rawBytes.data(), structure.rawBytes.data(), rawSize);
-        }
-
-        DataType type = structure.getHeader().getDataType();
-
-        charData      = reinterpret_cast<char *>(rawBytes.data());
-        intData       = reinterpret_cast<int32_t *>(rawBytes.data());
-        longData      = reinterpret_cast<int64_t *>(rawBytes.data());
-        shortData     = reinterpret_cast<int16_t *>(rawBytes.data());
-        doubleData    = reinterpret_cast<double *>(rawBytes.data());
-        floatData     = reinterpret_cast<float *>(rawBytes.data());
-        compositeData = reinterpret_cast<CompositeData *>(rawBytes.data());
-
-        if (type == DataType::CHARSTAR8) {
-                if (structure.stringsList.size() > 0) {
-                    stringList.reserve(structure.stringsList.size());
-                    stringList.addAll(structure.stringsList);
-                    //stringData = new StringBuilder(structure.stringData);
-                    stringEnd = structure.stringEnd;
-                }
-        }
-        else if (type == DataType::COMPOSITE) {
-            if (structure.compositeData != nullptr) {
-                int len = structure.compositeData.length;
-                compositeData = new CompositeData[len];
-                for (int i = 0; i < len; i++) {
-                    compositeData[i] = (CompositeData) structure.compositeData[i].clone();
-                }
-            }
-        }
-        else if (type.isStructure()) {
-                for (BaseStructure kid : structure.children) {
-                    children.add(kid);
-                }
-        }
-    }
+//    /**
+//     * This method does a partial copy and is designed to help convert
+//     * between banks, segments,and tagsegments in the {@link StructureTransformer}
+//     * class (hence the name "transform").
+//     * It copies all the data from another BaseStructure object.
+//     * Children are <b>not</b> copied in the deep clone way,
+//     * but their references are added to this structure.
+//     * It does <b>not</b> copy header data or the parent either.
+//     *
+//     * @param structure BaseStructure from which to copy data.
+//     */
+//    void BaseStructure::transform(BaseStructure & structure) {
+//
+//        //if (structure == nullptr) return;
+//
+//        // reinitialize this base structure first
+//        rawBytes.clear();
+//        stringList.clear();
+//        children.clear();
+//        stringEnd = 0;
+//
+//        // copy over some stuff from other structure
+//        isLeaf = structure.isLeaf;
+//        lengthsUpToDate = structure.lengthsUpToDate;
+//        byteOrder = structure.byteOrder;
+//        numberDataItems = structure.numberDataItems;
+//
+//        size_t rawSize = structure.rawBytes.size();
+//        if (rawSize > 0) {
+//            rawBytes.reserve(rawSize);
+//            std::memcpy(rawBytes.data(), structure.rawBytes.data(), rawSize);
+//        }
+//
+//        DataType type = structure.getHeader().getDataType();
+//
+//        charData      = reinterpret_cast<char *>(rawBytes.data());
+//        intData       = reinterpret_cast<int32_t *>(rawBytes.data());
+//        longData      = reinterpret_cast<int64_t *>(rawBytes.data());
+//        shortData     = reinterpret_cast<int16_t *>(rawBytes.data());
+//        doubleData    = reinterpret_cast<double *>(rawBytes.data());
+//        floatData     = reinterpret_cast<float *>(rawBytes.data());
+//        compositeData = reinterpret_cast<CompositeData *>(rawBytes.data());
+//
+//        if (type == DataType::CHARSTAR8) {
+//                if (structure.stringsList.size() > 0) {
+//                    stringList.reserve(structure.stringsList.size());
+//                    stringList.addAll(structure.stringsList);
+//                    //stringData = new StringBuilder(structure.stringData);
+//                    stringEnd = structure.stringEnd;
+//                }
+//        }
+//        else if (type == DataType::COMPOSITE) {
+//            if (structure.compositeData != nullptr) {
+//                int len = structure.compositeData.length;
+//                compositeData = new CompositeData[len];
+//                for (int i = 0; i < len; i++) {
+//                    compositeData[i] = (CompositeData) structure.compositeData[i].clone();
+//                }
+//            }
+//        }
+//        else if (type.isStructure()) {
+//                for (BaseStructure kid : structure.children) {
+//                    children.add(kid);
+//                }
+//        }
+//    }
 
 
 ///**
@@ -255,7 +259,7 @@ bool BaseStructure::needSwap() {
  *         NameProvider.NO_NAME_STRING.
  */
 string BaseStructure::getDescription() {
-    return NameProvider.getName(this);
+    // TODO:  return NameProvider.getName(this);
 }
 
 
@@ -274,9 +278,10 @@ string BaseStructure::toString() {
     DataType dtype = header.getDataType();
 
     string description = getDescription();
-    if (INameProvider.NO_NAME_STRING.equals(description)) {
-        description = "";
-    }
+        // TODO::::
+//    if (INameProvider.NO_NAME_STRING.equals(description)) {
+//        description = "";
+//    }
 
     string sb;
     sb.reserve(100);
@@ -949,11 +954,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * non-character value.
      *
      * @param bytes       raw evio string data
-     * @param offset      offset into raw data array
-     * @param maxLength   max length in bytes of valid data in bytes array
+     * @param offset      offset into raw data vector
+     * @param maxLength   max length in bytes of valid data in bytes vector
      * @param strData     vector in which to place extracted strings.
      */
-    void BaseStructure::unpackRawBytesToStrings(std::vector<uint8_t> &  bytes,
+    void BaseStructure::unpackRawBytesToStrings(std::vector<uint8_t> & bytes,
                                                 size_t offset, size_t maxLength,
                                                 std::vector<string> & strData) {
         int length = bytes.size() - offset;
@@ -1328,89 +1333,102 @@ uint32_t BaseStructure::getNumberDataItems() {
 
 
 
-    /**
-     * Visit all the structures in this structure (including the structure itself --
-     * which is considered its own descendant).
-     * This is similar to listening to the event as it is being parsed,
-     * but is done to a complete (already) parsed event.
-     *
-     * @param listener an listener to notify as each structure is visited.
-     */
-    public void vistAllStructures(IEvioListener listener) {
-        visitAllDescendants(this, listener, null);
-    }
 
-    /**
-     * Visit all the structures in this structure (including the structure itself --
-     * which is considered its own descendant) in a depth first manner.
-     *
-     * @param listener an listener to notify as each structure is visited.
-     * @param filter an optional filter that must "accept" structures before
-     *               they are passed to the listener. If <code>null</code>, all
-     *               structures are passed. In this way, specific types of
-     *               structures can be captured.
-     */
-    public void vistAllStructures(IEvioListener listener, IEvioFilter filter) {
-        visitAllDescendants(this, listener, filter);
-    }
 
-    /**
-     * Visit all the descendants of a given structure
-     * (which is considered a descendant of itself.)
-     *
-     * @param structure the starting structure.
-     * @param listener an listener to notify as each structure is visited.
-     * @param filter an optional filter that must "accept" structures before
-     *               they are passed to the listener. If <code>null</code>, all
-     *               structures are passed. In this way, specific types of
-     *               structures can be captured.
-     */
-    private void visitAllDescendants(BaseStructure structure, IEvioListener listener, IEvioFilter filter) {
-        if (listener != null) {
-            bool accept = true;
-            if (filter != null) {
-                accept = filter.accept(structure.getStructureType(), structure);
-            }
 
-            if (accept) {
-                listener.gotStructure(this, structure);
-            }
-        }
+// TODO: COmment this out temporarily
 
-        if (!(structure.isLeaf())) {
-            for (BaseStructure child : structure.getChildren()) {
-                visitAllDescendants(child, listener, filter);
-            }
-        }
-    }
+//    /**
+//     * Visit all the structures in this structure (including the structure itself --
+//     * which is considered its own descendant).
+//     * This is similar to listening to the event as it is being parsed,
+//     * but is done to a complete (already) parsed event.
+//     *
+//     * @param listener an listener to notify as each structure is visited.
+//     */
+//    void BaseStructure::vistAllStructures(IEvioListener & listener) {
+//        visitAllDescendants(this, listener, nullptr);
+//    }
+//
+//    /**
+//     * Visit all the structures in this structure (including the structure itself --
+//     * which is considered its own descendant) in a depth first manner.
+//     *
+//     * @param listener an listener to notify as each structure is visited.
+//     * @param filter an optional filter that must "accept" structures before
+//     *               they are passed to the listener. If <code>null</code>, all
+//     *               structures are passed. In this way, specific types of
+//     *               structures can be captured.
+//     */
+//    void BaseStructure::vistAllStructures(IEvioListener & listener, IEvioFilter & filter) {
+//        visitAllDescendants(this, listener, filter);
+//    }
+//
+//    /**
+//     * Visit all the descendants of a given structure
+//     * (which is considered a descendant of itself.)
+//     *
+//     * @param structure the starting structure.
+//     * @param listener an listener to notify as each structure is visited.
+//     * @param filter an optional filter that must "accept" structures before
+//     *               they are passed to the listener. If <code>null</code>, all
+//     *               structures are passed. In this way, specific types of
+//     *               structures can be captured.
+//     */
+//    void BaseStructure::visitAllDescendants(BaseStructure & structure, IEvioListener & listener,
+//                                            IEvioFilter & filter) {
+//        if (listener != nullptr) {
+//            bool accept = true;
+//            if (filter != nullptr) {
+//                accept = filter.accept(structure.getStructureType(), structure);
+//            }
+//
+//            if (accept) {
+//                listener.gotStructure(this, structure);
+//            }
+//        }
+//
+//        if (!(structure.isLeaf())) {
+//            for (BaseStructure child : structure.getChildren()) {
+//                visitAllDescendants(child, listener, filter);
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Visit all the descendant structures, and collect those that pass a filter.
+//     * @param filter the filter that must be passed. If <code>null</code>,
+//     *               this will return all the structures.
+//     * @return a collection of all structures that are accepted by a filter.
+//     */
+//    std::vector<BaseStructure> BaseStructure::getMatchingStructures(IEvioFilter & filter) {
+//        std::vector<BaseStructure> structures(25);
+//
+//        IEvioListener listener = new IEvioListener() {
+//            public void startEventParse(BaseStructure structure) { }
+//
+//            public void endEventParse(BaseStructure structure) { }
+//
+//            public void gotStructure(BaseStructure topStructure, IEvioStructure structure) {
+//                structures.add((BaseStructure)structure);
+//            }
+//        };
+//
+//        vistAllStructures(listener, filter);
+//
+//        if (structures.size() == 0) {
+//            return null;
+//        }
+//        return structures;
+//    }
 
-    /**
-     * Visit all the descendant structures, and collect those that pass a filter.
-     * @param filter the filter that must be passed. If <code>null</code>,
-     *               this will return all the structures.
-     * @return a collection of all structures that are accepted by a filter.
-     */
-    public List<BaseStructure> getMatchingStructures(IEvioFilter filter) {
-        final Vector<BaseStructure> structures = new Vector<BaseStructure>(25, 10);
 
-        IEvioListener listener = new IEvioListener() {
-            public void startEventParse(BaseStructure structure) { }
 
-            public void endEventParse(BaseStructure structure) { }
 
-            public void gotStructure(BaseStructure topStructure, IEvioStructure structure) {
-                structures.add((BaseStructure)structure);
-            }
-        };
 
-        vistAllStructures(listener, filter);
 
-        if (structures.size() == 0) {
-            return null;
-        }
-        return structures;
-    }
 
+// TODO: TreeNode stuff
 
 //
 ///**
@@ -2227,95 +2245,95 @@ uint32_t BaseStructure::getNumberDataItems() {
         setAllHeaderLengths();
     }
 
-
-    /**
-     * Appends CompositeData objects to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param data the CompositeData objects to append, or set if there is no existing data.
-     * @throws EvioException if adding data to a structure of a different data type;
-     *                       if data takes up too much memory to store in raw byte array (JVM limit)
-     */
-    public void appendCompositeData(CompositeData data[]) throws EvioException {
-
-            DataType dataType = header.getDataType();
-            if (dataType != DataType.COMPOSITE) {
-                throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
-            }
-
-            if (data == null || data.length < 1) {
-                return;
-            }
-
-            // Composite data is always in the local (in this case, BIG) endian
-            // because if generated in JVM that's true, and if read in, it is
-            // swapped to local if necessary. Either case it's big endian.
-            if (compositeData == null) {
-                if (rawBytes == null) {
-                    compositeData   = data;
-                    numberDataItems = data.length;
-                }
-                else {
-                    // Decode the raw data we have
-                    CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
-                    if (cdArray == null) {
-                        compositeData   = data;
-                        numberDataItems = data.length;
-                    }
-                    else {
-                        // Allocate array to hold everything
-                        int len1 = cdArray.length, len2 = data.length;
-                        int totalLen = len1 + len2;
-
-                        if (Integer.MAX_VALUE - len1 < len2) {
-                            throw new EvioException("added data overflowed containing structure");
-                        }
-                        compositeData = new CompositeData[totalLen];
-
-                        // Fill with existing object first
-                        for (int i = 0; i < len1; i++) {
-                            compositeData[i] = cdArray[i];
-                        }
-                        // Append new objects
-                        for (int i = len1; i < totalLen; i++) {
-                            compositeData[i] = cdArray[i];
-                        }
-                        numberDataItems = totalLen;
-                    }
-                }
-            }
-            else {
-                int len1 = compositeData.length, len2 = data.length;
-                int totalLen = len1 + len2;
-
-                if (Integer.MAX_VALUE - len1 < len2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-
-                CompositeData[] cdArray = compositeData;
-                compositeData = new CompositeData[totalLen];
-
-                // Fill with existing object first
-                for (int i=0; i < len1; i++) {
-                    compositeData[i] = cdArray[i];
-                }
-                // Append new objects
-                for (int i=len1; i < totalLen; i++) {
-                    compositeData[i] = cdArray[i];
-                }
-                numberDataItems = totalLen;
-            }
-
-            rawBytes  = CompositeData.generateRawBytes(compositeData);
-//        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
-//        for (int i : intA) {
-//            System.out.println("Ox" + Integer.toHexString(i));
-//        }
-            byteOrder = data[0].getByteOrder();
-
-            lengthsUpToDate(false);
-            setAllHeaderLengths();
-    }
-
+//
+//    /**
+//     * Appends CompositeData objects to the structure. If the structure has no data, then this
+//     * is the same as setting the data.
+//     * @param data the CompositeData objects to append, or set if there is no existing data.
+//     * @throws EvioException if adding data to a structure of a different data type;
+//     *                       if data takes up too much memory to store in raw byte array (JVM limit)
+//     */
+//    void BaseStructure::appendCompositeData(CompositeData data[]) {
+//
+//            DataType dataType = header.getDataType();
+//            if (dataType != DataType::COMPOSITE) {
+//                throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
+//            }
+//
+//            if (data == null || data.length < 1) {
+//                return;
+//            }
+//
+//            // Composite data is always in the local (in this case, BIG) endian
+//            // because if generated in JVM that's true, and if read in, it is
+//            // swapped to local if necessary. Either case it's big endian.
+//            if (compositeData == null) {
+//                if (rawBytes == null) {
+//                    compositeData   = data;
+//                    numberDataItems = data.length;
+//                }
+//                else {
+//                    // Decode the raw data we have
+//                    CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
+//                    if (cdArray == null) {
+//                        compositeData   = data;
+//                        numberDataItems = data.length;
+//                    }
+//                    else {
+//                        // Allocate array to hold everything
+//                        int len1 = cdArray.length, len2 = data.length;
+//                        int totalLen = len1 + len2;
+//
+//                        if (Integer.MAX_VALUE - len1 < len2) {
+//                            throw new EvioException("added data overflowed containing structure");
+//                        }
+//                        compositeData = new CompositeData[totalLen];
+//
+//                        // Fill with existing object first
+//                        for (int i = 0; i < len1; i++) {
+//                            compositeData[i] = cdArray[i];
+//                        }
+//                        // Append new objects
+//                        for (int i = len1; i < totalLen; i++) {
+//                            compositeData[i] = cdArray[i];
+//                        }
+//                        numberDataItems = totalLen;
+//                    }
+//                }
+//            }
+//            else {
+//                int len1 = compositeData.length, len2 = data.length;
+//                int totalLen = len1 + len2;
+//
+//                if (Integer.MAX_VALUE - len1 < len2) {
+//                    throw new EvioException("added data overflowed containing structure");
+//                }
+//
+//                CompositeData[] cdArray = compositeData;
+//                compositeData = new CompositeData[totalLen];
+//
+//                // Fill with existing object first
+//                for (int i=0; i < len1; i++) {
+//                    compositeData[i] = cdArray[i];
+//                }
+//                // Append new objects
+//                for (int i=len1; i < totalLen; i++) {
+//                    compositeData[i] = cdArray[i];
+//                }
+//                numberDataItems = totalLen;
+//            }
+//
+//            rawBytes  = CompositeData.generateRawBytes(compositeData);
+////        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
+////        for (int i : intA) {
+////            System.out.println("Ox" + Integer.toHexString(i));
+////        }
+//            byteOrder = data[0].getByteOrder();
+//
+//            lengthsUpToDate(false);
+//            setAllHeaderLengths();
+//    }
+//
 
 
 }
