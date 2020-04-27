@@ -693,7 +693,7 @@ std::shared_ptr<ByteBuffer> ByteBuffer::duplicate() {
  * This method transfers bytes from this buffer into the given
  * destination array. If there are fewer bytes remaining in the
  * buffer than are required to satisfy the request, then no
- * bytes are transferred and a {@link HipoException} is thrown.<p>
+ * bytes are transferred and a {@link EvioException} is thrown.<p>
  *
  * Otherwise, this method copies <tt>length</tt> bytes from this
  * buffer into the given array, starting at the current position of this
@@ -703,7 +703,7 @@ std::shared_ptr<ByteBuffer> ByteBuffer::duplicate() {
  * @param  dst array into which bytes are to be written.
  * @param  offset offset (bytes) within the array of the first byte to be
  *         written; offset + length must be &lt; size of dst.
- * @param  length maximum number of bytes to be written to the given
+ * @param  length number of bytes to be written to the given
  *         array; must be no larger than dst size - offset.
  * @return  this buffer.
  * @throws  EvioException if fewer than <tt>length</tt> bytes remaining in buffer.
@@ -718,13 +718,44 @@ const ByteBuffer & ByteBuffer::getBytes(uint8_t * dst, size_t offset, size_t len
     return *this;
 }
 
-
 /**
+ * Relative bulk <i>get</i> method.
+ *
+ * This method transfers bytes from this buffer into the given
+ * destination vector. If there are fewer bytes remaining in the
+ * buffer than are required to satisfy the request, then no
+ * bytes are transferred and a {@link EvioException} is thrown.<p>
+ *
+ * Otherwise, this method copies <tt>length</tt> bytes from this
+ * buffer into the given array, starting at the current position of this
+ * buffer and at the given offset in the array. The position of this
+ * buffer is then incremented by <tt>length</tt>.
+ *
+ * @param  dst    vector into which bytes are to be written.
+ * @param  offset offset (bytes) within the vector of the first byte to be written.
+ * @param  length number of bytes to be written to the given vector.
+ * @return  this buffer.
+ * @throws  EvioException if fewer than <tt>length</tt> bytes remaining in buffer.
+ */
+const ByteBuffer & ByteBuffer::getBytes(std::vector<uint8_t> & dst, size_t offset, size_t length) const {
+    // check args
+    if (length > remaining()) {
+        throw EvioException("buffer underflow");
+    }
+    dst.reserve(offset + length);
+    memcpy((void *)(dst.data() + offset), (const void *)(buf.get() + pos), length);
+    pos += length;
+    return *this;
+}
+
+
+
+    /**
  * Relative <i>get</i> method. Reads the byte at this buffer's
  * current position, but does not increments the position.
  *
  * @return  byte at buffer's current position.
- * @throws  HipoException if buffer's current position is not smaller than its limit.
+ * @throws  EvioException if buffer's current position is not smaller than its limit.
  */
 uint8_t ByteBuffer::peek() const {return read<uint8_t>(pos);}
 
@@ -734,7 +765,7 @@ uint8_t ByteBuffer::peek() const {return read<uint8_t>(pos);}
  * current position, and then increments the position.
  *
  * @return  byte at buffer's current position.
- * @throws  HipoException if buffer's current position is not smaller than its limit.
+ * @throws  EvioException if buffer's current position is not smaller than its limit.
  */
 uint8_t ByteBuffer::getByte()  const {return read<uint8_t>();}
 
@@ -744,7 +775,7 @@ uint8_t ByteBuffer::getByte()  const {return read<uint8_t>();}
  *
  * @param index index from which the byte will be read
  * @return  byte at the given index
- * @throws  HipoException if index is not smaller than buffer's limit.
+ * @throws  EvioException if index is not smaller than buffer's limit.
  */
 uint8_t ByteBuffer::getByte(size_t index) const {return read<uint8_t>(index);}
 
@@ -759,7 +790,7 @@ uint8_t ByteBuffer::getByte(size_t index) const {return read<uint8_t>(index);}
  * and then increments the position by two.</p>
  *
  * @return  wchar_t value at buffer's current position
- * @throws  HipoException if fewer than two bytes remaining in buffer.
+ * @throws  EvioException if fewer than two bytes remaining in buffer.
  */
 wchar_t ByteBuffer::getChar() const {return read<wchar_t>();}
 
@@ -775,7 +806,7 @@ wchar_t ByteBuffer::getChar() const {return read<wchar_t>();}
  *
  * @param index index from which the bytes will be read.
  * @return  wchar_t value at the given index.
- * @throws  HipoException if fewer than two bytes remaining in buffer.
+ * @throws  EvioException if fewer than two bytes remaining in buffer.
  */
 wchar_t ByteBuffer::getChar(size_t index) const {return read<wchar_t>(index);}
 
@@ -787,7 +818,7 @@ wchar_t ByteBuffer::getChar(size_t index) const {return read<wchar_t>(index);}
  * byte order, and then increments the position by two.</p>
  *
  * @return  short value at buffer's current position.
- * @throws  HipoException if fewer than two bytes remaining in buffer.
+ * @throws  EvioException if fewer than two bytes remaining in buffer.
  */
 int16_t ByteBuffer::getShort() const {
     // If data & host are the same endian, no swap necessary
@@ -808,7 +839,7 @@ int16_t ByteBuffer::getShort() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  short value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus one.
  */
 int16_t ByteBuffer::getShort(size_t index) const {
@@ -830,7 +861,7 @@ int16_t ByteBuffer::getShort(size_t index) const {
  * This method is not defined in the Java version.
  *
  * @return  unsigned short value at buffer's current position.
- * @throws  HipoException if fewer than two bytes remaining in buffer.
+ * @throws  EvioException if fewer than two bytes remaining in buffer.
  */
 uint16_t ByteBuffer::getUShort() const {
     if (isHostEndian) {
@@ -851,7 +882,7 @@ uint16_t ByteBuffer::getUShort() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  unsigned short value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus one.
  */
 uint16_t ByteBuffer::getUShort(size_t index) const {
@@ -872,7 +903,7 @@ uint16_t ByteBuffer::getUShort(size_t index) const {
  * byte order, and then increments the position by four.</p>
  *
  * @return  int value at buffer's current position.
- * @throws  HipoException if fewer than four bytes remaining in buffer.
+ * @throws  EvioException if fewer than four bytes remaining in buffer.
  */
 int32_t ByteBuffer::getInt() const {
     if (isHostEndian) {
@@ -892,7 +923,7 @@ int32_t ByteBuffer::getInt() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  int value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus three.
  */
 int32_t ByteBuffer::getInt(size_t index) const {
@@ -913,7 +944,7 @@ int32_t ByteBuffer::getInt(size_t index) const {
  * byte order, and then increments the position by four.</p>
  *
  * @return  unsigned int value at buffer's current position.
- * @throws  HipoException if fewer than four bytes remaining in buffer.
+ * @throws  EvioException if fewer than four bytes remaining in buffer.
  */
 uint32_t ByteBuffer::getUInt() const {
     if (isHostEndian) {
@@ -933,7 +964,7 @@ uint32_t ByteBuffer::getUInt() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  unsigned int value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus three.
  */
 uint32_t ByteBuffer::getUInt(size_t index) const {
@@ -954,7 +985,7 @@ uint32_t ByteBuffer::getUInt(size_t index) const {
  * byte order, and then increments the position by eight.</p>
  *
  * @return  long long value at buffer's current position.
- * @throws  HipoException if fewer than eight bytes remaining in buffer.
+ * @throws  EvioException if fewer than eight bytes remaining in buffer.
  */
 int64_t ByteBuffer::getLong() const {
     if (isHostEndian) {
@@ -974,7 +1005,7 @@ int64_t ByteBuffer::getLong() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  long long value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus seven.
  */
 int64_t ByteBuffer::getLong(size_t index) const {
@@ -995,7 +1026,7 @@ int64_t ByteBuffer::getLong(size_t index) const {
  * byte order, and then increments the position by eight.</p>
  *
  * @return  unsigned long long value at buffer's current position.
- * @throws  HipoException if fewer than eight bytes remaining in buffer.
+ * @throws  EvioException if fewer than eight bytes remaining in buffer.
  */
 uint64_t ByteBuffer::getULong() const {
     if (isHostEndian) {
@@ -1015,7 +1046,7 @@ uint64_t ByteBuffer::getULong() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  unsigned long long value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus seven.
  */
 uint64_t ByteBuffer::getULong(size_t index) const {
@@ -1036,7 +1067,7 @@ uint64_t ByteBuffer::getULong(size_t index) const {
  * byte order, and then increments the position by four.</p>
  *
  * @return  float value at buffer's current position.
- * @throws  HipoException if fewer than four bytes remaining in buffer.
+ * @throws  EvioException if fewer than four bytes remaining in buffer.
  */
 float ByteBuffer::getFloat() const {
     if (isHostEndian) {
@@ -1053,7 +1084,7 @@ float ByteBuffer::getFloat() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  float value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus three.
  */
 float ByteBuffer::getFloat(size_t index) const {
@@ -1071,7 +1102,7 @@ float ByteBuffer::getFloat(size_t index) const {
  * byte order, and then increments the position by eight.</p>
  *
  * @return  double value at buffer's current position.
- * @throws  HipoException if fewer than eight bytes remaining in buffer.
+ * @throws  EvioException if fewer than eight bytes remaining in buffer.
  */
 double ByteBuffer::getDouble() const {
     if (isHostEndian) {
@@ -1088,7 +1119,7 @@ double ByteBuffer::getDouble() const {
  *
  * @param  index  index from which the bytes will be read.
  * @return  double value at the given index.
- * @throws  HipoException if <tt>index</tt> is not smaller than buffer's limit,
+ * @throws  EvioException if <tt>index</tt> is not smaller than buffer's limit,
  *          minus seven.
  */
 double ByteBuffer::getDouble(size_t index) const {
@@ -1247,7 +1278,7 @@ ByteBuffer & ByteBuffer::put(const std::vector<uint8_t> & src, size_t offset, si
  *
  * @param  val byte value to be written.
  * @return  this buffer.
- * @throws  HipoException if buffer's current position is not smaller than its limit
+ * @throws  EvioException if buffer's current position is not smaller than its limit
  */
 ByteBuffer & ByteBuffer::put(uint8_t val) {
     write(val);
@@ -1261,7 +1292,7 @@ ByteBuffer & ByteBuffer::put(uint8_t val) {
  * @param  index index at which the byte will be written.
  * @param  val byte value to be written.
  * @return  this buffer.
- * @throws  HipoException if buffer's current position is not smaller than its limit
+ * @throws  EvioException if buffer's current position is not smaller than its limit
  */
 ByteBuffer & ByteBuffer::put(size_t index, uint8_t val) {
     write(val, index);
@@ -1276,7 +1307,7 @@ ByteBuffer & ByteBuffer::put(size_t index, uint8_t val) {
  *
  * @param  value char value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than two bytes remaining in this buffer,
+ * @throws  EvioException if there are fewer than two bytes remaining in this buffer,
  *                        i.e. not smaller than the buffer's limit, minus one.
  */
 ByteBuffer & ByteBuffer::putChar(wchar_t val) {
@@ -1298,7 +1329,7 @@ ByteBuffer & ByteBuffer::putChar(wchar_t val) {
  * @param  index index at which the bytes will be written.
  * @param  value char value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than two bytes remaining in this buffer,
+ * @throws  EvioException if there are fewer than two bytes remaining in this buffer,
  *                        i.e. not smaller than the buffer's limit, minus one.
  */
 ByteBuffer & ByteBuffer::putChar(size_t index, wchar_t val) {
@@ -1320,7 +1351,7 @@ ByteBuffer & ByteBuffer::putChar(size_t index, wchar_t val) {
  *
  * @param  value short value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than two bytes remaining in this buffer.
+ * @throws  EvioException if there are fewer than two bytes remaining in this buffer.
  */
 ByteBuffer & ByteBuffer::putShort(uint16_t val) {
     if (isHostEndian) {
@@ -1341,7 +1372,7 @@ ByteBuffer & ByteBuffer::putShort(uint16_t val) {
  * @param  index index at which the bytes will be written.
  * @param  value short value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than two bytes remaining in this buffer,
+ * @throws  EvioException if there are fewer than two bytes remaining in this buffer,
  *          i.e. not smaller than the buffer's limit, minus one.
  */
 ByteBuffer & ByteBuffer::putShort(size_t index, uint16_t val) {
@@ -1363,7 +1394,7 @@ ByteBuffer & ByteBuffer::putShort(size_t index, uint16_t val) {
  *
  * @param  value int value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than four bytes remaining in this buffer.
+ * @throws  EvioException if there are fewer than four bytes remaining in this buffer.
  */
 ByteBuffer & ByteBuffer::putInt(uint32_t val) {
     if (isHostEndian) {
@@ -1384,7 +1415,7 @@ ByteBuffer & ByteBuffer::putInt(uint32_t val) {
  * @param  index index at which the bytes will be written.
  * @param  value int value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than four bytes remaining in this buffer,
+ * @throws  EvioException if there are fewer than four bytes remaining in this buffer,
  *          i.e. not smaller than the buffer's limit, minus three.
  */
 ByteBuffer & ByteBuffer::putInt(size_t index, uint32_t val) {
@@ -1406,7 +1437,7 @@ ByteBuffer & ByteBuffer::putInt(size_t index, uint32_t val) {
  *
  * @param  value long long value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than eight bytes remaining in this buffer.
+ * @throws  EvioException if there are fewer than eight bytes remaining in this buffer.
  */
 ByteBuffer & ByteBuffer::putLong(uint64_t val) {
     if (isHostEndian) {
@@ -1427,7 +1458,7 @@ ByteBuffer & ByteBuffer::putLong(uint64_t val) {
  * @param  index index at which the bytes will be written.
  * @param  value long long value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than eight bytes remaining in this buffer,
+ * @throws  EvioException if there are fewer than eight bytes remaining in this buffer,
  *          i.e. not smaller than the buffer's limit, minus seven.
  */
 ByteBuffer & ByteBuffer::putLong(size_t index, uint64_t val) {
@@ -1449,7 +1480,7 @@ ByteBuffer & ByteBuffer::putLong(size_t index, uint64_t val) {
  *
  * @param  value float value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than four bytes remaining in this buffer.
+ * @throws  EvioException if there are fewer than four bytes remaining in this buffer.
  */
 ByteBuffer & ByteBuffer::putFloat(float val) {
     if (isHostEndian) {
@@ -1470,7 +1501,7 @@ ByteBuffer & ByteBuffer::putFloat(float val) {
  * @param  index index at which the bytes will be written.
  * @param  value float value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than four bytes remaining in this buffer,
+ * @throws  EvioException if there are fewer than four bytes remaining in this buffer,
  *          i.e. not smaller than the buffer's limit, minus three.
  */
 ByteBuffer & ByteBuffer::putFloat(size_t index, float val) {
@@ -1492,7 +1523,7 @@ ByteBuffer & ByteBuffer::putFloat(size_t index, float val) {
  *
  * @param  value double value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than eight bytes remaining in this buffer.
+ * @throws  EvioException if there are fewer than eight bytes remaining in this buffer.
  */
 ByteBuffer & ByteBuffer::putDouble(double val) {
     if (isHostEndian) {
@@ -1513,7 +1544,7 @@ ByteBuffer & ByteBuffer::putDouble(double val) {
  * @param  index index at which the bytes will be written.
  * @param  value double value to be written.
  * @return  this buffer.
- * @throws  HipoException if there are fewer than eight bytes remaining in this buffer,
+ * @throws  EvioException if there are fewer than eight bytes remaining in this buffer,
  *          i.e. not smaller than the buffer's limit, minus seven.
  */
 ByteBuffer & ByteBuffer::putDouble(size_t index, double val) {

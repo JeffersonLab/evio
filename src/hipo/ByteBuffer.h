@@ -127,6 +127,7 @@ public:
     // Read
 
     const ByteBuffer & getBytes(uint8_t * dst, size_t offset, size_t length) const;
+    const ByteBuffer & getBytes(std::vector<uint8_t> & dst, size_t offset, size_t length) const;
 
     uint8_t  peek() const;
     uint8_t  getByte()  const;
