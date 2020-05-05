@@ -19,14 +19,17 @@ namespace evio {
     /** Number of bytes to pad short and byte data. */
     static uint32_t padCount[4] = {0, 3, 2, 1};
 
+
+
     /**
-     * Constructor using a provided header
-     *k
+     * Constructor using a provided header.
      * @param header the header to use.
      * @see BaseStructureHeader
      */
-    BaseStructure::BaseStructure(BaseStructureHeader & hdr, ByteOrder order) :
-                                    header(hdr), byteOrder(order) {}
+    BaseStructure::BaseStructure(std::shared_ptr<BaseStructureHeader> head) : header(head) {
+        std::cout << "In BaseStructure head constructor" << std::endl;
+    }
+
 
 //    /**
 //     * This method does a partial copy and is designed to help convert
@@ -108,7 +111,7 @@ namespace evio {
 //        BaseStructure bs = (BaseStructure)super.clone();
 //
 //        // Clone the header
-//        bs.header = (BaseStructureHeader) header.clone();
+//        bs.header = (BaseStructureHeader) header->clone();
 //
 //        // Clone raw bytes
 //        if (rawBytes != null) {
@@ -116,7 +119,7 @@ namespace evio {
 //        }
 //
 //        // Clone data
-//        switch (header.getDataType())  {
+//        switch (header->getDataType())  {
 //            case SHORT16:
 //            case USHORT16:
 //                if (shortData != null) {
@@ -203,10 +206,1094 @@ namespace evio {
 //    }
 //}
 
+
+
+
+    //---------------------------------------------
+    //-------- Tree Node structure members  -------
+    //---------------------------------------------
+
+
+
+
+//    std::shared_ptr<BaseStructure> BaseStructure::getThis() {
+//        return (const_cast<BaseStructure *>(this))->shared_from_this();
+//    }
+    //std::shared_ptr<const BaseStructure<T>> getThisConst() const { return this->shared_from_this(); }
+
+//    /**
+//     * This method creates a BaseStructure object from the given arguments.
+//     * @param val specifies a user object which is copied into this object.
+//     * @param allows if true, this node is allowed to have children.
+//     * @return the constructed BaseStructure.
+//     */
+//    std::shared_ptr<BaseStructure> BaseStructure::getInstance(R val, bool allows = true) {
+//        std::shared_ptr<BaseStructure> pNode(new BaseStructure(val, allows));
+//        return pNode;
+//    }
+//
+
+    /**
+     * Sets this node's parent to <code>newParent</code> but does not
+     * change the parent's child array.  This method is called from
+     * {@link #insert} and {@link #remove} to
+     * reassign a child's parent, it should not be messaged from anywhere
+     * else.
+     * Originally part of java's DefaultMutableBaseStructure.
+     *
+     * @param newParent this node's new parent.
+     */
+    void BaseStructure::setParent(const std::shared_ptr<BaseStructure> &newParent) {parent = newParent;}
+
+
+
+//    /**
+//     * Get a reference to the attached user object.
+//     * Originally part of java's DefaultMutableBaseStructure.
+//     * @return reference to attached user object.
+//     */
+//    R & BaseStructure::getUserObject() {return userObject;}
+//
+//    /**
+//     * Set the attached user object.
+//     * Originally part of java's DefaultMutableBaseStructure.
+//     * @param val specifies a user object which is copied into this object.
+//     */
+//    void BaseStructure::setUserObject(R val) {userObject = val;}
+
+    /**
+     * Removes <code>newChild</code> from its present parent (if it has a
+     * parent), sets the child's parent to this node, and then adds the child
+     * to this node's child array at index <code>childIndex</code>.
+     * <code>newChild</code> must not be null and must not be an ancestor of
+     * this node. Originally part of java's DefaultMutableBaseStructure.
+     *
+     * @param   newChild        the BaseStructure to insert under this node.
+     * @param   childIndex      the index in this node's child array.
+     *                          where this node is to be inserted.
+     * @exception  EvioException  if
+     *             <code>childIndex</code> is out of bounds,
+     *             <code>newChild</code> is null or is an ancestor of this node,
+     *            this node does not allow children.
+     * @see  #isNodeDescendant
+     */
+    void BaseStructure::insert(const std::shared_ptr<BaseStructure> &newChild, size_t childIndex) {
+        if (!allowsChildren) {
+            throw EvioException("node does not allow children");
+        } else if (newChild == nullptr) {
+            throw EvioException("new child is null");
+        } else if (isNodeAncestor(newChild)) {
+            throw EvioException("new child is an ancestor");
+        }
+
+        auto oldParent = newChild->getParent();
+
+        if (oldParent != nullptr) {
+            oldParent->remove(newChild);
+        }
+        newChild->setParent(getThis());
+
+        children.insert(children.begin() + childIndex, newChild);
+    }
+
+    /**
+     * Removes the child at the specified index from this node's children
+     * and sets that node's parent to null. The child node to remove
+     * must be a <code>BaseStructure</code>. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @param   childIndex      the index in this node's child array
+     *                          of the child to remove
+     * @exception       ArrayIndexOutOfBoundsException  if
+     *                          <code>childIndex</code> is out of bounds
+     */
+    void BaseStructure::remove(size_t childIndex) {
+        auto child = getChildAt(childIndex);
+
+        auto it = children.begin();
+        auto end = children.end();
+        size_t curIndex = 0;
+
+        for (; it < end; it++) {
+            if (curIndex == childIndex) {
+                children.erase(it);
+                break;
+            }
+            curIndex++;
+        }
+
+        child->setParent(nullptr);
+    }
+
+    /**
+     * Returns this node's parent or null if this node has no parent.
+     * Originally part of java's DefaultMutableTreeNode.
+     * @return  this node's parent BaseStructure, or null if this node has no parent
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getParent() const { return parent; }
+
+    /**
+     * Returns the child at the specified index in this node's child array.
+     * Originally part of java's DefaultMutableTreeNode.
+     * @param   index   an index into this node's child array
+     * @exception   EvioException  if <code>index</code> is out of bounds
+     * @return  the BaseStructure in this node's child array at  the specified index
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getChildAt(size_t index) {
+        if (children.size() < index + 1) {
+            throw EvioException("index too large");
+        }
+        return children[index];
+    }
+
+    /**
+     * Returns the number of children of this node.
+     * Originally part of java's DefaultMutableTreeNode.
+     * @return  an int giving the number of children of this node
+     */
+    size_t BaseStructure::getChildCount() const { return children.size(); }
+
+    /**
+     * Returns the index of the specified child in this node's child array.
+     * If the specified node is not a child of this node, returns
+     * <code>-1</code>.  This method performs a linear search and is O(n)
+     * where n is the number of children.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @param   aChild  the BaseStructure to search for among this node's children.
+     * @exception       EvioException  if <code>aChild</code>  is null
+     * @return  an int giving the index of the node in this node's child
+     *          array, or <code>-1</code> if the specified node is a not
+     *          a child of this node
+     */
+    ssize_t BaseStructure::getIndex(const std::shared_ptr<BaseStructure> &aChild) {
+        if (aChild == nullptr) {
+            throw EvioException("argument is null");
+        }
+
+        if (!isNodeChild(aChild)) {
+            return -1;
+        }
+
+        auto first = children.begin();
+        auto end = children.end();
+
+        size_t index = 0;
+
+        for (; first < end; first++) {
+            if (aChild == *first) {
+                return index;
+            }
+            index++;
+        }
+
+        return -1;
+    }
+
+    /**
+     * Creates and returns a forward-order iterator of this node's
+     * children.  Modifying this node's child array invalidates any child
+     * iterators created before the modification.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @return  an iterator of this node's children
+     */
+    auto BaseStructure::childrenIter() { return children.begin(); }
+
+    /**
+     * Determines whether or not this node is allowed to have children.
+     * If <code>allows</code> is false, all of this node's children are
+     * removed. Originally part of java's DefaultMutableTreeNode.
+     * <p>
+     * Note: By default, a node allows children.
+     *
+     * @param   allows  true if this node is allowed to have children
+     */
+    void BaseStructure::setAllowsChildren(bool allows) {
+        if (allows != allowsChildren) {
+            allowsChildren = allows;
+            if (!allowsChildren) {
+                removeAllChildren();
+            }
+        }
+    }
+
+    /**
+     * Returns true if this node is allowed to have children.
+     * Originally part of java's DefaultMutableTreeNode.
+     * @return  true if this node allows children, else false
+     */
+    bool BaseStructure::getAllowsChildren() { return allowsChildren; }
+
+
+//
+//  Derived methods
+//
+
+    /**
+     * Removes the subtree rooted at this node from the tree, giving this
+     * node a null parent.  Does nothing if this node is the root of its
+     * tree. Originally part of java's DefaultMutableTreeNode.
+     */
+    void BaseStructure::removeFromParent() {
+        auto p = getParent();
+        if (p != nullptr) {
+            p->remove(getThis());
+        }
+    }
+
+    /**
+     * Removes <code>aChild</code> from this node's child array, giving it a
+     * null parent. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @param   aChild  a child of this node to remove
+     * @exception  EvioException if <code>aChild</code> is not a child of this node
+     */
+    void BaseStructure::remove(const std::shared_ptr<BaseStructure> &aChild) {
+        if (!isNodeChild(aChild)) {
+            throw EvioException("argument is not a child");
+        }
+        remove(getIndex(aChild));       // linear search
+    }
+
+    /**
+     * Removes all of this node's children, setting their parents to null.
+     * If this node has no children, this method does nothing.
+     *  Originally part of java's DefaultMutableTreeNode.
+     */
+    void BaseStructure::removeAllChildren() {
+        for (int i = getChildCount() - 1; i >= 0; i--) {
+            remove(i);
+        }
+    }
+
+    /**
+     * Removes <code>newChild</code> from its parent and makes it a child of
+     * this node by adding it to the end of this node's child array.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #insert
+     * @param   newChild        node to add as a child of this node
+     * @exception  EvioException    if <code>newChild</code> is null,
+     *                                  or this node does not allow children.
+     */
+    void BaseStructure::add(std::shared_ptr<BaseStructure> &newChild) {
+        if (newChild != nullptr && newChild->getParent() == getThis())
+            insert(newChild, getChildCount() - 1);
+        else
+            insert(newChild, getChildCount());
+    }
+
+
+    //
+    //  Tree Queries
+    //
+
+    /**
+     * Returns true if <code>anotherNode</code> is an ancestor of this node
+     * -- if it is this node, this node's parent, or an ancestor of this
+     * node's parent.  (Note that a node is considered an ancestor of itself.)
+     * If <code>anotherNode</code> is null, this method returns false.  This
+     * operation is at worst O(h) where h is the distance from the root to
+     * this node. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see             #isNodeDescendant
+     * @see             #getSharedAncestor
+     * @param   anotherNode     node to test as an ancestor of this node
+     * @return  true if this node is a descendant of <code>anotherNode</code>
+     */
+    bool BaseStructure::isNodeAncestor(const std::shared_ptr<BaseStructure> &anotherNode) {
+        if (anotherNode == nullptr) {
+            return false;
+        }
+
+        auto ancestor = getThis();
+
+        do {
+            if (ancestor == anotherNode) {
+                return true;
+            }
+        } while ((ancestor = ancestor->getParent()) != nullptr);
+
+        return false;
+    }
+
+    /**
+     * Returns true if <code>anotherNode</code> is a descendant of this node
+     * -- if it is this node, one of this node's children, or a descendant of
+     * one of this node's children.  Note that a node is considered a
+     * descendant of itself.  If <code>anotherNode</code> is null, returns
+     * false.  This operation is at worst O(h) where h is the distance from the
+     * root to <code>anotherNode</code>. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #isNodeAncestor
+     * @see     #getSharedAncestor
+     * @param   anotherNode     node to test as descendant of this node
+     * @return  true if this node is an ancestor of <code>anotherNode</code>
+     */
+    bool BaseStructure::isNodeDescendant(std::shared_ptr<BaseStructure> &anotherNode) {
+        if (anotherNode == nullptr)
+            return false;
+
+        return anotherNode->isNodeAncestor(getThis());
+    }
+
+    /**
+     * Returns the nearest common ancestor to this node and <code>aNode</code>.
+     * Returns null, if no such ancestor exists -- if this node and
+     * <code>aNode</code> are in different trees or if <code>aNode</code> is
+     * null.  A node is considered an ancestor of itself.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #isNodeAncestor
+     * @see     #isNodeDescendant
+     * @param   aNode   node to find common ancestor with
+     * @throws  EvioException if internal logic error.
+     * @return  nearest ancestor common to this node and <code>aNode</code>,
+     *          or null if none
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getSharedAncestor(std::shared_ptr<BaseStructure> &aNode) {
+        auto sharedThis = getThis();
+
+        if (aNode == sharedThis) {
+            return sharedThis;
+        } else if (aNode == nullptr) {
+            return nullptr;
+        }
+
+        int level1, level2, diff;
+        std::shared_ptr<BaseStructure> node1, node2;
+
+        level1 = getLevel();
+        level2 = aNode->getLevel();
+
+        if (level2 > level1) {
+            diff = level2 - level1;
+            node1 = aNode;
+            node2 = sharedThis;
+        } else {
+            diff = level1 - level2;
+            node1 = sharedThis;
+            node2 = aNode;
+        }
+
+        // Go up the tree until the nodes are at the same level
+        while (diff > 0) {
+            node1 = node1->getParent();
+            diff--;
+        }
+
+        // Move up the tree until we find a common ancestor.  Since we know
+        // that both nodes are at the same level, we won't cross paths
+        // unknowingly (if there is a common ancestor, both nodes hit it in
+        // the same iteration).
+
+        do {
+            if (node1 == node2) {
+                return node1;
+            }
+            node1 = node1->getParent();
+            node2 = node2->getParent();
+        } while (node1 != nullptr);// only need to check one -- they're at the
+        // same level so if one is null, the other is
+
+        if (node1 != nullptr || node2 != nullptr) {
+            throw EvioException("nodes should be null");
+        }
+
+        return nullptr;
+    }
+
+
+//    /**
+//     * Returns the nearest common ancestor to this node and <code>aNode</code>.
+//     * Returns null, if no such ancestor exists -- if this node and
+//     * <code>aNode</code> are in different trees or if <code>aNode</code> is
+//     * null.  A node is considered an ancestor of itself.
+//     *
+//     * @see     #isNodeAncestor
+//     * @see     #isNodeDescendant
+//     * @param   aNode   node to find common ancestor with
+//     * @return  nearest ancestor common to this node and <code>aNode</code>,
+//     *          or null if none
+//     */
+//    BaseStructure getSharedAncestorOrig(BaseStructure aNode) {
+//        if (aNode == this) {
+//            return this;
+//        } else if (aNode == null) {
+//            return null;
+//        }
+//
+//        int             level1, level2, diff;
+//        BaseStructure        node1, node2;
+//
+//        level1 = getLevel();
+//        level2 = aNode.getLevel();
+//
+//        if (level2 > level1) {
+//            diff = level2 - level1;
+//            node1 = aNode;
+//            node2 = this;
+//        } else {
+//            diff = level1 - level2;
+//            node1 = this;
+//            node2 = aNode;
+//        }
+//
+//        // Go up the tree until the nodes are at the same level
+//        while (diff > 0) {
+//            node1 = node1->getParent();
+//            diff--;
+//        }
+//
+//        // Move up the tree until we find a common ancestor.  Since we know
+//        // that both nodes are at the same level, we won't cross paths
+//        // unknowingly (if there is a common ancestor, both nodes hit it in
+//        // the same iteration).
+//
+//        do {
+//            if (node1 == node2) {
+//                return node1;
+//            }
+//            node1 = node1->getParent();
+//            node2 = node2->getParent();
+//        } while (node1 != null);// only need to check one -- they're at the
+//        // same level so if one is null, the other is
+//
+//        if (node1 != null || node2 != null) {
+//            throw new Error ("nodes should be null");
+//        }
+//
+//        return nullptr;
+//    }
+//
+
+
+    /**
+     * Returns true if and only if <code>aNode</code> is in the same tree
+     * as this node.  Returns false if <code>aNode</code> is null.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     *
+     * @see     #getSharedAncestor
+     * @see     #getRoot
+     * @return  true if <code>aNode</code> is in the same tree as this node;
+     *          false if <code>aNode</code> is null
+     */
+    bool BaseStructure::isNodeRelated(std::shared_ptr<BaseStructure> &aNode) {
+        return (aNode != nullptr) && (getRoot() == aNode->getRoot());
+    }
+
+
+    /**
+     * Returns the depth of the tree rooted at this node -- the longest
+     * distance from this node to a leaf.  If this node has no children,
+     * returns 0.  This operation is much more expensive than
+     * <code>getLevel()</code> because it must effectively traverse the entire
+     * tree rooted at this node. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #getLevel
+     * @throws  EvioException if internal logic error.
+     * @return  the depth of the tree whose root is this node
+     */
+    uint32_t BaseStructure::getDepth() {
+        auto iter1 = bbegin();
+        auto iter2 = bend();
+        auto last = iter1;
+
+        for (; iter1 != iter2; iter1++) {
+            last = iter1;
+        }
+
+        return (*last)->getLevel() - getLevel();
+    }
+
+
+    /**
+     * Returns the number of levels above this node -- the distance from
+     * the root to this node.  If this node is the root, returns 0.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #getDepth
+     * @return  the number of levels above this node
+     */
+    uint32_t BaseStructure::getLevel() {
+        uint32_t levels = 0;
+
+        auto ancestor = getThis();
+        while ((ancestor = ancestor->getParent()) != nullptr) {
+            levels++;
+        }
+
+        return levels;
+    }
+
+
+    /**
+      * Returns the path from the root, to get to this node.  The last
+      * element in the path is this node.
+      * Originally part of java's DefaultMutableTreeNode.
+      *
+      * @return an array of BaseStructure objects giving the path, where the
+      *         first element in the path is the root and the last
+      *         element is this node.
+      */
+    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPath() {
+        return getPathToRoot(getThis(), 0);
+    }
+
+
+    /**
+     * Builds the parents of node up to and including the root node,
+     * where the original node is the last element in the returned array.
+     * The length of the returned array gives the node's depth in the
+     * tree. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @param aNode  the BaseStructure to get the path for
+     * @param depth  an int giving the number of steps already taken towards
+     *        the root (on recursive calls), used to size the returned array
+     * @return an array of BaseStructures giving the path from the root to the
+     *         specified node
+     */
+    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot(const std::shared_ptr<BaseStructure> & aNode, int depth) {
+
+        /* Check for null, in case someone passed in a null node, or
+           they passed in an element that isn't rooted at root. */
+        if (aNode == nullptr) {
+            if (depth == 0) {
+                std::vector<std::shared_ptr<BaseStructure>> retNodes;
+                return retNodes;
+            } else {
+                std::vector<std::shared_ptr<BaseStructure>> retNodes;
+                retNodes.reserve(depth);
+                return retNodes;
+            }
+        }
+
+        depth++;
+        auto retNodes = getPathToRoot(aNode->getParent(), depth);
+        retNodes.push_back(aNode);
+        return retNodes;
+    }
+
+
+    /**
+     * Returns the root of the tree that contains this node.  The root is
+     * the ancestor with a null parent. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #isNodeAncestor
+     * @return  the root of the tree that contains this node
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getRoot() {
+        auto ancestor = getThis();
+        std::shared_ptr<BaseStructure> previous;
+
+        do {
+            previous = ancestor;
+            ancestor = ancestor->getParent();
+        } while (ancestor != nullptr);
+
+        return previous;
+    }
+
+
+    /**
+     * Returns true if this node is the root of the tree.  The root is
+     * the only node in the tree with a null parent; every tree has exactly
+     * one root. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @return  true if this node is the root of its tree
+     */
+    bool BaseStructure::isRoot() { return getParent() == nullptr; }
+
+
+    /**
+     * Returns the node that follows this node in a preorder traversal of this
+     * node's tree.  Returns null if this node is the last node of the
+     * traversal.  This is an inefficient way to traverse the entire tree; use
+     * an enumeration, instead. Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #preorderEnumeration
+     * @return  the node that follows this node in a preorder traversal, or
+     *          null if this node is last
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getNextNode() {
+        if (getChildCount() == 0) {
+            // No children, so look for nextSibling
+            auto nextSibling = getNextSibling();
+
+            if (nextSibling == nullptr) {
+                auto aNode = getParent();
+
+                do {
+                    if (aNode == nullptr) {
+                        return nullptr;
+                    }
+
+                    nextSibling = aNode->getNextSibling();
+                    if (nextSibling != nullptr) {
+                        return nextSibling;
+                    }
+
+                    aNode = aNode->getParent();
+                } while (true);
+            } else {
+                return nextSibling;
+            }
+        } else {
+            return getChildAt(0);
+        }
+    }
+
+
+    /**
+     * Returns the node that precedes this node in a preorder traversal of
+     * this node's tree.  Returns <code>null</code> if this node is the
+     * first node of the traversal -- the root of the tree.
+     * This is an inefficient way to
+     * traverse the entire tree; use an enumeration, instead.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #preorderEnumeration
+     * @return  the node that precedes this node in a preorder traversal, or
+     *          null if this node is the first
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getPreviousNode() {
+        std::shared_ptr<BaseStructure> previousSibling;
+        auto myParent = getParent();
+
+        if (myParent == nullptr) {
+            return nullptr;
+        }
+
+        previousSibling = getPreviousSibling();
+
+        if (previousSibling != nullptr) {
+            if (previousSibling->getChildCount() == 0)
+                return previousSibling;
+            else
+                return previousSibling->getLastLeaf();
+        } else {
+            return myParent;
+        }
+    }
+
+
+//
+//  Child Queries
+//
+
+    /**
+     * Returns true if <code>aNode</code> is a child of this node.  If
+     * <code>aNode</code> is null, this method returns false.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @return  true if <code>aNode</code> is a child of this node; false if
+     *                  <code>aNode</code> is null
+     */
+    bool BaseStructure::isNodeChild(const std::shared_ptr<BaseStructure> &aNode) const {
+        bool retval;
+
+        if (aNode == nullptr) {
+            retval = false;
+        } else {
+            if (getChildCount() == 0) {
+                retval = false;
+            } else {
+                retval = (aNode->getParent() == getThis());
+            }
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Returns this node's first child.  If this node has no children,
+     * throws NoSuchElementException.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @return  the first child of this node
+     * @exception       EvioException  if this node has no children
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getFirstChild() {
+        if (getChildCount() == 0) {
+            throw EvioException("node has no children");
+        }
+        return getChildAt(0);
+    }
+
+
+    /**
+     * Returns this node's last child.  If this node has no children,
+     * throws NoSuchElementException.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @return  the last child of this node
+     * @exception       EvioException  if this node has no children
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getLastChild() {
+        if (getChildCount() == 0) {
+            throw EvioException("node has no children");
+        }
+        return getChildAt(getChildCount() - 1);
+    }
+
+
+    /**
+     * Returns the child in this node's child array that immediately
+     * follows <code>aChild</code>, which must be a child of this node.  If
+     * <code>aChild</code> is the last child, returns null.  This method
+     * performs a linear search of this node's children for
+     * <code>aChild</code> and is O(n) where n is the number of children; to
+     * traverse the entire array of children, use an enumeration instead.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see             #children
+     * @throws      EvioException if <code>aChild</code> is null or
+     *                                    is not a child of this node.
+     * @return  the child of this node that immediately follows
+     *          <code>aChild</code>
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getChildAfter(const std::shared_ptr<BaseStructure> &aChild) {
+        if (aChild == nullptr) {
+            throw EvioException("argument is null");
+        }
+
+        ssize_t index = getIndex(aChild);           // linear search
+
+        if (index == -1) {
+            throw EvioException("node is not a child");
+        }
+
+        if (index < getChildCount() - 1) {
+            return getChildAt(index + 1);
+        } else {
+            return nullptr;
+        }
+    }
+
+
+    /**
+     * Returns the child in this node's child array that immediately
+     * precedes <code>aChild</code>, which must be a child of this node.  If
+     * <code>aChild</code> is the first child, returns null.  This method
+     * performs a linear search of this node's children for <code>aChild</code>
+     * and is O(n) where n is the number of children.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @throws  EvioException if <code>aChild</code> is null or
+     *                                    is not a child of this node.
+     * @return  the child of this node that immediately precedes <code>aChild</code>.
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getChildBefore(const std::shared_ptr<BaseStructure> &aChild) {
+        if (aChild == nullptr) {
+            throw EvioException("argument is null");
+        }
+
+        ssize_t index = getIndex(aChild);           // linear search
+
+        if (index == -1) {
+            throw EvioException("argument is not a child");
+        }
+
+        if (index > 0) {
+            return getChildAt(index - 1);
+        } else {
+            return nullptr;
+        }
+    }
+
+
+    //
+    //  Sibling Queries
+    //
+
+
+    /**
+     * Returns true if <code>anotherNode</code> is a sibling of (has the
+     * same parent as) this node.  A node is its own sibling.  If
+     * <code>anotherNode</code> is null, returns false.
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @param   anotherNode     node to test as sibling of this node.
+     * @throws BaseStructureExceptin if sibling has different parent.
+     * @return  true if <code>anotherNode</code> is a sibling of this node
+     */
+    bool BaseStructure::isNodeSibling(const std::shared_ptr<BaseStructure> &anotherNode) const {
+        bool retval;
+
+        if (anotherNode == nullptr) {
+            retval = false;
+        } else if (anotherNode == getThis()) {
+            retval = true;
+        } else {
+            auto myParent = getParent();
+            retval = (myParent != nullptr && myParent == anotherNode->getParent());
+
+            if (retval && !(myParent->isNodeChild(anotherNode))) {
+                throw EvioException("sibling has different parent");
+            }
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Returns the number of siblings of this node.  A node is its own sibling
+     * (if it has no parent or no siblings, this method returns
+     * <code>1</code>).
+     *  Originally part of java's DefaultMutableTreeNode.
+     *
+     * @return  the number of siblings of this node
+     */
+    size_t BaseStructure::getSiblingCount() const {
+        auto myParent = getParent();
+
+        if (myParent == nullptr) {
+            return 1;
+        } else {
+            return myParent->getChildCount();
+        }
+    }
+
+
+    /**
+     * Returns the next sibling of this node in the parent's children array.
+     * Returns null if this node has no parent or is the parent's last child.
+     * This method performs a linear search that is O(n) where n is the number
+     * of children; to traverse the entire array, use the parent's child
+     * enumeration instead.
+     *  Originally part of java's DefaultMutableTreeNode.         *
+
+     *
+     * @see     #children
+     * @throws  EvioException if child of parent is not a sibling.
+     * @return  the sibling of this node that immediately follows this node
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getNextSibling() {
+        std::shared_ptr<BaseStructure> retval;
+
+        auto myParent = getParent();
+
+        if (myParent == nullptr) {
+            retval = nullptr;
+        } else {
+            retval = myParent->getChildAfter(getThis());      // linear search
+        }
+
+        if (retval != nullptr && !isNodeSibling(retval)) {
+            throw EvioException("child of parent is not a sibling");
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Returns the previous sibling of this node in the parent's children
+     * array.  Returns null if this node has no parent or is the parent's
+     * first child.  This method performs a linear search that is O(n) where n
+     * is the number of children.
+     *  Originally part of java's DefaultMutableTreeNode.         *
+
+     *
+     * @throws  EvioException if child of parent is not a sibling.
+     * @return  the sibling of this node that immediately precedes this node
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getPreviousSibling() {
+        std::shared_ptr<BaseStructure> retval;
+
+        auto myParent = getParent();
+
+        if (myParent == nullptr) {
+            retval = nullptr;
+        } else {
+            retval = myParent->getChildBefore(getThis());     // linear search
+        }
+
+        if (retval != nullptr && !isNodeSibling(retval)) {
+            throw EvioException("child of parent is not a sibling");
+        }
+
+        return retval;
+    }
+
+
+
+    //
+    //  Leaf Queries
+    //
+
+    /**
+     * Returns true if this node has no children.  To distinguish between
+     * nodes that have no children and nodes that <i>cannot</i> have
+     * children (e.g. to distinguish files from empty directories), use this
+     * method in conjunction with <code>getAllowsChildren</code>.
+     *  Originally part of java's DefaultMutableBaseStructure.         *
+     *
+     * @see     #getAllowsChildren
+     * @return  true if this node has no children
+     */
+    bool BaseStructure::isLeaf() const { return (getChildCount() == 0); }
+
+
+    /**
+     * Finds and returns the first leaf that is a descendant of this node --
+     * either this node or its first child's first leaf.
+     * Returns this node if it is a leaf.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #isLeaf
+     * @see     #isNodeDescendant
+     * @return  the first leaf in the subtree rooted at this node
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getFirstLeaf() {
+        auto node = getThis();
+
+        while (!node->isLeaf()) {
+            node = node->getFirstChild();
+        }
+
+        return node;
+    }
+
+
+    /**
+     * Finds and returns the last leaf that is a descendant of this node --
+     * either this node or its last child's last leaf.
+     * Returns this node if it is a leaf.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #isLeaf
+     * @see     #isNodeDescendant
+     * @return  the last leaf in the subtree rooted at this node
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getLastLeaf() {
+        auto node = getThis();
+
+        while (!node->isLeaf()) {
+            node = node->getLastChild();
+        }
+
+        return node;
+    }
+
+
+    /**
+     * Returns the leaf after this node or null if this node is the
+     * last leaf in the tree.
+     * <p>
+     * In this implementation of the <code>MutableNode</code> interface,
+     * this operation is very inefficient. In order to determine the
+     * next node, this method first performs a linear search in the
+     * parent's child-list in order to find the current node.
+     * <p>
+     * That implementation makes the operation suitable for short
+     * traversals from a known position. But to traverse all of the
+     * leaves in the tree, you should use <code>depthFirstEnumeration</code>
+     * to enumerate the nodes in the tree and use <code>isLeaf</code>
+     * on each node to determine which are leaves.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #depthFirstEnumeration
+     * @see     #isLeaf
+     * @return  returns the next leaf past this node
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getNextLeaf() {
+        std::shared_ptr<BaseStructure> nextSibling;
+        auto myParent = getParent();
+
+        if (myParent == nullptr)
+            return nullptr;
+
+        nextSibling = getNextSibling(); // linear search
+
+        if (nextSibling != nullptr)
+            return nextSibling->getFirstLeaf();
+
+        return myParent->getNextLeaf();  // tail recursion
+    }
+
+
+    /**
+     * Returns the leaf before this node or null if this node is the
+     * first leaf in the tree.
+     * <p>
+     * In this implementation of the <code>MutableNode</code> interface,
+     * this operation is very inefficient. In order to determine the
+     * previous node, this method first performs a linear search in the
+     * parent's child-list in order to find the current node.
+     * <p>
+     * That implementation makes the operation suitable for short
+     * traversals from a known position. But to traverse all of the
+     * leaves in the tree, you should use <code>depthFirstEnumeration</code>
+     * to enumerate the nodes in the tree and use <code>isLeaf</code>
+     * on each node to determine which are leaves.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see             #depthFirstEnumeration
+     * @see             #isLeaf
+     * @return  returns the leaf before this node
+     */
+    std::shared_ptr<BaseStructure> BaseStructure::getPreviousLeaf() {
+        std::shared_ptr<BaseStructure> previousSibling;
+        auto myParent = getParent();
+
+        if (myParent == nullptr)
+            return nullptr;
+
+        previousSibling = getPreviousSibling(); // linear search
+
+        if (previousSibling != nullptr)
+            return previousSibling->getLastLeaf();
+
+        return myParent->getPreviousLeaf();              // tail recursion
+    }
+
+
+    /**
+     * Returns the total number of leaves that are descendants of this node.
+     * If this node is a leaf, returns <code>1</code>.  This method is O(n)
+     * where n is the number of descendants of this node.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @see     #isNodeAncestor
+     * @throws  EvioException if tree has zero leaves.
+     * @return  the number of leaves beneath this node
+     */
+    ssize_t BaseStructure::getLeafCount() {
+        ssize_t count = 0;
+
+        auto iter1 = bbegin();
+        auto iter2 = bend();
+
+        for (; iter1 != iter2; iter1++) {
+            if ((*iter1)->isLeaf()) {
+                count++;
+            }
+        }
+
+        if (count < 1) {
+            throw EvioException("tree has zero leaves");
+        }
+
+        return count;
+    }
+
+
+
+
+
+    //---------------------------------------------
+    //-------- CODA evio structure elements -------
+    //---------------------------------------------
+
+
     /** Clear all existing data from a non-container structure. */
     void BaseStructure::clearData() {
 
-        if (header.getDataType().isStructure()) return;
+        if (header->getDataType().isStructure()) return;
 
         rawBytes.clear();
         shortData.clear();
@@ -275,7 +1362,7 @@ string BaseStructure::toString() {
     ss << showbase;
 
     StructureType stype = getStructureType();
-    DataType dtype = header.getDataType();
+    DataType dtype = header->getDataType();
 
     string description = getDescription();
         // TODO::::
@@ -290,23 +1377,23 @@ string BaseStructure::toString() {
         ss << "<html><b>" << description << "</b>";
     }
     else {
-        ss << stype.toString() << " of " << dtype.toString() << "s:  tag=" << header.getTag();
-        ss << hex << "(" << header.getTag() << ")" << dec;
+        ss << stype.toString() << " of " << dtype.toString() << "s:  tag=" << header->getTag();
+        ss << hex << "(" << header->getTag() << ")" << dec;
 
         if (stype == StructureType::STRUCT_BANK) {
-            ss << "  num=" << header.getNumber() << hex << "(" << header.getNumber() << ")" << dec;
+            ss << "  num=" << header->getNumber() << hex << "(" << header->getNumber() << ")" << dec;
         }
     }
 
     if (rawBytes.empty()) {
-        ss << "  dataLen=" << ((header.getLength() - (header.getHeaderLength() - 1))/4);
+        ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
     }
     else {
         ss << "  dataLen=" << (rawBytes.size()/4);
     }
 
-    if (header.getPadding() != 0) {
-        ss << "  pad=" << header.getPadding();
+    if (header->getPadding() != 0) {
+        ss << "  pad=" << header->getPadding();
     }
 
     int numChildren = children.size();
@@ -327,7 +1414,7 @@ string BaseStructure::toString() {
  *
  * @return the header for this structure.
  */
-BaseStructureHeader BaseStructure::getHeader() {return header;}
+std::shared_ptr<BaseStructureHeader> BaseStructure::getHeader() {return header;}
 
 /**
  * Get the number of stored data items like number of banks, ints, floats, etc.
@@ -340,7 +1427,7 @@ BaseStructureHeader BaseStructure::getHeader() {return header;}
  */
 uint32_t BaseStructure::getNumberDataItems() {
     if (isContainer()) {
-        numberDataItems = header.getLength() + 1 - header.getHeaderLength();
+        numberDataItems = header->getLength() + 1 - header->getHeaderLength();
     }
 
     // if the calculation has not already been done ...
@@ -351,19 +1438,19 @@ uint32_t BaseStructure::getNumberDataItems() {
         // But we can figure that out now based on the size of the raw data byte array.
         int divisor = 0;
         int padding = 0;
-        DataType type = header.getDataType();
+        DataType type = header->getDataType();
         int numBytes = type.getBytes();
 
         switch (numBytes) {
             case 2:
-                padding = header.getPadding();
+                padding = header->getPadding();
                 divisor = 2; break;
             case 4:
                 divisor = 4; break;
             case 8:
                 divisor = 8; break;
             default:
-                padding = header.getPadding();
+                padding = header->getPadding();
                 divisor = 1; break;
         }
 
@@ -392,7 +1479,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      * Get the length of this structure in bytes, including the header.
      * @return the length of this structure in bytes, including the header.
      */
-    uint32_t BaseStructure::getTotalBytes() {return 4*(header.getLength() + 1);}
+    uint32_t BaseStructure::getTotalBytes() {return 4*(header->getLength() + 1);}
 
     /**
      * Get the raw data of the structure.
@@ -421,13 +1508,13 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     std::vector<int16_t> & BaseStructure::getShortData() {
         // If we're asking for the data type actually contained ...
-        if (header.getDataType() == DataType::SHORT16) {
+        if (header->getDataType() == DataType::SHORT16) {
             // If int data has not been transformed from the raw bytes yet ...
             if (shortData.empty() && (!rawBytes.empty())) {
 
                 // Fill int vector with transformed raw data
                 auto pInt = reinterpret_cast<int16_t *>(rawBytes.data());
-                uint32_t numInts = (rawBytes.size() - header.getPadding()) / sizeof(int16_t);
+                uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(int16_t);
                 shortData.reserve(numInts);
 
                 for (int i=0; i < numInts; ++i) {
@@ -454,11 +1541,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if contained data type is not uint16_t.
      */
     std::vector<uint16_t> & BaseStructure::getUShortData() {
-        if (header.getDataType() == DataType::USHORT16) {
+        if (header->getDataType() == DataType::USHORT16) {
             if (ushortData.empty() && (!rawBytes.empty())) {
 
                 auto pInt = reinterpret_cast<uint16_t *>(rawBytes.data());
-                uint32_t numInts = (rawBytes.size() - header.getPadding()) / sizeof(uint16_t);
+                uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(uint16_t);
                 ushortData.reserve(numInts);
 
                 for (int i=0; i < numInts; ++i) {
@@ -484,11 +1571,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if contained data type is not int32_t.
      */
     std::vector<int32_t> & BaseStructure::getIntData() {
-        if (header.getDataType() == DataType::INT32) {
+        if (header->getDataType() == DataType::INT32) {
             if (intData.empty() && (!rawBytes.empty())) {
 
                 auto pInt = reinterpret_cast<int32_t *>(rawBytes.data());
-                uint32_t numInts = (rawBytes.size() - header.getPadding()) / sizeof(int32_t);
+                uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(int32_t);
                 intData.reserve(numInts);
 
                 for (int i=0; i < numInts; ++i) {
@@ -513,11 +1600,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if contained data type is not uint32_t.
      */
     std::vector<uint32_t> & BaseStructure::getUIntData() {
-        if (header.getDataType() == DataType::UINT32) {
+        if (header->getDataType() == DataType::UINT32) {
             if (uintData.empty() && (!rawBytes.empty())) {
 
                 auto pInt = reinterpret_cast<uint32_t *>(rawBytes.data());
-                uint32_t numInts = (rawBytes.size() - header.getPadding()) / sizeof(uint32_t);
+                uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(uint32_t);
                 uintData.reserve(numInts);
 
                 for (int i=0; i < numInts; ++i) {
@@ -542,11 +1629,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if contained data type is not int64_t.
      */
     std::vector<int64_t> & BaseStructure::getLongData() {
-        if (header.getDataType() == DataType::LONG64) {
+        if (header->getDataType() == DataType::LONG64) {
             if (longData.empty() && (!rawBytes.empty())) {
 
                 auto pLong = reinterpret_cast<int64_t *>(rawBytes.data());
-                uint32_t numLongs = (rawBytes.size() - header.getPadding()) / sizeof(int64_t);
+                uint32_t numLongs = (rawBytes.size() - header->getPadding()) / sizeof(int64_t);
                 longData.reserve(numLongs);
 
                 for (int i=0; i < numLongs; ++i) {
@@ -572,11 +1659,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if contained data type is not uint64_t.
      */
     std::vector<uint64_t> & BaseStructure::getULongData() {
-        if (header.getDataType() == DataType::ULONG64) {
+        if (header->getDataType() == DataType::ULONG64) {
             if (ulongData.empty() && (!rawBytes.empty())) {
 
                 auto pLong = reinterpret_cast<uint64_t *>(rawBytes.data());
-                uint32_t numLongs = (rawBytes.size() - header.getPadding()) / sizeof(uint64_t);
+                uint32_t numLongs = (rawBytes.size() - header->getPadding()) / sizeof(uint64_t);
                 ulongData.reserve(numLongs);
 
                 for (int i=0; i < numLongs; ++i) {
@@ -602,11 +1689,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if contained data type is not float.
      */
     std::vector<float> & BaseStructure::getFloatData() {
-        if (header.getDataType() == DataType::FLOAT32) {
+        if (header->getDataType() == DataType::FLOAT32) {
             if (floatData.empty() && (!rawBytes.empty())) {
 
                 auto pFlt = reinterpret_cast<float *>(rawBytes.data());
-                uint32_t numReals = (rawBytes.size() - header.getPadding()) / sizeof(float);
+                uint32_t numReals = (rawBytes.size() - header->getPadding()) / sizeof(float);
                 floatData.reserve(numReals);
 
                 for (int i=0; i < numReals; ++i) {
@@ -631,11 +1718,11 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if contained data type is not double.
      */
     std::vector<double> & BaseStructure::getDoubleData() {
-        if (header.getDataType() == DataType::DOUBLE64) {
+        if (header->getDataType() == DataType::DOUBLE64) {
             if (doubleData.empty() && (!rawBytes.empty())) {
 
                 auto pFlt = reinterpret_cast<float *>(rawBytes.data());
-                uint32_t numReals = (rawBytes.size() - header.getPadding()) / sizeof(double);
+                uint32_t numReals = (rawBytes.size() - header->getPadding()) / sizeof(double);
                 doubleData.reserve(numReals);
 
                 for (int i=0; i < numReals; ++i) {
@@ -663,7 +1750,7 @@ uint32_t BaseStructure::getNumberDataItems() {
 // */
 //CompositeData[] getCompositeData() throws EvioException {
 //
-//        switch (header.getDataType()) {
+//        switch (header->getDataType()) {
 //            case COMPOSITE:
 //                if (compositeData == null) {
 //                    if (rawBytes == null) {
@@ -685,10 +1772,10 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @return the data as an byte array, or <code>null</code> if this makes no sense for the given contents type.
      */
     std::vector<signed char> & BaseStructure::getCharData() {
-        if (header.getDataType() == DataType::CHAR8) {
+        if (header->getDataType() == DataType::CHAR8) {
             if (charData.empty() && (!rawBytes.empty())) {
 
-                uint32_t numBytes = (rawBytes.size() - header.getPadding());
+                uint32_t numBytes = (rawBytes.size() - header->getPadding());
                 charData.reserve(numBytes);
 
                 std::memcpy(reinterpret_cast<void *>(charData.data()),
@@ -707,10 +1794,10 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @return the data as an byte array, or <code>null</code> if this makes no sense for the given contents type.
      */
     std::vector<unsigned char> & BaseStructure::getUCharData() {
-        if (header.getDataType() == DataType::UCHAR8) {
+        if (header->getDataType() == DataType::UCHAR8) {
             if (ucharData.empty() && (!rawBytes.empty())) {
 
-                uint32_t numBytes = (rawBytes.size() - header.getPadding());
+                uint32_t numBytes = (rawBytes.size() - header->getPadding());
                 ucharData.reserve(numBytes);
 
                 std::memcpy(reinterpret_cast<void *>(ucharData.data()),
@@ -747,7 +1834,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      *
      */
     std::vector<string> & BaseStructure::getStringData() {
-        if (header.getDataType() == DataType::CHARSTAR8) {
+        if (header->getDataType() == DataType::CHARSTAR8) {
             if (!stringList.empty()) {
                 return stringList;
             }
@@ -886,7 +1973,7 @@ uint32_t BaseStructure::getNumberDataItems() {
         if (stringList.empty()) {
             rawBytes.clear();
             numberDataItems = 0;
-            header.setPadding(0);
+            header->setPadding(0);
             return;
         }
 
@@ -1239,102 +2326,6 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
-//TODO: Defined in TreeNode !!!!!! How do we handle this????
-
-//    /**
-//     * Get the parent of this structure. The outer event bank is the only structure with a <code>null</code>
-//     * parent (the only orphan). All other structures have non-null parent giving the container in which they
-//     * were embedded. Part of the <code>MutableTreeNode</code> interface.
-//     *
-//     * @return the parent of this structure.
-//     */
-//    BaseStructure & BaseStructure::getParent() {return parent;}
-//
-///**
-// * Get an enumeration of all the children of this structure. If none, it returns a constant,
-// * empty Enumeration. Part of the <code>MutableTreeNode</code> interface.
-// */
-//public Enumeration<?> children() {
-//    if (children == null) {
-//        return DefaultMutableTreeNode.EMPTY_ENUMERATION;
-//    }
-//    return Collections.enumeration(children);
-//}
-//
-///**
-// * Add a child at the given index.
-// *
-// * @param child the child to add.
-// * @param index the target index. Part of the <code>MutableTreeNode</code> interface.
-// */
-//public void insert(MutableTreeNode child, int index) {
-//    if (children == null) {
-//        children = new ArrayList<BaseStructure>(10);
-//    }
-//    children.add(index, (BaseStructure) child);
-//    child.setParent(this);
-//    isLeaf = false;
-//    lengthsUpToDate(false);
-//}
-//
-///**
-// * Convenience method to add a child at the end of the child list. In this application
-// * where are not concerned with the ordering of the children.
-// *
-// * @param child the child to add. It will be added to the end of child list.
-// */
-//public void insert(MutableTreeNode child) {
-//    if (children == null) {
-//        children = new ArrayList<BaseStructure>(10);
-//    }
-//    //add to end
-//    insert(child, children.size());
-//}
-//
-///**
-// * Removes the child at index from the receiver. Part of the <code>MutableTreeNode</code> interface.
-// *
-// * @param index the target index for removal.
-// */
-//public void remove(int index) {
-//    if (children == null) return;
-//    BaseStructure bs = children.remove(index);
-//    bs.setParent(null);
-//    if (children.size() < 1) isLeaf = true;
-//    lengthsUpToDate(false);
-//}
-//
-///**
-// * Removes the child. Part of the <code>MutableTreeNode</code> interface.
-// *
-// * @param child the child node being removed.
-// */
-//public void remove(MutableTreeNode child) {
-//    if (children == null || child == null) return;
-//    children.remove(child);
-//    child.setParent(null);
-//    if (children.size() < 1) isLeaf = true;
-//    lengthsUpToDate(false);
-//}
-//
-///**
-// * Remove this node from its parent. Part of the <code>MutableTreeNode</code> interface.
-// */
-//public void removeFromParent() {
-//    if (parent != null) parent.remove(this);
-//}
-//
-///**
-// * Set the parent for this node. Part of the <code>MutableTreeNode</code> interface.
-// */
-//public void setParent(MutableTreeNode parent) {
-//    this.parent = (BaseStructure) parent;
-//}
-
-
-
-
-
 
 // TODO: COmment this out temporarily
 
@@ -1448,7 +2439,7 @@ uint32_t BaseStructure::getNumberDataItems() {
 // *         i.e., if it is a structure of structures (a container).
 // */
 //public bool getAllowsChildren() {
-//    return header.getDataType().isStructure();
+//    return header->getDataType().isStructure();
 //}
 //
 ///**
@@ -1509,7 +2500,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @return <code>true</code> if this structure is a container. This is the same check as
      * {@link #getAllowsChildren}.
      */
-    bool BaseStructure::isContainer() {return header.getDataType().isStructure();}
+    bool BaseStructure::isContainer() {return header->getDataType().isStructure();}
 
 
     /**
@@ -1530,7 +2521,7 @@ uint32_t BaseStructure::getNumberDataItems() {
         // only leafs write data
         if (isLeaf()) {
 
-            DataType type = header.getDataType();
+            DataType type = header->getDataType();
             int numBytes = type.getBytes();
 
             switch (numBytes) {
@@ -1632,7 +2623,7 @@ uint32_t BaseStructure::getNumberDataItems() {
     uint32_t BaseStructure::setAllHeaderLengths() {
             // if length info is current, don't bother to recalculate it
             if (lengthsUpToDate) {
-                return header.getLength();
+                return header->getLength();
             }
 
             uint32_t datalen, len;
@@ -1654,7 +2645,7 @@ uint32_t BaseStructure::getNumberDataItems() {
                 }
             }
 
-            len = header.getHeaderLength() - 1;  // - 1 for length header word
+            len = header->getHeaderLength() - 1;  // - 1 for length header word
             if (std::numeric_limits<uint32_t>::max() - datalen < len) {
                 throw EvioException("added data overflowed containing structure");
             }
@@ -1662,7 +2653,7 @@ uint32_t BaseStructure::getNumberDataItems() {
             datalen += len;
 
             // set the datalen for the header
-            header.setLength(datalen);
+            header->setLength(datalen);
             setLengthsUpToDate(true);
             return datalen;
     }
@@ -1681,13 +2672,13 @@ uint32_t BaseStructure::getNumberDataItems() {
         int startPos = byteBuffer.position();
 
         // write the header
-        header.write(byteBuffer);
+        header->write(byteBuffer);
 
         int curPos = byteBuffer.position();
 
         if (isLeaf()) {
 
-            DataType type = header.getDataType();
+            DataType type = header->getDataType();
 
             // If we have raw bytes which do NOT need swapping, this is fastest ..
             if (!rawBytes.empty() && (byteOrder == byteBuffer.order())) {
@@ -1797,8 +2788,8 @@ uint32_t BaseStructure::getNumberDataItems() {
             }
         } // isLeaf
         else if (!children.empty()) {
-            for (BaseStructure child : children) {
-                child.write(byteBuffer);
+            for (auto child : children) {
+                child->write(byteBuffer);
             }
         } // not leaf
 
@@ -1821,7 +2812,7 @@ uint32_t BaseStructure::getNumberDataItems() {
     void BaseStructure::updateIntData() {
 
         // Make sure the structure is set to hold this kind of data
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::INT32) {
             throw EvioException("cannot update int data when type = " + dataType.toString());
         }
@@ -1857,7 +2848,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateUIntData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::UINT32) {
             throw EvioException("cannot update uint data when type = " + dataType.toString());
         }
@@ -1891,7 +2882,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateShortData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::SHORT16) {
             throw EvioException("cannot update short data when type = " + dataType.toString());
         }
@@ -1901,7 +2892,7 @@ uint32_t BaseStructure::getNumberDataItems() {
         if (shortData.empty()) {
             rawBytes.clear();
             numberDataItems = 0;
-            header.setPadding(0);
+            header->setPadding(0);
         }
         else {
             numberDataItems = shortData.size();
@@ -1918,7 +2909,7 @@ uint32_t BaseStructure::getNumberDataItems() {
             else {
                 rawBytes.resize(itemBytes);
             }
-            header.setPadding(pad);
+            header->setPadding(pad);
 
             if (ByteOrder::needToSwap(byteOrder)) {
                 ByteOrder::byteSwap16(shortData.data(), numberDataItems, rawBytes.data());
@@ -1941,7 +2932,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateUShortData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::USHORT16) {
             throw EvioException("cannot update ushort data when type = " + dataType.toString());
         }
@@ -1951,7 +2942,7 @@ uint32_t BaseStructure::getNumberDataItems() {
         if (ushortData.empty()) {
             rawBytes.clear();
             numberDataItems = 0;
-            header.setPadding(0);
+            header->setPadding(0);
         }
         else {
             numberDataItems = ushortData.size();
@@ -1966,7 +2957,7 @@ uint32_t BaseStructure::getNumberDataItems() {
             else {
                 rawBytes.resize(itemBytes);
             }
-            header.setPadding(pad);
+            header->setPadding(pad);
 
             if (ByteOrder::needToSwap(byteOrder)) {
                 ByteOrder::byteSwap16(ushortData.data(), numberDataItems, rawBytes.data());
@@ -1989,7 +2980,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateLongData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::LONG64) {
             throw EvioException("cannot update long data when type = " + dataType.toString());
         }
@@ -2023,7 +3014,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateULongData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::ULONG64) {
             throw EvioException("cannot update ulong data when type = " + dataType.toString());
         }
@@ -2058,7 +3049,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateCharData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::CHAR8) {
             throw EvioException("cannot update char data when type = " + dataType.toString());
         }
@@ -2066,14 +3057,14 @@ uint32_t BaseStructure::getNumberDataItems() {
         if (charData.empty()) {
             rawBytes.clear();
             numberDataItems = 0;
-            header.setPadding(0);
+            header->setPadding(0);
         }
         else {
             numberDataItems = charData.size();
 
             // necessary padding to 4 byte boundaries.
             uint32_t pad = padCount[numberDataItems%4];
-            header.setPadding(pad);
+            header->setPadding(pad);
 
             rawBytes.resize((numberDataItems + pad));
 
@@ -2094,7 +3085,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateUCharData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::UCHAR8) {
             throw EvioException("cannot update uchar data when type = " + dataType.toString());
         }
@@ -2102,13 +3093,13 @@ uint32_t BaseStructure::getNumberDataItems() {
         if (ucharData.empty()) {
             rawBytes.clear();
             numberDataItems = 0;
-            header.setPadding(0);
+            header->setPadding(0);
         }
         else {
             numberDataItems = ucharData.size();
 
             uint32_t pad = padCount[numberDataItems%4];
-            header.setPadding(pad);
+            header->setPadding(pad);
 
             rawBytes.resize((numberDataItems + pad));
 
@@ -2130,7 +3121,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateFloatData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::FLOAT32) {
             throw EvioException("cannot update float data when type = " + dataType.toString());
         }
@@ -2164,7 +3155,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateDoubleData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::DOUBLE64) {
             throw EvioException("cannot update double data when type = " + dataType.toString());
         }
@@ -2198,7 +3189,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateStringData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::CHARSTAR8) {
             throw EvioException("cannot update string data when type = " + dataType.toString());
         }
@@ -2220,7 +3211,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::updateCompositeData() {
 
-        DataType dataType = header.getDataType();
+        DataType dataType = header->getDataType();
         if (dataType != DataType::COMPOSITE) {
             throw EvioException("cannot update composite data when type = " + dataType.toString());
         }
@@ -2255,7 +3246,7 @@ uint32_t BaseStructure::getNumberDataItems() {
 //     */
 //    void BaseStructure::appendCompositeData(CompositeData data[]) {
 //
-//            DataType dataType = header.getDataType();
+//            DataType dataType = header->getDataType();
 //            if (dataType != DataType::COMPOSITE) {
 //                throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
 //            }

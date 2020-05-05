@@ -18,10 +18,17 @@
 #include <string>
 #include <iomanip>
 #include <limits>
+#include <memory>
+#include <type_traits>
+#include <iterator>
+#include <stack>
+#include <vector>
+#include <queue>
+#include <utility>
+
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
-#include "TreeNode.h"
 #include "DataType.h"
 #include "StructureType.h"
 #include "EvioException.h"
@@ -29,28 +36,207 @@
 #include "CompositeData.h"
 
 
+
+#include "BaseStructureException.h"
+
+
+using namespace std::chrono_literals;
+
+
 namespace evio {
+
+
+    // Forward declarations of iterators of Tree structure ...
+    template <typename R>  class nodeIterator;
+    template <typename R>  class nodeBreadthIterator;
+
 
 
     /**
      * This is the base class for all evio structures: Banks, Segments, and TagSegments.
-     * It implements <code>MutableTreeNode</code> because a tree representation of
+     * It is also a tree node which allows the evio structures to be represented as a tree
+     * and iterated over.
+     *
+     * The tree code is taken from Java's <code>DefaultMutableTreeNode</code>
+     * class which has been ported to C++ and included here. In this code, all nodes,
+     * such as children and parent, are shared pointers. That explains inheriting from
+     * enable_shared_from_this since "this" object must also be used as a shared pointer.
+     *
+     * Because a tree representation of
      * events is created when a new event is parsed.<p>
      * Note that using an EventBuilder for the same event in more than one thread
      * can cause problems. For example the boolean lengthsUpToDate in this class
      * would need to be volatile.
      *
-     * @author heddle
-     * @author timmer - add byte order tracking, make setAllHeaderLengths more efficient
+     * @author heddle - author of original Java BaseStructure class.
+     * @author timmer - add byte order tracking, make setAllHeaderLengths more efficient in Java.
+     *                  Ported to C++.
      * @date 4/2/2020
      *
      */
-    class BaseStructure : TreeNode<int> {
+    //template<typename R>
+    //class BaseStructure : public std::enable_shared_from_this<TreeNode<R>> {
+    class BaseStructure : public std::enable_shared_from_this<BaseStructure> {
+
+
+        //---------------------------------------------
+        //---------- Tree structure members  ----------
+        //---------------------------------------------
+
+
+    public:
+
+        // For defining our own iterator
+        typedef size_t size_type;
+        typedef std::ptrdiff_t difference_type;
+        typedef std::input_iterator_tag iterator_category;
+
+        typedef std::shared_ptr<BaseStructure> value_type;
+        typedef std::shared_ptr<BaseStructure> reference;
+        typedef std::shared_ptr<BaseStructure> pointer;
+
+        typedef nodeIterator<std::shared_ptr<BaseStructure>> iterator;
+        typedef nodeBreadthIterator<std::shared_ptr<BaseStructure>> breadth_iterator;
+
+        friend class nodeIterator<std::shared_ptr<BaseStructure>>;
+        friend class nodeBreadthIterator<std::shared_ptr<BaseStructure>>;
+
+        // Can't figure out how to implement a const iterator, so I give up.
+        //typedef nodeIterator_const<std::shared_ptr<const BaseStructure>> const_iterator;
+        //typedef nodeBreadthIterator_const<std::shared_ptr<BaseStructure>> breadth_iterator_const;
+        //friend class nodeIterator_const<std::shared_ptr<BaseStructure>>;
+        //friend class nodeBreadthIterator_const<std::shared_ptr<const BaseStructure>>;
+
+        iterator begin() { auto arg = getThis(); return iterator(arg, false); }
+        iterator end()   { auto arg = getThis(); return iterator(arg, true); }
+
+        breadth_iterator bbegin() { auto arg = getThis(); return breadth_iterator(arg, false); }
+        breadth_iterator bend()   { auto arg = getThis(); return breadth_iterator(arg, true); }
 
     protected:
 
-        /** Holds the header of the bank. */
-        BaseStructureHeader header;
+        /** This node's parent, or null if this node has no parent. */
+        std::shared_ptr<BaseStructure> parent = nullptr;
+
+        /** Array of children, may be null if this node has no children. */
+        std::vector<std::shared_ptr<BaseStructure>> children;
+
+        /** True if the node is able to have children. */
+        bool allowsChildren = true;
+
+//        /** Object attached to this node. */
+//        R userObject;
+
+
+
+    public:
+
+       // std::shared_ptr<BaseStructure> getThis();
+//       std::shared_ptr<BaseStructure> getThis() {
+//           return (const_cast<BaseStructure *>(this))->shared_from_this();
+//       }
+
+        std::shared_ptr<BaseStructure> getThis() const {
+            return shared_from_this();
+        }
+
+        static std::shared_ptr<BaseStructure> getInstance(R val, bool allows = true);
+
+    protected:
+
+        void setParent(const std::shared_ptr<BaseStructure> &newParent);
+
+    public:
+
+        //R & getUserObject();
+
+        //void setUserObject(R val;
+
+        void insert(const std::shared_ptr<BaseStructure> &newChild, size_t childIndex);
+        void remove(size_t childIndex);
+
+        std::shared_ptr<BaseStructure> BaseStructure::getParent() const;
+        std::shared_ptr<BaseStructure> getChildAt(size_t index);
+
+        size_t getChildCount() const;
+        ssize_t getIndex(const std::shared_ptr<BaseStructure> &aChild);
+        auto childrenIter();
+
+        void setAllowsChildren(bool allows);
+        bool getAllowsChildren();
+
+        //
+        //  Derived methods
+        //
+
+        void removeFromParent();
+        void remove(const std::shared_ptr<BaseStructure> &aChild);
+        void removeAllChildren();
+        void add(std::shared_ptr<BaseStructure> &newChild);
+
+        //
+        //  Tree Queries
+        //
+
+        bool isNodeAncestor(const std::shared_ptr<BaseStructure> &anotherNode);
+        bool isNodeDescendant(std::shared_ptr<BaseStructure> &anotherNode);
+        std::shared_ptr<BaseStructure> getSharedAncestor(std::shared_ptr<BaseStructure> &aNode);
+        bool isNodeRelated(std::shared_ptr<BaseStructure> &aNode);
+        uint32_t getDepth();
+        uint32_t getLevel();
+        std::vector<std::shared_ptr<BaseStructure>> getPath();
+
+    protected:
+
+        std::vector<std::shared_ptr<BaseStructure>> getPathToRoot(const std::shared_ptr<BaseStructure> & aNode, int depth);
+
+    public:
+
+        std::shared_ptr<BaseStructure> getRoot();
+        bool isRoot();
+        std::shared_ptr<BaseStructure> getNextNode();
+        std::shared_ptr<BaseStructure> getPreviousNode();
+
+        //
+        //  Child Queries
+        //
+
+        bool isNodeChild(const std::shared_ptr<BaseStructure> &aNode) const;
+        std::shared_ptr<BaseStructure> getFirstChild();
+        std::shared_ptr<BaseStructure> getLastChild();
+        std::shared_ptr<BaseStructure> getChildAfter(const std::shared_ptr<BaseStructure> &aChild);
+        std::shared_ptr<BaseStructure> getChildBefore(const std::shared_ptr<BaseStructure> &aChild);
+
+        //
+        //  Sibling Queries
+        //
+
+        bool isNodeSibling(const std::shared_ptr<BaseStructure> &anotherNode) const;
+        size_t getSiblingCount() const;
+        std::shared_ptr<BaseStructure> getNextSibling();
+        std::shared_ptr<BaseStructure> getPreviousSibling();
+
+        //
+        //  Leaf Queries
+        //
+
+        bool isLeaf() const;
+        std::shared_ptr<BaseStructure> getFirstLeaf();
+        std::shared_ptr<BaseStructure> getLastLeaf();
+        std::shared_ptr<BaseStructure> getNextLeaf();
+        std::shared_ptr<BaseStructure> getPreviousLeaf();
+        ssize_t getLeafCount();
+
+
+        //---------------------------------------------
+        //-------- CODA evio structure elements -------
+        //---------------------------------------------
+
+
+    protected:
+
+        /** Holds the header of the bank as a shared pointer. */
+        std::shared_ptr<BaseStructureHeader> header;
 
         /** The raw data of the structure. May contain padding. */
         std::vector<uint8_t> rawBytes;
@@ -134,12 +320,6 @@ namespace evio {
          */
         ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
-        /**
-         * Holds the children of this structure. This is used for creating trees
-         * for a variety of purposes (not necessarily graphical.)
-         */
-        std::vector<BaseStructure> children;
-
         /** Keep track of whether header length data is up-to-date or not. */
         bool lengthsUpToDate = false;
 
@@ -147,13 +327,6 @@ namespace evio {
         bool isLeaf = true;
 
     private:
-
-        /**
-         * The parent of the structure. If it is an "event", the parent is null.
-         * This is used for creating trees for a variety of purposes
-         * (not necessarily graphical.)
-         */
-        BaseStructure parent;
 
         /** Bytes with which to pad short and byte data. */
         static uint8_t padValues[3];
@@ -178,10 +351,9 @@ namespace evio {
          * @param header the header to use.
          * @see BaseStructureHeader
          */
-        explicit BaseStructure(BaseStructureHeader & header, ByteOrder order = ByteOrder::ENDIAN_LITTLE);
+        explicit BaseStructure(std::shared_ptr<BaseStructureHeader> head);
 
         void transform(BaseStructure &structure);
-        BaseStructure & getParent();
 
         virtual StructureType getStructureType() = 0;
 
@@ -195,7 +367,7 @@ namespace evio {
 
         string toString();
 
-        BaseStructureHeader getHeader();
+        std::shared_ptr<BaseStructureHeader> getHeader();
 
         size_t write(ByteBuffer & byteBuffer);
         uint32_t getNumberDataItems();
@@ -272,6 +444,296 @@ namespace evio {
 
 
     };
+
+
+
+
+    /////////////////////////////////// DEPTH FIRST ITERATOR
+
+    template<typename R>
+    class nodeIterator {
+
+        // iterator of vector contained shared pointers to node's children
+        typedef typename std::vector<R>::iterator KidIter;
+
+    protected:
+
+        // Stack of pair containing 2 iterators, each iterating over vector
+        // of node's children (shared pts).
+        // In each pair, first is current iterator, second is end iterator.
+        std::stack<std::pair<KidIter, KidIter>> stack;
+
+        // Where we are now in the tree
+        R currentNode;
+
+        // Is this the end iterator?
+        bool isEnd;
+
+    public:
+
+        // Copy shared pointer arg
+        explicit nodeIterator(R &node, bool isEnd) : currentNode(node), isEnd(isEnd) {
+            // store current-element and end of vector in pair
+            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
+            stack.push(p);
+        }
+
+        R operator*() const { return currentNode; }
+
+        bool operator==(const nodeIterator &other) const {
+            // Identify end iterator
+            if (isEnd && other.isEnd) {
+                return true;
+            }
+            return this == &other;
+        }
+
+        bool operator!=(const nodeIterator &other) const {
+            // Identify end iterator
+            if (isEnd && other.isEnd) {
+                return false;
+            }
+            return this != &other;
+        }
+
+        // post increment gets ignored arg of 0 to distinguish from pre, A++
+        const nodeIterator operator++(int) {
+
+            if (isEnd) return *this;
+
+            // copy this iterator here
+            nodeIterator niter = *this;
+
+            // If gone thru the whole tree ...
+            if (stack.empty()) {
+                isEnd = true;
+                return niter;
+            }
+
+            // Look at top vector of stack
+            auto &topPair = stack.top();
+            // iterator of vector @ current position
+            auto &curIter = topPair.first;
+            // end iterator of vector
+            auto &endIter = topPair.second;
+            // current element of vector
+            auto &node = *curIter;
+
+            // If this vector has no more nodes ...
+            if (curIter - (endIter - 1) == 0) {
+                stack.pop();
+            }
+
+            // Prepare to look at the next node in the vector (next call)
+            ++curIter;
+
+            // Look at node's children
+            auto kidIterBegin = node->children.begin();
+            auto kidIterEnd = node->children.end();
+
+            // If it has children, put pair of iterators on stack
+            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+                stack.push(p);
+            }
+
+            currentNode = node;
+            // return copy of this iterator before changes
+            return niter;
+        }
+
+
+        // pre increment, ++A
+        const nodeIterator &operator++() {
+
+            if (isEnd) return *this;
+
+            // If gone thru the whole tree ...
+            if (stack.empty()) {
+                isEnd = true;
+                return *this;
+            }
+
+            // Look at top vector of stack
+            auto &topPair = stack.top();
+            // iterator of vector @ current position
+            auto &curIter = topPair.first;
+            // end iterator of vector
+            auto &endIter = topPair.second;
+            // current element of vector
+            auto &node = *curIter;
+
+            // If this vector has no more nodes ...
+            if (curIter - (endIter - 1) == 0) {
+                stack.pop();
+            }
+
+            // Prepare to look at the next node in the vector (next call)
+            ++curIter;
+
+            // Look at node's children
+            auto kidIterBegin = node->children.begin();
+            auto kidIterEnd = node->children.end();
+
+            // If it has children, put pair of iterators on stack
+            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+                stack.push(p);
+            }
+
+            currentNode = node;
+            return *this;
+        }
+    };
+
+
+    /////////////////////////////////// BREADTH FIRST ITERATOR
+
+    template<typename R>
+    class nodeBreadthIterator {
+
+    protected:
+
+        // iterator of vector contained shared pointers to node's children
+        typedef typename std::vector<R>::iterator KidIter;
+
+        // Stack of iterators of vector of shared pointers.
+        // Each vector contains the children of a node,
+        // thus each iterator gives all a node's kids.
+
+        // Stack of iterators over node's children.
+        // In each pair, first is current iterator, second is end
+        std::queue<std::pair<KidIter, KidIter>> que;
+
+        // Where we are now in the tree
+        R currentNode;
+
+        // Is this the end iterator?
+        bool isEnd;
+
+    public:
+
+        // Copy shared pointer arg
+        nodeBreadthIterator(R & node, bool isEnd) : currentNode(node), isEnd(isEnd) {
+            // store current-element and end of vector in pair
+            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
+            que.push(p);
+        }
+
+        R operator*() const { return currentNode; }
+
+        bool operator==(const nodeBreadthIterator &other) const {
+            if (isEnd && other.isEnd) {
+                return true;
+            }
+            return this == &other;
+        }
+
+        bool operator!=(const nodeBreadthIterator &other) const {
+            if (isEnd && other.isEnd) {
+                return false;
+            }
+            return this != &other;
+        }
+
+
+        // TODO: How does one handle going too far???
+
+        // post increment gets ignored arg of 0 to distinguish from pre, A++
+        nodeBreadthIterator operator++(int) {
+
+            if (isEnd) {
+                return *this;
+            }
+
+            // copy this iterator here
+            nodeBreadthIterator niter = *this;
+
+            // If gone thru the whole tree ...
+            if (que.empty()) {
+                isEnd = true;
+                return *this;
+            }
+
+            // Look at top vector of Q
+            auto &topPair = que.front();
+            // iterator of vector @ current position
+            auto &curIter = topPair.first;
+            // end iterator of vector
+            auto &endIter = topPair.second;
+            // current element of vector
+            auto &node = *curIter;
+
+            // If this vector has no more nodes ...
+            if (curIter - (endIter - 1) == 0) {
+                que.pop();
+            }
+
+            // Prepare to look at the next node in the vector (next call)
+            ++curIter;
+
+            // Look at node's children
+            auto kidIterBegin = node->children.begin();
+            auto kidIterEnd = node->children.end();
+
+            // If it has children, put pair of iterators on stack
+            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+                que.push(p);
+            }
+
+            currentNode = node;
+            // return copy of this iterator before changes
+            return niter;
+        }
+
+
+        // pre increment, ++A
+        nodeBreadthIterator operator++() {
+
+            if (isEnd) {
+                return *this;
+            }
+
+            // If gone thru the whole tree ...
+            if (que.empty()) {
+                isEnd = true;
+                return *this;
+            }
+
+            // Look at top vector of Q
+            auto &topPair = que.front();
+            // iterator of vector @ current position
+            auto &curIter = topPair.first;
+            // end iterator of vector
+            auto &endIter = topPair.second;
+            // current element of vector
+            auto &node = *curIter;
+
+            // If this vector has no more nodes ...
+            if (curIter - (endIter - 1) == 0) {
+                que.pop();
+            }
+
+            // Prepare to look at the next node in the vector (next call)
+            ++curIter;
+
+            // Look at node's children
+            auto kidIterBegin = node->children.begin();
+            auto kidIterEnd = node->children.end();
+
+            // If it has children, put pair of iterators on stack
+            if ((kidIterEnd - 1) - kidIterBegin > 0) {
+                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+                que.push(p);
+            }
+
+            currentNode = node;
+            return *this;
+        }
+    };
+
+
 }
 
 
