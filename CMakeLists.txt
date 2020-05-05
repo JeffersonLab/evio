@@ -108,6 +108,10 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/TreeNodeException.h
         src/hipo/BaseStructure.h
         src/hipo/BaseStructureHeader.h
+        src/hipo/CompositeData.h
+        src/hipo/BankHeader.h
+        src/hipo/SegmentHeader.h
+        src/hipo/TagSegmentHeader.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -132,12 +136,27 @@ set(CPP_LIB_FILES_NEW
         src/hipo/EvioBank.cpp
         src/hipo/BaseStructure.cpp
         src/hipo/BaseStructureHeader.cpp
+        src/hipo/CompositeData.cpp
+        src/hipo/BankHeader.cpp
+        src/hipo/SegmentHeader.cpp
+        src/hipo/TagSegmentHeader.cpp
         )
 
 set(TEST_FILES_CC
         src/hipo/ReadWriteTest.cpp
         src/hipo/RingBufferTest.cpp
         )
+
+set(TEST
+        src/cppTest/TNode.h
+        src/cppTest/TNodeSuper1.h
+        src/cppTest/TNodeSuper2.h
+        src/cppTest/TNodeHeader.h
+        src/cppTest/TNodeHeaderSuper1.h
+        src/cppTest/TNodeHeaderSuper2.h
+        src/cppTest/ReadWriteTest.cpp
+        )
+
 
 #set(CPP_LIB_FILES_DISRUPTOR
 #        src/disruptorTest/claim_strategy_test.cc
