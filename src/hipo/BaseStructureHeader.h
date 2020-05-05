@@ -70,8 +70,8 @@ namespace evio {
 
         void setPadding(uint32_t padding);
 
-        virtual void toArray(uint8_t *bArray, uint32_t offset, ByteOrder & order, uint32_t destMaxSize) = 0;
-        virtual void toVector(std::vector<uint8_t> & bArray, uint32_t offset, ByteOrder & order) = 0;
+        virtual void toArray(uint8_t *bArray, uint32_t offset, ByteOrder & order, uint32_t destMaxSize) {};
+        virtual void toVector(std::vector<uint8_t> & bArray, uint32_t offset, ByteOrder & order) {};
 
       public:
 
@@ -96,9 +96,9 @@ namespace evio {
         uint32_t getTag();
         void setTag(uint32_t tag);
 
-        virtual uint32_t getHeaderLength() = 0;
-        virtual string   toString() = 0;
-        virtual uint32_t write(ByteBuffer & byteBuffer) = 0;
+        virtual uint32_t getHeaderLength() {return 0;};
+        virtual string   toString() {return "BaseStructureHeader";};
+        virtual uint32_t write(ByteBuffer & byteBuffer) {return 0;};
     };
 }
 
