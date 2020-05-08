@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2020, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 04/17/2018
+ * @author timmer
+ */
+
+#ifndef EVIO_6_0_COMPOSITEDATA_H
+#define EVIO_6_0_COMPOSITEDATA_H
+
 
 #include <vector>
 #include <cstring>
@@ -32,10 +48,6 @@
 
 //#define debugprint(ii) printf("  [%3d] %3d (16 * %2d + %2d), nr=%d\n",ii,ifmt[ii],ifmt[ii]/16,ifmt[ii]-(ifmt[ii]/16)*16,nr)
 
-
-
-#ifndef EVIO_6_0_COMPOSITEDATA_H
-#define EVIO_6_0_COMPOSITEDATA_H
 
 namespace evio {
 
@@ -584,7 +596,7 @@ private:
     /** String containing data format. */
     string format;
 
-    /** List of ints obtained from transforming format string. */
+    /** List of unsigned shorts obtained from transforming format string. */
     std::vector<uint16_t> formatInts;
 
     /** List of extracted data items from raw bytes. */
@@ -636,10 +648,10 @@ private:
 
 public:
 
-    CompositeData(string & format, CompositeData::Data const & data);
+    CompositeData(string & format, const CompositeData::Data & data);
 
     CompositeData(string & format, uint16_t formatTag,
-                                 CompositeData::Data & data,
+                                 const CompositeData::Data & data,
                                  uint16_t dataTag, uint8_t dataNum,
                                  ByteOrder const & order = ByteOrder::ENDIAN_LITTLE);
 

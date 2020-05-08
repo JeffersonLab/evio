@@ -20,7 +20,7 @@ namespace evio {
     * @throws EvioException data or format arg = null;
     *                       if improper format string
     */
-    CompositeData::CompositeData(string & format, CompositeData::Data const & data) :
+    CompositeData::CompositeData(string & format, const CompositeData::Data & data) :
         CompositeData(format, data.formatTag, data, data.dataTag, data.dataNum) {}
 
 
@@ -37,7 +37,7 @@ namespace evio {
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    CompositeData::CompositeData(string & format, uint16_t formatTag, CompositeData::Data & data,
+    CompositeData::CompositeData(string & format, uint16_t formatTag, const CompositeData::Data & data,
                                  uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
 
         bool debug = false;
