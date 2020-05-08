@@ -126,7 +126,7 @@ public:
 
     // Read
 
-    const ByteBuffer & getBytes(uint8_t * dst, size_t offset, size_t length) const;
+    const ByteBuffer & getBytes(uint8_t * dst, size_t length) const;
     const ByteBuffer & getBytes(std::vector<uint8_t> & dst, size_t offset, size_t length) const;
 
     uint8_t  peek() const;
@@ -161,7 +161,7 @@ public:
     // Bulk byte writes
     ByteBuffer & put(const ByteBuffer & src);
     ByteBuffer & put(const std::shared_ptr<ByteBuffer> & src);
-    ByteBuffer & put(const uint8_t* src, size_t offset, size_t length);
+    ByteBuffer & put(const uint8_t * src, size_t length);
     ByteBuffer & put(const std::vector<uint8_t> & src, size_t offset, size_t length);
 
     ByteBuffer & put(uint8_t val);               // Relative write

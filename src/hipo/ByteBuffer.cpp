@@ -697,23 +697,21 @@ std::shared_ptr<ByteBuffer> ByteBuffer::duplicate() {
  *
  * Otherwise, this method copies <tt>length</tt> bytes from this
  * buffer into the given array, starting at the current position of this
- * buffer and at the given offset in the array. The position of this
+ * buffer and at the given pointer. The position of this
  * buffer is then incremented by <tt>length</tt>.
  *
  * @param  dst array into which bytes are to be written.
- * @param  offset offset (bytes) within the array of the first byte to be
- *         written; offset + length must be &lt; size of dst.
  * @param  length number of bytes to be written to the given
  *         array; must be no larger than dst size - offset.
  * @return  this buffer.
  * @throws  EvioException if fewer than <tt>length</tt> bytes remaining in buffer.
  */
-const ByteBuffer & ByteBuffer::getBytes(uint8_t * dst, size_t offset, size_t length) const {
+const ByteBuffer & ByteBuffer::getBytes(uint8_t *dst, size_t length) const {
     // check args
     if (length > remaining()) {
         throw EvioException("buffer underflow");
     }
-    memcpy((void *)(dst + offset), (void *)(buf.get() + pos), length);
+    memcpy((void *)dst, (void *)(buf.get() + pos), length);
     pos += length;
     return *this;
 }
@@ -1213,25 +1211,23 @@ ByteBuffer & ByteBuffer::put(const std::shared_ptr<ByteBuffer> & src) {
  * thrown.<p>
  *
  * Otherwise, this method copies <tt>length</tt> bytes from the
- * given array into this buffer, starting at the given offset in the array
+ * given array into this buffer, starting at the given pointer
  * and at the current position of this buffer.  The position of this buffer
  * is then incremented by <tt>length</tt>.
  *
  * @param  src array from which bytes are to be read
- * @param  offset offset (bytes) within the array of the first byte to be read;
- *         must be no larger than src array's size.
  * @param  length number of bytes to be read from the given array;
  *         must be no larger than src array's size - offset.
  * @return  this buffer.
  *
  * @throws  EvioException if insufficient space in this buffer
  */
-ByteBuffer & ByteBuffer::put(const uint8_t* src, size_t offset, size_t length) {
+ByteBuffer & ByteBuffer::put(const uint8_t* src, size_t length) {
     // check args
     if (length > remaining()) {
         throw EvioException("buffer overflow");
     }
-    std::memcpy((void *)(buf.get() + pos), (const void *)(src + offset), length);
+    std::memcpy((void *)(buf.get() + pos), (const void *)src, length);
     pos += length;
     return *this;
 }
