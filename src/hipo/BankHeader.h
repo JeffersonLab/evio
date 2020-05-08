@@ -12,6 +12,9 @@
 #define EVIO_6_0_BANKHEADER_H
 
 #include "Util.h"
+#include "DataType.h"
+#include "ByteOrder.h"
+#include "ByteBuffer.h"
 #include "BaseStructureHeader.h"
 
 namespace evio {
@@ -26,13 +29,7 @@ namespace evio {
      * @author timmer
      * @date 4/23/2020
      */
-    class BankHeader : BaseStructureHeader {
-
-    protected:
-
-        void toArray(uint8_t *bArray, uint32_t offset,
-                     ByteOrder & order, uint32_t destMaxSize) override;
-        void toVector(std::vector<uint8_t> & bVec, uint32_t offset, ByteOrder & order) override;
+    class BankHeader : public BaseStructureHeader {
 
     public:
 
@@ -41,7 +38,9 @@ namespace evio {
 
         uint32_t getHeaderLength() override;
         string   toString() override;
-        uint32_t write(ByteBuffer & byteBuffer) override;
+
+        size_t write(ByteBuffer & dest) override;
+        size_t write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) override;
     };
 
 }

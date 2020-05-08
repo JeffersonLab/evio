@@ -140,7 +140,7 @@ namespace evio {
             return shared_from_this();
         }
 
-        static std::shared_ptr<BaseStructure> getInstance(R val, bool allows = true);
+//        static std::shared_ptr<BaseStructure> getInstance(R val, bool allows = true);
 
     protected:
 
@@ -229,7 +229,7 @@ namespace evio {
 
 
         //---------------------------------------------
-        //-------- CODA evio structure elements -------
+        //-------- CODA evio structure members -------
         //---------------------------------------------
 
 
@@ -266,8 +266,6 @@ namespace evio {
         std::vector<float> floatData;
 
         /** Used if raw data should be interpreted as composite type. */
-        CompositeData *compositeDataArray;
-
         std::vector<std::shared_ptr<CompositeData>> compositeData;
 
         /**
@@ -343,17 +341,20 @@ namespace evio {
         uint32_t dataLength();
         void stringsToRawBytes();
 
-    public:
 
+    public:
         /**
-         * Constructor using a provided header
+         * Constructor using a provided header.
+         * Can only be used by EvioBank, EvioSegment, and EvioTagSegment.
          *
          * @param header the header to use.
          * @see BaseStructureHeader
          */
         explicit BaseStructure(std::shared_ptr<BaseStructureHeader> head);
 
-        void transform(BaseStructure &structure);
+    public:
+
+        //void transform(BaseStructure &structure);
 
         virtual StructureType getStructureType() = 0;
 
@@ -369,9 +370,10 @@ namespace evio {
 
         std::shared_ptr<BaseStructureHeader> getHeader();
 
-        size_t write(ByteBuffer & byteBuffer);
+        virtual size_t write(ByteBuffer & dest) {return 0;};
+        virtual size_t write(uint8_t *dest, uint32_t destMaxSize, ByteOrder & order) {return 0;}
+
         uint32_t getNumberDataItems();
-        size_t write(ByteBuffer & byteBuffer);
 
         uint32_t setAllHeaderLengths();
         bool isContainer();

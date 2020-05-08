@@ -38,46 +38,23 @@ namespace evio {
 	 * @param offset offset into bArray at which to write.
 	 * @param order  byte order in which to write the data.
      * @param destMaxSize max size in bytes of destination array.
+     * @return the number of bytes written, which for a SegmentHeader is 4.
      * @throws EvioException if destination array too small to hold data.
      */
-    void SegmentHeader::toArray(uint8_t *bArray, uint32_t offset,
-                                ByteOrder & order, uint32_t destMaxSize) {
-
+    size_t SegmentHeader::write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {
         if (order == ByteOrder::ENDIAN_BIG) {
-            bArray[offset]   = (uint8_t)tag;
-            bArray[offset+1] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)length, order, bArray, offset+2, destMaxSize);
+            dest[0]   = (uint8_t)tag;
+            dest[1] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
+            Util::toBytes((uint16_t)length, order, dest+2, destMaxSize);
 
         }
         else {
-            Util::toBytes((uint16_t)length, order, bArray, offset, destMaxSize);
-            bArray[offset+2] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            bArray[offset+3] = (uint8_t)tag;
-        }
-    }
-
-    /**
-     * Write myself out as evio format data
-     * into the given vector of bytes in the specified byte order.
-     *
-	 * @param bArray vector into which evio data is written (destination).
-	 * @param offset offset into bVec at which to write.
-	 * @param order  byte order in which to write the data.
-     */
-    void SegmentHeader::toVector(std::vector<uint8_t> & bVec, uint32_t offset, ByteOrder & order) {
-
-        if (order == ByteOrder::ENDIAN_BIG) {
-            bVec[offset]   = (uint8_t)tag;
-            bVec[offset+1] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)length, order, bVec, offset+2);
-
-        }
-        else {
-            Util::toBytes((uint16_t)length, order, bVec, offset);
-            bVec[offset+2] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            bVec[offset+3] = (uint8_t)tag;
+            Util::toBytes((uint16_t)length, order, dest, destMaxSize);
+            dest[2] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
+            dest[3] = (uint8_t)tag;
         }
 
+        return 4;
     }
 
     /**
@@ -87,7 +64,7 @@ namespace evio {
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written, which for a SegmentHeader is 4.
      */
-    uint32_t SegmentHeader::write(ByteBuffer & byteBuffer) {
+    size_t SegmentHeader::write(ByteBuffer & byteBuffer) {
 
         if (byteBuffer.order() == ByteOrder::ENDIAN_BIG) {
             byteBuffer.put((int8_t)tag);

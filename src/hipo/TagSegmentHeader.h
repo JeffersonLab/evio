@@ -12,6 +12,9 @@
 #define EVIO_6_0_TAGSEGMENTHEADER_H
 
 #include "Util.h"
+#include "DataType.h"
+#include "ByteOrder.h"
+#include "ByteBuffer.h"
 #include "BaseStructureHeader.h"
 
 namespace evio {
@@ -25,22 +28,18 @@ namespace evio {
      * @author timmer
      * @date 4/27/2020
      */
-    class TagSegmentHeader : BaseStructureHeader {
-
-    protected:
-
-        virtual void toArray(uint8_t *bArray, uint32_t offset,
-                     ByteOrder & order, uint32_t destMaxSize);
-        virtual void toVector(std::vector<uint8_t> & bVec, uint32_t offset, ByteOrder & order);
+    class TagSegmentHeader : public BaseStructureHeader {
 
     public:
 
         TagSegmentHeader() = default;
         TagSegmentHeader(uint32_t tag, DataType & dataType);
 
-        virtual uint32_t getHeaderLength();
-        virtual string toString();
-        uint32_t write(ByteBuffer & byteBuffer);
+        uint32_t getHeaderLength() override;
+        string   toString() override;
+
+        size_t write(ByteBuffer & dest) override;
+        size_t write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) override;
     };
 
 }

@@ -1463,8 +1463,7 @@ uint32_t BaseStructure::getNumberDataItems() {
             // For this type, numberDataItems is NOT used to
             // calculate the data length so we're OK returning
             // any reasonable value here.
-            numberDataItems = 1;
-            if (compositeData != nullptr) numberDataItems = compositeData.length;
+            numberDataItems = compositeData.size();
         }
 
         if (divisor > 0 && !rawBytes.empty()) {
@@ -1739,30 +1738,29 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
-///**
-// * This is a method from the IEvioStructure Interface. Gets the composite data as
-// * an array of CompositeData objects, if the content type as indicated by the header
-// * is appropriate.<p>
-// *
-// * @return the data as an array of CompositeData objects, or <code>null</code>
-// *         if this makes no sense for the given content type.
-// * @throws EvioException if the data is internally inconsistent
-// */
-//CompositeData[] getCompositeData() throws EvioException {
-//
-//        switch (header->getDataType()) {
-//            case COMPOSITE:
-//                if (compositeData == null) {
-//                    if (rawBytes == null) {
-//                        return null;
-//                    }
-//                    compositeData = CompositeData.parse(rawBytes, byteOrder);
-//                }
-//            return compositeData;
-//            default:
-//                return null;
-//        }
-//}
+    /**
+     * This is a method from the IEvioStructure Interface. Gets the composite data as
+     * an array of CompositeData objects, if the content type as indicated by the header
+     * is appropriate.<p>
+     *
+     * @return the data as an array of CompositeData objects, or <code>null</code>
+     *         if this makes no sense for the given content type.
+     * @throws EvioException if the data is internally inconsistent
+     */
+    std::vector<std::shared_ptr<CompositeData>> & BaseStructure::getCompositeData() {
+
+        if (header->getDataType() == DataType::COMPOSITE) {
+            if (compositeData.empty() && (!rawBytes.empty())) {
+
+                auto cd = CompositeData::parse(rawBytes, byteOrder);
+                compositeData = cd;
+            }
+            return compositeData;
+        }
+        throw EvioException("wrong data type");
+
+    }
+
 
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an signed char array,
@@ -2609,7 +2607,7 @@ uint32_t BaseStructure::getNumberDataItems() {
 
         // propagate back up the tree if lengths have been changed
         if (!lenUpToDate) {
-            if (parent != nullptr) parent.lengthsUpToDate(false);
+            if (parent != nullptr) parent->setLengthsUpToDate(false);
         }
     }
 
@@ -2783,12 +2781,12 @@ uint32_t BaseStructure::getNumberDataItems() {
                     catch (EvioException & e) { /* never happen */ }
 
                     // write them to buffer
-                    byteBuffer.put(swappedRaw, 0, swappedRaw.length);
+                    byteBuffer.put(swappedRaw, 0, rawBytes.size());
                 }
             }
         } // isLeaf
         else if (!children.empty()) {
-            for (auto child : children) {
+            for (auto const & child : children) {
                 child->write(byteBuffer);
             }
         } // not leaf

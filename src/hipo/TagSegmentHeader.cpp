@@ -37,44 +37,21 @@ namespace evio {
 	 * @param offset offset into bArray at which to write.
 	 * @param order  byte order in which to write the data.
      * @param destMaxSize max size in bytes of destination array.
+     * @return the number of bytes written, which for a BankHeader is 8.
      * @throws EvioException if destination array too small to hold data.
      */
-    void TagSegmentHeader::toArray(uint8_t *bArray, uint32_t offset,
-                                ByteOrder & order, uint32_t destMaxSize) {
-
+    size_t TagSegmentHeader::write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {
         auto compositeWord = (uint16_t) ((tag << 4) | (dataType.getValue() & 0xf));
 
         if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes(compositeWord, order, bArray, offset, destMaxSize);
-            Util::toBytes((uint16_t)length, order, bArray, offset + 2, destMaxSize);
+            Util::toBytes(compositeWord, order, dest, destMaxSize);
+            Util::toBytes((uint16_t)length, order, dest + 2, destMaxSize);
         }
         else {
-            Util::toBytes((uint16_t)length, order, bArray, offset, destMaxSize);
-            Util::toBytes(compositeWord, order, bArray, offset + 2, destMaxSize);
+            Util::toBytes((uint16_t)length, order, dest, destMaxSize);
+            Util::toBytes(compositeWord, order, dest + 2, destMaxSize);
         }
-    }
-
-    /**
-     * Write myself out as evio format data
-     * into the given vector of bytes in the specified byte order.
-     *
-	 * @param bArray vector into which evio data is written (destination).
-	 * @param offset offset into bVec at which to write.
-	 * @param order  byte order in which to write the data.
-     */
-    void TagSegmentHeader::toVector(std::vector<uint8_t> & bVec, uint32_t offset, ByteOrder & order) {
-
-        auto compositeWord = (uint16_t) ((tag << 4) | (dataType.getValue() & 0xf));
-
-        if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes(compositeWord, order, bVec, offset);
-            Util::toBytes((uint16_t)length, order, bVec, offset + 2);
-        }
-        else {
-            Util::toBytes((uint16_t)length, order, bVec, offset);
-            Util::toBytes(compositeWord, order, bVec, offset + 2);
-        }
-
+        return 4;
     }
 
     /**
@@ -84,7 +61,7 @@ namespace evio {
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written, which for a TagSegmentHeader is 4.
      */
-    uint32_t TagSegmentHeader::write(ByteBuffer & byteBuffer) {
+    size_t TagSegmentHeader::write(ByteBuffer & byteBuffer) {
 
         auto compositeWord = (uint16_t) ((tag << 4) | (dataType.getValue() & 0xf));
 

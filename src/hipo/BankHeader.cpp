@@ -36,77 +36,56 @@ namespace evio {
      * Write myself out as evio format data
      * into the given byte array in the specified byte order.
      *
-	 * @param bArray array into which evio data is written (destination).
-	 * @param offset offset into bArray at which to write.
+	 * @param dest array into which evio data is written (destination).
 	 * @param order  byte order in which to write the data.
      * @param destMaxSize max size in bytes of destination array.
+     * @return the number of bytes written, which for a BankHeader is 8.
      * @throws EvioException if destination array too small to hold data.
      */
-    void BankHeader::toArray(uint8_t *bArray, uint32_t offset,
-                             ByteOrder & order, uint32_t destMaxSize) {
+    size_t BankHeader::write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {
         // length first
-        Util::toBytes(length, order, bArray, offset, destMaxSize);
+        Util::toBytes(length, order, dest, destMaxSize);
 
         if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes((uint16_t)tag, order, bArray, offset+4, destMaxSize);
+            Util::toBytes((uint16_t)tag, order, dest+4, destMaxSize);
             // lowest 6 bits are dataType, upper 2 bits are padding
-            bArray[offset+6] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            bArray[offset+7] = (uint8_t)number;
+            dest[6] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
+            dest[7] = (uint8_t)number;
         }
         else {
-            bArray[offset+4] = (uint8_t)number;
-            bArray[offset+5] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)tag, order, bArray, offset+6, destMaxSize);
+            dest[4] = (uint8_t)number;
+            dest[5] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
+            Util::toBytes((uint16_t)tag, order, dest+6, destMaxSize);
         }
+
+        return 8;
     }
 
-    /**
-     * Write myself out as evio format data
-     * into the given vector of bytes in the specified byte order.
-     *
-	 * @param bArray vector into which evio data is written (destination).
-	 * @param offset offset into bVec at which to write.
-	 * @param order  byte order in which to write the data.
-     */
-    void BankHeader::toVector(std::vector<uint8_t> & bVec, uint32_t offset, ByteOrder & order) {
-
-        Util::toBytes(length, order, bVec, offset);
-
-        if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes((uint16_t)tag, order, bVec, offset+4);
-            bVec[offset+6] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            bVec[offset+7] = (uint8_t)number;
-        }
-        else {
-            bVec[offset+4] = (uint8_t)number;
-            bVec[offset+5] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)tag, order, bVec, offset+6);
-        }
-    }
 
     /**
      * Write myself out a byte buffer.
      * This write is relative - i.e., it uses the current position of the buffer.
      *
-     * @param byteBuffer the byteBuffer to write to.
+     * @param dest the byteBuffer to write to.
      * @return the number of bytes written, which for a BankHeader is 8.
      */
-    uint32_t BankHeader::write(ByteBuffer & byteBuffer) {
-        byteBuffer.putInt(length);
+    size_t BankHeader::write(ByteBuffer & dest) {
+        dest.putInt(length);
 
-        if (byteBuffer.order() == ByteOrder::ENDIAN_BIG) {
-            byteBuffer.putShort((uint16_t) tag);
-            byteBuffer.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.put((int8_t) number);
+        if (dest.order() == ByteOrder::ENDIAN_BIG) {
+            dest.putShort((uint16_t) tag);
+            dest.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
+            dest.put((int8_t) number);
         }
         else {
-            byteBuffer.put((int8_t) number);
-            byteBuffer.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.putShort((uint16_t) tag);
+            dest.put((int8_t) number);
+            dest.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
+            dest.putShort((uint16_t) tag);
         }
 
         return 8;
     }
+
 
     /**
      * Obtain a string representation of the bank header.

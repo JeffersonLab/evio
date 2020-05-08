@@ -39,7 +39,7 @@ namespace evio {
 
         friend class BaseStructure;
 
-      protected:
+    protected:
 
         /**
          * The length of the structure in ints. This never includes the
@@ -66,14 +66,11 @@ namespace evio {
          */
         uint32_t number = 0;
 
-
+    protected:
 
         void setPadding(uint32_t padding);
 
-        virtual void toArray(uint8_t *bArray, uint32_t offset, ByteOrder & order, uint32_t destMaxSize) {};
-        virtual void toVector(std::vector<uint8_t> & bArray, uint32_t offset, ByteOrder & order) {};
-
-      public:
+    public:
 
         BaseStructureHeader() = default;
         BaseStructureHeader(uint32_t tag, DataType & dataType, uint32_t num = 0);
@@ -98,7 +95,10 @@ namespace evio {
 
         virtual uint32_t getHeaderLength() {return 0;};
         virtual string   toString() {return "BaseStructureHeader";};
-        virtual uint32_t write(ByteBuffer & byteBuffer) {return 0;};
+
+        virtual size_t write(ByteBuffer & dest) {return 0;};
+        virtual size_t write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {return 0;};
+
     };
 }
 
