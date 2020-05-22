@@ -14,7 +14,7 @@
 namespace evio {
 
     /** Bytes with which to pad short and byte data. */
-    static uint8_t padValues[4] = {0, 0, 0};
+    static uint8_t padValues[3] = {0, 0, 0};
 
     /** Number of bytes to pad short and byte data. */
     static uint32_t padCount[4] = {0, 3, 2, 1};
@@ -205,7 +205,6 @@ namespace evio {
 //        return null;
 //    }
 //}
-
 
 
 
@@ -899,7 +898,7 @@ namespace evio {
             if (getChildCount() == 0) {
                 retval = false;
             } else {
-                retval = (aNode->getParent() == getThis());
+                retval = (aNode->getParent() == getThisConst());
             }
         }
 
@@ -1024,7 +1023,7 @@ namespace evio {
 
         if (anotherNode == nullptr) {
             retval = false;
-        } else if (anotherNode == getThis()) {
+        } else if (anotherNode == getThisConst()) {
             retval = true;
         } else {
             auto myParent = getParent();
@@ -1347,6 +1346,8 @@ bool BaseStructure::needSwap() {
  */
 string BaseStructure::getDescription() {
     // TODO:  return NameProvider.getName(this);
+
+    return "BaseStructure description";
 }
 
 
@@ -1738,28 +1739,27 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
-    /**
-     * This is a method from the IEvioStructure Interface. Gets the composite data as
-     * an array of CompositeData objects, if the content type as indicated by the header
-     * is appropriate.<p>
-     *
-     * @return the data as an array of CompositeData objects, or <code>null</code>
-     *         if this makes no sense for the given content type.
-     * @throws EvioException if the data is internally inconsistent
-     */
-    std::vector<std::shared_ptr<CompositeData>> & BaseStructure::getCompositeData() {
-
-        if (header->getDataType() == DataType::COMPOSITE) {
-            if (compositeData.empty() && (!rawBytes.empty())) {
-
-                auto cd = CompositeData::parse(rawBytes, byteOrder);
-                compositeData = cd;
-            }
-            return compositeData;
-        }
-        throw EvioException("wrong data type");
-
-    }
+//    /**
+//     * This is a method from the IEvioStructure Interface. Gets the composite data as
+//     * an array of CompositeData objects, if the content type as indicated by the header
+//     * is appropriate.<p>
+//     *
+//     * @return the data as an array of CompositeData objects, or <code>null</code>
+//     *         if this makes no sense for the given content type.
+//     * @throws EvioException if the data is internally inconsistent
+//     */
+//    std::vector<std::shared_ptr<CompositeData>> & BaseStructure::getCompositeData() {
+//
+//        if (header->getDataType() == DataType::COMPOSITE) {
+//            if (compositeData.empty() && (!rawBytes.empty())) {
+//
+//                auto cd = CompositeData::parse(rawBytes, byteOrder);
+//                compositeData = cd;
+//            }
+//            return compositeData;
+//        }
+//        throw EvioException("wrong data type");
+//    }
 
 
     /**
@@ -1959,6 +1959,7 @@ uint32_t BaseStructure::getNumberDataItems() {
         }
     }
 
+
     /**
      * This method transforms the internal vector of strings into internal rawBytes vector
      * of evio format data not including header.
@@ -1976,7 +1977,7 @@ uint32_t BaseStructure::getNumberDataItems() {
         }
 
         // create some storage
-        int dataLen = stringsToRawSize(stringList);
+        int dataLen = Util::stringsToRawSize(stringList);
         string strData;
         strData.reserve(dataLen);
 
@@ -2016,6 +2017,7 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
+
     /**
      * This method extracts an array of strings from byte array of raw evio string data.
      *
@@ -2025,11 +2027,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      */
     void BaseStructure::unpackRawBytesToStrings(std::vector<uint8_t> & bytes, size_t offset,
                                                 std::vector<string> & strData) {
-        int length = bytes.size() - offset;
-        if (bytes.empty() || (length < 4)) return;
-
-        string sData(reinterpret_cast<const char *>(bytes.data()) + offset, length);
-        return stringBuilderToStrings(sData, false, strData);
+        unpackRawBytesToStrings(bytes, offset, bytes.size(), strData);
     }
 
 
@@ -2053,6 +2051,25 @@ uint32_t BaseStructure::getNumberDataItems() {
         length = length > maxLength ? maxLength : length;
 
         string sData(reinterpret_cast<const char *>(bytes.data()) + offset, length);
+        return stringBuilderToStrings(sData, true, strData);
+    }
+
+
+    /**
+     * This method extracts an array of strings from byte array of raw evio string data.
+     * Don't go beyond the specified max character limit and stop at the first
+     * non-character value.
+     *
+     * @param bytes       raw evio string data
+     * @param offset      offset into raw data vector
+     * @param length      length in bytes of valid data in bytes vector
+     * @param strData     vector in which to place extracted strings.
+     */
+    void BaseStructure::unpackRawBytesToStrings(uint8_t *bytes, size_t length,
+                                                std::vector<string> & strData) {
+        if (bytes == nullptr) return;
+
+        string sData(reinterpret_cast<const char *>(bytes), length);
         return stringBuilderToStrings(sData, true, strData);
     }
 
@@ -2657,22 +2674,208 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
+   /**
+    * Write myself into a ByteBuffer as evio format data
+    * in the data's current byte order given by {@link #getByteOrder}.
+    * This method is much more efficient than using {@link #write(java.nio.ByteBuffer)}.<p>
+    * <b>However, be warned that this method is only useful when this structure has
+    * just been read from a file or buffer. Once the user adds data (and does not call
+     * the appropriate update method) or children
+    * to this structure, this method does NOT produce correct results.</b>
+    *
+    * @param dest destination ByteBuffer to contain evio format data
+    *             of this bank in currently set byte order.
+    */
+    size_t BaseStructure::writeQuick(ByteBuffer & dest) {
+        header->write(dest);
+        dest.put(rawBytes.data(), rawBytes.size());
+        dest.order(getByteOrder());
+        return 0;
+    }
 
-    // TODO: Throw exception if byteBuffer is too small !!!
+    /**
+     * Write myself out as evio format data
+     * in the data's current byte order given by {@link #getByteOrder} at the given pointer.
+     * This method is much more efficient than using {@link #write(java.nio.ByteBuffer)}.<p>
+     * <b>However, be warned that this method is only useful when this structure has
+     * just been read from a file or buffer. Once the user adds data (and does not call
+     * the appropriate update method) or children
+     * to this structure, this method does NOT produce correct results.</b>
+     *
+     * @param dest pointer at which to write evio format data of this bank in currently set byte order.
+     * @return byte array containing evio format data of this bank in currently set byte order
+     */
+    size_t BaseStructure::writeQuick(uint8_t *dest) {
+         // write the header
+        header->write(dest, byteOrder);
+        // write the rest
+        std::memcpy(dest + 4*header->getHeaderLength(), rawBytes.data(), rawBytes.size());
+        return rawBytes.size() + 4*header->getHeaderLength();
+    }
+
+
+    /**
+     * Write myself out to a pointer.
+     *
+     * @param dest   pointer at which to write evio format data of this bank.
+     * @param order  byte order in which to write.
+     * @return the number of bytes written.
+     */
+    size_t BaseStructure::write(uint8_t *dest, ByteOrder const & order) {
+
+        uint8_t *curPos = dest;
+
+        // write the header
+        header->write(curPos, order);
+        curPos += 4*header->getHeaderLength();
+
+        if (isLeaf()) {
+
+            DataType type = header->getDataType();
+
+            // If we have raw bytes which do NOT need swapping, this is fastest ..
+            if (!rawBytes.empty() && (byteOrder == order)) {
+                // write the rest
+                std::memcpy(curPos, rawBytes.data(), rawBytes.size());
+                curPos += rawBytes.size();
+            }
+            else if (type == DataType::DOUBLE64) {
+                // if data sent over wire or read from file ...
+                if (!rawBytes.empty()) {
+                    // and need swapping ...
+                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8, curPos);
+                    curPos += rawBytes.size();
+                }
+                // else if user set data thru API (can't-rely-on / no rawBytes array) ...
+                else {
+                    ByteOrder::byteSwap64(doubleData.data(), doubleData.size(), curPos);
+                    curPos += 8 * doubleData.size();
+                }
+            }
+            else if (type == DataType::FLOAT32) {
+                if (!rawBytes.empty()) {
+                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4, curPos);
+                    curPos += rawBytes.size();
+                }
+                else {
+                    ByteOrder::byteSwap32(floatData.data(), floatData.size(), curPos);
+                    curPos += 4 * floatData.size();
+                }
+            }
+            else if (type == DataType::LONG64 || type == DataType::ULONG64) {
+                if (!rawBytes.empty()) {
+                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8, curPos);
+                    curPos += rawBytes.size();
+                }
+                else {
+                    ByteOrder::byteSwap64(longData.data(), longData.size(), curPos);
+                    curPos += 8 * longData.size();
+                }
+            }
+            else if (type == DataType::INT32 || type == DataType::UINT32) {
+                if (!rawBytes.empty()) {
+                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4, curPos);
+                    curPos += rawBytes.size();
+                }
+                else {
+                    ByteOrder::byteSwap32(intData.data(), intData.size(), curPos);
+                    curPos += 4 * intData.size();
+                }
+            }
+            else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
+                if (!rawBytes.empty()) {
+                    ByteOrder::byteSwap16(rawBytes.data(), rawBytes.size()/2, curPos);
+                    curPos += rawBytes.size();
+                }
+                else {
+                    ByteOrder::byteSwap16(shortData.data(), shortData.size(), curPos);
+                    curPos += 2 * shortData.size();
+
+                    // might have to pad to 4 byte boundary
+                    if (shortData.size() % 2 > 0) {
+                        std::memcpy(curPos, padValues, 2);
+                        curPos += 2;
+                    }
+                }
+            }
+            else if (type == DataType::CHAR8 || type == DataType::UCHAR8 || type == DataType::UNKNOWN32) {
+                if (!rawBytes.empty()) {
+                    std::memcpy(curPos, rawBytes.data(), rawBytes.size());
+                    curPos += rawBytes.size();
+                } else {
+                    std::memcpy(curPos, reinterpret_cast<uint8_t*>(charData.data()), charData.size());
+                    curPos += charData.size();
+
+                    // might have to pad to 4 byte boundary
+                    std::memcpy(curPos, padValues, padCount[charData.size() % 4]);
+                    curPos += charData.size();
+                }
+            }
+            else if (type == DataType::CHARSTAR8) {
+                // rawbytes contains ascii, already padded
+                if (!rawBytes.empty()) {
+                    std::memcpy(curPos, rawBytes.data(), rawBytes.size());
+                    curPos += rawBytes.size();
+                }
+            }
+            else if (type == DataType::COMPOSITE) {
+                // compositeData object always has rawBytes defined
+                if (!rawBytes.empty()) {
+                    // swap rawBytes
+                    try {
+                        CompositeData::swapAll(rawBytes.data(), curPos,
+                                               rawBytes.size() / 4, byteOrder.isLocalEndian());
+                        curPos += rawBytes.size();
+                    }
+                    catch (EvioException & e) { /* never happen */ }
+                }
+            }
+        } // isLeaf
+        else if (!children.empty()) {
+            for (auto const & child : children) {
+                curPos += child->write(curPos, order);
+            }
+        } // not leaf
+
+        return curPos - dest;
+    }
+
     /**
      * Write myself out a byte buffer with fastest algorithms I could find.
      *
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written.
+     * @throws overflow_error if too little space in byteBuffer.
+     */
+    size_t BaseStructure::write2(ByteBuffer & byteBuffer) {
+
+        if (byteBuffer.remaining() < getTotalBytes()) {
+            throw overflow_error("byteBuffer (limit - pos) too small");
+        }
+
+        return write(byteBuffer.array() + byteBuffer.arrayOffset(), byteBuffer.order());
+    }
+
+
+    /**
+     * Write myself out a byte buffer with fastest algorithms I could find.
+     *
+     * @param byteBuffer the byteBuffer to write to.
+     * @return the number of bytes written.
+     * @throws overflow_error if too little space in byteBuffer.
      */
     size_t BaseStructure::write(ByteBuffer & byteBuffer) {
 
-        int startPos = byteBuffer.position();
+        if (byteBuffer.remaining() < getTotalBytes()) {
+            throw overflow_error("byteBuffer (limit - pos) too small");
+        }
+
+        size_t startPos = byteBuffer.position();
 
         // write the header
         header->write(byteBuffer);
 
-        int curPos = byteBuffer.position();
+        size_t curPos = byteBuffer.position();
 
         if (isLeaf()) {
 
@@ -2704,7 +2907,7 @@ uint32_t BaseStructure::getNumberDataItems() {
                     byteBuffer.position(curPos + rawBytes.size());
                 }
                 else {
-                    ByteOrder::byteSwap64(floatData.data(), floatData.size(),
+                    ByteOrder::byteSwap32(floatData.data(), floatData.size(),
                                           byteBuffer.array() + byteBuffer.arrayOffset());
                     byteBuffer.position(curPos + 4 * floatData.size());
                 }
@@ -2740,7 +2943,7 @@ uint32_t BaseStructure::getNumberDataItems() {
                     byteBuffer.position(curPos + rawBytes.size());
                 }
                 else {
-                    ByteOrder::byteSwap32(shortData.data(), shortData.size(),
+                    ByteOrder::byteSwap16(shortData.data(), shortData.size(),
                                           byteBuffer.array() + byteBuffer.arrayOffset());
                     byteBuffer.position(curPos + 2 * shortData.size());
 
@@ -2754,10 +2957,10 @@ uint32_t BaseStructure::getNumberDataItems() {
                 if (!rawBytes.empty()) {
                     byteBuffer.put(rawBytes, 0, rawBytes.size());
                 } else {
-                    byteBuffer.put(reinterpret_cast<uint8_t*>(charData.data()), 0, charData.size());
+                    byteBuffer.put(reinterpret_cast<uint8_t*>(charData.data()), charData.size());
 
                     // might have to pad to 4 byte boundary
-                    byteBuffer.put(padValues, 0, padCount[charData.size() % 4]);
+                    byteBuffer.put(padValues, padCount[charData.size() % 4]);
                 }
             }
             else if (type == DataType::CHARSTAR8) {
@@ -2769,19 +2972,17 @@ uint32_t BaseStructure::getNumberDataItems() {
             else if (type == DataType::COMPOSITE) {
                 // compositeData object always has rawBytes defined
                 if (!rawBytes.empty()) {
-                    // swap rawBytes
-                    byteBuffer.put(rawBytes, 0, rawBytes.size());
-
+                    // swap rawBytes into temp array
                     uint8_t swappedRaw[rawBytes.size()];
 
                     try {
-                        CompositeData.swapAll(rawBytes, 0, swappedRaw, 0,
-                                              rawBytes.size() / 4, byteOrder);
+                        CompositeData::swapAll(rawBytes.data(), swappedRaw,
+                                               rawBytes.size() / 4, byteOrder.isLocalEndian());
                     }
                     catch (EvioException & e) { /* never happen */ }
 
                     // write them to buffer
-                    byteBuffer.put(swappedRaw, 0, rawBytes.size());
+                    byteBuffer.put(swappedRaw, rawBytes.size());
                 }
             }
         } // isLeaf
@@ -3219,7 +3420,12 @@ uint32_t BaseStructure::getNumberDataItems() {
             numberDataItems = 0;
         }
         else {
+
             numberDataItems = compositeData.size();
+
+            // TODO: THIS IS ALL WRONG!!
+
+
             rawBytes.resize(8 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
@@ -3278,14 +3484,11 @@ uint32_t BaseStructure::getNumberDataItems() {
 //                        }
 //                        compositeData = new CompositeData[totalLen];
 //
-//                        // Fill with existing object first
-//                        for (int i = 0; i < len1; i++) {
-//                            compositeData[i] = cdArray[i];
-//                        }
-//                        // Append new objects
-//                        for (int i = len1; i < totalLen; i++) {
-//                            compositeData[i] = cdArray[i];
-//                        }
+//                      // Fill with existing object first
+//                      System.arraycopy(cdArray, 0, compositeData, 0, len1);
+//                      // Append new objects
+//                      System.arraycopy(data, 0, compositeData, len1, len2);
+//
 //                        numberDataItems = totalLen;
 //                    }
 //                }
@@ -3301,14 +3504,10 @@ uint32_t BaseStructure::getNumberDataItems() {
 //                CompositeData[] cdArray = compositeData;
 //                compositeData = new CompositeData[totalLen];
 //
-//                // Fill with existing object first
-//                for (int i=0; i < len1; i++) {
-//                    compositeData[i] = cdArray[i];
-//                }
-//                // Append new objects
-//                for (int i=len1; i < totalLen; i++) {
-//                    compositeData[i] = cdArray[i];
-//                }
+//                  // Fill with existing object first
+//                  System.arraycopy(cdArray, 0, compositeData, 0, len1);
+//                  // Append new objects
+//                  System.arraycopy(data, 0, compositeData, len1, len2);
 //                numberDataItems = totalLen;
 //            }
 //
