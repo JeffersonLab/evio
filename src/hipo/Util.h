@@ -45,6 +45,62 @@ class Util {
 
 public:
 
+
+    /**
+     * Turn byte array into an int array.
+     * Number of int array elements = number of bytes / 4.
+     *
+     * @param data       char array to convert.
+     * @param dataLen    number of bytes to convert.
+     * @param byteOrder  byte order of supplied bytes.
+     * @param dest       array in which to write converted bytes.
+     *
+     * @throws EvioException if data or dest is null
+     */
+    static void toIntArray(char const *data,  uint32_t dataLen,
+                           const ByteOrder & byteOrder, uint32_t *dest) {
+
+        if (data == nullptr || dest == nullptr) {
+            throw EvioException("bad arg");
+        }
+
+        for (int i = 0; i < dataLen-3; i+=4) {
+            dest[i/4] = toInt(data[i ], data[i+1], data[i+2], data[i+3], byteOrder);
+        }
+    }
+
+
+    /**
+     * Turn 4 bytes into an int.
+     *
+     * @param b1 1st byte
+     * @param b2 2nd byte
+     * @param b3 3rd byte
+     * @param b4 4th byte
+     * @param byteOrder if big endian, 1st byte is most significant & 4th is least
+     * @return int converted from byte array
+     */
+    static int toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrder) {
+
+        if (byteOrder == ByteOrder::ENDIAN_BIG) {
+            return (
+                    (0xff & b1) << 24 |
+                    (0xff & b2) << 16 |
+                    (0xff & b3) <<  8 |
+                    (0xff & b4)
+            );
+        }
+        else {
+            return (
+                    (0xff & b1)       |
+                    (0xff & b2) <<  8 |
+                    (0xff & b3) << 16 |
+                    (0xff & b4) << 24
+            );
+        }
+    }
+
+
     /**
      * Write int into byte array.
      *
@@ -54,10 +110,9 @@ public:
      * @param destMaxSize max size in bytes of dest array.
      * @throws EvioException if dest is null or too small.
      */
-    static void toBytes(uint32_t data, const ByteOrder & byteOrder,
-                        uint8_t* dest, size_t destMaxSize) {
+    static void toBytes(uint32_t data, const ByteOrder & byteOrder, uint8_t* dest) {
 
-        if (dest == nullptr || destMaxSize < 4) {
+        if (dest == nullptr) {
             throw EvioException("bad arg(s)");
         }
 
@@ -108,13 +163,11 @@ public:
      * @param data        short to convert.
      * @param byteOrder   byte order of array.
      * @param dest        array in which to write short.
-     * @param destMaxSize max size in bytes of dest array.
      * @throws EvioException if dest is null or too small.
      */
-    static void toBytes(uint16_t data, const ByteOrder & byteOrder,
-                        uint8_t* dest, size_t destMaxSize) {
+    static void toBytes(uint16_t data, const ByteOrder & byteOrder, uint8_t* dest) {
 
-        if (dest == nullptr || destMaxSize < 2) {
+        if (dest == nullptr) {
             throw EvioException("bad arg(s)");
         }
 
@@ -429,6 +482,331 @@ public:
             buf.put(i, input[i]);
         }
     }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    //
+    //  Methods for parsing strings in evio format.
+    //  These are placed here to break the circular dependency between
+    //  BaseStructure and CompositeData.
+    //
+    //////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * This method returns the number of bytes in a raw
+     * evio format of the given string array, not including header.
+     *
+     * @param strings vector of strings to size
+     * @return the number of bytes in a raw evio format of the given strings
+     * @return 0 if vector empty.
+     */
+    static uint32_t stringsToRawSize(std::vector<string> const & strings) {
+
+        if (strings.empty()) {
+            return 0;
+        }
+
+        uint32_t dataLen = 0;
+        for (string const & s : strings) {
+            dataLen += s.length() + 1; // don't forget the null char after each string
+        }
+
+        // Add any necessary padding to 4 byte boundaries.
+        // IMPORTANT: There must be at least one '\004'
+        // character at the end. This distinguishes evio
+        // string array version from earlier version.
+        int pads[] = {4,3,2,1};
+        dataLen += pads[dataLen%4];
+
+        return dataLen;
+    }
+
+
+    /**
+     * This method returns the number of bytes in a raw
+     * evio format of the given string array (with a single string), not including header.
+     *
+     * @param strings single string to size
+     * @return the number of bytes in a raw evio format of the given strings
+     * @return 0 if vector empty.
+     */
+    static uint32_t stringToRawSize(const string & str) {
+
+        if (str.empty()) {
+            return 0;
+        }
+
+        uint32_t dataLen = str.length() + 1; // don't forget the null char after each string
+
+        // Add any necessary padding to 4 byte boundaries.
+        // IMPORTANT: There must be at least one '\004'
+        // character at the end. This distinguishes evio
+        // string array version from earlier version.
+        int pads[] = {4,3,2,1};
+        dataLen += pads[dataLen%4];
+
+        return dataLen;
+    }
+
+
+    /**
+     * This method transforms an array/vector of strings into raw evio format data,
+     * not including header.
+     *
+     * @param strings vector of strings to transform.
+     * @param bytes   vector of bytes to contain evio formatted strings.
+     */
+    static void stringsToRawBytes(std::vector<string> & strings,
+                                  std::vector<uint8_t> & bytes) {
+
+        if (strings.empty()) {
+            bytes.clear();
+            return;
+        }
+
+        // create some storage
+        int dataLen = stringsToRawSize(strings);
+        string strData;
+        strData.reserve(dataLen);
+
+        for (string const & s : strings) {
+            // add string
+            strData.append(s);
+            // add ending null
+            strData.append(1, '\000');
+        }
+
+        // Add any necessary padding to 4 byte boundaries.
+        // IMPORTANT: There must be at least one '\004'
+        // character at the end. This distinguishes evio
+        // string array version from earlier version.
+        int pads[] = {4,3,2,1};
+        switch (pads[strData.length()%4]) {
+            case 4:
+                strData.append(4, '\004');
+                break;
+            case 3:
+                strData.append(3, '\004');
+                break;
+            case 2:
+                strData.append(2, '\004');
+                break;
+            case 1:
+                strData.append(1, '\004');
+        }
+
+        // Transform to ASCII
+        bytes.resize(dataLen);
+        for (int i=0; i < strData.length(); i++) {
+            bytes[i] = strData[i];
+        }
+    }
+
+
+    /**
+     * This method extracts an array of strings from byte array of raw evio string data.
+     *
+     * @param bytes raw evio string data.
+     * @param offset offset into raw data array.
+     * @param strData vector in which to place extracted strings.
+     */
+    static void unpackRawBytesToStrings(std::vector<uint8_t> & bytes, size_t offset,
+                                 std::vector<string> & strData) {
+        unpackRawBytesToStrings(bytes, offset, bytes.size(), strData);
+    }
+
+
+    /**
+     * This method extracts an array of strings from byte array of raw evio string data.
+     * Don't go beyond the specified max character limit and stop at the first
+     * non-character value.
+     *
+     * @param bytes       raw evio string data
+     * @param offset      offset into raw data vector
+     * @param maxLength   max length in bytes of valid data in bytes vector
+     * @param strData     vector in which to place extracted strings.
+     */
+    static void unpackRawBytesToStrings(std::vector<uint8_t> & bytes,
+                                 size_t offset, size_t maxLength,
+                                 std::vector<string> & strData) {
+        int length = bytes.size() - offset;
+        if (bytes.empty() || (length < 4)) return;
+
+        // Don't read read more than maxLength ASCII characters
+        length = length > maxLength ? maxLength : length;
+
+        string sData(reinterpret_cast<const char *>(bytes.data()) + offset, length);
+        return stringBuilderToStrings(sData, true, strData);
+    }
+
+
+    /**
+     * This method extracts an array of strings from byte array of raw evio string data.
+     * Don't go beyond the specified max character limit and stop at the first
+     * non-character value.
+     *
+     * @param bytes       raw evio string data
+     * @param offset      offset into raw data vector
+     * @param length      length in bytes of valid data in bytes vector
+     * @param strData     vector in which to place extracted strings.
+     */
+    static void unpackRawBytesToStrings(uint8_t *bytes, size_t length,
+                                 std::vector<string> & strData) {
+        if (bytes == nullptr) return;
+
+        string sData(reinterpret_cast<const char *>(bytes), length);
+        return stringBuilderToStrings(sData, true, strData);
+    }
+
+
+    /**
+     * This method extracts an array of strings from buffer containing raw evio string data.
+     *
+     * @param buffer  buffer containing evio string data
+     * @param pos     position of string data in buffer
+     * @param length  length of string data in buffer in bytes
+     * @param strData vector in which to place extracted strings.
+     */
+    static void unpackRawBytesToStrings(ByteBuffer & buffer,
+                                 size_t pos, size_t length,
+                                 std::vector<string> & strData) {
+
+        if (length < 4) return;
+
+        string sData(reinterpret_cast<const char *>(buffer.array() + buffer.arrayOffset()) + pos, length);
+        return stringBuilderToStrings(sData, false, strData);
+    }
+
+
+    /**
+     * This method extracts an array of strings from a string containing evio string data.
+     * If non-printable chars are found (besides those used to terminate strings),
+     * then 1 string with all characters will be returned. However, if the "onlyGoodChars"
+     * flag is true, 1 string is returned in truncated form without
+     * the bad characters at the end.<p>
+     * The name of this method is taken from the java and has little to do with C++.
+     * That's done for ease of code maintenance.
+     *
+     * @param strData        containing string data
+     * @param onlyGoodChars  if true and non-printable chars found,
+     *                       only 1 string with printable ASCII chars will be returned.
+     * @param strData        vector in which to place extracted strings.
+     * @return array of Strings or null if processing error
+     */
+    static void stringBuilderToStrings(std::string const & strData, bool onlyGoodChars,
+                                std::vector<std::string> & strings) {
+
+        // Each string is terminated with a null (char val = 0)
+        // and in addition, the end is padded by ASCII 4's (char val = 4).
+        // However, in the legacy versions of evio, there is only one
+        // null-terminated string and anything as padding. To accommodate legacy evio, if
+        // there is not an ending ASCII value 4, anything past the first null is ignored.
+        // After doing so, split at the nulls. Do not use the String
+        // method "split" as any empty trailing strings are unfortunately discarded.
+
+        char c;
+        std::vector<int> nullIndexList(10);
+        int nullCount = 0, goodChars = 0;
+        bool badFormat = true;
+
+        int length = strData.length();
+        bool noEnding4 = false;
+        if (strData[length - 1] != '\004') {
+            noEnding4 = true;
+        }
+
+        for (int i=0; i < length; i++) {
+            c = strData[i];
+
+            // If char is a null
+            if (c == 0) {
+                nullCount++;
+                nullIndexList.push_back(i);
+                // If evio v2 or 3, only 1 null terminated string exists
+                // and padding is just junk or nonexistent.
+                if (noEnding4) {
+                    badFormat = false;
+                    break;
+                }
+            }
+                // Look for any non-printing/control characters (not including null)
+                // and end the string there. Allow tab & newline.
+            else if ((c < 32 || c > 126) && c != 9 && c != 10) {
+                if (nullCount < 1) {
+                    badFormat = true;
+                    // Getting garbage before first null.
+                    break;
+                }
+
+                // Already have at least one null & therefore a String.
+                // Now we have junk or non-printing ascii which is
+                // possibly the ending 4.
+
+                // If we have a 4, investigate further to see if format
+                // is entirely valid.
+                if (c == '\004') {
+                    // How many more chars are there?
+                    int charsLeft = length - (i+1);
+
+                    // Should be no more than 3 additional 4's before the end
+                    if (charsLeft > 3) {
+                        badFormat = true;
+                        break;
+                    }
+                    else {
+                        // Check to see if remaining chars are all 4's. If not, bad.
+                        for (int j=1; j <= charsLeft; j++) {
+                            c = strData[i+j];
+                            if (c != '\004') {
+                                badFormat = true;
+                                goto pastOuterLoop;
+                            }
+                        }
+                        badFormat = false;
+                        break;
+                    }
+                }
+                else {
+                    badFormat = true;
+                    break;
+                }
+            }
+
+            pastOuterLoop:
+
+            // Number of good ASCII chars we have
+            goodChars++;
+        }
+
+        strings.clear();
+
+        if (badFormat) {
+            if (onlyGoodChars) {
+                // Return everything in one String WITHOUT garbage
+                string goodStr(strData.data(), goodChars);
+                strings.push_back(goodStr);
+                return;
+            }
+            // Return everything in one String including possible garbage
+            strings.push_back(strData);
+            return;
+        }
+
+        // If here, raw bytes are in the proper format
+
+        int firstIndex = 0;
+        for (int nullIndex : nullIndexList) {
+            string str(strData.data() + firstIndex, (nullIndex - firstIndex));
+            strings.push_back(str);
+            firstIndex = nullIndex + 1;
+        }
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
 
     /**
      * Substitute environmental variables in a given string
