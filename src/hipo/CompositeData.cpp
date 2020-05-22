@@ -7,21 +7,17 @@
 namespace evio {
 
 
-    /** Zero arg constructor used for cloning. */
-    CompositeData::CompositeData() {}
-
-
-   /**
-    * Constructor used for creating this object from scratch.
-    *
-    * @param format format String defining data
-    * @param data data in given format
-    *
-    * @throws EvioException data or format arg = null;
-    *                       if improper format string
-    */
+    /**
+     * Constructor used for creating this object from scratch.
+     *
+     * @param format format String defining data
+     * @param data data in given format
+     *
+     * @throws EvioException data or format arg = null;
+     *                       if improper format string
+     */
     CompositeData::CompositeData(string & format, const CompositeData::Data & data) :
-        CompositeData(format, data.formatTag, data, data.dataTag, data.dataNum) {}
+            CompositeData(format, data, data.formatTag, data.dataTag, data.dataNum) {}
 
 
     /**
@@ -37,7 +33,7 @@ namespace evio {
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    CompositeData::CompositeData(string & format, uint16_t formatTag, const CompositeData::Data & data,
+    CompositeData::CompositeData(string & format, const CompositeData::Data & data, uint16_t formatTag,
                                  uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
 
         bool debug = false;
@@ -64,19 +60,17 @@ namespace evio {
         nList = data.nlist;
         mList = data.mlist;
 
-        // Create the tag segment
-        EvioTagSegment tagSegment(formatTag, DataType::CHARSTAR8);
-        try {
-        // Add format string
-        tagSegment.appendStringData(format);
-        }
-        catch (EvioException & e) {/* never happen */ }
-        tsHeader = (TagSegmentHeader) tagSegment.getHeader();
+        // CANNOT create EvioTagSegment or EvioBank objects since that will create a
+        // circular dependency between this class and BaseStructure!
+        // That, in turn, will not allow EvioBank or EvioTagSegment to inherit from BaseStructure.
+        // This is where Java really surpasses C++. Find another way write data.
 
-        // Now create data bank
-        EvioBank bank = new EvioBank(dataTag, DataType::COMPOSITE, dataNum);
-        bHeader = (BankHeader) bank.getHeader();
-        bHeader.setPadding(data.getPadding());
+        std::vector<string> strings;
+        strings.push_back(format);
+
+        tsHeader = std::make_shared<TagSegmentHeader>(0, format);
+        bHeader  = std::make_shared<BankHeader>(dataTag, DataType::COMPOSITE, dataNum);
+        bHeader->setPadding(data.getPadding());
 
         // How many bytes do we skip over at the end?
         dataPadding = data.getPadding();
@@ -85,12 +79,12 @@ namespace evio {
         dataBytes = data.getDataSize();
 
         // Set data length in bank header (includes 2nd bank header word)
-        bHeader.setLength(1 + dataBytes/4);
+        bHeader->setLength(1 + dataBytes/4);
 
         // Length of everything except data (32 bit words)
-        dataOffset =  bHeader.getHeaderLength() +
-                      tsHeader.getHeaderLength() +
-                      tsHeader.getLength();
+        dataOffset =  bHeader->getHeaderLength() +
+                     tsHeader->getHeaderLength() +
+                     tsHeader->getLength();
 
         // Length of everything in bytes
         int totalByteLen = dataBytes + 4*dataOffset;
@@ -98,365 +92,355 @@ namespace evio {
         // Create a big enough array to hold everything
         rawBytes.reserve(totalByteLen);
 
-        // Create ByteBuffer object around array
-        ByteBuffer allDataBuffer;
-        allDataBuffer.put(rawBytes, 0, totalByteLen);
-        allDataBuffer.order(byteOrder);
+        // Copy tag segment header (4 bytes) to rawBytes
+        tsHeader->write(rawBytes.data(), byteOrder);
 
-        // Write tagsegment to buffer
-        tagSegment.write(allDataBuffer);
+        // Change tag seg data (format string) into evio format
+        std::vector<uint8_t> bytes;
+        size_t tsBytes = 4*(tsHeader->getLength());
+        bytes.reserve(tsBytes);
+        Util::stringsToRawBytes(strings, bytes);
+
+        // Copy tag segment data to rawBytes vector (char data doesn't need swapping)
+        std::memcpy(rawBytes.data() + 4, bytes.data(), tsBytes);
 
         // Write bank header to buffer
-        bHeader.write(allDataBuffer);
+        bHeader->write(rawBytes.data() + 4 + tsBytes, byteOrder);
 
-        dataBuffer.expand(dataBytes);
-// TODO: MAJOR CHANGE NEEDED HERE
-        // Write data into the dataBuffer
-        dataBuffer.order(byteOrder);
-        dataToRawBytes(dataBuffer, data, formatInts);
-
-        // Set data buffer for completeness
-        dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
-        dataBuffer.order(byteOrder);
+        // Turn CompositeData::Data into evio bytes and copy (without using EvioBank object)
+        ByteBuffer dataBuf(dataBytes);
+        dataToRawBytes(dataBuf, data, formatInts);
+        std::memcpy(rawBytes.data() + 12 + tsBytes, dataBuf.array(), dataBytes);
 
         // How big is the data in bytes (without padding) ?
-        dataBytes -= data.getPadding();
+        dataBytes -= dataPadding;
     }
 
 
     /**
      * Constructor used when reading existing data.
+     * Data is copied in.
      *
-     * @param rawBytes  raw data defining this composite type item
-     * @param byteOrder byte order of rawBytes
+     * @param bytes  raw data defining this composite type item
+     * @param byteOrder byte order of bytes
      */
-    CompositeData::CompositeData(uint8_t *rawBytes, ByteOrder const & byteOrder) {
+    CompositeData::CompositeData(uint8_t *bytes, ByteOrder const & byteOrder) {
 
         bool debug = false;
 
-        if (rawBytes == nullptr) {
+        if (bytes == nullptr) {
             throw EvioException("null argument(s)");
         }
 
-        if (debug) System.out.println("CompositeData constr: incoming byte order = " + byteOrder);
+        if (debug) std::cout << "CompositeData constr: incoming byte order = " << byteOrder.getName() << std::endl;
+        if (debug) std::cout << "Analyzing composite data:" << std::endl;
 
-        if (debug) System.out.println("Analyzing composite data:");
-
-        this->rawBytes  = rawBytes;
         this->byteOrder = byteOrder;
 
         // First read the tag segment header
-        tsHeader = EventParser.createTagSegmentHeader(rawBytes, 0, byteOrder);
+        tsHeader = EventParser::createTagSegmentHeader(bytes, byteOrder);
 
         if (debug) {
-            System.out.println("    tagseg: type = " + Integer.toHexString(tsHeader.getDataTypeValue()) +
-                               ", tag = " + tsHeader.getTag() + ", len = " + tsHeader.getLength());
+            std::cout << "    tagseg: type = 0x" << hex << tsHeader->getDataTypeValue() << dec <<
+                         ", tag = " << tsHeader->getTag() << ", len = " << tsHeader->getLength() << std::endl;
         }
 
         // Hop over tagseg header
-        dataOffset = tsHeader.getHeaderLength();
+        dataOffset = tsHeader->getHeaderLength();
 
         // Read the format string it contains
-        String[] strs = BaseStructure.unpackRawBytesToStrings(rawBytes, 4*dataOffset,
-        4*(tsHeader.getLength()));
+        std::vector<string> strs;
+        Util::unpackRawBytesToStrings(bytes, 4*(tsHeader->getLength()), strs);
 
-        if (strs.length < 1) {
-            throw new EvioException("bad format string data");
+        if (strs.empty()) {
+            throw EvioException("bad format string data");
         }
         format = strs[0];
 
         if (debug) {
-            System.out.println("    format: " + format);
+            std::cout << "    format: " << format << std::endl;
         }
 
-        formatInts = compositeFormatToInt(format);
-        if (formatInts.size() < 1) {
-            throw new EvioException("bad format string data");
+        // Transform string format into int array format
+        std::vector<uint16_t> fmtInts;
+        CompositeData::compositeFormatToInt(format, formatInts);
+        if (formatInts.empty()) {
+            throw EvioException("bad format string data");
         }
 
         // Hop over tagseg data
-        dataOffset += tsHeader.getLength() - (tsHeader.getHeaderLength() - 1);
+        dataOffset += tsHeader->getLength() - (tsHeader->getHeaderLength() - 1);
 
         // Read the data bank header
-        bHeader = EventParser.createBankHeader(rawBytes, 4*dataOffset, byteOrder);
+        bHeader = EventParser::createBankHeader(bytes + 4*dataOffset, byteOrder);
 
         // Hop over bank header
-        dataOffset += bHeader.getHeaderLength();
+        dataOffset += bHeader->getHeaderLength();
 
         // How many bytes do we skip over at the end?
-        dataPadding = bHeader.getPadding();
+        dataPadding = bHeader->getPadding();
 
         // How much data do we have?
-        dataBytes = 4*(bHeader.getLength() - (bHeader.getHeaderLength() - 1)) - dataPadding;
+        dataBytes = 4*(bHeader->getLength() - (bHeader->getHeaderLength() - 1)) - dataPadding;
         if (dataBytes < 2) {
-            throw new EvioException("no composite data");
+            throw EvioException("no composite data");
         }
 
-        int words = (tsHeader.getLength() + bHeader.getLength() + 2);
+        int words = (tsHeader->getLength() + bHeader->getLength() + 2);
 
         if (debug) {
-            System.out.println("    bank: type = " + Integer.toHexString(bHeader.getDataTypeValue()) +
-                               ", tag = " + bHeader.getTag() + ", num = " + bHeader.getNumber());
-            System.out.println("    bank: len (words) = " + bHeader.getLength() +
-                               ", padding = " + dataPadding +
-                               ", data len - padding = " + dataBytes +
-                               ", total printed words = " + words);
+            std::cout << "    bank: type = 0x" << hex << bHeader->getDataTypeValue() << dec <<
+                               ", tag = " << bHeader->getTag() << ", num = " << bHeader->getNumber() << std::endl;
+            std::cout << "    bank: len (words) = " << bHeader->getLength() <<
+                               ", padding = " << dataPadding <<
+                               ", data len - padding = " << dataBytes <<
+                               ", total printed words = " << words << std::endl;
         }
 
-        // Put data into ByteBuffer object
-        dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, dataBytes).slice();
-        dataBuffer.order(byteOrder);
+        // Copy data over
+        size_t totalBytes = 4*dataOffset + dataBytes + dataPadding;
+        rawBytes.reserve(totalBytes);
+        std::memcpy(rawBytes.data(), bytes, totalBytes);
 
-        // Turn dataBuffer into list of items and their types
+        // Turn raw bytes into list of items and their types
         process();
     }
 
 
     /**
-     * This method parses an array of raw bytes into an array of CompositeData objects.
+     * This method parses an array of raw bytes into an vector of CompositeData objects.
+     * Vector is initially cleared.
      *
-     * @param rawBytes  array of raw bytes to parse
-     * @param byteOrder byte order of raw bytes
-     * @return array of CompositeData objects obtained from parsing rawBytes. If none, return null.
+     * @param bytes     array of raw bytes to parse.
+     * @param bytesSize size in bytes of bytes.
+     * @param order     byte order of raw bytes.
+     * @param list      vector that will hold all parsed CompositeData objects.
+     * @return array of CompositeData objects obtained from parsing bytes. If none, return null.
      * @throws EvioException if null args or bad format of raw data
      */
-    CompositeData::CompositeData[] parse(uint8_t rawBytes[], ByteOrder byteOrder) {
+    void CompositeData::parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
+                              std::vector<std::shared_ptr<CompositeData>> & list) {
 
         bool debug = false;
 
-        if (rawBytes == null) {
+        if (bytes == nullptr) {
             throw EvioException("null argument(s)");
         }
 
-        if (debug) System.out.println("CompositeData parse: incoming byte order = " + byteOrder);
+        if (debug) std::cout << "CompositeData parse: incoming byte order = " << order.getName() << std::endl;
+        if (debug) std::cout << "Analyzing composite data:" << std::endl;
 
-        if (byteOrder == null) {
-            byteOrder = ByteOrder.BIG_ENDIAN;
-        }
+        // Get list ready
+        list.clear();
+        list.reserve(100);
 
-        if (debug) System.out.println("Analyzing composite data:");
-
-        // List containing all parsed CompositeData objects
-        ArrayList<CompositeData> list = new ArrayList<CompositeData>(100);
         // How many bytes have we read for the current CompositeData object?
-        int byteCount;
-        // Offset into the given rawBytes array for the current CompositeData object
-        int rawBytesOffset = 0;
-        // How many unused bytes are left in the given rawBytes array?
-        int rawBytesLeft = rawBytes.length;
+        size_t byteCount;
+        // Offset into the given bytes array for the current CompositeData object
+        size_t rawBytesOffset = 0;
+        // How many unused bytes are left in the given bytes array?
+        size_t rawBytesLeft = bytesSize;
 
-        if (debug) System.out.println("    CD raw byte count = " + rawBytesLeft);
+        if (debug) std::cout << "    CD raw byte count = " << rawBytesLeft << std::endl;
 
         // Parse while we still have bytes to read ...
         while (rawBytesLeft > 0) {
 
+            // bytes read for the current CD object
             byteCount = 0;
 
             // Create and fill new CompositeData object
-            CompositeData cd = new CompositeData();
-            cd.byteOrder = byteOrder;
+            auto cd = std::make_shared<CompositeData>();
+            cd->byteOrder = order;
 
             // First read the tag segment header
-            cd.tsHeader = EventParser.createTagSegmentHeader(rawBytes, rawBytesOffset, byteOrder);
-            byteCount += 4*(cd.tsHeader.getLength() + 1);
+            cd->tsHeader = EventParser::createTagSegmentHeader(bytes + rawBytesOffset, order);
+            byteCount += 4*(cd->tsHeader->getLength() + 1);
 
             if (debug) {
-                System.out.println("    tagseg: type = " + cd.tsHeader.getDataType() +
-                                   ", tag = " + cd.tsHeader.getTag() + ", len = " + cd.tsHeader.getLength());
+                std::cout << "    tagseg: type = " << cd->tsHeader->getDataType().toString() <<
+                             ", tag = " << cd->tsHeader->getTag() <<
+                             ", len = " << cd->tsHeader->getLength() << std::endl;
             }
 
-            // Hop over tagseg header
-            cd.dataOffset = cd.tsHeader.getHeaderLength();
+            // Hop over tagseg header (use cd->dataOffset for other purposes temporarily)
+            cd->dataOffset = cd->tsHeader->getHeaderLength();
 
             // Read the format string it contains
-            String[] strs = BaseStructure.unpackRawBytesToStrings(rawBytes, rawBytesOffset + 4*cd.dataOffset,
-                                                                  4*(cd.tsHeader.getLength()));
-
-            if (strs.length < 1) {
-                throw new EvioException("bad format string data");
+            std::vector<string> strs;
+            Util::unpackRawBytesToStrings(bytes + rawBytesOffset + 4*(cd->dataOffset),
+                                          4*(cd->tsHeader->getLength()), strs);
+            if (strs.empty()) {
+                throw EvioException("bad format string data");
             }
-            cd.format = strs[0];
+            cd->format = strs[0];
 
             if (debug) {
-                System.out.println("    format: " + cd.format);
+                std::cout << "    format: " << cd->format << std::endl;
             }
 
             // Chew on format string & spit out array of ints
-            cd.formatInts = compositeFormatToInt(cd.format);
-            if (cd.formatInts.size() < 1) {
-                throw new EvioException("bad format string data");
+            CompositeData::compositeFormatToInt(cd->format, cd->formatInts);
+            if (cd->formatInts.empty()) {
+                throw EvioException("bad format string data");
             }
 
             // Hop over tagseg (format string) data
-            cd.dataOffset = cd.tsHeader.getLength() + 1;
+            cd->dataOffset = cd->tsHeader->getLength() + 1;
 
             // Read the data bank header
-            cd.bHeader = EventParser.createBankHeader(rawBytes, rawBytesOffset + 4*cd.dataOffset, byteOrder);
-            byteCount += 4*(cd.bHeader.getLength() + 1);
+            cd->bHeader = EventParser::createBankHeader(bytes + rawBytesOffset + 4*(cd->dataOffset), order);
+            byteCount += 4*(cd->bHeader->getLength() + 1);
 
             // Hop over bank header
-            cd.dataOffset += cd.bHeader.getHeaderLength();
+            cd->dataOffset += cd->bHeader->getHeaderLength();
 
             // How many bytes do we skip over at the end?
-            cd.dataPadding = cd.bHeader.getPadding();
+            cd->dataPadding = cd->bHeader->getPadding();
 
             // How much real data do we have (without padding)?
-            cd.dataBytes = 4*(cd.bHeader.getLength() - (cd.bHeader.getHeaderLength() - 1)) - cd.dataPadding;
-            if (cd.dataBytes < 2) {
-                throw new EvioException("no composite data");
+            cd->dataBytes = 4*(cd->bHeader->getLength() - (cd->bHeader->getHeaderLength() - 1)) - cd->dataPadding;
+            if (cd->dataBytes < 2) {
+                throw EvioException("no composite data");
             }
 
             if (debug) {
-                System.out.println("    bank: type = " + cd.bHeader.getDataType() +
-                                   ", tag = " + cd.bHeader.getTag() +
-                                   ", num = " + cd.bHeader.getNumber() +
-                                   ", pad = " + cd.dataPadding);
-                System.out.println("    bank: len (words) = " + cd.bHeader.getLength() +
-                                   ", data len - padding (bytes) = " + cd.dataBytes);
+                std::cout << "    bank: type = " << cd->bHeader->getDataType().toString() <<
+                             ", tag = " << cd->bHeader->getTag() <<
+                             ", num = " << cd->bHeader->getNumber() <<
+                             ", pad = " << cd->dataPadding << std::endl;
+                std::cout << "    bank: len (words) = " << cd->bHeader->getLength() <<
+                             ", data len - padding (bytes) = " << cd->dataBytes << std::endl;
             }
 
             // Make copy of only the rawbytes for this CompositeData object (including padding)
-            cd.rawBytes = new byte[byteCount];
-            System.arraycopy(rawBytes, rawBytesOffset, cd.rawBytes, 0, byteCount);
-
-            // Put only actual data into ByteBuffer object
-            cd.dataBuffer = ByteBuffer.wrap(cd.rawBytes, 4*cd.dataOffset, cd.dataBytes).slice();
-            cd.dataBuffer.order(byteOrder);
+            cd->rawBytes.reserve(byteCount);
+            std::memcpy(cd->rawBytes.data(), bytes + rawBytesOffset, byteCount);
 
             // Turn dataBuffer into list of items and their types
-            cd.process();
+            cd->process();
 
             // Add to this CompositeData object to list
-            list.add(cd);
+            list.push_back(cd);
 
             // Track how many raw bytes we have left to parse
-            rawBytesLeft   -= byteCount;
+            rawBytesLeft -= byteCount;
 
-            // Offset into rawBytes of next CompositeData object
+            // Offset into "bytes" of next CompositeData object
             rawBytesOffset += byteCount;
-            if (debug) System.out.println("    CD raw byte count = " + rawBytesLeft +
-                                          ", raw byte offset = " + rawBytesOffset);
-        }
-
-        int size = list.size();
-        if (size > 0) {
-            // Turn list into array
-            CompositeData[] cdArray = new CompositeData[size];
-            return list.toArray(cdArray);
-        }
-
-        return null;
-}
-
-/**
- * This method generates raw bytes of evio format from an array of CompositeData objects.
- * The returned array consists of gluing together all the individual objects' rawByte arrays.
- * All CompositeData element must be of the same byte order.
- *
- * @param data  array of CompositeData object to turn into bytes
- * @return array of raw, evio format bytes; null if arg is null or empty
- * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit);
- *                       array elements have different byte order.
- */
-uint8_t * CompositeData::generateRawBytes(CompositeData data[]) {
-
-        if (data == null || data.length < 1) {
-            return null;
-        }
-
-        ByteOrder order = data[0].byteOrder;
-
-        // Get a total length (# bytes)
-        int totalLen = 0, len;
-        for (CompositeData cd : data) {
-            if (cd.byteOrder != order) {
-                throw new EvioException("all array elements must have same byte order");
+            if (debug) {
+                std::cout << "    CD raw byte count = " << rawBytesLeft <<
+                             ", raw byte offset = " << rawBytesOffset << std::endl;
             }
-            len = cd.getRawBytes().length;
-            if (Integer.MAX_VALUE - totalLen < len) {
-                throw new EvioException("added data overflowed containing structure");
-            }
-            totalLen += len;
-        }
-
-        // Allocate an array
-        byte[] rawBytes = new byte[totalLen];
-
-        // Copy everything in
-        int offset = 0;
-        for (CompositeData cd : data) {
-            len = cd.getRawBytes().length;
-            System.arraycopy(cd.getRawBytes(), 0, rawBytes, offset, len);
-            offset += len;
-        }
-
-        return rawBytes;
-}
-
-
-/**
- * Method to clone a CompositeData object.
- * Deep cloned so no connection exists between
- * clone and object cloned.
- *
- * @return cloned CompositeData object.
- */
-Object CompositeData::clone() {
-
-    CompositeData cd = new CompositeData();
-
-    cd.getIndex   = getIndex;
-    cd.byteOrder  = byteOrder;
-    cd.dataBytes  = dataBytes;
-    cd.dataOffset = dataOffset;
-    cd.rawBytes   = rawBytes.clone();
-
-    // copy tagSegment header
-    cd.tsHeader = new TagSegmentHeader(tsHeader.getTag(),
-                                       tsHeader.getDataType());
-
-    // copy bank header
-    cd.bHeader = new BankHeader(bHeader.getTag(),
-                                bHeader.getDataType(),
-                                bHeader.getNumber());
-
-    // copy ByteBuffer
-    cd.dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, 4*bHeader.getLength()).slice();
-    cd.dataBuffer.order(byteOrder);
-
-    // copy format ints
-    cd.formatInts = new ArrayList<Integer>(formatInts.size());
-    cd.formatInts.addAll(formatInts);
-
-    // copy type items
-    cd.types = new ArrayList<DataType>(types.size());
-    cd.types.addAll(types);
-
-    //-----------------
-    // copy data items
-    //-----------------
-
-    // create new list of correct length
-    int listLength = items.size();
-    cd.items = new ArrayList<Object>(listLength);
-
-    // copy each item, cloning those that are mutable
-    for (int i=0; i < listLength; i++) {
-        switch (types.get(i)) {
-            // this is the only mutable type and so
-            // it needs to be cloned specifically
-            case CHARSTAR8:
-                String[] strs = (String[]) items.get(i);
-                cd.items.add(strs.clone());
-                break;
-            default:
-                cd.items.add(items.get(i));
         }
     }
 
-    return cd;
-}
+    /**
+     * This method generates raw bytes of evio format from a vector of CompositeData objects.
+     * The returned vector consists of gluing together all the individual objects' rawByte arrays.
+     * All CompositeData element must be of the same byte order.
+     *
+     * @param data     vector of CompositeData objects to turn into bytes.
+     * @param rawBytes vector of raw, evio format bytes.
+     * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit);
+     *                       array elements have different byte order.
+     */
+    void CompositeData::generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
+                                         std::vector<uint8_t> & rawBytes) {
 
+        if (data.empty()) {
+            return;
+        }
+
+        ByteOrder order = data[0]->byteOrder;
+
+        // Get a total length (# bytes)
+        size_t totalLen = 0, len;
+        for (auto const & cd : data) {
+            if (cd->byteOrder != order) {
+                throw EvioException("all array elements must have same byte order");
+            }
+            len = cd->getRawBytes().size();
+            totalLen += len;
+        }
+
+        // Prepare vector
+        rawBytes.clear();
+        rawBytes.reserve(totalLen);
+
+        // Copy everything in
+        int offset = 0;
+        for (auto const & cd : data) {
+            len = cd->getRawBytes().size();
+            std::memcpy(rawBytes.data() + offset, cd->rawBytes.data(), len);
+            offset += len;
+        }
+    }
+
+//
+///**
+// * Method to clone a CompositeData object.
+// * Deep cloned so no connection exists between
+// * clone and object cloned.
+// *
+// * @return cloned CompositeData object.
+// */
+//Object CompositeData::clone() {
+//
+//    CompositeData cd = new CompositeData();
+//
+//    cd.getIndex   = getIndex;
+//    cd.byteOrder  = byteOrder;
+//    cd.dataBytes  = dataBytes;
+//    cd.dataOffset = dataOffset;
+//    cd.rawBytes   = rawBytes.clone();
+//
+//    // copy tagSegment header
+//    cd.tsHeader = new TagSegmentHeader(tsHeader.getTag(),
+//                                       tsHeader.getDataType());
+//
+//    // copy bank header
+//    cd.bHeader = new BankHeader(bHeader.getTag(),
+//                                bHeader.getDataType(),
+//                                bHeader.getNumber());
+//
+//    // copy ByteBuffer
+//    cd.dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, 4*bHeader.getLength()).slice();
+//    cd.dataBuffer.order(byteOrder);
+//
+//    // copy format ints
+//    cd.formatInts = new ArrayList<Integer>(formatInts.size());
+//    cd.formatInts.addAll(formatInts);
+//
+//    // copy type items
+//    cd.types = new ArrayList<DataType>(types.size());
+//    cd.types.addAll(types);
+//
+//    //-----------------
+//    // copy data items
+//    //-----------------
+//
+//    // create new list of correct length
+//    int listLength = items.size();
+//    cd.items = new ArrayList<Object>(listLength);
+//
+//    // copy each item, cloning those that are mutable
+//    for (int i=0; i < listLength; i++) {
+//        switch (types.get(i)) {
+//            // this is the only mutable type and so
+//            // it needs to be cloned specifically
+//            case CHARSTAR8:
+//                String[] strs = (String[]) items.get(i);
+//                cd.items.add(strs.clone());
+//                break;
+//            default:
+//                cd.items.add(items.get(i));
+//        }
+//    }
+//
+//    return cd;
+//}
+//
 
 
 
@@ -479,7 +463,7 @@ Object CompositeData::clone() {
 string CompositeData::stringsToFormat(std::vector<string> strings) {
 
     std::vector<uint8_t> bytes;
-    BaseStructure::stringsToRawBytes(strings, bytes);
+    Util::stringsToRawBytes(strings, bytes);
     if (!bytes.empty()) {
         return std::to_string(bytes.size()) + "a";
     }
@@ -515,7 +499,7 @@ std::vector<uint8_t> CompositeData::getRawBytes() {return rawBytes;}
  * This method gets a list of all the data items inside the composite.
  * @return list of all the data items inside the composite.
  */
-std::vector<CompositeData::DataItemMember> CompositeData::getItems() {return items;}
+std::vector<CompositeData::DataItem> CompositeData::getItems() {return items;}
 
 /**
  * This method gets a list of all the types of the data items inside the composite.
@@ -539,7 +523,7 @@ std::vector<int16_t> CompositeData::getnValues() {return nList;}
  * This method gets a list of all the m values of the data items inside the composite.
  * @return list of all the m values of the data items inside the composite.
  */
-std::vector<uint8_t> CompositeData::getmValues() {return mList;}
+std::vector<int8_t> CompositeData::getmValues() {return mList;}
 
 /**
  * This methods returns the index of the data item to be returned
@@ -568,7 +552,7 @@ void CompositeData::index(int index) {this->getIndex = index;}
 int32_t CompositeData::getNValue() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::NVALUE) {throw EvioException("wrong data type");}
-    return (items[getIndex++].i32);
+    return (items[getIndex++].item.i32);
 }
 
 /**
@@ -580,7 +564,7 @@ int32_t CompositeData::getNValue() {
 int16_t CompositeData::getnValue() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::nVALUE) {throw EvioException("wrong data type");}
-    return (items[getIndex++].s16);
+    return (items[getIndex++].item.s16);
 }
 
 /**
@@ -592,7 +576,7 @@ int16_t CompositeData::getnValue() {
 int8_t CompositeData::getmValue() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::mVALUE) {throw EvioException("wrong data type");}
-    return (items[getIndex++].b8);
+    return (items[getIndex++].item.b8);
 }
 
 /**
@@ -604,7 +588,7 @@ int8_t CompositeData::getmValue() {
 int32_t CompositeData::getHollerit() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::HOLLERIT) {throw EvioException("wrong data type");}
-    return (items[getIndex++].i32);
+    return (items[getIndex++].item.i32);
 }
 
 
@@ -617,7 +601,7 @@ int32_t CompositeData::getHollerit() {
 int8_t CompositeData::getChar() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::CHAR8) {throw EvioException("wrong data type");}
-    return (items[getIndex++].b8);
+    return (items[getIndex++].item.b8);
 }
 
 /**
@@ -629,7 +613,7 @@ int8_t CompositeData::getChar() {
 uint8_t CompositeData::getUChar() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::UCHAR8) {throw EvioException("wrong data type");}
-    return (items[getIndex++].ub8);
+    return (items[getIndex++].item.ub8);
 }
 
 /**
@@ -641,7 +625,7 @@ uint8_t CompositeData::getUChar() {
 int16_t CompositeData::getShort() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::SHORT16) {throw EvioException("wrong data type");}
-    return (items[getIndex++].s16);
+    return (items[getIndex++].item.s16);
 }
 
 /**
@@ -653,7 +637,7 @@ int16_t CompositeData::getShort() {
 uint16_t CompositeData::getUShort() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::USHORT16) {throw EvioException("wrong data type");}
-    return (items[getIndex++].us16);
+    return (items[getIndex++].item.us16);
 }
 
 /**
@@ -665,7 +649,7 @@ uint16_t CompositeData::getUShort() {
 int32_t CompositeData::getInt() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::INT32) {throw EvioException("wrong data type");}
-    return (items[getIndex++].i32);
+    return (items[getIndex++].item.i32);
 }
 
 /**
@@ -674,10 +658,10 @@ int32_t CompositeData::getInt() {
  * @throws underflow_error if at end of data.
  * @throws EvioException if data is not uint32_t.
  */
-int32_t CompositeData::getUInt() {
+uint32_t CompositeData::getUInt() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::UINT32) {throw EvioException("wrong data type");}
-    return (items[getIndex++].ui32);
+    return (items[getIndex++].item.ui32);
 }
 
 /**
@@ -689,7 +673,7 @@ int32_t CompositeData::getUInt() {
 int64_t CompositeData::getLong() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::LONG64) {throw EvioException("wrong data type");}
-    return (items[getIndex++].l64);
+    return (items[getIndex++].item.l64);
 }
 
 /**
@@ -701,7 +685,7 @@ int64_t CompositeData::getLong() {
 uint64_t CompositeData::getULong() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::ULONG64) {throw EvioException("wrong data type");}
-    return (items[getIndex++].ul64);
+    return (items[getIndex++].item.ul64);
 }
 
 /**
@@ -713,7 +697,7 @@ uint64_t CompositeData::getULong() {
 float CompositeData::getFloat() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::FLOAT32) {throw EvioException("wrong data type");}
-    return (items[getIndex++].flt);
+    return (items[getIndex++].item.flt);
 }
 
 /**
@@ -725,7 +709,7 @@ float CompositeData::getFloat() {
 double CompositeData::getDouble() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::DOUBLE64) {throw EvioException("wrong data type");}
-    return (items[getIndex++].dbl);
+    return (items[getIndex++].item.dbl);
 }
 
 /**
@@ -737,6 +721,7 @@ double CompositeData::getDouble() {
 std::vector<string> CompositeData::getStrings() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::CHARSTAR8) {throw EvioException("wrong data type");}
+    items[getIndex].item.str = true;
     return (items[getIndex++].strVec);
  }
 
@@ -935,7 +920,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                     if (nb==4)      ifmtVal |= (1 << 14);
                     else if (nb==2) ifmtVal |= (2 << 14);
                     else if (nb==1) ifmtVal |= (3 << 14);
-                    else {throw EvioException("unknown nb=" + nb);}
+                    else {throw EvioException("unknown nb=" + std::to_string(nb));}
                 }
 
                 ifmt.push_back(ifmtVal);
@@ -964,23 +949,17 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
 }
 
 
-
-
-
-
-/**
-  * This method swaps the data of this composite type between big &
-  * little endian. It swaps the entire type including the beginning tagsegment
-  * header, the following format string it contains, the data's bank header,
-  * and finally the data itself.
-  *
-  * @throws EvioException if internal error
-  */
-void CompositeData::swap() {
-            swapAll(rawBytes, 0, nullptr, 0, rawBytes.size()/4, byteOrder);
-            byteOrder = (byteOrder == ByteOrder::ENDIAN_LITTLE) ?
-                            ByteOrder::ENDIAN_BIG : ByteOrder::ENDIAN_LITTLE;
-            dataBuffer.order(byteOrder);
+    /**
+      * This method swaps the data of this composite type between big &
+      * little endian. It swaps the entire type including the beginning tagsegment
+      * header, the following format string it contains, the data's bank header,
+      * and finally the data itself.
+      *
+      * @throws EvioException if internal error
+      */
+    void CompositeData::swap() {
+        swapAll(rawBytes.data(), nullptr, rawBytes.size()/4, byteOrder.isLocalEndian());
+        byteOrder = byteOrder.getOppositeEndian();
     }
 
 
@@ -994,12 +973,12 @@ void CompositeData::swap() {
      * @param src      source data pointer.
      * @param dest     destination data pointer.
      * @param length   length of data array in 32 bit words.
-     * @param srcOrder the byte order of src data.
+     * @param srcIsLocal true if the byte order of src data is the same as the node's.
      *
-     * @throws EvioException if offsets or length < 0; if src = null;
+     * @throws EvioException if offsets or length &lt; 0; if src = null;
      *                       if src or dest is too small
      */
-    void swapAll (int32_t *src, int32_t *dest, size_t length, bool srcIsLocal) {
+    void CompositeData::swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal) {
 
         if (src == nullptr) {
             throw EvioException("src pointer null");
@@ -1015,6 +994,8 @@ void CompositeData::swap() {
             throw EvioException("length must be >= 4");
         }
 
+        size_t srcOff=0, destOff=0;
+
         // Byte order
         ByteOrder srcOrder = ByteOrder::ENDIAN_LOCAL;
         if (!srcIsLocal) {
@@ -1023,106 +1004,104 @@ void CompositeData::swap() {
         ByteOrder destOrder = srcOrder.getOppositeEndian();
 
         // How many unused bytes are left in the src array?
-        int srcBytesLeft = 4*length;
-
-
-
-
-        // Wrap input & output arrays in ByteBuffers for convenience
-        ByteBuffer  srcBuffer = ByteBuffer.wrap( src, srcOff,  4*length);
-        ByteBuffer destBuffer = ByteBuffer.wrap(dest, destOff, 4*length);
-
-        // Here is where we do some of the swapping
-        srcBuffer.order(srcOrder);
-        destBuffer.order(destOrder);
+        size_t totalBytes   = 4*length;
+        size_t srcBytesLeft = totalBytes;
 
         // How many bytes taken for this CompositeData object?
-        int dataOffset = 0;
-//System.out.println("start src offset = " + (srcOff + dataOffset));
+        size_t dataOff = 0;
 
-        // First read the tag segment header
-        TagSegmentHeader tsHeader = EventParser.createTagSegmentHeader(src, srcOff + dataOffset, srcOrder);
-        int headerLen  = tsHeader.getHeaderLength();
-        int dataLength = tsHeader.getLength() - (headerLen - 1);
 
-//System.out.println("tag len = " + tsHeader.getLength() + ", dataLen = " + dataLength);
+        while (srcBytesLeft > 0) {
+//System.out.println("start src offset = " + (srcOff + dataOff));
 
-        // Oops, no format data
-        if (dataLength < 1) {
-            throw EvioException("no format data");
-        }
+            // First read the tag segment header
+            auto tsegHeader = EventParser::createTagSegmentHeader(src + srcOff, srcOrder);
+            uint32_t headerLen  = tsegHeader->getHeaderLength();
+            uint32_t dataLength = tsegHeader->getLength() - (headerLen - 1);
 
-        // Got all we needed from the tagseg header, now swap as it's written out.
-        tsHeader.write(destBuffer);
+//System.out.println("tag len = " + tsegHeader.getLength() + ", dataLen = " + dataLength);
 
-        // Move to beginning of string data
-        dataOffset += 4*headerLen;
+            // Oops, no format data
+            if (dataLength < 1) {
+                throw EvioException("no format data");
+            }
 
-        // Read the format string it contains
-        String[] strs = BaseStructure.unpackRawBytesToStrings(src, srcOff + dataOffset,
-                                                              4*(tsHeader.getLength()));
+            // Got all we needed from the tagseg header, now swap as it's written out.
+            tsegHeader->write(dest + destOff + 4, destOrder);
 
-        if (strs.length < 1) {
-            throw EvioException("bad format string data");
-        }
-        String format = strs[0];
+            // Move to beginning of string data
+            srcOff  += 4*headerLen;
+            destOff += 4*headerLen;
+            dataOff += 4*headerLen;
 
-        // Transform string format into int array format
-        List<Integer> formatInts = compositeFormatToInt(format);
-        if (formatInts.size() < 1) {
-            throw EvioException("bad format string data");
-        }
+            // Read the format string it contains
+            std::vector<string> strs;
+            Util::unpackRawBytesToStrings(src + srcOff, 4*(tsegHeader->getLength()), strs);
 
-        // Char data does not get swapped but needs
-        // to be copied if not swapping in place.
-        if (!inPlace) {
-            System.arraycopy(src,   srcOff + dataOffset,
-                             dest, destOff + dataOffset, 4*dataLength);
-        }
+            if (strs.empty()) {
+                throw EvioException("bad format string data");
+            }
+            string fmt = strs[0];
 
-        // Move to beginning of bank header
-        dataOffset += 4*dataLength;
+            std::vector<uint16_t> fmtInts;
+            CompositeData::compositeFormatToInt(fmt, fmtInts);
+            if (fmtInts.empty()) {
+                throw EvioException("bad format string data");
+            }
 
-        // Read the data bank header
-        BankHeader bHeader = EventParser.createBankHeader(src, srcOff + dataOffset, srcOrder);
-        headerLen  = bHeader.getHeaderLength();
-        dataLength = bHeader.getLength() - (headerLen - 1);
+            // Char data does not get swapped but needs
+            // to be copied if not swapping in place.
+            if (!inPlace) {
+                std::memcpy(dest + destOff, src + srcOff, 4*dataLength);
+            }
 
-//System.out.println("swapAll: bank len = " + bHeader.getLength() + ", dataLen = " + dataLength +
-//", tag = " + bHeader.getTag() + ", num = " + bHeader.getNumber() + ", type = " + bHeader.getDataTypeName() +
-//", pad = " + bHeader.getPadding());
+            // Move to beginning of bank header
+            srcOff  += 4*dataLength;
+            destOff += 4*dataLength;
+            dataOff += 4*dataLength;
 
-        // Oops, no data
-        if (dataLength < 1) {
-            throw new EvioException("no data");
-        }
+            // Read the data bank header
+            auto bnkHeader = EventParser::createBankHeader(src + srcOff, srcOrder);
+            headerLen  = bnkHeader->getHeaderLength();
+            dataLength = bnkHeader->getLength() - (headerLen - 1);
 
-        // Adjust data length by switching units from
-        // ints to bytes and accounting for padding.
-        int padding = bHeader.getPadding();
-        dataLength = 4*dataLength - padding;
+//System.out.println("swapAll: bank len = " + bnkHeader.getLength() + ", dataLen = " + dataLength +
+//", tag = " + bnkHeader.getTag() + ", num = " + bnkHeader.getNumber() + ", type = " + bnkHeader.getDataTypeName() +
+//", pad = " + bnkHeader.getPadding());
 
-        // Got all we needed from the bank header, now swap as it's written out.
-        destBuffer.position(destOff + dataOffset);
-        bHeader.write(destBuffer);
+            // Oops, no data
+            if (dataLength < 1) {
+                throw EvioException("no data");
+            }
 
-        // Move to beginning of data
-        dataOffset += 4*headerLen;
-        srcBuffer.position(  srcOff + dataOffset);
-        destBuffer.position(destOff + dataOffset);
+            uint32_t padding = bnkHeader->getPadding();
 
-        // Swap data
-        swapData(srcBuffer, destBuffer, dataLength, formatInts);
+            // Got all we needed from the bank header, now swap as it's written out.
+            bnkHeader->write(dest + destOff + 8, destOrder);
 
-        // Set buffer positions and offset
-        dataOffset += dataLength;
-        srcBuffer.position( srcOff + dataOffset);
-        destBuffer.position(srcOff + dataOffset);
+            // Move to beginning of data
+            srcOff  += 4*headerLen;
+            destOff += 4*headerLen;
+            dataOff += 4*headerLen;
 
-        srcBytesLeft -= dataOffset + padding;
+            // Swap data
+            CompositeData::swapData(reinterpret_cast<int32_t *>(src), reinterpret_cast<int32_t *>(dest),
+                                    dataLength, fmtInts, padding, srcIsLocal);
 
-//System.out.println("bytes left = " + srcBytesLeft + ", padding = " + padding);
+            // Adjust data length by switching units from
+            // ints to bytes and accounting for padding.
+            dataLength = 4*dataLength;
+
+            // Set buffer positions and offset
+            srcOff  += dataLength;
+            destOff += dataLength;
+            dataOff += dataLength;
+
+            srcBytesLeft = totalBytes - dataOff;
+
+//System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOff + ", padding = " + padding);
 //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
+        }
 
         // Oops, things aren't coming out evenly
         if (srcBytesLeft != 0) {
@@ -1131,11 +1110,13 @@ void CompositeData::swap() {
     }
 
 
+
     /**
      * This method converts (swaps) a buffer, containing EVIO composite type,
      * between big & little endian. It swaps the entire type including the beginning
      * tagsegment header, the following format string it contains, the data's bank header,
-     * and finally the data itself.<p>
+     * and finally the data itself. The src buffer may contain an array of
+     * composite type items and all will be swapped.<p>
      * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
      * @param srcBuffer   source data buffer
@@ -1157,86 +1138,94 @@ void CompositeData::swap() {
             throw EvioException("len arg must be >= 4");
         }
 
+        if (4*len > destBuffer.limit() - destPos) {
+            throw EvioException("not enough room in destination buffer");
+        }
+
         // Bytes to swap
-        int srcBytesLeft = 4*len;
-        int dataOffset, byteLen;
-
+        uint32_t totalBytes   = 4*len;
+        uint32_t srcBytesLeft = totalBytes;
+        uint32_t dataOff, byteLen;
         // Initialize
-        dataOffset = 0;
+        dataOff = 0;
 
-        // Read & swap string tagsegment header
-        EvioNode node;
-        Util::swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+        while (srcBytesLeft > 0) {
 
-        // Move to beginning of string data
-        srcPos     += 4;
-        destPos    += 4;
-        dataOffset += 4;
+            // Read & swap string tagsegment header
+            EvioNode node;
+            Util::swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
-        // String data length in bytes
-        byteLen = 4*node.getDataLength();
+            // Move to beginning of string data
+            srcPos  += 4;
+            destPos += 4;
+            dataOff += 4;
 
-        // Read the format string it contains
-        std::vector<string> strs;
-        BaseStructure::unpackRawBytesToStrings(srcBuffer, srcPos, byteLen, strs);
+            // String data length in bytes
+            byteLen = 4*node.getDataLength();
 
-        if (strs.empty()) {
-            throw EvioException("bad format string data");
-        }
-        string format = strs[0];
+            // Read the format string it contains
+            std::vector<string> strs;
+            Util::unpackRawBytesToStrings(srcBuffer, srcPos, byteLen, strs);
 
-        // Transform string format into int array format
-        std::vector<uint16_t> formatInts;
-        CompositeData::compositeFormatToInt(format, formatInts);
-        if (formatInts.empty()) {
-            throw EvioException("bad format string data");
-        }
-
-        // Char data does not get swapped but needs
-        // to be copied if not swapping in place.
-        if (!inPlace) {
-            for (int i=0; i < byteLen; i++) {
-                destBuffer.put(destPos+i, srcBuffer.getByte(srcPos+i));
+            if (strs.empty()) {
+                throw EvioException("bad format string data");
             }
+            string fmt = strs[0];
+
+            // Transform string format into int array format
+            std::vector<uint16_t> fmtInts;
+            CompositeData::compositeFormatToInt(fmt, fmtInts);
+            if (fmtInts.empty()) {
+                throw EvioException("bad format string data");
+            }
+
+            // Char data does not get swapped but needs
+            // to be copied if not swapping in place.
+            if (!inPlace) {
+                for (int i=0; i < byteLen; i++) {
+                    destBuffer.put(destPos+i, srcBuffer.getByte(srcPos+i));
+                }
+            }
+
+            // Move to beginning of bank header
+            srcPos  += byteLen;
+            destPos += byteLen;
+            dataOff += byteLen;
+
+            // Read & swap data bank header
+            Util::swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+
+            // Oops, no data
+            if (node.getDataLength() < 1) {
+                throw EvioException("no data");
+            }
+
+            // Move to beginning of bank data
+            srcPos  += 8;
+            destPos += 8;
+            dataOff += 8;
+
+            // Bank data length in bytes
+            byteLen = 4*node.getDataLength();
+
+            // Swap data (accounting for padding)
+            CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.getPad()), fmtInts);
+
+            // Move past bank data
+            srcPos    += byteLen;
+            destPos   += byteLen;
+            dataOff   += byteLen;
+            srcBytesLeft  = totalBytes - dataOff;
+
+            //std::cout << "bytes left = " << srcBytesLeft << std::endl;
+            //std::cout << "src pos = " << srcBuffer.position() << ", dest pos = " << destBuffer.position() << std::endl;
         }
-
-        // Move to beginning of bank header
-        srcPos     += byteLen;
-        destPos    += byteLen;
-        dataOffset += byteLen;
-
-        // Read & swap data bank header
-        Util::swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
-
-        // Oops, no data
-        if (node.getDataLength() < 1) {
-            throw EvioException("no data");
-        }
-
-        // Move to beginning of bank data
-        srcPos     += 8;
-        destPos    += 8;
-        dataOffset += 8;
-
-        // Bank data length in bytes
-        byteLen = 4*node.getDataLength();
-
-        // Swap data (accounting for padding)
-        CompositeData::swapData(srcBuffer, destBuffer, srcPos, destPos, (byteLen - node.getPad()), formatInts);
-
-        // Move past bank data
-        dataOffset   += byteLen;
-        srcBytesLeft -= dataOffset;
-
-        //std::cout << "bytes left = " << srcBytesLeft << std::endl;
-        //std::cout << "src pos = " << srcBuffer.position() << ", dest pos = " << destBuffer.position() << std::endl;
 
         // Oops, things aren't coming out evenly
         if (srcBytesLeft != 0) {
             throw EvioException("bad format");
         }
     }
-
 
 
     /**
@@ -2354,18 +2343,18 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
 //}
 
 
-/**
- * This method takes a CompositeData object and a transformed format string
- * and uses that to write data into a buffer/array in raw form.
- *
- * @param rawBuf   data buffer in which to put the raw bytes
- * @param data     data to convert to raw bytes
- * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
- *
- * @throws EvioException if ifmt size <= 0; if srcBuf or destBuf is too
- *                       small; not enough dataItems for the given format
- */
-void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & data,
+    /**
+     * This method takes a CompositeData object and a transformed format string
+     * and uses that to write data into a buffer/array in raw form.
+     *
+     * @param rawBuf   data buffer in which to put the raw bytes
+     * @param data     data to convert to raw bytes
+     * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
+     *
+     * @throws EvioException if ifmt size <= 0; if srcBuf or destBuf is too
+     *                       small; not enough dataItems for the given format
+     */
+    void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data const & data,
             std::vector<uint16_t> & ifmt) {
 
             bool debug = false;
@@ -2436,7 +2425,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 if (data.dataTypes[itemIndex] != DataType::INT32) {
                                     throw EvioException("Data type mismatch");
                                 }
-                                ncnf = data.dataItems[itemIndex++].i32;
+                                ncnf = data.dataItems[itemIndex++].item.i32;
 #ifdef COMPOSITE_DEBUG
                                 std::cout << "ncnf from list = " << ncnf << " (code 15)" << std::endl;
 #endif
@@ -2454,7 +2443,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                     throw EvioException("Data type mismatch");
                                 }
                                 // Get rid of sign extension to allow n to be unsigned
-                                ncnf = data.dataItems[itemIndex++].s16;
+                                ncnf = data.dataItems[itemIndex++].item.s16;
 #ifdef COMPOSITE_DEBUG
                                 std::cout << "ncnf from list = " << ncnf << " (code 14)" << std::endl;
 #endif
@@ -2472,7 +2461,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                     throw EvioException("Data type mismatch");
                                 }
                                 // Get rid of sign extension to allow m to be unsigned
-                                ncnf = data.dataItems[itemIndex++].b8;
+                                ncnf = data.dataItems[itemIndex++].item.b8;
 
 #ifdef COMPOSITE_DEBUG
                                 std::cout << "ncnf from list = " << ncnf << " (code 13)" << std::endl;
@@ -2521,7 +2510,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                         if (data.dataTypes[itemIndex] != DataType::INT32) {
                             throw EvioException("Data type mismatch");
                         }
-                        ncnf = data.dataItems[itemIndex++].i32;
+                        ncnf = data.dataItems[itemIndex++].item.i32;
 
                         // put into buffer (relative put)
                         rawBuf.putInt(ncnf);
@@ -2531,7 +2520,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                         if (data.dataTypes[itemIndex] != DataType::SHORT16) {
                             throw EvioException("Data type mismatch");
                         }
-                        ncnf = data.dataItems[itemIndex++].s16;
+                        ncnf = data.dataItems[itemIndex++].item.s16;
                         rawBuf.putShort((int16_t)ncnf);
                     }
                     else if (mcnf == 3) {
@@ -2539,7 +2528,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                         if (data.dataTypes[itemIndex] != DataType::CHAR8) {
                             throw EvioException("Data type mismatch");
                         }
-                        ncnf = data.dataItems[itemIndex++].b8;
+                        ncnf = data.dataItems[itemIndex++].item.b8;
                         rawBuf.put((int8_t)ncnf);
                     }
 
@@ -2566,7 +2555,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting DOUBLE64, got " +
                                                     data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putDouble(data.dataItems[itemIndex++].dbl);
+                            rawBuf.putDouble(data.dataItems[itemIndex++].item.dbl);
                         }
                         break;
 
@@ -2576,7 +2565,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting LONG64, got " +
                                                      data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putLong(data.dataItems[itemIndex++].l64);
+                            rawBuf.putLong(data.dataItems[itemIndex++].item.l64);
                         }
                         break;
 
@@ -2586,7 +2575,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting ULONG64, got " +
                                                      data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putLong(data.dataItems[itemIndex++].ul64);
+                            rawBuf.putLong(data.dataItems[itemIndex++].item.ul64);
                         }
                         break;
 
@@ -2597,7 +2586,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting INT32, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putInt(data.dataItems[itemIndex++].i32);
+                            rawBuf.putInt(data.dataItems[itemIndex++].item.i32);
                         }
                         break;
 
@@ -2607,7 +2596,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting UINT32, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putInt(data.dataItems[itemIndex++].ui32);
+                            rawBuf.putInt(data.dataItems[itemIndex++].item.ui32);
                         }
                         break;
 
@@ -2617,7 +2606,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting FLOAT32, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putFloat(data.dataItems[itemIndex++].flt);
+                            rawBuf.putFloat(data.dataItems[itemIndex++].item.flt);
                         }
                         break;
 
@@ -2627,7 +2616,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting HOLLERIT, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putInt(data.dataItems[itemIndex++].i32);
+                            rawBuf.putInt(data.dataItems[itemIndex++].item.i32);
                         }
                         break;
 
@@ -2638,7 +2627,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting SHORT16, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putShort(data.dataItems[itemIndex++].s16);
+                            rawBuf.putShort(data.dataItems[itemIndex++].item.s16);
                         }
                         break;
 
@@ -2648,7 +2637,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting USHORT16, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.putShort(data.dataItems[itemIndex++].us16);
+                            rawBuf.putShort(data.dataItems[itemIndex++].item.us16);
                         }
                         break;
 
@@ -2659,7 +2648,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting CHAR8, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.put(data.dataItems[itemIndex++].b8);
+                            rawBuf.put(data.dataItems[itemIndex++].item.b8);
                         }
                         break;
 
@@ -2669,7 +2658,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                                 throw EvioException("Data type mismatch, expecting UCHAR8, got " +
                                                                 data.dataTypes[itemIndex].toString());
                             }
-                            rawBuf.put(data.dataItems[itemIndex++].ub8);
+                            rawBuf.put(data.dataItems[itemIndex++].item.ub8);
                         }
                         break;
 
@@ -2683,7 +2672,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                         // Convert String array into evio byte representation
                         auto strs = data.dataItems[itemIndex++].strVec;
                         std::vector<uint8_t> rb;
-                        BaseStructure::stringsToRawBytes(strs, rb);
+                        Util::stringsToRawBytes(strs, rb);
                         rawBuf.put(rb, 0, rb.size());
 
                         if (ncnf != rb.size()) {
@@ -2700,9 +2689,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
 
 
     /**
-     * This method swaps EVIO composite type data, in place, to big endian (IEEE)
-     * if currently little endian (DECS). It also extracts and stores all the data
-     * items and their types in 2 lists.
+     * This method extracts and stores all the data items and their types in various lists.
      */
     void CompositeData::process() {
 
@@ -2735,6 +2722,14 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
         // just past end of data -> size of data in bytes
         int endIndex = dataBytes;
 
+        // This is where translating from Java to C++ loses something, like speed & memory.
+        // In Java, the rawBytes and dataBuffer are parts of the same object. Here, to make
+        // the code work, we need to copy the data from rawBytes into a local ByteBuffer.
+        // Fortunately, this is only called once, from one constructor.
+        ByteBuffer dataBuffer(dataBytes);
+        std::memcpy(dataBuffer.array(), rawBytes.data() + 4*dataOffset, dataBytes);
+        dataBuffer.order(byteOrder);
+
 
         while (dataIndex < endIndex) {
 
@@ -2766,8 +2761,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                             ncnf = dataBuffer.getInt(dataIndex);
 
                             NList.push_back(ncnf);
-                            DataItemMember mem;
-                            mem.i32 = ncnf;
+                            DataItem mem;
+                            mem.item.i32 = ncnf;
                             items.push_back(mem);
                             types.push_back(DataType::NVALUE);
 
@@ -2779,8 +2774,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                             ncnf = dataBuffer.getShort(dataIndex);
 
                             nList.push_back((int16_t)ncnf);
-                            DataItemMember mem;
-                            mem.s16 = ncnf;
+                            DataItem mem;
+                            mem.item.s16 = ncnf;
                             items.push_back(mem);
                             types.push_back(DataType::nVALUE);
 
@@ -2792,8 +2787,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                             ncnf = dataBuffer.getByte(dataIndex);
 
                             mList.push_back((int8_t)ncnf);
-                            DataItemMember mem;
-                            mem.b8 = ncnf;
+                            DataItem mem;
+                            mem.item.b8 = ncnf;
                             items.push_back(mem);
                             types.push_back(DataType::mVALUE);
 
@@ -2827,8 +2822,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                     // read "N" value from buffer
                     ncnf = dataBuffer.getInt(dataIndex);
                     NList.push_back(ncnf);
-                    DataItemMember mem;
-                    mem.i32 = ncnf;
+                    DataItem mem;
+                    mem.item.i32 = ncnf;
                     items.push_back(mem);
                     types.push_back(DataType::NVALUE);
                     dataIndex += 4;
@@ -2837,8 +2832,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                     // read "n" value from buffer
                     ncnf = dataBuffer.getShort(dataIndex);
                     nList.push_back((int16_t)ncnf);
-                    DataItemMember mem;
-                    mem.s16 = ncnf;
+                    DataItem mem;
+                    mem.item.s16 = ncnf;
                     items.push_back(mem);
                     types.push_back(DataType::nVALUE);
                     dataIndex += 2;
@@ -2847,8 +2842,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                     // read "m" value from buffer
                     ncnf = dataBuffer.getByte(dataIndex);
                     mList.push_back((int8_t)ncnf);
-                    DataItemMember mem;
-                    mem.b8 = ncnf;
+                    DataItem mem;
+                    mem.item.b8 = ncnf;
                     items.push_back(mem);
                     types.push_back(DataType::mVALUE);
                     dataIndex++;
@@ -2874,20 +2869,20 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                     // store its data type
                     types.push_back(DataType::getDataType(kcnf));
 
-                    DataItemMember mem;
+                    DataItem mem;
 
                     // double
                     if (kcnf == 8) {
-                        mem.dbl = dataBuffer.getDouble(dataIndex);
+                        mem.item.dbl = dataBuffer.getDouble(dataIndex);
                         items.push_back(mem);
                     }
                     // 64 bit int/uint
                     else if (kcnf == 9) {
-                        mem.l64 = dataBuffer.getLong(dataIndex);
+                        mem.item.l64 = dataBuffer.getLong(dataIndex);
                         items.push_back(mem);
                     }
                     else {
-                        mem.ul64 = dataBuffer.getULong(dataIndex);;
+                        mem.item.ul64 = dataBuffer.getULong(dataIndex);;
                         items.push_back(mem);
                     }
 
@@ -2901,28 +2896,28 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                 if (b32EndIndex > endIndex) b32EndIndex = endIndex;
 
                 while (dataIndex < b32EndIndex) {
-                    DataItemMember mem;
+                    DataItem mem;
 
                     // Hollerit
                     if (kcnf == 12) {
-                        mem.i32 = dataBuffer.getInt(dataIndex);
+                        mem.item.i32 = dataBuffer.getInt(dataIndex);
                         items.push_back(mem);
                         types.push_back(DataType::HOLLERIT);
                     }
                     // 32 bit float
                     else if (kcnf == 2) {
-                        mem.flt = dataBuffer.getFloat(dataIndex);
+                        mem.item.flt = dataBuffer.getFloat(dataIndex);
                         items.push_back(mem);
                         types.push_back(DataType::getDataType(kcnf));
                     }
                     // 32 bit int/uint
                     else if (kcnf == 1) {
-                        mem.ui32 = dataBuffer.getUInt(dataIndex);
+                        mem.item.ui32 = dataBuffer.getUInt(dataIndex);
                         items.push_back(mem);
                         types.push_back(DataType::getDataType(kcnf));
                     }
                     else {
-                        mem.i32 = dataBuffer.getInt(dataIndex);
+                        mem.item.i32 = dataBuffer.getInt(dataIndex);
                         items.push_back(mem);
                         types.push_back(DataType::getDataType(kcnf));
                     }
@@ -2940,14 +2935,14 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                 while (dataIndex < b16EndIndex) {
                     types.push_back(DataType::getDataType(kcnf));
 
-                    DataItemMember mem;
+                    DataItem mem;
 
                     if (kcnf == 5) {
-                        mem.us16 = dataBuffer.getUShort(dataIndex);
+                        mem.item.us16 = dataBuffer.getUShort(dataIndex);
                         items.push_back(mem);
                     }
                     else {
-                        mem.s16 = dataBuffer.getShort(dataIndex);
+                        mem.item.s16 = dataBuffer.getShort(dataIndex);
                         items.push_back(mem);
                     }
 
@@ -2965,7 +2960,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                 }
 
                 dataBuffer.position(dataIndex);
-                DataItemMember mem;
+                DataItem mem;
 
                 std::vector<uint8_t> bytes(ncnf);
                 // relative read
@@ -2974,21 +2969,22 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                 // string array
                 if (kcnf == 3) {
                     std::vector<string> strs;
-                    BaseStructure::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
+                    Util::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
+                    mem.item.str = true;
                     mem.strVec = strs;
                     items.push_back(mem);
                 }
                 // char
                 else if (kcnf == 6) {
                     for (int i=0; i < ncnf; i++) {
-                        mem.b8 = bytes[i];
+                        mem.item.b8 = bytes[i];
                         items.push_back(mem);
                     }
                 }
                 // uchar
                 else {
                     for (int i=0; i < ncnf; i++) {
-                        mem.ub8 = bytes[i];
+                        mem.item.ub8 = bytes[i];
                         items.push_back(mem);
                     }
                 }
@@ -3009,7 +3005,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
      * Obtain a string representation of the composite data.
      * @return a string representation of the composite data.
      */
-    string CompositeData::toString() {return toString("");}
+    string CompositeData::toString() const {return toString("");}
 
 
     /**
@@ -3029,6 +3025,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
         }
 
         int numItems = items.size();
+
+        uint32_t getIndexOrig = getIndex;
 
         for (int i=0; i < items.size(); i++) {
             if (i%5 == 0) ss << indent;
@@ -3093,6 +3091,8 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
             if (((i+1)%5 == 0) && (i < numItems - 1)) ss << std::endl;
         }
 
+        getIndex = getIndexOrig;
+
         return ss.str();
     }
 
@@ -3105,7 +3105,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
      * @param hex if <code>true</code> then print integers in hexadecimal
      * @return  a string representation of this CompositeData object.
      */
-    string CompositeData::toString(bool hex) {
+    string CompositeData::toString(bool hex) const {
         stringstream ss;
         if (hex) {
             ss << hex << showbase;
@@ -3125,6 +3125,13 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
         int dataIndex = 0;
         // just past end of data -> size of data in bytes
         int endIndex = dataBytes;
+
+        // This is where translating from Java to C++ loses something, like speed & memory.
+        // In Java, the rawBytes and dataBuffer are parts of the same object. Here, to make
+        // the code work, we need to copy the data from rawBytes into a local ByteBuffer.
+        ByteBuffer dataBuffer(dataBytes);
+        std::memcpy(dataBuffer.array(), rawBytes.data() + 4*dataOffset, dataBytes);
+        dataBuffer.order(byteOrder);
 
         //---------------------------------
         // First we have the format string
@@ -3376,7 +3383,7 @@ void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & da
                     ss << std::endl;
 
                     std::vector<string> strs;
-                    BaseStructure::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
+                    Util::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
                     for (string const & s: strs) {
                         ss << s << std::endl;
                     }

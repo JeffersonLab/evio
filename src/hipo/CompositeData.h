@@ -26,14 +26,17 @@
 #include <exception>
 #include <stdexcept>
 #include <sstream>
+#include <memory>
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "DataType.h"
-#include "BaseStructure.h"
-#include "TagSegmentHeader.h"
 #include "BankHeader.h"
+#include "SegmentHeader.h"
+#include "TagSegmentHeader.h"
+#include "EventParser.h"
 #include "EvioNode.h"
+#include "Util.h"
 
 //#include <ctype.h>
 //#include <limits.h>
@@ -99,7 +102,34 @@ namespace evio {
 */
 class CompositeData {
 
-    union DataItemMember {
+//    union DataItem {
+//        // Data being stored
+//        float     flt;
+//        double    dbl;
+//        uint64_t ul64;
+//        int64_t   l64;
+//        uint32_t ui32;
+//        int32_t   i32; // used for N, Hollerit
+//        uint16_t us16;
+//        int16_t   s16; // used for n
+//        uint8_t   ub8;
+//        int8_t     b8; // used for m
+//
+//        std::vector<string> strVec;
+//
+//        DataItem() {l64 = 0L;};
+//
+//        DataItem(DataItem const &other) {
+//
+//            strVec = other.strVec;
+//        };
+//
+//        DataItem
+//    };
+
+    union SingleMember {
+        friend class CompositeData;
+
         // Data being stored
         float     flt;
         double    dbl;
@@ -111,16 +141,31 @@ class CompositeData {
         int16_t   s16; // used for n
         uint8_t   ub8;
         int8_t     b8; // used for m
-
-        std::vector<string> strVec;
-
-        DataItemMember() {l64 = 0L;};
-
-        ~DataItemMember() {};
+        bool      str; // storing strings?
     };
 
 
-    typedef struct {
+    class DataItem {
+        friend class CompositeData;
+
+        SingleMember item;
+        std::vector<string> strVec {};
+
+    public:
+
+        DataItem() = default;
+       ~DataItem() = default;
+
+        DataItem(DataItem const &other) {
+            item   = other.item;
+            strVec = other.strVec;
+        };
+
+    };
+
+
+
+        typedef struct {
         int left;    /* index of ifmt[] element containing left parenthesis */
         int nrepeat; /* how many times format in parenthesis must be repeated */
         int irepeat; /* right parenthesis counter, or how many times format
@@ -150,7 +195,7 @@ class CompositeData {
         uint32_t pads[4] = {0,3,2,1};
 
         /** List of data objects. */
-        std::vector<DataItemMember> dataItems;
+        std::vector<DataItem> dataItems;
 
         /** List of types of data objects. */
         std::vector<DataType> dataTypes;
@@ -223,31 +268,31 @@ class CompositeData {
          * This method gets the tag in the segment containing the format string.
          * @return tag in segment containing the format string.
          */
-        uint16_t getFormatTag() {return formatTag;}
+        uint16_t getFormatTag() const {return formatTag;}
 
         /**
          * This method gets the tag in the bank containing the data.
          * @return tag in bank containing the data.
          */
-        uint16_t getDataTag() {return dataTag;}
+        uint16_t getDataTag() const {return dataTag;}
 
         /**
          * This method gets the num in the bank containing the data.
          * @return num in bank containing the data.
          */
-        uint8_t getDataNum() {return dataNum;}
+        uint8_t getDataNum() const {return dataNum;}
 
         /**
          * This method gets the raw data size in bytes.
          * @return raw data size in bytes.
          */
-        uint32_t getDataSize() {return (dataBytes + paddingBytes);}
+        uint32_t getDataSize() const {return (dataBytes + paddingBytes);}
 
         /**
          * This method gets the padding (in bytes).
          * @return padding (in bytes).
          */
-        uint32_t getPadding() {return paddingBytes;}
+        uint32_t getPadding() const {return paddingBytes;}
 
         /**
          * This method adds an "N" or multiplier value to the data.
@@ -256,8 +301,8 @@ class CompositeData {
          */
         void addN(uint32_t N) {
             Nlist.push_back(N);
-            DataItemMember mem;
-            mem.ui32 = N;
+            DataItem mem;
+            mem.item.ui32 = N;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::UINT32);
             addBytesToData(4);
@@ -270,8 +315,8 @@ class CompositeData {
          */
         void addn(uint16_t n) {
             nlist.push_back(n);
-            DataItemMember mem;
-            mem.us16 = n;
+            DataItem mem;
+            mem.item.us16 = n;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::USHORT16);
             addBytesToData(2);
@@ -284,8 +329,8 @@ class CompositeData {
          */
         void addm(uint8_t m) {
             mlist.push_back(m);
-            DataItemMember mem;
-            mem.ub8 = m;
+            DataItem mem;
+            mem.item.ub8 = m;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::UCHAR8);
             addBytesToData(1);
@@ -298,8 +343,8 @@ class CompositeData {
          * @param i integer to add.
          */
         void addInt(int32_t i) {
-            DataItemMember mem;
-            mem.i32 = i;
+            DataItem mem;
+            mem.item.i32 = i;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::INT32);
             addBytesToData(4);
@@ -311,8 +356,8 @@ class CompositeData {
          */
         void addInt(std::vector<int32_t> const & i) {
             for (auto ii : i) {
-                DataItemMember mem;
-                mem.i32 = ii;
+                DataItem mem;
+                mem.item.i32 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::INT32);
             }
@@ -324,8 +369,8 @@ class CompositeData {
          * @param i unsigned integer to add.
          */
         void addUint(uint32_t i) {
-            DataItemMember mem;
-            mem.ui32 = i;
+            DataItem mem;
+            mem.item.ui32 = i;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::UINT32);
             addBytesToData(4);
@@ -337,8 +382,8 @@ class CompositeData {
          */
         void addUint(std::vector<uint32_t> const & i) {
             for (auto ii : i) {
-                DataItemMember mem;
-                mem.ui32 = ii;
+                DataItem mem;
+                mem.item.ui32 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::UINT32);
             }
@@ -352,8 +397,8 @@ class CompositeData {
          * @param s short to add.
          */
         void addShort(int16_t s) {
-            DataItemMember mem;
-            mem.s16 = s;
+            DataItem mem;
+            mem.item.s16 = s;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::SHORT16);
             addBytesToData(2);
@@ -365,8 +410,8 @@ class CompositeData {
          */
         void addShort(std::vector<int16_t> const & s) {
             for (auto ii : s) {
-                DataItemMember mem;
-                mem.s16 = ii;
+                DataItem mem;
+                mem.item.s16 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::SHORT16);
             }
@@ -378,8 +423,8 @@ class CompositeData {
          * @param s unsigned short to add.
          */
         void addUShort(uint16_t s) {
-            DataItemMember mem;
-            mem.us16 = s;
+            DataItem mem;
+            mem.item.us16 = s;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::USHORT16);
             addBytesToData(2);
@@ -391,8 +436,8 @@ class CompositeData {
          */
         void addUShort(std::vector<uint16_t> const & s) {
             for (auto ii : s) {
-                DataItemMember mem;
-                mem.us16 = ii;
+                DataItem mem;
+                mem.item.us16 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::USHORT16);
             }
@@ -406,8 +451,8 @@ class CompositeData {
          * @param l long to add.
          */
         void addLong(int64_t l) {
-            DataItemMember mem;
-            mem.l64 = l;
+            DataItem mem;
+            mem.item.l64 = l;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::LONG64);
             addBytesToData(8);
@@ -419,8 +464,8 @@ class CompositeData {
          */
         void addLong(std::vector<int64_t> const & l) {
             for (auto ii : l) {
-                DataItemMember mem;
-                mem.l64 = ii;
+                DataItem mem;
+                mem.item.l64 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::LONG64);
             }
@@ -432,8 +477,8 @@ class CompositeData {
          * @param l unsigned long to add.
          */
         void addULong(uint64_t l) {
-            DataItemMember mem;
-            mem.ul64 = l;
+            DataItem mem;
+            mem.item.ul64 = l;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::ULONG64);
             addBytesToData(8);
@@ -445,8 +490,8 @@ class CompositeData {
          */
         void addULong(std::vector<uint64_t> const & l) {
             for (auto ii : l) {
-                DataItemMember mem;
-                mem.ul64 = ii;
+                DataItem mem;
+                mem.item.ul64 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::ULONG64);
             }
@@ -460,8 +505,8 @@ class CompositeData {
          * @param b byte to add.
          */
         void addChar(int8_t b) {
-            DataItemMember mem;
-            mem.b8 = b;
+            DataItem mem;
+            mem.item.b8 = b;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::CHAR8);
             addBytesToData(1);
@@ -473,8 +518,8 @@ class CompositeData {
          */
         void addChar(std::vector<int8_t> const & b) {
             for (auto ii : b) {
-                DataItemMember mem;
-                mem.b8 = ii;
+                DataItem mem;
+                mem.item.b8 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::CHAR8);
             }
@@ -487,8 +532,8 @@ class CompositeData {
          * @param b unsigned byte to add.
          */
         void addUChar(uint8_t b) {
-            DataItemMember mem;
-            mem.ub8 = b;
+            DataItem mem;
+            mem.item.ub8 = b;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::UCHAR8);
             addBytesToData(1);
@@ -500,8 +545,8 @@ class CompositeData {
          */
         void addUChar(std::vector<uint8_t> const & b) {
             for (auto ii : b) {
-                DataItemMember mem;
-                mem.ub8 = ii;
+                DataItem mem;
+                mem.item.ub8 = ii;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::UCHAR8);
             }
@@ -515,8 +560,8 @@ class CompositeData {
          * @param f float to add.
          */
         void addFloat(float f) {
-            DataItemMember mem;
-            mem.flt = f;
+            DataItem mem;
+            mem.item.flt = f;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::FLOAT32);
             addBytesToData(4);
@@ -528,8 +573,8 @@ class CompositeData {
          */
         void addFloat(std::vector<float> const & f) {
             for (auto ff : f) {
-                DataItemMember mem;
-                mem.flt = ff;
+                DataItem mem;
+                mem.item.flt = ff;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::FLOAT32);
             }
@@ -541,8 +586,8 @@ class CompositeData {
          * @param d double to add.
          */
         void addDouble(double d) {
-            DataItemMember mem;
-            mem.dbl = d;
+            DataItem mem;
+            mem.item.dbl = d;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::DOUBLE64);
             addBytesToData(8);
@@ -554,8 +599,8 @@ class CompositeData {
           */
         void addDouble(std::vector<double> const & d) {
             for (auto dd : d) {
-                DataItemMember mem;
-                mem.dbl = dd;
+                DataItem mem;
+                mem.item.dbl = dd;
                 dataItems.push_back(mem);
                 dataTypes.push_back(DataType::DOUBLE64);
             }
@@ -570,11 +615,12 @@ class CompositeData {
          */
         void addString(string const & s) {
             std::vector<std::string> v {s};
-            DataItemMember mem;
+            DataItem mem;
+            mem.item.str = true;
             mem.strVec = v;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::CHARSTAR8);
-            addBytesToData(BaseStructure::stringsToRawSize(v));
+            addBytesToData(Util::stringsToRawSize(v));
         }
 
         /**
@@ -582,11 +628,12 @@ class CompositeData {
          * @param s vector of strings to add.
          */
          void addString(std::vector<string> const & s) {
-            DataItemMember mem;
+            DataItem mem;
+            mem.item.str = true;
             mem.strVec = s;
             dataItems.push_back(mem);
             dataTypes.push_back(DataType::CHARSTAR8);
-            addBytesToData(BaseStructure::stringsToRawSize(s));
+            addBytesToData(Util::stringsToRawSize(s));
         }
     };
 
@@ -600,7 +647,7 @@ private:
     std::vector<uint16_t> formatInts;
 
     /** List of extracted data items from raw bytes. */
-    std::vector<CompositeData::DataItemMember> items;
+    std::vector<CompositeData::DataItem> items;
 
     /** List of the types of the extracted data items. */
     std::vector<DataType> types;
@@ -615,16 +662,13 @@ private:
     std::vector<int8_t> mList;
 
     /** Tagsegment header of tagsegment containing format string. */
-    TagSegmentHeader tsHeader;
+    std::shared_ptr<TagSegmentHeader> tsHeader;
 
     /** Bank header of bank containing data. */
-    BankHeader bHeader;
+    std::shared_ptr<BankHeader> bHeader;
 
     /** The entire raw data of the composite item - both tagsegment and data bank. */
     std::vector<uint8_t> rawBytes;
-
-    /** Buffer containing only the data of the composite item (no headers). */
-    ByteBuffer dataBuffer;
 
     /** Length of only data in bytes (not including padding). */
     uint32_t dataBytes = 0;
@@ -638,29 +682,32 @@ private:
     /** Byte order of raw bytes. */
     ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
+//TODO: mark this so it's changes don't mess with const
     /** Index used in getting data items from the {@link #items} list. */
     uint32_t getIndex = 0;
 
 
+    public:
 
-    CompositeData();
+        /** Zero-arg constructor ONLY TO BE USED INTERNALLY. */
+        CompositeData() = default;
+
+        CompositeData(string & format, const CompositeData::Data & data);
+
+        CompositeData(string & format,
+                      const CompositeData::Data & data,
+                      uint16_t formatTag,
+                      uint16_t dataTag, uint8_t dataNum,
+                      ByteOrder const & order = ByteOrder::ENDIAN_LITTLE);
+
+        CompositeData(uint8_t *bytes, ByteOrder const & byteOrder);
+
+        void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
+                   std::vector<std::shared_ptr<CompositeData>> & list);
 
 
-public:
-
-    CompositeData(string & format, const CompositeData::Data & data);
-
-    CompositeData(string & format, uint16_t formatTag,
-                                 const CompositeData::Data & data,
-                                 uint16_t dataTag, uint8_t dataNum,
-                                 ByteOrder const & order = ByteOrder::ENDIAN_LITTLE);
-
-    CompositeData(uint8_t rawBytes[], ByteOrder byteOrder);
-
-    CompositeData* parse(uint8_t rawBytes[], ByteOrder byteOrder);
-
-    static uint8_t * generateRawBytes(CompositeData data[]);
-
+    static void generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
+                                 std::vector<uint8_t> & rawBytes);
     //Object clone();
 
     static string stringsToFormat(std::vector<string> strings);
@@ -675,12 +722,12 @@ public:
     ByteOrder getByteOrder();
 
     std::vector<uint8_t> getRawBytes();
-    std::vector<CompositeData::DataItemMember> getItems();
+    std::vector<CompositeData::DataItem> getItems();
 
     std::vector<DataType> getTypes();
     std::vector<int32_t>  getNValues();
     std::vector<int16_t>  getnValues();
-    std::vector<uint8_t>  getmValues();
+    std::vector<int8_t>   getmValues();
 
     int index();
     void index(int index);
@@ -708,12 +755,10 @@ public:
      std::vector<string> getStrings();
 
 
-    static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
-                                int length, ByteOrder srcOrder);
+    static void swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal);
 
-private:
-    static void swapAll (ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
-                                 uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
+    static void swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+                         uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
 
 public:
 
@@ -737,7 +782,7 @@ public:
         static void swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
                              uint32_t padding);
 
-        static void dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data & data,
+        static void dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data const & data,
                                            std::vector<uint16_t> & ifmt);
 
 
@@ -745,9 +790,9 @@ public:
 
     string toString(const string & indent, bool hex);
 
-    string toString();
-    string toString(string indent);
-    string toString(bool hex);
+    string toString() const;
+    string toString(string indent) const;
+    string toString(bool hex) const;
 
 
     };
