@@ -1113,20 +1113,7 @@ DefaultMutableTreeNode j;
      * @return array of Strings or null if bad arg or too little data
      */
     static public String[] unpackRawBytesToStrings(byte[] rawBytes, int offset) {
-
-        if (rawBytes == null) return null;
-
-        int length = rawBytes.length - offset;
-        if (offset < 0 || length < 4) return null;
-
-        StringBuilder stringData = null;
-        try {
-            // stringData contains all elements of rawBytes
-            stringData = new StringBuilder(new String(rawBytes, offset, length, "US-ASCII"));
-        }
-        catch (UnsupportedEncodingException e) { /* will never happen */ }
-
-        return stringBuilderToStrings(stringData, false);
+        return unpackRawBytesToStrings(rawBytes, offset, rawBytes.length);
     }
 
 
@@ -1149,7 +1136,7 @@ DefaultMutableTreeNode j;
 
         // Don't read read more than maxLength ASCII characters
         length = length > maxLength ? maxLength : length;
-
+//System.out.println("unpackRawBytesToStrings: length = " + length);
         StringBuilder stringData = null;
         try {
             stringData = new StringBuilder(new String(rawBytes, offset, length, "US-ASCII"));
@@ -2130,18 +2117,23 @@ System.err.println("Non leaf with null children!");
         return datalen;
     }
 
-    // TODO: Throw exception if byteBuffer is too small !!!
+
 	/**
 	 * Write myself out a byte buffer with fastest algorithms I could find.
 	 *
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written.
+     * @throws BufferOverflowException if too much data to write.
 	 */
-	public int write(ByteBuffer byteBuffer) {
+	public int write(ByteBuffer byteBuffer) throws BufferOverflowException {
+
+        if (byteBuffer.remaining() < getTotalBytes()) {
+            throw new BufferOverflowException();
+        }
 
         int startPos = byteBuffer.position();
 
-		// write the header
+        // write the header
 		header.write(byteBuffer);
 
         int curPos = byteBuffer.position();
@@ -2289,6 +2281,7 @@ System.err.println("Non leaf with null children!");
 //                        for (int i : intA) {
 //                            System.out.println("Ox" + Integer.toHexString(i));
 //                        }
+
                         // swap rawBytes
                         byte[] swappedRaw = new byte[rawBytes.length];
                         try {
@@ -2296,6 +2289,7 @@ System.err.println("Non leaf with null children!");
                                                   rawBytes.length/4, byteOrder);
                         }
                         catch (EvioException e) { /* never happen */ }
+
                         // write them to buffer
                         byteBuffer.put(swappedRaw, 0, swappedRaw.length);
 //                        System.out.println("Swap in writing output:");
@@ -2904,7 +2898,7 @@ System.err.println("Non leaf with null children!");
      * @throws EvioException if adding data to a structure of a different data type;
      *                       if data takes up too much memory to store in raw byte array (JVM limit)
 	 */
-	public void appendCompositeData(CompositeData data[]) throws EvioException {
+	public void appendCompositeData(CompositeData[] data) throws EvioException {
 
 		DataType dataType = header.getDataType();
 		if (dataType != DataType.COMPOSITE) {
@@ -2941,13 +2935,15 @@ System.err.println("Non leaf with null children!");
                     compositeData = new CompositeData[totalLen];
 
                     // Fill with existing object first
-                    for (int i = 0; i < len1; i++) {
-                        compositeData[i] = cdArray[i];
-                    }
+                    System.arraycopy(cdArray, 0, compositeData, 0, len1);
+//                    for (int i = 0; i < len1; i++) {
+//                        compositeData[i] = cdArray[i];
+//                    }
                     // Append new objects
-                    for (int i = len1; i < totalLen; i++) {
-                        compositeData[i] = cdArray[i];
-                    }
+                    System.arraycopy(data, 0, compositeData, len1, len2);
+//                    for (int i = 0; i < len2; i++) {
+//                        compositeData[i+len1] = data[i];
+//                    }
                     numberDataItems = totalLen;
                 }
             }
@@ -2964,13 +2960,10 @@ System.err.println("Non leaf with null children!");
             compositeData = new CompositeData[totalLen];
 
             // Fill with existing object first
-            for (int i=0; i < len1; i++) {
-                compositeData[i] = cdArray[i];
-            }
+            System.arraycopy(cdArray, 0, compositeData, 0, len1);
             // Append new objects
-            for (int i=len1; i < totalLen; i++) {
-                compositeData[i] = cdArray[i];
-            }
+            System.arraycopy(data, 0, compositeData, len1, len2);
+
             numberDataItems = totalLen;
         }
 
