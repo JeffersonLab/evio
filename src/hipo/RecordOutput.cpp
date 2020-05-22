@@ -504,7 +504,7 @@ bool RecordOutput::addEvent(const uint8_t* event, size_t offset, uint32_t eventL
 
     // Add event data.
     // Uses memcpy underneath since, unlike Java, there is no "direct" buffer
-    recordEvents->put(event, offset, eventLen);
+    recordEvents->put(event + offset, eventLen);
     eventSize += eventLen;
 
     // Add 1 more index
@@ -764,7 +764,9 @@ bool RecordOutput::addEvent(EvioBank & event, uint32_t extraDataLen) {
         return false;
     }
 
-    event.write(recordEvents);
+    size_t rePos = recordEvents->position();
+    event.write(recordEvents->array() + rePos, recordEvents->order());
+    recordEvents->position(rePos + eventLen);
 
     eventSize += eventLen;
     recordIndex->putInt(indexSize, eventLen);
@@ -854,8 +856,8 @@ void RecordOutput::build() {
         // Write into a single, temporary buffer
         recordBinary->clear();
         recordData->clear();
-        recordData->put( recordIndex->array(), 0, indexSize);
-        recordData->put(recordEvents->array(), 0, eventSize);
+        recordData->put( recordIndex->array(), indexSize);
+        recordData->put(recordEvents->array(), eventSize);
     }
         // If NOT compressing data ...
     else {
@@ -867,13 +869,13 @@ void RecordOutput::build() {
 
         // Write directly into final buffer, past where header will go
         recordBinary->position(recBinPastHdr);
-        recordBinary->put(recordIndex->array(), 0, indexSize);
+        recordBinary->put(recordIndex->array(), indexSize);
 
 //cout << "build: recordBinary pos = " << recordBinary->position() <<
 //        ", eventSize = " << eventSize << ", recordEvents->array().len = " <<
 //        recordEvents.capacity() << endl;
 
-        recordBinary->put(recordEvents->array(), 0, eventSize);
+        recordBinary->put(recordEvents->array(), eventSize);
     }
 
     // Evio data is padded, but not necessarily all hipo data.
@@ -933,7 +935,7 @@ void RecordOutput::build() {
                 gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
                                                                  uncompressedDataSize, &compressedSize);
                 recordBinary->position(recBinPastHdr);
-                recordBinary->put(gzippedData, 0, compressedSize);
+                recordBinary->put(gzippedData, compressedSize);
                 delete[] gzippedData;
                 header.setCompressedDataLength(compressedSize);
                 header.setLength(4*header.getCompressedDataLengthWords() +
@@ -1020,10 +1022,10 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
 
         // 1) uncompressed index array
         // Note, put() will increment position
-        recordData->put(recordIndex->array(), 0, indexSize);
+        recordData->put(recordIndex->array(), indexSize);
 
         // 2) uncompressed user header
-        recordData->put(userHeader.array(), userHeader.position(), userHeaderSize);
+        recordData->put(userHeader.array() + userHeader.position(), userHeaderSize);
 
         // Account for unpadded user header.
         // This will find the user header length in words & account for padding.
@@ -1033,7 +1035,7 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
         recordData->position(uncompressedDataSize);
 
         // 3) uncompressed data array
-        recordData->put(recordEvents->array(), 0, eventSize);
+        recordData->put(recordEvents->array(), eventSize);
         // Evio data is padded, but not necessarily all hipo data.
         // Uncompressed data length is NOT padded, but the record length is.
         uncompressedDataSize += eventSize;
@@ -1045,17 +1047,17 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
         recordBinary->position(recBinPastHdr);
 
         // 1) uncompressed index array
-        recordBinary->put(recordIndex->array(), 0, indexSize);
+        recordBinary->put(recordIndex->array(), indexSize);
 
         // 2) uncompressed user header array
-        recordBinary->put(userHeader.array(), userHeader.position(), userHeaderSize);
+        recordBinary->put(userHeader.array() + userHeader.position(), userHeaderSize);
 
         header.setUserHeaderLength(userHeaderSize);
         uncompressedDataSize += 4*header.getUserHeaderLengthWords();
         recordBinary->position(recBinPastHdr + uncompressedDataSize);
 
         // 3) uncompressed data array (hipo/evio data is already padded)
-        recordBinary->put(recordEvents->array(), 0, eventSize);
+        recordBinary->put(recordEvents->array(), eventSize);
         // May not be padded ...
         uncompressedDataSize += eventSize;
     }
@@ -1099,7 +1101,7 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
                 gzippedData = Compressor::getInstance().compressGZIP(recordData->array(), 0,
                                                                      uncompressedDataSize, &compressedSize);
                 recordBinary->position(recBinPastHdr);
-                recordBinary->put(gzippedData, 0, compressedSize);
+                recordBinary->put(gzippedData, compressedSize);
                 delete[] gzippedData;
                 header.setCompressedDataLength(compressedSize);
                 header.setLength(4*header.getCompressedDataLengthWords() +

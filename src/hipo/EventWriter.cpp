@@ -179,7 +179,7 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
             if (split > 0) {
                 throw EvioException("Cannot specify split when appending");
             }
-            else if ((!xmlDictionary.empty()) || (firstEvent != nullptr && firstEvent->length() > 0)) {
+            else if ((!xmlDictionary.empty()) || (firstEvent != nullptr && firstEvent->getHeader()->getLength() > 0)) {
                 throw EvioException("Cannot specify dictionary or first event when appending");
             }
         }
@@ -503,7 +503,7 @@ cout << "EventWriter constr: record # set to " << recordNumber << endl;
         recordLengths = std::make_shared<std::vector<uint32_t>>();
 
         // Write any record containing dictionary and first event, first
-        haveFirstEvent = firstEvent != nullptr && firstEvent->length() > 0;
+        haveFirstEvent = firstEvent != nullptr &&  firstEvent->getHeader()->getLength() > 0;
         if (!xmlDictionary.empty() || haveFirstEvent) {
             createCommonRecord(xmlDictionary, firstEvent, nullptr, nullptr);
         }
@@ -1153,7 +1153,7 @@ void EventWriter::writeFileHeader() {
                         (const void *)(commonArray + commonBuf->arrayOffset()), commonRecordBytes);
         }
         else {
-            commonBuf->getBytes(array, FileHeader::HEADER_SIZE_BYTES, commonRecordBytes);
+            commonBuf->getBytes(array + FileHeader::HEADER_SIZE_BYTES, commonRecordBytes);
         }
     }
 

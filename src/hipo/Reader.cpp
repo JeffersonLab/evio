@@ -614,7 +614,7 @@ ByteBuffer Reader::readUserHeader() {
         auto userBytes = new uint8_t[userLen];
 
         buffer->position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
-        buffer->getBytes(userBytes, 0, userLen);
+        buffer->getBytes(userBytes, userLen);
         return std::move(ByteBuffer(userBytes, userLen).order(firstRecordHeader.getByteOrder()));
     }
 }
@@ -819,7 +819,7 @@ void Reader::extractDictionaryFromBuffer() {
                          firstRecordHeader.getIndexLength());
         // Read user header
         auto userBytes = new uint8_t[userLen];
-        buffer->getBytes(userBytes, 0, userLen);
+        buffer->getBytes(userBytes, userLen);
         ByteBuffer userBuffer(userBytes, userLen);
 
         // Parse user header as record
@@ -1248,7 +1248,7 @@ void Reader::scanUncompressedBuffer() {
         // Read record header
         buffer->position(position);
         // This moves the buffer's position
-        buffer->getBytes(headerBytes, 0, RecordHeader::HEADER_SIZE_BYTES);
+        buffer->getBytes(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
         // Only sets the byte order of headerBuffer
         recordHeader.readHeader(headerBuffer);
 //cout << "read header ->" << endl << recordHeader.toString() << endl;
@@ -1526,17 +1526,17 @@ void Reader::scanFile(bool force) {
     auto index = new char[indexLength];
     inStreamRandom.read(index, indexLength);
     // Turn bytes into record lengths & event counts
-    auto intData = new int[indexLength/4];
+    auto intData = new uint32_t[indexLength/4];
 
     try {
         cout << "scanFile: transform int array from " << fileHeader.getByteOrder().getName() << endl;
-        Reader::toIntArray(index, 0, indexLength, fileHeader.getByteOrder(), intData, 0);
+        Util::toIntArray(index, indexLength, fileHeader.getByteOrder(), intData);
 
         // Turn record lengths into file positions and store in list
         recordPositions.clear();
         for (int i=0; i < indexLength/4; i += 2) {
-            int len = intData[i];
-            int count = intData[i+1];
+            uint32_t len = intData[i];
+            uint32_t count = intData[i+1];
             cout << "scanFile: record pos = " << recordPosition << ", len = " << len << ", count = " << count << endl;
             // Create a new RecordPosition object and store in vector
             recordPositions.emplace_back(recordPosition, len, count);
@@ -1550,66 +1550,6 @@ void Reader::scanFile(bool force) {
 
     delete[](index);
     delete[](intData);
-}
-
-
-/**
- * Turn byte array into an int array.
- * Number of int array elements = number of bytes / 4.
- *
- * @param data       char array to convert.
- * @param dataOffset offset into data array.
- * @param dataLen    number of bytes to convert.
- * @param byteOrder  byte order of supplied bytes.
- * @param dest       array in which to write converted bytes.
- * @param destOffset offset into dest array.
- *
- * @throws EvioException if data or dest is null
- */
-void Reader::toIntArray(char const *data, uint32_t dataOffset,  uint32_t dataLen,
-                        const ByteOrder & byteOrder, int *dest, uint32_t destOffset) {
-
-    if (data == nullptr || dest == nullptr) {
-        throw EvioException("bad arg");
-    }
-
-    for (int i = 0; i < dataLen-3; i+=4) {
-        dest[i/4+destOffset] = toInt(data[i   + dataOffset],
-                                     data[i+1 + dataOffset],
-                                     data[i+2 + dataOffset],
-                                     data[i+3 + dataOffset],
-                                     byteOrder);
-    }
-}
-
-/**
- * Turn 4 bytes into an int.
- *
- * @param b1 1st byte
- * @param b2 2nd byte
- * @param b3 3rd byte
- * @param b4 4th byte
- * @param byteOrder if big endian, 1st byte is most significant & 4th is least
- * @return int converted from byte array
- */
-int Reader::toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrder) {
-
-    if (byteOrder == ByteOrder::ENDIAN_BIG) {
-        return (
-                (0xff & b1) << 24 |
-                (0xff & b2) << 16 |
-                (0xff & b3) <<  8 |
-                (0xff & b4)
-        );
-    }
-    else {
-        return (
-                (0xff & b1)       |
-                (0xff & b2) <<  8 |
-                (0xff & b3) << 16 |
-                (0xff & b4) << 24
-        );
-    }
 }
 
 

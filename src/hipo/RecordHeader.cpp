@@ -980,14 +980,14 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
 
     try {
         // First the general header part
-        Util::toBytes(wholeLen/4,        order, array,      off, arrayLen); // 0*4
-        Util::toBytes(recordNum,         order, array, 4  + off, arrayLen); // 1*4
-        Util::toBytes(HEADER_SIZE_WORDS, order, array, 8  + off, arrayLen); // 2*4
-        Util::toBytes((uint32_t)0,       order, array, 12 + off, arrayLen); // 3*4
-        Util::toBytes(indexLen,          order, array, 16 + off, arrayLen); // 4*4
-        Util::toBytes(bitInfo,           order, array, 20 + off, arrayLen); // 5*4
-        Util::toBytes((uint32_t)0,       order, array, 24 + off, arrayLen); // 6*4
-        Util::toBytes(HEADER_MAGIC,      order, array, 28 + off, arrayLen); // 7*4
+        Util::toBytes(wholeLen/4,        order, array + off); // 0*4
+        Util::toBytes(recordNum,         order, array +  4  + off); // 1*4
+        Util::toBytes(HEADER_SIZE_WORDS, order, array +  8  + off); // 2*4
+        Util::toBytes((uint32_t)0,       order, array + 12 + off); // 3*4
+        Util::toBytes(indexLen,          order, array + 16 + off); // 4*4
+        Util::toBytes(bitInfo,           order, array + 20 + off); // 5*4
+        Util::toBytes((uint32_t)0,       order, array + 24 + off); // 6*4
+        Util::toBytes(HEADER_MAGIC,      order, array + 28 + off); // 7*4
 
         // The rest of header is all 0's, 8*4 (inclusive) -> 14*4 (exclusive)
         memset((void *)(array + 32 + off), 0, 24);
@@ -997,7 +997,7 @@ void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen, size_t off,
             // Get vector of ints out of shared pointer
             std::vector<uint32_t> vec = *(recordLengths.get());
             for (int i=0; i < recordLengths->size(); i++) {
-                Util::toBytes(vec[i], order, array, HEADER_SIZE_BYTES + off + 4*i, arrayLen);
+                Util::toBytes(vec[i], order, array + HEADER_SIZE_BYTES + off + 4*i);
             }
         }
     }
