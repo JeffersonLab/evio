@@ -34,13 +34,13 @@ namespace evio {
     public:
 
         SegmentHeader() = default;
-        SegmentHeader(uint32_t tag, DataType & dataType);
+        SegmentHeader(uint16_t tag, DataType const & dataType);
 
         uint32_t getHeaderLength() override;
         string   toString() override;
 
         size_t write(ByteBuffer & dest) override;
-        size_t write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) override;
+        size_t write(uint8_t *dest, ByteOrder const & order) override;
     };
 
 }

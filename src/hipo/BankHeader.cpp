@@ -20,7 +20,7 @@ namespace evio {
      * @param dataType the data type for the content of the bank.
      * @param num sometimes, but not necessarily, an ordinal enumeration.
      */
-    BankHeader::BankHeader(uint32_t tag, DataType & dataType, uint32_t num) :
+    BankHeader::BankHeader(uint16_t tag, DataType const & dataType, uint8_t num) :
                     BaseStructureHeader(tag, dataType, num) {}
 
 
@@ -38,24 +38,23 @@ namespace evio {
      *
 	 * @param dest array into which evio data is written (destination).
 	 * @param order  byte order in which to write the data.
-     * @param destMaxSize max size in bytes of destination array.
      * @return the number of bytes written, which for a BankHeader is 8.
      * @throws EvioException if destination array too small to hold data.
      */
-    size_t BankHeader::write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {
+    size_t BankHeader::write(uint8_t *dest, ByteOrder const & order) {
         // length first
-        Util::toBytes(length, order, dest, destMaxSize);
+        Util::toBytes(length, order, dest);
 
         if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes((uint16_t)tag, order, dest+4, destMaxSize);
+            Util::toBytes(tag, order, dest+4);
             // lowest 6 bits are dataType, upper 2 bits are padding
             dest[6] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            dest[7] = (uint8_t)number;
+            dest[7] = number;
         }
         else {
-            dest[4] = (uint8_t)number;
+            dest[4] = number;
             dest[5] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)tag, order, dest+6, destMaxSize);
+            Util::toBytes(tag, order, dest+6);
         }
 
         return 8;
@@ -73,14 +72,14 @@ namespace evio {
         dest.putInt(length);
 
         if (dest.order() == ByteOrder::ENDIAN_BIG) {
-            dest.putShort((uint16_t) tag);
+            dest.putShort(tag);
             dest.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            dest.put((int8_t) number);
+            dest.put(number);
         }
         else {
-            dest.put((int8_t) number);
+            dest.put(number);
             dest.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            dest.putShort((uint16_t) tag);
+            dest.putShort(tag);
         }
 
         return 8;

@@ -16,10 +16,22 @@ namespace evio {
      * Constructor.
      * @param tag the tag for the tagsegment header.
      * @param dataType the data type for the content of the tagsegment.
-     * @param num sometimes, but not necessarily, an ordinal enumeration.
      */
-    TagSegmentHeader::TagSegmentHeader(uint32_t tag, DataType & dataType) :
-                    BaseStructureHeader(tag, dataType) {}
+    TagSegmentHeader::TagSegmentHeader(uint16_t tag, DataType const & dataType) :
+            BaseStructureHeader(tag, dataType) {}
+
+    /**
+     * Constructor for a string data type holding the single string given.
+     * Used in CompositeData class.
+     * @param tag the tag for the tagsegment header.
+     * @param str  data type for the content of the tagsegment.
+     */
+    TagSegmentHeader::TagSegmentHeader(uint16_t tag, string const & str) :
+            BaseStructureHeader(tag, DataType::CHARSTAR8) {
+
+        // Find out how much space, in 32-bit words, the string will take:
+        length = Util::stringToRawSize(str)/4;
+    }
 
 
     /**
@@ -34,22 +46,20 @@ namespace evio {
      * into the given byte array in the specified byte order.
      *
 	 * @param bArray array into which evio data is written (destination).
-	 * @param offset offset into bArray at which to write.
 	 * @param order  byte order in which to write the data.
-     * @param destMaxSize max size in bytes of destination array.
-     * @return the number of bytes written, which for a BankHeader is 8.
+     * @return the number of bytes written, which for a TagSegmentHeader is 4.
      * @throws EvioException if destination array too small to hold data.
      */
-    size_t TagSegmentHeader::write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {
+    size_t TagSegmentHeader::write(uint8_t *dest, ByteOrder const & order) {
         auto compositeWord = (uint16_t) ((tag << 4) | (dataType.getValue() & 0xf));
 
         if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes(compositeWord, order, dest, destMaxSize);
-            Util::toBytes((uint16_t)length, order, dest + 2, destMaxSize);
+            Util::toBytes(compositeWord, order, dest);
+            Util::toBytes((uint16_t)length, order, dest + 2);
         }
         else {
-            Util::toBytes((uint16_t)length, order, dest, destMaxSize);
-            Util::toBytes(compositeWord, order, dest + 2, destMaxSize);
+            Util::toBytes((uint16_t)length, order, dest);
+            Util::toBytes(compositeWord, order, dest + 2);
         }
         return 4;
     }

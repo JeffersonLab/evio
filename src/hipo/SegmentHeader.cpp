@@ -17,9 +17,8 @@ namespace evio {
      * Constructor.
      * @param tag the tag for the segment header.
      * @param dataType the data type for the content of the segment.
-     * @param num sometimes, but not necessarily, an ordinal enumeration.
      */
-    SegmentHeader::SegmentHeader(uint32_t tag, DataType & dataType) :
+    SegmentHeader::SegmentHeader(uint16_t tag, DataType const & dataType) :
                     BaseStructureHeader(tag, dataType) {}
 
 
@@ -35,21 +34,19 @@ namespace evio {
      * into the given byte array in the specified byte order.
      *
 	 * @param bArray array into which evio data is written (destination).
-	 * @param offset offset into bArray at which to write.
 	 * @param order  byte order in which to write the data.
-     * @param destMaxSize max size in bytes of destination array.
      * @return the number of bytes written, which for a SegmentHeader is 4.
      * @throws EvioException if destination array too small to hold data.
      */
-    size_t SegmentHeader::write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {
+    size_t SegmentHeader::write(uint8_t *dest, ByteOrder const & order) {
         if (order == ByteOrder::ENDIAN_BIG) {
-            dest[0]   = (uint8_t)tag;
+            dest[0] = (uint8_t)tag;
             dest[1] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)length, order, dest+2, destMaxSize);
+            Util::toBytes((uint16_t)length, order, dest+2);
 
         }
         else {
-            Util::toBytes((uint16_t)length, order, dest, destMaxSize);
+            Util::toBytes((uint16_t)length, order, dest);
             dest[2] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
             dest[3] = (uint8_t)tag;
         }
