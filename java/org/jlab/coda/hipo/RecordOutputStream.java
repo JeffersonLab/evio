@@ -527,7 +527,7 @@ public class RecordOutputStream {
     }
 
     /**
-     * Adds an event's ByteBuffer into the record.
+     * Adds an event's data into the record.
      * If a single event is too large for the internal buffers,
      * more memory is allocated.
      * On the other hand, if the buffer was provided by the user,
@@ -547,7 +547,7 @@ public class RecordOutputStream {
     }
 
     /**
-     * Adds an event's ByteBuffer into the record.
+     * Adds an event's data into the record.
      * Can specify the length of additional data to follow the event
      * (such as an evio trailer record) to see if by adding this event
      * everything will fit in the available memory.<p>
