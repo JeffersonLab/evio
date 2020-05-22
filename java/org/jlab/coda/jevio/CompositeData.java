@@ -464,7 +464,7 @@ public final class CompositeData {
      * The returned array consists of gluing together all the individual objects' rawByte arrays.
      * All CompositeData element must be of the same byte order.
      *
-     * @param data  array of CompositeData object to turn into bytes
+     * @param data  array of CompositeData objects to turn into bytes
      * @return array of raw, evio format bytes; null if arg is null or empty
      * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit);
      *                       array elements have different byte order.
@@ -1672,13 +1672,17 @@ public final class CompositeData {
      *                       if destBuffer too small;
      *                       if bad values for srcPos/destPos/len args;
      */
-    static void swapAll (ByteBuffer srcBuffer, ByteBuffer destBuffer,
-                         int srcPos, int destPos, int len, boolean inPlace)
+    static void swapAll(ByteBuffer srcBuffer, ByteBuffer destBuffer,
+                        int srcPos, int destPos, int len, boolean inPlace)
                 throws EvioException {
 
         // Minimum size of 4 words for composite data
         if (len < 4) {
             throw new EvioException("len arg must be >= 4");
+        }
+
+        if (4*len > destBuffer.limit() - destPos) {
+            throw new EvioException("not enough room in destination buffer");
         }
 
         // Bytes to swap
@@ -2525,9 +2529,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
 
     /**
-     * This method swaps EVIO composite type data, in place, to big endian (IEEE)
-     * if currently little endian (DECS). It also extracts and stores all the data
-     * items and their types in 2 lists.
+     * This method extracts and stores all the data items and their types in various lists.
      */
     public void process() {
 
