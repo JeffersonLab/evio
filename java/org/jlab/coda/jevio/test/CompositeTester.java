@@ -277,9 +277,10 @@ System.out.println("Call CompositeData.swapAll()");
      * More complicated example of providing a format string and some data
      * in order to create a CompositeData object.
      */
-    public static void main3(String args[]) {
+    public static void main(String args[]) {
 
         // Create a CompositeData object ...
+        System.out.println("NEWWWWWWWWWWWWWWWWW");
 
         // Format to write 1 int and 1 float a total of N times
         String format = "N(I,F)";
@@ -325,19 +326,32 @@ System.out.println("Create composite data objects");
         printCompositeDataObject(cData[1]);
         printCompositeDataObject(cData[2]);
 
+        System.out.println("Print composite data object 1:\n");
+        Utilities.printBytes(cData[0].getRawBytes(), 0, cData[0].getRawBytes().length, "RawBytes 1");
+        System.out.println("Print composite data object 2:\n");
+        Utilities.printBytes(cData[1].getRawBytes(), 0, cData[1].getRawBytes().length, "RawBytes 2");
+        System.out.println("Print composite data object 3:\n");
+        Utilities.printBytes(cData[2].getRawBytes(), 0, cData[2].getRawBytes().length, "RawBytes 3");
+
         try {
             EvioEvent ev = new EvioEvent(0, DataType.COMPOSITE, 0);
             ev.appendCompositeData(cData);
+
+            System.out.println("Print event raw bytes of composite array:\n");
+            Utilities.printBytes(ev.getRawBytes(), 0, ev.getRawBytes().length, "Array rawBytes");
 
             // Write it to this file
             String fileName  = "./composite.dat";
 
 System.out.println("WRITE FILE:");
-            EventWriter writer = new EventWriter(fileName);
+            EventWriter writer = new EventWriter(fileName, false, ByteOrder.LITTLE_ENDIAN);
             writer.writeEvent(ev);
             writer.close();
 
-            // Read it from file
+            Utilities.printBytes(fileName, 0, 1000, "FILE read back in");
+
+
+                // Read it from file
 System.out.println("READ FILE & PRINT CONTENTS:");
             EvioReader reader = new EvioReader(fileName);
             EvioEvent evR = reader.parseNextEvent();
@@ -363,7 +377,7 @@ System.out.println("READ FILE & PRINT CONTENTS:");
 
 
     /** For testing only */
-    public static void main(String args[]) {
+    public static void main666(String args[]) {
 
         //create an event writer to write out the test events.
         String fileName  = "/home/timmer/evioTestFiles/clas_004604.evio.00000";
@@ -396,6 +410,7 @@ System.out.println("READ FILE & PRINT CONTENTS:");
      */
     public static void printCompositeDataObject(CompositeData cData) {
 
+System.out.print("printCompositeDataObject: IN");
         // Get lists of data items & their types from composite data object
         List<Object> items = cData.getItems();
         List<DataType> types = cData.getTypes();
