@@ -18,7 +18,7 @@ namespace evio {
      * @param dataType the data type for the content of the structure.
      * @param num sometimes, but not necessarily, an ordinal enumeration.
      */
-    BaseStructureHeader::BaseStructureHeader(uint32_t tag, DataType & dataType, uint32_t num) {
+    BaseStructureHeader::BaseStructureHeader(uint16_t tag, DataType const & dataType, uint8_t num) {
         this->tag = tag;
         this->dataType = dataType;
         setNumber(num);
@@ -28,13 +28,13 @@ namespace evio {
      * Get the number. Only Banks have a number field in their header, so this is only relevant for Banks.
      * @return the number.
      */
-    uint32_t BaseStructureHeader::getNumber() {return number;}
+    uint8_t BaseStructureHeader::getNumber() {return number;}
 
     /**
      * Set the number. Only Banks have a number field in their header, so this is only relevant for Banks.
      * @param num the number.
      */
-    void BaseStructureHeader::setNumber(uint32_t num) {number = num & 0xff;}
+    void BaseStructureHeader::setNumber(uint8_t num) {number = num;}
 
     /**
      * Get the data type for the structure.
@@ -72,14 +72,14 @@ namespace evio {
      * Value is 0, 1, 2, or 3 for bytes and 0 or 2 for shorts.
      * @return number of padding bytes
      */
-    uint32_t BaseStructureHeader::getPadding() {return padding;}
+    uint8_t BaseStructureHeader::getPadding() {return padding;}
 
     /**
      * Set the amount of padding bytes when storing short or byte data.
      * Allowed value is 0, 1, 2, or 3 for bytes and 0 or 2 for shorts.
      * @param padding amount of padding bytes when storing short or byte data (0-3).
      */
-    void BaseStructureHeader::setPadding(uint32_t pad) {padding = pad;}
+    void BaseStructureHeader::setPadding(uint8_t pad) {padding = pad;}
 
     /**
      * Get the length of the structure in ints, not counting the length word.
@@ -97,12 +97,12 @@ namespace evio {
      * Get the structure tag.
      * @return the structure tag.
      */
-    uint32_t BaseStructureHeader::getTag() {return tag;}
+    uint16_t BaseStructureHeader::getTag() {return tag;}
 
     /**
      * Set the structure tag.
      * @param t the structure tag.
      */
-    void BaseStructureHeader::setTag(uint32_t t) {tag = t;}
+    void BaseStructureHeader::setTag(uint16_t t) {tag = t;}
 }
 

@@ -18,7 +18,6 @@
 
 #include "Util.h"
 #include "ByteOrder.h"
-#include "TreeNode.h"
 #include "DataType.h"
 #include "EvioException.h"
 
@@ -38,11 +37,13 @@ namespace evio {
     class BaseStructureHeader /*: IEvioWriter */ {
 
         friend class BaseStructure;
+        friend class EventParser;
+        friend class CompositeData;
 
     protected:
 
         /**
-         * The length of the structure in ints. This never includes the
+         * The length of the structure in 32-bit words. This never includes the
          * first header word itself (which contains the length).
          */
         uint32_t length = 0;
@@ -58,25 +59,25 @@ namespace evio {
          * Allowed value is 0, 1, 2, or 3 (0,2 for shorts and 0-3 for bytes)
          * and is stored in the upper 2 bits of the dataType when written out.
          */
-        uint32_t padding = 0;
+        uint8_t padding = 0;
 
         /**
          * The number represents an unsigned byte. Only Banks have a number
          * field in their header, so this is only relevant for Banks.
          */
-        uint32_t number = 0;
+        uint8_t number = 0;
 
     protected:
 
-        void setPadding(uint32_t padding);
+        void setPadding(uint8_t padding);
 
     public:
 
         BaseStructureHeader() = default;
-        BaseStructureHeader(uint32_t tag, DataType & dataType, uint32_t num = 0);
+        BaseStructureHeader(uint16_t tag, DataType const & dataType, uint8_t num = 0);
 
-        uint32_t getNumber();
-        void setNumber(uint32_t number);
+        uint8_t getNumber();
+        void setNumber(uint8_t number);
 
         uint32_t getDataTypeValue();
         void setDataType(uint32_t dataType);
@@ -85,19 +86,19 @@ namespace evio {
         DataType getDataType();
 
         string getDataTypeName();
-        uint32_t getPadding();
+        uint8_t getPadding();
 
         uint32_t getLength();
         void setLength(uint32_t length);
 
-        uint32_t getTag();
-        void setTag(uint32_t tag);
+        uint16_t getTag();
+        void setTag(uint16_t tag);
 
         virtual uint32_t getHeaderLength() {return 0;};
         virtual string   toString() {return "BaseStructureHeader";};
 
         virtual size_t write(ByteBuffer & dest) {return 0;};
-        virtual size_t write(uint8_t *dest, size_t destMaxSize, ByteOrder & order) {return 0;};
+        virtual size_t write(uint8_t *dest, ByteOrder const & order) {return 0;};
 
     };
 }
