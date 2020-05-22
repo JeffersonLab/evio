@@ -174,7 +174,7 @@ public:
      *
      * @return name of the enumerated type
      */
-    string toString() {
+    string toString() const {
         if      (*this == ALSOBANK)    return "BANK";
         else if (*this == ALSOSEGMENT) return "SEGMENT";
         return name;
@@ -186,7 +186,7 @@ public:
      * @return <code>true</code> if the data type corresponds to one of the structure
      * types: BANK, SEGMENT, TAGSEGMENT, ALSOBANK, or ALSOSEGMENT.
      */
-    bool isStructure() {
+    bool isStructure() const {
         return ((*this == BANK)       ||
                 (*this == SEGMENT)    ||
                 (*this == TAGSEGMENT) ||
@@ -198,26 +198,26 @@ public:
      * Convenience routine to see if "this" data type is a bank structure.
      * @return <code>true</code> if this data type corresponds to a bank structure.
      */
-    bool isBank() {return (*this == BANK || *this == ALSOBANK);}
+    bool isBank() const {return (*this == BANK || *this == ALSOBANK);}
 
     /**
      * Convenience routine to see if "this" data type is a segment structure.
      * @return <code>true</code> if this data type corresponds to a bank structure.
      */
-    bool isSegment() {return (*this == SEGMENT || *this == ALSOSEGMENT);}
+    bool isSegment() const {return (*this == SEGMENT || *this == ALSOSEGMENT);}
 
     /**
      * Convenience routine to see if "this" data type is a tagsegment structure.
      * @return <code>true</code> if this data type corresponds to a tagsegment structure.
      */
-    bool isTagSegment() {return (*this == TAGSEGMENT);}
+    bool isTagSegment() const {return (*this == TAGSEGMENT);}
 
     /**
      * Convenience method to see if "this" data type is an integer of some kind -
      * either 8, 16, 32, or 64 bits worth.
      * @return <code>true</code> if the data type corresponds to an integer type
      */
-    bool isInteger() {
+    bool isInteger() const {
         return ((*this == UCHAR8)   ||
                 (*this == CHAR8)    ||
                 (*this == USHORT16) ||
