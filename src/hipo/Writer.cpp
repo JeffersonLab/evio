@@ -869,7 +869,7 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
             }
         }
         else {
-            buffer.put(&headerArray[0], 0, RecordHeader::HEADER_SIZE_BYTES);
+            buffer.put(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES);
         }
         return;
     }
@@ -897,7 +897,7 @@ void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
         }
     }
     else {
-        buffer.put(&headerArray[0], 0, dataBytes);
+        buffer.put(&headerArray[0], dataBytes);
     }
 }
 
@@ -957,7 +957,7 @@ void Writer::writeRecord(RecordOutput & rec) {
         outputRecord.reset();
     }
     else {
-        buffer.put(rec.getBinaryBuffer()->array(), 0, bytesToWrite);
+        buffer.put(rec.getBinaryBuffer()->array(), bytesToWrite);
     }
 }
 
