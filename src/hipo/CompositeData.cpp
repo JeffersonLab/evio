@@ -138,7 +138,7 @@ namespace evio {
         this->byteOrder = byteOrder;
 
         // First read the tag segment header
-        tsHeader = EventParser::createTagSegmentHeader(bytes, byteOrder);
+        tsHeader = EventHeaderParser::createTagSegmentHeader(bytes, byteOrder);
 
         if (debug) {
             std::cout << "    tagseg: type = 0x" << hex << tsHeader->getDataTypeValue() << dec <<
@@ -172,7 +172,7 @@ namespace evio {
         dataOffset += tsHeader->getLength() - (tsHeader->getHeaderLength() - 1);
 
         // Read the data bank header
-        bHeader = EventParser::createBankHeader(bytes + 4*dataOffset, byteOrder);
+        bHeader = EventHeaderParser::createBankHeader(bytes + 4*dataOffset, byteOrder);
 
         // Hop over bank header
         dataOffset += bHeader->getHeaderLength();
@@ -254,7 +254,7 @@ namespace evio {
             cd->byteOrder = order;
 
             // First read the tag segment header
-            cd->tsHeader = EventParser::createTagSegmentHeader(bytes + rawBytesOffset, order);
+            cd->tsHeader = EventHeaderParser::createTagSegmentHeader(bytes + rawBytesOffset, order);
             byteCount += 4*(cd->tsHeader->getLength() + 1);
 
             if (debug) {
@@ -289,7 +289,7 @@ namespace evio {
             cd->dataOffset = cd->tsHeader->getLength() + 1;
 
             // Read the data bank header
-            cd->bHeader = EventParser::createBankHeader(bytes + rawBytesOffset + 4*(cd->dataOffset), order);
+            cd->bHeader = EventHeaderParser::createBankHeader(bytes + rawBytesOffset + 4*(cd->dataOffset), order);
             byteCount += 4*(cd->bHeader->getLength() + 1);
 
             // Hop over bank header
@@ -1015,7 +1015,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
 //System.out.println("start src offset = " + (srcOff + dataOff));
 
             // First read the tag segment header
-            auto tsegHeader = EventParser::createTagSegmentHeader(src + srcOff, srcOrder);
+            auto tsegHeader = EventHeaderParser::createTagSegmentHeader(src + srcOff, srcOrder);
             uint32_t headerLen  = tsegHeader->getHeaderLength();
             uint32_t dataLength = tsegHeader->getLength() - (headerLen - 1);
 
@@ -1061,7 +1061,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
             dataOff += 4*dataLength;
 
             // Read the data bank header
-            auto bnkHeader = EventParser::createBankHeader(src + srcOff, srcOrder);
+            auto bnkHeader = EventHeaderParser::createBankHeader(src + srcOff, srcOrder);
             headerLen  = bnkHeader->getHeaderLength();
             dataLength = bnkHeader->getLength() - (headerLen - 1);
 

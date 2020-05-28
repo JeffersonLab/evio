@@ -34,7 +34,7 @@
 #include "BankHeader.h"
 #include "SegmentHeader.h"
 #include "TagSegmentHeader.h"
-#include "EventParser.h"
+#include "EventHeaderParser.h"
 #include "EvioNode.h"
 #include "Util.h"
 
@@ -165,7 +165,7 @@ class CompositeData {
 
 
 
-        typedef struct {
+    typedef struct {
         int left;    /* index of ifmt[] element containing left parenthesis */
         int nrepeat; /* how many times format in parenthesis must be repeated */
         int irepeat; /* right parenthesis counter, or how many times format
@@ -638,53 +638,53 @@ class CompositeData {
     };
 
 
-private:
+    private:
 
-    /** String containing data format. */
-    string format;
+        /** String containing data format. */
+        string format;
 
-    /** List of unsigned shorts obtained from transforming format string. */
-    std::vector<uint16_t> formatInts;
+        /** List of unsigned shorts obtained from transforming format string. */
+        std::vector<uint16_t> formatInts;
 
-    /** List of extracted data items from raw bytes. */
-    std::vector<CompositeData::DataItem> items;
+        /** List of extracted data items from raw bytes. */
+        std::vector<CompositeData::DataItem> items;
 
-    /** List of the types of the extracted data items. */
-    std::vector<DataType> types;
+        /** List of the types of the extracted data items. */
+        std::vector<DataType> types;
 
-    /** List of the "N" (32 bit) values extracted from the raw data. */
-    std::vector<int32_t> NList;
+        /** List of the "N" (32 bit) values extracted from the raw data. */
+        std::vector<int32_t> NList;
 
-    /** List of the "n" (16 bit) values extracted from the raw data. */
-    std::vector<int16_t> nList;
+        /** List of the "n" (16 bit) values extracted from the raw data. */
+        std::vector<int16_t> nList;
 
-    /** List of the "m" (8 bit) values extracted from the raw data. */
-    std::vector<int8_t> mList;
+        /** List of the "m" (8 bit) values extracted from the raw data. */
+        std::vector<int8_t> mList;
 
-    /** Tagsegment header of tagsegment containing format string. */
-    std::shared_ptr<TagSegmentHeader> tsHeader;
+        /** Tagsegment header of tagsegment containing format string. */
+        std::shared_ptr<TagSegmentHeader> tsHeader;
 
-    /** Bank header of bank containing data. */
-    std::shared_ptr<BankHeader> bHeader;
+        /** Bank header of bank containing data. */
+        std::shared_ptr<BankHeader> bHeader;
 
-    /** The entire raw data of the composite item - both tagsegment and data bank. */
-    std::vector<uint8_t> rawBytes;
+        /** The entire raw data of the composite item - both tagsegment and data bank. */
+        std::vector<uint8_t> rawBytes;
 
-    /** Length of only data in bytes (not including padding). */
-    uint32_t dataBytes = 0;
+        /** Length of only data in bytes (not including padding). */
+        uint32_t dataBytes = 0;
 
-    /** Length of only data padding in bytes. */
-    uint32_t dataPadding = 0;
+        /** Length of only data padding in bytes. */
+        uint32_t dataPadding = 0;
 
-    /** Offset (in 32bit words) in rawBytes to place of data. */
-    uint32_t dataOffset = 0;
+        /** Offset (in 32bit words) in rawBytes to place of data. */
+        uint32_t dataOffset = 0;
 
-    /** Byte order of raw bytes. */
-    ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        /** Byte order of raw bytes. */
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
 //TODO: mark this so it's changes don't mess with const
-    /** Index used in getting data items from the {@link #items} list. */
-    uint32_t getIndex = 0;
+        /** Index used in getting data items from the {@link #items} list. */
+        uint32_t getIndex = 0;
 
 
     public:
@@ -702,65 +702,65 @@ private:
 
         CompositeData(uint8_t *bytes, ByteOrder const & byteOrder);
 
-        void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
-                   std::vector<std::shared_ptr<CompositeData>> & list);
+        static void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
+                          std::vector<std::shared_ptr<CompositeData>> & list);
 
 
-    static void generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
-                                 std::vector<uint8_t> & rawBytes);
-    //Object clone();
+        static void generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
+                                     std::vector<uint8_t> & rawBytes);
+        //Object clone();
 
-    static string stringsToFormat(std::vector<string> strings);
-    //eviofmt  ---> compositeFormatToInt
-    static int compositeFormatToInt(const string & formatStr, std::vector<uint16_t> & ifmt);
+        static string stringsToFormat(std::vector<string> strings);
+        //eviofmt  ---> compositeFormatToInt
+        static int compositeFormatToInt(const string & formatStr, std::vector<uint16_t> & ifmt);
 
-    void swap();
-
-
-    uint32_t getPadding();
-    string getFormat();
-    ByteOrder getByteOrder();
-
-    std::vector<uint8_t> getRawBytes();
-    std::vector<CompositeData::DataItem> getItems();
-
-    std::vector<DataType> getTypes();
-    std::vector<int32_t>  getNValues();
-    std::vector<int16_t>  getnValues();
-    std::vector<int8_t>   getmValues();
-
-    int index();
-    void index(int index);
+        void swap();
 
 
-    int32_t getNValue();
-    int16_t getnValue();
-    int8_t  getmValue();
-    int32_t getHollerit();
+        uint32_t getPadding();
+        string getFormat();
+        ByteOrder getByteOrder();
 
-    int8_t  getChar();
-    uint8_t getUChar();
+        std::vector<uint8_t> getRawBytes();
+        std::vector<CompositeData::DataItem> getItems();
 
-    int16_t  getShort();
-    uint16_t getUShort();
-    int32_t  getInt();
-    uint32_t getUInt();
+        std::vector<DataType> getTypes();
+        std::vector<int32_t>  getNValues();
+        std::vector<int16_t>  getnValues();
+        std::vector<int8_t>   getmValues();
 
-    int64_t  getLong();
-    uint64_t getULong();
-
-     float  getFloat() ;
-     double getDouble();
-
-     std::vector<string> getStrings();
+        int index();
+        void index(int index);
 
 
-    static void swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal);
+        int32_t getNValue();
+        int16_t getnValue();
+        int8_t  getmValue();
+        int32_t getHollerit();
 
-    static void swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
-                         uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
+        int8_t  getChar();
+        uint8_t getUChar();
 
-public:
+        int16_t  getShort();
+        uint16_t getUShort();
+        int32_t  getInt();
+        uint32_t getUInt();
+
+        int64_t  getLong();
+        uint64_t getULong();
+
+        float  getFloat() ;
+        double getDouble();
+
+        std::vector<string> getStrings();
+
+
+        static void swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal);
+
+        static void swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+                            uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
+
+    public:
 
 //////////////
 
@@ -783,16 +783,16 @@ public:
                              uint32_t padding);
 
         static void dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data const & data,
-                                           std::vector<uint16_t> & ifmt);
+                                   std::vector<uint16_t> & ifmt);
 
 
-     void process();
+        void process();
 
-    string toString(const string & indent, bool hex);
+        string toString(const string & indent, bool hex);
 
-    string toString() const;
-    string toString(string indent) const;
-    string toString(bool hex) const;
+        string toString() const;
+        string toString(string indent) const;
+        string toString(bool hex) const;
 
 
     };
