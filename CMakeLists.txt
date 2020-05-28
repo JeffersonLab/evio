@@ -25,7 +25,7 @@ set(CMAKE_CXX_STANDARD 14)
 project(evio_6_0)
 
 # Find include files here
-include_directories(src/libsrc src/libsrc++ src/hipo /usr/include/boost $ENV{DISRUPTOR_CPP_HOME})
+include_directories(src/libsrc src/libsrc++ src/hipo /usr/include/boost /usr/local/include $ENV{DISRUPTOR_CPP_HOME})
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
@@ -44,7 +44,8 @@ set(C_LIB_FILES
     src/libsrc/eviofmt.c
     src/libsrc/eviofmtdump.c
     src/libsrc/eviofmtswap.c
-    src/libsrc/evioswap.c src/hipo/AbstractTreeNode.h src/hipo/BaseStructure.cpp src/hipo/BaseStructure.h)
+    src/libsrc/evioswap.c
+    )
 
 set(CPP_HEADER_FILES
     src/libsrc++/evioBankIndex.hxx
@@ -103,15 +104,19 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/EventWriter.h
         src/hipo/RecordWriter.h
         src/hipo/RecordCompressor.h
-        src/hipo/EvioBank.h
-        src/hipo/TreeNode.h
-        src/hipo/TreeNodeException.h
         src/hipo/BaseStructure.h
         src/hipo/BaseStructureHeader.h
         src/hipo/CompositeData.h
         src/hipo/BankHeader.h
         src/hipo/SegmentHeader.h
         src/hipo/TagSegmentHeader.h
+        src/hipo/EvioBank.h
+        src/hipo/EvioSegment.h
+        src/hipo/EvioTagSegment.h
+        src/hipo/EvioEvent.h
+        src/hipo/EventParser.h
+        src/hipo/IEvioFilter.h
+        src/hipo/IEvioListener.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -133,17 +138,17 @@ set(CPP_LIB_FILES_NEW
         src/hipo/RecordSupply.cpp
         src/hipo/RecordRingItem.cpp
         src/hipo/EventWriter.cpp
-        src/hipo/EvioBank.cpp
         src/hipo/BaseStructure.cpp
         src/hipo/BaseStructureHeader.cpp
         src/hipo/CompositeData.cpp
         src/hipo/BankHeader.cpp
         src/hipo/SegmentHeader.cpp
         src/hipo/TagSegmentHeader.cpp
-        )
+        src/hipo/EventParser.cpp
+        src/hipo/EventScanner.h)
 
 set(TEST_FILES_CC
-        src/hipo/ReadWriteTest.cpp
+        ReadWriteTest.cpp
         src/hipo/RingBufferTest.cpp
         )
 
@@ -180,7 +185,7 @@ set(TEST
 
 # Shared evio C library
 add_library(evio SHARED ${C_LIB_FILES})
-target_include_directories(evio PUBLIC src/libsrc)
+target_include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 # Shared evio C++ library
 #add_library(evioxx SHARED ${CPP_LIB_FILES})
@@ -189,11 +194,11 @@ target_include_directories(evio PUBLIC src/libsrc)
 
 # Shared hipo C++ library
 add_library(hipo SHARED ${CPP_LIB_FILES_NEW})
-target_include_directories(hipo PUBLIC src/hipo)
+target_include_directories(hipo PUBLIC src/hipo /usr/local/include)
 
 
 # Main Executables
-add_executable(ReadWriteTest src/hipo/ReadWriteTest.cpp)
+add_executable(ReadWriteTest ReadWriteTest.cpp)
 target_link_libraries(ReadWriteTest pthread expat z hipo)
 
 add_executable(RingBufferTest src/hipo/RingBufferTest.cpp)
