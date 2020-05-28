@@ -58,6 +58,9 @@ int main(int argc, char **argv) {
     hdSup->whoAmI();
     hdSup->whoAmI_virt();
 
+    auto tSup2 = TNodeSuper2::getInstance(1,2,3);
+    tSup2->add(t2Sup);
+
 
 
 //    auto t3 = TNodeSuper1::getInstance(33);
