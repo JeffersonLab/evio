@@ -331,6 +331,12 @@ namespace evio {
     std::shared_ptr<BaseStructure> BaseStructure::getParent() const { return parent; }
 
     /**
+     * Get the children of this structure.
+     * @return the children of this structure.
+     */
+    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getChildren() const {return children;}
+
+    /**
      * Returns the child at the specified index in this node's child array.
      * Originally part of java's DefaultMutableTreeNode.
      * @param   index   an index into this node's child array
@@ -389,14 +395,24 @@ namespace evio {
     }
 
     /**
-     * Creates and returns a forward-order iterator of this node's
+     * Creates and returns a forward-order begin iterator of this node's
      * children.  Modifying this node's child array invalidates any child
      * iterators created before the modification.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     * @return  an iterator of this node's children
+     * @return  a begin iterator of this node's children
      */
-    auto BaseStructure::childrenIter() { return children.begin(); }
+    auto BaseStructure::childrenIterBegin() { return children.begin(); }
+
+    /**
+     * Creates and returns a forward-order end iterator of this node's
+     * children.  Modifying this node's child array invalidates any child
+     * iterators created before the modification.
+     * Originally part of java's DefaultMutableTreeNode.
+     *
+     * @return  an end iterator of this node's children
+     */
+    auto BaseStructure::childrenIterEnd() { return children.end(); }
 
     /**
      * Determines whether or not this node is allowed to have children.
@@ -1497,6 +1513,14 @@ uint32_t BaseStructure::getNumberDataItems() {
     void BaseStructure::setRawBytes(uint8_t *bytes, uint32_t len) {
         std::memcpy(rawBytes.data(), bytes, len);
     }
+    /**
+     * Set the data for the structure.
+     *
+     * @param bytes vector of data to be copied.
+     */
+    void BaseStructure::setRawBytes(std::vector<uint8_t> & bytes) {
+        rawBytes = bytes;
+    }
 
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an int16_t vector
@@ -1739,27 +1763,25 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
-//    /**
-//     * This is a method from the IEvioStructure Interface. Gets the composite data as
-//     * an array of CompositeData objects, if the content type as indicated by the header
-//     * is appropriate.<p>
-//     *
-//     * @return the data as an array of CompositeData objects, or <code>null</code>
-//     *         if this makes no sense for the given content type.
-//     * @throws EvioException if the data is internally inconsistent
-//     */
-//    std::vector<std::shared_ptr<CompositeData>> & BaseStructure::getCompositeData() {
-//
-//        if (header->getDataType() == DataType::COMPOSITE) {
-//            if (compositeData.empty() && (!rawBytes.empty())) {
-//
-//                auto cd = CompositeData::parse(rawBytes, byteOrder);
-//                compositeData = cd;
-//            }
-//            return compositeData;
-//        }
-//        throw EvioException("wrong data type");
-//    }
+    /**
+     * This is a method from the IEvioStructure Interface. Gets the composite data as
+     * an vector of CompositeData objects, if the content type as indicated by the header
+     * is appropriate.<p>
+     *
+     * @return the data as an array of CompositeData objects, or <code>null</code>
+     *         if this makes no sense for the given content type.
+     * @throws EvioException if the data is internally inconsistent
+     */
+    std::vector<std::shared_ptr<CompositeData>> & BaseStructure::getCompositeData() {
+        if (header->getDataType() == DataType::COMPOSITE) {
+            if (compositeData.empty() && (!rawBytes.empty())) {
+
+                CompositeData::parse(rawBytes.data(), rawBytes.size(), byteOrder, compositeData);
+            }
+            return compositeData;
+        }
+        throw EvioException("wrong data type");
+    }
 
 
     /**
@@ -2341,173 +2363,8 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
+    ///////////////////////////////////////////////////////////////////////
 
-// TODO: COmment this out temporarily
-
-//    /**
-//     * Visit all the structures in this structure (including the structure itself --
-//     * which is considered its own descendant).
-//     * This is similar to listening to the event as it is being parsed,
-//     * but is done to a complete (already) parsed event.
-//     *
-//     * @param listener an listener to notify as each structure is visited.
-//     */
-//    void BaseStructure::vistAllStructures(IEvioListener & listener) {
-//        visitAllDescendants(this, listener, nullptr);
-//    }
-//
-//    /**
-//     * Visit all the structures in this structure (including the structure itself --
-//     * which is considered its own descendant) in a depth first manner.
-//     *
-//     * @param listener an listener to notify as each structure is visited.
-//     * @param filter an optional filter that must "accept" structures before
-//     *               they are passed to the listener. If <code>null</code>, all
-//     *               structures are passed. In this way, specific types of
-//     *               structures can be captured.
-//     */
-//    void BaseStructure::vistAllStructures(IEvioListener & listener, IEvioFilter & filter) {
-//        visitAllDescendants(this, listener, filter);
-//    }
-//
-//    /**
-//     * Visit all the descendants of a given structure
-//     * (which is considered a descendant of itself.)
-//     *
-//     * @param structure the starting structure.
-//     * @param listener an listener to notify as each structure is visited.
-//     * @param filter an optional filter that must "accept" structures before
-//     *               they are passed to the listener. If <code>null</code>, all
-//     *               structures are passed. In this way, specific types of
-//     *               structures can be captured.
-//     */
-//    void BaseStructure::visitAllDescendants(BaseStructure & structure, IEvioListener & listener,
-//                                            IEvioFilter & filter) {
-//        if (listener != nullptr) {
-//            bool accept = true;
-//            if (filter != nullptr) {
-//                accept = filter.accept(structure.getStructureType(), structure);
-//            }
-//
-//            if (accept) {
-//                listener.gotStructure(this, structure);
-//            }
-//        }
-//
-//        if (!(structure.isLeaf())) {
-//            for (BaseStructure child : structure.getChildren()) {
-//                visitAllDescendants(child, listener, filter);
-//            }
-//        }
-//    }
-//
-//    /**
-//     * Visit all the descendant structures, and collect those that pass a filter.
-//     * @param filter the filter that must be passed. If <code>null</code>,
-//     *               this will return all the structures.
-//     * @return a collection of all structures that are accepted by a filter.
-//     */
-//    std::vector<BaseStructure> BaseStructure::getMatchingStructures(IEvioFilter & filter) {
-//        std::vector<BaseStructure> structures(25);
-//
-//        IEvioListener listener = new IEvioListener() {
-//            public void startEventParse(BaseStructure structure) { }
-//
-//            public void endEventParse(BaseStructure structure) { }
-//
-//            public void gotStructure(BaseStructure topStructure, IEvioStructure structure) {
-//                structures.add((BaseStructure)structure);
-//            }
-//        };
-//
-//        vistAllStructures(listener, filter);
-//
-//        if (structures.size() == 0) {
-//            return null;
-//        }
-//        return structures;
-//    }
-
-
-
-
-
-
-
-// TODO: TreeNode stuff
-
-//
-///**
-// * This method is not relevant for this implementation.
-// * An empty implementation is provided to satisfy the interface.
-// * Part of the <code>MutableTreeNode</code> interface.
-// */
-//public void setUserObject(Object arg0) {
-//}
-//
-///**
-// * Checks whether children are allowed. Structures of structures can have children.
-// * Structures of primitive data can not. Thus is is entirely determined by the content type.
-// * Part of the <code>MutableTreeNode</code> interface.
-// *
-// * @return <code>true</code> if this node does not hold primitive data,
-// *         i.e., if it is a structure of structures (a container).
-// */
-//public bool getAllowsChildren() {
-//    return header->getDataType().isStructure();
-//}
-//
-///**
-// * Obtain the child at the given index. Part of the <code>MutableTreeNode</code> interface.
-// *
-// * @param index the target index.
-// * @return the child at the given index or null if none
-// */
-//public TreeNode getChildAt(int index) {
-//    if (children == null) return null;
-//
-//    BaseStructure b = null;
-//    try {
-//        b = children.get(index);
-//    }
-//    catch (ArrayIndexOutOfBoundsException e) { }
-//    return b;
-//}
-//
-///**
-// * Get the count of the number of children. Part of the <code>MutableTreeNode</code> interface.
-// *
-// * @return the number of children.
-// */
-//public int getChildCount() {
-//    if (children == null) {
-//        return 0;
-//    }
-//    return children.size();
-//}
-//
-///**
-// * Get the index of a node. Part of the <code>MutableTreeNode</code> interface.
-// *
-// * @return the index of the target node or -1 if no such node in tree
-// */
-//public int getIndex(TreeNode node) {
-//    if (children == null || node == null) return -1;
-//    return children.indexOf(node);
-//}
-//
-///**
-// * Checks whether this is a leaf. Leaves are structures with no children.
-// * All structures that contain primitive data are leaf structures.
-// * Part of the <code>MutableTreeNode</code> interface.<br>
-// * Note: this means that an empty container, say a Bank of Segments that have no segments, is a leaf.
-// *
-// * @return <code>true</code> if this is a structure with a primitive data type, i.e., it is not a container
-// *         structure that contains other structures.
-// */
-//public bool isLeaf() {
-//    return isLeaf;
-//}
 
 
     /**
@@ -2576,31 +2433,6 @@ uint32_t BaseStructure::getNumberDataItems() {
 
         return datalen;
     }
-
-
-//
-//
-///**
-//    * Get the children of this structure.
-// * Use {@link #getChildrenList()} instead.
-//    *
-// * @deprecated child structures are no longer keep in a Vector
-//    * @return the children of this structure.
-//    */
-//public Vector<BaseStructure> getChildren() {
-//    if (children == null) return null;
-//    return new Vector<BaseStructure>(children);
-//}
-//
-///**
-//    * Get the children of this structure.
-//    *
-//    * @return the children of this structure.
-//    */
-//public List<BaseStructure> getChildrenList() {return children;}
-//
-
-
 
 
     /**
@@ -2841,24 +2673,7 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
     /**
-     * Write myself out a byte buffer with fastest algorithms I could find.
-     *
-     * @param byteBuffer the byteBuffer to write to.
-     * @return the number of bytes written.
-     * @throws overflow_error if too little space in byteBuffer.
-     */
-    size_t BaseStructure::write2(ByteBuffer & byteBuffer) {
-
-        if (byteBuffer.remaining() < getTotalBytes()) {
-            throw overflow_error("byteBuffer (limit - pos) too small");
-        }
-
-        return write(byteBuffer.array() + byteBuffer.arrayOffset(), byteBuffer.order());
-    }
-
-
-    /**
-     * Write myself out a byte buffer with fastest algorithms I could find.
+     * Write myself out a byte buffer with fastest algorithm I could find.
      *
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written.
@@ -2870,131 +2685,150 @@ uint32_t BaseStructure::getNumberDataItems() {
             throw overflow_error("byteBuffer (limit - pos) too small");
         }
 
-        size_t startPos = byteBuffer.position();
-
-        // write the header
-        header->write(byteBuffer);
-
-        size_t curPos = byteBuffer.position();
-
-        if (isLeaf()) {
-
-            DataType type = header->getDataType();
-
-            // If we have raw bytes which do NOT need swapping, this is fastest ..
-            if (!rawBytes.empty() && (byteOrder == byteBuffer.order())) {
-                byteBuffer.put(rawBytes, 0, rawBytes.size());
-            }
-            else if (type == DataType::DOUBLE64) {
-                // if data sent over wire or read from file ...
-                if (!rawBytes.empty()) {
-                    // and need swapping ...
-                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8,
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + rawBytes.size());
-                }
-                // else if user set data thru API (can't-rely-on / no rawBytes array) ...
-                else {
-                    ByteOrder::byteSwap64(doubleData.data(), doubleData.size(),
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + 8 * doubleData.size());
-                }
-            }
-            else if (type == DataType::FLOAT32) {
-                if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4,
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + rawBytes.size());
-                }
-                else {
-                    ByteOrder::byteSwap32(floatData.data(), floatData.size(),
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + 4 * floatData.size());
-                }
-            }
-            else if (type == DataType::LONG64 || type == DataType::ULONG64) {
-                if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8,
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + rawBytes.size());
-                }
-                else {
-                    ByteOrder::byteSwap64(longData.data(), longData.size(),
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + 8 * longData.size());
-                }
-            }
-            else if (type == DataType::INT32 || type == DataType::UINT32) {
-                if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4,
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + rawBytes.size());
-                }
-                else {
-                    ByteOrder::byteSwap32(intData.data(), intData.size(),
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + 4 * intData.size());
-                }
-            }
-            else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
-                if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap16(rawBytes.data(), rawBytes.size()/2,
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + rawBytes.size());
-                }
-                else {
-                    ByteOrder::byteSwap16(shortData.data(), shortData.size(),
-                                          byteBuffer.array() + byteBuffer.arrayOffset());
-                    byteBuffer.position(curPos + 2 * shortData.size());
-
-                    // might have to pad to 4 byte boundary
-                    if (shortData.size() % 2 > 0) {
-                        byteBuffer.putShort((short) 0);
-                    }
-                }
-            }
-            else if (type == DataType::CHAR8 || type == DataType::UCHAR8 || type == DataType::UNKNOWN32) {
-                if (!rawBytes.empty()) {
-                    byteBuffer.put(rawBytes, 0, rawBytes.size());
-                } else {
-                    byteBuffer.put(reinterpret_cast<uint8_t*>(charData.data()), charData.size());
-
-                    // might have to pad to 4 byte boundary
-                    byteBuffer.put(padValues, padCount[charData.size() % 4]);
-                }
-            }
-            else if (type == DataType::CHARSTAR8) {
-                // rawbytes contains ascii, already padded
-                if (!rawBytes.empty()) {
-                    byteBuffer.put(rawBytes, 0, rawBytes.size());
-                }
-            }
-            else if (type == DataType::COMPOSITE) {
-                // compositeData object always has rawBytes defined
-                if (!rawBytes.empty()) {
-                    // swap rawBytes into temp array
-                    uint8_t swappedRaw[rawBytes.size()];
-
-                    try {
-                        CompositeData::swapAll(rawBytes.data(), swappedRaw,
-                                               rawBytes.size() / 4, byteOrder.isLocalEndian());
-                    }
-                    catch (EvioException & e) { /* never happen */ }
-
-                    // write them to buffer
-                    byteBuffer.put(swappedRaw, rawBytes.size());
-                }
-            }
-        } // isLeaf
-        else if (!children.empty()) {
-            for (auto const & child : children) {
-                child->write(byteBuffer);
-            }
-        } // not leaf
-
-        return byteBuffer.position() - startPos;
+        return write(byteBuffer.array() + byteBuffer.arrayOffset(), byteBuffer.order());
     }
 
+
+//    /**
+//     * Write myself out a byte buffer with fastest algorithms I could find.
+//     *
+//     * @param byteBuffer the byteBuffer to write to.
+//     * @return the number of bytes written.
+//     * @throws overflow_error if too little space in byteBuffer.
+//     */
+//    size_t BaseStructure::write(ByteBuffer & byteBuffer) {
+//
+//        if (byteBuffer.remaining() < getTotalBytes()) {
+//            throw overflow_error("byteBuffer (limit - pos) too small");
+//        }
+//
+//        size_t startPos = byteBuffer.position();
+//
+//        // write the header
+//        header->write(byteBuffer);
+//
+//        size_t curPos = byteBuffer.position();
+//
+//        if (isLeaf()) {
+//
+//            DataType type = header->getDataType();
+//
+//            // If we have raw bytes which do NOT need swapping, this is fastest ..
+//            if (!rawBytes.empty() && (byteOrder == byteBuffer.order())) {
+//                byteBuffer.put(rawBytes, 0, rawBytes.size());
+//            }
+//            else if (type == DataType::DOUBLE64) {
+//                // if data sent over wire or read from file ...
+//                if (!rawBytes.empty()) {
+//                    // and need swapping ...
+//                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8,
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + rawBytes.size());
+//                }
+//                // else if user set data thru API (can't-rely-on / no rawBytes array) ...
+//                else {
+//                    ByteOrder::byteSwap64(doubleData.data(), doubleData.size(),
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + 8 * doubleData.size());
+//                }
+//            }
+//            else if (type == DataType::FLOAT32) {
+//                if (!rawBytes.empty()) {
+//                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4,
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + rawBytes.size());
+//                }
+//                else {
+//                    ByteOrder::byteSwap32(floatData.data(), floatData.size(),
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + 4 * floatData.size());
+//                }
+//            }
+//            else if (type == DataType::LONG64 || type == DataType::ULONG64) {
+//                if (!rawBytes.empty()) {
+//                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8,
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + rawBytes.size());
+//                }
+//                else {
+//                    ByteOrder::byteSwap64(longData.data(), longData.size(),
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + 8 * longData.size());
+//                }
+//            }
+//            else if (type == DataType::INT32 || type == DataType::UINT32) {
+//                if (!rawBytes.empty()) {
+//                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4,
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + rawBytes.size());
+//                }
+//                else {
+//                    ByteOrder::byteSwap32(intData.data(), intData.size(),
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + 4 * intData.size());
+//                }
+//            }
+//            else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
+//                if (!rawBytes.empty()) {
+//                    ByteOrder::byteSwap16(rawBytes.data(), rawBytes.size()/2,
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + rawBytes.size());
+//                }
+//                else {
+//                    ByteOrder::byteSwap16(shortData.data(), shortData.size(),
+//                                          byteBuffer.array() + byteBuffer.arrayOffset());
+//                    byteBuffer.position(curPos + 2 * shortData.size());
+//
+//                    // might have to pad to 4 byte boundary
+//                    if (shortData.size() % 2 > 0) {
+//                        byteBuffer.putShort((short) 0);
+//                    }
+//                }
+//            }
+//            else if (type == DataType::CHAR8 || type == DataType::UCHAR8 || type == DataType::UNKNOWN32) {
+//                if (!rawBytes.empty()) {
+//                    byteBuffer.put(rawBytes, 0, rawBytes.size());
+//                } else {
+//                    byteBuffer.put(reinterpret_cast<uint8_t*>(charData.data()), charData.size());
+//
+//                    // might have to pad to 4 byte boundary
+//                    byteBuffer.put(padValues, padCount[charData.size() % 4]);
+//                }
+//            }
+//            else if (type == DataType::CHARSTAR8) {
+//                // rawbytes contains ascii, already padded
+//                if (!rawBytes.empty()) {
+//                    byteBuffer.put(rawBytes, 0, rawBytes.size());
+//                }
+//            }
+//            else if (type == DataType::COMPOSITE) {
+//                // compositeData object always has rawBytes defined
+//                if (!rawBytes.empty()) {
+////                    // swap rawBytes into temp array
+////                    uint8_t swappedRaw[rawBytes.size()];
+//
+//                    try {
+////                        CompositeData::swapAll(rawBytes.data(), swappedRaw,
+////                                               rawBytes.size() / 4, byteOrder.isLocalEndian());
+//                        CompositeData::swapAll(rawBytes.data(), byteBuffer.array() + byteBuffer.arrayOffset() + curPos,
+//                                               rawBytes.size() / 4, byteOrder.isLocalEndian());
+//                    }
+//                    catch (EvioException & e) { /* never happen */ }
+//
+////                    // write them to buffer
+////                    byteBuffer.put(swappedRaw, rawBytes.size());
+//                }
+//            }
+//        } // isLeaf
+//        else if (!children.empty()) {
+//            for (auto const & child : children) {
+//                child->write(byteBuffer);
+//            }
+//        } // not leaf
+//
+//        return byteBuffer.position() - startPos;
+//    }
+//
 
 //----------------------------------------------------------------------
 // Methods to append to exising data if any or to set the data if none.

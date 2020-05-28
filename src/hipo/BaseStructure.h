@@ -35,6 +35,8 @@
 #include "EvioException.h"
 #include "BaseStructureHeader.h"
 #include "CompositeData.h"
+//#include "IEvioFilter.h"
+//#include "IEvioListener.h"
 
 
 using namespace std::chrono_literals;
@@ -358,6 +360,9 @@ namespace evio {
     //class BaseStructure : public std::enable_shared_from_this<BaseStructure<R>> {
     class BaseStructure : public std::enable_shared_from_this<BaseStructure> {
 
+        friend class EventParser;
+        friend class EventScanner;
+
 
 //    protected:
 //        using std::enable_shared_from_this<BaseStructure>::shared_from_this;
@@ -438,11 +443,13 @@ namespace evio {
         void remove(size_t childIndex);
 
         std::shared_ptr<BaseStructure> getParent() const;
+        std::vector<std::shared_ptr<BaseStructure>> getChildren() const;
         std::shared_ptr<BaseStructure> getChildAt(size_t index);
 
         size_t getChildCount() const;
         ssize_t getIndex(const std::shared_ptr<BaseStructure> &aChild);
-        auto childrenIter();
+        auto childrenIterBegin();
+        auto childrenIterEnd();
 
         void setAllowsChildren(bool allows);
         bool getAllowsChildren();
@@ -548,7 +555,7 @@ namespace evio {
         std::vector<float> floatData;
 
         /** Used if raw data should be interpreted as composite type. */
-        std::vector<std::shared_ptr<std::shared_ptr<CompositeData>>> compositeData;
+        std::vector<std::shared_ptr<CompositeData>> compositeData;
 
         /**
          * Used if raw data should be interpreted as signed chars.
@@ -653,8 +660,8 @@ namespace evio {
         std::shared_ptr<BaseStructureHeader> getHeader();
 
         size_t write(ByteBuffer & dest);
-        size_t write2(ByteBuffer & dest);
         size_t write(uint8_t *dest, ByteOrder const & order);
+
         size_t writeQuick(uint8_t *dest);
         size_t writeQuick(ByteBuffer & dest);
 
@@ -665,8 +672,13 @@ namespace evio {
         uint32_t getTotalBytes();
 
         std::vector<uint8_t> &getRawBytes();
-        void setRawBytes(uint8_t *bytes, uint32_t len);
 
+    protected:
+
+        void setRawBytes(uint8_t *bytes, uint32_t len);
+        void setRawBytes(std::vector<uint8_t> &bytes);
+
+    public:
         std::vector<int16_t>  &getShortData();
         std::vector<uint16_t> &getUShortData();
 
@@ -682,7 +694,7 @@ namespace evio {
         std::vector<signed char> & getCharData();
         std::vector<unsigned char> & getUCharData();
 
-//        std::vector<std::shared_ptr<ComopositeData>> & getCompositeData();
+        std::vector<std::shared_ptr<CompositeData>> & getCompositeData();
 
         std::vector<string> & getStringData();
         uint32_t unpackRawBytesToStrings();
@@ -717,15 +729,7 @@ namespace evio {
         void updateStringData();
         void updateCompositeData();
 
-
-//        void vistAllStructures(IEvioListener & listener);
-//        void vistAllStructures(IEvioListener & listener, IEvioFilter & filter);
-//        void visitAllDescendants(BaseStructure & structure, IEvioListener & listener,
-//                                 IEvioFilter & filter);
-//        std::vector<BaseStructure> getMatchingStructures(IEvioFilter & filter);
-
-
-            private:
+    private:
 
         static void stringBuilderToStrings(std::string const & strData, bool onlyGoodChars,
                                            std::vector<std::string> & strings);
