@@ -38,7 +38,6 @@ namespace evio {
      */
     class EvioEvent : public EvioBank {
 
-
     private:
 
         explicit EvioEvent(std::shared_ptr<BankHeader> const & head) : EvioBank(head) {
@@ -47,12 +46,12 @@ namespace evio {
 
     public:
 
-        static std::shared_ptr<EvioBank> getInstance(std::shared_ptr<BankHeader> const & head) {
+        static std::shared_ptr<EvioEvent> getInstance(std::shared_ptr<BankHeader> const & head) {
             std::shared_ptr<EvioEvent> pNode(new EvioEvent(head));
             return pNode;
         }
 
-        static std::shared_ptr<EvioBank> getInstance(uint32_t tag, DataType typ, uint32_t num) {
+        static std::shared_ptr<EvioEvent> getInstance(uint32_t tag, DataType typ, uint32_t num) {
             std::shared_ptr<BankHeader> head(new BankHeader(tag, typ, num));
             std::shared_ptr<EvioEvent> pNode(new EvioEvent(head));
             return pNode;
