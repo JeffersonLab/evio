@@ -37,7 +37,7 @@ namespace evio {
     class BaseStructureHeader /*: IEvioWriter */ {
 
         friend class BaseStructure;
-        friend class EventParser;
+        friend class EventHeaderParser;
         friend class CompositeData;
 
     protected:
