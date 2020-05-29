@@ -1773,6 +1773,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @throws EvioException if the data is internally inconsistent
      */
     std::vector<std::shared_ptr<CompositeData>> & BaseStructure::getCompositeData() {
+
         if (header->getDataType() == DataType::COMPOSITE) {
             if (compositeData.empty() && (!rawBytes.empty())) {
 
@@ -3257,7 +3258,10 @@ uint32_t BaseStructure::getNumberDataItems() {
 
             numberDataItems = compositeData.size();
 
-            // TODO: THIS IS ALL WRONG!!
+// TODO: THIS IS ALL WRONG!!
+
+            rawBytes.clear();
+            CompositeData::generateRawBytes(compositeData, rawBytes);
 
 
             rawBytes.resize(8 * numberDataItems);
@@ -3274,88 +3278,95 @@ uint32_t BaseStructure::getNumberDataItems() {
         setAllHeaderLengths();
     }
 
-//
-//    /**
-//     * Appends CompositeData objects to the structure. If the structure has no data, then this
-//     * is the same as setting the data.
-//     * @param data the CompositeData objects to append, or set if there is no existing data.
-//     * @throws EvioException if adding data to a structure of a different data type;
-//     *                       if data takes up too much memory to store in raw byte array (JVM limit)
-//     */
-//    void BaseStructure::appendCompositeData(CompositeData data[]) {
-//
-//            DataType dataType = header->getDataType();
-//            if (dataType != DataType::COMPOSITE) {
-//                throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
-//            }
-//
-//            if (data == null || data.length < 1) {
-//                return;
-//            }
-//
-//            // Composite data is always in the local (in this case, BIG) endian
-//            // because if generated in JVM that's true, and if read in, it is
-//            // swapped to local if necessary. Either case it's big endian.
-//            if (compositeData == null) {
-//                if (rawBytes == null) {
-//                    compositeData   = data;
-//                    numberDataItems = data.length;
-//                }
-//                else {
-//                    // Decode the raw data we have
-//                    CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
-//                    if (cdArray == null) {
-//                        compositeData   = data;
-//                        numberDataItems = data.length;
+
+
+    /**
+     * Appends CompositeData objects to the structure. If the structure has no data, then this
+     * is the same as setting the data.
+     * @param data the CompositeData objects to append, or set if there is no existing data.
+     * @throws EvioException if adding data to a structure of a different data type;
+     *                       if data takes up too much memory to store in raw byte array (JVM limit)
+	 */
+    void BaseStructure::appendCompositeData(CompositeData[] data) throws EvioException {
+
+            DataType dataType = header.getDataType();
+            if (dataType != DataType.COMPOSITE) {
+                throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
+            }
+
+            if (data == null || data.length < 1) {
+                return;
+            }
+
+            // Composite data is always in the local (in this case, BIG) endian
+            // because if generated in JVM that's true, and if read in, it is
+            // swapped to local if necessary. Either case it's big endian.
+            if (compositeData == null) {
+                if (rawBytes == null) {
+                    compositeData   = data;
+                    numberDataItems = data.length;
+                }
+                else {
+                    // Decode the raw data we have
+                    CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
+                    if (cdArray == null) {
+                        compositeData   = data;
+                        numberDataItems = data.length;
+                    }
+                    else {
+                        // Allocate array to hold everything
+                        int len1 = cdArray.length, len2 = data.length;
+                        int totalLen = len1 + len2;
+
+                        if (Integer.MAX_VALUE - len1 < len2) {
+                            throw new EvioException("added data overflowed containing structure");
+                        }
+                        compositeData = new CompositeData[totalLen];
+
+                        // Fill with existing object first
+                        System.arraycopy(cdArray, 0, compositeData, 0, len1);
+//                    for (int i = 0; i < len1; i++) {
+//                        compositeData[i] = cdArray[i];
 //                    }
-//                    else {
-//                        // Allocate array to hold everything
-//                        int len1 = cdArray.length, len2 = data.length;
-//                        int totalLen = len1 + len2;
-//
-//                        if (Integer.MAX_VALUE - len1 < len2) {
-//                            throw new EvioException("added data overflowed containing structure");
-//                        }
-//                        compositeData = new CompositeData[totalLen];
-//
-//                      // Fill with existing object first
-//                      System.arraycopy(cdArray, 0, compositeData, 0, len1);
-//                      // Append new objects
-//                      System.arraycopy(data, 0, compositeData, len1, len2);
-//
-//                        numberDataItems = totalLen;
+                        // Append new objects
+                        System.arraycopy(data, 0, compositeData, len1, len2);
+//                    for (int i = 0; i < len2; i++) {
+//                        compositeData[i+len1] = data[i];
 //                    }
-//                }
-//            }
-//            else {
-//                int len1 = compositeData.length, len2 = data.length;
-//                int totalLen = len1 + len2;
-//
-//                if (Integer.MAX_VALUE - len1 < len2) {
-//                    throw new EvioException("added data overflowed containing structure");
-//                }
-//
-//                CompositeData[] cdArray = compositeData;
-//                compositeData = new CompositeData[totalLen];
-//
-//                  // Fill with existing object first
-//                  System.arraycopy(cdArray, 0, compositeData, 0, len1);
-//                  // Append new objects
-//                  System.arraycopy(data, 0, compositeData, len1, len2);
-//                numberDataItems = totalLen;
-//            }
-//
-//            rawBytes  = CompositeData.generateRawBytes(compositeData);
-////        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
-////        for (int i : intA) {
-////            System.out.println("Ox" + Integer.toHexString(i));
-////        }
-//            byteOrder = data[0].getByteOrder();
-//
-//            lengthsUpToDate(false);
-//            setAllHeaderLengths();
-//    }
-//
+                        numberDataItems = totalLen;
+                    }
+                }
+            }
+            else {
+                int len1 = compositeData.length, len2 = data.length;
+                int totalLen = len1 + len2;
+
+                if (Integer.MAX_VALUE - len1 < len2) {
+                    throw new EvioException("added data overflowed containing structure");
+                }
+
+                CompositeData[] cdArray = compositeData;
+                compositeData = new CompositeData[totalLen];
+
+                // Fill with existing object first
+                System.arraycopy(cdArray, 0, compositeData, 0, len1);
+                // Append new objects
+                System.arraycopy(data, 0, compositeData, len1, len2);
+
+                numberDataItems = totalLen;
+            }
+
+            rawBytes  = CompositeData.generateRawBytes(compositeData, byteOrder);
+//        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
+//        for (int i : intA) {
+//            System.out.println("Ox" + Integer.toHexString(i));
+//        }
+
+            lengthsUpToDate(false);
+            setAllHeaderLengths();
+    }
+
+
 
 
 }
