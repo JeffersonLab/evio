@@ -707,7 +707,7 @@ class CompositeData {
 
 
         static void generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
-                                     std::vector<uint8_t> & rawBytes);
+                                     std::vector<uint8_t> & rawBytes, ByteOrder & order);
         //Object clone();
 
         static string stringsToFormat(std::vector<string> strings);
