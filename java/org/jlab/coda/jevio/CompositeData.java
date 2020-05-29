@@ -462,27 +462,21 @@ public final class CompositeData {
     /**
      * This method generates raw bytes of evio format from an array of CompositeData objects.
      * The returned array consists of gluing together all the individual objects' rawByte arrays.
-     * All CompositeData element must be of the same byte order.
      *
-     * @param data  array of CompositeData objects to turn into bytes
-     * @return array of raw, evio format bytes; null if arg is null or empty
-     * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit);
-     *                       array elements have different byte order.
+     * @param data  array of CompositeData objects to turn into bytes.
+     * @param order byte order of generated array.
+     * @return array of raw, evio format bytes; null if arg is null or empty.
+     * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit).
      */
-    static public byte[] generateRawBytes(CompositeData data[]) throws EvioException {
+    static public byte[] generateRawBytes(CompositeData[] data, ByteOrder order) throws EvioException {
 
         if (data == null || data.length < 1) {
             return null;
         }
 
-        ByteOrder order = data[0].byteOrder;
-
         // Get a total length (# bytes)
         int totalLen = 0, len;
         for (CompositeData cd : data) {
-            if (cd.byteOrder != order) {
-                throw new EvioException("all array elements must have same byte order");
-            }
             len = cd.getRawBytes().length;
             if (Integer.MAX_VALUE - totalLen < len) {
                 throw new EvioException("added data overflowed containing structure");
@@ -497,7 +491,13 @@ public final class CompositeData {
         int offset = 0;
         for (CompositeData cd : data) {
             len = cd.getRawBytes().length;
-            System.arraycopy(cd.getRawBytes(), 0, rawBytes, offset, len);
+            if (cd.byteOrder != order) {
+                // This CompositeData object has a rawBytes array of the wrong byte order, so swap it
+                swapAll(cd.getRawBytes(), 0, rawBytes, offset, len/4, order);
+            }
+            else {
+                System.arraycopy(cd.getRawBytes(), 0, rawBytes, offset, len);
+            }
             offset += len;
         }
 

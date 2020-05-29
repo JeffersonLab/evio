@@ -342,24 +342,18 @@ namespace evio {
      *
      * @param data     vector of CompositeData objects to turn into bytes.
      * @param rawBytes vector of raw, evio format bytes.
-     * @throws EvioException if data takes up too much memory to store in raw byte array (JVM limit);
-     *                       array elements have different byte order.
      */
     void CompositeData::generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
-                                         std::vector<uint8_t> & rawBytes) {
+                                         std::vector<uint8_t> & rawBytes, ByteOrder & order) {
 
         if (data.empty()) {
+            rawBytes.clear();
             return;
         }
-
-        ByteOrder order = data[0]->byteOrder;
 
         // Get a total length (# bytes)
         size_t totalLen = 0, len;
         for (auto const & cd : data) {
-            if (cd->byteOrder != order) {
-                throw EvioException("all array elements must have same byte order");
-            }
             len = cd->getRawBytes().size();
             totalLen += len;
         }
@@ -372,7 +366,13 @@ namespace evio {
         int offset = 0;
         for (auto const & cd : data) {
             len = cd->getRawBytes().size();
-            std::memcpy(rawBytes.data() + offset, cd->rawBytes.data(), len);
+            if (cd->byteOrder != order) {
+                // This CompositeData object has a rawBytes array of the wrong byte order, so swap it
+                swapAll(cd->getRawBytes().data(), rawBytes.data() + offset, len/4, cd->byteOrder.isLocalEndian());
+            }
+            else {
+                std::memcpy(rawBytes.data() + offset, cd->rawBytes.data(), len);
+            }
             offset += len;
         }
     }
