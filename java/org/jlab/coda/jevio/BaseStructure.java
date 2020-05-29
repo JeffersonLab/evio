@@ -2967,12 +2967,11 @@ System.err.println("Non leaf with null children!");
             numberDataItems = totalLen;
         }
 
-        rawBytes  = CompositeData.generateRawBytes(compositeData);
+        rawBytes  = CompositeData.generateRawBytes(compositeData, byteOrder);
 //        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
 //        for (int i : intA) {
 //            System.out.println("Ox" + Integer.toHexString(i));
 //        }
-        byteOrder = data[0].getByteOrder();
 
         lengthsUpToDate(false);
 		setAllHeaderLengths();

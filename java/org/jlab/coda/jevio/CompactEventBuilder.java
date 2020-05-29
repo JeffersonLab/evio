@@ -1754,7 +1754,7 @@ public final class CompactEventBuilder {
      *                       if structure not added first;
      *                       if no room in buffer for data.
      */
-	public void addCompositeData(CompositeData data[]) throws EvioException {
+	public void addCompositeData(CompositeData[] data) throws EvioException {
 
         if (data == null || data.length < 1) {
             throw new EvioException("no data to add");
@@ -1773,7 +1773,7 @@ public final class CompactEventBuilder {
         // swapped to local if necessary. Either case it's big endian.
 
         // Convert composite data into byte array (already padded)
-        byte[] rawBytes = CompositeData.generateRawBytes(data);
+        byte[] rawBytes = CompositeData.generateRawBytes(data, order);
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
         buffer.clear();
