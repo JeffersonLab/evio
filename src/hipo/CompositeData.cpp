@@ -340,8 +340,9 @@ namespace evio {
      * The returned vector consists of gluing together all the individual objects' rawByte arrays.
      * All CompositeData element must be of the same byte order.
      *
-     * @param data     vector of CompositeData objects to turn into bytes.
-     * @param rawBytes vector of raw, evio format bytes.
+     * @param data     vector of CompositeData objects to turn into bytes (input).
+     * @param rawBytes vector of raw, evio format bytes (output).
+     * @param order    byte order of output.
      */
     void CompositeData::generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
                                          std::vector<uint8_t> & rawBytes, ByteOrder & order) {
