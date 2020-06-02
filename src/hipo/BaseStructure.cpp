@@ -20,7 +20,6 @@ namespace evio {
     static uint32_t padCount[4] = {0, 3, 2, 1};
 
 
-
     /**
      * Constructor using a provided header.
      * @param header the header to use.
@@ -31,206 +30,184 @@ namespace evio {
     }
 
 
-//    /**
-//     * This method does a partial copy and is designed to help convert
-//     * between banks, segments,and tagsegments in the {@link StructureTransformer}
-//     * class (hence the name "transform").
-//     * It copies all the data from another BaseStructure object.
-//     * Children are <b>not</b> copied in the deep clone way,
-//     * but their references are added to this structure.
-//     * It does <b>not</b> copy header data or the parent either.
-//     *
-//     * @param structure BaseStructure from which to copy data.
-//     */
-//    void BaseStructure::transform(BaseStructure & structure) {
-//
-//        //if (structure == nullptr) return;
-//
-//        // reinitialize this base structure first
-//        rawBytes.clear();
-//        stringList.clear();
-//        children.clear();
-//        stringEnd = 0;
-//
-//        // copy over some stuff from other structure
-//        isLeaf = structure.isLeaf;
-//        lengthsUpToDate = structure.lengthsUpToDate;
-//        byteOrder = structure.byteOrder;
-//        numberDataItems = structure.numberDataItems;
-//
-//        size_t rawSize = structure.rawBytes.size();
-//        if (rawSize > 0) {
-//            rawBytes.reserve(rawSize);
-//            std::memcpy(rawBytes.data(), structure.rawBytes.data(), rawSize);
-//        }
-//
-//        DataType type = structure.getHeader().getDataType();
-//
-//        charData      = reinterpret_cast<char *>(rawBytes.data());
-//        intData       = reinterpret_cast<int32_t *>(rawBytes.data());
-//        longData      = reinterpret_cast<int64_t *>(rawBytes.data());
-//        shortData     = reinterpret_cast<int16_t *>(rawBytes.data());
-//        doubleData    = reinterpret_cast<double *>(rawBytes.data());
-//        floatData     = reinterpret_cast<float *>(rawBytes.data());
-//        compositeData = reinterpret_cast<CompositeData *>(rawBytes.data());
-//
-//        if (type == DataType::CHARSTAR8) {
-//                if (structure.stringsList.size() > 0) {
-//                    stringList.reserve(structure.stringsList.size());
-//                    stringList.addAll(structure.stringsList);
-//                    //stringData = new StringBuilder(structure.stringData);
-//                    stringEnd = structure.stringEnd;
-//                }
-//        }
-//        else if (type == DataType::COMPOSITE) {
-//            if (structure.compositeData != nullptr) {
-//                int len = structure.compositeData.length;
-//                compositeData = new CompositeData[len];
-//                for (int i = 0; i < len; i++) {
-//                    compositeData[i] = (CompositeData) structure.compositeData[i].clone();
-//                }
-//            }
-//        }
-//        else if (type.isStructure()) {
-//                for (BaseStructure kid : structure.children) {
-//                    children.add(kid);
-//                }
-//        }
-//    }
+    /**
+      * Copy constructor.
+      * @param base BaseStructure to copy.
+      */
+    BaseStructure::BaseStructure(const BaseStructure & base) : enable_shared_from_this(base) {
+        std::cout << "In BaseStructure copy constructor" << std::endl;
+
+        // Avoid self copy ...
+        if (this != &base) {
+            parent          = base.parent;
+            children        = base.children;
+            allowsChildren  = base.allowsChildren;
+            header          = base.header;
+            lengthsUpToDate = base.lengthsUpToDate;
+
+            copyData(base, header->getDataType() == DataType::COMPOSITE);
+        }
+    }
 
 
-///**
-// * Clone this object. First call the Object class's clone() method
-// * which creates a bitwise copy. Then clone all the mutable objects
-// * so that this method does a safe (not deep) clone. This means all
-// * children get cloned as well.
-// */
-//Object BaseStructure::clone() {
-//    try {
-//        // "bs" is a bitwise copy. Do a deep clone of all object references.
-//        BaseStructure bs = (BaseStructure)super.clone();
-//
-//        // Clone the header
-//        bs.header = (BaseStructureHeader) header->clone();
-//
-//        // Clone raw bytes
-//        if (rawBytes != null) {
-//            bs.rawBytes = rawBytes.clone();
-//        }
-//
-//        // Clone data
-//        switch (header->getDataType())  {
-//            case SHORT16:
-//            case USHORT16:
-//                if (shortData != null) {
-//                    bs.shortData = shortData.clone();
-//                }
-//                break;
-//
-//            case INT32:
-//            case UINT32:
-//                if (intData != null) {
-//                    bs.intData = intData.clone();
-//                }
-//                break;
-//
-//            case LONG64:
-//            case ULONG64:
-//                if (longData != null) {
-//                    bs.longData = longData.clone();
-//                }
-//                break;
-//
-//            case FLOAT32:
-//                if (floatData != null) {
-//                    bs.floatData = floatData.clone();
-//                }
-//                break;
-//
-//            case DOUBLE64:
-//                if (doubleData != null) {
-//                    bs.doubleData = doubleData.clone();
-//                }
-//                break;
-//
-//            case UNKNOWN32:
-//            case CHAR8:
-//            case UCHAR8:
-//                if (charData != null) {
-//                    bs.charData = charData.clone();
-//                }
-//                break;
-//
-//            case CHARSTAR8:
-//                if (stringsList != null) {
-//                    bs.stringsList = new ArrayList<String>(stringsList.size());
-//                    bs.stringsList.addAll(stringsList);
-//                    bs.stringData = new StringBuilder(stringData);
-//                    bs.stringEnd  = stringEnd;
-//                }
-//                break;
-//
-//            case COMPOSITE:
-//                if (compositeData != null) {
-//                    int len = compositeData.length;
-//                    bs.compositeData = new CompositeData[len];
-//                    for (int i=0; i < len; i++) {
-//                        bs.compositeData[i] = (CompositeData) compositeData[i].clone();
-//                    }
-//                }
-//                break;
-//
-//            case ALSOBANK:
-//            case ALSOSEGMENT:
-//            case BANK:
-//            case SEGMENT:
-//            case TAGSEGMENT:
-//                // Create kid storage since we're a container type
-//                bs.children = new ArrayList<BaseStructure>(10);
-//
-//                // Clone kids
-//                for (BaseStructure kid : children) {
-//                    bs.children.add((BaseStructure)kid.clone());
-//                }
-//                break;
-//
-//            default:
-//        }
-//
-//        // Do NOT clone the parent, just keep it as a reference.
-//
-//        return bs;
-//    }
-//    catch (CloneNotSupportedException e) {
-//        return null;
-//    }
-//}
+    /**
+     * Move constructor.
+     * @param base BaseStructure to move.
+     */
+    BaseStructure::BaseStructure(BaseStructure && base) noexcept {
+        std::cout << "In BaseStructure move constructor" << std::endl;
+        if (this != &base) {
+            parent          = std::move(base.parent);
+            children        = std::move(base.children);
+            allowsChildren  = base.allowsChildren;
+            header          = std::move(base.header);
 
+            rawBytes        = std::move(base.rawBytes);
+            shortData       = std::move(base.shortData);
+            ushortData      = std::move(base.ushortData);
+            intData         = std::move(base.intData);
+            uintData        = std::move(base.uintData);
+            longData        = std::move(base.longData);
+            ulongData       = std::move(base.ulongData);
+            doubleData      = std::move(base.doubleData);
+            floatData       = std::move(base.floatData);
+            compositeData   = std::move(base.compositeData);
+            charData        = std::move(base.charData);
+            ucharData       = std::move(base.ucharData);
+
+            stringList      = std::move(base.stringList);
+            stringEnd       = base.stringEnd;
+            badStringFormat = base.badStringFormat;
+
+            numberDataItems = base.numberDataItems;
+            byteOrder       = base.byteOrder;
+            lengthsUpToDate = base.lengthsUpToDate;
+        }
+    }
+
+
+    /**
+     * Move assignment operator.
+     * @param other right side object.
+     * @return left side object.
+     */
+    BaseStructure & BaseStructure::operator=(BaseStructure && other) noexcept {
+        // Avoid self assignment ...
+        if (this != &other) {
+            parent          = std::move(other.parent);
+            children        = std::move(other.children);
+            allowsChildren  = other.allowsChildren;
+            header          = std::move(other.header);
+
+            rawBytes        = std::move(other.rawBytes);
+            shortData       = std::move(other.shortData);
+            ushortData      = std::move(other.ushortData);
+            intData         = std::move(other.intData);
+            uintData        = std::move(other.uintData);
+            longData        = std::move(other.longData);
+            ulongData       = std::move(other.ulongData);
+            doubleData      = std::move(other.doubleData);
+            floatData       = std::move(other.floatData);
+            compositeData   = std::move(other.compositeData);
+            charData        = std::move(other.charData);
+            ucharData       = std::move(other.ucharData);
+
+            stringList      = std::move(other.stringList);
+            stringEnd       = other.stringEnd;
+            badStringFormat = other.badStringFormat;
+
+            numberDataItems = other.numberDataItems;
+            byteOrder       = other.byteOrder;
+            lengthsUpToDate = other.lengthsUpToDate;
+        }
+        return *this;
+    }
+
+
+    /**
+     * Assignment operator.
+     * @param other right side object.
+     * @return left side object.
+     */
+    BaseStructure & BaseStructure::operator=(const BaseStructure& other) {
+        // Avoid self assignment ...
+        if (this != &other) {
+            parent          = other.parent;
+            children        = other.children;
+            allowsChildren  = other.allowsChildren;
+            header          = other.header;
+            lengthsUpToDate = other.lengthsUpToDate;
+
+            copyData(other, header->getDataType() == DataType::COMPOSITE);
+        }
+        return *this;
+    }
+
+
+    /**
+     * This method does a partial copy and is designed to help convert
+     * between banks, segments,and tagsegments in the {@link StructureTransformer}
+     * class (hence the name "transform").
+     * It copies all the data from another BaseStructure object.
+     * Children are <b>not</b> copied in the deep clone way,
+     * but their references are added to this structure.
+     * It does <b>not</b> copy header data or the parent either.
+     *
+     * @param structure BaseStructure from which to copy data.
+     */
+    void BaseStructure::transform(BaseStructure & structure) {
+        DataType dataType = structure.getHeader()->getDataType();
+
+        copyData(structure, dataType == DataType::COMPOSITE);
+        lengthsUpToDate = structure.lengthsUpToDate;
+
+        if (structure.getHeader()->getDataType().isStructure()) {
+            children.clear();
+            for (auto const & kid : structure.children) {
+                children.push_back(kid);
+            }
+        }
+    }
+
+
+    /**
+     * Copy just the data of another structure.
+     * @param other structure to copy data from.
+     */
+    void BaseStructure::copyData(BaseStructure const & other, bool isComposite) {
+        // Vectors of primitives
+        rawBytes   = other.rawBytes;
+        shortData  = other.shortData;
+        ushortData = other.ushortData;
+        intData    = other.intData;
+        uintData   = other.uintData;
+        longData   = other.longData;
+        ulongData  = other.ulongData;
+        doubleData = other.doubleData;
+        floatData  = other.floatData;
+        charData   = other.charData;
+        ucharData  = other.ucharData;
+
+        stringList      = other.stringList;
+        stringEnd       = other.stringEnd;
+        badStringFormat = other.badStringFormat;
+        numberDataItems = other.numberDataItems;
+        byteOrder       = other.byteOrder;
+
+        // Need to copy the composite data, not just copy the shared pointers
+        if (isComposite) {
+            CompositeData::parse(rawBytes.data(), rawBytes.size(), byteOrder, compositeData);
+        }
+        else {
+            compositeData.clear();
+        }
+    }
 
 
     //---------------------------------------------
     //-------- Tree Node structure members  -------
     //---------------------------------------------
 
-
-
-
-//    std::shared_ptr<BaseStructure> BaseStructure::getThis() {
-//        return (const_cast<BaseStructure *>(this))->shared_from_this();
-//    }
-    //std::shared_ptr<const BaseStructure<T>> getThisConst() const { return this->shared_from_this(); }
-
-//    /**
-//     * This method creates a BaseStructure object from the given arguments.
-//     * @param val specifies a user object which is copied into this object.
-//     * @param allows if true, this node is allowed to have children.
-//     * @return the constructed BaseStructure.
-//     */
-//    std::shared_ptr<BaseStructure> BaseStructure::getInstance(R val, bool allows = true) {
-//        std::shared_ptr<BaseStructure> pNode(new BaseStructure(val, allows));
-//        return pNode;
-//    }
-//
 
     /**
      * Sets this node's parent to <code>newParent</code> but does not
@@ -244,21 +221,6 @@ namespace evio {
      */
     void BaseStructure::setParent(const std::shared_ptr<BaseStructure> &newParent) {parent = newParent;}
 
-
-
-//    /**
-//     * Get a reference to the attached user object.
-//     * Originally part of java's DefaultMutableBaseStructure.
-//     * @return reference to attached user object.
-//     */
-//    R & BaseStructure::getUserObject() {return userObject;}
-//
-//    /**
-//     * Set the attached user object.
-//     * Originally part of java's DefaultMutableBaseStructure.
-//     * @param val specifies a user object which is copied into this object.
-//     */
-//    void BaseStructure::setUserObject(R val) {userObject = val;}
 
     /**
      * Removes <code>newChild</code> from its present parent (if it has a
@@ -1323,11 +1285,11 @@ namespace evio {
 
         charData.clear();
         ucharData.clear();
-//        stringData.clear();
         stringList.clear();
         stringEnd = 0;
 
         numberDataItems = 0;
+        badStringFormat = false;
     }
 
 
@@ -3235,7 +3197,6 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
-// TODO: this needs attention!!!
     /**
      * If data in this structure was changed by modifying the vector returned from
      * {@link #getCompositeData()}, then this method needs to be called in order to make this
@@ -3255,118 +3216,19 @@ uint32_t BaseStructure::getNumberDataItems() {
             numberDataItems = 0;
         }
         else {
-
             numberDataItems = compositeData.size();
-
-// TODO: THIS IS ALL WRONG!!
-
             rawBytes.clear();
-            CompositeData::generateRawBytes(compositeData, rawBytes);
-
-
-            rawBytes.resize(8 * numberDataItems);
-
-            if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap64(compositeData.data(), numberDataItems, rawBytes.data());
+            // Get a rough idea of the size
+            size_t sz = 0;
+            for (auto const & cd : compositeData) {
+                sz += cd->getRawBytes().size();
             }
-            else {
-                std::memcpy(rawBytes.data(), compositeData.data(), 8 * numberDataItems);
-            }
+            rawBytes.reserve(sz);
+            CompositeData::generateRawBytes(compositeData, rawBytes, byteOrder);
         }
 
         setLengthsUpToDate(false);
         setAllHeaderLengths();
     }
-
-
-
-    /**
-     * Appends CompositeData objects to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param data the CompositeData objects to append, or set if there is no existing data.
-     * @throws EvioException if adding data to a structure of a different data type;
-     *                       if data takes up too much memory to store in raw byte array (JVM limit)
-	 */
-    void BaseStructure::appendCompositeData(CompositeData[] data) throws EvioException {
-
-            DataType dataType = header.getDataType();
-            if (dataType != DataType.COMPOSITE) {
-                throw new EvioException("Tried to set composite data in a structure of type: " + dataType);
-            }
-
-            if (data == null || data.length < 1) {
-                return;
-            }
-
-            // Composite data is always in the local (in this case, BIG) endian
-            // because if generated in JVM that's true, and if read in, it is
-            // swapped to local if necessary. Either case it's big endian.
-            if (compositeData == null) {
-                if (rawBytes == null) {
-                    compositeData   = data;
-                    numberDataItems = data.length;
-                }
-                else {
-                    // Decode the raw data we have
-                    CompositeData[] cdArray = CompositeData.parse(rawBytes, byteOrder);
-                    if (cdArray == null) {
-                        compositeData   = data;
-                        numberDataItems = data.length;
-                    }
-                    else {
-                        // Allocate array to hold everything
-                        int len1 = cdArray.length, len2 = data.length;
-                        int totalLen = len1 + len2;
-
-                        if (Integer.MAX_VALUE - len1 < len2) {
-                            throw new EvioException("added data overflowed containing structure");
-                        }
-                        compositeData = new CompositeData[totalLen];
-
-                        // Fill with existing object first
-                        System.arraycopy(cdArray, 0, compositeData, 0, len1);
-//                    for (int i = 0; i < len1; i++) {
-//                        compositeData[i] = cdArray[i];
-//                    }
-                        // Append new objects
-                        System.arraycopy(data, 0, compositeData, len1, len2);
-//                    for (int i = 0; i < len2; i++) {
-//                        compositeData[i+len1] = data[i];
-//                    }
-                        numberDataItems = totalLen;
-                    }
-                }
-            }
-            else {
-                int len1 = compositeData.length, len2 = data.length;
-                int totalLen = len1 + len2;
-
-                if (Integer.MAX_VALUE - len1 < len2) {
-                    throw new EvioException("added data overflowed containing structure");
-                }
-
-                CompositeData[] cdArray = compositeData;
-                compositeData = new CompositeData[totalLen];
-
-                // Fill with existing object first
-                System.arraycopy(cdArray, 0, compositeData, 0, len1);
-                // Append new objects
-                System.arraycopy(data, 0, compositeData, len1, len2);
-
-                numberDataItems = totalLen;
-            }
-
-            rawBytes  = CompositeData.generateRawBytes(compositeData, byteOrder);
-//        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
-//        for (int i : intA) {
-//            System.out.println("Ox" + Integer.toHexString(i));
-//        }
-
-            lengthsUpToDate(false);
-            setAllHeaderLengths();
-    }
-
-
-
 
 }

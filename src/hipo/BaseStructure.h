@@ -35,16 +35,12 @@
 #include "EvioException.h"
 #include "BaseStructureHeader.h"
 #include "CompositeData.h"
-//#include "IEvioFilter.h"
-//#include "IEvioListener.h"
 
 
 using namespace std::chrono_literals;
 
 
 namespace evio {
-
-
 
 
     /////////////////////////////////// DEPTH FIRST ITERATOR
@@ -344,33 +340,20 @@ namespace evio {
      * such as children and parent, are shared pointers. That explains inheriting from
      * enable_shared_from_this since "this" object must also be used as a shared pointer.
      *
-     * Because a tree representation of
-     * events is created when a new event is parsed.<p>
-     * Note that using an EventBuilder for the same event in more than one thread
-     * can cause problems. For example the boolean lengthsUpToDate in this class
-     * would need to be volatile.
-     *
      * @author heddle - author of original Java BaseStructure class.
      * @author timmer - add byte order tracking, make setAllHeaderLengths more efficient in Java.
      *                  Ported to C++.
      * @date 4/2/2020
      *
      */
-    //template<typename R>
-    //class BaseStructure : public std::enable_shared_from_this<BaseStructure<R>> {
     class BaseStructure : public std::enable_shared_from_this<BaseStructure> {
 
         friend class EventParser;
         friend class EventScanner;
 
-
-//    protected:
-//        using std::enable_shared_from_this<BaseStructure>::shared_from_this;
-//
         //---------------------------------------------
         //---------- Tree structure members  ----------
         //---------------------------------------------
-
 
     public:
 
@@ -412,32 +395,16 @@ namespace evio {
         /** True if the node is able to have children. */
         bool allowsChildren = true;
 
-//        /** Object attached to this node. */
-//        R userObject;
-
-
-
     public:
-
-       // std::shared_ptr<BaseStructure> getThis();
-//       std::shared_ptr<BaseStructure> getThis() {
-//           return (const_cast<BaseStructure *>(this))->shared_from_this();
-//       }
 
         std::shared_ptr<BaseStructure> getThis() {return shared_from_this();}
         std::shared_ptr<const BaseStructure> getThisConst() const {return shared_from_this();}
-
-//        static std::shared_ptr<BaseStructure> getInstance(R val, bool allows = true);
 
     protected:
 
         void setParent(const std::shared_ptr<BaseStructure> &newParent);
 
     public:
-
-        //R & getUserObject();
-
-        //void setUserObject(R val;
 
         void insert(const std::shared_ptr<BaseStructure> &newChild, size_t childIndex);
         void remove(size_t childIndex);
@@ -573,9 +540,6 @@ namespace evio {
         //------------------- STRING STUFF -------------------
 
         /** Used if raw data should be interpreted as a string. */
-//        std::vector<char> stringData;
-
-        /** Used if raw data should be interpreted as a string. */
         std::vector<std::string > stringList;
 
         /**
@@ -610,9 +574,6 @@ namespace evio {
         /** Keep track of whether header length data is up-to-date or not. */
         bool lengthsUpToDate = false;
 
-//        /** Is this structure a leaf? Leaves are structures with no children. */
-//        bool isLeaf = true;
-
     private:
 
         /** Bytes with which to pad short and byte data. */
@@ -621,8 +582,6 @@ namespace evio {
         /** Number of bytes to pad short and byte data. */
         static uint32_t padCount[4];
 
-        void clearData();
-
     protected:
 
         bool getLengthsUpToDate();
@@ -630,20 +589,24 @@ namespace evio {
         uint32_t dataLength();
         void stringsToRawBytes();
 
+    private:
 
-    public:
-        /**
-         * Constructor using a provided header.
-         * Can only be used by EvioBank, EvioSegment, and EvioTagSegment.
-         *
-         * @param header the header to use.
-         * @see BaseStructureHeader
-         */
+        void clearData();
+        void copyData(BaseStructure const & other, bool isComposite);
+
+    protected:
+
         explicit BaseStructure(std::shared_ptr<BaseStructureHeader> head);
 
+        // TODO: are these really necesary???
+        BaseStructure(const BaseStructure & srcBuf);
+        BaseStructure(BaseStructure && srcBuf) noexcept;
+        BaseStructure & operator=(BaseStructure && other) noexcept;
+        BaseStructure & operator=(const BaseStructure & other);
+
     public:
 
-        //void transform(BaseStructure &structure);
+        void transform(BaseStructure & structure);
 
         virtual StructureType getStructureType() = 0;
 
