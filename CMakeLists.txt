@@ -117,6 +117,8 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/EventParser.h
         src/hipo/IEvioFilter.h
         src/hipo/IEvioListener.h
+        src/hipo/EventParser.h
+        src/hipo/EventHeaderParser.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -145,7 +147,7 @@ set(CPP_LIB_FILES_NEW
         src/hipo/SegmentHeader.cpp
         src/hipo/TagSegmentHeader.cpp
         src/hipo/EventParser.cpp
-        src/hipo/EventScanner.h)
+        )
 
 set(TEST_FILES_CC
         ReadWriteTest.cpp
