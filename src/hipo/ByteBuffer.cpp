@@ -50,7 +50,9 @@ ByteBuffer::ByteBuffer(const ByteBuffer & srcBuf) {
  * @param srcBuf ByteBuffer to move.
  */
 ByteBuffer::ByteBuffer(ByteBuffer && srcBuf) noexcept {
-    *this = std::move(srcBuf);
+    if (this != &srcBuf) {
+        *this = std::move(srcBuf);
+    }
 }
 
 /**
@@ -58,7 +60,7 @@ ByteBuffer::ByteBuffer(ByteBuffer && srcBuf) noexcept {
  * @param other right side object.
  * @return left side object.
  */
-ByteBuffer & ByteBuffer::operator=(ByteBuffer&& other) noexcept {
+ByteBuffer & ByteBuffer::operator=(ByteBuffer && other) noexcept {
 
     // Avoid self assignment ...
     if (this != &other) {
