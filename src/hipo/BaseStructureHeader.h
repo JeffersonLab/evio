@@ -76,26 +76,26 @@ namespace evio {
         BaseStructureHeader() = default;
         BaseStructureHeader(uint16_t tag, DataType const & dataType, uint8_t num = 0);
 
-        uint8_t getNumber();
+        uint8_t getNumber() const;
         void setNumber(uint8_t number);
 
-        uint32_t getDataTypeValue();
+        uint32_t getDataTypeValue() const;
         void setDataType(uint32_t dataType);
 
         void setDataType(DataType & dataType);
-        DataType getDataType();
+        DataType getDataType() const;
 
-        string getDataTypeName();
-        uint8_t getPadding();
+        string getDataTypeName() const;
+        uint8_t getPadding() const;
 
-        uint32_t getLength();
+        uint32_t getLength() const;
         void setLength(uint32_t length);
 
-        uint16_t getTag();
+        uint16_t getTag() const;
         void setTag(uint16_t tag);
 
-        virtual uint32_t getHeaderLength() {return 0;};
-        virtual string   toString() {return "BaseStructureHeader";};
+        virtual uint32_t getHeaderLength() const {return 0;};
+        virtual string   toString() const {return "BaseStructureHeader";};
 
         virtual size_t write(ByteBuffer & dest) {return 0;};
         virtual size_t write(uint8_t *dest, ByteOrder const & order) {return 0;};

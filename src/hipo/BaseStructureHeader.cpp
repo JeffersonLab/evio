@@ -28,7 +28,7 @@ namespace evio {
      * Get the number. Only Banks have a number field in their header, so this is only relevant for Banks.
      * @return the number.
      */
-    uint8_t BaseStructureHeader::getNumber() {return number;}
+    uint8_t BaseStructureHeader::getNumber() const {return number;}
 
     /**
      * Set the number. Only Banks have a number field in their header, so this is only relevant for Banks.
@@ -40,7 +40,7 @@ namespace evio {
      * Get the data type for the structure.
      * @return the data type for the structure.
      */
-    uint32_t BaseStructureHeader::getDataTypeValue() {return dataType.getValue();}
+    uint32_t BaseStructureHeader::getDataTypeValue() const {return dataType.getValue();}
 
     /**
      * Set the numeric data type for the structure.
@@ -59,20 +59,20 @@ namespace evio {
      * @return the data type for data stored in this structure as a <code>DataType</code> enum.
      * @see DataType
      */
-    DataType BaseStructureHeader::getDataType() {return dataType;}
+    DataType BaseStructureHeader::getDataType() const {return dataType;}
 
     /**
      * Returns the data type as a string.
      * @return the data type as a string.
      */
-    string BaseStructureHeader::getDataTypeName() {return dataType.getName();}
+    string BaseStructureHeader::getDataTypeName() const {return dataType.getName();}
 
     /**
      * Get the amount of padding bytes when storing short or byte data.
      * Value is 0, 1, 2, or 3 for bytes and 0 or 2 for shorts.
      * @return number of padding bytes
      */
-    uint8_t BaseStructureHeader::getPadding() {return padding;}
+    uint8_t BaseStructureHeader::getPadding() const {return padding;}
 
     /**
      * Set the amount of padding bytes when storing short or byte data.
@@ -85,7 +85,7 @@ namespace evio {
      * Get the length of the structure in ints, not counting the length word.
      * @return Get the length of the structure in ints (not counting the length word).
      */
-    uint32_t BaseStructureHeader::getLength() {return length;}
+    uint32_t BaseStructureHeader::getLength() const {return length;}
 
     /**
      * Set the length of the structure in ints, not counting the length word.
@@ -97,7 +97,7 @@ namespace evio {
      * Get the structure tag.
      * @return the structure tag.
      */
-    uint16_t BaseStructureHeader::getTag() {return tag;}
+    uint16_t BaseStructureHeader::getTag() const {return tag;}
 
     /**
      * Set the structure tag.
