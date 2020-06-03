@@ -94,8 +94,8 @@ namespace evio {
         uint16_t getTag() const;
         void setTag(uint16_t tag);
 
-        virtual uint32_t getHeaderLength() const {return 0;};
-        virtual string   toString() const {return "BaseStructureHeader";};
+        virtual uint32_t getHeaderLength() {return 0;};
+        virtual string   toString() {return "BaseStructureHeader";};
 
         virtual size_t write(ByteBuffer & dest) {return 0;};
         virtual size_t write(uint8_t *dest, ByteOrder const & order) {return 0;};
