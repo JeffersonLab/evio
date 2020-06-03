@@ -72,39 +72,33 @@ namespace evio {
 
         /** Has this been parsed yet or not? */
         bool parsed = false;
+
     public:
+
+        /**
+         * Method to set if this event has been parsed or not.
+         * @param p true if parsed, else false.
+         */
         void setParsed(bool p) {parsed = p;}
+
+        /**
+         * Has this object been parsed or not.
+         * @return true if this object has been parsed, else false.
+         */
         bool isParsed() const {return parsed;}
-
-    public:
-
-//        /**
-//         * Deep clone of BaseStructure does most of the work.
-//         * Leave EvioBank's attachment as a reference. Only
-//         * thing we need to do get rid of any cloned treeModel.
-//         */
-//        Object clone() {
-//            EvioEvent ev = (EvioEvent) super.clone();
-//
-//            // A treeModel is only created & used if this event was parsed into existence.
-//            // To avoid keeping this unused and transient object, just get rid of it.
-//            treeModel = null;
-//
-//            return ev;
-//        }
 
         /**
          * Is there an XML dictionary associated with this event?
          * @return <code>true</code> if there is an XML dictionary associated with this event,
          *         else <code>false</code>
          */
-        bool hasDictionaryXML() {return !dictionaryXML.empty();}
+        bool hasDictionaryXML() const {return !dictionaryXML.empty();}
 
         /**
          * Get the XML dictionary associated with this event if there is one.
          * @return the XML dictionary associated with this event if there is one, else null
          */
-        string getDictionaryXML() {return dictionaryXML;}
+        string getDictionaryXML() const {return dictionaryXML;}
 
         /**
          * Set the XML dictionary associated with this event.
@@ -116,7 +110,7 @@ namespace evio {
          * Obtain a string representation of the structure.
          * @return a string representation of the structure.
          */
-        string toString() {
+        string toString() override {
 
             stringstream ss;
 
@@ -171,24 +165,13 @@ namespace evio {
             return ss.str();
         }
 
-//        /**
-//         * Inserts a child structure into the event's tree. This is called when the event is being parsed,
-//         * and when an event is being created.
-//         * @param child the child structure being added to the tree.
-//         * @param parent the parent structure of the new child.
-//         */
-//        void insert(std::shared_ptr<BaseStructure> const & child,
-//                    std::shared_ptr<BaseStructure> const & parent) {
-//            parent->insert(child, parent->getChildCount());
-//        }
-
         /**
          * This returns a number [1..] indicating which event this was in the event file from which
          * it was read. It is not the "num" field from the header.
          * @return a number [1..] indicating which event this was in the event file from which
          * it was read.
          */
-        size_t getEventNumber() {return eventNumber;}
+        size_t getEventNumber() const {return eventNumber;}
 
         /**
          * This sets a number [1..] indicating which event this was in the event file from which

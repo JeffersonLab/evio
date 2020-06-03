@@ -41,23 +41,6 @@ namespace evio {
             return pNode;
         }
 
-
-//    /**
-//     * Get the attached object.
-//     * @return the attached object
-//     */
-//    R getAttachment() {
-//        return attachment;
-//    }
-//
-//    /**
-//     * Set the attached object.
-//     * @param attachment object to attach to this bank
-//     */
-//    void setAttachment(R attachment) {
-//        this.attachment = attachment;
-//    }
-
         /**
          * This implements the virtual method from <code>BaseStructure</code>.
          * This returns the type of this structure, not the type of data this structure holds.
