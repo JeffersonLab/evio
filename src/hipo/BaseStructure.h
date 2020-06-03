@@ -419,7 +419,7 @@ namespace evio {
         auto childrenIterEnd();
 
         void setAllowsChildren(bool allows);
-        bool getAllowsChildren();
+        bool getAllowsChildren() const;
 
         //
         //  Derived methods
@@ -449,7 +449,7 @@ namespace evio {
     public:
 
         std::shared_ptr<BaseStructure> getRoot();
-        bool isRoot();
+        bool isRoot() const;
         std::shared_ptr<BaseStructure> getNextNode();
         std::shared_ptr<BaseStructure> getPreviousNode();
 
@@ -577,14 +577,14 @@ namespace evio {
     private:
 
         /** Bytes with which to pad short and byte data. */
-        static uint8_t padValues[3];
+        static constexpr uint8_t padValues[3] = {0, 0, 0};
 
         /** Number of bytes to pad short and byte data. */
-        static uint32_t padCount[4];
+        static constexpr uint32_t padCount[4] = {0, 3, 2, 1};
 
     protected:
 
-        bool getLengthsUpToDate();
+        bool getLengthsUpToDate() const;
         void setLengthsUpToDate(bool lengthsUpToDate);
         uint32_t dataLength();
         void stringsToRawBytes();

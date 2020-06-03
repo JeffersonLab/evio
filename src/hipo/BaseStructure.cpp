@@ -13,13 +13,6 @@
 
 namespace evio {
 
-    /** Bytes with which to pad short and byte data. */
-    static uint8_t padValues[3] = {0, 0, 0};
-
-    /** Number of bytes to pad short and byte data. */
-    static uint32_t padCount[4] = {0, 3, 2, 1};
-
-
     /**
      * Constructor using a provided header.
      * @param header the header to use.
@@ -241,9 +234,11 @@ namespace evio {
     void BaseStructure::insert(const std::shared_ptr<BaseStructure> &newChild, size_t childIndex) {
         if (!allowsChildren) {
             throw EvioException("node does not allow children");
-        } else if (newChild == nullptr) {
+        }
+        else if (newChild == nullptr) {
             throw EvioException("new child is null");
-        } else if (isNodeAncestor(newChild)) {
+        }
+        else if (isNodeAncestor(newChild)) {
             throw EvioException("new child is an ancestor");
         }
 
@@ -399,7 +394,7 @@ namespace evio {
      * Originally part of java's DefaultMutableTreeNode.
      * @return  true if this node allows children, else false
      */
-    bool BaseStructure::getAllowsChildren() { return allowsChildren; }
+    bool BaseStructure::getAllowsChildren() const { return allowsChildren; }
 
 
 //
@@ -438,7 +433,7 @@ namespace evio {
      *  Originally part of java's DefaultMutableTreeNode.
      */
     void BaseStructure::removeAllChildren() {
-        for (int i = getChildCount() - 1; i >= 0; i--) {
+        for (int i = (int)getChildCount() - 1; i >= 0; i--) {
             remove(i);
         }
     }
@@ -533,7 +528,8 @@ namespace evio {
 
         if (aNode == sharedThis) {
             return sharedThis;
-        } else if (aNode == nullptr) {
+        }
+        else if (aNode == nullptr) {
             return nullptr;
         }
 
@@ -547,7 +543,8 @@ namespace evio {
             diff = level2 - level1;
             node1 = aNode;
             node2 = sharedThis;
-        } else {
+        }
+        else {
             diff = level1 - level2;
             node1 = sharedThis;
             node2 = aNode;
@@ -579,70 +576,6 @@ namespace evio {
 
         return nullptr;
     }
-
-
-//    /**
-//     * Returns the nearest common ancestor to this node and <code>aNode</code>.
-//     * Returns null, if no such ancestor exists -- if this node and
-//     * <code>aNode</code> are in different trees or if <code>aNode</code> is
-//     * null.  A node is considered an ancestor of itself.
-//     *
-//     * @see     #isNodeAncestor
-//     * @see     #isNodeDescendant
-//     * @param   aNode   node to find common ancestor with
-//     * @return  nearest ancestor common to this node and <code>aNode</code>,
-//     *          or null if none
-//     */
-//    BaseStructure getSharedAncestorOrig(BaseStructure aNode) {
-//        if (aNode == this) {
-//            return this;
-//        } else if (aNode == null) {
-//            return null;
-//        }
-//
-//        int             level1, level2, diff;
-//        BaseStructure        node1, node2;
-//
-//        level1 = getLevel();
-//        level2 = aNode.getLevel();
-//
-//        if (level2 > level1) {
-//            diff = level2 - level1;
-//            node1 = aNode;
-//            node2 = this;
-//        } else {
-//            diff = level1 - level2;
-//            node1 = this;
-//            node2 = aNode;
-//        }
-//
-//        // Go up the tree until the nodes are at the same level
-//        while (diff > 0) {
-//            node1 = node1->getParent();
-//            diff--;
-//        }
-//
-//        // Move up the tree until we find a common ancestor.  Since we know
-//        // that both nodes are at the same level, we won't cross paths
-//        // unknowingly (if there is a common ancestor, both nodes hit it in
-//        // the same iteration).
-//
-//        do {
-//            if (node1 == node2) {
-//                return node1;
-//            }
-//            node1 = node1->getParent();
-//            node2 = node2->getParent();
-//        } while (node1 != null);// only need to check one -- they're at the
-//        // same level so if one is null, the other is
-//
-//        if (node1 != null || node2 != null) {
-//            throw new Error ("nodes should be null");
-//        }
-//
-//        return nullptr;
-//    }
-//
 
 
     /**
@@ -731,7 +664,8 @@ namespace evio {
      * @return an array of BaseStructures giving the path from the root to the
      *         specified node
      */
-    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot(const std::shared_ptr<BaseStructure> & aNode, int depth) {
+    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot(
+            const std::shared_ptr<BaseStructure> & aNode, int depth) {
 
         /* Check for null, in case someone passed in a null node, or
            they passed in an element that isn't rooted at root. */
@@ -739,7 +673,8 @@ namespace evio {
             if (depth == 0) {
                 std::vector<std::shared_ptr<BaseStructure>> retNodes;
                 return retNodes;
-            } else {
+            }
+            else {
                 std::vector<std::shared_ptr<BaseStructure>> retNodes;
                 retNodes.reserve(depth);
                 return retNodes;
@@ -780,7 +715,7 @@ namespace evio {
      *
      * @return  true if this node is the root of its tree
      */
-    bool BaseStructure::isRoot() { return getParent() == nullptr; }
+    bool BaseStructure::isRoot() const { return getParent() == nullptr; }
 
 
     /**
@@ -813,10 +748,12 @@ namespace evio {
 
                     aNode = aNode->getParent();
                 } while (true);
-            } else {
+            }
+            else {
                 return nextSibling;
             }
-        } else {
+        }
+        else {
             return getChildAt(0);
         }
     }
@@ -849,7 +786,8 @@ namespace evio {
                 return previousSibling;
             else
                 return previousSibling->getLastLeaf();
-        } else {
+        }
+        else {
             return myParent;
         }
     }
@@ -872,10 +810,12 @@ namespace evio {
 
         if (aNode == nullptr) {
             retval = false;
-        } else {
+        }
+        else {
             if (getChildCount() == 0) {
                 retval = false;
-            } else {
+            }
+            else {
                 retval = (aNode->getParent() == getThisConst());
             }
         }
@@ -944,7 +884,8 @@ namespace evio {
 
         if (index < getChildCount() - 1) {
             return getChildAt(index + 1);
-        } else {
+        }
+        else {
             return nullptr;
         }
     }
@@ -975,7 +916,8 @@ namespace evio {
 
         if (index > 0) {
             return getChildAt(index - 1);
-        } else {
+        }
+        else {
             return nullptr;
         }
     }
@@ -1001,9 +943,11 @@ namespace evio {
 
         if (anotherNode == nullptr) {
             retval = false;
-        } else if (anotherNode == getThisConst()) {
+        }
+        else if (anotherNode == getThisConst()) {
             retval = true;
-        } else {
+        }
+        else {
             auto myParent = getParent();
             retval = (myParent != nullptr && myParent == anotherNode->getParent());
 
@@ -1029,7 +973,8 @@ namespace evio {
 
         if (myParent == nullptr) {
             return 1;
-        } else {
+        }
+        else {
             return myParent->getChildCount();
         }
     }
@@ -1055,7 +1000,8 @@ namespace evio {
 
         if (myParent == nullptr) {
             retval = nullptr;
-        } else {
+        }
+        else {
             retval = myParent->getChildAfter(getThis());      // linear search
         }
 
@@ -1072,8 +1018,7 @@ namespace evio {
      * array.  Returns null if this node has no parent or is the parent's
      * first child.  This method performs a linear search that is O(n) where n
      * is the number of children.
-     *  Originally part of java's DefaultMutableTreeNode.         *
-
+     *  Originally part of java's DefaultMutableTreeNode.
      *
      * @throws  EvioException if child of parent is not a sibling.
      * @return  the sibling of this node that immediately precedes this node
@@ -1085,7 +1030,8 @@ namespace evio {
 
         if (myParent == nullptr) {
             retval = nullptr;
-        } else {
+        }
+        else {
             retval = myParent->getChildBefore(getThis());     // linear search
         }
 
@@ -1225,7 +1171,7 @@ namespace evio {
         if (previousSibling != nullptr)
             return previousSibling->getLastLeaf();
 
-        return myParent->getPreviousLeaf();              // tail recursion
+        return myParent->getPreviousLeaf();    // tail recursion
     }
 
 
@@ -1259,9 +1205,6 @@ namespace evio {
     }
 
 
-
-
-
     //---------------------------------------------
     //-------- CODA evio structure elements -------
     //---------------------------------------------
@@ -1293,165 +1236,165 @@ namespace evio {
     }
 
 
-/**
- * What is the byte order of this data?
- * @return {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
- */
-ByteOrder BaseStructure::getByteOrder() {return byteOrder;}
+    /**
+     * What is the byte order of this data?
+     * @return {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
+     */
+    ByteOrder BaseStructure::getByteOrder() {return byteOrder;}
 
-/**
- * Set the byte order of this data. This method <b>cannot</b> be used to swap data.
- * It is only used to describe the endianness of the rawdata contained.
- * @param byteOrder {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
- */
-void BaseStructure::setByteOrder(ByteOrder & order) {byteOrder = order;}
+    /**
+     * Set the byte order of this data. This method <b>cannot</b> be used to swap data.
+     * It is only used to describe the endianness of the rawdata contained.
+     * @param byteOrder {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
+     */
+    void BaseStructure::setByteOrder(ByteOrder & order) {byteOrder = order;}
 
-/**
- * Is a byte swap required? This is java and therefore big endian. If data is
- * little endian, then a swap is required.
- *
- * @return <code>true</code> if byte swapping is required (data is little endian).
- */
-bool BaseStructure::needSwap() {
-    return byteOrder != ByteOrder::ENDIAN_LOCAL;
-}
-
-/**
- * Get the description from the name provider (dictionary), if there is one.
- *
- * @return the description from the name provider (dictionary), if there is one. If not, return
- *         NameProvider.NO_NAME_STRING.
- */
-string BaseStructure::getDescription() {
-    // TODO:  return NameProvider.getName(this);
-
-    return "BaseStructure description";
-}
-
-
-/**
- * Obtain a string representation of the structure.
- * @return a string representation of the structure.
- */
-string BaseStructure::toString() {
-
-    stringstream ss;
-
-    // show 0x for hex
-    ss << showbase;
-
-    StructureType stype = getStructureType();
-    DataType dtype = header->getDataType();
-
-    string description = getDescription();
-        // TODO::::
-//    if (INameProvider.NO_NAME_STRING.equals(description)) {
-//        description = "";
-//    }
-
-    string sb;
-    sb.reserve(100);
-
-    if (!description.empty()) {
-        ss << "<html><b>" << description << "</b>";
+    /**
+     * Is a byte swap required? This is java and therefore big endian. If data is
+     * little endian, then a swap is required.
+     *
+     * @return <code>true</code> if byte swapping is required (data is little endian).
+     */
+    bool BaseStructure::needSwap() {
+        return byteOrder != ByteOrder::ENDIAN_LOCAL;
     }
-    else {
-        ss << stype.toString() << " of " << dtype.toString() << "s:  tag=" << header->getTag();
-        ss << hex << "(" << header->getTag() << ")" << dec;
 
-        if (stype == StructureType::STRUCT_BANK) {
-            ss << "  num=" << header->getNumber() << hex << "(" << header->getNumber() << ")" << dec;
+    /**
+     * Get the description from the name provider (dictionary), if there is one.
+     *
+     * @return the description from the name provider (dictionary), if there is one. If not, return
+     *         NameProvider.NO_NAME_STRING.
+     */
+    string BaseStructure::getDescription() {
+        // TODO:  return NameProvider.getName(this);
+
+        return "BaseStructure description";
+    }
+
+
+    /**
+     * Obtain a string representation of the structure.
+     * @return a string representation of the structure.
+     */
+    string BaseStructure::toString() {
+
+        stringstream ss;
+
+        // show 0x for hex
+        ss << showbase;
+
+        StructureType stype = getStructureType();
+        DataType dtype = header->getDataType();
+
+        string description = getDescription();
+            // TODO::::
+    //    if (INameProvider.NO_NAME_STRING.equals(description)) {
+    //        description = "";
+    //    }
+
+        string sb;
+        sb.reserve(100);
+
+        if (!description.empty()) {
+            ss << "<html><b>" << description << "</b>";
         }
-    }
+        else {
+            ss << stype.toString() << " of " << dtype.toString() << "s:  tag=" << header->getTag();
+            ss << hex << "(" << header->getTag() << ")" << dec;
 
-    if (rawBytes.empty()) {
-        ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
-    }
-    else {
-        ss << "  dataLen=" << (rawBytes.size()/4);
-    }
-
-    if (header->getPadding() != 0) {
-        ss << "  pad=" << header->getPadding();
-    }
-
-    int numChildren = children.size();
-
-    if (numChildren > 0) {
-        ss << "  children=" << numChildren;
-    }
-
-    if (!description.empty()) {
-        ss << "</html>";
-    }
-
-    return ss.str();
-}
-
-/**
- * This is a method from the IEvioStructure Interface. Return the header for this structure.
- *
- * @return the header for this structure.
- */
-std::shared_ptr<BaseStructureHeader> BaseStructure::getHeader() {return header;}
-
-/**
- * Get the number of stored data items like number of banks, ints, floats, etc.
- * (not the size in ints or bytes). Some items may be padded such as shorts
- * and bytes. This will tell the meaningful number of such data items.
- * In the case of containers, returns number of 32-bit words not in header.
- *
- * @return number of stored data items (not size or length),
- *         or number of bytes if container
- */
-uint32_t BaseStructure::getNumberDataItems() {
-    if (isContainer()) {
-        numberDataItems = header->getLength() + 1 - header->getHeaderLength();
-    }
-
-    // if the calculation has not already been done ...
-    if (numberDataItems < 1) {
-        // When parsing a file or byte array, it is not fully unpacked until data
-        // is asked for specifically, for example as an int array or a float array.
-        // Thus we don't know how many of a certain item (say doubles) there is.
-        // But we can figure that out now based on the size of the raw data byte array.
-        int divisor = 0;
-        int padding = 0;
-        DataType type = header->getDataType();
-        int numBytes = type.getBytes();
-
-        switch (numBytes) {
-            case 2:
-                padding = header->getPadding();
-                divisor = 2; break;
-            case 4:
-                divisor = 4; break;
-            case 8:
-                divisor = 8; break;
-            default:
-                padding = header->getPadding();
-                divisor = 1; break;
+            if (stype == StructureType::STRUCT_BANK) {
+                ss << "  num=" << header->getNumber() << hex << "(" << header->getNumber() << ")" << dec;
+            }
         }
 
-        // Special cases:
-        if (type == DataType::CHARSTAR8) {
-            auto sd = getStringData();
-            numberDataItems = sd.size();
+        if (rawBytes.empty()) {
+            ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
         }
-        else if (type == DataType::COMPOSITE) {
-            // For this type, numberDataItems is NOT used to
-            // calculate the data length so we're OK returning
-            // any reasonable value here.
-            numberDataItems = compositeData.size();
+        else {
+            ss << "  dataLen=" << (rawBytes.size()/4);
         }
 
-        if (divisor > 0 && !rawBytes.empty()) {
-            numberDataItems = (rawBytes.size() - padding)/divisor;
+        if (header->getPadding() != 0) {
+            ss << "  pad=" << header->getPadding();
         }
+
+        int numChildren = children.size();
+
+        if (numChildren > 0) {
+            ss << "  children=" << numChildren;
+        }
+
+        if (!description.empty()) {
+            ss << "</html>";
+        }
+
+        return ss.str();
     }
 
-    return numberDataItems;
-}
+    /**
+     * This is a method from the IEvioStructure Interface. Return the header for this structure.
+     *
+     * @return the header for this structure.
+     */
+    std::shared_ptr<BaseStructureHeader> BaseStructure::getHeader() {return header;}
+
+    /**
+     * Get the number of stored data items like number of banks, ints, floats, etc.
+     * (not the size in ints or bytes). Some items may be padded such as shorts
+     * and bytes. This will tell the meaningful number of such data items.
+     * In the case of containers, returns number of 32-bit words not in header.
+     *
+     * @return number of stored data items (not size or length),
+     *         or number of bytes if container
+     */
+    uint32_t BaseStructure::getNumberDataItems() {
+        if (isContainer()) {
+            numberDataItems = header->getLength() + 1 - header->getHeaderLength();
+        }
+
+        // if the calculation has not already been done ...
+        if (numberDataItems < 1) {
+            // When parsing a file or byte array, it is not fully unpacked until data
+            // is asked for specifically, for example as an int array or a float array.
+            // Thus we don't know how many of a certain item (say doubles) there is.
+            // But we can figure that out now based on the size of the raw data byte array.
+            int divisor = 0;
+            int padding = 0;
+            DataType type = header->getDataType();
+            int numBytes = type.getBytes();
+
+            switch (numBytes) {
+                case 2:
+                    padding = header->getPadding();
+                    divisor = 2; break;
+                case 4:
+                    divisor = 4; break;
+                case 8:
+                    divisor = 8; break;
+                default:
+                    padding = header->getPadding();
+                    divisor = 1; break;
+            }
+
+            // Special cases:
+            if (type == DataType::CHARSTAR8) {
+                auto sd = getStringData();
+                numberDataItems = sd.size();
+            }
+            else if (type == DataType::COMPOSITE) {
+                // For this type, numberDataItems is NOT used to
+                // calculate the data length so we're OK returning
+                // any reasonable value here.
+                numberDataItems = compositeData.size();
+            }
+
+            if (divisor > 0 && !rawBytes.empty()) {
+                numberDataItems = (rawBytes.size() - padding)/divisor;
+            }
+        }
+
+        return numberDataItems;
+    }
 
     /**
      * Get the length of this structure in bytes, including the header.
@@ -1475,14 +1418,13 @@ uint32_t BaseStructure::getNumberDataItems() {
     void BaseStructure::setRawBytes(uint8_t *bytes, uint32_t len) {
         std::memcpy(rawBytes.data(), bytes, len);
     }
+
     /**
      * Set the data for the structure.
      *
      * @param bytes vector of data to be copied.
      */
-    void BaseStructure::setRawBytes(std::vector<uint8_t> & bytes) {
-        rawBytes = bytes;
-    }
+    void BaseStructure::setRawBytes(std::vector<uint8_t> & bytes) {rawBytes = bytes;}
 
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an int16_t vector
@@ -2002,7 +1944,6 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
-
     /**
      * This method extracts an array of strings from byte array of raw evio string data.
      *
@@ -2029,7 +1970,7 @@ uint32_t BaseStructure::getNumberDataItems() {
     void BaseStructure::unpackRawBytesToStrings(std::vector<uint8_t> & bytes,
                                                 size_t offset, size_t maxLength,
                                                 std::vector<string> & strData) {
-        int length = bytes.size() - offset;
+        int length = (int)bytes.size() - offset;
         if (bytes.empty() || (length < 4)) return;
 
         // Don't read read more than maxLength ASCII characters
@@ -2203,7 +2144,6 @@ uint32_t BaseStructure::getNumberDataItems() {
     }
 
 
-
     /**
      * Extract string data from rawBytes array.
      * @return number of strings extracted from bytes
@@ -2252,7 +2192,7 @@ uint32_t BaseStructure::getNumberDataItems() {
             // Look for any non-printing/control characters (not including null)
             // and end the string there. Allow tab and newline whitespace.
             else if ((c < 32 || c > 126) && c != 9 && c != 10) {
-// cout << "unpackRawBytesToStrings: found non-printing c = 0x" << hex << ((int)c) << dec << " at i = " << i << endl;
+//cout << "unpackRawBytesToStrings: found non-printing c = 0x" << hex << ((int)c) << dec << " at i = " << i << endl;
                 if (nullCount < 1) {
                     // Getting garbage before first null.
 //cout << "BAD FORMAT 1: garbage char before null" << endl;
@@ -2271,7 +2211,7 @@ uint32_t BaseStructure::getNumberDataItems() {
 
                     // Should be no more than 3 additional 4's before the end
                     if (charsLeft > 3) {
-    //System.out.println("BAD FORMAT 2: too many chars, " + charsLeft + ", after 4");
+//std::cout << "BAD FORMAT 2: too many chars, " << charsLeft << ", after 4" << std::endl;
                         break;
                     }
                     else {
@@ -2279,7 +2219,7 @@ uint32_t BaseStructure::getNumberDataItems() {
                         for (int j=1; j <= charsLeft; j++) {
                             c = rawBytes[i+j];
                             if (c != '\004') {
-    //System.out.println("BAD FORMAT 3: padding chars are not all 4's");
+//std::cout << "BAD FORMAT 3: padding chars are not all 4's" << std::endl;
                                 goto pastOuterLoop;
                             }
                         }
@@ -2288,7 +2228,7 @@ uint32_t BaseStructure::getNumberDataItems() {
                     }
                 }
                 else {
-    //System.out.println("BAD FORMAT 4: got bad char, ascii val = " + c);
+// std::cout << "BAD FORMAT 4: got bad char, ascii val = " << c << std::endl;
                     break;
                 }
             }
@@ -2301,7 +2241,7 @@ uint32_t BaseStructure::getNumberDataItems() {
 
         // If error, return everything in one String including possible garbage
         if (badStringFormat) {
-    //cout << "unpackRawBytesToStrings: bad format, return all chars in 1 string" << endl;
+//cout << "unpackRawBytesToStrings: bad format, return all chars in 1 string" << endl;
             string everything(reinterpret_cast<char *>(rawBytes.data()), rawLength);
             stringList.push_back(everything);
             return 1;
@@ -2309,25 +2249,24 @@ uint32_t BaseStructure::getNumberDataItems() {
 
         // If here, raw bytes are in the proper format
 
-    //cout << "  split into " << nullCount << " strings" << endl;
+//cout << "  split into " << nullCount << " strings" << endl;
         int firstIndex=0;
         for (int nullIndex : nullIndexList) {
             string subString(reinterpret_cast<char *>(rawBytes.data()) + firstIndex, (nullIndex-firstIndex));
             stringList.push_back(subString);
-    //cout << "    add " << subString << endl;
+//cout << "    add " << subString << endl;
             firstIndex = nullIndex + 1;
         }
 
         // Set length of everything up to & including last null (not padding)
         stringEnd = firstIndex;
         //stringData.setLength(stringEnd);
-    //cout << "    good string len = " << stringEnd << endl;
+//cout << "    good string len = " << stringEnd << endl;
         return stringList.size();
     }
 
 
     ///////////////////////////////////////////////////////////////////////
-
 
 
     /**
@@ -2405,7 +2344,7 @@ uint32_t BaseStructure::getNumberDataItems() {
      * @return whether the lengths of all header fields for this structure
      *         and all it descendants are up to date or not.
      */
-    bool BaseStructure::getLengthsUpToDate() {return lengthsUpToDate;}
+    bool BaseStructure::getLengthsUpToDate() const {return lengthsUpToDate;}
 
     /**
      * Set whether the lengths of all header fields for this structure
@@ -2445,7 +2384,7 @@ uint32_t BaseStructure::getNumberDataItems() {
             else {
                 datalen = 0;
 
-                for (auto child : children) {
+                for (auto const & child : children) {
                     len = child->setAllHeaderLengths();
                     // Add this check to make sure structure is not being overfilled
                     if (std::numeric_limits<uint32_t>::max() - datalen < len) {
@@ -2475,7 +2414,7 @@ uint32_t BaseStructure::getNumberDataItems() {
     * This method is much more efficient than using {@link #write(java.nio.ByteBuffer)}.<p>
     * <b>However, be warned that this method is only useful when this structure has
     * just been read from a file or buffer. Once the user adds data (and does not call
-     * the appropriate update method) or children
+    * the appropriate update method) or children
     * to this structure, this method does NOT produce correct results.</b>
     *
     * @param dest destination ByteBuffer to contain evio format data
@@ -2597,7 +2536,8 @@ uint32_t BaseStructure::getNumberDataItems() {
                 if (!rawBytes.empty()) {
                     std::memcpy(curPos, rawBytes.data(), rawBytes.size());
                     curPos += rawBytes.size();
-                } else {
+                }
+                else {
                     std::memcpy(curPos, reinterpret_cast<uint8_t*>(charData.data()), charData.size());
                     curPos += charData.size();
 
@@ -2651,147 +2591,6 @@ uint32_t BaseStructure::getNumberDataItems() {
         return write(byteBuffer.array() + byteBuffer.arrayOffset(), byteBuffer.order());
     }
 
-
-//    /**
-//     * Write myself out a byte buffer with fastest algorithms I could find.
-//     *
-//     * @param byteBuffer the byteBuffer to write to.
-//     * @return the number of bytes written.
-//     * @throws overflow_error if too little space in byteBuffer.
-//     */
-//    size_t BaseStructure::write(ByteBuffer & byteBuffer) {
-//
-//        if (byteBuffer.remaining() < getTotalBytes()) {
-//            throw overflow_error("byteBuffer (limit - pos) too small");
-//        }
-//
-//        size_t startPos = byteBuffer.position();
-//
-//        // write the header
-//        header->write(byteBuffer);
-//
-//        size_t curPos = byteBuffer.position();
-//
-//        if (isLeaf()) {
-//
-//            DataType type = header->getDataType();
-//
-//            // If we have raw bytes which do NOT need swapping, this is fastest ..
-//            if (!rawBytes.empty() && (byteOrder == byteBuffer.order())) {
-//                byteBuffer.put(rawBytes, 0, rawBytes.size());
-//            }
-//            else if (type == DataType::DOUBLE64) {
-//                // if data sent over wire or read from file ...
-//                if (!rawBytes.empty()) {
-//                    // and need swapping ...
-//                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8,
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + rawBytes.size());
-//                }
-//                // else if user set data thru API (can't-rely-on / no rawBytes array) ...
-//                else {
-//                    ByteOrder::byteSwap64(doubleData.data(), doubleData.size(),
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + 8 * doubleData.size());
-//                }
-//            }
-//            else if (type == DataType::FLOAT32) {
-//                if (!rawBytes.empty()) {
-//                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4,
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + rawBytes.size());
-//                }
-//                else {
-//                    ByteOrder::byteSwap32(floatData.data(), floatData.size(),
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + 4 * floatData.size());
-//                }
-//            }
-//            else if (type == DataType::LONG64 || type == DataType::ULONG64) {
-//                if (!rawBytes.empty()) {
-//                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8,
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + rawBytes.size());
-//                }
-//                else {
-//                    ByteOrder::byteSwap64(longData.data(), longData.size(),
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + 8 * longData.size());
-//                }
-//            }
-//            else if (type == DataType::INT32 || type == DataType::UINT32) {
-//                if (!rawBytes.empty()) {
-//                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4,
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + rawBytes.size());
-//                }
-//                else {
-//                    ByteOrder::byteSwap32(intData.data(), intData.size(),
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + 4 * intData.size());
-//                }
-//            }
-//            else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
-//                if (!rawBytes.empty()) {
-//                    ByteOrder::byteSwap16(rawBytes.data(), rawBytes.size()/2,
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + rawBytes.size());
-//                }
-//                else {
-//                    ByteOrder::byteSwap16(shortData.data(), shortData.size(),
-//                                          byteBuffer.array() + byteBuffer.arrayOffset());
-//                    byteBuffer.position(curPos + 2 * shortData.size());
-//
-//                    // might have to pad to 4 byte boundary
-//                    if (shortData.size() % 2 > 0) {
-//                        byteBuffer.putShort((short) 0);
-//                    }
-//                }
-//            }
-//            else if (type == DataType::CHAR8 || type == DataType::UCHAR8 || type == DataType::UNKNOWN32) {
-//                if (!rawBytes.empty()) {
-//                    byteBuffer.put(rawBytes, 0, rawBytes.size());
-//                } else {
-//                    byteBuffer.put(reinterpret_cast<uint8_t*>(charData.data()), charData.size());
-//
-//                    // might have to pad to 4 byte boundary
-//                    byteBuffer.put(padValues, padCount[charData.size() % 4]);
-//                }
-//            }
-//            else if (type == DataType::CHARSTAR8) {
-//                // rawbytes contains ascii, already padded
-//                if (!rawBytes.empty()) {
-//                    byteBuffer.put(rawBytes, 0, rawBytes.size());
-//                }
-//            }
-//            else if (type == DataType::COMPOSITE) {
-//                // compositeData object always has rawBytes defined
-//                if (!rawBytes.empty()) {
-////                    // swap rawBytes into temp array
-////                    uint8_t swappedRaw[rawBytes.size()];
-//
-//                    try {
-////                        CompositeData::swapAll(rawBytes.data(), swappedRaw,
-////                                               rawBytes.size() / 4, byteOrder.isLocalEndian());
-//                        CompositeData::swapAll(rawBytes.data(), byteBuffer.array() + byteBuffer.arrayOffset() + curPos,
-//                                               rawBytes.size() / 4, byteOrder.isLocalEndian());
-//                    }
-//                    catch (EvioException & e) { /* never happen */ }
-//
-////                    // write them to buffer
-////                    byteBuffer.put(swappedRaw, rawBytes.size());
-//                }
-//            }
-//        } // isLeaf
-//        else if (!children.empty()) {
-//            for (auto const & child : children) {
-//                child->write(byteBuffer);
-//            }
-//        } // not leaf
-//
-//        return byteBuffer.position() - startPos;
-//    }
-//
 
 //----------------------------------------------------------------------
 // Methods to append to exising data if any or to set the data if none.
