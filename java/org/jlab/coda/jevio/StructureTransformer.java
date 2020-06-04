@@ -28,6 +28,7 @@ public class StructureTransformer {
         bankHeader.setPadding(header.getPadding());
 
         EvioBank bank = new EvioBank(bankHeader);
+        // Copy over the data & take care of padding
         bank.transform(segment);
         return bank;
     }
@@ -40,9 +41,7 @@ public class StructureTransformer {
      * supplies that as an arg.<p>
      *
      * NOTE: A tagsegment has no associated padding data. However,
-     * if a tagsegment is read from a file/buffer, padding info is already lost (=0), and
-     * if a tagsegment is created "by hand", the padding has already been calculated
-     * and exists in the header.
+     * the bank.transform() method will calculate it and set it in the bank header.
      *
      * @param tagsegment EvioTagSegment object to transform.
      * @param num num of the created EvioBank.
@@ -54,7 +53,6 @@ public class StructureTransformer {
 
         BankHeader bankHeader = new BankHeader(header.getTag(), type, num);
         bankHeader.setLength(header.getLength()+1);
-        bankHeader.setPadding(header.getPadding());
 
         EvioBank bank = new EvioBank(bankHeader);
         bank.transform(tagsegment);
@@ -68,9 +66,10 @@ public class StructureTransformer {
      * (not deep cloned) to the tagsegment.<p>
      *
      * NOTE: No data should be lost in this transformaton since even though the
-     * segment has 6 bits of data type while the tag segment has only 4, only 4 bits
-     * are needed to contain the type data. And, the segment's tag is 8 bits while
-     * the tagsegment's tag is 12 bits so no problem there.
+     * segment serializes 6 bits of data type when being written out while the tag segment
+     * serializes 4, only 4 bits are needed to contain the equivalent type data.
+     * And, the segment's tag is serialized into 8 bits while the tagsegment's tag uses 12 bits
+     * so no problem there.
      *
      * @param segment EvioSegment object to transform.
      * @return the created EvioTagSegment.
@@ -81,17 +80,17 @@ public class StructureTransformer {
         DataType segType = type = segHeader.getDataType();
         
         // Change 6 bit content type to 4 bits. Do this by changing
-        // ALSOBANK to BANK, ALSOSEGMENT to SEGMENT (ALSOTAGSEGMENT already removed)
-        if (segType == DataType.ALSOBANK) {
-            type = DataType.BANK;
+        // BANK to ALSOBANK, SEGMENT to ALSOSEGMENT (ALSOTAGSEGMENT already removed)
+        if (segType == DataType.BANK) {
+            type = DataType.ALSOBANK;
         }
-        else if (segType == DataType.ALSOSEGMENT) {
-            type = DataType.SEGMENT;
+        else if (segType == DataType.SEGMENT) {
+            type = DataType.ALSOSEGMENT;
         }
 
-        // 8 bit segment tag now becomes 12 bits
         TagSegmentHeader tagsegHeader = new TagSegmentHeader(segHeader.getTag(), type);
         tagsegHeader.setLength(segHeader.getLength());
+        tagsegHeader.setPadding(segHeader.getPadding());
 
         EvioTagSegment tagseg = new EvioTagSegment(tagsegHeader);
         tagseg.transform(segment);
@@ -104,12 +103,11 @@ public class StructureTransformer {
      * (not deep cloned) to the segment.<p>
      *
      * NOTE: A tagsegment has no associated padding data. However,
-     * if a tagsegment is read from a file/buffer, padding info is already lost (=0), and
-     * if a tagsegment is created "by hand", the padding has already been calculated
-     * and exists in the header. It is also possible that data is lost in this
-     * transformaton since the segment's tag is 8 bits while the tagsegment's tag is
-     * 12 bits. The user can override the truncation of the tagsegment's tag and simply
-     * set the created segment's tag by calling segment.getHeader().setTag(tag).
+     * the transform() method will calculate it and set it in the segment header.
+     * Tags are stored in a 16 bit int and so this transformation
+     * will never lose any tag data. Only when a segment's tag is written out or
+     * serialized into 8 bits will this become an issue since a tagsegment's tag is
+     * serialized as 12 bits.
      *
      * @param tagsegment EvioTagSegment object to transform.
      * @return the created EvioSegment.
@@ -118,11 +116,8 @@ public class StructureTransformer {
         BaseStructureHeader tagsegHeader = tagsegment.getHeader();
         DataType type = tagsegHeader.getDataType();
 
-        // A tagseg tag is 12 bits which must be truncated to the seg's 8 bits.
-        // The user can override this by setting the resultant segment's tag by hand.
         SegmentHeader segHeader = new SegmentHeader(tagsegHeader.getTag(), type);
         segHeader.setLength(tagsegHeader.getLength());
-        segHeader.setPadding(tagsegHeader.getPadding());
 
         EvioSegment seg = new EvioSegment(segHeader);
         seg.transform(tagsegment);
@@ -134,12 +129,17 @@ public class StructureTransformer {
      * data copied over, <b>except</b> that the bank's children were are added
      * (not deep cloned) to the segment.<p>
      *
-     * NOTE: It is possible that data is lost in this transformaton since the
-     * segment's tag is 8 bits while the bank's tag is 16 bits. To override the
-     * truncation of the tag, simply set the created segment's tag by calling
-     * segment.getHeader().setTag(tag). It is also possible that the length of
-     * the bank (32 bits) is too big for the segment (16 bits). This condition
-     * will cause an exception.
+     * <b>TAG: </b>Tags are stored in a 16 bit int and so this transformation
+     * will never lose any tag data. Only when a segment's tag is written out or
+     * serialized into 8 bits will this become an issue since a bank's tag is
+     * serialized as 16 bits.<p>
+     *
+     * <b>NUM: </b>A segment has no num data and so the bank's num is lost.
+     * The bank's num is actually copied into segment header so in that sense it
+     * still exists, but will never be written out or serialized.<p>
+     *
+     * <b>LENGTH: </b>It is possible that the length of the bank (32 bits) is too
+     * big for the segment (16 bits). This condition will cause an exception.
      *
      * @param bank EvioBank object to transform.
      * @return the created EvioSegment.
@@ -152,10 +152,10 @@ public class StructureTransformer {
         }
         DataType type = header.getDataType();
 
-        // 16 bit bank tag now becomes 8 bits
         SegmentHeader segHeader = new SegmentHeader(bank.getHeader().getTag(), type);
         segHeader.setLength(header.getLength()-1);
         segHeader.setPadding(header.getPadding());
+        segHeader.setNumber(header.getNumber());
 
         EvioSegment seg = new EvioSegment(segHeader);
         seg.transform(bank);
@@ -167,12 +167,21 @@ public class StructureTransformer {
      * data copied over, <b>except</b> that the bank's children were are added
      * (not deep cloned) to the segment.<p>
      *
-     * NOTE: It is possible that data is lost in this transformaton since the
-     * tagsegment's tag is 12 bits while the bank's tag is 16 bits. To override the
-     * truncation of the tag, simply set the created tagsegment's tag by calling
-     * tagsegment.getHeader().setTag(tag). It is also possible that the length of
-     * the bank (32 bits) is too big for the tagsegment (16 bits). This condition
-     * will cause an exception.
+     * <b>TAG: </b>Tags are stored in a 16 bit int and so this transformation
+     * will never lose any tag data. Only when a tagsegment's tag is written out or
+     * serialized into 12 bits will this become an issue since a bank's tag is
+     * serialized as 16 bits.<p>
+     *
+     * <b>NUM: </b>A tagsegment has no num data and so the bank's num is lost.
+     * The bank's num is actually copied into tagsegment header so in that sense it
+     * still exists, but will never be written out or serialized.<p>
+     *
+     * <b>LENGTH: </b>It is possible that the length of the bank (32 bits) is too
+     * big for the tagsegment (16 bits). This condition will cause an exception.<p>
+     *
+     * <b>TYPE: </b>No data should be lost in this transformaton since even though the
+     * bank serializes 6 bits of data type when being written out while the tagsegment
+     * serializes 4, only 4 bits are needed to contain the equivalent type data.<p>
      *
      * @param bank EvioBank object to transform.
      * @param dummy only used to distinguish this method from {@link #transform(EvioBank)}.
@@ -188,15 +197,14 @@ public class StructureTransformer {
         DataType bankType = type = header.getDataType();
 
         // Change 6 bit content type to 4 bits. Do this by changing
-        // ALSOBANK to BANK, ALSOSEGMENT to SEGMENT (ALSOTAGSEGMENT already removed)
-        if (bankType == DataType.ALSOBANK) {
-            type = DataType.BANK;
+        // BANK to ALSOBANK, SEGMENT to ALSOSEGMENT (ALSOTAGSEGMENT already removed)
+        if (bankType == DataType.BANK) {
+            type = DataType.ALSOBANK;
         }
-        else if (bankType == DataType.ALSOSEGMENT) {
-            type = DataType.SEGMENT;
+        else if (bankType == DataType.SEGMENT) {
+            type = DataType.ALSOSEGMENT;
         }
 
-        // 16 bit bank tag now becomes 12 bits
         TagSegmentHeader tagsegHeader = new TagSegmentHeader(bank.getHeader().getTag(), type);
         tagsegHeader.setLength(header.getLength()-1);
         tagsegHeader.setPadding(header.getPadding());
