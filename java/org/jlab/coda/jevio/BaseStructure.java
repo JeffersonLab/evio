@@ -30,7 +30,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
 
 	/** Holds the header of the bank. */
 	protected BaseStructureHeader header;
-DefaultMutableTreeNode j;
+
     /**
      * The raw data of the structure.
      * Storing data as raw bytes limits the # of data elements to
@@ -56,7 +56,6 @@ DefaultMutableTreeNode j;
     /** Used if raw data should be interpreted as composite type. */
     protected CompositeData[] compositeData;
 
-    //------------------- STRING STUFF -------------------
     /**
      * Used if raw data should be interpreted as chars.
      * The reason rawBytes is not used directly is because
@@ -66,6 +65,8 @@ DefaultMutableTreeNode j;
      * are padding bytes in it.
      */
     protected byte charData[];
+
+    //------------------- STRING STUFF -------------------
 
     /** Used if raw data should be interpreted as a string. */
     protected StringBuilder stringData;
@@ -84,6 +85,7 @@ DefaultMutableTreeNode j;
      * or has too little data to be in proper format.
      */
     protected boolean badStringFormat;
+
     //----------------------------------------------------
 
     /**
@@ -156,6 +158,9 @@ DefaultMutableTreeNode j;
      * Children are <b>not</b> copied in the deep clone way,
      * but their references are added to this structure.
      * It does <b>not</b> copy header data or the parent either.
+     * Keeps track of the padding and set its value in this structure's header once found.
+     * This needs to be calculated since the BaseStructure arg may be a tagsegment which
+     * has no associate padding data.
      *
      * @param structure BaseStructure from which to copy data.
      */
@@ -198,12 +203,23 @@ DefaultMutableTreeNode j;
         }
 
         DataType type = structure.getHeader().getDataType();
+        
+        // Keep track of the padding and set its value in this structure's header once found.
+        // This needs to be calculated since the BaseStructure arg may be a tagsegment which
+        // has no associate padding data.
+        // Padding is only used for the small primitive types: shorts and bytes. Strings are
+        // stored in a format that takes care of its own padding and composite data is a
+        // container which by definition has no padding associated with it.
+        header.padding = 0;
 
         switch (type)  {
             case SHORT16:
             case USHORT16:
                 if (structure.shortData != null) {
                     shortData = structure.shortData.clone();
+                    if (structure.shortData.length % 2 != 0) {
+                        header.padding = 2;
+                    }
                 }
                 break;
 
@@ -238,6 +254,7 @@ DefaultMutableTreeNode j;
             case UCHAR8:
                 if (structure.charData != null) {
                     charData = structure.charData.clone();
+                    header.padding = padCount[structure.charData.length % 4];
                 }
                 break;
 
