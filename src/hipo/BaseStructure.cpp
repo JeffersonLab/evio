@@ -38,7 +38,7 @@ namespace evio {
             header          = base.header;
             lengthsUpToDate = base.lengthsUpToDate;
 
-            copyData(base, header->getDataType() == DataType::COMPOSITE);
+            copyData(base);
         }
     }
 
@@ -131,7 +131,7 @@ namespace evio {
             header          = other.header;
             lengthsUpToDate = other.lengthsUpToDate;
 
-            copyData(other, header->getDataType() == DataType::COMPOSITE);
+            copyData(other);
         }
         return *this;
     }
