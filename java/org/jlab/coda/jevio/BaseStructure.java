@@ -203,7 +203,7 @@ public abstract class BaseStructure implements Cloneable, IEvioStructure, Mutabl
         }
 
         DataType type = structure.getHeader().getDataType();
-        
+
         // Keep track of the padding and set its value in this structure's header once found.
         // This needs to be calculated since the BaseStructure arg may be a tagsegment which
         // has no associate padding data.
