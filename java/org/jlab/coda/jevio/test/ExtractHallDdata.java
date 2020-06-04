@@ -1,6 +1,5 @@
 package org.jlab.coda.jevio.test;
 
-import com.sun.scenario.effect.impl.sw.java.JSWBlend_SRC_OUTPeer;
 import org.jlab.coda.jevio.*;
 
 import java.io.File;
