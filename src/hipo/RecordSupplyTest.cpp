@@ -25,6 +25,9 @@
 #include <memory>
 #include <regex>
 
+#include "EvioBank.h"
+#include "EvioSegment.h"
+#include "StructureTransformer.h"
 
 #include "RecordSupply.h"
 #include "ByteOrder.h"
@@ -226,13 +229,37 @@ namespace evio {
     }
 
 
+    static void myTest() {
+        uint16_t tag = 1;
+        uint8_t  num = 1;
+        DataType type = DataType::BANK;
+
+        auto evBank = EvioBank::getInstance(tag, type, num);
+        std::cout << "EvioBank = " << evBank->toString() << std::endl;
+
+        uint16_t tag2 = 2;
+        uint8_t  num2 = 2;
+        DataType type2 = DataType::BANK;
+
+        const auto evSeg = EvioSegment::getInstance(tag2, type2);
+
+        std::cout << "EvioSeg = " << evSeg->toString() << std::endl;
+
+        auto newBank = StructureTransformer::transform(evSeg, num2);
+        std::cout << "New EvioBank = " << newBank->toString() << std::endl;
+
+
+
+    }
+
+
 
 }
 
 
 
 int main(int argc, char **argv) {
-    evio::recordSupplyTest();
+    evio::myTest();
     return 0;
 }
 
