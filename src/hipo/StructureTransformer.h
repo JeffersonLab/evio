@@ -15,10 +15,9 @@
 #include <sstream>
 #include <memory>
 
-#include "ByteBuffer.h"
-#include "BaseStructure.h"
-#include "BaseStructureHeader.h"
 #include "BankHeader.h"
+#include "SegmentHeader.h"
+#include "TagSegmentHeader.h"
 
 #include "DataType.h"
 #include "EvioBank.h"
@@ -28,16 +27,18 @@
 
 namespace evio {
 
-    /**
-     * This class contains methods to transform structures from one type to another,
-     * for example changing an EvioSegment into an EvioBank.
-     *
-     * @author timmer
-     * @date 6/3/2020 (10/1/2010 original java)
-     */
-    class StructureTransformer {
+        /**
+         * This class contains methods to transform structures from one type to another,
+         * for example, changing an EvioSegment into an EvioBank.
+         *
+         * @author timmer
+         * @date 6/3/2020 (10/1/2010 original java)
+         */
+        class StructureTransformer {
 
-    public:
+            public:
+
+            // Segment --> Bank
 
             /**
              * Create an EvioBank object from an EvioSegment. The new object has all
@@ -51,12 +52,13 @@ namespace evio {
              */
             static std::shared_ptr<EvioBank> transform(std::shared_ptr<EvioSegment> const & segment, uint8_t num) {
                 // Copy over header & create new EvioBank
-                auto segHeader = segment->getHeader();
+                auto const & segHeader = segment->getHeader();
                 auto bank = EvioBank::getInstance(segHeader->getTag(), segHeader->getDataType(), num);
-                auto bankHeader = bank->getHeader();
-                bankHeader.setLength(segHeader->getLength() + 1);
+                auto const & bankHeader = bank->getHeader();
+                bankHeader->setLength(segHeader->getLength() + 1);
+                bankHeader->setPadding(segHeader->getPadding());
 
-                // Copy over the data & take care of padding
+                // Copy over the data (take care of padding)
                 bank->transform(segment);
                 return bank;
             }
@@ -71,18 +73,22 @@ namespace evio {
              * @param num num of the EvioBank.
              */
             static void copy(std::shared_ptr<EvioBank> const & bank,
-                             std::shared_ptr<EvioSegment> const & segment,
-                             uint8_t num) {
+                    std::shared_ptr<EvioSegment> const & segment,
+                    uint8_t num) {
 
                 // Copy over header
-                auto segHeader  = segment->getHeader();
-                auto bankHeader = bank->getHeader()->copy(segHeader);
+                auto const & segHeader  = segment->getHeader();
+                auto const & bankHeader = bank->getHeader();
+                bankHeader->copy(segHeader);
                 bankHeader->setNumber(num);
                 bankHeader->setLength(segHeader->getLength() + 1);
-                // Copy over the data & take care of padding
+                bankHeader->setPadding(segHeader->getPadding());
+
+                // Copy over the data (take care of padding)
                 bank->transform(segment);
             }
 
+            // TagSegment --> Bank
 
             /**
              * Create an EvioBank object from an EvioTagSegment. The new object has all
@@ -91,21 +97,21 @@ namespace evio {
              * supplies that as an arg.<p>
              *
              * NOTE: A tagsegment has no associated padding data. However,
-             * the transform() method will calculate it and set it in the bank header.
+             * the bank.transform() method will calculate it and set it in the bank header.
              *
              * @param tagsegment EvioTagSegment object to transform.
              * @param num num of the created EvioBank.
              * @return the created EvioBank.
              */
             static std::shared_ptr<EvioBank> transform(std::shared_ptr<EvioTagSegment> const & tagsegment, uint8_t num) {
-                auto tagsegHeader = tagsegment->getHeader();
+                auto const & tagsegHeader = tagsegment->getHeader();
                 auto bank = EvioBank::getInstance(tagsegHeader->getTag(), tagsegHeader->getDataType(), num);
-                auto bankHeader = bank->getHeader();
-                bankHeader.setLength(tagsegHeader->getLength() + 1);
+                auto const & bankHeader = bank->getHeader();
+                bankHeader->setLength(tagsegHeader->getLength() + 1);
+
                 bank->transform(tagsegment);
                 return bank;
             }
-
 
             /**
              * Copy the data in an EvioTagSegment object into an existing EvioBank. Note, however,
@@ -113,168 +119,317 @@ namespace evio {
              * Because a tagsegment has no num, the user supplies that as an arg.
              *
              * NOTE: A tagsegment has no associated padding data. However,
-             * the transform() method will calculate it and set it in the bank header.
+             * the bank.transform() method will calculate it and set it in the bank header.
              *
              * @param bank EvioBank object to copy into.
-             * @param segment EvioTagSegment object to copy.
+             * @param tagsegment EvioTagSegment object to copy.
              * @param num num of the EvioBank.
              */
             static void copy(std::shared_ptr<EvioBank> const & bank,
-                             std::shared_ptr<EvioTagSegment> const & tagsegment,
-                             uint8_t num) {
+                    std::shared_ptr<EvioTagSegment> const & tagsegment,
+                    uint8_t num) {
 
-                auto tagsegHeader = tagsegment->getHeader();
-                auto bankHeader = bank->getHeader()->copy(tagsegHeader);
+                auto const & tagsegHeader = tagsegment->getHeader();
+                auto const & bankHeader = bank->getHeader();
+                bankHeader->copy(tagsegHeader);
                 bankHeader->setNumber(num);
                 bankHeader->setLength(tagsegHeader->getLength() + 1);
+
                 bank->transform(tagsegment);
             }
 
+            // Segment --> TagSegment
 
-        /**
-         * Create an EvioTagSegment object from an EvioSegment. The new object has all
-         * data copied over, <b>except</b> that the segment's children were are added
-         * (not deep cloned) to the tagsegment.<p>
-         *
-         * NOTE: No data should be lost in this transformaton since even though the
-         * segment has 6 bits of data type while the tag segment has only 4, only 4 bits
-         * are needed to contain the type data. And, the segment's tag is 8 bits while
-         * the tagsegment's tag is 12 bits so no problem there.
-         *
-         * @param segment EvioSegment object to transform.
-         * @return the created EvioTagSegment.
-         */
-        static public EvioTagSegment transform(EvioSegment segment) {
-            BaseStructureHeader segHeader = segment.getHeader();
-            DataType type;
-            DataType segType = type = segHeader.getDataType();
-
-            // Change 6 bit content type to 4 bits. Do this by changing
-            // ALSOBANK to BANK, ALSOSEGMENT to SEGMENT (ALSOTAGSEGMENT already removed)
-            if (segType == DataType.ALSOBANK) {
-                type = DataType.BANK;
-            }
-            else if (segType == DataType.ALSOSEGMENT) {
-                type = DataType.SEGMENT;
-            }
-
-            // 8 bit segment tag now becomes 12 bits
-            TagSegmentHeader tagsegHeader = new TagSegmentHeader(segHeader.getTag(), type);
-            tagsegHeader.setLength(segHeader.getLength());
-
-            EvioTagSegment tagseg = new EvioTagSegment(tagsegHeader);
-            tagseg.transform(segment);
-            return tagseg;
-        }
-
-        /**
-         * Create an EvioSegment object from an EvioTagSegment. The new object has all
-         * data copied over, <b>except</b> that the tagsegment's children were are added
-         * (not deep cloned) to the segment.<p>
-         *
-         * NOTE: A tagsegment has no associated padding data. However,
-         * if a tagsegment is read from a file/buffer, padding info is already lost (=0), and
-         * if a tagsegment is created "by hand", the padding has already been calculated
-         * and exists in the header. It is also possible that data is lost in this
-         * transformaton since the segment's tag is 8 bits while the tagsegment's tag is
-         * 12 bits. The user can override the truncation of the tagsegment's tag and simply
-         * set the created segment's tag by calling segment.getHeader().setTag(tag).
-         *
-         * @param tagsegment EvioTagSegment object to transform.
-         * @return the created EvioSegment.
-         */
-        static public EvioSegment transform(EvioTagSegment tagsegment) {
-            BaseStructureHeader tagsegHeader = tagsegment.getHeader();
-            DataType type = tagsegHeader.getDataType();
-
-            // A tagseg tag is 12 bits which must be truncated to the seg's 8 bits.
-            // The user can override this by setting the resultant segment's tag by hand.
-            SegmentHeader segHeader = new SegmentHeader(tagsegHeader.getTag(), type);
-            segHeader.setLength(tagsegHeader.getLength());
-            segHeader.setPadding(tagsegHeader.getPadding());
-
-            EvioSegment seg = new EvioSegment(segHeader);
-            seg.transform(tagsegment);
-            return seg;
-        }
-
-        /**
-         * Create an EvioSegment object from an EvioBank. The new object has all
-         * data copied over, <b>except</b> that the bank's children were are added
-         * (not deep cloned) to the segment.<p>
-         *
-         * NOTE: It is possible that data is lost in this transformaton since the
-         * segment's tag is 8 bits while the bank's tag is 16 bits. To override the
-         * truncation of the tag, simply set the created segment's tag by calling
-         * segment.getHeader().setTag(tag). It is also possible that the length of
-         * the bank (32 bits) is too big for the segment (16 bits). This condition
-         * will cause an exception.
-         *
-         * @param bank EvioBank object to transform.
-         * @return the created EvioSegment.
-         * @throws EvioException if the bank is too long to change into a segment
-         */
-        static public EvioSegment transform(EvioBank bank) throws EvioException {
-                BaseStructureHeader header = bank.getHeader();
-                if (header.getLength() > 65535) {
-                    throw new EvioException("Bank is too long to transform into segment");
-                }
-                DataType type = header.getDataType();
-
-                // 16 bit bank tag now becomes 8 bits
-                SegmentHeader segHeader = new SegmentHeader(bank.getHeader().getTag(), type);
-                segHeader.setLength(header.getLength()-1);
-                segHeader.setPadding(header.getPadding());
-
-                EvioSegment seg = new EvioSegment(segHeader);
-                seg.transform(bank);
-                return seg;
-        }
-
-        /**
-         * Create an EvioTagSegment object from an EvioBank. The new object has all
-         * data copied over, <b>except</b> that the bank's children were are added
-         * (not deep cloned) to the segment.<p>
-         *
-         * NOTE: It is possible that data is lost in this transformaton since the
-         * tagsegment's tag is 12 bits while the bank's tag is 16 bits. To override the
-         * truncation of the tag, simply set the created tagsegment's tag by calling
-         * tagsegment.getHeader().setTag(tag). It is also possible that the length of
-         * the bank (32 bits) is too big for the tagsegment (16 bits). This condition
-         * will cause an exception.
-         *
-         * @param bank EvioBank object to transform.
-         * @param dummy only used to distinguish this method from {@link #transform(EvioBank)}.
-         * @return the created EvioTagSegment.
-         * @throws EvioException if the bank is too long to change into a tagsegment
-         */
-        static public EvioTagSegment transform(EvioBank bank, int dummy) throws EvioException {
-                BaseStructureHeader header = bank.getHeader();
-                if (header.getLength() > 65535) {
-                    throw new EvioException("Bank is too long to transform into tagsegment");
-                }
-                DataType type;
-                DataType bankType = type = header.getDataType();
+            /**
+             * Create an EvioTagSegment object from an EvioSegment. The new object has all
+             * data copied over, <b>except</b> that the segment's children were are added
+             * (not deep cloned) to the tagsegment.<p>
+             *
+             * NOTE: No data should be lost in this transformaton since even though the
+             * segment serializes 6 bits of data type when being written out while the tag segment
+             * serializes 4, only 4 bits are needed to contain the equivalent type data.
+             * And, the segment's tag is serialized into 8 bits while the tagsegment's tag uses 12 bits
+             * so no problem there.
+             *
+             * @param segment EvioSegment object to transform.
+             * @return the created EvioTagSegment.
+             */
+            static std::shared_ptr<EvioTagSegment> transform(std::shared_ptr<EvioSegment> const & segment) {
+                auto const & segHeader = segment->getHeader();
+                auto ts = EvioTagSegment::getInstance(segHeader->getTag(), segHeader->getDataType());
+                auto const & tsHeader = ts->getHeader();
+                tsHeader->setLength(segHeader->getLength());
+                tsHeader->setPadding(segHeader->getPadding());
 
                 // Change 6 bit content type to 4 bits. Do this by changing
-                // ALSOBANK to BANK, ALSOSEGMENT to SEGMENT (ALSOTAGSEGMENT already removed)
-                if (bankType == DataType.ALSOBANK) {
-                    type = DataType.BANK;
+                // BANK to ALSOBANK, SEGMENT to ALSOSEGMENT
+                DataType const & segType = segHeader->getDataType();
+                if (segType == DataType::BANK) {
+                    tsHeader->setDataType(DataType::ALSOBANK);
                 }
-                else if (bankType == DataType.ALSOSEGMENT) {
-                    type = DataType.SEGMENT;
+                else if (segType == DataType::SEGMENT) {
+                    tsHeader->setDataType(DataType::ALSOSEGMENT);
                 }
 
-                // 16 bit bank tag now becomes 12 bits
-                TagSegmentHeader tagsegHeader = new TagSegmentHeader(bank.getHeader().getTag(), type);
-                tagsegHeader.setLength(header.getLength()-1);
-                tagsegHeader.setPadding(header.getPadding());
+                ts->transform(segment);
+                return ts;
+            }
 
-                EvioTagSegment tagseg = new EvioTagSegment(tagsegHeader);
-                tagseg.transform(bank);
-                return tagseg;
-        }
-    };
+            /**
+             * Copy the data in an EvioSegment object into an existing EvioTagSegment. Note, however,
+             * that the segment's children were are added (not deep cloned) to the tagsegment.
+             *
+             * NOTE: No data should be lost in this transformaton since even though the
+             * segment serializes 6 bits of data type when being written out while the tag segment
+             * serializes 4, only 4 bits are needed to contain the equivalent type data.
+             * And, the segment's tag is serialized into 8 bits while the tagsegment's tag uses 12 bits
+             * so no problem there.
+             *
+             * @param tagsegment EvioTagSegment object to copy into.
+             * @param segment EvioSegment object to copy.
+             */
+            static void copy(std::shared_ptr<EvioTagSegment> const & tagsegment,
+                    std::shared_ptr<EvioSegment> const & segment) {
+
+                auto const & segHeader = segment->getHeader();
+                auto const & tsHeader  = tagsegment->getHeader();
+                tsHeader->copy(segHeader);
+
+                // Change 6 bit content type to equivalent 4 bits
+                DataType const & segType = segHeader->getDataType();
+                if (segType == DataType::BANK) {
+                    tsHeader->setDataType(DataType::ALSOBANK);
+                }
+                else if (segType == DataType::SEGMENT) {
+                    tsHeader->setDataType(DataType::ALSOSEGMENT);
+                }
+
+                tagsegment->transform(segment);
+            }
+
+            // TagSegment --> Segment
+
+            /**
+             * Create an EvioSegment object from an EvioTagSegment. The new object has all
+             * data copied over, <b>except</b> that the tagsegment's children were are added
+             * (not deep cloned) to the segment.<p>
+             *
+             * NOTE: A tagsegment has no associated padding data. However,
+             * the transform() method will calculate it and set it in the segment header.
+             * Tags are stored in a 16 bit int and so this transformation
+             * will never lose any tag data. Only when a segment's tag is written out or
+             * serialized into 8 bits will this become an issue since a tagsegment's tag is
+             * serialized as 12 bits.
+             *
+             * @param tagsegment EvioTagSegment object to transform.
+             * @return the created EvioSegment.
+             */
+            static std::shared_ptr<EvioSegment> transform(std::shared_ptr<EvioTagSegment> const & tagsegment) {
+                auto const & tsHeader = tagsegment->getHeader();
+                auto seg = EvioSegment::getInstance(tsHeader->getTag(), tsHeader->getDataType());
+                auto const & segHeader = seg->getHeader();
+                segHeader->setLength(tsHeader->getLength());
+
+                seg->transform(tagsegment);
+                return seg;
+            }
+
+            /**
+             * Copy the data in an EvioTagSegment object into an existing EvioSegment. Note, however,
+             * that the tagsegment's children were are added (not deep cloned) to the segment.
+             *
+             * NOTE: A tagsegment has no associated padding data. However,
+             * the transform() method will calculate it and set it in the segment header.
+             * Tags are stored in a 16 bit int and so this transformation
+             * will never lose any tag data. Only when a segment's tag is written out or
+             * serialized into 8 bits will this become an issue since a tagsegment's tag is
+             * serialized as 12 bits.
+             *
+             * @param segment EvioSegment object to copy into.
+             * @param tagsegment EvioTagSegment object to copy.
+             */
+            static void copy(std::shared_ptr<EvioSegment> const & segment,
+                    std::shared_ptr<EvioSegment> const & tagsegment) {
+
+                auto const & tsHeader  = tagsegment->getHeader();
+                auto const & segHeader = segment->getHeader();
+                segHeader->copy(tsHeader);
+                tagsegment->transform(segment);
+            }
+
+            // Bank -> Segment
+
+            /**
+             * Create an EvioSegment object from an EvioBank. The new object has all
+             * data copied over, <b>except</b> that the bank's children were are added
+             * (not deep cloned) to the segment.<p>
+             *
+             * <b>TAG: </b>Tags are stored in a 16 bit int and so this transformation
+             * will never lose any tag data. Only when a segment's tag is written out or
+             * serialized into 8 bits will this become an issue since a bank's tag is
+             * serialized as 16 bits.<p>
+             *
+             * <b>NUM: </b>A segment has no num data and so the bank's num is lost.
+             * The bank's num is actually copied into segment header so in that sense it
+             * still exists, but will never be written out or serialized.
+             *
+             * <b>LENGTH: </b>It is possible that the length of the bank (32 bits) is too
+             * big for the segment (16 bits). This condition will cause an exception.
+             *
+             * @param bank EvioBank object to transform.
+             * @return the created EvioSegment.
+             * @throws EvioException if the bank is too long to change into a segment
+             */
+            static std::shared_ptr<EvioSegment> transform(std::shared_ptr<EvioBank> const & bank) {
+                auto const & bankHeader = bank->getHeader();
+                size_t bankLen = bankHeader->getLength();
+                if (bankLen > 65535) {
+                    throw new EvioException("Bank is too long to transform into segment");
+                }
+                auto segment = EvioSegment::getInstance(bankHeader->getTag(), bankHeader->getDataType());
+                auto const & segHeader = segment->getHeader();
+                segHeader->setLength(bankLen - 1);
+                segHeader->setPadding(bankHeader->getPadding());
+                segHeader->setNumber(bankHeader->getNumber());
+
+                segment->transform(bank);
+                return segment;
+            }
+
+
+            /**
+             * Copy the data in an EvioBank object into an existing EvioSegment. Note, however,
+             * that the banks's children were are added (not deep cloned) to the segment.
+             *
+             * <b>TAG: </b>Tags are stored in a 16 bit int and so this transformation
+             * will never lose any tag data. Only when a segment's tag is written out or
+             * serialized into 8 bits will this become an issue since a bank's tag is
+             * serialized as 16 bits.<p>
+             *
+             * <b>NUM: </b>A segment has no num data and so the bank's num is lost.
+             * The bank's num is actually copied into segment header so in that sense it
+             * still exists, but will never be written out or serialized.
+             *
+             * <b>LENGTH: </b>It is possible that the length of the bank (32 bits) is too
+             * big for the segment (16 bits). This condition will cause an exception.
+             *
+             * @param segment EvioSegment object to copy into.
+             * @param bank EvioBank object to copy.
+             * @throws EvioException if the bank is too long to change into a segment
+             */
+            static void copy(std::shared_ptr<EvioSegment> const & segment,
+                             std::shared_ptr<EvioBank> const & bank) {
+
+                auto const & bankHeader = bank->getHeader();
+                size_t bankLen = bankHeader->getLength();
+                if (bankLen > 65535) {
+                    throw new EvioException("Bank is too long to transform into segment");
+                }
+                auto const & segHeader = segment->getHeader();
+                segHeader->copy(bankHeader);
+                segHeader->setLength(bankLen - 1);
+
+                segment->transform(bank);
+            }
+
+            // Bank -> TagSegment
+
+            /**
+             * Create an EvioTagSegment object from an EvioBank. The new object has all
+             * data copied over, <b>except</b> that the bank's children were are added
+             * (not deep cloned) to the tagsegment.<p>
+             *
+             * <b>TAG: </b>Tags are stored in a 16 bit int and so this transformation
+             * will never lose any tag data. Only when a tagsegment's tag is written out or
+             * serialized into 12 bits will this become an issue since a bank's tag is
+             * serialized as 16 bits.<p>
+             *
+             * <b>NUM: </b>A tagsegment has no num data and so the bank's num is lost.
+             * The bank's num is actually copied into tagsegment header so in that sense it
+             * still exists, but will never be written out or serialized.<p>
+             *
+             * <b>LENGTH: </b>It is possible that the length of the bank (32 bits) is too
+             * big for the tagsegment (16 bits). This condition will cause an exception.<p>
+             *
+             * <b>TYPE: </b>No data should be lost in this transformaton since even though the
+             * bank serializes 6 bits of data type when being written out while the tagsegment
+             * serializes 4, only 4 bits are needed to contain the equivalent type data.<p>
+             *
+             * @param bank EvioBank object to transform.
+             * @param dummy only used to distinguish this method from {@link #transform(EvioBank)}.
+             * @return the created EvioTagSegment.
+             * @throws EvioException if the bank is too long to change into a tagsegment
+             */
+            static std::shared_ptr<EvioTagSegment> transform(std::shared_ptr<EvioBank> const & bank,
+                                                             int dummy) {
+                auto const & bankHeader = bank->getHeader();
+                if (bankHeader->getLength() > 65535) {
+                    throw new EvioException("Bank is too long to transform into segment");
+                }
+                auto ts = EvioTagSegment::getInstance(bankHeader->getTag(), bankHeader->getDataType());
+                auto const & tsHeader = ts->getHeader();
+                tsHeader->setLength(bankHeader->getLength() - 1);
+                tsHeader->setPadding(bankHeader->getPadding());
+                tsHeader->setNumber(bankHeader->getNumber());
+
+                DataType const & tsType = tsHeader->getDataType();
+                if (tsType == DataType::BANK) {
+                    tsHeader->setDataType(DataType::ALSOBANK);
+                }
+                else if (tsType == DataType::SEGMENT) {
+                    tsHeader->setDataType(DataType::ALSOSEGMENT);
+                }
+
+                ts->transform(bank);
+                return ts;
+            }
+
+
+            /**
+             * Copy the data in an EvioBank object into an existing EvioTagSegment. Note, however,
+             * that the banks's children were are added (not deep cloned) to the tagsegment.
+             *
+             * <b>TAG: </b>Tags are stored in a 16 bit int and so this transformation
+             * will never lose any tag data. Only when a tagsegment's tag is written out or
+             * serialized into 12 bits will this become an issue since a bank's tag is
+             * serialized as 16 bits.<p>
+             *
+             * <b>NUM: </b>A segment has no num data and so the bank's num is lost.
+             * The bank's num is actually copied into segment header so in that sense it
+             * still exists, but will never be written out or serialized.
+             *
+             * <b>LENGTH: </b>It is possible that the length of the bank (32 bits) is too
+             * big for the segment (16 bits). This condition will cause an exception.
+             *
+             * @param tagsegment EvioTagSegment object to copy into.
+             * @param bank EvioBank object to copy.
+             * @throws EvioException if the bank is too long to change into a segment
+             */
+            static void copy(std::shared_ptr<EvioTagSegment> const & tagsegment,
+                             std::shared_ptr<EvioBank> const & bank) {
+
+                auto const & bankHeader = bank->getHeader();
+                size_t bankLen = bankHeader->getLength();
+                if (bankLen > 65535) {
+                    throw new EvioException("Bank is too long to transform into tagsegment");
+                }
+                auto const & tsHeader = tagsegment->getHeader();
+                tsHeader->copy(bankHeader);
+                tsHeader->setLength(bankLen - 1);
+
+                DataType const & bankType = bankHeader->getDataType();
+                if (bankType == DataType::BANK) {
+                    tsHeader->setDataType(DataType::ALSOBANK);
+                }
+                else if (bankType == DataType::SEGMENT) {
+                    tsHeader->setDataType(DataType::ALSOSEGMENT);
+                }
+
+                tagsegment->transform(bank);
+            }
+
+
+        };
 
 
 
