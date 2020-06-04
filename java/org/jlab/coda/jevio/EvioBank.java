@@ -27,6 +27,7 @@ public class EvioBank extends BaseStructure implements Cloneable {
 	 */
 	public EvioBank() {
 		super(new BankHeader());
+		header.length = 1;
 	}
 
 	/**
@@ -37,6 +38,7 @@ public class EvioBank extends BaseStructure implements Cloneable {
 	 */
 	public EvioBank(BankHeader bankHeader) {
 		super(bankHeader);
+		header.length = 1;
 	}
 	
 	/**
@@ -47,6 +49,7 @@ public class EvioBank extends BaseStructure implements Cloneable {
 	 */
 	public EvioBank(int tag, DataType dataType, int num) {
 		this(new BankHeader(tag, dataType, num));
+		header.length = 1;
 	}
 
     /**
