@@ -51,7 +51,7 @@ namespace evio {
             return pNode;
         }
 
-        static std::shared_ptr<EvioEvent> getInstance(uint32_t tag, DataType typ, uint32_t num) {
+        static std::shared_ptr<EvioEvent> getInstance(uint16_t tag, DataType typ, uint8_t num) {
             std::shared_ptr<BankHeader> head(new BankHeader(tag, typ, num));
             std::shared_ptr<EvioEvent> pNode(new EvioEvent(head));
             return pNode;
@@ -110,7 +110,7 @@ namespace evio {
          * Obtain a string representation of the structure.
          * @return a string representation of the structure.
          */
-        string toString() override {
+        string toString() const override {
 
             stringstream ss;
 

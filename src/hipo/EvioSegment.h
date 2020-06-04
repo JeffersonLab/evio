@@ -34,28 +34,11 @@ namespace evio {
             return pNode;
         }
 
-        static std::shared_ptr<EvioSegment> getInstance(uint32_t tag, DataType typ) {
+        static std::shared_ptr<EvioSegment> getInstance(uint16_t tag, DataType typ) {
             std::shared_ptr<SegmentHeader> head(new SegmentHeader(tag, typ));
             std::shared_ptr<EvioSegment> pNode(new EvioSegment(head));
             return pNode;
         }
-
-
-//    /**
-//     * Get the attached object.
-//     * @return the attached object
-//     */
-//    R getAttachment() {
-//        return attachment;
-//    }
-//
-//    /**
-//     * Set the attached object.
-//     * @param attachment object to attach to this bank
-//     */
-//    void setAttachment(R attachment) {
-//        this.attachment = attachment;
-//    }
 
         /**
          * This implements the virtual method from <code>BaseStructure</code>.
@@ -64,7 +47,7 @@ namespace evio {
          * @return the <code>StructureType</code> of this structure, which is a StructureType::STRUCT_SEGMENT.
          * @see StructureType
          */
-        StructureType getStructureType() override {
+        StructureType getStructureType() const override {
             return StructureType::STRUCT_SEGMENT;
         }
 

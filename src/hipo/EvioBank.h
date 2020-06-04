@@ -35,7 +35,7 @@ namespace evio {
             return pNode;
         }
 
-        static std::shared_ptr<EvioBank> getInstance(uint32_t tag, DataType typ, uint32_t num) {
+        static std::shared_ptr<EvioBank> getInstance(uint16_t tag, DataType typ, uint8_t num) {
             std::shared_ptr<BankHeader> head(new BankHeader(tag, typ, num));
             std::shared_ptr<EvioBank> pNode(new EvioBank(head));
             return pNode;
@@ -48,7 +48,7 @@ namespace evio {
          * @return the <code>StructureType</code> of this structure, which is a StructureType::STRUCT_BANK.
          * @see StructureType
          */
-        StructureType getStructureType() override {
+        StructureType getStructureType() const override {
             return StructureType::STRUCT_BANK;
         }
 
