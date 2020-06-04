@@ -350,6 +350,7 @@ namespace evio {
 
         friend class EventParser;
         friend class EventScanner;
+        friend class StructureTransformer;
 
         //---------------------------------------------
         //---------- Tree structure members  ----------
@@ -592,7 +593,8 @@ namespace evio {
     private:
 
         void clearData();
-        void copyData(BaseStructure const & other, bool isComposite);
+        void copyData(BaseStructure const & other);
+        void copyData(std::shared_ptr<BaseStructure> const & other);
 
     protected:
 
@@ -606,21 +608,21 @@ namespace evio {
 
     public:
 
-        void transform(BaseStructure & structure);
+        void transform(std::shared_ptr<BaseStructure> const & structure);
 
-        virtual StructureType getStructureType() = 0;
+        virtual StructureType getStructureType() const {return StructureType::STRUCT_UNKNOWN32;};
 
         ByteOrder getByteOrder();
 
         void setByteOrder(ByteOrder &order);
 
-        bool needSwap();
+        bool needSwap() const;
 
-        string getDescription();
+        string getDescription() const;
 
-        virtual string toString();
+        virtual string toString() const;
 
-        std::shared_ptr<BaseStructureHeader> getHeader();
+        std::shared_ptr<BaseStructureHeader> getHeader() const;
 
         size_t write(ByteBuffer & dest);
         size_t write(uint8_t *dest, ByteOrder const & order);
@@ -631,8 +633,8 @@ namespace evio {
         uint32_t getNumberDataItems();
 
         uint32_t setAllHeaderLengths();
-        bool isContainer();
-        uint32_t getTotalBytes();
+        bool isContainer() const;
+        uint32_t getTotalBytes() const;
 
         std::vector<uint8_t> &getRawBytes();
 

@@ -39,6 +39,7 @@ namespace evio {
         friend class BaseStructure;
         friend class EventHeaderParser;
         friend class CompositeData;
+        friend class StructureTransformer;
 
     protected:
 
@@ -70,6 +71,7 @@ namespace evio {
     protected:
 
         void setPadding(uint8_t padding);
+        void copy(std::shared_ptr<BaseStructureHeader> const & head);
 
     public:
 
@@ -82,7 +84,7 @@ namespace evio {
         uint32_t getDataTypeValue() const;
         void setDataType(uint32_t dataType);
 
-        void setDataType(DataType & dataType);
+        void setDataType(DataType const & dataType);
         DataType getDataType() const;
 
         string getDataTypeName() const;

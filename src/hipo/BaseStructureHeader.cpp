@@ -13,7 +13,7 @@
 namespace evio {
 
     /**
-     * Constructor
+     * Constructor.
      * @param tag the tag for the header.
      * @param dataType the data type for the content of the structure.
      * @param num sometimes, but not necessarily, an ordinal enumeration.
@@ -21,7 +21,19 @@ namespace evio {
     BaseStructureHeader::BaseStructureHeader(uint16_t tag, DataType const & dataType, uint8_t num) {
         this->tag = tag;
         this->dataType = dataType;
-        setNumber(num);
+        this->number = num;
+    }
+
+    /**
+     * Method to copy data from the fiven header to this one.
+     * @param head header to copy data from (source).
+     */
+    void BaseStructureHeader::copy(std::shared_ptr<BaseStructureHeader> const & head) {
+        tag      = head->tag;
+        dataType = head->dataType;
+        number   = head->number;
+        length   = head->length;
+        padding  = head->padding;
     }
 
     /**
@@ -52,7 +64,7 @@ namespace evio {
      * Set the numeric data type for the structure.
      * @param type the numeric data type for the structure.
      */
-    void BaseStructureHeader::setDataType(DataType & type) {dataType = type;}
+    void BaseStructureHeader::setDataType(DataType const & type) {dataType = type;}
 
     /**
      * Returns the data type for data stored in this structure as a <code>DataType</code> enum.

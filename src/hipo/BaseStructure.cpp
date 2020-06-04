@@ -148,15 +148,15 @@ namespace evio {
      *
      * @param structure BaseStructure from which to copy data.
      */
-    void BaseStructure::transform(BaseStructure & structure) {
-        DataType dataType = structure.getHeader()->getDataType();
+    void BaseStructure::transform(std::shared_ptr<BaseStructure> const & structure) {
+        DataType dataType = structure->getHeader()->getDataType();
 
-        copyData(structure, dataType == DataType::COMPOSITE);
-        lengthsUpToDate = structure.lengthsUpToDate;
+        copyData(structure);
+        lengthsUpToDate = structure->lengthsUpToDate;
 
-        if (structure.getHeader()->getDataType().isStructure()) {
+        if (dataType.isStructure()) {
             children.clear();
-            for (auto const & kid : structure.children) {
+            for (auto const & kid : structure->children) {
                 children.push_back(kid);
             }
         }
@@ -167,34 +167,177 @@ namespace evio {
      * Copy just the data of another structure.
      * @param other structure to copy data from.
      */
-    void BaseStructure::copyData(BaseStructure const & other, bool isComposite) {
-        // Vectors of primitives
-        rawBytes   = other.rawBytes;
-        shortData  = other.shortData;
-        ushortData = other.ushortData;
-        intData    = other.intData;
-        uintData   = other.uintData;
-        longData   = other.longData;
-        ulongData  = other.ulongData;
-        doubleData = other.doubleData;
-        floatData  = other.floatData;
-        charData   = other.charData;
-        ucharData  = other.ucharData;
+    void BaseStructure::copyData(BaseStructure const & other) {
+        // Copy over raw data
+        rawBytes = other.rawBytes;
 
-        stringList      = other.stringList;
-        stringEnd       = other.stringEnd;
-        badStringFormat = other.badStringFormat;
+        // Clear out old data
+        shortData.clear();
+        ushortData.clear();
+        intData.clear();
+        uintData.clear();
+        longData.clear();
+        ulongData.clear();
+        doubleData.clear();
+        floatData.clear();
+        charData.clear();
+        ucharData.clear();
+        compositeData.clear();
+        stringList.clear();
+        stringEnd = 0;
+        badStringFormat = false;
+
+        DataType const & type = other.getHeader()->getDataType();
+
+        // Keep track of the padding and set its value in this structure's header once found.
+        // This needs to be calculated since the BaseStructure arg may be a tagsegment which
+        // has no associate padding data.
+        // Padding is only used for the small primitive types: shorts and bytes. Strings are
+        // stored in a format that takes care of its own padding and composite data is a
+        // container which by definition has no padding associated with it.
+        header->padding = 0;
+
+        if (type == DataType::SHORT16) {
+            shortData = other.shortData;
+            if (other.shortData.size() % 2 != 0) {
+                header->padding = 2;
+            }
+        }
+        else if (type == DataType::USHORT16) {
+            ushortData = other.ushortData;
+            if (other.ushortData.size() % 2 != 0) {
+                header->padding = 2;
+            }
+        }
+        else if (type == DataType::INT32) {
+            intData = other.intData;
+        }
+        else if (type == DataType::UINT32) {
+            uintData = other.uintData;
+        }
+        else if (type == DataType::LONG64) {
+            longData = other.longData;
+        }
+        else if (type == DataType::ULONG64) {
+            ulongData = other.ulongData;
+        }
+        else if (type == DataType::DOUBLE64) {
+            doubleData = other.doubleData;
+        }
+        else if (type == DataType::FLOAT32) {
+            floatData = other.floatData;
+        }
+        else if (type == DataType::CHAR8) {
+            charData = other.charData;
+            header->padding = padCount[other.charData.size() % 4];
+        }
+        else if (type == DataType::UCHAR8) {
+            ucharData = other.ucharData;
+            header->padding = padCount[other.ucharData.size() % 4];
+        }
+        else if (type == DataType::CHARSTAR8) {
+            stringList = other.stringList;
+            stringEnd  = other.stringEnd;
+            badStringFormat = other.badStringFormat;
+        }
+        else if (type == DataType::COMPOSITE) {
+            // Need to copy the composite data, not just copy the shared pointers
+            CompositeData::parse(rawBytes.data(), rawBytes.size(),
+                                 other.byteOrder, compositeData);
+        }
+
         numberDataItems = other.numberDataItems;
         byteOrder       = other.byteOrder;
-
-        // Need to copy the composite data, not just copy the shared pointers
-        if (isComposite) {
-            CompositeData::parse(rawBytes.data(), rawBytes.size(), byteOrder, compositeData);
-        }
-        else {
-            compositeData.clear();
-        }
     }
+
+
+    /**
+     * Copy just the data of another structure.
+     * @param other structure to copy data from.
+     */
+    void BaseStructure::copyData(std::shared_ptr<BaseStructure> const & other) {
+        // Copy over raw data
+        rawBytes = other->rawBytes;
+
+        // Clear out old data
+        shortData.clear();
+        ushortData.clear();
+        intData.clear();
+        uintData.clear();
+        longData.clear();
+        ulongData.clear();
+        doubleData.clear();
+        floatData.clear();
+        charData.clear();
+        ucharData.clear();
+        compositeData.clear();
+        stringList.clear();
+        stringEnd = 0;
+        badStringFormat = false;
+
+        DataType const & type = other->getHeader()->getDataType();
+
+        // Keep track of the padding and set its value in this structure's header once found.
+        // This needs to be calculated since the BaseStructure arg may be a tagsegment which
+        // has no associate padding data.
+        // Padding is only used for the small primitive types: shorts and bytes. Strings are
+        // stored in a format that takes care of its own padding and composite data is a
+        // container which by definition has no padding associated with it.
+        header->padding = 0;
+
+        if (type == DataType::SHORT16) {
+            shortData = other->shortData;
+            if (other->shortData.size() % 2 != 0) {
+                header->padding = 2;
+            }
+        }
+        else if (type == DataType::USHORT16) {
+            ushortData = other->ushortData;
+            if (other->ushortData.size() % 2 != 0) {
+                header->padding = 2;
+            }
+        }
+        else if (type == DataType::INT32) {
+            intData = other->intData;
+        }
+        else if (type == DataType::UINT32) {
+            uintData = other->uintData;
+        }
+        else if (type == DataType::LONG64) {
+            longData = other->longData;
+        }
+        else if (type == DataType::ULONG64) {
+            ulongData = other->ulongData;
+        }
+        else if (type == DataType::DOUBLE64) {
+            doubleData = other->doubleData;
+        }
+        else if (type == DataType::FLOAT32) {
+            floatData = other->floatData;
+        }
+        else if (type == DataType::CHAR8) {
+            charData = other->charData;
+            header->padding = padCount[other->charData.size() % 4];
+        }
+        else if (type == DataType::UCHAR8) {
+            ucharData = other->ucharData;
+            header->padding = padCount[other->ucharData.size() % 4];
+        }
+        else if (type == DataType::CHARSTAR8) {
+            stringList = other->stringList;
+            stringEnd  = other->stringEnd;
+            badStringFormat = other->badStringFormat;
+        }
+        else if (type == DataType::COMPOSITE) {
+            // Need to copy the composite data, not just copy the shared pointers
+            CompositeData::parse(rawBytes.data(), rawBytes.size(),
+                                 other->byteOrder, compositeData);
+        }
+
+        numberDataItems = other->numberDataItems;
+        byteOrder       = other->byteOrder;
+    }
+
 
 
     //---------------------------------------------
@@ -1255,9 +1398,7 @@ namespace evio {
      *
      * @return <code>true</code> if byte swapping is required (data is little endian).
      */
-    bool BaseStructure::needSwap() {
-        return byteOrder != ByteOrder::ENDIAN_LOCAL;
-    }
+    bool BaseStructure::needSwap() const {return byteOrder != ByteOrder::ENDIAN_LOCAL;}
 
     /**
      * Get the description from the name provider (dictionary), if there is one.
@@ -1265,10 +1406,9 @@ namespace evio {
      * @return the description from the name provider (dictionary), if there is one. If not, return
      *         NameProvider.NO_NAME_STRING.
      */
-    string BaseStructure::getDescription() {
+    string BaseStructure::getDescription() const {
         // TODO:  return NameProvider.getName(this);
-
-        return "BaseStructure description";
+        return "";
     }
 
 
@@ -1276,7 +1416,7 @@ namespace evio {
      * Obtain a string representation of the structure.
      * @return a string representation of the structure.
      */
-    string BaseStructure::toString() {
+    string BaseStructure::toString() const {
 
         stringstream ss;
 
@@ -1303,7 +1443,7 @@ namespace evio {
             ss << hex << "(" << header->getTag() << ")" << dec;
 
             if (stype == StructureType::STRUCT_BANK) {
-                ss << "  num=" << header->getNumber() << hex << "(" << header->getNumber() << ")" << dec;
+                ss << "  num=" << ((int)(header->getNumber())) << hex << "(" << ((int)(header->getNumber())) << ")" << dec;
             }
         }
 
@@ -1336,7 +1476,7 @@ namespace evio {
      *
      * @return the header for this structure.
      */
-    std::shared_ptr<BaseStructureHeader> BaseStructure::getHeader() {return header;}
+    std::shared_ptr<BaseStructureHeader> BaseStructure::getHeader() const {return header;}
 
     /**
      * Get the number of stored data items like number of banks, ints, floats, etc.
@@ -1400,7 +1540,7 @@ namespace evio {
      * Get the length of this structure in bytes, including the header.
      * @return the length of this structure in bytes, including the header.
      */
-    uint32_t BaseStructure::getTotalBytes() {return 4*(header->getLength() + 1);}
+    uint32_t BaseStructure::getTotalBytes() const {return 4*(header->getLength() + 1);}
 
     /**
      * Get the raw data of the structure.
@@ -2274,7 +2414,7 @@ namespace evio {
      * @return <code>true</code> if this structure is a container. This is the same check as
      * {@link #getAllowsChildren}.
      */
-    bool BaseStructure::isContainer() {return header->getDataType().isStructure();}
+    bool BaseStructure::isContainer() const {return header->getDataType().isStructure();}
 
 
     /**
