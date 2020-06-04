@@ -21,7 +21,7 @@ namespace evio {
      * @param num sometimes, but not necessarily, an ordinal enumeration.
      */
     BankHeader::BankHeader(uint16_t tag, DataType const & dataType, uint8_t num) :
-                    BaseStructureHeader(tag, dataType, num) {}
+                    BaseStructureHeader(tag, dataType, num) {length = 1;}
 
 
     /**
