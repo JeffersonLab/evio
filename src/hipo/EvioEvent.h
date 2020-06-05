@@ -40,18 +40,34 @@ namespace evio {
 
     private:
 
+       /**
+        * Constructor.
+        * @param head bank header.
+        */
         explicit EvioEvent(std::shared_ptr<BankHeader> const & head) : EvioBank(head) {
                 std::cout << "EvioEvent's private constructor" << std::endl;
         }
 
     public:
 
+       /**
+        * Method to return a shared pointer to a constructed object of this class.
+        * @param head bank header.
+        * @return shared pointer to new EvioEvent.
+        */
         static std::shared_ptr<EvioEvent> getInstance(std::shared_ptr<BankHeader> const & head) {
             std::shared_ptr<EvioEvent> pNode(new EvioEvent(head));
             return pNode;
         }
 
-        static std::shared_ptr<EvioEvent> getInstance(uint16_t tag, DataType typ, uint8_t num) {
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * @param tag bank tag.
+         * @param typ bank data type.
+         * @param num bank num.
+         * @return shared pointer to new EvioEvent.
+         */
+        static std::shared_ptr<EvioEvent> getInstance(uint16_t tag, DataType const & typ, uint8_t num) {
             std::shared_ptr<BankHeader> head(new BankHeader(tag, typ, num));
             std::shared_ptr<EvioEvent> pNode(new EvioEvent(head));
             return pNode;

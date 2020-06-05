@@ -23,18 +23,33 @@ namespace evio {
 
     private:
 
+       /**
+        * Constructor.
+        * @param head segment header.
+        */
         explicit EvioSegment(std::shared_ptr<SegmentHeader> const & head) : BaseStructure(head) {
             std::cout << "EvioSegment's private constructor" << std::endl;
         }
 
     public:
 
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * @param head segment header.
+         * @return shared pointer to new EvioSegment.
+         */
         static std::shared_ptr<EvioSegment> getInstance(std::shared_ptr<SegmentHeader> const & head) {
             std::shared_ptr<EvioSegment> pNode(new EvioSegment(head));
             return pNode;
         }
 
-        static std::shared_ptr<EvioSegment> getInstance(uint16_t tag, DataType typ) {
+       /**
+        * Method to return a shared pointer to a constructed object of this class.
+        * @param tag segment tag.
+        * @param typ segment data type.
+        * @return shared pointer to new EvioSegment.
+        */
+        static std::shared_ptr<EvioSegment> getInstance(uint16_t tag, DataType const & typ) {
             std::shared_ptr<SegmentHeader> head(new SegmentHeader(tag, typ));
             std::shared_ptr<EvioSegment> pNode(new EvioSegment(head));
             return pNode;

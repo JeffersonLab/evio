@@ -24,18 +24,34 @@ namespace evio {
 
     protected:
 
+        /**
+         * Constructor.
+         * @param head bank header.
+         */
         explicit EvioBank(std::shared_ptr<BankHeader> const & head) : BaseStructure(head) {
             std::cout << "EvioBank's private constructor" << std::endl;
         }
 
     public:
 
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * @param head bank header.
+         * @return shared pointer to new EvioBank.
+         */
         static std::shared_ptr<EvioBank> getInstance(std::shared_ptr<BankHeader> const & head) {
             std::shared_ptr<EvioBank> pNode(new EvioBank(head));
             return pNode;
         }
 
-        static std::shared_ptr<EvioBank> getInstance(uint16_t tag, DataType typ, uint8_t num) {
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * @param tag bank tag.
+         * @param typ bank data type.
+         * @param num bank num.
+         * @return shared pointer to new EvioBank.
+         */
+        static std::shared_ptr<EvioBank> getInstance(uint16_t tag, DataType const & typ, uint8_t num) {
             std::shared_ptr<BankHeader> head(new BankHeader(tag, typ, num));
             std::shared_ptr<EvioBank> pNode(new EvioBank(head));
             return pNode;
