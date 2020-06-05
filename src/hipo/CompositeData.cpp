@@ -511,27 +511,27 @@ std::vector<CompositeData::DataItem> & CompositeData::getItems() {return items;}
 
 /**
  * This method gets a list of all the types of the data items inside the composite.
- * @return list of all the types of the data items inside the composite.
+ * @return reference to list of all the types of the data items inside the composite.
  */
-std::vector<DataType> CompositeData::getTypes() {return types;}
+std::vector<DataType> & CompositeData::getTypes() {return types;}
 
 /**
  * This method gets a list of all the N values of the data items inside the composite.
- * @return list of all the N values of the data items inside the composite.
+ * @return reference to list of all the N values of the data items inside the composite.
  */
-std::vector<int32_t> CompositeData::getNValues() {return NList;}
+std::vector<int32_t> & CompositeData::getNValues() {return NList;}
 
 /**
  * This method gets a list of all the n values of the data items inside the composite.
- * @return list of all the n values of the data items inside the composite.
+ * @return reference to list of all the n values of the data items inside the composite.
  */
-std::vector<int16_t> CompositeData::getnValues() {return nList;}
+std::vector<int16_t> & CompositeData::getnValues() {return nList;}
 
 /**
  * This method gets a list of all the m values of the data items inside the composite.
- * @return list of all the m values of the data items inside the composite.
+ * @return reference to list of all the m values of the data items inside the composite.
  */
-std::vector<int8_t> CompositeData::getmValues() {return mList;}
+std::vector<int8_t> & CompositeData::getmValues() {return mList;}
 
 /**
  * This methods returns the index of the data item to be returned
@@ -539,7 +539,7 @@ std::vector<int8_t> CompositeData::getmValues() {return mList;}
  * (e.g. {@link #getInt()}.
  * @return returns the index of the data item to be returned
  */
-int CompositeData::index() {return getIndex;}
+int CompositeData::index() const {return getIndex;}
 
 /**
  * This methods sets the index of the data item to be returned
@@ -722,11 +722,11 @@ double CompositeData::getDouble() {
 
 /**
  * This method gets the next data item as a vector of strings if it's the correct type.
- * @return data item value.
+ * @return reference to vector of strings in data item.
  * @throws underflow_error if at end of data.
  * @throws EvioException if data is not vector of strings.
  */
-std::vector<string> CompositeData::getStrings() {
+std::vector<string> & CompositeData::getStrings() {
     if (getIndex > types.size()) {throw underflow_error("end of data");}
     if (types[getIndex] != DataType::CHARSTAR8) {throw EvioException("wrong data type");}
     items[getIndex].item.str = true;

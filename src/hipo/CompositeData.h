@@ -651,8 +651,8 @@ class CompositeData {
         /** Byte order of raw bytes. */
         ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
-//TODO: mark this so it's changes don't mess with const
         /** Index used in getting data items from the {@link #items} list. */
+        /* mutable ? */
         uint32_t getIndex = 0;
 
 
@@ -765,12 +765,12 @@ class CompositeData {
         std::vector<uint8_t> & getRawBytes();
         std::vector<CompositeData::DataItem> & getItems();
 
-        std::vector<DataType> getTypes();
-        std::vector<int32_t>  getNValues();
-        std::vector<int16_t>  getnValues();
-        std::vector<int8_t>   getmValues();
+        std::vector<DataType> & getTypes();
+        std::vector<int32_t>  & getNValues();
+        std::vector<int16_t>  & getnValues();
+        std::vector<int8_t>   & getmValues();
 
-        int index();
+        int index() const;
         void index(int index);
 
 
@@ -793,19 +793,14 @@ class CompositeData {
         float  getFloat() ;
         double getDouble();
 
-        std::vector<string> getStrings();
+        std::vector<string> & getStrings();
 
 
         static void swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal);
 
         static void swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
                             uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
-
-    public:
-
-//////////////
-
-
+        
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
                              size_t nBytes, const std::vector<uint16_t> & ifmt);
 
@@ -829,9 +824,7 @@ class CompositeData {
         void process();
 
         string toString(const string & indent, bool hex);
-
         string toString() const;
-        string toString(string indent) const;
         string toString(bool hex) const;
 
 
