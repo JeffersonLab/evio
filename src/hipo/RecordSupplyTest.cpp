@@ -232,9 +232,18 @@ namespace evio {
     static void myTest() {
         uint16_t tag = 1;
         uint8_t  num = 1;
-        DataType type = DataType::BANK;
+        DataType type = DataType::INT32;
 
         auto evBank = EvioBank::getInstance(tag, type, num);
+
+        auto & intData = evBank->getIntData();
+
+        intData.push_back(0);
+        intData.push_back(1);
+        intData.push_back(3);
+        std::cout << "EvioBank: local intData size = " << intData.size() << std::endl;
+        evBank->updateIntData();
+
         std::cout << "EvioBank = " << evBank->toString() << std::endl;
 
         uint16_t tag2 = 2;
@@ -245,10 +254,11 @@ namespace evio {
 
         std::cout << "EvioSeg = " << evSeg->toString() << std::endl;
 
-        auto newBank = StructureTransformer::transform(evSeg, num2);
-        std::cout << "New EvioBank = " << newBank->toString() << std::endl;
+        StructureTransformer::copy(evSeg, evBank);
+        std::cout << "EvioSeg after copy = " << evSeg->toString() << std::endl;
 
-
+        std::shared_ptr<EvioSegment> const & newSegment = StructureTransformer::transform(evBank);
+        std::cout << "NEWWWW EvioSeg = " << newSegment->toString() << std::endl;
 
     }
 
