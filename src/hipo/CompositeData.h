@@ -658,18 +658,42 @@ class CompositeData {
 
     private:
 
+        /** Default constructor. */
         CompositeData() = default;
 
+        /**
+         * Constructor.
+         * @param format data format string
+         * @param data object containing composite data description.
+         * @return shared pointer of CompositeData object.
+         */
         CompositeData(string & format, const CompositeData::Data & data);
 
+        /**
+         * Constructor.
+         * @param format data format string
+         * @param data object containing composite data description.
+         * @param formatTag tag of evio segment containing format.
+         * @param dataTag   tag of evio bank containing data.
+         * @param dataNum   num of evio bank containing data.
+         * @param order desired byteOrder of generated raw data.
+         * @return shared pointer of CompositeData object.
+         */
         CompositeData(string & format,
                       const CompositeData::Data & data,
                       uint16_t formatTag,
                       uint16_t dataTag, uint8_t dataNum,
                       ByteOrder const & order = ByteOrder::ENDIAN_LITTLE);
 
+        /**
+         * Constructor.
+         * @param bytes pointer to raw data.
+         * @param byteOrder byte order of raw data.
+         * @return shared pointer of CompositeData object.
+         */
         CompositeData(uint8_t *bytes, ByteOrder const & byteOrder);
 
+        /** Method to return a shared pointer to a constructed object of this class. */
         static std::shared_ptr<CompositeData> getInstance() {
             std::shared_ptr<CompositeData> cd(new CompositeData());
             return cd;
@@ -677,12 +701,27 @@ class CompositeData {
 
     public:
 
-
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * @param format data format string
+         * @param data object containing composite data description.
+         * @return shared pointer of CompositeData object.
+         */
         static std::shared_ptr<CompositeData> getInstance(string & format, const CompositeData::Data & data) {
             std::shared_ptr<CompositeData> cd(new CompositeData(format, data));
             return cd;
         }
 
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * @param format data format string
+         * @param data object containing composite data description.
+         * @param formatTag tag of evio segment containing format.
+         * @param dataTag   tag of evio bank containing data.
+         * @param dataNum   num of evio bank containing data.
+         * @param order desired byteOrder of generated raw data.
+         * @return shared pointer of CompositeData object.
+         */
         static std::shared_ptr<CompositeData> getInstance(string & format,
                                                           const CompositeData::Data & data,
                                                           uint16_t formatTag,
@@ -693,10 +732,17 @@ class CompositeData {
             return cd;
         }
 
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * @param bytes pointer to raw data.
+         * @param byteOrder byte order of raw data.
+         * @return shared pointer of CompositeData object.
+         */
         static std::shared_ptr<CompositeData> getInstance(uint8_t *bytes, ByteOrder const & byteOrder) {
             std::shared_ptr<CompositeData> cd(new CompositeData(bytes, byteOrder));
             return cd;
         }
+
 
         static void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
                           std::vector<std::shared_ptr<CompositeData>> & list);
