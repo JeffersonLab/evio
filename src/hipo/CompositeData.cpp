@@ -207,6 +207,11 @@ namespace evio {
     }
 
 
+
+
+
+
+
     /**
      * This method parses an array of raw bytes into an vector of CompositeData objects.
      * Vector is initially cleared.
@@ -250,7 +255,7 @@ namespace evio {
             byteCount = 0;
 
             // Create and fill new CompositeData object
-            auto cd = std::make_shared<CompositeData>();
+            auto cd = CompositeData::getInstance();
             cd->byteOrder = order;
 
             // First read the tag segment header
@@ -476,31 +481,33 @@ string CompositeData::stringsToFormat(std::vector<string> strings) {
  * Get the data padding (0, 1, 2, or 3 bytes).
  * @return data padding.
  */
-uint32_t CompositeData::getPadding() {return dataPadding;}
+uint32_t CompositeData::getPadding() const {return dataPadding;}
 
 /**
  * This method gets the format string.
  * @return format string.
  */
-string CompositeData::getFormat() {return format;}
+string CompositeData::getFormat() const {return format;}
 
 /**
  * This method gets the raw data byte order.
  * @return raw data byte order.
  */
-ByteOrder CompositeData::getByteOrder() {return byteOrder;}
+ByteOrder CompositeData::getByteOrder() const {return byteOrder;}
 
 /**
  * This method gets the raw byte representation of this object's data.
- * @return raw byte representation of this object's data.
+ * <b>Do not change the vector contents.</b>
+ * @return reference to raw byte representation of this object's data.
  */
-std::vector<uint8_t> CompositeData::getRawBytes() {return rawBytes;}
+std::vector<uint8_t> & CompositeData::getRawBytes() {return rawBytes;}
 
 /**
  * This method gets a list of all the data items inside the composite.
- * @return list of all the data items inside the composite.
+ * <b>Do not change the vector contents.</b>
+ * @return reference to list of all the data items inside the composite.
  */
-std::vector<CompositeData::DataItem> CompositeData::getItems() {return items;}
+std::vector<CompositeData::DataItem> & CompositeData::getItems() {return items;}
 
 /**
  * This method gets a list of all the types of the data items inside the composite.

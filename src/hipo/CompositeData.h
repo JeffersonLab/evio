@@ -38,18 +38,12 @@
 #include "EvioNode.h"
 #include "Util.h"
 
-//#include <ctype.h>
-//#include <limits.h>
-
 #undef COMPOSITE_DEBUG
 #undef COMPOSITE_PRINT
 
 
 #define MAX(a,b)  ( (a) > (b) ? (a) : (b) )
 #define MIN(a,b)  ( (a) < (b) ? (a) : (b) )
-
-
-//#define debugprint(ii) printf("  [%3d] %3d (16 * %2d + %2d), nr=%d\n",ii,ifmt[ii],ifmt[ii]/16,ifmt[ii]-(ifmt[ii]/16)*16,nr)
 
 
 namespace evio {
@@ -102,31 +96,6 @@ namespace evio {
 */
 class CompositeData {
 
-//    union DataItem {
-//        // Data being stored
-//        float     flt;
-//        double    dbl;
-//        uint64_t ul64;
-//        int64_t   l64;
-//        uint32_t ui32;
-//        int32_t   i32; // used for N, Hollerit
-//        uint16_t us16;
-//        int16_t   s16; // used for n
-//        uint8_t   ub8;
-//        int8_t     b8; // used for m
-//
-//        std::vector<string> strVec;
-//
-//        DataItem() {l64 = 0L;};
-//
-//        DataItem(DataItem const &other) {
-//
-//            strVec = other.strVec;
-//        };
-//
-//        DataItem
-//    };
-
     union SingleMember {
         friend class CompositeData;
 
@@ -148,7 +117,7 @@ class CompositeData {
     class DataItem {
         friend class CompositeData;
 
-        SingleMember item;
+        SingleMember item = {0};
         std::vector<string> strVec {};
 
     public:
@@ -687,9 +656,8 @@ class CompositeData {
         uint32_t getIndex = 0;
 
 
-    public:
+    private:
 
-        /** Zero-arg constructor ONLY TO BE USED INTERNALLY. */
         CompositeData() = default;
 
         CompositeData(string & format, const CompositeData::Data & data);
@@ -702,27 +670,54 @@ class CompositeData {
 
         CompositeData(uint8_t *bytes, ByteOrder const & byteOrder);
 
+        static std::shared_ptr<CompositeData> getInstance() {
+            std::shared_ptr<CompositeData> cd(new CompositeData());
+            return cd;
+        }
+
+    public:
+
+
+        static std::shared_ptr<CompositeData> getInstance(string & format, const CompositeData::Data & data) {
+            std::shared_ptr<CompositeData> cd(new CompositeData(format, data));
+            return cd;
+        }
+
+        static std::shared_ptr<CompositeData> getInstance(string & format,
+                                                          const CompositeData::Data & data,
+                                                          uint16_t formatTag,
+                                                          uint16_t dataTag, uint8_t dataNum,
+                                                          ByteOrder const & order = ByteOrder::ENDIAN_LITTLE) {
+            std::shared_ptr<CompositeData> cd(new CompositeData(format, data, formatTag,
+                                                                   dataTag, dataNum, order));
+            return cd;
+        }
+
+        static std::shared_ptr<CompositeData> getInstance(uint8_t *bytes, ByteOrder const & byteOrder) {
+            std::shared_ptr<CompositeData> cd(new CompositeData(bytes, byteOrder));
+            return cd;
+        }
+
         static void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
                           std::vector<std::shared_ptr<CompositeData>> & list);
 
 
         static void generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
                                      std::vector<uint8_t> & rawBytes, ByteOrder & order);
-        //Object clone();
 
         static string stringsToFormat(std::vector<string> strings);
-        //eviofmt  ---> compositeFormatToInt
+        // compositeFormatToInt was originally called "eviofmt"
         static int compositeFormatToInt(const string & formatStr, std::vector<uint16_t> & ifmt);
 
         void swap();
 
 
-        uint32_t getPadding();
-        string getFormat();
-        ByteOrder getByteOrder();
+        uint32_t getPadding() const;
+        string getFormat() const;
+        ByteOrder getByteOrder() const;
 
-        std::vector<uint8_t> getRawBytes();
-        std::vector<CompositeData::DataItem> getItems();
+        std::vector<uint8_t> & getRawBytes();
+        std::vector<CompositeData::DataItem> & getItems();
 
         std::vector<DataType> getTypes();
         std::vector<int32_t>  getNValues();
@@ -777,7 +772,6 @@ class CompositeData {
                              const std::vector<uint16_t> & ifmt,
                              uint32_t padding, bool srcIsLocal);
 
-        // eviofmtswap --->
         // This is an in-place swap
         static void swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
                              uint32_t padding);
