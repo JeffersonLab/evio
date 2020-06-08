@@ -800,7 +800,7 @@ class CompositeData {
 
         static void swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
                             uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
-        
+
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
                              size_t nBytes, const std::vector<uint16_t> & ifmt);
 
