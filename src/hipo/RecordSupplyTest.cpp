@@ -34,6 +34,8 @@
 #include "Disruptor/RingBuffer.h"
 #include <boost/thread.hpp>
 
+#include "IBlockHeader.h"
+
 using namespace std;
 
 
@@ -259,6 +261,8 @@ namespace evio {
 
         std::shared_ptr<EvioSegment> const & newSegment = StructureTransformer::transform(evBank);
         std::cout << "NEWWWW EvioSeg = " << newSegment->toString() << std::endl;
+
+        IBlockHeader *p;
 
     }
 
