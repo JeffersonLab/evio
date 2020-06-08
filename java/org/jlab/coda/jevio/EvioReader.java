@@ -1,18 +1,12 @@
 package org.jlab.coda.jevio;
 
-import org.jlab.coda.hipo.FileHeader;
 import org.jlab.coda.hipo.RecordHeader;
 
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.io.*;
 import java.nio.*;
-import java.nio.channels.FileChannel;
 
 /**
- * This is a class of interest to the user. It is used to read an evio version 4 or earlier
+ * This is a class of interest to the user. It is used to read any evio version
  * format file or buffer. Create an <code>EvioReader</code> object corresponding to an event
  * file or file-formatted buffer, and from this class you can test it
  * for consistency and, more importantly, you can call {@link #parseNextEvent} or
@@ -55,12 +49,8 @@ public class EvioReader implements IEvioReader {
     /** Initial position of buffer or mappedByteBuffer when reading a file. */
     private final int initialPosition;
 
-    //------------------------
-    // Object to delegate to
-    //------------------------
+    /** Object to delegate to. */
     private final IEvioReader reader;
-
-
 
 
     //------------------------
@@ -190,8 +180,8 @@ public class EvioReader implements IEvioReader {
      *
      * @see EventWriter
      * @throws IOException   if read failure
-     * @throws EvioException if file arg is null;
-     *                       if file is too small to have valid evio format data
+     * @throws EvioException if file arg is null; bad evio version #;
+     *                       if file is too small to have valid evio format data;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
     public EvioReader(File file, boolean checkRecNumSeq, boolean sequential, boolean synced)
@@ -215,7 +205,7 @@ public class EvioReader implements IEvioReader {
         // This object is no longer needed
         rFile.close();
 
-        if (evioVersion < 5)  {
+        if (evioVersion > 0 && evioVersion < 5) {
             if (synced) {
                 reader = new EvioReaderV4(file, checkRecNumSeq, sequential);
             }
@@ -276,7 +266,7 @@ public class EvioReader implements IEvioReader {
      *                       with 1
      * @param synced         if true, methods are synchronized for thread safety, else false.
      * @see EventWriter
-     * @throws EvioException if buffer arg is null;
+     * @throws EvioException if buffer arg is null; bad version #;
      *                       failure to read first block header
      */
     public EvioReader(ByteBuffer byteBuffer, boolean checkRecNumSeq, boolean synced)
@@ -294,11 +284,7 @@ public class EvioReader implements IEvioReader {
             throw new EvioException("Failed reading first record header");
         }
 
-        if (evioVersion < 4)  {
-            throw new EvioException("unsupported evio version (" + evioVersion + "), only 4+");
-        }
-
-        if (evioVersion == 4) {
+        if (evioVersion > 0 && evioVersion < 5) {
             if (synced) {
                 reader = new EvioReaderV4(byteBuffer, checkRecNumSeq);
             }
@@ -326,7 +312,7 @@ public class EvioReader implements IEvioReader {
     }
 
     /** {@inheritDoc} */
-    public synchronized boolean isClosed() {return reader.isClosed();}
+    public boolean isClosed() {return reader.isClosed();}
 
     /** {@inheritDoc} */
     public boolean checkBlockNumberSequence() {return reader.checkBlockNumberSequence();}
@@ -418,19 +404,19 @@ public class EvioReader implements IEvioReader {
 
 
     /** {@inheritDoc} */
-    public synchronized EvioEvent parseEvent(int index) throws IOException, EvioException {
+    public EvioEvent parseEvent(int index) throws IOException, EvioException {
 		return reader.parseEvent(index);
 	}
 
 
     /** {@inheritDoc} */
-    public synchronized EvioEvent nextEvent() throws IOException, EvioException {
+    public EvioEvent nextEvent() throws IOException, EvioException {
         return reader.nextEvent();
     }
 
 
     /** {@inheritDoc} */
-    public synchronized EvioEvent parseNextEvent() throws IOException, EvioException {
+    public EvioEvent parseNextEvent() throws IOException, EvioException {
 		return reader.parseNextEvent();
 	}
 
@@ -526,19 +512,19 @@ public class EvioReader implements IEvioReader {
 
 
     /** {@inheritDoc} */
-    public synchronized void rewind() throws IOException, EvioException {
+    public void rewind() throws IOException, EvioException {
         reader.rewind();
 	}
 
 
     /** {@inheritDoc} */
-    public synchronized long position() throws IOException, EvioException {
+    public long position() throws IOException, EvioException {
 		return reader.position();
 	}
 
 
     /** {@inheritDoc} */
-    public synchronized void close() throws IOException {reader.close();}
+    public void close() throws IOException {reader.close();}
 
 
     /** {@inheritDoc} */
@@ -571,7 +557,7 @@ public class EvioReader implements IEvioReader {
 
 
     /** {@inheritDoc} */
-    public synchronized WriteStatus toXMLFile(String path,
+    public WriteStatus toXMLFile(String path,
                                               IEvioProgressListener progressListener,
                                               boolean hex)
                 throws IOException, EvioException {
@@ -580,13 +566,13 @@ public class EvioReader implements IEvioReader {
 
 
     /** {@inheritDoc} */
-    public synchronized int getEventCount() throws IOException, EvioException {
+    public int getEventCount() throws IOException, EvioException {
         return reader.getEventCount();
     }
 
 
     /** {@inheritDoc} */
-    public synchronized int getBlockCount() throws EvioException{
+    public int getBlockCount() throws EvioException{
         return reader.getBlockCount();
     }
 
