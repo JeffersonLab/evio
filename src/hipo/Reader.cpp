@@ -245,13 +245,13 @@ void Reader::close() {
  *
  * @return {@code true} if this object closed, else {@code false}.
  */
-bool Reader::isClosed() {return closed;}
+bool Reader::isClosed() const {return closed;}
 
 /**
  * Is a file being read?
  * @return {@code true} if a file is being read, {@code false} if it's a buffer.
  */
-bool Reader::isFile() {return fromFile;}
+bool Reader::isFile() const {return fromFile;}
 
 /**
  * This method can be used to avoid creating additional Reader
@@ -328,13 +328,13 @@ std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBu
  * Get the name of the file being read.
  * @return name of the file being read or null if none.
  */
-string Reader::getFileName() {return fileName;}
+string Reader::getFileName() const {return fileName;}
 
 /**
  * Get the size of the file being read, in bytes.
  * @return size of the file being read, in bytes, or 0 if none.
  */
-long Reader::getFileSize() {return fileSize;}
+long Reader::getFileSize() const {return fileSize;}
 
 /**
  * Get the buffer being read, if any.
@@ -346,7 +346,7 @@ std::shared_ptr<ByteBuffer> & Reader::getBuffer() {return buffer;}
  * Get the beginning position of the buffer being read.
  * @return the beginning position of the buffer being read.
  */
-int Reader::getBufferOffset() {return bufferOffset;}
+int Reader::getBufferOffset() const {return bufferOffset;}
 
 /**
  * Get the file header from reading a file.
@@ -376,13 +376,13 @@ void Reader::setByteOrder(ByteOrder & order) {byteOrder = order;}
  * Get the Evio format version number of the file/buffer being read.
  * @return Evio format version number of the file/buffer being read.
  */
-int Reader::getVersion() {return evioVersion;}
+int Reader::getVersion() const {return evioVersion;}
 
 /**
  * Is the data in the file/buffer compressed?
  * @return true if data is compressed.
  */
-bool Reader::isCompressed() {return compressed;}
+bool Reader::isCompressed() const {return compressed;}
 
 /**
  * Get the XML format dictionary if there is one.
@@ -399,7 +399,7 @@ string Reader::getDictionary() {
  * @return <code>true</code> if this evio file/buffer has an associated XML dictionary,
  *         else <code>false</code>.
  */
-bool Reader::hasDictionary() {
+bool Reader::hasDictionary() const {
     if (fromFile) {
         return fileHeader.hasDictionary();
     }
@@ -431,7 +431,7 @@ uint32_t Reader::getFirstEventSize() {
  * @return <code>true</code> if this evio file/buffer has an associated first event,
  *         else <code>false</code>.
  */
-bool Reader::hasFirstEvent() {
+bool Reader::hasFirstEvent() const {
     if (fromFile) {
         return fileHeader.hasFirstEvent();
     }
@@ -442,13 +442,13 @@ bool Reader::hasFirstEvent() {
  * Get the number of events in file/buffer.
  * @return number of events in file/buffer.
  */
-uint32_t Reader::getEventCount() {return eventIndex.getMaxEvents();}
+uint32_t Reader::getEventCount() const {return eventIndex.getMaxEvents();}
 
 /**
  * Get the number of records read from the file/buffer.
  * @return number of records read from the file/buffer.
  */
-uint32_t Reader::getRecordCount() {return recordPositions.size();}
+uint32_t Reader::getRecordCount() const {return recordPositions.size();}
 
 /**
  * Returns a reference to the list of record positions in the file.
@@ -467,7 +467,7 @@ vector<EvioNode> & Reader::getEventNodes() {return eventNodes;}
  * Get whether or not record numbers are enforced to be sequential.
  * @return {@code true} if record numbers are enforced to be sequential.
  */
-bool Reader::getCheckRecordNumberSequence() {return checkRecordNumberSequence;}
+bool Reader::getCheckRecordNumberSequence() const {return checkRecordNumberSequence;}
 
 /**
  * Get the number of events remaining in the file/buffer.
@@ -475,7 +475,7 @@ bool Reader::getCheckRecordNumberSequence() {return checkRecordNumberSequence;}
  *
  * @return number of events remaining in the file/buffer
  */
-uint32_t Reader::getNumEventsRemaining() {return (eventIndex.getMaxEvents() - sequentialIndex);}
+uint32_t Reader::getNumEventsRemaining() const {return (eventIndex.getMaxEvents() - sequentialIndex);}
 
 // Methods for current record
 
@@ -731,25 +731,25 @@ EvioNode & Reader::getEventNode(uint32_t index) {
  * Checks if the file has an event to read next.
  * @return true if the next event is available, false otherwise
  */
-bool Reader::hasNext() {return eventIndex.canAdvance();}
+bool Reader::hasNext() const {return eventIndex.canAdvance();}
 
 /**
  * Checks if the stream has previous event to be accessed through, getPrevEvent()
  * @return true if previous event is accessible, false otherwise
  */
-bool Reader::hasPrev() {return eventIndex.canRetreat();}
+bool Reader::hasPrev() const {return eventIndex.canRetreat();}
 
 /**
  * Get the number of events in current record.
  * @return number of events in current record.
  */
-uint32_t Reader::getRecordEventCount() {return inputRecordStream.getEntries();}
+uint32_t Reader::getRecordEventCount() const {return inputRecordStream.getEntries();}
 
 /**
  * Get the index of the current record.
  * @return index of the current record.
  */
-uint32_t Reader::getCurrentRecord() {return currentRecordLoaded;}
+uint32_t Reader::getCurrentRecord() const {return currentRecordLoaded;}
 
 /**
  * Get the current record stream.
@@ -1441,8 +1441,8 @@ void Reader::scanFile(bool force) {
 //        recordNumberExpected = 1;
 
     cout << "[READER] ---> scanning the file" << endl;
-    auto headerBytes = new char[RecordHeader::HEADER_SIZE_BYTES];
-    ByteBuffer headerBuffer(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
+    auto headerBytes = new char[FileHeader::HEADER_SIZE_BYTES];
+    ByteBuffer headerBuffer(headerBytes, FileHeader::HEADER_SIZE_BYTES);
 
     fileHeader = FileHeader();
     RecordHeader recordHeader;
@@ -1451,7 +1451,7 @@ void Reader::scanFile(bool force) {
     inStreamRandom.seekg(0L);
 
     // Read and parse file header
-    inStreamRandom.read(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
+    inStreamRandom.read(headerBytes, FileHeader::HEADER_SIZE_BYTES);
     fileHeader.readHeader(headerBuffer);
     byteOrder = fileHeader.getByteOrder();
     evioVersion = fileHeader.getVersion();
@@ -1771,7 +1771,7 @@ std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuf
 }
 
 
-void Reader::show() {
+void Reader::show() const {
     cout << " ***** FILE: (info), RECORDS = " << recordPositions.size() << " *****" << endl;
     for (RecordPosition entry : this->recordPositions) {
         cout << entry.toString();

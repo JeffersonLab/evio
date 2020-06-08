@@ -91,13 +91,13 @@ private:
             return *this;
         }
 
-        uint64_t getPosition() { return position; }
+        uint64_t getPosition() const { return position; }
 
-        uint32_t getLength() { return length; }
+        uint32_t getLength() const { return length; }
 
-        uint32_t getCount() { return count; }
+        uint32_t getCount() const { return count; }
 
-        string toString() {
+        string toString() const {
             stringstream ss;
             ss << " POSITION = " << setw(16) << position << ", LENGTH = " << setw(12) << length << ", COUNT = " << setw(8) << count << endl;
             return ss.str();
@@ -195,9 +195,6 @@ private:
 
     void setByteOrder(ByteOrder & order);
     static int getTotalByteCounts(ByteBuffer & buf, uint32_t* info, uint32_t infoLen);
-    static void toIntArray(char const *data, uint32_t dataOffset,  uint32_t dataLen,
-                           const ByteOrder & byteOrder, int *dest, uint32_t destOffset);
-    static int toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrder);
     static string getStringArray(ByteBuffer & buffer, int wrap, int max);
     static string getHexStringInt(int32_t value);
 
@@ -211,49 +208,47 @@ public:
     Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool);
     Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq);
 
-    ~Reader() {
-        //delete(inStreamRandom);
-    }
+    ~Reader() = default;
 
     void open(string & filename);
     void close();
 
-    bool isClosed();
-    bool isFile();
+    bool isClosed() const;
+    bool isFile() const;
 
     void setBuffer(std::shared_ptr<ByteBuffer> & buf);
     void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
 
     std::shared_ptr<ByteBuffer> & setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
 
-    string getFileName();
-    long getFileSize();
+    string getFileName() const;
+    long getFileSize() const;
 
     std::shared_ptr<ByteBuffer> & getBuffer();
-    int getBufferOffset();
+    int getBufferOffset() const;
 
     FileHeader & getFileHeader();
     RecordHeader & getFirstRecordHeader();
 
     ByteOrder & getByteOrder();
-    int getVersion();
-    bool isCompressed();
+    int getVersion() const;
+    bool isCompressed() const;
     string getDictionary();
-    bool hasDictionary();
+    bool hasDictionary() const;
 
     shared_ptr<uint8_t> & getFirstEvent();
     uint32_t getFirstEventSize();
-    bool hasFirstEvent();
+    bool hasFirstEvent() const;
 
-    uint32_t getEventCount();
-    uint32_t getRecordCount();
+    uint32_t getEventCount() const;
+    uint32_t getRecordCount() const;
 
     vector<RecordPosition> & getRecordPositions();
     vector<EvioNode> & getEventNodes();
 
-    bool getCheckRecordNumberSequence();
+    bool getCheckRecordNumberSequence() const;
 
-    uint32_t getNumEventsRemaining();
+    uint32_t getNumEventsRemaining() const;
 
     shared_ptr<uint8_t> getNextEvent();
     shared_ptr<uint8_t> getPrevEvent();
@@ -267,12 +262,12 @@ public:
     uint32_t getEventLength(uint32_t index);
     EvioNode & getEventNode(uint32_t index);
 
-    bool hasNext();
-    bool hasPrev();
+    bool hasNext() const;
+    bool hasPrev() const;
 
-    uint32_t getRecordEventCount();
+    uint32_t getRecordEventCount() const;
 
-    uint32_t getCurrentRecord();
+    uint32_t getCurrentRecord() const;
 
     RecordInput & getCurrentRecordStream();
 
@@ -298,7 +293,7 @@ protected:
     std::shared_ptr<ByteBuffer> & addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
     std::shared_ptr<ByteBuffer> & removeStructure(EvioNode & removeNode);
 
-    void show();
+    void show() const;
 
     int main(int argc, char **argv);
 
