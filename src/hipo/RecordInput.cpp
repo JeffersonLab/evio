@@ -155,13 +155,13 @@ ByteBuffer & RecordInput::getUncompressedDataBuffer() {
  * Does this record contain an event index?
  * @return true if record contains an event index, else false.
  */
-bool RecordInput::hasIndex() {return (header.getIndexLength() > 0);}
+bool RecordInput::hasIndex() const {return (header.getIndexLength() > 0);}
 
 /**
  * Does this record contain a user header?
  * @return true if record contains a user header, else false.
  */
-bool RecordInput::hasUserHeader() {return (header.getUserHeaderLength() > 0);}
+bool RecordInput::hasUserHeader() const {return (header.getUserHeaderLength() > 0);}
 
 /**
  * Get the event at the given index and return it in an allocated array.
@@ -203,7 +203,7 @@ shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index) {
  * @return length of the data in bytes or zero if index
  *         does not coresspond to a valid event.
  */
-uint32_t RecordInput::getEventLength(uint32_t index) {
+uint32_t RecordInput::getEventLength(uint32_t index) const {
 
     if (index >= getEntries()) return 0;
 
@@ -684,14 +684,14 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
  * Returns number of the events packed in the record.
  * @return number of the events packed in the record
  */
-uint32_t RecordInput::getEntries() {return nEntries;}
+uint32_t RecordInput::getEntries() const {return nEntries;}
 
 
 
 /**
  * Prints on the screen the index array of the record.
  */
-void RecordInput::showIndex() {
+void RecordInput::showIndex() const {
     for(int i = 0; i < nEntries; i++){
         cout << setw(3) << dataBuffer.getInt(i*4) << "  ";
     }

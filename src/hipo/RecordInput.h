@@ -142,7 +142,7 @@ private:
 
     void allocate(size_t size);
     void setByteOrder(const ByteOrder & order);
-    void showIndex();
+    void showIndex() const;
 
 public:
 
@@ -160,17 +160,17 @@ public:
     const ByteOrder & getByteOrder();
     ByteBuffer & getUncompressedDataBuffer();
 
-    bool hasIndex();
-    bool hasUserHeader();
+    bool hasIndex() const;
+    bool hasUserHeader() const;
 
     ByteBuffer & getEvent(ByteBuffer & buffer, uint32_t index);
     ByteBuffer & getEvent(ByteBuffer & buffer, size_t bufOffset, uint32_t index);
     ByteBuffer & getUserHeader(ByteBuffer & buffer, size_t bufOffset);
 
     shared_ptr<uint8_t> getEvent(uint32_t index);
-    uint32_t getEventLength(uint32_t index);
+    uint32_t getEventLength(uint32_t index) const;
     std::shared_ptr<uint8_t> getUserHeader();
-    uint32_t getEntries();
+    uint32_t getEntries() const;
 
     std::shared_ptr<RecordInput> getUserHeaderAsRecord(ByteBuffer & buffer,
                                                        size_t bufOffset);
