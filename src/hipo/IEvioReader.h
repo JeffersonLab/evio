@@ -54,57 +54,57 @@ namespace evio {
              *
              * @return {@code true} if this object closed, else {@code false}.
              */
-            virtual bool isClosed() = 0;
+            virtual bool isClosed() const = 0;
 
             /**
              * Is this reader checking the block number sequence and
              * throwing an exception if it's not sequential and starting with 1?
              * @return <code>true</code> if checking block number sequence, else <code>false</code>
              */
-            virtual bool checkBlockNumberSequence() = 0;
+            virtual bool checkBlockNumberSequence() const = 0;
 
             /**
              * Get the byte order of the file/buffer being read.
              * @return byte order of the file/buffer being read.
              */
-            virtual ByteOrder & getByteOrder() = 0;
+            virtual ByteOrder getByteOrder() const = 0;
 
             /**
              * Get the evio version number.
              * @return evio version number.
              */
-            virtual uint32_t getEvioVersion() = 0;
+            virtual uint32_t getEvioVersion() const = 0;
 
             /**
              * Get the path to the file.
              * @return path to the file
              */
-            virtual string getPath() = 0;
+            virtual string getPath() const = 0;
 
             /**
              * Get the file/buffer parser.
              * @return file/buffer parser.
              */
-            virtual std::shared_ptr<EventParser> & getParser() = 0;
+            virtual std::shared_ptr<EventParser> getParser() const = 0;
 
             /**
              * Set the file/buffer parser.
-             * @param parser file/buffer parser.
+             * @param evParser file/buffer parser.
              */
-            virtual void setParser(std::shared_ptr<EventParser> & parser) = 0;
+            virtual void setParser(std::shared_ptr<EventParser> & evParser) = 0;
 
             /**
              * Get the XML format dictionary if there is one.
              * @return XML format dictionary, else null.
              */
-            virtual string getDictionaryXML() = 0;
+            virtual string getDictionaryXML() const = 0;
 
             /**
              * Does this evio file have an associated XML dictionary?
              * @return <code>true</code> if this evio file has an associated XML dictionary,
              *         else <code>false</code>
              */
-            virtual bool hasDictionaryXML() = 0;
+            virtual bool hasDictionaryXML() const = 0;
 
             /**
              * Get the number of events remaining in the file.
@@ -114,7 +114,7 @@ namespace evio {
              * @throws IOException if failed file access
              * @throws EvioException if failed reading from coda v3 file
              */
-            virtual size_t getNumEventsRemaining() = 0;
+            virtual size_t getNumEventsRemaining() const = 0;
 
             /**
              * Get the byte buffer being read. Not useful when reading files.
@@ -126,13 +126,13 @@ namespace evio {
              * Get the size of the file being read, in bytes.
              * @return the file size in bytes
              */
-            virtual size_t fileSize() = 0;
+            virtual size_t fileSize() const = 0;
 
             /**
              * This returns the FIRST block (physical record) header.
              * @return the first block header.
              */
-            virtual std::shared_ptr<IBlockHeader> getFirstBlockHeader() = 0;
+            virtual std::shared_ptr<IBlockHeader> getFirstBlockHeader() const= 0;
 
             /**
              * Get the event in the file/buffer at a given index (starting at 1).
@@ -259,7 +259,7 @@ namespace evio {
              * @throws IOException   if error accessing file
              * @throws EvioException if object closed
              */
-            virtual size_t position() = 0;
+            virtual size_t position() const = 0;
 
             /**
              * This is closes the file, but for buffers it only sets the position to 0.
@@ -302,7 +302,7 @@ namespace evio {
              * @throws EvioException if read failure;
              *                       if object closed
              */
-            virtual size_t getEventCount() = 0;
+            virtual size_t getEventCount() const = 0;
 
             /**
              * This is the number of records in the file/buffer including the empty
@@ -311,7 +311,7 @@ namespace evio {
              * @throws EvioException if object closed.
              * @return the number of records in the file/buffer (estimate for version 3 files).
              */
-            virtual size_t getBlockCount() = 0;
+            virtual size_t getBlockCount() const = 0;
         };
 
 }
