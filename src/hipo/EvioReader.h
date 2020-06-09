@@ -1,6 +1,15 @@
-//
-// Created by Carl Timmer on 6/8/20.
-//
+/**
+ * Copyright (c) 2020, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * Data Acquisition Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 06/8/2020
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_EVIOREADER_H
 #define EVIO_6_0_EVIOREADER_H
@@ -64,7 +73,7 @@ namespace evio {
         /** Object to delegate to */
         std::shared_ptr<IEvioReader> reader;
 
-    protected:
+    public:
 
         /**
           * This <code>enum</code> denotes the status of a read. <b>Used internally.</b><br>
@@ -80,7 +89,6 @@ namespace evio {
             SUCCESS = 0, END_OF_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
         };
 
-    public:
 
         //   File constructor
         explicit EvioReader(string const & path, bool checkRecNumSeq = false,
