@@ -152,7 +152,7 @@ set(CPP_LIB_FILES_NEW
         src/hipo/TagSegmentHeader.cpp
         src/hipo/EventParser.cpp
         src/hipo/EvioReader.cpp
-        src/hipo/EvioReaderV4.cpp src/hipo/EvioReaderV4.h)
+        src/hipo/EvioReaderV4.cpp src/hipo/EvioReaderV4.h src/hipo/BlockHeaderV2.h src/hipo/BlockHeaderV4.h)
 
 set(TEST_FILES_CC
         ReadWriteTest.cpp
