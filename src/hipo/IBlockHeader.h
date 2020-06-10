@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Jefferson Science Associates
  *
  * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
+ * EPSCI Group
  *
  * 12000, Jefferson Ave, Newport News, VA 23606
  * Phone : (757)-269-7100
@@ -18,6 +18,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -154,23 +155,23 @@ namespace evio {
              * Does this block contain an evio dictionary?
              * @return <code>true</code> if this block contains an evio dictionary, else <code>false</code>.
              */
-            virtual bool hasDictionary();
+            virtual bool hasDictionary() = 0;
 
             /**
              * Is this the last block in the file or being sent over the network?
              * @return <code>true</code> if this is the last block in the file or being sent
              *         over the network, else <code>false</code>.
              */
-            virtual bool isLastBlock();
+            virtual bool isLastBlock() = 0;
 
-// TODO: this needs to throw an exception right?? Or is the return enough?
             /**
              * Write myself out into a byte buffer. This write is relative--i.e.,
              * it uses the current position of the buffer.
              * @param byteBuffer the byteBuffer to write to.
              * @return the number of bytes written.
+             * @throws overflow_error if insufficient room to write header into buffer.
              */
-            virtual size_t write(ByteBuffer byteBuffer) = 0;
+            virtual size_t write(ByteBuffer & byteBuffer) = 0;
 
             /**
              * Get the string representation of the block (record) header.
