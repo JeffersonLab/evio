@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -144,8 +145,9 @@ public interface IBlockHeader {
      * it uses the current position of the buffer.
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written.
+     * @throws BufferOverflowException if insufficient room to write header into buffer.
      */
-    int write(ByteBuffer byteBuffer);
+    int write(ByteBuffer byteBuffer) throws BufferOverflowException;
 
     /**
      * Get the string representation of the block (record) header.

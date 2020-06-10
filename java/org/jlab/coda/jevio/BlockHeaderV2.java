@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -552,8 +553,13 @@ public final class BlockHeaderV2 implements IEvioWriter, IBlockHeader {
 	 *
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written, which for a BlockHeader is 32.
+	 * @throws BufferOverflowException if insufficient room to write header into buffer.
 	 */
-	public int write(ByteBuffer byteBuffer) {
+	public int write(ByteBuffer byteBuffer) throws BufferOverflowException {
+
+		if (byteBuffer.remaining() < 32) {
+			throw new BufferOverflowException();
+		}
 		byteBuffer.putInt(size);
 		byteBuffer.putInt(number);
 		byteBuffer.putInt(headerLength); // should always be 8

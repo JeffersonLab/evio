@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -13,6 +14,7 @@ public interface IEvioWriter {
 	 * Write myself out a byte buffer.
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written.
+	 * @throws BufferOverflowException if insufficient room to write header into buffer.
 	 */
-	int write(ByteBuffer byteBuffer);
+	int write(ByteBuffer byteBuffer) throws BufferOverflowException;
 }

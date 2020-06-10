@@ -1,5 +1,6 @@
 package org.jlab.coda.jevio;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.BitSet;
@@ -184,12 +185,10 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
 
     /**
      * Creates a BlockHeader for evio version 4 format. Only the <code>block size</code>
-     * and <code>block number</code> are provided. The other six words, which can be
+     * and <code>block number</code> are provided. The other words, which can be
      * modified by setters, are initialized to these values:<br>
      *<ul>
      *<li><code>headerLength</code> is initialized to 8<br>
-     *<li><code>start</code> is initialized to 8<br>
-     *<li><code>end</code> is initialized to <code>size</code><br>
      *<li><code>version</code> is initialized to 4<br>
      *<li><code>bitInfo</code> is initialized to all bits off<br>
      *<li><code>magicNumber</code> is initialized to <code>MAGIC_NUMBER</code><br>
@@ -863,8 +862,12 @@ public final class BlockHeaderV4 implements Cloneable, IEvioWriter, IBlockHeader
 	 *
 	 * @param byteBuffer the byteBuffer to write to.
 	 * @return the number of bytes written, which for a BlockHeader is 32.
+     * @throws BufferOverflowException if insufficient room to write header into buffer.
 	 */
-	public int write(ByteBuffer byteBuffer) {
+	public int write(ByteBuffer byteBuffer) throws BufferOverflowException {
+        if (byteBuffer.remaining() < 32) {
+            throw new BufferOverflowException();
+        }
 		byteBuffer.putInt(size);
 		byteBuffer.putInt(number);
 		byteBuffer.putInt(headerLength); // should always be 8
