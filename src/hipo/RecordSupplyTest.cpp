@@ -264,6 +264,8 @@ namespace evio {
 
         IBlockHeader *p;
 
+        IBlockHeaderV2 *pp;
+
     }
 
 
