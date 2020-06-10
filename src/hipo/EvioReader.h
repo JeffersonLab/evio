@@ -121,7 +121,7 @@ namespace evio {
     public:
 
         std::shared_ptr<EvioEvent> getEvent(size_t index) override;
-        std::shared_ptr<EvioEvent> parseEvent(size_t index);
+        std::shared_ptr<EvioEvent> parseEvent(size_t index) override;
         std::shared_ptr<EvioEvent> nextEvent() override;
         std::shared_ptr<EvioEvent> parseNextEvent() override;
         void parseEvent(std::shared_ptr<EvioEvent> evioEvent) override;
