@@ -17,10 +17,14 @@
 #include <memory>
 #include <fstream>
 
+
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "IEvioReader.h"
+#include "EvioReaderV4.h"
 #include "IBlockHeader.h"
+#include "BlockHeaderV2.h"
+#include "BlockHeaderV4.h"
 #include "RecordHeader.h"
 
 namespace evio {
@@ -65,7 +69,7 @@ namespace evio {
         ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
         /** The buffer being read. */
-        ByteBuffer & byteBuffer;
+        ByteBuffer byteBuffer;
 
         /** Initial position of buffer or mappedByteBuffer when reading a file. */
         size_t initialPosition = 0;
@@ -95,7 +99,7 @@ namespace evio {
                             bool sequential = false, bool synced = false);
 
         //   Buffer constructor
-        explicit EvioReader(ByteBuffer byteBuffer, bool checkRecNumSeq = false, bool synced = false);
+        explicit EvioReader(ByteBuffer & byteBuffer, bool checkRecNumSeq = false, bool synced = false);
 
         //------------------------------------------
 
@@ -116,7 +120,7 @@ namespace evio {
 
     private:
 
-        ReadStatus findEvioVersion();
+        ReadStatus findEvioVersion(ByteBuffer & bb);
 
     public:
 

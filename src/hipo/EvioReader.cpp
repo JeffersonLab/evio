@@ -47,14 +47,13 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
         // Create buffer of size 32 bytes
         size_t bytesToRead = 32;
         ByteBuffer headerBuffer(bytesToRead);
-        byteBuffer = headerBuffer;
         auto headerBytes = headerBuffer.array();
 
         // Read first 32 bytes of file header
         inStreamRandom.read(reinterpret_cast<char *>(headerBytes), bytesToRead);
 
         // Parse file header to find the file's endianness & evio version #
-        if (findEvioVersion() != EvioReader::ReadStatus::SUCCESS) {
+        if (findEvioVersion(headerBuffer) != EvioReader::ReadStatus::SUCCESS) {
             throw EvioException("Failed reading first block header");
         }
 
@@ -63,7 +62,11 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
 
         if (evioVersion > 0 && evioVersion < 5) {
             if (synced) {
-                reader = std::make_shared<IEvioReader>(new EvioReaderV4(path, checkRecNumSeq, sequential));
+                reader = std::make_shared<EvioReaderV4>(new EvioReaderV4(path, checkRecNumSeq, sequential));
+
+//                auto evReaderV4 = new EvioReaderV4(path, checkRecNumSeq, sequential);
+//                reader = std::make_shared<EvioReaderV4>(evReaderV4);
+
             }
             else {
                 reader = std::make_shared<IEvioReader>(new EvioReaderUnsyncV4(path, checkRecNumSeq, sequential));
@@ -100,13 +103,9 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
  * @throws EvioException if buffer arg is null; bad evio version #;
  *                       failure to read first block header
  */
-EvioReader::EvioReader(ByteBuffer byteBuffer, bool checkRecNumSeq, bool synced) {
+EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
 
-        if (byteBuffer == null) {
-            throw EvioException("Buffer arg is null");
-        }
-
-        this.byteBuffer = byteBuffer.slice(); // remove necessity to track initial position
+        bb.slice(byteBuffer); // remove necessity to track initial position
         initialPosition = byteBuffer.position();
 
         // Read first block header and find the file's endianness & evio version #.
@@ -183,21 +182,21 @@ std::shared_ptr<IBlockHeader> EvioReader::getFirstBlockHeader() {return reader->
  * in order to determine the evio version of buffer.
  * @return status of read attempt
  */
-EvioReader::ReadStatus EvioReader::findEvioVersion() {
+EvioReader::ReadStatus EvioReader::findEvioVersion(ByteBuffer & bb) {
     // Look at first record header
 
     // Have enough remaining bytes to read 8 words of header?
-    if (byteBuffer.limit() - initialPosition < 32) {
+    if (bb.limit() - initialPosition < 32) {
         return EvioReader::ReadStatus::END_OF_FILE;
     }
 
     // Set the byte order to match the file's ordering.
 
     // Check the magic number for endianness (buffer defaults to big endian)
-    byteOrder = byteBuffer.order();
+    byteOrder = bb.order();
 
     // Offset to magic # is in the SAME LOCATION FOR ALL EVIO VERSIONS
-    int magicNumber = byteBuffer.getInt(initialPosition + RecordHeader::MAGIC_OFFSET);
+    int magicNumber = bb.getInt(initialPosition + RecordHeader::MAGIC_OFFSET);
     if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
         if (byteOrder == ByteOrder::ENDIAN_BIG) {
             byteOrder = ByteOrder::ENDIAN_LITTLE;
@@ -205,17 +204,17 @@ EvioReader::ReadStatus EvioReader::findEvioVersion() {
         else {
             byteOrder = ByteOrder::ENDIAN_BIG;
         }
-        byteBuffer.order(byteOrder);
+        bb.order(byteOrder);
 
         // Reread magic number to make sure things are OK
-        magicNumber = byteBuffer.getInt(initialPosition + RecordHeader::MAGIC_OFFSET);
+        magicNumber = bb.getInt(initialPosition + RecordHeader::MAGIC_OFFSET);
         if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
             return EvioReader::ReadStatus::EVIO_EXCEPTION;
         }
     }
 
     // Find the version number, again, SAME LOCATION FOR ALL EVIO VERSIONS
-    uint32_t bitInfo = byteBuffer.getUInt(initialPosition + RecordHeader::BIT_INFO_OFFSET);
+    uint32_t bitInfo = bb.getUInt(initialPosition + RecordHeader::BIT_INFO_OFFSET);
     evioVersion = bitInfo & RecordHeader::VERSION_MASK;
 
     return EvioReader::ReadStatus::SUCCESS;
@@ -227,7 +226,7 @@ std::shared_ptr<EvioEvent> EvioReader::getEvent(size_t index) {return reader->ge
 
 
 /** {@inheritDoc} */
-std::shared_ptr<EvioEvent> EvioReader::parseEvent(int index) {return reader->>parseEvent(index);}
+std::shared_ptr<EvioEvent> EvioReader::parseEvent(size_t index) {return reader->parseEvent(index);}
 
 
 /** {@inheritDoc} */
@@ -259,13 +258,13 @@ void EvioReader::parseEvent(std::shared_ptr<EvioEvent> evioEvent) {reader->parse
 /*static*/ /*std::shared_ptr<EvioEvent> EvioReader::getEvent(byte[] array, int offset, ByteOrder order) { */
 std::shared_ptr<EvioEvent> getEvent(uint8_t * dest, size_t len, ByteOrder const & order) {
 
-    if (array == null || array.length - offset < 8) {
+    if (dest == nullptr || len < 8) {
         throw EvioException("arg null or too little data");
     }
 
-    int byteLen = array.length - offset;
-    EvioEvent event = new EvioEvent();
-    BaseStructureHeader header = event.getHeader();
+    int byteLen = len;
+    std::shared_ptr<BankHeader> header;
+    auto event = EvioEvent::getInstance(header);
 
     // Read the first header word - the length in 32bit words
     int wordLen   = ByteDataTransformer.toInt(array, order, offset);
@@ -275,24 +274,24 @@ std::shared_ptr<EvioEvent> getEvent(uint8_t * dest, size_t len, ByteOrder const 
     }
     else if (dataBytes > byteLen) {
         // Protect against too large length
-        throw EvioException("bank length too large (needed " + dataBytes +
-                            " but have " + byteLen + " bytes)");
+        throw EvioException("bank length too large (needed " + std::to_string(dataBytes) +
+                            " but have " + std::to_string(byteLen) + " bytes)");
     }
     header.setLength(wordLen);
 
     // Read and parse second header word
     int word = ByteDataTransformer.toInt(array, order, offset+4);
-    header.setTag(word >>> 16);
+    header->setTag(word >>> 16);
     int dt = (word >> 8) & 0xff;
-    header.setDataType(dt & 0x3f);
-    header.setPadding(dt >>> 6);
-    header.setNumber(word & 0xff);
+    header->setDataType(dt & 0x3f);
+    header->setPadding(dt >>> 6);
+    header->setNumber(word & 0xff);
 
     // Set the raw data
     byte data[] = new byte[dataBytes];
     System.arraycopy(array, offset+8, data, 0, dataBytes);
-    event.setRawBytes(data);
-    event.setByteOrder(order);
+    event->setRawBytes(data);
+    event->setByteOrder(order);
 
     return event;
 }
@@ -308,7 +307,7 @@ std::shared_ptr<EvioEvent> getEvent(uint8_t * dest, size_t len, ByteOrder const 
  * @return the EvioEvent object parsed from the given bytes.
  * @throws EvioException if null arg, too little data, length too large, or data not in evio format.
  */
-/*static*/ std::shared_ptr<EvioEvent> EvioReader::parseEvent(byte[] array, int offset, ByteOrder order) {
+/*static*/ std::shared_ptr<EvioEvent> EvioReader::parseEvent(uint8_t * dest, size_t len, ByteOrder const & order) {
         EvioEvent event = EvioReader.getEvent(array, offset, order);
         EventParser.eventParse(event);
         return event;
