@@ -93,7 +93,7 @@ namespace evio {
         uint32_t number = 1;
 
         /** The block header length. Should be 8 in all cases, so getting this correct constitutes a check. */
-        uint32_t headerLength = 0;
+        uint32_t headerLength = 8;
 
         /**
          * Offset (in ints, relative to start of block) to the start of the first event (logical record) that begins in this
@@ -101,7 +101,7 @@ namespace evio {
          * will generally not be 8. Note that a logical record (event) that spans three blocks (physical records) will have
          * <code>start = 0</code>.
          */
-        uint32_t start = 0;
+        uint32_t start = 8;
 
         /**
          * The number of valid words (header + data) in the block (physical record.) This is normally the same as the block
@@ -157,30 +157,25 @@ namespace evio {
         BlockHeaderV2(uint32_t sz, uint32_t num) {
             size = sz;
             number = num;
-            headerLength = 8;
-            start = 8;
             end = size;
-            version = 2;
-            reserved1 = 0;
-            magicNumber = MAGIC_NUMBER;
         }
 
         /**
-         * This copy constructor creates an evio version 1-3 BlockHeader
-         * from another object of this class.
-         * @param blkHeader block header object to copy
-         */
-        BlockHeaderV2(BlockHeaderV2 & blkHeader) {
-            size         = blkHeader.size;
-            number       = blkHeader.number;
-            headerLength = blkHeader.headerLength;
-            version      = blkHeader.version;
-            end          = blkHeader.end;
-            start        = blkHeader.start;
-            reserved1    = blkHeader.reserved1;
-            byteOrder    = blkHeader.byteOrder;
-            magicNumber  = blkHeader.magicNumber;
-            bufferStartingPosition = blkHeader.bufferStartingPosition;
+        * This copy constructor creates an evio version 1-3 BlockHeader
+        * from another object of this class.
+        * @param blkHeader block header object to copy
+        */
+        explicit BlockHeaderV2(std::shared_ptr<BlockHeaderV2> & blkHeader) {
+            size         = blkHeader->size;
+            number       = blkHeader->number;
+            headerLength = blkHeader->headerLength;
+            version      = blkHeader->version;
+            end          = blkHeader->end;
+            start        = blkHeader->start;
+            reserved1    = blkHeader->reserved1;
+            byteOrder    = blkHeader->byteOrder;
+            magicNumber  = blkHeader->magicNumber;
+            bufferStartingPosition = blkHeader->bufferStartingPosition;
         }
 
         /**

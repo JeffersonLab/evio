@@ -149,7 +149,7 @@ namespace evio {
         uint32_t number = 1;
 
         /** The block header length. Should be 8 in all cases, so getting this correct constitutes a check. */
-        uint32_t headerLength = 0;
+        uint32_t headerLength = 8;
 
         /**
          * Since blocks only contain whole events in this version,
@@ -185,7 +185,6 @@ namespace evio {
 
     public:
 
-
         /** Constructor initializes all fields to default values. */
         BlockHeaderV4() = default;
 
@@ -205,12 +204,6 @@ namespace evio {
         BlockHeaderV4(uint32_t sz, uint32_t num) {
             size = sz;
             number = num;
-            headerLength = 8;
-            version = 4;
-            eventCount = 0;
-            reserved1 = 0;
-            reserved2 = 0;
-            magicNumber = MAGIC_NUMBER;
         }
 
         /**
@@ -218,18 +211,18 @@ namespace evio {
          * from another object of this class.
          * @param blkHeader block header object to copy
          */
-        BlockHeaderV4(BlockHeaderV4 & blkHeader) {
-            size         = blkHeader.size;
-            number       = blkHeader.number;
-            headerLength = blkHeader.headerLength;
-            version      = blkHeader.version;
-            eventCount   = blkHeader.eventCount;
-            reserved1    = blkHeader.reserved1;
-            reserved2    = blkHeader.reserved2;
-            byteOrder    = blkHeader.byteOrder;
-            magicNumber  = blkHeader.magicNumber;
-            bitInfo      = blkHeader.bitInfo;
-            bufferStartingPosition = blkHeader.bufferStartingPosition;
+        explicit BlockHeaderV4(std::shared_ptr<BlockHeaderV4> & blkHeader) {
+            size         = blkHeader->size;
+            number       = blkHeader->number;
+            headerLength = blkHeader->headerLength;
+            version      = blkHeader->version;
+            eventCount   = blkHeader->eventCount;
+            reserved1    = blkHeader->reserved1;
+            reserved2    = blkHeader->reserved2;
+            byteOrder    = blkHeader->byteOrder;
+            magicNumber  = blkHeader->magicNumber;
+            bitInfo      = blkHeader->bitInfo;
+            bufferStartingPosition = blkHeader->bufferStartingPosition;
         }
 
         /**
@@ -273,8 +266,6 @@ namespace evio {
             }
             eventCount = count;
         }
-
-
 
 
         /**
@@ -334,6 +325,13 @@ namespace evio {
         void setVersion(uint32_t ver) {version = ver;}
 
         /**
+        * Does this block/record contain the "first event"
+        * (first event to be written to each file split)?
+        * @return <code>true</code> if this contains the first event, else <code>false</code>
+        */
+        bool hasFirstEvent() override {return bitInfo[6];}
+
+        /**
          * Does this integer indicate that there is an evio dictionary
          * (assuming it's the header's sixth word)?
          * @param i integer to examine.
@@ -345,21 +343,21 @@ namespace evio {
          * Is this block's first event an evio dictionary?
          * @return <code>true</code> if this block's first event is an evio dictionary, else <code>false</code>
          */
-        bool hasDictionary() const {return bitInfo[0];}
+        bool hasDictionary() override {return bitInfo[0];}
 
         /**
          * Is this the last block in the file/buffer or being sent over the network?
          * @return <code>true</code> if this is the last block in the file or being sent
          *         over the network, else <code>false</code>
          */
-        bool isLastBlock() const {return bitInfo[1];}
+        bool isLastBlock() override {return bitInfo[1];}
 
         /**
          * Does this block contain the "first event"
          * (first event to be written to each file split)?
          * @return <code>true</code> if this contains the first event, else <code>false</code>
          */
-        bool hasFirstEvent() const {return bitInfo[6]; }
+        bool hasFirstEvent() const {return bitInfo[6];}
 
         /**
          * Does this integer indicate that this is the last block
