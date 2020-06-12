@@ -22,6 +22,7 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
+#include <stdexcept>
 
 #include "ByteOrder.h"
 #include "EvioException.h"
@@ -52,10 +53,21 @@ private:
     mutable size_t lim = 0;
 
     /** Mark is set to mark a position in the buffer. */
-    mutable size_t mrk = 0;
+    mutable ssize_t mrk = -1;
 
-    /** Capacity is the total size of this buffer in bytes. */
+    /** Offset is the offset into the buffer (used when calling slice())
+     * at which position is defined to be 0. */
+    size_t off = 0;
+
+    /** Capacity is the total size of this buffer's available data in bytes. */
     size_t cap = 0;
+
+    /** Total size is the original capacity of this buffer's available data in bytes
+     * when the initial ByteBuffer was created and without {@link #slice()} having been called.
+     * If slice has been called, a new, and possibly smaller capacity has been set.
+     * We need to remember the original size in order to properly copy this object when
+     * necessary. */
+    size_t totalSize = 0;
 
     /** This buffer is implemented with an array. Has shared pointer access
      * in order to implement the duplicate() method. Note that a shared pointer
@@ -120,9 +132,10 @@ public:
     ByteBuffer & limit(size_t l);
 
     ByteBuffer & order(ByteOrder const & order);
-    ByteBuffer & duplicate(ByteBuffer &destBuf);
+    ByteBuffer & duplicate(ByteBuffer & destBuf);
     std::shared_ptr<ByteBuffer> duplicate();
-    // ByteBuffer & slice();
+    ByteBuffer & slice(ByteBuffer & destBuf);
+    std::shared_ptr<ByteBuffer> slice();
 
     // Read
 
@@ -200,10 +213,10 @@ private:
     /** Template for absolute read methods. */
     template<typename T> T read(size_t index) const {
         if (index + sizeof(T) <= lim) {
-            return *((T *) &(buf.get())[index]);
+            return *((T *) &(buf.get())[index + off]);
         }
         // Read would exceed limit
-        throw EvioException("buffer underflow");
+        throw std::underflow_error("buffer underflow");
     }
 
     /** Template for relative write methods. */
@@ -212,9 +225,9 @@ private:
 
         if (lim < (pos + s)) {
             // Write would exceeded limit
-            throw EvioException("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
-        memcpy((void *) (&(buf.get())[pos]), (void *) (&data), s);
+        memcpy((void *) (&(buf.get())[pos + off]), (void *) (&data), s);
 
         pos += s;
     }
@@ -223,10 +236,10 @@ private:
     template<typename T> void write(T & data, size_t index) {
         size_t s = sizeof(data);
         if ((index + s) > lim) {
-            throw EvioException("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
 
-        memcpy((void *) (&(buf.get())[index]), (void *) (&data), s);
+        memcpy((void *) (&(buf.get())[index + off]), (void *) (&data), s);
     }
 
     // Follwing methods are a little more efficient for 1 byte transfers.
@@ -238,9 +251,9 @@ private:
      */
     void write(uint8_t & data) {
         if (lim < (pos + 1)) {
-            throw EvioException("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
-        buf.get()[pos++] = data;
+        buf.get()[off + pos++] = data;
     }
 
     /**
@@ -250,38 +263,38 @@ private:
      */
     void write(char & data) {
         if (lim < (pos + 1)) {
-            throw EvioException("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
-        buf.get()[pos++] = data;
+        buf.get()[off + pos++] = data;
     }
 
     void write(uint8_t & data, size_t index) {
         if ((index + 1) > lim) {
-            throw EvioException("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
-        buf.get()[index] = data;
+        buf.get()[index + off] = data;
     }
 
     void write(char & data, size_t index) {
         if ((index + 1) > lim) {
-            throw EvioException("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
-        buf.get()[index] = data;
+        buf.get()[index + off] = data;
     }
 
 
     uint8_t read() const {
         if (pos + 1 <= lim) {
-            return buf.get()[pos];
+            return buf.get()[pos + off];
         }
-        throw EvioException("buffer underflow");
+        throw underflow_error("buffer underflow");
     }
 
     uint8_t read(size_t index) const {
         if (index + 1 <= lim) {
-            return buf.get()[index];
+            return buf.get()[index + off];
         }
-        throw EvioException("buffer underflow");
+        throw underflow_error("buffer underflow");
     }
 
 };
