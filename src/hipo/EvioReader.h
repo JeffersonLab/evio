@@ -131,8 +131,8 @@ namespace evio {
         void parseEvent(std::shared_ptr<EvioEvent> evioEvent) override;
 
 
-        static std::shared_ptr<EvioEvent> getEvent(uint8_t * dest, size_t len, ByteOrder const & order);
-        static std::shared_ptr<EvioEvent> parseEvent(uint8_t * dest, size_t len, ByteOrder const & order) ;
+        static std::shared_ptr<EvioEvent> getEvent(uint8_t * src, size_t len, ByteOrder const & order);
+        static std::shared_ptr<EvioEvent> parseEvent(uint8_t * src, size_t len, ByteOrder const & order) ;
 
 
         std::vector<uint8_t> getEventArray(size_t eventNumber) override;
