@@ -349,7 +349,8 @@ namespace evio {
     class BaseStructure : public std::enable_shared_from_this<BaseStructure> {
 
         friend class EventParser;
-        friend class EventScanner;
+        friend class EvioReader;
+        friend class EvioReaderV4;
         friend class StructureTransformer;
 
         //---------------------------------------------
@@ -614,7 +615,7 @@ namespace evio {
 
         ByteOrder getByteOrder();
 
-        void setByteOrder(ByteOrder &order);
+        void setByteOrder(ByteOrder const & order);
 
         bool needSwap() const;
 
