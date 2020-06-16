@@ -154,9 +154,6 @@ namespace evio {
         // File specific members
         //------------------------
 
-//        /** Use this object to handle files > 2.1 GBytes but still use memory mapping. */
-//        MappedMemoryHandler mappedMemoryHandler;
-
         /** Absolute path of the underlying file. */
         string path;
 
@@ -165,12 +162,6 @@ namespace evio {
 
         /** File size in bytes. */
         size_t fileBytes = 0;
-
-//        /** File channel used to read data and access file position. */
-//        FileChannel fileChannel;
-//
-//        /** Data stream used to read data. */
-//        DataInputStream dataStream;
 
         /** Do we need to swap data from file? */
         bool swap = false;
@@ -216,28 +207,28 @@ namespace evio {
         explicit EvioReaderV4(ByteBuffer & byteBuffer, bool checkBlkNumSeq = false);
 
 
-        /*synchronized*/ void setBuffer(ByteBuffer & buf) override ;
+        /*synchronized*/ void setBuffer(ByteBuffer & buf) override;
 
-        /*synchronized*/ bool isClosed() const;
+        /*synchronized*/ bool isClosed() override;
 
-        bool checkBlockNumberSequence() const;
+        bool checkBlockNumberSequence() override;
 
-        ByteOrder getByteOrder() const;
-        uint32_t getEvioVersion() const;
+        ByteOrder getByteOrder() override;
+        uint32_t getEvioVersion() override;
 
-        string getPath() const;
+        string getPath() override;
 
-        std::shared_ptr<EventParser> getParser() const;
-        void setParser(std::shared_ptr<EventParser> & evParser) override ;
+        std::shared_ptr<EventParser> getParser() override;
+        void setParser(std::shared_ptr<EventParser> & evParser) override;
 
-        string getDictionaryXML() const;
-        bool hasDictionaryXML() const;
+        string getDictionaryXML() override;
+        bool hasDictionaryXML() override;
 
-        size_t getNumEventsRemaining() const;
+        size_t getNumEventsRemaining() override;
 
         ByteBuffer & getByteBuffer() override ;
 
-        size_t fileSize() const;
+        size_t fileSize() override;
 
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
 
@@ -262,25 +253,26 @@ namespace evio {
         /*synchronized*/ std::shared_ptr<EvioEvent> parseNextEvent() override ;
         void parseEvent(std::shared_ptr<EvioEvent> evioEvent) override ;
         std::vector<uint8_t> getEventArray(size_t eventNumber) override ;
+        uint32_t std::vector<uint8_t> EvioReaderV4::getEventArray(size_t evNumber, std::vector<uint8_t> & vec) {
         ByteBuffer & getEventBuffer(size_t eventNumber) override ;
 
     private:
 
         size_t bufferBytesRemaining() const;
-        size_t blockBytesRemaining() const;
+        uint32_t blockBytesRemaining() const;
         /*synchronized*/ std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber, bool parse);
 
     public:
 
         /*synchronized*/ void rewind() override ;
-        /*synchronized*/ size_t position() const;
+        /*synchronized*/ size_t position() override;
 
         /*synchronized*/ void close() override ;
         std::shared_ptr<IBlockHeader> getCurrentBlockHeader() override ;
         std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber) override ;
 
-        /*synchronized*/ size_t getEventCount() const;
-        /*synchronized*/ size_t getBlockCount() const;
+        /*synchronized*/ size_t getEventCount() override;
+        /*synchronized*/ size_t getBlockCount() override;
     };
 
 
