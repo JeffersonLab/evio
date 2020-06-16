@@ -71,7 +71,7 @@ public:
 
 
     /**
-     * Turn 4 bytes into an int.
+     * Turn 4 bytes into an unsigned 32 bit int.
      *
      * @param b1 1st byte
      * @param b2 2nd byte
@@ -80,7 +80,7 @@ public:
      * @param byteOrder if big endian, 1st byte is most significant & 4th is least
      * @return int converted from byte array
      */
-    static int toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrder) {
+    static uint32_t toInt(char b1, char b2, char b3, char b4, const ByteOrder & byteOrder) {
 
         if (byteOrder == ByteOrder::ENDIAN_BIG) {
             return (
@@ -96,6 +96,38 @@ public:
                     (0xff & b2) <<  8 |
                     (0xff & b3) << 16 |
                     (0xff & b4) << 24
+            );
+        }
+    }
+
+
+
+    /**
+     * Turn 4 bytes into an unsigned 32 bit int.
+     *
+     * @param data pointer to bytes to convert
+     * @return int converted from byte array
+     * @throws EvioException if data is null
+     */
+    static uint32_t toInt(uint8_t const * data, ByteOrder const & byteOrder) {
+        if (data == nullptr) {
+            throw EvioException("null arg");
+        }
+
+        if (byteOrder == ByteOrder::ENDIAN_BIG) {
+            return (
+                    (0xff & data[0]) << 24 |
+                    (0xff & data[1]) << 16 |
+                    (0xff & data[2]) <<  8 |
+                    (0xff & data[3])
+            );
+        }
+        else {
+            return (
+                    (0xff & data[0])       |
+                    (0xff & data[1]) <<  8 |
+                    (0xff & data[2]) << 16 |
+                    (0xff & data[3]) << 24
             );
         }
     }
