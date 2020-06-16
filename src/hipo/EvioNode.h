@@ -215,8 +215,9 @@ public:
     void setData(uint32_t position, uint32_t plc, std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode);
     void setData(uint32_t position, uint32_t plc, uint32_t recPos, std::shared_ptr<ByteBuffer> & buf);
 
+    // TODO: set many of these methods to CONST
 
-    bool isObsolete();
+    bool isObsolete() const ;
     void setObsolete(bool obsolete);
     std::vector<std::shared_ptr<EvioNode>> & getAllNodes();
     std::vector<std::shared_ptr<EvioNode>> & getChildNodes();

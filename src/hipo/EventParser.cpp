@@ -57,7 +57,7 @@ namespace  evio {
                 auto header = EventHeaderParser::createBankHeader(bytes.data() + offset, byteOrder);
 
                 // offset still points to beginning of new header. Have to get data for new child bank.
-                int newByteLen = 4 * (header->getLength() - 1); // -1 to account for extra header word
+                uint32_t newByteLen = 4 * (header->getLength() - 1); // -1 to account for extra header word
                 std::vector<uint8_t> newBytes;
                 newBytes.reserve(newByteLen);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 8, newByteLen);
@@ -79,7 +79,7 @@ namespace  evio {
             while (offset < length) {
                 auto header = EventHeaderParser::createSegmentHeader(bytes.data() + offset, byteOrder);
 
-                int newByteLen = 4 * header->getLength();
+                uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
                 newBytes.reserve(newByteLen);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
@@ -99,7 +99,7 @@ namespace  evio {
             while (offset < length) {
                 auto header = EventHeaderParser::createTagSegmentHeader(bytes.data() + offset, byteOrder);
 
-                int newByteLen = 4 * header->getLength();
+                uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
                 newBytes.reserve(newByteLen);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
@@ -234,7 +234,7 @@ namespace  evio {
                 auto header = EventHeaderParser::createBankHeader(bytes.data() + offset, byteOrder);
 
                 // offset still points to beginning of new header. Have to get data for new child bank.
-                int newByteLen = 4 * (header->getLength() - 1); // -1 to account for extra header word
+                uint32_t newByteLen = 4 * (header->getLength() - 1); // -1 to account for extra header word
                 std::vector<uint8_t> newBytes;
                 newBytes.reserve(newByteLen);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 8, newByteLen);
@@ -256,7 +256,7 @@ namespace  evio {
             while (offset < length) {
                 auto header = EventHeaderParser::createSegmentHeader(bytes.data() + offset, byteOrder);
 
-                int newByteLen = 4 * header->getLength();
+                uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
                 newBytes.reserve(newByteLen);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
@@ -277,7 +277,7 @@ namespace  evio {
             while (offset < length) {
                 auto header = EventHeaderParser::createTagSegmentHeader(bytes.data() + offset, byteOrder);
 
-                int newByteLen = 4 * header->getLength();
+                uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
                 newBytes.reserve(newByteLen);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
@@ -410,7 +410,7 @@ namespace  evio {
      *
      * @return <code>true</code> if notification of events to the listeners is active.
      */
-    bool EventParser::isNotificationActive() {return notificationActive;}
+    bool EventParser::isNotificationActive() const {return notificationActive;}
 
     /**
      * Set the flag determining whether notification of listeners is active. Normally it is. But in some cases it
@@ -447,7 +447,7 @@ namespace  evio {
      * @param listener   an listener to notify as each structure is visited.
      */
     void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const & structure,
-                                        std::shared_ptr<IEvioListener> listener) {
+                                        std::shared_ptr<IEvioListener> const & listener) {
         visitAllDescendants(structure, structure, listener, nullptr);
     }
 
@@ -464,8 +464,8 @@ namespace  evio {
      *               structures can be captured.
      */
     void EventParser::vistAllStructures(std::shared_ptr<BaseStructure> const & structure,
-                                        std::shared_ptr<IEvioListener> listener,
-                                        std::shared_ptr<IEvioFilter> filter) {
+                                        std::shared_ptr<IEvioListener> const & listener,
+                                        std::shared_ptr<IEvioFilter> const & filter) {
         visitAllDescendants(structure, structure, listener, filter);
     }
 
@@ -514,7 +514,7 @@ namespace  evio {
      * @param structs vector to be filled with all structures that are accepted by filter.
      */
     void EventParser::getMatchingStructures(std::shared_ptr<BaseStructure> const & structure,
-                                            std::shared_ptr<IEvioFilter> filter,
+                                            std::shared_ptr<IEvioFilter> const & filter,
                                             std::vector<std::shared_ptr<BaseStructure>> & structs) {
         structs.clear();
         structs.reserve(25);

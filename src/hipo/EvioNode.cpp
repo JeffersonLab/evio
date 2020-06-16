@@ -525,7 +525,7 @@ std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & ba
     }
 
     // Get length of current bank
-    int length = buffer->getInt(position);
+    uint32_t length = buffer->getUInt(position);
     bankNode->len = length;
     bankNode->pos = position;
     bankNode->type = DataType::BANK.getValue();
@@ -730,7 +730,7 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
  */
 void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & nodeSource) {
 
-    int dType = node->dataType;
+    uint32_t dType = node->dataType;
 
     // If node does not contain containers, return since we can't drill any further down
     if (!DataType::isStructure(dType)) {
@@ -738,10 +738,10 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & 
     }
 
     // Start at beginning position of evio structure being scanned
-    int position = node->dataPos;
+    uint32_t position = node->dataPos;
     // Don't go past the data's end which is (position + length)
     // of evio structure being scanned in bytes.
-    int endingPos = position + 4*node->dataLen;
+    uint32_t endingPos = position + 4*node->dataLen;
     // Buffer we're using
     ByteBuffer* buffer = node->buffer.get();
 
@@ -959,7 +959,7 @@ RecordNode & EvioNode::getRecordNode() {return recordNode;}
  * Has the data this node represents in the buffer been removed?
  * @return true if node no longer represents valid buffer data, else false.
  */
-bool EvioNode::isObsolete() {return obsolete;}
+bool EvioNode::isObsolete() const {return obsolete;}
 
 /**
  * Set whether this node & descendants are now obsolete because the
@@ -973,7 +973,7 @@ void EvioNode::setObsolete(bool ob) {
 
     // Set for all descendants.
     for (shared_ptr<EvioNode> & n : childNodes) {
-        n.get()->setObsolete(ob);
+        n->setObsolete(ob);
     }
 }
 
@@ -1170,10 +1170,10 @@ void EvioNode::updateLengths(int deltaLen) {
 
     EvioNode* node = this;
     uint32_t typ = getType();
-    int length;
+    uint32_t length;
 
     if ((typ == DataType::BANK.getValue()) || (typ == DataType::ALSOBANK.getValue())) {
-        length = buffer->getInt(node->pos) + deltaLen;
+        length = buffer->getUInt(node->pos) + deltaLen;
         buffer->putInt(node->pos, length);
     }
     else if ((typ == DataType::SEGMENT.getValue())     ||
