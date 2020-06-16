@@ -31,6 +31,8 @@ namespace evio {
      */
     class BankHeader : public BaseStructureHeader {
 
+        friend class EvioReader;
+
     public:
 
         BankHeader() = default;
