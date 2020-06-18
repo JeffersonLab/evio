@@ -599,6 +599,7 @@ namespace evio {
 
     protected:
 
+        BaseStructure();
         explicit BaseStructure(std::shared_ptr<BaseStructureHeader> head);
 
         // TODO: are these really necesary???
