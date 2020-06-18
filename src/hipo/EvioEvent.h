@@ -40,6 +40,11 @@ namespace evio {
 
     private:
 
+        /** Constructor. */
+        EvioEvent() : EvioBank() {
+            std::cout << "EvioEvents's private zero-arg constructor" << std::endl;
+        }
+
        /**
         * Constructor.
         * @param head bank header.
@@ -50,7 +55,17 @@ namespace evio {
 
     public:
 
-       /**
+        /**
+          * Method to return a shared pointer to a constructed object of this class.
+          * Header is filled with default values.
+          * @return shared pointer to new EvioBank.
+          */
+        static std::shared_ptr<EvioEvent> getInstance() {
+            std::shared_ptr<EvioEvent> pNode(new EvioEvent());
+            return pNode;
+        }
+
+        /**
         * Method to return a shared pointer to a constructed object of this class.
         * @param head bank header.
         * @return shared pointer to new EvioEvent.

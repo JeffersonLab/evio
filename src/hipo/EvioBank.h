@@ -24,6 +24,11 @@ namespace evio {
 
     protected:
 
+        /** Constructor. */
+        EvioBank() : BaseStructure() {
+            std::cout << "EvioBank's private zero-arg constructor" << std::endl;
+        }
+
         /**
          * Constructor.
          * @param head bank header.
@@ -33,6 +38,16 @@ namespace evio {
         }
 
     public:
+
+        /**
+         * Method to return a shared pointer to a constructed object of this class.
+         * Header is filled with default values.
+         * @return shared pointer to new EvioBank.
+         */
+        static std::shared_ptr<EvioBank> getInstance() {
+            std::shared_ptr<EvioBank> pNode(new EvioBank());
+            return pNode;
+        }
 
         /**
          * Method to return a shared pointer to a constructed object of this class.
