@@ -27,6 +27,8 @@
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "EvioNode.h"
+#include "RecordHeader.h"
+#include "IBlockHeader.h"
 
 using namespace std;
 
@@ -233,6 +235,58 @@ public:
             dest[off  ] = (uint8_t)(data      );
             dest[off+1] = (uint8_t)(data >>  8);
         }
+    }
+
+
+    /**
+     * Reads a couple things in a block/record header
+     * in order to determine the evio version and endianness of a buffer/file.
+     * The endianness can be read from the given ByteBuffer by calling,
+     * bb.order(). This does <b>not</b> change any parameters of the given
+     * buffer.
+     *
+     * @param bb ByteBuffer to read from.
+     * @param initialPos position in bb to start reading.
+     * @return evio version.
+     * @throws underflow_error if not enough data in buffer.
+     * @throws EvioException bad magic number in header.
+     */
+    static uint32_t findEvioVersion(ByteBuffer & bb, size_t initialPos) {
+        // Look at first record header
+
+        // Have enough remaining bytes to read 8 words of header?
+        if (bb.limit() - initialPos < 32) {
+            throw underflow_error("not enough data to read in header");
+        }
+
+        // Set the byte order to match the file's ordering.
+
+        // Check the magic number for endianness (buffer defaults to big endian)
+        ByteOrder byteOrder = bb.order();
+
+        // Offset to magic # is in the SAME LOCATION FOR ALL EVIO VERSIONS
+        uint32_t magicNumber = bb.getUInt(initialPos + RecordHeader::MAGIC_OFFSET);
+        if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
+            if (byteOrder == ByteOrder::ENDIAN_BIG) {
+                byteOrder = ByteOrder::ENDIAN_LITTLE;
+            }
+            else {
+                byteOrder = ByteOrder::ENDIAN_BIG;
+            }
+            bb.order(byteOrder);
+
+            // Reread magic number to make sure things are OK
+            magicNumber = bb.getInt(initialPos + RecordHeader::MAGIC_OFFSET);
+            if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
+                throw EvioException("magic number is bad, " + std::to_string(magicNumber));
+            }
+        }
+
+        // Find the version number, again, SAME LOCATION FOR ALL EVIO VERSIONS
+        uint32_t bitInfo = bb.getUInt(initialPos + RecordHeader::BIT_INFO_OFFSET);
+        evioVersion = bitInfo & RecordHeader::VERSION_MASK;
+
+        return evioVersion;
     }
 
 
