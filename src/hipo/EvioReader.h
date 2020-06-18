@@ -104,10 +104,6 @@ namespace evio {
         size_t fileSize() override;
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override;
 
-    private:
-
-        ReadWriteStatus findEvioVersion(ByteBuffer & bb);
-
     public:
 
         std::shared_ptr<EvioEvent> getEvent(size_t index) override;

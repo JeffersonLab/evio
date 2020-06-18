@@ -27,9 +27,8 @@ namespace evio {
  * @param synced         if true, methods are synchronized for thread safety, else false.
  *
  * @see EventWriter
- * @throws IOException   if read failure
- * @throws EvioException if path is empty; bad evio version #;
- *                       if file is too small to have valid evio format data;
+ * @throws underflow_error if too few bytes to read file header
+ * @throws EvioException if file read failure; if path is empty; bad evio version #;
  *                       if first block number != 1 when checkBlkNumSeq arg is true
  */
 EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential, bool synced) {
@@ -51,11 +50,13 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
 
         // Read first 32 bytes of file header
         inStreamRandom.read(reinterpret_cast<char *>(headerBytes), bytesToRead);
+        if (inStreamRandom.fail()) {
+            throw EvioException("file read failure");
+        }
 
         // Parse file header to find the file's endianness & evio version #
-        if (findEvioVersion(headerBuffer) != EvioReader::ReadWriteStatus::SUCCESS) {
-            throw EvioException("Failed reading first block header");
-        }
+        evioVersion = Util::findEvioVersion(headerBuffer, initialPosition);
+        byteOrder = headerBuffer.order();
 
         // This object is no longer needed
         inStreamRandom.close();
@@ -86,18 +87,17 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
  *                       with 1
  * @param synced         if true, methods are synchronized for thread safety, else false.
  * @see EventWriter
- * @throws EvioException if buffer arg is null; bad evio version #;
- *                       failure to read first block header
+ * @throws underflow_error if too little data in bb to read.
+ * @throws EvioException bad evio version #; failure to read first block header
  */
 EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bool synced) {
 
         byteBuffer = bb->slice(); // remove necessity to track initial position
         initialPosition = byteBuffer->position();
 
-        // Read first block header and find the file's endianness & evio version #.
-        if (findEvioVersion(*(byteBuffer.get())) != EvioReader::ReadWriteStatus::SUCCESS) {
-            throw EvioException("Failed reading first record header");
-        }
+        // Read first block header and find the file's endianness & evio version #
+        evioVersion = Util::findEvioVersion(*(bb.get()), initialPosition);
+        byteOrder = byteBuffer->order();
 
         if (evioVersion > 0 && evioVersion < 5) {
             reader = std::make_shared<EvioReaderV4>(byteBuffer, checkRecNumSeq, synced);
@@ -152,51 +152,6 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
 
     /** {@inheritDoc} */
     std::shared_ptr<IBlockHeader> EvioReader::getFirstBlockHeader() {return reader->getFirstBlockHeader();}
-
-    /**
-     * Reads a couple things in the first block (physical record) header
-     * in order to determine the evio version of buffer.
-     * @param bb ByteBuffer to read from.
-     * @return status of read attempt.
-     */
-    EvioReader::ReadWriteStatus EvioReader::findEvioVersion(ByteBuffer & bb) {
-        // Look at first record header
-
-        // Have enough remaining bytes to read 8 words of header?
-        if (bb.limit() - initialPosition < 32) {
-            return EvioReader::ReadWriteStatus::END_OF_FILE;
-        }
-
-        // Set the byte order to match the file's ordering.
-
-        // Check the magic number for endianness (buffer defaults to big endian)
-        byteOrder = bb.order();
-
-        // Offset to magic # is in the SAME LOCATION FOR ALL EVIO VERSIONS
-        int magicNumber = bb.getInt(initialPosition + RecordHeader::MAGIC_OFFSET);
-        if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
-            if (byteOrder == ByteOrder::ENDIAN_BIG) {
-                byteOrder = ByteOrder::ENDIAN_LITTLE;
-            }
-            else {
-                byteOrder = ByteOrder::ENDIAN_BIG;
-            }
-            bb.order(byteOrder);
-
-            // Reread magic number to make sure things are OK
-            magicNumber = bb.getInt(initialPosition + RecordHeader::MAGIC_OFFSET);
-            if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
-                return EvioReader::ReadWriteStatus::EVIO_EXCEPTION;
-            }
-        }
-
-        // Find the version number, again, SAME LOCATION FOR ALL EVIO VERSIONS
-        uint32_t bitInfo = bb.getUInt(initialPosition + RecordHeader::BIT_INFO_OFFSET);
-        evioVersion = bitInfo & RecordHeader::VERSION_MASK;
-
-        return EvioReader::ReadWriteStatus::SUCCESS;
-    }
-
 
     /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReader::getEvent(size_t index) {return reader->getEvent(index);}
