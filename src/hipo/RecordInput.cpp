@@ -19,6 +19,7 @@ namespace evio {
 
 /** Default constructor. */
 RecordInput::RecordInput() : headerBuffer(RecordHeader::HEADER_SIZE_BYTES) {
+    header = std::make_shared<RecordHeader>();
     allocate(DEFAULT_BUF_SIZE);
     headerBuffer.order(byteOrder);
 }
@@ -53,7 +54,7 @@ RecordInput::RecordInput(const RecordInput & srcRec) {
         recordBuffer = srcRec.recordBuffer;
         headerBuffer = srcRec.headerBuffer;
 
-        header                   = srcRec.header;
+        header->copy(srcRec.header);
         nEntries                 = srcRec.nEntries;
         userHeaderOffset         = srcRec.userHeaderOffset;
         eventsOffset             = srcRec.eventsOffset;
@@ -85,7 +86,7 @@ RecordInput & RecordInput::operator=(RecordInput&& other) noexcept {
         recordBuffer             = std::move(other.recordBuffer);
         headerBuffer             = std::move(other.headerBuffer);
 
-        header                   = other.header;
+        header                   = std::move(other.header);
         nEntries                 = other.nEntries;
         userHeaderOffset         = other.userHeaderOffset;
         eventsOffset             = other.eventsOffset;
@@ -107,7 +108,7 @@ RecordInput & RecordInput::operator=(const RecordInput& other) {
         dataBuffer               = other.dataBuffer;
         recordBuffer             = other.recordBuffer;
         headerBuffer             = other.headerBuffer;
-        header                   = other.header;
+        header->copy(other.header);
         nEntries                 = other.nEntries;
         userHeaderOffset         = other.userHeaderOffset;
         eventsOffset             = other.eventsOffset;
@@ -121,7 +122,7 @@ RecordInput & RecordInput::operator=(const RecordInput& other) {
  * Get the header of this record.
  * @return header of this record.
  */
-RecordHeader & RecordInput::getHeader() {return header;}
+    std::shared_ptr<RecordHeader> RecordInput::getHeader() {return header;}
 
 /**
  * Get the byte order of the internal buffers.
@@ -155,28 +156,28 @@ ByteBuffer & RecordInput::getUncompressedDataBuffer() {
  * Does this record contain an event index?
  * @return true if record contains an event index, else false.
  */
-bool RecordInput::hasIndex() const {return (header.getIndexLength() > 0);}
+bool RecordInput::hasIndex() const {return (header->getIndexLength() > 0);}
 
 /**
  * Does this record contain a user header?
  * @return true if record contains a user header, else false.
  */
-bool RecordInput::hasUserHeader() const {return (header.getUserHeaderLength() > 0);}
+bool RecordInput::hasUserHeader() const {return (header->getUserHeaderLength() > 0);}
 
 /**
  * Get the event at the given index and return it in an allocated array.
  *
- * @param index  index of event starting at 0. If index too large, it's
- *               set to last index.
+ * @param index  index of event starting at 0. If index too large, it's set to last index.
+ * @param len    pointer to int which gets filled with the data length in bytes.
  * @return byte array containing event.
  */
-shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index) {
+shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index, uint32_t * len) {
 
     uint32_t firstPosition = 0;
 
     if (index > 0) {
-        if (index >= header.getEntries()) {
-            index = header.getEntries() - 1;
+        if (index >= header->getEntries()) {
+            index = header->getEntries() - 1;
         }
         // Remember, the index array of events lengths (at beginning of dataBuffer)
         // was overwritten in readRecord() to contain offsets to events.
@@ -191,6 +192,9 @@ shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index) {
     uint32_t offset = eventsOffset + firstPosition;
 
     std::memcpy((void *)event.get(), (const void *)(dataBuffer.array() + offset), length);
+    if (len != nullptr) {
+        *len = length;
+    }
 
 //cout << "getEvent: reading from " << offset << "  length = " << length << endl;
     return event;
@@ -209,8 +213,8 @@ uint32_t RecordInput::getEventLength(uint32_t index) const {
 
     uint32_t firstPosition = 0;
     if (index > 0) {
-        if (index >= header.getEntries()) {
-            index = header.getEntries() - 1;
+        if (index >= header->getEntries()) {
+            index = header->getEntries() - 1;
         }
         firstPosition = dataBuffer.getInt( (index-1)*4 );
     }
@@ -254,7 +258,7 @@ ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32
 
     uint32_t firstPosition = 0;
     if (index > 0) {
-        if (index >= header.getEntries()) {
+        if (index >= header->getEntries()) {
             throw EvioException("index too large");
         }
         firstPosition = dataBuffer.getUInt((index - 1) * 4);
@@ -287,7 +291,7 @@ ByteBuffer & RecordInput::getEvent(ByteBuffer & buffer, size_t bufOffset, uint32
  */
 std::shared_ptr<uint8_t> RecordInput::getUserHeader() {
 
-    uint32_t length = header.getUserHeaderLength();
+    uint32_t length = header->getUserHeaderLength();
 //    if (length < 1) {
 //        return nullptr;
 //    }
@@ -316,7 +320,7 @@ std::shared_ptr<uint8_t> RecordInput::getUserHeader() {
  */
 ByteBuffer & RecordInput::getUserHeader(ByteBuffer & buffer, size_t bufOffset) {
 
-    uint32_t length = header.getUserHeaderLength();
+    uint32_t length = header->getUserHeaderLength();
 //    if (length < 1) {
 //        buffer.limit(bufOffset).position(bufOffset);
 //        return buffer;
@@ -395,21 +399,21 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
     file.read(reinterpret_cast<char *>(headerBuffer.array()), RecordHeader::HEADER_SIZE_BYTES);
 
     // This will switch headerBuffer to proper byte order
-    header.readHeader(headerBuffer);
+    header->readHeader(headerBuffer);
 
     // Make sure all internal buffers have the same byte order
     setByteOrder(headerBuffer.order());
 
-    int recordLengthBytes = header.getLength();
-    int headerLength      = header.getHeaderLength();
-    int cLength           = header.getCompressedDataLength();
+    int recordLengthBytes = header->getLength();
+    int headerLength      = header->getHeaderLength();
+    int cLength           = header->getCompressedDataLength();
 
     // How many bytes will the expanded record take?
     // Just data:
-    uncompressedEventsLength = 4*header.getDataLengthWords();
+    uncompressedEventsLength = 4*header->getDataLengthWords();
     // Everything except the header & don't forget padding:
-    int neededSpace =   header.getIndexLength() +
-                        4*header.getUserHeaderLengthWords() +
+    int neededSpace =   header->getIndexLength() +
+                        4*header->getUserHeaderLengthWords() +
                         uncompressedEventsLength;
 
     // Handle rare situation in which compressed data takes up more room
@@ -425,7 +429,7 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
     file.seekg(position + headerLength);
 
     // Decompress data
-    switch (header.getCompressionType()) {
+    switch (header->getCompressionType()) {
         case 1:
         case 2:
             // LZ4
@@ -458,11 +462,11 @@ void RecordInput::readRecord(ifstream & file, size_t position) {
     }
 
     // Number of entries in index
-    nEntries = header.getEntries();
+    nEntries = header->getEntries();
     // Offset from just past header to user header (past index)
     userHeaderOffset = nEntries*4;
     // Offset from just past header to data (past index + user header)
-    eventsOffset = userHeaderOffset + header.getUserHeaderLengthWords()*4;
+    eventsOffset = userHeaderOffset + header->getUserHeaderLengthWords()*4;
 
     // Overwrite event lengths with event offsets
     int event_pos = 0;
@@ -489,23 +493,23 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
     cout << "readRecord: from buffer, IN" << endl;
 
     // This will switch buffer to proper byte order
-    header.readHeader(buffer, offset);
+    header->readHeader(buffer, offset);
 
     // Make sure all internal buffers have the same byte order
     setByteOrder(buffer.order());
 
-    uint32_t recordLengthBytes = header.getLength();
-    uint32_t headerLength      = header.getHeaderLength();
-    uint32_t cLength           = header.getCompressedDataLength();
+    uint32_t recordLengthBytes = header->getLength();
+    uint32_t headerLength      = header->getHeaderLength();
+    uint32_t cLength           = header->getCompressedDataLength();
 
     size_t compDataOffset = offset + headerLength;
 
     // How many bytes will the expanded record take?
     // Just data:
-    uncompressedEventsLength = 4*header.getDataLengthWords();
+    uncompressedEventsLength = 4*header->getDataLengthWords();
     // Everything except the header & don't forget padding:
-    uint32_t neededSpace =  header.getIndexLength() +
-                            4*header.getUserHeaderLengthWords() +
+    uint32_t neededSpace =  header->getIndexLength() +
+                            4*header->getUserHeaderLengthWords() +
                             uncompressedEventsLength;
 
     // Make room to handle all data to be read & uncompressed
@@ -515,7 +519,7 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
     }
 
     // Decompress data
-    switch (header.getCompressionType()) {
+    switch (header->getCompressionType()) {
         case 1:
         case 2:
             // Read LZ4 compressed data (WARNING: this does set limit on dataBuffer!)
@@ -545,11 +549,11 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
     }
 
     // Number of entries in index
-    nEntries = header.getEntries();
+    nEntries = header->getEntries();
     // Offset from just past header to user header (past index)
     userHeaderOffset = nEntries*4;
     // Offset from just past header to data (past index + user header)
-    eventsOffset = userHeaderOffset + header.getUserHeaderLengthWords()*4;
+    eventsOffset = userHeaderOffset + header->getUserHeaderLengthWords()*4;
 
 // TODO: How do we handle trailers???
     // Overwrite event lengths with event offsets
@@ -572,29 +576,29 @@ void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
  * @param srcBuf buffer containing record data.
  * @param srcOff offset into srcBuf to beginning of record data.
  * @param dstBuf buffer into which the record is uncompressed.
- * @param header RecordHeader to be used to read the record header in srcBuf.
+ * @param hdr    RecordHeader to be used to read the record header in srcBuf.
  * @return the original record size in srcBuf (bytes).
  * @throws EvioException if srcBuf contains too little data,
  *                       is not in proper format, or version earlier than 6.
  */
 uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteBuffer & dstBuf,
-                                       RecordHeader & header) {
+                                       RecordHeader & hdr) {
 
     size_t dstOff = dstBuf.position();
 
     // Read in header. This will switch srcBuf to proper byte order.
-    header.readHeader(srcBuf, srcOff);
-//cout << endl << "uncompressRecord: header --> " << endl << header.toString() << endl;
+        hdr.readHeader(srcBuf, srcOff);
+//cout << endl << "uncompressRecord: hdr --> " << endl << hdr.toString() << endl;
 
-    uint32_t headerBytes              = header.getHeaderLength();
-    uint32_t compressionType          = header.getCompressionType();
-    uint32_t origRecordBytes          = header.getLength();
-    uint32_t compressedDataLength     = header.getCompressedDataLength();
-    uint32_t uncompressedRecordLength = header.getUncompressedRecordLength();
+    uint32_t headerBytes              = hdr.getHeaderLength();
+    uint32_t compressionType          = hdr.getCompressionType();
+    uint32_t origRecordBytes          = hdr.getLength();
+    uint32_t compressedDataLength     = hdr.getCompressedDataLength();
+    uint32_t uncompressedRecordLength = hdr.getUncompressedRecordLength();
 
     size_t   compressedDataOffset = srcOff + headerBytes;
-    uint32_t indexLen = header.getIndexLength();
-    uint32_t userLen  = 4*header.getUserHeaderLengthWords();  // padded
+    uint32_t indexLen = hdr.getIndexLength();
+    uint32_t userLen  = 4*hdr.getUserHeaderLengthWords();  // padded
 
     // Make sure destination buffer has the same byte order
     //dstBuf.order(srcBuf.order());
@@ -608,7 +612,7 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
     }
     else {
         // Since everything is uncompressed, copy it all over as is
-        int copyBytes = indexLen + userLen + 4*header.getDataLengthWords();  // padded
+        int copyBytes = indexLen + userLen + 4*hdr.getDataLengthWords();  // padded
 
         std::memcpy((void *)(dstBuf.array() + dstOff + dstBuf.arrayOffset()),
                     (const void *)(srcBuf.array() + srcOff + srcBuf.arrayOffset()), headerBytes + copyBytes);
@@ -653,16 +657,16 @@ uint32_t RecordInput::uncompressRecord(ByteBuffer & srcBuf, size_t srcOff, ByteB
 
     // Reset the compression type and length in header to 0
     dstBuf.putInt(dstOff + RecordHeader::COMPRESSION_TYPE_OFFSET, 0);
-    header.setCompressionType(Compressor::UNCOMPRESSED).setCompressedDataLength(0);
+    hdr.setCompressionType(Compressor::UNCOMPRESSED).setCompressedDataLength(0);
 
     // Reset the header length
     dstBuf.putInt(dstOff + RecordHeader::RECORD_LENGTH_OFFSET, uncompressedRecordLength);
-    header.setLength(uncompressedRecordLength);
+    hdr.setLength(uncompressedRecordLength);
 
 //            // If there is an index, change lengths to event offsets
-//            if (header.getIndexLength() > 0) {
+//            if (hdr.getIndexLength() > 0) {
 //                // Number of entries in index
-//                int nEntries = header.getEntries();
+//                int nEntries = hdr.getEntries();
 //
 //                // Overwrite event lengths with event offsets
 //                int index, eventPos = 0;

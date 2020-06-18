@@ -18,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "RecordHeader.h"
@@ -125,7 +126,7 @@ private:
     ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
     /** General header of this record. */
-    RecordHeader header;
+    std::shared_ptr<RecordHeader> header;
 
     /** This buffer contains uncompressed data consisting of, in order,
      *  1) index array, 2) user header, 3) events. */
@@ -156,7 +157,7 @@ public:
     RecordInput & operator=(RecordInput&& other) noexcept;
     RecordInput & operator=(const RecordInput& other);
 
-    RecordHeader & getHeader();
+    std::shared_ptr<RecordHeader> getHeader();
     const ByteOrder & getByteOrder();
     ByteBuffer & getUncompressedDataBuffer();
 
@@ -167,7 +168,7 @@ public:
     ByteBuffer & getEvent(ByteBuffer & buffer, size_t bufOffset, uint32_t index);
     ByteBuffer & getUserHeader(ByteBuffer & buffer, size_t bufOffset);
 
-    shared_ptr<uint8_t> getEvent(uint32_t index);
+    shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
     uint32_t getEventLength(uint32_t index) const;
     std::shared_ptr<uint8_t> getUserHeader();
     uint32_t getEntries() const;
