@@ -118,7 +118,7 @@ Reader::Reader() : nodePool(nodePoolStatic) {
  * @throws IOException   if error reading file
  * @throws EvioException if file is not in the proper format or earlier than version 6
  */
-Reader::Reader(string & filename) : nodePool(nodePoolStatic) {
+Reader::Reader(string const & filename) : nodePool(nodePoolStatic) {
     // Throw exception if logical or read/write error on io operation
     inStreamRandom.exceptions(ifstream::failbit | ifstream::badbit);
     open(filename);
@@ -133,7 +133,7 @@ Reader::Reader(string & filename) : nodePool(nodePoolStatic) {
  * @throws IOException   if error reading file
  * @throws EvioException if file is not in the proper format or earlier than version 6
  */
-Reader::Reader(string & filename, bool forceScan) : nodePool(nodePoolStatic) {
+Reader::Reader(string const & filename, bool forceScan) : nodePool(nodePoolStatic) {
     // Throw exception if logical or read/write error on io operation
     inStreamRandom.exceptions(ifstream::failbit | ifstream::badbit);
 
@@ -161,16 +161,6 @@ Reader::Reader(std::shared_ptr<ByteBuffer> & buffer): nodePool(nodePoolStatic) {
     scanBuffer();
 }
 
-/**
- * Constructor for reading buffer with evio data.
- * Buffer must be ready to read with position and limit set properly.
- * @param buffer buffer with evio data.
- * @param pool pool of EvioNode objects for garbage-free operation.
- * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6
- */
-Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool) :
-        Reader(buffer, pool, false) {
-}
 
 /**
  * Constructor for reading buffer with evio data.
@@ -199,7 +189,7 @@ Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool
  * @param filename input file name
  * @throws EvioException if error handling file
  */
-void Reader::open(string & filename) {
+void Reader::open(string const & filename) {
    try {
        if (inStreamRandom.is_open()) {
            //cout << "[READER] ---> closing current file : " << fileName << endl;
@@ -275,7 +265,7 @@ void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
     dictionaryXML = nullptr;
 // TODO: set to -1 ???
     sequentialIndex = 0;
-    firstRecordHeader.reset();
+    firstRecordHeader->reset();
     currentRecordLoaded = 0;
 
     scanBuffer();
@@ -358,7 +348,7 @@ FileHeader & Reader::getFileHeader() {return fileHeader;}
  * Get the first record header from reading a file/buffer.
  * @return first record header from reading a file/buffer.
  */
-RecordHeader & Reader::getFirstRecordHeader() {return firstRecordHeader;}
+std::shared_ptr<RecordHeader> & Reader::getFirstRecordHeader() {return firstRecordHeader;}
 
 /**
  * Get the byte order of the file/buffer being read.
@@ -403,7 +393,7 @@ bool Reader::hasDictionary() const {
     if (fromFile) {
         return fileHeader.hasDictionary();
     }
-    return firstRecordHeader.hasDictionary();
+    return firstRecordHeader->hasDictionary();
 }
 
 /**
@@ -435,7 +425,7 @@ bool Reader::hasFirstEvent() const {
     if (fromFile) {
         return fileHeader.hasFirstEvent();
     }
-    return firstRecordHeader.hasFirstEvent();
+    return firstRecordHeader->hasFirstEvent();
 }
 
 /**
@@ -483,10 +473,11 @@ uint32_t Reader::getNumEventsRemaining() const {return (eventIndex.getMaxEvents(
  * Get a byte array representing the next event from the file/buffer while sequentially reading.
  * If the previous call was to {@link #getPrevEvent}, this will get the event
  * past what that returned. Once the last event is returned, this will return null.
+ * @param len pointer to int that gets filled with the returned event's len in bytes.
  * @return byte array representing the next event or null if there is none.
  * @throws EvioException if file/buffer not in hipo format
  */
-shared_ptr<uint8_t> Reader::getNextEvent() {
+shared_ptr<uint8_t> Reader::getNextEvent(uint32_t * len) {
     bool debug = false;
 
     // If the last method called was getPrev, not getNext,
@@ -503,7 +494,7 @@ shared_ptr<uint8_t> Reader::getNextEvent() {
         if (debug) cout << "getNextEvent extra increment to " << sequentialIndex << endl;
     }
 
-    auto array = getEvent(sequentialIndex++);
+    auto array = getEvent(sequentialIndex++, len);
     lastCalledSeqNext = true;
 
     if (array == nullptr) {
@@ -527,7 +518,7 @@ shared_ptr<uint8_t> Reader::getNextEvent() {
  * @return byte array representing the previous event or null if there is none.
  * @throws EvioException if the file/buffer is not in HIPO format
  */
-shared_ptr<uint8_t> Reader::getPrevEvent() {
+shared_ptr<uint8_t> Reader::getPrevEvent(uint32_t * len) {
     bool debug = false;
 
     // If the last method called was getNext, not getPrev,
@@ -543,7 +534,7 @@ shared_ptr<uint8_t> Reader::getPrevEvent() {
         if (debug) cout << "getPrevEvent extra decrement to " << sequentialIndex << endl;
     }
 
-    auto array = getEvent(--sequentialIndex);
+    auto array = getEvent(--sequentialIndex, len);
     lastCalledSeqNext = false;
 
     if (array == nullptr) {
@@ -608,14 +599,14 @@ ByteBuffer Reader::readUserHeader() {
         return std::move(ByteBuffer(userBytes, userLen).order(fileHeader.getByteOrder()));
     }
     else {
-        int userLen = firstRecordHeader.getUserHeaderLength();
-        // cout << "  " << firstRecordHeader.getUserHeaderLength() << "  " << firstRecordHeader.getHeaderLength() <<
-        //         "  " << firstRecordHeader.getIndexLength() << endl;
+        int userLen = firstRecordHeader->getUserHeaderLength();
+        // cout << "  " << firstRecordHeader->getUserHeaderLength() << "  " << firstRecordHeader->getHeaderLength() <<
+        //         "  " << firstRecordHeader->getIndexLength() << endl;
         auto userBytes = new uint8_t[userLen];
 
-        buffer->position(firstRecordHeader.getHeaderLength() + firstRecordHeader.getIndexLength());
+        buffer->position(firstRecordHeader->getHeaderLength() + firstRecordHeader->getIndexLength());
         buffer->getBytes(userBytes, userLen);
-        return std::move(ByteBuffer(userBytes, userLen).order(firstRecordHeader.getByteOrder()));
+        return std::move(ByteBuffer(userBytes, userLen).order(firstRecordHeader->getByteOrder()));
     }
 }
 
@@ -624,11 +615,12 @@ ByteBuffer Reader::readUserHeader() {
  * If index is out of bounds, null is returned.
  * @param index index of specified event within the entire file/buffer,
  *              contiguous starting at 0.
+ * @param len pointer to int that gets filled with the returned event's len in bytes.
  * @return byte array representing the specified event or null if
  *         index is out of bounds.
  * @throws EvioException if file/buffer not in hipo format
  */
-shared_ptr<uint8_t> Reader::getEvent(uint32_t index) {
+shared_ptr<uint8_t> Reader::getEvent(uint32_t index, uint32_t * len) {
 
     if (index >= eventIndex.getMaxEvents()) {
         cout << "[READER] getEvent: index = " << index << ", max events = " << eventIndex.getMaxEvents() << endl;
@@ -647,7 +639,7 @@ shared_ptr<uint8_t> Reader::getEvent(uint32_t index) {
     }
 
     cout << "[READER] getEvent: try doing inputStream.getEvent(...)" << endl;
-    return inputRecordStream.getEvent(eventIndex.getRecordEventNumber());
+    return inputRecordStream.getEvent(eventIndex.getRecordEventNumber(), len);
 }
 
 /**
@@ -800,11 +792,11 @@ void Reader::extractDictionaryAndFirstEvent() {
 void Reader::extractDictionaryFromBuffer() {
 
     // If no dictionary or first event ...
-    if (!firstRecordHeader.hasDictionary() && !firstRecordHeader.hasFirstEvent()) {
+    if (!firstRecordHeader->hasDictionary() && !firstRecordHeader->hasFirstEvent()) {
         return;
     }
 
-    int userLen = firstRecordHeader.getUserHeaderLength();
+    int userLen = firstRecordHeader->getUserHeaderLength();
     // 8 byte min for evio event, more for xml dictionary
     if (userLen < 8) {
         return;
@@ -815,15 +807,15 @@ void Reader::extractDictionaryFromBuffer() {
     try {
         // Position right before record header's user header
         buffer->position(bufferOffset +
-                         firstRecordHeader.getHeaderLength() +
-                         firstRecordHeader.getIndexLength());
+                         firstRecordHeader->getHeaderLength() +
+                         firstRecordHeader->getIndexLength());
         // Read user header
         auto userBytes = new uint8_t[userLen];
         buffer->getBytes(userBytes, userLen);
         ByteBuffer userBuffer(userBytes, userLen);
 
         // Parse user header as record
-        record = RecordInput(firstRecordHeader.getByteOrder());
+        record = RecordInput(firstRecordHeader->getByteOrder());
         record.readRecord(userBuffer, 0);
     }
     catch (EvioException & e) {
@@ -832,18 +824,19 @@ void Reader::extractDictionaryFromBuffer() {
     }
 
     int evIndex = 0;
+    uint32_t len;
 
     // Dictionary always comes first in record
-    if (firstRecordHeader.hasDictionary()) {
+    if (firstRecordHeader->hasDictionary()) {
         // Just plain ascii, not evio format
-        auto dict = record.getEvent(evIndex++);
-        dictionaryXML = string(reinterpret_cast<const char *>(dict.get()));
+        auto dict = record.getEvent(evIndex++, & len);
+        dictionaryXML = string(reinterpret_cast<const char *>(dict.get()), len);
     }
 
     // First event comes next
-    if (firstRecordHeader.hasFirstEvent()) {
-        firstEvent = record.getEvent(evIndex);
-        firstEventSize = record.getEventLength(evIndex);
+    if (firstRecordHeader->hasFirstEvent()) {
+        firstEvent = record.getEvent(evIndex, &len);
+        firstEventSize = len;
     }
 }
 
@@ -887,20 +880,20 @@ void Reader::extractDictionaryFromFile() {
     }
 
     int evIndex = 0;
+    uint32_t len;
 
     // Dictionary always comes first in record
     if (fileHeader.hasDictionary()) {
         // Just plain ascii, not evio format,  dict of type shared_ptr<uint8_t>
-        auto dict = record.getEvent(evIndex);
-        auto eventLen = record.getEventLength(evIndex++);
-//cout << "extractDictionaryFromFile: dictionary len  " << eventLen << " bytes" << endl;
-        dictionaryXML = string(reinterpret_cast<const char *>(dict.get()), eventLen);
+        auto dict = record.getEvent(evIndex++, &len);
+//cout << "extractDictionaryFromFile: dictionary len  " << len << " bytes" << endl;
+        dictionaryXML = string(reinterpret_cast<const char *>(dict.get()), len);
     }
 
     // First event comes next
     if (fileHeader.hasFirstEvent()) {
-        firstEvent = record.getEvent(evIndex);
-        firstEventSize = record.getEventLength(evIndex);
+        firstEvent = record.getEvent(evIndex, &len);
+        firstEventSize = len;
     }
 }
 
@@ -1079,7 +1072,7 @@ ByteBuffer Reader::scanBuffer() {
 
     bool haveFirstRecordHeader = false;
 
-    RecordHeader recordHeader = RecordHeader(HeaderType::EVIO_RECORD);
+    RecordHeader recordHeader(HeaderType::EVIO_RECORD);
 
     // Start at the buffer's initial position
     int position  = bufferOffset;
@@ -1114,7 +1107,7 @@ ByteBuffer Reader::scanBuffer() {
             byteOrder = recordHeader.getByteOrder();
             buf.order(byteOrder);
             evioVersion = recordHeader.getVersion();
-            firstRecordHeader = RecordHeader(recordHeader);
+            firstRecordHeader = std::make_shared<RecordHeader>(recordHeader);
             compressed = recordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
             haveFirstRecordHeader = true;
         }
@@ -1268,7 +1261,7 @@ void Reader::scanUncompressedBuffer() {
             byteOrder = recordHeader.getByteOrder();
             buffer->order(byteOrder);
             evioVersion = recordHeader.getVersion();
-            firstRecordHeader = RecordHeader(recordHeader);
+            firstRecordHeader = std::make_shared<RecordHeader>(recordHeader);
             compressed = recordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
             haveFirstRecordHeader = true;
         }
@@ -1405,8 +1398,8 @@ void Reader::forceScanFile() {
 
         // Save the first record header
         if (!haveFirstRecordHeader) {
-            firstRecordHeader = recordHeader;
-            compressed = firstRecordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
+            firstRecordHeader = std::make_shared<RecordHeader>(recordHeader);
+            compressed = firstRecordHeader->getCompressionType() != Compressor::UNCOMPRESSED;
             haveFirstRecordHeader = true;
         }
 
@@ -1498,9 +1491,9 @@ void Reader::scanFile(bool force) {
     // Move to first record and save the header
     inStreamRandom.seekg(recordPosition);
     inStreamRandom.read(headerBytes, RecordHeader::HEADER_SIZE_BYTES);
-    firstRecordHeader = recordHeader;
-    firstRecordHeader.readHeader(headerBuffer);
-    compressed = firstRecordHeader.getCompressionType() != Compressor::UNCOMPRESSED;
+    firstRecordHeader = std::make_shared<RecordHeader>(recordHeader);
+    firstRecordHeader->readHeader(headerBuffer);
+    compressed = firstRecordHeader->getCompressionType() != Compressor::UNCOMPRESSED;
 
     int indexLength;
 
@@ -1575,7 +1568,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
         return buffer;
     }
 
-    if (firstRecordHeader.getCompressionType() != Compressor::UNCOMPRESSED) {
+    if (firstRecordHeader->getCompressionType() != Compressor::UNCOMPRESSED) {
         throw EvioException("cannot remove node from buffer of compressed data");
     }
 
@@ -1789,7 +1782,8 @@ int Reader::main(int argc, char **argv) {
         while (reader.hasNext()) {
             cout << " reading event # " << icounter << endl;
             try {
-                shared_ptr<uint8_t> event = reader.getNextEvent();
+                uint32_t len;
+                shared_ptr<uint8_t> event = reader.getNextEvent(&len);
             } catch (EvioException &ex) {
                 //Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
             }

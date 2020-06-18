@@ -33,6 +33,7 @@
 #include "EvioException.h"
 #include "EvioNode.h"
 #include "EvioNodeSource.h"
+#include "IBlockHeader.h"
 
 using namespace std;
 
@@ -147,7 +148,7 @@ private:
     uint32_t currentRecordLoaded = 0;
     // TODO: Look at this
     /** First record's header. */
-    RecordHeader firstRecordHeader;
+    std::shared_ptr<RecordHeader> firstRecordHeader;
     /** Record number expected when reading. Used to check sequence of records. */
     uint32_t recordNumberExpected = 1;
     /** If true, throw an exception if record numbers are out of sequence. */
@@ -188,7 +189,7 @@ private:
 
 
     /** Place to store data read in from record header. */
-    uint32_t headerInfo[headerInfoLen];
+    uint32_t headerInfo[headerInfoLen]{};
 
 
 private:
@@ -201,16 +202,15 @@ private:
 public:
 
     Reader();
-    explicit Reader(string & filename);
-    Reader(string & filename, bool forceScan);
+    explicit Reader(string const & filename);
+    Reader(string const & filename, bool forceScan);
 
     explicit Reader(std::shared_ptr<ByteBuffer> & buffer);
-    Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool);
-    Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq);
+    Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq = false);
 
     ~Reader() = default;
 
-    void open(string & filename);
+    void open(string const & filename);
     void close();
 
     bool isClosed() const;
@@ -228,7 +228,7 @@ public:
     int getBufferOffset() const;
 
     FileHeader & getFileHeader();
-    RecordHeader & getFirstRecordHeader();
+    std::shared_ptr<RecordHeader> & getFirstRecordHeader();
 
     ByteOrder & getByteOrder();
     int getVersion() const;
@@ -250,14 +250,14 @@ public:
 
     uint32_t getNumEventsRemaining() const;
 
-    shared_ptr<uint8_t> getNextEvent();
-    shared_ptr<uint8_t> getPrevEvent();
+    shared_ptr<uint8_t> getNextEvent(uint32_t * len);
+    shared_ptr<uint8_t> getPrevEvent(uint32_t * len);
 
     EvioNode *getNextEventNode();
 
     ByteBuffer readUserHeader();
 
-    shared_ptr<uint8_t> getEvent(uint32_t index);
+    shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
     ByteBuffer & getEvent(ByteBuffer & buf, uint32_t index);
     uint32_t getEventLength(uint32_t index);
     EvioNode & getEventNode(uint32_t index);
