@@ -99,7 +99,7 @@ namespace evio {
              * Get the position in the buffer (bytes) of this block's last data word.<br>
              * @return position in the buffer (bytes) of this block's last data word.
              */
-            virtual uint64_t getBufferEndingPosition() = 0;
+            virtual size_t getBufferEndingPosition() = 0;
 
             /**
              * Get the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
@@ -108,7 +108,7 @@ namespace evio {
              *
              * @return starting position in buffer (bytes) from which this header was read--if that happened.
              */
-            virtual uint64_t getBufferStartingPosition() = 0;
+            virtual size_t getBufferStartingPosition() = 0;
 
             /**
              * Set the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
@@ -118,7 +118,7 @@ namespace evio {
              * @param bufferStartingPosition starting position in buffer from which this header was read--if that
              *            happened.
              */
-            virtual void setBufferStartingPosition(uint64_t bufferStartingPosition) = 0;
+            virtual void setBufferStartingPosition(size_t bufferStartingPosition) = 0;
 
             /**
              * Determines where the start of the next block (record) header in some buffer is located (bytes).
@@ -126,7 +126,7 @@ namespace evio {
              *
              * @return the start of the next block (record) header in some buffer is located (bytes).
              */
-            virtual uint64_t nextBufferStartingPosition() = 0;
+            virtual size_t nextBufferStartingPosition() = 0;
 
             /**
              * Determines where the start of the first event in this block (record) is located
@@ -137,19 +137,18 @@ namespace evio {
              *         that this entire record is part of a logical record that spans at least
              *         three physical records.
              */
-            virtual uint64_t firstEventStartingPosition() = 0;
+            virtual size_t firstEventStartingPosition() = 0;
 
             /**
              * Gives the bytes remaining in this block (record) given a buffer position. The position is an absolute
              * position in a byte buffer. This assumes that the absolute position in <code>bufferStartingPosition</code> is
-             * being maintained properly by the reader. No block is longer than 2.1GB - 31 bits of length. This is for
-             * practical reasons - so a block can be read into a single byte array.
+             * being maintained properly by the reader.
              *
              * @param position the absolute current position in a byte buffer.
              * @return the number of bytes remaining in this block (record).
              * @throws EvioException if position out of bounds
              */
-            virtual uint32_t bytesRemaining(uint64_t position) = 0;
+            virtual size_t bytesRemaining(size_t position) = 0;
 
             /**
              * Does this block contain an evio dictionary?
