@@ -18,6 +18,17 @@ namespace evio {
      * @param header the header to use.
      * @see BaseStructureHeader
      */
+    BaseStructure::BaseStructure() {
+        std::cout << "In BaseStructure default constructor" << std::endl;
+        header = std::make_shared<BaseStructureHeader>();
+    }
+
+
+    /**
+     * Constructor using a provided header.
+     * @param header the header to use.
+     * @see BaseStructureHeader
+     */
     BaseStructure::BaseStructure(std::shared_ptr<BaseStructureHeader> head) : header(head) {
         std::cout << "In BaseStructure head constructor" << std::endl;
     }
@@ -1390,7 +1401,7 @@ namespace evio {
      * It is only used to describe the endianness of the rawdata contained.
      * @param byteOrder {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
      */
-    void BaseStructure::setByteOrder(ByteOrder & order) {byteOrder = order;}
+    void BaseStructure::setByteOrder(ByteOrder const & order) {byteOrder = order;}
 
     /**
      * Is a byte swap required? This is java and therefore big endian. If data is
@@ -1448,9 +1459,11 @@ namespace evio {
         }
 
         if (rawBytes.empty()) {
+        std::cout << "Raw Bytes is EMPTY!!!" << std::endl;
             ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
         }
         else {
+            std::cout << "Raw Bytes has size " << (rawBytes.size()/4) << std::endl;
             ss << "  dataLen=" << (rawBytes.size()/4);
         }
 
@@ -1544,24 +1557,22 @@ namespace evio {
 
     /**
      * Get the raw data of the structure.
-     *
      * @return the raw data of the structure.
      */
     std::vector<uint8_t> & BaseStructure::getRawBytes() {return rawBytes;}
 
     /**
      * Set the data for the structure.
-     *
      * @param bytes pointer to the data to be copied.
      * @param len number of bytes to be copied.
      */
     void BaseStructure::setRawBytes(uint8_t *bytes, uint32_t len) {
+        rawBytes.reserve(len);
         std::memcpy(rawBytes.data(), bytes, len);
     }
 
     /**
      * Set the data for the structure.
-     *
      * @param bytes vector of data to be copied.
      */
     void BaseStructure::setRawBytes(std::vector<uint8_t> & bytes) {rawBytes = bytes;}
@@ -2745,6 +2756,7 @@ namespace evio {
      * @throws EvioException if this object corresponds to a different data type.
      */
     void BaseStructure::updateIntData() {
+        std::cout << "updateIntData: IN" <<  std::endl;
 
         // Make sure the structure is set to hold this kind of data
         DataType dataType = header->getDataType();
@@ -2754,11 +2766,14 @@ namespace evio {
 
         // if data was cleared ...
         if (intData.empty()) {
+            std::cout << "updateIntData: intData is EMPTY!!!!!!!" <<  std::endl;
             rawBytes.clear();
             numberDataItems = 0;
         }
             // make rawBytes consistent with what's in the int vector
         else {
+
+            std::cout << "updateIntData: intData size = " << intData.size() << std::endl;
             numberDataItems = intData.size();
             rawBytes.resize(4 * numberDataItems);
 
