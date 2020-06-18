@@ -144,8 +144,8 @@ public class EvioDictionaryEntry {
      * If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.
      *
      * @param tag    tag value or low end of a tag range of an evio container.
-     * @param tagEnd if &gt; 0, this is the high end of a tag range.
      * @param num    num value of evio container.
+     * @param tagEnd if &gt; 0, this is the high end of a tag range.
      * @param type   type of data in evio container which may be (case-independent):
      *      unknown32 {@link DataType#UNKNOWN32},
      *      int32 {@link DataType#INT32},
