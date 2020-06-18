@@ -35,6 +35,7 @@
 #include <boost/thread.hpp>
 
 #include "IBlockHeader.h"
+#include "BlockHeaderV2.h"
 
 using namespace std;
 
@@ -264,7 +265,7 @@ namespace evio {
 
         IBlockHeader *p;
 
-        IBlockHeaderV2 *pp;
+        BlockHeaderV2 *pp;
 
     }
 
