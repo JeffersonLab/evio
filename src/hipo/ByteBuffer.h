@@ -185,7 +185,7 @@ public:
 
     ByteBuffer & putShort(uint16_t val);
     ByteBuffer & putShort(size_t index, uint16_t val);
-
+// TODO: is this OK to use with int32_t ???????
     ByteBuffer & putInt(uint32_t val);
     ByteBuffer & putInt(size_t index, uint32_t val);
 
