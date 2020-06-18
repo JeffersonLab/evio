@@ -27,6 +27,7 @@
 #include "HeaderType.h"
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
+#include "IBlockHeader.h"
 #include "EvioException.h"
 #include "Compressor.h"
 #include "Util.h"
@@ -115,7 +116,7 @@ namespace evio {
  * @author timmer
  */
 
-class RecordHeader {
+class RecordHeader : public IBlockHeader {
 
 private:
 
@@ -292,6 +293,7 @@ private:
 
 public:
 
+    void copy(std::shared_ptr<RecordHeader> const & head);
     void reset();
 
     static uint32_t getWords(int length);
@@ -300,7 +302,7 @@ public:
     // Getters
 
     const HeaderType & getHeaderType() const;
-    const ByteOrder  & getByteOrder() const;
+    // getByteOrder part of IBlockHeader below ...
 
     uint32_t  getUncompressedRecordLength() const;
     uint32_t  getCompressedRecordLength() const;
@@ -309,7 +311,7 @@ public:
     uint32_t  getEntries() const;
     uint32_t  getUserHeaderLength() const;
     uint32_t  getUserHeaderLengthWords() const;
-    uint32_t  getVersion() const;
+    //  getVersion() part of IBlockHeader below ...
     uint32_t  getDataLength() const;
     uint32_t  getDataLengthWords() const;
     uint32_t  getIndexLength() const;
@@ -317,7 +319,7 @@ public:
     uint32_t  getCompressedDataLengthPadding() const;
     uint32_t  getCompressedDataLengthWords() const;
     uint32_t  getHeaderLength() const;
-    uint32_t  getHeaderWords() const;
+    // getHeaderWords part of IBlockHeader below ...
     uint32_t  getRecordNumber() const;
     uint64_t  getUserRegisterFirst() const;
     uint64_t  getUserRegisterSecond() const;
@@ -340,10 +342,10 @@ public:
     // Boolean setters/getters
 
     uint32_t    hasFirstEvent(bool hasFirst);
-    bool        hasFirstEvent() const;
+    // hasFirstEvent() is part of IBlockHeader below
 
     uint32_t    hasDictionary(bool hasFirst);
-    bool        hasDictionary() const;
+    // hasDictionary() part of IBlockHeader below ...
     static bool hasDictionary(int bitInfo);
 
     uint32_t    isLastRecord(bool isLast);
@@ -409,28 +411,35 @@ public:
     void readHeader(ByteBuffer & buffer, size_t offset);
     void readHeader(ByteBuffer & buffer);
 
+    string   eventTypeToString() const ;
 
     // Methods for implementing IBlockHeader
 
-    uint32_t getSize() const;
-    uint32_t getNumber() const;
-    uint32_t getMagicNumber() const;
-    uint32_t getSourceId() const;
-    uint32_t getEventType() const;
-    bool     isLastBlock() const;
-    string   eventTypeToString() const;
-    string   toString() const;
-    uint32_t write(ByteBuffer & byteBuffer);
+    uint32_t getSize() override ;
+    uint32_t getNumber() override ;
+    uint32_t getHeaderWords() override ;
+    uint32_t getSourceId() override ;
+    bool     hasFirstEvent() override ;
+    uint32_t getEventType() override ;
+    uint32_t getVersion() override ;
+    uint32_t getMagicNumber() override ;
+    ByteOrder & getByteOrder() override ;
+
+    bool     hasDictionary() override ;
+    bool     isLastBlock() override ;
+    string   toString() override ;
+    size_t   write(ByteBuffer & byteBuffer) override ;
 
     // Methods are not used in this class but must be part of IBlockHeader interface
 
-    size_t getBufferEndingPosition() const;
-    size_t getBufferStartingPosition() const;
-    void   setBufferStartingPosition(size_t bufferStartingPosition);
-    size_t nextBufferStartingPosition() const;
-    size_t firstEventStartingPosition() const;
-    size_t bytesRemaining(size_t pos) const;
+    size_t getBufferEndingPosition() override;
+    size_t getBufferStartingPosition() override;
+    void   setBufferStartingPosition(size_t bufferStartingPosition) override;
+    size_t nextBufferStartingPosition() override;
+    size_t firstEventStartingPosition() override;
+    size_t bytesRemaining(size_t pos) override;
 
+    //-/////////////////////////////////////////////
 
     int main(int argc, char **argv);
 

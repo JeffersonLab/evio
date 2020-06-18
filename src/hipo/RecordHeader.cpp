@@ -132,6 +132,47 @@ RecordHeader & RecordHeader::operator=(const RecordHeader& head) {
     return *this;
 }
 
+
+    /**
+     * Copy method.
+     * @param header  header to copy.
+     */
+    void RecordHeader::copy(std::shared_ptr<RecordHeader> const & head) {
+
+        if (this != head.get()) {
+            position                 = head->position;
+            recordLength             = head->recordLength;
+            recordNumber             = head->recordNumber;
+            recordLengthWords        = head->recordLengthWords;
+            recordUserRegisterFirst  = head->recordUserRegisterFirst;
+            recordUserRegisterSecond = head->recordUserRegisterSecond;
+
+            entries                   = head->entries;
+            bitInfo                   = head->bitInfo;
+            eventType                 = head->eventType;
+            headerLength              = head->headerLength;
+            headerLengthWords         = head->headerLengthWords;
+            userHeaderLength          = head->userHeaderLength;
+            userHeaderLengthWords     = head->userHeaderLengthWords;
+            indexLength               = head->indexLength;
+            dataLength                = head->dataLength;
+            dataLengthWords           = head->dataLengthWords;
+            compressedDataLength      = head->compressedDataLength;
+            compressedDataLengthWords = head->compressedDataLengthWords;
+            headerMagicWord           = head->headerMagicWord;
+            // don't bother with version as must be same
+
+            userHeaderLengthPadding     = head->userHeaderLengthPadding;
+            dataLengthPadding           = head->dataLengthPadding;
+            compressedDataLengthPadding = head->compressedDataLengthPadding;
+
+            byteOrder                   = head->byteOrder;
+            headerType                  = head->headerType;
+            compressionType             = head->compressionType;
+        }
+    }
+
+
 /** Reset generated data. */
 void RecordHeader::reset() {
     // Do NOT reset header type which is only set in constructor!
@@ -213,7 +254,7 @@ uint32_t RecordHeader::getCompressedRecordLength() const {
  * Defaults to little endian.
  * @return byte order of the file/buffer this header was read from.
  */
-const ByteOrder & RecordHeader::getByteOrder() const {return byteOrder;}
+ByteOrder & RecordHeader::getByteOrder() {return byteOrder;}
 
 /**
  * Get the position of this record in a file.
@@ -261,7 +302,7 @@ uint32_t  RecordHeader::getUserHeaderLengthWords() const {return userHeaderLengt
  * Get the Evio format version number.
  * @return Evio format version number.
  */
-uint32_t  RecordHeader::getVersion() const {return headerVersion;}
+uint32_t  RecordHeader::getVersion() {return headerVersion;}
 
 /**
  * Get the length of the uncompressed data in bytes.
@@ -309,7 +350,7 @@ uint32_t  RecordHeader::getHeaderLength() const {return headerLength;}
  * Get the length of this header data in words.
  * @return length of this header data in words.
     */
-uint32_t  RecordHeader::getHeaderWords() const {return headerLengthWords;}
+uint32_t  RecordHeader::getHeaderWords() {return headerLengthWords;}
 
 /**
  * Get the record number.
@@ -520,7 +561,7 @@ uint32_t RecordHeader::hasFirstEvent(bool hasFirst) {
  * Does this header have a first event in the user header?
  * @return true if header has a first event in the user header, else false.
  */
-bool RecordHeader::hasFirstEvent() const {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
+bool RecordHeader::hasFirstEvent() {return ((bitInfo & FIRST_EVENT_BIT) != 0);}
 
 /**
  * Set the bit which says record has a dictionary in the user header.
@@ -544,7 +585,7 @@ uint32_t RecordHeader::hasDictionary(bool hasFirst) {
  * Does this record have a dictionary in the user header?
  * @return true if record has a dictionary in the user header, else false.
  */
-bool RecordHeader::hasDictionary() const {return ((bitInfo & DICTIONARY_BIT) != 0);}
+bool RecordHeader::hasDictionary() {return ((bitInfo & DICTIONARY_BIT) != 0);}
 
 /**
  * Does this bitInfo arg indicate the existence of a dictionary in the user header?
@@ -1287,7 +1328,7 @@ void RecordHeader::readHeader(ByteBuffer & buffer) {
  * Returns a string representation of this record.
  * @return a string representation of this record.
  */
-string RecordHeader::toString() const {
+string RecordHeader::toString() {
 
     stringstream ss;
 
@@ -1334,39 +1375,39 @@ string RecordHeader::toString() const {
  * Get the size of the record)in 32 bit words.
  * @return size of the record)in 32 bit words.
  */
-uint32_t RecordHeader::getSize() const {return recordLengthWords;}
+uint32_t RecordHeader::getSize() {return recordLengthWords;}
 
 /**
  * Get the block number for this record)
  * In a file, this is usually sequential.
  * @return the number for this record)
  */
-uint32_t RecordHeader::getNumber() const {return recordNumber;}
+uint32_t RecordHeader::getNumber() {return recordNumber;}
 
 /**
  * Get the magic number the record)header which should be 0xc0da0100.
  * @return magic number in the record)
  */
-uint32_t RecordHeader::getMagicNumber() const {return headerMagicWord;}
+uint32_t RecordHeader::getMagicNumber() {return headerMagicWord;}
 
 /**
  * Is this the last record in the file or being sent over the network?
  * @return <code>true</code> if this is the last record in the file or being sent
  *         over the network, else <code>false</code>.
  */
-bool RecordHeader::isLastBlock() const {return isLastRecord();}
+bool RecordHeader::isLastBlock() {return isLastRecord();}
 
 /**
  * Get the source ID number if in CODA online context and data is coming from ROC.
  * @return source ID number if in CODA online context and data is coming from ROC.
  */
-uint32_t RecordHeader::getSourceId() const {return (uint32_t)recordUserRegisterFirst;}
+uint32_t RecordHeader::getSourceId() {return (uint32_t)recordUserRegisterFirst;}
 
 /**
  * Get the type of events in record (see values of {@link DataType}.
  * @return type of events in record.
  */
-uint32_t RecordHeader::getEventType() const {return eventType;}
+uint32_t RecordHeader::getEventType() {return eventType;}
 
 /**
  * Return  a meaningful string associated with event type.
@@ -1399,7 +1440,7 @@ string RecordHeader::eventTypeToString() const {
  * @param byteBuffer the byteBuffer to write to.
  * @return the number of bytes written.
  */
-uint32_t RecordHeader::write(ByteBuffer & byteBuffer) {
+    size_t RecordHeader::write(ByteBuffer & byteBuffer) {
     writeHeader(byteBuffer, byteBuffer.position());
     return HEADER_SIZE_BYTES;
 }
@@ -1408,7 +1449,7 @@ uint32_t RecordHeader::write(ByteBuffer & byteBuffer) {
  * Get the position in the buffer (bytes) of this record's last data word.<br>
  * @return position in the buffer (bytes) of this record's last data word.
  */
-size_t RecordHeader::getBufferEndingPosition() const {return 0ULL;}
+    size_t RecordHeader::getBufferEndingPosition() {return 0ULL;}
 
 /**
  * Get the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
@@ -1417,7 +1458,7 @@ size_t RecordHeader::getBufferEndingPosition() const {return 0ULL;}
  *
  * @return starting position in buffer (bytes) from which this header was read--if that happened.
  */
-size_t RecordHeader::getBufferStartingPosition() const {return 0ULL;}
+    size_t RecordHeader::getBufferStartingPosition() {return 0ULL;}
 
 /**
  * Set the starting position in the buffer (bytes) from which this header was read--if that happened.<br>
@@ -1435,7 +1476,7 @@ void RecordHeader::setBufferStartingPosition(size_t bufferStartingPosition) {}
  *
  * @return the start of the next record header in some buffer is located (bytes).
  */
-size_t RecordHeader::nextBufferStartingPosition() const {return 0ULL;}
+    size_t RecordHeader::nextBufferStartingPosition() {return 0ULL;}
 
 /**
  * Determines where the start of the first event in this record is located
@@ -1446,7 +1487,7 @@ size_t RecordHeader::nextBufferStartingPosition() const {return 0ULL;}
  *         that this entire record is part of a logical record that spans at least
  *         three physical records.
  */
-size_t RecordHeader::firstEventStartingPosition() const {return 0ULL;}
+    size_t RecordHeader::firstEventStartingPosition() {return 0ULL;}
 
 /**
  * Gives the bytes remaining in this record given a buffer position. The position is an absolute
@@ -1457,7 +1498,7 @@ size_t RecordHeader::firstEventStartingPosition() const {return 0ULL;}
  * @return the number of bytes remaining in this record.
  * @throws EvioException if position out of bounds
  */
-size_t RecordHeader::bytesRemaining(size_t pos) const {return 0ULL;}
+    size_t RecordHeader::bytesRemaining(size_t pos) {return 0U;}
 
 //----------------------------------------------------------------------------
 // Utility methods
