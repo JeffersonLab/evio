@@ -39,6 +39,21 @@ namespace evio {
         public:
 
             /**
+              * This <code>enum</code> denotes the status of a read/write. <b>Used internally.</b><br>
+              * SUCCESS indicates a successful read. <br>
+              * END_OF_FILE indicates that we cannot read because an END_OF_FILE has occurred.
+              * Technically this means that whatever we are trying to read is larger than the
+              * buffer's unread bytes.<br>
+              * CANNOT_OPEN_FILE indicates that we cannot write because the destination file cannot be opened.<br>
+              * EVIO_EXCEPTION indicates that an EvioException was thrown during a read/write, possibly
+              * due to out of range values.<br>
+              * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
+              */
+            enum ReadWriteStatus {
+                SUCCESS = 0, END_OF_FILE, CANNOT_OPEN_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
+            };
+
+            /**
              * This method can be used to avoid creating additional EvioReader
              * objects by reusing this one with another buffer.
              *
@@ -46,7 +61,7 @@ namespace evio {
              * @throws IOException   if read failure.
              * @throws EvioException if first block number != 1 when checkBlkNumSeq arg is true.
              */
-            virtual void setBuffer(ByteBuffer & buf) = 0;
+            virtual void setBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
 
             /**
              * Has {@link #close()} been called (without reopening by calling
@@ -120,7 +135,7 @@ namespace evio {
              * Get the byte buffer being read. Not useful when reading files.
              * @return the byte buffer being read (in certain cases).
              */
-            virtual ByteBuffer & getByteBuffer() = 0;
+            virtual std::shared_ptr<ByteBuffer> getByteBuffer() = 0;
 
             /**
              * Get the size of the file being read, in bytes.
@@ -157,9 +172,8 @@ namespace evio {
              *
              * @param  index number of event desired, starting at 1, from beginning of file/buffer
              * @return the parsed event at the given index or null if none
-             * @throws IOException if failed file access
-             * @throws EvioException if failed read due to bad file/buffer format;
-             *                       if out of memory;
+             * @throws EvioException if failed file access;
+             *                       if failed read due to bad file/buffer format;
              *                       if index out of bounds;
              *                       if object closed
              */
@@ -213,26 +227,28 @@ namespace evio {
             virtual void parseEvent(std::shared_ptr<EvioEvent> evioEvent) = 0;
 
             /**
-             * Get an evio bank or event in byte array form.
-             * @param eventNumber number of event of interest (starting at 1).
-             * @return array containing bank's/event's bytes.
+             * Get an evio bank or event in vector-of-bytes form.
+             * @param evNumber number of event of interest (starting at 1).
+             * @param vec vector to contain bank's/event's bytes.
+             * @return number of bytes in returned event.
              * @throws IOException if failed file access
              * @throws EvioException if eventNumber out of bounds (starts at 1);
              *                       if the event number does not correspond to an existing event;
              *                       if object closed
              */
-            virtual std::vector<uint8_t> getEventArray(size_t eventNumber) = 0;
+            virtual uint32_t getEventArray(size_t evNumber, std::vector<uint8_t> & vec) = 0;
 
             /**
              * Get an evio bank or event in ByteBuffer form.
-             * @param eventNumber number of event of interest
-             * @return buffer containing bank's/event's bytes.
+             * @param evNumber number of event of interest
+             * @param buf buffer to contain bank's/event's bytes.
+             * @return number of bytes in returned event.
              * @throws IOException if failed file access
              * @throws EvioException if eventNumber is out of bounds;
              *                       if the event number does not correspond to an existing event;
              *                       if object closed
              */
-            virtual ByteBuffer & getEventBuffer(size_t eventNumber) = 0;
+            virtual uint32_t getEventBuffer(size_t evNumber, ByteBuffer & buf) = 0;
 
             /**
              * The equivalent of rewinding the file. What it actually does
