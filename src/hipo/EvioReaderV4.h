@@ -17,15 +17,14 @@
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <mutex>
 
-
+#include "ByteOrder.h"
+#include "ByteBuffer.h"
 #include "IEvioReader.h"
 #include "IBlockHeader.h"
 #include "BlockHeaderV2.h"
 #include "BlockHeaderV4.h"
-#include "ByteOrder.h"
-#include "ByteBuffer.h"
-#include "EvioReader.h"
 #include "EventParser.h"
 
 
@@ -72,9 +71,6 @@ namespace evio {
         /** Mask to get version number from 6th int in block. */
         static const uint32_t VERSION_MASK = 0xff;
 
-//        /** Root element tag for XML file */
-//        static constexpr string ROOT_ELEMENT {"evio-data"};
-
         /** Default size for a single file read in bytes when reading
          *  evio format 1-3. Equivalent to 500, 32,768 byte blocks.
          *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
@@ -100,7 +96,7 @@ namespace evio {
          * {@link ByteOrder#BIG_ENDIAN} or
          * {@link ByteOrder#LITTLE_ENDIAN}.
          */
-        ByteOrder byteOrder {BYTE_ORDER::LITTLE_ENDIAN};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
         /** Size of the first block in bytes. */
         uint32_t firstBlockSize = 0;
@@ -126,6 +122,12 @@ namespace evio {
         /** Reference to first block header. */
         std::shared_ptr<IBlockHeader> firstBlockHeader;
 
+        /** Reference to first block header if evio versions 1-3. */
+        std::shared_ptr<BlockHeaderV2> firstBlockHeader2;
+
+        /** Reference to first block header if version 4. */
+        std::shared_ptr<BlockHeaderV4> firstBlockHeader4;
+
         /** Block number expected when reading. Used to check sequence of blocks. */
         uint32_t blockNumberExpected = 1;
 
@@ -135,6 +137,9 @@ namespace evio {
         /** Is this the last block in the file or buffer? */
         bool lastBlock = false;
 
+        /** Is this library made completely thread-safe? */
+        bool synchronized = false;
+
         /**
          * Version 4 files may have an xml format dictionary in the
          * first event of the first block.
@@ -142,13 +147,21 @@ namespace evio {
         string dictionaryXML;
 
         /** The buffer being read. */
-        ByteBuffer byteBuffer;
+        std::shared_ptr<ByteBuffer> byteBuffer;
 
         /** Parser object for this file/buffer. */
         std::shared_ptr<EventParser> parser;
 
         /** Initial position of buffer or mappedByteBuffer when reading a file. */
         size_t initialPosition = 0;
+
+        /** Vector containing each event's position.
+         * In Java this was contained in MemoryMappedHandler class. */
+        std::vector<uint32_t> eventPositions;
+
+        /** Mutex used for making thread safe. */
+        std::mutex mtx;
+
 
         //------------------------
         // File specific members
@@ -200,49 +213,43 @@ namespace evio {
 
         //------------------------
 
+        size_t generateEventPositions(std::shared_ptr<ByteBuffer> & byteBuffer);
+
     public:
 
-        explicit EvioReaderV4(string const & path, bool checkBlkNumSeq = false);
+        explicit EvioReaderV4(string const & path, bool checkBlkNumSeq = false, bool synced = false);
+        explicit EvioReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkBlkNumSeq = false, bool synced = false);
 
-        explicit EvioReaderV4(ByteBuffer & byteBuffer, bool checkBlkNumSeq = false);
 
-
-        /*synchronized*/ void setBuffer(ByteBuffer & buf) override;
-
+        /*synchronized*/ void setBuffer(std::shared_ptr<ByteBuffer> & buf) override;
         /*synchronized*/ bool isClosed() override;
-
         bool checkBlockNumberSequence() override;
-
-        ByteOrder getByteOrder() override;
+        ByteOrder & getByteOrder() override;
         uint32_t getEvioVersion() override;
-
         string getPath() override;
 
-        std::shared_ptr<EventParser> getParser() override;
+        std::shared_ptr<EventParser> & getParser() override;
         void setParser(std::shared_ptr<EventParser> & evParser) override;
 
         string getDictionaryXML() override;
         bool hasDictionaryXML() override;
 
         size_t getNumEventsRemaining() override;
-
-        ByteBuffer & getByteBuffer() override ;
-
+        std::shared_ptr<ByteBuffer> getByteBuffer() override ;
         size_t fileSize() override;
-
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
 
     protected:
 
-        void parseFirstHeader(ByteBuffer & headerBuf);
-        EvioReader::ReadStatus processNextBlock();
+        void parseFirstHeader(std::shared_ptr<ByteBuffer> & headerBuf);
+        IEvioReader::ReadWriteStatus processNextBlock();
 
     private:
 
         void prepareForSequentialRead();
-        void prepareForBufferRead(ByteBuffer & buffer) const;
+        void prepareForBufferRead(std::shared_ptr<ByteBuffer> & buffer) const;
 
-        void readDictionary(ByteBuffer & buffer);
+        void readDictionary(std::shared_ptr<ByteBuffer> & buffer);
         /*synchronized*/ std::shared_ptr<EvioEvent> getEventV4(size_t index);
 
     public:
@@ -252,9 +259,8 @@ namespace evio {
         /*synchronized*/ std::shared_ptr<EvioEvent> nextEvent() override ;
         /*synchronized*/ std::shared_ptr<EvioEvent> parseNextEvent() override ;
         void parseEvent(std::shared_ptr<EvioEvent> evioEvent) override ;
-        std::vector<uint8_t> getEventArray(size_t eventNumber) override ;
-        uint32_t std::vector<uint8_t> EvioReaderV4::getEventArray(size_t evNumber, std::vector<uint8_t> & vec) {
-        ByteBuffer & getEventBuffer(size_t eventNumber) override ;
+        uint32_t getEventArray(size_t evNumber, std::vector<uint8_t> & vec) override;
+        uint32_t getEventBuffer(size_t evNumber, ByteBuffer & buf) override;
 
     private:
 
@@ -266,8 +272,8 @@ namespace evio {
 
         /*synchronized*/ void rewind() override ;
         /*synchronized*/ size_t position() override;
-
         /*synchronized*/ void close() override ;
+
         std::shared_ptr<IBlockHeader> getCurrentBlockHeader() override ;
         std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber) override ;
 

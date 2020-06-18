@@ -28,8 +28,8 @@ namespace evio {
         if (sequentialRead) {
             currentState->filePosition = file.tellg();
         }
-        currentState->byteBufferLimit = byteBuffer.limit();
-        currentState->byteBufferPosition = byteBuffer.position();
+        currentState->byteBufferLimit = byteBuffer->limit();
+        currentState->byteBufferPosition = byteBuffer->position();
 
         if (evioVersion > 3) {
             currentState->blockHeader4 = blockHeader4;
@@ -54,8 +54,8 @@ namespace evio {
         if (sequentialRead) {
             file.seekg(state->filePosition);
         }
-        byteBuffer.limit(state->byteBufferLimit);
-        byteBuffer.position(state->byteBufferPosition);
+        byteBuffer->limit(state->byteBufferLimit);
+        byteBuffer->position(state->byteBufferPosition);
 
         if (evioVersion > 3) {
             blockHeader = blockHeader4 = state->blockHeader4;
@@ -82,7 +82,7 @@ namespace evio {
      * @throws EvioException if file arg is null;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
-    EvioReaderV4::EvioReaderV4(string const & path, bool checkBlkNumSeq) {
+    EvioReaderV4::EvioReaderV4(string const & path, bool checkBlkNumSeq, bool synced) {
 
         if (path.empty()) {
             throw EvioException("path is empty");
@@ -100,6 +100,7 @@ namespace evio {
         }
 
         checkBlockNumSeq = checkBlkNumSeq;
+        synchronized = synced;
         sequentialRead = true;
         initialPosition = 0;
 
@@ -108,8 +109,8 @@ namespace evio {
 
         // Create buffer of size 32 bytes
         size_t bytesToRead = 32;
-        ByteBuffer headerBuffer(bytesToRead);
-        auto headerBytes = headerBuffer.array();
+        auto headerBuffer = std::make_shared<ByteBuffer>(bytesToRead);
+        auto headerBytes = headerBuffer->array();
 
         // Read 32 bytes of file's first block header
         file.read(reinterpret_cast<char *>(headerBytes), bytesToRead);
@@ -120,7 +121,7 @@ namespace evio {
         parseFirstHeader(headerBuffer);
         file.seekg(0);
 
-        parser =  std::make_shared<EventParser>();
+        parser = std::make_shared<EventParser>();
 
         // What we do from here depends on the evio format version.
         // Do not use memory mapping as the Java version did.
@@ -158,17 +159,18 @@ namespace evio {
      * @throws EvioException if buffer arg is null;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
-    EvioReaderV4::EvioReaderV4(ByteBuffer & bb, bool checkBlkNumSeq) {
+    EvioReaderV4::EvioReaderV4(std::shared_ptr<ByteBuffer> & bb, bool checkBlkNumSeq, bool synced) {
 
         checkBlockNumSeq = checkBlkNumSeq;
-        bb.slice(byteBuffer); // remove necessity to track initial position
+        synchronized = synced;
+        byteBuffer = bb->slice(); // remove necessity to track initial position
 
         // Look at the first block header to get various info like endianness and version.
         // Store it for later reference in blockHeader2,4 and in variables.
         // Position is moved past header.
         parseFirstHeader(byteBuffer);
         // Move position back to beginning
-        byteBuffer.position(0);
+        byteBuffer->position(0);
 
         // For the latest evio format, generate a table
         // of all event positions in buffer for random access.
@@ -185,12 +187,146 @@ namespace evio {
         else {
             // Setting the byte order is only necessary if someone hands
             // this method a buffer in which the byte order is improperly set.
-            byteBuffer.order(byteOrder);
+            byteBuffer->order(byteOrder);
             prepareForBufferRead(byteBuffer);
         }
 
         parser =  std::make_shared<EventParser>();
     }
+
+
+    /**
+     * Generate a table (vector) of positions of events in file/buffer.
+     * This method does <b>not</b> affect the byteBuffer position, eventNumber,
+     * or lastBlock values. Only called if there are at least 32 bytes available.
+     * Valid only in versions 4 and later.
+     *
+     * @param bb buffer to analyze
+     * @return the number of bytes representing all the full blocks
+     *         contained in the given byte buffer.
+     * @throws EvioException if bad file format
+     */
+    size_t EvioReaderV4::generateEventPositions(std::shared_ptr<ByteBuffer> & bb) {
+
+            uint32_t      blockSize, blockHdrSize, blockEventCount, magicNum;
+            uint32_t      byteInfo, byteLen, bytesLeft, position;
+            bool          firstBlock=true, hasDictionary=false;
+//            bool          curLastBlock;
+
+            eventPositions.reserve(20000);
+
+            // Start at the beginning of byteBuffer
+            position  = 0;
+            bytesLeft = bb->limit();
+
+            while (bytesLeft > 0) {
+                // Check to see if enough data to read block header.
+                // If not return the amount of memory we've used/read.
+                if (bytesLeft < 32) {
+//std::cout << "return, not enough to read header, bytes left = " << bytesLeft << std::endl;
+                    return position;
+                }
+
+                // File is now positioned before block header.
+                // Look at block header to get info.  Swapping is taken care of
+                byteInfo        = bb->getUInt(position + 4*BlockHeaderV4::EV_VERSION);
+                blockSize       = bb->getUInt(position + 4*BlockHeaderV4::EV_BLOCKSIZE);
+                blockHdrSize    = bb->getUInt(position + 4*BlockHeaderV4::EV_HEADERSIZE);
+                blockEventCount = bb->getUInt(position + 4*BlockHeaderV4::EV_COUNT);
+                magicNum        = bb->getUInt(position + 4*BlockHeaderV4::EV_MAGIC);
+
+//            std::cout << "    genEvTablePos: pos " << position <<
+//                               ", blk ev count = " << blockEventCount <<
+//                               ", blockSize = " << blockSize <<
+//                               ", blockHdrSize = " << blockHdrSize << showbase <<
+//                               ", byteInfo = " << hex << byteInfo <<
+//                               ", magic # = " << magicNum << dec << std::endl;
+
+                // If magic # is not right, file is not in proper format
+                if (magicNum != BlockHeaderV4::MAGIC_NUMBER) {
+                    throw EvioException("Bad evio format: block header magic # incorrect");
+                }
+
+                // Check lengths in block header
+                if (blockSize < 8 || blockHdrSize < 8) {
+                    throw EvioException("Bad evio format: (block: total len = " + std::to_string(blockSize) +
+                                        ", header len = " + std::to_string(blockHdrSize) + ")" );
+                }
+
+                // Check to see if the whole block is within the mapped memory.
+                // If not return the amount of memory we've used/read.
+                if (4*blockSize > bytesLeft) {
+//std::cout << "    4*blockSize = " << std::to_string(4*blockSize) + " >? bytesLeft = " <<
+//             std::to_string(bytesLeft) + ", pos = " + std::to_string(position) << std::endl;
+//std::cout << "return, not enough to read all block data" << std::endl;
+                    return position;
+                }
+
+                blockCount++;
+//            curLastBlock = BlockHeaderV4.isLastBlock(byteInfo);
+                if (firstBlock) {
+                    hasDictionary = BlockHeaderV4::hasDictionary(byteInfo);
+                }
+
+//std::cout << "    genEvTablePos: blk count = " << blockCount <<
+//                   ", total ev count = " << (eventCount + blockEventCount) <<
+//                   "\n                   firstBlock = " << firstBlock <<
+//                /*   ", isLastBlock = " + curLastBlock + */
+//                   ", hasDict = " << hasDictionary <<
+//                   ", pos = " << position << std::endl;
+
+                // Hop over block header to data
+                position  += 4*blockHdrSize;
+                bytesLeft -= 4*blockHdrSize;
+
+//std::cout << "    hopped blk hdr, bytesLeft = " << bytesLeft << ", pos = " << position << std::endl;
+
+                // Check for a dictionary - the first event in the first block.
+                // It's not included in the header block count, but we must take
+                // it into account by skipping over it.
+                if (firstBlock && hasDictionary) {
+                    // Get its length - bank's len does not include itself
+                    byteLen = 4*(bb->getUInt(position) + 1);
+
+                    if (byteLen < 4) {
+                        throw EvioException("Bad evio format: bad bank length");
+                    }
+
+                    // Skip over dictionary
+                    position  += byteLen;
+                    bytesLeft -= byteLen;
+//std::cout << "    hopped dict, dic bytes = " << byteLen << ", bytesLeft = " <<
+//             bytesLeft << ", pos = " << position << std::endl;
+                }
+
+                firstBlock = false;
+
+                // For each event in block, store its location
+                for (int i=0; i < blockEventCount; i++) {
+                    // Sanity check - must have at least 1 header's amount left
+                    if (bytesLeft < 8) {
+                        throw EvioException("Bad evio format: not enough data to read event (bad bank len?)");
+                    }
+
+                    // Get length of current event (including full header)
+                    byteLen = 4*(bb->getInt(position) + 1);
+                    if (byteLen < 4 || bytesLeft < byteLen) {
+                        throw EvioException("Bad evio format: bad bank length");
+                    }
+                    bytesLeft -= byteLen;
+
+                    // Store current position
+                    eventPositions.push_back(position);
+                    eventCount++;
+
+                    position += byteLen;
+//std::cout << "    hopped event " << (i+1) << ", bytesLeft = " << bytesLeft << ", pos = " << position << std::endl;
+                }
+            }
+
+            return position;
+    }
+
 
     /**
      * This method can be used to avoid creating additional EvioReader
@@ -202,7 +338,7 @@ namespace evio {
      * @throws EvioException if buf is null;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
-    void EvioReaderV4::setBuffer(ByteBuffer & buf) {
+    void EvioReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         close();
 
         lastBlock           =  false;
@@ -211,12 +347,12 @@ namespace evio {
         eventCount          = -1;
         blockNumberExpected =  1;
         dictionaryXML       =  "";
-        initialPosition     =  buf.position();
+        initialPosition     =  buf->position();
         sequentialRead      = false;
 
-        buf.slice(byteBuffer);
+        byteBuffer = buf->slice();
         parseFirstHeader(byteBuffer);
-        byteBuffer.position(0);
+        byteBuffer->position(0);
 
         if (evioVersion > 3) {
             generateEventPositions(byteBuffer);
@@ -228,7 +364,7 @@ namespace evio {
             }
         }
         else {
-            byteBuffer.order(byteOrder);
+            byteBuffer->order(byteOrder);
             prepareForBufferRead(byteBuffer);
         }
 
@@ -254,7 +390,7 @@ namespace evio {
      * Get the byte order of the file/buffer being read.
      * @return byte order of the file/buffer being read.
      */
-    ByteOrder EvioReaderV4::getByteOrder() {return byteOrder;}
+    ByteOrder & EvioReaderV4::getByteOrder() {return byteOrder;}
 
     /**
      * Get the evio version number.
@@ -272,7 +408,7 @@ namespace evio {
      * Get the file/buffer parser.
      * @return file/buffer parser.
      */
-    std::shared_ptr<EventParser> EvioReaderV4::getParser() {return parser;}
+    std::shared_ptr<EventParser> & EvioReaderV4::getParser() {return parser;}
 
     /**
      * Set the file/buffer parser.
@@ -309,7 +445,7 @@ namespace evio {
      * For reading buffers it returns the buffer being read.
      * @return the byte buffer being read (in certain cases).
      */
-    ByteBuffer & EvioReaderV4::getByteBuffer() {return byteBuffer;}
+    std::shared_ptr<ByteBuffer> EvioReaderV4::getByteBuffer() {return byteBuffer;}
 
     /**
      * Get the size of the file being read, in bytes.
@@ -335,27 +471,27 @@ namespace evio {
      * @throws EvioException if buffer too small, contains invalid data,
      *                       or bad block # sequence
      */
-    void EvioReaderV4::parseFirstHeader(ByteBuffer & headerBuf) {
+    void EvioReaderV4::parseFirstHeader(std::shared_ptr<ByteBuffer> & headerBuf) {
 
         // Check buffer length
-        headerBuf.position(0);
-        if (headerBuf.remaining() < 32) {
+        headerBuf->position(0);
+        if (headerBuf->remaining() < 32) {
             throw EvioException("buffer too small");
         }
 
         // Get the file's version # and byte order
-        byteOrder = headerBuf.order();
+        byteOrder = headerBuf->order();
 
-        int magicNumber = headerBuf.getInt(MAGIC_OFFSET);
+        int magicNumber = headerBuf->getInt(MAGIC_OFFSET);
 
         if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
             swap = true;
 
             byteOrder = byteOrder.getOppositeEndian();
-            headerBuf.order(byteOrder);
+            headerBuf->order(byteOrder);
 
             // Reread magic number to make sure things are OK
-            magicNumber = headerBuf.getInt(MAGIC_OFFSET);
+            magicNumber = headerBuf->getInt(MAGIC_OFFSET);
             if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
                 std::cout << "ERROR reread magic # (" << std::to_string(magicNumber) <<
                           ") & still not right" << std::endl;
@@ -364,7 +500,7 @@ namespace evio {
         }
 
         // Check the version number. This requires peeking ahead 5 ints or 20 bytes.
-        evioVersion = headerBuf.getInt(VERSION_OFFSET) & VERSION_MASK;
+        evioVersion = headerBuf->getInt(VERSION_OFFSET) & VERSION_MASK;
         if (evioVersion < 1)  {
             throw EvioException("bad version");
         }
@@ -375,32 +511,32 @@ namespace evio {
 
 //                int pos = 0;
 //                std::cout << "BlockHeader v4:" << std::endl << hex << showbase;
-//                std::cout << "   block length  = " << headerBuf.getInt(pos) << std::endl; pos+=4;
-//                std::cout << "   block number  = " << headerBuf.getInt(pos) << std::endl; pos+=4;
-//                std::cout << "   header length = " << headerBuf.getInt(pos) << std::endl; pos+=4;
-//                std::cout << "   event count   = " << headerBuf.getInt(pos) << std::endl; pos+=8;
-//                std::cout << "   version       = " << headerBuf.getInt(pos) << std::endl; pos+=8;
-//                std::cout << "   magic number  = " << headerBuf.getInt(pos) << std::endl; pos+=4;
+//                std::cout << "   block length  = " << headerBuf->getInt(pos) << std::endl; pos+=4;
+//                std::cout << "   block number  = " << headerBuf->getInt(pos) << std::endl; pos+=4;
+//                std::cout << "   header length = " << headerBuf->getInt(pos) << std::endl; pos+=4;
+//                std::cout << "   event count   = " << headerBuf->getInt(pos) << std::endl; pos+=8;
+//                std::cout << "   version       = " << headerBuf->getInt(pos) << std::endl; pos+=8;
+//                std::cout << "   magic number  = " << headerBuf->getInt(pos) << std::endl; pos+=4;
 //                std::cout << std::endl << dec;
 
             // Read the header data
-            blockHeader4->setSize(        headerBuf.getInt());
-            blockHeader4->setNumber(      headerBuf.getInt());
-            blockHeader4->setHeaderLength(headerBuf.getInt());
-            blockHeader4->setEventCount(  headerBuf.getInt());
-            blockHeader4->setReserved1(   headerBuf.getInt());
+            blockHeader4->setSize(        headerBuf->getInt());
+            blockHeader4->setNumber(      headerBuf->getInt());
+            blockHeader4->setHeaderLength(headerBuf->getInt());
+            blockHeader4->setEventCount(  headerBuf->getInt());
+            blockHeader4->setReserved1(   headerBuf->getInt());
 
             // Use 6th word to set bit info & version
-            blockHeader4->parseToBitInfo(headerBuf.getInt());
+            blockHeader4->parseToBitInfo(headerBuf->getInt());
             blockHeader4->setVersion(evioVersion);
             lastBlock = blockHeader4->getBitInfo(1);
-            blockHeader4->setReserved2(headerBuf.getInt());
-            blockHeader4->setMagicNumber(headerBuf.getInt());
+            blockHeader4->setReserved2(headerBuf->getInt());
+            blockHeader4->setMagicNumber(headerBuf->getInt());
             blockHeader4->setByteOrder(byteOrder);
             blockHeader = blockHeader4;
 
             // Copy it
-            firstBlockHeader = std::make_shared<BlockHeaderV4>(blockHeader4);
+            firstBlockHeader = firstBlockHeader4 = std::make_shared<BlockHeaderV4>(blockHeader4);
 
             // Deal with non-standard header lengths here
             int64_t headerLenDiff = blockHeader4->getHeaderLength() - BlockHeaderV4::HEADER_SIZE;
@@ -425,20 +561,20 @@ namespace evio {
             blockHeader2->setBufferStartingPosition(0);
 
             // read the header data.
-            blockHeader2->setSize(        headerBuf.getInt());
-            blockHeader2->setNumber(      headerBuf.getInt());
-            blockHeader2->setHeaderLength(headerBuf.getInt());
-            blockHeader2->setStart(       headerBuf.getInt());
-            blockHeader2->setEnd(         headerBuf.getInt());
+            blockHeader2->setSize(        headerBuf->getInt());
+            blockHeader2->setNumber(      headerBuf->getInt());
+            blockHeader2->setHeaderLength(headerBuf->getInt());
+            blockHeader2->setStart(       headerBuf->getInt());
+            blockHeader2->setEnd(         headerBuf->getInt());
             // skip version
-            headerBuf.getInt();
+            headerBuf->getInt();
             blockHeader2->setVersion(evioVersion);
-            blockHeader2->setReserved1(   headerBuf.getInt());
-            blockHeader2->setMagicNumber( headerBuf.getInt());
+            blockHeader2->setReserved1(   headerBuf->getInt());
+            blockHeader2->setMagicNumber( headerBuf->getInt());
             blockHeader2->setByteOrder(byteOrder);
             blockHeader = blockHeader2;
 
-            firstBlockHeader = std::make_shared<BlockHeaderV2>(blockHeader2);
+            firstBlockHeader = firstBlockHeader2 = std::make_shared<BlockHeaderV2>(blockHeader2);
         }
 
         // Store this for later regurgitation of blockCount
@@ -480,15 +616,14 @@ namespace evio {
                           DEFAULT_READ_BYTES : bytesLeftInFile;
         }
 
-        if (byteBuffer.capacity() < bytesToRead) {
-            ByteBuffer bb(bytesToRead);
-            byteBuffer = std::move(bb);
-            byteBuffer.order(byteOrder);
+        if (byteBuffer->capacity() < bytesToRead) {
+            byteBuffer = std::make_shared<ByteBuffer>(bytesToRead);
+            byteBuffer->order(byteOrder);
         }
-        byteBuffer.clear().limit(bytesToRead);
+        byteBuffer->clear().limit(bytesToRead);
 
         // Read the first chunk of data from file
-        file.read((char *)(byteBuffer.array() + byteBuffer.arrayOffset()), bytesToRead);
+        file.read((char *)(byteBuffer->array() + byteBuffer->arrayOffset()), bytesToRead);
         if (file.fail()) {
             throw EvioException("file read failure");
         }
@@ -504,10 +639,10 @@ namespace evio {
      * Sets the proper buffer position for first-time read AFTER the first header.
      * @param buffer buffer to prepare
      */
-    void EvioReaderV4::prepareForBufferRead(ByteBuffer & buffer) const {
+    void EvioReaderV4::prepareForBufferRead(std::shared_ptr<ByteBuffer> & buffer) const {
         // Position after header
         size_t pos = 32;
-        buffer.position(pos);
+        buffer->position(pos);
 
         // Deal with non-standard first header length.
         // No non-standard header lengths in evio version 2 & 3 files.
@@ -519,7 +654,7 @@ namespace evio {
             for (int i=0; i < headerLenDiff; i++) {
                 //std::cout << "Skip extra header int");
                 pos += 4;
-                buffer.position(pos);
+                buffer->position(pos);
             }
         }
 
@@ -552,11 +687,11 @@ namespace evio {
      * @return status of read attempt
      * @throws EvioException if file access problems, evio format problems
      */
-    EvioReader::ReadStatus EvioReaderV4::processNextBlock() {
+    IEvioReader::ReadWriteStatus EvioReaderV4::processNextBlock() {
 
         // We already read the last block header
         if (lastBlock) {
-            return EvioReader::ReadStatus::END_OF_FILE;
+            return IEvioReader::ReadWriteStatus::END_OF_FILE;
         }
 
         try {
@@ -568,7 +703,7 @@ namespace evio {
                         // How much of the file is left to read?
                         size_t bytesLeftInFile = fileBytes - file.tellg();
                         if (bytesLeftInFile < 32L) {
-                            return EvioReader::ReadStatus::END_OF_FILE;
+                            return IEvioReader::ReadWriteStatus::END_OF_FILE;
                         }
 
                         // The block size is 32kB which is on the small side.
@@ -578,21 +713,21 @@ namespace evio {
                                              DEFAULT_READ_BYTES : bytesLeftInFile;
 
                         // Reset buffer
-                        byteBuffer.position(0).limit(bytesToRead);
+                        byteBuffer->position(0).limit(bytesToRead);
 
                         // Read the entire chunk of data
-                        file.read((char *)(byteBuffer.array() + byteBuffer.arrayOffset()), bytesToRead);
+                        file.read((char *)(byteBuffer->array() + byteBuffer->arrayOffset()), bytesToRead);
                         if (file.fail()) {
                             throw EvioException("file read failure");
                         }
-                        byteBuffer.limit(bytesToRead);
+                        byteBuffer->limit(bytesToRead);
 
                         // Now keeping track of pos in this new blockBuffer
                         blockHeader->setBufferStartingPosition(0);
                     }
                     else if (bytesInBuf % 32768 == 0) {
                         // Next block header starts at this position in buffer
-                        blockHeader->setBufferStartingPosition(byteBuffer.position());
+                        blockHeader->setBufferStartingPosition(byteBuffer->position());
                     }
                     else {
                         throw EvioException("file contains non-integral # of 32768 byte blocks");
@@ -601,7 +736,7 @@ namespace evio {
                 else {
                     // Enough data left to read len?
                     if (fileBytes - file.tellg() < 4L) {
-                        return EvioReader::ReadStatus::END_OF_FILE;
+                        return IEvioReader::ReadWriteStatus::END_OF_FILE;
                     }
 
                     // Read len of block in 32 bit words
@@ -616,28 +751,27 @@ namespace evio {
 
                     // Enough data left to read rest of block?
                     if (fileBytes - file.tellg() < blkBytes-4) {
-                        return EvioReader::ReadStatus::END_OF_FILE;
+                        return IEvioReader::ReadWriteStatus::END_OF_FILE;
                     }
 
                     // Create a buffer to hold the entire first block of data
-                    if (byteBuffer.capacity() >= blkBytes) {
-                        byteBuffer.clear();
-                        byteBuffer.limit(blkBytes);
+                    if (byteBuffer->capacity() >= blkBytes) {
+                        byteBuffer->clear();
+                        byteBuffer->limit(blkBytes);
                     }
                     else {
                         // Make this bigger than necessary so we're not constantly reallocating
-                        ByteBuffer bb(blkBytes + 10000);
-                        byteBuffer = std::move(bb);
-                        byteBuffer.limit(blkBytes);
-                        byteBuffer.order(byteOrder);
+                        byteBuffer = std::make_shared<ByteBuffer>(blkBytes + 10000);
+                        byteBuffer->limit(blkBytes);
+                        byteBuffer->order(byteOrder);
                     }
 
                     // Read the entire block of data.
                     // First put in length we just read, but leave position - 0
-                    byteBuffer.putInt(0, blkSize);
+                    byteBuffer->putInt(0, blkSize);
 
                     // Now the rest of the block (already put int, 4 bytes, in)
-                    file.read((char *)(byteBuffer.array() + byteBuffer.arrayOffset() + 4), blkBytes-4);
+                    file.read((char *)(byteBuffer->array() + byteBuffer->arrayOffset() + 4), blkBytes-4);
                     if (file.fail()) {
                         throw EvioException("file read failure");
                     }
@@ -647,59 +781,59 @@ namespace evio {
                 }
             }
             else {
-                if (byteBuffer.remaining() < 32) {
-                    byteBuffer.clear();
-                    return EvioReader::ReadStatus::END_OF_FILE;
+                if (byteBuffer->remaining() < 32) {
+                    byteBuffer->clear();
+                    return IEvioReader::ReadWriteStatus::END_OF_FILE;
                 }
                 // Record starting position
-                blockHeader->setBufferStartingPosition(byteBuffer.position());
+                blockHeader->setBufferStartingPosition(byteBuffer->position());
             }
 
             if (evioVersion >= 4) {
                 // Read the header data.
-                blockHeader4->setSize(byteBuffer.getInt());
-                blockHeader4->setNumber(byteBuffer.getInt());
-                blockHeader4->setHeaderLength(byteBuffer.getInt());
-                blockHeader4->setEventCount(byteBuffer.getInt());
-                blockHeader4->setReserved1(byteBuffer.getInt());
+                blockHeader4->setSize(byteBuffer->getInt());
+                blockHeader4->setNumber(byteBuffer->getInt());
+                blockHeader4->setHeaderLength(byteBuffer->getInt());
+                blockHeader4->setEventCount(byteBuffer->getInt());
+                blockHeader4->setReserved1(byteBuffer->getInt());
                 // Use 6th word to set bit info
-                blockHeader4->parseToBitInfo(byteBuffer.getInt());
+                blockHeader4->parseToBitInfo(byteBuffer->getInt());
                 blockHeader4->setVersion(evioVersion);
                 lastBlock = blockHeader4->getBitInfo(1);
-                blockHeader4->setReserved2(byteBuffer.getInt());
-                blockHeader4->setMagicNumber(byteBuffer.getInt());
+                blockHeader4->setReserved2(byteBuffer->getInt());
+                blockHeader4->setMagicNumber(byteBuffer->getInt());
                 blockHeader = blockHeader4;
 
                 // Deal with non-standard header lengths here
                 int64_t headerLenDiff = blockHeader4->getHeaderLength() - BlockHeaderV4::HEADER_SIZE;
                 // If too small quit with error since headers have a minimum size
                 if (headerLenDiff < 0) {
-                    return EvioReader::ReadStatus::EVIO_EXCEPTION;
+                    return IEvioReader::ReadWriteStatus::EVIO_EXCEPTION;
                 }
                     // If bigger, read extra ints
                 else if (headerLenDiff > 0) {
                     for (int i=0; i < headerLenDiff; i++) {
-                        byteBuffer.getInt();
+                        byteBuffer->getInt();
                     }
                 }
             }
             else if (evioVersion < 4) {
                 // read the header data
-                blockHeader2->setSize(byteBuffer.getInt());
-                blockHeader2->setNumber(byteBuffer.getInt());
-                blockHeader2->setHeaderLength(byteBuffer.getInt());
-                blockHeader2->setStart(byteBuffer.getInt());
-                blockHeader2->setEnd(byteBuffer.getInt());
+                blockHeader2->setSize(byteBuffer->getInt());
+                blockHeader2->setNumber(byteBuffer->getInt());
+                blockHeader2->setHeaderLength(byteBuffer->getInt());
+                blockHeader2->setStart(byteBuffer->getInt());
+                blockHeader2->setEnd(byteBuffer->getInt());
                 // skip version
-                byteBuffer.getInt();
+                byteBuffer->getInt();
                 blockHeader2->setVersion(evioVersion);
-                blockHeader2->setReserved1(byteBuffer.getInt());
-                blockHeader2->setMagicNumber(byteBuffer.getInt());
+                blockHeader2->setReserved1(byteBuffer->getInt());
+                blockHeader2->setMagicNumber(byteBuffer->getInt());
                 blockHeader = blockHeader2;
             }
             else {
                 // bad version # - should never happen
-                return EvioReader::ReadStatus::EVIO_EXCEPTION;
+                return IEvioReader::ReadWriteStatus::EVIO_EXCEPTION;
             }
 
             // check block number if so configured
@@ -709,21 +843,21 @@ namespace evio {
                     std::cout << "block # out of sequence, got " << std::to_string(blockHeader->getNumber()) +
                                  " expecting " << std::to_string(blockNumberExpected) << std::endl;
 
-                    return EvioReader::ReadStatus::EVIO_EXCEPTION;
+                    return IEvioReader::ReadWriteStatus::EVIO_EXCEPTION;
                 }
                 blockNumberExpected++;
             }
         }
         catch (EvioException & e) {
-            return EvioReader::ReadStatus::EVIO_EXCEPTION;
+            return IEvioReader::ReadWriteStatus::EVIO_EXCEPTION;
         }
 //        catch (BufferUnderflowException & a) {
 //            std::cout << "ERROR endOfBuffer " << a << std::endl;
-//            byteBuffer.clear();
-//            return EvioReader::ReadStatus::UNKNOWN_ERROR;
+//            byteBuffer->clear();
+//            return IEvioReader::ReadWriteStatus::UNKNOWN_ERROR;
 //        }
 
-        return EvioReader::ReadStatus::SUCCESS;
+        return IEvioReader::ReadWriteStatus::SUCCESS;
     }
 
 
@@ -737,24 +871,24 @@ namespace evio {
      * @throws EvioException if failed read due to bad buffer format;
      *                       if version 3 or earlier
      */
-    void EvioReaderV4::readDictionary(ByteBuffer & buffer) {
+    void EvioReaderV4::readDictionary(std::shared_ptr<ByteBuffer> & buffer) {
 
         if (evioVersion < 4) {
             throw EvioException("Unsupported version (" + std::to_string(evioVersion) + ")");
         }
 
         // How many bytes remain in this buffer?
-        size_t bytesRemaining = buffer.remaining();
+        size_t bytesRemaining = buffer->remaining();
         if (bytesRemaining < 12) {
             throw EvioException("Not enough data in buffer");
         }
 
         // Once here, we are assured the entire next event is in this buffer.
-        uint32_t length = buffer.getUInt();
+        uint32_t length = buffer->getUInt();
         bytesRemaining -= 4;
 
         // Since we're only interested in length, read but ignore rest of the header.
-        buffer.getInt();
+        buffer->getInt();
         bytesRemaining -= 4;
 
         // get the raw data
@@ -765,7 +899,7 @@ namespace evio {
 
         // Read in dictionary data
         uint8_t bytes[eventDataSizeBytes];
-        buffer.getBytes(bytes, eventDataSizeBytes);
+        buffer->getBytes(bytes, eventDataSizeBytes);
         std::vector<string> strs;
 
         // This is the very first event and must be a dictionary
@@ -812,8 +946,13 @@ namespace evio {
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if object closed
      */
-    /*synchronized*/ std::shared_ptr<EvioEvent> EvioReaderV4::getEventV4(size_t index) {
-        if (index > mappedMemoryHandler.getEventCount()) {
+    std::shared_ptr<EvioEvent> EvioReaderV4::getEventV4(size_t index) {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
+        if (index > getEventCount()) {
             return nullptr;
         }
 
@@ -827,11 +966,11 @@ namespace evio {
         auto event = EvioEvent::getInstance(header);
 
         uint32_t eventDataSizeBytes = 0;
-        uint32_t length = byteBuffer.getUInt();
+        uint32_t length = byteBuffer->getUInt();
         header->setLength(length);
 
         // Read and parse second header word
-        uint32_t word = byteBuffer.getUInt();
+        uint32_t word = byteBuffer->getUInt();
         header->setTag((word >> 16) & 0xfff);
         int dt = (word >> 8) & 0xff;
         // If only 7th bit set, it can be tag=0, num=0, type=0, padding=1.
@@ -849,9 +988,9 @@ namespace evio {
 
         // Read the raw data
         eventDataSizeBytes = 4*(length - 1);
-        event->setRawBytes((uint8_t *)(byteBuffer.array() + byteBuffer.arrayOffset() + byteBuffer.position()),
+        event->setRawBytes((uint8_t *)(byteBuffer->array() + byteBuffer->arrayOffset() + byteBuffer->position()),
                            (size_t)eventDataSizeBytes);
-        byteBuffer.position(byteBuffer.position() + eventDataSizeBytes);
+        byteBuffer->position(byteBuffer->position() + eventDataSizeBytes);
 
         event->setByteOrder(byteOrder);
         event->setEventNumber(++eventNumber);
@@ -870,7 +1009,12 @@ namespace evio {
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if object closed
      */
-    /*synchronized*/ std::shared_ptr<EvioEvent> EvioReaderV4::parseEvent(size_t index) {
+    std::shared_ptr<EvioEvent> EvioReaderV4::parseEvent(size_t index) {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
         auto event = getEvent(index);
         if (event != nullptr) parseEvent(event);
         return event;
@@ -893,7 +1037,12 @@ namespace evio {
      * @throws EvioException if failed read due to bad buffer format;
      *                       if object closed
      */
-    /*synchronized*/ std::shared_ptr<EvioEvent> EvioReaderV4::nextEvent() {
+    std::shared_ptr<EvioEvent> EvioReaderV4::nextEvent() {
+
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
 
         if (!sequentialRead && evioVersion > 3) {
             return getEvent(eventNumber+1);
@@ -905,7 +1054,7 @@ namespace evio {
 
         std::shared_ptr<BankHeader> header;
         auto event = EvioEvent::getInstance(header);
-        size_t currentPosition = byteBuffer.position();
+        size_t currentPosition = byteBuffer->position();
 
         // How many bytes remain in this block until we reach the next block header?
         uint32_t blkBytesRemaining = blockBytesRemaining();
@@ -918,11 +1067,11 @@ namespace evio {
         // (32768 bytes). Must see if we have to deal with an event crossing physical
         // record boundaries. Previously, java evio only read 1 block at a time.
         if (blkBytesRemaining == 0) {
-            EvioReader::ReadStatus status = processNextBlock();
-            if (status == EvioReader::ReadStatus::SUCCESS) {
+            IEvioReader::ReadWriteStatus status = processNextBlock();
+            if (status == IEvioReader::ReadWriteStatus::SUCCESS) {
                 return nextEvent();
             }
-            else if (status == EvioReader::ReadStatus::END_OF_FILE) {
+            else if (status == IEvioReader::ReadWriteStatus::END_OF_FILE) {
                 return nullptr;
             }
             else {
@@ -942,7 +1091,7 @@ namespace evio {
         // Version 1-3: No matter what, we can get the length of the next event.
         //              This is because we read in multiples of blocks each with
         //              an integral number of 32 bit words.
-        uint32_t length = byteBuffer.getUInt();
+        uint32_t length = byteBuffer->getUInt();
         header->setLength(length);
         blkBytesRemaining -= 4; // just read in 4 bytes
 
@@ -951,11 +1100,11 @@ namespace evio {
         // Don't really need the "if (version < 4)" here except for clarity.
         if (evioVersion < 4) {
             if (bufferBytesRemaining() == 0) {
-                EvioReader::ReadStatus status = processNextBlock();
-                if (status == EvioReader::ReadStatus::END_OF_FILE) {
+                IEvioReader::ReadWriteStatus status = processNextBlock();
+                if (status == IEvioReader::ReadWriteStatus::END_OF_FILE) {
                     return nullptr;
                 }
-                else if (status != EvioReader::ReadStatus::SUCCESS) {
+                else if (status != IEvioReader::ReadWriteStatus::SUCCESS) {
                     throw EvioException("Failed reading block header in nextEvent.");
                 }
                 blkBytesRemaining = blockBytesRemaining();
@@ -966,7 +1115,7 @@ namespace evio {
         // In any case, should be able to read the rest of the header.
 
         // Read and parse second header word
-        uint32_t word = byteBuffer.getUInt();
+        uint32_t word = byteBuffer->getUInt();
         header->setTag((word >> 16) & 0xfff);
         int dt = (word >> 8) & 0xff;
         header->setDataType(dt & 0x3f);
@@ -995,17 +1144,17 @@ namespace evio {
                                               blkBytesRemaining : bytesToGo;
 
                     // Read in bytes remaining in internal buffer
-                    byteBuffer.getBytes(bytes + offset, bytesToReadNow);
+                    byteBuffer->getBytes(bytes + offset, bytesToReadNow);
                     offset               += bytesToReadNow;
                     bytesToGo            -= bytesToReadNow;
                     blkBytesRemaining    -= bytesToReadNow;
 
                     if (blkBytesRemaining == 0) {
-                        EvioReader::ReadStatus status = processNextBlock();
-                        if (status == EvioReader::ReadStatus::END_OF_FILE) {
+                        IEvioReader::ReadWriteStatus status = processNextBlock();
+                        if (status == IEvioReader::ReadWriteStatus::END_OF_FILE) {
                             return nullptr;
                         }
-                        else if (status != EvioReader::ReadStatus::SUCCESS) {
+                        else if (status != IEvioReader::ReadWriteStatus::SUCCESS) {
                             throw EvioException("Failed reading block header after crossing boundary in nextEvent.");
                         }
 
@@ -1015,7 +1164,7 @@ namespace evio {
             }
 
             // Last (perhaps only) read
-            byteBuffer.getBytes(bytes + offset, bytesToGo);
+            byteBuffer->getBytes(bytes + offset, bytesToGo);
             event->setRawBytes(bytes, eventDataSizeBytes);
             event->setByteOrder(byteOrder); // add this to track endianness, timmer
             // Don't worry about dictionaries here as version must be 1-3
@@ -1041,7 +1190,12 @@ namespace evio {
      * @throws EvioException if read failure or bad format
      *                       if object closed
      */
-    /*synchronized*/ std::shared_ptr<EvioEvent> EvioReaderV4::parseNextEvent() {
+    std::shared_ptr<EvioEvent> EvioReaderV4::parseNextEvent() {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
         auto event = nextEvent();
         if (event != nullptr) {
             parseEvent(event);
@@ -1056,43 +1210,17 @@ namespace evio {
      * As useful as this sounds, most applications will probably call {@link #parseNextEvent()}
      * instead, since it combines combines getting the next event with parsing the next event.<p>
      *
-     * This method is only called by synchronized methods and therefore is not synchronized.
+     * This method is only called by locked methods and therefore is not locked itself.
      *
      * @param evioEvent the event to parse.
      * @throws EvioException if bad format
      */
     void EvioReaderV4::parseEvent(std::shared_ptr<EvioEvent> evioEvent) {
-        // This method is synchronized too
+        // This method is called by locked methods
         parser->parseEvent(evioEvent);
     }
 
-    /**
-     * Get an evio bank or event in byte array form.
-     * @param evNumber number of event of interest
-     * @return array containing bank's/event's bytes.
-     * @throws IOException if failed file access
-     * @throws EvioException if eventNumber &lt; 1;
-     *                       if the event number does not correspond to an existing event;
-     *                       if object closed
-     */
-    std::vector<uint8_t> EvioReaderV4::getEventArray(size_t evNumber) {
-        auto ev = gotoEventNumber(evNumber, false);
-        if (ev == nullptr) {
-            throw EvioException("event number must be > 0");
-        }
-        return ev.toArray();
-    }
-
-    /**
-     * Get an evio bank or event in byte array form.
-     * @param evNumber number of event of interest.
-     * @param vector in which to place the bank's/event's bytes.
-     * @return number of bytes written.
-     * @throws IOException if failed file access
-     * @throws EvioException if eventNumber &lt; 1;
-     *                       if the event number does not correspond to an existing event;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     uint32_t EvioReaderV4::getEventArray(size_t evNumber, std::vector<uint8_t> & vec) {
         auto ev = gotoEventNumber(evNumber, false);
         if (ev == nullptr) {
@@ -1106,8 +1234,7 @@ namespace evio {
         return numBytes;
     }
 
-
-/**
+    /**
      * Get an evio bank or event in ByteBuffer form.
      * @param evNumber number of event of interest
      * @return buffer containing bank's/event's bytes.
@@ -1116,8 +1243,18 @@ namespace evio {
      *                       if the event number does not correspond to an existing event;
      *                       if object closed
      */
-    ByteBuffer & EvioReaderV4::getEventBuffer(size_t evNumber) {
-        return ByteBuffer.wrap(getEventArray(evNumber)).order(byteOrder);
+    uint32_t EvioReaderV4::getEventBuffer(size_t evNumber, ByteBuffer & buf) {
+        auto ev = gotoEventNumber(evNumber, false);
+        if (ev == nullptr) {
+            throw EvioException("event number must be > 0");
+        }
+
+        uint32_t numBytes = ev->getTotalBytes();
+        buf.expand(numBytes);
+        buf.limit(numBytes).position(0);
+        ev->writeQuick(buf.array());
+
+        return numBytes;
     }
 
     /**
@@ -1125,7 +1262,7 @@ namespace evio {
      * Called only by {@link #nextEvent()}.
      * @return the number of bytes remaining in the current block (physical record).
      */
-    size_t EvioReaderV4::bufferBytesRemaining() const {return byteBuffer.remaining();}
+    size_t EvioReaderV4::bufferBytesRemaining() const {return byteBuffer->remaining();}
 
     /**
      * Get the number of bytes remaining in the current block (physical record).
@@ -1136,7 +1273,7 @@ namespace evio {
      * @throws EvioException if position out of bounds
      */
     uint32_t EvioReaderV4::blockBytesRemaining() const {
-        return blockHeader->bytesRemaining(byteBuffer.position());
+        return blockHeader->bytesRemaining(byteBuffer->position());
     }
 
     /**
@@ -1150,17 +1287,22 @@ namespace evio {
      * @throws IOException   if failed file access or buffer/file read
      * @throws EvioException if object closed
      */
-    /*synchronized*/ void EvioReaderV4::rewind() {
+    void EvioReaderV4::rewind() {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
         if (closed) {
             throw EvioException("object closed");
         }
 
         if (sequentialRead) {
-            fileChannel.position(initialPosition);
+            file.seekg(initialPosition);
             prepareForSequentialRead();
         }
         else if (evioVersion < 4) {
-            byteBuffer.position(initialPosition);
+            byteBuffer->position(initialPosition);
             prepareForBufferRead(byteBuffer);
         }
 
@@ -1169,10 +1311,10 @@ namespace evio {
         blockNumberExpected = 1;
 
         if (evioVersion < 4) {
-            blockHeader = blockHeader2 = new BlockHeaderV2((BlockHeaderV2) firstBlockHeader);
+            blockHeader = blockHeader4 = std::make_shared<BlockHeaderV4>(firstBlockHeader4);
         }
         else {
-            blockHeader = blockHeader4 = new BlockHeaderV4((BlockHeaderV4) firstBlockHeader);
+            blockHeader = blockHeader2 = std::make_shared<BlockHeaderV2>(firstBlockHeader2);
         }
 
         blockHeader->setBufferStartingPosition(initialPosition);
@@ -1197,7 +1339,12 @@ namespace evio {
      * @throws EvioException if object closed
      */
 // TODO:: return -1 !!!!!!!!!!
-    /*synchronized*/ size_t EvioReaderV4::position() {
+    size_t EvioReaderV4::position() {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
         if (!sequentialRead && evioVersion > 3) return -1L;
 
         if (closed) {
@@ -1205,42 +1352,10 @@ namespace evio {
         }
 
         if (sequentialRead) {
-            return fileChannel.position();
+            return file.tellg();
         }
-        return byteBuffer.position();
+        return byteBuffer->position();
     }
-
-//	/**
-//	 * This method sets the current position in the file or buffer. This
-//     * method, along with the <code>rewind()</code>, <code>position()</code>
-//     * and the <code>close()</code> method, allows applications to treat files
-//     * in a normal random access manner. Only meaningful to evio versions 1-3
-//     * and for sequential reading.<p>
-//     *
-//     * <b>HOWEVER</b>, using this method is not necessary for random access of
-//     * events and is no longer recommended because it interferes with the sequential
-//     * reading of events. Therefore it is now deprecated.
-//     *
-//	 * @deprecated
-//	 * @param position the new position of the buffer.
-//     * @throws IOException   if error accessing file
-//     * @throws EvioException if object closed
-//     */
-//	@Override
-//    public synchronized void position(long position) throws IOException, EvioException  {
-//        if (!sequentialRead && evioVersion > 3) return;
-//
-//        if (closed) {
-//            throw new EvioException("object closed");
-//        }
-//
-//        if (sequentialRead) {
-//            fileChannel.position(position);
-//        }
-//        else {
-//            byteBuffer.position((int)position);
-//        }
-//	}
 
     /**
      * This is closes the file, but for buffers it only sets the position to 0.
@@ -1250,30 +1365,21 @@ namespace evio {
      *
      * @throws IOException if error accessing file
      */
-    /*synchronized*/ void EvioReaderV4::close() {
+    void EvioReaderV4::close() {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
         if (closed) {
             return;
         }
 
-        if (!sequentialRead && evioVersion > 3) {
-            if (byteBuffer != null) byteBuffer.position(initialPosition);
-            mappedMemoryHandler = null;
-
-            if (fileChannel != null) {
-                fileChannel.close();
-                fileChannel = null;
-            }
-
-            closed = true;
-            return;
-        }
-
         if (sequentialRead) {
-            fileChannel.close();
-            dataStream.close();
+            file.close();
         }
         else {
-            byteBuffer.position(initialPosition);
+            byteBuffer->position(initialPosition);
         }
 
         closed = true;
@@ -1300,7 +1406,7 @@ namespace evio {
      * @throws EvioException if object closed
      */
     std::shared_ptr<EvioEvent> EvioReaderV4::gotoEventNumber(size_t evNumber) {
-            return gotoEventNumber(evNumber, true);
+        return gotoEventNumber(evNumber, true);
     }
 
 
@@ -1315,8 +1421,13 @@ namespace evio {
      * @throws IOException if failed file access
      * @throws EvioException if object closed
      */
-    /*synchronized*/ std::shared_ptr<EvioEvent> EvioReaderV4::gotoEventNumber(size_t evNumber, bool parse) {
-            if (evNumber < 1) {
+    std::shared_ptr<EvioEvent> EvioReaderV4::gotoEventNumber(size_t evNumber, bool parse) {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
+        if (evNumber < 1) {
                 return nullptr;
             }
 
@@ -1339,7 +1450,7 @@ namespace evio {
             }
 
             rewind();
-            EvioEvent event;
+            std::shared_ptr<EvioEvent> event;
 
             try {
                 // get the first evNumber - 1 events without parsing
@@ -1375,21 +1486,27 @@ namespace evio {
      * @throws EvioException if read failure;
      *                       if object closed
      */
-    /*synchronized*/ size_t EvioReaderV4::getEventCount() {
+    size_t EvioReaderV4::getEventCount() {
 
-            if (closed) {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
+        if (closed) {
                 throw EvioException("object closed");
             }
 
             if (!sequentialRead && evioVersion > 3) {
-                return mappedMemoryHandler.getEventCount();
+                // Already calculated by calling generateEventPositions in constructor ...
+                return eventCount;
             }
 
             if (eventCount < 0) {
                 // The difficulty is that this method can be called at
                 // any time. So we need to save our state and then restore
                 // it when we're done.
-                ReaderState state = getState();
+                ReaderState *state = getState();
 
                 rewind();
                 eventCount = 0;
@@ -1410,7 +1527,7 @@ namespace evio {
                     }
 
                     // Go back to original event # & therefore buffer data
-                    for (int i=1; i < state.eventNumber; i++) {
+                    for (int i=1; i < state->eventNumber; i++) {
                         nextEvent();
                     }
                 }
@@ -1433,20 +1550,25 @@ namespace evio {
      * @throws EvioException if object closed
      * @return the number of blocks in the file (estimate for version 3 files)
      */
-    /*synchronized*/ size_t EvioReaderV4::getBlockCount() {
+    size_t EvioReaderV4::getBlockCount() {
 
-            if (closed) {
+        // Lock this method
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
+        if (closed) {
                 throw EvioException("object closed");
             }
 
             if (!sequentialRead && evioVersion > 3) {
-                return mappedMemoryHandler.getBlockCount();
+                return blockCount;
             }
 
             if (blockCount < 0) {
                 // Although block size is theoretically adjustable, I believe
                 // that everyone used 8192 words for the block size in version 3.
-                blockCount = (int) (fileBytes/firstBlockSize);
+                blockCount = (uint32_t) (fileBytes/firstBlockSize);
             }
 
             return blockCount;

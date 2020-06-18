@@ -53,7 +53,7 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
         inStreamRandom.read(reinterpret_cast<char *>(headerBytes), bytesToRead);
 
         // Parse file header to find the file's endianness & evio version #
-        if (findEvioVersion(headerBuffer) != EvioReader::ReadStatus::SUCCESS) {
+        if (findEvioVersion(headerBuffer) != EvioReader::ReadWriteStatus::SUCCESS) {
             throw EvioException("Failed reading first block header");
         }
 
@@ -61,20 +61,10 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
         inStreamRandom.close();
 
         if (evioVersion > 0 && evioVersion < 5) {
-            if (synced) {
-                reader = std::make_shared<EvioReaderV4>(path, checkRecNumSeq);
-            }
-            else {
-                reader = std::make_shared<EvioReaderUnsyncV4>(path, checkRecNumSeq);
-            }
+            reader = std::make_shared<EvioReaderV4>(path, checkRecNumSeq, synced);
         }
         else if (evioVersion == 6) {
-            if (synced) {
-                reader = std::make_shared<EvioReaderV6>(path, checkRecNumSeq);
-            }
-            else {
-                reader = std::make_shared<EvioReaderUnsyncV6>(path, checkRecNumSeq);
-            }
+            reader = std::make_shared<EvioReaderV6>(path, checkRecNumSeq, synced);
         }
         else {
             throw EvioException("unsupported evio version (" + std::to_string(evioVersion) + ")");
@@ -99,31 +89,21 @@ EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential
  * @throws EvioException if buffer arg is null; bad evio version #;
  *                       failure to read first block header
  */
-EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
+EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bool synced) {
 
-        bb.slice(byteBuffer); // remove necessity to track initial position
-        initialPosition = byteBuffer.position();
+        byteBuffer = bb->slice(); // remove necessity to track initial position
+        initialPosition = byteBuffer->position();
 
         // Read first block header and find the file's endianness & evio version #.
-        if (findEvioVersion(byteBuffer) != EvioReader::ReadStatus::SUCCESS) {
+        if (findEvioVersion(*(byteBuffer.get())) != EvioReader::ReadWriteStatus::SUCCESS) {
             throw EvioException("Failed reading first record header");
         }
 
         if (evioVersion > 0 && evioVersion < 5) {
-            if (synced) {
-                reader = std::make_shared<EvioReaderV4>(byteBuffer, checkRecNumSeq);
-            }
-            else {
-                reader = std::make_shared<EvioReaderUnsyncV4>(byteBuffer, checkRecNumSeq);
-            }
+            reader = std::make_shared<EvioReaderV4>(byteBuffer, checkRecNumSeq, synced);
         }
         else if (evioVersion == 6) {
-            if (synced) {
-                reader = std::make_shared<EvioReaderV6>(byteBuffer, checkRecNumSeq);
-            }
-            else {
-                reader = std::make_shared<EvioReaderUnsyncV6>(byteBuffer, checkRecNumSeq);
-            }
+            reader = std::make_shared<EvioReaderV6>(byteBuffer, checkRecNumSeq, synced);
         }
         else {
             throw EvioException("unsupported evio version (" + std::to_string(evioVersion) + ")");
@@ -132,7 +112,7 @@ EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
 
 
     /** {@inheritDoc} */
-    void EvioReader::setBuffer(ByteBuffer & buf) {reader->setBuffer(buf);}
+    void EvioReader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {reader->setBuffer(buf);}
 
     /** {@inheritDoc} */
     /*synchronized*/ bool EvioReader::isClosed() {return reader->isClosed();}
@@ -165,7 +145,7 @@ EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
     size_t EvioReader::getNumEventsRemaining() {return reader->getNumEventsRemaining();}
 
     /** {@inheritDoc} */
-    ByteBuffer & EvioReader::getByteBuffer() {return reader->getByteBuffer();}
+    std::shared_ptr<ByteBuffer> EvioReader::getByteBuffer() {return reader->getByteBuffer();}
 
     /** {@inheritDoc} */
     size_t EvioReader::fileSize() {return reader->fileSize();}
@@ -176,14 +156,15 @@ EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
     /**
      * Reads a couple things in the first block (physical record) header
      * in order to determine the evio version of buffer.
-     * @return status of read attempt
+     * @param bb ByteBuffer to read from.
+     * @return status of read attempt.
      */
-    EvioReader::ReadStatus EvioReader::findEvioVersion(ByteBuffer & bb) {
+    EvioReader::ReadWriteStatus EvioReader::findEvioVersion(ByteBuffer & bb) {
         // Look at first record header
 
         // Have enough remaining bytes to read 8 words of header?
         if (bb.limit() - initialPosition < 32) {
-            return EvioReader::ReadStatus::END_OF_FILE;
+            return EvioReader::ReadWriteStatus::END_OF_FILE;
         }
 
         // Set the byte order to match the file's ordering.
@@ -205,7 +186,7 @@ EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
             // Reread magic number to make sure things are OK
             magicNumber = bb.getInt(initialPosition + RecordHeader::MAGIC_OFFSET);
             if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
-                return EvioReader::ReadStatus::EVIO_EXCEPTION;
+                return EvioReader::ReadWriteStatus::EVIO_EXCEPTION;
             }
         }
 
@@ -213,7 +194,7 @@ EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
         uint32_t bitInfo = bb.getUInt(initialPosition + RecordHeader::BIT_INFO_OFFSET);
         evioVersion = bitInfo & RecordHeader::VERSION_MASK;
 
-        return EvioReader::ReadStatus::SUCCESS;
+        return EvioReader::ReadWriteStatus::SUCCESS;
     }
 
 
@@ -307,10 +288,14 @@ EvioReader::EvioReader(ByteBuffer & bb, bool checkRecNumSeq, bool synced) {
 
 
     /** {@inheritDoc} */
-    std::vector<uint8_t> EvioReader::getEventArray(size_t eventNumber) {return reader->getEventArray(eventNumber);}
+    uint32_t EvioReader::getEventArray(size_t evNumber, std::vector<uint8_t> & vec) {
+        return reader->getEventArray(evNumber, vec);
+    }
 
     /** {@inheritDoc} */
-    ByteBuffer & EvioReader::getEventBuffer(size_t eventNumber) {return reader->getEventBuffer(eventNumber);}
+    uint32_t EvioReader::getEventBuffer(size_t evNumber, ByteBuffer & buf)  {
+        return reader->getEventBuffer(evNumber, buf);
+    }
 
     /** {@inheritDoc} */
     void EvioReader::rewind() {reader->rewind();}

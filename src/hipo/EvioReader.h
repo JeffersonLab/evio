@@ -22,6 +22,7 @@
 #include "ByteBuffer.h"
 #include "IEvioReader.h"
 #include "EvioReaderV4.h"
+#include "EvioReaderV6.h"
 #include "IBlockHeader.h"
 #include "BlockHeaderV2.h"
 #include "BlockHeaderV4.h"
@@ -69,7 +70,7 @@ namespace evio {
         ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
         /** The buffer being read. */
-        ByteBuffer byteBuffer;
+        std::shared_ptr<ByteBuffer> byteBuffer;
 
         /** Initial position of buffer or mappedByteBuffer when reading a file. */
         size_t initialPosition = 0;
@@ -79,31 +80,16 @@ namespace evio {
 
     public:
 
-        /**
-          * This <code>enum</code> denotes the status of a read. <b>Used internally.</b><br>
-          * SUCCESS indicates a successful read. <br>
-          * END_OF_FILE indicates that we cannot read because an END_OF_FILE has occurred.
-          * Technically this means that what
-          * ever we are trying to read is larger than the buffer's unread bytes.<br>
-          * EVIO_EXCEPTION indicates that an EvioException was thrown during a read, possibly
-          * due to out of range values.<br>
-          * UNKNOWN_ERROR indicates that an unrecoverable error has occurred.
-          */
-        enum ReadStatus {
-            SUCCESS = 0, END_OF_FILE, EVIO_EXCEPTION, UNKNOWN_ERROR
-        };
-
-
         //   File constructor
         explicit EvioReader(string const & path, bool checkRecNumSeq = false,
                             bool sequential = false, bool synced = false);
 
         //   Buffer constructor
-        explicit EvioReader(ByteBuffer & byteBuffer, bool checkRecNumSeq = false, bool synced = false);
+        explicit EvioReader(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkRecNumSeq = false, bool synced = false);
 
         //------------------------------------------
 
-        void setBuffer(ByteBuffer & buf) override;
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf) override;
         bool isClosed () override;
         bool checkBlockNumberSequence() override;
         ByteOrder & getByteOrder() override;
@@ -114,13 +100,13 @@ namespace evio {
         string getDictionaryXML() override;
         bool hasDictionaryXML() override;
         size_t getNumEventsRemaining() override;
-        ByteBuffer & getByteBuffer() override;
+        std::shared_ptr<ByteBuffer> getByteBuffer() override;
         size_t fileSize() override;
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override;
 
     private:
 
-        ReadStatus findEvioVersion(ByteBuffer & bb);
+        ReadWriteStatus findEvioVersion(ByteBuffer & bb);
 
     public:
 
@@ -135,8 +121,8 @@ namespace evio {
         static std::shared_ptr<EvioEvent> parseEvent(uint8_t * src, size_t len, ByteOrder const & order) ;
 
 
-        std::vector<uint8_t> getEventArray(size_t eventNumber) override;
-        ByteBuffer & getEventBuffer(size_t eventNumber) override;
+        uint32_t getEventArray(size_t evNumber, std::vector<uint8_t> & vec) override;
+        uint32_t getEventBuffer(size_t evNumber, ByteBuffer & buf) override;
 
         void rewind() override;
         size_t position() override;
