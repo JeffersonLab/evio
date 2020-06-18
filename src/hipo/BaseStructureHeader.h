@@ -41,6 +41,7 @@ namespace evio {
         friend class EvioReader;
         friend class EvioReaderV4;
         friend class EventHeaderParser;
+        friend class StructureTransformer;
 
     protected:
 
