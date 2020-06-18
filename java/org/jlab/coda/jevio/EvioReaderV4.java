@@ -1264,7 +1264,7 @@ System.err.println("ERROR endOfBuffer " + a);
         try {
             // Read the raw data
             eventDataSizeBytes = 4*(length - 1);
-            byte bytes[] = new byte[eventDataSizeBytes];
+            byte[] bytes = new byte[eventDataSizeBytes];
             buf.get(bytes, 0, eventDataSizeBytes);
 
             event.setRawBytes(bytes);
@@ -1374,8 +1374,7 @@ System.err.println("ERROR endOfBuffer " + a);
         // Version 1-3: No matter what, we can get the length of the next event.
         //              This is because we read in multiples of blocks each with
         //              an integral number of 32 bit words.
-        int length;
-        length = byteBuffer.getInt();
+        int length = byteBuffer.getInt();
         if (length < 1) {
             throw new EvioException("non-positive length (0x" + Integer.toHexString(length) + ")");
         }
@@ -1424,7 +1423,7 @@ System.err.println("ERROR endOfBuffer " + a);
         int eventDataSizeBytes = 4*(length - 1);
 
         try {
-            byte bytes[] = new byte[eventDataSizeBytes];
+            byte[] bytes = new byte[eventDataSizeBytes];
 
             int bytesToGo = eventDataSizeBytes;
             int offset = 0;
