@@ -212,6 +212,14 @@ namespace evio {
          * @param blkHeader block header object to copy
          */
         explicit BlockHeaderV4(std::shared_ptr<BlockHeaderV4> & blkHeader) {
+            copy(blkHeader);
+        }
+
+        /**
+        * This method copies another header's contents.
+        * @param blkHeader block header object to copy
+        */
+        void copy(std::shared_ptr<BlockHeaderV4> & blkHeader) {
             size         = blkHeader->size;
             number       = blkHeader->number;
             headerLength = blkHeader->headerLength;
@@ -489,7 +497,7 @@ namespace evio {
             else if (type > 15) type = 15;
 
             for (uint32_t i=2; i < 6; i++) {
-                bSet[i] = ((type >> i-2) & 0x1) > 0;
+                bSet[i] = ((type >> (i-2)) & 0x1) > 0;
             }
         }
 
@@ -625,7 +633,7 @@ namespace evio {
          */
         void parseToBitInfo(uint32_t word) {
             for (int i=0; i < bitInfo.size(); i++) {
-                bitInfo[i] = ((word >> 8+i) & 0x1) > 0;
+                bitInfo[i] = ((word >> (8+i)) & 0x1) > 0;
             }
         }
 
@@ -721,7 +729,7 @@ namespace evio {
          * Get the position in the buffer (in bytes) of this block's last data word.<br>
          * @return the position in the buffer (in bytes) of this block's last data word.
          */
-        uint64_t getBufferEndingPosition() override {return bufferStartingPosition + 4*size;}
+        size_t getBufferEndingPosition() override {return bufferStartingPosition + 4*size;}
 
         /**
          * Get the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
@@ -730,7 +738,7 @@ namespace evio {
          *
          * @return the starting position in the buffer (in bytes) from which this header was read--if that happened.
          */
-        uint64_t getBufferStartingPosition() override {return bufferStartingPosition;}
+        size_t getBufferStartingPosition() override {return bufferStartingPosition;}
 
         /**
          * Set the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
@@ -739,7 +747,7 @@ namespace evio {
          *
          * @param pos the starting position in the buffer from which this header was read--if that happened.
          */
-        void setBufferStartingPosition(uint64_t pos) override {bufferStartingPosition = pos;}
+        void setBufferStartingPosition(size_t pos) override {bufferStartingPosition = pos;}
 
         /**
          * Determines where the start of the next block (physical record) header in some buffer is located (in bytes).
@@ -747,7 +755,7 @@ namespace evio {
          *
          * @return the start of the next block (physical record) header in some buffer is located (in bytes).
          */
-        uint64_t nextBufferStartingPosition() override {return getBufferEndingPosition();}
+        size_t nextBufferStartingPosition() override {return getBufferEndingPosition();}
 
         /**
          * Determines where the start of the first event (logical record) in this block (physical record) is located
@@ -757,7 +765,7 @@ namespace evio {
          *         (in bytes). Returns 0 if start is 0, signaling that this entire physical record is part of a
          *         logical record that spans at least three physical records.
          */
-        uint64_t firstEventStartingPosition() override {return bufferStartingPosition + 4*headerLength;}
+        size_t firstEventStartingPosition() override {return bufferStartingPosition + 4*headerLength;}
 
         /**
          * Gives the bytes remaining in this block (physical record) given a buffer position. The position is an absolute
@@ -769,17 +777,17 @@ namespace evio {
          * @return the number of bytes remaining in this block (physical record.)
          * @throws EvioException if position &lt; buffer starting position or &gt; buffer end position
          */
-        uint32_t bytesRemaining(uint64_t position) override {
+        size_t bytesRemaining(size_t position) override {
             if (position < bufferStartingPosition) {
                 throw EvioException("Provided position is less than buffer starting position.");
             }
 
-            uint64_t nextBufferStart = nextBufferStartingPosition();
+            size_t nextBufferStart = nextBufferStartingPosition();
             if (position > nextBufferStart) {
                 throw EvioException("Provided position beyond buffer end position.");
             }
 
-            return (uint32_t)(nextBufferStart - position);
+            return nextBufferStart - position;
         }
 
         /**
