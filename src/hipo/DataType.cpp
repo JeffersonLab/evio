@@ -77,6 +77,9 @@ const DataType DataType::nVALUE = DataType(0x23, "nVALUE");
 /** In composite data, m value. */
 const DataType DataType::mVALUE = DataType(0x24, "mVALUE");
 
+/** Not a valid data type. */
+const DataType DataType::NOT_A_VALID_TYPE = DataType(0x30, "INVALID");
+
 
 // Initialize static members
 std::string DataType::names[37] =

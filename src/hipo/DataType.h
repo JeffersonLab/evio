@@ -63,6 +63,9 @@ public:
     static const DataType nVALUE;
     static const DataType mVALUE;
 
+    // In C++ this seems to be useful on occasion
+    static const DataType NOT_A_VALID_TYPE;
+
 
 private:
 
@@ -111,6 +114,23 @@ public:
     static string getName(uint32_t val) {
         if (val > 0x24 || (val > 0x10 && val < 0x20)) return "UNKNOWN32";
         return getDataType(val).names[val];
+    }
+
+    /**
+     * Get the enum constant from a string.
+     * @param typeName the name of the DataType to obtain.
+     * @return the DataType object associated with the given type name,
+     *         or DataType::UNKNOWN32 if there's no match.
+     */
+    static DataType valueOf(string const & typeName) {
+        int index = 0;
+        for (std::string const & name : names) {
+            if (name == typeName) {
+                return intToType[index];
+            }
+            index++;
+        }
+        return DataType::UNKNOWN32;
     }
 
     /**
