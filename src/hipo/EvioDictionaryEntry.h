@@ -6,13 +6,14 @@
 #define EVIO_6_0_EVIODICTIONARYENTRY_H
 
 
+#include <sstream>
+#include <memory>
+
+
 #include "DataType.h"
 
 
 namespace evio {
-
-
-
 
 
     /**
@@ -23,16 +24,18 @@ namespace evio {
      * @author timmer.
      */
     class EvioDictionaryEntry {
+
+        friend class EvioXMLDictionary;
         
     public:
         
         enum EvioDictionaryEntryType {
             /** Valid tag & num, with or without a tagEnd. */
-            TAG_NUM,
+            TAG_NUM = 0,
             /** Valid tag, but no num or tagEnd. */
-            TAG_ONLY,
+            TAG_ONLY = 1,
             /** Valid tag and tagEnd, but no num. */
-            TAG_RANGE
+            TAG_RANGE = 2
         };
 
     private:
@@ -47,73 +50,31 @@ namespace evio {
         /** Num value of evio container which may be null if not given in xml entry. */
         uint8_t num = 0;
 
+        /** Is the num value of evio container being used? */
+        uint8_t numValid = false;
+
         /** Type of data in evio container. */
         DataType type {DataType::UNKNOWN32};
 
         /** String used to identify format of data if CompositeData type. */
-        std::string format;
+        std::string format = "";
 
         /** String used to describe data if CompositeData type. */
-        std::string description;
+        std::string description = "";
 
         /** Does this entry specify a tag & num, only a tag, or a tag range? */
-        EvioDictionaryEntryType entryType;
-
+        EvioDictionaryEntryType entryType = TAG_NUM;
 
         /** Track parent so identical tag/num/tagEnd can be used in another entry
-            iff the parent tag/num/tagEnd is different. For simplicity limit this
+            if and only if the parent tag/num/tagEnd is different. For simplicity limit this
             to one parent and not the stack/tree. */
-        EvioDictionaryEntry *parentEntry;
+        std::shared_ptr<EvioDictionaryEntry> parentEntry = nullptr;
 
 
-        /**
-         * Constructor.
-         * @param tag  tag value of evio container.
-         */
-        EvioDictionaryEntry(uint16_t tag) :
-            EvioDictionaryEntry(tag, 0, 0, false,
-                    DataType::UNKNOWN32, "", "", nullptr) {
-         }
-
-    public:
-
-        /**
-         * Constructor.
-         * @param tag  tag value of evio container.
-         * @param num  num value of evio container.
-         */
-        EvioDictionaryEntry(uint16_t tag, uint8_t num) :
-                EvioDictionaryEntry(tag, 0, num, true,
-                        DataType::UNKNOWN32, "", "", nullptr) {
-        }
 
 
-        /**
-         * Constructor.
-         * @param tag  tag value of evio container.
-         * @param num  num value of evio container.
-         * @param type type of data in evio container which may be (case-independent):
-         *             unknown32 {@link DataType#UNKNOWN32} ...
-         *             composite {@link DataType#COMPOSITE}.
-         */
-        EvioDictionaryEntry(Integer tag, Integer num, String type) {
-            this(tag, num, type, null, null);
-        }
-
-
-        /**
-         * Constructor.
-         * @param tag    tag value of evio container.
-         * @param tagEnd if &gt; 0, this is the high end of a tag range.
-         * @param num    num value of evio container.
-         * @param numValid true, if num value is to be used, else false.
-         * @param type   type of data in evio container which may be :
-         *               {@link DataType#UNKNOWN32} ...
-         *               {@link DataType#COMPOSITE}.
-         */
-        EvioDictionaryEntry(uint16_t tag, uint16_t tagEnd, uint8_t num, bool numValid, DataType type) :
-            EvioDictionaryEntry(tag, tagEnd, num, numValid, type, "", "", nullptr) {
-        }
+        /** Zero-arg constructor.  */
+        EvioDictionaryEntry() = default;
 
 
         /**
@@ -122,73 +83,35 @@ namespace evio {
          * If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.
          *
          * @param tag    tag value or low end of a tag range of an evio container.
-         * @param tagEnd if &gt; 0, this is the high end of a tag range.
          * @param num    num value of evio container.
+         * @param tagEnd if &gt; 0, this is the high end of a tag range.
          * @param numValid true, if num value is to be used, else false.
-         * @param type   type of data in evio container which may be (case-independent):
-         *      unknown32 {@link DataType#UNKNOWN32},
-         *      int32 {@link DataType#INT32},
-         *      uint32 {@link DataType#UINT32},
-         *      float32{@link DataType#FLOAT32},
-         *      double64 {@link DataType#DOUBLE64},
-         *      charstar8 {@link DataType#CHARSTAR8},
-         *      char8 {@link DataType#CHAR8},
-         *      uchar8 {@link DataType#UCHAR8},
-         *      short16{@link DataType#SHORT16},
-         *      ushort16 {@link DataType#USHORT16},
-         *      long64 {@link DataType#LONG64},
-         *      ulong64 {@link DataType#ULONG64},
-         *      tagsegment {@link DataType#TAGSEGMENT},
-         *      segment {@link DataType#SEGMENT}.
-         *      alsosegment {@link DataType#ALSOSEGMENT},
-         *      bank {@link DataType#BANK},
-         *      alsobank {@link DataType#ALSOBANK}, or
-         *      composite {@link DataType#COMPOSITE},
+         * @param type   type of data in evio container which may be:
+         *      {@link DataType#UNKNOWN32},
+         *      {@link DataType#INT32},
+         *      {@link DataType#UINT32},
+         *      {@link DataType#FLOAT32},
+         *      {@link DataType#DOUBLE64},
+         *      {@link DataType#CHARSTAR8},
+         *      {@link DataType#CHAR8},
+         *      {@link DataType#UCHAR8},
+         *      {@link DataType#SHORT16},
+         *      {@link DataType#USHORT16},
+         *      {@link DataType#LONG64},
+         *      {@link DataType#ULONG64},
+         *      {@link DataType#TAGSEGMENT},
+         *      {@link DataType#SEGMENT}.
+         *      {@link DataType#ALSOSEGMENT},
+         *      {@link DataType#BANK},
+         *      {@link DataType#ALSOBANK}, or
+         *      {@link DataType#COMPOSITE},
          * @param description   description of CompositeData
          * @param format        format of CompositeData
+         * @param parent        parent dictionary entry object
          */
-        EvioDictionaryEntry(uint16_t tag, uint16_t tagEnd, uint8_t num, bool numValid,
-                            DataType type, string description, string format) :
-
-            EvioDictionaryEntry(tag, tagEnd, num, numValid, type, description, format, nullptr) {
-        }
-
-
-        /**
-         * Constructor containing actual implementation.
-         * Caller assumes responsibility of supplying correct arg values.
-         * If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.
-         *
-         * @param tag    tag value or low end of a tag range of an evio container.
-         * @param tagEnd if &gt; 0, this is the high end of a tag range.
-         * @param num    num value of evio container.
-         * @param numValid true, if num value is to be used, else false.
-         * @param type   type of data in evio container which may be (case-independent):
-         *      unknown32 {@link DataType#UNKNOWN32},
-         *      int32 {@link DataType#INT32},
-         *      uint32 {@link DataType#UINT32},
-         *      float32{@link DataType#FLOAT32},
-         *      double64 {@link DataType#DOUBLE64},
-         *      charstar8 {@link DataType#CHARSTAR8},
-         *      char8 {@link DataType#CHAR8},
-         *      uchar8 {@link DataType#UCHAR8},
-         *      short16{@link DataType#SHORT16},
-         *      ushort16 {@link DataType#USHORT16},
-         *      long64 {@link DataType#LONG64},
-         *      ulong64 {@link DataType#ULONG64},
-         *      tagsegment {@link DataType#TAGSEGMENT},
-         *      segment {@link DataType#SEGMENT}.
-         *      alsosegment {@link DataType#ALSOSEGMENT},
-         *      bank {@link DataType#BANK},
-         *      alsobank {@link DataType#ALSOBANK}, or
-         *      composite {@link DataType#COMPOSITE},
-         * @param description   description of CompositeData
-         * @param format        format of CompositeData
-         * @param parentEntry   parent dictionary entry object
-         */
-        EvioDictionaryEntry(uint16_t tag, uint16_t tagEnd, uint8_t num, bool numValid,
-                            DataType type, string description, string format,
-                            EvioDictionaryEntry *parentEntry) {
+        EvioDictionaryEntry(uint16_t tag, uint8_t num, uint16_t tagEnd, bool numValid,
+                            DataType const & type, string const & description, string const & format,
+                            std::shared_ptr<EvioDictionaryEntry> parent) {
 
             bool isRange = true;
 
@@ -209,6 +132,7 @@ namespace evio {
             }
 
             this->num = num;
+            this->numValid = numValid;
             this->format = format;
             this->description = description;
             this->type = type;
@@ -225,7 +149,71 @@ namespace evio {
                 entryType = EvioDictionaryEntryType::TAG_RANGE;
             }
 
-            this->parentEntry = parentEntry;
+            parentEntry = parent;
+        }
+
+
+    public:
+
+
+        /**
+         * Constructor.
+         * @param tag  tag value of evio container.
+         * @param num  num value of evio container.
+         * @param type type of data in evio container which may be (case-independent):
+         *             {@link DataType#UNKNOWN32} ...
+         *             {@link DataType#COMPOSITE}.
+         */
+        EvioDictionaryEntry(uint16_t tag, uint8_t num, DataType const & type) :
+            EvioDictionaryEntry(tag, num, 0, true, type,
+                    "", "", nullptr) {
+        }
+
+
+        /**
+         * Constructor containing actual implementation.
+         * Caller assumes responsibility of supplying correct arg values.
+         * If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.
+         * Num is ignored.
+         *
+         * @param tag    tag value or low end of a tag range of an evio container.
+         * @param tagEnd if &gt; 0, this is the high end of a tag range.
+         * @param type   type of data in evio container which may be:
+         *               {@link DataType#UNKNOWN32} ...
+         *               {@link DataType#COMPOSITE}.
+         * @param description   description of CompositeData
+         * @param format        format of CompositeData
+         * @param parent        parent dictionary entry object
+         */
+        explicit EvioDictionaryEntry(uint16_t tag, uint16_t tagEnd = 0,
+                DataType const & type = DataType::UNKNOWN32,
+                string const & description = "", string const & format = "",
+                std::shared_ptr<EvioDictionaryEntry> parent = nullptr) :
+
+            EvioDictionaryEntry(tag, 0, tagEnd, false, type, description, format, parent) {
+        }
+
+        /**
+         * Constructor containing actual implementation.
+         * Caller assumes responsibility of supplying correct arg values.
+         * If tag &gt; tagEnd, these values are switched so tag &lt; tagEnd.
+         *
+         * @param tag    tag value or low end of a tag range of an evio container.
+         * @param num    num value of evio container.
+         * @param tagEnd if &gt; 0, this is the high end of a tag range.
+         * @param type   type of data in evio container which may be:
+         *               {@link DataType#UNKNOWN32} ...
+         *               {@link DataType#COMPOSITE}.
+         * @param description   description of CompositeData
+         * @param format        format of CompositeData
+         * @param parent        parent dictionary entry object
+         */
+        explicit EvioDictionaryEntry(uint16_t tag, uint8_t num, uint16_t tagEnd = 0,
+                                     DataType const & type = DataType::UNKNOWN32,
+                                     string const & description = "", string const & format = "",
+                                     std::shared_ptr<EvioDictionaryEntry> parent = nullptr) :
+
+                EvioDictionaryEntry(tag, num, tagEnd, true, type, description, format, parent) {
         }
 
 
@@ -235,7 +223,7 @@ namespace evio {
          * @param tagArg  tag to compare with range
          * @return {@code false} if tag not in range, else {@code true}.
          */
-        bool inRange(int tagArg) {
+        bool inRange(uint16_t tagArg) const {
             return tagEnd != 0 && tagArg >= tag && tagArg <= tagEnd;
         }
 
@@ -247,100 +235,67 @@ namespace evio {
          * @param entry  dictionary entry to compare with range
          * @return {@code false} if tag not in range, else {@code true}.
          */
-        bool inRange(EvioDictionaryEntry entry) {
-            return entry != null && tagEnd != 0 && entry.tag >= tag && entry.tag <= tagEnd;
-        }
-
-
-        /** {@inheritDoc}. Algorithm suggested by Joshua Block in "Effective Java". */
-        int hashCode() {
-            int hash = 17;
-            hash = hash * 31 + tag;
-            hash = hash * 31 + tagEnd;
-            if (num != null) hash = hash * 31 + num;
-            // Don't include parent tag/num/tagEnd in hash since we want
-            // entries of identical tag/num/tagEnd but with different
-            // parents to hash to the same value.
-            // That way we can have an entry that has no parent be
-            // equal to one that does which is important if no other
-            // matches exist.
-            return hash;
+        bool inRange(EvioDictionaryEntry & entry) const {
+            return  tagEnd != 0 && entry.tag >= tag && entry.tag <= tagEnd;
         }
 
 
         /** {@inheritDoc} */
-        bool equals(Object other) {
-
-            if (other == this) return true;
-            if (other == null || getClass() != other.getClass()) return false;
+        bool operator==(const EvioDictionaryEntry &other) const {
+\
+            if (&other == this) return true;
 
             // Objects equal each other if tag & num & tagEnd are the same
-            EvioDictionaryEntry otherEntry  = (EvioDictionaryEntry) other;
-            EvioDictionaryEntry otherParent = otherEntry.getParentEntry();
+            auto otherParent = other.getParentEntry();
 
-            bool match = tag.equals(otherEntry.tag);
+            bool match = (tag == other.tag);
+            match = match && (numValid == other.numValid);
 
-            if (num == null) {
-                if (otherEntry.num != null) {
-                    return false;
-                }
-            }
-            else {
-                match = match && num.equals(otherEntry.num);
+            if (numValid) {
+                match = match && (num == other.num);
             }
 
             // Now check tag range if any
-            match = match && tagEnd.equals(otherEntry.tagEnd);
+            match = match && (tagEnd == other.tagEnd);
 
             // Now check if same entry type
-            match = match && entryType.equals(otherEntry.entryType);
+            match = match && (entryType == other.entryType);
 
             // If both parent containers are defined, use them as well
-            if (parentEntry != null && otherParent != null) {
-                Integer pNum = parentEntry.getNum();
-                match = match && parentEntry.getTag().equals(otherParent.getTag());
-                if (pNum == null) {
-                    if (otherParent.getNum() != null) {
-                        return false;
-                    }
+            if (parentEntry != nullptr && otherParent != nullptr) {
+                match = match && (parentEntry->getTag() == parentEntry->getTag());
+                match = match && (parentEntry->numValid == otherParent->numValid);
+                if (parentEntry->numValid) {
+                     match = match && (parentEntry->getNum() == otherParent->getNum());
                 }
-                else {
-                    match = match && pNum.equals(otherParent.getNum());
-                }
-                match = match && parentEntry.getTagEnd().equals(otherParent.getTagEnd());
-
+                match = match && (parentEntry->getTagEnd() == otherParent->getTagEnd());
             }
 
             return match;
         }
 
 
+        bool operator!=(const EvioDictionaryEntry &rhs) const {
+            return !(rhs == *this);
+        }
+
+
         /** {@inheritDoc} */
-        std::string toString() {
-            StringBuilder builder = new StringBuilder(60);
+        std::string toString() const {
+            std::stringstream ss;
 
             switch (entryType) {
                 case TAG_NUM:
-                    builder.append("(tag=");
-                    builder.append(tag);
-                    builder.append(",num =");
-                    builder.append(num);
-                    builder.append(")");
+                    ss << "(tag=" << tag << ",num =" << num << ")" ;
                     break;
                 case TAG_ONLY:
-                    builder.append("(tag=");
-                    builder.append(tag);
-                    builder.append(")");
+                    ss << "(tag=" << tag << ")" ;
                     break;
                 case TAG_RANGE:
-                    builder.append("(tag=");
-                    builder.append(tag);
-                    builder.append("-");
-                    builder.append(tagEnd);
-                    builder.append(")");
+                    ss << "(tag=" << tag << "-" << tagEnd << ")" ;
             }
 
-            return builder.toString();
+            return ss.str();
         }
 
 
@@ -349,52 +304,52 @@ namespace evio {
          * This is the low end of a tag range if tagEnd &gt; 0.
          * @return tag value.
          */
-        uint16_t  getTag() {return tag;}
+        uint16_t getTag() const {return tag;}
 
         /**
          * Get the tagEnd value (upper end of a tag range).
          * A value of 0 means there is no range.
          * @return tagEnd value.
          */
-        uint16_t getTagEnd() {return tagEnd;}
+        uint16_t getTagEnd() const {return tagEnd;}
 
         /**
          * Get the num value.
-         * @return num value, null if nonexistent.
+         * @return num value.
          */
-        uint8_t getNum() {return num;}
+        uint8_t getNum() const {return num;}
 
         /**
          * Get the data's type.
          * @return data type object, null if nonexistent.
          */
-         DataType getType() {return type;}
+         DataType getType() const {return type;}
 
         /**
          * Get the CompositeData's format.
-         * @return CompositeData's format, null if nonexistent.
+         * @return CompositeData's format, empty if nonexistent.
          */
-        std::string getFormat() {return format;}
+        std::string getFormat() const {return format;}
 
         /**
          * Get the CompositeData's description.
-         * @return CompositeData's description, null if nonexistent.
+         * @return CompositeData's description, empty if nonexistent.
          */
-         std::string getDescription() {return description;}
+         std::string getDescription() const {return description;}
 
         /**
          * Get this entry's type.
          * @return this entry's type.
          */
-        EvioDictionaryEntryType getEntryType() {return entryType;}
+        EvioDictionaryEntryType getEntryType() const {return entryType;}
 
         /**
          * Get the parent container's dictionary entry.
          * @return the parent container's dictionary entry, null if nonexistent.
          */
-        EvioDictionaryEntry * getParentEntry() {return parentEntry;}
+        std::shared_ptr<EvioDictionaryEntry> getParentEntry() const {return parentEntry;}
 
-    ;}
+    };
 
 
 }
