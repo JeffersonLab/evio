@@ -71,27 +71,27 @@ public:
      * @param type evio data type
      * @return XML element name used in evio event xml output
      */
-    static DataType & getDataType(const std::string & type) {
+    static const DataType & getDataType(const std::string & type) {
 
-             if (isStrEquals(type,"int8"))       return DataType::CHAR8;
-        else if (isStrEquals(type,"uint8"))      return DataType::UCHAR8;
-        else if (isStrEquals(type,"int16"))      return DataType::SHORT16;
-        else if (isStrEquals(type,"uint16"))     return DataType::USHORT16;
-        else if (isStrEquals(type,"int32"))      return DataType::INT32;
-        else if (isStrEquals(type,"uint32"))     return DataType::UINT32;
-        else if (isStrEquals(type,"int64"))      return DataType::LONG64;
-        else if (isStrEquals(type,"uint64"))     return DataType::ULONG64;
-        else if (isStrEquals(type,"long64"))     return DataType::LONG64;
-        else if (isStrEquals(type,"ulong64"))    return DataType::ULONG64;
-        else if (isStrEquals(type,"float32"))    return DataType::FLOAT32;
-        else if (isStrEquals(type,"float64"))    return DataType::DOUBLE64;
-        else if (isStrEquals(type,"double64"))   return DataType::DOUBLE64;
-        else if (isStrEquals(type,"string"))     return DataType::CHARSTAR8;
-        else if (isStrEquals(type,"composite"))  return DataType::COMPOSITE;
-        else if (isStrEquals(type,"unknown32"))  return DataType::UNKNOWN32;
-        else if (isStrEquals(type,"tagsegment")) return DataType::TAGSEGMENT;
-        else if (isStrEquals(type,"segment"))    return DataType::ALSOSEGMENT;
-        else if (isStrEquals(type,"bank"))       return DataType::ALSOBANK;
+             if (iStrEquals(type,"int8"))       return DataType::CHAR8;
+        else if (iStrEquals(type,"uint8"))      return DataType::UCHAR8;
+        else if (iStrEquals(type,"int16"))      return DataType::SHORT16;
+        else if (iStrEquals(type,"uint16"))     return DataType::USHORT16;
+        else if (iStrEquals(type,"int32"))      return DataType::INT32;
+        else if (iStrEquals(type,"uint32"))     return DataType::UINT32;
+        else if (iStrEquals(type,"int64"))      return DataType::LONG64;
+        else if (iStrEquals(type,"uint64"))     return DataType::ULONG64;
+        else if (iStrEquals(type,"long64"))     return DataType::LONG64;
+        else if (iStrEquals(type,"ulong64"))    return DataType::ULONG64;
+        else if (iStrEquals(type,"float32"))    return DataType::FLOAT32;
+        else if (iStrEquals(type,"float64"))    return DataType::DOUBLE64;
+        else if (iStrEquals(type,"double64"))   return DataType::DOUBLE64;
+        else if (iStrEquals(type,"string"))     return DataType::CHARSTAR8;
+        else if (iStrEquals(type,"composite"))  return DataType::COMPOSITE;
+        else if (iStrEquals(type,"unknown32"))  return DataType::UNKNOWN32;
+        else if (iStrEquals(type,"tagsegment")) return DataType::TAGSEGMENT;
+        else if (iStrEquals(type,"segment"))    return DataType::ALSOSEGMENT;
+        else if (iStrEquals(type,"bank"))       return DataType::ALSOBANK;
 
         return DataType::NOT_A_VALID_TYPE;
     }
