@@ -1,6 +1,15 @@
-//
-// Created by Carl Timmer on 6/18/20.
-//
+/**
+ * Copyright (c) 2020, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * EPSCI Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 06/18/2020
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_EVIOCOMPACTREADER_H
 #define EVIO_6_0_EVIOCOMPACTREADER_H
@@ -99,25 +108,25 @@ namespace evio {
         /*synchronized*/void searchEvent(size_t eventNumber, string const & dictName,
                                  EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) override ;
 
-        /*synchronized*/ByteBuffer removeEvent(size_t eventNumber) override;
-        /*synchronized*/ByteBuffer removeStructure(EvioNode & removeNode) override;
-        /*synchronized*/ByteBuffer addStructure(size_t eventNumber, ByteBuffer & addBuffer) override;
+        /*synchronized*/std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) override;
+        /*synchronized*/std::shared_ptr<ByteBuffer> removeStructure(EvioNode & removeNode) override;
+        /*synchronized*/std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override;
 
-        ByteBuffer getData(EvioNode & node) override;
-        /*synchronized*/ByteBuffer getData(EvioNode & node, bool copy) override;
+        std::shared_ptr<ByteBuffer> getData(EvioNode & node) override;
+        /*synchronized*/std::shared_ptr<ByteBuffer> getData(EvioNode & node, bool copy) override;
 
-        ByteBuffer getEventBuffer(size_t eventNumber) override;
-        /*synchronized*/ByteBuffer getEventBuffer(size_t eventNumber, bool copy) override;
+        std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) override;
+        /*synchronized*/std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override;
 
-        ByteBuffer getStructureBuffer(EvioNode & node) override;
-        /*synchronized*/ByteBuffer getStructureBuffer(EvioNode & node, bool copy) override;
+        std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node) override;
+        /*synchronized*/std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node, bool copy) override;
 
         /*synchronized*/void close() override;
 
         uint32_t getEventCount() override;
         uint32_t getBlockCount() override;
 
-        void toFile(string fileName) override;
+        void toFile(std::string const & fileName) override;
 
 //        /** {@inheritDoc} */
 //        /*synchronized*/void toFile(File file) {

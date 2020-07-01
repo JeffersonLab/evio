@@ -1,9 +1,18 @@
-//
-// Created by Carl Timmer on 6/18/20.
-//
+/**
+ * Copyright (c) 2020, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * EPSCI Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 06/18/2020
+ * @author timmer
+ */
+
 
 #include "EvioCompactReader.h"
-
 
 
 namespace evio {
@@ -14,9 +23,9 @@ namespace evio {
      *
      * @param path the full path to the file that contains events.
      *             For writing event files, use an <code>EventWriter</code> object.
-     * @see org.jlab.coda.jevio.EventWriter
-     * @throws java.io.IOException   if read failure
-     * @throws org.jlab.coda.jevio.EvioException if file arg is null
+     * @see EventWriter
+     * @throws IOException   if read failure
+     * @throws EvioException if path arg is empty
      */
     EvioCompactReader::EvioCompactReader(string const & path, bool synced) {
 
@@ -208,61 +217,57 @@ namespace evio {
     /** {@inheritDoc} */
     /*synchronized*/void EvioCompactReader::searchEvent(size_t evNumber, uint16_t tag, uint8_t num,
                                                         std::vector<EvioNode> & vec) {
-        ///*synchronized*/List<EvioNode> searchEvent(size_t evNumber, uint16_t tag, uint8_t num) {
         return reader->searchEvent(evNumber, tag, num, vec);
     }
 
     /** {@inheritDoc} */
     /*synchronized*/void EvioCompactReader::searchEvent(size_t eventNumber, string const & dictName,
                                      EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) {
-        ///*synchronized*/List<EvioNode> searchEvent(int eventNumber, string dictName,
-        //                                           EvioXMLDictionary & dictionary) {
-
         return reader->searchEvent(eventNumber, dictName, dictionary, vec);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/ByteBuffer EvioCompactReader::removeEvent(size_t eventNumber) {
+    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::removeEvent(size_t eventNumber) {
         return reader->removeEvent(eventNumber);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/ByteBuffer EvioCompactReader::removeStructure(EvioNode & removeNode) {
+    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::removeStructure(EvioNode & removeNode) {
         return reader->removeStructure(removeNode);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/ByteBuffer EvioCompactReader::addStructure(size_t eventNumber, ByteBuffer & addBuffer) {
+    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::addStructure(size_t eventNumber, ByteBuffer & addBuffer) {
         return reader->addStructure(eventNumber, addBuffer);
     }
 
     /** {@inheritDoc} */
-    ByteBuffer EvioCompactReader::getData(EvioNode & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(EvioNode & node) {
         return reader->getData(node);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/ByteBuffer EvioCompactReader::getData(EvioNode & node, bool copy) {
+    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::getData(EvioNode & node, bool copy) {
         return reader->getData(node, copy);
     }
 
     /** {@inheritDoc} */
-    ByteBuffer EvioCompactReader::getEventBuffer(size_t eventNumber) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getEventBuffer(size_t eventNumber) {
         return reader->getEventBuffer(eventNumber);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/ByteBuffer EvioCompactReader::getEventBuffer(size_t eventNumber, bool copy) {
+    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::getEventBuffer(size_t eventNumber, bool copy) {
         return reader->getEventBuffer(eventNumber, copy);
     }
 
     /** {@inheritDoc} */
-    ByteBuffer EvioCompactReader::getStructureBuffer(EvioNode & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(EvioNode & node) {
         return reader->getStructureBuffer(node);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/ByteBuffer EvioCompactReader::getStructureBuffer(EvioNode & node, bool copy) {
+    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(EvioNode & node, bool copy) {
         return reader->getStructureBuffer(node, copy);
     }
 
@@ -277,7 +282,7 @@ namespace evio {
     uint32_t EvioCompactReader::getBlockCount() {return reader->getBlockCount();}
 
     /** {@inheritDoc} */
-    void EvioCompactReader::toFile(string fileName) {
+    void EvioCompactReader::toFile(std::string const & fileName) {
         reader->toFile(fileName);
     }
 

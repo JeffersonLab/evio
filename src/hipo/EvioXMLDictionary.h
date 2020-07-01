@@ -20,6 +20,7 @@
 #include "EvioDictionaryEntry.h"
 #include "EvioException.h"
 #include "Util.h"
+#include "INameProvider.h"
 #include "pugixml.hpp"
 
 
@@ -401,7 +402,7 @@ public:
                 typeStr = attrNode.value();
                 type = DataType::valueOf(typeStr);
             }
-            
+
             // Look for description node (xml element) as child of entry node
             for (pugi::xml_node const & childNode : node.children()) {
 
@@ -494,7 +495,7 @@ public:
                 else {
                     if (isTagRange) {
                         auto itrm = tagRangeMap.find(key);
-                        if (itrm == tagNumMap.end()) {
+                        if (itrm == tagRangeMap.end()) {
                             tagRangeMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -504,7 +505,7 @@ public:
                     }
                     else {
                         auto itom  = tagOnlyMap.find(key);
-                        if (itom == tagNumMap.end()) {
+                        if (itom == tagOnlyMap.end()) {
                             tagOnlyMap.insert({key, name});
                             entryAlreadyExists = false;
                         }
@@ -520,9 +521,9 @@ public:
             }
 
             children.push_back(node);
+            kidCount++;
         }
 
-        kidCount++;
         if (kidCount < 1) return;
 
         // Look at the (new) hierarchical entry elements,
@@ -545,9 +546,11 @@ public:
      * @return  map in which the key is the entry name and the value is an object
      *          containing its data (tag, num, type, etc.).
      */
-    std::unordered_map<std::string, std::shared_ptr<EvioDictionaryEntry>> & getMap() {return reverseMap;}
+    const std::unordered_map<std::string, std::shared_ptr<EvioDictionaryEntry>> & getMap() const {return reverseMap;}
+
 
     private:
+
 
         /**
          * Takes a list of the children of an xml node, selects the new
@@ -556,6 +559,7 @@ public:
          * This method acts recursively since any node may contain children.
          *
          * @param kidList a list of the children of an xml node.
+         * @param parentName name of the parent xml node.
          */
         void addHierarchicalDictEntries(std::vector<pugi::xml_node> & kidList,
                                         std::string const & parentName) {
@@ -563,7 +567,7 @@ public:
             if (kidList.empty()) return;
 
             uint16_t tag, tagEnd;
-            uint8_t num, numEnd;
+            uint8_t  num, numEnd;
             bool badEntry, isTagRange, isNumRange, isLeaf;
             std::string name, tagStr, tagEndStr, numStr, numEndStr, typeStr, format, description;
 
@@ -722,12 +726,6 @@ public:
                     type = DataType::valueOf(typeStr);
                 }
 
-//            // Look for description node (xml element) as child of entry node
-//            for (pugi::xml_node child : node.children())
-//            {
-//                std::cout << ", child " << child.name();
-//            }
-
                 // Look for description node (xml element) as child of entry node
                 for (pugi::xml_node const &childNode : node.children()) {
 
@@ -825,7 +823,22 @@ public:
                 }
                 // If no num defined ...
                 else {
-                    auto key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd, type, description, format);
+                    if (!parentName.empty()) {
+                        name.insert(0, delimiter);
+                        name.insert(0, parentName);
+                    }
+
+                    // Find the parent entry if any
+                    std::shared_ptr<EvioDictionaryEntry> parent = nullptr;
+                    auto pName = node.parent().name();
+                    if (pName != nullptr) {
+                        auto it = reverseMap.find(name);
+                        if (it != reverseMap.end()) {
+                            parent = it->second;
+                        }
+                    }
+
+                    auto key = std::make_shared<EvioDictionaryEntry>(tag, tagEnd, type, description, format, parent);
                     bool entryAlreadyExists = true;
 
                     auto it = reverseMap.find(name);
@@ -835,7 +848,7 @@ public:
                     else {
                         if (isTagRange) {
                             auto itrm = tagRangeMap.find(key);
-                            if (itrm == tagNumMap.end()) {
+                            if (itrm == tagRangeMap.end()) {
                                 tagRangeMap.insert({key, name});
                                 entryAlreadyExists = false;
                             }
@@ -845,7 +858,7 @@ public:
                         }
                         else {
                             auto itom = tagOnlyMap.find(key);
-                            if (itom == tagNumMap.end()) {
+                            if (itom == tagOnlyMap.end()) {
                                 tagOnlyMap.insert({key, name});
                                 entryAlreadyExists = false;
                             }
@@ -893,7 +906,7 @@ public:
          */
         std::string getName(BaseStructure & structure, bool numValid) {
             uint16_t tag = structure.getHeader()->getTag();
-            uint8_t num = structure.getHeader()->getNumber();
+            uint8_t  num = structure.getHeader()->getNumber();
 
             if (numValid) {
                 return getName(tag, num);
@@ -959,9 +972,6 @@ public:
          * @return descriptive name or ??? if none found
          */
         std::string getName(uint16_t tag, uint8_t num, uint16_t tagEnd) {
-            // Check tag arg
-            //if (tag == null) return INameProvider.NO_NAME_STRING;
-
             // The generated key below is equivalent (equals() overridden)
             // to the key existing in the map. Use it to find the value.
             auto key = std::make_shared<EvioDictionaryEntry>(tag, num, tagEnd);
@@ -1104,8 +1114,6 @@ public:
                             uint16_t pTag, uint8_t pNum, uint16_t pTagEnd,
                             bool numValid = true, bool parentValid = false,
                             bool parentNumValid = false) {
-            // Check tag arg
-//    if (tag == null) return INameProvider.NO_NAME_STRING;
 
             // Do we use parent info?
             if (!parentValid) {
@@ -1168,7 +1176,7 @@ public:
                         break;
                     }
 
-                    // Create tag-only key and try to find tag-only match
+                    // Create tag-only key and try to find tag-only match (fall thru case)
                     key = std::make_shared<EvioDictionaryEntry>(tag);
                 }
 
@@ -1200,7 +1208,7 @@ public:
                         for (auto & iter : tagRangeMap) {
                             auto entry = iter.first;
                             if (entry->inRange(tag)) {
-                                name = it->second;
+                                name = iter.second;
                                 goto out;
                             }
                         }
@@ -1278,15 +1286,8 @@ public:
 
                     auto it = tagRangeMap.find(key);
                     if (it != tagRangeMap.end()) {
-                        name = it->second;
-
-                        for (auto & iter : tagRangeMap) {
-                            std::string n = iter.second;
-                            if (n == name) {
-                                entry = iter.first;
-                                goto out;
-                            }
-                        }
+                        name  = it->second;
+                        entry = it->first;
                     }
                     // If a tag/num pair or only a tag was specified in the args,
                     // see if either falls in a range of tags.
@@ -1321,15 +1322,13 @@ public:
          */
         std::shared_ptr<EvioDictionaryEntry> entryLookupByName(std::string const & name) {
             // Check all entries
-            std::shared_ptr<EvioDictionaryEntry> entry;
-
             auto it2 = tagNumReverseMap.find(name);
             if (it2 != tagNumReverseMap.end()) {
                 return it2->second;
             }
 
             std::cout << "entryLookup: no entry for name = " << name << std::endl;
-            return entry;
+            return nullptr;
         }
 
     public:
