@@ -29,6 +29,7 @@
 #include "EvioNode.h"
 #include "RecordHeader.h"
 #include "IBlockHeader.h"
+#include "DataType.h"
 
 using namespace std;
 
@@ -46,6 +47,54 @@ namespace evio {
 class Util {
 
 public:
+
+
+    /**
+     * Case insensitive compare for 2 strings.
+     * @param a first string.
+     * @param b second string.
+     * @return true if equal, else false.
+     */
+    static bool iStrEquals(const std::string& a, const std::string& b) {
+        unsigned int sz = a.size();
+        if (b.size() != sz)
+            return false;
+        for (unsigned int i = 0; i < sz; ++i)
+            if (tolower(a[i]) != tolower(b[i]))
+                return false;
+        return true;
+    }
+
+
+    /**
+     * This method returns an XML element name given an evio data type.
+     * @param type evio data type
+     * @return XML element name used in evio event xml output
+     */
+    static DataType & getDataType(const std::string & type) {
+
+             if (isStrEquals(type,"int8"))       return DataType::CHAR8;
+        else if (isStrEquals(type,"uint8"))      return DataType::UCHAR8;
+        else if (isStrEquals(type,"int16"))      return DataType::SHORT16;
+        else if (isStrEquals(type,"uint16"))     return DataType::USHORT16;
+        else if (isStrEquals(type,"int32"))      return DataType::INT32;
+        else if (isStrEquals(type,"uint32"))     return DataType::UINT32;
+        else if (isStrEquals(type,"int64"))      return DataType::LONG64;
+        else if (isStrEquals(type,"uint64"))     return DataType::ULONG64;
+        else if (isStrEquals(type,"long64"))     return DataType::LONG64;
+        else if (isStrEquals(type,"ulong64"))    return DataType::ULONG64;
+        else if (isStrEquals(type,"float32"))    return DataType::FLOAT32;
+        else if (isStrEquals(type,"float64"))    return DataType::DOUBLE64;
+        else if (isStrEquals(type,"double64"))   return DataType::DOUBLE64;
+        else if (isStrEquals(type,"string"))     return DataType::CHARSTAR8;
+        else if (isStrEquals(type,"composite"))  return DataType::COMPOSITE;
+        else if (isStrEquals(type,"unknown32"))  return DataType::UNKNOWN32;
+        else if (isStrEquals(type,"tagsegment")) return DataType::TAGSEGMENT;
+        else if (isStrEquals(type,"segment"))    return DataType::ALSOSEGMENT;
+        else if (isStrEquals(type,"bank"))       return DataType::ALSOBANK;
+
+        return DataType::NOT_A_VALID_TYPE;
+    }
 
 
     /**
@@ -284,9 +333,7 @@ public:
 
         // Find the version number, again, SAME LOCATION FOR ALL EVIO VERSIONS
         uint32_t bitInfo = bb.getUInt(initialPos + RecordHeader::BIT_INFO_OFFSET);
-        evioVersion = bitInfo & RecordHeader::VERSION_MASK;
-
-        return evioVersion;
+        return bitInfo & RecordHeader::VERSION_MASK;
     }
 
 
