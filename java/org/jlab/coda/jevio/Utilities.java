@@ -1861,25 +1861,25 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
 
         if (type == null) return null;
 
-        if (type.equalsIgnoreCase("int8"))       return DataType.CHAR8;
-        if (type.equalsIgnoreCase("uint8"))      return DataType.UCHAR8;
-        if (type.equalsIgnoreCase("int16"))      return DataType.SHORT16;
-        if (type.equalsIgnoreCase("uint16"))     return DataType.USHORT16;
-        if (type.equalsIgnoreCase("int32"))      return DataType.INT32;
-        if (type.equalsIgnoreCase("uint32"))     return DataType.UINT32;
-        if (type.equalsIgnoreCase("int64"))      return DataType.LONG64;
-        if (type.equalsIgnoreCase("uint64"))     return DataType.ULONG64;
-        if (type.equalsIgnoreCase("long64"))     return DataType.LONG64;
-        if (type.equalsIgnoreCase("ulong64"))    return DataType.ULONG64;
-        if (type.equalsIgnoreCase("float32"))    return DataType.FLOAT32;
-        if (type.equalsIgnoreCase("float64"))    return DataType.DOUBLE64;
-        if (type.equalsIgnoreCase("double64"))   return DataType.DOUBLE64;
-        if (type.equalsIgnoreCase("string"))     return DataType.CHARSTAR8;
-        if (type.equalsIgnoreCase("composite"))  return DataType.COMPOSITE;
-        if (type.equalsIgnoreCase("unknown32"))  return DataType.UNKNOWN32;
-        if (type.equalsIgnoreCase("tagsegment")) return DataType.TAGSEGMENT;
-        if (type.equalsIgnoreCase("segment"))    return DataType.ALSOSEGMENT;
-        if (type.equalsIgnoreCase("bank"))       return DataType.ALSOBANK;
+             if (type.equalsIgnoreCase("int8"))       return DataType.CHAR8;
+        else if (type.equalsIgnoreCase("uint8"))      return DataType.UCHAR8;
+        else if (type.equalsIgnoreCase("int16"))      return DataType.SHORT16;
+        else if (type.equalsIgnoreCase("uint16"))     return DataType.USHORT16;
+        else if (type.equalsIgnoreCase("int32"))      return DataType.INT32;
+        else if (type.equalsIgnoreCase("uint32"))     return DataType.UINT32;
+        else if (type.equalsIgnoreCase("int64"))      return DataType.LONG64;
+        else if (type.equalsIgnoreCase("uint64"))     return DataType.ULONG64;
+        else if (type.equalsIgnoreCase("long64"))     return DataType.LONG64;
+        else if (type.equalsIgnoreCase("ulong64"))    return DataType.ULONG64;
+        else if (type.equalsIgnoreCase("float32"))    return DataType.FLOAT32;
+        else if (type.equalsIgnoreCase("float64"))    return DataType.DOUBLE64;
+        else if (type.equalsIgnoreCase("double64"))   return DataType.DOUBLE64;
+        else if (type.equalsIgnoreCase("string"))     return DataType.CHARSTAR8;
+        else if (type.equalsIgnoreCase("composite"))  return DataType.COMPOSITE;
+        else if (type.equalsIgnoreCase("unknown32"))  return DataType.UNKNOWN32;
+        else if (type.equalsIgnoreCase("tagsegment")) return DataType.TAGSEGMENT;
+        else if (type.equalsIgnoreCase("segment"))    return DataType.ALSOSEGMENT;
+        else if (type.equalsIgnoreCase("bank"))       return DataType.ALSOBANK;
 
         return null;
     }
