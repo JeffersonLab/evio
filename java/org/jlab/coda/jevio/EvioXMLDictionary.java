@@ -560,6 +560,7 @@ System.out.println("IGNORING entry whose name conflicts with reserved strings: "
      * This method acts recursively since any node may contain children.
      *
      * @param kidList a list of the children of an xml node.
+     * @param parentName name of the parent xml node.
      */
     private void addHierarchicalDictEntries(NodeList kidList, String parentName) {
 
