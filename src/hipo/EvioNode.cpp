@@ -437,9 +437,6 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & bu
 }
 
 
-
-//TODO: these may have to return shared pointers!
-
 /**
  * This method extracts an EvioNode object representing an
  * evio event (top level evio bank) from a given buffer, a
@@ -1159,6 +1156,15 @@ uint32_t EvioNode::getEventNumber() {return (place + 1);}
  *         else <code>false</code>
  */
 bool EvioNode::isEvent() {return izEvent;}
+
+
+/**
+ * Has this object been scanned (i.e. has all the information
+ * about this node's children been parsed and stored) ?
+ * @return <code>true</code> if this object has been scanned,
+ *         else <code>false</code>
+ */
+bool EvioNode::getScanned() {return scanned;}
 
 
 /**

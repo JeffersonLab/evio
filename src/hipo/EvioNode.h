@@ -19,6 +19,8 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+
+
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "DataType.h"
@@ -45,6 +47,7 @@ class EvioNodeSource;
 class EvioNode {
 
     friend class Util;
+    friend class EvioCompactReaderV4;
 
 private:
 
@@ -71,7 +74,9 @@ private:
     /** Position of the record in buffer containing this node in bytes
      *  @since version 6. */
     uint32_t recordPos = 0;
+
 public:
+
     void setLen(uint32_t len);
 
     void setTag(uint32_t tag);
@@ -93,6 +98,7 @@ public:
     void setRecordPos(uint32_t recordPos);
 
 private:
+
     /** Store data in int array form if calculated. */
     vector<uint32_t> data;
 
@@ -100,7 +106,7 @@ private:
     bool izEvent = false;
 
     /** If the data this node represents is removed from the buffer,
-*  then this object is obsolete. */
+     *  then this object is obsolete. */
     bool obsolete = false;
 
     /** ByteBuffer that this node is associated with. */
@@ -245,6 +251,7 @@ public:
     std::shared_ptr<EvioNode> getParentNode();
     uint32_t getEventNumber();
     bool isEvent();
+    bool getScanned();
 
     void updateLengths(int deltaLen);
     void updateTag(uint32_t newTag);
