@@ -431,7 +431,7 @@ class EvioCompactReaderV4 implements IEvioCompactReader {
  	private void mapFile(FileChannel inputChannel) throws IOException {
  		long sz = inputChannel.size();
  		mappedByteBuffer = inputChannel.map(FileChannel.MapMode.READ_ONLY, 0L, sz);
-         byteBuffer = mappedByteBuffer;
+        byteBuffer = mappedByteBuffer;
  	}
 
     /**
