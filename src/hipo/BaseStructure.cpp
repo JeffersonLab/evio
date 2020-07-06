@@ -2139,7 +2139,7 @@ namespace evio {
      *
      * @param bytes       raw evio string data
      * @param offset      offset into raw data vector
-     * @param length      length in bytes of valid data in bytes vector
+     * @param length      length in bytes of valid data at bytes pointer
      * @param strData     vector in which to place extracted strings.
      */
     void BaseStructure::unpackRawBytesToStrings(uint8_t *bytes, size_t length,
