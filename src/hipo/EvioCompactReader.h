@@ -20,6 +20,8 @@
 
 
 #include "IEvioCompactReader.h"
+#include "EvioCompactReaderV4.h"
+
 #include "EvioReader.h"
 #include "Util.h"
 
@@ -78,15 +80,15 @@ namespace evio {
         void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) override;
         std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) override;
 
-        /*synchronized*/bool isClosed() override;
+        bool isClosed() override;
 
         ByteOrder getByteOrder() override;
         uint32_t getEvioVersion() override;
         string getPath() override;
         ByteOrder getFileByteOrder() override;
 
-        /*synchronized*/string getDictionaryXML() override ;
-        /*synchronized*/EvioXMLDictionary getDictionary() override ;
+        string getDictionaryXML() override ;
+        EvioXMLDictionary getDictionary() override ;
 
         bool hasDictionary() override;
 
@@ -103,25 +105,25 @@ namespace evio {
 
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override;
 
-        /*synchronized*/void searchEvent(size_t evNumber, uint16_t tag, uint8_t num, std::vector<EvioNode> & vec) override ;
+        void searchEvent(size_t evNumber, uint16_t tag, uint8_t num, std::vector<EvioNode> & vec) override ;
 
-        /*synchronized*/void searchEvent(size_t eventNumber, string const & dictName,
+        void searchEvent(size_t eventNumber, string const & dictName,
                                  EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) override ;
 
-        /*synchronized*/std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) override;
-        /*synchronized*/std::shared_ptr<ByteBuffer> removeStructure(EvioNode & removeNode) override;
-        /*synchronized*/std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override;
+        std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) override;
+        std::shared_ptr<ByteBuffer> removeStructure(EvioNode & removeNode) override;
+        std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override;
 
         std::shared_ptr<ByteBuffer> getData(EvioNode & node) override;
-        /*synchronized*/std::shared_ptr<ByteBuffer> getData(EvioNode & node, bool copy) override;
+        std::shared_ptr<ByteBuffer> getData(EvioNode & node, bool copy) override;
 
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) override;
-        /*synchronized*/std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override;
+        std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override;
 
         std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node) override;
-        /*synchronized*/std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node, bool copy) override;
+        std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node, bool copy) override;
 
-        /*synchronized*/void close() override;
+        void close() override;
 
         uint32_t getEventCount() override;
         uint32_t getBlockCount() override;
@@ -129,7 +131,7 @@ namespace evio {
         void toFile(std::string const & fileName) override;
 
 //        /** {@inheritDoc} */
-//        /*synchronized*/void toFile(File file) {
+//        void toFile(File file) {
 //                reader->toFile(file);
 //        }
 

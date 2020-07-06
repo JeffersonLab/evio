@@ -157,7 +157,7 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/bool EvioCompactReader::isClosed() {return reader->isClosed();}
+    bool EvioCompactReader::isClosed() {return reader->isClosed();}
 
     /** {@inheritDoc} */
     ByteOrder EvioCompactReader::getByteOrder() {return reader->getByteOrder();}
@@ -166,18 +166,18 @@ namespace evio {
     uint32_t EvioCompactReader::getEvioVersion() {return evioVersion;}
 
     /** {@inheritDoc} */
-    string EvioCompactReader::getPath() {return reader->getPath();}
+    std::string EvioCompactReader::getPath() {return reader->getPath();}
 
     /** {@inheritDoc} */
     ByteOrder EvioCompactReader::getFileByteOrder() {return reader->getFileByteOrder();}
 
     /** {@inheritDoc} */
-    /*synchronized*/string EvioCompactReader::getDictionaryXML() {
+    std::string EvioCompactReader::getDictionaryXML() {
         return reader->getDictionaryXML();
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/EvioXMLDictionary EvioCompactReader::getDictionary() {
+    EvioXMLDictionary EvioCompactReader::getDictionary() {
         return reader->getDictionary();
     }
 
@@ -215,29 +215,29 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/void EvioCompactReader::searchEvent(size_t evNumber, uint16_t tag, uint8_t num,
+    void EvioCompactReader::searchEvent(size_t evNumber, uint16_t tag, uint8_t num,
                                                         std::vector<EvioNode> & vec) {
         return reader->searchEvent(evNumber, tag, num, vec);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/void EvioCompactReader::searchEvent(size_t eventNumber, string const & dictName,
+    void EvioCompactReader::searchEvent(size_t eventNumber, string const & dictName,
                                      EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) {
         return reader->searchEvent(eventNumber, dictName, dictionary, vec);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::removeEvent(size_t eventNumber) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::removeEvent(size_t eventNumber) {
         return reader->removeEvent(eventNumber);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::removeStructure(EvioNode & removeNode) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::removeStructure(EvioNode & removeNode) {
         return reader->removeStructure(removeNode);
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::addStructure(size_t eventNumber, ByteBuffer & addBuffer) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::addStructure(size_t eventNumber, ByteBuffer & addBuffer) {
         return reader->addStructure(eventNumber, addBuffer);
     }
 
@@ -247,7 +247,7 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::getData(EvioNode & node, bool copy) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(EvioNode & node, bool copy) {
         return reader->getData(node, copy);
     }
 
@@ -257,7 +257,7 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::getEventBuffer(size_t eventNumber, bool copy) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getEventBuffer(size_t eventNumber, bool copy) {
         return reader->getEventBuffer(eventNumber, copy);
     }
 
@@ -267,13 +267,13 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    /*synchronized*/std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(EvioNode & node, bool copy) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(EvioNode & node, bool copy) {
         return reader->getStructureBuffer(node, copy);
     }
 
 
     /** {@inheritDoc} */
-    /*synchronized*/void EvioCompactReader::close() {reader->close();}
+    void EvioCompactReader::close() {reader->close();}
 
     /** {@inheritDoc} */
     uint32_t EvioCompactReader::getEventCount() {return reader->getEventCount();}
