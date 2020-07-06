@@ -123,6 +123,19 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/IBlockHeader.h
         src/hipo/IEvioReader.h
         src/hipo/EvioReader.h
+        src/hipo/EvioReaderV4.h
+        src/hipo/BlockHeaderV2.h
+        src/hipo/BlockHeaderV4.h
+        src/hipo/EvioReaderV6.h
+        src/hipo/EvioCompactReader.h
+        src/hipo/IEvioCompactReader.h
+        src/hipo/EvioXMLDictionary.h
+        src/hipo/EvioDictionaryEntry.h
+        src/hipo/pugixml.hpp
+        src/hipo/pugiconfig.hpp
+        src/hipo/INameProvider.h
+        src/hipo/EvioCompactReaderV4.h
+        src/hipo/BlockNode.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -152,7 +165,13 @@ set(CPP_LIB_FILES_NEW
         src/hipo/TagSegmentHeader.cpp
         src/hipo/EventParser.cpp
         src/hipo/EvioReader.cpp
-        src/hipo/EvioReaderV4.cpp src/hipo/EvioReaderV4.h src/hipo/BlockHeaderV2.h src/hipo/BlockHeaderV4.h)
+        src/hipo/EvioReaderV4.cpp
+        src/hipo/EvioReaderV6.cpp
+        src/hipo/EvioCompactReader.cpp
+        src/hipo/EvioXMLDictionary.cpp
+        src/hipo/pugixml.cpp
+        src/hipo/EvioCompactReaderV4.cpp
+        )
 
 set(TEST_FILES_CC
         ReadWriteTest.cpp
