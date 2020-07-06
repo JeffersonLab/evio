@@ -22,13 +22,16 @@ namespace evio {
 
 
 /**
- * This class is used to store relevant info about an evio record
+ * This class is used to store relevant info about an evio record (or block)
  * along with its position in a buffer.
+ * This class was previously called "BlockNode" in java.
  *
  * @author timmer
  * Date: 7/23/2019
  */
 class RecordNode {
+
+    friend class EvioCompactReaderV4;
 
 private:
 
