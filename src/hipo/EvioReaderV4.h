@@ -57,7 +57,7 @@ namespace evio {
      */
     class EvioReaderV4 : public IEvioReader {
 
-    private:
+    public:
 
         /**  Offset to get magic number from start of file. */
         static const uint32_t MAGIC_OFFSET = 28;
@@ -76,7 +76,7 @@ namespace evio {
          *  This constant <b>MUST BE</b> an integer multiple of 32768.*/
         static const uint32_t DEFAULT_READ_BYTES = 32768 * 500; // 16384000 bytes
 
-
+    private:
 
         /** When doing a sequential read, used to assign a transient
          * number [1..n] to events as they are being read. */
