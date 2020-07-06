@@ -11,17 +11,27 @@
  * @author timmer
  */
 
+#include <stdexcept>
 #include <vector>
 #include <memory>
+#include <limits>
 #include <string>
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 
 #include "ByteBuffer.h"
 #include "ByteOrder.h"
+#include "BaseStructure.h"
 #include "IEvioCompactReader.h"
 #include "IEvioReader.h"
+#include "EvioReaderV4.h"
 #include "IBlockHeader.h"
 #include "EvioNode.h"
+#include "RecordNode.h"
 
 
 #ifndef EVIO_6_0_EVIOCOMPACTREADERV4_H
@@ -39,7 +49,7 @@ namespace evio {
      *
      * @author timmer
      */
-    class EvioCompactReaderV4 : IEvioCompactReader {
+    class EvioCompactReaderV4 : public IEvioCompactReader {
 
     public:
 
@@ -64,10 +74,10 @@ namespace evio {
     private:
 
         /** Stores info of all the (top-level) events. */
-        std::vector<EvioNode> eventNodes;
+        std::vector<std::shared_ptr<EvioNode>> eventNodes;
 
         /** Store info of all block headers. */
-        unordered_map<uint32_t, BlockNode> blockNodes = new HashMap<>(20);
+        unordered_map<uint32_t, std::shared_ptr<RecordNode>> blockNodes;
 
         /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
         EvioNodeSource nodePool;
@@ -96,13 +106,13 @@ namespace evio {
         int blockCount = -1;
 
         /** Size of the first block header in 32-bit words. Used to read dictionary. */
-        int firstBlockHeaderWords;
+        uint32_t firstBlockHeaderWords = 0;
 
         /** The current block header. */
-        BlockHeaderV4 blockHeader;
+        std::shared_ptr<BlockHeaderV4> blockHeader;
 
         /** Does the file/buffer have a dictionary? */
-        bool hasDict;
+        bool hasDict = false;
 
         /**
          * Version 4 files may have an xml format dictionary in the
@@ -111,10 +121,10 @@ namespace evio {
         std::string dictionaryXML;
 
         /** Dictionary object created from dictionaryXML string. */
-        EvioXMLDictionary dictionary;
+        std::shared_ptr<EvioXMLDictionary> dictionary = nullptr;
 
         /** The buffer being read. */
-        ByteBuffer byteBuffer;
+        std::shared_ptr<ByteBuffer> byteBuffer = nullptr;
 
         /** Initial position of buffer (mappedByteBuffer if reading a file). */
         size_t initialPosition = 0;
@@ -133,13 +143,14 @@ namespace evio {
         /** Are we reading a file or buffer? */
         bool readingFile = false;
 
-        ifstream inStreamRandom;
+        /** Object to talk to file. */
+        ifstream file;
 
         /**
          * The buffer representing a map of the input file which is also
          * accessed through {@link #byteBuffer}.
          */
-        MappedByteBuffer mappedByteBuffer;
+        std::shared_ptr<ByteBuffer> mappedByteBuffer;
 
         /** Absolute path of the underlying file. */
         std::string path = "";
@@ -147,17 +158,17 @@ namespace evio {
         /** File size in bytes. */
         size_t fileBytes = 0;
 
-
     public:
 
-        EvioCompactReaderV4(std::string const & path);
-        EvioCompactReaderV4(std::shared_ptr<ByteBuffer> &byteBuffer);
+        explicit EvioCompactReaderV4(std::string const & path);
+        explicit EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer);
         EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool) ;
 
-        void setBuffer(std::shared_ptr<ByteBuffer> buf);
-        void setBuffer(std::shared_ptr<ByteBuffer> buf, EvioNodeSource & pool);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) override ;
 
-        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> buf, EvioNodeSource & pool);
+        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
+                                                        EvioNodeSource & pool) override ;
 
         bool isFile() override ;
         bool isCompressed() override ;
@@ -167,60 +178,55 @@ namespace evio {
         std::string getPath() override ;
         ByteOrder getFileByteOrder() override ;
         std::string getDictionaryXML() override ;
-        EvioXMLDictionary getDictionary() override ;
+        std::shared_ptr<EvioXMLDictionary> getDictionary() override ;
         bool hasDictionary() override ;
-
 
     private:
 
-        void mapFile(FileChannel  & inputChannel);
+        void mapFile(std::string const & filename, size_t fileS);
         void generateEventPositionTable();
 
     public:
 
-        // MappedByteBuffer getMappedByteBuffer();
         std::shared_ptr<ByteBuffer> getByteBuffer() override;
+        std::shared_ptr<ByteBuffer> getMappedByteBuffer() override ;
         size_t fileSize() override ;
 
-        EvioNode getEvent(size_t eventNumber) override ;
-        EvioNode getScannedEvent(size_t eventNumber) override ;
-        EvioNode getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) override ;
-
+        std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override ;
+        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) override ;
+        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) override ;
 
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
 
-
     private:
-
 
         IEvioReader::ReadWriteStatus readFirstHeader();
         void readDictionary();
-        EvioNode scanStructure(size_t eventNumber);
-        EvioNode scanStructure(size_t eventNumber, EvioNodeSource & nodeSource);
-
+        std::shared_ptr<EvioNode> scanStructure(size_t eventNumber);
+        std::shared_ptr<EvioNode> scanStructure(size_t eventNumber, EvioNodeSource & nodeSource);
 
     public:
 
-
-        void searchEvent(size_t eventNumber, uint16_t tag, uint8_t num, std::vector<EvioNode> & vec) override ;
+        void searchEvent(size_t eventNumber, uint16_t tag, uint8_t num,
+                         std::vector<std::shared_ptr<EvioNode>> & vec) override ;
         void searchEvent(size_t eventNumber, std::string const & dictName,
-                         EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) override ;
+                         std::shared_ptr<EvioXMLDictionary> & dictionary,
+                         std::vector<std::shared_ptr<EvioNode>> & vec) override ;
 
 
         std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) override ;
 
-        std::shared_ptr<ByteBuffer> removeStructure(EvioNode & removeNode) override ;
+        std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) override ;
         std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override ;
 
-        std::shared_ptr<ByteBuffer> getData(EvioNode & node) override ;
-        std::shared_ptr<ByteBuffer> getData(EvioNode & node, bool copy) override ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) override ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) override ;
 
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) override ;
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override ;
 
-        std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node) override ;
-        std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node, bool copy) override ;
-
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node) override ;
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) override ;
 
         void close() override ;
 

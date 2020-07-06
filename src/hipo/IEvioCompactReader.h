@@ -167,7 +167,7 @@ namespace evio {
          * @throws EvioException if object closed and dictionary still unread
          * @return evio dictionary if exists, else null.
          */
-        virtual EvioXMLDictionary getDictionary() = 0;
+        virtual std::shared_ptr<EvioXMLDictionary> getDictionary() = 0;
 
         /**
          * Does this evio file have an associated XML dictionary?
@@ -177,11 +177,11 @@ namespace evio {
          */
         virtual bool hasDictionary() = 0;
 
-//        /**
-//         * Get the memory mapped buffer corresponding to the event file.
-//         * @return the memory mapped buffer corresponding to the event file.
-//         */
-//        virtual MappedByteBuffer getMappedByteBuffer();
+        /**
+         * Get the memory mapped buffer corresponding to the event file.
+         * @return the memory mapped buffer corresponding to the event file.
+         */
+        virtual std::shared_ptr<ByteBuffer> getMappedByteBuffer();
 
         /**
          * Get the byte buffer being read directly or corresponding to the event file.
@@ -202,7 +202,7 @@ namespace evio {
          * @return  EvioNode object associated with a particular event number,
          *          or null if there is none.
          */
-        virtual EvioNode getEvent(size_t evNumber) = 0;
+        virtual std::shared_ptr<EvioNode> getEvent(size_t evNumber) = 0;
 
         /**
          * Get the EvioNode object associated with a particular event number
@@ -212,7 +212,7 @@ namespace evio {
          * @return  EvioNode object associated with a particular event number,
          *          or null if there is none.
          */
-        virtual EvioNode getScannedEvent(size_t evNumber) = 0;
+        virtual std::shared_ptr<EvioNode> getScannedEvent(size_t evNumber) = 0;
 
         /**
          * Get the EvioNode object associated with a particular event number
@@ -223,7 +223,7 @@ namespace evio {
          * @return  EvioNode object associated with a particular event number,
          *          or null if there is none.
          */
-        virtual EvioNode getScannedEvent(size_t evNumber, EvioNodeSource & nodeSource) = 0;
+        virtual std::shared_ptr<EvioNode> getScannedEvent(size_t evNumber, EvioNodeSource & nodeSource) = 0;
 
         /**
          * This returns the FIRST block (or record) header.
@@ -244,7 +244,8 @@ namespace evio {
          * @throws EvioException if bad arg value(s);
          *                       if object closed
          */
-        virtual void searchEvent(size_t evNumber, uint16_t tag, uint8_t num, std::vector<EvioNode> & vec) = 0;
+        virtual void searchEvent(size_t evNumber, uint16_t tag, uint8_t num,
+                                 std::vector<std::shared_ptr<EvioNode>> & vec) = 0;
 
         /**
          * This method searches the specified event in a file/buffer and
@@ -262,7 +263,8 @@ namespace evio {
          *                       if object closed
          */
         virtual void searchEvent(size_t evNumber, string const & dictName,
-                                 EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) = 0;
+                                 std::shared_ptr<EvioXMLDictionary> & dictionary,
+                                 std::vector<std::shared_ptr<EvioNode>> & vec) = 0;
 
         /**
          * This method removes the data of the given event from the buffer.
@@ -302,7 +304,7 @@ namespace evio {
          *                       if node was not found in any event;
          *                       if internal programming error
          */
-        virtual std::shared_ptr<ByteBuffer> removeStructure(EvioNode & removeNode) = 0;
+        virtual std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) = 0;
 
         /**
          * This method adds an evio container (bank, segment, or tag segment) as the last
@@ -353,7 +355,7 @@ namespace evio {
          * @return ByteBuffer object containing data. Position and limit are
          *         set for reading.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(EvioNode & node) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) = 0;
 
         /**
          * Get the data associated with an evio structure in ByteBuffer form.
@@ -368,7 +370,7 @@ namespace evio {
          * @return ByteBuffer object containing data. Position and limit are
          *         set for reading.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(EvioNode & node, bool copy) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) = 0;
 
         /**
          * Get an evio bank or event in ByteBuffer form.
@@ -409,7 +411,7 @@ namespace evio {
          * @throws EvioException if node is null;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node) = 0;
+        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node) = 0;
 
         /**
          * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
@@ -424,7 +426,7 @@ namespace evio {
          * @throws EvioException if node is null;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node, bool copy) = 0;
+        virtual std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) = 0;
 
         /** This sets the position to its initial value and marks reader as closed. */
         virtual void close() = 0;
