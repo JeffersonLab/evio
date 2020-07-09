@@ -1260,29 +1260,48 @@ void EvioNode::updateNum(uint8_t newNum) {
 }
 
 
-/**
- * Get the data associated with this node in ByteBuffer form.
- * Depending on the copy argument, the given buffer will be filled with either
- * a copy of or a view into this node's buffer.
- * Position and limit are set for reading.<p>
- *
- * @param dest buffer in which to place data.
- * @param copy if <code>true</code>, then return a copy as opposed to a
- *             view into this node's buffer.
- * @return dest arg ByteBuffer containing data.
- *         Position and limit are set for reading.
- */
-ByteBuffer & EvioNode::getByteData(ByteBuffer & dest, bool copy) {
-    if (copy) {
-        // copy data & everything else
-        dest.copy(buffer);
-    } else {
-        // dest now has shared pointer to buffer's data
-        buffer->duplicate(dest);
+    /**
+     * Get the data associated with this node in ByteBuffer form.
+     * Depending on the copy argument, the given buffer will be filled with either
+     * a copy of or a view into this node's buffer.
+     * Position and limit are set for reading.<p>
+     *
+     * @param dest buffer in which to place data.
+     * @param copy if <code>true</code>, then return a copy as opposed to a
+     *             view into this node's buffer.
+     * @return dest arg ByteBuffer containing data.
+     *         Position and limit are set for reading.
+     */
+    ByteBuffer & EvioNode::getByteData(ByteBuffer & dest, bool copy) {
+        if (copy) {
+            // copy data & everything else
+            dest.copy(buffer);
+        } else {
+            // dest now has shared pointer to buffer's data
+            buffer->duplicate(dest);
+        }
+        dest.limit(dataPos + 4*dataLen - pad).position(dataPos);
+        return dest;
     }
-    dest.limit(dataPos + 4*dataLen - pad).position(dataPos);
-    return dest;
-}
+
+
+    /**
+     * Get the data associated with this node in ByteBuffer form.
+     * Depending on the copy argument, the given buffer will be filled with either
+     * a copy of or a view into this node's buffer.
+     * Position and limit are set for reading.<p>
+     *
+     * @param dest buffer in which to place data.
+     * @param copy if <code>true</code>, then return a copy as opposed to a
+     *             view into this node's buffer.
+     * @return dest arg ByteBuffer containing data.
+     *         Position and limit are set for reading.
+     */
+    std::shared_ptr<ByteBuffer> & EvioNode::getByteData(std::shared_ptr<ByteBuffer> & dest, bool copy) {
+        auto buff = *(dest.get());
+        getByteData(buff, copy);
+        return dest;
+    }
 
 
 /**
@@ -1352,28 +1371,46 @@ void EvioNode::getShortData(vector<uint16_t> & shortData) {
 }
 
 
-/**
- * Get this node's entire evio structure in ByteBuffer form.
- * Depending on the copy argument, the returned buffer will either have
- * a copy of or a view into the data of this node's buffer.
- * Position and limit are set for reading.
- *
- * @param copy if <code>true</code>, then use a copy of as opposed to a
- *        view into this node's buffer.
- * @return dest arg ByteBuffer containing evio structure's bytes.
- *         Position and limit are set for reading.
- */
-ByteBuffer & EvioNode::getStructureBuffer(ByteBuffer & dest, bool copy) {
-    if (copy) {
-        // copy data & everything else
-        dest.copy(buffer);
-    } else {
-        // dest now has shared pointer to buffer's data
-        buffer->duplicate(dest);
+    /**
+     * Get this node's entire evio structure in ByteBuffer form.
+     * Depending on the copy argument, the returned buffer will either have
+     * a copy of or a view into the data of this node's buffer.
+     * Position and limit are set for reading.
+     *
+     * @param copy if <code>true</code>, then use a copy of as opposed to a
+     *        view into this node's buffer.
+     * @return dest arg ByteBuffer containing evio structure's bytes.
+     *         Position and limit are set for reading.
+     */
+    ByteBuffer & EvioNode::getStructureBuffer(ByteBuffer & dest, bool copy) {
+        if (copy) {
+            // copy data & everything else
+            dest.copy(buffer);
+        } else {
+            // dest now has shared pointer to buffer's data
+            buffer->duplicate(dest);
+        }
+        dest.limit(dataPos + 4 * dataLen).position(pos);
+        return dest;
     }
-    dest.limit(dataPos + 4 * dataLen).position(pos);
-    return dest;
-}
+
+    /**
+     * Get this node's entire evio structure in ByteBuffer form.
+     * Depending on the copy argument, the returned buffer will either have
+     * a copy of or a view into the data of this node's buffer.
+     * Position and limit are set for reading.
+     *
+     * @param copy if <code>true</code>, then use a copy of as opposed to a
+     *        view into this node's buffer.
+     * @return dest arg ByteBuffer containing evio structure's bytes.
+     *         Position and limit are set for reading.
+     */
+    std::shared_ptr<ByteBuffer> & EvioNode::getStructureBuffer(std::shared_ptr<ByteBuffer> & dest, bool copy) {
+        auto buff = *(dest.get());
+        getStructureBuffer(buff, copy);
+        return dest;
+    }
+
 
 }
 

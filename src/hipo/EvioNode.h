@@ -258,11 +258,13 @@ public:
     void updateNum(uint8_t newNum);
 
     ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
+    std::shared_ptr<ByteBuffer> & getByteData(std::shared_ptr<ByteBuffer> & dest, bool copy);
     std::vector<uint32_t> & getIntData();
     void getIntData(vector<uint32_t> & intData);
     void getLongData(vector<uint64_t> & longData);
     void getShortData(vector<uint16_t> & shortData);
     ByteBuffer & getStructureBuffer(ByteBuffer & dest, bool copy);
+    std::shared_ptr<ByteBuffer> & getStructureBuffer(std::shared_ptr<ByteBuffer> & dest, bool copy);
 };
 
 }
