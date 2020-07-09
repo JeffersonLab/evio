@@ -623,6 +623,38 @@ namespace evio {
      * @param destBuf byte buffer to be made a duplicate of this one.
      * @return  the same byte buffer as passed in as the argument.
      */
+    std::shared_ptr<ByteBuffer> & ByteBuffer::duplicate(std::shared_ptr<ByteBuffer> & destBuf) {
+        auto buff = *(destBuf.get());
+        duplicate(buff);
+        return destBuf;
+    }
+
+
+    /**
+     * Returns a byte buffer that shares this buffer's content.
+     *
+     * <p> The content of the returned buffer will be that of this buffer.  Changes
+     * to this buffer's content will be visible in the returned buffer, and vice
+     * versa; the two buffers' position, limit, and mark values will be
+     * independent.
+     *
+     * <p> The returned buffer's capacity, limit, position, and mark values will
+     * initially be identical to those of this buffer.  </p>
+     *
+     * <p> The C++ version of this method departs from the Java which has no argument.
+     * To implement this method, one could return a unique pointer to a locally created
+     * ByteBuffer object which would eliminate the need for an argument. However, handling
+     * the new buffer would be different from handling those created by the constructor
+     * since the caller would have a unique pointer instead of a ByteBuffer reference.
+     *
+     * <p> A cleaner way to do this is for the caller to create their own, new ByteBuffer
+     * object and pass it in as an argument. This method then makes it identical to this
+     * buffer and the data (implemented as a shared pointer) is shared between
+     * the objects. The buffer passed in as an argument is also the one returned.
+     *
+     * @param destBuf byte buffer to be made a duplicate of this one.
+     * @return  the same byte buffer as passed in as the argument.
+     */
     std::shared_ptr<ByteBuffer> ByteBuffer::duplicate() {
         auto destBuf = std::make_shared<ByteBuffer>(cap);
         destBuf->lim = lim;
@@ -713,6 +745,30 @@ namespace evio {
         destBuf.buf = buf;
         return destBuf;
     }
+
+
+    /**
+    * Returns a byte buffer whose content is a shared subsequence of
+    * this buffer's content.
+    *
+    * <p> The content of the returned buffer will start at this buffer's current
+    * position.  Changes to this buffer's content will be visible in the new
+    * buffer, and vice versa; the two buffers' position, limit, and mark
+    * values will be independent.
+    *
+    * <p> The returned buffer's position will be zero, its capacity and its limit
+    * will be the number of bytes remaining in this buffer, and its mark
+    * will be undefined.
+    *
+     * @param destBuf byte buffer to be made a slice of this one.
+     * @return  the same byte buffer as passed in as the argument.
+    */
+    std::shared_ptr<ByteBuffer> & ByteBuffer::slice(std::shared_ptr<ByteBuffer> & destBuf) {
+        auto buff = *(destBuf.get());
+        slice(buff);
+        return destBuf;
+    }
+
 
 
     //----------------

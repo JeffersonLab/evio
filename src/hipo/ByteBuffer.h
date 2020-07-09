@@ -133,8 +133,10 @@ public:
 
     ByteBuffer & order(ByteOrder const & order);
     ByteBuffer & duplicate(ByteBuffer & destBuf);
+    std::shared_ptr<ByteBuffer> & duplicate(std::shared_ptr<ByteBuffer> & destBuf);
     std::shared_ptr<ByteBuffer> duplicate();
     ByteBuffer & slice(ByteBuffer & destBuf);
+    std::shared_ptr<ByteBuffer> & slice(std::shared_ptr<ByteBuffer> & destBuf);
     std::shared_ptr<ByteBuffer> slice();
 
     // Read
