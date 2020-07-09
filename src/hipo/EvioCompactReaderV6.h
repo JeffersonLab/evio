@@ -58,11 +58,13 @@ namespace evio {
         Reader reader;
 
         /** Is this object currently closed? */
-        bool closed;
+        bool closed = false;
 
         /** Dictionary object created from dictionaryXML string. */
-        std::shared_ptr<EvioXMLDictionary> dictionary;
+        std::shared_ptr<EvioXMLDictionary> dictionary = nullptr;
 
+        /** File name if any. */
+        std::string path;
 
     public:
 
