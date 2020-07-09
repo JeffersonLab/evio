@@ -1,14 +1,149 @@
-//
-// Created by Carl Timmer on 7/9/20.
-//
+/**
+ * Copyright (c) 2020, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * EPSCI Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 07/09/2020
+ * @author timmer
+ */
+
+
+#include <stdexcept>
+#include <vector>
+#include <memory>
+#include <limits>
+#include <string>
+#include <cstdio>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fstream>
+#include <sys/mman.h>
+
+
+#include "ByteBuffer.h"
+#include "ByteOrder.h"
+#include "BaseStructure.h"
+#include "IEvioCompactReader.h"
+#include "IEvioReader.h"
+#include "Reader.h"
+#include "IBlockHeader.h"
+#include "EvioNode.h"
+#include "RecordNode.h"
+
 
 #ifndef EVIO_6_0_EVIOCOMPACTREADERV6_H
 #define EVIO_6_0_EVIOCOMPACTREADERV6_H
 
 
-class EvioCompactReaderV6 {
+namespace evio {
 
-};
+
+    /**
+     * This class is used to read an evio format version 6 formatted file or buffer.
+     * It's essentially a wrapper for the hipo.Reader class so the user can have
+     * access to the EvioCompactReader methods. It is NOT thread-safe.<p>
+     *
+     * @author timmer
+     */
+    class EvioCompactReaderV6 : public IEvioCompactReader {
+
+    private:
+
+        /** The reader object which does all the work. */
+        Reader reader;
+
+        /** Is this object currently closed? */
+        bool closed;
+
+        /** Dictionary object created from dictionaryXML string. */
+        std::shared_ptr<EvioXMLDictionary> dictionary;
+
+
+    public:
+
+        explicit EvioCompactReaderV6(std::string const & path);
+        explicit EvioCompactReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer);
+        EvioCompactReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool) ;
+
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) override ;
+
+        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
+                                                        EvioNodeSource & pool) override ;
+
+        bool isFile() override ;
+        bool isCompressed() override ;
+        bool isClosed() override ;
+        ByteOrder getByteOrder() override ;
+        uint32_t getEvioVersion() override ;
+        std::string getPath() override ;
+        ByteOrder getFileByteOrder() override ;
+        std::string getDictionaryXML() override ;
+        std::shared_ptr<EvioXMLDictionary> getDictionary() override ;
+        bool hasDictionary() override ;
+
+    private:
+
+        void mapFile(std::string const & filename, size_t fileS);
+        void generateEventPositionTable();
+
+    public:
+
+        std::shared_ptr<ByteBuffer> getByteBuffer() override;
+        std::shared_ptr<ByteBuffer> getMappedByteBuffer() override ;
+        size_t fileSize() override ;
+
+        std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override ;
+        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) override ;
+        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) override ;
+
+        std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
+
+    private:
+
+        IEvioReader::ReadWriteStatus readFirstHeader();
+        void readDictionary();
+        std::shared_ptr<EvioNode> scanStructure(size_t eventNumber);
+        std::shared_ptr<EvioNode> scanStructure(size_t eventNumber, EvioNodeSource & nodeSource);
+
+    public:
+
+        void searchEvent(size_t eventNumber, uint16_t tag, uint8_t num,
+                         std::vector<std::shared_ptr<EvioNode>> & vec) override ;
+        void searchEvent(size_t eventNumber, std::string const & dictName,
+                         std::shared_ptr<EvioXMLDictionary> & dictionary,
+                         std::vector<std::shared_ptr<EvioNode>> & vec) override ;
+
+
+        std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) override ;
+
+        std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) override ;
+        std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override ;
+
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                            std::shared_ptr<ByteBuffer> & buf) override ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                            std::shared_ptr<ByteBuffer> & buf, bool copy) override ;
+
+        std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) override ;
+        std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override ;
+
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node) override ;
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) override ;
+
+        void close() override ;
+
+        uint32_t  getEventCount() override ;
+        uint32_t getBlockCount() override ;
+
+        void toFile(std::string const & fileName) override ;
+    };
+}
 
 
 #endif //EVIO_6_0_EVIOCOMPACTREADERV6_H

@@ -351,26 +351,28 @@ namespace evio {
          * Changes in one will affect the other.
          *
          * @param node evio structure whose data is to be retrieved
+         * @param buf  ByteBuffer to be filled with data.
          * @throws EvioException if object closed or node arg is null.
-         * @return ByteBuffer object containing data. Position and limit are
-         *         set for reading.
+         * @return buf arg.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                                    std::shared_ptr<ByteBuffer> & buf) = 0;
 
         /**
          * Get the data associated with an evio structure in ByteBuffer form.
-         * Depending on the copy argument, the returned buffer will either be
+         * Depending on the copy argument, the given/returned buffer will either be
          * a copy of or a view into the data of this reader's buffer.<p>
          * This method is synchronized due to the bulk, relative gets &amp; puts.
          *
          * @param node evio structure whose data is to be retrieved
+         * @param buf  ByteBuffer to be filled with data.
          * @param copy if <code>true</code>, then return a copy as opposed to a
          *             view into this reader object's buffer.
          * @throws EvioException if object closed
-         * @return ByteBuffer object containing data. Position and limit are
-         *         set for reading.
+         * @return buf arg.
          */
-        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) = 0;
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                                    std::shared_ptr<ByteBuffer> & buf, bool copy) = 0;
 
         /**
          * Get an evio bank or event in ByteBuffer form.
@@ -458,18 +460,6 @@ namespace evio {
          *                       if object closed
          */
         virtual void toFile(std::string const & fileName) = 0;
-
-//        /**
-//         * Save the internal byte buffer to the given file
-//         * (overwrites existing file).
-//         *
-//         * @param file  object of file to write
-//         * @throws EvioException if file arg is null;
-//         *                       if object closed
-//         * @throws IOException if error writing to file
-//         */
-//        virtual void toFile(File file) = 0;
-
     };
 
 

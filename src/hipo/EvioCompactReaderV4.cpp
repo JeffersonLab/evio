@@ -130,15 +130,7 @@ namespace evio {
     }
 
 
-    /**
-     * This method can be used to avoid creating additional EvioCompactReader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
-     *
-     * @param buf ByteBuffer to be read
-     * @throws EvioException if arg is null;
-     *                       if failure to read first block header
-     */
+    /** {@inheritDoc} */
     void EvioCompactReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         if (buf == nullptr) {
             throw EvioException("arg is null");
@@ -162,15 +154,7 @@ namespace evio {
     }
 
 
-    /**
-     * This method can be used to avoid creating additional EvioCompactReader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
-     *
-     * @param buf ByteBuffer to be read
-     * @throws EvioException if arg is null;
-     *                       if failure to read first block header
-     */
+    /** {@inheritDoc} */
     void EvioCompactReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
         if (buf == nullptr) {
             throw EvioException("arg is null");
@@ -207,43 +191,22 @@ namespace evio {
     /** {@inheritDoc} */
     bool EvioCompactReaderV4::isCompressed() {return false;}
 
-    /**
-     * Has {@link #close()} been called (without reopening by calling
-     * {@link #setBuffer(ByteBuffer)})?
-     *
-     * @return {@code true} if this object closed, else {@code false}.
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ bool EvioCompactReaderV4::isClosed() {return closed;}
 
-    /**
-     * Get the byte order of the file/buffer being read.
-     * @return byte order of the file/buffer being read.
-     */
+    /** {@inheritDoc} */
     ByteOrder EvioCompactReaderV4::getByteOrder() {return byteOrder;}
 
-    /**
-     * Get the evio version number.
-     * @return evio version number.
-     */
+    /** {@inheritDoc} */
     uint32_t EvioCompactReaderV4::getEvioVersion() {return evioVersion;}
 
-    /**
-      * Get the path to the file.
-      * @return path to the file
-      */
+    /** {@inheritDoc} */
     std::string EvioCompactReaderV4::getPath() {return path;}
 
-    /**
-     * Get the byte order of the file being read (or the ByteBuffer for that matter).
-     * @return the byte order.
-     */
+    /** {@inheritDoc} */
     ByteOrder EvioCompactReaderV4::getFileByteOrder() {return byteOrder;}
 
-    /**
-     * Get the XML format dictionary is there is one.
-     * @throws EvioException if object closed and dictionary still unread
-     * @return XML format dictionary, else null.
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ string EvioCompactReaderV4::getDictionaryXML() {
             if (!dictionaryXML.empty()) return dictionaryXML;
 
@@ -262,11 +225,7 @@ namespace evio {
             return dictionaryXML;
     }
 
-    /**
-     * Get the evio dictionary if is there is one.
-     * @throws EvioException if object closed and dictionary still unread
-     * @return evio dictionary if exists, else null.
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ std::shared_ptr<EvioXMLDictionary> EvioCompactReaderV4::getDictionary() {
         if (dictionary != nullptr) return dictionary;
 
@@ -289,12 +248,7 @@ namespace evio {
         return dictionary;
     }
 
-    /**
-     * Does this evio file have an associated XML dictionary?
-     *
-     * @return <code>true</code> if this evio file has an associated XML dictionary,
-     *         else <code>false</code>
-     */
+    /** {@inheritDoc} */
     bool EvioCompactReaderV4::hasDictionary() {return hasDict;}
 
     /**
@@ -336,31 +290,16 @@ namespace evio {
     }
 
 
-    /**
-     * Get the memory mapped buffer corresponding to the event file.
-     * @return the memory mapped buffer corresponding to the event file.
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getMappedByteBuffer() {return mappedByteBuffer;}
 
-    /**
-     * Get the byte buffer being read directly or corresponding to the event file.
-     * @return the byte buffer being read directly or corresponding to the event file.
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getByteBuffer() {return byteBuffer;}
 
-    /**
-     * Get the size of the file being read, in bytes.
-     * For small files, obtain the file size using the memory mapped buffer's capacity.
-     * @return the file size in bytes
-     */
+    /** {@inheritDoc} */
     size_t EvioCompactReaderV4::fileSize() {return fileBytes;}
 
-    /**
-     * Get the EvioNode object associated with a particular event number.
-     * @param eventNumber number of event (place in file/buffer) starting at 1.
-     * @return  EvioNode object associated with a particular event number,
-     *          or null if there is none.
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<EvioNode> EvioCompactReaderV4::getEvent(size_t eventNumber) {
         try {
             return eventNodes.at(eventNumber - 1);
@@ -370,14 +309,7 @@ namespace evio {
     }
 
 
-    /**
-     * Get the EvioNode object associated with a particular event number
-     * which has been scanned so all substructures are contained in the
-     * node.allNodes list.
-     * @param eventNumber number of event (place in file/buffer) starting at 1.
-     * @return  EvioNode object associated with a particular event number,
-     *          or null if there is none.
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<EvioNode> EvioCompactReaderV4::getScannedEvent(size_t eventNumber) {
         try {
             return scanStructure(eventNumber);
@@ -387,15 +319,7 @@ namespace evio {
     }
 
 
-    /**
-     * Get the EvioNode object associated with a particular event number
-     * which has been scanned so all substructures are contained in the
-     * node.allNodes list.
-     * @param eventNumber number of event (place in file/buffer) starting at 1.
-     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
-     * @return  EvioNode object associated with a particular event number,
-     *          or null if there is none.
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<EvioNode> EvioCompactReaderV4::getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) {
         try {
             return scanStructure(eventNumber, nodeSource);
@@ -758,19 +682,7 @@ namespace evio {
     }
 
 
-    /**
-     * This method searches the specified event in a file/buffer and
-     * returns a list of objects each of which contain information
-     * about a single evio structure which matches the given tag and num.
-     *
-     * @param eventNumber place of event in buffer (starting with 1)
-     * @param tag tag to match
-     * @param num num to match
-     * @return list of EvioNode objects corresponding to matching evio structures
-     *         (empty if none found)
-     * @throws EvioException if bad arg value(s);
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ void EvioCompactReaderV4::searchEvent(size_t eventNumber, uint16_t tag, uint8_t num,
                                                            std::vector<std::shared_ptr<EvioNode>> & vec) {
         // check args
@@ -803,23 +715,7 @@ namespace evio {
     }
 
 
-    /**
-     * This method searches the specified event in a file/buffer and
-     * returns a list of objects each of which contain information
-     * about a single evio structure which matches the given dictionary
-     * entry name.
-     *
-     * @param  eventNumber place of event in buffer (starting with 1)
-     * @param  dictName name of dictionary entry to search for
-     * @param  dict dictionary to use; if null, use dictionary with file/buffer
-     *
-     * @return list of EvioNode objects corresponding to matching evio structures
-     *         (empty if none found)
-     * @throws EvioException if dictName is empty;
-     *                       if dictName is an invalid dictionary entry;
-     *                       if dictionary is null and none provided in file/buffer being read;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ void EvioCompactReaderV4::searchEvent(size_t eventNumber, std::string const & dictName,
                                                            std::shared_ptr<EvioXMLDictionary> & dict,
                                                            std::vector<std::shared_ptr<EvioNode>> & vec) {
@@ -855,19 +751,7 @@ namespace evio {
     }
 
 
-    /**
-     * This method removes the data of the given event from the buffer.
-     * It also marks any existing EvioNodes representing the event and its
-     * descendants as obsolete. They must not be used anymore.<p>
-     *
-     * @param eventNumber number of event to remove from buffer
-     * @return new ByteBuffer created and updated to reflect the event removal
-     * @throws EvioException if eventNumber &lt; 1;
-     *                       if event number does not correspond to existing event;
-     *                       if object closed;
-     *                       if node was not found in any event;
-     *                       if internal programming error
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::removeEvent(size_t eventNumber) {
 
         if (closed) {
@@ -886,17 +770,7 @@ namespace evio {
     }
 
 
-    /**
-     * This method removes the data, represented by the given node, from the buffer.
-     * It also marks the node and its descendants as obsolete. They must not be used
-     * anymore.<p>
-     *
-     * @param removeNode  evio structure to remove from buffer
-     * @return ByteBuffer updated to reflect the node removal
-     * @throws EvioException if object closed;
-     *                       if node was not found in any event;
-     *                       if internal programming error
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::removeStructure(
             std::shared_ptr<EvioNode> & removeNode) {
 
@@ -1131,34 +1005,7 @@ namespace evio {
 // TODO: This method will change a memory mapped buffer into one that is NOT!!!
 // Map is opened as READ_ONLY
 
-    /**
-     * This method adds an evio container (bank, segment, or tag segment) as the last
-     * structure contained in an event. It is the responsibility of the caller to make
-     * sure that the buffer argument contains valid evio data (only data representing
-     * the structure to be added - not in file format with block header and the like)
-     * which is compatible with the type of data stored in the given event.<p>
-     *
-     * To produce such evio data use {@link EvioBank#write(ByteBuffer)},
-     * {@link EvioSegment#write(ByteBuffer)} or
-     * {@link EvioTagSegment#write(ByteBuffer)} depending on whether
-     * a bank, seg, or tagseg is being added.<p>
-     *
-     * The given buffer argument must be ready to read with its position and limit
-     * defining the limits of the data to copy.
-     * This method is synchronized due to the bulk, relative puts.
-     *
-     * @param eventNumber number of event to which addBuffer is to be added
-     * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,
-     *                  i.e. no block headers)
-     * @return a new ByteBuffer object which is created and filled with all the data
-     *         including what was just added.
-     * @throws EvioException if addBuffer arg is empty or has non-evio format;
-     *                       if addBuffer is opposite endian to current event buffer;
-     *                       if added data is not the proper length (i.e. multiple of 4 bytes);
-     *                       if the event number does not correspond to an existing event;
-     *                       if there is an internal programming error;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::addStructure(size_t eventNumber,
                                                                                    ByteBuffer & addBuffer) {
 
@@ -1360,126 +1207,62 @@ namespace evio {
     }
 
 
-    /**
-     * Get the data associated with an evio structure in ByteBuffer form.
-     * The returned buffer is a view into this reader's buffer (no copy done).
-     * Changes in one will affect the other.
-     *
-     * @param node evio structure whose data is to be retrieved
-     * @throws EvioException if object closed
-     * @return ByteBuffer object containing data. Position and limit are
-     *         set for reading.
-     */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node) {
-            return getData(node, false);
+    /** {@inheritDoc} */
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node,
+                                                             std::shared_ptr<ByteBuffer> & buf) {
+            return getData(node, buf, false);
     }
 
 
-    /**
-     * Get the data associated with an evio structure in ByteBuffer form.
-     * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
-     *
-     * @param node evio structure whose data is to be retrieved
-     * @param copy if <code>true</code>, then return a copy as opposed to a
-     *             view into this reader object's buffer.
-     * @throws EvioException if object closed
-     * @return ByteBuffer object containing data. Position and limit are
-     *         set for reading.
-     */
-    /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node, bool copy) {
-            return node->getByteData(copy);
+    /** {@inheritDoc} */
+    /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getData(std::shared_ptr<EvioNode> & node,
+                                                                              std::shared_ptr<ByteBuffer> & buf,
+                                                                              bool copy) {
+            return node->getByteData(buf, copy);
     }
 
 
-    /**
-     * Get an evio bank or event in ByteBuffer form.
-     * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
-     *
-     * @param eventNumber number of event of interest
-     * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
-     *         set for reading.
-     * @throws EvioException if eventNumber &lt; 1;
-     *                       if the event number does not correspond to an existing event;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getEventBuffer(size_t eventNumber) {
             return getEventBuffer(eventNumber, false);
     }
 
 
-    /**
-     * Get an evio bank or event in ByteBuffer form.
-     * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
-     *
-     * @param eventNumber number of event of interest
-     * @param copy if <code>true</code>, then return a copy as opposed to a
-     *        view into this reader object's buffer.
-     * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
-     *         set for reading.
-     * @throws EvioException if the event number does not correspond to an existing event;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getEventBuffer(size_t eventNumber, bool copy) {
 
-            if (closed) {
-                throw EvioException("object closed");
-            }
+        if (closed) {
+            throw EvioException("object closed");
+        }
 
-            EvioNode node;
-            try {
-                node = eventNodes[eventNumber - 1];
-            }
-            catch (IndexOutOfBoundsException e) {
-                throw EvioException("event " + std::to_string(eventNumber) + " does not exist");
-            }
-
-            return node.getStructureBuffer(copy);
+        try {
+            auto node = eventNodes[eventNumber - 1];
+            auto buff = std::make_shared<ByteBuffer>(node->getTotalBytes());
+            return node->getStructureBuffer(buff, copy);
+        }
+        catch (std::out_of_range & e) {
+            throw EvioException("event " + std::to_string(eventNumber) + " does not exist");
+        }
     }
 
 
-    /**
-     * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
-     * The returned buffer is a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
-     *
-     * @param node node object representing evio structure of interest
-     * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
-     *         set for reading.
-     * @throws EvioException if node is null;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getStructureBuffer(std::shared_ptr<EvioNode> & node) {
             return getStructureBuffer(node, false);
     }
 
 
-    /**
-     * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.
-     * Depending on the copy argument, the returned buffer will either be
-     * a copy of or a view into the data of this reader's buffer.<p>
-     * This method is synchronized due to the bulk, relative gets & puts.
-     *
-     * @param node node object representing evio structure of interest
-     * @param copy if <code>true</code>, then return a copy as opposed to a
-     *        view into this reader object's buffer.
-     * @return ByteBuffer object containing structure's bytes. Position and limit are
-     *         set for reading.
-     * @throws EvioException if object closed
-     */
-    /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) {
+    /** {@inheritDoc} */
+    /*synchronized*/ std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getStructureBuffer(std::shared_ptr<EvioNode> & node,
+                                                                                         bool copy) {
 
-            if (closed) {
-                throw EvioException("object closed");
-            }
+        if (closed) {
+            throw EvioException("object closed");
+        }
 
-            return node->getStructureBuffer(copy);
+        auto buff = std::make_shared<ByteBuffer>(node->getTotalBytes());
+        return node->getStructureBuffer(buff, copy);
     }
-
 
 
     /**
@@ -1491,73 +1274,28 @@ namespace evio {
     }
 
 
-    /**
-     * This is the number of events in the file/buffer. Any dictionary event is <b>not</b>
-     * included in the count. In versions 3 and earlier, it is not computed unless
-     * asked for, and if asked for it is computed and cached.
-     *
-     * @return the number of events in the file.
-     */
+    /** {@inheritDoc} */
     uint32_t EvioCompactReaderV4::getEventCount() {return eventCount;}
 
-    /**
-     * This is the number of blocks in the file including the empty
-     * block usually at the end of version 4 files/buffers.
-     * For version 3 files, a block size read from the first block is used
-     * to calculate the result.
-     * It is not computed unless in random access mode or is
-     * asked for, and if asked for it is computed and cached.
-     *
-     * @return the number of blocks in the file (estimate for version 3 files)
-     */
+
+    /** {@inheritDoc} */
     uint32_t EvioCompactReaderV4::getBlockCount() {return blockCount;}
 
-    /**
-     * Save the internal byte buffer to the given file
-     * (overwrites existing file).
-     *
-     * @param fileName  name of file to write
-     * @throws IOException if error writing to file
-     * @throws EvioException if fileName arg is null;
-     *                       if object closed
-     */
-    void EvioCompactReaderV4::toFile(std::string const & fileName) {
-            if (fileName.empty()) {
-                throw EvioException("empty fileName arg");
-            }
-            File f = new File(fileName);
-            toFile(f);
-    }
 
-    /**
-     * Save the internal byte buffer to the given file
-     * (overwrites existing file).
-     *
-     * @param file  object of file to write
-     * @throws EvioException if file arg is null;
-     *                       if object closed
-     * @throws IOException if error writing to file
-     */
-    /*synchronized*/ void EvioCompactReaderV4::toFile(File & file) {
-            if (file == null) {
-                throw EvioException("null file arg");
-            }
+    /** {@inheritDoc} */
+    /*synchronized*/ void EvioCompactReaderV4::toFile(std::string const & fileName) {
+        if (fileName.empty()) {
+            throw EvioException("empty fileName arg");
+        }
 
-            if (closed) {
-                throw EvioException("object closed");
-            }
+        if (closed) {
+            throw EvioException("object closed");
+        }
 
-            // Remember where we were
-            size_t pos = byteBuffer->position();
-
-            // Write the file
-            FileOutputStream fos = new FileOutputStream(file);
-            FileChannel channel = fos.getChannel();
-            channel.write(byteBuffer);
-            channel.close();
-
-            // Go back to where we were
-            byteBuffer->position(pos);
+        std::ofstream ostrm(fileName, std::ios::binary);
+        ostrm.write(reinterpret_cast<char*>(byteBuffer->array() + byteBuffer->arrayOffset() + byteBuffer->position()),
+                byteBuffer->remaining());
+        ostrm.close();
     }
 
 

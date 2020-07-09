@@ -16,10 +16,11 @@
 #include <memory>
 #include <limits>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fstream>
 #include <sys/mman.h>
 
 
@@ -219,8 +220,10 @@ namespace evio {
         std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) override ;
         std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override ;
 
-        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) override ;
-        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) override ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                            std::shared_ptr<ByteBuffer> & buf) override ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                           std::shared_ptr<ByteBuffer> & buf, bool copy) override ;
 
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) override ;
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override ;
@@ -234,7 +237,6 @@ namespace evio {
         uint32_t getBlockCount() override ;
 
         void toFile(std::string const & fileName) override ;
-
     };
 
 }

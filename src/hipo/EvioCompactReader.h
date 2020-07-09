@@ -88,7 +88,7 @@ namespace evio {
         ByteOrder getFileByteOrder() override;
 
         string getDictionaryXML() override ;
-        EvioXMLDictionary getDictionary() override ;
+        std::shared_ptr<EvioXMLDictionary> getDictionary() override ;
 
         bool hasDictionary() override;
 
@@ -99,29 +99,32 @@ namespace evio {
 
         size_t fileSize() override;
 
-        EvioNode getEvent(size_t eventNumber) override;
-        EvioNode getScannedEvent(size_t eventNumber) override;
-        EvioNode getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) override ;
+        std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override;
+        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) override;
+        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) override ;
 
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override;
 
-        void searchEvent(size_t evNumber, uint16_t tag, uint8_t num, std::vector<EvioNode> & vec) override ;
+        void searchEvent(size_t evNumber, uint16_t tag, uint8_t num, std::vector<std::shared_ptr<EvioNode>> & vec) override ;
 
         void searchEvent(size_t eventNumber, string const & dictName,
-                                 EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) override ;
+                         std::shared_ptr<EvioXMLDictionary> & dictionary,
+                         std::vector<std::shared_ptr<EvioNode>> & vec) override ;
 
         std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) override;
-        std::shared_ptr<ByteBuffer> removeStructure(EvioNode & removeNode) override;
+        std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) override;
         std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override;
 
-        std::shared_ptr<ByteBuffer> getData(EvioNode & node) override;
-        std::shared_ptr<ByteBuffer> getData(EvioNode & node, bool copy) override;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                            std::shared_ptr<ByteBuffer> & buf) override;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
+                                            std::shared_ptr<ByteBuffer> & buf, bool copy) override;
 
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) override;
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override;
 
-        std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node) override;
-        std::shared_ptr<ByteBuffer> getStructureBuffer(EvioNode & node, bool copy) override;
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node) override;
+        std::shared_ptr<ByteBuffer> getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) override;
 
         void close() override;
 

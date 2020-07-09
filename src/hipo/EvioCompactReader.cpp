@@ -216,13 +216,14 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioCompactReader::searchEvent(size_t evNumber, uint16_t tag, uint8_t num,
-                                                        std::vector<EvioNode> & vec) {
+                                                        std::vector<std::shared_ptr<EvioNode>> & vec) {
         return reader->searchEvent(evNumber, tag, num, vec);
     }
 
     /** {@inheritDoc} */
     void EvioCompactReader::searchEvent(size_t eventNumber, string const & dictName,
-                                     EvioXMLDictionary & dictionary, std::vector<EvioNode> & vec) {
+                                        std::shared_ptr<EvioXMLDictionary> & dictionary,
+                                        std::vector<std::shared_ptr<EvioNode>> & vec) {
         return reader->searchEvent(eventNumber, dictName, dictionary, vec);
     }
 
@@ -232,7 +233,7 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::removeStructure(EvioNode & removeNode) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::removeStructure(std::shared_ptr<EvioNode> & removeNode) {
         return reader->removeStructure(removeNode);
     }
 
@@ -242,13 +243,16 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(EvioNode & node) {
-        return reader->getData(node);
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> & node,
+                                                           std::shared_ptr<ByteBuffer> & buf) {
+        return reader->getData(node, buf);
     }
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(EvioNode & node, bool copy) {
-        return reader->getData(node, copy);
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getData(std::shared_ptr<EvioNode> & node,
+                                                           std::shared_ptr<ByteBuffer> & buf,
+                                                           bool copy) {
+        return reader->getData(node, buf, copy);
     }
 
     /** {@inheritDoc} */
@@ -262,12 +266,12 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(EvioNode & node) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(std::shared_ptr<EvioNode> & node) {
         return reader->getStructureBuffer(node);
     }
 
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(EvioNode & node, bool copy) {
+    std::shared_ptr<ByteBuffer> EvioCompactReader::getStructureBuffer(std::shared_ptr<EvioNode> & node, bool copy) {
         return reader->getStructureBuffer(node, copy);
     }
 
