@@ -43,6 +43,7 @@ namespace evio {
 
 class Reader {
 
+    friend class EvioCompactReaderV6;
 
 private:
 
@@ -164,7 +165,7 @@ private:
     /** First event size in bytes. */
     uint32_t firstEventSize = 0;
     /** Stores info of all the (top-level) events in a scanned buffer. */
-    vector<EvioNode> eventNodes;
+    vector<std::shared_ptr<EvioNode>> eventNodes;
 
 
     /** Is this object currently closed? */
@@ -219,6 +220,7 @@ public:
     void setBuffer(std::shared_ptr<ByteBuffer> & buf);
     void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
 
+    std::shared_ptr<ByteBuffer> & setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf);
     std::shared_ptr<ByteBuffer> & setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
 
     string getFileName() const;
@@ -244,23 +246,23 @@ public:
     uint32_t getRecordCount() const;
 
     vector<RecordPosition> & getRecordPositions();
-    vector<EvioNode> & getEventNodes();
+    vector<std::shared_ptr<EvioNode>> & getEventNodes();
 
     bool getCheckRecordNumberSequence() const;
 
     uint32_t getNumEventsRemaining() const;
 
-    shared_ptr<uint8_t> getNextEvent(uint32_t * len);
-    shared_ptr<uint8_t> getPrevEvent(uint32_t * len);
+    std::shared_ptr<uint8_t> getNextEvent(uint32_t * len);
+    std::shared_ptr<uint8_t> getPrevEvent(uint32_t * len);
 
-    EvioNode *getNextEventNode();
+    std::shared_ptr<EvioNode> getNextEventNode();
 
     ByteBuffer readUserHeader();
 
-    shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
+    std::shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
     ByteBuffer & getEvent(ByteBuffer & buf, uint32_t index);
     uint32_t getEventLength(uint32_t index);
-    EvioNode & getEventNode(uint32_t index);
+    std::shared_ptr<EvioNode> getEventNode(uint32_t index);
 
     bool hasNext() const;
     bool hasPrev() const;
@@ -291,7 +293,7 @@ protected:
 
 
     std::shared_ptr<ByteBuffer> & addStructure(uint32_t eventNumber, ByteBuffer & addBuffer);
-    std::shared_ptr<ByteBuffer> & removeStructure(EvioNode & removeNode);
+    std::shared_ptr<ByteBuffer> & removeStructure(std::shared_ptr<EvioNode> & removeNode);
 
     void show() const;
 

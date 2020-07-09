@@ -196,6 +196,12 @@ void Reader::open(string const & filename) {
            inStreamRandom.close();
        }
 
+       // This may be called after using a buffer as input, so zero some things out
+       buffer = nullptr;
+       bufferOffset = 0;
+       bufferLimit  = 0;
+       fromFile = true;
+
        fileName = filename;
 
        cout << "[READER] ----> opening file : " << filename << endl;
@@ -205,12 +211,15 @@ void Reader::open(string const & filename) {
        fileSize = inStreamRandom.tellg();
        // Go back to beginning of file
        inStreamRandom.seekg(0);
+       fromFile = true;
+       scanFile(false);
        cout << "[READER] ---> open successful, size : " << fileSize << endl;
    }
    catch (std::exception & e) {
        // e.what() does not give any useful information...
        throw EvioException(strerror(errno));
    }
+
 }
 
 /**
@@ -302,6 +311,30 @@ void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool)
  * data is placed in the new buffer, and the new buffer is the return value.<p>
  *
  * @param buf  ByteBuffer to be read
+ * @return buf arg if data is not compressed. If compressed and buf does not have the
+ *         necessary space to contain all uncompressed data, a new buffer is allocated,
+ *         filled, and returned.
+ * @throws EvioException if buf arg is null, buffer too small,
+ *                       not in the proper format, or earlier than version 6
+ */
+std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
+    setBuffer(buf);
+    return buffer;
+}
+
+/**
+ * This method can be used to avoid creating additional Reader
+ * objects by reusing this one with another buffer. If the given buffer has
+ * uncompressed data, this method becomes equivalent
+ * to {@link #setBuffer(ByteBuffer, EvioNodeSource)} and its return value is just
+ * the buf argument.<p>
+ *
+ * The given buffer may have compressed data, and if so, the data is uncompressed
+ * in placed back into the same buffer. If, however, the given buffer does not have
+ * enough space for the uncompressed data, a new buffer is internally allocated,
+ * data is placed in the new buffer, and the new buffer is the return value.<p>
+ *
+ * @param buf  ByteBuffer to be read
  * @param pool pool of EvioNode objects to use when parsing buf.
  * @return buf arg if data is not compressed. If compressed and buf does not have the
  *         necessary space to contain all uncompressed data, a new buffer is allocated,
@@ -309,7 +342,8 @@ void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool)
  * @throws EvioException if buf arg is null, buffer too small,
  *                       not in the proper format, or earlier than version 6
  */
-std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
+std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
+                                                          EvioNodeSource & pool) {
     setBuffer(buf, pool);
     return buffer;
 }
@@ -451,7 +485,7 @@ vector<Reader::RecordPosition> & Reader::getRecordPositions() {return recordPosi
  * To be used internally to evio.
  * @return list of EvioNode objects contained in the buffer being read.
  */
-vector<EvioNode> & Reader::getEventNodes() {return eventNodes;}
+vector<std::shared_ptr<EvioNode>> & Reader::getEventNodes() {return eventNodes;}
 
 /**
  * Get whether or not record numbers are enforced to be sequential.
@@ -559,7 +593,7 @@ shared_ptr<uint8_t> Reader::getPrevEvent(uint32_t * len) {
  * @return EvioNode representing the next event or null if no more events,
  *         reading a file or data is compressed.
  */
-EvioNode * Reader::getNextEventNode() {
+    std::shared_ptr<EvioNode> Reader::getNextEventNode() {
     if (sequentialIndex >= eventIndex.getMaxEvents() || fromFile || compressed) {
         return nullptr;
     }
@@ -573,7 +607,7 @@ EvioNode * Reader::getNextEventNode() {
     }
 
     lastCalledSeqNext = true;
-    return & eventNodes[sequentialIndex++];
+    return eventNodes[sequentialIndex++];
 }
 
 /**
@@ -708,7 +742,7 @@ uint32_t Reader::getEventLength(uint32_t index) {
  *         index is out of bounds, reading a file or data is compressed.
  * @throws EvioException index too large or reading from file.
  */
-EvioNode & Reader::getEventNode(uint32_t index) {
+std::shared_ptr<EvioNode>  Reader::getEventNode(uint32_t index) {
 //cout << "getEventNode: index = " << index + " >? " << eventIndex.getMaxEvents() <<
 //                   ", fromFile = " << fromFile << ", compressed = " << compressed << endl;
     if (index >= eventIndex.getMaxEvents() || fromFile) {
@@ -1157,7 +1191,7 @@ ByteBuffer Reader::scanBuffer() {
                                               position, eventCount + i);
 //cout << "      event " << i << ", pos = " << node.getPosition() <<
 //                           ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
-            eventNodes.push_back(*(node.get()));
+            eventNodes.push_back(node);
 
             // Hop over event
             byteLen   = node->getTotalBytes();
@@ -1196,8 +1230,8 @@ ByteBuffer Reader::scanBuffer() {
 
         // We've copied data from one buffer to another,
         // so adjust the nodes to compensate.
-        for (EvioNode n : eventNodes) {
-            n.shift(bufferOffset).setBuffer(buffer);
+        for (auto & n : eventNodes) {
+            n->shift(bufferOffset).setBuffer(buffer);
         }
     }
     else {
@@ -1303,7 +1337,7 @@ void Reader::scanUncompressedBuffer() {
                                               position, eventCount + i);
 //cout << "      event " << i << " in record: pos = " << node.getPosition() <<
 //        ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
-            eventNodes.push_back(*(node.get()));
+            eventNodes.push_back(node);
 
             // Hop over event
             byteLen    = node->getTotalBytes();
@@ -1558,7 +1592,7 @@ void Reader::scanFile(bool force) {
  *                       if internal programming error;
  *                       if buffer has compressed data;
  */
-std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
+std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> & removeNode) {
 
     if (closed) {
         throw EvioException("object closed");
@@ -1575,14 +1609,14 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
     bool foundNode = false;
 
     // Locate the node to be removed ...
-    for (EvioNode ev : eventNodes) {
+    for (auto & ev : eventNodes) {
         // See if it's an event ...
         if (removeNode == ev) {
             foundNode = true;
             break;
         }
 
-        for (shared_ptr<EvioNode> const & nd : ev.getAllNodes()) {
+        for (shared_ptr<EvioNode> const & nd : ev->getAllNodes()) {
             // The first node in allNodes is the event node
             if (&removeNode == nd.get()) {
                 foundNode = true;
@@ -1643,8 +1677,8 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(EvioNode & removeNode) {
     buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen - removeDataLen);
 
     // Invalidate all nodes obtained from the last buffer scan
-    for (EvioNode ev : eventNodes) {
-        ev.setObsolete(true);
+    for (auto & ev : eventNodes) {
+        ev->setObsolete(true);
     }
 
     // Now the evio data in buffer is in a valid state so rescan buffer to update everything
@@ -1700,10 +1734,10 @@ std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuf
         throw EvioException("object closed");
     }
 
-    EvioNode & eventNode = eventNodes[eventNumber - 1];
+    auto & eventNode = eventNodes[eventNumber - 1];
 
     // Position in byteBuffer just past end of event
-    uint32_t endPos = eventNode.getDataPosition() + 4*eventNode.getDataLength();
+    uint32_t endPos = eventNode->getDataPosition() + 4*eventNode->getDataLength();
 
     // How many bytes are we adding?
     size_t appendDataLen = addBuffer.remaining();
@@ -1739,12 +1773,12 @@ std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuf
     buffer = newBuffer;
 
     // Increase lengths of parent nodes
-    EvioNode & addToNode = eventNodes[eventNumber];
-    auto parent = addToNode.getParentNode();
+    auto & addToNode = eventNodes[eventNumber];
+    auto parent = addToNode->getParentNode();
     parent->updateLengths(appendDataLen);
 
     // Increase containing record's length
-    uint32_t pos = addToNode.getRecordPosition();
+    uint32_t pos = addToNode->getRecordPosition();
     // Header length in words
     uint32_t oldLen = 4*buffer->getInt(pos);
     buffer->putInt(pos, (oldLen + appendDataLen)/4);
@@ -1753,8 +1787,8 @@ std::shared_ptr<ByteBuffer> & Reader::addStructure(uint32_t eventNumber, ByteBuf
     buffer->putInt(pos + RecordHeader::UNCOMPRESSED_LENGTH_OFFSET, oldLen + appendDataLen);
 
     // Invalidate all nodes obtained from the last buffer scan
-    for (EvioNode ev : eventNodes) {
-        ev.setObsolete(true);
+    for (auto ev : eventNodes) {
+        ev->setObsolete(true);
     }
 
     // Now the evio data in buffer is in a valid state so rescan buffer to update everything
