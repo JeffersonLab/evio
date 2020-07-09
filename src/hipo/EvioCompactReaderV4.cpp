@@ -732,7 +732,7 @@ namespace evio {
         uint16_t tag;
         uint8_t  num;
 
-        if (dict == nullptr && hasDict)  {
+        if (dict == nullptr && hasDictionary())  {
             dict = getDictionary();
         }
 
