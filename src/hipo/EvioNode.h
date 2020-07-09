@@ -48,6 +48,7 @@ class EvioNode {
 
     friend class Util;
     friend class EvioCompactReaderV4;
+    friend class EvioCompactReaderV6;
 
 private:
 
