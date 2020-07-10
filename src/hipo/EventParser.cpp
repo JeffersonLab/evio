@@ -127,7 +127,7 @@ namespace  evio {
    	 */
     void EventParser::parseEvent(std::shared_ptr<EvioEvent> & evioEvent) {
 
-        auto lock = std::unique_lock<std::mutex>(mtx); // equivalent to mtx.lock();
+        auto lock = std::unique_lock<std::recursive_mutex>(mtx); // equivalent to mtx.lock();
 
         if (evioEvent == nullptr) {
             throw EvioException("Null event in parseEvent");
