@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <sys/mman.h>
+#include <mutex>
 
 
 #include "ByteBuffer.h"
@@ -163,7 +164,7 @@ namespace evio {
 
         explicit EvioCompactReaderV4(std::string const & path);
         explicit EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer);
-        EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool) ;
+        EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool);
 
         void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
         void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) override ;
@@ -220,10 +221,13 @@ namespace evio {
         std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) override ;
         std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override ;
 
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) override ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) override ;
+
         std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
                                             std::shared_ptr<ByteBuffer> & buf) override ;
         std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
-                                           std::shared_ptr<ByteBuffer> & buf, bool copy) override ;
+                                            std::shared_ptr<ByteBuffer> & buf, bool copy) override ;
 
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) override ;
         std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) override ;

@@ -17,11 +17,12 @@
 
 #include <fstream>
 #include <stdexcept>
+#include <mutex>
 
 
 #include "IEvioCompactReader.h"
 #include "EvioCompactReaderV4.h"
-
+#include "EvioCompactReaderV6.h"
 #include "EvioReader.h"
 #include "Util.h"
 
@@ -59,6 +60,12 @@ namespace evio {
         /** Initial position of buffer (0 if file). */
         size_t initialPosition = 0UL;
 
+        /** File size in bytes. */
+        bool synced = false;
+
+        /** Mutex for thread safety. */
+        std::recursive_mutex mtx;
+
         //------------------------
         // Object to delegate to
         //------------------------
@@ -67,9 +74,9 @@ namespace evio {
 
     public:
 
-        EvioCompactReader(string const & path, bool synced = false);
-        EvioCompactReader(std::shared_ptr<ByteBuffer> & byteBuffer, bool synced = false) ;
-        EvioCompactReader(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool, bool synced) ;
+        EvioCompactReader(string const & path, bool sync = false);
+        EvioCompactReader(std::shared_ptr<ByteBuffer> & byteBuffer, bool sync = false) ;
+        EvioCompactReader(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool, bool sync = false);
 
     public:
 
@@ -114,6 +121,9 @@ namespace evio {
         std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) override;
         std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) override;
         std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override;
+
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) override;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) override;
 
         std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
                                             std::shared_ptr<ByteBuffer> & buf) override;

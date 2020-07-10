@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <vector>
 #include <memory>
+#include <mutex>
 #include <limits>
 #include <string>
 #include <cstdio>
@@ -126,6 +127,9 @@ namespace evio {
 
         std::shared_ptr<ByteBuffer> removeStructure(std::shared_ptr<EvioNode> & removeNode) override ;
         std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) override ;
+
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) override ;
+        std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) override ;
 
         std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node,
                                             std::shared_ptr<ByteBuffer> & buf) override ;
