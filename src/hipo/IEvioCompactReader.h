@@ -351,7 +351,32 @@ namespace evio {
          * Changes in one will affect the other.
          *
          * @param node evio structure whose data is to be retrieved
-         * @param buf  ByteBuffer to be filled with data.
+         * @throws EvioException if object closed or node arg is null.
+         * @return ByteBuffer filled with data.
+         */
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node) = 0;
+
+        /**
+         * Get the data associated with an evio structure in ByteBuffer form.
+         * Depending on the copy argument, the given/returned buffer will either be
+         * a copy of or a view into the data of this reader's buffer.<p>
+         * This method is synchronized due to the bulk, relative gets &amp; puts.
+         *
+         * @param node evio structure whose data is to be retrieved
+         * @param copy if <code>true</code>, then return a copy as opposed to a
+         *             view into this reader object's buffer.
+         * @throws EvioException if object closed
+         * @return ByteBuffer filled with data.
+         */
+        virtual std::shared_ptr<ByteBuffer> getData(std::shared_ptr<EvioNode> & node, bool copy) = 0;
+
+        /**
+         * Get the data associated with an evio structure in ByteBuffer form.
+         * The returned buffer is a view into this reader's buffer (no copy done).
+         * Changes in one will affect the other.
+         *
+         * @param node evio structure whose data is to be retrieved
+         * @param buf  user-supplied ByteBuffer to be filled with data.
          * @throws EvioException if object closed or node arg is null.
          * @return buf arg.
          */
@@ -365,7 +390,7 @@ namespace evio {
          * This method is synchronized due to the bulk, relative gets &amp; puts.
          *
          * @param node evio structure whose data is to be retrieved
-         * @param buf  ByteBuffer to be filled with data.
+         * @param buf  user-supplied ByteBuffer to be filled with data.
          * @param copy if <code>true</code>, then return a copy as opposed to a
          *             view into this reader object's buffer.
          * @throws EvioException if object closed
