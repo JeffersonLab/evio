@@ -1597,7 +1597,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> 
     if (closed) {
         throw EvioException("object closed");
     }
-    else if (removeNode.isObsolete()) {
+    else if (removeNode->isObsolete()) {
         //cout << "removeStructure: node has already been removed" << endl;
         return buffer;
     }
@@ -1618,7 +1618,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> 
 
         for (shared_ptr<EvioNode> const & nd : ev->getAllNodes()) {
             // The first node in allNodes is the event node
-            if (&removeNode == nd.get()) {
+            if (removeNode == nd) {
                 foundNode = true;
                 break;
             }
@@ -1635,7 +1635,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> 
 
     // The data these nodes represent will be removed from the buffer,
     // so the node will be obsolete along with all its descendants.
-    removeNode.setObsolete(true);
+    removeNode->setObsolete(true);
 
     //---------------------------------------------------
     // Remove structure. Keep using current buffer.
@@ -1644,10 +1644,10 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> 
     //---------------------------------------------------
 
     // Amount of data being removed
-    uint32_t removeDataLen = removeNode.getTotalBytes();
+    uint32_t removeDataLen = removeNode->getTotalBytes();
 
     // Just after removed node (start pos of data being moved)
-    uint32_t startPos = removeNode.getPosition() + removeDataLen;
+    uint32_t startPos = removeNode->getPosition() + removeDataLen;
 
     // Duplicate buffer shares data, but we need to copy it so use copy constructor.
     ByteBuffer moveBuffer(*(buffer.get()));
@@ -1655,7 +1655,7 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> 
     moveBuffer.limit(bufferLimit).position(startPos);
 
     // Set place to put the data being moved - where removed node starts
-    buffer->position(removeNode.getPosition());
+    buffer->position(removeNode->getPosition());
     // Copy it over
     buffer->put(moveBuffer);
 
@@ -1665,10 +1665,10 @@ std::shared_ptr<ByteBuffer> & Reader::removeStructure(std::shared_ptr<EvioNode> 
     buffer->limit(bufferLimit);
 
     // Reduce lengths of parent node
-    removeNode.getParentNode()->updateLengths(-removeDataLen);
+    removeNode->getParentNode()->updateLengths(-removeDataLen);
 
     // Reduce containing record's length
-    uint32_t pos = removeNode.getRecordPosition();
+    uint32_t pos = removeNode->getRecordPosition();
     // Header length in words
     uint32_t oldLen = 4*buffer->getInt(pos);
     buffer->putInt(pos, (oldLen - removeDataLen)/4);
