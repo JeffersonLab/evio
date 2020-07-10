@@ -31,8 +31,6 @@
 #include "IBlockHeader.h"
 #include "DataType.h"
 
-using namespace std;
-
 
 namespace evio {
 
@@ -471,7 +469,7 @@ public:
      * @param bytes     number of bytes to print in hex
      * @param label     a label to print as header
      */
-    static void printBytes(const ByteBuffer & buf, uint32_t position, uint32_t bytes, const string & label) {
+    static void printBytes(const ByteBuffer & buf, uint32_t position, uint32_t bytes, const std::string & label) {
 
         // Make sure we stay in bounds
         bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
@@ -505,8 +503,8 @@ public:
      * @param bytes    number of bytes to print in hex
      * @param label    a label to print as header
      */
-    static void printBytes(const string & fileName, uint64_t offset,
-                           uint32_t bytes, const string & label) {
+    static void printBytes(const std::string & fileName, uint64_t offset,
+                           uint32_t bytes, const std::string & label) {
 
         if (fileName.empty()) {
             cout << "Util::printBytes: fileName arg is invalid" << endl;
@@ -574,7 +572,7 @@ public:
 //     * @param array     array in which to place ASCII.
 //     * @param arraySize size of arry in bytes.
 //     */
-//    static void stringToASCII(const string & input, uint8_t *array, uint32_t arraySize) {
+//    static void stringToASCII(const std::string & input, uint8_t *array, uint32_t arraySize) {
 //        size_t inputSize = input.size();
 //        if (arraySize < inputSize) {
 //            throw EvioException("array too small to hold string as ASCII");
@@ -590,7 +588,7 @@ public:
      * @param input input string.
      * @param array vector in which to place ASCII.
      */
-    static void stringToASCII(const string & input, std::vector<uint8_t> & array) {
+    static void stringToASCII(const std::string & input, std::vector<uint8_t> & array) {
         size_t inputSize = input.size();
         array.clear();
         array.reserve(inputSize);
@@ -606,7 +604,7 @@ public:
      * @param buf   ByteBuffer in which to place ASCII. Clears existing data
      *              and may expand internal storage.
      */
-    static void stringToASCII(const string & input, ByteBuffer & buf) {
+    static void stringToASCII(const std::string & input, ByteBuffer & buf) {
         size_t inputSize = input.size();
         buf.clear();
         buf.expand(inputSize);
@@ -634,14 +632,14 @@ public:
      * @return the number of bytes in a raw evio format of the given strings
      * @return 0 if vector empty.
      */
-    static uint32_t stringsToRawSize(std::vector<string> const & strings) {
+    static uint32_t stringsToRawSize(std::vector<std::string> const & strings) {
 
         if (strings.empty()) {
             return 0;
         }
 
         uint32_t dataLen = 0;
-        for (string const & s : strings) {
+        for (std::string const & s : strings) {
             dataLen += s.length() + 1; // don't forget the null char after each string
         }
 
@@ -664,7 +662,7 @@ public:
      * @return the number of bytes in a raw evio format of the given strings
      * @return 0 if vector empty.
      */
-    static uint32_t stringToRawSize(const string & str) {
+    static uint32_t stringToRawSize(const std::string & str) {
 
         if (str.empty()) {
             return 0;
@@ -690,7 +688,7 @@ public:
      * @param strings vector of strings to transform.
      * @param bytes   vector of bytes to contain evio formatted strings.
      */
-    static void stringsToRawBytes(std::vector<string> & strings,
+    static void stringsToRawBytes(std::vector<std::string> & strings,
                                   std::vector<uint8_t> & bytes) {
 
         if (strings.empty()) {
@@ -700,10 +698,10 @@ public:
 
         // create some storage
         int dataLen = stringsToRawSize(strings);
-        string strData;
+        std::string strData;
         strData.reserve(dataLen);
 
-        for (string const & s : strings) {
+        for (std::string const & s : strings) {
             // add string
             strData.append(s);
             // add ending null
@@ -745,7 +743,7 @@ public:
      * @param strData vector in which to place extracted strings.
      */
     static void unpackRawBytesToStrings(std::vector<uint8_t> & bytes, size_t offset,
-                                 std::vector<string> & strData) {
+                                 std::vector<std::string> & strData) {
         unpackRawBytesToStrings(bytes, offset, bytes.size(), strData);
     }
 
@@ -762,14 +760,14 @@ public:
      */
     static void unpackRawBytesToStrings(std::vector<uint8_t> & bytes,
                                  size_t offset, size_t maxLength,
-                                 std::vector<string> & strData) {
+                                 std::vector<std::string> & strData) {
         int length = bytes.size() - offset;
         if (bytes.empty() || (length < 4)) return;
 
         // Don't read read more than maxLength ASCII characters
         length = length > maxLength ? maxLength : length;
 
-        string sData(reinterpret_cast<const char *>(bytes.data()) + offset, length);
+        std::string sData(reinterpret_cast<const char *>(bytes.data()) + offset, length);
         return stringBuilderToStrings(sData, true, strData);
     }
 
@@ -785,10 +783,10 @@ public:
      * @param strData     vector in which to place extracted strings.
      */
     static void unpackRawBytesToStrings(uint8_t *bytes, size_t length,
-                                 std::vector<string> & strData) {
+                                 std::vector<std::string> & strData) {
         if (bytes == nullptr) return;
 
-        string sData(reinterpret_cast<const char *>(bytes), length);
+        std::string sData(reinterpret_cast<const char *>(bytes), length);
         return stringBuilderToStrings(sData, true, strData);
     }
 
@@ -803,11 +801,11 @@ public:
      */
     static void unpackRawBytesToStrings(ByteBuffer & buffer,
                                  size_t pos, size_t length,
-                                 std::vector<string> & strData) {
+                                 std::vector<std::string> & strData) {
 
         if (length < 4) return;
 
-        string sData(reinterpret_cast<const char *>(buffer.array() + buffer.arrayOffset()) + pos, length);
+        std::string sData(reinterpret_cast<const char *>(buffer.array() + buffer.arrayOffset()) + pos, length);
         return stringBuilderToStrings(sData, false, strData);
     }
 
@@ -917,7 +915,7 @@ public:
         if (badFormat) {
             if (onlyGoodChars) {
                 // Return everything in one String WITHOUT garbage
-                string goodStr(strData.data(), goodChars);
+                std::string goodStr(strData.data(), goodChars);
                 strings.push_back(goodStr);
                 return;
             }
@@ -930,7 +928,7 @@ public:
 
         int firstIndex = 0;
         for (int nullIndex : nullIndexList) {
-            string str(strData.data() + firstIndex, (nullIndex - firstIndex));
+            std::string str(strData.data() + firstIndex, (nullIndex - firstIndex));
             strings.push_back(str);
             firstIndex = nullIndex + 1;
         }
@@ -946,7 +944,7 @@ public:
      * when they come in the form, $(env).
      * @param text string to analyze.
      */
-    static void expandEnvironmentalVariables(string & text) {
+    static void expandEnvironmentalVariables(std::string & text) {
         static std::regex env("\\$\\(([^)]+)\\)");
         std::smatch match;
         while ( std::regex_search(text, match, env) ) {
@@ -965,7 +963,7 @@ public:
      * @param text string to analyze.
      * @return number of integer specifiers.
      */
-    static uint32_t countAndFixIntSpecifiers(string & text) {
+    static uint32_t countAndFixIntSpecifiers(std::string & text) {
         static std::regex specifier("%(\\d*)([xd])");
 
         auto begin = std::sregex_iterator(text.begin(), text.end(), specifier);
@@ -1022,8 +1020,8 @@ public:
      * @return                  number of C-style int format specifiers found in baseName arg.
      * @throws EvioException    if baseName arg is improperly formatted or blank
      */
-    static int generateBaseFileName(const string & baseName, const string & runType,
-                                    string & modifiedBaseName) {
+    static int generateBaseFileName(const std::string & baseName, const std::string & runType,
+                                    std::string & modifiedBaseName) {
 
         int* returnInts = new int[1];
 
@@ -1095,7 +1093,7 @@ public:
      *                                specifiers which are not compatible with integers
      *                                and interfere with formatting.
      */
-    static string generateFileName(string fileName, uint32_t specifierCount,
+    static std::string generateFileName(std::string fileName, uint32_t specifierCount,
                                    uint32_t runNumber, uint64_t split, uint32_t splitNumber,
                                    uint32_t streamId, uint32_t streamCount) {
 
@@ -1132,7 +1130,7 @@ public:
                     char tempChar[fileName.length() + 1024];
                     int err = std::sprintf(tempChar, fileName.c_str(), runNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
-                    string temp(tempChar);
+                    std::string temp(tempChar);
                     fileName = temp;
 
                     if (oneStream) {
@@ -1160,14 +1158,14 @@ public:
                         char tempChar[fileName.length() + 1024];
                         int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId, splitNumber);
                         if (err < 0) throw EvioException("badly formatted file name");
-                        string temp(tempChar);
+                        std::string temp(tempChar);
                         fileName = temp;
                     }
                     else {
                         char tempChar[fileName.length() + 1024];
                         int err = std::sprintf(tempChar, fileName.c_str(), runNumber, splitNumber);
                         if (err < 0) throw EvioException("badly formatted file name");
-                        string temp(tempChar);
+                        std::string temp(tempChar);
                         fileName = temp;
                     }
                 }
@@ -1176,7 +1174,7 @@ public:
                     char tempChar[fileName.length() + 1024];
                     int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId, splitNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
-                    string temp(tempChar);
+                    std::string temp(tempChar);
                     fileName = temp;
                 }
 
@@ -1195,7 +1193,7 @@ public:
                     char tempChar[fileName.length() + 1024];
                     int err = std::sprintf(tempChar, fileName.c_str(), runNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
-                    string temp(tempChar);
+                    std::string temp(tempChar);
                     fileName = temp;
 
                     if (!oneStream) {
@@ -1215,7 +1213,7 @@ public:
                     char tempChar[fileName.length() + 1024];
                     int err = std::sprintf(tempChar, fileName.c_str(), runNumber);
                     if (err < 0) throw EvioException("badly formatted file name");
-                    string temp(tempChar);
+                    std::string temp(tempChar);
                     fileName = temp;
 
                     if (!oneStream) {
@@ -1235,7 +1233,7 @@ public:
                     char tempChar[fileName.length() + 1024];
                     int err = std::sprintf(tempChar, fileName.c_str(), runNumber, streamId);
                     if (err < 0) throw EvioException("badly formatted file name");
-                    string temp(tempChar);
+                    std::string temp(tempChar);
                     fileName = temp;
                 }
             }
