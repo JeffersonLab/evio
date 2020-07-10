@@ -247,7 +247,7 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     }
 
     /** {@inheritDoc} */
-    public synchronized boolean isClosed() {return reader.isClosed();}
+    public boolean isClosed() {return reader.isClosed();}
 
     /** {@inheritDoc} */
     public ByteOrder getByteOrder() {return reader.getByteOrder();}
@@ -262,12 +262,12 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     public ByteOrder getFileByteOrder() {return reader.getFileByteOrder();}
 
     /** {@inheritDoc} */
-    public synchronized String getDictionaryXML() throws EvioException {
+    public String getDictionaryXML() throws EvioException {
         return reader.getDictionaryXML();
     }
 
     /** {@inheritDoc} */
-    public synchronized EvioXMLDictionary getDictionary() throws EvioException {
+    public EvioXMLDictionary getDictionary() throws EvioException {
         return reader.getDictionary();
     }
 
@@ -299,13 +299,13 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     public IBlockHeader getFirstBlockHeader() {return reader.getFirstBlockHeader();}
 
     /** {@inheritDoc} */
-    public synchronized List<EvioNode> searchEvent(int eventNumber, int tag, int num)
+    public List<EvioNode> searchEvent(int eventNumber, int tag, int num)
                                  throws EvioException {
         return reader.searchEvent(eventNumber, tag, num);
     }
 
     /** {@inheritDoc} */
-    public synchronized List<EvioNode> searchEvent(int eventNumber, String dictName,
+    public List<EvioNode> searchEvent(int eventNumber, String dictName,
                                                    EvioXMLDictionary dictionary)
                                  throws EvioException {
 
@@ -313,17 +313,17 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     }
 
     /** {@inheritDoc} */
-    public synchronized ByteBuffer removeEvent(int eventNumber) throws EvioException {
+    public ByteBuffer removeEvent(int eventNumber) throws EvioException {
         return reader.removeEvent(eventNumber);
     }
 
     /** {@inheritDoc} */
-    public synchronized ByteBuffer removeStructure(EvioNode removeNode) throws EvioException {
+    public ByteBuffer removeStructure(EvioNode removeNode) throws EvioException {
         return reader.removeStructure(removeNode);
     }
 
     /** {@inheritDoc} */
-    public synchronized ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
+    public ByteBuffer addStructure(int eventNumber, ByteBuffer addBuffer) throws EvioException {
         return reader.addStructure(eventNumber, addBuffer);
     }
 
@@ -333,7 +333,7 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     }
 
     /** {@inheritDoc} */
-    public synchronized ByteBuffer getData(EvioNode node, boolean copy)
+    public ByteBuffer getData(EvioNode node, boolean copy)
                             throws EvioException {
         return reader.getData(node, copy);
     }
@@ -344,7 +344,7 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     }
 
     /** {@inheritDoc} */
-    public synchronized ByteBuffer getEventBuffer(int eventNumber, boolean copy)
+    public ByteBuffer getEventBuffer(int eventNumber, boolean copy)
                             throws EvioException {
         return reader.getEventBuffer(eventNumber, copy);
     }
@@ -355,14 +355,14 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     }
 
     /** {@inheritDoc} */
-    public synchronized ByteBuffer getStructureBuffer(EvioNode node, boolean copy)
+    public ByteBuffer getStructureBuffer(EvioNode node, boolean copy)
                             throws EvioException {
         return reader.getStructureBuffer(node, copy);
     }
 
 
     /** {@inheritDoc} */
-    public synchronized void close() {reader.close();}
+    public void close() {reader.close();}
 
     /** {@inheritDoc} */
     public int getEventCount() {return reader.getEventCount();}
@@ -376,7 +376,7 @@ System.out.println("     EvioCompactReader const: call evio version 4, unsynced"
     }
 
     /** {@inheritDoc} */
-    public synchronized void toFile(File file) throws EvioException, IOException {
+    public void toFile(File file) throws EvioException, IOException {
         reader.toFile(file);
     }
 
