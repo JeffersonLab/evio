@@ -297,8 +297,9 @@ public class Reader {
      * in internal array. Each record can be read from the file.
      * @param filename input file name
      * @throws IOException if file not found or error opening file
+     * @throws HipoException if file is not in the proper format or earlier than version 6
      */
-    public final void open(String filename) throws IOException {
+    public final void open(String filename) throws IOException, HipoException {
         if (inStreamRandom != null && inStreamRandom.getChannel().isOpen()) {
             try {
                 //System.out.println("[READER] ---> closing current file : " + inStreamRandom.getFilePointer());
@@ -307,11 +308,19 @@ public class Reader {
             catch (IOException ex) {}
         }
 
+        // This may be called after using a buffer as input, so zero some things out
+        buffer = null;
+        bufferOffset = 0;
+        bufferLimit  = 0;
+        fromFile = true;
+
         fileName = filename;
 
         //System.out.println("[READER] ----> opening file : " + filename);
         inStreamRandom = new RandomAccessFile(filename,"r");
         fileSize = inStreamRandom.length();
+        scanFile(false);
+
         //System.out.println("[READER] ---> open successful, size : " + inStreamRandom.length());
     }
 
