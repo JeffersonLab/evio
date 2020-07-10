@@ -15,6 +15,7 @@
 #ifndef EVIO_6_0_RECORDHEADER_H
 #define EVIO_6_0_RECORDHEADER_H
 
+
 #include <cstdint>
 #include <string>
 #include <bitset>
@@ -24,6 +25,7 @@
 #include <vector>
 #include <memory>
 
+
 #include "HeaderType.h"
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -31,9 +33,6 @@
 #include "EvioException.h"
 #include "Compressor.h"
 #include "Util.h"
-
-using std::string;
-
 
 
 namespace evio {
@@ -411,7 +410,7 @@ public:
     void readHeader(ByteBuffer & buffer, size_t offset);
     void readHeader(ByteBuffer & buffer);
 
-    string   eventTypeToString() const ;
+    std::string eventTypeToString() const ;
 
     // Methods for implementing IBlockHeader
 
@@ -425,10 +424,10 @@ public:
     uint32_t getMagicNumber() override ;
     ByteOrder & getByteOrder() override ;
 
-    bool     hasDictionary() override ;
-    bool     isLastBlock() override ;
-    string   toString() override ;
-    size_t   write(ByteBuffer & byteBuffer) override ;
+    bool         hasDictionary() override ;
+    bool         isLastBlock() override ;
+    std::string  toString() override ;
+    size_t       write(ByteBuffer & byteBuffer) override ;
 
     // Methods are not used in this class but must be part of IBlockHeader interface
 
