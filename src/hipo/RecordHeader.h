@@ -147,7 +147,7 @@ public:
     static const uint32_t   BIT_INFO_OFFSET = 20;
     /** Byte offset from beginning of header to the user header length. */
     static const uint32_t   USER_LENGTH_OFFSET = 24;
-    /** Byte offset from beginning of header to the record length. */
+    /** Byte offset from beginning of header to the magic number. */
     static const uint32_t   MAGIC_OFFSET = 28;
     /** Byte offset from beginning of header to the uncompressed data length. */
     static const uint32_t   UNCOMPRESSED_LENGTH_OFFSET = 32;
