@@ -35,23 +35,26 @@ namespace evio {
 
     public:
 
-            /**
-             * A string used to indicate that no name can be determined.
-             */
-            static const std::string NO_NAME_STRING;
+        /**
+         * Get a string used to indicate that no name can be determined.
+         * @return
+         */
+        static const std::string& NO_NAME_STRING() {
+            // Initialize the static variable
+            static std::string s("???");
+            return s;
+        }
 
-            /**
-             * Returns the pretty name of some evio structure. Typically this is involve
-             * the use of the "tag" and, if present, "num" fields. There may also be a hierarchical
-             * dependence.
-             *
-             * @param structure the structure to find the name of.
-             * @return a descriptive name, e.g., "Edep".
-             */
-            virtual std::string getName(BaseStructure & structure) = 0;
+        /**
+         * Returns the pretty name of some evio structure. Typically this is involve
+         * the use of the "tag" and, if present, "num" fields. There may also be a hierarchical
+         * dependence.
+         *
+         * @param structure the structure to find the name of.
+         * @return a descriptive name, e.g., "Edep".
+         */
+        virtual std::string getName(BaseStructure & structure) = 0;
     };
-
-    const std::string INameProvider::NO_NAME_STRING = "???";
 }
 
 
