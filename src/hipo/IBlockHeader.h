@@ -39,6 +39,15 @@ namespace evio {
             /** The magic number, should be the value of <code>magicNumber</code>. */
             static const uint32_t MAGIC_NUMBER = 0xc0da0100;
 
+            /** Byte offset from beginning of header to the magic number. */
+            static const uint32_t   MAGIC_OFFSET = 28;
+
+            /** Byte offset from beginning of header to bit info word. */
+            static const uint32_t   BIT_INFO_OFFSET = 20;
+
+            /** Mask to get version number from bitinfo word in header. */
+            static const uint32_t VERSION_MASK = 0xff;
+
             /**
              * Get the size of the block (record) in 32 bit words.
              * @return size of the block (record) in 32 bit words.
