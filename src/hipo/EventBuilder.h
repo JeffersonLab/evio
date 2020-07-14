@@ -14,8 +14,12 @@
 
 #include "DataType.h"
 #include "EvioEvent.h"
+#include "EvioBank.h"
+#include "EvioSegment.h"
+#include "EvioTagSegment.h"
 #include "BaseStructure.h"
 #include "StructureType.h"
+#include "EventWriter.h"
 
 
 namespace evio {
@@ -38,49 +42,49 @@ namespace evio {
 
     public:
 
-        EventBuilder(uint16_t tag, DataType const & dataType, uint8_t num) ;
+        EventBuilder(uint16_t tag, DataType const dataType, uint8_t num) ;
         EventBuilder(std::shared_ptr<EvioEvent> & event);
 
         void setAllHeaderLengths();
-        void clearData(std::shared_ptr<BaseStructure> & structure);
-        void addChild(std::shared_ptr<BaseStructure> & parent, std::shared_ptr<BaseStructure> & child);
-        void remove(std::shared_ptr<BaseStructure> & child);
+        void clearData(std::shared_ptr<BaseStructure> structure);
+        void addChild(std::shared_ptr<BaseStructure> parent, std::shared_ptr<BaseStructure> child);
+        void remove(std::shared_ptr<BaseStructure> child);
 
-        static void setIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count);
-        static void setUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count);
-        static void setShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count);
-        static void setUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count);
-        static void setLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count);
-        static void setULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count);
-        static void setCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count);
-        static void setUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count);
-        static void setFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count);
-        static void setDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count);
-        static void setStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count);
+        void setIntData(std::shared_ptr<BaseStructure> structure, int32_t* data, size_t count);
+        void setUIntData(std::shared_ptr<BaseStructure> structure, uint32_t* data, size_t count);
+        void setShortData(std::shared_ptr<BaseStructure> structure, int16_t* data, size_t count);
+        void setUShortData(std::shared_ptr<BaseStructure> structure, uint16_t* data, size_t count);
+        void setLongData(std::shared_ptr<BaseStructure> structure, int64_t* data, size_t count);
+        void setULongData(std::shared_ptr<BaseStructure> structure, uint64_t* data, size_t count);
+        void setCharData(std::shared_ptr<BaseStructure> structure, char* data, size_t count);
+        void setUCharData(std::shared_ptr<BaseStructure> structure, unsigned char* data, size_t count);
+        void setFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count);
+        void setDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
+        void setStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count);
 
-        static void appendIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count);
-        static void appendUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count);
-        static void appendShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count);
-        static void appendUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count);
-        static void appendLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count);
-        static void appendULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count);
-        static void appendCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count);
-        static void appendUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count);
-        static void appendFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count);
-        static void appendDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count);
-        static void appendStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count);
+        void appendIntData(std::shared_ptr<BaseStructure> structure, int32_t* data, size_t count);
+        void appendUIntData(std::shared_ptr<BaseStructure> structure, uint32_t* data, size_t count);
+        void appendShortData(std::shared_ptr<BaseStructure> structure, int16_t* data, size_t count);
+        void appendUShortData(std::shared_ptr<BaseStructure> structure, uint16_t* data, size_t count);
+        void appendLongData(std::shared_ptr<BaseStructure> structure, int64_t* data, size_t count);
+        void appendULongData(std::shared_ptr<BaseStructure> structure, uint64_t* data, size_t count);
+        void appendCharData(std::shared_ptr<BaseStructure> structure, char* data, size_t count);
+        void appendUCharData(std::shared_ptr<BaseStructure> structure, unsigned char* data, size_t count);
+        void appendFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count);
+        void appendDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
+        void appendStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count);
 
         std::shared_ptr<EvioEvent> getEvent();
         void setEvent(std::shared_ptr<EvioEvent> & event);
 
-        static void main(int argc, char **argv);
+        static int main(int argc, char **argv);
 
     private:
 
-        static int[] fakeIntArray(int size);
-        static short[] fakeShortArray(int size);
-        static char[] fakeCharArray();
-        static double[] fakeDoubleArray(int size);
+        static void fakeIntArray(uint32_t* array, uint32_t size);
+        static void fakeShortArray(uint16_t* array, uint32_t size);
+        static std::string* fakeStringArray();
+        static void fakeDoubleArray(double *array, uint32_t size);
 
     };
 

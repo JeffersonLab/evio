@@ -15,9 +15,9 @@ namespace evio {
      * bank. Often an event is a bank of banks, so typically this will be DataType.BANK, or 0xe (14).
      * @param num often an ordinal enumeration.
      */
-    EventBuilder::EventBuilder(uint16_t tag, DataType const & dataType, uint8_t num) {
+    EventBuilder::EventBuilder(uint16_t tag, DataType const dataType, uint8_t num) {
         // create an event with the correct header data
-        event = std::make_shared<EvioEvent>(tag, dataType, num);
+        event = EvioEvent::getInstance(tag, dataType, num);
     }
 
     /**
@@ -32,10 +32,10 @@ namespace evio {
      */
     void EventBuilder::setAllHeaderLengths() {
         try {
-            event.setAllHeaderLengths();
+            event->setAllHeaderLengths();
         }
         catch (EvioException & e) {
-            e.printStackTrace();
+            std::cout << e.what() << std::endl;
         }
     }
 
@@ -45,7 +45,7 @@ namespace evio {
      * tree, use <code>remove</code>
      * @param structure the segment to clear.
      */
-    void EventBuilder::clearData(std::shared_ptr<BaseStructure> & structure) {
+    void EventBuilder::clearData(std::shared_ptr<BaseStructure> structure) {
         if (structure != nullptr) {
             structure->clearData();
         }
@@ -59,7 +59,7 @@ namespace evio {
      * @throws EvioException if parent or child is null, child has wrong byte order,
      *                       is wrong structure type, or parent is not a container
      */
-    void EventBuilder::addChild(std::shared_ptr<BaseStructure> & parent, std::shared_ptr<BaseStructure> & child) {
+    void EventBuilder::addChild(std::shared_ptr<BaseStructure> parent, std::shared_ptr<BaseStructure> child) {
 
             if (child == nullptr || parent == nullptr) {
                 throw EvioException("Null child or parent arg.");
@@ -74,42 +74,41 @@ namespace evio {
             DataType const & parentDataType = parent->header->getDataType();
 
             if (parentDataType.isStructure()) {
-                switch(parentDataType) {
-                    case BANK: case ALSOBANK:
-                        if (child->getStructureType() != StructureType::BANK) {
-                            std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
-                                     " child type: " + child.getStructureType();
-                            throw EvioException(errStr);
-                        }
-                        break;
-
-                    case SEGMENT: case ALSOSEGMENT:
-                        if (child->getStructureType() != StructureType::SEGMENT) {
-                            std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
-                                     " child type: " + child.getStructureType();
-                            throw EvioException(errStr);
-                        }
-                        break;
-
-                    case TAGSEGMENT:// case ALSOTAGSEGMENT:
-                        if (child->getStructureType() != StructureType::TAGSEGMENT) {
-                            std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
-                                     " child type: " + child.getStructureType();
-                            throw EvioException(errStr);
-                        }
-                        break;
-
-                    default:
+                if (parentDataType == DataType::BANK ||
+                    parentDataType == DataType::ALSOBANK) {
+                    if (child->getStructureType() != StructureType::STRUCT_BANK) {
+                        std::string errStr = "Type mismatch in addChild. Parent content type: " +
+                                parentDataType.getName() +
+                                " child type: " + child->getStructureType().getName();
+                        throw EvioException(errStr);
+                    }
+                }
+                else if (parentDataType == DataType::SEGMENT ||
+                         parentDataType == DataType::ALSOSEGMENT) {
+                    if (child->getStructureType() != StructureType::STRUCT_SEGMENT) {
+                        std::string errStr = "Type mismatch in addChild. Parent content type: " +
+                                parentDataType.getName() +
+                                " child type: " + child->getStructureType().getName();
+                        throw EvioException(errStr);
+                    }
+                }
+                else if (parentDataType == DataType::TAGSEGMENT) {
+                    if (child->getStructureType() != StructureType::STRUCT_TAGSEGMENT) {
+                        std::string errStr = "Type mismatch in addChild. Parent content type: " +
+                                parentDataType.getName() +
+                                " child type: " + child->getStructureType().getName();
+                        throw EvioException(errStr);
+                    }
                 }
             }
             else { //parent is not a container--it is expecting to hold primitives and cannot have children
-                std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
-                         " cannot have children.";
+                std::string errStr = "Type mismatch in addChild. Parent content type: " +
+                        parentDataType.getName() + " cannot have children.";
                 throw EvioException(errStr);
             }
 
 
-            parent->insert(child);
+            parent->insert(child, parent->getChildCount());
             child->setParent(parent);
             setAllHeaderLengths();
     }
@@ -119,7 +118,7 @@ namespace evio {
      * @param child the child structure to remove.
      * @throws EvioException if arg is null or its parent is null
      */
-    void EventBuilder::remove(std::shared_ptr<BaseStructure> & child) throws EvioException {
+    void EventBuilder::remove(std::shared_ptr<BaseStructure> child) {
             if (child == nullptr ) {
                 throw EvioException("Attempt to remove null child.");
             }
@@ -145,7 +144,7 @@ namespace evio {
      * @param count number of ints to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count) {
+    void EventBuilder::setIntData(std::shared_ptr<BaseStructure> structure, int32_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -155,7 +154,7 @@ namespace evio {
         auto vect = structure->getIntData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateIntData();
         setAllHeaderLengths();
@@ -169,7 +168,7 @@ namespace evio {
      * @param count number of ints to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count) {
+    void EventBuilder::setUIntData(std::shared_ptr<BaseStructure> structure, uint32_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -179,7 +178,7 @@ namespace evio {
         auto vect = structure->getUIntData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateUIntData();
         setAllHeaderLengths();
@@ -193,7 +192,7 @@ namespace evio {
      * @param count number of shorts to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count) {
+    void EventBuilder::setShortData(std::shared_ptr<BaseStructure> structure, int16_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -203,7 +202,7 @@ namespace evio {
         auto vect = structure->getShortData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateShortData();
         setAllHeaderLengths();
@@ -217,7 +216,7 @@ namespace evio {
      * @param count number of shorts to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count) {
+    void EventBuilder::setUShortData(std::shared_ptr<BaseStructure> structure, uint16_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -227,7 +226,7 @@ namespace evio {
         auto vect = structure->getUShortData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateUShortData();
         setAllHeaderLengths();
@@ -241,7 +240,7 @@ namespace evio {
      * @param count number of longs to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count) {
+    void EventBuilder::setLongData(std::shared_ptr<BaseStructure> structure, int64_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -251,7 +250,7 @@ namespace evio {
         auto vect = structure->getLongData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateLongData();
         setAllHeaderLengths();
@@ -265,7 +264,7 @@ namespace evio {
      * @param count number of longs to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count) {
+    void EventBuilder::setULongData(std::shared_ptr<BaseStructure> structure, uint64_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -275,7 +274,7 @@ namespace evio {
         auto vect = structure->getULongData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateULongData();
         setAllHeaderLengths();
@@ -289,7 +288,7 @@ namespace evio {
      * @param count number of bytes to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count) {
+    void EventBuilder::setCharData(std::shared_ptr<BaseStructure> structure, char* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -299,7 +298,7 @@ namespace evio {
         auto vect = structure->getCharData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateCharData();
         setAllHeaderLengths();
@@ -313,7 +312,7 @@ namespace evio {
      * @param count number of bytes to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count) {
+    void EventBuilder::setUCharData(std::shared_ptr<BaseStructure> structure, unsigned char* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -323,7 +322,7 @@ namespace evio {
         auto vect = structure->getUCharData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateUCharData();
         setAllHeaderLengths();
@@ -337,7 +336,7 @@ namespace evio {
      * @param count number of floats to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count) {
+    void EventBuilder::setFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -347,7 +346,7 @@ namespace evio {
         auto vect = structure->getFloatData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateFloatData();
         setAllHeaderLengths();
@@ -361,7 +360,7 @@ namespace evio {
      * @param count number of doubles to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count) {
+    void EventBuilder::setDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -371,7 +370,7 @@ namespace evio {
         auto vect = structure->getDoubleData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateDoubleData();
         setAllHeaderLengths();
@@ -385,7 +384,7 @@ namespace evio {
      * @param count number of strings to write.
      * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count) {
+    void EventBuilder::setStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -395,7 +394,7 @@ namespace evio {
         auto vect = structure->getStringData();
         vect.clear();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateStringData();
         setAllHeaderLengths();
@@ -414,18 +413,19 @@ namespace evio {
      * @param count number of ints to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not int.
      */
-    void EventBuilder::appendIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count) {
+    void EventBuilder::appendIntData(std::shared_ptr<BaseStructure> structure, int32_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
 
         if (structure->getHeader()->getDataType() != DataType::INT32) {
-            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+            throw EvioException("cannot append ints to structure of type " +
+                                structure->getHeader()->getDataType().getName());
         }
 
         auto vect = structure->getIntData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateIntData();
         setAllHeaderLengths();
@@ -440,7 +440,7 @@ namespace evio {
      * @param count number of ints to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not unsigned int.
      */
-    void EventBuilder::appendUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count) {
+    void EventBuilder::appendUIntData(std::shared_ptr<BaseStructure> structure, uint32_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -451,7 +451,7 @@ namespace evio {
 
         auto vect = structure->getUIntData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateUIntData();
         setAllHeaderLengths();
@@ -465,7 +465,7 @@ namespace evio {
      * @param count number of shorts to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not short.
      */
-    void EventBuilder::appendShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count) {
+    void EventBuilder::appendShortData(std::shared_ptr<BaseStructure> structure, int16_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -476,7 +476,7 @@ namespace evio {
 
         auto vect = structure->getShortData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateShortData();
         setAllHeaderLengths();
@@ -491,18 +491,18 @@ namespace evio {
      * @param count number of shorts to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not unsigned short.
      */
-    void EventBuilder::appendUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count) {
+    void EventBuilder::appendUShortData(std::shared_ptr<BaseStructure> structure, uint16_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
 
-        if (structure->getHeader()->getDataType() != DataType::USHORT6) {
+        if (structure->getHeader()->getDataType() != DataType::USHORT16) {
             throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
         }
 
         auto vect = structure->getUShortData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateUShortData();
         setAllHeaderLengths();
@@ -517,7 +517,7 @@ namespace evio {
      * @param count number of longs to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not long.
      */
-    void EventBuilder::appendLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count) {
+    void EventBuilder::appendLongData(std::shared_ptr<BaseStructure> structure, int64_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -528,7 +528,7 @@ namespace evio {
 
         auto vect = structure->getLongData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateLongData();
         setAllHeaderLengths();
@@ -542,7 +542,7 @@ namespace evio {
      * @param count number of longs to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not unsigned long.
      */
-    void EventBuilder::appendULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count) {
+    void EventBuilder::appendULongData(std::shared_ptr<BaseStructure> structure, uint64_t* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -553,7 +553,7 @@ namespace evio {
 
         auto vect = structure->getULongData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateULongData();
         setAllHeaderLengths();
@@ -568,7 +568,7 @@ namespace evio {
      * @param count number of chars to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not char.
      */
-    void EventBuilder::appendCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count) {
+    void EventBuilder::appendCharData(std::shared_ptr<BaseStructure> structure, char* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -579,7 +579,7 @@ namespace evio {
 
         auto vect = structure->getCharData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateCharData();
         setAllHeaderLengths();
@@ -593,7 +593,7 @@ namespace evio {
      * @param count number of chars to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not unsigned char.
      */
-    void EventBuilder::appendUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count) {
+    void EventBuilder::appendUCharData(std::shared_ptr<BaseStructure> structure, unsigned char* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -604,7 +604,7 @@ namespace evio {
 
         auto vect = structure->getUCharData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
         structure->updateUCharData();
         setAllHeaderLengths();
@@ -619,7 +619,7 @@ namespace evio {
      * @param count number of floats to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not float.
      */
-    void EventBuilder::appendFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count) {
+    void EventBuilder::appendFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -630,9 +630,9 @@ namespace evio {
 
         auto vect = structure->getFloatData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
-        structure->updataFloatData();
+        structure->updateFloatData();
         setAllHeaderLengths();
     }
 
@@ -645,7 +645,7 @@ namespace evio {
      * @param count number of doubles to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not double.
      */
-    void EventBuilder::appendDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count) {
+    void EventBuilder::appendDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -656,9 +656,9 @@ namespace evio {
 
         auto vect = structure->getDoubleData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
-        structure->updataDoubleData();
+        structure->updateDoubleData();
         setAllHeaderLengths();
     }
 
@@ -671,7 +671,7 @@ namespace evio {
      * @param count number of strings to append.
      * @throws EvioException if structure or data arg(s) is null, data type is not string.
      */
-    void EventBuilder::appendStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count) {
+    void EventBuilder::appendStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count) {
         if (structure == nullptr && data != nullptr) {
             throw EvioException("either structure or data arg is null");
         }
@@ -682,9 +682,9 @@ namespace evio {
 
         auto vect = structure->getStringData();
         for (int i=0; i < count; i++) {
-            vect.push_back(*(data[i]));
+            vect.push_back(data[i]);
         }
-        structure->updataStringData();
+        structure->updateStringData();
         setAllHeaderLengths();
     }
 
@@ -701,9 +701,7 @@ namespace evio {
      * the newly supplied event.
      * @param event the new underlying event.
      */
-    void EventBuilder::setEvent(std::shared_ptr<EvioEvent> & event) {
-        this.event = event;
-    }
+    void EventBuilder::setEvent(std::shared_ptr<EvioEvent> & ev) {event = ev;}
 
 
     //---------------------------------------------------------------------------------
@@ -725,61 +723,72 @@ namespace evio {
         uint16_t tag = 11;
 
         try {
-            //first event-- a trivial event containing an array of ints.
+            // first event-- a trivial event containing an array of ints.
             EventBuilder eventBuilder(tag, DataType::INT32, eventNumber++);
             auto event1 = eventBuilder.getEvent();
-            //should end up with int array 1..25,1..10
+            // should end up with int array 1..25,1..10
             uint32_t intData[25];
             fakeIntArray(intData, 25);
             eventBuilder.appendUIntData(event1, intData, 25);
             eventBuilder.appendUIntData(event1, intData, 10);
-            eventWriter.writeEvent(event1);
+            eventWriter.writeEvent(static_cast<std::shared_ptr<EvioBank>>(event1));
 
-            //second event, more traditional bank of banks
+            // second event, more traditional bank of banks
             EventBuilder eventBuilder2(tag, DataType::BANK, eventNumber++);
             auto event2 = eventBuilder2.getEvent();
 
-            //add a bank of doubles
-            EvioBank bank1(22, DataType::DOUBLE64, 0);
-            eventBuilder2.appendDoubleData(bank1, fakeDoubleArray(10));
+            // add a bank of doubles
+            auto bank1 = EvioBank::getInstance(22, DataType::DOUBLE64, 0);
+            double dData[10];
+            fakeDoubleArray(dData, 10);
+            eventBuilder2.appendDoubleData(bank1, dData, 10);
             eventBuilder2.addChild(event2, bank1);
             eventWriter.writeEvent(event2);
 
-            //lets modify event2
-            event2->getHeader().setNumber(eventNumber++);
-            EvioBank bank2(33, DataType::BANK, 0);
+            // lets modify event2
+            event2->getHeader()->setNumber(eventNumber++);
+            auto bank2 = EvioBank::getInstance(33, DataType::BANK, 0);
             eventBuilder.addChild(event2, bank2);
 
-            EvioBank subBank1(34, DataType::SHORT16, 1);
+            auto subBank1 = EvioBank::getInstance(34, DataType::SHORT16, 1);
             eventBuilder.addChild(bank2, subBank1);
-            eventBuilder.appendShortData(subBank1, fakeShortArray(5));
+            uint16_t sData[5];
+            fakeShortArray(sData, 5);
+            eventBuilder.appendUShortData(subBank1, sData, 5);
 
 
 
             //now add a bank of segments
-            EvioBank subBank2(33, DataType::SEGMENT, 0);
+            auto subBank2 = EvioBank::getInstance(33, DataType::SEGMENT, 0);
             eventBuilder.addChild(bank2, subBank2);
 
-            EvioSegment segment1(34, DataType::SHORT16);
+            auto segment1 = EvioSegment::getInstance(34, DataType::SHORT16);
             eventBuilder.addChild(subBank2, segment1);
-            eventBuilder.appendShortData(segment1, fakeShortArray(7));
+            uint16_t ssData[7];
+            fakeShortArray(ssData, 7);
+            eventBuilder.appendUShortData(segment1, ssData, 7);
 
-            EvioSegment segment2(34, DataType::SHORT16);
+            auto segment2 = EvioSegment::getInstance(34, DataType::SHORT16);
             eventBuilder.addChild(subBank2, segment2);
-            eventBuilder.appendShortData(segment2, fakeShortArray(10));
+            uint16_t sssData[10];
+            fakeShortArray(sssData, 10);
+            eventBuilder.appendUShortData(segment2, sssData, 10);
 
 
             //now add a bank of tag segments
-            EvioBank subBank3(45, DataType::TAGSEGMENT, 0);
+            auto subBank3 = EvioBank::getInstance(45, DataType::TAGSEGMENT, 0);
             eventBuilder.addChild(bank2, subBank3);
 
-            EvioTagSegment tagsegment1(34, DataType::INT32);
+            auto tagsegment1 = EvioTagSegment::getInstance(34, DataType::INT32);
             eventBuilder.addChild(subBank3, tagsegment1);
-            eventBuilder.appendIntData(tagsegment1, fakeIntArray(3));
+            uint32_t iiData[3];
+            fakeIntArray(iiData, 3);
+            eventBuilder.appendUIntData(tagsegment1, iiData, 3);
 
-            EvioTagSegment tagsegment2 = new EvioTagSegment(34, DataType.CHARSTAR8);
+            auto tagsegment2 = EvioTagSegment::getInstance(34, DataType::CHARSTAR8);
             eventBuilder.addChild(subBank3, tagsegment2);
-            eventBuilder.appendStringData(tagsegment2, "This is a string");
+            std::string *strData = fakeStringArray();
+            eventBuilder.appendStringData(tagsegment2, strData, 7);
 
 
 //			System.err.println("EVENT2: " + event2.getHeader());
@@ -800,11 +809,8 @@ namespace evio {
             eventWriter.close();
 
         }
-        catch (EvioException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (EvioException & e) {
+            std::cout << e.what() << std::endl;
         }
 
         std::cout << "Test completed" << std::endl;
@@ -816,9 +822,9 @@ namespace evio {
      * @param array pointer to int array.
      * @param size the size of the array.
      */
-    static void EventBuilder::fakeIntArray(uint32_t* array, uint32_t size) {
+    void EventBuilder::fakeIntArray(uint32_t* array, uint32_t size) {
         for (int i = 0; i < size; i++) {
-            *(array[i]) = i+1;
+            array[i] = i+1;
         }
     }
 
@@ -828,19 +834,18 @@ namespace evio {
      * @param size the size of the array.
      * @return the fake short array.
      */
-    static void EventBuilder::fakeShortArray(uint16_t* array, uint32_t size) {
+    void EventBuilder::fakeShortArray(uint16_t* array, uint32_t size) {
         for (int i = 0; i < size; i++) {
-            *(array[i]) = (short)(i+1);
+            array[i] = (short)(i+1);
         }
-        return array;
     }
 
     /**
-     * Return array of characters for test purposes. Size must is 18 chars.
-     * @param the static char array.
+     * Return array of strings for test purposes. Size is 7 strings.
+     * @param the static string array.
      */
-    static char* EventBuilder::fakeCharArray() {
-        static char array[] = {'T','h','i','s',' ','i','s',' ','c','h','a','r',' ', 'd','a','t','a','.'};
+    std::string* EventBuilder::fakeStringArray() {
+        static std::string array[] = {"This", " ", "is" , " ", "string", " ", "data"};
         return array;
     }
 
@@ -849,15 +854,11 @@ namespace evio {
      * @param array pointer to double array.
      * @param size the size of the array.
      */
-    static void EventBuilder::fakeDoubleArray(double *array, uint32_t size) {
+    void EventBuilder::fakeDoubleArray(double *array, uint32_t size) {
         for (int i = 0; i < size; i++) {
-            *(array[i]) = i+1;
+            array[i] = i+1;
         }
     }
 
-};
-
-
-
-
 }
+
