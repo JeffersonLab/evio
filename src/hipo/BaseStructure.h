@@ -351,6 +351,7 @@ namespace evio {
         friend class EventParser;
         friend class EvioReader;
         friend class EvioReaderV4;
+        friend class EventBuilder;
         friend class StructureTransformer;
 
         //---------------------------------------------
