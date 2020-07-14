@@ -27,7 +27,6 @@
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "EvioNode.h"
-#include "RecordHeader.h"
 #include "IBlockHeader.h"
 #include "DataType.h"
 
@@ -312,7 +311,7 @@ public:
         ByteOrder byteOrder = bb.order();
 
         // Offset to magic # is in the SAME LOCATION FOR ALL EVIO VERSIONS
-        uint32_t magicNumber = bb.getUInt(initialPos + RecordHeader::MAGIC_OFFSET);
+        uint32_t magicNumber = bb.getUInt(initialPos + IBlockHeader::MAGIC_OFFSET);
         if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
             if (byteOrder == ByteOrder::ENDIAN_BIG) {
                 byteOrder = ByteOrder::ENDIAN_LITTLE;
@@ -323,15 +322,15 @@ public:
             bb.order(byteOrder);
 
             // Reread magic number to make sure things are OK
-            magicNumber = bb.getInt(initialPos + RecordHeader::MAGIC_OFFSET);
+            magicNumber = bb.getInt(initialPos + IBlockHeader::MAGIC_OFFSET);
             if (magicNumber != IBlockHeader::MAGIC_NUMBER) {
                 throw EvioException("magic number is bad, " + std::to_string(magicNumber));
             }
         }
 
         // Find the version number, again, SAME LOCATION FOR ALL EVIO VERSIONS
-        uint32_t bitInfo = bb.getUInt(initialPos + RecordHeader::BIT_INFO_OFFSET);
-        return bitInfo & RecordHeader::VERSION_MASK;
+        uint32_t bitInfo = bb.getUInt(initialPos + IBlockHeader::BIT_INFO_OFFSET);
+        return bitInfo & IBlockHeader::VERSION_MASK;
     }
 
 
