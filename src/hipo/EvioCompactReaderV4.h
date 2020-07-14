@@ -23,6 +23,7 @@
 #include <fstream>
 #include <sys/mman.h>
 #include <mutex>
+#include <sys/mman.h>
 
 
 #include "ByteBuffer.h"
@@ -191,7 +192,7 @@ namespace evio {
     public:
 
         std::shared_ptr<ByteBuffer> getByteBuffer() override;
-        std::shared_ptr<ByteBuffer> getMappedByteBuffer() override ;
+//        std::shared_ptr<ByteBuffer> getMappedByteBuffer() override ;
         size_t fileSize() override ;
 
         std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override ;

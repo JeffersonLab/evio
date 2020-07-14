@@ -136,11 +136,11 @@ namespace evio {
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getByteBuffer() {return reader.getBuffer();}
 
+//    /** {@inheritDoc} */
+//    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getMappedByteBuffer() {return nullptr;}
+
     /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getMappedByteBuffer() {return nullptr;}
-// TODO:
-    /** {@inheritDoc} */
-    size_t EvioCompactReaderV6::fileSize() {return 0L;}
+    size_t EvioCompactReaderV6::fileSize() {return reader.getFileSize();}
 
 
     /** {@inheritDoc} */

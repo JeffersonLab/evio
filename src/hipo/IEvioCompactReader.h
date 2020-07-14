@@ -46,19 +46,6 @@ namespace evio {
 
     public:
 
-        // TODO: USE EvioReaderV4::MAGIC_OFFSET
-        /**  Offset to get magic number from start of file for every evio version. */
-//        static const uint32_t MAGIC_OFFSET = 28;
-
-        // TODO: USE EvioReaderV4::VERSION_OFFSET
-        /** Offset to get version number from start of file for every evio version. */
-//        static const uint32_t VERSION_OFFSET = 20;
-
-        // TODO: USE EvioReaderV4::VERSION_MASK
-        /** Mask to get version number from 6th int in block for every evio version. */
-//        static const uint32_t VERSION_MASK = 0xff;
-
-
         /**
          * Is this reader reading a file?
          * @return true if reading file, false if reading buffer
@@ -177,11 +164,11 @@ namespace evio {
          */
         virtual bool hasDictionary() = 0;
 
-        /**
-         * Get the memory mapped buffer corresponding to the event file.
-         * @return the memory mapped buffer corresponding to the event file.
-         */
-        virtual std::shared_ptr<ByteBuffer> getMappedByteBuffer();
+//        /**
+//         * Get the memory mapped buffer corresponding to the event file.
+//         * @return the memory mapped buffer corresponding to the event file.
+//         */
+//        virtual std::shared_ptr<ByteBuffer> getMappedByteBuffer();
 
         /**
          * Get the byte buffer being read directly or corresponding to the event file.

@@ -279,13 +279,13 @@ namespace evio {
         ::close(fd);
 
         // Change the mapped memory into a ByteBuffer for ease of handling ...
-        byteBuffer = std::make_shared<ByteBuffer>(static_cast<char *>(pmem), fileSz);
-        mappedByteBuffer = byteBuffer;
+        byteBuffer = std::make_shared<ByteBuffer>(static_cast<char *>(pmem), fileSz, true);
+//        mappedByteBuffer = byteBuffer;
     }
 
 
-    /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getMappedByteBuffer() {return mappedByteBuffer;}
+//    /** {@inheritDoc} */
+//    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getMappedByteBuffer() {return mappedByteBuffer;}
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV4::getByteBuffer() {return byteBuffer;}
