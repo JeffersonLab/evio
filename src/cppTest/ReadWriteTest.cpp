@@ -24,6 +24,8 @@
 #include "TNode.h"
 #include "TNodeSuper1.h"
 #include "TNodeSuper2.h"
+#include "EventBuilder.h"
+#include "DataType.h"
 
 using namespace std;
 
@@ -41,6 +43,11 @@ public:
 
 
 int main(int argc, char **argv) {
+
+    uint16_t tag = 1;
+    uint8_t num = 2;
+    DataType type = DataType::BANK;
+    EventBuilder eb(tag, type, num);
 
     auto h1Sup = TNodeHeaderSuper1::getInstance(222);
     auto t2Sup = TNodeSuper1::getInstance(h1Sup, 22);
