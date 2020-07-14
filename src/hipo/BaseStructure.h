@@ -663,7 +663,7 @@ namespace evio {
 
         std::vector<std::shared_ptr<CompositeData>> & getCompositeData();
 
-        std::vector<string> & getStringData();
+        std::vector<std::string> & getStringData();
         uint32_t unpackRawBytesToStrings();
 
         static uint32_t stringToRawSize(const string & str);
@@ -673,15 +673,15 @@ namespace evio {
                                       std::vector<uint8_t> & bytes);
 
         static void unpackRawBytesToStrings(std::vector<uint8_t> & bytes, size_t offset,
-                                            std::vector<string> & strData);
+                                            std::vector<std::string> & strData);
         static void unpackRawBytesToStrings(std::vector<uint8_t> &  bytes,
                                             size_t offset, size_t maxLength,
-                                            std::vector<string> & strData);
+                                            std::vector<std::string> & strData);
         static void unpackRawBytesToStrings(uint8_t *bytes, size_t length,
-                                            std::vector<string> & strData);
+                                            std::vector<std::string> & strData);
         static void unpackRawBytesToStrings(ByteBuffer & buffer,
                                             size_t pos, size_t length,
-                                            std::vector<string> & strData);
+                                            std::vector<std::string> & strData);
 
         void updateIntData();
         void updateUIntData();
