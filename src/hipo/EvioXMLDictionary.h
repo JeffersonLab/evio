@@ -1161,7 +1161,7 @@ public:
             EvioDictionaryEntry::EvioDictionaryEntryType entryType = key->getEntryType();
 
             // name = ???
-            std::string name = INameProvider::NO_NAME_STRING;
+            std::string name = INameProvider::NO_NAME_STRING();
 
             switch (entryType) {
                 case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM: {
