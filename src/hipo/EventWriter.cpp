@@ -158,7 +158,7 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
                          uint32_t maxRecordSize, uint32_t maxEventCount,
                          const ByteOrder & byteOrder, const string & xmlDictionary,
                          bool overWriteOK, bool append,
-                         EvioBank * firstEvent, uint32_t streamId,
+                         std::shared_ptr<EvioBank> firstEvent, uint32_t streamId,
                          uint32_t splitNumber, uint32_t splitIncrement, uint32_t streamCount,
                          Compressor::CompressionType compressionType, uint32_t compressionThreads,
                          uint32_t ringSize, uint32_t bufferSize) {
@@ -467,7 +467,7 @@ EventWriter::EventWriter(std::shared_ptr<ByteBuffer> & buf, string & xmlDictiona
  */
 EventWriter::EventWriter(std::shared_ptr<ByteBuffer> & buf, uint32_t maxRecordSize, uint32_t maxEventCount,
                          const string & xmlDictionary, uint32_t recordNumber,
-                         EvioBank* firstEvent, Compressor::CompressionType compressionType) {
+                         std::shared_ptr<EvioBank> const & firstEvent, Compressor::CompressionType compressionType) {
 
         this->toFile          = false;
         this->append          = false;
@@ -899,12 +899,12 @@ void EventWriter::setStartingRecordNumber(uint32_t startingRecordNumber) {
  *                       if file exists but user requested no over-writing;
  *                       if no room when writing to user-given buffer;
  */
-void EventWriter::setFirstEvent(EvioNode & node) {
+void EventWriter::setFirstEvent(std::shared_ptr<EvioNode> & node) {
 
         if (closed) {return;}
 
         // There's no way to remove an event from a record, so reconstruct it.
-        createCommonRecord(xmlDictionary, nullptr, &node, nullptr);
+        createCommonRecord(xmlDictionary, nullptr, node, nullptr);
 
         // When writing to a buffer, the common record is not written until
         // buffer is full and flushCurrentRecordToBuffer() is called. That
@@ -950,7 +950,7 @@ void EventWriter::setFirstEvent(EvioNode & node) {
  * Do not call this while simultaneously calling
  * close, flush, writeEvent, or getByteBuffer.
  *
- * @param buffer buffer containing event to be placed first in each file written
+ * @param buf buffer containing event to be placed first in each file written
  *               including all splits.
  *
  * @throws EvioException if error writing to file
@@ -961,19 +961,19 @@ void EventWriter::setFirstEvent(EvioNode & node) {
  *                       if file exists but user requested no over-writing;
  *                       if no room when writing to user-given buffer;
  */
-void EventWriter::setFirstEvent(ByteBuffer & buffer) {
+void EventWriter::setFirstEvent(std::shared_ptr<ByteBuffer> & buf) {
 
         if (closed) {return;}
 
-        if ((buffer.remaining() < 8) && (xmlDictionary.empty())) {
+        if ((buf->remaining() < 8) && (xmlDictionary.empty())) {
             commonRecord = nullptr;
             return;
         }
 
-        createCommonRecord(xmlDictionary, nullptr, nullptr, &buffer);
+        createCommonRecord(xmlDictionary, nullptr, nullptr, buf);
 
-        if (toFile && (recordsWritten > 0) && (buffer.remaining() > 7)) {
-            writeEvent(buffer, false);
+        if (toFile && (recordsWritten > 0) && (buf->remaining() > 7)) {
+            writeEvent(buf, false);
         }
 }
 
@@ -1017,14 +1017,14 @@ void EventWriter::setFirstEvent(ByteBuffer & buffer) {
  *                       if file exists but user requested no over-writing;
  *                       if no room when writing to user-given buffer;
  */
-void EventWriter::setFirstEvent(EvioBank & bank) {
+void EventWriter::setFirstEvent(std::shared_ptr<EvioBank> & bank) {
 
         if (closed) {return;}
 
-        createCommonRecord(xmlDictionary, &bank, nullptr, nullptr);
+        createCommonRecord(xmlDictionary, bank, nullptr, nullptr);
 
         if (toFile && (recordsWritten > 0)) {
-            writeEvent(&bank, nullptr, false);
+            writeEvent(bank, nullptr, false);
         }
 }
 
@@ -1034,14 +1034,16 @@ void EventWriter::setFirstEvent(EvioBank & bank) {
  * Use the firstBank as the first event if specified, else try using the
  * firstNode if specified, else try the firstBuf.
  *
- * @param xmlDictionary  xml dictionary
+ * @param xmlDict        xml dictionary
  * @param firstBank      first event as EvioBank
  * @param firstNode      first event as EvioNode
  * @param firstBuf       first event as ByteBuffer
  * @throws EvioException if dictionary is in improper format
  */
-void EventWriter::createCommonRecord(const string & xmlDictionary, EvioBank *firstBank,
-                                     EvioNode *firstNode, ByteBuffer *firstBuf) {
+void EventWriter::createCommonRecord(const string & xmlDict,
+                                     std::shared_ptr<EvioBank> const & firstBank,
+                                     std::shared_ptr<EvioNode> const & firstNode,
+                                     std::shared_ptr<ByteBuffer> const & firstBuf) {
 
         // Create record if necessary, else clear it
         if (commonRecord == nullptr) {
@@ -1054,15 +1056,15 @@ void EventWriter::createCommonRecord(const string & xmlDictionary, EvioBank *fir
         }
 
         // Place dictionary & first event into a single record
-        if (!xmlDictionary.empty()) {
-//cout << "createCommonRecord: got dictionary, # chars = " << xmlDictionary.size() << endl;
+        if (!xmlDict.empty()) {
+//cout << "createCommonRecord: got dictionary, # chars = " << xmlDict.size() << endl;
             // 56 is the minimum number of characters for a valid xml dictionary
-            if (xmlDictionary.length() < 56) {
+            if (xmlDict.length() < 56) {
                 throw EvioException("Dictionary improper format, too few characters");
             }
 
             // Turn dictionary data into ascii (not evio bank)
-            Util::stringToASCII(xmlDictionary, dictionaryByteArray);
+            Util::stringToASCII(xmlDict, dictionaryByteArray);
 
             // Add to record which will be our file header's "user header"
             commonRecord->addEvent(dictionaryByteArray);
@@ -1663,7 +1665,7 @@ bool EventWriter::hasRoom(uint32_t bytes) {
  *                       if file exists but user requested no over-writing;
  *                       if null node arg;
  */
-bool EventWriter::writeEvent(EvioNode & node, bool force) {
+bool EventWriter::writeEvent(std::shared_ptr<EvioNode> & node, bool force) {
     // Duplicate buffer so we can set pos & limit without messing others up
     return writeEvent(node, force, true);
 }
@@ -1710,10 +1712,10 @@ bool EventWriter::writeEvent(EvioNode & node, bool force) {
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing;
  */
-bool EventWriter::writeEvent(EvioNode & node, bool force, bool duplicate) {
+bool EventWriter::writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
-        auto bb = node.getBuffer();
+        auto bb = node->getBuffer();
 
         // Duplicate buffer so we can set pos & limit without messing others up
         if (duplicate) {
@@ -1724,9 +1726,9 @@ bool EventWriter::writeEvent(EvioNode & node, bool force, bool duplicate) {
             eventBuffer = bb;
         }
 
-        uint32_t pos = node.getPosition();
-        eventBuffer->limit(pos + node.getTotalBytes()).position(pos);
-        return writeEvent(nullptr, eventBuffer.get(), force);
+        uint32_t pos = node->getPosition();
+        eventBuffer->limit(pos + node->getTotalBytes()).position(pos);
+        return writeEvent(nullptr, eventBuffer, force);
 }
 
 /**
@@ -1779,10 +1781,10 @@ bool EventWriter::writeEvent(EvioNode & node, bool force, bool duplicate) {
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing;
  */
-bool EventWriter::writeEventToFile(EvioNode & node, bool force, bool duplicate) {
+bool EventWriter::writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate) {
 
         std::shared_ptr<ByteBuffer> eventBuffer;
-        auto bb = node.getBuffer();
+        auto bb = node->getBuffer();
 
         // Duplicate buffer so we can set pos & limit without messing others up
         if (duplicate) {
@@ -1793,9 +1795,9 @@ bool EventWriter::writeEventToFile(EvioNode & node, bool force, bool duplicate) 
             eventBuffer = bb;
         }
 
-        uint32_t pos = node.getPosition();
-        eventBuffer->limit(pos + node.getTotalBytes()).position(pos);
-        return writeEventToFile(nullptr, eventBuffer.get(), force);
+        uint32_t pos = node->getPosition();
+        eventBuffer->limit(pos + node->getTotalBytes()).position(pos);
+        return writeEventToFile(nullptr, eventBuffer, force);
 }
 
 /**
@@ -1830,8 +1832,8 @@ bool EventWriter::writeEventToFile(EvioNode & node, bool force, bool duplicate) 
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing.
  */
-bool EventWriter::writeEvent(ByteBuffer & bankBuffer) {
-    return writeEvent(nullptr, &bankBuffer, false);
+bool EventWriter::writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer) {
+    return writeEvent(nullptr, bankBuffer, false);
 }
 
 /**
@@ -1870,8 +1872,8 @@ bool EventWriter::writeEvent(ByteBuffer & bankBuffer) {
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing.
  */
-bool EventWriter::writeEvent(ByteBuffer & bankBuffer, bool force) {
-    return writeEvent(nullptr, &bankBuffer, force);
+bool EventWriter::writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force) {
+    return writeEvent(nullptr, bankBuffer, force);
 }
 
 
@@ -1903,8 +1905,8 @@ bool EventWriter::writeEvent(ByteBuffer & bankBuffer, bool force) {
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing;.
  */
-bool EventWriter::writeEvent(EvioBank & bank) {
-    return writeEvent(&bank, nullptr, false);
+bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank) {
+    return writeEvent(bank, nullptr, false);
 }
 
 
@@ -1940,8 +1942,8 @@ bool EventWriter::writeEvent(EvioBank & bank) {
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing;.
  */
-bool EventWriter::writeEvent(EvioBank & bank, bool force) {
-        return writeEvent(&bank, nullptr, force);
+bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank, bool force) {
+        return writeEvent(bank, nullptr, force);
 }
 
 
@@ -1985,7 +1987,8 @@ bool EventWriter::writeEvent(EvioBank & bank, bool force) {
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing.
  */
-bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force) {
+bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank,
+                             std::shared_ptr<ByteBuffer> bankBuffer, bool force) {
 
         if (closed) {
             throw EvioException("close() has already been called");
@@ -2227,7 +2230,8 @@ bool EventWriter::writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force)
  *                       if file could not be opened for writing;
  *                       if file exists but user requested no over-writing.
  */
-bool EventWriter::writeEventToFile(EvioBank* bank, ByteBuffer* bankBuffer, bool force) {
+bool EventWriter::writeEventToFile(std::shared_ptr<EvioBank> bank,
+                                   std::shared_ptr<ByteBuffer> bankBuffer, bool force) {
 
         if (closed) {
             throw EvioException("close() has already been called");
@@ -3008,15 +3012,15 @@ cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " 
  * @return true if event was added to buffer, false if the buffer is full or
  *         event count limit exceeded.
  */
-bool EventWriter::writeToBuffer(EvioBank* bank, ByteBuffer* bankBuffer) {
+bool EventWriter::writeToBuffer(std::shared_ptr<EvioBank> & bank, std::shared_ptr<ByteBuffer> & bankBuffer) {
     bool fitInRecord;
 
     if (bankBuffer != nullptr) {
         // Will this fit the event being written PLUS the ending trailer?
-        fitInRecord = currentRecord->addEvent(*bankBuffer, trailerBytes());
+        fitInRecord = currentRecord->addEvent(*(bankBuffer.get()), trailerBytes());
     }
     else {
-        fitInRecord = currentRecord->addEvent(*bank, trailerBytes());
+        fitInRecord = currentRecord->addEvent(*(bank.get()), trailerBytes());
     }
 
     if (fitInRecord) {

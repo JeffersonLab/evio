@@ -918,7 +918,7 @@ public:
         EventWriter(string baseName, const string & directory, const string & runType,
                     uint32_t runNumber, uint64_t split, uint32_t maxRecordSize, uint32_t maxEventCount,
                     const ByteOrder & byteOrder, const string & xmlDictionary, bool overWriteOK,
-                    bool append, EvioBank * firstEvent, uint32_t streamId, uint32_t splitNumber,
+                    bool append, std::shared_ptr<EvioBank> firstEvent, uint32_t streamId, uint32_t splitNumber,
                     uint32_t splitIncrement, uint32_t streamCount, Compressor::CompressionType compressionType,
                     uint32_t compressionThreads, uint32_t ringSize, uint32_t bufferSize);
 
@@ -926,10 +926,10 @@ public:
         // BUFFER Constructors
         //---------------------------------------------
 
-        EventWriter(std::shared_ptr<ByteBuffer> & buf);
+        explicit EventWriter(std::shared_ptr<ByteBuffer> & buf);
         EventWriter(std::shared_ptr<ByteBuffer> & buf, string & xmlDictionary);
         EventWriter(std::shared_ptr<ByteBuffer> & buf, uint32_t maxRecordSize, uint32_t maxEventCount,
-                    const string & xmlDictionary, uint32_t recordNumber, EvioBank *firstEvent,
+                    const string & xmlDictionary, uint32_t recordNumber, std::shared_ptr<EvioBank> const & firstEvent,
                     Compressor::CompressionType compressionType);
 
     private:
@@ -979,16 +979,18 @@ public:
 
         void setStartingRecordNumber(uint32_t startingRecordNumber);
 
-        void setFirstEvent(EvioNode & node);
+        void setFirstEvent(std::shared_ptr<EvioNode> & node);
 
-        void setFirstEvent(ByteBuffer & buffer);
+        void setFirstEvent(std::shared_ptr<ByteBuffer> & buf);
 
-        void setFirstEvent(EvioBank & bank);
+        void setFirstEvent(std::shared_ptr<EvioBank> & bank);
 
     private:
 
-        void createCommonRecord(const string & xmlDictionary, EvioBank * firstBank,
-                                EvioNode * firstNode, ByteBuffer * firstBuf);
+        void createCommonRecord(const string & xmlDict,
+                                std::shared_ptr<EvioBank> const & firstBank,
+                                std::shared_ptr<EvioNode> const & firstNode,
+                                std::shared_ptr<ByteBuffer> const & firstBuf);
 
         void writeFileHeader() ;
 
@@ -1011,23 +1013,25 @@ public:
 
         bool hasRoom(uint32_t bytes);
 
-        bool writeEvent(EvioNode & node, bool force);
+        bool writeEvent(std::shared_ptr<EvioNode> & node, bool force);
 
-        bool writeEvent(EvioNode & node, bool force, bool duplicate);
+        bool writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
 
-        bool writeEventToFile(EvioNode & node, bool force, bool duplicate);
+        bool writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
 
-        bool writeEvent(ByteBuffer & bankBuffer);
+        bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer);
 
-        bool writeEvent(ByteBuffer & bankBuffer, bool force);
+        bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force);
 
-        bool writeEvent(EvioBank & bank);
-        bool writeEvent(EvioBank & bank, bool force);
+        bool writeEvent(std::shared_ptr<EvioBank> bank);
+        bool writeEvent(std::shared_ptr<EvioBank> bank, bool force);
 
     private:
 
-        bool writeEvent(EvioBank* bank, ByteBuffer* bankBuffer, bool force);
-        bool writeEventToFile(EvioBank* bank, ByteBuffer* bankBuffer, bool force);
+        bool writeEvent(std::shared_ptr<EvioBank> bank,
+                        std::shared_ptr<ByteBuffer> bankBuffer, bool force);
+        bool writeEventToFile(std::shared_ptr<EvioBank> bank,
+                              std::shared_ptr<ByteBuffer> bankBuffer, bool force);
 
         bool fullDisk();
 
@@ -1040,7 +1044,7 @@ public:
         void splitFile();
         void writeTrailerToFile(bool writeIndex);
         void flushCurrentRecordToBuffer() ;
-        bool writeToBuffer(EvioBank* bank, ByteBuffer* bankBuffer) ;
+        bool writeToBuffer(std::shared_ptr<EvioBank> & bank, std::shared_ptr<ByteBuffer> & bankBuffer) ;
 
         uint32_t trailerBytes();
         void writeTrailerToBuffer(bool writeIndex);
