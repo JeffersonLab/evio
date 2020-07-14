@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <vector>
 #include <stdexcept>
+#include <sys/mman.h>
 
 #include "ByteOrder.h"
 #include "EvioException.h"
@@ -84,15 +85,21 @@ private:
     /** Is the data little endian? Convenience variable. */
     bool isLittleEndian = false;
 
+    /** Is the pointer pased to the constructor pointed to file mapped memory?
+     * I.e. does it need to be unmapped by destructor?
+     */
+    bool isMappedMemory = false;
+
 public:
 
     ByteBuffer();
     explicit ByteBuffer(size_t size);
     ByteBuffer(const ByteBuffer & srcBuf);
     ByteBuffer(ByteBuffer && srcBuf) noexcept;
-    ByteBuffer(char* byteArray, size_t len);
-    ByteBuffer(uint8_t* byteArray, size_t len);
-    ~ByteBuffer() = default;
+    ByteBuffer(char* byteArray, size_t len, bool isMappedMem = false);
+    ByteBuffer(uint8_t* byteArray, size_t len, bool isMappedMem = false);
+
+    ~ByteBuffer();
 
     bool operator== (const ByteBuffer& rhs) noexcept;
     bool operator!= (const ByteBuffer& rhs) noexcept;

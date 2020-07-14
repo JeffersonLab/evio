@@ -60,8 +60,12 @@ namespace evio {
      *
      * @param byteArray pointer to array which this object will wrap.
      * @param len length of array in bytes.
+     * @param isMappedMem is the byteArray arg a pointer obtained through ::mmap (file memory mapping)?.
      */
-    ByteBuffer::ByteBuffer(char* byteArray, size_t len) : ByteBuffer(reinterpret_cast<uint8_t*>(byteArray), len) {}
+    ByteBuffer::ByteBuffer(char* byteArray, size_t len, bool isMappedMem) :
+                ByteBuffer(reinterpret_cast<uint8_t*>(byteArray), len) {
+        isMappedMemory = isMappedMem;
+    }
 
     /**
      * This constructor is equivalent to the ByteBuffer.wrap() method in Java.
@@ -70,8 +74,9 @@ namespace evio {
      *
      * @param byteArray pointer to array which this object will wrap.
      * @param len length of array in bytes.
+     * @param isMappedMem is the byteArray arg a pointer obtained through ::mmap (file memory mapping)?.
      */
-    ByteBuffer::ByteBuffer(uint8_t* byteArray, size_t len) {
+    ByteBuffer::ByteBuffer(uint8_t* byteArray, size_t len, bool isMappedMem) {
         buf = shared_ptr<uint8_t>(byteArray, default_delete<uint8_t[]>());
         totalSize = cap = len;
         clear();
@@ -79,6 +84,15 @@ namespace evio {
         byteOrder = ByteOrder::ENDIAN_LITTLE;
         isLittleEndian = true;
         isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
+        isMappedMemory = isMappedMem;
+    }
+
+    /** Destructor. Be sure to unmap any memory mapped file. */
+    ByteBuffer::~ByteBuffer() {
+        if (isMappedMemory) {
+            // unmap any memory map
+            ::munmap(buf.get(), cap);
+        }
     }
 
     /**
