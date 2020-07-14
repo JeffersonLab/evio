@@ -6,6 +6,7 @@
 #define EVIO_6_0_EVENTBUILDER_H
 
 
+#include <iostream>
 #include <cstdio>
 #include <stdexcept>
 #include <memory>
@@ -14,11 +15,10 @@
 #include "DataType.h"
 #include "EvioEvent.h"
 #include "BaseStructure.h"
+#include "StructureType.h"
 
 
 namespace evio {
-
-
 
     /**
      * This class is used for creating and manipulating events. One constructor is convenient for creating new events while
@@ -29,7 +29,7 @@ namespace evio {
      * @author heddle (original java version)
      * @author timmer
      */
-    public class EventBuilder {
+    class EventBuilder {
 
     private:
 
@@ -46,26 +46,34 @@ namespace evio {
         void addChild(std::shared_ptr<BaseStructure> & parent, std::shared_ptr<BaseStructure> & child);
         void remove(std::shared_ptr<BaseStructure> & child);
 
-        void setIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count);
-        void setShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count);
-        void setLongData(std::shared_ptr<BaseStructure> & structure, uint64_t data, size_t count);
-        void setByteData(std::shared_ptr<BaseStructure> & structure, uint8_t* data, size_t count);
-        void setFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count);
-        void setDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count);
-        void setStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count);
+        static void setIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count);
+        static void setUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count);
+        static void setShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count);
+        static void setUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count);
+        static void setLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count);
+        static void setULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count);
+        static void setCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count);
+        static void setUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count);
+        static void setFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count);
+        static void setDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count);
+        static void setStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count);
 
-        void appendIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count);
-        void appendShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count);
-        void appendLongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count);
-        void appendByteData(std::shared_ptr<BaseStructure> & structure, uint8_t* data, size_t count);
-        void appendFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count)
-        void appendDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count);
-        void appendStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count);
+        static void appendIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count);
+        static void appendUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count);
+        static void appendShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count);
+        static void appendUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count);
+        static void appendLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count);
+        static void appendULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count);
+        static void appendCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count);
+        static void appendUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count);
+        static void appendFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count);
+        static void appendDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count);
+        static void appendStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count);
 
         std::shared_ptr<EvioEvent> getEvent();
         void setEvent(std::shared_ptr<EvioEvent> & event);
 
-        static void main(String args[]);
+        static void main(int argc, char **argv);
 
     private:
 

@@ -59,43 +59,43 @@ namespace evio {
      * @throws EvioException if parent or child is null, child has wrong byte order,
      *                       is wrong structure type, or parent is not a container
      */
-    void EventBuilder::addChild(BaseStructure parent, BaseStructure child) throws EvioException {
+    void EventBuilder::addChild(std::shared_ptr<BaseStructure> & parent, std::shared_ptr<BaseStructure> & child) {
 
-            if (child == null || parent == null) {
-                throw new EvioException("Null child or parent arg.");
+            if (child == nullptr || parent == nullptr) {
+                throw EvioException("Null child or parent arg.");
             }
 
-            if (child.getByteOrder() != event.getByteOrder()) {
-                throw new EvioException("Attempt to add child with opposite byte order.");
+            if (child->getByteOrder() != event->getByteOrder()) {
+                throw EvioException("Attempt to add child with opposite byte order.");
             }
 
             // the child must be consistent with the data type of the parent. For example, if the child
             // is a BANK, then the data type of the parent must be BANK.
-            DataType parentDataType = parent.header.getDataType();
-            String errStr;
+            DataType const & parentDataType = parent->header->getDataType();
+
             if (parentDataType.isStructure()) {
                 switch(parentDataType) {
                     case BANK: case ALSOBANK:
-                        if (child.getStructureType() != StructureType.BANK) {
-                            errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
+                        if (child->getStructureType() != StructureType::BANK) {
+                            std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
                                      " child type: " + child.getStructureType();
-                            throw new EvioException(errStr);
+                            throw EvioException(errStr);
                         }
                         break;
 
                     case SEGMENT: case ALSOSEGMENT:
-                        if (child.getStructureType() != StructureType.SEGMENT) {
-                            errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
+                        if (child->getStructureType() != StructureType::SEGMENT) {
+                            std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
                                      " child type: " + child.getStructureType();
-                            throw new EvioException(errStr);
+                            throw EvioException(errStr);
                         }
                         break;
 
                     case TAGSEGMENT:// case ALSOTAGSEGMENT:
-                        if (child.getStructureType() != StructureType.TAGSEGMENT) {
-                            errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
+                        if (child->getStructureType() != StructureType::TAGSEGMENT) {
+                            std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
                                      " child type: " + child.getStructureType();
-                            throw new EvioException(errStr);
+                            throw EvioException(errStr);
                         }
                         break;
 
@@ -103,14 +103,14 @@ namespace evio {
                 }
             }
             else { //parent is not a container--it is expecting to hold primitives and cannot have children
-                errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
+                std::string errStr = "Type mismatch in addChild. Parent content type: " + parentDataType +
                          " cannot have children.";
-                throw new EvioException(errStr);
+                throw EvioException(errStr);
             }
 
 
-            parent.insert(child);
-            child.setParent(parent);
+            parent->insert(child);
+            child->setParent(parent);
             setAllHeaderLengths();
     }
 
@@ -119,20 +119,20 @@ namespace evio {
      * @param child the child structure to remove.
      * @throws EvioException if arg is null or its parent is null
      */
-    void EventBuilder::remove(BaseStructure child) throws EvioException {
-            if (child == null) {
-                throw new EvioException("Attempt to remove null child.");
+    void EventBuilder::remove(std::shared_ptr<BaseStructure> & child) throws EvioException {
+            if (child == nullptr ) {
+                throw EvioException("Attempt to remove null child.");
             }
 
-            BaseStructure parent = child.getParent();
+            auto parent = child->getParent();
 
-            //the only orphan structure is the event itself, which cannot be removed.
-            if (parent == null) {
-                throw new EvioException("Attempt to remove root node, i.e., the event. Don't remove an event. Just discard it.");
+            // the only orphan structure is the event itself, which cannot be removed.
+            if (parent == nullptr ) {
+                throw EvioException("Attempt to remove root node, i.e., the event. Don't remove an event. Just discard it.");
             }
 
-            child.removeFromParent();
-            child.setParent(null);
+            child->removeFromParent();
+            child->setParent(nullptr);
             setAllHeaderLengths();
     }
 
@@ -141,223 +141,551 @@ namespace evio {
      * Set int data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
-     * @param data the int data to write.
-     * @throws EvioException if structure arg is null
+     * @param data pointer to data (array of ints) to write.
+     * @param count number of ints to write.
+     * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setIntData(BaseStructure structure, int data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to set int data to a null structure.");
-            }
-            structure.setIntData(data);
-            setAllHeaderLengths();
+    void EventBuilder::setIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::INT32);
+
+        auto vect = structure->getIntData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateIntData();
+        setAllHeaderLengths();
     }
 
+    /**
+     * Set unsigned int data to the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of uints) to write.
+     * @param count number of ints to write.
+     * @throws EvioException if structure or data arg(s) is null.
+     */
+    void EventBuilder::setUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::UINT32);
+
+        auto vect = structure->getUIntData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateUIntData();
+        setAllHeaderLengths();
+    }
 
     /**
      * Set short data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
-     * @param data the short data to write.
-     * @throws EvioException if structure arg is null
+     * @param data pointer to data (array of shorts) to write.
+     * @param count number of shorts to write.
+     * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setShortData(BaseStructure structure, short data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to set short data to a null structure.");
-            }
-            structure.setShortData(data);
-            setAllHeaderLengths();
+    void EventBuilder::setShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::SHORT16);
+
+        auto vect = structure->getShortData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateShortData();
+        setAllHeaderLengths();
     }
 
+    /**
+     * Set unsigned short data to the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of ushorts) to write.
+     * @param count number of shorts to write.
+     * @throws EvioException if structure or data arg(s) is null.
+     */
+    void EventBuilder::setUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::USHORT16);
+
+        auto vect = structure->getUShortData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateUShortData();
+        setAllHeaderLengths();
+    }
 
     /**
      * Set long data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
-     * @param data the long data to write.
-     * @throws EvioException if structure arg is null
+     * @param data pointer to data (array of longs) to write.
+     * @param count number of longs to write.
+     * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setLongData(BaseStructure structure, long data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to set long data to a null structure.");
-            }
-            structure.setLongData(data);
-            setAllHeaderLengths();
-    }
+    void EventBuilder::setLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
 
+        structure->getHeader()->setDataType(DataType::LONG64);
+
+        auto vect = structure->getLongData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateLongData();
+        setAllHeaderLengths();
+    }
 
     /**
-     * Set byte data to the structure. If the structure has data, it is overwritten
+     * Set unsigned long data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
-     * @param data the byte data to write.
-     * @throws EvioException if structure arg is null
+     * @param data pointer to data (array of ulongs) to write.
+     * @param count number of longs to write.
+     * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setByteData(BaseStructure structure, byte data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to set byte data to a null structure.");
-            }
-            structure.setByteData(data);
-            setAllHeaderLengths();
+    void EventBuilder::setULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::ULONG64);
+
+        auto vect = structure->getULongData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateULongData();
+        setAllHeaderLengths();
     }
 
+    /**
+     * Set char data to the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of chars) to write.
+     * @param count number of bytes to write.
+     * @throws EvioException if structure or data arg(s) is null.
+     */
+    void EventBuilder::setCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::CHAR8);
+
+        auto vect = structure->getCharData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateCharData();
+        setAllHeaderLengths();
+    }
+
+    /**
+     * Set unsigned char data to the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of uchars) to write.
+     * @param count number of bytes to write.
+     * @throws EvioException if structure or data arg(s) is null.
+     */
+    void EventBuilder::setUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::UCHAR8);
+
+        auto vect = structure->getUCharData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateUCharData();
+        setAllHeaderLengths();
+    }
 
     /**
      * Set float data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
-     * @param data the float data to write.
-     * @throws EvioException if structure arg is null
+     * @param data pointer to data (array of floats) to write.
+     * @param count number of floats to write.
+     * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setFloatData(BaseStructure structure, float data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to set float data to a null structure.");
-            }
-            structure.setFloatData(data);
-            setAllHeaderLengths();
-    }
+    void EventBuilder::setFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
 
+        structure->getHeader()->setDataType(DataType::FLOAT32);
+
+        auto vect = structure->getFloatData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateFloatData();
+        setAllHeaderLengths();
+    }
 
     /**
      * Set double data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
-     * @param data the double data to write.
-     * @throws EvioException if structure arg is null
+     * @param data pointer to data (array of doubles) to write.
+     * @param count number of doubles to write.
+     * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setDoubleData(BaseStructure structure, double data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to set double data to a null structure.");
-            }
-            structure.setDoubleData(data);
-            setAllHeaderLengths();
-    }
+    void EventBuilder::setDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
 
+        structure->getHeader()->setDataType(DataType::DOUBLE64);
+
+        auto vect = structure->getDoubleData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateDoubleData();
+        setAllHeaderLengths();
+    }
 
     /**
      * Set string data to the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
-     * @param data the string data to write.
-     * @throws EvioException if structure arg is null
+     * @param data pointer to data (array of strings) to write.
+     * @param count number of strings to write.
+     * @throws EvioException if structure or data arg(s) is null.
      */
-    void EventBuilder::setStringData(BaseStructure structure, String data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to set string data to a null structure.");
-            }
-            structure.setStringData(data);
-            setAllHeaderLengths();
+    void EventBuilder::setStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::CHARSTAR8);
+
+        auto vect = structure->getStringData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateStringData();
+        setAllHeaderLengths();
+    }
+
+    //TODO: composite data !!!
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Append int data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of ints) to append.
+     * @param count number of ints to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not int.
+     */
+    void EventBuilder::appendIntData(std::shared_ptr<BaseStructure> & structure, int32_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::INT32) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getIntData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateIntData();
+        setAllHeaderLengths();
     }
 
 
     /**
-     * Appends int data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the int data to append, or set if there is no existing data.
-     * @throws EvioException if structure arg is null.
+     * Append unsigned int data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of uints) to append.
+     * @param count number of ints to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not unsigned int.
      */
-    void EventBuilder::appendIntData(BaseStructure structure, int data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to append int data to a null structure.");
-            }
-            structure.appendIntData(data);
-            setAllHeaderLengths();
+    void EventBuilder::appendUIntData(std::shared_ptr<BaseStructure> & structure, uint32_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::UINT32) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getUIntData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateUIntData();
+        setAllHeaderLengths();
+    }
+
+    /**
+     * Append short data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of shorts) to append.
+     * @param count number of shorts to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not short.
+     */
+    void EventBuilder::appendShortData(std::shared_ptr<BaseStructure> & structure, int16_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::SHORT16) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getShortData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateShortData();
+        setAllHeaderLengths();
     }
 
 
     /**
-     * Appends short data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the short data to append, or set if there is no existing data.
-     * @throws EvioException if structure arg is null.
+     * Append unsigned short data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of ushorts) to append.
+     * @param count number of shorts to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not unsigned short.
      */
-    void EventBuilder::appendShortData(BaseStructure structure, short data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to append short data to a null structure.");
-            }
-            structure.appendShortData(data);
-            setAllHeaderLengths();
+    void EventBuilder::appendUShortData(std::shared_ptr<BaseStructure> & structure, uint16_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::USHORT6) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getUShortData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateUShortData();
+        setAllHeaderLengths();
     }
 
 
     /**
-     * Appends long data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the long data to append, or set if there is no existing data.
-     * @throws EvioException if structure arg is null.
+     * Append long data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of longs) to append.
+     * @param count number of longs to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not long.
      */
-    void EventBuilder::appendLongData(BaseStructure structure, long data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to append long data to a null structure.");
-            }
-            structure.appendLongData(data);
-            setAllHeaderLengths();
+    void EventBuilder::appendLongData(std::shared_ptr<BaseStructure> & structure, int64_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::LONG64) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getLongData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateLongData();
+        setAllHeaderLengths();
+    }
+
+    /**
+     * Append unsigned long data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of ulongs) to append.
+     * @param count number of longs to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not unsigned long.
+     */
+    void EventBuilder::appendULongData(std::shared_ptr<BaseStructure> & structure, uint64_t* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::ULONG64) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getULongData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateULongData();
+        setAllHeaderLengths();
     }
 
 
     /**
-     * Appends byte data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the byte data to append, or set if there is no existing data.
-     * @throws EvioException if structure arg is null.
+     * Append char data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of chars) to append.
+     * @param count number of chars to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not char.
      */
-    void EventBuilder::appendByteData(BaseStructure structure, byte data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to append byte data to a null structure.");
-            }
-            structure.appendByteData(data);
-            setAllHeaderLengths();
+    void EventBuilder::appendCharData(std::shared_ptr<BaseStructure> & structure, char* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::CHAR8) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getCharData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateCharData();
+        setAllHeaderLengths();
+    }
+
+    /**
+     * Append unsigned char data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of uchars) to append.
+     * @param count number of chars to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not unsigned char.
+     */
+    void EventBuilder::appendUCharData(std::shared_ptr<BaseStructure> & structure, unsigned char* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::UCHAR8) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getUCharData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updateUCharData();
+        setAllHeaderLengths();
     }
 
 
     /**
-     * Appends float data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the float data to append, or set if there is no existing data.
-     * @throws EvioException if structure arg is null.
+     * Append float data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of floats) to append.
+     * @param count number of floats to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not float.
      */
-    void EventBuilder::appendFloatData(BaseStructure structure, float data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to append float data to a null structure.");
-            }
-            structure.appendFloatData(data);
-            setAllHeaderLengths();
+    void EventBuilder::appendFloatData(std::shared_ptr<BaseStructure> & structure, float* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::FLOAT32) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getFloatData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updataFloatData();
+        setAllHeaderLengths();
     }
 
 
     /**
-     * Appends double data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the double data to append, or set if there is no existing data.
-     * @throws EvioException if structure arg is null.
+     * Append double data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of doubles) to append.
+     * @param count number of doubles to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not double.
      */
-    void EventBuilder::appendDoubleData(BaseStructure structure, double data[]) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to append double data to a null structure.");
-            }
-            structure.appendDoubleData(data);
-            setAllHeaderLengths();
+    void EventBuilder::appendDoubleData(std::shared_ptr<BaseStructure> & structure, double* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::DOUBLE64) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getDoubleData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updataDoubleData();
+        setAllHeaderLengths();
     }
 
 
     /**
-     * Appends string data to the structure. If the structure has no data, then this
-     * is the same as setting the data.
-     * @param structure the structure to receive the data, which is appended.
-     * @param data the string to append, or set if there is no existing data.
-     * @throws EvioException if structure arg is null.
+     * Append string data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of string) to append.
+     * @param count number of strings to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not string.
      */
-    void EventBuilder::appendStringData(BaseStructure structure, String data) throws EvioException {
-            if (structure == null) {
-                throw new EvioException("Tried to append String to a null structure.");
-            }
-            structure.appendStringData(data);
-            setAllHeaderLengths();
+    void EventBuilder::appendStringData(std::shared_ptr<BaseStructure> & structure, std::string* data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::CHARSTAR8) {
+            throw EvioException("cannot append ints to structure of type " + structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getStringData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(*(data[i]));
+        }
+        structure->updataStringData();
+        setAllHeaderLengths();
     }
 
 
@@ -365,7 +693,7 @@ namespace evio {
      * Get the underlying event.
      * @return the underlying event.
      */
-    EvioEvent EventBuilder::getEvent() {return event;}
+    std::shared_ptr<EvioEvent> EventBuilder::getEvent() {return event;}
 
     /**
      * Set the underlying event. As far as this event builder is concerned, the
@@ -373,80 +701,79 @@ namespace evio {
      * the newly supplied event.
      * @param event the new underlying event.
      */
-    void EventBuilder::setEvent(EvioEvent event) {
+    void EventBuilder::setEvent(std::shared_ptr<EvioEvent> & event) {
         this.event = event;
     }
+
+
+    //---------------------------------------------------------------------------------
+
 
     /**
      * Main program for testing.
      * @param args ignored command line arguments.
      */
-    static void EventBuilder::main(String args[]) {
+    int EventBuilder::main(int argc, char **argv) {
         //create an event writer to write out the test events.
-        String outfile = "C:\\Documents and Settings\\heddle\\My Documents\\test.ev";
-        EventWriter eventWriter = null;
-        try {
-            eventWriter = new EventWriter(new File(outfile));
-        }
-        catch (EvioException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        std::string outfile = "C:\\Documents and Settings\\heddle\\My Documents\\test.ev";
+        EventWriter eventWriter(outfile);
 
         //count the events we make for testing
-        int eventNumber = 1;
+        uint8_t eventNumber = 1;
 
         //use a tag of 11 for events--for no particular reason
-        int tag = 11;
+        uint16_t tag = 11;
 
         try {
             //first event-- a trivial event containing an array of ints.
-            EventBuilder eventBuilder = new EventBuilder(tag, DataType.INT32, eventNumber++);
-            EvioEvent event1 = eventBuilder.getEvent();
+            EventBuilder eventBuilder(tag, DataType::INT32, eventNumber++);
+            auto event1 = eventBuilder.getEvent();
             //should end up with int array 1..25,1..10
-            eventBuilder.appendIntData(event1, fakeIntArray(25));
-            eventBuilder.appendIntData(event1, fakeIntArray(10));
+            uint32_t intData[25];
+            fakeIntArray(intData, 25);
+            eventBuilder.appendUIntData(event1, intData, 25);
+            eventBuilder.appendUIntData(event1, intData, 10);
             eventWriter.writeEvent(event1);
 
             //second event, more traditional bank of banks
-            eventBuilder = new EventBuilder(tag, DataType.BANK, eventNumber++);
-            EvioEvent event2 = eventBuilder.getEvent();
+            EventBuilder eventBuilder2(tag, DataType::BANK, eventNumber++);
+            auto event2 = eventBuilder2.getEvent();
 
             //add a bank of doubles
-            EvioBank bank1 = new EvioBank(22, DataType.DOUBLE64, 0);
-            eventBuilder.appendDoubleData(bank1, fakeDoubleArray(10));
-            eventBuilder.addChild(event2, bank1);
+            EvioBank bank1(22, DataType::DOUBLE64, 0);
+            eventBuilder2.appendDoubleData(bank1, fakeDoubleArray(10));
+            eventBuilder2.addChild(event2, bank1);
             eventWriter.writeEvent(event2);
 
             //lets modify event2
-            event2.getHeader().setNumber(eventNumber++);
-            EvioBank bank2 = new EvioBank(33, DataType.BANK, 0);
+            event2->getHeader().setNumber(eventNumber++);
+            EvioBank bank2(33, DataType::BANK, 0);
             eventBuilder.addChild(event2, bank2);
 
-            EvioBank subBank1 = new EvioBank(34, DataType.SHORT16, 1);
+            EvioBank subBank1(34, DataType::SHORT16, 1);
             eventBuilder.addChild(bank2, subBank1);
             eventBuilder.appendShortData(subBank1, fakeShortArray(5));
 
 
 
             //now add a bank of segments
-            EvioBank subBank2 = new EvioBank(33, DataType.SEGMENT, 0);
+            EvioBank subBank2(33, DataType::SEGMENT, 0);
             eventBuilder.addChild(bank2, subBank2);
 
-            EvioSegment segment1 = new EvioSegment(34, DataType.SHORT16);
+            EvioSegment segment1(34, DataType::SHORT16);
             eventBuilder.addChild(subBank2, segment1);
             eventBuilder.appendShortData(segment1, fakeShortArray(7));
 
-            EvioSegment segment2 = new EvioSegment(34, DataType.SHORT16);
+            EvioSegment segment2(34, DataType::SHORT16);
             eventBuilder.addChild(subBank2, segment2);
             eventBuilder.appendShortData(segment2, fakeShortArray(10));
 
 
             //now add a bank of tag segments
-            EvioBank subBank3 = new EvioBank(45, DataType.TAGSEGMENT, 0);
+            EvioBank subBank3(45, DataType::TAGSEGMENT, 0);
             eventBuilder.addChild(bank2, subBank3);
 
-            EvioTagSegment tagsegment1 = new EvioTagSegment(34, DataType.INT32);
+            EvioTagSegment tagsegment1(34, DataType::INT32);
             eventBuilder.addChild(subBank3, tagsegment1);
             eventBuilder.appendIntData(tagsegment1, fakeIntArray(3));
 
@@ -480,57 +807,52 @@ namespace evio {
             e.printStackTrace();
         }
 
-        System.out.println("Test completed.");
+        std::cout << "Test completed" << std::endl;
+        return 0;
     }
 
     /**
-     * Array of ints, sequential, 1..size, for test purposes.
+     * Fill array of ints, sequential, 1..size, for test purposes.
+     * @param array pointer to int array.
      * @param size the size of the array.
-     * @return the fake int array.
      */
-    static int[] EventBuilder::fakeIntArray(int size) {
-        int[] array = new int[size];
+    static void EventBuilder::fakeIntArray(uint32_t* array, uint32_t size) {
         for (int i = 0; i < size; i++) {
-            array[i] = i+1;
+            *(array[i]) = i+1;
         }
-        return array;
     }
 
     /**
-     * Array of shorts, sequential, 1..size, for test purposes.
+     * Fill array of shorts, sequential, 1..size, for test purposes.
+     * @param array pointer to short array.
      * @param size the size of the array.
      * @return the fake short array.
      */
-    static short[] EventBuilder::fakeShortArray(int size) {
-        short[] array = new short[size];
+    static void EventBuilder::fakeShortArray(uint16_t* array, uint32_t size) {
         for (int i = 0; i < size; i++) {
-            array[i] = (short)(i+1);
+            *(array[i]) = (short)(i+1);
         }
         return array;
     }
 
     /**
-     * Array of characters for test purposes.
-     * @return the fake char array.
+     * Return array of characters for test purposes. Size must is 18 chars.
+     * @param the static char array.
      */
-    static char[] EventBuilder::fakeCharArray() {
-        char array[] = {'T','h','i','s',' ','i','s',' ','c','h','a','r',' ', 'd','a','t','a','.'};
+    static char* EventBuilder::fakeCharArray() {
+        static char array[] = {'T','h','i','s',' ','i','s',' ','c','h','a','r',' ', 'd','a','t','a','.'};
         return array;
     }
 
-
-
     /**
-     * Array of doubles, sequential, 1..size, for test purposes.
+     * Fill array of doubles, sequential, 1..size, for test purposes.
+     * @param array pointer to double array.
      * @param size the size of the array.
-     * @return the fake double array.
      */
-    static double[] EventBuilder::fakeDoubleArray(int size) {
-        double[] array = new double[size];
+    static void EventBuilder::fakeDoubleArray(double *array, uint32_t size) {
         for (int i = 0; i < size; i++) {
-            array[i] = i+1;
+            *(array[i]) = i+1;
         }
-        return array;
     }
 
 };
