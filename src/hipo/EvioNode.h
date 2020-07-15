@@ -55,9 +55,9 @@ private:
     /** Header's length value (32-bit words). */
     uint32_t len = 0;
     /** Header's tag value. */
-    uint32_t tag = 0;
+    uint16_t tag = 0;
     /** Header's num value. */
-    uint32_t num = 0;
+    uint8_t num = 0;
     /** Header's padding value. */
     uint32_t pad = 0;
     /** Position of header in buffer in bytes.  */
@@ -75,28 +75,6 @@ private:
     /** Position of the record in buffer containing this node in bytes
      *  @since version 6. */
     uint32_t recordPos = 0;
-
-public:
-
-    void setLen(uint32_t len);
-
-    void setTag(uint32_t tag);
-
-    void setNum(uint32_t num);
-
-    void setPad(uint32_t pad);
-
-    void setPos(uint32_t pos);
-
-    void setType(uint32_t type);
-
-    void setDataLen(uint32_t dataLen);
-
-    void setDataPos(uint32_t dataPos);
-
-    void setDataType(uint32_t dataType);
-
-    void setRecordPos(uint32_t recordPos);
 
 private:
 
@@ -154,8 +132,6 @@ private:
     /** If in pool, the pool's id. */
     int poolId = -1;
 
-
-
 private:
 
     /** Record containing this node. */
@@ -184,7 +160,7 @@ public:
     EvioNode(EvioNode && src) noexcept;
     EvioNode(uint32_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
     EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, std::shared_ptr<ByteBuffer> & buffer);
-    EvioNode(uint32_t tag, uint32_t num, uint32_t pos, uint32_t dataPos,
+    EvioNode(uint16_t tag, uint8_t num, uint32_t pos, uint32_t dataPos,
              DataType & type, DataType & dataType, shared_ptr<ByteBuffer> & buffer);
 
     ~EvioNode() = default;
@@ -236,8 +212,8 @@ public:
 
     uint32_t getLength();
     uint32_t getTotalBytes();
-    uint32_t getTag();
-    uint32_t getNum();
+    uint16_t getTag();
+    uint8_t  getNum();
     uint32_t getPad();
     uint32_t getPosition();
     uint32_t getType();
@@ -254,8 +230,8 @@ public:
     bool isEvent();
     bool getScanned();
 
-    void updateLengths(int deltaLen);
-    void updateTag(uint32_t newTag);
+    void updateLengths(uint32_t deltaLen);
+    void updateTag(uint16_t newTag);
     void updateNum(uint8_t newNum);
 
     ByteBuffer & getByteData(ByteBuffer & dest, bool copy);

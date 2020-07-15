@@ -176,14 +176,14 @@ EvioNode::EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, shared_ptr<
  * Constructor which creates an EvioNode in the CompactEventBuilder.
  *
  * @param tag        the tag for the event (or bank) header.
-    * @param num        the num for the event (or bank) header.
+ * @param num        the num for the event (or bank) header.
  * @param pos        position of event in buffer (bytes).
  * @param dataPos    position of event's data in buffer (bytes.)
  * @param type       the type of this evio structure.
  * @param dataType   the data type contained in this evio event.
  * @param buffer     buffer containing this event.
  */
-EvioNode::EvioNode(uint32_t tag, uint32_t num, uint32_t pos, uint32_t dataPos,
+EvioNode::EvioNode(uint16_t tag, uint8_t num, uint32_t pos, uint32_t dataPos,
                    DataType & type, DataType & dataType, shared_ptr<ByteBuffer> & buffer) : EvioNode() {
     this->tag = tag;
     this->num = num;
@@ -991,7 +991,7 @@ vector<shared_ptr<EvioNode>> & EvioNode::getAllNodes() {return allNodes;}
  * @return list of all child nodes that this node contains;
  *         null if not scanned or no children
  */
-vector<shared_ptr<EvioNode>> &  EvioNode::getChildNodes() {return childNodes;}
+vector<shared_ptr<EvioNode>> & EvioNode::getChildNodes() {return childNodes;}
 
 /**
  * Get the list of all descendant nodes that this node contains -
@@ -1057,14 +1057,14 @@ uint32_t EvioNode::getTotalBytes() {return 4*dataLen + dataPos - pos;}
  * Get the tag of this evio structure.
  * @return tag of this evio structure
  */
-uint32_t EvioNode::getTag() {return tag;}
+uint16_t EvioNode::getTag() {return tag;}
 
 /**
  * Get the num of this evio structure.
  * Will be zero for tagsegments.
  * @return num of this evio structure
  */
-uint32_t EvioNode::getNum() {return num;}
+uint8_t  EvioNode::getNum() {return num;}
 
 /**
  * Get the padding of this evio structure.
@@ -1172,7 +1172,7 @@ bool EvioNode::getScanned() {return scanned;}
  * For internal use only.
  * @param deltaLen change in length (words). Negative value reduces lengths.
  */
-void EvioNode::updateLengths(int deltaLen) {
+void EvioNode::updateLengths(uint32_t deltaLen) {
 
     EvioNode* node = this;
     uint32_t typ = getType();
