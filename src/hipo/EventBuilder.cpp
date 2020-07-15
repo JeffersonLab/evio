@@ -137,7 +137,7 @@ namespace evio {
 
 
     /**
-     * Set int data to the structure. If the structure has data, it is overwritten
+     * Set int data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of ints) to write.
@@ -161,7 +161,7 @@ namespace evio {
     }
 
     /**
-     * Set unsigned int data to the structure. If the structure has data, it is overwritten
+     * Set unsigned int data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of uints) to write.
@@ -185,7 +185,7 @@ namespace evio {
     }
 
     /**
-     * Set short data to the structure. If the structure has data, it is overwritten
+     * Set short data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of shorts) to write.
@@ -209,7 +209,7 @@ namespace evio {
     }
 
     /**
-     * Set unsigned short data to the structure. If the structure has data, it is overwritten
+     * Set unsigned short data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of ushorts) to write.
@@ -233,7 +233,7 @@ namespace evio {
     }
 
     /**
-     * Set long data to the structure. If the structure has data, it is overwritten
+     * Set long data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of longs) to write.
@@ -257,7 +257,7 @@ namespace evio {
     }
 
     /**
-     * Set unsigned long data to the structure. If the structure has data, it is overwritten
+     * Set unsigned long data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of ulongs) to write.
@@ -281,7 +281,7 @@ namespace evio {
     }
 
     /**
-     * Set char data to the structure. If the structure has data, it is overwritten
+     * Set char data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of chars) to write.
@@ -305,7 +305,7 @@ namespace evio {
     }
 
     /**
-     * Set unsigned char data to the structure. If the structure has data, it is overwritten
+     * Set unsigned char data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of uchars) to write.
@@ -329,7 +329,7 @@ namespace evio {
     }
 
     /**
-     * Set float data to the structure. If the structure has data, it is overwritten
+     * Set float data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of floats) to write.
@@ -353,7 +353,7 @@ namespace evio {
     }
 
     /**
-     * Set double data to the structure. If the structure has data, it is overwritten
+     * Set double data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of doubles) to write.
@@ -377,7 +377,7 @@ namespace evio {
     }
 
     /**
-     * Set string data to the structure. If the structure has data, it is overwritten
+     * Set string data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
      * @param structure the structure to receive the data.
      * @param data pointer to data (array of strings) to write.
@@ -399,6 +399,32 @@ namespace evio {
         structure->updateStringData();
         setAllHeaderLengths();
     }
+
+    /**
+     * Set composite data in the structure. If the structure has data, it is overwritten
+     * even if the existing data is of a different type.
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of shared pointers of composite type) to write.
+     * @param count number of (shared pointer of) composites to write.
+     * @throws EvioException if structure or data arg(s) is null.
+     */
+    void EventBuilder::setCompositeData(std::shared_ptr<BaseStructure> structure,
+                                        std::shared_ptr<CompositeData> *data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        structure->getHeader()->setDataType(DataType::COMPOSITE);
+
+        auto vect = structure->getCompositeData();
+        vect.clear();
+        for (int i=0; i < count; i++) {
+            vect.push_back(data[i]);
+        }
+        structure->updateCompositeData();
+        setAllHeaderLengths();
+    }
+
 
     //TODO: composite data !!!
 
@@ -685,6 +711,34 @@ namespace evio {
             vect.push_back(data[i]);
         }
         structure->updateStringData();
+        setAllHeaderLengths();
+    }
+
+
+    /**
+     * Append string data to the structure. If the structure has no data, then this
+     * is the same as setting the data (except the the data type may not be changed).
+     * @param structure the structure to receive the data.
+     * @param data pointer to data (array of string) to append.
+     * @param count number of strings to append.
+     * @throws EvioException if structure or data arg(s) is null, data type is not string.
+     */
+    void EventBuilder::appendCompositeData(std::shared_ptr<BaseStructure> structure,
+                                           std::shared_ptr<CompositeData> * data, size_t count) {
+        if (structure == nullptr && data != nullptr) {
+            throw EvioException("either structure or data arg is null");
+        }
+
+        if (structure->getHeader()->getDataType() != DataType::COMPOSITE) {
+            throw EvioException("cannot append ints to structure of type " +
+                                structure->getHeader()->getDataType().getName());
+        }
+
+        auto vect = structure->getCompositeData();
+        for (int i=0; i < count; i++) {
+            vect.push_back(data[i]);
+        }
+        structure->updateCompositeData();
         setAllHeaderLengths();
     }
 

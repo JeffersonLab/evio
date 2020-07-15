@@ -20,6 +20,7 @@
 #include "BaseStructure.h"
 #include "StructureType.h"
 #include "EventWriter.h"
+#include "CompositeData.h"
 
 
 namespace evio {
@@ -61,6 +62,8 @@ namespace evio {
         void setFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count);
         void setDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
         void setStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count);
+        void setCompositeData(std::shared_ptr<BaseStructure> structure,
+                              std::shared_ptr<CompositeData> *data, size_t count);
 
         void appendIntData(std::shared_ptr<BaseStructure> structure, int32_t* data, size_t count);
         void appendUIntData(std::shared_ptr<BaseStructure> structure, uint32_t* data, size_t count);
@@ -73,6 +76,8 @@ namespace evio {
         void appendFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count);
         void appendDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
         void appendStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count);
+        void appendCompositeData(std::shared_ptr<BaseStructure> structure,
+                                 std::shared_ptr<CompositeData> *dataa, size_t count);
 
         std::shared_ptr<EvioEvent> getEvent();
         void setEvent(std::shared_ptr<EvioEvent> & event);
