@@ -129,9 +129,9 @@ namespace evio {
                         // Pull record out of wrapping object
                         std::shared_ptr<RecordOutput> & record = item->getRecord();
                         // Set compression type
-                        RecordHeader & header = record->getHeader();
-                        header.setCompressionType(compressionType);
-//cout << "RecordCompressor thd " << threadNumber << ": got record, set rec # to " << header.getRecordNumber() << endl;
+                        auto & header = record->getHeader();
+                        header->setCompressionType(compressionType);
+//cout << "RecordCompressor thd " << threadNumber << ": got record, set rec # to " << header->getRecordNumber() << endl;
                         // Do compression
                         record->build();
                         // Release back to supply

@@ -167,7 +167,7 @@ public:
     std::shared_ptr<ByteBuffer> recordBinary;
 
     /** Header of this Record. */
-    RecordHeader header;
+    std::shared_ptr<RecordHeader> header;
 
     /** Byte order of record byte arrays to build. */
     ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
@@ -216,8 +216,8 @@ public:
     uint32_t getMaxEventCount() const;
     uint32_t getEventCount() const;
 
-    RecordHeader & getHeader();
-    const ByteOrder    & getByteOrder() const;
+    std::shared_ptr<RecordHeader> & getHeader();
+    const ByteOrder & getByteOrder() const;
     const std::shared_ptr<ByteBuffer> getBinaryBuffer() const;
     const Compressor::CompressionType getCompressionType() const;
     const HeaderType getHeaderType() const;

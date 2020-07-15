@@ -41,8 +41,8 @@ RecordOutput::RecordOutput(const ByteOrder & order, uint32_t maxEventCount, uint
         else if (hType.isHipoFileHeader())  hType = HeaderType::HIPO_RECORD;
         else if (hType == HeaderType::EVIO_TRAILER) hType = HeaderType::EVIO_RECORD;
         else if (hType == HeaderType::HIPO_TRAILER) hType = HeaderType::HIPO_RECORD;
-        header = RecordHeader(hType);
-        header.setCompressionType(compressionType);
+        header = std::make_shared<RecordHeader>(hType);
+        header->setCompressionType(compressionType);
     }
     catch (EvioException & e) {/* never happen */}
 
@@ -83,8 +83,8 @@ RecordOutput::RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEve
         else if (hType.isHipoFileHeader())  hType = HeaderType::HIPO_RECORD;
         else if (hType == HeaderType::EVIO_TRAILER) hType = HeaderType::EVIO_RECORD;
         else if (hType == HeaderType::HIPO_TRAILER) hType = HeaderType::HIPO_RECORD;
-        header = RecordHeader(hType);
-        header.setCompressionType(compressionType);
+        header = std::make_shared<RecordHeader>(hType);
+        header->setCompressionType(compressionType);
     }
     catch (EvioException & e) {/* never happen */}
 
@@ -166,7 +166,7 @@ RecordOutput & RecordOutput::operator=(RecordOutput&& other) noexcept {
         userProvidedBuffer = other.userProvidedBuffer;
 
         // Copy construct header (nothing needs moving)
-        header = RecordHeader(other.header);
+        header = std::make_shared<RecordHeader>(*(other.header.get()));
 
         // Move all the buffers.
         // Copies everything except shared pointer to buffer which gets moved
@@ -267,7 +267,7 @@ void RecordOutput::copy(const RecordOutput & rec) {
     startingPosition = rec.startingPosition;
 
     // Copy construct header
-    header = RecordHeader(rec.header);
+    header = std::make_shared<RecordHeader>(*(rec.header.get()));
 
     // It would be nice to leave MAX_EVENT_COUNT as is so RecordSupply
     // has consistent behavior. But I don't think that's possible if
@@ -351,7 +351,7 @@ uint32_t RecordOutput::getInternalBufferCapacity() const {return MAX_BUFFER_SIZE
  * Get the general header of this record.
  * @return general header of this record.
  */
-RecordHeader & RecordOutput::getHeader() {return header;}
+std::shared_ptr<RecordHeader> & RecordOutput::getHeader() {return header;}
 
 /**
  * Get the number of events written so far into the buffer
@@ -372,7 +372,7 @@ const std::shared_ptr<ByteBuffer> RecordOutput::getBinaryBuffer() const {return 
  * @return compression type of the contained record.
  */
 const Compressor::CompressionType RecordOutput::getCompressionType() const {
-    return header.getCompressionType();
+    return header->getCompressionType();
 }
 
 /**
@@ -382,7 +382,7 @@ const Compressor::CompressionType RecordOutput::getCompressionType() const {
  * @return compression type of the contained record.
  */
 const HeaderType RecordOutput::getHeaderType() const {
-    return header.getHeaderType();
+    return header->getHeaderType();
 }
 
 /**
@@ -793,7 +793,7 @@ void RecordOutput::reset() {
     recordBinary->clear();
 
     // TODO: This may do way too much! Think about this more.
-    header.reset();
+    header->reset();
 }
 
 /**
@@ -820,15 +820,15 @@ void RecordOutput::build() {
 
     // If no events have been added yet, just write a header
     if (eventCount < 1) {
-        header.setEntries(0);
-        header.setDataLength(0);
-        header.setIndexLength(0);
-        header.setCompressedDataLength(0);
-        header.setLength(RecordHeader::HEADER_SIZE_BYTES);
+        header->setEntries(0);
+        header->setDataLength(0);
+        header->setIndexLength(0);
+        header->setCompressedDataLength(0);
+        header->setLength(RecordHeader::HEADER_SIZE_BYTES);
         recordBinary->limit(startingPosition + RecordHeader::HEADER_SIZE_BYTES);
         recordBinary->position(startingPosition);
         try {
-            header.writeHeader(recordBinary, 0);
+            header->writeHeader(recordBinary, 0);
         }
         catch (EvioException & e) {/* never happen */}
 //            cout << "build: buf lim = " << recordBinary->limit() <<
@@ -836,7 +836,7 @@ void RecordOutput::build() {
         return;
     }
 
-    uint32_t compressionType = header.getCompressionType();
+    uint32_t compressionType = header->getCompressionType();
 
     // Position in recordBinary buffer of just past the record header
     size_t recBinPastHdr = startingPosition + RecordHeader::HEADER_SIZE_BYTES;
@@ -898,9 +898,9 @@ void RecordOutput::build() {
                         (recordBinary->capacity() - recBinPastHdrAbsolute));
 
                 // Length of compressed data in bytes
-                header.setCompressedDataLength(compressedSize);
+                header->setCompressedDataLength(compressedSize);
                 // Length of entire record in bytes (don't forget padding!)
-                header.setLength(4*header.getCompressedDataLengthWords() +
+                header->setLength(4*header->getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
                 break;
 
@@ -915,17 +915,17 @@ void RecordOutput::build() {
 //         " to output.array offset = " << recBinPastHdrAbsolute << ", compressed size = " <<  compressedSize <<
 //         ", available size = " << (recordBinary->capacity() - recBinPastHdrAbsolute) << endl;
 //
-//cout << "BEFORE setting header len: comp size = " << header.getCompressedDataLength() <<
-//        ", comp words = " << header.getCompressedDataLengthWords() << ", padding = " <<
-//        header.getCompressedDataLengthPadding();
+//cout << "BEFORE setting header len: comp size = " << header->getCompressedDataLength() <<
+//        ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
+//        header->getCompressedDataLengthPadding();
 
-                header.setCompressedDataLength(compressedSize);
-                header.setLength(4*header.getCompressedDataLengthWords() +
+                header->setCompressedDataLength(compressedSize);
+                header->setLength(4*header->getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
 
-//cout << "AFTER setting, read back from header: comp size = " << header.getCompressedDataLength() <<
-//        ", comp words = " << header.getCompressedDataLengthWords() << ", padding = " <<
-//        header.getCompressedDataLengthPadding() << ", rec len = " << header.getLength() << endl;
+//cout << "AFTER setting, read back from header: comp size = " << header->getCompressedDataLength() <<
+//        ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
+//        header->getCompressedDataLengthPadding() << ", rec len = " << header->getLength() << endl;
 
                 break;
 
@@ -937,8 +937,8 @@ void RecordOutput::build() {
                 recordBinary->position(recBinPastHdr);
                 recordBinary->put(gzippedData, compressedSize);
                 delete[] gzippedData;
-                header.setCompressedDataLength(compressedSize);
-                header.setLength(4*header.getCompressedDataLengthWords() +
+                header->setCompressedDataLength(compressedSize);
+                header->setLength(4*header->getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
 #endif
                 break;
@@ -947,33 +947,33 @@ void RecordOutput::build() {
             default:
                 // No compression. The uncompressed data size may not be padded to a 4byte boundary,
                 // so make sure that's accounted for here.
-                header.setCompressedDataLength(0);
+                header->setCompressedDataLength(0);
                 int words = uncompressedDataSize/4;
                 if (uncompressedDataSize % 4 != 0) words++;
-                header.setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
-//cout << "set header length = " << header.getLength() << ", uncompressed data size = " << uncompressedDataSize << endl;
+                header->setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
+//cout << "set header length = " << header->getLength() << ", uncompressed data size = " << uncompressedDataSize << endl;
         }
     }
     catch (EvioException & e) {/* should not happen */}
 
     // Set the rest of the header values
-    header.setEntries(eventCount);
-    header.setDataLength(eventSize);
-    header.setIndexLength(indexSize);
+    header->setEntries(eventCount);
+    header->setDataLength(eventSize);
+    header->setIndexLength(indexSize);
 
-//    cout << " COMPRESSED = " << compressedSize << "  events size (data  len) = " << eventSize << "  type = " <<
-//            compressionType << "  uncompressed = " << uncompressedDataSize <<
-//            " record bytes = " << header.getLength() << endl << endl;
+    cout << " COMPRESSED = " << compressedSize << "  events size (data  len) = " << eventSize << "  type = " <<
+            compressionType << "  uncompressed = " << uncompressedDataSize <<
+            " record bytes = " << header->getLength() << endl << endl;
 
     // Go back and write header into destination buffer
     try {
         // Does NOT change recordBinary pos or lim
-        header.writeHeader(recordBinary, startingPosition);
+        header->writeHeader(recordBinary, startingPosition);
     }
     catch (EvioException & e) {/* never happen */}
 
     // Make ready to read
-    recordBinary->limit(startingPosition + header.getLength()).position(0);
+    recordBinary->limit(startingPosition + header->getLength()).position(0);
 }
 
 
@@ -999,7 +999,7 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
 //    cout << "  INDEX = 0 " << indexSize << "  " << (indexSize + userHeaderSize) <<
 //            "  DIFF " << userHeaderSize << endl;
 
-    uint32_t compressionType = header.getCompressionType();
+    uint32_t compressionType = header->getCompressionType();
     uint32_t uncompressedDataSize = indexSize;
 
     // Position in recordBinary buffer of just past the record header
@@ -1029,9 +1029,9 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
 
         // Account for unpadded user header.
         // This will find the user header length in words & account for padding.
-        header.setUserHeaderLength(userHeaderSize);
+        header->setUserHeaderLength(userHeaderSize);
         // Hop over padded user header length
-        uncompressedDataSize += 4*header.getUserHeaderLengthWords();
+        uncompressedDataSize += 4*header->getUserHeaderLengthWords();
         recordData->position(uncompressedDataSize);
 
         // 3) uncompressed data array
@@ -1052,8 +1052,8 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
         // 2) uncompressed user header array
         recordBinary->put(userHeader.array() + userHeader.position(), userHeaderSize);
 
-        header.setUserHeaderLength(userHeaderSize);
-        uncompressedDataSize += 4*header.getUserHeaderLengthWords();
+        header->setUserHeaderLength(userHeaderSize);
+        uncompressedDataSize += 4*header->getUserHeaderLengthWords();
         recordBinary->position(recBinPastHdr + uncompressedDataSize);
 
         // 3) uncompressed data array (hipo/evio data is already padded)
@@ -1077,9 +1077,9 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
                         (recordBinary->capacity() - recBinPastHdrAbsolute));
 
                 // Length of compressed data in bytes
-                header.setCompressedDataLength(compressedSize);
+                header->setCompressedDataLength(compressedSize);
                 // Length of entire record in bytes (don't forget padding!)
-                header.setLength(4*header.getCompressedDataLengthWords() +
+                header->setLength(4*header->getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
                 break;
 
@@ -1090,8 +1090,8 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
                         recordBinary->array(), recBinPastHdrAbsolute,
                         (recordBinary->capacity() - recBinPastHdrAbsolute));
 
-                header.setCompressedDataLength(compressedSize);
-                header.setLength(4*header.getCompressedDataLengthWords() +
+                header->setCompressedDataLength(compressedSize);
+                header->setLength(4*header->getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
                 break;
 
@@ -1103,8 +1103,8 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
                 recordBinary->position(recBinPastHdr);
                 recordBinary->put(gzippedData, compressedSize);
                 delete[] gzippedData;
-                header.setCompressedDataLength(compressedSize);
-                header.setLength(4*header.getCompressedDataLengthWords() +
+                header->setCompressedDataLength(compressedSize);
+                header->setLength(4*header->getCompressedDataLengthWords() +
                                  RecordHeader::HEADER_SIZE_BYTES);
 #endif
                 break;
@@ -1113,10 +1113,10 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
             default:
                 // No compression. The uncompressed data size may not be padded to a 4byte boundary,
                 // so make sure that's accounted for here.
-                header.setCompressedDataLength(0);
+                header->setCompressedDataLength(0);
                 int words = uncompressedDataSize/4;
                 if (uncompressedDataSize % 4 != 0) words++;
-                header.setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
+                header->setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
         }
     }
     catch (EvioException & e) {/* should not happen */}
@@ -1124,18 +1124,18 @@ void RecordOutput::build(const ByteBuffer & userHeader) {
     //cout << " COMPRESSED SIZE = " << compressedSize << endl;
 
     // Set header values (user header length already set above)
-    header.setEntries(eventCount);
-    header.setDataLength(eventSize);
-    header.setIndexLength(indexSize);
+    header->setEntries(eventCount);
+    header->setDataLength(eventSize);
+    header->setIndexLength(indexSize);
 
     // Go back and write header into destination buffer
     try {
-        header.writeHeader(recordBinary, startingPosition);
+        header->writeHeader(recordBinary, startingPosition);
     }
     catch (EvioException & e) {/* never happen */}
 
     // Make ready to read
-    recordBinary->limit(startingPosition + header.getLength()).position(0);
+    recordBinary->limit(startingPosition + header->getLength()).position(0);
 }
 
 }

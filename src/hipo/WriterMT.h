@@ -161,12 +161,12 @@ private:
                         std::shared_ptr<RecordOutput> & record = item->getRecord();
 
                         // Do write
-                        RecordHeader & header = record->getHeader();
-                        int bytesToWrite = header.getLength();
+                        auto & header = record->getHeader();
+                        int bytesToWrite = header->getLength();
                         // Record length of this record
                         writer->recordLengths->push_back(bytesToWrite);
                         // Followed by events in record
-                        writer->recordLengths->push_back(header.getEntries());
+                        writer->recordLengths->push_back(header->getEntries());
                         writer->writerBytesWritten += bytesToWrite;
 
                         auto buf = record->getBinaryBuffer();

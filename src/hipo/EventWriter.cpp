@@ -406,7 +406,7 @@ EventWriter::EventWriter(string baseName, const string & directory, const string
             // This is fine in single threaded compression which sets runNumber
             // just before being written, in (try)compressAndWriteToFile.
             // But needs setting if multiple threads:
-            currentRecord->getHeader().setRecordNumber(recordNumber++);
+            currentRecord->getHeader()->setRecordNumber(recordNumber++);
         }
 
         // Object to close files in a separate thread when splitting, to speed things up
@@ -513,8 +513,8 @@ cout << "EventWriter constr: record # set to " << recordNumber << endl;
                                                        compressionType,
                                                        HeaderType::EVIO_RECORD);
 
-        RecordHeader & header = currentRecord->getHeader();
-        header.setBitInfo(false, haveFirstEvent, !xmlDictionary.empty());
+        auto & header = currentRecord->getHeader();
+        header->setBitInfo(false, haveFirstEvent, !xmlDictionary.empty());
 }
 
 
@@ -549,19 +549,19 @@ void EventWriter::reInitializeBuffer(std::shared_ptr<ByteBuffer> & buf,
         bufferSize = buffer->capacity();
 
 // Deal with bitInfo
-        RecordHeader & header = currentRecord->getHeader();
+        auto & header = currentRecord->getHeader();
 
 // This will reset the record - header and all buffers (including buf)
         currentRecord->setBuffer(buffer);
 
         if (!useCurrentBitInfo) {
-            header.setBitInfoWord(*bitInfo);
+            header->setBitInfoWord(*bitInfo);
         }
 //cout << "reInitializeBuffer: after reset, record # -> " << recNumber << endl;
 
         // Only necessary to do this when using EventWriter in EMU's
         // RocSimulation module. Only the ROC sends sourceId in header.
-        header.setUserRegisterFirst(sourceId);
+        header->setUserRegisterFirst(sourceId);
 }
 
 
@@ -711,8 +711,8 @@ std::shared_ptr<ByteBuffer> EventWriter::getByteBuffer() {
  */
 void EventWriter::setSourceId(int sId) {
     sourceId = sId;
-    RecordHeader & header = currentRecord->getHeader();
-    header.setUserRegisterFirst(sId);
+    auto & header = currentRecord->getHeader();
+    header->setUserRegisterFirst(sId);
 }
 
 
@@ -727,8 +727,8 @@ void EventWriter::setSourceId(int sId) {
  *             else = nothing set).
  */
 void EventWriter::setEventType(int type) {
-    RecordHeader & header = currentRecord->getHeader();
-    header.setBitInfoEventType(type);
+    auto & header = currentRecord->getHeader();
+    header->setBitInfoEventType(type);
 }
 
 
@@ -1096,7 +1096,7 @@ void EventWriter::createCommonRecord(const string & xmlDict,
         }
 
         commonRecord->build();
-        commonRecordBytesToBuffer = 4*commonRecord->getHeader().getLengthWords();
+        commonRecordBytesToBuffer = 4*commonRecord->getHeader()->getLengthWords();
 //cout << "createCommonRecord: padded commonRecord size is " << commonRecordBytesToBuffer << " bytes" << endl;
     }
 
@@ -1124,7 +1124,7 @@ void EventWriter::writeFileHeader() {
     if (commonRecord != nullptr) {
         commonRecordCount = commonRecord->getEventCount();
         if (commonRecordCount > 0) {
-            commonRecordBytes = commonRecord->getHeader().getLength();
+            commonRecordBytes = commonRecord->getHeader()->getLength();
             bool haveDict = !dictionaryByteArray.empty();
             fileHeader.setBitInfo(haveFirstEvent, haveDict, false);
         }
@@ -2098,7 +2098,7 @@ bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank,
                 recordNumber = 1;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader()->setRecordNumber(recordNumber++);
 //cout << "writeEvent: split after just published rec, new rec# = 1, next = " << recordNumber << endl;
                 // Reset record number for records coming after this one
             }
@@ -2137,7 +2137,7 @@ bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank,
                 // Get another empty record from ring
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader()->setRecordNumber(recordNumber++);
 //cout << "writeEvent: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
 
@@ -2172,7 +2172,7 @@ bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank,
                 // Get another empty record from ring
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader()->setRecordNumber(recordNumber++);
 //cout << "writeEvent: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
         }
@@ -2361,7 +2361,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 recordNumber = 1;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader()->setRecordNumber(recordNumber++);
 //cout << "writeEventToFile: split after just published rec, new rec# = 1, next = " << recordNumber << endl;
                 // Reset record number for records coming after this one
             }
@@ -2415,7 +2415,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 supply->publish(currentRingItem);
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader()->setRecordNumber(recordNumber++);
 //cout << "writeEventToFile: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
 
@@ -2458,7 +2458,7 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
                 supply->publish(currentRingItem);
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
-                currentRecord->getHeader().setRecordNumber(recordNumber++);
+                currentRecord->getHeader()->setRecordNumber(recordNumber++);
 //cout << "writeEventToFile: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
             }
         }
@@ -2504,9 +2504,9 @@ bool EventWriter::fullDisk() {
  */
 void EventWriter::compressAndWriteToFile(bool force) {
 
-        RecordHeader & header = currentRecord->getHeader();
-        header.setRecordNumber(recordNumber);
-        header.setCompressionType(compressionType);
+        auto & header = currentRecord->getHeader();
+        header->setRecordNumber(recordNumber);
+        header->setCompressionType(compressionType);
         currentRecord->build();
         // Resets currentRecord too
         writeToFile(force, false);
@@ -2531,9 +2531,9 @@ void EventWriter::compressAndWriteToFile(bool force) {
  */
 bool EventWriter::tryCompressAndWriteToFile(bool force) {
 
-        RecordHeader & header = currentRecord->getHeader();
-        header.setRecordNumber(recordNumber);
-        header.setCompressionType(compressionType);
+        auto & header = currentRecord->getHeader();
+        header->setRecordNumber(recordNumber);
+        header->setCompressionType(compressionType);
         currentRecord->build();
         return writeToFile(force, true);
 }
@@ -2617,11 +2617,11 @@ bool EventWriter::writeToFile(bool force, bool checkDisk) {
 
         // Get record to write
         auto record = currentRecord;
-        RecordHeader & header = record->getHeader();
+        auto & header = record->getHeader();
 
         // Length of this record
-        int bytesToWrite = header.getLength();
-        int eventCount   = header.getEntries();
+        int bytesToWrite = header->getLength();
+        int eventCount   = header->getEntries();
 cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
                                                      eventCount << endl;
         recordLengths->push_back(bytesToWrite);
@@ -2732,11 +2732,11 @@ cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
 
         // Get record to write
         auto record = item->getRecord();
-        RecordHeader & header = record->getHeader();
+        auto & header = record->getHeader();
 
         // Length of this record
-        int bytesToWrite = header.getLength();
-        int eventCount   = header.getEntries();
+        int bytesToWrite = header->getLength();
+        int eventCount   = header->getEntries();
         cout << "   **** added to recordLengths MT: " << bytesToWrite << ", " <<
                                                         eventCount << endl;
         recordLengths->push_back(bytesToWrite);
@@ -2974,15 +2974,15 @@ void EventWriter::flushCurrentRecordToBuffer() {
     }
 
     // Get record header
-    RecordHeader & header = currentRecord->getHeader();
+    auto & header = currentRecord->getHeader();
     // Get/set record info before building
-    header.setRecordNumber(recordNumber);
+    header->setRecordNumber(recordNumber);
 
-//        cout << "flushCurrentRecordToBuffer: comp size = " << header.getCompressedDataLength() <<
-//                ", comp words = " << header.getCompressedDataLengthWords() << ", padding = " <<
-//                header.getCompressedDataLengthPadding() << endl;
+//        cout << "flushCurrentRecordToBuffer: comp size = " << header->getCompressedDataLength() <<
+//                ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
+//                header->getCompressedDataLengthPadding() << endl;
 
-    uint32_t bytesToWrite = header.getLength();
+    uint32_t bytesToWrite = header->getLength();
     // Store length & count for possible trailer index
 
 cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " <<

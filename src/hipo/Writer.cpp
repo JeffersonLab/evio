@@ -364,7 +364,7 @@ Compressor::CompressionType Writer::getCompressionType() {return compressionType
 void Writer::setCompressionType(Compressor::CompressionType compression) {
     if (toFile) {
         compressionType = compression;
-        outputRecord.getHeader().setCompressionType(compression);
+        outputRecord.getHeader()->setCompressionType(compression);
     }
 }
 
@@ -931,16 +931,16 @@ void Writer::writeRecord(RecordOutput & rec) {
     }
 
     // Make sure given record is consistent with this writer
-    RecordHeader & header = rec.getHeader();
-    header.setCompressionType(compressionType);
-    header.setRecordNumber(recordNumber++);
+    auto & header = rec.getHeader();
+    header->setCompressionType(compressionType);
+    header->setRecordNumber(recordNumber++);
     rec.build();
 
-    int bytesToWrite = header.getLength();
+    int bytesToWrite = header->getLength();
     // Record length of this record
     recordLengths->push_back(bytesToWrite);
     // Followed by events in record
-    recordLengths->push_back(header.getEntries());
+    recordLengths->push_back(header->getEntries());
     writerBytesWritten += bytesToWrite;
 
     if (toFile) {
@@ -1079,14 +1079,14 @@ void Writer::writeOutput() {
 //    }
 
     // TODO: This header is reference !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    RecordHeader & header = outputRecord.getHeader();
+    auto & header = outputRecord.getHeader();
 
-    header.setRecordNumber(recordNumber++);
-    header.setCompressionType(compressionType);
+    header->setRecordNumber(recordNumber++);
+    header->setCompressionType(compressionType);
     outputRecord.build();
 
-    uint32_t bytesToWrite = header.getLength();
-    uint32_t eventCount   = header.getEntries();
+    uint32_t bytesToWrite = header->getLength();
+    uint32_t eventCount   = header->getEntries();
 //cout << "writeOutput: header len = " << to_string(bytesToWrite) << endl;
 
     // Trailer's index has length followed by count
@@ -1117,9 +1117,9 @@ void Writer::writeOutput() {
 
 /** Write internal record with incremented record # to buffer. */
 void Writer::writeOutputToBuffer() {
-    RecordHeader & header = outputRecord.getHeader();
-    header.setRecordNumber(recordNumber++);
-    header.setCompressionType(compressionType);
+    auto & header = outputRecord.getHeader();
+    header->setRecordNumber(recordNumber++);
+    header->setCompressionType(compressionType);
 
     // For writing to buffer, user header cannot be written
     // in file header since there is none. So write it into
@@ -1133,11 +1133,11 @@ void Writer::writeOutputToBuffer() {
         outputRecord.build();
     }
 
-    int bytesToWrite = header.getLength();
+    int bytesToWrite = header->getLength();
     // Record length of this record
     recordLengths->push_back(bytesToWrite);
     // Followed by events in record
-    recordLengths->push_back(header.getEntries());
+    recordLengths->push_back(header->getEntries());
     writerBytesWritten += bytesToWrite;
 
     std::memcpy((void *)(buffer.array() + buffer.arrayOffset() + buffer.position()),
