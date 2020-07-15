@@ -236,10 +236,20 @@ public:
     bool addEvent(const ByteBuffer & event);
     bool addEvent(const ByteBuffer & event, uint32_t extraDataLen);
 
+    bool addEvent(const std::shared_ptr<ByteBuffer> & event);
+    bool addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen);
+
     bool addEvent(EvioNode & node);
     bool addEvent(EvioNode & node, uint32_t extraDataLen);
+
+    bool addEvent(std::shared_ptr<EvioNode> & node);
+    bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen);
+
     bool addEvent(EvioBank & event);
     bool addEvent(EvioBank & event, uint32_t extraDataLen);
+
+    bool addEvent(std::shared_ptr<EvioBank> & event);
+    bool addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen);
 
     void reset();
 

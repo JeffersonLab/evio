@@ -627,7 +627,43 @@ bool RecordOutput::addEvent(const ByteBuffer & event, uint32_t extraDataLen) {
     return true;
 }
 
+/**
+ * Adds an event's ByteBuffer into the record.
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ *
+ * @param event  event's ByteBuffer object.
+ * @return true if event was added; false if the buffer is full,
+ *         the event count limit is exceeded, or this single event cannot fit into
+ *         the user-provided buffer.
+ */
+bool RecordOutput::addEvent(const std::shared_ptr<ByteBuffer> & event) {
+    return addEvent(event, 0);
+}
 
+/**
+ * Adds an event's ByteBuffer into the record.
+ * Can specify the length of additional data to follow the event
+ * (such as an evio trailer record) to see if by adding this event
+ * everything will fit in the available memory.<p>
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ *
+ * @param event        event's ByteBuffer object.
+ * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+ * @return true if event was added; false if the event was not added because the
+ *         count limit would be exceeded or the buffer is full and cannot be
+ *         expanded since it's user-provided.
+ */
+bool RecordOutput::addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen) {
+    return addEvent(*(event.get()), extraDataLen);
+}
 
 /**
  * Adds an event's ByteBuffer into the record.
@@ -671,7 +707,7 @@ bool RecordOutput::addEvent(EvioNode & node) {
  */
 bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
 
-    int eventLen = node.getTotalBytes();
+    uint32_t eventLen = node.getTotalBytes();
 
     if (!node.getTypeObj().isBank()) {
         throw EvioException("node does not represent a bank (" + node.getTypeObj().toString() + ")");
@@ -711,6 +747,51 @@ bool RecordOutput::addEvent(EvioNode & node, uint32_t extraDataLen) {
     return true;
 }
 
+
+/**
+ * Adds an event's ByteBuffer into the record.
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ * This method is not thread-safe with respect to the node as it's backing
+ * ByteBuffer's limit and position may be concurrently changed.
+ *
+ * @param node         event's EvioNode object
+ * @return true if event was added; false if the event was not added because the
+ *         count limit would be exceeded or the buffer is full and cannot be
+ *         expanded since it's user-provided.
+ * @throws EvioException if node does not correspond to a bank.
+ */
+bool RecordOutput::addEvent(std::shared_ptr<EvioNode> & node) {
+    return addEvent(node, 0);
+}
+
+/**
+ * Adds an event's ByteBuffer into the record.
+ * Can specify the length of additional data to follow the event
+ * (such as an evio trailer record) to see if by adding this event
+ * everything will fit in the available memory.<p>
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ * This method is not thread-safe with respect to the node as it's backing
+ * ByteBuffer's limit and position may be concurrently changed.
+ *
+ * @param node         event's EvioNode object
+ * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+ * @return true if event was added; false if the event was not added because the
+ *         count limit would be exceeded or the buffer is full and cannot be
+ *         expanded since it's user-provided.
+ * @throws EvioException if node does not correspond to a bank.
+ */
+bool RecordOutput::addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen) {
+    return addEvent(*(node.get()), extraDataLen);
+}
+
 /**
  * Adds an event's ByteBuffer into the record.
  * If a single event is too large for the internal buffers,
@@ -747,7 +828,7 @@ bool RecordOutput::addEvent(EvioBank & event) {
  */
 bool RecordOutput::addEvent(EvioBank & event, uint32_t extraDataLen) {
 
-    int eventLen = event.getTotalBytes();
+    uint32_t eventLen = event.getTotalBytes();
 
     if (eventCount < 1 && !roomForEvent(eventLen + extraDataLen)) {
         if (userProvidedBuffer) {
@@ -775,6 +856,46 @@ bool RecordOutput::addEvent(EvioBank & event, uint32_t extraDataLen) {
 
     return true;
 }
+
+/**
+ * Adds an event's ByteBuffer into the record.
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ *
+ * @param event event's EvioBank object.
+ * @return true if event was added; false if the event was not added because the
+ *         count limit would be exceeded or the buffer is full and cannot be
+ *         expanded since it's user-provided.
+ */
+bool RecordOutput::addEvent(std::shared_ptr<EvioBank> & event) {
+    return addEvent(event, 0);
+}
+
+
+/**
+ * Adds an event's ByteBuffer into the record.
+ * Can specify the length of additional data to follow the event
+ * (such as an evio trailer record) to see if by adding this event
+ * everything will fit in the available memory.<p>
+ * If a single event is too large for the internal buffers,
+ * more memory is allocated.
+ * On the other hand, if the buffer was provided by the user,
+ * then obviously the buffer cannot be expanded and false is returned.<p>
+ * <b>The byte order of event must match the byte order given in constructor!</b>
+ *
+ * @param event        event's EvioBank object.
+ * @param extraDataLen additional data bytes to follow event (e.g. trailer length).
+ * @return true if event was added; false if the event was not added because the
+ *         count limit would be exceeded or the buffer is full and cannot be
+ *         expanded since it's user-provided.
+ */
+bool RecordOutput::addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen) {
+   return addEvent(*(event.get()), extraDataLen);
+}
+
 
 /**
  * Reset internal buffers. The buffer is ready to receive new data.
