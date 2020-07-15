@@ -1104,7 +1104,7 @@ public final class CompactEventBuilder {
 
         if (currentStructure.dataType != DataType.CHAR8  &&
             currentStructure.dataType != DataType.UCHAR8)  {
-            throw new EvioException("may only add " + currentStructure.dataType + " data");
+            throw new EvioException("may NOT add " + currentStructure.dataType + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1220,7 +1220,7 @@ public final class CompactEventBuilder {
         if (currentStructure.dataType != DataType.INT32  &&
             currentStructure.dataType != DataType.UINT32 &&
             currentStructure.dataType != DataType.UNKNOWN32)  {
-            throw new EvioException("may only add " + currentStructure.dataType + " data");
+            throw new EvioException("may NOT add " + currentStructure.dataType + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1312,7 +1312,7 @@ public final class CompactEventBuilder {
 
         if (currentStructure.dataType != DataType.SHORT16  &&
             currentStructure.dataType != DataType.USHORT16)  {
-            throw new EvioException("may only add " + currentStructure.dataType + " data");
+            throw new EvioException("may NOT add " + currentStructure.dataType + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1394,7 +1394,7 @@ public final class CompactEventBuilder {
 
         if (currentStructure.dataType != DataType.SHORT16  &&
             currentStructure.dataType != DataType.USHORT16)  {
-            throw new EvioException("may only add " + currentStructure.dataType + " data");
+            throw new EvioException("may NOR add " + currentStructure.dataType + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1498,7 +1498,7 @@ public final class CompactEventBuilder {
 
         if (currentStructure.dataType != DataType.LONG64  &&
             currentStructure.dataType != DataType.ULONG64)  {
-            throw new EvioException("may only add " + currentStructure.dataType + " data");
+            throw new EvioException("may NOT add " + currentStructure.dataType + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1569,7 +1569,7 @@ public final class CompactEventBuilder {
         }
 
         if (currentStructure.dataType != DataType.FLOAT32) {
-            throw new EvioException("may only add " + currentStructure.dataType + " data");
+            throw new EvioException("may NOT add " + currentStructure.dataType + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1635,7 +1635,7 @@ public final class CompactEventBuilder {
         }
 
         if (currentStructure.dataType != DataType.DOUBLE64) {
-            throw new EvioException("may only add " + currentStructure.dataType + " data");
+            throw new EvioException("may NOT add " + currentStructure.dataType + " data");
         }
 
         // Sets pos = 0, limit = capacity, & does NOT clear data
