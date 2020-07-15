@@ -1089,7 +1089,7 @@ void EventWriter::createCommonRecord(const string & xmlDict,
             commonRecord->addEvent(firstEventBuf);
         }
         else if (firstBuf != nullptr) {
-            commonRecord->addEvent(*firstBuf);
+            commonRecord->addEvent(firstBuf);
         }
         else {
             haveFirstEvent = false;
@@ -2111,10 +2111,10 @@ bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank,
         // Try adding event to current record.
         // One event is guaranteed to fit in a record no matter the size.
         if (bankBuffer != nullptr) {
-            fitInRecord = currentRecord->addEvent(*bankBuffer);
+            fitInRecord = currentRecord->addEvent(bankBuffer);
         }
         else {
-            fitInRecord = currentRecord->addEvent(*bank);
+            fitInRecord = currentRecord->addEvent(bank);
         }
 
         // If no room or too many events ...
@@ -2143,10 +2143,10 @@ bool EventWriter::writeEvent(std::shared_ptr<EvioBank> bank,
 
             // Add event to it (guaranteed to fit)
             if (bankBuffer != nullptr) {
-                currentRecord->addEvent(*bankBuffer);
+                currentRecord->addEvent(bankBuffer);
             }
             else {
-                currentRecord->addEvent(*bank);
+                currentRecord->addEvent(bank);
             }
         }
 
@@ -2375,10 +2375,10 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
         // Try adding event to current record.
         // One event is guaranteed to fit in a record no matter the size.
         if (bankBuffer != nullptr) {
-            fitInRecord = currentRecord->addEvent(*bankBuffer);
+            fitInRecord = currentRecord->addEvent(bankBuffer);
         }
         else {
-            fitInRecord = currentRecord->addEvent(*bank);
+            fitInRecord = currentRecord->addEvent(bank);
         }
 
         // If no room or too many events in record, write out current record first,
@@ -2421,10 +2421,10 @@ cout << "writeEventToFile: disk is NOT full, emptied" << endl;
 
             // Add event to it (guaranteed to fit)
             if (bankBuffer != nullptr) {
-                currentRecord->addEvent(*bankBuffer);
+                currentRecord->addEvent(bankBuffer);
             }
             else {
-                currentRecord->addEvent(*bank);
+                currentRecord->addEvent(bank);
             }
         }
 
@@ -3017,10 +3017,10 @@ bool EventWriter::writeToBuffer(std::shared_ptr<EvioBank> & bank, std::shared_pt
 
     if (bankBuffer != nullptr) {
         // Will this fit the event being written PLUS the ending trailer?
-        fitInRecord = currentRecord->addEvent(*(bankBuffer.get()), trailerBytes());
+        fitInRecord = currentRecord->addEvent(bankBuffer, trailerBytes());
     }
     else {
-        fitInRecord = currentRecord->addEvent(*(bank.get()), trailerBytes());
+        fitInRecord = currentRecord->addEvent(bank, trailerBytes());
     }
 
     if (fitInRecord) {
