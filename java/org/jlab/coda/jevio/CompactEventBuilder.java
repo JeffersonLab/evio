@@ -43,6 +43,9 @@ public final class CompactEventBuilder {
     /** Byte array which backs the buffer. */
     private byte[] array;
 
+    /** Offset into backing array. */
+    private int arrayOffset;
+
     /** Current writing position in the buffer. */
     private int position;
 
@@ -290,8 +293,12 @@ public final class CompactEventBuilder {
         }
 
         // Protect against using the backing array of slices
-        if (buffer.hasArray() && buffer.array().length == buffer.capacity()) {
+//        if (buffer.hasArray() && buffer.array().length == buffer.capacity()) {
+//            array = buffer.array();
+//        }
+        if (buffer.hasArray()) {
             array = buffer.array();
+            arrayOffset = buffer.arrayOffset();
         }
         else {
             useByteBuffer = true;
@@ -376,12 +383,12 @@ public final class CompactEventBuilder {
         }
         else {
             if (order == ByteOrder.BIG_ENDIAN) {
-                array[position]   = (byte)tag;
-                array[position+1] = (byte)(dataType.getValue() & 0x3f);
+                array[arrayOffset + position]   = (byte)tag;
+                array[arrayOffset + position+1] = (byte)(dataType.getValue() & 0x3f);
             }
             else {
-                array[position+2] = (byte)(dataType.getValue() & 0x3f);
-                array[position+3] = (byte)tag;
+                array[arrayOffset + position+2] = (byte)(dataType.getValue() & 0x3f);
+                array[arrayOffset + position+3] = (byte)tag;
             }
         }
 
@@ -473,12 +480,12 @@ public final class CompactEventBuilder {
         }
         else {
             if (order == ByteOrder.BIG_ENDIAN) {
-                array[position]   = (byte) (compositeWord >> 8);
-                array[position+1] = (byte)  compositeWord;
+                array[arrayOffset + position]   = (byte) (compositeWord >> 8);
+                array[arrayOffset + position+1] = (byte)  compositeWord;
             }
             else {
-                array[position+2] = (byte)  compositeWord;
-                array[position+3] = (byte) (compositeWord >> 8);
+                array[arrayOffset + position+2] = (byte)  compositeWord;
+                array[arrayOffset + position+3] = (byte) (compositeWord >> 8);
             }
         }
 
@@ -572,26 +579,26 @@ public final class CompactEventBuilder {
 
             if (order == ByteOrder.BIG_ENDIAN) {
                 // length word
-                array[position]   = (byte)0;
-                array[position+1] = (byte)0;
-                array[position+2] = (byte)0;
-                array[position+3] = (byte)1;
+                array[arrayOffset + position]   = (byte)0;
+                array[arrayOffset + position+1] = (byte)0;
+                array[arrayOffset + position+2] = (byte)0;
+                array[arrayOffset + position+3] = (byte)1;
 
-                array[position+4] = (byte)(tag >> 8);
-                array[position+5] = (byte)tag;
-                array[position+6] = (byte)(dataType.getValue() & 0x3f);
-                array[position+7] = (byte)num;
+                array[arrayOffset + position+4] = (byte)(tag >> 8);
+                array[arrayOffset + position+5] = (byte)tag;
+                array[arrayOffset + position+6] = (byte)(dataType.getValue() & 0x3f);
+                array[arrayOffset + position+7] = (byte)num;
             }
             else {
-                array[position]   = (byte)1;
-                array[position+1] = (byte)0;
-                array[position+2] = (byte)0;
-                array[position+3] = (byte)0;
+                array[arrayOffset + position]   = (byte)1;
+                array[arrayOffset + position+1] = (byte)0;
+                array[arrayOffset + position+2] = (byte)0;
+                array[arrayOffset + position+3] = (byte)0;
 
-                array[position+4] = (byte)num;
-                array[position+5] = (byte)(dataType.getValue() & 0x3f);
-                array[position+6] = (byte)tag;
-                array[position+7] = (byte)(tag >> 8);
+                array[arrayOffset + position+4] = (byte)num;
+                array[arrayOffset + position+5] = (byte)(dataType.getValue() & 0x3f);
+                array[arrayOffset + position+6] = (byte)tag;
+                array[arrayOffset + position+7] = (byte)(tag >> 8);
             }
         }
 
@@ -695,12 +702,12 @@ public final class CompactEventBuilder {
         }
         else {
             if (order == ByteOrder.BIG_ENDIAN) {
-                array[4] = (byte)(tag >> 8);
-                array[5] = (byte)tag;
+                array[arrayOffset + 4] = (byte)(tag >> 8);
+                array[arrayOffset + 5] = (byte)tag;
             }
             else {
-                array[6] = (byte)tag;
-                array[7] = (byte)(tag >> 8);
+                array[arrayOffset + 6] = (byte)tag;
+                array[arrayOffset + 7] = (byte)(tag >> 8);
             }
         }
     }
@@ -738,7 +745,7 @@ public final class CompactEventBuilder {
                 }
                 else {
                     try {
-                        ByteDataTransformer.toBytes(len, order, array, currentStructure.pos);
+                        ByteDataTransformer.toBytes(len, order, array,arrayOffset + currentStructure.pos);
                     }
                     catch (EvioException e) {/* never happen*/}
                 }
@@ -760,11 +767,11 @@ public final class CompactEventBuilder {
                     try {
                         if (buffer.order() == ByteOrder.BIG_ENDIAN) {
                             ByteDataTransformer.toBytes((short)len, order,
-                                                        array, currentStructure.pos+2);
+                                                        array, arrayOffset + currentStructure.pos+2);
                         }
                         else {
                             ByteDataTransformer.toBytes((short)len, order,
-                                                        array, currentStructure.pos);
+                                                        array, arrayOffset + currentStructure.pos);
                         }
                     }
                     catch (EvioException e) {/* never happen*/}
@@ -799,10 +806,10 @@ public final class CompactEventBuilder {
                 }
                 else {
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        array[currentStructure.pos+6] = b;
+                        array[arrayOffset + currentStructure.pos+6] = b;
                     }
                     else {
-                        array[currentStructure.pos+5] = b;
+                        array[arrayOffset + currentStructure.pos+5] = b;
                     }
                 }
 
@@ -821,10 +828,10 @@ public final class CompactEventBuilder {
                 }
                 else {
                     if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                        array[currentStructure.pos+1] = b;
+                        array[arrayOffset + currentStructure.pos+1] = b;
                     }
                     else {
-                        array[currentStructure.pos+2] = b;
+                        array[arrayOffset + currentStructure.pos+2] = b;
                     }
                 }
                 return;
@@ -865,26 +872,26 @@ public final class CompactEventBuilder {
                 }
                 else {
                     if (order == ByteOrder.BIG_ENDIAN) {
-                        array[position]   = (byte)(node.len >> 24);
-                        array[position+1] = (byte)(node.len >> 16);
-                        array[position+2] = (byte)(node.len >> 8);
-                        array[position+3] = (byte) node.len;
+                        array[arrayOffset + position]   = (byte)(node.len >> 24);
+                        array[arrayOffset + position+1] = (byte)(node.len >> 16);
+                        array[arrayOffset + position+2] = (byte)(node.len >> 8);
+                        array[arrayOffset + position+3] = (byte) node.len;
 
-                        array[position+4] = (byte)(node.tag >>> 8);
-                        array[position+5] = (byte) node.tag;
-                        array[position+6] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position+7] = (byte) node.num;
+                        array[arrayOffset + position+4] = (byte)(node.tag >>> 8);
+                        array[arrayOffset + position+5] = (byte) node.tag;
+                        array[arrayOffset + position+6] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
+                        array[arrayOffset + position+7] = (byte) node.num;
                     }
                     else {
-                        array[position]   = (byte)(node.len);
-                        array[position+1] = (byte)(node.len >> 8);
-                        array[position+2] = (byte)(node.len >> 16);
-                        array[position+3] = (byte)(node.len >> 24);
+                        array[arrayOffset + position]   = (byte)(node.len);
+                        array[arrayOffset + position+1] = (byte)(node.len >> 8);
+                        array[arrayOffset + position+2] = (byte)(node.len >> 16);
+                        array[arrayOffset + position+3] = (byte)(node.len >> 24);
 
-                        array[position+4] = (byte) node.num;
-                        array[position+5] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position+6] = (byte) node.tag;
-                        array[position+7] = (byte)(node.tag >>> 8);
+                        array[arrayOffset + position+4] = (byte) node.num;
+                        array[arrayOffset + position+5] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
+                        array[arrayOffset + position+6] = (byte) node.tag;
+                        array[arrayOffset + position+7] = (byte)(node.tag >>> 8);
                     }
                 }
 
@@ -908,16 +915,16 @@ public final class CompactEventBuilder {
                 }
                 else {
                     if (order == ByteOrder.BIG_ENDIAN) {
-                        array[position]   = (byte)  node.tag;
-                        array[position+1] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position+2] = (byte) (node.len >> 8);
-                        array[position+3] = (byte)  node.len;
+                        array[arrayOffset + position]   = (byte)  node.tag;
+                        array[arrayOffset + position+1] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
+                        array[arrayOffset + position+2] = (byte) (node.len >> 8);
+                        array[arrayOffset + position+3] = (byte)  node.len;
                     }
                     else {
-                        array[position]   = (byte)  node.len;
-                        array[position+1] = (byte) (node.len >> 8);
-                        array[position+2] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position+3] = (byte)  node.tag;
+                        array[arrayOffset + position]   = (byte)  node.len;
+                        array[arrayOffset + position+1] = (byte) (node.len >> 8);
+                        array[arrayOffset + position+2] = (byte)((node.dataType & 0x3f) | (node.pad << 6));
+                        array[arrayOffset + position+3] = (byte)  node.tag;
                     }
                 }
 
@@ -940,16 +947,16 @@ public final class CompactEventBuilder {
                 }
                 else {
                     if (order == ByteOrder.BIG_ENDIAN) {
-                        array[position]   = (byte) (compositeWord >> 8);
-                        array[position+1] = (byte)  compositeWord;
-                        array[position+2] = (byte) (node.len >> 8);
-                        array[position+3] = (byte)  node.len;
+                        array[arrayOffset + position]   = (byte) (compositeWord >> 8);
+                        array[arrayOffset + position+1] = (byte)  compositeWord;
+                        array[arrayOffset + position+2] = (byte) (node.len >> 8);
+                        array[arrayOffset + position+3] = (byte)  node.len;
                     }
                     else {
-                        array[position]   = (byte)  node.len;
-                        array[position+1] = (byte) (node.len >> 8);
-                        array[position+2] = (byte)  compositeWord;
-                        array[position+3] = (byte) (compositeWord >> 8);
+                        array[arrayOffset + position]   = (byte)  node.len;
+                        array[arrayOffset + position+1] = (byte) (node.len >> 8);
+                        array[arrayOffset + position+2] = (byte)  compositeWord;
+                        array[arrayOffset + position+3] = (byte) (compositeWord >> 8);
                     }
                 }
 
@@ -996,10 +1003,9 @@ public final class CompactEventBuilder {
                 }
             }
             else {
-                if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray() &&
-                        nodeBuf.array().length == nodeBuf.capacity()) {
-                    System.arraycopy(nodeBuf.array(), node.dataPos,
-                                     array, position, 4*node.dataLen);
+                if (!useByteBuffer && nodeBuf.hasArray()) {
+                    System.arraycopy(nodeBuf.array(), nodeBuf.arrayOffset() + node.dataPos,
+                                     array, arrayOffset + position, 4*node.dataLen);
                 }
                 else {
 // TODO: IS THIS NECESSARY????
@@ -1056,11 +1062,10 @@ public final class CompactEventBuilder {
         ByteBuffer nodeBuf = node.buffer;
 
         if (nodeBuf.order() == buffer.order()) {
-            if (!useByteBuffer && nodeBuf.hasArray() && buffer.hasArray() &&
-                    nodeBuf.array().length == nodeBuf.capacity()) {
+            if (!useByteBuffer && nodeBuf.hasArray()) {
 //System.out.println("addEvioNode: arraycopy node (same endian)");
-                System.arraycopy(nodeBuf.array(), node.pos,
-                                 array, position, node.getTotalBytes());
+                System.arraycopy(nodeBuf.array(), nodeBuf.arrayOffset() + node.pos,
+                        array, arrayOffset + position, node.getTotalBytes());
             }
             else {
 //System.out.println("addEvioNode: less efficient node copy (same endian)");
@@ -1144,7 +1149,7 @@ public final class CompactEventBuilder {
             buffer.position(0);
         }
         else {
-            System.arraycopy(data, 0, array, position, len);
+            System.arraycopy(data, 0, array, arrayOffset + position, len);
         }
 
         // Calculate the padding
@@ -1243,19 +1248,19 @@ public final class CompactEventBuilder {
             if (order == ByteOrder.BIG_ENDIAN) {
                 for (int i=offset; i < len + offset; i++) {
                     j = data[i];
-                    array[pos++] = (byte) (j >> 24);
-                    array[pos++] = (byte) (j >> 16);
-                    array[pos++] = (byte) (j >> 8);
-                    array[pos++] = (byte) (j);
+                    array[arrayOffset + pos++] = (byte) (j >> 24);
+                    array[arrayOffset + pos++] = (byte) (j >> 16);
+                    array[arrayOffset + pos++] = (byte) (j >> 8);
+                    array[arrayOffset + pos++] = (byte) (j);
                 }
             }
             else {
                 for (int i=offset; i < len + offset; i++) {
                     j = data[i];
-                    array[pos++] = (byte) (j);
-                    array[pos++] = (byte) (j >> 8);
-                    array[pos++] = (byte) (j >> 16);
-                    array[pos++] = (byte) (j >> 24);
+                    array[arrayOffset + pos++] = (byte) (j);
+                    array[arrayOffset + pos++] = (byte) (j >> 8);
+                    array[arrayOffset + pos++] = (byte) (j >> 16);
+                    array[arrayOffset + pos++] = (byte) (j >> 24);
                 }
             }
         }
@@ -1359,15 +1364,15 @@ public final class CompactEventBuilder {
             if (order == ByteOrder.BIG_ENDIAN) {
                 for (int i=offset; i < len + offset; i++) {
                     short aData = data[i];
-                    array[pos++] = (byte) (aData >> 8);
-                    array[pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData);
                 }
             }
             else {
                 for (int i=offset; i < len + offset; i++) {
                     short aData = data[i];
-                    array[pos++] = (byte) (aData);
-                    array[pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
                 }
             }
         }
@@ -1434,12 +1439,12 @@ public final class CompactEventBuilder {
         else {
             int pos = position;
             if (order == ByteOrder.BIG_ENDIAN) {
-                array[pos++] = (byte) (data >> 8);
-                array[pos]   = (byte) (data);
+                array[arrayOffset + pos++] = (byte) (data >> 8);
+                array[arrayOffset + pos]   = (byte) (data);
             }
             else {
-                array[pos++] = (byte) (data);
-                array[pos]   = (byte) (data >> 8);
+                array[arrayOffset + pos++] = (byte) (data);
+                array[arrayOffset + pos]   = (byte) (data >> 8);
             }
         }
 
@@ -1521,27 +1526,27 @@ public final class CompactEventBuilder {
             if (order == ByteOrder.BIG_ENDIAN) {
                 for (int i=offset; i < len + offset; i++) {
                     long aData = data[i];
-                    array[pos++] = (byte) (aData >> 56);
-                    array[pos++] = (byte) (aData >> 48);
-                    array[pos++] = (byte) (aData >> 40);
-                    array[pos++] = (byte) (aData >> 32);
-                    array[pos++] = (byte) (aData >> 24);
-                    array[pos++] = (byte) (aData >> 16);
-                    array[pos++] = (byte) (aData >> 8);
-                    array[pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 56);
+                    array[arrayOffset + pos++] = (byte) (aData >> 48);
+                    array[arrayOffset + pos++] = (byte) (aData >> 40);
+                    array[arrayOffset + pos++] = (byte) (aData >> 32);
+                    array[arrayOffset + pos++] = (byte) (aData >> 24);
+                    array[arrayOffset + pos++] = (byte) (aData >> 16);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData);
                 }
             }
             else {
                 for (int i=offset; i < len + offset; i++) {
                     long aData = data[i];
-                    array[pos++] = (byte) (aData);
-                    array[pos++] = (byte) (aData >> 8);
-                    array[pos++] = (byte) (aData >> 16);
-                    array[pos++] = (byte) (aData >> 24);
-                    array[pos++] = (byte) (aData >> 32);
-                    array[pos++] = (byte) (aData >> 40);
-                    array[pos++] = (byte) (aData >> 48);
-                    array[pos++] = (byte) (aData >> 56);
+                    array[arrayOffset + pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData >> 16);
+                    array[arrayOffset + pos++] = (byte) (aData >> 24);
+                    array[arrayOffset + pos++] = (byte) (aData >> 32);
+                    array[arrayOffset + pos++] = (byte) (aData >> 40);
+                    array[arrayOffset + pos++] = (byte) (aData >> 48);
+                    array[arrayOffset + pos++] = (byte) (aData >> 56);
                 }
             }
         }
@@ -1593,19 +1598,19 @@ public final class CompactEventBuilder {
             if (order == ByteOrder.BIG_ENDIAN) {
                 for (float fData : data) {
                     aData = Float.floatToRawIntBits(fData);
-                    array[pos++] = (byte) (aData >> 24);
-                    array[pos++] = (byte) (aData >> 16);
-                    array[pos++] = (byte) (aData >> 8);
-                    array[pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 24);
+                    array[arrayOffset + pos++] = (byte) (aData >> 16);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData);
                 }
             }
             else {
                 for (float fData : data) {
                     aData = Float.floatToRawIntBits(fData);
-                    array[pos++] = (byte) (aData);
-                    array[pos++] = (byte) (aData >> 8);
-                    array[pos++] = (byte) (aData >> 16);
-                    array[pos++] = (byte) (aData >> 24);
+                    array[arrayOffset + pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData >> 16);
+                    array[arrayOffset + pos++] = (byte) (aData >> 24);
                 }
             }
         }
@@ -1660,27 +1665,27 @@ public final class CompactEventBuilder {
             if (order == ByteOrder.BIG_ENDIAN) {
                 for (double dData : data) {
                     aData = Double.doubleToRawLongBits(dData);
-                    array[pos++] = (byte) (aData >> 56);
-                    array[pos++] = (byte) (aData >> 48);
-                    array[pos++] = (byte) (aData >> 40);
-                    array[pos++] = (byte) (aData >> 32);
-                    array[pos++] = (byte) (aData >> 24);
-                    array[pos++] = (byte) (aData >> 16);
-                    array[pos++] = (byte) (aData >> 8);
-                    array[pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 56);
+                    array[arrayOffset + pos++] = (byte) (aData >> 48);
+                    array[arrayOffset + pos++] = (byte) (aData >> 40);
+                    array[arrayOffset + pos++] = (byte) (aData >> 32);
+                    array[arrayOffset + pos++] = (byte) (aData >> 24);
+                    array[arrayOffset + pos++] = (byte) (aData >> 16);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData);
                 }
             }
             else {
                 for (double dData : data) {
                     aData = Double.doubleToRawLongBits(dData);
-                    array[pos++] = (byte) (aData);
-                    array[pos++] = (byte) (aData >> 8);
-                    array[pos++] = (byte) (aData >> 16);
-                    array[pos++] = (byte) (aData >> 24);
-                    array[pos++] = (byte) (aData >> 32);
-                    array[pos++] = (byte) (aData >> 40);
-                    array[pos++] = (byte) (aData >> 48);
-                    array[pos++] = (byte) (aData >> 56);
+                    array[arrayOffset + pos++] = (byte) (aData);
+                    array[arrayOffset + pos++] = (byte) (aData >> 8);
+                    array[arrayOffset + pos++] = (byte) (aData >> 16);
+                    array[arrayOffset + pos++] = (byte) (aData >> 24);
+                    array[arrayOffset + pos++] = (byte) (aData >> 32);
+                    array[arrayOffset + pos++] = (byte) (aData >> 40);
+                    array[arrayOffset + pos++] = (byte) (aData >> 48);
+                    array[arrayOffset + pos++] = (byte) (aData >> 56);
                 }
             }
         }
@@ -1736,7 +1741,7 @@ public final class CompactEventBuilder {
             buffer.position(0);
         }
         else {
-            System.arraycopy(data, 0, array, position, len);
+            System.arraycopy(data, 0, array, arrayOffset + position, len);
         }
         currentStructure.dataLen += len;
         addToAllLengths(len/4);
@@ -1794,7 +1799,7 @@ public final class CompactEventBuilder {
             buffer.position(0);
         }
         else {
-            System.arraycopy(rawBytes, 0, array, position, len);
+            System.arraycopy(rawBytes, 0, array, arrayOffset + position, len);
         }
         currentStructure.dataLen += len;
         addToAllLengths(len/4);
