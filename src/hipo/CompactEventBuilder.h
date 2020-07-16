@@ -7,17 +7,16 @@
 
 #include <vector>
 #include <memory>
+#include <cstring>
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
 #include "DataType.h"
 #include "EvioNode.h"
+#include "Util.h"
 
 
 namespace evio {
-
-
-
 
     /**
      * This class is used for creating events
@@ -31,7 +30,8 @@ namespace evio {
      * {@link #getBuffer()} is ready to read.
      *
      * @author timmer
-     * (Feb 6 2014)
+     * @date 2/6/2014 (Java)
+     * @date 7/5/2020 (C++)
      */
     class CompactEventBuilder {
 
@@ -43,15 +43,14 @@ namespace evio {
         /** Byte array which backs the buffer. */
         uint8_t * array = nullptr;
 
+        /** Offset into backing array. */
+        size_t arrayOffset;
+
         /** Current writing position in the buffer. */
         size_t position = 0;
 
         /** Byte order of the buffer, convenience variable. */
         ByteOrder order {ByteOrder::ENDIAN_LITTLE};
-
-        /** Two alternate ways of writing data, one which is direct to the
-         *  backing array and the other using ByteBuffer object methods. */
-        bool useByteBuffer = false;
 
         /** Did this object create the byte buffer? */
         bool createdBuffer = false;
@@ -68,7 +67,7 @@ namespace evio {
         static const uint32_t MAX_LEVELS = 50;
 
         /** Number of bytes to pad short and byte data. */
-        static const uint32_t padCount[] = {0,3,2,1};
+        static constexpr uint32_t padCount[] = {0,3,2,1};
 
 
         /**
@@ -77,6 +76,8 @@ namespace evio {
          * a length or padding in that structure in the buffer.
          */
         class StructureContent {
+        public:
+
             /** Starting position of this structure in the buffer. */
             size_t pos;
             /** Keep track of amount of primitive data written for finding padding.
@@ -90,13 +91,13 @@ namespace evio {
             DataType dataType;
 
 
-            void setData(size_t pos, DataType type, DataType dataType) {
-                this.pos = pos;
-                this.type = type;
-                this.dataType = dataType;
+            void setData(size_t pos, DataType const & type, DataType const & dataType) {
+                this->pos = pos;
+                this->type = type;
+                this->dataType = dataType;
                 padding = dataLen = 0;
             }
-        }
+        };
 
 
         /** The top (first element) of the stack is the first structure
@@ -112,7 +113,7 @@ namespace evio {
         std::vector<uint32_t> totalLengths;
 
         /** Current evio structure being created. */
-        std::shared_Ptr<StructureContent> currentStructure = nullptr;
+        std::shared_ptr<StructureContent> currentStructure = nullptr;
 
         /** Level of the evio structure currently being created.
          *  Starts at 0 for the event bank. */
@@ -129,39 +130,23 @@ namespace evio {
          *
          * @param bufferSize size of byte buffer (in bytes) to create.
          * @param order      byte order of created buffer.
-         *
-         * @throws EvioException if arg is null;
-         *                       if bufferSize arg too small
-         */
-        CompactEventBuilder(size_t bufferSize, ByteOrder const & order) :
-                CompactEventBuilder(bufferSize, order, false) {
-        }
-
-
-        /**
-         * This is the constructor to use for building a new event
-         * (just the event in a buffer, not the full evio file format).
-         * A buffer is created in this constructor.
-         *
-         * @param bufferSize size of byte buffer (in bytes) to create.
-         * @param order      byte order of created buffer.
          * @param generateNodes generate and store an EvioNode object
          *                      for each evio structure created.
          *
          * @throws EvioException if bufferSize arg too small
          */
-        CompactEventBuilder(size_t bufferSize, ByteOrder const & order, bool generateNodes) :
+        CompactEventBuilder(size_t bufferSize, ByteOrder const & order, bool generateNodes = false) :
                 order(order), generateNodes(generateNodes) {
 
             // Create buffer
             buffer = std::make_shared<ByteBuffer>(bufferSize);
-            array = buffer.array();
-            buffer.order(order);
+            array = buffer->array();
+            buffer->order(order);
 
             // Init variables
             createdBuffer = true;
 
-            totalLengths.reserve(MAX_LEVELS);
+            totalLengths.assign(MAX_LEVELS, 0);
             stackArray.reserve(MAX_LEVELS);
 
             // Fill stackArray vector with pre-allocated objects so each openBank/Seg/TagSeg
@@ -172,19 +157,6 @@ namespace evio {
         }
 
 
-        /**
-         * This is the constructor to use for building a new event
-         * (just the event in a buffer, not the full evio file format)
-         * with a user-given buffer.
-         *
-         * @param buffer the byte buffer to write into.
-         *
-         * @throws EvioException if arg is null;
-         *                       if buffer is too small
-         */
-        CompactEventBuilder(std::shared_ptr<ByteBuffer> & buffer) :
-                CompactEventBuilder(buffer,false) {}
-
 
         /**
          * This is the constructor to use for building a new event
@@ -198,13 +170,13 @@ namespace evio {
          * @throws EvioException if arg is null;
          *                       if buffer is too small
          */
-        CompactEventBuilder(std::shared_ptr<ByteBuffer> buffer, bool generateNodes) {
+        explicit CompactEventBuilder(std::shared_ptr<ByteBuffer> buffer, bool generateNodes = false) {
 
             if (buffer == nullptr) {
                 throw EvioException("null arg(s)");
             }
 
-            totalLengths.reserve(MAX_LEVELS);
+            totalLengths.assign(MAX_LEVELS, 0);
             stackArray.reserve(MAX_LEVELS);
 
             for (int i=0; i < MAX_LEVELS; i++) {
@@ -218,23 +190,12 @@ namespace evio {
         /**
          * Set the buffer to be written into.
          * @param buffer buffer to be written into.
-         * @throws EvioException if arg is null;
-         *                       if buffer is too small
-         */
-        void setBuffer(std::shared_ptr<ByteBuffer> buffer) {
-            setBuffer(buffer, false);
-        }
-
-
-        /**
-         * Set the buffer to be written into.
-         * @param buffer buffer to be written into.
          * @param generateNodes generate and store an EvioNode object
          *                      for each evio structure created.
          * @throws EvioException if arg is null;
          *                       if buffer is too small
          */
-        void setBuffer(std::shared_ptr<ByteBuffer> buffer, bool generateNodes) {
+        void setBuffer(std::shared_ptr<ByteBuffer> buffer, bool generateNodes = false) {
             if (buffer == nullptr) {
                 throw EvioException("null buffer arg");
             }
@@ -244,11 +205,9 @@ namespace evio {
 
     private:
 
+
         /**
-         * Set the buffer to be written into but do NOT reallocate
-         * stackArray and totalLengths arrays and do NOT refill
-         * stackArray with objects. This avoid unnecessary garbage
-         * generation.
+         * Set the buffer to be written into.
          *
          * @param buffer buffer to be written into.
          * @param generateNodes generate and store an EvioNode object
@@ -262,26 +221,19 @@ namespace evio {
             this->generateNodes = generateNodes;
 
             // Prepare buffer
-            buffer.clear();
-            Arrays.fill(totalLengths, 0);
-            order = buffer.order();
+            buffer->clear();
+            totalLengths.assign(MAX_LEVELS, 0);
+            order = buffer->order();
 
-            if (buffer.limit() < 8) {
+            if (buffer->limit() < 8) {
                 throw EvioException("compact buffer too small");
             }
 
-            // Protect against using the backing array of slices
-            if (buffer.hasArray() && buffer.array().length == buffer.capacity()) {
-                array = buffer.array();
-            }
-            else {
-                useByteBuffer = true;
-            }
+            array = buffer->array();
+            arrayOffset = buffer->arrayOffset();
 
             // Init variables
-            if (nodes != null) {
-                nodes.clear();
-            }
+            nodes.clear();
             currentLevel = -1;
             createdBuffer = false;
             currentStructure = nullptr;
@@ -296,7 +248,7 @@ namespace evio {
          * @return buffer being written into.
          */
         std::shared_ptr<ByteBuffer> getBuffer() {
-            buffer.limit(position).position(0);
+            buffer->limit(position).position(0);
             return buffer;
         }
 
@@ -320,7 +272,7 @@ namespace evio {
          *                       if too many nested evio structures;
          *                       if top-level bank has not been added first.
          */
-        EvioNode openSegment(int tag, DataType dataType) {
+        std::shared_ptr<EvioNode> openSegment(uint16_t tag, DataType const & dataType) {
 
             if (currentStructure == nullptr) {
                 throw EvioException("add a bank (event) first");
@@ -334,36 +286,24 @@ namespace evio {
             }
 
             // Make sure we can use all of the buffer in case external changes
-            // were made to it (e.g. by doing buffer.flip() in order to read).
+            // were made to it (e.g. by doing buffer->flip() in order to read).
             // All this does is set pos = 0, limit = capacity, it does NOT
             // clear the data. We're keep track of the position to write at
             // in our own variable, "position".
             buffer->clear();
 
-            if (buffer->limit() - position < 4) {
+            if ((buffer->limit() - position) < 4) {
                 throw EvioException("no room in buffer");
             }
 
             // For now, assume length and padding = 0
-            if (useByteBuffer) {
-                if (order == ByteOrder.BIG_ENDIAN) {
-                    buffer->put(position,   (uint8_t)tag);
-                    buffer->put(position+1, (uint8_t)(dataType.getValue() & 0x3f));
-                }
-                else {
-                    buffer.put(position+2, (uint8_t)(dataType.getValue() & 0x3f));
-                    buffer.put(position+3, (uint8_t)tag);
-                }
+            if (order == ByteOrder::ENDIAN_BIG) {
+                array[arrayOffset + position]   = (uint8_t)tag;
+                array[arrayOffset + position+1] = (uint8_t)(dataType.getValue() & 0x3f);
             }
             else {
-                if (order == ByteOrder.BIG_ENDIAN) {
-                    array[position]   = (uint8_t)tag;
-                    array[position+1] = (uint8_t)(dataType.getValue() & 0x3f);
-                }
-                else {
-                    array[position+2] = (uint8_t)(dataType.getValue() & 0x3f);
-                    array[position+3] = (uint8_t)tag;
-                }
+                array[arrayOffset + position+2] = (uint8_t)(dataType.getValue() & 0x3f);
+                array[arrayOffset + position+3] = (uint8_t)tag;
             }
 
             // currentLevel starts at -1
@@ -387,7 +327,7 @@ namespace evio {
                 node = std::make_shared<EvioNode>(tag, 0, position, position+4,
                                                   DataType::SEGMENT, dataType,
                                                   buffer);
-                nodes.add(node);
+                nodes.push_back(node);
             }
 
             position += 4;
@@ -408,20 +348,20 @@ namespace evio {
          *                       if too many nested evio structures;
          *                       if top-level bank has not been added first.
          */
-         EvioNode openTagSegment(int tag, DataType dataType) {
+        std::shared_ptr<EvioNode> openTagSegment(int tag, DataType dataType) {
 
             if (currentStructure == nullptr) {
                 throw EvioException("add a bank (event) first");
             }
 
             // Tagsegments not allowed if parent holds different type
-            if (currentStructure.dataType != DataType::TAGSEGMENT) {
+            if (currentStructure->dataType != DataType::TAGSEGMENT) {
                 throw EvioException("may NOT add tagsegment type, expecting " +
                                     currentStructure->dataType.toString());
             }
 
             // Make sure we can use all of the buffer in case external changes
-            // were made to it (e.g. by doing buffer.flip() in order to read).
+            // were made to it (e.g. by doing buffer->flip() in order to read).
             // All this does is set pos = 0, limit = capacity, it does NOT
             // clear the data. We're keep track of the position to write at
             // in our own variable, "position".
@@ -439,30 +379,19 @@ namespace evio {
             // For now, assume length = 0
             uint16_t compositeWord = (uint16_t) ((tag << 4) | (dataType.getValue() & 0xf));
 
-            if (useByteBuffer) {
-                if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-                    buffer.putShort(position, compositeWord);
-                }
-                else {
-                    buffer.putShort(position+2, compositeWord);
-                }
+            if (order == ByteOrder::ENDIAN_BIG) {
+                array[arrayOffset + position]   = (uint8_t) (compositeWord >> 8);
+                array[arrayOffset + position+1] = (uint8_t)  compositeWord;
             }
             else {
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    array[position]   = (uint8_t) (compositeWord >> 8);
-                    array[position+1] = (uint8_t)  compositeWord;
-                }
-                else {
-                    array[position+2] = (uint8_t)  compositeWord;
-                    array[position+3] = (uint8_t) (compositeWord >> 8);
-                }
+                array[arrayOffset + position+2] = (uint8_t)  compositeWord;
+                array[arrayOffset + position+3] = (uint8_t) (compositeWord >> 8);
             }
-
 
             // currentLevel starts at -1
             if (++currentLevel >= MAX_LEVELS) {
                 throw EvioException("too many nested evio structures, increase MAX_LEVELS from " +
-                                    std""tp_string(MAX_LEVELS));
+                                    std::to_string(MAX_LEVELS));
             }
 
             // currentStructure is the bank we are creating right now
@@ -474,13 +403,13 @@ namespace evio {
             addToAllLengths(1);
 
             // Do we generate an EvioNode object corresponding to this segment?
-            std::shared_Ptr<EvioNode> node = nullptr;
+            std::shared_ptr<EvioNode> node = nullptr;
             if (generateNodes) {
                 // This constructor does not have lengths or create allNodes list, blockNode
                 node = std::make_shared<EvioNode>(tag, 0, position, position+4,
                                                   DataType::TAGSEGMENT, dataType,
                                                   buffer);
-                nodes.add(node);
+                nodes.push_back(node);
             }
 
             position += 4;
@@ -501,7 +430,7 @@ namespace evio {
          *                       if no room in buffer for bank header;
          *                       if too many nested evio structures;
          */
-        EvioNode openBank(uint16_t tag, uint8_t num, DataType const & dataType) {
+        std::shared_ptr<EvioNode> openBank(uint16_t tag, uint8_t num, DataType const & dataType) {
 
             // Banks not allowed if parent holds different type
             if (currentStructure != nullptr &&
@@ -512,7 +441,7 @@ namespace evio {
             }
 
             // Make sure we can use all of the buffer in case external changes
-            // were made to it (e.g. by doing buffer.flip() in order to read).
+            // were made to it (e.g. by doing buffer->flip() in order to read).
             // All this does is set pos = 0, limit = capacity, it does NOT
             // clear the data. We're keeping track of the position to write at
             // in our own variable, "position".
@@ -522,48 +451,31 @@ namespace evio {
                 throw EvioException("no room in buffer");
             }
 
-            // Write bank header into buffer, assuming padding = 0
-            if (useByteBuffer) {
-                // Bank w/ no data has len = 1
-                buffer->putInt(position, 1);
+            // Write bank header into buffer, assuming padding = 0.
+            // Bank w/ no data has len = 1
 
-                if (buffer->order() == ByteOrder::ENDIAN_BIG) {
-                    buffer->putShort(position + 4, tag);
-                    buffer->put(position + 6, (uint8_t)(dataType.getValue() & 0x3f));
-                    buffer->put(position + 7, num);
-                }
-                else {
-                    buffer->put(position + 4, num);
-                    buffer->put(position + 5, (uint8_t)(dataType.getValue() & 0x3f));
-                    buffer->putShort(position + 6, tag);
-                }
+            if (order == ByteOrder::ENDIAN_BIG) {
+                // length word
+                array[arrayOffset + position]   = (uint8_t)0;
+                array[arrayOffset + position+1] = (uint8_t)0;
+                array[arrayOffset + position+2] = (uint8_t)0;
+                array[arrayOffset + position+3] = (uint8_t)1;
+
+                array[arrayOffset + position+4] = (uint8_t)(tag >> 8);
+                array[arrayOffset + position+5] = (uint8_t)tag;
+                array[arrayOffset + position+6] = (uint8_t)(dataType.getValue() & 0x3f);
+                array[arrayOffset + position+7] = num;
             }
             else {
-                // Bank w/ no data has len = 1
+                array[arrayOffset + position]   = (uint8_t)1;
+                array[arrayOffset + position+1] = (uint8_t)0;
+                array[arrayOffset + position+2] = (uint8_t)0;
+                array[arrayOffset + position+3] = (uint8_t)0;
 
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    // length word
-                    array[position]   = (uint8_t)0;
-                    array[position+1] = (uint8_t)0;
-                    array[position+2] = (uint8_t)0;
-                    array[position+3] = (uint8_t)1;
-
-                    array[position+4] = (uint8_t)(tag >> 8);
-                    array[position+5] = (uint8_t)tag;
-                    array[position+6] = (uint8_t)(dataType.getValue() & 0x3f);
-                    array[position+7] = num;
-                }
-                else {
-                    array[position]   = (uint8_t)1;
-                    array[position+1] = (uint8_t)0;
-                    array[position+2] = (uint8_t)0;
-                    array[position+3] = (uint8_t)0;
-
-                    array[position+4] = num;
-                    array[position+5] = (uint8_t)(dataType.getValue() & 0x3f);
-                    array[position+6] = (uint8_t)tag;
-                    array[position+7] = (uint8_t)(tag >> 8);
-                }
+                array[arrayOffset + position+4] = num;
+                array[arrayOffset + position+5] = (uint8_t)(dataType.getValue() & 0x3f);
+                array[arrayOffset + position+6] = (uint8_t)tag;
+                array[arrayOffset + position+7] = (uint8_t)(tag >> 8);
             }
 
             // currentLevel starts at -1
@@ -587,7 +499,7 @@ namespace evio {
                 node = std::make_shared<EvioNode>(tag, 0, position, position+8,
                                     DataType::BANK, dataType,
                                     buffer);
-                nodes.add(node);
+                nodes.push_back(node);
             }
 
             position += 8;
@@ -651,24 +563,13 @@ namespace evio {
          * @param tag  new tag value of top-level, event bank.
          */
         void setTopLevelTag(short tag) {
-
-            if (useByteBuffer) {
-                if (buffer.order() == ByteOrder::ENDIAN_BIG) {
-                    buffer.putShort(4, tag);
-                }
-                else {
-                    buffer.putShort(6, tag);
-                }
+            if (order == ByteOrder::ENDIAN_BIG) {
+                array[arrayOffset + 4] = (uint8_t)(tag >> 8);
+                array[arrayOffset + 5] = (uint8_t)tag;
             }
             else {
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    array[4] = (uint8_t)(tag >> 8);
-                    array[5] = (uint8_t)tag;
-                }
-                else {
-                    array[6] = (uint8_t)tag;
-                    array[7] = (uint8_t)(tag >> 8);
-                }
+                array[arrayOffset + 6] = (uint8_t)tag;
+                array[arrayOffset + 7] = (uint8_t)(tag >> 8);
             }
         }
 
@@ -697,96 +598,57 @@ namespace evio {
          * This method sets the length of the current evio structure in the buffer.
          * @param len length of current structure
          */
-     void setCurrentHeaderLength(uint32_t len) {
+        void setCurrentHeaderLength(uint32_t len) {
 
-         DataType cont & type = currentStructure.type;
-            bool isBigEndian = buffer.order().isBigEndian();
+            DataType const & type = currentStructure->type;
+            bool isBigEndian = buffer->order().isBigEndian();
 
             if (type == DataType::BANK || type == DataType::ALSOBANK) {
-                if (useByteBuffer) {
-                    buffer.putInt(currentStructure.pos, len);
+                try {
+                    Util::toBytes(len, order, array + arrayOffset + currentStructure->pos);
                 }
-                else {
-                    try {
-                        ByteDataTransformer.toBytes(len, order, array, currentStructure.pos);
-                    }
-                    catch (EvioException e) {/* never happen*/}
-                }
+                catch (EvioException e) {/* never happen*/}
             }
             else if (type == DataType::SEGMENT || type == DataType::ALSOSEGMENT || type == DataType::TAGSEGMENT) {
-                if (useByteBuffer) {
+                try {
                     if (isBigEndian) {
-                        buffer.putShort(currentStructure.pos + 2, (uint16_t) len);
+                        Util::toBytes((uint16_t)len, order, array + arrayOffset + currentStructure->pos + 2);
                     }
                     else {
-                        buffer.putShort(currentStructure.pos, (uint16_t) len);
+                        Util::toBytes((uint16_t)len, order, array + arrayOffset + currentStructure->pos);
                     }
                 }
-                else {
-                    try {
-                        if (isBigEndian) {
-                            ByteDataTransformer.toBytes((uint16_t) len, order,
-                                                        array, currentStructure.pos + 2);
-                        }
-                        else {
-                            ByteDataTransformer.toBytes((uint16_t) len, order,
-                                                        array, currentStructure.pos);
-                        }
-                    }
-                    catch (EvioException e) {/* never happen*/}
-                }
+                catch (EvioException e) {/* never happen*/}
             }
         }
 
 
-
         /**
-         * This method sets the padding of the current evio structure in the buffer.
+         * This method sets the padding of the current evio structure in the buffer->
          * @param padding padding of current structure's data
          */
         void setCurrentHeaderPadding(uint32_t padding) {
 
             // byte containing padding
-            uint8_t b = (uint8_t)((currentStructure.dataType.getValue() & 0x3f) | (padding << 6));
+            uint8_t b = (uint8_t)((currentStructure->dataType.getValue() & 0x3f) | (padding << 6));
 
-            DataType cont & type = currentStructure.type;
-            bool isBigEndian = buffer.order().isBigEndian();
+            DataType const & type = currentStructure->type;
+            bool isBigEndian = buffer->order().isBigEndian();
 
             if (type == DataType::BANK || type == DataType::ALSOBANK) {
-                if (useByteBuffer) {
-                    if (isBigEndian) {
-                        buffer.put(currentStructure.pos + 6, b);
-                    }
-                    else {
-                        buffer.put(currentStructure.pos + 5, b);
-                    }
+                if (isBigEndian) {
+                    array[arrayOffset + currentStructure->pos + 6] = b;
                 }
                 else {
-                    if (isBigEndian) {
-                        array[currentStructure.pos + 6] = b;
-                    }
-                    else {
-                        array[currentStructure.pos + 5] = b;
-                    }
+                    array[arrayOffset + currentStructure->pos + 5] = b;
                 }
             }
             else if (type == DataType::SEGMENT || type == DataType::ALSOSEGMENT) {
-                if (useByteBuffer) {
-                    if (isBigEndian) {
-
-                        buffer.put(currentStructure.pos + 1, b);
-                    }
-                    else {
-                        buffer.put(currentStructure.pos + 2, b);
-                    }
+                if (isBigEndian) {
+                    array[arrayOffset + currentStructure->pos + 1] = b;
                 }
                 else {
-                    if (isBigEndian) {
-                        array[currentStructure.pos + 1] = b;
-                    }
-                    else {
-                        array[currentStructure.pos + 2] = b;
-                    }
+                    array[arrayOffset + currentStructure->pos + 2] = b;
                 }
             }
         }
@@ -803,107 +665,71 @@ namespace evio {
          */
         void writeHeader(std::shared_ptr<EvioNode> & node) {
 
-            DataType cont & type = currentStructure.type;
+            DataType const & type = currentStructure->type;
             bool isBigEndian = order.isBigEndian();
+            uint32_t len = node->getLength();
+            uint16_t tag = node->getTag();
+            uint8_t  num = node->getNum();
+            uint32_t pad = node->getPad();
+            uint32_t typ = node->getDataType();
 
             if (type == DataType::BANK || type == DataType::ALSOBANK) {
-                if (useByteBuffer) {
-                    buffer.putInt(position, node.len);
-                    if (isBigEndian) {
-                        buffer.putShort(position + 4, node.tag);
-                        buffer.put(position + 6, (uint8_t)((node.dataType & 0x3f) | (node.pad << 6)));
-                        buffer.put(position + 7, node.num);
-                    }
-                    else {
-                        buffer.put(position + 4, node.num);
-                        buffer.put(position + 5, (uint8_t)((node.dataType & 0x3f) | (node.pad << 6)));
-                        buffer.putShort(position + 6, node.tag);
-                    }
+                if (isBigEndian) {
+                    array[arrayOffset + position]     = (uint8_t)(len >> 24);
+                    array[arrayOffset + position + 1] = (uint8_t)(len >> 16);
+                    array[arrayOffset + position + 2] = (uint8_t)(len >> 8);
+                    array[arrayOffset + position + 3] = (uint8_t) len;
+
+                    array[arrayOffset + position + 4] = (uint8_t)(tag >> 8);
+                    array[arrayOffset + position + 5] = (uint8_t) tag;
+                    array[arrayOffset + position + 6] = (uint8_t)((typ & 0x3f) | (pad << 6));
+                    array[arrayOffset + position + 7] = num;
                 }
                 else {
-                    if (isBigEndian) {
-                        array[position]     = (uint8_t)(node.len >> 24);
-                        array[position + 1] = (uint8_t)(node.len >> 16);
-                        array[position + 2] = (uint8_t)(node.len >> 8);
-                        array[position + 3] = (uint8_t) node.len;
+                    array[arrayOffset + position]     = (uint8_t)(len);
+                    array[arrayOffset + position + 1] = (uint8_t)(len >> 8);
+                    array[arrayOffset + position + 2] = (uint8_t)(len >> 16);
+                    array[arrayOffset + position + 3] = (uint8_t)(len >> 24);
 
-                        array[position + 4] = (uint8_t)(node.tag >> > 8);
-                        array[position + 5] = (uint8_t) node.tag;
-                        array[position + 6] = (uint8_t)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position + 7] = node.num;
-                    }
-                    else {
-                        array[position]     = (uint8_t)(node.len);
-                        array[position + 1] = (uint8_t)(node.len >> 8);
-                        array[position + 2] = (uint8_t)(node.len >> 16);
-                        array[position + 3] = (uint8_t)(node.len >> 24);
-
-                        array[position + 4] = node.num;
-                        array[position + 5] = (uint8_t)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position + 6] = (uint8_t) node.tag;
-                        array[position + 7] = (uint8_t)(node.tag >> > 8);
-                    }
+                    array[arrayOffset + position + 4] = num;
+                    array[arrayOffset + position + 5] = (uint8_t)((typ & 0x3f) | (pad << 6));
+                    array[arrayOffset + position + 6] = (uint8_t) tag;
+                    array[arrayOffset + position + 7] = (uint8_t)(tag >> 8);
                 }
 
                 position += 8;
             }
             else if (type == DataType::SEGMENT || type == DataType::ALSOSEGMENT) {
-                if (useByteBuffer) {
-                    if (isBigEndian) {
-                        buffer.put(position, (uint8_t) node.tag);
-                        buffer.put(position + 1, (uint8_t)((node.dataType & 0x3f) | (node.pad << 6)));
-                        buffer.putShort(position + 2, (uint16_t) node.len);
-                    }
-                    else {
-                        buffer.putShort(position, (uint16_t) node.len);
-                        buffer.put(position + 1, (uint8_t)((node.dataType & 0x3f) | (node.pad << 6)));
-                        buffer.put(position + 2, (uint8_t) node.tag);
-                    }
+                if (isBigEndian) {
+                    array[arrayOffset + position]     = (uint8_t) tag;
+                    array[arrayOffset + position + 1] = (uint8_t)((typ & 0x3f) | (pad << 6));
+                    array[arrayOffset + position + 2] = (uint8_t)(len >> 8);
+                    array[arrayOffset + position + 3] = (uint8_t) len;
                 }
                 else {
-                    if (isBigEndian) {
-                        array[position]     = (uint8_t) node.tag;
-                        array[position + 1] = (uint8_t)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position + 2] = (uint8_t)(node.len >> 8);
-                        array[position + 3] = (uint8_t) node.len;
-                    }
-                    else {
-                        array[position]     = (uint8_t) node.len;
-                        array[position + 1] = (uint8_t)(node.len >> 8);
-                        array[position + 2] = (uint8_t)((node.dataType & 0x3f) | (node.pad << 6));
-                        array[position + 3] = (uint8_t) node.tag;
-                    }
+                    array[arrayOffset + position]     = (uint8_t) len;
+                    array[arrayOffset + position + 1] = (uint8_t)(len >> 8);
+                    array[arrayOffset + position + 2] = (uint8_t)((typ & 0x3f) | (pad << 6));
+                    array[arrayOffset + position + 3] = (uint8_t) tag;
                 }
 
                 position += 4;
             }
             else if (type == DataType::TAGSEGMENT) {
 
-                uint16_t compositeWord = (uint16_t) ((node.tag << 4) | (node.dataType & 0xf));
+                uint16_t compositeWord = (uint16_t) ((tag << 4) | (typ & 0xf));
 
-                if (useByteBuffer) {
-                    if (isBigEndian) {
-                        buffer.putShort(position, compositeWord);
-                        buffer.putShort(position + 2, (uint16_t) node.len);
-                    }
-                    else {
-                        buffer.putShort(position, (uint16_t) node.len);
-                        buffer.putShort(position + 2, compositeWord);
-                    }
+                if (isBigEndian) {
+                    array[arrayOffset + position]     = (uint8_t)(compositeWord >> 8);
+                    array[arrayOffset + position + 1] = (uint8_t) compositeWord;
+                    array[arrayOffset + position + 2] = (uint8_t)(len >> 8);
+                    array[arrayOffset + position + 3] = (uint8_t) len;
                 }
                 else {
-                    if (isBigEndian) {
-                        array[position]     = (uint8_t)(compositeWord >> 8);
-                        array[position + 1] = (uint8_t) compositeWord;
-                        array[position + 2] = (uint8_t)(node.len >> 8);
-                        array[position + 3] = (uint8_t) node.len;
-                    }
-                    else {
-                        array[position]     = (uint8_t) node.len;
-                        array[position + 1] = (uint8_t)(node.len >> 8);
-                        array[position + 2] = (uint8_t) compositeWord;
-                        array[position + 3] = (uint8_t)(compositeWord >> 8);
-                    }
+                    array[arrayOffset + position]     = (uint8_t) len;
+                    array[arrayOffset + position + 1] = (uint8_t)(len >> 8);
+                    array[arrayOffset + position + 2] = (uint8_t) compositeWord;
+                    array[arrayOffset + position + 3] = (uint8_t)(compositeWord >> 8);
                 }
 
                 position += 4;
@@ -917,8 +743,9 @@ namespace evio {
          *
          * @param node node to be written (is never null)
          * @param swapData do we swap the primitive data or not?
+         * @throws EvioException if data needs to, but cannot be swapped.
          */
-        void writeNode(std::share_ptr<EvioNode> & node, bool swapData) {
+        void writeNode(std::shared_ptr<EvioNode> & node, bool swapData) {
 
             // Write header in endianness of buffer
             writeHeader(node);
@@ -936,30 +763,14 @@ namespace evio {
                 auto nodeBuf = node->getBuffer();
 
                 if (swapData) {
-                    try {
-                        ByteDataTransformer.swapData(node->getDataTypeObj(), nodeBuf,
-                                                     buffer, node->dataPos, position,
-                                                     node->dataLen, false);
-                    }
-                    catch (EvioException & e) {
-                        std::cout << e.what() << std::endl;
-                    }
+                    ByteDataTransformer.swapData(node->getDataTypeObj(), nodeBuf,
+                            buffer, node->dataPos, position,
+                            node->dataLen, false);
                 }
                 else {
-                    if (!useByteBuffer && nodeBuf->hasArray() && buffer->hasArray() &&
-                        nodeBuf->array().length == nodeBuf->capacity()) {
-                        System.arraycopy(nodeBuf->array(), node->dataPos,
-                                         array, position, 4*node->dataLen);
-                    }
-                    else {
-// TODO: IS THIS NECESSARY????
-                        auto duplicateBuf = nodeBuf.duplicate();
-                        duplicateBuf->limit(node->dataPos + 4*node->dataLen)->position(node->dataPos);
-
-                        buffer->position(position);
-                        buffer->put(duplicateBuf); // this method is relative to position
-                        buffer->position(0);    // get ready for external reading
-                    }
+                    std::memcpy(array + arrayOffset + position,
+                            nodeBuf->array() + nodeBuf->arrayOffset() + node->dataPos,
+                            4*node->dataLen)
                 }
 
                 position += 4*node->dataLen;
@@ -978,7 +789,7 @@ namespace evio {
          *                       if structure not added first;
          *                       if no room in buffer for data.
          */
-        void addEvioNode(std::share_ptr<EvioNode> node) {
+        void addEvioNode(std::shared_ptr<EvioNode> node) {
             if (node == nullptr) {
                 throw EvioException("no data to add");
             }
@@ -988,14 +799,14 @@ namespace evio {
             }
 
             if (currentStructure->dataType != node->getTypeObj()) {
-                throw EvioException("may only add " + currentStructure.dataType.toString() + " data");
+                throw EvioException("may only add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
             buffer->clear();
 
-            uint32_t len = node.getTotalBytes();
-//std::cout << "addEvioNode: buf lim = " << buffer.limit() <<
+            uint32_t len = node->getTotalBytes();
+//std::cout << "addEvioNode: buf lim = " << buffer->limit() <<
 //                           " - pos = " << position << " = (" << (buffer->limit() - position) <<
 //                           ") must be >= " << node->getTotalBytes() << " node total bytes");
             if ((buffer->limit() - position) < len) {
@@ -1004,25 +815,12 @@ namespace evio {
 
             addToAllLengths(len/4);  // # 32-bit words
 
-            auto nodeBuf = node.getBuffer();
+            auto nodeBuf = node->getBuffer();
 
             if (nodeBuf->order() == buffer->order()) {
-                if (!useByteBuffer && nodeBuf->hasArray() && buffer->hasArray() &&
-                    nodeBuf->array().length == nodeBuf->capacity()) {
 //std::cout << "addEvioNode: arraycopy node (same endian)" << std::endl;
-                    System.arraycopy(nodeBuf.array(), node.pos,
-                                     array, position, node.getTotalBytes());
-                }
-                else {
-//std::cout << "addEvioNode: less efficient node copy (same endian)" << std::endl;
-                    // Better performance not to slice/duplicate buffer (5 - 10% faster)
-                    auto duplicateBuf = nodeBuf.duplicate();
-                    duplicateBuf->limit(node->pos + node->getTotalBytes()).position(node->pos);
-
-                    buffer->position(position);
-                    buffer->put(duplicateBuf); // this method is relative to position
-                    buffer->position(0);       // get ready for external reading
-                }
+                    System.arraycopy(nodeBuf->array(), nodeBuf->arrayOffset() + node->pos,
+                                     array, arrayOffset + position, node->getTotalBytes());
 
                 position += len;
             }
@@ -1089,17 +887,10 @@ namespace evio {
             addToAllLengths(totalWordLen - lastWordLen);
 
             // Copy the data in one chunk
-            if (useByteBuffer) {
-                buffer->position(position);
-                buffer->put(data);
-                buffer->position(0);
-            }
-            else {
-                System.arraycopy(data, 0, array, position, len);
-            }
+                System.arraycopy(data, 0, array, arrayOffset + position, len);
 
             // Calculate the padding
-            currentStructure->padding = padCount[currentStructure.dataLen % 4];
+            currentStructure->padding = padCount[currentStructure->dataLen % 4];
 
             // Advance buffer position
             position += len + currentStructure->padding;
@@ -1128,10 +919,10 @@ namespace evio {
                 throw EvioException("add a bank, segment, or tagsegment first");
             }
 
-            if (currentStructure.dataType != DataType::INT32  &&
-                currentStructure.dataType != DataType::UINT32 &&
-                currentStructure.dataType != DataType::UNKNOWN32)  {
-                throw EvioException("may NOT add " + currentStructure.dataType + " data");
+            if (currentStructure->dataType != DataType::INT32  &&
+                currentStructure->dataType != DataType::UINT32 &&
+                currentStructure->dataType != DataType::UNKNOWN32)  {
+                throw EvioException("may NOT add " + currentStructure->dataType + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1142,32 +933,24 @@ namespace evio {
             }
 
             addToAllLengths(len);  // # 32-bit words
+            uint32_t j, pos = position;
 
-            if (useByteBuffer) {
-                buffer->position(position);
-                IntBuffer db = buffer.asIntBuffer();
-                db.put(data, 0, len);
-                buffer->position(0);
+            if (order == ByteOrder::ENDIAN_BIG) {
+                for (int i=0; i < len + offset; i++) {
+                    j = data[i];
+                    array[arrayOffset + pos++] = (uint8_t) (j >> 24);
+                    array[arrayOffset + pos++] = (uint8_t) (j >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (j >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (j);
+                }
             }
             else {
-                uint32_t j, pos = position;
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    for (int i=0; i < len + offset; i++) {
-                        j = data[i];
-                        array[pos++] = (uint8_t) (j >> 24);
-                        array[pos++] = (uint8_t) (j >> 16);
-                        array[pos++] = (uint8_t) (j >> 8);
-                        array[pos++] = (uint8_t) (j);
-                    }
-                }
-                else {
-                    for (int i=0; i < len + offset; i++) {
-                        j = data[i];
-                        array[pos++] = (uint8_t) (j);
-                        array[pos++] = (uint8_t) (j >> 8);
-                        array[pos++] = (uint8_t) (j >> 16);
-                        array[pos++] = (uint8_t) (j >> 24);
-                    }
+                for (int i=0; i < len + offset; i++) {
+                    j = data[i];
+                    array[arrayOffset + pos++] = (uint8_t) (j);
+                    array[arrayOffset + pos++] = (uint8_t) (j >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (j >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (j >> 24);
                 }
             }
 
@@ -1198,9 +981,9 @@ namespace evio {
                 throw EvioException("add a bank, segment, or tagsegment first");
             }
 
-            if (currentStructure.dataType != DataType::SHORT16  &&
-                currentStructure.dataType != DataType::USHORT16)  {
-                throw new EvioException("may NOT add " + currentStructure.dataType + " data");
+            if (currentStructure->dataType != DataType::SHORT16  &&
+                currentStructure->dataType != DataType::USHORT16)  {
+                throw new EvioException("may NOT add " + currentStructure->dataType + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1215,7 +998,7 @@ namespace evio {
             // are accurate.
 
             // Last increase in length
-            UINT32_T lastWordLen = (currentStructure.dataLen + 1)/2;
+            uint32_t lastWordLen = (currentStructure->dataLen + 1)/2;
 //std::cout << "lastWordLen = " << lastWordLen << std::endl;
 
             // If we are adding to existing data,
@@ -1235,28 +1018,20 @@ namespace evio {
 
             // Increase lengths by the difference
             addToAllLengths(totalWordLen - lastWordLen);
+            size_t pos = position;
 
-            if (useByteBuffer) {
-                buffer->position(position);
-                ShortBuffer db = buffer.asShortBuffer();
-                db.put(data, 0, len);
-                buffer->position(0);
+            if (order == ByteOrder::ENDIAN_BIG) {
+                for (int i=0; i < len + offset; i++) {
+                    uint16_t aData = data[i];
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                }
             }
             else {
-                size_t pos = position;
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    for (int i=0; i < len + offset; i++) {
-                        uint16_t aData = data[i];
-                        array[pos++] = (uint8_t) (aData >> 8);
-                        array[pos++] = (uint8_t) (aData);
-                    }
-                }
-                else {
-                    for (int i=0; i < len + offset; i++) {
-                        uint16_t aData = data[i];
-                        array[pos++] = (uint8_t) (aData);
-                        array[pos++] = (uint8_t) (aData >> 8);
-                    }
+                for (int i=0; i < len + offset; i++) {
+                    uint16_t aData = data[i];
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
                 }
             }
 
@@ -1280,9 +1055,9 @@ namespace evio {
                 throw EvioException("add a bank, segment, or tagsegment first");
             }
 
-            if (currentStructure.dataType != DataType::SHORT16  &&
-                currentStructure.dataType != DataType::USHORT16)  {
-                throw new EvioException("may NOT add " + currentStructure.dataType + " data");
+            if (currentStructure->dataType != DataType::SHORT16  &&
+                currentStructure->dataType != DataType::USHORT16)  {
+                throw new EvioException("may NOT add " + currentStructure->dataType + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1297,7 +1072,7 @@ namespace evio {
             // are accurate.
 
             // Last increase in length
-            UINT32_T lastWordLen = (currentStructure->dataLen + 1)/2;
+            uint32_t lastWordLen = (currentStructure->dataLen + 1)/2;
 
             // If we are adding to existing data,
             // place position before previous padding.
@@ -1313,22 +1088,15 @@ namespace evio {
 
             // Increase lengths by the difference
             addToAllLengths(totalWordLen - lastWordLen);
+            size_t pos = position;
 
-            if (useByteBuffer) {
-                buffer->position(position);
-                buffer->putShort(data);
-                buffer->position(0);
+            if (order == ByteOrder::ENDIAN_BIG) {
+                array[arrayOffset + pos++] = (uint8_t) (data >> 8);
+                array[arrayOffset + pos]   = (uint8_t) (data);
             }
             else {
-                size_t pos = position;
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    array[pos++] = (uint8_t) (data >> 8);
-                    array[pos]   = (uint8_t) (data);
-                }
-                else {
-                    array[pos++] = (uint8_t) (data);
-                    array[pos]   = (uint8_t) (data >> 8);
-                }
+                array[arrayOffset + pos++] = (uint8_t) (data);
+                array[arrayOffset + pos]   = (uint8_t) (data >> 8);
             }
 
             currentStructure->padding = 2*(currentStructure->dataLen % 2);
@@ -1361,9 +1129,9 @@ namespace evio {
                 throw EvioException("add a bank, segment, or tagsegment first");
             }
 
-            if (currentStructure.dataType != DataType::LONG64  &&
-                currentStructure.dataType != DataType::ULONG64)  {
-                throw new EvioException("may NOT add " + currentStructure.dataType + " data");
+            if (currentStructure->dataType != DataType::LONG64  &&
+                currentStructure->dataType != DataType::ULONG64)  {
+                throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1374,40 +1142,32 @@ namespace evio {
             }
 
             addToAllLengths(2*len);  // # 32-bit words
+            size_t pos = position;
 
-            if (useByteBuffer) {
-                buffer->position(position);
-                LongBuffer db = buffer.asLongBuffer();
-                db.put(data, 0, len);
-                buffer->position(0);
+            if (order == ByteOrder::ENDIAN_BIG) {
+                for (int i=0; i < len + offset; i++) {
+                    uint64_t aData = data[i];
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                }
             }
             else {
-                size_t pos = position;
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    for (int i=0; i < len + offset; i++) {
-                        uint64_t aData = data[i];
-                        array[pos++] = (uint8_t) (aData >> 56);
-                        array[pos++] = (uint8_t) (aData >> 48);
-                        array[pos++] = (uint8_t) (aData >> 40);
-                        array[pos++] = (uint8_t) (aData >> 32);
-                        array[pos++] = (uint8_t) (aData >> 24);
-                        array[pos++] = (uint8_t) (aData >> 16);
-                        array[pos++] = (uint8_t) (aData >> 8);
-                        array[pos++] = (uint8_t) (aData);
-                    }
-                }
-                else {
-                    for (int i=0; i < len + offset; i++) {
-                        uint64_t aData = data[i];
-                        array[pos++] = (uint8_t) (aData);
-                        array[pos++] = (uint8_t) (aData >> 8);
-                        array[pos++] = (uint8_t) (aData >> 16);
-                        array[pos++] = (uint8_t) (aData >> 24);
-                        array[pos++] = (uint8_t) (aData >> 32);
-                        array[pos++] = (uint8_t) (aData >> 40);
-                        array[pos++] = (uint8_t) (aData >> 48);
-                        array[pos++] = (uint8_t) (aData >> 56);
-                    }
+                for (int i=0; i < len + offset; i++) {
+                    uint64_t aData = data[i];
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
                 }
             }
 
@@ -1430,11 +1190,11 @@ namespace evio {
             }
 
             if (currentStructure == nullptr) {
-                throw new EvioException("add a bank, segment, or tagsegment first");
+                throw EvioException("add a bank, segment, or tagsegment first");
             }
 
-            if (currentStructure.dataType != DataType::FLOAT32) {
-                throw new EvioException("may NOT add " + currentStructure.dataType + " data");
+            if (currentStructure->dataType != DataType::FLOAT32) {
+                throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1445,39 +1205,29 @@ namespace evio {
             }
 
             addToAllLengths(len);  // # 32-bit words
+            int aData, pos = position;
 
-            if (useByteBuffer) {
-                buffer->position(position);
-                FloatBuffer db = buffer.asFloatBuffer();
-                db.put(data, 0, len);
-                buffer->position(0);
+            if (order == ByteOrder.BIG_ENDIAN) {
+                for (float fData : data) {
+                    aData = Float.floatToRawIntBits(fData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                }
             }
             else {
-                int aData, pos = position;
-                if (order == ByteOrder.BIG_ENDIAN) {
-                    for (float fData : data) {
-                        aData = Float.floatToRawIntBits(fData);
-                        array[pos++] = (byte) (aData >> 24);
-                        array[pos++] = (byte) (aData >> 16);
-                        array[pos++] = (byte) (aData >> 8);
-                        array[pos++] = (byte) (aData);
-                    }
-                }
-                else {
-                    for (float fData : data) {
-                        aData = Float.floatToRawIntBits(fData);
-                        array[pos++] = (byte) (aData);
-                        array[pos++] = (byte) (aData >> 8);
-                        array[pos++] = (byte) (aData >> 16);
-                        array[pos++] = (byte) (aData >> 24);
-                    }
+                for (float fData : data) {
+                    aData = Float.floatToRawIntBits(fData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
                 }
             }
 
             position += 4*len;     // # bytes
         }
-
-
 
 
         /**
@@ -1489,7 +1239,7 @@ namespace evio {
          *                       if structure not added first;
          *                       if no room in buffer for data.
          */
-        void addDoubleData(double * data, uinr21_t len) {
+        void addDoubleData(double * data, uint32_t len) {
             if (data == nullptr || len < 1) {
                 throw EvioException("no data to add");
             }
@@ -1506,234 +1256,207 @@ namespace evio {
             buffer->clear();
 
             addToAllLengths(2*len);  // # 32-bit words
+            uint64_t aData;
+            size_t pos = position;
 
-            if (useByteBuffer) {
-                buffer->position(position);
-                DoubleBuffer db = buffer.asDoubleBuffer();
-                db.put(data, 0, len);
-                buffer->position(0);
+            if (order == ByteOrder::ENDIAN_BIG) {
+                for (double dData : data) {
+                    aData = Double.doubleToRawLongBits(dData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                }
             }
             else {
-                uint64_t aData;
-                size_t pos = position;
-                if (order == ByteOrder::ENDIAN_BIG) {
-                    for (double dData : data) {
-                        aData = Double.doubleToRawLongBits(dData);
-                        array[pos++] = (uint8_t) (aData >> 56);
-                        array[pos++] = (uint8_t) (aData >> 48);
-                        array[pos++] = (uint8_t) (aData >> 40);
-                        array[pos++] = (uint8_t) (aData >> 32);
-                        array[pos++] = (uint8_t) (aData >> 24);
-                        array[pos++] = (uint8_t) (aData >> 16);
-                        array[pos++] = (uint8_t) (aData >> 8);
-                        array[pos++] = (uint8_t) (aData);
-                    }
-                }
-                else {
-                    for (double dData : data) {
-                        aData = Double.doubleToRawLongBits(dData);
-                        array[pos++] = (uint8_t) (aData);
-                        array[pos++] = (uint8_t) (aData >> 8);
-                        array[pos++] = (uint8_t) (aData >> 16);
-                        array[pos++] = (uint8_t) (aData >> 24);
-                        array[pos++] = (uint8_t) (aData >> 32);
-                        array[pos++] = (uint8_t) (aData >> 40);
-                        array[pos++] = (uint8_t) (aData >> 48);
-                        array[pos++] = (uint8_t) (aData >> 56);
-                    }
+                for (double dData : data) {
+                    aData = Double.doubleToRawLongBits(dData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
+                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
                 }
             }
 
             position += 8*len;     // # bytes
         }
 
-
-        /**
-         * Appends string array to the structure.
-         *
-         * @param strings the strings to append.
-         * @throws EvioException if data is null or empty;
-         *                       if adding wrong data type to structure;
-         *                       if structure not added first;
-         *                       if no room in buffer for data.
-         */
-        void addStringData(String strings[]) {
-            if (strings == null || strings.length < 1) {
-                throw new EvioException("no data to add");
-            }
-
-            if (currentStructure == null) {
-                throw new EvioException("add a bank, segment, or tagsegment first");
-            }
-
-            if (currentStructure.dataType != DataType.CHARSTAR8) {
-                throw new EvioException("may only add " + currentStructure.dataType + " data");
-            }
-
-            // Convert strings into byte array (already padded)
-            byte[] data = BaseStructure.stringsToRawBytes(strings);
-
-            // Sets pos = 0, limit = capacity, & does NOT clear data
-            buffer.clear();
-
-            int len = data.length;
-            if (buffer.limit() - position < len) {
-                throw new EvioException("no room in buffer");
-            }
-
-            // Things get tricky if this method is called multiple times in succession.
-            // In fact, it's too difficult to bother with so just throw an exception.
-            if (currentStructure.dataLen > 0) {
-                throw new EvioException("addStringData() may only be called once per structure");
-            }
-
-            if (useByteBuffer) {
-                buffer.position(position);
-                buffer.put(data);
-                buffer.position(0);
-            }
-            else {
-                System.arraycopy(data, 0, array, position, len);
-            }
-            currentStructure.dataLen += len;
-            addToAllLengths(len/4);
-
-            position += len;
-        }
-
-
-        /**
-         * Appends CompositeData objects to the structure.
-         *
-         * @param data the CompositeData objects to append, or set if there is no existing data.
-         * @throws EvioException if data is null or empty;
-         *                       if adding wrong data type to structure;
-         *                       if structure not added first;
-         *                       if no room in buffer for data.
-         */
-    public void addCompositeData(CompositeData[] data) throws EvioException {
-
-                if (data == null || data.length < 1) {
-                    throw new EvioException("no data to add");
-                }
-
-                if (currentStructure == null) {
-                    throw new EvioException("add a bank, segment, or tagsegment first");
-                }
-
-                if (currentStructure.dataType != DataType.COMPOSITE) {
-                    throw new EvioException("may only add " + currentStructure.dataType + " data");
-                }
-
-                // Composite data is always in the local (in this case, BIG) endian
-                // because if generated in JVM that's true, and if read in, it is
-                // swapped to local if necessary. Either case it's big endian.
-
-                // Convert composite data into byte array (already padded)
-                byte[] rawBytes = CompositeData.generateRawBytes(data, order);
-
-                // Sets pos = 0, limit = capacity, & does NOT clear data
-                buffer.clear();
-
-                int len = rawBytes.length;
-                if (buffer.limit() - position < len) {
-                    throw new EvioException("no room in buffer");
-                }
-
-                // This method cannot be called multiple times in succession.
-                if (currentStructure.dataLen > 0) {
-                    throw new EvioException("addCompositeData() may only be called once per structure");
-                }
-
-                if (useByteBuffer) {
-                    buffer.position(position);
-                    buffer.put(rawBytes);
-                    buffer.position(0);
-                }
-                else {
-                    System.arraycopy(rawBytes, 0, array, position, len);
-                }
-                currentStructure.dataLen += len;
-                addToAllLengths(len/4);
-
-                position += len;
-        }
-
-
-        /**
-         * This method writes a file in proper evio format with block header
-         * containing the single event constructed by this object. This is
-         * useful as a test to see if event is being properly constructed.
-         * Use this in conjunction with the event viewer in order to check
-         * that format is correct. This only works with array backed buffers.
-         *
-         * @param filename name of file
-         */
-    public void toFile(String filename) {
-            try {
-                File file = new File(filename);
-                FileOutputStream fos = new FileOutputStream(file);
-                java.io.DataOutputStream dos = new java.io.DataOutputStream(fos);
-
-                bool writeLastBlock = false;
-
-                // Get buffer ready to read
-                buffer.limit(position);
-                buffer.position(0);
-
-                // Write beginning 8 word header
-                // total length
-                int len = buffer.remaining();
-//System.out.println("Buf len = " + len + " bytes");
-                int len2 = len/4 + 8;
-//System.out.println("Tot len = " + len2 + " words");
-                // blk #
-                int blockNum = 1;
-                // header length
-                int headerLen = 8;
-                // event count
-                int evCount = 1;
-                // bit & version (last block, evio version 4 */
-                int info = 0x204;
-                if (writeLastBlock) {
-                    info = 0x4;
-                }
-
-                // endian checker
-                int magicNum = IBlockHeader.MAGIC_NUMBER;
-
-                if (order == ByteOrder.LITTLE_ENDIAN) {
-                    len2      = Integer.reverseBytes(len2);
-                    blockNum  = Integer.reverseBytes(blockNum);
-                    headerLen = Integer.reverseBytes(headerLen);
-                    evCount   = Integer.reverseBytes(evCount);
-                    info      = Integer.reverseBytes(info);
-                    magicNum  = Integer.reverseBytes(magicNum);
-                }
-
-                // Write the block header
-
-                dos.writeInt(len2);       // len
-                dos.writeInt(blockNum);   // block num
-                dos.writeInt(headerLen);  // header len
-                dos.writeInt(evCount);    // event count
-                dos.writeInt(0);          // reserved 1
-                dos.writeInt(info);       // bit & version info
-                dos.writeInt(0);          // reserved 2
-                dos.writeInt(magicNum);   // magic #
-
-                // Now write the event data
-                dos.write(array, 0, len);
-
-                dos.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            // Reset position & limit
-            buffer.clear();
-        }
+//
+//        /**
+//         * Appends string array to the structure.
+//         *
+//         * @param strings the strings to append.
+//         * @throws EvioException if data is null or empty;
+//         *                       if adding wrong data type to structure;
+//         *                       if structure not added first;
+//         *                       if no room in buffer for data.
+//         */
+//        void addStringData(std::string * strings, in32_t len) {
+//            if (strings == null || len < 1) {
+//                throw EvioException("no data to add");
+//            }
+//
+//            if (currentStructure == nullptr) {
+//                throw EvioException("add a bank, segment, or tagsegment first");
+//            }
+//
+//            if (currentStructure->dataType != DataType::CHARSTAR8) {
+//                throw new EvioException("may NOT add " + currentStructure->dataType + " data");
+//            }
+//
+//            // Convert strings into byte array (already padded)
+//            auto data = BaseStructure::stringsToRawBytes(strings);
+//
+//            // Sets pos = 0, limit = capacity, & does NOT clear data
+//            buffer->clear();
+//
+//            // Things get tricky if this method is called multiple times in succession.
+//            // In fact, it's too difficult to bother with so just throw an exception.
+//            if (currentStructure->dataLen > 0) {
+//                throw EvioException("addStringData() may only be called once per structure");
+//            }
+//
+//                System.arraycopy(data, 0, array, arrayOffset + position, len);
+//            currentStructure->dataLen += len;
+//            addToAllLengths(len/4);
+//
+//            position += len;
+//        }
+//
+//
+//        /**
+//         * Appends CompositeData objects to the structure.
+//         *
+//         * @param data the CompositeData objects to append, or set if there is no existing data.
+//         * @throws EvioException if data is null or empty;
+//         *                       if adding wrong data type to structure;
+//         *                       if structure not added first;
+//         *                       if no room in buffer for data.
+//         */
+//    public void addCompositeData(CompositeData[] data) throws EvioException {
+//
+//                if (data == null || data.length < 1) {
+//                    throw new EvioException("no data to add");
+//                }
+//
+//                if (currentStructure == null) {
+//                    throw new EvioException("add a bank, segment, or tagsegment first");
+//                }
+//
+//                if (currentStructure->dataType != DataType.COMPOSITE) {
+//                    throw new EvioException("may only add " + currentStructure->dataType + " data");
+//                }
+//
+//                // Composite data is always in the local (in this case, BIG) endian
+//                // because if generated in JVM that's true, and if read in, it is
+//                // swapped to local if necessary. Either case it's big endian.
+//
+//                // Convert composite data into byte array (already padded)
+//                byte[] rawBytes = CompositeData.generateRawBytes(data, order);
+//
+//                // Sets pos = 0, limit = capacity, & does NOT clear data
+//                buffer->clear();
+//
+//                int len = rawBytes.length;
+//                if (buffer->limit() - position < len) {
+//                    throw new EvioException("no room in buffer");
+//                }
+//
+//                // This method cannot be called multiple times in succession.
+//                if (currentStructure->dataLen > 0) {
+//                    throw new EvioException("addCompositeData() may only be called once per structure");
+//                }
+//
+//                    System.arraycopy(rawBytes, 0, array, arrayOffset + position, len);
+//                currentStructure->dataLen += len;
+//                addToAllLengths(len/4);
+//
+//                position += len;
+//        }
+//
+//
+//        /**
+//         * This method writes a file in proper evio format with block header
+//         * containing the single event constructed by this object. This is
+//         * useful as a test to see if event is being properly constructed.
+//         * Use this in conjunction with the event viewer in order to check
+//         * that format is correct. This only works with array backed buffers.
+//         *
+//         * @param filename name of file
+//         */
+//    public void toFile(String filename) {
+//            try {
+//                File file = new File(filename);
+//                FileOutputStream fos = new FileOutputStream(file);
+//                java.io.DataOutputStream dos = new java.io.DataOutputStream(fos);
+//
+//                bool writeLastBlock = false;
+//
+//                // Get buffer ready to read
+//                buffer->limit(position);
+//                buffer->position(0);
+//
+//                // Write beginning 8 word header
+//                // total length
+//                int len = buffer->remaining();
+////System.out.println("Buf len = " + len + " bytes");
+//                int len2 = len/4 + 8;
+////System.out.println("Tot len = " + len2 + " words");
+//                // blk #
+//                int blockNum = 1;
+//                // header length
+//                int headerLen = 8;
+//                // event count
+//                int evCount = 1;
+//                // bit & version (last block, evio version 4 */
+//                int info = 0x204;
+//                if (writeLastBlock) {
+//                    info = 0x4;
+//                }
+//
+//                // endian checker
+//                int magicNum = IBlockHeader.MAGIC_NUMBER;
+//
+//                if (order == ByteOrder.LITTLE_ENDIAN) {
+//                    len2      = Integer.reverseBytes(len2);
+//                    blockNum  = Integer.reverseBytes(blockNum);
+//                    headerLen = Integer.reverseBytes(headerLen);
+//                    evCount   = Integer.reverseBytes(evCount);
+//                    info      = Integer.reverseBytes(info);
+//                    magicNum  = Integer.reverseBytes(magicNum);
+//                }
+//
+//                // Write the block header
+//
+//                dos.writeInt(len2);       // len
+//                dos.writeInt(blockNum);   // block num
+//                dos.writeInt(headerLen);  // header len
+//                dos.writeInt(evCount);    // event count
+//                dos.writeInt(0);          // reserved 1
+//                dos.writeInt(info);       // bit & version info
+//                dos.writeInt(0);          // reserved 2
+//                dos.writeInt(magicNum);   // magic #
+//
+//                // Now write the event data
+//                dos.write(array, 0, len);
+//
+//                dos.close();
+//            }
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            // Reset position & limit
+//            buffer->clear();
+//        }
 
     };
 
