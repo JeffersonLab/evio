@@ -15,44 +15,44 @@
 
 
 namespace evio {
-    
+
 
 /**
  * Templated method to swap data in place.
  * @tparam T type of data.
  * @param var reference to data to be swapped.
  */
-template <typename T>
-void ByteOrder::byteSwapInPlace(T& var)
-{
-    char* varArray = reinterpret_cast<char*>(&var);
-    for (size_t i = 0;  i < sizeof(T)/2;  i++)
-        std::swap(varArray[sizeof(var) - 1 - i],varArray[i]);
-}
+    template <typename T>
+    void ByteOrder::byteSwapInPlace(T& var)
+    {
+        char* varArray = reinterpret_cast<char*>(&var);
+        for (size_t i = 0;  i < sizeof(T)/2;  i++)
+            std::swap(varArray[sizeof(var) - 1 - i],varArray[i]);
+    }
 
 /**
  * Convenience method to return swapped float.
  * @param var float to swap
  */
-float ByteOrder::byteSwap(float var)
-{
-    char* varArray = reinterpret_cast<char*>(&var);
-    for (size_t i = 0;  i < 2;  i++)
-        std::swap(varArray[3 - i],varArray[i]);
-    return var;
-}
+    float ByteOrder::byteSwap(float var)
+    {
+        char* varArray = reinterpret_cast<char*>(&var);
+        for (size_t i = 0;  i < 2;  i++)
+            std::swap(varArray[3 - i],varArray[i]);
+        return var;
+    }
 
 /**
  * Convenience method to return swapped double.
  * @param var double to swap
  */
-double ByteOrder::byteSwap(double var)
-{
-    char* varArray = reinterpret_cast<char*>(&var);
-    for (size_t i = 0;  i < 4;  i++)
-        std::swap(varArray[7 - i],varArray[i]);
-    return var;
-}
+    double ByteOrder::byteSwap(double var)
+    {
+        char* varArray = reinterpret_cast<char*>(&var);
+        for (size_t i = 0;  i < 4;  i++)
+            std::swap(varArray[7 - i],varArray[i]);
+        return var;
+    }
 
 /**
  * Templated method to swap array data in place.
@@ -60,27 +60,27 @@ double ByteOrder::byteSwap(double var)
  * @param var reference to data to be swapped.
  * @param elements number of data elements to be swapped.
  */
-template <typename T>
-void ByteOrder::byteSwapInPlace(T& var, size_t elements)
-{
-    char *c = reinterpret_cast<char *>(&var);
-    size_t varSize = sizeof(T);
+    template <typename T>
+    void ByteOrder::byteSwapInPlace(T& var, size_t elements)
+    {
+        char *c = reinterpret_cast<char *>(&var);
+        size_t varSize = sizeof(T);
 
-    for (size_t j = 0;  j < elements;  j++) {
-        for (size_t i = 0; i < varSize/2; i++) {
-            std::swap(c[varSize - 1 - i], c[i]);
+        for (size_t j = 0;  j < elements;  j++) {
+            for (size_t i = 0; i < varSize/2; i++) {
+                std::swap(c[varSize - 1 - i], c[i]);
+            }
+            c += varSize;
         }
-        c += varSize;
     }
-}
 
 
-/**
- * Templated method to swap array data in place.
- * @tparam T data type.
- * @param var pointer to data to be swapped.
- * @param elements number of data elements to be swapped.
- */
+    /**
+     * Templated method to swap array data in place.
+     * @tparam T data type.
+     * @param var pointer to data to be swapped.
+     * @param elements number of data elements to be swapped.
+     */
     template <typename T>
     void ByteOrder::byteSwapInPlace(T* var, size_t elements)
     {
@@ -147,23 +147,28 @@ void ByteOrder::byteSwapInPlace(T& var, size_t elements)
     }
 
 
-// Enum value DEFINITIONS
-/** Little endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_LITTLE(0, "ENDIAN_LITTLE");
-/** Big endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_BIG(1, "ENDIAN_BIG");
-/** Unknown endian byte order. */
-const ByteOrder ByteOrder::ENDIAN_UNKNOWN(2, "ENDIAN_UNKNOWN");
-/** Local host's byte order. */
-const ByteOrder ByteOrder::ENDIAN_LOCAL = ByteOrder::getLocalByteOrder();
+    // Enum value DEFINITIONS
+
+    /** Little endian byte order. */
+    const ByteOrder ByteOrder::ENDIAN_LITTLE(0, "ENDIAN_LITTLE");
+    /** Big endian byte order. */
+    const ByteOrder ByteOrder::ENDIAN_BIG(1, "ENDIAN_BIG");
+    /** Unknown endian byte order. */
+    const ByteOrder ByteOrder::ENDIAN_UNKNOWN(2, "ENDIAN_UNKNOWN");
+    /** Local host's byte order. */
+    const ByteOrder ByteOrder::ENDIAN_LOCAL = ByteOrder::getLocalByteOrder();
 
 
-bool ByteOrder::operator==(const ByteOrder &rhs) const {
-    return value == rhs.value;
-}
+    bool ByteOrder::operator==(const ByteOrder &rhs) const {
+        return value == rhs.value;
+    }
 
-bool ByteOrder::operator!=(const ByteOrder &rhs) const {
-    return value != rhs.value;
-}
+    bool ByteOrder::operator!=(const ByteOrder &rhs) const {
+        return value != rhs.value;
+    }
+
+
+
+
 }
 
