@@ -2048,7 +2048,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
     swapData(iarr, iarr, nwrd, ifmt, padding, false);
 }
 
-// TODO: Following is Sergui's original function (eviofmtswap) which is now implemented immediately above.
+// Following is Sergui's original function (eviofmtswap) which is now implemented immediately above.
 
 ///**
 // * This method converts (swaps) an array of EVIO composite type data
