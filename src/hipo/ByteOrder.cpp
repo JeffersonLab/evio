@@ -17,52 +17,48 @@
 namespace evio {
 
 
-/**
- * Templated method to swap data in place.
- * @tparam T type of data.
- * @param var reference to data to be swapped.
- */
+    /**
+     * Templated method to swap data in place.
+     * @tparam T type of data.
+     * @param var reference to data to be swapped.
+     */
     template <typename T>
-    void ByteOrder::byteSwapInPlace(T& var)
-    {
+    void ByteOrder::byteSwapInPlace(T& var) {
         char* varArray = reinterpret_cast<char*>(&var);
         for (size_t i = 0;  i < sizeof(T)/2;  i++)
             std::swap(varArray[sizeof(var) - 1 - i],varArray[i]);
     }
 
-/**
- * Convenience method to return swapped float.
- * @param var float to swap
- */
-    float ByteOrder::byteSwap(float var)
-    {
+    /**
+     * Convenience method to return swapped float.
+     * @param var float to swap
+     */
+    float ByteOrder::byteSwap(float var) {
         char* varArray = reinterpret_cast<char*>(&var);
         for (size_t i = 0;  i < 2;  i++)
             std::swap(varArray[3 - i],varArray[i]);
         return var;
     }
 
-/**
- * Convenience method to return swapped double.
- * @param var double to swap
- */
-    double ByteOrder::byteSwap(double var)
-    {
+    /**
+     * Convenience method to return swapped double.
+     * @param var double to swap
+     */
+    double ByteOrder::byteSwap(double var) {
         char* varArray = reinterpret_cast<char*>(&var);
         for (size_t i = 0;  i < 4;  i++)
             std::swap(varArray[7 - i],varArray[i]);
         return var;
     }
 
-/**
- * Templated method to swap array data in place.
- * @tparam T data type.
- * @param var reference to data to be swapped.
- * @param elements number of data elements to be swapped.
- */
+    /**
+     * Templated method to swap array data in place.
+     * @tparam T data type.
+     * @param var reference to data to be swapped.
+     * @param elements number of data elements to be swapped.
+     */
     template <typename T>
-    void ByteOrder::byteSwapInPlace(T& var, size_t elements)
-    {
+    void ByteOrder::byteSwapInPlace(T& var, size_t elements) {
         char *c = reinterpret_cast<char *>(&var);
         size_t varSize = sizeof(T);
 
@@ -73,7 +69,6 @@ namespace evio {
             c += varSize;
         }
     }
-
 
     /**
      * Templated method to swap array data in place.
@@ -97,52 +92,80 @@ namespace evio {
 
     /**
      * This method swaps an array of 2-byte data.
+     * If destination pointer is null, src is swapped in place.
+     *
      * @param src pointer to data source.
      * @param elements number of 2-byte elements to swap.
-     * @param dst pointer to destination.
+     * @param dst pointer to destination or nullptr if data is to be swapped in place.
+     * @return pointer to beginning of swapped data.
      */
-    void ByteOrder::byteSwap16(void* src, size_t elements, void* dst)
-    {
-        auto *s = reinterpret_cast<uint16_t *>(src);
-        auto *d = reinterpret_cast<uint16_t *>(dst);
-
-        for (size_t j = 0;  j < elements;  j++) {
-            *d = SWAP_16(*s);
-            ++s, ++d;
+    uint16_t* ByteOrder::byteSwap16(uint16_t* src, size_t elements, uint16_t* dst) {
+        if (dst == nullptr) {
+            dst = src;
         }
+
+        for (size_t i=0; i < elements; i++) {
+            dst[i] = SWAP_16(src[i]);
+        }
+        return dst;
     }
 
     /**
      * This method swaps an array of 4-byte data.
+     * If destination pointer is null, src is swapped in place.
+     *
      * @param src pointer to data source.
      * @param elements number of 4-byte elements to swap.
-     * @param dst pointer to destination.
+     * @param dst pointer to destination or nullptr if data is to be swapped in place.
+     * @return pointer to beginning of swapped data.
      */
-    void ByteOrder::byteSwap32(void* src, size_t elements, void* dst)
-    {
-        auto *s = reinterpret_cast<uint32_t *>(src);
-        auto *d = reinterpret_cast<uint32_t *>(dst);
-
-        for (size_t j = 0;  j < elements;  j++) {
-            *d = SWAP_32(*s);
-            ++s, ++d;
+    uint32_t* ByteOrder::byteSwap32(uint32_t* src, size_t elements, uint32_t* dst) {
+        if (dst == nullptr) {
+            dst = src;
         }
+
+        for (size_t i=0; i < elements; i++) {
+            dst[i] = SWAP_32(src[i]);
+        }
+        return dst;
     }
 
     /**
      * This method swaps an array of 8-byte data.
+     * If destination pointer is null, src is swapped in place.
+     *
      * @param src pointer to data source.
      * @param elements number of 8-byte elements to swap.
-     * @param dst pointer to destination.
+     * @param dst pointer to destination or nullptr if data is to be swapped in place.
+     * @return pointer to beginning of swapped data.
      */
-    void ByteOrder::byteSwap64(void* src, size_t elements, void* dst)
-    {
-        auto *s = reinterpret_cast<uint64_t *>(src);
-        auto *d = reinterpret_cast<uint64_t *>(dst);
+    uint64_t* ByteOrder::byteSwap64(uint64_t* src, size_t elements, uint64_t* dst) {
+        if (dst == nullptr) {
+            dst = src;
+        }
 
-        for (size_t j = 0;  j < elements;  j++) {
-            *d = SWAP_64(*s);
-            ++s, ++d;
+        for (size_t i=0; i < elements; i++) {
+            dst[i] = SWAP_64(src[i]);
+        }
+        return dst;
+    }
+
+
+    /**
+     * This routine swaps nothing, it just copies the given number of 32 bit ints.
+     *
+     * @param data   pointer to data to be copied
+     * @param length number of 32 bit ints to be copied
+     * @param dest   pointer to where data is to be copied to.
+     *               If NULL, nothing is done.
+     */
+    void ByteOrder::byteNoSwap32(const uint32_t* src, size_t elements, uint32_t* dst) {
+        if (dst == nullptr) {
+            return;
+        }
+
+        for (size_t i=0; i < elements; i++) {
+            dst[i] = src[i];
         }
     }
 

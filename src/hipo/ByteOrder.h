@@ -158,11 +158,13 @@ public:
     static double byteSwap(double var);
 
     // Swapping arrays
-    static void byteSwap16(void* src, size_t elements, void* dst);
-    static void byteSwap32(void* src, size_t elements, void* dst);
-    static void byteSwap64(void* src, size_t elements, void* dst);
+    static uint16_t* byteSwap16(uint16_t* src, size_t elements, uint16_t* dst);
+    static uint32_t* byteSwap32(uint32_t* src, size_t elements, uint32_t* dst);
+    static uint64_t* byteSwap64(uint64_t* src, size_t elements, uint64_t* dst);
+    static void      byteNoSwap32(const uint32_t* src, size_t elements, uint32_t* dst);
 
 };
+
 }
 
 
