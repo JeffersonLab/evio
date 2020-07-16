@@ -2628,52 +2628,72 @@ namespace evio {
                 // if data sent over wire or read from file ...
                 if (!rawBytes.empty()) {
                     // and need swapping ...
-                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8, curPos);
+                    ByteOrder::byteSwap64(reinterpret_cast<uint64_t *>(rawBytes.data()),
+                                          rawBytes.size()/8,
+                                          reinterpret_cast<uint64_t *>(curPos));
                     curPos += rawBytes.size();
                 }
                 // else if user set data thru API (can't-rely-on / no rawBytes array) ...
                 else {
-                    ByteOrder::byteSwap64(doubleData.data(), doubleData.size(), curPos);
+                    ByteOrder::byteSwap64(reinterpret_cast<uint64_t *>(doubleData.data()),
+                                          doubleData.size(),
+                                          reinterpret_cast<uint64_t *>(curPos));
                     curPos += 8 * doubleData.size();
                 }
             }
             else if (type == DataType::FLOAT32) {
                 if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4, curPos);
+                    ByteOrder::byteSwap32(reinterpret_cast<uint32_t *>(rawBytes.data()),
+                                          rawBytes.size()/4,
+                                          reinterpret_cast<uint32_t *>(curPos));
                     curPos += rawBytes.size();
                 }
                 else {
-                    ByteOrder::byteSwap32(floatData.data(), floatData.size(), curPos);
+                    ByteOrder::byteSwap32(reinterpret_cast<uint32_t *>(floatData.data()),
+                                          floatData.size(),
+                                          reinterpret_cast<uint32_t *>(curPos));
                     curPos += 4 * floatData.size();
                 }
             }
             else if (type == DataType::LONG64 || type == DataType::ULONG64) {
                 if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap64(rawBytes.data(), rawBytes.size()/8, curPos);
+                    ByteOrder::byteSwap64(reinterpret_cast<uint64_t *>(rawBytes.data()),
+                                          rawBytes.size()/8,
+                                          reinterpret_cast<uint64_t *>(curPos));
                     curPos += rawBytes.size();
                 }
                 else {
-                    ByteOrder::byteSwap64(longData.data(), longData.size(), curPos);
+                    ByteOrder::byteSwap64(reinterpret_cast<uint64_t *>(longData.data()),
+                                          longData.size(),
+                                          reinterpret_cast<uint64_t *>(curPos));
                     curPos += 8 * longData.size();
                 }
             }
             else if (type == DataType::INT32 || type == DataType::UINT32) {
                 if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap32(rawBytes.data(), rawBytes.size()/4, curPos);
+                    ByteOrder::byteSwap32(reinterpret_cast<uint32_t *>(rawBytes.data()),
+                                          rawBytes.size()/4,
+                                          reinterpret_cast<uint32_t *>(curPos));
                     curPos += rawBytes.size();
                 }
                 else {
-                    ByteOrder::byteSwap32(intData.data(), intData.size(), curPos);
+                    ByteOrder::byteSwap32(reinterpret_cast<uint32_t *>(intData.data()),
+                                          intData.size(),
+                                          reinterpret_cast<uint32_t *>(curPos));
                     curPos += 4 * intData.size();
                 }
             }
             else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
                 if (!rawBytes.empty()) {
-                    ByteOrder::byteSwap16(rawBytes.data(), rawBytes.size()/2, curPos);
+                    ByteOrder::byteSwap16(reinterpret_cast<uint16_t *>(rawBytes.data()),
+                                          rawBytes.size()/2,
+                                          reinterpret_cast<uint16_t *>(curPos));
                     curPos += rawBytes.size();
                 }
                 else {
-                    ByteOrder::byteSwap16(shortData.data(), shortData.size(), curPos);
+                    ByteOrder::byteSwap16(reinterpret_cast<uint16_t *>(shortData.data()),
+                                          shortData.size(),
+                                          reinterpret_cast<uint16_t *>(curPos));
                     curPos += 2 * shortData.size();
 
                     // might have to pad to 4 byte boundary
@@ -2778,7 +2798,9 @@ namespace evio {
             rawBytes.resize(4 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap32(intData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap32(reinterpret_cast<uint32_t *>(intData.data()),
+                                      numberDataItems,
+                                      reinterpret_cast<uint32_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), intData.data(), 4 * numberDataItems);
@@ -2812,7 +2834,8 @@ namespace evio {
             rawBytes.resize(4 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap32(uintData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap32(uintData.data(), numberDataItems,
+                                      reinterpret_cast<uint32_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), uintData.data(), 4 * numberDataItems);
@@ -2862,7 +2885,9 @@ namespace evio {
             header->setPadding(pad);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap16(shortData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap16(reinterpret_cast<uint16_t *>(shortData.data()),
+                                      numberDataItems,
+                                      reinterpret_cast<uint16_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), shortData.data(), itemBytes);
@@ -2910,7 +2935,8 @@ namespace evio {
             header->setPadding(pad);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap16(ushortData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap16(ushortData.data(), numberDataItems,
+                                 reinterpret_cast<uint16_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), ushortData.data(), itemBytes);
@@ -2944,7 +2970,9 @@ namespace evio {
             rawBytes.resize(8 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap64(longData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap64(reinterpret_cast<uint64_t *>(longData.data()),
+                                      numberDataItems,
+                                      reinterpret_cast<uint64_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), longData.data(), 8 * numberDataItems);
@@ -2978,7 +3006,8 @@ namespace evio {
             rawBytes.resize(8 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap64(ulongData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap64(ulongData.data(), numberDataItems,
+                                      reinterpret_cast<uint64_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), ulongData.data(), 8 * numberDataItems);
@@ -3085,7 +3114,9 @@ namespace evio {
             rawBytes.resize(4 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap32(floatData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap32(reinterpret_cast<uint32_t *>(floatData.data()),
+                                      numberDataItems,
+                                      reinterpret_cast<uint32_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), floatData.data(), 4 * numberDataItems);
@@ -3119,7 +3150,9 @@ namespace evio {
             rawBytes.resize(8 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
-                ByteOrder::byteSwap64(doubleData.data(), numberDataItems, rawBytes.data());
+                ByteOrder::byteSwap64(reinterpret_cast<uint64_t *>(doubleData.data()),
+                                      numberDataItems,
+                                      reinterpret_cast<uint64_t *>(rawBytes.data()));
             }
             else {
                 std::memcpy(rawBytes.data(), doubleData.data(), 8 * numberDataItems);
