@@ -140,7 +140,7 @@ EvioNode::EvioNode(EvioNode && src) noexcept {
  * @param buffer      buffer containing this event
  * @param recordNode  block containing this event
  */
-EvioNode::EvioNode(uint32_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & recordNode) : EvioNode() {
+EvioNode::EvioNode(size_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & recordNode) : EvioNode() {
     this->pos = pos;
     this->place = place;
     this->recordNode = recordNode;
@@ -162,7 +162,7 @@ EvioNode::EvioNode(uint32_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer
  * @param recordPos  position of record containing this node.
  * @param buffer     buffer containing this event.
  */
-EvioNode::EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, shared_ptr<ByteBuffer> & buffer) : EvioNode() {
+EvioNode::EvioNode(size_t pos, uint32_t place, size_t recordPos, shared_ptr<ByteBuffer> & buffer) : EvioNode() {
     this->pos = pos;
     this->place = place;
     this->recordPos = recordPos;
@@ -183,8 +183,9 @@ EvioNode::EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, shared_ptr<
  * @param dataType   the data type contained in this evio event.
  * @param buffer     buffer containing this event.
  */
-EvioNode::EvioNode(uint16_t tag, uint8_t num, uint32_t pos, uint32_t dataPos,
-                   DataType & type, DataType & dataType, shared_ptr<ByteBuffer> & buffer) : EvioNode() {
+EvioNode::EvioNode(uint16_t tag, uint8_t num, size_t pos, size_t dataPos,
+                   DataType const & type, DataType const & dataType,
+                   shared_ptr<ByteBuffer> buffer) : EvioNode() {
     this->tag = tag;
     this->num = num;
     this->pos = pos;
@@ -338,7 +339,7 @@ void EvioNode::setBuffer(shared_ptr<ByteBuffer> & buf) {buffer = buf;}
  * @param buffer      buffer to examine
  * @param recordNode  object holding data about header of block containing event
  */
-void EvioNode::setData(uint32_t position, uint32_t plc,
+void EvioNode::setData(size_t position, uint32_t plc,
                        shared_ptr<ByteBuffer> & buf, RecordNode & recNode) {
     buffer     = buf;
     recordNode = recNode;
@@ -358,7 +359,7 @@ void EvioNode::setData(uint32_t position, uint32_t plc,
  * @param recordPos  place of event in containing record (bytes)
  * @param buffer     buffer to examine
  */
-void EvioNode::setData(uint32_t position, uint32_t plc, uint32_t recPos, shared_ptr<ByteBuffer> & buf) {
+void EvioNode::setData(size_t position, uint32_t plc, size_t recPos, shared_ptr<ByteBuffer> & buf) {
     buffer     = buf;
     recordPos  = recPos;
     pos        = position;
@@ -389,7 +390,7 @@ void EvioNode::setData(uint32_t position, uint32_t plc, uint32_t recPos, shared_
  */
 std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
                                                      RecordNode & recNode,
-                                                     uint32_t position, uint32_t place) {
+                                                     size_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
     if (buffer->remaining() < 8) {
@@ -422,7 +423,7 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & bu
 std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
                                                      EvioNodeSource & pool,
                                                      RecordNode & recNode,
-                                                     uint32_t position, uint32_t place) {
+                                                     size_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
     if (buffer->remaining() < 8) {
@@ -453,8 +454,8 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & bu
  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
  */
 std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
-                                                     uint32_t recPosition,
-                                                     uint32_t position, uint32_t place) {
+                                                     size_t recPosition,
+                                                     size_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
     if (buffer->remaining() < 8) {
@@ -485,7 +486,7 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & bu
   * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
   */
 std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool,
-                                                     uint32_t recPosition, uint32_t position, uint32_t place) {
+                                                     size_t recPosition, size_t position, uint32_t place) {
 
     // Make sure there is enough data to at least read evio header
     if (buffer->remaining() < 8) {
@@ -513,7 +514,7 @@ std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & bu
  * @return EvioNode bankNode arg filled with appropriate data.
  * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
  */
-std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position) {
+std::shared_ptr<EvioNode> & EvioNode::extractNode(std::shared_ptr<EvioNode> & bankNode, size_t position) {
 
     // Make sure there is enough data to at least read evio header
     ByteBuffer* buffer = bankNode->buffer.get();
@@ -572,10 +573,10 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node) {
     }
 
     // Start at beginning position of evio structure being scanned
-    uint32_t position = node->dataPos;
+    size_t position = node->dataPos;
     // Don't go past the data's end which is (position + length)
     // of evio structure being scanned in bytes.
-    uint32_t endingPos = position + 4*node->dataLen;
+    size_t endingPos = position + 4*node->dataLen;
     // Buffer we're using
     ByteBuffer* buffer = node->buffer.get();
 
@@ -735,10 +736,10 @@ void EvioNode::scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & 
     }
 
     // Start at beginning position of evio structure being scanned
-    uint32_t position = node->dataPos;
+    size_t position = node->dataPos;
     // Don't go past the data's end which is (position + length)
     // of evio structure being scanned in bytes.
-    uint32_t endingPos = position + 4*node->dataLen;
+    size_t endingPos = position + 4*node->dataLen;
     // Buffer we're using
     ByteBuffer* buffer = node->buffer.get();
 
@@ -1077,7 +1078,7 @@ uint32_t EvioNode::getPad() {return pad;}
  * Get the file/buffer byte position of this evio structure.
  * @return file/buffer byte position of this evio structure
  */
-uint32_t EvioNode::getPosition() {return pos;}
+size_t EvioNode::getPosition() {return pos;}
 
 /**
  * Get the evio type of this evio structure, not what it contains.
@@ -1105,7 +1106,7 @@ uint32_t EvioNode::getDataLength() {return dataLen;}
  * Get the file/buffer byte position of this evio structure's data.
  * @return file/buffer byte position of this evio structure's data
  */
-uint32_t EvioNode::getDataPosition() {return dataPos;}
+size_t EvioNode::getDataPosition() {return dataPos;}
 
 /**
  * Get the evio type of the data this evio structure contains.
@@ -1126,7 +1127,7 @@ DataType EvioNode::getDataTypeObj() {return DataType::getDataType(dataType);}
  * @since version 6.
  * @return file/buffer byte position of the record containing this node.
  */
-uint32_t EvioNode::getRecordPosition() {return recordPos;}
+size_t EvioNode::getRecordPosition() {return recordPos;}
 
 /**
  * Get the place of containing event in file/buffer. First event = 0, second = 1, etc.
@@ -1205,7 +1206,7 @@ void EvioNode::updateLengths(uint32_t deltaLen) {
  *
  * @param newTag new tag value
  */
-void EvioNode::updateTag(uint32_t newTag) {
+void EvioNode::updateTag(uint16_t newTag) {
 
     if ((type == DataType::BANK.getValue()) ||
         (type == DataType::ALSOBANK.getValue())) {

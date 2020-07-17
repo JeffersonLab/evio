@@ -47,6 +47,7 @@ class EvioNodeSource;
 class EvioNode {
 
     friend class Util;
+    friend class EvioSwap;
     friend class EvioCompactReaderV4;
     friend class EvioCompactReaderV6;
 
@@ -61,20 +62,20 @@ private:
     /** Header's padding value. */
     uint32_t pad = 0;
     /** Position of header in buffer in bytes.  */
-    uint32_t pos = 0;
+    size_t pos = 0;
     /** This node's (evio container's) type. Must be bank, segment, or tag segment. */
     uint32_t type = 0;
 
     /** Length of node's data in 32-bit words. */
     uint32_t dataLen = 0;
     /** Position of node's data in buffer in bytes. */
-    uint32_t dataPos = 0;
+    size_t dataPos = 0;
     /** Type of data stored in node. */
     uint32_t dataType = 0;
 
     /** Position of the record in buffer containing this node in bytes
      *  @since version 6. */
-    uint32_t recordPos = 0;
+    size_t recordPos = 0;
 
 private:
 
@@ -158,29 +159,30 @@ public:
     explicit EvioNode(int id);
     explicit EvioNode(const std::shared_ptr<EvioNode> & src);
     EvioNode(EvioNode && src) noexcept;
-    EvioNode(uint32_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
-    EvioNode(uint32_t pos, uint32_t place, uint32_t recordPos, std::shared_ptr<ByteBuffer> & buffer);
-    EvioNode(uint16_t tag, uint8_t num, uint32_t pos, uint32_t dataPos,
-             DataType & type, DataType & dataType, shared_ptr<ByteBuffer> & buffer);
+    EvioNode(size_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
+    EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> & buffer);
+    EvioNode(uint16_t tag, uint8_t num, size_t pos, size_t dataPos,
+             DataType const & type, DataType const & dataType,
+             shared_ptr<ByteBuffer> buffer);
 
     ~EvioNode() = default;
 
     static void scanStructure(std::shared_ptr<EvioNode> & node);
     static void scanStructure(std::shared_ptr<EvioNode> & node, EvioNodeSource & nodeSource);
 
-    static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, uint32_t position);
+    static std::shared_ptr<EvioNode> & extractNode(std::shared_ptr<EvioNode> & bankNode, size_t position);
     static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
                                                       RecordNode & recNode,
-                                                      uint32_t position, uint32_t place);
+                                                      size_t position, uint32_t place);
     static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
                                                       EvioNodeSource & pool,
                                                       RecordNode & recNode,
-                                                      uint32_t position, uint32_t place);
+                                                      size_t position, uint32_t place);
     static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
-                                                      uint32_t recPosition,
-                                                      uint32_t position, uint32_t place);
+                                                      size_t recPosition,
+                                                      size_t position, uint32_t place);
     static std::shared_ptr<EvioNode> extractEventNode(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool,
-                                                      uint32_t recPosition, uint32_t position,
+                                                      size_t recPosition, size_t position,
                                                       uint32_t place);
 
     EvioNode & operator=(const EvioNode& other);
@@ -195,8 +197,8 @@ public:
     void clearIntArray();
 
     void setBuffer(shared_ptr<ByteBuffer> & buf);
-    void setData(uint32_t position, uint32_t plc, std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode);
-    void setData(uint32_t position, uint32_t plc, uint32_t recPos, std::shared_ptr<ByteBuffer> & buf);
+    void setData(size_t position, uint32_t plc, std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode);
+    void setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> & buf);
 
     // TODO: set many of these methods to CONST
 
@@ -215,14 +217,14 @@ public:
     uint16_t getTag();
     uint8_t  getNum();
     uint32_t getPad();
-    uint32_t getPosition();
+    size_t   getPosition();
     uint32_t getType();
     DataType getTypeObj();
     uint32_t getDataLength();
-    uint32_t getDataPosition();
+    size_t   getDataPosition();
     uint32_t getDataType();
     DataType getDataTypeObj();
-    uint32_t getRecordPosition();
+    size_t   getRecordPosition();
     uint32_t getPlace();
 
     std::shared_ptr<EvioNode> getParentNode();
