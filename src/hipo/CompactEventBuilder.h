@@ -13,6 +13,7 @@
 #include "ByteBuffer.h"
 #include "DataType.h"
 #include "EvioNode.h"
+#include "EvioSwap.h"
 #include "Util.h"
 
 
@@ -76,20 +77,21 @@ namespace evio {
          * a length or padding in that structure in the buffer.
          */
         class StructureContent {
-        public:
+          public:
 
             /** Starting position of this structure in the buffer. */
-            size_t pos;
+            size_t pos = 0;
             /** Keep track of amount of primitive data written for finding padding.
              *  Can be either bytes or shorts. */
-            uint32_t dataLen;
+            uint32_t dataLen = 0;
             /** Padding for byte and short data. */
-            uint32_t padding;
+            uint32_t padding = 0;
             /** Type of evio structure this is. */
-            DataType type;
+            DataType type {DataType::BANK};
             /** Type of evio structures or data contained. */
-            DataType dataType;
+            DataType dataType {DataType::UNKNOWN32};
 
+            StructureContent() = default;
 
             void setData(size_t pos, DataType const & type, DataType const & dataType) {
                 this->pos = pos;
@@ -618,7 +620,7 @@ namespace evio {
                         Util::toBytes((uint16_t)len, order, array + arrayOffset + currentStructure->pos);
                     }
                 }
-                catch (EvioException e) {/* never happen*/}
+                catch (EvioException & e) {/* never happen*/}
             }
         }
 
@@ -763,17 +765,17 @@ namespace evio {
                 auto nodeBuf = node->getBuffer();
 
                 if (swapData) {
-                    ByteDataTransformer.swapData(node->getDataTypeObj(), nodeBuf,
-                            buffer, node->dataPos, position,
-                            node->dataLen, false);
+                    EvioSwap::swapLeafData(node->getDataTypeObj(), nodeBuf,
+                                           buffer, node->getDataPosition(), position,
+                                           node->getDataLength(), false);
                 }
                 else {
                     std::memcpy(array + arrayOffset + position,
-                            nodeBuf->array() + nodeBuf->arrayOffset() + node->dataPos,
-                            4*node->dataLen)
+                                nodeBuf->array() + nodeBuf->arrayOffset() + node->getDataPosition(),
+                                 4*node->getDataLength());
                 }
 
-                position += 4*node->dataLen;
+                position += 4*node->getDataLength();
             }
         }
 
@@ -819,8 +821,9 @@ namespace evio {
 
             if (nodeBuf->order() == buffer->order()) {
 //std::cout << "addEvioNode: arraycopy node (same endian)" << std::endl;
-                    System.arraycopy(nodeBuf->array(), nodeBuf->arrayOffset() + node->pos,
-                                     array, arrayOffset + position, node->getTotalBytes());
+                    std::memcpy(array + arrayOffset + position,
+                            nodeBuf->array() + nodeBuf->arrayOffset() + node->getPosition(),
+                                node->getTotalBytes());
 
                 position += len;
             }
@@ -854,7 +857,7 @@ namespace evio {
 
             if (currentStructure->dataType != DataType::CHAR8  &&
                 currentStructure->dataType != DataType::UCHAR8)  {
-                throw EvioException("may NOT add " + currentStructure->dataType + " data");
+                throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -887,7 +890,7 @@ namespace evio {
             addToAllLengths(totalWordLen - lastWordLen);
 
             // Copy the data in one chunk
-                System.arraycopy(data, 0, array, arrayOffset + position, len);
+            std::memcpy(array + arrayOffset + position, data, len);
 
             // Calculate the padding
             currentStructure->padding = padCount[currentStructure->dataLen % 4];
@@ -922,7 +925,7 @@ namespace evio {
             if (currentStructure->dataType != DataType::INT32  &&
                 currentStructure->dataType != DataType::UINT32 &&
                 currentStructure->dataType != DataType::UNKNOWN32)  {
-                throw EvioException("may NOT add " + currentStructure->dataType + " data");
+                throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -933,27 +936,21 @@ namespace evio {
             }
 
             addToAllLengths(len);  // # 32-bit words
-            uint32_t j, pos = position;
 
-            if (order == ByteOrder::ENDIAN_BIG) {
-                for (int i=0; i < len + offset; i++) {
-                    j = data[i];
-                    array[arrayOffset + pos++] = (uint8_t) (j >> 24);
-                    array[arrayOffset + pos++] = (uint8_t) (j >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (j >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (j);
-                }
+            if (order.isLocalEndian()) {
+                std::memcpy(array + arrayOffset + position, data, 4*len);
             }
             else {
-                for (int i=0; i < len + offset; i++) {
-                    j = data[i];
-                    array[arrayOffset + pos++] = (uint8_t) (j);
-                    array[arrayOffset + pos++] = (uint8_t) (j >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (j >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (j >> 24);
+                size_t pos = position;
+                for (int i=0; i < len; i++) {
+                    uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                    array[arrayOffset + pos++] = bytes[3];
+                    array[arrayOffset + pos++] = bytes[2];
+                    array[arrayOffset + pos++] = bytes[1];
+                    array[arrayOffset + pos++] = bytes[0];
+                    data++;
                 }
             }
-
             position += 4*len;     // # bytes
         }
 
@@ -983,7 +980,7 @@ namespace evio {
 
             if (currentStructure->dataType != DataType::SHORT16  &&
                 currentStructure->dataType != DataType::USHORT16)  {
-                throw new EvioException("may NOT add " + currentStructure->dataType + " data");
+                throw new EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1018,20 +1015,17 @@ namespace evio {
 
             // Increase lengths by the difference
             addToAllLengths(totalWordLen - lastWordLen);
-            size_t pos = position;
 
-            if (order == ByteOrder::ENDIAN_BIG) {
-                for (int i=0; i < len + offset; i++) {
-                    uint16_t aData = data[i];
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                }
+            if (order.isLocalEndian()) {
+                std::memcpy(array + arrayOffset + position, data, 2*len);
             }
             else {
-                for (int i=0; i < len + offset; i++) {
-                    uint16_t aData = data[i];
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
+                size_t pos = position;
+                for (int i=0; i < len; i++) {
+                    uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                    array[arrayOffset + pos++] = bytes[1];
+                    array[arrayOffset + pos++] = bytes[0];
+                    data++;
                 }
             }
 
@@ -1057,7 +1051,7 @@ namespace evio {
 
             if (currentStructure->dataType != DataType::SHORT16  &&
                 currentStructure->dataType != DataType::USHORT16)  {
-                throw new EvioException("may NOT add " + currentStructure->dataType + " data");
+                throw new EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
@@ -1088,15 +1082,15 @@ namespace evio {
 
             // Increase lengths by the difference
             addToAllLengths(totalWordLen - lastWordLen);
-            size_t pos = position;
 
-            if (order == ByteOrder::ENDIAN_BIG) {
-                array[arrayOffset + pos++] = (uint8_t) (data >> 8);
-                array[arrayOffset + pos]   = (uint8_t) (data);
+            if (order.isLocalEndian()) {
+                std::memcpy(array + arrayOffset + position, &data, 2);
             }
             else {
-                array[arrayOffset + pos++] = (uint8_t) (data);
-                array[arrayOffset + pos]   = (uint8_t) (data >> 8);
+                size_t pos = position;
+                uint8_t* bytes = reinterpret_cast<uint8_t *>(&data);
+                array[arrayOffset + pos++] = bytes[1];
+                array[arrayOffset + pos++] = bytes[0];
             }
 
             currentStructure->padding = 2*(currentStructure->dataLen % 2);
@@ -1119,7 +1113,7 @@ namespace evio {
          */
         void addLongData(uint64_t * data, uint32_t len) {
 
-            if (data == null) {
+            if (data == nullptr) {
                 throw new EvioException("data arg null");
             }
 
@@ -1142,32 +1136,23 @@ namespace evio {
             }
 
             addToAllLengths(2*len);  // # 32-bit words
-            size_t pos = position;
 
-            if (order == ByteOrder::ENDIAN_BIG) {
-                for (int i=0; i < len + offset; i++) {
-                    uint64_t aData = data[i];
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                }
+            if (order.isLocalEndian()) {
+                std::memcpy(array + arrayOffset + position, data, 8*len);
             }
             else {
-                for (int i=0; i < len + offset; i++) {
-                    uint64_t aData = data[i];
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
+                size_t pos = position;
+                for (int i = 0; i < len; i++) {
+                    uint8_t *bytes = reinterpret_cast<uint8_t *>(data);
+                    array[arrayOffset + pos++] = bytes[7];
+                    array[arrayOffset + pos++] = bytes[6];
+                    array[arrayOffset + pos++] = bytes[5];
+                    array[arrayOffset + pos++] = bytes[4];
+                    array[arrayOffset + pos++] = bytes[3];
+                    array[arrayOffset + pos++] = bytes[2];
+                    array[arrayOffset + pos++] = bytes[1];
+                    array[arrayOffset + pos++] = bytes[0];
+                    data++;
                 }
             }
 
@@ -1179,6 +1164,7 @@ namespace evio {
          * Appends float data to the structure.
          *
          * @param data the float data to append.
+         * @param len number of the floats to append.
          * @throws EvioException if data is null or empty;
          *                       if adding wrong data type to structure;
          *                       if structure not added first;
@@ -1205,24 +1191,19 @@ namespace evio {
             }
 
             addToAllLengths(len);  // # 32-bit words
-            int aData, pos = position;
 
-            if (order == ByteOrder.BIG_ENDIAN) {
-                for (float fData : data) {
-                    aData = Float.floatToRawIntBits(fData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                }
+            if (order.isLocalEndian()) {
+                std::memcpy(array + arrayOffset + position, data, 4*len);
             }
             else {
-                for (float fData : data) {
-                    aData = Float.floatToRawIntBits(fData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
+                size_t pos = position;
+                for (int i=0; i < len; i++) {
+                    uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                    array[arrayOffset + pos++] = bytes[3];
+                    array[arrayOffset + pos++] = bytes[2];
+                    array[arrayOffset + pos++] = bytes[1];
+                    array[arrayOffset + pos++] = bytes[0];
+                    data++;
                 }
             }
 
@@ -1249,40 +1230,30 @@ namespace evio {
             }
 
             if (currentStructure->dataType != DataType::DOUBLE64) {
-                throw EvioException("may NOT add " + currentStructure->dataType + " data");
+                throw EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
             }
 
             // Sets pos = 0, limit = capacity, & does NOT clear data
             buffer->clear();
 
             addToAllLengths(2*len);  // # 32-bit words
-            uint64_t aData;
-            size_t pos = position;
 
-            if (order == ByteOrder::ENDIAN_BIG) {
-                for (double dData : data) {
-                    aData = Double.doubleToRawLongBits(dData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                }
+            if (order.isLocalEndian()) {
+                std::memcpy(array + arrayOffset + position, data, 8*len);
             }
             else {
-                for (double dData : data) {
-                    aData = Double.doubleToRawLongBits(dData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 8);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 16);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 24);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 32);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 40);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 48);
-                    array[arrayOffset + pos++] = (uint8_t) (aData >> 56);
+                size_t pos = position;
+                for (int i=0; i < len; i++) {
+                    uint8_t* bytes = reinterpret_cast<uint8_t *>(data);
+                    array[arrayOffset + pos++] = bytes[7];
+                    array[arrayOffset + pos++] = bytes[6];
+                    array[arrayOffset + pos++] = bytes[5];
+                    array[arrayOffset + pos++] = bytes[4];
+                    array[arrayOffset + pos++] = bytes[3];
+                    array[arrayOffset + pos++] = bytes[2];
+                    array[arrayOffset + pos++] = bytes[1];
+                    array[arrayOffset + pos++] = bytes[0];
+                    data++;
                 }
             }
 
@@ -1309,7 +1280,7 @@ namespace evio {
 //            }
 //
 //            if (currentStructure->dataType != DataType::CHARSTAR8) {
-//                throw new EvioException("may NOT add " + currentStructure->dataType + " data");
+//                throw new EvioException("may NOT add " + currentStructure->dataType.toString() + " data");
 //            }
 //
 //            // Convert strings into byte array (already padded)
@@ -1352,7 +1323,7 @@ namespace evio {
 //                }
 //
 //                if (currentStructure->dataType != DataType.COMPOSITE) {
-//                    throw new EvioException("may only add " + currentStructure->dataType + " data");
+//                    throw new EvioException("may only add " + currentStructure->dataType.toString() + " data");
 //                }
 //
 //                // Composite data is always in the local (in this case, BIG) endian
