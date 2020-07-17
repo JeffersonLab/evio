@@ -157,7 +157,7 @@ namespace evio {
      * @param data   pointer to data to be copied
      * @param length number of 32 bit ints to be copied
      * @param dest   pointer to where data is to be copied to.
-     *               If NULL, nothing is done.
+     *               If null, nothing is done.
      */
     void ByteOrder::byteNoSwap32(const uint32_t* src, size_t elements, uint32_t* dst) {
         if (dst == nullptr) {
