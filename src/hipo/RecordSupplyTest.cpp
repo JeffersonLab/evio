@@ -28,6 +28,7 @@
 #include "EvioBank.h"
 #include "EvioSegment.h"
 #include "StructureTransformer.h"
+#include "EvioSwap.h"
 
 #include "RecordSupply.h"
 #include "ByteOrder.h"
@@ -236,6 +237,8 @@ namespace evio {
         uint16_t tag = 1;
         uint8_t  num = 1;
         DataType type = DataType::INT32;
+
+        EvioSwap::swapBank(nullptr, false, nullptr);
 
         auto evBank = EvioBank::getInstance(tag, type, num);
 
