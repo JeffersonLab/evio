@@ -755,8 +755,6 @@ class CompositeData {
         // compositeFormatToInt was originally called "eviofmt"
         static int compositeFormatToInt(const string & formatStr, std::vector<uint16_t> & ifmt);
 
-        void swap();
-
 
         uint32_t getPadding() const;
         string getFormat() const;
@@ -795,6 +793,8 @@ class CompositeData {
 
         std::vector<string> & getStrings();
 
+
+        void swap();
 
         static void swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal);
 
