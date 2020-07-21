@@ -5,12 +5,14 @@
 #ifndef EVIO_6_0_IEVIOLISTENER_H
 #define EVIO_6_0_IEVIOLISTENER_H
 
+
 #include <memory>
 
-#include "BaseStructure.h"
 
 namespace evio {
 
+    // forward declaration so we can compile
+    class BaseStructure;
 
     /**
      * In SAX like behavior, implementors will listen for structures encountered when an event is parsed.

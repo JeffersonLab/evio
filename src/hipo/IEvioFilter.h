@@ -5,14 +5,14 @@
 #ifndef EVIO_6_0_IEVIOFILTER_H
 #define EVIO_6_0_IEVIOFILTER_H
 
-
-
 #include <memory>
 
 #include "StructureType.h"
-#include "BaseStructure.h"
 
 namespace evio {
+
+    // forward declaration so we can compile
+    class BaseStructure;
 
     /**
      * This interface allows applications to create filters so that they only receive certain structures
@@ -44,7 +44,7 @@ namespace evio {
          * @return <code>true</code> if the structure passes the filter and should be given to the listeners.
          * @see StructureType
          */
-        virtual bool accept(StructureType structureType, std::shared_ptr<BaseStructure> structure) = 0;
+        virtual bool accept(StructureType const & structureType, std::shared_ptr<BaseStructure> structure) = 0;
     };
 
 }
