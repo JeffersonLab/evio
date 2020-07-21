@@ -16,8 +16,6 @@
 
 #include <string>
 
-using std::string;
-
 
 namespace evio {
 
@@ -37,7 +35,7 @@ namespace evio {
  * @since 6.0 4/13/2020
  * @author timmer
  */
-class StructureType final {
+class StructureType {
 
 public:
 
@@ -55,7 +53,7 @@ private:
     uint32_t value2 = 0;
 
     /** Name of this structure type. */
-    string name;
+    std::string name;
 
 private:
 
@@ -63,14 +61,14 @@ private:
     static StructureType intToType[33]; // 0x20 + 1 = 33
 
     /** Store a name for each StructureType object. */
-    static string names[33];
+    static std::string names[33];
 
     /**
      * Constructor.
      * @param value int value of this StructureType object.
      * @param name  name (string representation) of this StructureType object.
      */
-    StructureType(string name, uint32_t val, uint32_t val2=0) : name(std::move(name)), value(val), value2(val2) {}
+    StructureType(std::string name, uint32_t val, uint32_t val2=0) : name(std::move(name)), value(val), value2(val2) {}
 
 public:
 
@@ -89,7 +87,7 @@ public:
      * @param val the value to match.
      * @return the name, or <code>null</code>.
      */
-    static string getName(uint32_t val) {
+    static std::string getName(uint32_t val) {
         if (val > 0x20) return "UNKNOWN32";
         return getStructureType(val).names[val];
     }
@@ -121,7 +119,7 @@ public:
      * Get the name associated with this structure type.
      * @return name associated with this structure type.
      */
-    const string & getName() const {return name;}
+    const std::string & getName() const {return name;}
 
     /**
      * Get the integer value associated with this structure type.
@@ -136,7 +134,7 @@ public:
      *
      * @return name of the enumerated type
      */
-    string toString() {return name;}
+    std::string toString() {return name;}
 
     /**
      * Convenience routine to see if "this" structure type is a bank structure.
