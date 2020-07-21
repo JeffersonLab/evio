@@ -1,20 +1,22 @@
 //
-// Copyright (c) 2020, Jefferson Science Associates
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
-// Thomas Jefferson National Accelerator Facility
 // EPSCI Group
-//
+// Thomas Jefferson National Accelerator Facility
 // 12000, Jefferson Ave, Newport News, VA 23606
-// Phone : (757)-269-7100
-//
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_BASESTRUCTUREHEADER_H
 #define EVIO_6_0_BASESTRUCTUREHEADER_H
+
 
 #include <vector>
 #include <cstring>
 #include <cstdint>
 #include <sstream>
+
 
 #include "Util.h"
 #include "ByteOrder.h"
@@ -101,6 +103,7 @@ namespace evio {
         virtual uint32_t getHeaderLength() {return 0;};
         virtual string   toString() {return "BaseStructureHeader";};
 
+        virtual size_t write(std::shared_ptr<ByteBuffer> & dest) {return 0;}
         virtual size_t write(ByteBuffer & dest) {return 0;};
         virtual size_t write(uint8_t *dest, ByteOrder const & order) {return 0;};
 
