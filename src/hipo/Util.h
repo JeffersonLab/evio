@@ -285,6 +285,131 @@ public:
 
 
     /**
+     * This method reads and swaps an evio bank header.
+     * It can also return information about the bank.
+     * Position and limit of neither buffer argument is changed.<p></p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+     *
+     * @param node       object in which to store data about the bank
+     *                   in destBuffer after swap.
+     * @param srcBuffer  buffer containing bank header to be swapped.
+     * @param destBuffer buffer in which to place swapped bank header.
+     * @param srcPos     position in srcBuffer to start reading bank header.
+     * @param destPos    position in destBuffer to start writing swapped bank header.
+     *
+     * @throws EvioException if srcBuffer data underflow;
+     *                       if destBuffer is too small to contain swapped data;
+     *                       srcBuffer and destBuffer have same byte order.
+     */
+    static void swapBankHeader(EvioNode & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+                               uint32_t srcPos, uint32_t destPos) {
+
+        // Check endianness
+        if (srcBuffer.order() == destBuffer.order()) {
+            throw evio::EvioException("src & dest buffers need different byte order for swapping");
+        }
+
+        // Read & swap first bank header word
+        uint32_t length = srcBuffer.getInt(srcPos);
+        destBuffer.putInt(destPos, length);
+        srcPos  += 4;
+        destPos += 4;
+
+        // Read & swap second bank header word
+        uint32_t word = srcBuffer.getInt(srcPos);
+        destBuffer.putInt(destPos, word);
+
+        node.tag      = (word >> 16) & 0xffff;
+        uint32_t dt   = (word >> 8) & 0xff;
+        node.dataType = dt & 0x3f;
+        node.pad      = dt >> 6;
+        node.num      = word & 0xff;
+        node.len      = length;
+        node.pos      = destPos - 4;
+        node.dataPos  = destPos + 4;
+        node.dataLen  = length - 1;
+    }
+
+
+    /**
+     * This method reads and swaps an evio segment header.
+     * It can also return information about the segment.
+     * Position and limit of neither buffer argument is changed.<p></p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+     *
+     * @param node       object in which to store data about the segment
+     *                   in destBuffer after swap; may be null
+     * @param srcBuffer  buffer containing segment header to be swapped
+     * @param destBuffer buffer in which to place swapped segment header
+     * @param srcPos     position in srcBuffer to start reading segment header
+     * @param destPos    position in destBuffer to start writing swapped segment header
+     *
+     * @throws EvioException if srcBuffer data underflow;
+     *                       if destBuffer is too small to contain swapped data;
+     *                       srcBuffer and destBuffer have same byte order.
+     */
+    static void swapSegmentHeader(EvioNode & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+                                  uint32_t srcPos, uint32_t destPos) {
+
+        if (srcBuffer.order() == destBuffer.order()) {
+            throw evio::EvioException("src & dest buffers need different byte order for swapping");
+        }
+
+        // Read & swap segment header word
+        uint32_t word = srcBuffer.getInt(srcPos);
+        destBuffer.putInt(destPos, word);
+
+        node.tag      = (word >> 24) & 0xff;
+        uint32_t dt   = (word >> 16) & 0xff;
+        node.dataType = dt & 0x3f;
+        node.pad      = dt >> 6;
+        node.len      = word & 0xffff;
+        node.num      = 0;
+        node.pos      = destPos;
+        node.dataPos  = destPos + 4;
+        node.dataLen  = node.len;
+    }
+
+
+    /**
+     * This method reads and swaps an evio tagsegment header.
+     * It can also return information about the tagsegment.
+     * Position and limit of neither buffer argument is changed.<p></p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+     *
+     * @param node       object in which to store data about the tagsegment
+     *                   in destBuffer after swap; may be null
+     * @param srcBuffer  buffer containing tagsegment header to be swapped
+     * @param destBuffer buffer in which to place swapped tagsegment header
+     * @param srcPos     position in srcBuffer to start reading tagsegment header
+     * @param destPos    position in destBuffer to start writing swapped tagsegment header
+     *
+     * @throws EvioException if srcBuffer is not properly formatted;
+     *                       if destBuffer is too small to contain swapped data
+     */
+    static void swapTagSegmentHeader(EvioNode & node, ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
+                                     uint32_t srcPos, uint32_t destPos) {
+
+        if (srcBuffer.order() == destBuffer.order()) {
+            throw evio::EvioException("src & dest buffers need different byte order for swapping");
+        }
+
+        // Read & swap tagsegment header word
+        uint32_t word = srcBuffer.getInt(srcPos);
+        destBuffer.putInt(destPos, word);
+
+        node.tag      = (word >> 20) & 0xfff;
+        node.dataType = (word >> 16) & 0xf;
+        node.len      = word & 0xffff;
+        node.num      = 0;
+        node.pad      = 0;
+        node.pos      = destPos;
+        node.dataPos  = destPos + 4;
+        node.dataLen  = node.len;
+    }
+
+
+    /**
      * Reads a couple things in a block/record header
      * in order to determine the evio version and endianness of a buffer/file.
      * The endianness can be read from the given ByteBuffer by calling,
