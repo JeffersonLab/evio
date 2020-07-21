@@ -1,18 +1,27 @@
 //
-// Created by Carl Timmer on 7/20/20.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_STRUCTUREFINDER_H
 #define EVIO_6_0_STRUCTUREFINDER_H
 
+
 #include "vector"
 #include "memory"
+
 
 #include "IEvioFilter.h"
 #include "IEvioListener.h"
 #include "EvioXMLDictionary.h"
 #include "BaseStructure.h"
 #include "StructureType.h"
+
 
 namespace evio {
 

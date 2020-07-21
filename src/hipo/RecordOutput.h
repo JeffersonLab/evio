@@ -1,15 +1,12 @@
-/**
- * Copyright (c) 2019, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 04/09/2019
- * @author timmer
- */
+//
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_RECORDOUTPUT_H
 #define EVIO_6_0_RECORDOUTPUT_H
@@ -21,6 +18,7 @@
 #include <vector>
 #include <memory>
 
+
 #include "ByteBuffer.h"
 #include "ByteOrder.h"
 #include "EvioBank.h"
@@ -30,235 +28,239 @@
 #include "Compressor.h"
 #include "EvioException.h"
 
+
 namespace evio {
 
 
-/**
- * Class which handles the creation and use of Evio & HIPO Records.<p>
- *
- * <pre>
- * RECORD STRUCTURE:
- *
- *               Uncompressed                                      Compressed
- *
- *    +----------------------------------+            +----------------------------------+
- *    |       General Record Header      |            |       General Record Header      |
- *    +----------------------------------+            +----------------------------------+
- *
- *    +----------------------------------+ ---------> +----------------------------------+
- *    |           Index Array            |            |        Compressed Data           |
- *    +----------------------------------+            |             Record               |
- *                                                    |                                  |
- *    +----------------------------------+            |                                  |
- *    |           User Header            |            |                  ----------------|
- *    |           (Optional)             |            |                  |    Pad 3      |
- *    |                  ----------------|            +----------------------------------+
- *    |                  |    Pad 1      |           ^
- *    +----------------------------------+          /
- *                                                 /
- *    +----------------------------------+        /
- *    |           Data Record            |       /
- *    |                                  |      /
- *    |                  ----------------|     /
- *    |                  |    Pad 2      |    /
- *    +----------------------------------+----
- *
- *
- *
- *
- * GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
- *
- *    +----------------------------------+
- *  1 |         Record Length            | // 32bit words, inclusive
- *    +----------------------------------+
- *  2 +         Record Number            |
- *    +----------------------------------+
- *  3 +         Header Length            | // 14 (words)
- *    +----------------------------------+
- *  4 +       Event (Index) Count        |
- *    +----------------------------------+
- *  5 +      Index Array Length          | // bytes
- *    +-----------------------+---------+
- *  6 +       Bit Info        | Version  | // version (8 bits)
- *    +-----------------------+----------+
- *  7 +      User Header Length          | // bytes
- *    +----------------------------------+
- *  8 +          Magic Number            | // 0xc0da0100
- *    +----------------------------------+
- *  9 +     Uncompressed Data Length     | // bytes
- *    +------+---------------------------+
- * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits)
- *    +----------------------------------+
- * 11 +        General Register 1        | // UID 1st (64 bits)
- *    +--                              --+
- * 12 +                                  |
- *    +----------------------------------+
- * 13 +        General Register 2        | // UID 2nd (64 bits)
- *    +--                              --+
- * 14 +                                  |
- *    +----------------------------------+
- * </pre>
- *
- * @version 6.0
- * @since 6.0 10/6/2019
- * @author timmer
- */
-class RecordOutput {
-
-public:
-
-    /** Maximum number of events per record. */
-    static constexpr int ONE_MEG = 1024*1024;
-
-
-    /** Maximum number of events per record. */
-    uint32_t MAX_EVENT_COUNT = 1000000;
-
     /**
-     * Size of some internal buffers in bytes. If the recordBinary buffer is passed
-     * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
-     * value is 91% of the its size (from position to capacity). This allows some
-     * margin for compressed data to be larger than the uncompressed - which may
-     * happen if data is random. It also allows other records to have been previously
-     * stored in the given buffer (eg. common record) since it starts writing at the
-     * buffer position which may not be 0.
+     * Class which handles the creation and use of Evio & HIPO Records.<p>
+     *
+     * <pre>
+     * RECORD STRUCTURE:
+     *
+     *               Uncompressed                                      Compressed
+     *
+     *    +----------------------------------+            +----------------------------------+
+     *    |       General Record Header      |            |       General Record Header      |
+     *    +----------------------------------+            +----------------------------------+
+     *
+     *    +----------------------------------+ ---------> +----------------------------------+
+     *    |           Index Array            |            |        Compressed Data           |
+     *    +----------------------------------+            |             Record               |
+     *                                                    |                                  |
+     *    +----------------------------------+            |                                  |
+     *    |           User Header            |            |                  ----------------|
+     *    |           (Optional)             |            |                  |    Pad 3      |
+     *    |                  ----------------|            +----------------------------------+
+     *    |                  |    Pad 1      |           ^
+     *    +----------------------------------+          /
+     *                                                 /
+     *    +----------------------------------+        /
+     *    |           Data Record            |       /
+     *    |                                  |      /
+     *    |                  ----------------|     /
+     *    |                  |    Pad 2      |    /
+     *    +----------------------------------+----
+     *
+     *
+     *
+     *
+     * GENERAL RECORD HEADER STRUCTURE ( see RecordHeader.java )
+     *
+     *    +----------------------------------+
+     *  1 |         Record Length            | // 32bit words, inclusive
+     *    +----------------------------------+
+     *  2 +         Record Number            |
+     *    +----------------------------------+
+     *  3 +         Header Length            | // 14 (words)
+     *    +----------------------------------+
+     *  4 +       Event (Index) Count        |
+     *    +----------------------------------+
+     *  5 +      Index Array Length          | // bytes
+     *    +-----------------------+---------+
+     *  6 +       Bit Info        | Version  | // version (8 bits)
+     *    +-----------------------+----------+
+     *  7 +      User Header Length          | // bytes
+     *    +----------------------------------+
+     *  8 +          Magic Number            | // 0xc0da0100
+     *    +----------------------------------+
+     *  9 +     Uncompressed Data Length     | // bytes
+     *    +------+---------------------------+
+     * 10 +  CT  |  Data Length Compressed   | // CT = compression type (4 bits)
+     *    +----------------------------------+
+     * 11 +        General Register 1        | // UID 1st (64 bits)
+     *    +--                              --+
+     * 12 +                                  |
+     *    +----------------------------------+
+     * 13 +        General Register 2        | // UID 2nd (64 bits)
+     *    +--                              --+
+     * 14 +                                  |
+     *    +----------------------------------+
+     * </pre>
+     *
+     * @version 6.0
+     * @since 6.0 4/9/2019
+     * @author timmer
      */
-    uint32_t MAX_BUFFER_SIZE = 8*ONE_MEG;
+    class RecordOutput {
 
-    /**
-     * Size of buffer holding built record in bytes. If the recordBinary buffer is passed
-     * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
-     * value is set to be 10% bigger than {@link #MAX_BUFFER_SIZE}. This allows some
-     * margin for compressed data to be larger than the uncompressed - which may
-     * happen if data is random.
-     */
-    uint32_t RECORD_BUFFER_SIZE = 9*ONE_MEG;
+    public:
 
-    /** The number of initially available bytes to be written into in the user-given buffer,
-     *  that go from position to limit. The user-given buffer is stored in recordBinary.
-     */
-    uint32_t userBufferSize = 0;
+        /** Maximum number of events per record. */
+        static constexpr int ONE_MEG = 1024*1024;
 
-    /** Number of events written to this Record. */
-    uint32_t eventCount = 0;
+        /** Maximum number of events per record. */
+        uint32_t MAX_EVENT_COUNT = 1000000;
 
-    /** Number of valid bytes in recordIndex buffer.
-     *  Will always be multiple of 4 since indexes are ints. */
-    uint32_t indexSize = 0;
+        /**
+         * Size of some internal buffers in bytes. If the recordBinary buffer is passed
+         * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
+         * value is 91% of the its size (from position to capacity). This allows some
+         * margin for compressed data to be larger than the uncompressed - which may
+         * happen if data is random. It also allows other records to have been previously
+         * stored in the given buffer (eg. common record) since it starts writing at the
+         * buffer position which may not be 0.
+         */
+        uint32_t MAX_BUFFER_SIZE = 8*ONE_MEG;
 
-    /** Number of valid bytes in recordEvents buffer. */
-    uint32_t eventSize = 0;
+        /**
+         * Size of buffer holding built record in bytes. If the recordBinary buffer is passed
+         * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
+         * value is set to be 10% bigger than {@link #MAX_BUFFER_SIZE}. This allows some
+         * margin for compressed data to be larger than the uncompressed - which may
+         * happen if data is random.
+         */
+        uint32_t RECORD_BUFFER_SIZE = 9*ONE_MEG;
 
-    /** The starting position of a user-given buffer.
-     * No data will be written before this position. */
-    size_t startingPosition = 0;
+        /** The number of initially available bytes to be written into in the user-given buffer,
+         *  that go from position to limit. The user-given buffer is stored in recordBinary.
+         */
+        uint32_t userBufferSize = 0;
 
-    /** This buffer stores event lengths ONLY. */
-    std::shared_ptr<ByteBuffer> recordIndex;
+        /** Number of events written to this Record. */
+        uint32_t eventCount = 0;
 
-    /** This buffer stores event data ONLY. */
-    std::shared_ptr<ByteBuffer> recordEvents;
+        /** Number of valid bytes in recordIndex buffer.
+         *  Will always be multiple of 4 since indexes are ints. */
+        uint32_t indexSize = 0;
 
-    /** This buffer stores data that will be compressed. */
-    std::shared_ptr<ByteBuffer> recordData;
+        /** Number of valid bytes in recordEvents buffer. */
+        uint32_t eventSize = 0;
 
-    /** Buffer in which to put constructed (& compressed) binary record.
-     *  May be provided by user. */
-    std::shared_ptr<ByteBuffer> recordBinary;
+        /** The starting position of a user-given buffer.
+         * No data will be written before this position. */
+        size_t startingPosition = 0;
 
-    /** Header of this Record. */
-    std::shared_ptr<RecordHeader> header;
+        /** This buffer stores event lengths ONLY. */
+        std::shared_ptr<ByteBuffer> recordIndex;
 
-    /** Byte order of record byte arrays to build. */
-    ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        /** This buffer stores event data ONLY. */
+        std::shared_ptr<ByteBuffer> recordEvents;
 
-    /** Is recordBinary a user provided buffer? */
-    bool userProvidedBuffer = false;
+        /** This buffer stores data that will be compressed. */
+        std::shared_ptr<ByteBuffer> recordData;
 
+        /** Buffer in which to put constructed (& compressed) binary record.
+         *  May be provided by user. */
+        std::shared_ptr<ByteBuffer> recordBinary;
 
-public:
+        /** Header of this Record. */
+        std::shared_ptr<RecordHeader> header;
 
-    RecordOutput();
+        /** Byte order of record byte arrays to build. */
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
-    explicit RecordOutput(const ByteOrder & order,
-                          uint32_t maxEventCount = 1000000,
-                          uint32_t maxBufferSize = 8*ONE_MEG,
-                          Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
-                          HeaderType hType = HeaderType::EVIO_RECORD);
-
-    RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEventCount,
-                 Compressor::CompressionType compressionType, HeaderType hType);
-
-    RecordOutput(const RecordOutput & srcRec);
-    RecordOutput(RecordOutput && srcBuf) noexcept;
-
-    RecordOutput & operator=(RecordOutput&& other) noexcept;
-    RecordOutput & operator=(const RecordOutput& other);
-
-    ~RecordOutput() = default;
+        /** Is recordBinary a user provided buffer? */
+        bool userProvidedBuffer = false;
 
 
-private:
-
-    void allocate();
-    bool allowedIntoRecord(uint32_t length);
-    void copy(const RecordOutput & rec);
+    public:
 
 
-public:
+        RecordOutput();
 
-    void setBuffer(std::shared_ptr<ByteBuffer> & buf);
-    void transferDataForReading(const RecordOutput & rec);
+        explicit RecordOutput(const ByteOrder & order,
+                              uint32_t maxEventCount = 1000000,
+                              uint32_t maxBufferSize = 8*ONE_MEG,
+                              Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
+                              HeaderType hType = HeaderType::EVIO_RECORD);
 
-    uint32_t getUserBufferSize() const;
-    uint32_t getUncompressedSize() const;
-    uint32_t getInternalBufferCapacity() const;
-    uint32_t getMaxEventCount() const;
-    uint32_t getEventCount() const;
+        RecordOutput(std::shared_ptr<ByteBuffer> & buffer, uint32_t maxEventCount,
+                     Compressor::CompressionType compressionType, HeaderType hType);
 
-    std::shared_ptr<RecordHeader> & getHeader();
-    const ByteOrder & getByteOrder() const;
-    const std::shared_ptr<ByteBuffer> getBinaryBuffer() const;
-    const Compressor::CompressionType getCompressionType() const;
-    const HeaderType getHeaderType() const;
+        RecordOutput(const RecordOutput & srcRec);
+        RecordOutput(RecordOutput && srcBuf) noexcept;
 
-    bool hasUserProvidedBuffer() const;
-    bool roomForEvent(uint32_t length) const;
-    bool oneTooMany() const;
+        RecordOutput & operator=(RecordOutput&& other) noexcept;
+        RecordOutput & operator=(const RecordOutput& other);
+
+        ~RecordOutput() = default;
+
+
+    private:
+
+
+        void allocate();
+        bool allowedIntoRecord(uint32_t length);
+        void copy(const RecordOutput & rec);
+
+
+    public:
+
+
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
+        void transferDataForReading(const RecordOutput & rec);
+
+        uint32_t getUserBufferSize() const;
+        uint32_t getUncompressedSize() const;
+        uint32_t getInternalBufferCapacity() const;
+        uint32_t getMaxEventCount() const;
+        uint32_t getEventCount() const;
+
+        std::shared_ptr<RecordHeader> & getHeader();
+        const ByteOrder & getByteOrder() const;
+        const std::shared_ptr<ByteBuffer> getBinaryBuffer() const;
+        const Compressor::CompressionType getCompressionType() const;
+        const HeaderType getHeaderType() const;
+
+        bool hasUserProvidedBuffer() const;
+        bool roomForEvent(uint32_t length) const;
+        bool oneTooMany() const;
 
 //    bool addEvent(uint8_t event[]);
-    bool addEvent(const uint8_t* event, size_t position, uint32_t eventLen);
-    bool addEvent(const uint8_t* event, size_t position, uint32_t eventLen, uint32_t extraDataLen);
+        bool addEvent(const uint8_t* event, uint32_t eventLen);
+        bool addEvent(const uint8_t* event, uint32_t eventLen, uint32_t extraDataLen);
 
-    bool addEvent(const vector<uint8_t> & event);
-    bool addEvent(const vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen);
+        bool addEvent(const vector<uint8_t> & event);
+        bool addEvent(const vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen);
 
-    bool addEvent(const ByteBuffer & event);
-    bool addEvent(const ByteBuffer & event, uint32_t extraDataLen);
+        bool addEvent(const ByteBuffer & event);
+        bool addEvent(const ByteBuffer & event, uint32_t extraDataLen);
 
-    bool addEvent(const std::shared_ptr<ByteBuffer> & event);
-    bool addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen);
+        bool addEvent(const std::shared_ptr<ByteBuffer> & event);
+        bool addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen);
 
-    bool addEvent(EvioNode & node);
-    bool addEvent(EvioNode & node, uint32_t extraDataLen);
+        bool addEvent(EvioNode & node);
+        bool addEvent(EvioNode & node, uint32_t extraDataLen);
 
-    bool addEvent(std::shared_ptr<EvioNode> & node);
-    bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen);
+        bool addEvent(std::shared_ptr<EvioNode> & node);
+        bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen);
 
-    bool addEvent(EvioBank & event);
-    bool addEvent(EvioBank & event, uint32_t extraDataLen);
+        bool addEvent(EvioBank & event);
+        bool addEvent(EvioBank & event, uint32_t extraDataLen);
 
-    bool addEvent(std::shared_ptr<EvioBank> & event);
-    bool addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen);
+        bool addEvent(std::shared_ptr<EvioBank> & event);
+        bool addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen);
 
-    void reset();
+        void reset();
 
-    void setStartingBufferPosition(size_t pos);
+        void setStartingBufferPosition(size_t pos);
 
-    void build();
-    void build(const ByteBuffer & userHeader);
+        void build();
+        void build(std::shared_ptr<ByteBuffer> userHeader);
+        void build(const ByteBuffer & userHeader);
 
-};
+    };
 
 }
 
