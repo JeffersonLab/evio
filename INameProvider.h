@@ -14,6 +14,7 @@
 
 
 #include <string>
+#include <memory>
 #include "BaseStructure.h"
 
 #ifndef EVIO_6_0_INAMEPROVIDER_H
@@ -53,7 +54,7 @@ namespace evio {
          * @param structure the structure to find the name of.
          * @return a descriptive name, e.g., "Edep".
          */
-        virtual std::string getName(BaseStructure & structure) = 0;
+        virtual std::string getName(std::shared_ptr<BaseStructure> & structure) = 0;
     };
 }
 
