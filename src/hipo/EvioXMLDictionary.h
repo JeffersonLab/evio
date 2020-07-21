@@ -16,17 +16,17 @@
 #include <sstream>
 
 
-#include "BaseStructure.h"
 #include "EvioDictionaryEntry.h"
 #include "EvioException.h"
 #include "Util.h"
-#include "INameProvider.h"
+#include "BaseStructure.h"
 #include "pugixml.hpp"
 
 
 namespace evio {
 
-
+    // forward declaration
+    //class BaseStructure;
 
     /**
      * This was developed to read the xml dictionary that Maurizio uses for GEMC.
@@ -49,7 +49,7 @@ namespace evio {
      * @author heddle
      * @author timmer
      */
-    class EvioXMLDictionary /*: public INameProvider*/ {
+    class EvioXMLDictionary {
 
     private:
 
@@ -168,7 +168,18 @@ namespace evio {
 public:
 
 
-    /**
+        /**
+         * Get a string used to indicate that no name can be determined.
+         * @return string used to indicate that no name can be determined.
+         */
+        static const std::string& NO_NAME_STRING() {
+            // Initialize the static variable
+            static std::string s("???");
+            return s;
+        }
+
+
+        /**
      * Create an EvioXMLDictionary from an xml file.
      * @param file file containing xml.
      */
@@ -892,23 +903,27 @@ public:
 
     public:
 
-
         /**
          * Returns the name of a given evio structure.
-         * This is the method used in BaseStructure.toString() (and therefore
-         * also in JEventViewer), to assign a dictionary entry to a particular
-         * evio structure.
+         * This is the method used in BaseStructure.toString()
+         * to assign a dictionary entry to a particular evio structure.
          *
          * @param structure the structure to find the name of.
          * @param numValid  is num being used (ie is this an EvioBank / EvioEvent (true) or
          * and EvioSegment / EvioTagSegment (false))?
          * @return a descriptive name or ??? if none found
          */
-        std::string getName(BaseStructure & structure, bool numValid) {
-            uint16_t tag = structure.getHeader()->getTag();
-            uint8_t  num = structure.getHeader()->getNumber();
+        std::string getName(std::shared_ptr<BaseStructure> & structure) {
+            if (structure == nullptr) {
+                NO_NAME_STRING();
+            }
 
-            if (numValid) {
+            auto const & header = structure->getHeader();
+            DataType const & type = header->getDataType();
+            uint16_t tag = header->getTag();
+
+            if (type.isBank()) {
+                uint8_t  num = header->getNumber();
                 return getName(tag, num);
             }
             else {
@@ -1161,7 +1176,7 @@ public:
             EvioDictionaryEntry::EvioDictionaryEntryType entryType = key->getEntryType();
 
             // name = ???
-            std::string name = INameProvider::NO_NAME_STRING();
+            std::string name = NO_NAME_STRING();
 
             switch (entryType) {
                 case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM: {
