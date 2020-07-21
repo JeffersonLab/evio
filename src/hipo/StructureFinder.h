@@ -38,7 +38,7 @@ namespace evio {
          * @param vec    vector provided to contain all structures that are accepted by the filter for the provided event.
          */
         static void getMatchingStructures(std::shared_ptr<BaseStructure> structure,
-                                         std::shared_ptr<IEvioFilter> & filter,
+                                         std::shared_ptr<IEvioFilter> filter,
                                          std::vector<std::shared_ptr<BaseStructure>> & vec) {
             if (structure == nullptr) {
                 std::cout << "getMatchingStructures: returning null list" << std::endl;
@@ -61,15 +61,17 @@ namespace evio {
                                      std::vector<std::shared_ptr<BaseStructure>> & vec) {
 
             class myFilter : public IEvioFilter {
+                uint16_t tag; uint8_t num;
             public:
-                bool accept(StructureType const & type, std::shared_ptr<BaseStructure> structure) override {
+                myFilter(uint16_t tag, uint8_t num) : tag(tag), num(num) {}
+                bool accept(StructureType const & type, std::shared_ptr<BaseStructure> struc) override {
                     return ((type == StructureType::STRUCT_BANK) &&
-                            (tag == struct->getHeader()->getTag()) &&
-                            (num == struct->getHeader()->getNumber()));
+                            (tag == struc->getHeader()->getTag()) &&
+                            (num == struc->getHeader()->getNumber()));
                 }
              };
 
-            auto filter = std::make_shared<myFilter>();
+            auto filter = std::make_shared<myFilter>(tag, num);
             return getMatchingStructures(structure, filter, vec);
         }
 
@@ -83,13 +85,15 @@ namespace evio {
                                           std::vector<std::shared_ptr<BaseStructure>> & vec) {
 
             class myFilter : public IEvioFilter {
+                uint16_t tag;
             public:
-                bool accept(StructureType const & structureType, std::shared_ptr<BaseStructure> structure) override {
-                    return (tag == struct->getHeader()->getTag());
+                myFilter(uint16_t tag) : tag(tag) {}
+                bool accept(StructureType const & structureType, std::shared_ptr<BaseStructure> struc) override {
+                    return (tag == struc->getHeader()->getTag());
                 }
             };
 
-            auto filter = std::make_shared<myFilter>();
+            auto filter = std::make_shared<myFilter>(tag);
             return getMatchingStructures(structure, filter, vec);
         }
 
@@ -104,14 +108,16 @@ namespace evio {
                                         std::vector<std::shared_ptr<BaseStructure>> & vec) {
 
             class myFilter : public IEvioFilter {
+                uint16_t tag;
             public:
-                bool accept(StructureType const & structureType, std::shared_ptr<BaseStructure> structure) override {
+                myFilter(uint16_t tag) : tag(tag) {}
+                bool accept(StructureType const & type, std::shared_ptr<BaseStructure> struc) override {
                     return ((type != StructureType::STRUCT_BANK) &&
-                            (tag == struct->getHeader()->getTag()));
+                            (tag == struc->getHeader()->getTag()));
                 }
             };
 
-            auto filter = std::make_shared<myFilter>();
+            auto filter = std::make_shared<myFilter>(tag);
             return getMatchingStructures(structure, filter, vec);
         }
 
@@ -135,13 +141,13 @@ namespace evio {
                 std::string name;
                 EvioXMLDictionary & dict;
             public:
-                myFilter(std::string const & name, EvioXMLDictionary & dictionary) :
-                        name(name), dict(dictionary) {}
+                myFilter(std::string const & name, EvioXMLDictionary & dict) :
+                        name(name), dict(dict) {}
 
                 bool accept(StructureType const & structureType,
-                            std::shared_ptr<BaseStructure> struct) override {
+                            std::shared_ptr<BaseStructure> struc) override {
                     // If this structure matches the name, add it to the list
-                    return (name == dictionary.getName(struct));
+                    return (name == dict.getName(struc));
                 }
             };
 
@@ -169,19 +175,19 @@ namespace evio {
                 std::string name;
                 EvioXMLDictionary & dict;
             public:
-                myFilter(std::string const & name, EvioXMLDictionary & dictionary) :
-                        name(name), dict(dictionary) {}
+                myFilter(std::string const & name, EvioXMLDictionary & dict) :
+                        name(name), dict(dict) {}
 
                 bool accept(StructureType const & structureType,
-                            std::shared_ptr<BaseStructure> struct) override {
+                            std::shared_ptr<BaseStructure> struc) override {
 
-                    auto parent = struct->getParent();
+                    auto parent = struc->getParent();
                     if (parent == nullptr) {
                         return false;
                     }
 
                     // If this parent matches the name, add it to the list
-                    return (name == dictionary.getName(parent));
+                    return (name == dict.getName(parent));
                 }
             };
 
@@ -209,19 +215,19 @@ namespace evio {
                 std::string name;
                 EvioXMLDictionary & dict;
             public:
-                myFilter(std::string const & name, EvioXMLDictionary & dictionary) :
-                        name(name), dict(dictionary) {}
+                myFilter(std::string const & name, EvioXMLDictionary & dict) :
+                        name(name), dict(dict) {}
 
                 bool accept(StructureType const & structureType,
-                            std::shared_ptr<BaseStructure> struct) override {
+                            std::shared_ptr<BaseStructure> struc) override {
 
-                    auto children = struct->getChildren();
+                    auto children = struc->getChildren();
                     if (children.empty()) {
                         return false;
                     }
 
                     for (auto child : children) {
-                        if (name == dictionary.getName(child)) {
+                        if (name == dict.getName(child)) {
                             // If this child matches the name, add it to the list
                             return true;
                         }
@@ -235,10 +241,7 @@ namespace evio {
             return getMatchingStructures(structure, filter, vec);
         }
 
-
-    }
-
-
+    };
 
 
 }
