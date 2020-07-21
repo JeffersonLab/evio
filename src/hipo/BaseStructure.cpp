@@ -1,9 +1,8 @@
 //
-// Copyright (c) 2020, Jefferson Science Associates
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
-// Thomas Jefferson National Accelerator Facility
 // EPSCI Group
-//
 // 12000, Jefferson Ave, Newport News, VA 23606
 // Phone : (757)-269-7100
 //
@@ -1356,6 +1355,101 @@ namespace evio {
         }
 
         return count;
+    }
+
+
+    //
+    //  Tree Traversal and Searching
+    //
+
+
+    /**
+      * Visit all the structures in this structure (including the structure itself --
+      * which is considered its own descendant).
+      * This is similar to listening to the event as it is being parsed,
+      * but is done to a complete (already) parsed event.
+      *
+      * @param listener an listener to notify as each structure is visited.
+      */
+    void BaseStructure::vistAllStructures(std::shared_ptr<IEvioListener> listener) {
+        visitAllDescendants(getThis(), listener, nullptr);
+    }
+
+    /**
+     * Visit all the structures in this structure (including the structure itself --
+     * which is considered its own descendant) in a depth first manner.
+     *
+     * @param listener a listener to notify as each structure is visited.
+     * @param filter an optional filter that must "accept" structures before
+     *               they are passed to the listener. If <code>null</code>, all
+     *               structures are passed. In this way, specific types of
+     *               structures can be captured.
+     */
+    void BaseStructure::vistAllStructures(std::shared_ptr<IEvioListener> listener,
+                                          std::shared_ptr<IEvioFilter> filter) {
+        visitAllDescendants(getThis(), listener, filter);
+    }
+
+
+   /**
+    * Visit all the descendants of a given structure
+    * (which is considered a descendant of itself.)
+    *
+    * @param structure the starting structure.
+    * @param listener a listener to notify as each structure is visited.
+    * @param filter an optional filter that must "accept" structures before
+    *               they are passed to the listener. If <code>null</code>, all
+    *               structures are passed. In this way, specific types of
+    *               structures can be captured.
+    */
+    void BaseStructure::visitAllDescendants(std::shared_ptr<BaseStructure> structure,
+                                            std::shared_ptr<IEvioListener> listener,
+                                            std::shared_ptr<IEvioFilter>   filter) {
+        if (listener != nullptr) {
+            bool accept = true;
+            if (filter != nullptr) {
+                accept = filter->accept(structure->getStructureType(), structure);
+            }
+
+            if (accept) {
+                listener->gotStructure(getThis(), structure);
+            }
+        }
+
+        if (!(structure->isLeaf())) {
+            for (auto const & child : structure->getChildren()) {
+                visitAllDescendants(child, listener, filter);
+            }
+        }
+    }
+
+
+    /**
+     * Visit all the descendant structures, and collect those that pass a filter.
+     * @param filter the filter that must be passed. If <code>null</code>,
+     *               this will return all the structures.
+     * @param vec    vector provided to contain all structures that are accepted by the filter.
+     */
+    void BaseStructure::getMatchingStructures(std::shared_ptr<IEvioFilter> filter,
+                                              std::vector<std::shared_ptr<BaseStructure>> & vec) {
+
+        class myListener : public IEvioListener {
+            std::vector<std::shared_ptr<BaseStructure>> & vec;
+          public:
+            explicit myListener(std::vector<std::shared_ptr<BaseStructure>> & v) : vec(v) {}
+
+            void startEventParse(std::shared_ptr<BaseStructure> structure) { }
+            void endEventParse(std::shared_ptr<BaseStructure> structure) { }
+            void gotStructure(std::shared_ptr<BaseStructure> topStructure,
+                              std::shared_ptr<BaseStructure> structure) {
+                vec.push_back(structure);
+            }
+        };
+
+        vec.clear();
+        auto listener = std::make_shared<myListener>(vec);
+
+        vistAllStructures(listener, filter);
     }
 
 

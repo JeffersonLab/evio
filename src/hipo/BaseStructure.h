@@ -36,6 +36,9 @@
 #include "BaseStructureHeader.h"
 #include "CompositeData.h"
 
+#include "IEvioListener.h"
+#include "IEvioFilter.h"
+
 
 using namespace std::chrono_literals;
 
@@ -485,6 +488,21 @@ namespace evio {
         std::shared_ptr<BaseStructure> getNextLeaf();
         std::shared_ptr<BaseStructure> getPreviousLeaf();
         ssize_t getLeafCount();
+
+        //
+        //  Tree Traversal and Searching
+        //
+
+        void vistAllStructures(std::shared_ptr<IEvioListener> listener);
+        void vistAllStructures(std::shared_ptr<IEvioListener> listener,
+                               std::shared_ptr<IEvioFilter> filter);
+        void getMatchingStructures(std::shared_ptr<IEvioFilter> filter,
+                                   std::vector<std::shared_ptr<BaseStructure>> & vec);
+    private:
+        void visitAllDescendants(std::shared_ptr<BaseStructure> structure,
+                                 std::shared_ptr<IEvioListener> listener,
+                                 std::shared_ptr<IEvioFilter> filter);
+
 
 
         //---------------------------------------------
