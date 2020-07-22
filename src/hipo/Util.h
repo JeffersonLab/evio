@@ -178,10 +178,49 @@ namespace evio {
 
 
         /**
+         * Turn 4 bytes into an unsigned 32 bit int.
+         *
+         * @param data pointer to bytes to convert
+         * @return int converted from byte array
+         * @throws EvioException if data is null
+         */
+        static uint64_t toLong(uint8_t const * data, ByteOrder const & byteOrder) {
+            if (data == nullptr) {
+                throw EvioException("null arg");
+            }
+
+            if (byteOrder == ByteOrder::ENDIAN_BIG) {
+                return (
+                        (uint64_t)(0xff & data[0]) << 56 |
+                        (uint64_t)(0xff & data[1]) << 48 |
+                        (uint64_t)(0xff & data[2]) << 40 |
+                        (uint64_t)(0xff & data[3]) << 32 |
+                        (uint64_t)(0xff & data[4]) << 24 |
+                        (uint64_t)(0xff & data[5]) << 16 |
+                        (uint64_t)(0xff & data[6]) <<  8 |
+                        (uint64_t)(0xff & data[7])
+                );
+            }
+            else {
+                return (
+                        (uint64_t)(0xff & data[0])       |
+                        (uint64_t)(0xff & data[1]) <<  8 |
+                        (uint64_t)(0xff & data[2]) << 16 |
+                        (uint64_t)(0xff & data[3]) << 24 |
+                        (uint64_t)(0xff & data[4]) << 32 |
+                        (uint64_t)(0xff & data[5]) << 40 |
+                        (uint64_t)(0xff & data[6]) << 48 |
+                        (uint64_t)(0xff & data[7]) << 56
+                );
+            }
+        }
+
+
+        /**
          * Write int into byte array.
          *
          * @param data        int to convert.
-         * @param byteOrder   byte order of array.
+         * @param byteOrder   byte order of written bytes.
          * @param dest        array in which to write int.
          * @param destMaxSize max size in bytes of dest array.
          * @throws EvioException if dest is null or too small.
@@ -203,6 +242,43 @@ namespace evio {
                 dest[1] = (uint8_t)(data >>  8);
                 dest[2] = (uint8_t)(data >> 16);
                 dest[3] = (uint8_t)(data >> 24);
+            }
+        }
+
+
+        /**
+         * Turn long into byte array.
+         *
+         * @param data       long to convert.
+         * @param byteOrder  byte order of written bytes.
+         * @param dest       array in which to write long.
+         * @throws EvioException if dest is null or too small
+         */
+        static void toBytes(uint64_t data, const ByteOrder & byteOrder, uint8_t* dest) {
+
+            if (dest == nullptr) {
+                throw EvioException("bad arg(s)");
+            }
+
+            if (byteOrder == ByteOrder::ENDIAN_BIG) {
+                dest[0] = (uint8_t)(data >> 56);
+                dest[1] = (uint8_t)(data >> 48);
+                dest[2] = (uint8_t)(data >> 40);
+                dest[3] = (uint8_t)(data >> 32);
+                dest[4] = (uint8_t)(data >> 24);
+                dest[5] = (uint8_t)(data >> 16);
+                dest[6] = (uint8_t)(data >>  8);
+                dest[7] = (uint8_t)(data      );
+            }
+            else {
+                dest[0] = (uint8_t)(data      );
+                dest[1] = (uint8_t)(data >>  8);
+                dest[2] = (uint8_t)(data >> 16);
+                dest[3] = (uint8_t)(data >> 24);
+                dest[4] = (uint8_t)(data >> 32);
+                dest[5] = (uint8_t)(data >> 40);
+                dest[6] = (uint8_t)(data >> 48);
+                dest[7] = (uint8_t)(data >> 56);
             }
         }
 
