@@ -1,16 +1,15 @@
 //
-// Created by timmer on 2/19/20.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 /**
- * Copyright (c) 2019, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
+ * Class used for testing C++ based ring buffer code.
  * @date 07/05/2019
  * @author timmer
  */
@@ -18,8 +17,6 @@
 
 #include <string>
 #include <cstdint>
-#include <cstdlib>
-#include <cstdio>
 #include <chrono>
 #include <thread>
 #include <memory>
@@ -28,6 +25,7 @@
 
 
 #include "Disruptor/RingBuffer.h"
+
 
 using namespace std;
 using namespace Disruptor;
