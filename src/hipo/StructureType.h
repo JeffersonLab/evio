@@ -51,8 +51,6 @@ namespace evio {
         /** Name of this structure type. */
         std::string name;
 
-    private:
-
         /** Fast way to convert integer values into StructureType objects. */
         static StructureType intToType[33]; // 0x20 + 1 = 33
 
