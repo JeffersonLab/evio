@@ -44,7 +44,7 @@ namespace evio {
         uint32_t getHeaderLength() override;
         string   toString() override;
 
-        size_t write(std::shared_ptr<ByteBuffer> & dest);
+        size_t write(std::shared_ptr<ByteBuffer> & dest) override ;
         size_t write(ByteBuffer & dest) override;
         size_t write(uint8_t *dest, ByteOrder const & order) override;
     };

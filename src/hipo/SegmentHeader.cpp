@@ -1,14 +1,15 @@
 //
-// Copyright (c) 2020, Jefferson Science Associates
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
-// Thomas Jefferson National Accelerator Facility
 // EPSCI Group
-//
+// Thomas Jefferson National Accelerator Facility
 // 12000, Jefferson Ave, Newport News, VA 23606
-// Phone : (757)-269-7100
-//
+// (757)-269-7100
+
 
 #include "SegmentHeader.h"
+
 
 namespace evio {
 
@@ -28,6 +29,7 @@ namespace evio {
       * @return Get the length of the structure's header in ints.
       */
     uint32_t SegmentHeader::getHeaderLength() {return 1;}
+
 
     /**
      * Write myself out as evio format data
@@ -54,6 +56,19 @@ namespace evio {
         return 4;
     }
 
+
+    /**
+     * Write myself out a byte buffer.
+     * This write is relative - i.e., it uses the current position of the buffer.
+     *
+     * @param byteBuffer the byteBuffer to write to.
+     * @return the number of bytes written, which for a SegmentHeader is 4.
+     */
+    size_t SegmentHeader::write(std::shared_ptr<ByteBuffer> & byteBuffer) {
+        return write(*(byteBuffer.get()));
+    }
+
+
     /**
      * Write myself out a byte buffer.
      * This write is relative - i.e., it uses the current position of the buffer.
@@ -76,6 +91,7 @@ namespace evio {
         return 4;
     }
 
+
     /**
      * Obtain a string representation of the segment header.
      * @return a string representation of the segment header.
@@ -90,8 +106,5 @@ namespace evio {
 
         return ss.str();
     }
-
-
-
 
 }
