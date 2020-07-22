@@ -1,18 +1,16 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 01/22/2020
- * @author timmer
- */
+//
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_RECORDCOMPRESSOR_H
 #define EVIO_6_0_RECORDCOMPRESSOR_H
+
 
 #include <iostream>
 #include <iomanip>
@@ -20,10 +18,12 @@
 #include <thread>
 #include <memory>
 
+
 #include "RecordOutput.h"
 #include "RecordHeader.h"
 #include "Compressor.h"
 #include "RecordSupply.h"
+
 
 #include "Disruptor/Util.h"
 #include <boost/thread.hpp>
@@ -36,6 +36,10 @@ namespace evio {
      * Class used to create a thread which takes data-filled records from a RingBuffer-backed
      * RecordSupply, compresses them, and places them back into the supply.
      * It is an interruptible thread from the boost library.
+     * <b>This of use internally only.</b>
+     *
+     * @date 01/22/2020
+     * @author timmer
      */
     class RecordCompressor {
 
