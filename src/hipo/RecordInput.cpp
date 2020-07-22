@@ -571,7 +571,7 @@ namespace evio {
             default:
                 // TODO: See if we can avoid this unnecessary copy!
                 // Read uncompressed data - rest of record
-                int len = recordLengthBytes - headerLength;
+                uint32_t len = recordLengthBytes - headerLength;
                 std::memcpy((void *)dataBuffer->array(),
                             (const void *)(buffer.array() + buffer.arrayOffset() + compDataOffset), len);
         }
@@ -740,7 +740,7 @@ namespace evio {
      */
     uint32_t RecordInput::getEntries() const {return nEntries;}
 
-    
+
     /**
      * Prints on the screen the index array of the record.
      */
