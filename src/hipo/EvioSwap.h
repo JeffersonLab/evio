@@ -181,7 +181,7 @@ namespace evio {
             swapLeafData(type, *(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len, inPlace);
         }
 
-        
+
         /**
          * This method swaps the data of an evio leaf structure. In other words the
          * structure being swapped does not contain evio structures.
