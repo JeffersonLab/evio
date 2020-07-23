@@ -29,7 +29,7 @@ namespace evio {
     /**
      * Make a common interface for different versions of the BlockHeader arising from
      * different evio versions. In evio version 4 and later, blocks are called records.
-     * 
+     *
      * @date 06/5/2020
      * @author timmer
      */
