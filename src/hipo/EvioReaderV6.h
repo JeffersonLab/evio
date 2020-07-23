@@ -1,14 +1,22 @@
 //
-// Created by Carl Timmer on 6/16/20.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_EVIOREADERV6_H
 #define EVIO_6_0_EVIOREADERV6_H
+
 
 #include <fstream>
 #include <vector>
 #include <memory>
 #include <mutex>
+
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -60,39 +68,16 @@ namespace evio {
         /** Mutex used for making thread safe. */
         std::mutex mtx;
 
-        //------------------------
-        // File specific members
-        //------------------------
-
-//        /** Absolute path of the underlying file. */
-//        string path;
-//
-//        /** File input stream. */
-//        ifstream file;
-//
-//        /** File size in bytes. */
-//        size_t fileBytes = 0;
-//
-//        /** Do we need to swap data from file? */
-//        bool swap = false;
-//
-//        /**
-//         * Read this file sequentially and not using a memory mapped buffer.
-//         * If the file being read > 2.1 GBytes, then this is always true.
-//         */
-//        bool sequentialRead = false;
-
-
-        //------------------------
 
     public:
+
 
         explicit EvioReaderV6(string const & path, bool checkRecNumSeq = false, bool synced = false);
         explicit EvioReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkRecNumSeq = false, bool synced = false);
 
 
-        /*synchronized */ void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
-        /*synchronized*/ bool isClosed() override ;
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
+        bool isClosed() override ;
         bool checkBlockNumberSequence() override ;
         ByteOrder & getByteOrder() override ;
         uint32_t getEvioVersion() override ;
@@ -109,24 +94,24 @@ namespace evio {
         size_t fileSize() override ;
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
 
-        /*synchronized*/ std::shared_ptr<EvioEvent> getEvent(size_t index) override ;
-        /*synchronized*/ std::shared_ptr<EvioEvent> parseEvent(size_t index) override ;
-        /*synchronized*/ std::shared_ptr<EvioEvent> nextEvent() override ;
-        /*synchronized*/ std::shared_ptr<EvioEvent> parseNextEvent() override ;
+        std::shared_ptr<EvioEvent> getEvent(size_t index) override ;
+        std::shared_ptr<EvioEvent> parseEvent(size_t index) override ;
+        std::shared_ptr<EvioEvent> nextEvent() override ;
+        std::shared_ptr<EvioEvent> parseNextEvent() override ;
         void parseEvent(std::shared_ptr<EvioEvent> evioEvent) override ;
 
         uint32_t getEventArray(size_t evNumber, std::vector<uint8_t> & vec) override;
         uint32_t getEventBuffer(size_t evNumber, ByteBuffer & buf) override;
 
         void rewind() override ;
-        /*synchronized */ size_t position() override ;
-        /*synchronized*/ void close() override ;
+        ssize_t position() override ;
+        void close() override ;
 
         std::shared_ptr<IBlockHeader> getCurrentBlockHeader() override ;
-        /*synchronized*/ std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber) override ;
+        std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber) override ;
 
-        /*synchronized*/ size_t getEventCount() override ;
-        /*synchronized*/ size_t getBlockCount() override ;
+        size_t getEventCount() override ;
+        size_t getBlockCount() override ;
     };
 
 }

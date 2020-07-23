@@ -65,6 +65,7 @@ namespace evio {
         }
     }
 
+
     //------------------------
 
 
@@ -78,8 +79,7 @@ namespace evio {
      *                       and throw an exception if it is not sequential starting
      *                       with 1
      * @see EventWriter
-     * @throws IOException   if read failure
-     * @throws EvioException if file arg is null;
+     * @throws EvioException if file arg is null; if read failure;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
     EvioReaderV4::EvioReaderV4(string const & path, bool checkBlkNumSeq, bool synced) {
@@ -328,18 +328,13 @@ namespace evio {
     }
 
 
-    /**
-     * This method can be used to avoid creating additional EvioReader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
-     *
-     * @param buf ByteBuffer to be read
-     * @throws IOException   if read failure
-     * @throws EvioException if buf is null;
-     *                       if first block number != 1 when checkBlkNumSeq arg is true
-     */
-    void EvioReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+    /** {@inheritDoc} */
+   void EvioReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         close();
+
+        if (buf == nullptr) {
+            throw EvioException("null buf arg");
+        }
 
         lastBlock           =  false;
         eventNumber         =  0;
@@ -371,94 +366,61 @@ namespace evio {
         closed = false;
     }
 
-    /**
-     * Has {@link #close()} been called (without reopening by calling
-     * {@link #setBuffer(ByteBuffer)})?
-     *
-     * @return {@code true} if this object closed, else {@code false}.
-     */
+
+    /** {@inheritDoc} */
     bool EvioReaderV4::isClosed() {return closed;}
 
-    /**
-     * Is this reader checking the block number sequence and
-     * throwing an exception is it's not sequential and starting with 1?
-     * @return <code>true</code> if checking block number sequence, else <code>false</code>
-     */
+
+    /** {@inheritDoc} */
     bool EvioReaderV4::checkBlockNumberSequence() {return checkBlockNumSeq;}
 
-    /**
-     * Get the byte order of the file/buffer being read.
-     * @return byte order of the file/buffer being read.
-     */
+
+    /** {@inheritDoc} */
     ByteOrder & EvioReaderV4::getByteOrder() {return byteOrder;}
 
-    /**
-     * Get the evio version number.
-     * @return evio version number.
-     */
+
+    /** {@inheritDoc} */
     uint32_t EvioReaderV4::getEvioVersion() {return evioVersion;}
 
-    /**
-      * Get the path to the file.
-      * @return path to the file
-      */
+
+    /** {@inheritDoc} */
     string EvioReaderV4::getPath() {return path;}
 
-    /**
-     * Get the file/buffer parser.
-     * @return file/buffer parser.
-     */
+
+    /** {@inheritDoc} */
     std::shared_ptr<EventParser> & EvioReaderV4::getParser() {return parser;}
 
-    /**
-     * Set the file/buffer parser.
-     * @param evParser file/buffer parser.
-     */
+
+    /** {@inheritDoc} */
     void EvioReaderV4::setParser(std::shared_ptr<EventParser> & evParser) {parser = evParser;}
 
-    /**
-    * Get the XML format dictionary if there is one.
-    * @return XML format dictionary if there is one, else empty string.
-    */
+
+    /** {@inheritDoc} */
     string EvioReaderV4::getDictionaryXML() {return dictionaryXML;}
 
-    /**
-     * Does this evio file have an associated XML dictionary?
-     * @return <code>true</code> if this evio file has an associated XML dictionary,
-     *         else <code>false</code>
-     */
+
+    /** {@inheritDoc} */
     bool EvioReaderV4::hasDictionaryXML() {return !dictionaryXML.empty();}
 
-    /**
-     * Get the number of events remaining in the file.
-     * @return number of events remaining in the file
-     * @throws IOException if failed file access
-     * @throws EvioException if failed reading from coda v3 file
-     */
+
+    /** {@inheritDoc} */
     size_t EvioReaderV4::getNumEventsRemaining() {return getEventCount() - eventNumber;}
 
+
     /**
-     * Get the byte buffer being read directly or corresponding to the event file.
-     * Not a very useful method. For files, it works only for evio format versions 2,3 and
+     * {@inheritDoc}.
+     * For files, it works only for evio format versions 2,3 and
      * returns the internal buffer containing an evio block if using sequential access
      * (for example files &gt; 2.1 GB). It returns the memory mapped buffer otherwise.
-     * For reading buffers it returns the buffer being read.
-     * @return the byte buffer being read (in certain cases).
      */
     std::shared_ptr<ByteBuffer> EvioReaderV4::getByteBuffer() {return byteBuffer;}
 
-    /**
-     * Get the size of the file being read, in bytes.
-     * For small files, obtain the file size using the memory mapped buffer's capacity.
-     * @return the file size in bytes
-     */
+
+    /** {@inheritDoc} */
     size_t EvioReaderV4::fileSize() {return fileBytes;}
 
 
-    /**
-     * This returns the FIRST block (physical record) header.
-     * @return the first block header.
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<IBlockHeader> EvioReaderV4::getFirstBlockHeader() {return firstBlockHeader;}
 
 
@@ -597,7 +559,7 @@ namespace evio {
      * Reads the first block header into a buffer and gets that
      * buffer ready for first-time read.
      *
-     * @throws IOException if file access problems
+     * @throws EvioException if file access problems
      */
     void EvioReaderV4::prepareForSequentialRead() {
         // Create a buffer to hold a chunk of data.
@@ -868,6 +830,7 @@ namespace evio {
      *
      * @since 4.0
      * @param buffer buffer to read to get dictionary
+     * @throws underflow_error if not enough data in buffer.
      * @throws EvioException if failed read due to bad buffer format;
      *                       if version 3 or earlier
      */
@@ -880,7 +843,7 @@ namespace evio {
         // How many bytes remain in this buffer?
         size_t bytesRemaining = buffer->remaining();
         if (bytesRemaining < 12) {
-            throw EvioException("Not enough data in buffer");
+            throw std::underflow_error("Not enough data in buffer");
         }
 
         // Once here, we are assured the entire next event is in this buffer.
@@ -910,18 +873,8 @@ namespace evio {
         dictionaryXML = strs[0];
     }
 
-    /**
-     * Get the event in the file/buffer at a given index (starting at 1).
-     * As useful as this sounds, most applications will probably call
-     * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.<p>
-     *
-     * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
-     * @return the event in the file/buffer at the given index or null if none
-     * @throws IOException   if failed file access
-     * @throws EvioException if failed read due to bad file/buffer format;
-     *                       if object closed
-     */
+
+    /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::getEvent(size_t index) {
         if (sequentialRead || evioVersion < 4) {
             // Do not fully parse events up to index_TH event
@@ -999,16 +952,7 @@ namespace evio {
     }
 
 
-    /**
-     * This is a workhorse method. It retrieves the desired event from the file/buffer,
-     * and then parses it SAX-like. It will drill down and uncover all structures
-     * (banks, segments, and tagsegments) and notify any interested listeners.
-     *
-     * @param  index number of event desired, starting at 1, from beginning of file/buffer
-     * @return the parsed event at the given index or null if none
-     * @throws EvioException if failed read due to bad file/buffer format;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::parseEvent(size_t index) {
         // Lock this method
         if (synchronized) {
@@ -1021,22 +965,7 @@ namespace evio {
     }
 
 
-    /**
-     * Get the next event in the file/buffer. As useful as this sounds, most
-     * applications will probably call {@link #parseNextEvent()} instead, since
-     * it combines getting the next event with parsing the next event.<p>
-     *
-     * Although this method can get events in versions 4+, it now delegates that
-     * to another method. No changes were made to this method from versions 1-3 in order
-     * to read the version 4 format as it is subset of versions 1-3 with variable block
-     * length.
-     *
-     * @return the next event in the file.
-     *         On error it throws an EvioException.
-     *         On end of file, it returns <code>null</code>.
-     * @throws EvioException if failed read due to bad buffer format;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::nextEvent() {
 
         // Lock this method
@@ -1178,18 +1107,7 @@ namespace evio {
     }
 
 
-    /**
-     * This is a workhorse method. It retrieves the next event from the file/buffer,
-     * and then parses it SAX-like. It will drill down and uncover all structures
-     * (banks, segments, and tagsegments) and notify any interested listeners.
-     *
-     * @return the event that was parsed.
-     *         On error it throws an EvioException.
-     *         On end of file, it returns <code>null</code>.
-     * @throws IOException if failed file access
-     * @throws EvioException if read failure or bad format
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::parseNextEvent() {
         // Lock this method
         if (synchronized) {
@@ -1203,22 +1121,13 @@ namespace evio {
         return event;
     }
 
-    /**
-     * This will parse an event, SAX-like. It will drill down and uncover all structures
-     * (banks, segments, and tagsegments) and notify any interested listeners.<p>
-     *
-     * As useful as this sounds, most applications will probably call {@link #parseNextEvent()}
-     * instead, since it combines combines getting the next event with parsing the next event.<p>
-     *
-     * This method is only called by locked methods and therefore is not locked itself.
-     *
-     * @param evioEvent the event to parse.
-     * @throws EvioException if bad format
-     */
+
+    /** {@inheritDoc} */
     void EvioReaderV4::parseEvent(std::shared_ptr<EvioEvent> evioEvent) {
         // This method is called by locked methods
         parser->parseEvent(evioEvent);
     }
+
 
     /** {@inheritDoc} */
     uint32_t EvioReaderV4::getEventArray(size_t evNumber, std::vector<uint8_t> & vec) {
@@ -1234,15 +1143,8 @@ namespace evio {
         return numBytes;
     }
 
-    /**
-     * Get an evio bank or event in ByteBuffer form.
-     * @param evNumber number of event of interest
-     * @return buffer containing bank's/event's bytes.
-     * @throws IOException if failed file access
-     * @throws EvioException if eventNumber &lt; 1;
-     *                       if the event number does not correspond to an existing event;
-     *                       if object closed
-     */
+
+    /** {@inheritDoc} */
     uint32_t EvioReaderV4::getEventBuffer(size_t evNumber, ByteBuffer & buf) {
         auto ev = gotoEventNumber(evNumber, false);
         if (ev == nullptr) {
@@ -1257,12 +1159,14 @@ namespace evio {
         return numBytes;
     }
 
+
     /**
      * Get the number of bytes remaining in the internal byte buffer.
      * Called only by {@link #nextEvent()}.
      * @return the number of bytes remaining in the current block (physical record).
      */
     size_t EvioReaderV4::bufferBytesRemaining() const {return byteBuffer->remaining();}
+
 
     /**
      * Get the number of bytes remaining in the current block (physical record).
@@ -1276,17 +1180,8 @@ namespace evio {
         return blockHeader->bytesRemaining(byteBuffer->position());
     }
 
-    /**
-     * The equivalent of rewinding the file. What it actually does
-     * is set the position of the file/buffer back to where it was
-     * after calling the constructor - after the first header.
-     * This method, along with the two <code>position()</code> and the
-     * <code>close()</code> method, allows applications to treat files
-     * in a normal random access manner.
-     *
-     * @throws IOException   if failed file access or buffer/file read
-     * @throws EvioException if object closed
-     */
+
+    /** {@inheritDoc} */
     void EvioReaderV4::rewind() {
         // Lock this method
         if (synchronized) {
@@ -1326,20 +1221,8 @@ namespace evio {
         }
     }
 
-    /**
-     * This is equivalent to obtaining the current position in the file.
-     * What it actually does is return the position of the buffer. This
-     * method, along with the <code>rewind()</code>, <code>position(int)</code>
-     * and the <code>close()</code> method, allows applications to treat files
-     * in a normal random access manner. Only meaningful to evio versions 1-3
-     * and for sequential reading.<p>
-     *
-     * @return the position of the buffer; -1 if version 4+
-     * @throws IOException   if error accessing file
-     * @throws EvioException if object closed
-     */
-// TODO:: return -1 !!!!!!!!!!
-    size_t EvioReaderV4::position() {
+    /** {@inheritDoc} */
+    ssize_t EvioReaderV4::position() {
         // Lock this method
         if (synchronized) {
             const std::lock_guard<std::mutex> lock(mtx);
@@ -1357,14 +1240,7 @@ namespace evio {
         return byteBuffer->position();
     }
 
-    /**
-     * This is closes the file, but for buffers it only sets the position to 0.
-     * This method, along with the <code>rewind()</code> and the two
-     * <code>position()</code> methods, allows applications to treat files
-     * in a normal random access manner.
-     *
-     * @throws IOException if error accessing file
-     */
+    /** {@inheritDoc} */
     void EvioReaderV4::close() {
         // Lock this method
         if (synchronized) {
@@ -1379,32 +1255,21 @@ namespace evio {
             file.close();
         }
         else {
-            byteBuffer->position(initialPosition);
+            try {
+                byteBuffer->position(initialPosition);
+            }
+            catch (EvioException & e) {}
         }
 
         closed = true;
     }
 
-    /**
-     * This returns the current (active) block (physical record) header.
-     * Since most users have no interest in physical records, this method
-     * should not be used. Mostly it is used by the test programs in the
-     * <code>EvioReaderTest</code> class.
-     *
-     * @return the current block header.
-     */
+
+    /** {@inheritDoc} */
     std::shared_ptr<IBlockHeader> EvioReaderV4::getCurrentBlockHeader() {return blockHeader;}
 
-    /**
-     * Go to a specific event in the file. The events are numbered 1..N.
-     * This number is transient--it is not part of the event as stored in the evio file.
-     * In versions 4 and up this is just a wrapper on {@link #getEvent(int)}.
-     *
-     * @param evNumber the event number in a 1..N counting sense, from the start of the file.
-     * @return the specified event in file or null if there's an error or nothing at that event #.
-     * @throws IOException if failed file access
-     * @throws EvioException if object closed
-     */
+
+    /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV4::gotoEventNumber(size_t evNumber) {
         return gotoEventNumber(evNumber, true);
     }
@@ -1418,8 +1283,7 @@ namespace evio {
      * @param  evNumber the event number in a 1,2,..N counting sense, from beginning of file/buffer.
      * @param  parse if {@code true}, parse the desired event
      * @return the specified event in file or null if there's an error or nothing at that event #.
-     * @throws IOException if failed file access
-     * @throws EvioException if object closed
+     * @throws EvioException if object closed; if failed file access
      */
     std::shared_ptr<EvioEvent> EvioReaderV4::gotoEventNumber(size_t evNumber, bool parse) {
         // Lock this method
@@ -1427,65 +1291,52 @@ namespace evio {
             const std::lock_guard<std::mutex> lock(mtx);
         }
 
-        if (evNumber < 1) {
-                return nullptr;
-            }
+        if (closed) {
+            throw EvioException("object closed");
+        }
 
-            if (closed) {
-                throw EvioException("object closed");
-            }
-
-            if (!sequentialRead && evioVersion > 3) {
-                try {
-                    if (parse) {
-                        return parseEvent(evNumber);
-                    }
-                    else {
-                        return getEvent(evNumber);
-                    }
-                }
-                catch (EvioException & e) {
-                    return nullptr;
-                }
-            }
-
-            rewind();
-            std::shared_ptr<EvioEvent> event;
-
+        if (!sequentialRead && evioVersion > 3) {
             try {
-                // get the first evNumber - 1 events without parsing
-                for (int i = 1; i < evNumber; i++) {
-                    event = nextEvent();
-                    if (event == nullptr) {
-                        throw EvioException("Asked to go to event: " + std::to_string(evNumber) +
-                                                ", which is beyond the end of file");
-                    }
-                }
-                // get one more event, the evNumber'th event
                 if (parse) {
-                    return parseNextEvent();
+                    return parseEvent(evNumber);
                 }
                 else {
-                    return nextEvent();
+                    return getEvent(evNumber);
                 }
             }
             catch (EvioException & e) {
-                std::cout << e.what() << std::endl;
+                return nullptr;
             }
-            return nullptr;
+        }
+
+        rewind();
+        std::shared_ptr<EvioEvent> event;
+
+        try {
+            // get the first evNumber - 1 events without parsing
+            for (int i = 1; i < evNumber; i++) {
+                event = nextEvent();
+                if (event == nullptr) {
+                    throw EvioException("Asked to go to event: " + std::to_string(evNumber) +
+                                        ", which is beyond the end of file");
+                }
+            }
+            // get one more event, the evNumber'th event
+            if (parse) {
+                return parseNextEvent();
+            }
+            else {
+                return nextEvent();
+            }
+        }
+        catch (EvioException & e) {
+            std::cout << e.what() << std::endl;
+        }
+        return nullptr;
     }
 
 
-    /**
-     * This is the number of events in the file. Any dictionary event is <b>not</b>
-     * included in the count. In versions 3 and earlier, it is not computed unless
-     * asked for, and if asked for it is computed and cached.
-     *
-     * @return the number of events in the file.
-     * @throws IOException   if failed file access
-     * @throws EvioException if read failure;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     size_t EvioReaderV4::getEventCount() {
 
         // Lock this method
@@ -1539,17 +1390,8 @@ namespace evio {
             return eventCount;
     }
 
-    /**
-     * This is the number of blocks in the file including the empty
-     * block usually at the end of version 4 files/buffers.
-     * For version 3 files, a block size read from the first block is used
-     * to calculate the result.
-     * It is not computed unless in random access mode or is
-     * asked for, and if asked for it is computed and cached.
-     *
-     * @throws EvioException if object closed
-     * @return the number of blocks in the file (estimate for version 3 files)
-     */
+
+    /** {@inheritDoc} */
     size_t EvioReaderV4::getBlockCount() {
 
         // Lock this method

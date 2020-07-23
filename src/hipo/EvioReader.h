@@ -121,7 +121,7 @@ namespace evio {
         uint32_t getEventBuffer(size_t evNumber, ByteBuffer & buf) override;
 
         void rewind() override;
-        size_t position() override;
+        ssize_t position() override;
         void close() override;
 
         std::shared_ptr<IBlockHeader> getCurrentBlockHeader() override;

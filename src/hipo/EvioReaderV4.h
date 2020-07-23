@@ -1,23 +1,24 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 06/8/2020
- * @author timmer
- */
+//
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
 
 #ifndef EVIO_6_0_EVIOREADERV4_H
 #define EVIO_6_0_EVIOREADERV4_H
+
 
 #include <fstream>
 #include <vector>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
+
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -53,7 +54,6 @@ namespace evio {
      *
      * @author heddle (original java version)
      * @author timmer
-     *
      */
     class EvioReaderV4 : public IEvioReader {
 
@@ -167,6 +167,7 @@ namespace evio {
         // File specific members
         //------------------------
 
+
         /** Absolute path of the underlying file. */
         string path;
 
@@ -185,9 +186,11 @@ namespace evio {
          */
         bool sequentialRead = false;
 
+
         //------------------------
         // EvioReader's state
         //------------------------
+
 
         /** Is this object currently closed? */
         bool closed = false;
@@ -221,8 +224,8 @@ namespace evio {
         explicit EvioReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkBlkNumSeq = false, bool synced = false);
 
 
-        /*synchronized*/ void setBuffer(std::shared_ptr<ByteBuffer> & buf) override;
-        /*synchronized*/ bool isClosed() override;
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf) override;
+        bool isClosed() override;
         bool checkBlockNumberSequence() override;
         ByteOrder & getByteOrder() override;
         uint32_t getEvioVersion() override;
@@ -250,14 +253,14 @@ namespace evio {
         void prepareForBufferRead(std::shared_ptr<ByteBuffer> & buffer) const;
 
         void readDictionary(std::shared_ptr<ByteBuffer> & buffer);
-        /*synchronized*/ std::shared_ptr<EvioEvent> getEventV4(size_t index);
+        std::shared_ptr<EvioEvent> getEventV4(size_t index);
 
     public:
 
         std::shared_ptr<EvioEvent> getEvent(size_t index) override ;
-        /*synchronized*/ std::shared_ptr<EvioEvent> parseEvent(size_t index) override ;
-        /*synchronized*/ std::shared_ptr<EvioEvent> nextEvent() override ;
-        /*synchronized*/ std::shared_ptr<EvioEvent> parseNextEvent() override ;
+        std::shared_ptr<EvioEvent> parseEvent(size_t index) override ;
+        std::shared_ptr<EvioEvent> nextEvent() override ;
+        std::shared_ptr<EvioEvent> parseNextEvent() override ;
         void parseEvent(std::shared_ptr<EvioEvent> evioEvent) override ;
         uint32_t getEventArray(size_t evNumber, std::vector<uint8_t> & vec) override;
         uint32_t getEventBuffer(size_t evNumber, ByteBuffer & buf) override;
@@ -266,19 +269,19 @@ namespace evio {
 
         size_t bufferBytesRemaining() const;
         uint32_t blockBytesRemaining() const;
-        /*synchronized*/ std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber, bool parse);
+        std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber, bool parse);
 
     public:
 
-        /*synchronized*/ void rewind() override ;
-        /*synchronized*/ size_t position() override;
-        /*synchronized*/ void close() override ;
+        void rewind() override ;
+        ssize_t position() override;
+        void close() override ;
 
         std::shared_ptr<IBlockHeader> getCurrentBlockHeader() override ;
         std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber) override ;
 
-        /*synchronized*/ size_t getEventCount() override;
-        /*synchronized*/ size_t getBlockCount() override;
+        size_t getEventCount() override;
+        size_t getBlockCount() override;
     };
 
 

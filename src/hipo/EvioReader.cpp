@@ -256,7 +256,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
     void EvioReader::rewind() {reader->rewind();}
 
     /** {@inheritDoc} */
-    size_t EvioReader::position() {return reader->position();}
+    ssize_t EvioReader::position() {return reader->position();}
 
     /** {@inheritDoc} */
     void EvioReader::close() {reader->close();}

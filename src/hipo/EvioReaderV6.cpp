@@ -1,13 +1,17 @@
 //
-// Created by Carl Timmer on 6/16/20.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #include "EvioReaderV6.h"
 
+
 namespace evio {
-
-
-    //------------------------
 
 
     /**
@@ -51,16 +55,8 @@ namespace evio {
         parser = std::make_shared<EventParser>();
     }
 
-    /**
-     * This method can be used to avoid creating additional EvioReader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.
-     *
-     * @param buf ByteBuffer to be read
-     * @throws IOException   if read failure
-     * @throws EvioException if buf is null;
-     *                       if first record number != 1 when checkRecNumSeq arg is true
-     */
+
+    /** {@inheritDoc} */
     void EvioReaderV6::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         if (synchronized) {
             const std::lock_guard<std::mutex> lock(mtx);
@@ -68,53 +64,54 @@ namespace evio {
         reader->setBuffer(buf);
     }
 
+
     /** {@inheritDoc} */
-    bool  /* sync */ EvioReaderV6::isClosed() {return reader->isClosed();}
+    bool EvioReaderV6::isClosed() {return reader->isClosed();}
+
 
     /** {@inheritDoc} */
     bool EvioReaderV6::checkBlockNumberSequence() {return reader->getCheckRecordNumberSequence();}
 
+
     /** {@inheritDoc} */
     ByteOrder & EvioReaderV6::getByteOrder() {return reader->getByteOrder();}
+
 
     /** {@inheritDoc} */
     uint32_t EvioReaderV6::getEvioVersion() {return reader->getVersion();}
 
+
     /** {@inheritDoc} */
     string EvioReaderV6::getPath() {return reader->getFileName();}
 
-    /**
-     * Get the file/buffer parser.
-     * @return file/buffer parser.
-     */
+
+    /** {@inheritDoc} */
     std::shared_ptr<EventParser> & EvioReaderV6::getParser() {return parser;}
 
-    /**
-     * Set the file/buffer parser.
-     * @param p file/buffer parser.
-     */
+
+    /** {@inheritDoc} */
     void EvioReaderV6::setParser(std::shared_ptr<EventParser> & p) {
         if (p != nullptr) {
             this->parser = p;
         }
     }
 
+
     /** {@inheritDoc} */
     string EvioReaderV6::getDictionaryXML() {return reader->getDictionary();}
+
 
     /** {@inheritDoc} */
     bool EvioReaderV6::hasDictionaryXML() {return reader->hasDictionary();}
 
-    /**
-     * Get the number of events remaining in the file.
-     * Useful only if doing a sequential read.
-     *
-     * @return number of events remaining in the file
-     */
+
+    /** {@inheritDoc} */
     size_t EvioReaderV6::getNumEventsRemaining() {return  reader->getNumEventsRemaining();}
+
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioReaderV6::getByteBuffer() {return reader->getBuffer();}
+
 
     /** {@inheritDoc} */
     size_t EvioReaderV6::fileSize() {return reader->getFileSize();}
@@ -124,18 +121,7 @@ namespace evio {
     std::shared_ptr<IBlockHeader> EvioReaderV6::getFirstBlockHeader() {return reader->getFirstRecordHeader();}
 
 
-    /**
-     * Get the event in the file/buffer at a given index (starting at 1).
-     * As useful as this sounds, most applications will probably call
-     * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
-     * since it combines combines getting an event with parsing it.<p>
-     *
-     * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
-     * @return the event in the file/buffer at the given index or null if none
-     * @throws EvioException if failed file access;
-     *                       if failed read due to bad file/buffer format;
-     *                       if object closed
-     */
+    /** {@inheritDoc} */
     std::shared_ptr<EvioEvent> EvioReaderV6::getEvent(size_t index) {
         if (synchronized) {
             const std::lock_guard<std::mutex> lock(mtx);
@@ -239,7 +225,7 @@ namespace evio {
 
 
     /** This method is not relevant in evio 6, does nothing, and returns 0. */
-    size_t EvioReaderV6::position() {return 0UL;}
+    ssize_t EvioReaderV6::position() {return 0UL;}
 
 
     /**
