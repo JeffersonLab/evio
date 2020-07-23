@@ -456,7 +456,7 @@ namespace evio {
         }
 
         // Remember where we were
-        auto & buf = reader.getBuffer();
+        auto buf = reader.getBuffer();
         int pos = buf->position();
 
         std::ofstream ostrm(fileName, std::ios::binary);
