@@ -20,7 +20,6 @@
 #include "ByteOrder.h"
 #include "EvioException.h"
 #include "EvioNode.h"
-#include "EvioNodeSource.h"
 #include "EvioXMLDictionary.h"
 #include "IBlockHeader.h"
 
@@ -68,23 +67,9 @@ namespace evio {
 
         /**
          * This method can be used to avoid creating additional EvioCompactReader
-         * objects by reusing this one with another buffer. The given buffer may
-         * <b>NOT</b> have compressed data or an exception will be thrown. The method
-         * {@link #close()} is called before anything else. The pool is <b>not</b>
-         * reset in this method. Caller may do that prior to calling method.
-         *
-         * @param buf  ByteBuffer to be read
-         * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
-         * @throws EvioException if arg is null;
-         *                       if failure to read first block header
-         */
-        virtual void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) = 0;
-
-        /**
-         * This method can be used to avoid creating additional EvioCompactReader
          * objects by reusing this one with another buffer. If the given buffer has
          * uncompressed data or evio version is less than 6, this method becomes equivalent
-         * to {@link #setBuffer(ByteBuffer, EvioNodeSource)} and its return value is just
+         * to {@link #setBuffer(ByteBuffer)} and its return value is just
          * the buf argument.<p>
          *
          * The given buffer may have compressed data, and if so, the data is uncompressed
@@ -96,15 +81,13 @@ namespace evio {
          * reset in this method. Caller may do that prior to calling method.
          *
          * @param buf  ByteBuffer to be read
-         * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
          * @return buf arg if data is not compressed. If compressed and buf does not have the
          *         necessary space to contain all uncompressed data, a new buffer is allocated,
          *         filled, and returned.
          * @throws EvioException if arg is null;
          *                       if failure to read first block header
          */
-        virtual std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
-                                                                EvioNodeSource & pool) = 0;
+        virtual std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
 
         /**
          * Has {@link #close()} been called (without reopening by calling
@@ -161,12 +144,6 @@ namespace evio {
          */
         virtual bool hasDictionary() = 0;
 
-//        /**
-//         * Get the memory mapped buffer corresponding to the event file.
-//         * @return the memory mapped buffer corresponding to the event file.
-//         */
-//        virtual std::shared_ptr<ByteBuffer> getMappedByteBuffer();
-
         /**
          * Get the byte buffer being read directly or corresponding to the event file.
          * @return the byte buffer being read directly or corresponding to the event file.
@@ -197,17 +174,6 @@ namespace evio {
          *          or null if there is none.
          */
         virtual std::shared_ptr<EvioNode> getScannedEvent(size_t evNumber) = 0;
-
-        /**
-         * Get the EvioNode object associated with a particular event number
-         * which has been scanned so all substructures are contained in the
-         * node.allNodes list.
-         * @param evNumber number of event (place in file/buffer) starting at 1.
-         * @param nodeSource  source of EvioNode objects to use while parsing evio data.
-         * @return  EvioNode object associated with a particular event number,
-         *          or null if there is none.
-         */
-        virtual std::shared_ptr<EvioNode> getScannedEvent(size_t evNumber, EvioNodeSource & nodeSource) = 0;
 
         /**
          * This returns the FIRST block (or record) header.
