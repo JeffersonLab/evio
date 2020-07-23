@@ -130,6 +130,7 @@ namespace evio {
         class RecordPosition {
 
         private:
+
             /** Position in file/buffer. */
             size_t position;
 

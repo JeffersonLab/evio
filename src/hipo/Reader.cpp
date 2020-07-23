@@ -144,10 +144,7 @@ namespace evio {
     }
 
 
-    /**
-     * This closes the file.
-     * @throws IOException if error accessing file
-     */
+    /** This closes the file.  */
     void Reader::close() {
         if (closed) {
             return;
@@ -180,11 +177,20 @@ namespace evio {
     /**
      * This method can be used to avoid creating additional Reader
      * objects by reusing this one with another buffer.
+     *
      * @param buf ByteBuffer to be read
-     * @throws EvioException if buf arg is null, buffer too small,
+     * @throws underflow_error if not enough data in buffer.
+     * @throws EvioException if buf arg is null,
      *                       not in the proper format, or earlier than version 6
      */
     void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
+
+        if (buf == nullptr) {
+            throw EvioException("null buf arg");
+        }
+
+        close();
+
         buffer       = buf;
         bufferLimit  = buffer->limit();
         bufferOffset = buffer->position();
@@ -1097,7 +1103,7 @@ namespace evio {
      *         is greater than the original buffer could hold.
      * @throws EvioException if buffer not in the proper format or earlier than version 6;
      *                       if checkRecordNumberSequence is true and records are out of sequence.
-     * @throws BufferUnderflowException if not enough data in buffer.
+     * @throws underflow_error if not enough data in buffer.
      */
     std::shared_ptr<ByteBuffer> Reader::scanBuffer() {
 
@@ -1209,7 +1215,7 @@ namespace evio {
             if (recordHeader.getLength() > bytesLeft) {
                 cout << "    record size = " << recordHeader.getLength() << " >? bytesLeft = " << bytesLeft <<
                      ", pos = " << buf.position() << endl;
-                throw EvioException("Bad hipo format: not enough data to read record");
+                throw std::underflow_error("Bad hipo format: not enough data to read record");
             }
 
             // Header is now describing the uncompressed buffer, bigEnoughBuf
