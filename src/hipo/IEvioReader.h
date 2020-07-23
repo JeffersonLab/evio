@@ -57,11 +57,13 @@ namespace evio {
 
         /**
          * This method can be used to avoid creating additional EvioReader
-         * objects by reusing this one with another buffer.
+         * objects by reusing this one with another buffer. The method
+         * {@link #close()} is called before anything else.
          *
          * @param buf ByteBuffer to be read.
-         * @throws IOException   if read failure.
-         * @throws EvioException if first block number != 1 when checkBlkNumSeq arg is true.
+         * @throws underflow_error if not enough data in buffer.
+         * @throws EvioException if buf is null; buf not in proper format;
+         *                       if first record/block number != 1 when checkRecNumSeq arg is true.
          */
         virtual void setBuffer(std::shared_ptr<ByteBuffer> & buf) = 0;
 
@@ -128,8 +130,7 @@ namespace evio {
          * Useful only if doing a sequential read.
          *
          * @return number of events remaining in the file
-         * @throws IOException if failed file access
-         * @throws EvioException if failed reading from coda v3 file
+         * @throws EvioException if failed reading from file
          */
         virtual size_t getNumEventsRemaining() = 0;
 
@@ -159,9 +160,8 @@ namespace evio {
          *
          * @param  index number of event desired, starting at 1, from beginning of file/buffer
          * @return the event in the file/buffer at the given index or null if none
-         * @throws IOException   if failed file access
-         * @throws EvioException if failed read due to bad file/buffer format;
-         *                       if out of memory;
+         * @throws EvioException if failed file access;
+         *                       if failed read due to bad file/buffer format;
          *                       if index out of bounds;
          *                       if object closed
          */
@@ -194,8 +194,8 @@ namespace evio {
          * @return the next event in the file.
          *         On error it throws an EvioException.
          *         On end of file, it returns <code>null</code>.
-         * @throws IOException   if failed file access
-         * @throws EvioException if failed read due to bad buffer format;
+         * @throws EvioException if failed file access;
+         *                       if failed read due to bad buffer format;
          *                       if object closed
          */
         virtual std::shared_ptr<EvioEvent> nextEvent() = 0;
@@ -208,8 +208,8 @@ namespace evio {
          * @return the event that was parsed.
          *         On error it throws an EvioException.
          *         On end of file, it returns <code>null</code>.
-         * @throws IOException if failed file access
-         * @throws EvioException if read failure or bad format
+         * @throws EvioException if failed file access;
+         *                       if read failure or bad format;
          *                       if object closed
          */
         virtual std::shared_ptr<EvioEvent> parseNextEvent() = 0;
@@ -233,8 +233,8 @@ namespace evio {
          * @param evNumber number of event of interest (starting at 1).
          * @param vec vector to contain bank's/event's bytes.
          * @return number of bytes in returned event.
-         * @throws IOException if failed file access
-         * @throws EvioException if eventNumber out of bounds (starts at 1);
+         * @throws EvioException if failed file access;
+         *                       if eventNumber out of bounds (starts at 1);
          *                       if the event number does not correspond to an existing event;
          *                       if object closed
          */
@@ -245,8 +245,8 @@ namespace evio {
          * @param evNumber number of event of interest
          * @param buf buffer to contain bank's/event's bytes.
          * @return number of bytes in returned event.
-         * @throws IOException if failed file access
-         * @throws EvioException if eventNumber is out of bounds;
+         * @throws EvioException if failed file access;
+         *                       if eventNumber out of bounds (starts at 1);
          *                       if the event number does not correspond to an existing event;
          *                       if object closed
          */
@@ -260,8 +260,7 @@ namespace evio {
          * <code>close()</code> method, allows applications to treat files
          * in a normal random access manner.
          *
-         * @throws IOException   if failed file access or buffer/file read
-         * @throws EvioException if object closed
+         * @throws EvioException if object closed; if failed file access or buffer/file read
          */
         virtual void rewind() = 0;
 
@@ -273,19 +272,16 @@ namespace evio {
          * in a normal random access manner. Only meaningful to evio versions 1-3
          * and for sequential reading.<p>
          *
-         * @return the position of the buffer; -1 if version 4+
-         * @throws IOException   if error accessing file
-         * @throws EvioException if object closed
+         * @return the position of the buffer; -1 if not sequential read and version 4+
+         * @throws EvioException if object closed; if error accessing file
          */
-        virtual size_t position() = 0;
+        virtual ssize_t position() = 0;
 
         /**
          * This is closes the file, but for buffers it only sets the position to 0.
          * This method, along with the <code>rewind()</code> and the two
          * <code>position()</code> methods, allows applications to treat files
          * in a normal random access manner.
-         *
-         * @throws IOException if error accessing file
          */
         virtual void close() = 0;
 
@@ -305,8 +301,7 @@ namespace evio {
          *
          * @param evNumber the event number in a 1..N counting sense, from the start of the file.
          * @return the specified event in file or null if there's an error or nothing at that event #.
-         * @throws IOException if failed file access
-         * @throws EvioException if object closed
+         * @throws EvioException if object closed; if failed file access
          */
         virtual std::shared_ptr<EvioEvent> gotoEventNumber(size_t evNumber) = 0;
 
@@ -316,15 +311,14 @@ namespace evio {
          * included in the count.
          *
          * @return the number of events in the file/buffer.
-         * @throws IOException   if failed file access
-         * @throws EvioException if read failure;
+         * @throws EvioException if read failure; if failed file access;
          *                       if object closed
          */
         virtual size_t getEventCount() = 0;
 
         /**
-         * This is the number of records in the file/buffer including the empty
-         * record or trailer at the end.
+         * This is the number of blocks/records in the file/buffer including the empty
+         * block, record or trailer at the end.
          *
          * @throws EvioException if object closed.
          * @return the number of records in the file/buffer (estimate for version 3 files).
