@@ -31,7 +31,6 @@
 #include "RecordInput.h"
 #include "EvioException.h"
 #include "EvioNode.h"
-#include "EvioNodeSource.h"
 #include "IBlockHeader.h"
 #include "Util.h"
 
