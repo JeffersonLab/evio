@@ -278,7 +278,6 @@ namespace evio {
     }
 
 
-
     /** {@inheritDoc} */
     size_t EvioReaderV6::getEventCount() {
         if (synchronized) {
