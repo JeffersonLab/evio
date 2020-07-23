@@ -71,13 +71,9 @@ namespace evio {
 
         explicit EvioCompactReaderV6(std::string const & path);
         explicit EvioCompactReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer);
-        EvioCompactReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool) ;
 
         void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
-        void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) override ;
-
-        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
-                                                        EvioNodeSource & pool) override ;
+        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) override;
 
         bool isFile() override ;
         bool isCompressed() override ;
@@ -98,12 +94,10 @@ namespace evio {
     public:
 
         std::shared_ptr<ByteBuffer> getByteBuffer() override;
-//        std::shared_ptr<ByteBuffer> getMappedByteBuffer() override ;
         size_t fileSize() override ;
 
         std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override ;
         std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) override ;
-        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) override ;
 
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
 
@@ -112,7 +106,6 @@ namespace evio {
         IEvioReader::ReadWriteStatus readFirstHeader();
         void readDictionary();
         std::shared_ptr<EvioNode> scanStructure(size_t eventNumber);
-        std::shared_ptr<EvioNode> scanStructure(size_t eventNumber, EvioNodeSource & nodeSource);
 
     public:
 

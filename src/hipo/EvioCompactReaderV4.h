@@ -82,9 +82,6 @@ namespace evio {
         /** Store info of all block headers. */
         unordered_map<uint32_t, std::shared_ptr<RecordNode>> blockNodes;
 
-        /** Source (pool) of EvioNode objects used for parsing Evio data in buffer. */
-        EvioNodeSource nodePool;
-
         /**
          * This is the number of events in the file. It is not computed unless asked for,
          * and if asked for it is computed and cached in this variable.
@@ -165,13 +162,9 @@ namespace evio {
 
         explicit EvioCompactReaderV4(std::string const & path);
         explicit EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer);
-        EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, EvioNodeSource & pool);
 
         void setBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
-        void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) override ;
-
-        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
-                                                        EvioNodeSource & pool) override ;
+        std::shared_ptr<ByteBuffer> setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) override ;
 
         bool isFile() override ;
         bool isCompressed() override ;
@@ -197,7 +190,6 @@ namespace evio {
 
         std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override ;
         std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) override ;
-        std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) override ;
 
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
 
@@ -206,7 +198,6 @@ namespace evio {
         IEvioReader::ReadWriteStatus readFirstHeader();
         void readDictionary();
         std::shared_ptr<EvioNode> scanStructure(size_t eventNumber);
-        std::shared_ptr<EvioNode> scanStructure(size_t eventNumber, EvioNodeSource & nodeSource);
 
     public:
 

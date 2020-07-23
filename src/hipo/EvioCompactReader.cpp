@@ -101,41 +101,6 @@ namespace evio {
     }
 
 
-    /**
-     * Constructor for reading a buffer with option of removing synchronization
-     * for much greater speed.
-     * @param byteBuffer the buffer that contains events.
-     * @param synced     if true, methods are synchronized for thread safety, else false.
-     * @see EventWriter
-     * @throws BufferUnderflowException if not enough buffer data;
-     * @throws EvioException if buffer arg is null;
-     *                       failure to parse first block header;
-     *                       unsupported evio version.
-     */
-    EvioCompactReader::EvioCompactReader(std::shared_ptr<ByteBuffer> & bb, EvioNodeSource & pool, bool sync) :
-                            byteBuffer(bb), synced(sync) {
-
-        initialPosition = byteBuffer->position();
-
-        // Parse file header to find the buffer's endianness & evio version #
-        evioVersion = Util::findEvioVersion(*(byteBuffer.get()), initialPosition);
-        byteOrder = byteBuffer->order();
-
-        if (evioVersion < 4)  {
-            throw EvioException("unsupported evio version (" + std::to_string(evioVersion) + "), only 4+");
-        }
-
-        if (evioVersion == 4) {
-            reader = std::make_shared<EvioCompactReaderV4>(byteBuffer, pool);
-        }
-        else if (evioVersion == 6) {
-            reader = std::make_shared<EvioCompactReaderV6>(byteBuffer, pool);
-        }
-        else {
-            throw EvioException("unsupported evio version (" + std::to_string(evioVersion) + ")");
-        }
-    }
-
     /** {@inheritDoc} */
     bool EvioCompactReader::isFile() {return reader->isFile();}
 
@@ -146,13 +111,8 @@ namespace evio {
     void EvioCompactReader::setBuffer(std::shared_ptr<ByteBuffer> & buf) {reader->setBuffer(buf);}
 
     /** {@inheritDoc} */
-    void EvioCompactReader::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
-        reader->setBuffer(buf, pool);
-    }
-
-    /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
-        return reader->setCompressedBuffer(buf, pool);
+    std::shared_ptr<ByteBuffer> EvioCompactReader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
+        return reader->setCompressedBuffer(buf);
     }
 
     /** {@inheritDoc} */
@@ -215,11 +175,6 @@ namespace evio {
     /** {@inheritDoc} */
     std::shared_ptr<EvioNode> EvioCompactReader::getScannedEvent(size_t eventNumber) {
         return reader->getScannedEvent(eventNumber);
-    }
-
-    /** {@inheritDoc} */
-    std::shared_ptr<EvioNode> EvioCompactReader::getScannedEvent(size_t evNumber, EvioNodeSource & nodeSource) {
-        return reader->getScannedEvent(evNumber, nodeSource);
     }
 
     /** {@inheritDoc} */

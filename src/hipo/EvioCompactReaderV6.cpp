@@ -48,26 +48,6 @@ namespace evio {
         reader.setBuffer(byteBuffer);
     }
 
-    /**
-     * Constructor for reading a buffer.
-     *
-     * @param byteBuffer the buffer that contains events.
-     * @param pool pool of EvioNode objects to use when parsing buf to avoid garbage collection.
-     *
-     * @see EventWriter
-     * @throws EvioException if buffer arg is null,
-     *                       buffer too small,
-     *                       buffer not in the proper format,
-     *                       or earlier than version 6.
-     */
-    EvioCompactReaderV6::EvioCompactReaderV6(std::shared_ptr<ByteBuffer> & byteBuffer,
-                                             EvioNodeSource & pool) {
-        if (byteBuffer == nullptr) {
-            throw EvioException("Buffer arg is null");
-        }
-        reader.setBuffer(byteBuffer, pool);
-     }
-
     /** {@inheritDoc} */
     void EvioCompactReaderV6::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         reader.setBuffer(buf);
@@ -76,18 +56,10 @@ namespace evio {
     }
 
     /** {@inheritDoc} */
-    void EvioCompactReaderV6::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
-        reader.setBuffer(buf, pool);
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
         dictionary = nullptr;
         closed = false;
-    }
-
-    /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
-                                                                         EvioNodeSource & pool) {
-        dictionary = nullptr;
-        closed = false;
-        return reader.setCompressedBuffer(buf, pool);
+        return reader.setCompressedBuffer(buf);
     }
 
     /** {@inheritDoc} */
@@ -136,9 +108,6 @@ namespace evio {
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getByteBuffer() {return reader.getBuffer();}
 
-//    /** {@inheritDoc} */
-//    std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getMappedByteBuffer() {return nullptr;}
-
     /** {@inheritDoc} */
     size_t EvioCompactReaderV6::fileSize() {return reader.getFileSize();}
 
@@ -159,17 +128,6 @@ namespace evio {
             return scanStructure(eventNumber);
         }
         catch (std::out_of_range & e) { }
-        return nullptr;
-    }
-
-
-    /** {@inheritDoc} */
-    std::shared_ptr<EvioNode> EvioCompactReaderV6::getScannedEvent(size_t eventNumber,
-                                                                   EvioNodeSource & nodeSource) {
-        try {
-            return scanStructure(eventNumber, nodeSource);
-        }
-        catch (std::out_of_range & e) {}
         return nullptr;
     }
 
@@ -205,34 +163,6 @@ namespace evio {
         // of child nodes to "true" as well.
         node->scanned = true;
         EvioNode::scanStructure(node);
-        return node;
-    }
-
-
-    /**
-     * This method scans the given event number in the buffer.
-     * It returns an EvioNode object representing the event.
-     * All the event's substructures, as EvioNode objects, are
-     * contained in the node.allNodes list (including the event itself).
-     *
-     * @param eventNumber number of the event to be scanned starting at 1
-     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
-     * @return the EvioNode object corresponding to the given event number
-     */
-    std::shared_ptr<EvioNode> EvioCompactReaderV6::scanStructure(size_t eventNumber,
-                                                                 EvioNodeSource & nodeSource) {
-        // Node corresponding to event
-        auto node = reader.getEventNode(eventNumber - 1);
-        if (node == nullptr) return nullptr;
-
-        if (node->getScanned()) {
-            node->clearLists();
-        }
-
-        // Do this before actual scan so clone() sets all "scanned" fields
-        // of child nodes to "true" as well.
-        node->scanned = true;
-        EvioNode::scanStructure(node, nodeSource);
         return node;
     }
 

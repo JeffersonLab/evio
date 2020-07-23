@@ -95,35 +95,6 @@ namespace evio {
     }
 
 
-    /**
-     * Constructor for reading a buffer.
-     *
-     * @param buf the buffer that contains events.
-     *
-     * @see EventWriter
-     * @throws EvioException if buffer arg is null;
-     *                       failure to read first block header
-     */
-    EvioCompactReaderV4::EvioCompactReaderV4(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) :
-            byteBuffer(buf), nodePool(pool) {
-
-        if (buf == nullptr) {
-            throw EvioException("Buffer arg is null");
-        }
-
-        initialPosition = buf->position();
-
-        // Read first block header and find the file's endianness & evio version #.
-        // If there's a dictionary, read that too.
-        if (readFirstHeader() != IEvioReader::ReadWriteStatus::SUCCESS) {
-            throw EvioException("Failed reading first block header/dictionary");
-        }
-
-        // Generate a table of all event positions in buffer for random access.
-        generateEventPositionTable();
-    }
-
-
     /** {@inheritDoc} */
     void EvioCompactReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         if (buf == nullptr) {
@@ -149,33 +120,8 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioCompactReaderV4::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
-        if (buf == nullptr) {
-            throw EvioException("arg is null");
-        }
-
-        blockNodes.clear();
-        eventNodes.clear();
-        nodePool = pool;
-
-        blockCount      = -1;
-        eventCount      = -1;
-        dictionaryXML   = nullptr;
-        initialPosition = buf->position();
-        this->byteBuffer = buf;
-
-        if (readFirstHeader() != IEvioReader::ReadWriteStatus::SUCCESS) {
-            throw EvioException("Failed reading first block header/dictionary");
-        }
-
-        generateEventPositionTable();
-        closed = false;
-    }
-
-    /** {@inheritDoc} */
-    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
-                                                                         EvioNodeSource & pool) {
-        setBuffer(buf, pool);
+    std::shared_ptr<ByteBuffer> EvioCompactReaderV4::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
+        setBuffer(buf);
         return buf;
     }
 
@@ -313,16 +259,6 @@ namespace evio {
     }
 
 
-    /** {@inheritDoc} */
-    std::shared_ptr<EvioNode> EvioCompactReaderV4::getScannedEvent(size_t eventNumber, EvioNodeSource & nodeSource) {
-        try {
-            return scanStructure(eventNumber, nodeSource);
-        }
-        catch (std::out_of_range & e) {}
-        return nullptr;
-    }
-
-
     /**
      * Generate a table (ArrayList) of positions of events in file/buffer.
      * This method does <b>not</b> affect the byteBuffer position, eventNumber,
@@ -433,7 +369,7 @@ namespace evio {
                     throw EvioException("Bad evio format: not enough data to read event (bad bank len?)");
                 }
 
-                auto node = EvioNode::extractEventNode(byteBuffer, nodePool, *(blockNode.get()),
+                auto node = EvioNode::extractEventNode(byteBuffer, *(blockNode.get()),
                                                        position, eventCount + i);
 //std::cout << "      event " << i << " in block: pos = " << node->getPosition() <<
 //             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventCount + i + 1) << std::endl;
@@ -641,36 +577,6 @@ namespace evio {
         node->scanned = true;
 
         EvioNode::scanStructure(node);
-
-        return node;
-    }
-
-
-    /**
-     * This method scans the given event number in the buffer.
-     * It returns an EvioNode object representing the event.
-     * All the event's substructures, as EvioNode objects, are
-     * contained in the node.allNodes list (including the event itself).
-     *
-     * @param eventNumber number of the event to be scanned starting at 1
-     * @param nodeSource  source of EvioNode objects to use while parsing evio data.
-     * @return the EvioNode object corresponding to the given event number
-      * @throws std::out_of_range if arg is out of range.
-     */
-    std::shared_ptr<EvioNode> EvioCompactReaderV4::scanStructure(size_t eventNumber, EvioNodeSource & nodeSource) {
-
-        // Node corresponding to event
-        auto node = eventNodes.at(eventNumber - 1);
-
-        if (node->scanned) {
-            node->clearLists();
-        }
-
-        // Do this before actual scan so clone() sets all "scanned" fields
-        // of child nodes to "true" as well.
-        node->scanned = true;
-
-        EvioNode::scanStructure(node, nodeSource);
 
         return node;
     }
