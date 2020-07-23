@@ -182,9 +182,6 @@ namespace evio {
         };
 
 
-        /** Use this to initialize Reader objects in constructor when no nodePool is needed but
-         *  must be inititalized anyway. */
-        static EvioNodeSource nodePoolStatic;
         /** Size of array in which to store record header info. */
         static const uint32_t headerInfoLen = 7;
 
@@ -260,8 +257,6 @@ namespace evio {
         bool lastCalledSeqNext = false;
         /** Evio version of file/buffer being read. */
         uint32_t evioVersion = 6;
-        /** Source (pool) of EvioNode objects used for parsing Evio data in buffer (NOT file!). */
-        EvioNodeSource & nodePool;
 
 
         /** Place to store data read in from record header. */
@@ -281,9 +276,7 @@ namespace evio {
         Reader();
         explicit Reader(std::string const & filename);
         Reader(std::string const & filename, bool forceScan);
-
-        explicit Reader(std::shared_ptr<ByteBuffer> & buffer);
-        Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq = false);
+        explicit Reader(std::shared_ptr<ByteBuffer> & buffer, bool checkRecordNumSeq = false);
 
         ~Reader() = default;
 
@@ -294,10 +287,7 @@ namespace evio {
         bool isFile() const;
 
         void setBuffer(std::shared_ptr<ByteBuffer> & buf);
-        void setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
-
         std::shared_ptr<ByteBuffer> & setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf);
-        std::shared_ptr<ByteBuffer> & setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool);
 
         std::string getFileName() const;
         size_t getFileSize() const;

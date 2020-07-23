@@ -14,16 +14,12 @@
 namespace evio {
 
 
-    // Define static member first (never actually used)
-    EvioNodeSource Reader::nodePoolStatic;
-
-
     /**
      * Default constructor. Does nothing.
      * The {@link #open(std::string)} method has to be called to open the input stream.
      * Also {@link #forceScanFile()} needs to be called to find records.
      */
-    Reader::Reader() : nodePool(nodePoolStatic) {
+    Reader::Reader() {
         // Throw exception if logical or read/write error on io operation
         inStreamRandom.exceptions(ifstream::failbit | ifstream::badbit);
     }
@@ -37,7 +33,7 @@ namespace evio {
      * @throws IOException   if error reading file
      * @throws EvioException if file is not in the proper format or earlier than version 6
      */
-    Reader::Reader(std::string const & filename) : nodePool(nodePoolStatic) {
+    Reader::Reader(std::string const & filename) {
         // Throw exception if logical or read/write error on io operation
         inStreamRandom.exceptions(ifstream::failbit | ifstream::badbit);
         open(filename);
@@ -53,7 +49,7 @@ namespace evio {
      * @throws IOException   if error reading file
      * @throws EvioException if file is not in the proper format or earlier than version 6
      */
-    Reader::Reader(std::string const & filename, bool forceScan) : nodePool(nodePoolStatic) {
+    Reader::Reader(std::string const & filename, bool forceScan) {
         // Throw exception if logical or read/write error on io operation
         inStreamRandom.exceptions(ifstream::failbit | ifstream::badbit);
 
@@ -70,30 +66,13 @@ namespace evio {
      * Constructor for reading buffer with evio data.
      * Buffer must be ready to read with position and limit set properly.
      * @param buffer buffer with evio data.
-     * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6
-     */
-    Reader::Reader(std::shared_ptr<ByteBuffer> & buffer): nodePool(nodePoolStatic) {
-
-        this->buffer = buffer;
-        bufferOffset = buffer->position();
-        bufferLimit  = buffer->limit();
-        fromFile = false;
-
-        scanBuffer();
-    }
-
-
-    /**
-     * Constructor for reading buffer with evio data.
-     * Buffer must be ready to read with position and limit set properly.
-     * @param buffer buffer with evio data.
      * @param pool pool of EvioNode objects for garbage-free operation.
      * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
      *                          if not throw exception.
      * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6;
      *                       if checkRecordNumSeq is true and records are out of sequence.
      */
-    Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, EvioNodeSource & pool, bool checkRecordNumSeq) : nodePool(pool) {
+    Reader::Reader(std::shared_ptr<ByteBuffer> & buffer, bool checkRecordNumSeq) {
         this->buffer = buffer;
         bufferOffset = buffer->position();
         bufferLimit  = buffer->limit();
@@ -216,23 +195,6 @@ namespace evio {
 
     /**
      * This method can be used to avoid creating additional Reader
-     * objects by reusing this one with another buffer. The method
-     * {@link #close()} is called before anything else.  The pool is <b>not</b>
-     * reset in this method. Caller may do that prior to calling method.
-     *
-     * @param buf ByteBuffer to be read
-     * @param pool pool of EvioNode objects to use when parsing buf.
-     * @throws EvioException if buffer too small,
-     *                       not in the proper format, or earlier than version 6
-     */
-    void Reader::setBuffer(std::shared_ptr<ByteBuffer> & buf, EvioNodeSource & pool) {
-        nodePool = pool;
-        setBuffer(buf);
-    }
-
-
-    /**
-     * This method can be used to avoid creating additional Reader
      * objects by reusing this one with another buffer. If the given buffer has
      * uncompressed data, this method becomes equivalent
      * to {@link #setBuffer(ByteBuffer, EvioNodeSource)} and its return value is just
@@ -252,33 +214,6 @@ namespace evio {
      */
     std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
         setBuffer(buf);
-        return buffer;
-    }
-
-
-    /**
-     * This method can be used to avoid creating additional Reader
-     * objects by reusing this one with another buffer. If the given buffer has
-     * uncompressed data, this method becomes equivalent
-     * to {@link #setBuffer(ByteBuffer, EvioNodeSource)} and its return value is just
-     * the buf argument.<p>
-     *
-     * The given buffer may have compressed data, and if so, the data is uncompressed
-     * in placed back into the same buffer. If, however, the given buffer does not have
-     * enough space for the uncompressed data, a new buffer is internally allocated,
-     * data is placed in the new buffer, and the new buffer is the return value.<p>
-     *
-     * @param buf  ByteBuffer to be read
-     * @param pool pool of EvioNode objects to use when parsing buf.
-     * @return buf arg if data is not compressed. If compressed and buf does not have the
-     *         necessary space to contain all uncompressed data, a new buffer is allocated,
-     *         filled, and returned.
-     * @throws EvioException if buf arg is null, buffer too small,
-     *                       not in the proper format, or earlier than version 6
-     */
-    std::shared_ptr<ByteBuffer> & Reader::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf,
-                                                              EvioNodeSource & pool) {
-        setBuffer(buf, pool);
         return buffer;
     }
 
@@ -1241,7 +1176,7 @@ namespace evio {
                 std::shared_ptr<EvioNode> node;
                 //System.out.println("      try extracting event " + i + ", pos = " + position +
                 //                                               ", place = " + (eventCount + i));
-                node = EvioNode::extractEventNode(bigEnoughBuf, nodePool, 0,
+                node = EvioNode::extractEventNode(bigEnoughBuf, 0,
                                                   position, eventCount + i);
                 //cout << "      event " << i << ", pos = " << node.getPosition() <<
                 //                           ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
@@ -1388,7 +1323,7 @@ namespace evio {
                 std::shared_ptr<EvioNode> node;
                 //cout << "      try extracting event " << i << " in record pos = " << recPosition <<
                 //        ", pos = " << position << ", place = " << (eventCount + i) << endl;
-                node = EvioNode::extractEventNode(buffer, nodePool, recPosition,
+                node = EvioNode::extractEventNode(buffer, recPosition,
                                                   position, eventCount + i);
                 //cout << "      event " << i << " in record: pos = " << node.getPosition() <<
                 //        ", dataPos = " << node.getDataPosition() << ", ev # = " << (eventCount + i + 1) << endl;
