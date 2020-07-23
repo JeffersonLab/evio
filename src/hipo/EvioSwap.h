@@ -1,12 +1,19 @@
 //
-// Created by Carl Timmer on 7/17/20.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_EVIOSWAP_H
 #define EVIO_6_0_EVIOSWAP_H
 
 
 #include <cstdio>
+
 
 #include "ByteOrder.h"
 #include "ByteBuffer.h"
@@ -17,6 +24,12 @@
 
 namespace evio {
 
+
+    /**
+     * Class to hold static methods used to swap evio data.
+     * @date 7/17/2020
+     * @author timmer
+     */
     class EvioSwap {
 
         public:
@@ -168,6 +181,7 @@ namespace evio {
             swapLeafData(type, *(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len, inPlace);
         }
 
+        
         /**
          * This method swaps the data of an evio leaf structure. In other words the
          * structure being swapped does not contain evio structures.
