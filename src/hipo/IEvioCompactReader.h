@@ -1,12 +1,15 @@
-//
-// Copyright 2020, Jefferson Science Associates, LLC.
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-// EPSCI Group
-// Thomas Jefferson National Accelerator Facility
-// 12000, Jefferson Ave, Newport News, VA 23606
-// (757)-269-7100
-
+/**
+ * Copyright (c) 2020, Jefferson Science Associates
+ *
+ * Thomas Jefferson National Accelerator Facility
+ * EPSCI Group
+ *
+ * 12000, Jefferson Ave, Newport News, VA 23606
+ * Phone : (757)-269-7100
+ *
+ * @date 06/18/2020
+ * @author timmer
+ */
 
 #ifndef EVIO_6_0_IEVIOCOMPACTREADER_H
 #define EVIO_6_0_IEVIOCOMPACTREADER_H
@@ -160,6 +163,12 @@ namespace evio {
          *         else <code>false</code>
          */
         virtual bool hasDictionary() = 0;
+
+//        /**
+//         * Get the memory mapped buffer corresponding to the event file.
+//         * @return the memory mapped buffer corresponding to the event file.
+//         */
+//        virtual std::shared_ptr<ByteBuffer> getMappedByteBuffer();
 
         /**
          * Get the byte buffer being read directly or corresponding to the event file.
