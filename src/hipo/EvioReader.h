@@ -1,18 +1,17 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 06/8/2020
- * @author timmer
- */
+//
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
 
 #ifndef EVIO_6_0_EVIOREADER_H
 #define EVIO_6_0_EVIOREADER_H
+
 
 #include <memory>
 #include <fstream>
@@ -54,7 +53,6 @@ namespace evio {
      *
      * @author heddle (original java version)
      * @author timmer
-     *
      */
     class EvioReader : public IEvioReader {
 
