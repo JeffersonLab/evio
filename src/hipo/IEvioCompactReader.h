@@ -1,15 +1,12 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * EPSCI Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 06/18/2020
- * @author timmer
- */
+//
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_IEVIOCOMPACTREADER_H
 #define EVIO_6_0_IEVIOCOMPACTREADER_H
