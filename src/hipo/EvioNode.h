@@ -42,6 +42,7 @@ namespace evio {
     class EvioNode {
 
         friend class Util;
+        friend class EventHeaderParser;
         friend class EvioCompactReaderV4;
         friend class EvioCompactReaderV6;
 
