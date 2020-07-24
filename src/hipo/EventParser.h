@@ -1,12 +1,11 @@
 //
-// Copyright (c) 2020, Jefferson Science Associates
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
-// Thomas Jefferson National Accelerator Facility
 // EPSCI Group
-//
+// Thomas Jefferson National Accelerator Facility
 // 12000, Jefferson Ave, Newport News, VA 23606
-// Phone : (757)-269-7100
-//
+// (757)-269-7100
 
 #ifndef EVIO_6_0_EVENTPARSER_H
 #define EVIO_6_0_EVENTPARSER_H
@@ -18,6 +17,7 @@
 #include <cstring>
 #include <iostream>
 #include <mutex>
+
 
 #include "ByteOrder.h"
 #include "BaseStructure.h"
@@ -76,9 +76,7 @@ namespace evio {
 
         static void parseStruct(std::shared_ptr<BaseStructure> structure);
 
-// Moved to EventHeaderParser to avoid circular references to BaseStructure
-//    public: /* package */
-//
+// Moved to EventHeaderParser to avoid circular references to BaseStructure:
 //        static std::shared_ptr<BankHeader> createBankHeader(uint8_t * bytes, ByteOrder const & byteOrder);
 //        static std::shared_ptr<SegmentHeader> createSegmentHeader(uint8_t * bytes, ByteOrder const & byteOrder);
 //        static std::shared_ptr<TagSegmentHeader> createTagSegmentHeader(uint8_t * bytes, ByteOrder const & byteOrder);

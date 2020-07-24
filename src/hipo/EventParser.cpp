@@ -1,6 +1,13 @@
 //
-// Created by Carl Timmer on 2020-05-19.
+// Copyright (c) 2020, Jefferson Science Associates
 //
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
 
 #include "EventParser.h"
 
@@ -150,6 +157,7 @@ namespace  evio {
         // let listeners know we stopped
         notifyStop(evioEvent);
     }
+
 
     /**
    	 * This is the workhorse method for parsing the event. It will drill down and uncover all structures
@@ -330,6 +338,7 @@ namespace  evio {
         }
     }
 
+
     /**
      * Notify listeners we are starting to parse a new event
      * @param evioEvent the event in question;
@@ -350,6 +359,7 @@ namespace  evio {
             (evioListenerList[i + 1])->startEventParse(evioEvent);
         }
     }
+
 
     /**
      * Notify listeners we are done to parsing a new event
@@ -372,6 +382,7 @@ namespace  evio {
         }
     }
 
+
     /**
      * Remove an Evio listener. Evio listeners listen for structures encountered when an event is being parsed.
      * @param listener The Evio listener to remove.
@@ -392,6 +403,7 @@ namespace  evio {
         }
     }
 
+
     /**
      * Add an Evio listener. Evio listeners listen for structures encountered when an event is being parsed.
      * @param listener The Evio listener to add.
@@ -403,6 +415,7 @@ namespace  evio {
         evioListenerList.push_back(listener);
     }
 
+
     /**
      * Get the flag determining whether notification of listeners is active. Normally it is. But in some cases it should
      * be temporarily suspended. For example, in a "goto event" process, the listeners will not be notified of the
@@ -412,6 +425,7 @@ namespace  evio {
      */
     bool EventParser::isNotificationActive() const {return notificationActive;}
 
+
     /**
      * Set the flag determining whether notification of listeners is active. Normally it is. But in some cases it
      * should be temporarily suspended. For example, in a "goto event" process, the listeners will not be notified of
@@ -420,6 +434,7 @@ namespace  evio {
      * @param active set <code>true</code> if notification of events to the listeners is active.
      */
     void EventParser::setNotificationActive(bool active) {notificationActive = active;}
+
 
     /**
      * Set the global filter used for filtering structures. If set to <code>null</code>, the default, then all
@@ -436,6 +451,7 @@ namespace  evio {
     //   Scanning parsed BaseStructure trees
     //
     //////////////////////////////////////////
+
 
     /**
      * Visit all the structures in the given structure (including the structure itself --
