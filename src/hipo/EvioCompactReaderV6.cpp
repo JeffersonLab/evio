@@ -1,15 +1,12 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * EPSCI Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 07/09/2020
- * @author timmer
- */
+//
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
 
 
 #include "EvioCompactReaderV6.h"
@@ -48,12 +45,14 @@ namespace evio {
         reader.setBuffer(byteBuffer);
     }
 
+
     /** {@inheritDoc} */
     void EvioCompactReaderV6::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         reader.setBuffer(buf);
         dictionary = nullptr;
         closed = false;
     }
+
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::setCompressedBuffer(std::shared_ptr<ByteBuffer> & buf) {
@@ -62,29 +61,38 @@ namespace evio {
         return reader.setCompressedBuffer(buf);
     }
 
+
     /** {@inheritDoc} */
     bool EvioCompactReaderV6::isFile() {return reader.isFile();}
+
 
     /** {@inheritDoc} */
     bool EvioCompactReaderV6::isCompressed() {return reader.isCompressed();}
 
+
     /** {@inheritDoc} */
     bool EvioCompactReaderV6::isClosed() {return closed;}
+
 
     /** {@inheritDoc} */
     ByteOrder EvioCompactReaderV6::getByteOrder() {return reader.getByteOrder();}
 
+
     /** {@inheritDoc} */
     uint32_t EvioCompactReaderV6::getEvioVersion() {return reader.getVersion();}
+
 
     /** {@inheritDoc} */
     std::string EvioCompactReaderV6::getPath() {return path;}
 
+
     /** {@inheritDoc} */
     ByteOrder EvioCompactReaderV6::getFileByteOrder() {return reader.getByteOrder();}
 
+
     /** {@inheritDoc} */
     std::string EvioCompactReaderV6::getDictionaryXML() {return reader.getDictionary();}
+
 
     /** {@inheritDoc} */
     std::shared_ptr<EvioXMLDictionary>  EvioCompactReaderV6::getDictionary() {
@@ -102,11 +110,14 @@ namespace evio {
         return dictionary;
     }
 
+
     /** {@inheritDoc} */
     bool EvioCompactReaderV6::hasDictionary() {return reader.hasDictionary();}
 
+
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getByteBuffer() {return reader.getBuffer();}
+
 
     /** {@inheritDoc} */
     size_t EvioCompactReaderV6::fileSize() {return reader.getFileSize();}
@@ -169,7 +180,7 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioCompactReaderV6::searchEvent(size_t eventNumber, uint16_t tag, uint8_t num,
-                                                   std::vector<std::shared_ptr<EvioNode>> & vec) {
+                                          std::vector<std::shared_ptr<EvioNode>> & vec) {
         // check args
         if (eventNumber < 1 || eventNumber > reader.getEventCount()) {
             throw EvioException("bad arg value(s)");
@@ -205,8 +216,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     void EvioCompactReaderV6::searchEvent(size_t eventNumber, std::string const & dictName,
-                                                   std::shared_ptr<EvioXMLDictionary> & dictionary,
-                                                   std::vector<std::shared_ptr<EvioNode>> & vec) {
+                                          std::shared_ptr<EvioXMLDictionary> & dictionary,
+                                          std::vector<std::shared_ptr<EvioNode>> & vec) {
 
         if (dictName.empty()) {
             throw EvioException("empty dictionary entry name");
@@ -282,7 +293,7 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> & node,
-                                                                              bool copy) {
+                                                             bool copy) {
         auto buff = std::make_shared<ByteBuffer>(4*node->getDataLength());
         return node->getByteData(buff, copy);
     }
@@ -297,8 +308,8 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getData(std::shared_ptr<EvioNode> & node,
-                                                                     std::shared_ptr<ByteBuffer> & buf,
-                                                                     bool copy) {
+                                                             std::shared_ptr<ByteBuffer> & buf,
+                                                             bool copy) {
         if (closed) {
             throw EvioException("object closed");
         }
@@ -317,7 +328,7 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getEventBuffer(size_t eventNumber,
-                                                                            bool copy) {
+                                                                    bool copy) {
 
         if (eventNumber < 1) {
             throw EvioException("event number must be > 0");
@@ -347,7 +358,7 @@ namespace evio {
 
     /** {@inheritDoc} */
     std::shared_ptr<ByteBuffer> EvioCompactReaderV6::getStructureBuffer(std::shared_ptr<EvioNode> & node,
-                                                                                bool copy) {
+                                                                        bool copy) {
 
         if (node == nullptr) {
             throw EvioException("node arg is null");
@@ -372,8 +383,10 @@ namespace evio {
     /** {@inheritDoc} */
     uint32_t EvioCompactReaderV6::getEventCount() {return reader.getEventCount();}
 
+
     /** {@inheritDoc} */
     uint32_t EvioCompactReaderV6::getBlockCount() { return reader.getRecordCount();}
+
 
     /** {@inheritDoc} */
     void EvioCompactReaderV6::toFile(std::string const & fileName) {

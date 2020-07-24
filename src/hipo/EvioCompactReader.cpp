@@ -346,7 +346,7 @@ namespace evio {
     /** {@inheritDoc} */
     uint32_t EvioCompactReader::getBlockCount() {return reader->getBlockCount();}
 
-    
+
     /** {@inheritDoc} */
     void EvioCompactReader::toFile(std::string const & fileName) {
         if (synced) {

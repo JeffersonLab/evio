@@ -1,15 +1,17 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * EPSCI Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 07/01/2020
- * @author timmer
- */
+//
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
+
+#ifndef EVIO_6_0_EVIOCOMPACTREADERV4_H
+#define EVIO_6_0_EVIOCOMPACTREADERV4_H
+
 
 #include <stdexcept>
 #include <vector>
@@ -37,12 +39,7 @@
 #include "RecordNode.h"
 
 
-#ifndef EVIO_6_0_EVIOCOMPACTREADERV4_H
-#define EVIO_6_0_EVIOCOMPACTREADERV4_H
-
-
 namespace evio {
-
 
 
     /**
@@ -50,6 +47,7 @@ namespace evio {
      * and extract specific evio containers (bank, seg, or tagseg)
      * with actual data in them given a tag/num pair.<p>
      *
+     * @date 07/01/2020
      * @author timmer
      */
     class EvioCompactReaderV4 : public IEvioCompactReader {
@@ -86,7 +84,7 @@ namespace evio {
          * This is the number of events in the file. It is not computed unless asked for,
          * and if asked for it is computed and cached in this variable.
          */
-        int eventCount = -1;
+        int32_t eventCount = -1;
 
         /** Evio version number (1-4). Obtain this by reading first block header. */
         uint32_t evioVersion = 4;
@@ -103,7 +101,7 @@ namespace evio {
          * end of the version 4 files. It is not computed unless asked for,
          * and if asked for it is computed and cached in this variable.
          */
-        int blockCount = -1;
+        int32_t blockCount = -1;
 
         /** Size of the first block header in 32-bit words. Used to read dictionary. */
         uint32_t firstBlockHeaderWords = 0;
@@ -146,12 +144,6 @@ namespace evio {
         /** Object to talk to file. */
         ifstream file;
 
-        /**
-         * The buffer representing a map of the input file which is also
-         * accessed through {@link #byteBuffer}.
-         */
-        std::shared_ptr<ByteBuffer> mappedByteBuffer;
-
         /** Absolute path of the underlying file. */
         std::string path = "";
 
@@ -185,7 +177,6 @@ namespace evio {
     public:
 
         std::shared_ptr<ByteBuffer> getByteBuffer() override;
-//        std::shared_ptr<ByteBuffer> getMappedByteBuffer() override ;
         size_t fileSize() override ;
 
         std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override ;

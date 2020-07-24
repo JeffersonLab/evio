@@ -1,15 +1,16 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * EPSCI Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 07/09/2020
- * @author timmer
- */
+//
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
+
+#ifndef EVIO_6_0_EVIOCOMPACTREADERV6_H
+#define EVIO_6_0_EVIOCOMPACTREADERV6_H
 
 
 #include <stdexcept>
@@ -37,10 +38,6 @@
 #include "RecordNode.h"
 
 
-#ifndef EVIO_6_0_EVIOCOMPACTREADERV6_H
-#define EVIO_6_0_EVIOCOMPACTREADERV6_H
-
-
 namespace evio {
 
 
@@ -49,6 +46,7 @@ namespace evio {
      * It's essentially a wrapper for the hipo.Reader class so the user can have
      * access to the EvioCompactReader methods. It is NOT thread-safe.<p>
      *
+     * @date 07/09/2020
      * @author timmer
      */
     class EvioCompactReaderV6 : public IEvioCompactReader {
@@ -86,10 +84,6 @@ namespace evio {
         std::shared_ptr<EvioXMLDictionary> getDictionary() override ;
         bool hasDictionary() override ;
 
-    private:
-
-        void mapFile(std::string const & filename, size_t fileS);
-        void generateEventPositionTable();
 
     public:
 
@@ -98,13 +92,10 @@ namespace evio {
 
         std::shared_ptr<EvioNode> getEvent(size_t eventNumber) override ;
         std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) override ;
-
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override ;
 
     private:
 
-        IEvioReader::ReadWriteStatus readFirstHeader();
-        void readDictionary();
         std::shared_ptr<EvioNode> scanStructure(size_t eventNumber);
 
     public:
