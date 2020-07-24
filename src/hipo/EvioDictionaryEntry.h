@@ -116,7 +116,7 @@ namespace evio {
          * @param parent        parent dictionary entry object
          */
         EvioDictionaryEntry(uint16_t tag, uint8_t num, uint16_t tagEnd, bool numValid,
-                            DataType const & type, string const & description, string const & format,
+                            DataType const & type, std::string const & description, std::string const & format,
                             std::shared_ptr<EvioDictionaryEntry> parent) {
 
             bool isRange = true;
@@ -193,7 +193,7 @@ namespace evio {
          */
         explicit EvioDictionaryEntry(uint16_t tag, uint16_t tagEnd = 0,
                 DataType const & type = DataType::UNKNOWN32,
-                string const & description = "", string const & format = "",
+                std::string const & description = "", std::string const & format = "",
                 std::shared_ptr<EvioDictionaryEntry> parent = nullptr) :
 
             EvioDictionaryEntry(tag, 0, tagEnd, false, type, description, format, parent) {
@@ -216,7 +216,7 @@ namespace evio {
          */
         explicit EvioDictionaryEntry(uint16_t tag, uint8_t num, uint16_t tagEnd = 0,
                                      DataType const & type = DataType::UNKNOWN32,
-                                     string const & description = "", string const & format = "",
+                                     std::string const & description = "", std::string const & format = "",
                                      std::shared_ptr<EvioDictionaryEntry> parent = nullptr) :
 
                 EvioDictionaryEntry(tag, num, tagEnd, true, type, description, format, parent) {
