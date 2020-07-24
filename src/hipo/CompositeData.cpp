@@ -1161,7 +1161,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
 
             // Read & swap string tagsegment header
             EvioNode node;
-            Util::swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+            EventHeaderParser::swapTagSegmentHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
             // Move to beginning of string data
             srcPos  += 4;
@@ -1201,7 +1201,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
             dataOff += byteLen;
 
             // Read & swap data bank header
-            Util::swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
+            EventHeaderParser::swapBankHeader(node, srcBuffer, destBuffer, srcPos, destPos);
 
             // Oops, no data
             if (node.getDataLength() < 1) {

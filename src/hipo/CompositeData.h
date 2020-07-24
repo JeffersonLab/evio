@@ -36,7 +36,6 @@
 #include "TagSegmentHeader.h"
 #include "EventHeaderParser.h"
 #include "EvioNode.h"
-#include "Util.h"
 
 #undef COMPOSITE_DEBUG
 #undef COMPOSITE_PRINT
