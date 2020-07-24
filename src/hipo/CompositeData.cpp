@@ -1,8 +1,15 @@
 //
-// Created by Carl Timmer on 2020-04-17.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #include "CompositeData.h"
+
 
 namespace evio {
 
@@ -10,20 +17,20 @@ namespace evio {
     /**
      * Constructor used for creating this object from scratch.
      *
-     * @param format format String defining data
+     * @param format format string defining data
      * @param data data in given format
      *
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    CompositeData::CompositeData(string & format, const CompositeData::Data & data) :
+    CompositeData::CompositeData(std::string & format, const CompositeData::Data & data) :
             CompositeData(format, data, data.formatTag, data.dataTag, data.dataNum) {}
 
 
     /**
      * Constructor used for creating this object from scratch.
      *
-     * @param format    format String defining data.
+     * @param format    format string defining data.
      * @param formatTag tag used in tagsegment containing format.
      * @param data      data in given format.
      * @param dataTag   tag used in bank containing data.
@@ -33,7 +40,7 @@ namespace evio {
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    CompositeData::CompositeData(string & format, const CompositeData::Data & data, uint16_t formatTag,
+    CompositeData::CompositeData(std::string & format, const CompositeData::Data & data, uint16_t formatTag,
                                  uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
 
         bool debug = false;
@@ -65,7 +72,7 @@ namespace evio {
         // That, in turn, will not allow EvioBank or EvioTagSegment to inherit from BaseStructure.
         // This is where Java really surpasses C++. Find another way write data.
 
-        std::vector<string> strings;
+        std::vector<std::string> strings;
         strings.push_back(format);
 
         tsHeader = std::make_shared<TagSegmentHeader>(0, format);
@@ -149,7 +156,7 @@ namespace evio {
         dataOffset = tsHeader->getHeaderLength();
 
         // Read the format string it contains
-        std::vector<string> strs;
+        std::vector<std::string> strs;
         Util::unpackRawBytesToStrings(bytes, 4*(tsHeader->getLength()), strs);
 
         if (strs.empty()) {
@@ -205,11 +212,6 @@ namespace evio {
         // Turn raw bytes into list of items and their types
         process();
     }
-
-
-
-
-
 
 
     /**
@@ -272,7 +274,7 @@ namespace evio {
             cd->dataOffset = cd->tsHeader->getHeaderLength();
 
             // Read the format string it contains
-            std::vector<string> strs;
+            std::vector<std::string> strs;
             Util::unpackRawBytesToStrings(bytes + rawBytesOffset + 4*(cd->dataOffset),
                                           4*(cd->tsHeader->getLength()), strs);
             if (strs.empty()) {
@@ -340,6 +342,7 @@ namespace evio {
         }
     }
 
+
     /**
      * This method generates raw bytes of evio format from a vector of CompositeData objects.
      * The returned vector consists of gluing together all the individual objects' rawByte arrays.
@@ -383,578 +386,535 @@ namespace evio {
         }
     }
 
-//
-///**
-// * Method to clone a CompositeData object.
-// * Deep cloned so no connection exists between
-// * clone and object cloned.
-// *
-// * @return cloned CompositeData object.
-// */
-//Object CompositeData::clone() {
-//
-//    CompositeData cd = new CompositeData();
-//
-//    cd.getIndex   = getIndex;
-//    cd.byteOrder  = byteOrder;
-//    cd.dataBytes  = dataBytes;
-//    cd.dataOffset = dataOffset;
-//    cd.rawBytes   = rawBytes.clone();
-//
-//    // copy tagSegment header
-//    cd.tsHeader = new TagSegmentHeader(tsHeader.getTag(),
-//                                       tsHeader.getDataType());
-//
-//    // copy bank header
-//    cd.bHeader = new BankHeader(bHeader.getTag(),
-//                                bHeader.getDataType(),
-//                                bHeader.getNumber());
-//
-//    // copy ByteBuffer
-//    cd.dataBuffer = ByteBuffer.wrap(rawBytes, 4*dataOffset, 4*bHeader.getLength()).slice();
-//    cd.dataBuffer.order(byteOrder);
-//
-//    // copy format ints
-//    cd.formatInts = new ArrayList<Integer>(formatInts.size());
-//    cd.formatInts.addAll(formatInts);
-//
-//    // copy type items
-//    cd.types = new ArrayList<DataType>(types.size());
-//    cd.types.addAll(types);
-//
-//    //-----------------
-//    // copy data items
-//    //-----------------
-//
-//    // create new list of correct length
-//    int listLength = items.size();
-//    cd.items = new ArrayList<Object>(listLength);
-//
-//    // copy each item, cloning those that are mutable
-//    for (int i=0; i < listLength; i++) {
-//        switch (types.get(i)) {
-//            // this is the only mutable type and so
-//            // it needs to be cloned specifically
-//            case CHARSTAR8:
-//                String[] strs = (String[]) items.get(i);
-//                cd.items.add(strs.clone());
-//                break;
-//            default:
-//                cd.items.add(items.get(i));
-//        }
-//    }
-//
-//    return cd;
-//}
-//
 
+    /**
+     * This method helps the CompositeData object creator by
+     * finding the proper format string parameter for putting
+     * this array of Strings into its data.
+     * The format is in the form "Ma" where M is an actual integer.
+     * Warning, in this case, M may not be greater than 15.
+     * If you want a longer string or array of strings, use the
+     * format "Na" with a literal N. The N value can be added
+     * through {@link org.jlab.coda.jevio.CompositeData.Data#addN(int)}
+     *
+     * @param strings array of strings to eventually put into a
+     *                CompositeData object.
+     * @return string representing its format to be used in the
+     *                CompositeData object's format string
+     * @return null if arg is null or has 0 length
+     */
+    std::string CompositeData::stringsToFormat(std::vector<std::string> strings) {
 
+        std::vector<uint8_t> bytes;
+        Util::stringsToRawBytes(strings, bytes);
+        if (!bytes.empty()) {
+            return std::to_string(bytes.size()) + "a";
+        }
 
-/**
- * This method helps the CompositeData object creator by
- * finding the proper format string parameter for putting
- * this array of Strings into its data.
- * The format is in the form "Ma" where M is an actual integer.
- * Warning, in this case, M may not be greater than 15.
- * If you want a longer string or array of strings, use the
- * format "Na" with a literal N. The N value can be added
- * through {@link org.jlab.coda.jevio.CompositeData.Data#addN(int)}
- *
- * @param strings array of strings to eventually put into a
- *                CompositeData object.
- * @return string representing its format to be used in the
- *                CompositeData object's format string
- * @return null if arg is null or has 0 length
- */
-string CompositeData::stringsToFormat(std::vector<string> strings) {
-
-    std::vector<uint8_t> bytes;
-    Util::stringsToRawBytes(strings, bytes);
-    if (!bytes.empty()) {
-        return std::to_string(bytes.size()) + "a";
+        return "";
     }
 
-    return "";
-}
 
-/**
- * Get the data padding (0, 1, 2, or 3 bytes).
- * @return data padding.
- */
-uint32_t CompositeData::getPadding() const {return dataPadding;}
-
-/**
- * This method gets the format string.
- * @return format string.
- */
-string CompositeData::getFormat() const {return format;}
-
-/**
- * This method gets the raw data byte order.
- * @return raw data byte order.
- */
-ByteOrder CompositeData::getByteOrder() const {return byteOrder;}
-
-/**
- * This method gets the raw byte representation of this object's data.
- * <b>Do not change the vector contents.</b>
- * @return reference to raw byte representation of this object's data.
- */
-std::vector<uint8_t> & CompositeData::getRawBytes() {return rawBytes;}
-
-/**
- * This method gets a list of all the data items inside the composite.
- * <b>Do not change the vector contents.</b>
- * @return reference to list of all the data items inside the composite.
- */
-std::vector<CompositeData::DataItem> & CompositeData::getItems() {return items;}
-
-/**
- * This method gets a list of all the types of the data items inside the composite.
- * @return reference to list of all the types of the data items inside the composite.
- */
-std::vector<DataType> & CompositeData::getTypes() {return types;}
-
-/**
- * This method gets a list of all the N values of the data items inside the composite.
- * @return reference to list of all the N values of the data items inside the composite.
- */
-std::vector<int32_t> & CompositeData::getNValues() {return NList;}
-
-/**
- * This method gets a list of all the n values of the data items inside the composite.
- * @return reference to list of all the n values of the data items inside the composite.
- */
-std::vector<int16_t> & CompositeData::getnValues() {return nList;}
-
-/**
- * This method gets a list of all the m values of the data items inside the composite.
- * @return reference to list of all the m values of the data items inside the composite.
- */
-std::vector<int8_t> & CompositeData::getmValues() {return mList;}
-
-/**
- * This methods returns the index of the data item to be returned
- * on the next call to one of the get&lt;Type&gt;() methods
- * (e.g. {@link #getInt()}.
- * @return returns the index of the data item to be returned
- */
-int CompositeData::index() const {return getIndex;}
-
-/**
- * This methods sets the index of the data item to be returned
- * on the next call to one of the get&lt;Type&gt;() methods
- * (e.g. {@link #getInt()}.
- * @param index the index of the next data item to be returned
- */
-void CompositeData::index(int index) {this->getIndex = index;}
+    /**
+     * Get the data padding (0, 1, 2, or 3 bytes).
+     * @return data padding.
+     */
+    uint32_t CompositeData::getPadding() const {return dataPadding;}
 
 
-
-/**
- * This method gets the next N value data item if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not NValue.
- */
-int32_t CompositeData::getNValue() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::NVALUE) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.i32);
-}
-
-/**
- * This method gets the next n value data item if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not nValue.
- */
-int16_t CompositeData::getnValue() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::nVALUE) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.s16);
-}
-
-/**
-* This method gets the next m value data item if it's the correct type.
-* @return data item value.
-* @throws underflow_error if at end of data.
-* @throws EvioException if data is not mValue.
-*/
-int8_t CompositeData::getmValue() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::mVALUE) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.b8);
-}
-
-/**
-* This method gets the next HOLLERIT data item if it's the correct type.
-* @return data item value.
-* @throws underflow_error if at end of data.
-* @throws EvioException if data is not HOLLERIT.
-*/
-int32_t CompositeData::getHollerit() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::HOLLERIT) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.i32);
-}
+    /**
+     * This method gets the format string.
+     * @return format string.
+     */
+    std::string CompositeData::getFormat() const {return format;}
 
 
-/**
- * This method gets the next data item as a byte/char if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not int8_t.
- */
-int8_t CompositeData::getChar() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::CHAR8) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.b8);
-}
-
-/**
- * This method gets the next data item as an unsigned byte/char if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not uint8_t.
- */
-uint8_t CompositeData::getUChar() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::UCHAR8) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.ub8);
-}
-
-/**
- * This method gets the next data item as a short if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not int16_t.
- */
-int16_t CompositeData::getShort() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::SHORT16) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.s16);
-}
-
-/**
- * This method gets the next data item as an unsigned short if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not uint16_t.
- */
-uint16_t CompositeData::getUShort() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::USHORT16) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.us16);
-}
-
-/**
- * This method gets the next data item as an int if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not int32_t.
- */
-int32_t CompositeData::getInt() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::INT32) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.i32);
-}
-
-/**
- * This method gets the next data item as an unsigned int if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not uint32_t.
- */
-uint32_t CompositeData::getUInt() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::UINT32) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.ui32);
-}
-
-/**
- * This method gets the next data item as a long if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not int64_t.
- */
-int64_t CompositeData::getLong() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::LONG64) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.l64);
-}
-
-/**
- * This method gets the next data item as an unsigned long if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not uint64_t.
- */
-uint64_t CompositeData::getULong() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::ULONG64) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.ul64);
-}
-
-/**
- * This method gets the next data item as a float if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not float.
- */
-float CompositeData::getFloat() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::FLOAT32) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.flt);
-}
-
-/**
- * This method gets the next data item as a double if it's the correct type.
- * @return data item value.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not double.
- */
-double CompositeData::getDouble() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::DOUBLE64) {throw EvioException("wrong data type");}
-    return (items[getIndex++].item.dbl);
-}
-
-/**
- * This method gets the next data item as a vector of strings if it's the correct type.
- * @return reference to vector of strings in data item.
- * @throws underflow_error if at end of data.
- * @throws EvioException if data is not vector of strings.
- */
-std::vector<string> & CompositeData::getStrings() {
-    if (getIndex > types.size()) {throw underflow_error("end of data");}
-    if (types[getIndex] != DataType::CHARSTAR8) {throw EvioException("wrong data type");}
-    items[getIndex].item.str = true;
-    return (items[getIndex++].strVec);
- }
+    /**
+     * This method gets the raw data byte order.
+     * @return raw data byte order.
+     */
+    ByteOrder CompositeData::getByteOrder() const {return byteOrder;}
 
 
-/**
- * <pre>
- *  This routine transforms a composite, format-containing
- *  ASCII string to a vector of integer codes. It is to be used
- *  in conjunction with {@link #eviofmtswap} to swap the endianness of
- *  composite data.
- *
- *   format code bits <- format in ascii form
- *    [15:14] [13:8] [7:0]
- *      Nnm      #     0           #'('
- *        0      0     0            ')'
- *      Nnm      #     1           #'i'   unsigned int
- *      Nnm      #     2           #'F'   floating point
- *      Nnm      #     3           #'a'   8-bit char (C++)
- *      Nnm      #     4           #'S'   short
- *      Nnm      #     5           #'s'   unsigned short
- *      Nnm      #     6           #'C'   char
- *      Nnm      #     7           #'c'   unsigned char
- *      Nnm      #     8           #'D'   double (64-bit float)
- *      Nnm      #     9           #'L'   long long (64-bit int)
- *      Nnm      #    10           #'l'   unsigned long long (64-bit int)
- *      Nnm      #    11           #'I'   int
- *      Nnm      #    12           #'A'   hollerit (4-byte char with int endining)
- *
- *   NOTES:
- *    1. The number of repeats '#' must be the number between 2 and 63, number 1 assumed by default
- *    2. If the number of repeats is symbol 'N' instead of the number, it will be taken from data assuming 'int32' format;
- *       if the number of repeats is symbol 'n' instead of the number, it will be taken from data assuming 'int16' format;
- *       if the number of repeats is symbol 'm' instead of the number, it will be taken from data assuming 'int8' format;
- *       Two bits Nnm [15:14], if not zero, requires to take the number of repeats from data in appropriate format:
- *            [01] means that number is integer (N),
- *            [10] - short (n),
- *            [11] - char (m)
- *    3. If format ends but end of data did not reach, format in last parenthesis
- *       will be repeated until all data processed; if there are no parenthesis
- *       in format, data processing will be started from the beginnig of the format
- *       (FORTRAN agreement)
- * </pre>
- *
- *  @param formatStr composite data format string
- *  @param ifmt      unsigned short vector to hold transformed format
- *
- *  @return the number of shorts in ifmt[] (positive)
- *  @return -1 to -8 for improper format string
- *
- *  @author Sergey Boiarinov
- */
-int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<uint16_t> & ifmt) {
+    /**
+     * This method gets the raw byte representation of this object's data.
+     * <b>Do not change the vector contents.</b>
+     * @return reference to raw byte representation of this object's data.
+     */
+    std::vector<uint8_t> & CompositeData::getRawBytes() {return rawBytes;}
 
-    char ch;
-    int  l, n, kf, lev, nr, nn, nb;
-    size_t fmt_len;
 
-    ifmt.clear();
-    ifmt.reserve(40);
+    /**
+     * This method gets a list of all the data items inside the composite.
+     * <b>Do not change the vector contents.</b>
+     * @return reference to list of all the data items inside the composite.
+     */
+    std::vector<CompositeData::DataItem> & CompositeData::getItems() {return items;}
 
-    n   = 0; /* ifmt[] index */
-    nr  = 0;
-    nn  = 1;
-    lev = 0;
-    nb  = 0; /* the number of bytes in length taken from data */
+
+    /**
+     * This method gets a list of all the types of the data items inside the composite.
+     * @return reference to list of all the types of the data items inside the composite.
+     */
+    std::vector<DataType> & CompositeData::getTypes() {return types;}
+
+
+    /**
+     * This method gets a list of all the N values of the data items inside the composite.
+     * @return reference to list of all the N values of the data items inside the composite.
+     */
+    std::vector<int32_t> & CompositeData::getNValues() {return NList;}
+
+
+    /**
+     * This method gets a list of all the n values of the data items inside the composite.
+     * @return reference to list of all the n values of the data items inside the composite.
+     */
+    std::vector<int16_t> & CompositeData::getnValues() {return nList;}
+
+
+    /**
+     * This method gets a list of all the m values of the data items inside the composite.
+     * @return reference to list of all the m values of the data items inside the composite.
+     */
+    std::vector<int8_t> & CompositeData::getmValues() {return mList;}
+
+
+    /**
+     * This methods returns the index of the data item to be returned
+     * on the next call to one of the get&lt;Type&gt;() methods
+     * (e.g. {@link #getInt()}.
+     * @return returns the index of the data item to be returned
+     */
+    int CompositeData::index() const {return getIndex;}
+
+
+    /**
+     * This methods sets the index of the data item to be returned
+     * on the next call to one of the get&lt;Type&gt;() methods
+     * (e.g. {@link #getInt()}.
+     * @param index the index of the next data item to be returned
+     */
+    void CompositeData::index(int index) {this->getIndex = index;}
+
+
+    /**
+     * This method gets the next N value data item if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not NValue.
+     */
+    int32_t CompositeData::getNValue() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::NVALUE) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.i32);
+    }
+
+
+    /**
+     * This method gets the next n value data item if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not nValue.
+     */
+    int16_t CompositeData::getnValue() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::nVALUE) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.s16);
+    }
+
+
+    /**
+    * This method gets the next m value data item if it's the correct type.
+    * @return data item value.
+    * @throws underflow_error if at end of data.
+    * @throws EvioException if data is not mValue.
+    */
+    int8_t CompositeData::getmValue() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::mVALUE) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.b8);
+    }
+
+
+    /**
+    * This method gets the next HOLLERIT data item if it's the correct type.
+    * @return data item value.
+    * @throws underflow_error if at end of data.
+    * @throws EvioException if data is not HOLLERIT.
+    */
+    int32_t CompositeData::getHollerit() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::HOLLERIT) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.i32);
+    }
+
+
+    /**
+     * This method gets the next data item as a byte/char if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not int8_t.
+     */
+    int8_t CompositeData::getChar() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::CHAR8) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.b8);
+    }
+
+
+    /**
+     * This method gets the next data item as an unsigned byte/char if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not uint8_t.
+     */
+    uint8_t CompositeData::getUChar() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::UCHAR8) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.ub8);
+    }
+
+
+    /**
+     * This method gets the next data item as a short if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not int16_t.
+     */
+    int16_t CompositeData::getShort() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::SHORT16) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.s16);
+    }
+
+
+    /**
+     * This method gets the next data item as an unsigned short if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not uint16_t.
+     */
+    uint16_t CompositeData::getUShort() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::USHORT16) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.us16);
+    }
+
+
+    /**
+     * This method gets the next data item as an int if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not int32_t.
+     */
+    int32_t CompositeData::getInt() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::INT32) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.i32);
+    }
+
+
+    /**
+     * This method gets the next data item as an unsigned int if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not uint32_t.
+     */
+    uint32_t CompositeData::getUInt() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::UINT32) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.ui32);
+    }
+
+
+    /**
+     * This method gets the next data item as a long if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not int64_t.
+     */
+    int64_t CompositeData::getLong() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::LONG64) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.l64);
+    }
+
+
+    /**
+     * This method gets the next data item as an unsigned long if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not uint64_t.
+     */
+    uint64_t CompositeData::getULong() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::ULONG64) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.ul64);
+    }
+
+
+    /**
+     * This method gets the next data item as a float if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not float.
+     */
+    float CompositeData::getFloat() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::FLOAT32) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.flt);
+    }
+
+
+    /**
+     * This method gets the next data item as a double if it's the correct type.
+     * @return data item value.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not double.
+     */
+    double CompositeData::getDouble() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::DOUBLE64) {throw EvioException("wrong data type");}
+        return (items[getIndex++].item.dbl);
+    }
+
+
+    /**
+     * This method gets the next data item as a vector of strings if it's the correct type.
+     * @return reference to vector of strings in data item.
+     * @throws underflow_error if at end of data.
+     * @throws EvioException if data is not vector of strings.
+     */
+    std::vector<std::string> & CompositeData::getStrings() {
+        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (types[getIndex] != DataType::CHARSTAR8) {throw EvioException("wrong data type");}
+        items[getIndex].item.str = true;
+        return (items[getIndex++].strVec);
+    }
+
+
+    /**
+     * <pre>
+     *  This routine transforms a composite, format-containing
+     *  ASCII string to a vector of integer codes. It is to be used
+     *  in conjunction with {@link #eviofmtswap} to swap the endianness of
+     *  composite data.
+     *
+     *   format code bits <- format in ascii form
+     *    [15:14] [13:8] [7:0]
+     *      Nnm      #     0           #'('
+     *        0      0     0            ')'
+     *      Nnm      #     1           #'i'   unsigned int
+     *      Nnm      #     2           #'F'   floating point
+     *      Nnm      #     3           #'a'   8-bit char (C++)
+     *      Nnm      #     4           #'S'   short
+     *      Nnm      #     5           #'s'   unsigned short
+     *      Nnm      #     6           #'C'   char
+     *      Nnm      #     7           #'c'   unsigned char
+     *      Nnm      #     8           #'D'   double (64-bit float)
+     *      Nnm      #     9           #'L'   long long (64-bit int)
+     *      Nnm      #    10           #'l'   unsigned long long (64-bit int)
+     *      Nnm      #    11           #'I'   int
+     *      Nnm      #    12           #'A'   hollerit (4-byte char with int endining)
+     *
+     *   NOTES:
+     *    1. The number of repeats '#' must be the number between 2 and 63, number 1 assumed by default
+     *    2. If the number of repeats is symbol 'N' instead of the number, it will be taken from data assuming 'int32' format;
+     *       if the number of repeats is symbol 'n' instead of the number, it will be taken from data assuming 'int16' format;
+     *       if the number of repeats is symbol 'm' instead of the number, it will be taken from data assuming 'int8' format;
+     *       Two bits Nnm [15:14], if not zero, requires to take the number of repeats from data in appropriate format:
+     *            [01] means that number is integer (N),
+     *            [10] - short (n),
+     *            [11] - char (m)
+     *    3. If format ends but end of data did not reach, format in last parenthesis
+     *       will be repeated until all data processed; if there are no parenthesis
+     *       in format, data processing will be started from the beginnig of the format
+     *       (FORTRAN agreement)
+     * </pre>
+     *
+     *  @param formatStr composite data format string
+     *  @param ifmt      unsigned short vector to hold transformed format
+     *
+     *  @return the number of shorts in ifmt[] (positive)
+     *  @return -1 to -8 for improper format string
+     *
+     *  @author Sergey Boiarinov
+     */
+    int CompositeData::compositeFormatToInt(const std::string & formatStr, std::vector<uint16_t> & ifmt) {
+
+        char ch;
+        int  l, n, kf, lev, nr, nn, nb;
+        size_t fmt_len;
+
+        ifmt.clear();
+        ifmt.reserve(40);
+
+        n   = 0; /* ifmt[] index */
+        nr  = 0;
+        nn  = 1;
+        lev = 0;
+        nb  = 0; /* the number of bytes in length taken from data */
 
 #ifdef COMPOSITE_DEBUG
-    std::cout << std::endl << "=== eviofmt start, fmt >" << formatStr << "< ===" << std::endl;
+        std::cout << std::endl << "=== eviofmt start, fmt >" << formatStr << "< ===" << std::endl;
 #endif
 
-    /* loop over format string */
-    fmt_len = formatStr.size();
-    if (fmt_len > INT_MAX) return (-1);
-    for (l=0; l < (int)fmt_len; l++)
-    {
-        ch = formatStr[l];
-        if (ch == ' ') continue;
-#ifdef COMPOSITE_DEBUG
-        std::cout << ch << std::endl;
-#endif
-        /* if digit, we have hard coded 'number', following before komma will be repeated 'number' times;
-        forming 'nr' */
-        if (isdigit(ch))
+        /* loop over format string */
+        fmt_len = formatStr.size();
+        if (fmt_len > INT_MAX) return (-1);
+        for (l=0; l < (int)fmt_len; l++)
         {
-            if (nr < 0) return(-1);
-            nr = 10*MAX(0,nr) + atoi((char *)&ch);
-            if (nr > 15) return(-2);
+            ch = formatStr[l];
+            if (ch == ' ') continue;
 #ifdef COMPOSITE_DEBUG
-            std::cout << "the number of repeats nr=" << nr << std::endl;
+            std::cout << ch << std::endl;
 #endif
-        }
-
-            /* a left parenthesis -> 16*nr + 0 */
-        else if (ch == '(')
-        {
-            if (nr < 0) return(-3);
-            lev++;
+            /* if digit, we have hard coded 'number', following before komma will be repeated 'number' times;
+            forming 'nr' */
+            if (isdigit(ch))
+            {
+                if (nr < 0) return(-1);
+                nr = 10*std::max(0,nr) + atoi((char *)&ch);
+                if (nr > 15) return(-2);
 #ifdef COMPOSITE_DEBUG
-            std::cout << "111: nn=" << nn << " nr=" << nr << std::endl;
+                std::cout << "the number of repeats nr=" << nr << std::endl;
 #endif
-
-            if (nn == 0) /*special case: if #repeats is in data, set bits [15:14] */
-            {
-                if(nb==4)      {ifmt.push_back(1<<14); ++n;}
-                else if(nb==2) {ifmt.push_back(2<<14); ++n;}
-                else if(nb==1) {ifmt.push_back(3<<14); ++n;}
-                else {printf("eviofmt ERROR: unknown nb=%d\n",nb);exit(0);}
-            }
-            else /* #repeats hardcoded */
-            {
-                ifmt.push_back((MAX(nn,nr)&0x3F) << 8);
-                ++n;
             }
 
-            nn = 1;
-            nr = 0;
-#ifdef COMPOSITE_DEBUG
-            debugprint(n-1);
-#endif
-        }
-            /* a right parenthesis -> (0<<8) + 0 */
-        else if (ch == ')')
-        {
-            if (nr >= 0) return(-4);
-            lev--;
-            ifmt.push_back(0);
-            ++n;
-            nr = -1;
-#ifdef COMPOSITE_DEBUG
-            debugprint(n-1);
-#endif
-        }
-            /* a komma, reset nr */
-        else if (ch == ',')
-        {
-            if (nr >= 0) return(-5);
-            nr = 0;
-#ifdef COMPOSITE_DEBUG
-            std::cout << "komma, nr=" << nr << std::endl;
-#endif
-        }
-            /* variable length format (int32) */
-        else if (ch == 'N')
-        {
-            nn = 0;
-            nb = 4;
-#ifdef COMPOSITE_DEBUG
-            std::cout << "N, nb=" << nb << std::endl;
-#endif
-        }
-            /* variable length format (int16) */
-        else if (ch == 'n')
-        {
-            nn = 0;
-            nb = 2;
-#ifdef COMPOSITE_DEBUG
-            std::cout << "n, nb=" << nb << std::endl;
-#endif
-        }
-            /* variable length format (int8) */
-        else if (ch == 'm')
-        {
-            nn = 0;
-            nb = 1;
-#ifdef COMPOSITE_DEBUG
-            std::cout << "m, nb=" << nb << std::endl;
-#endif
-        }
-            /* actual format */
-        else
-        {
-            if(     ch == 'i') kf = 1;  /* 32 */
-            else if(ch == 'F') kf = 2;  /* 32 */
-            else if(ch == 'a') kf = 3;  /*  8 */
-            else if(ch == 'S') kf = 4;  /* 16 */
-            else if(ch == 's') kf = 5;  /* 16 */
-            else if(ch == 'C') kf = 6;  /*  8 */
-            else if(ch == 'c') kf = 7;  /*  8 */
-            else if(ch == 'D') kf = 8;  /* 64 */
-            else if(ch == 'L') kf = 9;  /* 64 */
-            else if(ch == 'l') kf = 10; /* 64 */
-            else if(ch == 'I') kf = 11; /* 32 */
-            else if(ch == 'A') kf = 12; /* 32 */
-            else               kf = 0;
-
-            if (kf != 0)
+                /* a left parenthesis -> 16*nr + 0 */
+            else if (ch == '(')
             {
-                if (nr < 0) return(-6);
+                if (nr < 0) return(-3);
+                lev++;
 #ifdef COMPOSITE_DEBUG
-                std::cout << "222: nn=" << nn << " nr=" << nr << std::endl;
+                std::cout << "111: nn=" << nn << " nr=" << nr << std::endl;
 #endif
 
-                int ifmtVal = ((MAX(nn,nr) & 0x3F) << 8) + kf;
-
-                if (nb > 0) {
-                    if (nb==4)      ifmtVal |= (1 << 14);
-                    else if (nb==2) ifmtVal |= (2 << 14);
-                    else if (nb==1) ifmtVal |= (3 << 14);
-                    else {throw EvioException("unknown nb=" + std::to_string(nb));}
+                if (nn == 0) /*special case: if #repeats is in data, set bits [15:14] */
+                {
+                    if(nb==4)      {ifmt.push_back(1<<14); ++n;}
+                    else if(nb==2) {ifmt.push_back(2<<14); ++n;}
+                    else if(nb==1) {ifmt.push_back(3<<14); ++n;}
+                    else {printf("eviofmt ERROR: unknown nb=%d\n",nb);exit(0);}
+                }
+                else /* #repeats hardcoded */
+                {
+                    ifmt.push_back((std::max(nn,nr)&0x3F) << 8);
+                    ++n;
                 }
 
-                ifmt.push_back(ifmtVal);
-                ++n;
-                nn=1;
+                nn = 1;
+                nr = 0;
 #ifdef COMPOSITE_DEBUG
                 debugprint(n-1);
 #endif
             }
+                /* a right parenthesis -> (0<<8) + 0 */
+            else if (ch == ')')
+            {
+                if (nr >= 0) return(-4);
+                lev--;
+                ifmt.push_back(0);
+                ++n;
+                nr = -1;
+#ifdef COMPOSITE_DEBUG
+                debugprint(n-1);
+#endif
+            }
+                /* a komma, reset nr */
+            else if (ch == ',')
+            {
+                if (nr >= 0) return(-5);
+                nr = 0;
+#ifdef COMPOSITE_DEBUG
+                std::cout << "komma, nr=" << nr << std::endl;
+#endif
+            }
+                /* variable length format (int32) */
+            else if (ch == 'N')
+            {
+                nn = 0;
+                nb = 4;
+#ifdef COMPOSITE_DEBUG
+                std::cout << "N, nb=" << nb << std::endl;
+#endif
+            }
+                /* variable length format (int16) */
+            else if (ch == 'n')
+            {
+                nn = 0;
+                nb = 2;
+#ifdef COMPOSITE_DEBUG
+                std::cout << "n, nb=" << nb << std::endl;
+#endif
+            }
+                /* variable length format (int8) */
+            else if (ch == 'm')
+            {
+                nn = 0;
+                nb = 1;
+#ifdef COMPOSITE_DEBUG
+                std::cout << "m, nb=" << nb << std::endl;
+#endif
+            }
+                /* actual format */
             else
             {
-                /* illegal character */
-                return(-7);
-            }
-            nr = -1;
-        }
-    }
+                if(     ch == 'i') kf = 1;  /* 32 */
+                else if(ch == 'F') kf = 2;  /* 32 */
+                else if(ch == 'a') kf = 3;  /*  8 */
+                else if(ch == 'S') kf = 4;  /* 16 */
+                else if(ch == 's') kf = 5;  /* 16 */
+                else if(ch == 'C') kf = 6;  /*  8 */
+                else if(ch == 'c') kf = 7;  /*  8 */
+                else if(ch == 'D') kf = 8;  /* 64 */
+                else if(ch == 'L') kf = 9;  /* 64 */
+                else if(ch == 'l') kf = 10; /* 64 */
+                else if(ch == 'I') kf = 11; /* 32 */
+                else if(ch == 'A') kf = 12; /* 32 */
+                else               kf = 0;
 
-    if (lev != 0) return(-8);
-
+                if (kf != 0)
+                {
+                    if (nr < 0) return(-6);
 #ifdef COMPOSITE_DEBUG
-    std::cout << "=== eviofmt end ===" << std::endl;
+                    std::cout << "222: nn=" << nn << " nr=" << nr << std::endl;
 #endif
 
-    return(n);
-}
+                    int ifmtVal = ((std::max(nn,nr) & 0x3F) << 8) + kf;
+
+                    if (nb > 0) {
+                        if (nb==4)      ifmtVal |= (1 << 14);
+                        else if (nb==2) ifmtVal |= (2 << 14);
+                        else if (nb==1) ifmtVal |= (3 << 14);
+                        else {throw EvioException("unknown nb=" + std::to_string(nb));}
+                    }
+
+                    ifmt.push_back(ifmtVal);
+                    ++n;
+                    nn=1;
+#ifdef COMPOSITE_DEBUG
+                    debugprint(n-1);
+#endif
+                }
+                else
+                {
+                    /* illegal character */
+                    return(-7);
+                }
+                nr = -1;
+            }
+        }
+
+        if (lev != 0) return(-8);
+
+#ifdef COMPOSITE_DEBUG
+        std::cout << "=== eviofmt end ===" << std::endl;
+#endif
+
+        return(n);
+    }
 
 
     /**
@@ -1020,14 +980,14 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
 
 
         while (srcBytesLeft > 0) {
-//System.out.println("start src offset = " + (srcOff + dataOff));
+            //System.out.println("start src offset = " + (srcOff + dataOff));
 
             // First read the tag segment header
             auto tsegHeader = EventHeaderParser::createTagSegmentHeader(src + srcOff, srcOrder);
             uint32_t headerLen  = tsegHeader->getHeaderLength();
             uint32_t dataLength = tsegHeader->getLength() - (headerLen - 1);
 
-//System.out.println("tag len = " + tsegHeader.getLength() + ", dataLen = " + dataLength);
+            //System.out.println("tag len = " + tsegHeader.getLength() + ", dataLen = " + dataLength);
 
             // Oops, no format data
             if (dataLength < 1) {
@@ -1043,13 +1003,13 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
             dataOff += 4*headerLen;
 
             // Read the format string it contains
-            std::vector<string> strs;
+            std::vector<std::string> strs;
             Util::unpackRawBytesToStrings(src + srcOff, 4*(tsegHeader->getLength()), strs);
 
             if (strs.empty()) {
                 throw EvioException("bad format string data");
             }
-            string fmt = strs[0];
+            std::string fmt = strs[0];
 
             std::vector<uint16_t> fmtInts;
             CompositeData::compositeFormatToInt(fmt, fmtInts);
@@ -1073,9 +1033,9 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
             headerLen  = bnkHeader->getHeaderLength();
             dataLength = bnkHeader->getLength() - (headerLen - 1);
 
-//System.out.println("swapAll: bank len = " + bnkHeader.getLength() + ", dataLen = " + dataLength +
-//", tag = " + bnkHeader.getTag() + ", num = " + bnkHeader.getNumber() + ", type = " + bnkHeader.getDataTypeName() +
-//", pad = " + bnkHeader.getPadding());
+            //System.out.println("swapAll: bank len = " + bnkHeader.getLength() + ", dataLen = " + dataLength +
+            //", tag = " + bnkHeader.getTag() + ", num = " + bnkHeader.getNumber() + ", type = " + bnkHeader.getDataTypeName() +
+            //", pad = " + bnkHeader.getPadding());
 
             // Oops, no data
             if (dataLength < 1) {
@@ -1107,8 +1067,8 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
 
             srcBytesLeft = totalBytes - dataOff;
 
-//System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOff + ", padding = " + padding);
-//System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
+            //System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOff + ", padding = " + padding);
+            //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
         }
 
         // Oops, things aren't coming out evenly
@@ -1116,7 +1076,6 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
             throw EvioException("bad format");
         }
     }
-
 
 
     /**
@@ -1172,13 +1131,13 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
             byteLen = 4*node.getDataLength();
 
             // Read the format string it contains
-            std::vector<string> strs;
+            std::vector<std::string> strs;
             Util::unpackRawBytesToStrings(srcBuffer, srcPos, byteLen, strs);
 
             if (strs.empty()) {
                 throw EvioException("bad format string data");
             }
-            string fmt = strs[0];
+            std::string fmt = strs[0];
 
             // Transform string format into int array format
             std::vector<uint16_t> fmtInts;
@@ -1262,7 +1221,6 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
 
         swapData(srcBuf, destBuf, srcBuf.position(), destBuf.position(), nBytes, ifmt);
     }
-
 
 
     /**
@@ -1378,7 +1336,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                     std::cout << "1" << std::endl;
 #endif
                 }
-                // meet right parenthesis, so we're finished processing format(s) in parenthesis
+                    // meet right parenthesis, so we're finished processing format(s) in parenthesis
                 else if (ifmt[imt-1] == 0) {
 
                     // right parenthesis without preceding left parenthesis? -> illegal format
@@ -1402,7 +1360,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                         std::cout << "2" << std::endl;
 #endif
                     }
-                    // go for another round of processing by setting 'imt' to the left parenthesis
+                        // go for another round of processing by setting 'imt' to the left parenthesis
                     else {
                         // points ifmt[] index to the left parenthesis from the same level 'lev'
                         imt = lv[lev-1].left;
@@ -1478,7 +1436,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                         std::cout << "4" << std::endl;
 #endif
                     }
-                    // format F or I or ...
+                        // format F or I or ...
                     else {
                         // there are no parenthesis, just simple format, go to processing
                         if (lev == 0) {
@@ -1486,13 +1444,13 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                             std::cout << "51" << std::endl;
 #endif
                         }
-                        // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
+                            // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
                         else if (imt != (nfmt-1)) {
 #ifdef COMPOSITE_DEBUG
                             std::cout << "52: " << imt << " " << (nfmt-1) << std::endl;
 #endif
                         }
-                        // have parenthesis, NOT the first format after the left parenthesis
+                            // have parenthesis, NOT the first format after the left parenthesis
                         else if (imt != lv[lev-1].left+1) {
 #ifdef COMPOSITE_DEBUG
                             std::cout << "53: " << imt << " " << (nfmt-1) << std::endl;
@@ -1570,7 +1528,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                 std::cout << "64bit: " << ncnf << " elements" << std::endl;
 #endif
             }
-            // 32-bit
+                // 32-bit
             else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
                 size_t b32EndIndex = srcPos + 4*ncnf;
                 // make sure we don't go past end of data
@@ -1587,7 +1545,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                 std::cout << "32bit: " << ncnf << " elements" << std::endl;
 #endif
             }
-            // 16 bits
+                // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
                 size_t b16EndIndex = srcPos + 2*ncnf;
                 // make sure we don't go past end of data
@@ -1604,7 +1562,7 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
                 std::cout << "16bit: " << ncnf << " elements" << std::endl;
 #endif
             }
-            // 8 bits
+                // 8 bits
             else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
                 // copy characters if dest != src
                 if (!inPlace) {
@@ -1633,722 +1591,723 @@ int CompositeData::compositeFormatToInt(const string & formatStr, std::vector<ui
     }
 
 
-/**
- * This method converts (swaps) EVIO composite type data
- * between Big endian and Little endian. This
- * data does <b>NOT</b> include the composite type's beginning tagsegment and
- * the format string it contains. It also does <b>NOT</b> include the data's
- * bank header words. The dest can be the same as src in which case data is swapped in place.<p>
- *
- * Converts the data of array (src[i], i=0...nwrd-1)
- * using the format code      (ifmt[j], j=0...nfmt-1) .
- *
- * <p>
- * Algorithm description:<p>
- * Data processed inside while (ib &lt; nwrd) loop, where 'ib' is src[] index;
- * loop breaks when 'ib' reaches the number of elements in src[]
+    /**
+     * This method converts (swaps) EVIO composite type data
+     * between Big endian and Little endian. This
+     * data does <b>NOT</b> include the composite type's beginning tagsegment and
+     * the format string it contains. It also does <b>NOT</b> include the data's
+     * bank header words. The dest can be the same as src in which case data is swapped in place.<p>
+     *
+     * Converts the data of array (src[i], i=0...nwrd-1)
+     * using the format code      (ifmt[j], j=0...nfmt-1) .
+     *
+     * <p>
+     * Algorithm description:<p>
+     * Data processed inside while (ib &lt; nwrd) loop, where 'ib' is src[] index;
+     * loop breaks when 'ib' reaches the number of elements in src[]
 
- * @param srcBuf     data source data pointer.
- * @param destBuf    destination pointer or can be null if swapping in place.
- * @param nwrd       number of data words (32-bit ints) to be swapped.
- * @param ifmt       format list as produced by {@link #compositeFormatToInt(String)}.
- * @param padding    number of bytes to ignore in last data word (starting from data end).
- * @param srcIsLocal true if src is local endian, else false.
- *
- * @throws EvioException if ifmt empty or nwrd &lt; 2;
- *                       src pointer is null;
- *                       if src & dest are not identical but overlap.
- */
-void CompositeData::swapData(int32_t *src, int32_t *dest, size_t nwrd,
-                             const std::vector<uint16_t> & ifmt,
-                             uint32_t padding, bool srcIsLocal) {
+     * @param srcBuf     data source data pointer.
+     * @param destBuf    destination pointer or can be null if swapping in place.
+     * @param nwrd       number of data words (32-bit ints) to be swapped.
+     * @param ifmt       format list as produced by {@link #compositeFormatToInt(String)}.
+     * @param padding    number of bytes to ignore in last data word (starting from data end).
+     * @param srcIsLocal true if src is local endian, else false.
+     *
+     * @throws EvioException if ifmt empty or nwrd &lt; 2;
+     *                       src pointer is null;
+     *                       if src & dest are not identical but overlap.
+     */
+    void CompositeData::swapData(int32_t *src, int32_t *dest, size_t nwrd,
+                                 const std::vector<uint16_t> & ifmt,
+                                 uint32_t padding, bool srcIsLocal) {
 
-    // check args
-    if (src == nullptr) {
-        throw EvioException("src pointer null");
-    }
-
-    if (ifmt.empty()) {
-        throw EvioException("ifmt arg empty");
-    }
-    // size of int list
-    size_t nfmt = ifmt.size();
-
-    if (nwrd < 2) {
-        throw EvioException("number of words to swap must be >= 2");
-    }
-
-    bool inPlace = false;
-    if (src == dest || dest == nullptr) {
-        // We're swapping in place
-        inPlace = true;
-        dest = src;
-    }
-    else {
-        // Check to see if src & dest memories overlap
-        if (((dest + nwrd) > src) && (dest < (src + nwrd))) {
-            throw EvioException("src & dest memories not identical but overlap");
+        // check args
+        if (src == nullptr) {
+            throw EvioException("src pointer null");
         }
-    }
 
-    int imt  = 0;   /* ifmt[] index */
-    int ncnf = 0;   /* how many times must repeat a format */
-    int lev  = 0;   /* parenthesis level */
-    int kcnf, mcnf, iterm = 0;
-    int64_t *b64, *b64end, *b64dest;
-    int32_t *b32, *b32end, *b32dest;
-    int16_t *b16, *b16end, *b16dest;
-    auto b8     = reinterpret_cast<int8_t *>(&src[0]);   /* beginning of data */
-    auto b8end  = reinterpret_cast<int8_t *>(&src[nwrd]) - padding; /* end of data + 1 - padding */
-    auto b8dest = reinterpret_cast<int8_t *>(dest);
-    LV lv[10];
+        if (ifmt.empty()) {
+            throw EvioException("ifmt arg empty");
+        }
+        // size of int list
+        size_t nfmt = ifmt.size();
+
+        if (nwrd < 2) {
+            throw EvioException("number of words to swap must be >= 2");
+        }
+
+        bool inPlace = false;
+        if (src == dest || dest == nullptr) {
+            // We're swapping in place
+            inPlace = true;
+            dest = src;
+        }
+        else {
+            // Check to see if src & dest memories overlap
+            if (((dest + nwrd) > src) && (dest < (src + nwrd))) {
+                throw EvioException("src & dest memories not identical but overlap");
+            }
+        }
+
+        int imt  = 0;   /* ifmt[] index */
+        int ncnf = 0;   /* how many times must repeat a format */
+        int lev  = 0;   /* parenthesis level */
+        int kcnf, mcnf, iterm = 0;
+        int64_t *b64, *b64end, *b64dest;
+        int32_t *b32, *b32end, *b32dest;
+        int16_t *b16, *b16end, *b16dest;
+        auto b8     = reinterpret_cast<int8_t *>(&src[0]);   /* beginning of data */
+        auto b8end  = reinterpret_cast<int8_t *>(&src[nwrd]) - padding; /* end of data + 1 - padding */
+        auto b8dest = reinterpret_cast<int8_t *>(dest);
+        LV lv[10];
 
 
-    while (b8 < b8end) {
+        while (b8 < b8end) {
 
 #ifdef COMPOSITE_DEBUG
-        std::cout << ""+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
+            std::cout << ""+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
                                    ", end = " << b8end << dec << std::endl;
 #endif
-        // get next format code
-        while (true) {
-            imt++;
-            // end of format statement reached, back to iterm - last parenthesis or format begining
-            if (imt > nfmt) {
-                //imt = iterm;
-                imt = 0;
+            // get next format code
+            while (true) {
+                imt++;
+                // end of format statement reached, back to iterm - last parenthesis or format begining
+                if (imt > nfmt) {
+                    //imt = iterm;
+                    imt = 0;
 #ifdef COMPOSITE_DEBUG
-                std::cout << "1" << std::endl;
-#endif
-            }
-                // meet right parenthesis, so we're finished processing format(s) in parenthesis
-            else if (ifmt[imt-1] == 0) {
-
-                // right parenthesis without preceding left parenthesis? -> illegal format
-                if (lev == 0) {
-                    throw EvioException("illegal format");
-                }
-
-                // increment counter
-                lv[lev-1].irepeat++;
-
-                // if format in parenthesis was processed the required number of times
-                if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
-                    // store left parenthesis index minus 1
-                    // (if will meet end of format, will start from format index imt=iterm;
-                    // by default we continue from the beginning of the format (iterm=0)) */
-                    //iterm = lv[lev-1].left - 1;
-                    // done with this level - decrease parenthesis level
-                    lev--;
-
-#ifdef COMPOSITE_DEBUG
-                    std::cout << "2" << std::endl;
+                    std::cout << "1" << std::endl;
 #endif
                 }
-                    // go for another round of processing by setting 'imt' to the left parenthesis
-                else {
-                    // points ifmt[] index to the left parenthesis from the same level 'lev'
-                    imt = lv[lev-1].left;
-#ifdef COMPOSITE_DEBUG
-                    std::cout << "3" << std::endl;
-#endif
-                }
-            }
-            else {
-                ncnf = (ifmt[imt-1] >> 8) & 0x3F;  /* how many times to repeat format code */
-                kcnf =  ifmt[imt-1] & 0xFF;        /* format code */
-                mcnf = (ifmt[imt-1] >> 14) & 0x3;  /* repeat code */
+                    // meet right parenthesis, so we're finished processing format(s) in parenthesis
+                else if (ifmt[imt-1] == 0) {
 
-                // left parenthesis - set new lv[]
-                if (kcnf == 0) {
-
-                    // check repeats for left parenthesis
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as int32
-                    if (mcnf == 1) {
-                        // set it to regular left parenthesis code
-                        mcnf = 0;
-
-                        b32     = reinterpret_cast<int32_t *>(b8);
-                        b32dest = reinterpret_cast<int32_t *>(b8dest);
-
-                        if (srcIsLocal) {
-                            // read #repeats (N) from data buffer
-                            ncnf = *b32;
-                            // swap data
-                            *b32dest = SWAP_32(ncnf);
-                        }
-                        else {
-                            ncnf = *b32dest = SWAP_32(*b32);
-                        }
-
-                        b8 += 4;
-                        b8dest += 4;
-
-#ifdef COMPOSITE_DEBUG
-                        std::cout << "ncnf from data = " << ncnf << " (code 15)" << std::endl;
-#endif
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as int16
-                    if (mcnf == 2) {
-                        mcnf = 0;
-
-                        b16     = reinterpret_cast<int16_t *>(b8);
-                        b16dest = reinterpret_cast<int16_t *>(b8dest);
-
-                        if (srcIsLocal) {
-                            ncnf = *b16;
-                            *b16dest = SWAP_16(ncnf);
-                        }
-                        else {
-                            ncnf = *b16dest = SWAP_16(*b16);
-                        }
-
-                        b8 += 2;
-                        b8dest += 2;
-
-#ifdef COMPOSITE_DEBUG
-                        std::cout << "ncnf from data = " << ncnf << " (code 14)" << std::endl;
-#endif
-                    }
-
-                    // left parenthesis, SPECIAL case: #repeats must be taken from data as int8
-                    if (mcnf == 3) {
-                        mcnf = 0;
-                        ncnf = *b8;
-                        *b8dest = ncnf;
-                        b8++;
-                        b8dest++;
-
-#ifdef COMPOSITE_DEBUG
-                        std::cout << "ncnf from data = " << ncnf << " (code 13)" << std::endl;
-#endif
-                    }
-
-                    // store ifmt[] index
-                    lv[lev].left = imt;
-                    // how many time will repeat format code inside parenthesis
-                    lv[lev].nrepeat = ncnf;
-                    // cleanup place for the right parenthesis (do not get it yet)
-                    lv[lev].irepeat = 0;
-                    // increase parenthesis level
-                    lev++;
-#ifdef COMPOSITE_DEBUG
-                    std::cout << "4" << std::endl;
-#endif
-                }
-                // format F or I or ...
-                else {
-                    // there are no parenthesis, just simple format, go to processing
+                    // right parenthesis without preceding left parenthesis? -> illegal format
                     if (lev == 0) {
+                        throw EvioException("illegal format");
+                    }
+
+                    // increment counter
+                    lv[lev-1].irepeat++;
+
+                    // if format in parenthesis was processed the required number of times
+                    if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
+                        // store left parenthesis index minus 1
+                        // (if will meet end of format, will start from format index imt=iterm;
+                        // by default we continue from the beginning of the format (iterm=0)) */
+                        //iterm = lv[lev-1].left - 1;
+                        // done with this level - decrease parenthesis level
+                        lev--;
+
 #ifdef COMPOSITE_DEBUG
-                        std::cout << "51" << std::endl;
+                        std::cout << "2" << std::endl;
 #endif
                     }
-                        // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
-                    else if (imt != (nfmt-1)) {
+                        // go for another round of processing by setting 'imt' to the left parenthesis
+                    else {
+                        // points ifmt[] index to the left parenthesis from the same level 'lev'
+                        imt = lv[lev-1].left;
 #ifdef COMPOSITE_DEBUG
-                        std::cout << "52: " << imt << " " << (nfmt-1) << std::endl;
+                        std::cout << "3" << std::endl;
 #endif
                     }
-                    // have parenthesis, NOT the first format after the left parenthesis
-                    else if (imt != lv[lev-1].left+1) {
+                }
+                else {
+                    ncnf = (ifmt[imt-1] >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  ifmt[imt-1] & 0xFF;        /* format code */
+                    mcnf = (ifmt[imt-1] >> 14) & 0x3;  /* repeat code */
+
+                    // left parenthesis - set new lv[]
+                    if (kcnf == 0) {
+
+                        // check repeats for left parenthesis
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as int32
+                        if (mcnf == 1) {
+                            // set it to regular left parenthesis code
+                            mcnf = 0;
+
+                            b32     = reinterpret_cast<int32_t *>(b8);
+                            b32dest = reinterpret_cast<int32_t *>(b8dest);
+
+                            if (srcIsLocal) {
+                                // read #repeats (N) from data buffer
+                                ncnf = *b32;
+                                // swap data
+                                *b32dest = SWAP_32(ncnf);
+                            }
+                            else {
+                                ncnf = *b32dest = SWAP_32(*b32);
+                            }
+
+                            b8 += 4;
+                            b8dest += 4;
+
 #ifdef COMPOSITE_DEBUG
-                        std::cout << "53: " << imt << " " << (nfmt-1) << std::endl;
+                            std::cout << "ncnf from data = " << ncnf << " (code 15)" << std::endl;
 #endif
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as int16
+                        if (mcnf == 2) {
+                            mcnf = 0;
+
+                            b16     = reinterpret_cast<int16_t *>(b8);
+                            b16dest = reinterpret_cast<int16_t *>(b8dest);
+
+                            if (srcIsLocal) {
+                                ncnf = *b16;
+                                *b16dest = SWAP_16(ncnf);
+                            }
+                            else {
+                                ncnf = *b16dest = SWAP_16(*b16);
+                            }
+
+                            b8 += 2;
+                            b8dest += 2;
+
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "ncnf from data = " << ncnf << " (code 14)" << std::endl;
+#endif
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as int8
+                        if (mcnf == 3) {
+                            mcnf = 0;
+                            ncnf = *b8;
+                            *b8dest = ncnf;
+                            b8++;
+                            b8dest++;
+
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "ncnf from data = " << ncnf << " (code 13)" << std::endl;
+#endif
+                        }
+
+                        // store ifmt[] index
+                        lv[lev].left = imt;
+                        // how many time will repeat format code inside parenthesis
+                        lv[lev].nrepeat = ncnf;
+                        // cleanup place for the right parenthesis (do not get it yet)
+                        lv[lev].irepeat = 0;
+                        // increase parenthesis level
+                        lev++;
+#ifdef COMPOSITE_DEBUG
+                        std::cout << "4" << std::endl;
+#endif
+                    }
+                        // format F or I or ...
+                    else {
+                        // there are no parenthesis, just simple format, go to processing
+                        if (lev == 0) {
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "51" << std::endl;
+#endif
+                        }
+                            // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
+                        else if (imt != (nfmt-1)) {
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "52: " << imt << " " << (nfmt-1) << std::endl;
+#endif
+                        }
+                            // have parenthesis, NOT the first format after the left parenthesis
+                        else if (imt != lv[lev-1].left+1) {
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "53: " << imt << " " << (nfmt-1) << std::endl;
+#endif
+                        }
+                        else {
+                            // If none of above, we are in the end of format
+                            // so set format repeat to a big number.
+                            ncnf = 999999999;
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "54" << std::endl;
+#endif
+                        }
+                        break;
+                    }
+                }
+            } // while(true)
+
+
+            // if 'ncnf' is zero, get it from data
+            if (ncnf == 0) {
+
+                if (mcnf == 1) {
+                    // read "N" value from buffer
+                    b32     = reinterpret_cast<int32_t *>(b8);
+                    b32dest = reinterpret_cast<int32_t *>(b8dest);
+
+                    if (srcIsLocal) {
+                        ncnf = *b32;
+                        *b32dest = SWAP_32(ncnf);
                     }
                     else {
-                        // If none of above, we are in the end of format
-                        // so set format repeat to a big number.
-                        ncnf = 999999999;
-#ifdef COMPOSITE_DEBUG
-                        std::cout << "54" << std::endl;
-#endif
+                        ncnf = *b32dest = SWAP_32(*b32);
                     }
-                    break;
+
+                    b8 += 4;
+                    b8dest += 4;
                 }
+                else if (mcnf == 2) {
+                    b16     = reinterpret_cast<int16_t *>(b8);
+                    b16dest = reinterpret_cast<int16_t *>(b8dest);
+
+                    if (srcIsLocal) {
+                        ncnf = *b16;
+                        *b16dest = SWAP_16(ncnf);
+                    }
+                    else {
+                        ncnf = *b16dest = SWAP_16(*b16);
+                    }
+
+                    b8 += 2;
+                    b8dest += 2;
+
+                }
+                else if (mcnf == 3) {
+                    *b8dest = ncnf = *b8;
+                    b8++;
+                    b8dest++;
+                }
+#ifdef COMPOSITE_DEBUG
+                std::cout << "ncnf from data = " << ncnf << std::endl;
+#endif
             }
-        } // while(true)
 
 
-        // if 'ncnf' is zero, get it from data
-        if (ncnf == 0) {
+            // At this point we are ready to process next piece of data;.
+            // We have following entry info:
+            //     kcnf - format type
+            //     ncnf - how many times format repeated
+            //     b8   - starting data pointer (it comes from previously processed piece)
 
-            if (mcnf == 1) {
-                // read "N" value from buffer
+            // Convert data in according to type kcnf
+
+            // If 64-bit
+            if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
+                b64     = reinterpret_cast<int64_t *>(b8);
+                b64dest = reinterpret_cast<int64_t *>(b8dest);
+
+                b64end = b64 + ncnf;
+                if (b64end > reinterpret_cast<int64_t *>(b8end)) {
+                    b64end = reinterpret_cast<int64_t *>(b8end);
+                }
+
+                while (b64 < b64end) {
+                    *b64dest = SWAP_64(*b64);
+                    b64++;
+                    b64dest++;
+                }
+
+                b8     = reinterpret_cast<int8_t *>(b64);
+                b8dest = reinterpret_cast<int8_t *>(b64dest);
+
+#ifdef COMPOSITE_DEBUG
+                std::cout << "64bit: " << ncnf << " elements" << std::endl;
+#endif
+            }
+                // 32-bit
+            else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
                 b32     = reinterpret_cast<int32_t *>(b8);
                 b32dest = reinterpret_cast<int32_t *>(b8dest);
 
-                if (srcIsLocal) {
-                    ncnf = *b32;
-                    *b32dest = SWAP_32(ncnf);
-                }
-                else {
-                    ncnf = *b32dest = SWAP_32(*b32);
+                b32end = b32 + ncnf;
+                if (b32end > reinterpret_cast<int32_t *>(b8end)) {
+                    b32end = reinterpret_cast<int32_t *>(b8end);
                 }
 
-                b8 += 4;
-                b8dest += 4;
+                while (b32 < b32end) {
+                    *b32dest = SWAP_32(*b32);
+                    b32++;
+                    b32dest++;
+                }
+
+                b8     = reinterpret_cast<int8_t *>(b32);
+                b8dest = reinterpret_cast<int8_t *>(b32dest);
+
+#ifdef COMPOSITE_DEBUG
+                std::cout << "32bit: " << ncnf << " elements" << std::endl;
+#endif
             }
-            else if (mcnf == 2) {
+                // 16 bits
+            else if (kcnf == 4 || kcnf == 5) {
                 b16     = reinterpret_cast<int16_t *>(b8);
                 b16dest = reinterpret_cast<int16_t *>(b8dest);
 
-                if (srcIsLocal) {
-                    ncnf = *b16;
-                    *b16dest = SWAP_16(ncnf);
-                }
-                else {
-                    ncnf = *b16dest = SWAP_16(*b16);
+                b16end = b16 + ncnf;
+                if (b16end > reinterpret_cast<int16_t *>(b8end)) {
+                    b16end = reinterpret_cast<int16_t *>(b8end);
                 }
 
-                b8 += 2;
-                b8dest += 2;
+                while (b16 < b16end) {
+                    *b16dest = SWAP_16(*b16);
+                    b16++;
+                    b16dest++;
+                }
 
-            }
-            else if (mcnf == 3) {
-                *b8dest = ncnf = *b8;
-                b8++;
-                b8dest++;
-            }
-#ifdef COMPOSITE_DEBUG
-            std::cout << "ncnf from data = " << ncnf << std::endl;
-#endif
-        }
-
-
-        // At this point we are ready to process next piece of data;.
-        // We have following entry info:
-        //     kcnf - format type
-        //     ncnf - how many times format repeated
-        //     b8   - starting data pointer (it comes from previously processed piece)
-
-        // Convert data in according to type kcnf
-
-        // If 64-bit
-        if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
-            b64     = reinterpret_cast<int64_t *>(b8);
-            b64dest = reinterpret_cast<int64_t *>(b8dest);
-
-            b64end = b64 + ncnf;
-            if (b64end > reinterpret_cast<int64_t *>(b8end)) {
-                b64end = reinterpret_cast<int64_t *>(b8end);
-            }
-
-            while (b64 < b64end) {
-                *b64dest = SWAP_64(*b64);
-                b64++;
-                b64dest++;
-            }
-
-            b8     = reinterpret_cast<int8_t *>(b64);
-            b8dest = reinterpret_cast<int8_t *>(b64dest);
+                b8     = reinterpret_cast<int8_t *>(b16);
+                b8dest = reinterpret_cast<int8_t *>(b16dest);
 
 #ifdef COMPOSITE_DEBUG
-            std::cout << "64bit: " << ncnf << " elements" << std::endl;
+                std::cout << "16bit: " << ncnf << " elements" << std::endl;
 #endif
-        }
-        // 32-bit
-        else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
-            b32     = reinterpret_cast<int32_t *>(b8);
-            b32dest = reinterpret_cast<int32_t *>(b8dest);
-
-            b32end = b32 + ncnf;
-            if (b32end > reinterpret_cast<int32_t *>(b8end)) {
-                b32end = reinterpret_cast<int32_t *>(b8end);
             }
+                // 8 bits
+            else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
+                // copy characters if dest != src
+                if (!inPlace) {
+                    std::memcpy((void *)b8dest, (const void *)b8, ncnf);
+                }
 
-            while (b32 < b32end) {
-                *b32dest = SWAP_32(*b32);
-                b32++;
-                b32dest++;
-            }
-
-            b8     = reinterpret_cast<int8_t *>(b32);
-            b8dest = reinterpret_cast<int8_t *>(b32dest);
+                b8     += ncnf;
+                b8dest += ncnf;
 
 #ifdef COMPOSITE_DEBUG
-            std::cout << "32bit: " << ncnf << " elements" << std::endl;
+                std::cout << "8bit: " << ncnf << " elements" << std::endl;
 #endif
-        }
-        // 16 bits
-        else if (kcnf == 4 || kcnf == 5) {
-            b16     = reinterpret_cast<int16_t *>(b8);
-            b16dest = reinterpret_cast<int16_t *>(b8dest);
-
-            b16end = b16 + ncnf;
-            if (b16end > reinterpret_cast<int16_t *>(b8end)) {
-                b16end = reinterpret_cast<int16_t *>(b8end);
             }
 
-            while (b16 < b16end) {
-                *b16dest = SWAP_16(*b16);
-                b16++;
-                b16dest++;
-            }
-
-            b8     = reinterpret_cast<int8_t *>(b16);
-            b8dest = reinterpret_cast<int8_t *>(b16dest);
+        } //while
 
 #ifdef COMPOSITE_DEBUG
-            std::cout << "16bit: " << ncnf << " elements" << std::endl;
-#endif
-        }
-        // 8 bits
-        else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
-            // copy characters if dest != src
-            if (!inPlace) {
-                std::memcpy((void *)b8dest, (const void *)b8, ncnf);
-            }
-
-            b8     += ncnf;
-            b8dest += ncnf;
-
-#ifdef COMPOSITE_DEBUG
-            std::cout << "8bit: " << ncnf << " elements" << std::endl;
-#endif
-        }
-
-    } //while
-
-#ifdef COMPOSITE_DEBUG
-    std::cout << std::endl << "=== eviofmtswap end ===" << std::endl;
+        std::cout << std::endl << "=== eviofmtswap end ===" << std::endl;
 #endif
 
-}
+    }
 
 
-/**
- * This method converts (swaps) an array of EVIO composite type data
- * between IEEE (big endian) and DECS (little endian) in place. This
- * data does <b>NOT</b> include the composite type's beginning tagsegment and
- * the format string it contains. It also does <b>NOT</b> include the data's
- * bank header words.
- *
- * Converts the data of array (iarr[i], i=0...nwrd-1)
- * using the format code      (ifmt[j], j=0...nfmt-1) .
- *
- * <p>
- * Algorithm description:<p>
- * Data processed inside while (ib &lt; nwrd)
- * loop, where 'ib' is iarr[] index;
- * loop breaks when 'ib' reaches the number of elements in iarr[]
- *
- *
- * @param iarr    pointer to data to be swapped.
- * @param nwrd    number of data words (32-bit ints) to be swapped.
- * @param ifmt    unsigned short vector holding translated format.
- * @param padding number of bytes to ignore in last data word (starting from data end).
- *
- * @throws EvioException if ifmt empty or nwrd &lt; 2.
- */
-void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
-                            uint32_t padding) {
-    swapData(iarr, iarr, nwrd, ifmt, padding, false);
-}
+    /**
+     * This method converts (swaps) an array of EVIO composite type data
+     * between IEEE (big endian) and DECS (little endian) in place. This
+     * data does <b>NOT</b> include the composite type's beginning tagsegment and
+     * the format string it contains. It also does <b>NOT</b> include the data's
+     * bank header words.
+     *
+     * Converts the data of array (iarr[i], i=0...nwrd-1)
+     * using the format code      (ifmt[j], j=0...nfmt-1) .
+     *
+     * <p>
+     * Algorithm description:<p>
+     * Data processed inside while (ib &lt; nwrd)
+     * loop, where 'ib' is iarr[] index;
+     * loop breaks when 'ib' reaches the number of elements in iarr[]
+     *
+     *
+     * @param iarr    pointer to data to be swapped.
+     * @param nwrd    number of data words (32-bit ints) to be swapped.
+     * @param ifmt    unsigned short vector holding translated format.
+     * @param padding number of bytes to ignore in last data word (starting from data end).
+     *
+     * @throws EvioException if ifmt empty or nwrd &lt; 2.
+     */
+    void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
+                                 uint32_t padding) {
+        swapData(iarr, iarr, nwrd, ifmt, padding, false);
+    }
 
-// Following is Sergui's original function (eviofmtswap) which is now implemented immediately above.
 
-///**
-// * This method converts (swaps) an array of EVIO composite type data
-// * between IEEE (big endian) and DECS (little endian) in place. This
-// * data does <b>NOT</b> include the composite type's beginning tagsegment and
-// * the format string it contains. It also does <b>NOT</b> include the data's
-// * bank header words.
-// *
-// * Converts the data of array (iarr[i], i=0...nwrd-1)
-// * using the format code      (ifmt[j], j=0...nfmt-1) .
-// *
-// * <p>
-// * Algorithm description:<p>
-// * Data processed inside while (ib &lt; nwrd)
-// * loop, where 'ib' is iarr[] index;
-// * loop breaks when 'ib' reaches the number of elements in iarr[]
-// *
-// *
-// * @param iarr    pointer to data to be swapped
-// * @param nwrd    number of data words (32-bit ints) to be swapped
-// * @param ifmt    unsigned short vector holding translated format
-// * @param padding number of bytes to ignore in last data word (starting from data end)
-// *
-// * @return  0 if success
-// * @return -1 if nwrd &lt; 0, or ifmt vector empty.
-// */
-//int CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
-//                            uint32_t padding) {
-//
-//    if (nwrd <= 0 || ifmt.empty()) return(-1);
-//    int nfmt = ifmt.size();
-//
-//    int imt  = 0;   /* ifmt[] index */
-//    int ncnf = 0;   /* how many times must repeat a format */
-//    int lev  = 0;   /* parenthesis level */
-//    int kcnf, mcnf, iterm = 0;
-//    int64_t *b64, *b64end;
-//    int32_t *b32, *b32end;
-//    int16_t *b16, *b16end;
-//    auto b8    = reinterpret_cast<int8_t *>(&iarr[0]);   /* beginning of data */
-//    auto b8end = reinterpret_cast<int8_t *>(&iarr[nwrd]) - padding; /* end of data + 1 - padding */
-//    LV lv[10];
-//
-//#ifdef COMPOSITE_DEBUG
-//    std::cout << std::endl << "=== eviofmtswap start ===" << std::endl;
-//#endif
-//
-//    while (b8 < b8end)
-//    {
-//#ifdef COMPOSITE_DEBUG
-//        std::cout << ""+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
-//                                   ", end = " << b8end << dec << std::endl;
-//#endif
-//        /* get next format code */
-//        while (true)
-//        {
-//            imt++;
-//            /* end of format statement reached, back to iterm - last parenthesis or format begining */
-//            if (imt > nfmt)
-//            {
-//                imt = 0/*iterm*/; /* sergey: will always start format from the begining - for now ...*/
-//#ifdef COMPOSITE_DEBUG
-//                std::cout << "1" << std::endl;
-//#endif
-//            }
-//                /* meet right parenthesis, so we're finished processing format(s) in parenthesis */
-//            else if (ifmt[imt-1] == 0)
-//            {
-//                /* right parenthesis without preceding left parenthesis? -> illegal format */
-//                if (lev == 0)
-//                    return -1;
-//
-//                /* increment counter */
-//                lv[lev-1].irepeat++;
-//
-//                /* if format in parenthesis was processed */
-//                if (lv[lev-1].irepeat >= lv[lev-1].nrepeat)
-//                {
-//                    /* required number of times */
-//
-//                    /* store left parenthesis index minus 1
-//                       (if will meet end of format, will start from format index imt=iterm;
-//                       by default we continue from the beginning of the format (iterm=0)) */
-//                    //iterm = lv[lev-1].left - 1;
-//                    lev--; /* done with this level - decrease parenthesis level */
-//#ifdef COMPOSITE_DEBUG
-//                    std::cout << "2" << std::endl;
-//#endif
-//                }
-//                    /* go for another round of processing by setting 'imt' to the left parenthesis */
-//                else
-//                {
-//                    /* points ifmt[] index to the left parenthesis from the same level 'lev' */
-//                    imt = lv[lev-1].left;
-//#ifdef COMPOSITE_DEBUG
-//                    std::cout << "3" << std::endl;
-//#endif
-//                }
-//            }
-//            else
-//            {
-//                ncnf = (ifmt[imt-1] >> 8) & 0x3F; /* how many times to repeat format code */
-//                kcnf = ifmt[imt-1] & 0xFF;        /* format code */
-//                mcnf = (ifmt[imt-1] >> 14) & 0x3; /* repeat code */
-//
-//                /* left parenthesis - set new lv[] */
-//                if (kcnf == 0)
-//                {
-//                    /* check repeats for left parenthesis */
-//
-//                    if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
-//                    {
-//                        mcnf = 0;
-//                        b32 = reinterpret_cast<int32_t *>(b8);
-//                        ncnf = *b32 = SWAP_32(*b32); /* get #repeats from data */
-//#ifdef COMPOSITE_PRINT
-//                        std::cout << "ncnf(: " << ncnf << std::endl;
-//#endif
-//                        b8 += 4;
-//#ifdef COMPOSITE_DEBUG
-//                        std::cout << "ncnf from data = " << ncnf << " (code 15)" << std::endl;
-//#endif
-//                    }
-//
-//                    if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
-//                    {
-//                        mcnf = 0;
-//                        b16 = reinterpret_cast<int16_t *>(b8);
-//                        ncnf = *b16 = SWAP_16(*b16); /* get #repeats from data */
-//#ifdef COMPOSITE_PRINT
-//                        std::cout << "ncnf(: " << ncnf << std::endl;
-//#endif
-//                        b8 += 2;
-//#ifdef COMPOSITE_DEBUG
-//                        std::cout << "ncnf from data = " << ncnf << " (code 14)" << std::endl;
-//#endif
-//                    }
-//
-//                    if(mcnf==3) /* left parenthesis, SPECIAL case: #repeats must be taken from int8 data */
-//                    {
-//                        mcnf = 0;
-//                        ncnf = *((uint8_t *)b8); /* get #repeats from data */
-//#ifdef COMPOSITE_PRINT
-//                        std::cout << "ncnf(: " << ncnf << std::endl;
-//#endif
-//                        b8++;
-//#ifdef COMPOSITE_DEBUG
-//                        std::cout << "ncnf from data = " << ncnf << " (code 13)" << std::endl;
-//#endif
-//                    }
-//
-//
-//                    /* store ifmt[] index */
-//                    lv[lev].left = imt;
-//                    /* how many time will repeat format code inside parenthesis */
-//                    lv[lev].nrepeat = ncnf;
-//                    /* cleanup place for the right parenthesis (do not get it yet) */
-//                    lv[lev].irepeat = 0;
-//                    /* increase parenthesis level */
-//                    lev++;
-//#ifdef COMPOSITE_DEBUG
-//                    std::cout << "4" << std::endl;
-//#endif
-//                }
-//                /* format F or I or ... */
-//                else
-//                {
-//                    /* there are no parenthesis, just simple format, go to processing */
-//                    if (lev == 0) {
-//#ifdef COMPOSITE_DEBUG
-//                        std::cout << "51" << std::endl;
-//#endif
-//                    }
-//                    /* have parenthesis, NOT the pre-last format element (last assumed ')' ?) */
-//                    else if (imt != (nfmt-1)) {
-//#ifdef COMPOSITE_DEBUG
-//                        std::cout << "52: " << imt << " " << (nfmt-1) << std::endl;
-//#endif
-//                    }
-//                    /* have parenthesis, NOT the first format after the left parenthesis */
-//                    else if (imt != lv[lev-1].left+1) {
-//#ifdef COMPOSITE_DEBUG
-//                        std::cout << "53: " << imt << " " << (nfmt-1) << std::endl;
-//#endif
-//                    }
-//                    /* if none of above, we are in the end of format */
-//                    else
-//                    {
-//                        /* set format repeat to the big number */
-//                        ncnf = 999999999;
-//#ifdef COMPOSITE_DEBUG
-//                        std::cout << "54" << std::endl;
-//#endif
-//                    }
-//                    break;
-//                }
-//            }
-//        } /* while(1) */
-//
-//        /* if 'ncnf' is zero, get it from data */
-//        /*printf("ncnf=%d\n",ncnf);fflush(stdout);*/
-//        if(ncnf==0)
-//        {
-//            if(mcnf==1)
-//            {
-//                b32 = (int *)b8;
-//                ncnf = *b32 = SWAP_32(*b32);
-//                /*printf("ncnf32=%d\n",ncnf);fflush(stdout);*/
-//                b8 += 4;
-//            }
-//            else if(mcnf==2)
-//            {
-//                b16 = (short *)b8;
-//                ncnf = *b16 = SWAP_16(*b16);
-//                /*printf("ncnf16=%d\n",ncnf);fflush(stdout);*/
-//                b8 += 2;
-//            }
-//            else if(mcnf==3)
-//            {
-//                ncnf = *b8;
-//                /*printf("ncnf08=%d\n",ncnf);fflush(stdout);*/
-//                b8 += 1;
-//            }
-//            /*else printf("ncnf00=%d\n",ncnf);fflush(stdout);*/
-//
-//#ifdef COMPOSITE_DEBUG
-//            std::cout << "ncnf from data = " << ncnf << std::endl;
-//#endif
-//        }
-//
-//
-//        /* At this point we are ready to process next piece of data.
-//           We have following entry info:
-//           kcnf - format type
-//           ncnf - how many times format repeated
-//           b8   - starting data pointer (it comes from previously processed piece)
-//        */
-//
-//        /* Convert data in according to type kcnf */
-//
-//        /* 64-bits */
-//        if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
-//            b64 = (int64_t *)b8;
-//            b64end = b64 + ncnf;
-//            if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
-//            while (b64 < b64end) {
-//                *b64 = SWAP_64(*b64);
-//                b64++;
-//            }
-//            b8 = (int8_t *)b64;
-//#ifdef COMPOSITE_DEBUG
-//            std::cout << "64bit: " << ncnf << " elements" << std::endl;
-//#endif
-//        }
-//        /* 32-bits */
-//        else if ( kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
-//            b32 = (int32_t *)b8;
-//            b32end = b32 + ncnf;
-//            if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
-//            while (b32 < b32end) {
-//                *b32 = SWAP_32(*b32);
-//                b32++;
-//            }
-//            b8 = (int8_t *)b32;
-//#ifdef COMPOSITE_DEBUG
-//            std::cout << "32bit: " << ncnf << " elements, b8 = " << std::showbase <<
-//                         std::hex << std::setw(8) << b8 << dec << std::endl;
-//#endif
-//        }
-//        /* 16 bits */
-//        else if ( kcnf == 4 || kcnf == 5) {
-//            b16 = (int16_t *)b8;
-//            b16end = b16 + ncnf;
-//            if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
-//            while (b16 < b16end) {
-//                *b16 = SWAP_16(*b16);
-//                b16++;
-//            }
-//            b8 = (int8_t *)b16;
-//#ifdef COMPOSITE_DEBUG
-//            std::cout << "16bit: " << ncnf << " elements" << std::endl;
-//#endif
-//        }
-//        /* 8 bits */
-//        else if ( kcnf == 6 || kcnf == 7 || kcnf == 3) {
-//            /* do nothing for characters */
-//            b8 += ncnf;
-//#ifdef COMPOSITE_DEBUG
-//            std::cout << "8bit: " << ncnf << " elements" << std::endl;
-//#endif
-//        }
-//
-//    } /* while(b8 < b8end) */
-//
-//#ifdef COMPOSITE_DEBUG
-//    std::cout << std::endl << "=== eviofmtswap end ===" << std::endl;
-//#endif
-//
-//    return(0);
-//}
+    // Following is Sergui's original function (eviofmtswap) which is now implemented immediately above.
+
+    ///**
+    // * This method converts (swaps) an array of EVIO composite type data
+    // * between IEEE (big endian) and DECS (little endian) in place. This
+    // * data does <b>NOT</b> include the composite type's beginning tagsegment and
+    // * the format string it contains. It also does <b>NOT</b> include the data's
+    // * bank header words.
+    // *
+    // * Converts the data of array (iarr[i], i=0...nwrd-1)
+    // * using the format code      (ifmt[j], j=0...nfmt-1) .
+    // *
+    // * <p>
+    // * Algorithm description:<p>
+    // * Data processed inside while (ib &lt; nwrd)
+    // * loop, where 'ib' is iarr[] index;
+    // * loop breaks when 'ib' reaches the number of elements in iarr[]
+    // *
+    // *
+    // * @param iarr    pointer to data to be swapped
+    // * @param nwrd    number of data words (32-bit ints) to be swapped
+    // * @param ifmt    unsigned short vector holding translated format
+    // * @param padding number of bytes to ignore in last data word (starting from data end)
+    // *
+    // * @return  0 if success
+    // * @return -1 if nwrd &lt; 0, or ifmt vector empty.
+    // */
+    //int CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
+    //                            uint32_t padding) {
+    //
+    //    if (nwrd <= 0 || ifmt.empty()) return(-1);
+    //    int nfmt = ifmt.size();
+    //
+    //    int imt  = 0;   /* ifmt[] index */
+    //    int ncnf = 0;   /* how many times must repeat a format */
+    //    int lev  = 0;   /* parenthesis level */
+    //    int kcnf, mcnf, iterm = 0;
+    //    int64_t *b64, *b64end;
+    //    int32_t *b32, *b32end;
+    //    int16_t *b16, *b16end;
+    //    auto b8    = reinterpret_cast<int8_t *>(&iarr[0]);   /* beginning of data */
+    //    auto b8end = reinterpret_cast<int8_t *>(&iarr[nwrd]) - padding; /* end of data + 1 - padding */
+    //    LV lv[10];
+    //
+    //#ifdef COMPOSITE_DEBUG
+    //    std::cout << std::endl << "=== eviofmtswap start ===" << std::endl;
+    //#endif
+    //
+    //    while (b8 < b8end)
+    //    {
+    //#ifdef COMPOSITE_DEBUG
+    //        std::cout << ""+++ begin = " << std::showbase << std::hex << std::setw(8) << b8 <<
+    //                                   ", end = " << b8end << dec << std::endl;
+    //#endif
+    //        /* get next format code */
+    //        while (true)
+    //        {
+    //            imt++;
+    //            /* end of format statement reached, back to iterm - last parenthesis or format begining */
+    //            if (imt > nfmt)
+    //            {
+    //                imt = 0/*iterm*/; /* sergey: will always start format from the begining - for now ...*/
+    //#ifdef COMPOSITE_DEBUG
+    //                std::cout << "1" << std::endl;
+    //#endif
+    //            }
+    //                /* meet right parenthesis, so we're finished processing format(s) in parenthesis */
+    //            else if (ifmt[imt-1] == 0)
+    //            {
+    //                /* right parenthesis without preceding left parenthesis? -> illegal format */
+    //                if (lev == 0)
+    //                    return -1;
+    //
+    //                /* increment counter */
+    //                lv[lev-1].irepeat++;
+    //
+    //                /* if format in parenthesis was processed */
+    //                if (lv[lev-1].irepeat >= lv[lev-1].nrepeat)
+    //                {
+    //                    /* required number of times */
+    //
+    //                    /* store left parenthesis index minus 1
+    //                       (if will meet end of format, will start from format index imt=iterm;
+    //                       by default we continue from the beginning of the format (iterm=0)) */
+    //                    //iterm = lv[lev-1].left - 1;
+    //                    lev--; /* done with this level - decrease parenthesis level */
+    //#ifdef COMPOSITE_DEBUG
+    //                    std::cout << "2" << std::endl;
+    //#endif
+    //                }
+    //                    /* go for another round of processing by setting 'imt' to the left parenthesis */
+    //                else
+    //                {
+    //                    /* points ifmt[] index to the left parenthesis from the same level 'lev' */
+    //                    imt = lv[lev-1].left;
+    //#ifdef COMPOSITE_DEBUG
+    //                    std::cout << "3" << std::endl;
+    //#endif
+    //                }
+    //            }
+    //            else
+    //            {
+    //                ncnf = (ifmt[imt-1] >> 8) & 0x3F; /* how many times to repeat format code */
+    //                kcnf = ifmt[imt-1] & 0xFF;        /* format code */
+    //                mcnf = (ifmt[imt-1] >> 14) & 0x3; /* repeat code */
+    //
+    //                /* left parenthesis - set new lv[] */
+    //                if (kcnf == 0)
+    //                {
+    //                    /* check repeats for left parenthesis */
+    //
+    //                    if(mcnf==1) /* left parenthesis, SPECIAL case: #repeats must be taken from int32 data */
+    //                    {
+    //                        mcnf = 0;
+    //                        b32 = reinterpret_cast<int32_t *>(b8);
+    //                        ncnf = *b32 = SWAP_32(*b32); /* get #repeats from data */
+    //#ifdef COMPOSITE_PRINT
+    //                        std::cout << "ncnf(: " << ncnf << std::endl;
+    //#endif
+    //                        b8 += 4;
+    //#ifdef COMPOSITE_DEBUG
+    //                        std::cout << "ncnf from data = " << ncnf << " (code 15)" << std::endl;
+    //#endif
+    //                    }
+    //
+    //                    if(mcnf==2) /* left parenthesis, SPECIAL case: #repeats must be taken from int16 data */
+    //                    {
+    //                        mcnf = 0;
+    //                        b16 = reinterpret_cast<int16_t *>(b8);
+    //                        ncnf = *b16 = SWAP_16(*b16); /* get #repeats from data */
+    //#ifdef COMPOSITE_PRINT
+    //                        std::cout << "ncnf(: " << ncnf << std::endl;
+    //#endif
+    //                        b8 += 2;
+    //#ifdef COMPOSITE_DEBUG
+    //                        std::cout << "ncnf from data = " << ncnf << " (code 14)" << std::endl;
+    //#endif
+    //                    }
+    //
+    //                    if(mcnf==3) /* left parenthesis, SPECIAL case: #repeats must be taken from int8 data */
+    //                    {
+    //                        mcnf = 0;
+    //                        ncnf = *((uint8_t *)b8); /* get #repeats from data */
+    //#ifdef COMPOSITE_PRINT
+    //                        std::cout << "ncnf(: " << ncnf << std::endl;
+    //#endif
+    //                        b8++;
+    //#ifdef COMPOSITE_DEBUG
+    //                        std::cout << "ncnf from data = " << ncnf << " (code 13)" << std::endl;
+    //#endif
+    //                    }
+    //
+    //
+    //                    /* store ifmt[] index */
+    //                    lv[lev].left = imt;
+    //                    /* how many time will repeat format code inside parenthesis */
+    //                    lv[lev].nrepeat = ncnf;
+    //                    /* cleanup place for the right parenthesis (do not get it yet) */
+    //                    lv[lev].irepeat = 0;
+    //                    /* increase parenthesis level */
+    //                    lev++;
+    //#ifdef COMPOSITE_DEBUG
+    //                    std::cout << "4" << std::endl;
+    //#endif
+    //                }
+    //                /* format F or I or ... */
+    //                else
+    //                {
+    //                    /* there are no parenthesis, just simple format, go to processing */
+    //                    if (lev == 0) {
+    //#ifdef COMPOSITE_DEBUG
+    //                        std::cout << "51" << std::endl;
+    //#endif
+    //                    }
+    //                    /* have parenthesis, NOT the pre-last format element (last assumed ')' ?) */
+    //                    else if (imt != (nfmt-1)) {
+    //#ifdef COMPOSITE_DEBUG
+    //                        std::cout << "52: " << imt << " " << (nfmt-1) << std::endl;
+    //#endif
+    //                    }
+    //                    /* have parenthesis, NOT the first format after the left parenthesis */
+    //                    else if (imt != lv[lev-1].left+1) {
+    //#ifdef COMPOSITE_DEBUG
+    //                        std::cout << "53: " << imt << " " << (nfmt-1) << std::endl;
+    //#endif
+    //                    }
+    //                    /* if none of above, we are in the end of format */
+    //                    else
+    //                    {
+    //                        /* set format repeat to the big number */
+    //                        ncnf = 999999999;
+    //#ifdef COMPOSITE_DEBUG
+    //                        std::cout << "54" << std::endl;
+    //#endif
+    //                    }
+    //                    break;
+    //                }
+    //            }
+    //        } /* while(1) */
+    //
+    //        /* if 'ncnf' is zero, get it from data */
+    //        /*printf("ncnf=%d\n",ncnf);fflush(stdout);*/
+    //        if(ncnf==0)
+    //        {
+    //            if(mcnf==1)
+    //            {
+    //                b32 = (int *)b8;
+    //                ncnf = *b32 = SWAP_32(*b32);
+    //                /*printf("ncnf32=%d\n",ncnf);fflush(stdout);*/
+    //                b8 += 4;
+    //            }
+    //            else if(mcnf==2)
+    //            {
+    //                b16 = (short *)b8;
+    //                ncnf = *b16 = SWAP_16(*b16);
+    //                /*printf("ncnf16=%d\n",ncnf);fflush(stdout);*/
+    //                b8 += 2;
+    //            }
+    //            else if(mcnf==3)
+    //            {
+    //                ncnf = *b8;
+    //                /*printf("ncnf08=%d\n",ncnf);fflush(stdout);*/
+    //                b8 += 1;
+    //            }
+    //            /*else printf("ncnf00=%d\n",ncnf);fflush(stdout);*/
+    //
+    //#ifdef COMPOSITE_DEBUG
+    //            std::cout << "ncnf from data = " << ncnf << std::endl;
+    //#endif
+    //        }
+    //
+    //
+    //        /* At this point we are ready to process next piece of data.
+    //           We have following entry info:
+    //           kcnf - format type
+    //           ncnf - how many times format repeated
+    //           b8   - starting data pointer (it comes from previously processed piece)
+    //        */
+    //
+    //        /* Convert data in according to type kcnf */
+    //
+    //        /* 64-bits */
+    //        if (kcnf == 8 || kcnf == 9 || kcnf == 10) {
+    //            b64 = (int64_t *)b8;
+    //            b64end = b64 + ncnf;
+    //            if (b64end > (int64_t *)b8end) b64end = (int64_t *)b8end;
+    //            while (b64 < b64end) {
+    //                *b64 = SWAP_64(*b64);
+    //                b64++;
+    //            }
+    //            b8 = (int8_t *)b64;
+    //#ifdef COMPOSITE_DEBUG
+    //            std::cout << "64bit: " << ncnf << " elements" << std::endl;
+    //#endif
+    //        }
+    //        /* 32-bits */
+    //        else if ( kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
+    //            b32 = (int32_t *)b8;
+    //            b32end = b32 + ncnf;
+    //            if (b32end > (int32_t *)b8end) b32end = (int32_t *)b8end;
+    //            while (b32 < b32end) {
+    //                *b32 = SWAP_32(*b32);
+    //                b32++;
+    //            }
+    //            b8 = (int8_t *)b32;
+    //#ifdef COMPOSITE_DEBUG
+    //            std::cout << "32bit: " << ncnf << " elements, b8 = " << std::showbase <<
+    //                         std::hex << std::setw(8) << b8 << dec << std::endl;
+    //#endif
+    //        }
+    //        /* 16 bits */
+    //        else if ( kcnf == 4 || kcnf == 5) {
+    //            b16 = (int16_t *)b8;
+    //            b16end = b16 + ncnf;
+    //            if (b16end > (int16_t *)b8end) b16end = (int16_t *)b8end;
+    //            while (b16 < b16end) {
+    //                *b16 = SWAP_16(*b16);
+    //                b16++;
+    //            }
+    //            b8 = (int8_t *)b16;
+    //#ifdef COMPOSITE_DEBUG
+    //            std::cout << "16bit: " << ncnf << " elements" << std::endl;
+    //#endif
+    //        }
+    //        /* 8 bits */
+    //        else if ( kcnf == 6 || kcnf == 7 || kcnf == 3) {
+    //            /* do nothing for characters */
+    //            b8 += ncnf;
+    //#ifdef COMPOSITE_DEBUG
+    //            std::cout << "8bit: " << ncnf << " elements" << std::endl;
+    //#endif
+    //        }
+    //
+    //    } /* while(b8 < b8end) */
+    //
+    //#ifdef COMPOSITE_DEBUG
+    //    std::cout << std::endl << "=== eviofmtswap end ===" << std::endl;
+    //#endif
+    //
+    //    return(0);
+    //}
 
 
     /**
@@ -2363,337 +2322,336 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
      *                       small; not enough dataItems for the given format
      */
     void CompositeData::dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data const & data,
-            std::vector<uint16_t> & ifmt) {
+                                       std::vector<uint16_t> & ifmt) {
 
-            bool debug = false;
-            int kcnf, mcnf;
+        bool debug = false;
+        int kcnf, mcnf;
 
-            // check args
+        // check args
 
-            // size of format list
-            int nfmt = ifmt.size();
-            if (ifmt.empty()) {
-                throw EvioException("empty format list");
-            }
+        // size of format list
+        int nfmt = ifmt.size();
+        if (ifmt.empty()) {
+            throw EvioException("empty format list");
+        }
 
-            LV lv[10];
+        LV lv[10];
 
-            int imt   = 0;  // ifmt[] index
-            int lev   = 0;  // parenthesis level
-            int ncnf  = 0;  // how many times must repeat a format
-            int iterm = 0;
+        int imt   = 0;  // ifmt[] index
+        int lev   = 0;  // parenthesis level
+        int ncnf  = 0;  // how many times must repeat a format
+        int iterm = 0;
 
-            int itemIndex = 0;
-            int itemCount = data.dataItems.size();
+        int itemIndex = 0;
+        int itemCount = data.dataItems.size();
 
-            // write each item
-            for (itemIndex = 0; itemIndex < itemCount;) {
+        // write each item
+        for (itemIndex = 0; itemIndex < itemCount;) {
 
-                // get next format code
-                while (true) {
-                    imt++;
-                    // end of format statement reached, back to iterm - last parenthesis or format begining
-                    if (imt > nfmt) {
-                        imt = 0;
+            // get next format code
+            while (true) {
+                imt++;
+                // end of format statement reached, back to iterm - last parenthesis or format begining
+                if (imt > nfmt) {
+                    imt = 0;
+                }
+                    // meet right parenthesis, so we're finished processing format(s) in parenthesis
+                else if (ifmt[imt-1] == 0) {
+                    // increment counter
+                    lv[lev-1].irepeat++;
+
+                    // if format in parenthesis was processed the required number of times
+                    if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
+                        // store left parenthesis index minus 1
+                        iterm = lv[lev-1].left - 1;
+                        // done with this level - decrease parenthesis level
+                        lev--;
                     }
-                        // meet right parenthesis, so we're finished processing format(s) in parenthesis
-                    else if (ifmt[imt-1] == 0) {
-                        // increment counter
-                        lv[lev-1].irepeat++;
-
-                        // if format in parenthesis was processed the required number of times
-                        if (lv[lev-1].irepeat >= lv[lev-1].nrepeat) {
-                            // store left parenthesis index minus 1
-                            iterm = lv[lev-1].left - 1;
-                            // done with this level - decrease parenthesis level
-                            lev--;
-                        }
-                            // go for another round of processing by setting 'imt' to the left parenthesis
-                        else {
-                            // points ifmt[] index to the left parenthesis from the same level 'lev'
-                            imt = lv[lev-1].left;
-                        }
-                    }
+                        // go for another round of processing by setting 'imt' to the left parenthesis
                     else {
-                        ncnf = (ifmt[imt-1] >> 8) & 0x3F;  /* how many times to repeat format code */
-                        kcnf =  ifmt[imt-1] & 0xFF;        /* format code */
-                        mcnf = (ifmt[imt-1] >> 14) & 0x3;  /* repeat code */
+                        // points ifmt[] index to the left parenthesis from the same level 'lev'
+                        imt = lv[lev-1].left;
+                    }
+                }
+                else {
+                    ncnf = (ifmt[imt-1] >> 8) & 0x3F;  /* how many times to repeat format code */
+                    kcnf =  ifmt[imt-1] & 0xFF;        /* format code */
+                    mcnf = (ifmt[imt-1] >> 14) & 0x3;  /* repeat code */
 
-                        // left parenthesis - set new lv[]
-                        if (kcnf == 0) {
+                    // left parenthesis - set new lv[]
+                    if (kcnf == 0) {
 
-                            // check repeats for left parenthesis
+                        // check repeats for left parenthesis
 
-                            // left parenthesis, SPECIAL case: #repeats must be taken from data as int
-                            if (mcnf == 1) {
-                                // set it to regular left parenthesis code
-                                mcnf = 0;
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as int
+                        if (mcnf == 1) {
+                            // set it to regular left parenthesis code
+                            mcnf = 0;
 
-                                // get "N" value from List
-                                if (data.dataTypes[itemIndex] != DataType::INT32) {
-                                    throw EvioException("Data type mismatch");
-                                }
-                                ncnf = data.dataItems[itemIndex++].item.i32;
+                            // get "N" value from List
+                            if (data.dataTypes[itemIndex] != DataType::INT32) {
+                                throw EvioException("Data type mismatch");
+                            }
+                            ncnf = data.dataItems[itemIndex++].item.i32;
 #ifdef COMPOSITE_DEBUG
-                                std::cout << "ncnf from list = " << ncnf << " (code 15)" << std::endl;
+                            std::cout << "ncnf from list = " << ncnf << " (code 15)" << std::endl;
 #endif
 
-                                // put into buffer (relative put)
-                                rawBuf.putInt(ncnf);
-                            }
-
-                            // left parenthesis, SPECIAL case: #repeats must be taken from data as short
-                            if (mcnf == 2) {
-                                mcnf = 0;
-
-                                // get "n" value from List
-                                if (data.dataTypes[itemIndex] != DataType::SHORT16) {
-                                    throw EvioException("Data type mismatch");
-                                }
-                                // Get rid of sign extension to allow n to be unsigned
-                                ncnf = data.dataItems[itemIndex++].item.s16;
-#ifdef COMPOSITE_DEBUG
-                                std::cout << "ncnf from list = " << ncnf << " (code 14)" << std::endl;
-#endif
-
-                                // put into buffer (relative put)
-                                rawBuf.putShort((int16_t)ncnf);
-                            }
-
-                            // left parenthesis, SPECIAL case: #repeats must be taken from data as byte
-                            if (mcnf == 3) {
-                                mcnf = 0;
-
-                                // get "m" value from List
-                                if (data.dataTypes[itemIndex] != DataType::CHAR8) {
-                                    throw EvioException("Data type mismatch");
-                                }
-                                // Get rid of sign extension to allow m to be unsigned
-                                ncnf = data.dataItems[itemIndex++].item.b8;
-
-#ifdef COMPOSITE_DEBUG
-                                std::cout << "ncnf from list = " << ncnf << " (code 13)" << std::endl;
-#endif
-
-                                // put into buffer (relative put)
-                                rawBuf.put((uint8_t)ncnf);
-                            }
-
-                            // store ifmt[] index
-                            lv[lev].left = imt;
-                            // how many time will repeat format code inside parenthesis
-                            lv[lev].nrepeat = ncnf;
-                            // cleanup place for the right parenthesis (do not get it yet)
-                            lv[lev].irepeat = 0;
-                            // increase parenthesis level
-                            lev++;
+                            // put into buffer (relative put)
+                            rawBuf.putInt(ncnf);
                         }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as short
+                        if (mcnf == 2) {
+                            mcnf = 0;
+
+                            // get "n" value from List
+                            if (data.dataTypes[itemIndex] != DataType::SHORT16) {
+                                throw EvioException("Data type mismatch");
+                            }
+                            // Get rid of sign extension to allow n to be unsigned
+                            ncnf = data.dataItems[itemIndex++].item.s16;
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "ncnf from list = " << ncnf << " (code 14)" << std::endl;
+#endif
+
+                            // put into buffer (relative put)
+                            rawBuf.putShort((int16_t)ncnf);
+                        }
+
+                        // left parenthesis, SPECIAL case: #repeats must be taken from data as byte
+                        if (mcnf == 3) {
+                            mcnf = 0;
+
+                            // get "m" value from List
+                            if (data.dataTypes[itemIndex] != DataType::CHAR8) {
+                                throw EvioException("Data type mismatch");
+                            }
+                            // Get rid of sign extension to allow m to be unsigned
+                            ncnf = data.dataItems[itemIndex++].item.b8;
+
+#ifdef COMPOSITE_DEBUG
+                            std::cout << "ncnf from list = " << ncnf << " (code 13)" << std::endl;
+#endif
+
+                            // put into buffer (relative put)
+                            rawBuf.put((uint8_t)ncnf);
+                        }
+
+                        // store ifmt[] index
+                        lv[lev].left = imt;
+                        // how many time will repeat format code inside parenthesis
+                        lv[lev].nrepeat = ncnf;
+                        // cleanup place for the right parenthesis (do not get it yet)
+                        lv[lev].irepeat = 0;
+                        // increase parenthesis level
+                        lev++;
+                    }
                         // format F or I or ...
-                        else {
-                            // there are no parenthesis, just simple format, go to processing
-                            if (lev == 0) {
-                            }
+                    else {
+                        // there are no parenthesis, just simple format, go to processing
+                        if (lev == 0) {
+                        }
                             // have parenthesis, NOT the pre-last format element (last assumed ')' ?)
-                            else if (imt != (nfmt-1)) {
-                            }
+                        else if (imt != (nfmt-1)) {
+                        }
                             // have parenthesis, NOT the first format after the left parenthesis
-                            else if (imt != lv[lev-1].left+1) {
-                            }
-                            else {
-                                // If none of above, we are in the end of format
-                                // so set format repeat to a big number.
-                                ncnf = 999999999;
-                            }
-                            break;
+                        else if (imt != lv[lev-1].left+1) {
                         }
-                    }
-                } // while(true)
-
-
-                // if 'ncnf' is zero, get N,n,m from list
-                if (ncnf == 0) {
-
-                    if (mcnf == 1) {
-                        // get "N" value from List
-                        if (data.dataTypes[itemIndex] != DataType::INT32) {
-                            throw EvioException("Data type mismatch");
+                        else {
+                            // If none of above, we are in the end of format
+                            // so set format repeat to a big number.
+                            ncnf = 999999999;
                         }
-                        ncnf = data.dataItems[itemIndex++].item.i32;
+                        break;
+                    }
+                }
+            } // while(true)
 
-                        // put into buffer (relative put)
-                        rawBuf.putInt(ncnf);
-                    }
-                    else if (mcnf == 2) {
-                        // get "n" value from List
-                        if (data.dataTypes[itemIndex] != DataType::SHORT16) {
-                            throw EvioException("Data type mismatch");
-                        }
-                        ncnf = data.dataItems[itemIndex++].item.s16;
-                        rawBuf.putShort((int16_t)ncnf);
-                    }
-                    else if (mcnf == 3) {
-                        // get "m" value from List
-                        if (data.dataTypes[itemIndex] != DataType::CHAR8) {
-                            throw EvioException("Data type mismatch");
-                        }
-                        ncnf = data.dataItems[itemIndex++].item.b8;
-                        rawBuf.put((int8_t)ncnf);
-                    }
 
-#ifdef COMPOSITE_DEBUG
-            std::cout << "ncnf from data = " << ncnf << std::endl;
-#endif
+            // if 'ncnf' is zero, get N,n,m from list
+            if (ncnf == 0) {
+
+                if (mcnf == 1) {
+                    // get "N" value from List
+                    if (data.dataTypes[itemIndex] != DataType::INT32) {
+                        throw EvioException("Data type mismatch");
+                    }
+                    ncnf = data.dataItems[itemIndex++].item.i32;
+
+                    // put into buffer (relative put)
+                    rawBuf.putInt(ncnf);
+                }
+                else if (mcnf == 2) {
+                    // get "n" value from List
+                    if (data.dataTypes[itemIndex] != DataType::SHORT16) {
+                        throw EvioException("Data type mismatch");
+                    }
+                    ncnf = data.dataItems[itemIndex++].item.s16;
+                    rawBuf.putShort((int16_t)ncnf);
+                }
+                else if (mcnf == 3) {
+                    // get "m" value from List
+                    if (data.dataTypes[itemIndex] != DataType::CHAR8) {
+                        throw EvioException("Data type mismatch");
+                    }
+                    ncnf = data.dataItems[itemIndex++].item.b8;
+                    rawBuf.put((int8_t)ncnf);
                 }
 
-
-                // At this point we are ready to process next piece of data;.
-                // We have following entry info:
-                //     kcnf - format type
-                //     ncnf - how many times format repeated
-
-                // Convert data type kcnf
 #ifdef COMPOSITE_DEBUG
-                std::cout << "Convert data of type = " << kcnf << ", itemIndex = " << itemIndex << std::endl;
+                std::cout << "ncnf from data = " << ncnf << std::endl;
 #endif
-                switch (kcnf) {
-                    // 64 Bits
-                    case 8:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::DOUBLE64) {
-                                throw EvioException("Data type mismatch, expecting DOUBLE64, got " +
-                                                    data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putDouble(data.dataItems[itemIndex++].item.dbl);
-                        }
-                        break;
+            }
 
-                    case 9:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::LONG64) {
-                                throw EvioException("Data type mismatch, expecting LONG64, got " +
-                                                     data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putLong(data.dataItems[itemIndex++].item.l64);
-                        }
-                        break;
 
-                    case 10:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::ULONG64) {
-                                throw EvioException("Data type mismatch, expecting ULONG64, got " +
-                                                     data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putLong(data.dataItems[itemIndex++].item.ul64);
+            // At this point we are ready to process next piece of data;.
+            // We have following entry info:
+            //     kcnf - format type
+            //     ncnf - how many times format repeated
+
+            // Convert data type kcnf
+#ifdef COMPOSITE_DEBUG
+            std::cout << "Convert data of type = " << kcnf << ", itemIndex = " << itemIndex << std::endl;
+#endif
+            switch (kcnf) {
+                // 64 Bits
+                case 8:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::DOUBLE64) {
+                            throw EvioException("Data type mismatch, expecting DOUBLE64, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.putDouble(data.dataItems[itemIndex++].item.dbl);
+                    }
+                    break;
+
+                case 9:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::LONG64) {
+                            throw EvioException("Data type mismatch, expecting LONG64, got " +
+                                                data.dataTypes[itemIndex].toString());
+                        }
+                        rawBuf.putLong(data.dataItems[itemIndex++].item.l64);
+                    }
+                    break;
+
+                case 10:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::ULONG64) {
+                            throw EvioException("Data type mismatch, expecting ULONG64, got " +
+                                                data.dataTypes[itemIndex].toString());
+                        }
+                        rawBuf.putLong(data.dataItems[itemIndex++].item.ul64);
+                    }
+                    break;
 
                     // 32 Bits
-                    case 11:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::INT32) {
-                                throw EvioException("Data type mismatch, expecting INT32, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putInt(data.dataItems[itemIndex++].item.i32);
+                case 11:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::INT32) {
+                            throw EvioException("Data type mismatch, expecting INT32, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.putInt(data.dataItems[itemIndex++].item.i32);
+                    }
+                    break;
 
-                    case 1:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::UINT32) {
-                                throw EvioException("Data type mismatch, expecting UINT32, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putInt(data.dataItems[itemIndex++].item.ui32);
+                case 1:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::UINT32) {
+                            throw EvioException("Data type mismatch, expecting UINT32, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.putInt(data.dataItems[itemIndex++].item.ui32);
+                    }
+                    break;
 
-                    case 2:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::FLOAT32) {
-                                throw EvioException("Data type mismatch, expecting FLOAT32, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putFloat(data.dataItems[itemIndex++].item.flt);
+                case 2:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::FLOAT32) {
+                            throw EvioException("Data type mismatch, expecting FLOAT32, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.putFloat(data.dataItems[itemIndex++].item.flt);
+                    }
+                    break;
 
-                    case 12:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::HOLLERIT) {
-                                throw EvioException("Data type mismatch, expecting HOLLERIT, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putInt(data.dataItems[itemIndex++].item.i32);
+                case 12:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::HOLLERIT) {
+                            throw EvioException("Data type mismatch, expecting HOLLERIT, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.putInt(data.dataItems[itemIndex++].item.i32);
+                    }
+                    break;
 
                     // 16 bits
-                    case 4:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::SHORT16) {
-                                throw EvioException("Data type mismatch, expecting SHORT16, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putShort(data.dataItems[itemIndex++].item.s16);
+                case 4:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::SHORT16) {
+                            throw EvioException("Data type mismatch, expecting SHORT16, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.putShort(data.dataItems[itemIndex++].item.s16);
+                    }
+                    break;
 
-                    case 5:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::USHORT16) {
-                                throw EvioException("Data type mismatch, expecting USHORT16, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.putShort(data.dataItems[itemIndex++].item.us16);
+                case 5:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::USHORT16) {
+                            throw EvioException("Data type mismatch, expecting USHORT16, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.putShort(data.dataItems[itemIndex++].item.us16);
+                    }
+                    break;
 
                     // 8 bits
-                    case 6:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::CHAR8) {
-                                throw EvioException("Data type mismatch, expecting CHAR8, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.put(data.dataItems[itemIndex++].item.b8);
+                case 6:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::CHAR8) {
+                            throw EvioException("Data type mismatch, expecting CHAR8, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.put(data.dataItems[itemIndex++].item.b8);
+                    }
+                    break;
 
-                    case 7:
-                        for (int j=0; j < ncnf; j++) {
-                            if (data.dataTypes[itemIndex] != DataType::UCHAR8) {
-                                throw EvioException("Data type mismatch, expecting UCHAR8, got " +
-                                                                data.dataTypes[itemIndex].toString());
-                            }
-                            rawBuf.put(data.dataItems[itemIndex++].item.ub8);
+                case 7:
+                    for (int j=0; j < ncnf; j++) {
+                        if (data.dataTypes[itemIndex] != DataType::UCHAR8) {
+                            throw EvioException("Data type mismatch, expecting UCHAR8, got " +
+                                                data.dataTypes[itemIndex].toString());
                         }
-                        break;
+                        rawBuf.put(data.dataItems[itemIndex++].item.ub8);
+                    }
+                    break;
 
                     // String array
-                    case 3:
-                        if (data.dataTypes[itemIndex] != DataType::CHARSTAR8) {
-                            throw EvioException("Data type mismatch, expecting string, got " +
-                                                            data.dataTypes[itemIndex].toString());
-                        }
+                case 3:
+                    if (data.dataTypes[itemIndex] != DataType::CHARSTAR8) {
+                        throw EvioException("Data type mismatch, expecting string, got " +
+                                            data.dataTypes[itemIndex].toString());
+                    }
 
-                        // Convert String array into evio byte representation
-                        auto strs = data.dataItems[itemIndex++].strVec;
-                        std::vector<uint8_t> rb;
-                        Util::stringsToRawBytes(strs, rb);
-                        rawBuf.put(rb, 0, rb.size());
+                    // Convert String array into evio byte representation
+                    auto strs = data.dataItems[itemIndex++].strVec;
+                    std::vector<uint8_t> rb;
+                    Util::stringsToRawBytes(strs, rb);
+                    rawBuf.put(rb, 0, rb.size());
 
-                        if (ncnf != rb.size()) {
-                            throw EvioException("String format mismatch with string (array)");
-                        }
-                        //break;
+                    if (ncnf != rb.size()) {
+                        throw EvioException("String format mismatch with string (array)");
+                    }
+                    //break;
 
                     //default:
 
-                }
             }
+        }
     }
-
 
 
     /**
@@ -2884,7 +2842,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                         mem.item.dbl = dataBuffer.getDouble(dataIndex);
                         items.push_back(mem);
                     }
-                    // 64 bit int/uint
+                        // 64 bit int/uint
                     else if (kcnf == 9) {
                         mem.item.l64 = dataBuffer.getLong(dataIndex);
                         items.push_back(mem);
@@ -2897,7 +2855,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                     dataIndex += 8;
                 }
             }
-            // 32-bit
+                // 32-bit
             else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
                 int b32EndIndex = dataIndex + 4*ncnf;
                 // make sure we don't go past end of data
@@ -2912,13 +2870,13 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                         items.push_back(mem);
                         types.push_back(DataType::HOLLERIT);
                     }
-                    // 32 bit float
+                        // 32 bit float
                     else if (kcnf == 2) {
                         mem.item.flt = dataBuffer.getFloat(dataIndex);
                         items.push_back(mem);
                         types.push_back(DataType::getDataType(kcnf));
                     }
-                    // 32 bit int/uint
+                        // 32 bit int/uint
                     else if (kcnf == 1) {
                         mem.item.ui32 = dataBuffer.getUInt(dataIndex);
                         items.push_back(mem);
@@ -2933,7 +2891,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                     dataIndex += 4;
                 }
             }
-            // 16 bits
+                // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
                 int b16EndIndex = dataIndex + 2*ncnf;
                 // make sure we don't go past end of data
@@ -2957,7 +2915,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                     dataIndex += 2;
                 }
             }
-            // 8 bits
+                // 8 bits
             else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
                 int b8EndIndex = dataIndex + ncnf;
                 // make sure we don't go past end of data
@@ -2976,20 +2934,20 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
 
                 // string array
                 if (kcnf == 3) {
-                    std::vector<string> strs;
+                    std::vector<std::string> strs;
                     Util::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
                     mem.item.str = true;
                     mem.strVec = strs;
                     items.push_back(mem);
                 }
-                // char
+                    // char
                 else if (kcnf == 6) {
                     for (int i=0; i < ncnf; i++) {
                         mem.item.b8 = bytes[i];
                         items.push_back(mem);
                     }
                 }
-                // uchar
+                    // uchar
                 else {
                     for (int i=0; i < ncnf; i++) {
                         mem.item.ub8 = bytes[i];
@@ -3013,7 +2971,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
      * Obtain a string representation of the composite data.
      * @return a string representation of the composite data.
      */
-    string CompositeData::toString() const {return toString("");}
+    std::string CompositeData::toString() const {return toString("");}
 
 
     /**
@@ -3026,7 +2984,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
      * @param  hex    if true, display numbers in hexadecimal.
      * @return a string representation of the composite data.
      */
-    string CompositeData::toString(const string & indent, bool hex) {
+    std::string CompositeData::toString(const std::string & indent, bool hex) {
         stringstream ss;
         if (hex) {
             ss << hex << showbase;
@@ -3104,6 +3062,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
         return ss.str();
     }
 
+    
     /**
      * This method returns a string representation of this CompositeData object
      * suitable for displaying in {@docRoot org.jlab.coda.jevio.graphics.EventTreeFrame}
@@ -3113,7 +3072,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
      * @param hex if <code>true</code> then print integers in hexadecimal
      * @return  a string representation of this CompositeData object.
      */
-    string CompositeData::toString(bool hex) const {
+    std::string CompositeData::toString(bool hex) const {
         stringstream ss;
         if (hex) {
             ss << hex << showbase;
@@ -3206,7 +3165,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                         ss << std::endl; // start of a repeat
                         lev++;
                     }
-                    // single format (e.g. F, I, etc.)
+                        // single format (e.g. F, I, etc.)
                     else {
                         if ((lev == 0) ||
                             (imt != (nfmt-1)) ||
@@ -3256,7 +3215,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                         double d = dataBuffer.getDouble(dataIndex);
                         ss << scientific << std::setprecision(std::numeric_limits<double>::digits10 + 1) << d;
                     }
-                    // 64 bit int
+                        // 64 bit int
                     else if (kcnf == 9) {
                         int64_t lng = dataBuffer.getLong(dataIndex);
                         if (hex) {
@@ -3266,7 +3225,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                             ss << dec << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
                         }
                     }
-                    // 64 bit uint
+                        // 64 bit uint
                     else {
                         uint64_t lng = dataBuffer.getULong(dataIndex);
                         if (hex) {
@@ -3287,7 +3246,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                     ss << std::endl;
                 }
             }
-            // 32-bit
+                // 32-bit
             else if (kcnf == 1 || kcnf == 2 || kcnf == 11 || kcnf == 12) {
                 int count=1, itemsOnLine=4;
 
@@ -3308,12 +3267,12 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                             ss << dec << std::setprecision(std::numeric_limits<int32_t>::digits10 + 1) << i;
                         }
                     }
-                    // float
+                        // float
                     else if (kcnf == 2) {
                         float f = dataBuffer.getFloat(dataIndex);
                         ss << scientific << std::setprecision(std::numeric_limits<float>::digits10 + 1) << f;
                     }
-                    // 32 bit uint
+                        // 32 bit uint
                     else {
                         int32_t i = dataBuffer.getUInt(dataIndex);
                         if (hex) {
@@ -3334,7 +3293,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                     ss << std::endl;
                 }
             }
-            // 16 bits
+                // 16 bits
             else if (kcnf == 4 || kcnf == 5) {
                 int count=1, itemsOnLine=6;
 
@@ -3356,7 +3315,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                             ss << dec << std::setprecision(std::numeric_limits<int16_t>::digits10 + 1) << s;
                         }
                     }
-                    // 16 bit uint
+                        // 16 bit uint
                     else {
                         uint16_t s = dataBuffer.getUShort(dataIndex);
                         if (hex) {
@@ -3377,7 +3336,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                     ss << std::endl;
                 }
             }
-            // 8 bits
+                // 8 bits
             else if (kcnf == 6 || kcnf == 7 || kcnf == 3) {
                 dataBuffer.position(dataIndex);
 
@@ -3390,13 +3349,13 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                 if (kcnf == 3) {
                     ss << std::endl;
 
-                    std::vector<string> strs;
+                    std::vector<std::string> strs;
                     Util::unpackRawBytesToStrings(bytes, 0, ncnf, strs);
-                    for (string const & s: strs) {
+                    for (std::string const & s: strs) {
                         ss << s << std::endl;
                     }
                 }
-                // char
+                    // char
                 else if (kcnf == 6) {
                     int count=1, itemsOnLine=8;
                     ss << std::endl;
@@ -3418,7 +3377,7 @@ void CompositeData::swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t
                         ss << std::endl;
                     }
                 }
-                // uchar
+                    // uchar
                 else {
                     int count=1, itemsOnLine=8;
                     ss << std::endl;
