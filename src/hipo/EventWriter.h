@@ -1,18 +1,17 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 01/21/2020
- * @author timmer
- */
+//
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
 
 #ifndef EVIO_6_0_EVENTWRITER_H
 #define EVIO_6_0_EVENTWRITER_H
+
 
 #include <iostream>
 #include <iomanip>
@@ -31,6 +30,7 @@
     #include <experimental/filesystem>
 #endif
 
+
 #include "HeaderType.h"
 #include "FileHeader.h"
 #include "ByteBuffer.h"
@@ -46,6 +46,7 @@
 #include "EvioException.h"
 #include "EvioBank.h"
 
+
 #include "Disruptor/Util.h"
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
@@ -54,94 +55,96 @@
 namespace fs = std::experimental::filesystem;
 #endif
 
+
 namespace evio {
 
-/**
- * An EventWriter object is used for writing events to a file or to a byte buffer.
- * This class does NOT write versions 1-4 data, only version 6!
- * This class is not thread-safe.
- *
- * <pre>
- *
- *            FILE Uncompressed
- *
- *    +----------------------------------+
- *    +                                  +
- *    +      General File Header         +
- *    +                                  +
- *    +----------------------------------+
- *    +----------------------------------+
- *    +                                  +
- *    +     Index Array (optional)       +
- *    +                                  +
- *    +----------------------------------+
- *    +----------------------------------+
- *    +      User Header (optional)      +
- *    +        --------------------------+
- *    +       |        Padding           +
- *    +----------------------------------+
- *    +----------------------------------+
- *    +                                  +
- *    +          Data Record 1           +
- *    +                                  +
- *    +----------------------------------+
- *                    .
- *                    .
- *                    .
- *    +----------------------------------+
- *    +                                  +
- *    +          Data Record N           +
- *    +                                  +
- *    +----------------------------------+
- *
- * ---------------------------------------------
- * ---------------------------------------------
- *
- *              FILE Compressed
- *
- *    +----------------------------------+
- *    +                                  +
- *    +      General File Header         +
- *    +                                  +
- *    +----------------------------------+
- *    +----------------------------------+
- *    +                                  +
- *    +     Index Array (optional)       +
- *    +                                  +
- *    +----------------------------------+
- *    +----------------------------------+
- *    +      User Header (optional)      +
- *    +        --------------------------+
- *    +       |         Padding          +
- *    +----------------------------------+
- *    +----------------------------------+
- *    +           Compressed             +
- *    +          Data Record 1           +
- *    +                                  +
- *    +----------------------------------+
- *                    .
- *                    .
- *                    .
- *    +----------------------------------+
- *    +           Compressed             +
- *    +          Data Record N           +
- *    +                                  +
- *    +----------------------------------+
- *
- *    The User Header contains a data record which
- *    holds the dictionary and first event, if any.
- *    The general file header, index array, and
- *    user header are never compressed.
- *
- *    Writing a buffer is done without the general file header
- *    and the index array and user header which follow.
- *
- *
- * </pre>
- *
- * @author timmer
- */
-class EventWriter {
+    /**
+     * An EventWriter object is used for writing events to a file or to a byte buffer.
+     * This class does NOT write versions 1-4 data, only version 6!
+     * This class is not thread-safe.
+     *
+     * <pre>
+     *
+     *            FILE Uncompressed
+     *
+     *    +----------------------------------+
+     *    +                                  +
+     *    +      General File Header         +
+     *    +                                  +
+     *    +----------------------------------+
+     *    +----------------------------------+
+     *    +                                  +
+     *    +     Index Array (optional)       +
+     *    +                                  +
+     *    +----------------------------------+
+     *    +----------------------------------+
+     *    +      User Header (optional)      +
+     *    +        --------------------------+
+     *    +       |        Padding           +
+     *    +----------------------------------+
+     *    +----------------------------------+
+     *    +                                  +
+     *    +          Data Record 1           +
+     *    +                                  +
+     *    +----------------------------------+
+     *                    .
+     *                    .
+     *                    .
+     *    +----------------------------------+
+     *    +                                  +
+     *    +          Data Record N           +
+     *    +                                  +
+     *    +----------------------------------+
+     *
+     * ---------------------------------------------
+     * ---------------------------------------------
+     *
+     *              FILE Compressed
+     *
+     *    +----------------------------------+
+     *    +                                  +
+     *    +      General File Header         +
+     *    +                                  +
+     *    +----------------------------------+
+     *    +----------------------------------+
+     *    +                                  +
+     *    +     Index Array (optional)       +
+     *    +                                  +
+     *    +----------------------------------+
+     *    +----------------------------------+
+     *    +      User Header (optional)      +
+     *    +        --------------------------+
+     *    +       |         Padding          +
+     *    +----------------------------------+
+     *    +----------------------------------+
+     *    +           Compressed             +
+     *    +          Data Record 1           +
+     *    +                                  +
+     *    +----------------------------------+
+     *                    .
+     *                    .
+     *                    .
+     *    +----------------------------------+
+     *    +           Compressed             +
+     *    +          Data Record N           +
+     *    +                                  +
+     *    +----------------------------------+
+     *
+     *    The User Header contains a data record which
+     *    holds the dictionary and first event, if any.
+     *    The general file header, index array, and
+     *    user header are never compressed.
+     *
+     *    Writing a buffer is done without the general file header
+     *    and the index array and user header which follow.
+     *
+     *
+     * </pre>
+     *
+     * @date 01/21/2020
+     * @author timmer
+     */
+    class EventWriter {
 
     private:
 
@@ -224,8 +227,8 @@ class EventWriter {
 
             /** Wait for the last item to be processed, then exit thread. */
             void waitForLastItem() {
-//cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
-//" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
+                //cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
+                //" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
                 while (supply->getLastSequence() > lastSeqProcessed.load()) {
                     std::this_thread::sleep_for(chrono::milliseconds(1));
                 }
@@ -329,13 +332,13 @@ class EventWriter {
 
                             // Do write
                             // Write current item to file
-//cout << "EventWriter: Calling writeToFileMT(item)\n";
+                            //cout << "EventWriter: Calling writeToFileMT(item)\n";
                             writer->writeToFileMT(item, forceToDisk.load());
 
                             // Turn off forced write to disk, if the record which
                             // initially triggered it, has now been written.
                             if (forceToDisk.load() && (forcedRecordId.load() == item->getId())) {
-//cout << "EventWriter: WROTE the record that triggered force, reset to false\n";
+                                //cout << "EventWriter: WROTE the record that triggered force, reset to false\n";
                                 forceToDisk = false;
                             }
 
@@ -353,7 +356,7 @@ class EventWriter {
                     }
                 }
                 catch (boost::thread_interrupted & e) {
-cout << "EventWriter: INTERRUPTED, return" << endl;
+                    cout << "EventWriter: INTERRUPTED, return" << endl;
                 }
             }
         };
@@ -366,7 +369,6 @@ cout << "EventWriter: INTERRUPTED, return" << endl;
          * has no built-in thread pools so just create threads as needed.
          */
         class FileCloser {
-
 
             /** Class used to start thread to do closing. */
             class CloseAsyncFChan {
@@ -400,9 +402,7 @@ cout << "EventWriter: INTERRUPTED, return" << endl;
 
             public:
 
-                /**
-                 * Constructor.
-                 */
+                /** Constructor.  */
                 CloseAsyncFChan(std::shared_ptr<std::fstream> &afc,
                                 std::shared_ptr<std::future<void>> &future1,
                                 std::shared_ptr<RecordSupply> &supply,
@@ -457,7 +457,9 @@ cout << "EventWriter: INTERRUPTED, return" << endl;
                     catch (std::exception & e) {}
                 }
 
+
             private:
+
 
                 /** Create and start a thread to execute the run() method of this class. */
                 void startThread() {
@@ -475,7 +477,7 @@ cout << "EventWriter: INTERRUPTED, return" << endl;
                     }
 
                     // Release resources back to the ring
-cout << "Closer: releaseWriterSequential, will release item seq = " << item->getSequence() << endl;
+                    cout << "Closer: releaseWriterSequential, will release item seq = " << item->getSequence() << endl;
                     supply->releaseWriterSequential(item);
 
                     try {
@@ -596,10 +598,13 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
 
         private:
 
+
             /** Store all currently active closing threads. */
             vector<std::shared_ptr<CloseAsyncFChan>> threads;
 
+
         public:
+
 
             /** Stop & delete every thread that was started. */
             void close() {
@@ -608,6 +613,7 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
                 }
                 threads.clear();
             }
+
 
             /**
              * Remove thread from vector.
@@ -618,24 +624,25 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
                 threads.erase(std::remove(threads.begin(), threads.end(), thread), threads.end());
             }
 
+
             /**
              * Close the given file, in the order received, in a separate thread.
              * @param afc file channel to close
              */
-           void closeAsyncFile( std::shared_ptr<std::fstream> &afc,
-                                std::shared_ptr<std::future<void>> &future1,
-                                std::shared_ptr<RecordSupply> &supply,
-                                std::shared_ptr<RecordRingItem> &ringItem,
-                                FileHeader &fileHeader, std::shared_ptr<std::vector<uint32_t>> &recordLengths,
-                                uint64_t bytesWritten, uint32_t recordNumber,
-                                bool addingTrailer, bool writeIndex, bool noFileWriting,
-                                ByteOrder &order) {
+            void closeAsyncFile( std::shared_ptr<std::fstream> &afc,
+                                 std::shared_ptr<std::future<void>> &future1,
+                                 std::shared_ptr<RecordSupply> &supply,
+                                 std::shared_ptr<RecordRingItem> &ringItem,
+                                 FileHeader &fileHeader, std::shared_ptr<std::vector<uint32_t>> &recordLengths,
+                                 uint64_t bytesWritten, uint32_t recordNumber,
+                                 bool addingTrailer, bool writeIndex, bool noFileWriting,
+                                 ByteOrder &order) {
 
                 auto a = std::make_shared<CloseAsyncFChan>(afc, future1, supply, ringItem,
-                                             fileHeader, recordLengths,
-                                             bytesWritten, recordNumber,
-                                             addingTrailer, writeIndex,
-                                             noFileWriting, order, this);
+                                                           fileHeader, recordLengths,
+                                                           bytesWritten, recordNumber,
+                                                           addingTrailer, writeIndex,
+                                                           noFileWriting, order, this);
 
                 threads.push_back(a);
                 a->setSharedPointerOfThis(a);
@@ -644,13 +651,14 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
             ~FileCloser() {
                 close();
             }
-    };
+        };
 
 
-    //-------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------
 
 
     private:
+
 
         /** Dictionary and first event are stored in user header part of file header.
          *  They're written as a record which allows multiple events. */
@@ -682,7 +690,7 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
 
         /** Number of uncompressed bytes written to the current file/buffer at the moment,
          * including ending header and NOT the total in all split files. */
-//TODO: DOES THIS NEED TO BE ATOMIC IF MT write????????????????????????????????
+        //TODO: DOES THIS NEED TO BE ATOMIC IF MT write????????????????????????????????
         size_t bytesWritten = 0ULL;
 
         /** Do we add a last header or trailer to file/buffer? */
@@ -712,7 +720,7 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
          * Dictionary to include in xml format in the first event of the first record
          * when writing the file.
          */
-        string xmlDictionary;
+        std::string xmlDictionary;
 
         /** Byte array containing dictionary in evio format but <b>without</b> record header. */
         std::vector<uint8_t> dictionaryByteArray;
@@ -835,7 +843,7 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
         uint32_t splitCount = 0;
 
         /** Part of filename without run or split numbers. */
-        string baseFileName;
+        std::string baseFileName;
 
         /** Number of C-style int format specifiers contained in baseFileName. */
         uint32_t specifierCount = 0;
@@ -904,20 +912,22 @@ cout << "Closer: releaseWriterSequential, will release item seq = " << item->get
         bool noFileWriting = false;
         //-----------------------
 
-public:
 
-        explicit EventWriter(string & filename,
+    public:
+
+
+        explicit EventWriter(std::string & filename,
                              const ByteOrder & byteOrder = ByteOrder::nativeOrder(),
                              bool append = false);
 
-        EventWriter(string & file,
-                    string & dictionary,
+        EventWriter(std::string & file,
+                    std::string & dictionary,
                     const ByteOrder & byteOrder = ByteOrder::nativeOrder(),
                     bool append = false);
 
-        EventWriter(string baseName, const string & directory, const string & runType,
+        EventWriter(std::string baseName, const std::string & directory, const std::string & runType,
                     uint32_t runNumber, uint64_t split, uint32_t maxRecordSize, uint32_t maxEventCount,
-                    const ByteOrder & byteOrder, const string & xmlDictionary, bool overWriteOK,
+                    const ByteOrder & byteOrder, const std::string & xmlDictionary, bool overWriteOK,
                     bool append, std::shared_ptr<EvioBank> firstEvent, uint32_t streamId, uint32_t splitNumber,
                     uint32_t splitIncrement, uint32_t streamCount, Compressor::CompressionType compressionType,
                     uint32_t compressionThreads, uint32_t ringSize, uint32_t bufferSize);
@@ -927,9 +937,9 @@ public:
         //---------------------------------------------
 
         explicit EventWriter(std::shared_ptr<ByteBuffer> & buf);
-        EventWriter(std::shared_ptr<ByteBuffer> & buf, string & xmlDictionary);
+        EventWriter(std::shared_ptr<ByteBuffer> & buf, std::string & xmlDictionary);
         EventWriter(std::shared_ptr<ByteBuffer> & buf, uint32_t maxRecordSize, uint32_t maxEventCount,
-                    const string & xmlDictionary, uint32_t recordNumber, std::shared_ptr<EvioBank> const & firstEvent,
+                    const std::string & xmlDictionary, uint32_t recordNumber, std::shared_ptr<EvioBank> const & firstEvent,
                     Compressor::CompressionType compressionType);
 
     private:
@@ -956,38 +966,28 @@ public:
         std::shared_ptr<ByteBuffer> getByteBuffer();
         void setSourceId(int sId);
         void setEventType(int type);
-        bool writingToFile();
-        bool isClosed();
 
-        string getCurrentFilename();
+        bool writingToFile() const;
+        bool isClosed() const;
 
-        size_t getBytesWrittenToBuffer();
-
-        string getCurrentFilePath();
-        uint32_t getSplitNumber();
-
-        uint32_t getSplitCount();
-
-        //uint32_t getBlockNumber();
-        uint32_t getRecordNumber();
-
-        uint32_t getEventsWritten();
-
-        ByteOrder getByteOrder() ;
-
-        //void setStartingBlockNumber(uint32_t startingRecordNumber);
+        std::string getCurrentFilename() const;
+        size_t getBytesWrittenToBuffer() const;
+        std::string getCurrentFilePath() const;
+        uint32_t getSplitNumber() const;
+        uint32_t getSplitCount() const;
+        uint32_t getRecordNumber() const;
+        uint32_t getEventsWritten() const;
+        ByteOrder getByteOrder() const;
 
         void setStartingRecordNumber(uint32_t startingRecordNumber);
 
         void setFirstEvent(std::shared_ptr<EvioNode> & node);
-
         void setFirstEvent(std::shared_ptr<ByteBuffer> & buf);
-
         void setFirstEvent(std::shared_ptr<EvioBank> & bank);
 
     private:
 
-        void createCommonRecord(const string & xmlDict,
+        void createCommonRecord(const std::string & xmlDict,
                                 std::shared_ptr<EvioBank> const & firstBank,
                                 std::shared_ptr<EvioNode> const & firstNode,
                                 std::shared_ptr<ByteBuffer> const & firstBuf);
@@ -998,7 +998,6 @@ public:
     public :
 
         void flush();
-
         void close();
 
     protected:
@@ -1014,13 +1013,10 @@ public:
         bool hasRoom(uint32_t bytes);
 
         bool writeEvent(std::shared_ptr<EvioNode> & node, bool force);
-
         bool writeEvent(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
-
         bool writeEventToFile(std::shared_ptr<EvioNode> & node, bool force, bool duplicate);
 
         bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer);
-
         bool writeEvent(std::shared_ptr<ByteBuffer> & bankBuffer, bool force);
 
         bool writeEvent(std::shared_ptr<EvioBank> bank);
@@ -1049,7 +1045,7 @@ public:
         uint32_t trailerBytes();
         void writeTrailerToBuffer(bool writeIndex);
 
-};
+    };
 
 }
 
