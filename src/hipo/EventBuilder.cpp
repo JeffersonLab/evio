@@ -1,6 +1,12 @@
 //
-// Created by Carl Timmer on 7/13/20.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #include "EventBuilder.h"
 
@@ -20,11 +26,13 @@ namespace evio {
         event = EvioEvent::getInstance(tag, dataType, num);
     }
 
+
     /**
      * This is the constructor to use when you want to manipulate an existing event.
      * @param ev the event to manipulate.
      */
     EventBuilder::EventBuilder(std::shared_ptr<EvioEvent> & ev) : event(ev) {}
+
 
     /**
      * This goes through the event recursively, and makes sure all the length fields
@@ -39,6 +47,7 @@ namespace evio {
         }
     }
 
+
     /**
      * This clears all the data fields in a structure, but not the parent or the children. This keeps the
      * existing tree structure intact. To remove a structure (and, consequently, all its descendants) from the
@@ -50,6 +59,7 @@ namespace evio {
             structure->clearData();
         }
     }
+
 
     /**
      * Add a child to a parent structure.
@@ -113,6 +123,7 @@ namespace evio {
             setAllHeaderLengths();
     }
 
+
     /**
      * This removes a structure (and all its descendants) from the tree.
      * @param child the child structure to remove.
@@ -160,6 +171,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Set unsigned int data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
@@ -183,6 +195,7 @@ namespace evio {
         structure->updateUIntData();
         setAllHeaderLengths();
     }
+
 
     /**
      * Set short data in the structure. If the structure has data, it is overwritten
@@ -208,6 +221,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Set unsigned short data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
@@ -231,6 +245,7 @@ namespace evio {
         structure->updateUShortData();
         setAllHeaderLengths();
     }
+
 
     /**
      * Set long data in the structure. If the structure has data, it is overwritten
@@ -256,6 +271,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Set unsigned long data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
@@ -279,6 +295,7 @@ namespace evio {
         structure->updateULongData();
         setAllHeaderLengths();
     }
+
 
     /**
      * Set char data in the structure. If the structure has data, it is overwritten
@@ -304,6 +321,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Set unsigned char data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
@@ -327,6 +345,7 @@ namespace evio {
         structure->updateUCharData();
         setAllHeaderLengths();
     }
+
 
     /**
      * Set float data in the structure. If the structure has data, it is overwritten
@@ -352,6 +371,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Set double data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
@@ -376,6 +396,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Set string data in the structure. If the structure has data, it is overwritten
      * even if the existing data is of a different type.
@@ -399,6 +420,7 @@ namespace evio {
         structure->updateStringData();
         setAllHeaderLengths();
     }
+
 
     /**
      * Set composite data in the structure. If the structure has data, it is overwritten
@@ -483,6 +505,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Append short data to the structure. If the structure has no data, then this
      * is the same as setting the data (except the the data type may not be changed).
@@ -560,6 +583,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * Append unsigned long data to the structure. If the structure has no data, then this
      * is the same as setting the data (except the the data type may not be changed).
@@ -610,6 +634,7 @@ namespace evio {
         structure->updateCharData();
         setAllHeaderLengths();
     }
+
 
     /**
      * Append unsigned char data to the structure. If the structure has no data, then this
@@ -871,6 +896,7 @@ namespace evio {
         return 0;
     }
 
+
     /**
      * Fill array of ints, sequential, 1..size, for test purposes.
      * @param array pointer to int array.
@@ -881,6 +907,7 @@ namespace evio {
             array[i] = i+1;
         }
     }
+
 
     /**
      * Fill array of shorts, sequential, 1..size, for test purposes.
@@ -894,6 +921,7 @@ namespace evio {
         }
     }
 
+
     /**
      * Return array of strings for test purposes. Size is 7 strings.
      * @param the static string array.
@@ -902,6 +930,7 @@ namespace evio {
         static std::string array[] = {"This", " ", "is" , " ", "string", " ", "data"};
         return array;
     }
+
 
     /**
      * Fill array of doubles, sequential, 1..size, for test purposes.

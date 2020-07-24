@@ -1,6 +1,12 @@
 //
-// Created by Carl Timmer on 7/13/20.
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
 //
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #ifndef EVIO_6_0_EVENTBUILDER_H
 #define EVIO_6_0_EVENTBUILDER_H
