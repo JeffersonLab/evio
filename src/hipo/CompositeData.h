@@ -796,14 +796,19 @@ namespace evio {
         void swap();
 
         static void swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal);
-
+        static void swapAll(std::shared_ptr<ByteBuffer> & srcBuf,
+                            std::shared_ptr<ByteBuffer> & destBuf,
+                            uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
         static void swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
                             uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
 
+
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
                              size_t nBytes, const std::vector<uint16_t> & ifmt);
-
-        // Make it more general ...
+        static void swapData(std::shared_ptr<ByteBuffer> & srcBuf,
+                             std::shared_ptr<ByteBuffer> & destBuf,
+                             size_t srcPos, size_t destPos, size_t nBytes,
+                             const std::vector<uint16_t> & ifmt);
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
                              size_t srcPos, size_t destPos, size_t nBytes,
                              const std::vector<uint16_t> & ifmt);
@@ -811,7 +816,6 @@ namespace evio {
         static void swapData(int32_t *src, int32_t *dest, size_t nwrd,
                              const std::vector<uint16_t> & ifmt,
                              uint32_t padding, bool srcIsLocal);
-
         // This is an in-place swap
         static void swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
                              uint32_t padding);

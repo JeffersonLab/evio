@@ -1078,6 +1078,33 @@ namespace evio {
     }
 
 
+
+    /**
+     * This method converts (swaps) a buffer, containing EVIO composite type,
+     * between big & little endian. It swaps the entire type including the beginning
+     * tagsegment header, the following format string it contains, the data's bank header,
+     * and finally the data itself. The src buffer may contain an array of
+     * composite type items and all will be swapped.<p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+     *
+     * @param srcBuffer   source data buffer
+     * @param destBuffer  destination data buffer
+     * @param srcPos      position in srcBuffer to beginning swapping
+     * @param destPos     position in destBuffer to beginning writing swapped data
+     * @param len         length of data in srcBuffer to swap in 32 bit words
+     * @param inPlace     if true, swap in place.
+     *
+     * @throws EvioException if srcBuffer not in evio format;
+     *                       if destBuffer too small;
+     *                       if bad values for srcPos/destPos/len args;
+     */
+    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & srcBuf,
+                                std::shared_ptr<ByteBuffer> & destBuf,
+                                uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace) {
+        swapAll(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len, inPlace);
+    }
+
+
     /**
      * This method converts (swaps) a buffer, containing EVIO composite type,
      * between big & little endian. It swaps the entire type including the beginning
@@ -1220,6 +1247,36 @@ namespace evio {
                                  size_t nBytes, const std::vector<uint16_t> & ifmt) {
 
         swapData(srcBuf, destBuf, srcBuf.position(), destBuf.position(), nBytes, ifmt);
+    }
+
+
+    /**
+     * This method converts (swaps) EVIO composite type data
+     * between Big endian and Little endian. This
+     * data does <b>NOT</b> include the composite type's beginning tagsegment and
+     * the format string it contains. It also does <b>NOT</b> include the data's
+     * bank header words. Caller must be sure the endian value of the srcBuf
+     * is set properly before the call.<p>
+     * The destBuf can be the same as srcBuf in which case data
+     * is swapped in place and the srcBuf byte order is switched in this method.
+     *
+     * @param srcBuf   source data buffer.
+     * @param destBuf  destination data buffer.
+     * @param srcPos   position in srcBuf to beginning swapping
+     * @param destPos  position in destBuf to beginning writing swapped data unless
+     *                 data is swapped in place (then set to srcPos).
+     * @param nBytes   length of data to swap in bytes (be sure to account for padding)
+     * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
+     *
+     * @throws EvioException if ifmt empty or nBytes &lt; 8;
+     *                       srcBuf or destBuf limit/position combo too small;
+     *                       if src & dest not identical but overlap.
+     */
+    void CompositeData::swapData(std::shared_ptr<ByteBuffer> & srcBuf,
+                                 std::shared_ptr<ByteBuffer> & destBuf,
+                                 size_t srcPos, size_t destPos, size_t nBytes,
+                                 const std::vector<uint16_t> & ifmt) {
+        swapData(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, nBytes, ifmt);
     }
 
 
@@ -3062,7 +3119,7 @@ namespace evio {
         return ss.str();
     }
 
-    
+
     /**
      * This method returns a string representation of this CompositeData object
      * suitable for displaying in {@docRoot org.jlab.coda.jevio.graphics.EventTreeFrame}
