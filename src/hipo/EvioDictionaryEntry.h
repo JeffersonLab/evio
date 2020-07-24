@@ -1,6 +1,13 @@
 //
-// Created by Carl Timmer on 6/18/20.
+// Copyright (c) 2020, Jefferson Science Associates
 //
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
 
 #ifndef EVIO_6_0_EVIODICTIONARYENTRY_H
 #define EVIO_6_0_EVIODICTIONARYENTRY_H
@@ -43,7 +50,7 @@ namespace evio {
         /** Tag value or low end of a tag range of an evio container. */
         uint16_t tag= 0;
 
-        /** If > 0 && != tag, this is the high end of a tag range. Never null, always >= 0.
+        /** If &gt; 0 && != tag, this is the high end of a tag range. Never null, always &gt;= 0.
          *  @since 5.2 */
         uint16_t tagEnd = 0;
 
