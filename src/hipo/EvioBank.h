@@ -1,4 +1,14 @@
 //
+// Copyright (c) 2020, Jefferson Science Associates
+//
+// Thomas Jefferson National Accelerator Facility
+// EPSCI Group
+//
+// 12000, Jefferson Ave, Newport News, VA 23606
+// Phone : (757)-269-7100
+//
+
+//
 // Created by timmer on 1/28/20.
 //
 
@@ -6,9 +16,9 @@
 #define EVIO_6_0_EVIOBANK_H
 
 
-
 #include <cstring>
 #include <memory>
+
 
 #include "ByteBuffer.h"
 #include "DataType.h"
@@ -19,6 +29,14 @@
 
 namespace evio {
 
+
+    /**
+     * This holds a CODA Bank structure. Mostly it has a header
+     * (a <code>BankHeader</code>) and the raw data stored as a vector.
+     *
+     * @author heddle (original java)
+     * @author timmer
+     */
     class EvioBank : public BaseStructure {
 
 
