@@ -23,221 +23,235 @@ namespace evio {
 #endif
 
 
-Compressor::Compressor() {
-    setUpCompressionHardware();
-    setUpZlib();
-}
-
-
-uint32_t Compressor::getYear(ByteBuffer & buf) {
-    uint32_t rv = 0;
-    rv |= (uint32_t)buf.getByte(6);
-    rv &= 0x000000ff;
-    rv |= (uint32_t)buf.getByte(7) << 8;
-    rv &= 0x0000ffff;
-    return rv;
-}
-
-uint32_t Compressor::getRevisionId(ByteBuffer & buf, uint32_t board_id) {
-    uint32_t rv = 0;
-    rv |= buf.getByte((9 + board_id));
-    rv &= 0x000000ff;
-    return rv;
-}
-
-uint32_t Compressor::getSubsystemId(ByteBuffer & buf, uint32_t board_id) {
-    uint32_t rv = 0;
-    uint32_t offset = (26 + (board_id * 2));
-    rv |= buf.getByte(offset);
-    rv &= 0x000000ff;
-    rv |= buf.getByte((offset + 1)) << 8;
-    rv &= 0x0000ffff;
-    return rv;
-}
-
-uint32_t Compressor::getDeviceId(ByteBuffer & buf, uint32_t board_id) {
-    uint32_t rv = 0;
-    uint32_t offset = (58 + (board_id * 2));
-    rv |= buf.getByte(offset);
-    rv &= 0x000000ff;
-    rv |= buf.getByte((offset + 1)) << 8;
-    rv &= 0x0000ffff;
-    return rv;
-}
-
-Compressor::CompressionType Compressor::toCompressionType(uint32_t type) {
-    switch (type) {
-        case GZIP:
-            return GZIP;
-        case LZ4_BEST:
-            return LZ4_BEST;
-        case LZ4:
-            return LZ4;
-        case UNCOMPRESSED:
-        default:
-            return UNCOMPRESSED;
+    Compressor::Compressor() {
+        setUpCompressionHardware();
+        setUpZlib();
     }
-}
 
-void Compressor::setUpZlib() {
+
+    //
+    // Used in talking to AHA3641/2 board for gzip hardware compression.
+    // This will most likely not be used so comment it out.
+    //
+//    uint32_t Compressor::getYear(ByteBuffer & buf) {
+//        uint32_t rv = 0;
+//        rv |= (uint32_t)buf.getByte(6);
+//        rv &= 0x000000ff;
+//        rv |= (uint32_t)buf.getByte(7) << 8;
+//        rv &= 0x0000ffff;
+//        return rv;
+//    }
+//
+//    uint32_t Compressor::getRevisionId(ByteBuffer & buf, uint32_t board_id) {
+//        uint32_t rv = 0;
+//        rv |= buf.getByte((9 + board_id));
+//        rv &= 0x000000ff;
+//        return rv;
+//    }
+//
+//    uint32_t Compressor::getSubsystemId(ByteBuffer & buf, uint32_t board_id) {
+//        uint32_t rv = 0;
+//        uint32_t offset = (26 + (board_id * 2));
+//        rv |= buf.getByte(offset);
+//        rv &= 0x000000ff;
+//        rv |= buf.getByte((offset + 1)) << 8;
+//        rv &= 0x0000ffff;
+//        return rv;
+//    }
+//
+//    uint32_t Compressor::getDeviceId(ByteBuffer & buf, uint32_t board_id) {
+//        uint32_t rv = 0;
+//        uint32_t offset = (58 + (board_id * 2));
+//        rv |= buf.getByte(offset);
+//        rv &= 0x000000ff;
+//        rv |= buf.getByte((offset + 1)) << 8;
+//        rv &= 0x0000ffff;
+//        return rv;
+//    }
+
+
+    /**
+     * Method to convert an integer to a CompressionType object.
+     * @param type integer to convert.
+     * @return corresponding CompressionType object.
+     */
+    Compressor::CompressionType Compressor::toCompressionType(uint32_t type) {
+        switch (type) {
+            case GZIP:
+                return GZIP;
+            case LZ4_BEST:
+                return LZ4_BEST;
+            case LZ4:
+                return LZ4;
+            case UNCOMPRESSED:
+            default:
+                return UNCOMPRESSED;
+        }
+    }
+
+
+    /**
+     * Method to setup use of z library for gzip compression.
+     */
+    void Compressor::setUpZlib() {
 
 #ifdef USE_GZIP
 
-    /* init deflate state */
-    strmDeflate.next_in = Z_NULL;
-    strmDeflate.zalloc  = Z_NULL;
-    strmDeflate.zfree   = Z_NULL;
-    strmDeflate.opaque  = Z_NULL;
+        // init deflate state
+        strmDeflate.next_in = Z_NULL;
+        strmDeflate.zalloc  = Z_NULL;
+        strmDeflate.zfree   = Z_NULL;
+        strmDeflate.opaque  = Z_NULL;
 
-    int level = Z_DEFAULT_COMPRESSION; // =6, 1 gives top speed, 9 top compression
-    int windowBits = 15 + 16; // 15 is default and adding 16 makes it gzip and not zlib format
-    int memLevel = 9;         // Highest mem usage for best speed
+        int level = Z_DEFAULT_COMPRESSION; // =6, 1 gives top speed, 9 top compression
+        int windowBits = 15 + 16; // 15 is default and adding 16 makes it gzip and not zlib format
+        int memLevel = 9;         // Highest mem usage for best speed
 
-    int ret = deflateInit2(&strmDeflate, level, Z_DEFLATED, windowBits,
-                           memLevel, Z_DEFAULT_STRATEGY);
-    if (ret != Z_OK)
-        throw EvioException("error initializing gzip deflate stream");
+        int ret = deflateInit2(&strmDeflate, level, Z_DEFLATED, windowBits,
+                               memLevel, Z_DEFAULT_STRATEGY);
+        if (ret != Z_OK)
+            throw EvioException("error initializing gzip deflate stream");
 
-    //-----------------------------------------------------------------
+        //-----------------------------------------------------------------
 
-    /* init deflate state */
-    strmInflate.next_in  = Z_NULL;
-    strmInflate.avail_in = Z_NULL;
-    strmInflate.zalloc   = Z_NULL;
-    strmInflate.zfree    = Z_NULL;
-    strmInflate.opaque   = Z_NULL;
+        /* init deflate state */
+        strmInflate.next_in  = Z_NULL;
+        strmInflate.avail_in = Z_NULL;
+        strmInflate.zalloc   = Z_NULL;
+        strmInflate.zfree    = Z_NULL;
+        strmInflate.opaque   = Z_NULL;
 
-    ret = inflateInit2(&strmInflate, windowBits);
-    if (ret != Z_OK)
-        throw EvioException("error initializing gzip inflate stream");
-
+        ret = inflateInit2(&strmInflate, windowBits);
+        if (ret != Z_OK)
+            throw EvioException("error initializing gzip inflate stream");
 #endif
 
-}
+    }
 
-/**
- * CHeck for existence of AHA3641/2 board for gzip hardware compression.
- * This will most likely not be used so comment it out.
- */
-void Compressor::setUpCompressionHardware() {
+    /**
+     * Check for existence of AHA3641/2 board for gzip hardware compression.
+     * This will most likely not be used so comment it out.
+     */
+    void Compressor::setUpCompressionHardware() {
 
-//    // Check for an AHA374 FPGA data compression board for hardware (de)compression.
-//    // Only want to do this once. Need the jar which uses native methods,
-//    // the C lib which it wraps using jni, and the C lib which does the compression.
-//    // Both C libs must have their directory in LD_LIBRARY_PATH for this to work!
-//
-//    /** Do we have an AHA374 data compression board on the local host? */
-//    static bool haveHardwareGzipCompression = false;
-//
-//    try {
-//
-//        AHACompressionAPI apiObj = new AHACompressionAPI();
-//        ByteBuffer as(8);
-//        as.order(ByteOrder::ENDIAN_LOCAL);
-//        int rv = AHACompressionAPI.Open(apiObj, as, 0, 0);
-//        cout << "rv = " << rv << endl;
-//
-//        rv = 0;
-//        string betaString;
-//        int versionArgSize = 89;
-//        ByteBuffer versionArg(versionArgSize);
-//        versionArg.order(ByteOrder::ENDIAN_LOCAL);
-//
-//        long longrv = AHACompressionAPI.Version(apiObj, as, versionArg);
-//        if(longrv != 0){
-//            rv = -1;
-//        }
-//
-//        int loopMax = versionArg.get(8);
-//        if(versionArg.get(0) != 0){
-//            betaString = " Beta " + to_string(versionArg.get(0));
-//        }else{
-//            betaString = "";
-//        }
-//
-//        string receivedDriverVersion = to_string(versionArg.get(3)) + "." +
-//                                       to_string(versionArg.get(2)) + "." +
-//                                       to_string(versionArg.get(1)) + betaString;
-//        string receivedReleaseDate = to_string(versionArg.get(5)) + "/" +
-//                                     to_string(versionArg.get(4)) + "/" +
-//                                     to_string(getYear(versionArg));
-//        string receivedNumBoards = "" + to_string(versionArg.get(8));
-//
-//        cout << "driver version  = "  << receivedDriverVersion << endl;
-//        cout << "release date    = " << receivedReleaseDate << endl;
-//        cout << "number of chips = " << receivedNumBoards << endl;
-//
-//        for(int j = 0; j < loopMax; j++) {
-//            stringstream ss;
-//
-//            // show 0x for hex
-//            ss << showbase << hex;
-//
-//            ss << setw(2) << getRevisionId(versionArg, j) << endl;
-//            string receivedHwRevisionId = ss.str();
-//            ss.str("");
-//            ss.clear();
-//
-//            ss << setw(4) << getSubsystemId(versionArg, j) << endl;
-//            string receivedHwSubsystemId = ss.str();
-//            ss.str("");
-//            ss.clear();
-//
-//            ss << setw(4) << getDeviceId(versionArg, j) << endl;
-//            string receivedHwDeviceId = ss.str();
-//            ss.str("");
-//            ss.clear();
-//
-//            cout << "revision  id (" << j << ")= " << receivedHwRevisionId << endl;
-//            cout << "subsystem id (" << j << ")= " << receivedHwSubsystemId << endl;
-//            cout << "device    id (" << j << ")= " << receivedHwDeviceId << endl;
-//        }
-//
-//        haveHardwareGzipCompression = true;
-//        cout << endl << "Successfully loaded aha3xx jni shared lib for gzip hardware compression available" << endl << endl;
-//    }
-//    catch (Error & e) {
-//        // If the library cannot be found, we can still do compression -
-//        // just not with the AHA374 compression board.
-//        cout << endl << "Cannot load aha3xx jni shared lib so no gzip hardware compression available" << endl << endl;
-//    }
-}
+        //    // Check for an AHA374 FPGA data compression board for hardware (de)compression.
+        //    // Only want to do this once. Need the jar which uses native methods,
+        //    // the C lib which it wraps using jni, and the C lib which does the compression.
+        //    // Both C libs must have their directory in LD_LIBRARY_PATH for this to work!
+        //
+        //    /** Do we have an AHA374 data compression board on the local host? */
+        //    static bool haveHardwareGzipCompression = false;
+        //
+        //    try {
+        //
+        //        AHACompressionAPI apiObj = new AHACompressionAPI();
+        //        ByteBuffer as(8);
+        //        as.order(ByteOrder::ENDIAN_LOCAL);
+        //        int rv = AHACompressionAPI.Open(apiObj, as, 0, 0);
+        //        cout << "rv = " << rv << endl;
+        //
+        //        rv = 0;
+        //        string betaString;
+        //        int versionArgSize = 89;
+        //        ByteBuffer versionArg(versionArgSize);
+        //        versionArg.order(ByteOrder::ENDIAN_LOCAL);
+        //
+        //        long longrv = AHACompressionAPI.Version(apiObj, as, versionArg);
+        //        if(longrv != 0){
+        //            rv = -1;
+        //        }
+        //
+        //        int loopMax = versionArg.get(8);
+        //        if(versionArg.get(0) != 0){
+        //            betaString = " Beta " + to_string(versionArg.get(0));
+        //        }else{
+        //            betaString = "";
+        //        }
+        //
+        //        string receivedDriverVersion = to_string(versionArg.get(3)) + "." +
+        //                                       to_string(versionArg.get(2)) + "." +
+        //                                       to_string(versionArg.get(1)) + betaString;
+        //        string receivedReleaseDate = to_string(versionArg.get(5)) + "/" +
+        //                                     to_string(versionArg.get(4)) + "/" +
+        //                                     to_string(getYear(versionArg));
+        //        string receivedNumBoards = "" + to_string(versionArg.get(8));
+        //
+        //        cout << "driver version  = "  << receivedDriverVersion << endl;
+        //        cout << "release date    = " << receivedReleaseDate << endl;
+        //        cout << "number of chips = " << receivedNumBoards << endl;
+        //
+        //        for(int j = 0; j < loopMax; j++) {
+        //            stringstream ss;
+        //
+        //            // show 0x for hex
+        //            ss << showbase << hex;
+        //
+        //            ss << setw(2) << getRevisionId(versionArg, j) << endl;
+        //            string receivedHwRevisionId = ss.str();
+        //            ss.str("");
+        //            ss.clear();
+        //
+        //            ss << setw(4) << getSubsystemId(versionArg, j) << endl;
+        //            string receivedHwSubsystemId = ss.str();
+        //            ss.str("");
+        //            ss.clear();
+        //
+        //            ss << setw(4) << getDeviceId(versionArg, j) << endl;
+        //            string receivedHwDeviceId = ss.str();
+        //            ss.str("");
+        //            ss.clear();
+        //
+        //            cout << "revision  id (" << j << ")= " << receivedHwRevisionId << endl;
+        //            cout << "subsystem id (" << j << ")= " << receivedHwSubsystemId << endl;
+        //            cout << "device    id (" << j << ")= " << receivedHwDeviceId << endl;
+        //        }
+        //
+        //        haveHardwareGzipCompression = true;
+        //        cout << endl << "Successfully loaded aha3xx jni shared lib for gzip hardware compression available" << endl << endl;
+        //    }
+        //    catch (Error & e) {
+        //        // If the library cannot be found, we can still do compression -
+        //        // just not with the AHA374 compression board.
+        //        cout << endl << "Cannot load aha3xx jni shared lib so no gzip hardware compression available" << endl << endl;
+        //    }
+    }
 
 
-
-/**
- * Returns the maximum number of bytes needed to compress the given length
- * of uncompressed data. Depends on compression type. Unknown for gzip.
- *
- * @param compressionType type of data compression to do
- *                        (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
- *                        Default to none.
- * @param uncompressedLength uncompressed data length in bytes.
- * @return maximum compressed length in bytes or -1 if unknown.
- */
-int Compressor::getMaxCompressedLength(CompressionType compressionType, uint32_t uncompressedLength) {
-    switch(compressionType) {
-        case GZIP:
+    /**
+     * Returns the maximum number of bytes needed to compress the given length
+     * of uncompressed data. Depends on compression type. Unknown for gzip.
+     *
+     * @param compressionType type of data compression to do
+     *                        (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
+     *                        Default to none.
+     * @param uncompressedLength uncompressed data length in bytes.
+     * @return maximum compressed length in bytes or -1 if unknown.
+     */
+    int Compressor::getMaxCompressedLength(CompressionType compressionType, uint32_t uncompressedLength) {
+        switch(compressionType) {
+            case GZIP:
 #ifdef USE_GZIP
-            return deflateBound(&strmDeflate, uncompressedLength);
+                return deflateBound(&strmDeflate, uncompressedLength);
 #else
-            return -1;
+                return -1;
 #endif
-        case LZ4_BEST:
-        case LZ4:
-            return LZ4_compressBound(uncompressedLength);
-        case UNCOMPRESSED:
-        default:
-            return uncompressedLength;
+            case LZ4_BEST:
+            case LZ4:
+                return LZ4_compressBound(uncompressedLength);
+            case UNCOMPRESSED:
+            default:
+                return uncompressedLength;
+        }
     }
-}
 
-//---------------------------
-// GZIP Compression
-//---------------------------
+
+    //---------------------------
+    // GZIP Compression
+    //---------------------------
+
 
 #ifdef USE_GZIP
-/**
+    /**
  * GZIP compression. Returns locally allocated compressed byte array.
  * Caller must delete[] it.
  *
@@ -459,291 +473,299 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
 #endif
 
 
-//---------------------------
-// LZ4 Fast Compression
-//---------------------------
+    //---------------------------
+    // LZ4 Fast Compression
+    //---------------------------
 
-/**
- * Fastest LZ4 compression. Returns length of compressed data in bytes.
- *
- * @param src      source of uncompressed data from position.
- * @param srcSize  number of bytes to compress.
- * @param dst      destination buffer from position.
- * @param maxSize  maximum number of bytes to write in dst.
- * @return length of compressed data in bytes.
- * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
- */
-int Compressor::compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
 
-    if (LZ4_compressBound(srcSize) > maxSize) {
-        throw EvioException("maxSize (" + to_string(maxSize) +
-                            ") is < max # of compressed bytes (" +
-                            to_string(LZ4_compressBound(srcSize)) + ")");
+    /**
+     * Fastest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data from position.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination buffer from position.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     */
+    int Compressor::compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
+
+        if (LZ4_compressBound(srcSize) > maxSize) {
+            throw EvioException("maxSize (" + to_string(maxSize) +
+                                ") is < max # of compressed bytes (" +
+                                to_string(LZ4_compressBound(srcSize)) + ")");
+        }
+
+        int size = LZ4_compress_fast((const char*)(src.array() + src.position()),
+                                     (char*)(dst.array() + dst.position()),
+                                     srcSize, maxSize, lz4Acceleration);
+        if (size < 1) {
+            throw EvioException("compression failed");
+        }
+
+        return size;
     }
 
-    int size = LZ4_compress_fast((const char*)(src.array() + src.position()),
-                                 (char*)(dst.array() + dst.position()),
-                                 srcSize, maxSize, lz4Acceleration);
-    if (size < 1) {
-        throw EvioException("compression failed");
+
+    /**
+     * Fastest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     */
+    int Compressor::compressLZ4(uint8_t* src, int srcOff, int srcSize,
+                                uint8_t* dst, int dstOff, int maxSize) {
+
+        if (LZ4_compressBound(srcSize) > maxSize) {
+            throw EvioException("maxSize (" + to_string(maxSize) +
+                                ") is < max # of compressed bytes (" +
+                                to_string(LZ4_compressBound(srcSize)) + ")");
+        }
+
+        int size = LZ4_compress_fast((const char*)(src + srcOff), (char*)(dst + dstOff),
+                                     srcSize, maxSize, lz4Acceleration);
+        if (size < 1) {
+            throw EvioException("compression failed");
+        }
+
+        return size;
     }
 
-    return size;
-}
 
-/**
- * Fastest LZ4 compression. Returns length of compressed data in bytes.
- *
- * @param src      source of uncompressed data.
- * @param srcOff   start offset in src.
- * @param srcSize  number of bytes to compress.
- * @param dst      destination array.
- * @param dstOff   start offset in dst.
- * @param maxSize  maximum number of bytes to write in dst.
- * @return length of compressed data in bytes.
- * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
- */
-int Compressor::compressLZ4(uint8_t* src, int srcOff, int srcSize,
-                            uint8_t* dst, int dstOff, int maxSize) {
-
-    if (LZ4_compressBound(srcSize) > maxSize) {
-        throw EvioException("maxSize (" + to_string(maxSize) +
-                            ") is < max # of compressed bytes (" +
-                            to_string(LZ4_compressBound(srcSize)) + ")");
-    }
-
-    int size = LZ4_compress_fast((const char*)(src + srcOff), (char*)(dst + dstOff),
-                                 srcSize, maxSize, lz4Acceleration);
-    if (size < 1) {
-        throw EvioException("compression failed");
-    }
-
-    return size;
-}
-
-/**
- * Fastest LZ4 compression. Returns length of compressed data in bytes.
- *
- * @param src      source of uncompressed data.
- * @param srcOff   start offset in src regardless of position.
- * @param srcSize  number of bytes to compress.
- * @param dst      destination array.
- * @param dstOff   start offset in dst regardless of position.
- * @param maxSize  maximum number of bytes to write in dst.
- * @return length of compressed data in bytes.
- * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
- */
-int Compressor::compressLZ4(ByteBuffer & src, int srcOff, int srcSize,
-                            ByteBuffer & dst, int dstOff, int maxSize) {
-
-    if (LZ4_compressBound(srcSize) > maxSize) {
-        throw EvioException("maxSize (" + to_string(maxSize) +
-                            ") is < max # of compressed bytes (" +
-                            to_string(LZ4_compressBound(srcSize)) + ")");
-    }
-
-    int size = LZ4_compress_fast((const char*)(src.array() + srcOff),
-                                 (char*)(dst.array() + dstOff),
-                                 srcSize, maxSize, lz4Acceleration);
-    if (size < 1) {
-        throw EvioException("compression failed");
-    }
-
-    return size;
-}
-
-//---------------------------
-// LZ4 Best Compression
-//---------------------------
-
-/**
- * Highest LZ4 compression. Returns length of compressed data in bytes.
- *
- * @param src      source of uncompressed data starting at position.
- * @param srcSize  number of bytes to compress.
- * @param dst      destination buffer starting at position.
- * @param maxSize  maximum number of bytes to write in dst.
- * @return length of compressed data in bytes.
- * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
- */
-int Compressor::compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
-
-    if (LZ4_compressBound(srcSize) > maxSize) {
-        throw EvioException("maxSize (" + to_string(maxSize) +
-                            ") is < max # of compressed bytes (" +
-                            to_string(LZ4_compressBound(srcSize)) + ")");
-    }
-
-    int size = LZ4_compress_HC((const char*)(src.array() + src.position()),
-                               (char*)(dst.array() + dst.position()),
-                               srcSize, maxSize, 1);
-    if (size < 1) {
-        throw EvioException("compression failed");
-    }
-
-    return size;
-}
-
-/**
- * Highest LZ4 compression. Returns length of compressed data in bytes.
- *
- * @param src      source of uncompressed data.
- * @param srcOff   start offset in src.
- * @param srcSize  number of bytes to compress.
- * @param dst      destination array.
- * @param dstOff   start offset in dst.
- * @param maxSize  maximum number of bytes to write in dst.
- * @return length of compressed data in bytes.
- * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
- */
-int Compressor::compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
-                                uint8_t dst[], int dstOff, int maxSize) {
-    if (LZ4_compressBound(srcSize) > maxSize) {
-        throw EvioException("maxSize (" + to_string(maxSize) +
-                            ") is < max # of compressed bytes (" +
-                            to_string(LZ4_compressBound(srcSize)) + ")");
-    }
-
-    int size = LZ4_compress_HC((const char*)(src + srcOff), (char*)(dst + dstOff),
-                               srcSize, maxSize, 1);
-    if (size < 1) {
-        throw EvioException("compression failed");
-    }
-
-    return size;
-}
-
-/**
- * Highest LZ4 compression. Returns length of compressed data in bytes.
- *
- * @param src      source of uncompressed data.
- * @param srcOff   start offset in src.
- * @param srcSize  number of bytes to compress.
- * @param dst      destination array.
- * @param dstOff   start offset in dst.
- * @param maxSize  maximum number of bytes to write in dst.
- * @return length of compressed data in bytes.
- * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
- */
-int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
+    /**
+     * Fastest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcOff   start offset in src regardless of position.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst regardless of position.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     */
+    int Compressor::compressLZ4(ByteBuffer & src, int srcOff, int srcSize,
                                 ByteBuffer & dst, int dstOff, int maxSize) {
-    if (LZ4_compressBound(srcSize) > maxSize) {
-        throw EvioException("maxSize (" + to_string(maxSize) +
-                            ") is < max # of compressed bytes (" +
-                            to_string(LZ4_compressBound(srcSize)) + ")");
+
+        if (LZ4_compressBound(srcSize) > maxSize) {
+            throw EvioException("maxSize (" + to_string(maxSize) +
+                                ") is < max # of compressed bytes (" +
+                                to_string(LZ4_compressBound(srcSize)) + ")");
+        }
+
+        int size = LZ4_compress_fast((const char*)(src.array() + srcOff),
+                                     (char*)(dst.array() + dstOff),
+                                     srcSize, maxSize, lz4Acceleration);
+        if (size < 1) {
+            throw EvioException("compression failed");
+        }
+
+        return size;
     }
 
-    int size = LZ4_compress_HC((const char*)(src.array() + srcOff),
-                               (char*)(dst.array() + dstOff),
-                               srcSize, maxSize, 1);
-    if (size < 1) {
-        throw EvioException("compression failed");
+
+    //---------------------------
+    // LZ4 Best Compression
+    //---------------------------
+
+
+    /**
+     * Highest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data starting at position.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination buffer starting at position.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     */
+    int Compressor::compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
+
+        if (LZ4_compressBound(srcSize) > maxSize) {
+            throw EvioException("maxSize (" + to_string(maxSize) +
+                                ") is < max # of compressed bytes (" +
+                                to_string(LZ4_compressBound(srcSize)) + ")");
+        }
+
+        int size = LZ4_compress_HC((const char*)(src.array() + src.position()),
+                                   (char*)(dst.array() + dst.position()),
+                                   srcSize, maxSize, 1);
+        if (size < 1) {
+            throw EvioException("compression failed");
+        }
+
+        return size;
     }
 
-    return size;
-}
 
-//---------------------------
-// LZ4 Decompression
-//---------------------------
+    /**
+     * Highest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     */
+    int Compressor::compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
+                                    uint8_t dst[], int dstOff, int maxSize) {
+        if (LZ4_compressBound(srcSize) > maxSize) {
+            throw EvioException("maxSize (" + to_string(maxSize) +
+                                ") is < max # of compressed bytes (" +
+                                to_string(LZ4_compressBound(srcSize)) + ")");
+        }
 
-/**
- * LZ4 decompression. Returns original length of decompressed data in bytes.
- *
- * @param src      source of compressed data.
- * @param srcSize  number of compressed bytes.
- * @param dst      destination array.
- * @return original (uncompressed) input size.
- * @throws EvioException if destination buffer is too small to hold uncompressed data or
- *                       source data is malformed.
- */
-int Compressor::uncompressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst) {
-    return uncompressLZ4(src, src.position(), srcSize, dst);
-}
+        int size = LZ4_compress_HC((const char*)(src + srcOff), (char*)(dst + dstOff),
+                                   srcSize, maxSize, 1);
+        if (size < 1) {
+            throw EvioException("compression failed");
+        }
+
+        return size;
+    }
 
 
-/**
- * LZ4 decompression. Returns original length of decompressed data in bytes.
- *
- * @param src      source of compressed data.
- * @param srcOff   start offset in src.
- * @param srcSize  number of compressed bytes.
- * @param dst      destination array.
- * @return original (uncompressed) input size.
- * @throws EvioException if destination buffer is too small to hold uncompressed data or
- *                       source data is malformed.
- */
-int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst) {
+    /**
+     * Highest LZ4 compression. Returns length of compressed data in bytes.
+     *
+     * @param src      source of uncompressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of bytes to compress.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @param maxSize  maximum number of bytes to write in dst.
+     * @return length of compressed data in bytes.
+     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     */
+    int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
+                                    ByteBuffer & dst, int dstOff, int maxSize) {
+        if (LZ4_compressBound(srcSize) > maxSize) {
+            throw EvioException("maxSize (" + to_string(maxSize) +
+                                ") is < max # of compressed bytes (" +
+                                to_string(LZ4_compressBound(srcSize)) + ")");
+        }
 
-    int dstOff = dst.position();
-
-    int size = LZ4_decompress_safe((const char*)(src.array() + srcOff),
+        int size = LZ4_compress_HC((const char*)(src.array() + srcOff),
                                    (char*)(dst.array() + dstOff),
-                                   srcSize, dst.remaining());
+                                   srcSize, maxSize, 1);
+        if (size < 1) {
+            throw EvioException("compression failed");
+        }
 
-    if (size < 0) {
-        throw EvioException("destination buffer too small or data malformed");
+        return size;
     }
 
-    // Prepare buffer for reading
-    dst.limit(dstOff + size).position(dstOff);
-    return size;
-}
+
+    //---------------------------
+    // LZ4 Decompression
+    //---------------------------
 
 
-
-/**
- * LZ4 decompression. Returns original length of decompressed data in bytes.
- *
- * @param src      source of compressed data.
- * @param srcOff   start offset in src.
- * @param srcSize  number of compressed bytes.
- * @param dst      destination array.
- * @param dstOff   start offset in dst.
- * @return original (uncompressed) input size.
- * @throws EvioException if destination buffer is too small to hold uncompressed data or
- *                       source data is malformed.
- */
-int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst, int dstOff) {
-
-    int size = LZ4_decompress_safe((const char*)(src.array() + srcOff),
-                                   (char*)(dst.array() + dstOff),
-                                   srcSize, dst.remaining());
-
-    if (size < 0) {
-        throw EvioException("destination buffer too small or data malformed");
+    /**
+     * LZ4 decompression. Returns original length of decompressed data in bytes.
+     *
+     * @param src      source of compressed data.
+     * @param srcSize  number of compressed bytes.
+     * @param dst      destination array.
+     * @return original (uncompressed) input size.
+     * @throws EvioException if destination buffer is too small to hold uncompressed data or
+     *                       source data is malformed.
+     */
+    int Compressor::uncompressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst) {
+        return uncompressLZ4(src, src.position(), srcSize, dst);
     }
 
-    // Prepare buffer for reading
-    dst.limit(dstOff + size).position(dstOff);
-    return size;
-}
 
+    /**
+     * LZ4 decompression. Returns original length of decompressed data in bytes.
+     *
+     * @param src      source of compressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of compressed bytes.
+     * @param dst      destination array.
+     * @return original (uncompressed) input size.
+     * @throws EvioException if destination buffer is too small to hold uncompressed data or
+     *                       source data is malformed.
+     */
+    int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst) {
 
-/**
- * LZ4 decompression. Returns original length of decompressed data in bytes.
- *
- * @param src      source of compressed data.
- * @param srcOff   start offset in src.
- * @param srcSize  number of compressed bytes.
- * @param dst      destination array.
- * @param dstOff   start offset in dst.
- * @param dstCapacity size of destination buffer in bytes, which must be already allocated.
- * @return original (uncompressed) input size.
- * @throws EvioException if uncompressed data bytes &gt; dstCapacity or
- *                       source data is malformed.
- */
-int Compressor::uncompressLZ4(uint8_t src[], int srcOff, int srcSize, uint8_t dst[],
-                              int dstOff, int dstCapacity) {
+        int dstOff = dst.position();
 
-    int size = LZ4_decompress_safe((const char*)(src + srcOff),
-                                   (char*)(dst + dstOff),
-                                   srcSize, dstCapacity);
-    if (size < 0) {
-        throw EvioException("destination buffer too small or data malformed");
+        int size = LZ4_decompress_safe((const char*)(src.array() + srcOff),
+                                       (char*)(dst.array() + dstOff),
+                                       srcSize, dst.remaining());
+
+        if (size < 0) {
+            throw EvioException("destination buffer too small or data malformed");
+        }
+
+        // Prepare buffer for reading
+        dst.limit(dstOff + size).position(dstOff);
+        return size;
     }
 
-    return size;
-}
+
+    /**
+     * LZ4 decompression. Returns original length of decompressed data in bytes.
+     *
+     * @param src      source of compressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of compressed bytes.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @return original (uncompressed) input size.
+     * @throws EvioException if destination buffer is too small to hold uncompressed data or
+     *                       source data is malformed.
+     */
+    int Compressor::uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst, int dstOff) {
+
+        int size = LZ4_decompress_safe((const char*)(src.array() + srcOff),
+                                       (char*)(dst.array() + dstOff),
+                                       srcSize, dst.remaining());
+
+        if (size < 0) {
+            throw EvioException("destination buffer too small or data malformed");
+        }
+
+        // Prepare buffer for reading
+        dst.limit(dstOff + size).position(dstOff);
+        return size;
+    }
+
+
+    /**
+     * LZ4 decompression. Returns original length of decompressed data in bytes.
+     *
+     * @param src      source of compressed data.
+     * @param srcOff   start offset in src.
+     * @param srcSize  number of compressed bytes.
+     * @param dst      destination array.
+     * @param dstOff   start offset in dst.
+     * @param dstCapacity size of destination buffer in bytes, which must be already allocated.
+     * @return original (uncompressed) input size.
+     * @throws EvioException if uncompressed data bytes &gt; dstCapacity or
+     *                       source data is malformed.
+     */
+    int Compressor::uncompressLZ4(uint8_t src[], int srcOff, int srcSize, uint8_t dst[],
+                                  int dstOff, int dstCapacity) {
+
+        int size = LZ4_decompress_safe((const char*)(src + srcOff),
+                                       (char*)(dst + dstOff),
+                                       srcSize, dstCapacity);
+        if (size < 0) {
+            throw EvioException("destination buffer too small or data malformed");
+        }
+
+        return size;
+    }
 
 }
