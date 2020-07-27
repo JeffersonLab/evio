@@ -164,14 +164,14 @@ namespace evio {
             /** Thread which does the file writing. */
             boost::thread thd;
             /** The highest sequence to have been currently processed. */
-            atomic_long lastSeqProcessed{-1};
+            std::atomic_long lastSeqProcessed{-1};
 
             /** Place to store event when disk is full. */
             std::shared_ptr<RecordRingItem> storedItem;
             /** Force write to disk. */
-            atomic_bool forceToDisk{false};
+            std::atomic_bool forceToDisk{false};
             /** Id of RecordRingItem that initiated the forced write. */
-            atomic_uint64_t forcedRecordId{0};
+            std::atomic_uint64_t forcedRecordId{0};
 
         public:
 
@@ -207,7 +207,7 @@ namespace evio {
             ~RecordWriter() {
                 thd.interrupt();
                 if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                    cout << "     RecordWriter thread did not quit after 1/2 sec" << endl;
+                    std::cout << "     RecordWriter thread did not quit after 1/2 sec" << std::endl;
                 }
             }
 
@@ -229,7 +229,7 @@ namespace evio {
                 //cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
                 //" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
                 while (supply->getLastSequence() > lastSeqProcessed.load()) {
-                    std::this_thread::sleep_for(chrono::milliseconds(1));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
 
                 // Stop this thread, not the calling thread
@@ -253,7 +253,7 @@ namespace evio {
                 forceToDisk = true;
             }
 
-            std::shared_ptr<RecordRingItem> storeRecordCopy(shared_ptr<RecordRingItem> & rec) {
+            std::shared_ptr<RecordRingItem> storeRecordCopy(std::shared_ptr<RecordRingItem> & rec) {
                 // Call copy constructor of RecordRingItem, then make into shared pointer
                 storedItem = std::make_shared<RecordRingItem>(*(rec.get()));
                 return storedItem;
@@ -311,7 +311,7 @@ namespace evio {
 
                                 while (writer->fullDisk() && (!forceToDisk.load())) {
                                     // Wait for a sec and try again
-                                    std::this_thread::sleep_for(chrono::seconds(1));
+                                    std::this_thread::sleep_for(std::chrono::seconds(1));
 
                                     // If we released the item in a previous loop, don't do it again
                                     if (!item->isAlreadyReleased()) {
@@ -355,7 +355,7 @@ namespace evio {
                     }
                 }
                 catch (boost::thread_interrupted & e) {
-                    cout << "EventWriter: INTERRUPTED, return" << endl;
+                    std::cout << "EventWriter: INTERRUPTED, return" << std::endl;
                 }
             }
         };
@@ -446,7 +446,7 @@ namespace evio {
 
                     // Wait for it to stop
                     if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                        cout << "CloseAsyncFChan thread did not quit after 1/2 sec" << endl;
+                        std::cout << "CloseAsyncFChan thread did not quit after 1/2 sec" << std::endl;
                     }
 
                     try {
@@ -476,7 +476,7 @@ namespace evio {
                     }
 
                     // Release resources back to the ring
-                    cout << "Closer: releaseWriterSequential, will release item seq = " << item->getSequence() << endl;
+                    std::cout << "Closer: releaseWriterSequential, will release item seq = " << item->getSequence() << std::endl;
                     supply->releaseWriterSequential(item);
 
                     try {
@@ -490,7 +490,7 @@ namespace evio {
                         afChannel->close();
                     }
                     catch (std::exception &e) {
-                        cout << e.what() << endl;
+                        std::cout << e.what() << std::endl;
                     }
 
                     try {
@@ -599,7 +599,7 @@ namespace evio {
 
 
             /** Store all currently active closing threads. */
-            vector<std::shared_ptr<CloseAsyncFChan>> threads;
+            std::vector<std::shared_ptr<CloseAsyncFChan>> threads;
 
 
         public:

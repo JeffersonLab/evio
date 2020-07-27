@@ -89,7 +89,7 @@ namespace evio {
         ~RecordCompressor() {
             thd.interrupt();
             if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                cout << "RecordCompressor thread did not quit after 1/2 sec" << endl;
+                std::cout << "RecordCompressor thread did not quit after 1/2 sec" << std::endl;
             }
         }
 

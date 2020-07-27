@@ -294,7 +294,7 @@ namespace evio {
         asyncFileChannel = std::make_shared<std::fstream>();
 
         if (append) {
-            asyncFileChannel->open(currentFileName, ios::binary | ios::in | ios::out);
+            asyncFileChannel->open(currentFileName, std::ios::binary | std::ios::in | std::ios::out);
             if (asyncFileChannel->fail()) {
                 throw EvioException("error opening file " + currentFileName);
             }
@@ -481,7 +481,7 @@ namespace evio {
         this->buffer          = buf;
         this->byteOrder       = buf->order();
         this->recordNumber    = recordNumber;
-        cout << "EventWriter constr: record # set to " << recordNumber << endl;
+        std::cout << "EventWriter constr: record # set to " << recordNumber << std::endl;
 
         this->xmlDictionary   = xmlDictionary;
         this->compressionType = compressionType;
@@ -655,7 +655,7 @@ namespace evio {
             throw EvioException("Close EventWriter before changing buffers");
         }
 
-        //cout << "setBuffer: call reInitializeBuf with local record # " << recordNumber << endl;
+        //std::cout << "setBuffer: call reInitializeBuf with local record # " << recordNumber << std::endl;
         reInitializeBuffer(buf, nullptr, recordNumber, true);
     }
 
@@ -819,8 +819,8 @@ namespace evio {
      * @return number of events written to a file/buffer.
      */
     uint32_t EventWriter::getEventsWritten() const {
-        //cout << "getEventsWritten: eventsWrittenTotal = " << eventsWrittenTotal <<
-        //        ", curRec.getEvCount = " << currentRecord->getEventCount() << endl;
+        //std::cout << "getEventsWritten: eventsWrittenTotal = " << eventsWrittenTotal <<
+        //        ", curRec.getEvCount = " << currentRecord->getEventCount() << std::endl;
         return eventsWrittenTotal + currentRecord->getEventCount();
     }
 
@@ -842,7 +842,7 @@ namespace evio {
     //    // If events have been written already, forget about it
     //    if (eventsWrittenTotal > 0) return;
     //    recordNumber = startingRecordNumber;
-    ////cout << "setStartingBLOCKNumber: set to " << recordNumber << endl;
+    ////std::cout << "setStartingBLOCKNumber: set to " << recordNumber << std::endl;
     //}
 
 
@@ -855,7 +855,7 @@ namespace evio {
         // If events have been written already, forget about it
         if (eventsWrittenTotal > 0) return;
         recordNumber = startingRecordNumber;
-        //cout << "setStartingRecordNumber: set to " << recordNumber << endl;
+        //std::cout << "setStartingRecordNumber: set to " << recordNumber << std::endl;
     }
 
 
@@ -1057,7 +1057,7 @@ namespace evio {
 
         // Place dictionary & first event into a single record
         if (!xmlDict.empty()) {
-            //cout << "createCommonRecord: got dictionary, # chars = " << xmlDict.size() << endl;
+            //std::cout << "createCommonRecord: got dictionary, # chars = " << xmlDict.size() << std::endl;
             // 56 is the minimum number of characters for a valid xml dictionary
             if (xmlDict.length() < 56) {
                 throw EvioException("Dictionary improper format, too few characters");
@@ -1068,8 +1068,8 @@ namespace evio {
 
             // Add to record which will be our file header's "user header"
             commonRecord->addEvent(dictionaryByteArray);
-            //cout << "createCommonRecord: turned dictionary into ascii & added to commonRecord, byte size = " <<
-            //                    dictionaryByteArray.size() << endl;
+            //std::cout << "createCommonRecord: turned dictionary into ascii & added to commonRecord, byte size = " <<
+            //                    dictionaryByteArray.size() << std::endl;
         }
         else {
             dictionaryByteArray.clear();
@@ -1097,7 +1097,7 @@ namespace evio {
 
         commonRecord->build();
         commonRecordBytesToBuffer = 4*commonRecord->getHeader()->getLengthWords();
-        //cout << "createCommonRecord: padded commonRecord size is " << commonRecordBytesToBuffer << " bytes" << endl;
+        //std::cout << "createCommonRecord: padded commonRecord size is " << commonRecordBytesToBuffer << " bytes" << std::endl;
     }
 
 
@@ -1190,7 +1190,7 @@ namespace evio {
                     compressAndWriteToFile(true);
                 }
                 catch (EvioException & e) {
-                    cout << e.what() << endl;
+                    std::cout << e.what() << std::endl;
                 }
             }
             else {
@@ -1202,7 +1202,7 @@ namespace evio {
                 }
 
                 // Get another empty record from ring
-                cout << "EventWriter: flush, get ring item, seq = " << currentRingItem->getSequence() << endl;
+                std::cout << "EventWriter: flush, get ring item, seq = " << currentRingItem->getSequence() << std::endl;
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
             }
@@ -1231,7 +1231,7 @@ namespace evio {
             }
             catch (std::exception & e) {
                 // We're here if buffer is too small
-                cout << e.what() << endl;
+                std::cout << e.what() << std::endl;
             }
         }
             // If file ...
@@ -1240,7 +1240,7 @@ namespace evio {
             if (singleThreadedCompression) {
                 try {compressAndWriteToFile(false);}
                 catch (std::exception & e) {
-                    cout << e.what() << endl;
+                    std::cout << e.what() << std::endl;
                 }
             }
             else {
@@ -1254,9 +1254,9 @@ namespace evio {
 
                 // Since the writer thread is the last to process each record,
                 // wait until it's done with the last item, then exit the thread.
-                cout << "Close: waiting 4 writing thd" << endl;
+                std::cout << "Close: waiting 4 writing thd" << std::endl;
                 recordWriterThread[0].waitForLastItem();
-                cout << "Close: done waiting 4 writing thd" << endl;
+                std::cout << "Close: done waiting 4 writing thd" << std::endl;
 
                 // Stop all compressing threads which by now are stuck on get
                 for (RecordCompressor &thd : recordCompressorThreads) {
@@ -1280,7 +1280,7 @@ namespace evio {
                     writeTrailerToFile(addTrailerIndex);
                 }
                 catch (std::exception & e) {
-                    cout << e.what() << endl;
+                    std::cout << e.what() << std::endl;
                 }
             }
 
@@ -1293,7 +1293,7 @@ namespace evio {
                 asyncFileChannel->write(reinterpret_cast<char*>(bb.array()), 4);
             }
             catch (std::exception & e) {
-                cout << e.what() << endl;
+                std::cout << e.what() << std::endl;
             }
 
             try {
@@ -1370,13 +1370,13 @@ namespace evio {
         //        int recordCount = appendFileHeader.getEntries();
         //        int fileNum     = appendFileHeader.getFileNumber();
         //
-        //        cout << "file ID          = " << fileID << endl;
-        //        cout << "fileNumber       = " << fileNum << endl;
-        //        cout << "headerLength     = " << headerLen << endl;
-        //        cout << "recordCount      = " << recordCount << endl;
-        //        cout << "trailer index    = " << hasTrailerWithIndex << endl;
-        //        cout << "bit info         = " << Integer.toHexString(bitInfo) << endl;
-        //        cout << endl;
+        //        std::cout << "file ID          = " << fileID << std::endl;
+        //        std::cout << "fileNumber       = " << fileNum << std::endl;
+        //        std::cout << "headerLength     = " << headerLen << std::endl;
+        //        std::cout << "recordCount      = " << recordCount << std::endl;
+        //        std::cout << "trailer index    = " << hasTrailerWithIndex << std::endl;
+        //        std::cout << "bit info         = " << Integer.toHexString(bitInfo) << std::endl;
+        //        std::cout << std::endl;
     }
 
 
@@ -1404,11 +1404,11 @@ namespace evio {
         uint64_t fileSize = 20000000000L;
 #else
         uint64_t fileSize = fs::file_size(currentFileName);
-cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWritingPosition << endl;
+std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWritingPosition << std::endl;
 #endif
         bool lastRecord, isTrailer, readEOF = false;
         uint32_t recordLen, eventCount, nBytes, bitInfo, headerPosition;
-        future<void> future;
+        std::future<void> future;
 
         uint64_t bytesLeftInFile = fileSize;
 
@@ -1422,7 +1422,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         // reasonable # instead of incrementing from the last existing
         // record.
         recordNumber = 1;
-        cout << "toAppendPos:     record # = 1" << endl;
+        std::cout << "toAppendPos:     record # = 1" << std::endl;
 
         // To read in all of the normal record header set this to 40 bytes.
         // To read the bare minimum to do the append set this to 24 bytes,
@@ -1436,7 +1436,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             buffer->limit(headerBytesToRead);
 
             while (nBytes < headerBytesToRead) {
-                cout << "Read Header bytes" << endl;
+                std::cout << "Read Header bytes" << std::endl;
 
                 // There is no internal asyncFileChannel position
                 asyncFileChannel->seekg(fileWritingPosition);
@@ -1489,16 +1489,16 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             //                compDataLen = compWord & 0xfffffff;
             //            }
 
-            cout << "bitInfo      = 0x" << hex << bitInfo << dec << endl;
-            cout << "recordLength = " << recordLen << endl;
-            cout << "eventCount   = " << eventCount << endl;
-            cout << "lastRecord   = " << lastRecord << endl;
-            cout << endl;
+            std::cout << "bitInfo      = 0x" << std::hex << bitInfo << std::dec << std::endl;
+            std::cout << "recordLength = " << recordLen << std::endl;
+            std::cout << "eventCount   = " << eventCount << std::endl;
+            std::cout << "lastRecord   = " << lastRecord << std::endl;
+            std::cout << std::endl;
 
             // Update vector with record size & event count unless this is the trailer
             if (!isTrailer) {
-                cout << "                 adding to recordLengths append: " << (4 * recordLen) << ", " <<
-                     eventCount << "   ------" << endl;
+                std::cout << "                 adding to recordLengths append: " << (4 * recordLen) << ", " <<
+                     eventCount << "   ------" << std::endl;
                 recordLengths->push_back(4 * recordLen);
                 recordLengths->push_back(eventCount);
             }
@@ -1507,7 +1507,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             eventsWrittenTotal += eventCount;
 
             recordNumber++;
-            cout << "                 next record # = " << recordNumber << endl;
+            std::cout << "                 next record # = " << recordNumber << std::endl;
 
             // Stop at the last record. The file may not have a last record if
             // improperly terminated. Running into an End-Of-File will flag
@@ -1553,7 +1553,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             // It turns out we need to do nothing. The constructor that
             // calls this method will write out the next record header.
             recordNumber--;
-            cout << "                 read EOF, record # = " << recordNumber << endl;
+            std::cout << "                 read EOF, record # = " << recordNumber << std::endl;
         }
             // else if last record or has NO data in it ...
         else if (isTrailer || eventCount < 1) {
@@ -1563,9 +1563,9 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             // Since creating next record does ++recordNumber, we decrement it first
             recordNumber--;
 
-            cout << "                 last rec has no data, is Trailer = " << isTrailer << ", record # = " << recordNumber << endl;
+            std::cout << "                 last rec has no data, is Trailer = " << isTrailer << ", record # = " << recordNumber << std::endl;
             fileWritingPosition -= headerBytesToRead;
-            cout << "toAppendPos: position (bkup) = " << fileWritingPosition << endl;
+            std::cout << "toAppendPos: position (bkup) = " << fileWritingPosition << std::endl;
             asyncFileChannel->seekg(fileWritingPosition);
         }
         else {
@@ -1579,8 +1579,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             fileWritingPosition -= headerBytesToRead - RecordHeader::BIT_INFO_OFFSET;
             asyncFileChannel->seekg(fileWritingPosition);
 
-            cout << "toAppendPosition: writing over last block's 6th word, back up " <<
-                 (headerBytesToRead - RecordHeader::BIT_INFO_OFFSET)/4 << " words" << endl;
+            std::cout << "toAppendPosition: writing over last block's 6th word, back up " <<
+                 (headerBytesToRead - RecordHeader::BIT_INFO_OFFSET)/4 << " words" << std::endl;
 
             // Write over 6th block header word
             buffer->clear();
@@ -1592,8 +1592,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             }
 
             // Hop over the entire block
-            cout << "toAppendPosition: wrote over last block's 6th word, hop over whole record, " <<
-                 ((4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4))/4 << " words" << endl;
+            std::cout << "toAppendPosition: wrote over last block's 6th word, hop over whole record, " <<
+                 ((4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4))/4 << " words" << std::endl;
             fileWritingPosition += (4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4);
             asyncFileChannel->seekg(fileWritingPosition);
         }
@@ -1604,8 +1604,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         //        // The when writing the NEXT record, code does an ++recordNumber,
         //        // so account for that
         //        recordNumber--;
-        cout << "toAppendPos: file pos = " << fileWritingPosition <<
-             ", recordNumber = " << recordNumber << endl;
+        std::cout << "toAppendPos: file pos = " << fileWritingPosition <<
+             ", recordNumber = " << recordNumber << std::endl;
 
         // We should now be in a state identical to that if we had
         // just now written everything currently in the file/buffer.
@@ -1620,10 +1620,10 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
      * @return {@code true} if there still room in the output buffer, else {@code false}.
      */
     bool EventWriter::hasRoom(uint32_t bytes) {
-        //cout << "User buffer size (" << currentRecord->getInternalBufferCapacity() << ") - bytesWritten (" << bytesWritten <<
+        //std::cout << "User buffer size (" << currentRecord->getInternalBufferCapacity() << ") - bytesWritten (" << bytesWritten <<
         //      ") - trailer (" << trailerBytes() <<  ") = (" <<
         //         ((currentRecord->getInternalBufferCapacity() - bytesWritten) >= bytes + RecordHeader::HEADER_SIZE_BYTES) <<
-        //      ") >= ? " << bytes << endl;
+        //      ") >= ? " << bytes << std::endl;
         return writingToFile() || ((currentRecord->getInternalBufferCapacity() -
                                     bytesWritten - trailerBytes()) >= bytes);
     }
@@ -2019,8 +2019,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             // Check for inconsistent lengths
             if (currentEventBytes != 4 * (bankBuffer->getInt(bankBuffer->position()) + 1)) {
                 throw EvioException("inconsistent event lengths: total bytes from event = " +
-                                    to_string(4*(bankBuffer->getInt(bankBuffer->position()) + 1)) +
-                                    ", from buffer = " + to_string(currentEventBytes));
+                                            std::to_string(4*(bankBuffer->getInt(bankBuffer->position()) + 1)) +
+                                    ", from buffer = " + std::to_string(currentEventBytes));
             }
         }
         else if (bank != nullptr) {
@@ -2049,11 +2049,11 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
 
             // If we're going to split the file, set a couple flags
             if (totalSize > split) {
-                //                cout << "Split at total size = " << totalSize <<
+                //                std::cout << "Split at total size = " << totalSize <<
                 //                                   ", ev = " << currentEventBytes <<
                 //                                   ", prev = " << splitEventBytes <<
                 //                                   ", compressed data = " <<
-                //                                   ((currentEventBytes + splitEventBytes)*compressionFactor/100) << endl;
+                //                                   ((currentEventBytes + splitEventBytes)*compressionFactor/100) << std::endl;
                 splittingFile = true;
             }
         }
@@ -2099,7 +2099,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //cout << "writeEvent: split after just published rec, new rec# = 1, next = " << recordNumber << endl;
+                //std::cout << "writeEvent: split after just published rec, new rec# = 1, next = " << recordNumber << std::endl;
                 // Reset record number for records coming after this one
             }
 
@@ -2138,7 +2138,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //cout << "writeEvent: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
+                //std::cout << "writeEvent: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
             }
 
             // Add event to it (guaranteed to fit)
@@ -2173,7 +2173,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //cout << "writeEvent: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
+                //std::cout << "writeEvent: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
             }
         }
 
@@ -2263,7 +2263,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
                     // Still full
                     return false;
                 }
-                cout << "writeEventToFile: disk is NOT full, emptied" << endl;
+                std::cout << "writeEventToFile: disk is NOT full, emptied" << std::endl;
             }
         }
             // If single threaded write, and we can't allow more events in due to limited disk space
@@ -2299,8 +2299,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             // Check for inconsistent lengths
             if (currentEventBytes != 4 * (bankBuffer->getInt(bankBuffer->position()) + 1)) {
                 throw EvioException("inconsistent event lengths: total bytes from event = " +
-                                    to_string(4*(bankBuffer->getInt(bankBuffer->position()) + 1)) +
-                                    ", from buffer = " + to_string(currentEventBytes));
+                                            std::to_string(4*(bankBuffer->getInt(bankBuffer->position()) + 1)) +
+                                    ", from buffer = " + std::to_string(currentEventBytes));
             }
         }
         else if (bank != nullptr) {
@@ -2362,7 +2362,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //cout << "writeEventToFile: split after just published rec, new rec# = 1, next = " << recordNumber << endl;
+                //std::cout << "writeEventToFile: split after just published rec, new rec# = 1, next = " << recordNumber << std::endl;
                 // Reset record number for records coming after this one
             }
 
@@ -2416,7 +2416,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //cout << "writeEventToFile: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
+                //std::cout << "writeEventToFile: just published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
             }
 
             // Add event to it (guaranteed to fit)
@@ -2459,7 +2459,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
                 currentRingItem = supply->get();
                 currentRecord = currentRingItem->getRecord();
                 currentRecord->getHeader()->setRecordNumber(recordNumber++);
-                //cout << "writeEventToFile: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << endl;
+                //std::cout << "writeEventToFile: FORCED published rec, new rec# = " << (recordNumber - 1) << ", next = " << recordNumber << std::endl;
             }
         }
 
@@ -2580,7 +2580,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
 
             // New shared pointer for each file ...
             asyncFileChannel = std::make_shared<std::fstream>();
-            asyncFileChannel->open(currentFileName, ios::binary | ios::trunc | ios::out);
+            asyncFileChannel->open(currentFileName, std::ios::binary | std::ios::trunc | std::ios::out);
             if (asyncFileChannel->fail()) {
                 throw EvioException("error opening file " + currentFileName);
             }
@@ -2622,8 +2622,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         // Length of this record
         int bytesToWrite = header->getLength();
         int eventCount   = header->getEntries();
-        cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
-             eventCount << endl;
+        std::cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
+             eventCount << std::endl;
         recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths->push_back(eventCount);
@@ -2631,10 +2631,10 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         // Data to write
         auto buf = record->getBinaryBuffer();
 
-        cout << "\nwriteToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
-             fileWritingPosition << endl;
+        std::cout << "\nwriteToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
+             fileWritingPosition << std::endl;
 
-        future1 = std::make_shared<future<void>>(std::future<void>(
+        future1 = std::make_shared<std::future<void>>(std::future<void>(
                 std::async(std::launch::async,  // run in a separate thread
                            staticWriteFunction, // function to run
                            this,                // arguments to function ...
@@ -2667,13 +2667,13 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         eventsWrittenTotal  += eventCount;
 
         //        if (false) {
-        //            cout << "    writeToFile: after last header written, Events written to:" << endl;
-        //            cout << "                 cnt total (no dict) = " << eventsWrittenTotal << endl;
-        //            cout << "                 file cnt total (dict) = " << eventsWrittenToFile << endl;
-        //            cout << "                 internal buffer cnt (dict) = " << eventsWrittenToBuffer << endl;
-        //            cout << "                 bytes-written  = " << bytesToWrite << endl;
-        //            cout << "                 bytes-to-file = " << bytesWritten << endl;
-        //            cout << "                 record # = " << recordNumber << endl;
+        //            std::cout << "    writeToFile: after last header written, Events written to:" << std::endl;
+        //            std::cout << "                 cnt total (no dict) = " << eventsWrittenTotal << std::endl;
+        //            std::cout << "                 file cnt total (dict) = " << eventsWrittenToFile << std::endl;
+        //            std::cout << "                 internal buffer cnt (dict) = " << eventsWrittenToBuffer << std::endl;
+        //            std::cout << "                 bytes-written  = " << bytesToWrite << std::endl;
+        //            std::cout << "                 bytes-to-file = " << bytesWritten << std::endl;
+        //            std::cout << "                 record # = " << recordNumber << std::endl;
         //        }
 
         return true;
@@ -2701,11 +2701,11 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
 
         // This actually creates the file so do it only once
         if (bytesWritten < 1) {
-            cout << "Creating channel to " << currentFileName << endl;
+            std::cout << "Creating channel to " << currentFileName << std::endl;
 
             // New shared pointer for each file ...
             asyncFileChannel = std::make_shared<std::fstream>();
-            asyncFileChannel->open(currentFileName, ios::binary | ios::trunc | ios::out);
+            asyncFileChannel->open(currentFileName, std::ios::binary | std::ios::trunc | std::ios::out);
             if (asyncFileChannel->fail()) {
                 throw EvioException("error opening file " + currentFileName);
             }
@@ -2737,8 +2737,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         // Length of this record
         int bytesToWrite = header->getLength();
         int eventCount   = header->getEntries();
-        cout << "   **** added to recordLengths MT: " << bytesToWrite << ", " <<
-             eventCount << endl;
+        std::cout << "   **** added to recordLengths MT: " << bytesToWrite << ", " <<
+             eventCount << std::endl;
         recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths->push_back(eventCount);
@@ -2747,14 +2747,14 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         auto buf = record->getBinaryBuffer();
 
         if (noFileWriting) {
-            future1 = std::make_shared<future<void>>(std::future<void>(
+            future1 = std::make_shared<std::future<void>>(std::future<void>(
                     std::async(std::launch::async,
                                staticDoNothingFunction,
                                this)));
 
         }
         else {
-            future1 = std::make_shared<future<void>>(std::future<void>(
+            future1 = std::make_shared<std::future<void>>(std::future<void>(
                     std::async(std::launch::async,  // run in a separate thread
                                staticWriteFunction,        // function to run
                                this,                       // arguments to function ...
@@ -2782,13 +2782,13 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         //bytesWritten  += 20;
 
         //        if (false) {
-        //            cout << "    writeToFile: after last header written, Events written to:" << endl;
-        //            cout << "                 cnt total (no dict) = " << eventsWrittenTotal << endl;
-        //            cout << "                 file cnt total (dict) = " << eventsWrittenToFile << endl;
-        //            cout << "                 internal buffer cnt (dict) = " << eventsWrittenToBuffer << endl;
-        //            cout << "                 bytes-written  = " << bytesToWrite << endl;
-        //            cout << "                 bytes-to-file = " << bytesWritten << endl;
-        //            cout << "                 record # = " << recordNumber << endl;
+        //            std::cout << "    writeToFile: after last header written, Events written to:" << std::endl;
+        //            std::cout << "                 cnt total (no dict) = " << eventsWrittenTotal << std::endl;
+        //            std::cout << "                 file cnt total (dict) = " << eventsWrittenToFile << std::endl;
+        //            std::cout << "                 internal buffer cnt (dict) = " << eventsWrittenToBuffer << std::endl;
+        //            std::cout << "                 bytes-written  = " << bytesToWrite << std::endl;
+        //            std::cout << "                 bytes-to-file = " << bytesWritten << std::endl;
+        //            std::cout << "                 record # = " << recordNumber << std::endl;
         //        }
     }
 
@@ -2857,7 +2857,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         bytesWritten        = 0L;
         eventsWrittenToFile = 0;
 
-        cout << "    splitFile: generated file name = " << fileName << ", record # = " << recordNumber << endl;
+        std::cout << "    splitFile: generated file name = " << fileName << ", record # = " << recordNumber << std::endl;
     }
 
 
@@ -2903,8 +2903,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             // Place data into headerBuffer - both header and index
             RecordHeader::writeTrailer(headerArray, 0, recordNumber, byteOrder, recordLengths);
 
-            //cout << "\nwriteTrailerToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
-            //                 fileWritingPosition << endl;
+            //std::cout << "\nwriteTrailerToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
+            //                 fileWritingPosition << std::endl;
             // TODO: is this seekg really necessary?
             asyncFileChannel->seekg(fileWritingPosition);
             asyncFileChannel->write(reinterpret_cast<char *>(headerArray.data()), bytesToWrite);
@@ -2913,7 +2913,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             }
 
             //            asyncFileChannel->flush();
-            //            cout << "After writing trailer to " + currentFileName << endl;
+            //            std::cout << "After writing trailer to " + currentFileName << std::endl;
             //            Util::printBytes(currentFileName, 0, 120, "File Beginning of " + currentFileName);
         }
 
@@ -2943,7 +2943,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         }
 
         //        asyncFileChannel->flush();
-        //        cout << "After writing trailer & updating file header to " + currentFileName << endl;
+        //        std::cout << "After writing trailer & updating file header to " + currentFileName << std::endl;
         //        Util::printBytes(currentFileName, 0, 120, "File Beginning of " + currentFileName);
 
     }
@@ -2985,8 +2985,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
         uint32_t bytesToWrite = header->getLength();
         // Store length & count for possible trailer index
 
-        cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " <<
-             eventCount << endl;
+        std::cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " <<
+             eventCount << std::endl;
         recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths->push_back(eventCount);
@@ -3072,8 +3072,8 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
 
             // How many bytes are we writing here?
             uint32_t bytesToWrite = RecordHeader::HEADER_SIZE_BYTES + arraySize;
-            //cout << "writeTrailerToBuffer: bytesToWrite = " << bytesToWrite <<
-            //        ", record index len = " << arraySize << endl;
+            //std::cout << "writeTrailerToBuffer: bytesToWrite = " << bytesToWrite <<
+            //        ", record index len = " << arraySize << std::endl;
 
             // Make sure our buffer can hold everything
             if ((buffer->capacity() - bytesWritten) < bytesToWrite) {
@@ -3081,7 +3081,7 @@ cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fileWri
             }
 
             // Place data into buffer - both header and index
-            //cout << "writeTrailerToBuffer: start writing at pos = " << bytesWritten << endl;
+            //std::cout << "writeTrailerToBuffer: start writing at pos = " << bytesWritten << std::endl;
             RecordHeader::writeTrailer(*(buffer.get()), bytesWritten, recordNumber, recordLengths);
         }
     }

@@ -74,7 +74,7 @@ namespace evio {
             /** Thread which does the file writing. */
             boost::thread thd;
             /** The highest sequence to have been currently processed. */
-            atomic_long lastSeqProcessed{-1};
+            std::atomic_long lastSeqProcessed{-1};
 
         public:
 
@@ -114,7 +114,7 @@ namespace evio {
             ~RecordWriter() {
                 thd.interrupt();
                 if (thd.try_join_for(boost::chrono::milliseconds(500))) {
-                    cout << "RecordWriter thread did not quit after 1/2 sec" << endl;
+                    std::cout << "RecordWriter thread did not quit after 1/2 sec" << std::endl;
                 }
             }
 
@@ -133,10 +133,10 @@ namespace evio {
 
             /** Wait for the last item to be processed, then exit thread. */
             void waitForLastItem() {
-//cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
-//" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  endl;
+//std::cout << "WRITE: supply last = " << supply->getLastSequence() << ", lasSeqProcessed = " << lastSeqProcessed <<
+//" supply->getLast > lastSeq = " <<  (supply->getLastSequence() > lastSeqProcessed)  <<  std::endl;
                 while (supply->getLastSequence() > lastSeqProcessed.load()) {
-                    std::this_thread::sleep_for(chrono::milliseconds(1));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
 
                 // Stop this thread, not the calling thread
@@ -150,7 +150,7 @@ namespace evio {
                 try {
                     while (true) {
 
-                        cout << "   RecordWriter: try getting record to write" << endl;
+                        std::cout << "   RecordWriter: try getting record to write" << std::endl;
                         // Get the next record for this thread to write
                         auto item = supply->getToWrite();
 
@@ -172,8 +172,8 @@ namespace evio {
                             writer->writerBytesWritten += bytesToWrite;
 
                             auto buf = record->getBinaryBuffer();
-                            cout << "   RecordWriter: use outFile to write file, buf pos = " << buf->position() <<
-                                 ", lim = " << buf->limit() << ", bytesToWrite = " << bytesToWrite << endl;
+                            std::cout << "   RecordWriter: use outFile to write file, buf pos = " << buf->position() <<
+                                 ", lim = " << buf->limit() << ", bytesToWrite = " << bytesToWrite << std::endl;
                             writer->outFile.write(reinterpret_cast<const char *>(buf->array()), bytesToWrite);
                             if (writer->outFile.fail()) {
                                 throw EvioException("failed write to file");
@@ -233,7 +233,7 @@ namespace evio {
         ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
 
         /** Internal Record. */
-        shared_ptr<RecordOutput> outputRecord;
+        std::shared_ptr<RecordOutput> outputRecord;
 
         /** Byte array large enough to hold a header/trailer. This array may increase. */
         std::vector<uint8_t> headerArray;
@@ -289,7 +289,7 @@ namespace evio {
                 const ByteOrder & order = ByteOrder::ENDIAN_LITTLE,
                 uint32_t maxEventCount = 0,
                 uint32_t maxBufferSize = 0,
-                const string & dictionary = "",
+                const std::string & dictionary = "",
                 uint8_t* firstEvent = nullptr,
                 uint32_t firstEventLen = 0,
                 Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED,
@@ -297,9 +297,9 @@ namespace evio {
                 bool addTrailerIndex = false,
                 uint32_t ringSize = 16);
 
-        explicit WriterMT(string & filename);
+        explicit WriterMT(std::string & filename);
 
-        WriterMT(string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
+        WriterMT(std::string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                  Compressor::CompressionType compressionType, uint32_t compressionThreads);
 
         ~WriterMT() = default;
@@ -325,8 +325,8 @@ namespace evio {
         bool addTrailerWithIndex();
         void addTrailerWithIndex(bool addTrailingIndex);
 
-        void open(string & filename);
-        void open(string & filename, uint8_t* userHdr, uint32_t userLen);
+        void open(std::string & filename);
+        void open(std::string & filename, uint8_t* userHdr, uint32_t userLen);
 
         std::shared_ptr<ByteBuffer> createHeader(uint8_t* userHdr, uint32_t userLen);
         std::shared_ptr<ByteBuffer> createHeader(ByteBuffer & userHdr);
