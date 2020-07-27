@@ -272,6 +272,20 @@ namespace evio {
 
     }
 
+    static std::string myStrings[3] = {"a", "b", "c"};
+
+    static void printStrings(std::string * strs, int count) {
+        for (int i=0; i < count; i++) {
+            cout << "string #" << i << " = " << strs[i] << std::endl;
+        }
+    }
+     static void myTest2() {
+        // Can we handle an array of strings??
+        printStrings(myStrings, 3);
+
+
+    }
+
 
 
 }
@@ -279,7 +293,7 @@ namespace evio {
 
 
 int main(int argc, char **argv) {
-    evio::myTest();
+    evio::myTest2();
     return 0;
 }
 
