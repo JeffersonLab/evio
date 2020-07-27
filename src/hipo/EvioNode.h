@@ -74,7 +74,7 @@ namespace evio {
     private:
 
         /** Store data in int array form if calculated. */
-        vector<uint32_t> data;
+        std::vector<uint32_t> data;
 
         /** Does this node represent an event (top-level bank)? */
         bool izEvent = false;
@@ -84,10 +84,10 @@ namespace evio {
         bool obsolete = false;
 
         /** ByteBuffer that this node is associated with. */
-        shared_ptr<ByteBuffer> buffer;
+        std::shared_ptr<ByteBuffer> buffer;
 
         /** List of child nodes ordered according to placement in buffer. */
-        vector<shared_ptr<EvioNode>> childNodes;
+        std::vector<std::shared_ptr<EvioNode>> childNodes;
 
         //-------------------------------
         // For event-level node
@@ -109,17 +109,17 @@ namespace evio {
          *  ordered according to placement in buffer.
          *  Only created at the top-level (with constructor).
          *  All nodes have a reference to the top-level allNodes object. */
-        vector<shared_ptr<EvioNode>> allNodes;
+        std::vector<std::shared_ptr<EvioNode>> allNodes;
 
         //-------------------------------
         // For sub event-level node
         //-------------------------------
 
         /** Node of event containing this node. Is null if this is an event node. */
-        shared_ptr<EvioNode> eventNode;
+        std::shared_ptr<EvioNode> eventNode;
 
         /** Node containing this node. Is null if this is an event node. */
-        shared_ptr<EvioNode> parentNode;
+        std::shared_ptr<EvioNode> parentNode;
 
         //-------------------------------
         // For testing
@@ -144,7 +144,7 @@ namespace evio {
 
     protected:
 
-        explicit EvioNode(shared_ptr<EvioNode> & firstNode);
+        explicit EvioNode(std::shared_ptr<EvioNode> & firstNode);
 
     public:
 
@@ -153,11 +153,11 @@ namespace evio {
         explicit EvioNode(int id);
         explicit EvioNode(const std::shared_ptr<EvioNode> & src);
         EvioNode(EvioNode && src) noexcept;
-        EvioNode(size_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
+        EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
         EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> & buffer);
         EvioNode(uint16_t tag, uint8_t num, size_t pos, size_t dataPos,
                  DataType const & type, DataType const & dataType,
-                 shared_ptr<ByteBuffer> buffer);
+                 std::shared_ptr<ByteBuffer> buffer);
 
         ~EvioNode() = default;
 
@@ -175,14 +175,14 @@ namespace evio {
         bool operator==(const EvioNode& src) const;
 
         EvioNode & shift(int deltaPos);
-        string toString();
+        std::string toString();
 
         void clearLists();
         void clear();
         void clearObjects();
         void clearIntArray();
 
-        void setBuffer(shared_ptr<ByteBuffer> & buf);
+        void setBuffer(std::shared_ptr<ByteBuffer> & buf);
         void setData(size_t position, uint32_t plc, std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode);
         void setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> & buf);
 
@@ -225,9 +225,9 @@ namespace evio {
         ByteBuffer & getByteData(ByteBuffer & dest, bool copy);
         std::shared_ptr<ByteBuffer> & getByteData(std::shared_ptr<ByteBuffer> & dest, bool copy);
         std::vector<uint32_t> & getIntData();
-        void getIntData(vector<uint32_t> & intData);
-        void getLongData(vector<uint64_t> & longData);
-        void getShortData(vector<uint16_t> & shortData);
+        void getIntData(std::vector<uint32_t> & intData);
+        void getLongData(std::vector<uint64_t> & longData);
+        void getShortData(std::vector<uint16_t> & shortData);
         ByteBuffer & getStructureBuffer(ByteBuffer & dest, bool copy);
         std::shared_ptr<ByteBuffer> & getStructureBuffer(std::shared_ptr<ByteBuffer> & dest, bool copy);
     };

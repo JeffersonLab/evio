@@ -39,10 +39,10 @@ namespace evio {
 
         TagSegmentHeader() = default;
         TagSegmentHeader(uint16_t tag, DataType const & dataType);
-        TagSegmentHeader(uint16_t tag, string const & format);
+        TagSegmentHeader(uint16_t tag, std::string const & format);
 
         uint32_t getHeaderLength() override;
-        string   toString() override;
+        std::string   toString() override;
 
         size_t write(std::shared_ptr<ByteBuffer> & dest) override ;
         size_t write(ByteBuffer & dest) override;

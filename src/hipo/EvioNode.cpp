@@ -21,12 +21,12 @@ namespace evio {
         parentNode = nullptr;
 
         // Put this node in list of all nodes (evio banks, segs, or tagsegs) contained in this event
-        allNodes.push_back(make_shared<EvioNode>(*this));
+        allNodes.push_back(std::make_shared<EvioNode>(*this));
     }
 
 
     /** Constructor used when swapping data. */
-    EvioNode::EvioNode(shared_ptr<EvioNode> & firstNode) : EvioNode() {
+    EvioNode::EvioNode(std::shared_ptr<EvioNode> & firstNode) : EvioNode() {
         scanned = true;
         eventNode = firstNode;
     }
@@ -92,7 +92,7 @@ namespace evio {
      * @param buffer      buffer containing this event
      * @param recordNode  block containing this event
      */
-    EvioNode::EvioNode(size_t pos, uint32_t place, shared_ptr<ByteBuffer> & buffer, RecordNode & recordNode) : EvioNode() {
+    EvioNode::EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> & buffer, RecordNode & recordNode) : EvioNode() {
         this->pos = pos;
         this->place = place;
         this->recordNode = recordNode;
@@ -114,7 +114,7 @@ namespace evio {
      * @param recordPos  position of record containing this node.
      * @param buffer     buffer containing this event.
      */
-    EvioNode::EvioNode(size_t pos, uint32_t place, size_t recordPos, shared_ptr<ByteBuffer> & buffer) : EvioNode() {
+    EvioNode::EvioNode(size_t pos, uint32_t place, size_t recordPos, std::shared_ptr<ByteBuffer> & buffer) : EvioNode() {
         this->pos = pos;
         this->place = place;
         this->recordPos = recordPos;
@@ -137,7 +137,7 @@ namespace evio {
      */
     EvioNode::EvioNode(uint16_t tag, uint8_t num, size_t pos, size_t dataPos,
                        DataType const & type, DataType const & dataType,
-                       shared_ptr<ByteBuffer> buffer) : EvioNode() {
+                       std::shared_ptr<ByteBuffer> buffer) : EvioNode() {
         this->tag = tag;
         this->num = num;
         this->pos = pos;
@@ -229,8 +229,8 @@ namespace evio {
     }
 
 
-    string EvioNode::toString() {
-        stringstream ss;
+    std::string EvioNode::toString() {
+        std::stringstream ss;
 
         ss << "tag = "          << tag;
         ss << ", num = "        << num;
@@ -274,7 +274,7 @@ namespace evio {
         allNodes.clear();
         // Remember to add event's node into list
         if (eventNode == nullptr) {
-            allNodes.push_back(make_shared<EvioNode>(*this));
+            allNodes.push_back(std::make_shared<EvioNode>(*this));
         }
         else {
             allNodes.push_back(eventNode);
@@ -316,7 +316,7 @@ namespace evio {
      * Set the buffer.
      * @param buf buffer associated with this object.
      */
-    void EvioNode::setBuffer(shared_ptr<ByteBuffer> & buf) {buffer = buf;}
+    void EvioNode::setBuffer(std::shared_ptr<ByteBuffer> & buf) {buffer = buf;}
 
 
     /**
@@ -329,7 +329,7 @@ namespace evio {
      * @param recordNode  object holding data about header of block containing event
      */
     void EvioNode::setData(size_t position, uint32_t plc,
-                           shared_ptr<ByteBuffer> & buf, RecordNode & recNode) {
+                           std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode) {
         buffer     = buf;
         recordNode = recNode;
         pos        = position;
@@ -349,7 +349,7 @@ namespace evio {
      * @param recordPos  place of event in containing record (bytes)
      * @param buffer     buffer to examine
      */
-    void EvioNode::setData(size_t position, uint32_t plc, size_t recPos, shared_ptr<ByteBuffer> & buf) {
+    void EvioNode::setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> & buf) {
         buffer     = buf;
         recordPos  = recPos;
         pos        = position;
@@ -380,7 +380,7 @@ namespace evio {
      * @return EvioNode object containing evio event information
      * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
      */
-    std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
+    std::shared_ptr<EvioNode> EvioNode::extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
                                                          RecordNode & recNode,
                                                          size_t position, uint32_t place) {
 
@@ -411,7 +411,7 @@ namespace evio {
      * @return EvioNode object containing evio event information
      * @throws EvioException if not enough data in buffer to read evio bank header (8 bytes).
      */
-    std::shared_ptr<EvioNode> EvioNode::extractEventNode(shared_ptr<ByteBuffer> & buffer,
+    std::shared_ptr<EvioNode> EvioNode::extractEventNode(std::shared_ptr<ByteBuffer> & buffer,
                                                          size_t recPosition,
                                                          size_t position, uint32_t place) {
 
@@ -461,8 +461,8 @@ namespace evio {
         // Make sure there is enough data to read full bank
         // even though it is NOT completely read at this time.
         if (buffer->remaining() < 4*(length + 1)) {
-            cout << "ERROR: remaining = " << buffer->remaining() <<
-                 ", node len bytes = " << ( 4*(length + 1)) << ", len = " << length << endl;
+            std::cout << "ERROR: remaining = " << buffer->remaining() <<
+                 ", node len bytes = " << ( 4*(length + 1)) << ", len = " << length << std::endl;
             throw EvioException("buffer underflow");
         }
 
@@ -652,7 +652,7 @@ namespace evio {
      * Add a node to the end of the list of all nodes contained in event.
      * @param node child node to add to the list of all nodes
      */
-    void EvioNode::addToAllNodes(shared_ptr<EvioNode> & node) {
+    void EvioNode::addToAllNodes(std::shared_ptr<EvioNode> & node) {
 
         allNodes.push_back(node);
         // NOTE: do not have to do this recursively for all descendants.
@@ -668,7 +668,7 @@ namespace evio {
      * contained in event.
      * @param node node & descendants to remove from the list of all nodes
      */
-    void EvioNode::removeFromAllNodes(shared_ptr<EvioNode> & node) {
+    void EvioNode::removeFromAllNodes(std::shared_ptr<EvioNode> & node) {
         if (node == nullptr) {
             return;
         }
@@ -677,7 +677,7 @@ namespace evio {
         allNodes.erase(std::remove(allNodes.begin(), allNodes.end(), node), allNodes.end());
 
         // Remove descendants also
-        for (shared_ptr<EvioNode> & n : node->childNodes) {
+        for (std::shared_ptr<EvioNode> & n : node->childNodes) {
             removeFromAllNodes(n);
         }
 
@@ -695,7 +695,7 @@ namespace evio {
      *
      * @param node child node to add to the end of the child list.
      */
-    void EvioNode::addChild(shared_ptr<EvioNode> & node) {
+    void EvioNode::addChild(std::shared_ptr<EvioNode> & node) {
         if (node == nullptr) {
             return;
         }
@@ -711,7 +711,7 @@ namespace evio {
      * If not a child, do nothing.
      * @param node node to remove from child & allNodes lists.
      */
-    void EvioNode::removeChild(shared_ptr<EvioNode> & node) {
+    void EvioNode::removeChild(std::shared_ptr<EvioNode> & node) {
         if (node == nullptr) {
             return;
         }
@@ -752,7 +752,7 @@ namespace evio {
         obsolete = ob;
 
         // Set for all descendants.
-        for (shared_ptr<EvioNode> & n : childNodes) {
+        for (std::shared_ptr<EvioNode> & n : childNodes) {
             n->setObsolete(ob);
         }
     }
@@ -765,7 +765,7 @@ namespace evio {
      *
      * @return list of all nodes that this node contains; null if not top-level node
      */
-    vector<shared_ptr<EvioNode>> & EvioNode::getAllNodes() {return allNodes;}
+    std::vector<std::shared_ptr<EvioNode>> & EvioNode::getAllNodes() {return allNodes;}
 
 
     /**
@@ -776,7 +776,7 @@ namespace evio {
      * @return list of all child nodes that this node contains;
      *         null if not scanned or no children
      */
-    vector<shared_ptr<EvioNode>> & EvioNode::getChildNodes() {return childNodes;}
+    std::vector<std::shared_ptr<EvioNode>> & EvioNode::getChildNodes() {return childNodes;}
 
 
     /**
@@ -787,9 +787,9 @@ namespace evio {
      *
      * @param descendants list to be filled with EvioNodes of all descendants
      */
-    void EvioNode::getAllDescendants(vector<shared_ptr<EvioNode>> & descendants) {
+    void EvioNode::getAllDescendants(std::vector<std::shared_ptr<EvioNode>> & descendants) {
         // Add children recursively
-        for (shared_ptr<EvioNode> & n : childNodes) {
+        for (std::shared_ptr<EvioNode> & n : childNodes) {
             descendants.push_back(n);
             n->getAllDescendants(descendants);
         }
@@ -930,7 +930,7 @@ namespace evio {
      * Get this node's parent node.
      * @return this node's parent node or null if none.
      */
-    shared_ptr<EvioNode> EvioNode::getParentNode() {return parentNode;}
+    std::shared_ptr<EvioNode> EvioNode::getParentNode() {return parentNode;}
 
     /**
      * If this object represents an event (top-level, evio bank),
@@ -1102,7 +1102,7 @@ namespace evio {
      *
      * @return integer array containing data.
      */
-    vector<uint32_t> & EvioNode::getIntData() {
+    std::vector<uint32_t> & EvioNode::getIntData() {
         if (data.empty()) {
             for (int i = dataPos; i < dataPos + 4 * dataLen; i += 4) {
                 data[(i - dataPos) / 4] = buffer->getInt(i);
@@ -1119,7 +1119,7 @@ namespace evio {
      *
      * @param intData vector in which to store data.
      */
-    void EvioNode::getIntData(vector<uint32_t> & intData) {
+    void EvioNode::getIntData(std::vector<uint32_t> & intData) {
         intData.clear();
 
         for (int i = dataPos; i < dataPos + 4*dataLen; i+= 4) {
@@ -1137,7 +1137,7 @@ namespace evio {
      *
      * @param longData vector in which to store data.
      */
-    void EvioNode::getLongData(vector<uint64_t> & longData) {
+    void EvioNode::getLongData(std::vector<uint64_t> & longData) {
         longData.clear();
 
         for (int i = dataPos; i < dataPos + 4*dataLen; i+= 8) {
@@ -1153,7 +1153,7 @@ namespace evio {
      *
      * @param shortData vectro in which to store data.
      */
-    void EvioNode::getShortData(vector<uint16_t> & shortData) {
+    void EvioNode::getShortData(std::vector<uint16_t> & shortData) {
         shortData.clear();
 
         for (int i = dataPos; i < dataPos + 4*dataLen; i+= 2) {

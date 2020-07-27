@@ -186,7 +186,7 @@ namespace evio {
          * Get the string representation of the block (record) header.
          * @return string representation of the block (record) header.
          */
-        virtual string toString() = 0;
+        virtual std::string toString() = 0;
     };
 
 

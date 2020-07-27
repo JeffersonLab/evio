@@ -97,7 +97,7 @@ namespace evio {
         size_t eventNumber = 0;
 
         /** There may be a dictionary in xml associated with this event. Or there may not. */
-        string dictionaryXML{""};
+        std::string dictionaryXML{""};
 
     protected:
 
@@ -129,35 +129,35 @@ namespace evio {
          * Get the XML dictionary associated with this event if there is one.
          * @return the XML dictionary associated with this event if there is one, else null
          */
-        string getDictionaryXML() const {return dictionaryXML;}
+        std::string getDictionaryXML() const {return dictionaryXML;}
 
         /**
          * Set the XML dictionary associated with this event.
          * @param xml the XML dictionary associated with this event.
          */
-        void setDictionaryXML(string &xml) {dictionaryXML = xml;}
+        void setDictionaryXML(std::string &xml) {dictionaryXML = xml;}
 
         /**
          * Obtain a string representation of the structure.
          * @return a string representation of the structure.
          */
-        string toString() const override {
+        std::string toString() const override {
 
-            stringstream ss;
+            std::stringstream ss;
 
             // show 0x for hex
-            ss << showbase;
+            ss << std::showbase;
 
             StructureType stype = getStructureType();
             DataType dtype = header->getDataType();
 
-            string description = getDescription();
+            std::string description = getDescription();
             // TODO::::
 //    if (INameProvider.NO_NAME_STRING.equals(description)) {
 //        description = "";
 //    }
 
-            string sb;
+            std::string sb;
             sb.reserve(100);
 
             if (!description.empty()) {
@@ -165,10 +165,10 @@ namespace evio {
             }
             else {
                 ss << "<Event> has " << dtype.toString() << "s:  tag=" << header->getTag();
-                ss << hex << "(" << header->getTag() << ")" << dec;
+                ss << std::hex << "(" << header->getTag() << ")" << std::dec;
 
                 if (stype == StructureType::STRUCT_BANK) {
-                    ss << "  num=" << header->getNumber() << hex << "(" << header->getNumber() << ")" << dec;
+                    ss << "  num=" << header->getNumber() << std::hex << "(" << header->getNumber() << ")" << std::dec;
                 }
             }
 

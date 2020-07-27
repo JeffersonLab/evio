@@ -499,7 +499,7 @@ namespace evio {
 
             // Have enough remaining bytes to read 8 words of header?
             if (bb.limit() - initialPos < 32) {
-                throw underflow_error("not enough data to read in header");
+                throw std::underflow_error("not enough data to read in header");
             }
 
             // Set the byte order to match the file's ordering.
@@ -545,24 +545,24 @@ namespace evio {
             // Make sure we stay in bounds
             bytes = bytes + position > buf.capacity() ? (buf.capacity() - position) : bytes;
 
-            if (!label.empty()) cout << label << ":" << endl;
+            if (!label.empty()) std::cout << label << ":" << std::endl;
 
             if (bytes < 1) {
-                cout << "  no data in buf from position = " << position << endl;
+                std::cout << "  no data in buf from position = " << position << std::endl;
                 return;
             }
 
             for (int i=0; i < bytes; i++) {
                 if (i%20 == 0) {
-                    cout << endl << dec << "  Buf(" << (i + 1) << "-" << (i + 20) << ") =  ";
+                    std::cout << std::endl << std::dec << "  Buf(" << (i + 1) << "-" << (i + 20) << ") =  ";
                 }
                 else if (i%4 == 0) {
-                    cout << "  ";
+                    std::cout << "  ";
                 }
                 // Accessing buf in this way does not change position or limit of buffer
-                cout << hex << setfill('0') << setw(2) << (int)(buf[i]) << " ";
+                std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)(buf[i]) << " ";
             }
-            cout << dec << endl << endl << setfill(' ');
+            std::cout << std::dec << std::endl << std::endl << std::setfill(' ');
         }
 
 
@@ -579,12 +579,12 @@ namespace evio {
                                uint32_t bytes, const std::string & label) {
 
             if (fileName.empty()) {
-                cout << "Util::printBytes: fileName arg is invalid" << endl;
+                std::cout << "Util::printBytes: fileName arg is invalid" << std::endl;
                 return;
             }
 
             try {
-                ifstream inStreamRandom;
+                std::ifstream inStreamRandom;
 
                 // "ate" mode flag will go immediately to file's end (do this to get its size)
                 inStreamRandom.open(fileName, std::ios::in | std::ios::ate);
@@ -603,7 +603,7 @@ namespace evio {
             }
             catch (std::exception & e) {
                 // e.what() does not give any useful information...
-                cout << "Util::printBytes: " << strerror(errno) << endl;
+                std::cout << "Util::printBytes: " << strerror(errno) << std::endl;
             }
         }
 

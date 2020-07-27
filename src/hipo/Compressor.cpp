@@ -491,9 +491,9 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
     int Compressor::compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
 
         if (LZ4_compressBound(srcSize) > maxSize) {
-            throw EvioException("maxSize (" + to_string(maxSize) +
+            throw EvioException("maxSize (" + std::to_string(maxSize) +
                                 ") is < max # of compressed bytes (" +
-                                to_string(LZ4_compressBound(srcSize)) + ")");
+                                        std::to_string(LZ4_compressBound(srcSize)) + ")");
         }
 
         int size = LZ4_compress_fast((const char*)(src.array() + src.position()),
@@ -523,9 +523,9 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
                                 uint8_t* dst, int dstOff, int maxSize) {
 
         if (LZ4_compressBound(srcSize) > maxSize) {
-            throw EvioException("maxSize (" + to_string(maxSize) +
+            throw EvioException("maxSize (" + std::to_string(maxSize) +
                                 ") is < max # of compressed bytes (" +
-                                to_string(LZ4_compressBound(srcSize)) + ")");
+                                        std::to_string(LZ4_compressBound(srcSize)) + ")");
         }
 
         int size = LZ4_compress_fast((const char*)(src + srcOff), (char*)(dst + dstOff),
@@ -554,9 +554,9 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
                                 ByteBuffer & dst, int dstOff, int maxSize) {
 
         if (LZ4_compressBound(srcSize) > maxSize) {
-            throw EvioException("maxSize (" + to_string(maxSize) +
+            throw EvioException("maxSize (" + std::to_string(maxSize) +
                                 ") is < max # of compressed bytes (" +
-                                to_string(LZ4_compressBound(srcSize)) + ")");
+                                        std::to_string(LZ4_compressBound(srcSize)) + ")");
         }
 
         int size = LZ4_compress_fast((const char*)(src.array() + srcOff),
@@ -588,9 +588,9 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
     int Compressor::compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
 
         if (LZ4_compressBound(srcSize) > maxSize) {
-            throw EvioException("maxSize (" + to_string(maxSize) +
+            throw EvioException("maxSize (" + std::to_string(maxSize) +
                                 ") is < max # of compressed bytes (" +
-                                to_string(LZ4_compressBound(srcSize)) + ")");
+                                        std::to_string(LZ4_compressBound(srcSize)) + ")");
         }
 
         int size = LZ4_compress_HC((const char*)(src.array() + src.position()),
@@ -619,9 +619,9 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
     int Compressor::compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
                                     uint8_t dst[], int dstOff, int maxSize) {
         if (LZ4_compressBound(srcSize) > maxSize) {
-            throw EvioException("maxSize (" + to_string(maxSize) +
+            throw EvioException("maxSize (" + std::to_string(maxSize) +
                                 ") is < max # of compressed bytes (" +
-                                to_string(LZ4_compressBound(srcSize)) + ")");
+                                        std::to_string(LZ4_compressBound(srcSize)) + ")");
         }
 
         int size = LZ4_compress_HC((const char*)(src + srcOff), (char*)(dst + dstOff),
@@ -649,9 +649,9 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
     int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
                                     ByteBuffer & dst, int dstOff, int maxSize) {
         if (LZ4_compressBound(srcSize) > maxSize) {
-            throw EvioException("maxSize (" + to_string(maxSize) +
+            throw EvioException("maxSize (" + std::to_string(maxSize) +
                                 ") is < max # of compressed bytes (" +
-                                to_string(LZ4_compressBound(srcSize)) + ")");
+                                        std::to_string(LZ4_compressBound(srcSize)) + ")");
         }
 
         int size = LZ4_compress_HC((const char*)(src.array() + srcOff),

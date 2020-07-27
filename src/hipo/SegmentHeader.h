@@ -39,7 +39,7 @@ namespace evio {
         SegmentHeader(uint16_t tag, DataType const & dataType);
 
         uint32_t getHeaderLength() override;
-        string   toString() override;
+        std::string   toString() override;
 
         size_t write(std::shared_ptr<ByteBuffer> & dest) override ;
         size_t write(ByteBuffer & dest) override;

@@ -291,7 +291,7 @@ namespace evio {
         void readHeader(ByteBuffer & buffer, size_t offset = 0);
         void readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset = 0);
 
-        string toString() const;
+        std::string toString() const;
     };
 
 }

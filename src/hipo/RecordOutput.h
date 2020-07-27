@@ -231,8 +231,8 @@ namespace evio {
         bool addEvent(const uint8_t* event, uint32_t eventLen);
         bool addEvent(const uint8_t* event, uint32_t eventLen, uint32_t extraDataLen);
 
-        bool addEvent(const vector<uint8_t> & event);
-        bool addEvent(const vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen);
+        bool addEvent(const std::vector<uint8_t> & event);
+        bool addEvent(const std::vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen);
 
         bool addEvent(const ByteBuffer & event);
         bool addEvent(const ByteBuffer & event, uint32_t extraDataLen);

@@ -110,8 +110,8 @@ namespace evio {
          * Get a string representation of this object.
          * @return string representation of this object.
          */
-        string toString() const {
-            stringstream ss;
+        std::string toString() const {
+            std::stringstream ss;
 
             ss << "len = "      << len;
             ss << ", count = "  << count;

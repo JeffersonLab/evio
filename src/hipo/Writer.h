@@ -80,7 +80,7 @@ namespace evio {
         /** Evio format "first" event to store in file header's user header. */
 
         /** String containing evio-format XML dictionary to store in file header's user header. */
-        string dictionary;
+        std::string dictionary;
         /** If dictionary and or firstEvent exist, this buffer contains them both as a record. */
         std::shared_ptr<ByteBuffer> dictionaryFirstEventBuffer;
         /** Evio format "first" event to store in file header's user header. */
@@ -95,7 +95,7 @@ namespace evio {
         /** Record currently being written to file. */
         RecordOutput beingWrittenRecord;
         /** Byte array large enough to hold a header/trailer. This array may increase. */
-        vector<uint8_t> headerArray;
+        std::vector<uint8_t> headerArray;
 
         /** Type of compression to use on file. Default is none. */
         Compressor::CompressionType compressionType {Compressor::UNCOMPRESSED};
@@ -136,7 +136,7 @@ namespace evio {
                         uint32_t maxEventCount = 0,
                         uint32_t maxBufferSize = 0);
 
-        Writer(string & filename,
+        Writer(std::string & filename,
                const ByteOrder & order,
                uint32_t maxEventCount = 0,
                uint32_t maxBufferSize = 0);
@@ -145,7 +145,7 @@ namespace evio {
                         const ByteOrder & order = ByteOrder::ENDIAN_LITTLE,
                         uint32_t maxEventCount = 0,
                         uint32_t maxBufferSize = 0,
-                        const string & dictionary = string(""),
+                        const std::string & dictionary = std::string(""),
                         uint8_t* firstEvent = nullptr,
                         uint32_t firstEventLength = 0,
                         const Compressor::CompressionType & compressionType = Compressor::UNCOMPRESSED,
@@ -155,7 +155,7 @@ namespace evio {
 
         explicit Writer(std::shared_ptr<ByteBuffer> & buf);
         Writer(std::shared_ptr<ByteBuffer> & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
-               const string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
+               const std::string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
 
         ~Writer() = default;
 
@@ -189,11 +189,11 @@ namespace evio {
         bool addTrailerWithIndex();
         void addTrailerWithIndex(bool addTrailingIndex);
 
-        void open(string & filename);
-        void open(string & filename, uint8_t* userHdr, uint32_t len);
+        void open(std::string & filename);
+        void open(std::string & filename, uint8_t* userHdr, uint32_t len);
         void open(std::shared_ptr<ByteBuffer> & buf,  uint8_t* userHdr, uint32_t len);
 
-        static std::shared_ptr<ByteBuffer> createRecord(const string & dictionary,
+        static std::shared_ptr<ByteBuffer> createRecord(const std::string & dictionary,
                                                         uint8_t* firstEvent, uint32_t firstEventLen,
                                                         const ByteOrder & byteOrder,
                                                         FileHeader* fileHeader,

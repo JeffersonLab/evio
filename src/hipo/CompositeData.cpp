@@ -148,7 +148,7 @@ namespace evio {
         tsHeader = EventHeaderParser::createTagSegmentHeader(bytes, byteOrder);
 
         if (debug) {
-            std::cout << "    tagseg: type = 0x" << hex << tsHeader->getDataTypeValue() << dec <<
+            std::cout << "    tagseg: type = 0x" << std::hex << tsHeader->getDataTypeValue() << std::dec <<
                          ", tag = " << tsHeader->getTag() << ", len = " << tsHeader->getLength() << std::endl;
         }
 
@@ -196,7 +196,7 @@ namespace evio {
         int words = (tsHeader->getLength() + bHeader->getLength() + 2);
 
         if (debug) {
-            std::cout << "    bank: type = 0x" << hex << bHeader->getDataTypeValue() << dec <<
+            std::cout << "    bank: type = 0x" << std::hex << bHeader->getDataTypeValue() << std::dec <<
                                ", tag = " << bHeader->getTag() << ", num = " << bHeader->getNumber() << std::endl;
             std::cout << "    bank: len (words) = " << bHeader->getLength() <<
                                ", padding = " << dataPadding <<
@@ -501,11 +501,11 @@ namespace evio {
     /**
      * This method gets the next N value data item if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not NValue.
      */
     int32_t CompositeData::getNValue() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::NVALUE) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.i32);
     }
@@ -514,11 +514,11 @@ namespace evio {
     /**
      * This method gets the next n value data item if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not nValue.
      */
     int16_t CompositeData::getnValue() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::nVALUE) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.s16);
     }
@@ -527,11 +527,11 @@ namespace evio {
     /**
     * This method gets the next m value data item if it's the correct type.
     * @return data item value.
-    * @throws underflow_error if at end of data.
+    * @throws std::underflow_error if at end of data.
     * @throws EvioException if data is not mValue.
     */
     int8_t CompositeData::getmValue() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::mVALUE) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.b8);
     }
@@ -540,11 +540,11 @@ namespace evio {
     /**
     * This method gets the next HOLLERIT data item if it's the correct type.
     * @return data item value.
-    * @throws underflow_error if at end of data.
+    * @throws std::underflow_error if at end of data.
     * @throws EvioException if data is not HOLLERIT.
     */
     int32_t CompositeData::getHollerit() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::HOLLERIT) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.i32);
     }
@@ -553,11 +553,11 @@ namespace evio {
     /**
      * This method gets the next data item as a byte/char if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not int8_t.
      */
     int8_t CompositeData::getChar() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::CHAR8) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.b8);
     }
@@ -566,11 +566,11 @@ namespace evio {
     /**
      * This method gets the next data item as an unsigned byte/char if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not uint8_t.
      */
     uint8_t CompositeData::getUChar() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::UCHAR8) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.ub8);
     }
@@ -579,11 +579,11 @@ namespace evio {
     /**
      * This method gets the next data item as a short if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not int16_t.
      */
     int16_t CompositeData::getShort() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::SHORT16) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.s16);
     }
@@ -592,11 +592,11 @@ namespace evio {
     /**
      * This method gets the next data item as an unsigned short if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not uint16_t.
      */
     uint16_t CompositeData::getUShort() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::USHORT16) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.us16);
     }
@@ -605,11 +605,11 @@ namespace evio {
     /**
      * This method gets the next data item as an int if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not int32_t.
      */
     int32_t CompositeData::getInt() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::INT32) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.i32);
     }
@@ -618,11 +618,11 @@ namespace evio {
     /**
      * This method gets the next data item as an unsigned int if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not uint32_t.
      */
     uint32_t CompositeData::getUInt() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::UINT32) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.ui32);
     }
@@ -631,11 +631,11 @@ namespace evio {
     /**
      * This method gets the next data item as a long if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not int64_t.
      */
     int64_t CompositeData::getLong() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::LONG64) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.l64);
     }
@@ -644,11 +644,11 @@ namespace evio {
     /**
      * This method gets the next data item as an unsigned long if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not uint64_t.
      */
     uint64_t CompositeData::getULong() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::ULONG64) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.ul64);
     }
@@ -661,7 +661,7 @@ namespace evio {
      * @throws EvioException if data is not float.
      */
     float CompositeData::getFloat() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::FLOAT32) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.flt);
     }
@@ -670,11 +670,11 @@ namespace evio {
     /**
      * This method gets the next data item as a double if it's the correct type.
      * @return data item value.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not double.
      */
     double CompositeData::getDouble() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::DOUBLE64) {throw EvioException("wrong data type");}
         return (items[getIndex++].item.dbl);
     }
@@ -683,11 +683,11 @@ namespace evio {
     /**
      * This method gets the next data item as a vector of strings if it's the correct type.
      * @return reference to vector of strings in data item.
-     * @throws underflow_error if at end of data.
+     * @throws std::underflow_error if at end of data.
      * @throws EvioException if data is not vector of strings.
      */
     std::vector<std::string> & CompositeData::getStrings() {
-        if (getIndex > types.size()) {throw underflow_error("end of data");}
+        if (getIndex > types.size()) {throw std::underflow_error("end of data");}
         if (types[getIndex] != DataType::CHARSTAR8) {throw EvioException("wrong data type");}
         items[getIndex].item.str = true;
         return (items[getIndex++].strVec);
@@ -3042,9 +3042,9 @@ namespace evio {
      * @return a string representation of the composite data.
      */
     std::string CompositeData::toString(const std::string & indent, bool hex) {
-        stringstream ss;
+        std::stringstream ss;
         if (hex) {
-            ss << hex << showbase;
+            ss << std::hex << std::showbase;
         }
 
         int numItems = items.size();
@@ -3130,9 +3130,9 @@ namespace evio {
      * @return  a string representation of this CompositeData object.
      */
     std::string CompositeData::toString(bool hex) const {
-        stringstream ss;
+        std::stringstream ss;
         if (hex) {
-            ss << hex << showbase;
+            ss << std::hex << std::showbase;
         }
 
         // size of int list
@@ -3270,26 +3270,26 @@ namespace evio {
                     // double
                     if (kcnf == 8) {
                         double d = dataBuffer.getDouble(dataIndex);
-                        ss << scientific << std::setprecision(std::numeric_limits<double>::digits10 + 1) << d;
+                        ss << std::scientific << std::setprecision(std::numeric_limits<double>::digits10 + 1) << d;
                     }
                         // 64 bit int
                     else if (kcnf == 9) {
                         int64_t lng = dataBuffer.getLong(dataIndex);
                         if (hex) {
-                            ss << hex << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                            ss << std::hex << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
                         }
                         else {
-                            ss << dec << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                            ss << std::dec << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
                         }
                     }
                         // 64 bit uint
                     else {
                         uint64_t lng = dataBuffer.getULong(dataIndex);
                         if (hex) {
-                            ss << hex << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                            ss << std::hex << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
                         }
                         else {
-                            ss << dec << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
+                            ss << std::dec << std::setprecision(std::numeric_limits<int64_t>::digits10 + 1) << lng;
                         }
                     }
 
@@ -3318,25 +3318,25 @@ namespace evio {
                     if (kcnf == 12 || kcnf == 11) {
                         int32_t i = dataBuffer.getInt(dataIndex);
                         if (hex) {
-                            ss << hex << std::setprecision(std::numeric_limits<int32_t>::digits10 + 1) << i;
+                            ss << std::hex << std::setprecision(std::numeric_limits<int32_t>::digits10 + 1) << i;
                         }
                         else {
-                            ss << dec << std::setprecision(std::numeric_limits<int32_t>::digits10 + 1) << i;
+                            ss << std::dec << std::setprecision(std::numeric_limits<int32_t>::digits10 + 1) << i;
                         }
                     }
                         // float
                     else if (kcnf == 2) {
                         float f = dataBuffer.getFloat(dataIndex);
-                        ss << scientific << std::setprecision(std::numeric_limits<float>::digits10 + 1) << f;
+                        ss << std::scientific << std::setprecision(std::numeric_limits<float>::digits10 + 1) << f;
                     }
                         // 32 bit uint
                     else {
                         int32_t i = dataBuffer.getUInt(dataIndex);
                         if (hex) {
-                            ss << hex << std::setprecision(std::numeric_limits<uint32_t>::digits10 + 1) << i;
+                            ss << std::hex << std::setprecision(std::numeric_limits<uint32_t>::digits10 + 1) << i;
                         }
                         else {
-                            ss << dec << std::setprecision(std::numeric_limits<uint32_t>::digits10 + 1) << i;
+                            ss << std::dec << std::setprecision(std::numeric_limits<uint32_t>::digits10 + 1) << i;
                         }
                     }
 
@@ -3366,20 +3366,20 @@ namespace evio {
                     if (kcnf == 4) {
                         int16_t s = dataBuffer.getShort(dataIndex);
                         if (hex) {
-                            ss << hex << std::setprecision(std::numeric_limits<int16_t>::digits10 + 1) << s;
+                            ss << std::hex << std::setprecision(std::numeric_limits<int16_t>::digits10 + 1) << s;
                         }
                         else {
-                            ss << dec << std::setprecision(std::numeric_limits<int16_t>::digits10 + 1) << s;
+                            ss << std::dec << std::setprecision(std::numeric_limits<int16_t>::digits10 + 1) << s;
                         }
                     }
                         // 16 bit uint
                     else {
                         uint16_t s = dataBuffer.getUShort(dataIndex);
                         if (hex) {
-                            ss << hex << std::setprecision(std::numeric_limits<uint16_t>::digits10 + 1) << s;
+                            ss << std::hex << std::setprecision(std::numeric_limits<uint16_t>::digits10 + 1) << s;
                         }
                         else {
-                            ss << dec << std::setprecision(std::numeric_limits<uint16_t>::digits10 + 1) << s;
+                            ss << std::dec << std::setprecision(std::numeric_limits<uint16_t>::digits10 + 1) << s;
                         }
                     }
 
@@ -3419,10 +3419,10 @@ namespace evio {
 
                     for (int i=0; i < ncnf; i++) {
                         if (hex) {
-                            ss << hex << std::setprecision(2) << (int8_t)(bytes[i]);
+                            ss << std::hex << std::setprecision(2) << (int8_t)(bytes[i]);
                         }
                         else {
-                            ss << dec << std::setprecision(4) << (int8_t)(bytes[i]);
+                            ss << std::dec << std::setprecision(4) << (int8_t)(bytes[i]);
                         }
 
                         if (count++ % itemsOnLine == 0) {
@@ -3441,10 +3441,10 @@ namespace evio {
 
                     for (int i=0; i < ncnf; i++) {
                         if (hex) {
-                            ss << hex << std::setprecision(2) << bytes[i];
+                            ss << std::hex << std::setprecision(2) << bytes[i];
                         }
                         else {
-                            ss << dec << std::setprecision(4) << bytes[i];
+                            ss << std::dec << std::setprecision(4) << bytes[i];
                         }
 
                         if (count++ % itemsOnLine == 0) {
