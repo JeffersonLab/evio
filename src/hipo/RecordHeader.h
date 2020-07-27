@@ -332,7 +332,8 @@ namespace evio {
         static uint32_t generateSixthWord(uint32_t version, bool hasDictionary,
                                           bool isEnd, uint32_t eventType);
         static uint32_t generateSixthWord(std::bitset<24> const & set, uint32_t version,
-                                          bool hasDictionary, bool isEnd, uint32_t uint32_t);
+                                          bool hasDictionary, bool isEnd, uint32_t eventType,
+                                          uint32_t headerType = 0);
 
         // Boolean setters/getters
 

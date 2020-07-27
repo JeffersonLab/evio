@@ -517,17 +517,20 @@ namespace evio {
      * in the lowest 8 bits and the set in the upper 24 bits. The arg isDictionary
      * is set in the 9th bit and isEnd is set in the 10th bit. Four bits of an int
      * (event type) are set in bits 11-14.
+     * Four bits of this header type are set in bits 28-31
+     * (defaults to 0 which is an evio record header).
      *
      * @param set reference to bitset containing all bits to be set
      * @param version evio version number
      * @param hasDictionary does this block include an evio xml dictionary as the first event?
      * @param isEnd is this the last block of a file or a buffer?
      * @param eventType 4 bit type of events header is containing
+     * @param headerType 4 bit type of this header (defaults to 0 which is an evio record header).
      * @return generated sixth word of this header.
      */
     uint32_t RecordHeader::generateSixthWord(std::bitset<24> const & set,
-                                             uint32_t version, bool hasDictionary,
-                                             bool isEnd, uint32_t eventType) {
+                                             uint32_t version, bool hasDictionary, bool isEnd,
+                                             uint32_t eventType, uint32_t headerType) {
         uint32_t v = version; // version
 
         for (int i=0; i < set.size(); i++) {
@@ -542,6 +545,7 @@ namespace evio {
         v =  hasDictionary ? (v | 0x100) : v;
         v =  isEnd ? (v | 0x200) : v;
         v |= ((eventType & 0xf) << 10);
+        v |= ((headerType & 0xf) << 28);
 
         return v;
     }

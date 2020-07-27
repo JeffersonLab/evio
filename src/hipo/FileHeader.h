@@ -17,7 +17,6 @@
 #include <ios>
 #include <iomanip>
 #include <sstream>
-#include <bitset>
 
 
 #include "ByteOrder.h"
@@ -251,6 +250,9 @@ namespace evio {
         uint32_t getBitInfoWord() const;
         void     setBitInfoWord(uint32_t word);
         uint32_t setBitInfo(bool haveFirst, bool haveDictionary, bool haveTrailerWithIndex);
+        static uint32_t generateBitInfoWord(uint32_t version, bool hasDictionary,
+                                            bool hasFirst, bool trailerWithIndex,
+                                            uint32_t headerType = 1);
 
         uint32_t hasFirstEvent(bool hasFirst);
         bool     hasFirstEvent() const;

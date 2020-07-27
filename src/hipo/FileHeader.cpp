@@ -322,6 +322,35 @@ namespace evio {
 
 
     /**
+     * Calculates the bit info (6th) word of this header which has the version number
+     * in the lowest 8 bits (0-7). The arg hasDictionary
+     * is set in the 8th bit, hasFirst is set in the 9th bit, and trailerWithIndex is
+     * set in the 10th bit.
+     * Four bits of this header type are set in bits 28-31
+     * (defaults to 1 which is an evio file header).
+     *
+     * @param version evio version number
+     * @param hasDictionary does this file include an evio xml dictionary?
+     * @param hasFirst does this file include a first event in every file split?
+     * @param trailerWithIndex does this file have a trailer with an event index?
+     * @param headerType 4 bit type of this header (defaults to 1 which is an evio file header).
+     * @return generated bit-info (6th) word of a file header.
+     */
+    uint32_t FileHeader::generateBitInfoWord(uint32_t version, bool hasDictionary,
+                                             bool hasFirst, bool trailerWithIndex,
+                                             uint32_t headerType) {
+        uint32_t v = version; // version
+        v =  hasDictionary ? (v | 0x100) : v;
+        v =  hasFirst ? (v | 0x200) : v;
+        v =  trailerWithIndex ? (v | 0x400) : v;
+        v |= ((headerType & 0xf) << 28);
+
+        return v;
+    }
+
+
+
+    /**
      * Set the bit which says file has a first event.
      * @param hasFirst  true if file has a first event.
      * @return new bitInfo word.
