@@ -639,9 +639,9 @@ namespace evio {
 
         bool needSwap() const;
 
-        string getDescription() const;
+        std::string getDescription() const;
 
-        virtual string toString() const;
+        virtual std::string toString() const;
 
         std::shared_ptr<BaseStructureHeader> getHeader() const;
 
@@ -685,7 +685,7 @@ namespace evio {
         std::vector<std::string> & getStringData();
         uint32_t unpackRawBytesToStrings();
 
-        static uint32_t stringToRawSize(const string & str);
+        static uint32_t stringToRawSize(const std::string & str);
         static uint32_t stringsToRawSize(std::vector<std::string> const & strings);
 
         static void stringsToRawBytes(std::vector<std::string> & strings,

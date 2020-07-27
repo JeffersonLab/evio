@@ -102,14 +102,14 @@ namespace evio {
      * Obtain a string representation of the bank header.
      * @return a string representation of the bank header.
      */
-    string BankHeader::toString() {
-        stringstream ss;
+    std::string BankHeader::toString() {
+        std::stringstream ss;
 
-        ss << "bank length: " << length << endl;
-        ss << "     number: " << number << endl;
-        ss << "  data type: " << getDataTypeName() << endl;
-        ss << "        tag: " << tag << endl;
-        ss << "    padding: " << padding << endl;
+        ss << "bank length: " << length << std::endl;
+        ss << "     number: " << number << std::endl;
+        ss << "  data type: " << getDataTypeName() << std::endl;
+        ss << "        tag: " << tag << std::endl;
+        ss << "    padding: " << padding << std::endl;
 
         return ss.str();
     }

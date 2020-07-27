@@ -91,7 +91,7 @@ namespace evio {
         void setDataType(DataType const & dataType);
         DataType getDataType() const;
 
-        string getDataTypeName() const;
+        std::string getDataTypeName() const;
         uint8_t getPadding() const;
 
         uint32_t getLength() const;
@@ -101,7 +101,7 @@ namespace evio {
         void setTag(uint16_t tag);
 
         virtual uint32_t getHeaderLength() {return 0;};
-        virtual string   toString() {return "BaseStructureHeader";};
+        virtual std::string   toString() {return "BaseStructureHeader";};
 
         virtual size_t write(std::shared_ptr<ByteBuffer> & dest) {return 0;}
         virtual size_t write(ByteBuffer & dest) {return 0;};

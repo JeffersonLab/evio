@@ -1511,7 +1511,7 @@ namespace evio {
      * @return the description from the name provider (dictionary), if there is one. If not, return
      *         NameProvider.NO_NAME_STRING.
      */
-    string BaseStructure::getDescription() const {
+    std::string BaseStructure::getDescription() const {
         // TODO:  return NameProvider.getName(this);
         return "";
     }
@@ -1521,23 +1521,23 @@ namespace evio {
      * Obtain a string representation of the structure.
      * @return a string representation of the structure.
      */
-    string BaseStructure::toString() const {
+    std::string BaseStructure::toString() const {
 
-        stringstream ss;
+        std::stringstream ss;
 
         // show 0x for hex
-        ss << showbase;
+        ss << std::showbase;
 
         StructureType stype = getStructureType();
         DataType dtype = header->getDataType();
 
-        string description = getDescription();
+        std::string description = getDescription();
             // TODO::::
     //    if (INameProvider.NO_NAME_STRING.equals(description)) {
     //        description = "";
     //    }
 
-        string sb;
+        std::string sb;
         sb.reserve(100);
 
         if (!description.empty()) {
@@ -1545,10 +1545,10 @@ namespace evio {
         }
         else {
             ss << stype.toString() << " of " << dtype.toString() << "s:  tag=" << header->getTag();
-            ss << hex << "(" << header->getTag() << ")" << dec;
+            ss << std::hex << "(" << header->getTag() << ")" << std::dec;
 
             if (stype == StructureType::STRUCT_BANK) {
-                ss << "  num=" << ((int)(header->getNumber())) << hex << "(" << ((int)(header->getNumber())) << ")" << dec;
+                ss << "  num=" << ((int)(header->getNumber())) << std::hex << "(" << ((int)(header->getNumber())) << ")" << std::dec;
             }
         }
 
@@ -2003,7 +2003,7 @@ namespace evio {
      *         if this makes no sense for the given type.
      *
      */
-    std::vector<string> & BaseStructure::getStringData() {
+    std::vector<std::string> & BaseStructure::getStringData() {
         if (header->getDataType() == DataType::CHARSTAR8) {
             if (!stringList.empty()) {
                 return stringList;
@@ -2029,14 +2029,14 @@ namespace evio {
      * @return the number of bytes in a raw evio format of the given strings
      * @return 0 if vector empty.
      */
-    uint32_t BaseStructure::stringsToRawSize(std::vector<string> const & strings) {
+    uint32_t BaseStructure::stringsToRawSize(std::vector<std::string> const & strings) {
 
         if (strings.empty()) {
             return 0;
         }
 
         uint32_t dataLen = 0;
-        for (string const & s : strings) {
+        for (std::string const & s : strings) {
             dataLen += s.length() + 1; // don't forget the null char after each string
         }
 
@@ -2059,7 +2059,7 @@ namespace evio {
      * @return the number of bytes in a raw evio format of the given strings
      * @return 0 if vector empty.
      */
-    uint32_t BaseStructure::stringToRawSize(const string & str) {
+    uint32_t BaseStructure::stringToRawSize(const std::string & str) {
 
         if (str.empty()) {
             return 0;
@@ -2085,7 +2085,7 @@ namespace evio {
      * @param strings vector of strings to transform.
      * @param bytes   vector of bytes to contain evio formatted strings.
      */
-    void BaseStructure::stringsToRawBytes(std::vector<string> & strings,
+    void BaseStructure::stringsToRawBytes(std::vector<std::string> & strings,
                                           std::vector<uint8_t> & bytes) {
 
         if (strings.empty()) {
@@ -2095,10 +2095,10 @@ namespace evio {
 
         // create some storage
         int dataLen = stringsToRawSize(strings);
-        string strData;
+        std::string strData;
         strData.reserve(dataLen);
 
-        for (string const & s : strings) {
+        for (std::string const & s : strings) {
             // add string
             strData.append(s);
             // add ending null
@@ -2150,10 +2150,10 @@ namespace evio {
 
         // create some storage
         int dataLen = Util::stringsToRawSize(stringList);
-        string strData;
+        std::string strData;
         strData.reserve(dataLen);
 
-        for (string const & s : stringList) {
+        for (std::string const & s : stringList) {
             // add string
             strData.append(s);
             // add ending null
@@ -2197,7 +2197,7 @@ namespace evio {
      * @param strData vector in which to place extracted strings.
      */
     void BaseStructure::unpackRawBytesToStrings(std::vector<uint8_t> & bytes, size_t offset,
-                                                std::vector<string> & strData) {
+                                                std::vector<std::string> & strData) {
         unpackRawBytesToStrings(bytes, offset, bytes.size(), strData);
     }
 
@@ -2214,14 +2214,14 @@ namespace evio {
      */
     void BaseStructure::unpackRawBytesToStrings(std::vector<uint8_t> & bytes,
                                                 size_t offset, size_t maxLength,
-                                                std::vector<string> & strData) {
+                                                std::vector<std::string> & strData) {
         int length = (int)bytes.size() - offset;
         if (bytes.empty() || (length < 4)) return;
 
         // Don't read read more than maxLength ASCII characters
         length = length > maxLength ? maxLength : length;
 
-        string sData(reinterpret_cast<const char *>(bytes.data()) + offset, length);
+        std::string sData(reinterpret_cast<const char *>(bytes.data()) + offset, length);
         return stringBuilderToStrings(sData, true, strData);
     }
 
@@ -2237,10 +2237,10 @@ namespace evio {
      * @param strData     vector in which to place extracted strings.
      */
     void BaseStructure::unpackRawBytesToStrings(uint8_t *bytes, size_t length,
-                                                std::vector<string> & strData) {
+                                                std::vector<std::string> & strData) {
         if (bytes == nullptr) return;
 
-        string sData(reinterpret_cast<const char *>(bytes), length);
+        std::string sData(reinterpret_cast<const char *>(bytes), length);
         return stringBuilderToStrings(sData, true, strData);
     }
 
@@ -2255,11 +2255,11 @@ namespace evio {
      */
     void BaseStructure::unpackRawBytesToStrings(ByteBuffer & buffer,
                                                 size_t pos, size_t length,
-                                                std::vector<string> & strData) {
+                                                std::vector<std::string> & strData) {
 
         if (length < 4) return;
 
-        string sData(reinterpret_cast<const char *>(buffer.array() + buffer.arrayOffset()) + pos, length);
+        std::string sData(reinterpret_cast<const char *>(buffer.array() + buffer.arrayOffset()) + pos, length);
         return stringBuilderToStrings(sData, false, strData);
     }
 
@@ -2369,7 +2369,7 @@ namespace evio {
         if (badFormat) {
             if (onlyGoodChars) {
                 // Return everything in one String WITHOUT garbage
-                string goodStr(strData.data(), goodChars);
+                std::string goodStr(strData.data(), goodChars);
                 strings.push_back(goodStr);
                 return;
             }
@@ -2382,7 +2382,7 @@ namespace evio {
 
         int firstIndex = 0;
         for (int nullIndex : nullIndexList) {
-            string str(strData.data() + firstIndex, (nullIndex - firstIndex));
+            std::string str(strData.data() + firstIndex, (nullIndex - firstIndex));
             strings.push_back(str);
             firstIndex = nullIndex + 1;
         }
@@ -2487,7 +2487,7 @@ namespace evio {
         // If error, return everything in one String including possible garbage
         if (badStringFormat) {
 //cout << "unpackRawBytesToStrings: bad format, return all chars in 1 string" << endl;
-            string everything(reinterpret_cast<char *>(rawBytes.data()), rawLength);
+            std::string everything(reinterpret_cast<char *>(rawBytes.data()), rawLength);
             stringList.push_back(everything);
             return 1;
         }
@@ -2497,7 +2497,7 @@ namespace evio {
 //cout << "  split into " << nullCount << " strings" << endl;
         int firstIndex=0;
         for (int nullIndex : nullIndexList) {
-            string subString(reinterpret_cast<char *>(rawBytes.data()) + firstIndex, (nullIndex-firstIndex));
+            std::string subString(reinterpret_cast<char *>(rawBytes.data()) + firstIndex, (nullIndex-firstIndex));
             stringList.push_back(subString);
 //cout << "    add " << subString << endl;
             firstIndex = nullIndex + 1;
@@ -2850,7 +2850,7 @@ namespace evio {
     size_t BaseStructure::write(ByteBuffer & byteBuffer) {
 
         if (byteBuffer.remaining() < getTotalBytes()) {
-            throw overflow_error("byteBuffer (limit - pos) too small");
+            throw std::overflow_error("byteBuffer (limit - pos) too small");
         }
 
         return write(byteBuffer.array() + byteBuffer.arrayOffset(), byteBuffer.order());

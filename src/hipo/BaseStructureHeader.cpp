@@ -79,7 +79,7 @@ namespace evio {
      * Returns the data type as a string.
      * @return the data type as a string.
      */
-    string BaseStructureHeader::getDataTypeName() const {return dataType.getName();}
+    std::string BaseStructureHeader::getDataTypeName() const {return dataType.getName();}
 
     /**
      * Get the amount of padding bytes when storing short or byte data.
