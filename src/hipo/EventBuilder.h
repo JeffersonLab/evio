@@ -67,6 +67,8 @@ namespace evio {
         void setUCharData(std::shared_ptr<BaseStructure> structure, unsigned char* data, size_t count);
         void setFloatData(std::shared_ptr<BaseStructure> structure, float* data, size_t count);
         void setDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
+
+        // TODO: Need to look at adding strings & composite data,, vectors???????
         void setStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count);
         void setCompositeData(std::shared_ptr<BaseStructure> structure,
                               std::shared_ptr<CompositeData> *data, size_t count);
@@ -83,7 +85,7 @@ namespace evio {
         void appendDoubleData(std::shared_ptr<BaseStructure> structure, double* data, size_t count);
         void appendStringData(std::shared_ptr<BaseStructure> structure, std::string* data, size_t count);
         void appendCompositeData(std::shared_ptr<BaseStructure> structure,
-                                 std::shared_ptr<CompositeData> *dataa, size_t count);
+                                 std::shared_ptr<CompositeData> *data, size_t count);
 
         std::shared_ptr<EvioEvent> getEvent();
         void setEvent(std::shared_ptr<EvioEvent> & event);
