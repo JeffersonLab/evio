@@ -100,6 +100,7 @@ namespace evio {
         uint16_t getTag() const;
         void setTag(uint16_t tag);
 
+        virtual uint32_t getDataLength()   {return 0;};
         virtual uint32_t getHeaderLength() {return 0;};
         virtual std::string   toString() {return "BaseStructureHeader";};
 

@@ -25,6 +25,13 @@ namespace evio {
 
 
     /**
+      * Get the length of the structure's data in 32 bit ints (not counting the header words).
+      * @return Get the length of the structure's data in 32 bit ints (not counting the header words).
+      */
+    uint32_t BankHeader::getDataLength() {return length - 1;}
+
+
+    /**
       * Get the length of the structure's header in ints. This includes the first header word itself
       * (which contains the length) and in the case of banks, it also includes the second header word.
       * @return Get the length of the structure's header in ints.

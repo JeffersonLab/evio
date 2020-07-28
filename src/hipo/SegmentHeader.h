@@ -38,6 +38,7 @@ namespace evio {
         SegmentHeader() = default;
         SegmentHeader(uint16_t tag, DataType const & dataType);
 
+        uint32_t getDataLength() override;
         uint32_t getHeaderLength() override;
         std::string   toString() override;
 

@@ -41,6 +41,7 @@ namespace evio {
         TagSegmentHeader(uint16_t tag, DataType const & dataType);
         TagSegmentHeader(uint16_t tag, std::string const & format);
 
+        uint32_t getDataLength() override;
         uint32_t getHeaderLength() override;
         std::string   toString() override;
 

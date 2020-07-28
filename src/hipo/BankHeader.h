@@ -41,6 +41,7 @@ namespace evio {
         BankHeader() = default;
         BankHeader(uint16_t tag, DataType const & dataType, uint8_t num = 0);
 
+        uint32_t getDataLength() override;
         uint32_t getHeaderLength() override;
         std::string   toString() override;
 
