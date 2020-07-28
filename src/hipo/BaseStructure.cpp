@@ -12,13 +12,13 @@
 
 namespace evio {
 
+
     /**
-     * Constructor using a provided header.
-     * @param header the header to use.
+     * Constructor.
      * @see BaseStructureHeader
      */
     BaseStructure::BaseStructure() {
-        std::cout << "In BaseStructure default constructor" << std::endl;
+        //std::cout << "In BaseStructure default constructor" << std::endl;
         header = std::make_shared<BaseStructureHeader>();
     }
 
@@ -29,7 +29,7 @@ namespace evio {
      * @see BaseStructureHeader
      */
     BaseStructure::BaseStructure(std::shared_ptr<BaseStructureHeader> head) : header(head) {
-        std::cout << "In BaseStructure head constructor" << std::endl;
+        //std::cout << "In BaseStructure head constructor" << std::endl;
     }
 
 
@@ -38,7 +38,7 @@ namespace evio {
       * @param base BaseStructure to copy.
       */
     BaseStructure::BaseStructure(const BaseStructure & base) : enable_shared_from_this(base) {
-        std::cout << "In BaseStructure copy constructor" << std::endl;
+        //std::cout << "In BaseStructure copy constructor" << std::endl;
 
         // Avoid self copy ...
         if (this != &base) {
@@ -58,7 +58,8 @@ namespace evio {
      * @param base BaseStructure to move.
      */
     BaseStructure::BaseStructure(BaseStructure && base) noexcept {
-        std::cout << "In BaseStructure move constructor" << std::endl;
+        //std::cout << "In BaseStructure move constructor" << std::endl;
+
         if (this != &base) {
             parent          = std::move(base.parent);
             children        = std::move(base.children);
@@ -349,7 +350,6 @@ namespace evio {
     }
 
 
-
     //---------------------------------------------
     //-------- Tree Node structure members  -------
     //---------------------------------------------
@@ -405,6 +405,7 @@ namespace evio {
         children.insert(children.begin() + childIndex, newChild);
     }
 
+
     /**
      * Removes the child at the specified index from this node's children
      * and sets that node's parent to null. The child node to remove
@@ -433,6 +434,7 @@ namespace evio {
         child->setParent(nullptr);
     }
 
+
     /**
      * Returns this node's parent or null if this node has no parent.
      * Originally part of java's DefaultMutableTreeNode.
@@ -440,11 +442,13 @@ namespace evio {
      */
     std::shared_ptr<BaseStructure> BaseStructure::getParent() const { return parent; }
 
+
     /**
      * Get the children of this structure.
      * @return the children of this structure.
      */
     std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getChildren() const {return children;}
+
 
     /**
      * Returns the child at the specified index in this node's child array.
@@ -460,12 +464,14 @@ namespace evio {
         return children[index];
     }
 
+
     /**
      * Returns the number of children of this node.
      * Originally part of java's DefaultMutableTreeNode.
      * @return  an int giving the number of children of this node
      */
     size_t BaseStructure::getChildCount() const { return children.size(); }
+
 
     /**
      * Returns the index of the specified child in this node's child array.
@@ -504,6 +510,7 @@ namespace evio {
         return -1;
     }
 
+
     /**
      * Creates and returns a forward-order begin iterator of this node's
      * children.  Modifying this node's child array invalidates any child
@@ -514,6 +521,7 @@ namespace evio {
      */
     auto BaseStructure::childrenIterBegin() { return children.begin(); }
 
+
     /**
      * Creates and returns a forward-order end iterator of this node's
      * children.  Modifying this node's child array invalidates any child
@@ -523,6 +531,7 @@ namespace evio {
      * @return  an end iterator of this node's children
      */
     auto BaseStructure::childrenIterEnd() { return children.end(); }
+
 
     /**
      * Determines whether or not this node is allowed to have children.
@@ -542,6 +551,7 @@ namespace evio {
         }
     }
 
+
     /**
      * Returns true if this node is allowed to have children.
      * Originally part of java's DefaultMutableTreeNode.
@@ -550,9 +560,10 @@ namespace evio {
     bool BaseStructure::getAllowsChildren() const { return allowsChildren; }
 
 
-//
-//  Derived methods
-//
+    //
+    //  Derived methods
+    //
+
 
     /**
      * Removes the subtree rooted at this node from the tree, giving this
@@ -565,6 +576,7 @@ namespace evio {
             p->remove(getThis());
         }
     }
+
 
     /**
      * Removes <code>aChild</code> from this node's child array, giving it a
@@ -580,6 +592,7 @@ namespace evio {
         remove(getIndex(aChild));       // linear search
     }
 
+
     /**
      * Removes all of this node's children, setting their parents to null.
      * If this node has no children, this method does nothing.
@@ -590,6 +603,7 @@ namespace evio {
             remove(i);
         }
     }
+
 
     /**
      * Removes <code>newChild</code> from its parent and makes it a child of
@@ -612,6 +626,7 @@ namespace evio {
     //
     //  Tree Queries
     //
+
 
     /**
      * Returns true if <code>anotherNode</code> is an ancestor of this node
@@ -661,6 +676,7 @@ namespace evio {
 
         return anotherNode->isNodeAncestor(getThis());
     }
+
 
     /**
      * Returns the nearest common ancestor to this node and <code>aNode</code>.
@@ -946,9 +962,10 @@ namespace evio {
     }
 
 
-//
-//  Child Queries
-//
+    //
+    //  Child Queries
+    //
+
 
     /**
      * Returns true if <code>aNode</code> is a child of this node.  If
@@ -1196,10 +1213,10 @@ namespace evio {
     }
 
 
-
     //
     //  Leaf Queries
     //
+
 
     /**
      * Returns true if this node has no children.  To distinguish between
@@ -1375,6 +1392,7 @@ namespace evio {
         visitAllDescendants(getThis(), listener, nullptr);
     }
 
+
     /**
      * Visit all the structures in this structure (including the structure itself --
      * which is considered its own descendant) in a depth first manner.
@@ -1490,12 +1508,14 @@ namespace evio {
      */
     ByteOrder BaseStructure::getByteOrder() {return byteOrder;}
 
+
     /**
      * Set the byte order of this data. This method <b>cannot</b> be used to swap data.
      * It is only used to describe the endianness of the rawdata contained.
      * @param byteOrder {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
      */
     void BaseStructure::setByteOrder(ByteOrder const & order) {byteOrder = order;}
+
 
     /**
      * Is a byte swap required? This is java and therefore big endian. If data is
@@ -1504,6 +1524,7 @@ namespace evio {
      * @return <code>true</code> if byte swapping is required (data is little endian).
      */
     bool BaseStructure::needSwap() const {return byteOrder != ByteOrder::ENDIAN_LOCAL;}
+
 
     /**
      * Get the description from the name provider (dictionary), if there is one.
@@ -1532,10 +1553,9 @@ namespace evio {
         DataType dtype = header->getDataType();
 
         std::string description = getDescription();
-            // TODO::::
-    //    if (INameProvider.NO_NAME_STRING.equals(description)) {
-    //        description = "";
-    //    }
+        if (Util::NO_NAME_STRING() == description) {
+            description = "";
+        }
 
         std::string sb;
         sb.reserve(100);
@@ -1578,12 +1598,14 @@ namespace evio {
         return ss.str();
     }
 
+
     /**
      * This is a method from the IEvioStructure Interface. Return the header for this structure.
      *
      * @return the header for this structure.
      */
     std::shared_ptr<BaseStructureHeader> BaseStructure::getHeader() const {return header;}
+
 
     /**
      * Get the number of stored data items like number of banks, ints, floats, etc.
@@ -1643,17 +1665,20 @@ namespace evio {
         return numberDataItems;
     }
 
+
     /**
      * Get the length of this structure in bytes, including the header.
      * @return the length of this structure in bytes, including the header.
      */
     uint32_t BaseStructure::getTotalBytes() const {return 4*(header->getLength() + 1);}
 
+
     /**
      * Get the raw data of the structure.
      * @return the raw data of the structure.
      */
     std::vector<uint8_t> & BaseStructure::getRawBytes() {return rawBytes;}
+
 
     /**
      * Set the data for the structure.
@@ -1665,11 +1690,13 @@ namespace evio {
         std::memcpy(rawBytes.data(), bytes, len);
     }
 
+
     /**
      * Set the data for the structure.
      * @param bytes vector of data to be copied.
      */
     void BaseStructure::setRawBytes(std::vector<uint8_t> & bytes) {rawBytes = bytes;}
+
 
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an int16_t vector
@@ -1704,6 +1731,7 @@ namespace evio {
 
         throw EvioException("wrong data type");
     }
+
 
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an uint16_t vector
@@ -1764,6 +1792,7 @@ namespace evio {
         throw EvioException("wrong data type");
     }
 
+
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an uint32_t vector
      * if the content type as indicated by the header is appropriate.<p>
@@ -1792,6 +1821,7 @@ namespace evio {
         }
         throw EvioException("wrong data type");
     }
+
 
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an int64_t vector
@@ -1882,6 +1912,7 @@ namespace evio {
         throw EvioException("wrong data type");
     }
 
+
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as a double vector
      * if the content type as indicated by the header is appropriate.<p>
@@ -1955,6 +1986,7 @@ namespace evio {
         }
         throw EvioException("wrong data type");
     }
+
 
     /**
      * This is a method from the IEvioStructure Interface. Gets the raw data as an signed char array,
@@ -2087,7 +2119,6 @@ namespace evio {
      */
     void BaseStructure::stringsToRawBytes(std::vector<std::string> & strings,
                                           std::vector<uint8_t> & bytes) {
-
         if (strings.empty()) {
             bytes.clear();
             return;
@@ -2591,6 +2622,7 @@ namespace evio {
      */
     bool BaseStructure::getLengthsUpToDate() const {return lengthsUpToDate;}
 
+
     /**
      * Set whether the lengths of all header fields for this structure
      * and all it descendants are up to date or not.
@@ -2607,6 +2639,7 @@ namespace evio {
         }
     }
 
+
     /**
      * Compute and set length of all header fields for this structure and all its descendants.
      * For writing events, this will be crucial for setting the values in the headers.
@@ -2615,41 +2648,41 @@ namespace evio {
      * @throws EvioException if the length is too large (&gt; {@link Integer#MAX_VALUE}).
      */
     uint32_t BaseStructure::setAllHeaderLengths() {
-            // if length info is current, don't bother to recalculate it
-            if (lengthsUpToDate) {
-                return header->getLength();
-            }
+        // if length info is current, don't bother to recalculate it
+        if (lengthsUpToDate) {
+            return header->getLength();
+        }
 
-            uint32_t datalen, len;
+        uint32_t datalen, len;
 
-            if (isLeaf()) {
-                // # of 32 bit ints for leaves, 0 for empty containers (also considered leaves)
-                datalen = dataLength();
-            }
-            else {
-                datalen = 0;
+        if (isLeaf()) {
+            // # of 32 bit ints for leaves, 0 for empty containers (also considered leaves)
+            datalen = dataLength();
+        }
+        else {
+            datalen = 0;
 
-                for (auto const & child : children) {
-                    len = child->setAllHeaderLengths();
-                    // Add this check to make sure structure is not being overfilled
-                    if (std::numeric_limits<uint32_t>::max() - datalen < len) {
-                        throw EvioException("added data overflowed containing structure");
-                    }
-                    datalen += len + 1;  // + 1 for the header length word of each child
+            for (auto const & child : children) {
+                len = child->setAllHeaderLengths();
+                // Add this check to make sure structure is not being overfilled
+                if (std::numeric_limits<uint32_t>::max() - datalen < len) {
+                    throw EvioException("added data overflowed containing structure");
                 }
+                datalen += len + 1;  // + 1 for the header length word of each child
             }
+        }
 
-            len = header->getHeaderLength() - 1;  // - 1 for length header word
-            if (std::numeric_limits<uint32_t>::max() - datalen < len) {
-                throw EvioException("added data overflowed containing structure");
-            }
+        len = header->getHeaderLength() - 1;  // - 1 for length header word
+        if (std::numeric_limits<uint32_t>::max() - datalen < len) {
+            throw EvioException("added data overflowed containing structure");
+        }
 
-            datalen += len;
+        datalen += len;
 
-            // set the datalen for the header
-            header->setLength(datalen);
-            setLengthsUpToDate(true);
-            return datalen;
+        // set the datalen for the header
+        header->setLength(datalen);
+        setLengthsUpToDate(true);
+        return datalen;
     }
 
 
@@ -2840,6 +2873,7 @@ namespace evio {
         return curPos - dest;
     }
 
+
     /**
      * Write myself out a byte buffer with fastest algorithm I could find.
      *
@@ -2857,9 +2891,9 @@ namespace evio {
     }
 
 
-//----------------------------------------------------------------------
-// Methods to append to exising data if any or to set the data if none.
-//----------------------------------------------------------------------
+    //----------------------------------------------------------------------
+    // Methods to append to exising data if any or to set the data if none.
+    //----------------------------------------------------------------------
 
 
     /**
@@ -2905,6 +2939,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * If data in this structure was changed by modifying the vector returned from
      * {@link #getUIntData()}, then this method needs to be called in order to make this
@@ -2939,6 +2974,7 @@ namespace evio {
         setLengthsUpToDate(false);
         setAllHeaderLengths();
     }
+
 
     /**
      * If data in this structure was changed by modifying the vector returned from
@@ -2992,6 +3028,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * If data in this structure was changed by modifying the vector returned from
      * {@link #getUShortData()}, then this method needs to be called in order to make this
@@ -3041,6 +3078,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * If data in this structure was changed by modifying the vector returned from
      * {@link #getLongData()}, then this method needs to be called in order to make this
@@ -3076,6 +3114,7 @@ namespace evio {
         setLengthsUpToDate(false);
         setAllHeaderLengths();
     }
+
 
     /**
      * If data in this structure was changed by modifying the vector returned from
@@ -3149,6 +3188,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * If data in this structure was changed by modifying the vector returned from
      * {@link #getUCharData()}, then this method needs to be called in order to make this
@@ -3221,6 +3261,7 @@ namespace evio {
         setAllHeaderLengths();
     }
 
+
     /**
      * If data in this structure was changed by modifying the vector returned from
      * {@link #getDoubleData()}, then this method needs to be called in order to make this
@@ -3256,6 +3297,7 @@ namespace evio {
         setLengthsUpToDate(false);
         setAllHeaderLengths();
     }
+
 
     /**
      * If data in this structure was changed by modifying the vector returned from
