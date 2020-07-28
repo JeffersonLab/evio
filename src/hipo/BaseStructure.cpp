@@ -1573,11 +1573,11 @@ namespace evio {
         }
 
         if (rawBytes.empty()) {
-        std::cout << "Raw Bytes is EMPTY!!!" << std::endl;
+//std::cout << "Raw Bytes is EMPTY!!!" << std::endl;
             ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
         }
         else {
-            std::cout << "Raw Bytes has size " << (rawBytes.size()/4) << std::endl;
+//std::cout << "Raw Bytes has size " << (rawBytes.size()/4) << std::endl;
             ss << "  dataLen=" << (rawBytes.size()/4);
         }
 
@@ -1585,7 +1585,7 @@ namespace evio {
             ss << "  pad=" << header->getPadding();
         }
 
-        int numChildren = children.size();
+        size_t numChildren = children.size();
 
         if (numChildren > 0) {
             ss << "  children=" << numChildren;
@@ -2904,7 +2904,6 @@ namespace evio {
      * @throws EvioException if this object corresponds to a different data type.
      */
     void BaseStructure::updateIntData() {
-        std::cout << "updateIntData: IN" <<  std::endl;
 
         // Make sure the structure is set to hold this kind of data
         DataType dataType = header->getDataType();
@@ -2914,14 +2913,11 @@ namespace evio {
 
         // if data was cleared ...
         if (intData.empty()) {
-            std::cout << "updateIntData: intData is EMPTY!!!!!!!" <<  std::endl;
             rawBytes.clear();
             numberDataItems = 0;
         }
-            // make rawBytes consistent with what's in the int vector
+        // make rawBytes consistent with what's in the int vector
         else {
-
-            std::cout << "updateIntData: intData size = " << intData.size() << std::endl;
             numberDataItems = intData.size();
             rawBytes.resize(4 * numberDataItems);
 
