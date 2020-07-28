@@ -264,7 +264,7 @@ namespace evio {
         HeaderType headerType {HeaderType::EVIO_RECORD};
 
         /** Byte order of file/buffer this header was read from. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Type of data compression (0=none, 1=LZ4 fast, 2=LZ4 best, 3=gzip).
           * Highest 4 bits of 10th word. */

@@ -91,12 +91,8 @@ namespace evio {
         /** Evio version number (1-4). Obtain this by reading first block header. */
         uint32_t evioVersion = 4;
 
-        /**
-         * Endianness of the data being read, either
-         * {@link ByteOrder#BIG_ENDIAN} or
-         * {@link ByteOrder#LITTLE_ENDIAN}.
-         */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        /** Endianness of the data being read. Initialize to local endian. */
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Size of the first block in bytes. */
         uint32_t firstBlockSize = 0;

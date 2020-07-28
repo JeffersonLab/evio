@@ -56,7 +56,7 @@ namespace evio {
         std::shared_ptr<RecordOutput> record;
 
         /** Byte order of record being built. */
-        ByteOrder order {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder order {ByteOrder::ENDIAN_LOCAL};
 
         /** Sequence at which this object was taken from ring by one of the "get" calls. */
         int64_t sequence = 0UL;

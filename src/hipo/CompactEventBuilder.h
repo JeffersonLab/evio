@@ -61,7 +61,7 @@ namespace evio {
         size_t position = 0;
 
         /** Byte order of the buffer, convenience variable. */
-        ByteOrder order {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder order {ByteOrder::ENDIAN_LOCAL};
 
         /** Did this object create the byte buffer? */
         bool createdBuffer = false;

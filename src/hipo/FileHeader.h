@@ -192,7 +192,7 @@ namespace evio {
         uint32_t  userHeaderLengthPadding = 0;
 
         /** Byte order of file. */
-        ByteOrder  byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder  byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Type of header this is. Normal HIPO record by default. */
         HeaderType headerType {HeaderType::HIPO_FILE};

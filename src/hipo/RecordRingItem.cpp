@@ -24,7 +24,7 @@ namespace evio {
     // Set default values for RecordRingItems
     int       RecordRingItem::factoryMaxEventCount {0};
     int       RecordRingItem::factoryMaxBufferSize {0};
-    ByteOrder RecordRingItem::factoryByteOrder {ByteOrder::ENDIAN_LITTLE};
+    ByteOrder RecordRingItem::factoryByteOrder {ByteOrder::ENDIAN_LOCAL};
     Compressor::CompressionType RecordRingItem::factoryCompressionType {Compressor::UNCOMPRESSED};
 
 

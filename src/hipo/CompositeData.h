@@ -644,7 +644,7 @@ namespace evio {
         uint32_t dataOffset = 0;
 
         /** Byte order of raw bytes. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Index used in getting data items from the {@link #items} list. */
         /* mutable ? */

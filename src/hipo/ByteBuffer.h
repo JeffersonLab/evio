@@ -74,7 +74,7 @@ namespace evio {
         std::shared_ptr<uint8_t> buf = nullptr;
 
         /** Byte order of data. In java, default is big endian. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Is the data the same endian as the host? Convenience variable. */
         bool isHostEndian = false;

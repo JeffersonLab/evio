@@ -230,7 +230,7 @@ namespace evio {
         std::shared_ptr<ByteBuffer> dictionaryFirstEventBuffer;
 
         /** Byte order of data to write to file/buffer. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Internal Record. */
         std::shared_ptr<RecordOutput> outputRecord;

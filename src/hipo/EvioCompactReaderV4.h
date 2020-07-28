@@ -89,12 +89,8 @@ namespace evio {
         /** Evio version number (1-4). Obtain this by reading first block header. */
         uint32_t evioVersion = 4;
 
-        /**
-         * Endianness of the data being read, either
-         * {@link ByteOrder#BIG_ENDIAN} or
-         * {@link ByteOrder#LITTLE_ENDIAN}.
-         */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        /** Endianness of the data being read. Initialize to local endian. */
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /**
          * This is the number of blocks in the file including the empty block at the

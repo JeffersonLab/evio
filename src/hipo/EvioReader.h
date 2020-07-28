@@ -60,11 +60,8 @@ namespace evio {
         /** Evio version number (1-4, 6). Obtain this by reading first header. */
         uint32_t evioVersion = 4;
 
-        /**
-         * Endianness of the data being read, either
-         * {@link ByteOrder::ENDIAN_BIG} or {@link ByteOrder::ENDIAN_LITTLE}.
-         */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        /** Endianness of the data being read. Initialize to local endian. */
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** The buffer being read. */
         std::shared_ptr<ByteBuffer> byteBuffer;

@@ -172,7 +172,7 @@ namespace evio {
         uint32_t magicNumber = MAGIC_NUMBER;
 
         /** This is the byte order of the data being read. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /**
          * This is not part of the block header proper. It is a position in a memory buffer of the start of the block

@@ -89,7 +89,7 @@ namespace evio {
         uint32_t firstEventLength = 0;
 
         /** Byte order of data to write to file/buffer. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
         /** Record currently being filled. */
         RecordOutput outputRecord;
         /** Record currently being written to file. */

@@ -750,8 +750,8 @@ namespace evio {
          */
         uint32_t eventsWrittenTotal = 0;
 
-        /** The byte order in which to write a file or buffer. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        /** Byte order in which to write file or buffer. Initialize to local endian. */
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         //-----------------------
         // Buffer related members

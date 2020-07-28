@@ -168,7 +168,7 @@ namespace evio {
         std::shared_ptr<RecordHeader> header;
 
         /** Byte order of record byte arrays to build. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** Is recordBinary a user provided buffer? */
         bool userProvidedBuffer = false;

@@ -106,7 +106,7 @@ namespace evio {
         std::mutex supplyMutex;
 
         /** Byte order of RecordOutputStream in each RecordRingItem. */
-        ByteOrder order {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder order {ByteOrder::ENDIAN_LOCAL};
 
         /** Max number of events each record can hold.
          *  Value of O means use default (1M). */

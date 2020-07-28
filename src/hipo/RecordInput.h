@@ -123,7 +123,7 @@ namespace evio {
         uint32_t uncompressedEventsLength = 0;
 
         /** Byte order of internal ByteBuffers. */
-        ByteOrder byteOrder {ByteOrder::ENDIAN_LITTLE};
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
 
         /** General header of this record. */
         std::shared_ptr<RecordHeader> header;
