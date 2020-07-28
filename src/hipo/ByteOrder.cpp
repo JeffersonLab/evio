@@ -69,13 +69,15 @@ namespace evio {
 
     /**
      * Templated method to swap array data in place.
+     * If source pointer is null, nothing is done.
      * @tparam T data type.
      * @param var pointer to data to be swapped.
      * @param elements number of data elements to be swapped.
      */
     template <typename T>
-    void ByteOrder::byteSwapInPlace(T* var, size_t elements)
-    {
+    void ByteOrder::byteSwapInPlace(T* var, size_t elements) {
+        if (var == nullptr) return;
+
         char *c = reinterpret_cast<char *>(var);
         size_t varSize = sizeof(T);
 
@@ -89,14 +91,17 @@ namespace evio {
 
     /**
      * This method swaps an array of 2-byte data.
+     * If source pointer is null, nothing is done.
      * If destination pointer is null, src is swapped in place.
      *
      * @param src pointer to data source.
      * @param elements number of 2-byte elements to swap.
      * @param dst pointer to destination or nullptr if data is to be swapped in place.
-     * @return pointer to beginning of swapped data.
+     * @return pointer to beginning of swapped data; null if src is null.
      */
     uint16_t* ByteOrder::byteSwap16(uint16_t* src, size_t elements, uint16_t* dst) {
+        if (src == nullptr) return nullptr;
+
         if (dst == nullptr) {
             dst = src;
         }
@@ -109,14 +114,17 @@ namespace evio {
 
     /**
      * This method swaps an array of 4-byte data.
+     * If source pointer is null, nothing is done.
      * If destination pointer is null, src is swapped in place.
      *
      * @param src pointer to data source.
      * @param elements number of 4-byte elements to swap.
      * @param dst pointer to destination or nullptr if data is to be swapped in place.
-     * @return pointer to beginning of swapped data.
+     * @return pointer to beginning of swapped data; null if src is null.
      */
     uint32_t* ByteOrder::byteSwap32(uint32_t* src, size_t elements, uint32_t* dst) {
+        if (src == nullptr) return nullptr;
+
         if (dst == nullptr) {
             dst = src;
         }
@@ -129,14 +137,17 @@ namespace evio {
 
     /**
      * This method swaps an array of 8-byte data.
+     * If source pointer is null, nothing is done.
      * If destination pointer is null, src is swapped in place.
      *
      * @param src pointer to data source.
      * @param elements number of 8-byte elements to swap.
      * @param dst pointer to destination or nullptr if data is to be swapped in place.
-     * @return pointer to beginning of swapped data.
+     * @return pointer to beginning of swapped data; null if src is null.
      */
     uint64_t* ByteOrder::byteSwap64(uint64_t* src, size_t elements, uint64_t* dst) {
+        if (src == nullptr) return nullptr;
+
         if (dst == nullptr) {
             dst = src;
         }
@@ -150,6 +161,7 @@ namespace evio {
 
     /**
      * This routine swaps nothing, it just copies the given number of 32 bit ints.
+     * If source pointer is null, nothing is done.
      *
      * @param data   pointer to data to be copied
      * @param length number of 32 bit ints to be copied
@@ -157,6 +169,8 @@ namespace evio {
      *               If null, nothing is done.
      */
     void ByteOrder::byteNoSwap32(const uint32_t* src, size_t elements, uint32_t* dst) {
+        if (src == nullptr) return;
+
         if (dst == nullptr) {
             return;
         }
