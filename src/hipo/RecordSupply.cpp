@@ -220,7 +220,7 @@ namespace evio {
             }
 
             // Get the item since we know it's available
-            shared_ptr<RecordRingItem> & item = (*ringBuffer.get())[nextCompressSeqs[threadNumber]];
+            std::shared_ptr<RecordRingItem> & item = (*ringBuffer.get())[nextCompressSeqs[threadNumber]];
             // Store variables that will help free this item when release is called
             item->fromConsumer(nextCompressSeqs[threadNumber], compressSeqs[threadNumber]);
             // Set the next item we'll be trying to get.
@@ -230,7 +230,7 @@ namespace evio {
         }
         catch (Disruptor::TimeoutException & ex) {
             // Never happen since we don't use timeout wait strategy
-            cout << ex.message() << endl;
+            std::cout << ex.message() << std::endl;
         }
 
         return nullptr;
@@ -258,7 +258,7 @@ namespace evio {
         }
         catch (Disruptor::TimeoutException & ex) {
             // Never happen since we don't use timeout wait strategy
-            cout << ex.message() << endl;
+            std::cout << ex.message() << std::endl;
         }
 
         return nullptr;

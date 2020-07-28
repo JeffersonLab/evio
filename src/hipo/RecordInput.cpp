@@ -185,7 +185,7 @@ namespace evio {
      * @param len    pointer to int which gets filled with the data length in bytes.
      * @return byte array containing event.
      */
-    shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index, uint32_t * len) {
+    std::shared_ptr<uint8_t> RecordInput::getEvent(uint32_t index, uint32_t * len) {
 
         uint32_t firstPosition = 0;
 
@@ -202,7 +202,7 @@ namespace evio {
         uint32_t length = lastPosition - firstPosition;
 
         // TODO: Allocating memory here!!!
-        auto event = shared_ptr<uint8_t>(new uint8_t[length], default_delete<uint8_t[]>());
+        auto event = std::shared_ptr<uint8_t>(new uint8_t[length], std::default_delete<uint8_t[]>());
         uint32_t offset = eventsOffset + firstPosition;
 
         std::memcpy((void *)event.get(), (const void *)(dataBuffer->array() + offset), length);
@@ -210,7 +210,7 @@ namespace evio {
             *len = length;
         }
 
-        //cout << "getEvent: reading from " << offset << "  length = " << length << endl;
+        //std::cout << "getEvent: reading from " << offset << "  length = " << length << std::endl;
         return event;
     }
 
@@ -285,7 +285,7 @@ namespace evio {
         uint32_t offset = eventsOffset + firstPosition;
 
         if (bufOffset + length > buffer.capacity()) {
-            throw EvioException("buffer with offset " + to_string(bufOffset) +
+            throw EvioException("buffer with offset " + std::to_string(bufOffset) +
                                 " is smaller than the event.");
         }
 
@@ -309,7 +309,7 @@ namespace evio {
     std::shared_ptr<uint8_t> RecordInput::getUserHeader() {
 
         uint32_t length = header->getUserHeaderLength();
-        auto userHeader = std::shared_ptr<uint8_t>(new uint8_t[length], default_delete<uint8_t[]>());
+        auto userHeader = std::shared_ptr<uint8_t>(new uint8_t[length], std::default_delete<uint8_t[]>());
         std::memcpy((void *)(userHeader.get()),
                     (const void *)(dataBuffer->array() + userHeaderOffset), length);
 
@@ -354,7 +354,7 @@ namespace evio {
         uint32_t length = header->getUserHeaderLength();
 
         if (bufOffset + length > buffer.capacity()) {
-            throw EvioException("buffer with offset " + to_string(bufOffset) +
+            throw EvioException("buffer with offset " + std::to_string(bufOffset) +
                                 " is smaller than the user header.");
         }
 
@@ -416,7 +416,7 @@ namespace evio {
      *                       is not in proper format, or version earlier than 6, or
      *                       error in uncompressing gzipped data.
      */
-    void RecordInput::readRecord(ifstream & file, size_t position) {
+    void RecordInput::readRecord(std::ifstream & file, size_t position) {
 
         // Read header
         if (!file.is_open()) {
@@ -518,7 +518,7 @@ namespace evio {
      */
     void RecordInput::readRecord(ByteBuffer & buffer, size_t offset) {
 
-        cout << "readRecord: from buffer, IN" << endl;
+        //std::cout << "readRecord: from buffer, IN" << std::endl;
 
         // This will switch buffer to proper byte order
         header->readHeader(buffer, offset);
@@ -638,7 +638,7 @@ namespace evio {
 
         // Read in header. This will switch srcBuf to proper byte order.
         hdr.readHeader(srcBuf, srcOff);
-        //cout << endl << "uncompressRecord: hdr --> " << endl << hdr.toString() << endl;
+        //std::cout << std::endl << "uncompressRecord: hdr --> " << std::endl << hdr.toString() << std::endl;
 
         uint32_t headerBytes              = hdr.getHeaderLength();
         uint32_t compressionType          = hdr.getCompressionType();
@@ -746,9 +746,9 @@ namespace evio {
      */
     void RecordInput::showIndex() const {
         for(int i = 0; i < nEntries; i++){
-            cout << setw(3) << dataBuffer->getInt(i*4) << "  ";
+            std::cout << std::setw(3) << dataBuffer->getInt(i*4) << "  ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
 }

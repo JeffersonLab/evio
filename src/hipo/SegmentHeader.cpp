@@ -96,13 +96,13 @@ namespace evio {
      * Obtain a string representation of the segment header.
      * @return a string representation of the segment header.
      */
-    string SegmentHeader::toString() {
-        stringstream ss;
+    std::string SegmentHeader::toString() {
+        std::stringstream ss;
 
-        ss << "segment length: " << length << endl;
-        ss << "     data type: " << getDataTypeName() << endl;
-        ss << "           tag: " << tag << endl;
-        ss << "       padding: " << padding << endl;
+        ss << "segment length: " << length << std::endl;
+        ss << "     data type: " << getDataTypeName() << std::endl;
+        ss << "           tag: " << tag << std::endl;
+        ss << "       padding: " << padding << std::endl;
 
         return ss.str();
     }

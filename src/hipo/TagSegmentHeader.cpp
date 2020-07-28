@@ -27,7 +27,7 @@ namespace evio {
      * @param tag the tag for the tagsegment header.
      * @param str  data type for the content of the tagsegment.
      */
-    TagSegmentHeader::TagSegmentHeader(uint16_t tag, string const & str) :
+    TagSegmentHeader::TagSegmentHeader(uint16_t tag, std::string const & str) :
             BaseStructureHeader(tag, DataType::CHARSTAR8) {
 
         // Find out how much space, in 32-bit words, the string will take:
@@ -104,12 +104,12 @@ namespace evio {
      * Obtain a string representation of the tagsegment header.
      * @return a string representation of the tagsegment header.
      */
-    string TagSegmentHeader::toString() {
-        stringstream ss;
+    std::string TagSegmentHeader::toString() {
+        std::stringstream ss;
 
-        ss << "tag-seg length: " << length << endl;
-        ss << "     data type: " << getDataTypeName() << endl;
-        ss << "           tag: " << tag << endl;
+        ss << "tag-seg length: " << length << std::endl;
+        ss << "     data type: " << getDataTypeName() << std::endl;
+        ss << "           tag: " << tag << std::endl;
 
         return ss.str();
     }

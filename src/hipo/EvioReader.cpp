@@ -39,14 +39,14 @@ namespace evio {
  * @throws EvioException if file read failure; if path is empty; bad evio version #;
  *                       if first block number != 1 when checkBlkNumSeq arg is true
  */
-EvioReader::EvioReader(string const & path, bool checkRecNumSeq, bool sequential, bool synced) {
+EvioReader::EvioReader(std::string const & path, bool checkRecNumSeq, bool sequential, bool synced) {
 
         if (path.empty()) {
             throw EvioException("path is empty");
         }
 
         /** Object for reading file. */
-        ifstream inStreamRandom;
+    std::ifstream inStreamRandom;
         inStreamRandom.open(path, std::ios::binary);
 
         initialPosition = 0;
@@ -135,7 +135,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
     uint32_t EvioReader::getEvioVersion() {return evioVersion;}
 
     /** {@inheritDoc} */
-    string EvioReader::getPath() {return reader->getPath();}
+    std::string EvioReader::getPath() {return reader->getPath();}
 
     /** {@inheritDoc} */
     std::shared_ptr<EventParser> & EvioReader::getParser() {return reader->getParser();}
@@ -144,7 +144,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
     void EvioReader::setParser(std::shared_ptr<EventParser> & parser) {reader->setParser(parser);}
 
     /** {@inheritDoc} */
-    string EvioReader::getDictionaryXML() {return reader->getDictionaryXML();}
+    std::string EvioReader::getDictionaryXML() {return reader->getDictionaryXML();}
 
     /** {@inheritDoc} */
     bool EvioReader::hasDictionaryXML() {return reader->hasDictionaryXML();}

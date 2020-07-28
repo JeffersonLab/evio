@@ -139,7 +139,7 @@ namespace evio {
             if (node.empty()) continue;
 
             // Only looking for "xmldumpDictEntry" and "dictEntry" nodes (case insensitive)
-            string nodeName = node.name();
+            std::string nodeName = node.name();
             if (!Util::iStrEquals(nodeName, ENTRY) &&
                 !Util::iStrEquals(nodeName, ENTRY_ALT)) {
                 continue;
@@ -172,10 +172,10 @@ namespace evio {
             attrNode = node.attribute(NUM.c_str());
             if (attrNode.name() == NUM) {
                 // Use regular expressions to parse num
-                smatch sm;
+                std::smatch sm;
 
                 // regex_search searches for pattern regexp in the string nodeVal
-                string const & nodeVal = attrNode.value();
+                std::string const & nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
                 //                cout<<"String that matches the pattern:"<<endl;
@@ -234,10 +234,10 @@ namespace evio {
             if (attrNode.name() == TAG) {
 
                 // Use regular expressions to parse tag
-                smatch sm;
+                std::smatch sm;
 
                 // regex_search searches pattern regexp in the string nodeVal
-                string const & nodeVal = attrNode.value();
+                std::string const & nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
                 if (sm.size() > 1) {
@@ -471,7 +471,7 @@ namespace evio {
         for (pugi::xml_node node : kidList) {
 
             if (node.empty()) continue;
-            string nodeName = node.name();
+            std::string nodeName = node.name();
 
             isLeaf = Util::iStrEquals(nodeName, ENTRY_LEAF);
 
@@ -495,10 +495,10 @@ namespace evio {
             attrNode = node.attribute(NUM.c_str());
             if (attrNode.name() == NUM) {
                 // Use regular expressions to parse num
-                smatch sm;
+                std::smatch sm;
 
                 // regex_search searches for pattern regexp in the string nodeVal
-                string const &nodeVal = attrNode.value();
+                std::string const &nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
                 //                cout<<"String that matches the pattern:"<<endl;
@@ -556,10 +556,10 @@ namespace evio {
             if (attrNode.name() == TAG) {
 
                 // Use regular expressions to parse tag
-                smatch sm;
+                std::smatch sm;
 
                 // regex_search searches pattern regexp in the string nodeVal
-                string const &nodeVal = attrNode.value();
+                std::string const &nodeVal = attrNode.value();
                 regex_search(nodeVal, sm, pattern_regex);
 
                 if (sm.size() > 1) {
@@ -1474,19 +1474,19 @@ namespace evio {
             switch (entry->getEntryType()) {
                 case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_RANGE : {
                     std::stringstream ss;
-                    ss << setw(30) << name << ": tag range " << tag << "-" << tagEnd << endl;
+                    ss << std::setw(30) << name << ": tag range " << tag << "-" << tagEnd << std::endl;
                     sb.append(ss.str());
                     break;
                 }
                 case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_ONLY : {
                     std::stringstream ss;
-                    ss << setw(30) << name << ": tag " << tag << endl;
+                    ss << std::setw(30) << name << ": tag " << tag << std::endl;
                     sb.append(ss.str());
                     break;
                 }
                 case EvioDictionaryEntry::EvioDictionaryEntryType::TAG_NUM : {
                     std::stringstream ss;
-                    ss << setw(30) << name << ": tag " << tag << ", num " << num << endl;
+                    ss << std::setw(30) << name << ": tag " << tag << ", num " << num << std::endl;
                     sb.append(ss.str());
                     break;
                 }

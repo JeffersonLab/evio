@@ -549,7 +549,7 @@ namespace evio {
         }
 
         // Unpack array into dictionary
-        std::vector<string> strs;
+        std::vector<std::string> strs;
         BaseStructure::unpackRawBytesToStrings(bytes, eventDataSizeBytes, strs);
         if (strs.empty()) {
             throw EvioException("Data in bad format");
@@ -803,14 +803,14 @@ namespace evio {
         // By removing a structure, we need to shift the POSITIONS of all
         // structures that follow by the size of the deleted chunk.
         //-------------------------------------
-        vector<shared_ptr<EvioNode>> nodeList;
+        std::vector<std::shared_ptr<EvioNode>> nodeList;
         uint32_t place = eventNode->place;
 
         for (int i=0; i < eventCount; i++) {
             int level = 0;
             nodeList = eventNodes[i]->allNodes;
 
-            for (shared_ptr<EvioNode> const & n : nodeList) {
+            for (std::shared_ptr<EvioNode> const & n : nodeList) {
                 // For events that come after, move all contained nodes
                 if (i > place) {
                     n->pos -= removeDataLen;

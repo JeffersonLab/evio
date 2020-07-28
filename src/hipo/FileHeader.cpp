@@ -675,8 +675,8 @@ namespace evio {
             else {
                 // ERROR condition, bad magic word
                 buffer.printBytes(0, 40, "Bad Magic Word, buffer:");
-                stringstream ss;
-                ss << "buffer not in evio/hipo format? magic int = 0x" << hex << headerMagicWord;
+                std::stringstream ss;
+                ss << "buffer not in evio/hipo format? magic int = 0x" << std::hex << headerMagicWord;
                 throw EvioException(ss.str());
             }
         }
@@ -688,7 +688,7 @@ namespace evio {
         bitInfo = buffer.getInt(BIT_INFO_OFFSET + offset);
         decodeBitInfoWord(bitInfo);
         if (headerVersion < 6) {
-            throw EvioException("evio version < 6, = " + to_string(headerVersion));
+            throw EvioException("evio version < 6, = " + std::to_string(headerVersion));
         }
 
         fileId            = buffer.getInt(FILE_ID_OFFSET + offset);
@@ -730,38 +730,38 @@ namespace evio {
      * Returns a string representation of the record.
      * @return a string representation of the record.
      */
-    string FileHeader::toString() const {
+    std::string FileHeader::toString() const {
 
-        stringstream ss;
+        std::stringstream ss;
 
         // show hex and 0x, and true for boolean
-        ss << showbase << boolalpha << hex;
+        ss << std::showbase << std::boolalpha << std::hex;
 
-        ss << setw(24) << "ID" << " : " << fileId << (fileId == EVIO_FILE_UNIQUE_WORD ? ", Evio" : ", Hipo") << " file" << endl;
-        ss << dec;
-        ss << setw(24) << "version" << " : " << headerVersion << endl;
-        ss << setw(24) << "file #" << " : " << fileNumber << ",  bytes,     words,    padding" << endl;
+        ss << std::setw(24) << "ID" << " : " << fileId << (fileId == EVIO_FILE_UNIQUE_WORD ? ", Evio" : ", Hipo") << " file" << std::endl;
+        ss << std::dec;
+        ss << std::setw(24) << "version" << " : " << headerVersion << std::endl;
+        ss << std::setw(24) << "file #" << " : " << fileNumber << ",  bytes,     words,    padding" << std::endl;
 
-        ss << setw(24) << "user header length" << " : " << setw(8) << userHeaderLength << " / " <<
-           setw(8) << userHeaderLengthWords << " / " << setw(8) << userHeaderLengthPadding << endl;
+        ss << std::setw(24) << "user header length" << " : " << std::setw(8) << userHeaderLength << " / " <<
+              std::setw(8) << userHeaderLengthWords << " / " << std::setw(8) << userHeaderLengthPadding << std::endl;
 
-        ss << setw(24) << "header length"    << " : " << headerLength << endl;
-        ss << hex;
-        ss << setw(24) << "magic word"       << " : " << headerMagicWord << endl;
+        ss << std::setw(24) << "header length"    << " : " << headerLength << std::endl;
+        ss << std::hex;
+        ss << std::setw(24) << "magic word"       << " : " << headerMagicWord << std::endl;
         std::bitset<32> infoBits(bitInfo);
-        ss << setw(24) << "bit info bits"    << " : " << infoBits << endl;
-        ss << setw(24) << "bit info word"    << " : " << bitInfo         << endl;
-        ss << setw(24) << "has dictionary"   << " : " << hasDictionary() << endl;
-        ss << setw(24) << "has firstEvent"   << " : " << hasFirstEvent() << endl;
-        ss << setw(24) << "has trailer w/ index" << " : " << hasTrailerWithIndex() << endl;
-        ss << dec;
-        ss << setw(24) << "record entries"   << " : " << entries << endl;
-        ss << setw(24) << "index length"     << " : " << indexLength << endl;
-        ss << setw(24) << "trailer position" << " : " << trailerPosition << endl;
-        ss << hex;
-        ss << setw(24) << "user register"    << " : " << userRegister << endl;
-        ss << setw(24) << "user int #1"      << " : " << userIntFirst << endl;
-        ss << setw(24) << "user int #2"      << " : " << userIntSecond << endl;
+        ss << std::setw(24) << "bit info bits"    << " : " << infoBits << std::endl;
+        ss << std::setw(24) << "bit info word"    << " : " << bitInfo         << std::endl;
+        ss << std::setw(24) << "has dictionary"   << " : " << hasDictionary() << std::endl;
+        ss << std::setw(24) << "has firstEvent"   << " : " << hasFirstEvent() << std::endl;
+        ss << std::setw(24) << "has trailer w/ index" << " : " << hasTrailerWithIndex() << std::endl;
+        ss << std::dec;
+        ss << std::setw(24) << "record entries"   << " : " << entries << std::endl;
+        ss << std::setw(24) << "index length"     << " : " << indexLength << std::endl;
+        ss << std::setw(24) << "trailer position" << " : " << trailerPosition << std::endl;
+        ss << std::hex;
+        ss << std::setw(24) << "user register"    << " : " << userRegister << std::endl;
+        ss << std::setw(24) << "user int #1"      << " : " << userIntFirst << std::endl;
+        ss << std::setw(24) << "user int #2"      << " : " << userIntSecond << std::endl;
 
         return ss.str();
     }

@@ -221,7 +221,7 @@ namespace evio {
         dataPos   += deltaPos;
         recordPos += deltaPos;
 
-        for (shared_ptr<EvioNode> & kid : childNodes) {
+        for (std::shared_ptr<EvioNode> & kid : childNodes) {
             kid->shift(deltaPos);
         }
 

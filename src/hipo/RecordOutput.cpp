@@ -210,7 +210,7 @@ namespace evio {
      */
     void RecordOutput::setBuffer(std::shared_ptr<ByteBuffer> & buf) {
         if (buf->order() != byteOrder) {
-            cout << "setBuffer(): warning, changing buffer's byte order!" << endl;
+            std::cout << "setBuffer(): warning, changing buffer's byte order!" << std::endl;
         }
 
         recordBinary = buf;
@@ -549,7 +549,7 @@ namespace evio {
      *         count limit would be exceeded or the buffer is full and cannot be
      *         expanded since it's user-provided.
      */
-    bool RecordOutput::addEvent(const vector<uint8_t> & event) {
+    bool RecordOutput::addEvent(const std::vector<uint8_t> & event) {
         return addEvent(event, 0, event.size(), 0);
     }
 
@@ -574,7 +574,7 @@ namespace evio {
      *         count limit would be exceeded or the buffer is full and cannot be
      *         expanded since it's user-provided.
      */
-    bool RecordOutput::addEvent(const vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen) {
+    bool RecordOutput::addEvent(const std::vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen) {
         return addEvent((reinterpret_cast<const uint8_t*>(event.data())) + offset, eventLen, extraDataLen);
     }
 
@@ -985,8 +985,8 @@ namespace evio {
                 header->writeHeader(recordBinary, 0);
             }
             catch (EvioException & e) {/* never happen */}
-//            cout << "build: buf lim = " << recordBinary->limit() <<
-//                    ", cap = " << recordBinary->capacity() << endl;
+//            std::cout << "build: buf lim = " << recordBinary->limit() <<
+//                    ", cap = " << recordBinary->capacity() << std::endl;
             return;
         }
 
@@ -1015,9 +1015,9 @@ namespace evio {
         }
             // If NOT compressing data ...
         else {
-//cout << "build: recordBinary len = " << userBufferSize <<
+//std::cout << "build: recordBinary len = " << userBufferSize <<
 //        ", start pos = " << startingPosition << ", data to write = " <<
-//        (RecordHeader::HEADER_SIZE_BYTES + indexSize + eventSize) << endl;
+//        (RecordHeader::HEADER_SIZE_BYTES + indexSize + eventSize) << std::endl;
 
             recordBinary->clear();
 
@@ -1025,9 +1025,9 @@ namespace evio {
             recordBinary->position(recBinPastHdr);
             recordBinary->put(recordIndex->array(), indexSize);
 
-//cout << "build: recordBinary pos = " << recordBinary->position() <<
+//std::cout << "build: recordBinary pos = " << recordBinary->position() <<
 //        ", eventSize = " << eventSize << ", recordEvents->array().len = " <<
-//        recordEvents.capacity() << endl;
+//        recordEvents.capacity() << std::endl;
 
             recordBinary->put(recordEvents->array(), eventSize);
         }
@@ -1037,8 +1037,8 @@ namespace evio {
         uint32_t uncompressedDataSize = indexSize + eventSize;
         uint32_t compressedSize = 0;
         uint8_t* gzippedData;
-//cout << "build: writing index of size " << indexSize << ", events of size " <<
-//         eventSize << ", total = " << uncompressedDataSize << endl;
+//std::cout << "build: writing index of size " << indexSize << ", events of size " <<
+//         eventSize << ", total = " << uncompressedDataSize << std::endl;
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
@@ -1065,21 +1065,21 @@ namespace evio {
                             recordBinary->array(), recBinPastHdrAbsolute,
                             (recordBinary->capacity() - recBinPastHdrAbsolute));
 
-//cout << "Compressing data array from offset = 0, size = " << uncompressedDataSize <<
+//std::cout << "Compressing data array from offset = 0, size = " << uncompressedDataSize <<
 //         " to output.array offset = " << recBinPastHdrAbsolute << ", compressed size = " <<  compressedSize <<
-//         ", available size = " << (recordBinary->capacity() - recBinPastHdrAbsolute) << endl;
+//         ", available size = " << (recordBinary->capacity() - recBinPastHdrAbsolute) << std::endl;
 //
-//cout << "BEFORE setting header len: comp size = " << header->getCompressedDataLength() <<
+//std::cout << "BEFORE setting header len: comp size = " << header->getCompressedDataLength() <<
 //        ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
-//        header->getCompressedDataLengthPadding();
+//        header->getCompressedDataLengthPadding() << std::endl;
 
                     header->setCompressedDataLength(compressedSize);
                     header->setLength(4*header->getCompressedDataLengthWords() +
                                       RecordHeader::HEADER_SIZE_BYTES);
 
-//cout << "AFTER setting, read back from header: comp size = " << header->getCompressedDataLength() <<
+//std::cout << "AFTER setting, read back from header: comp size = " << header->getCompressedDataLength() <<
 //        ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
-//        header->getCompressedDataLengthPadding() << ", rec len = " << header->getLength() << endl;
+//        header->getCompressedDataLengthPadding() << ", rec len = " << header->getLength() << std::endl;
 
                     break;
 
@@ -1105,7 +1105,7 @@ namespace evio {
                     int words = uncompressedDataSize/4;
                     if (uncompressedDataSize % 4 != 0) words++;
                     header->setLength(words*4 + RecordHeader::HEADER_SIZE_BYTES);
-//cout << "set header length = " << header->getLength() << ", uncompressed data size = " << uncompressedDataSize << endl;
+//std::cout << "set header length = " << header->getLength() << ", uncompressed data size = " << uncompressedDataSize << std::endl;
             }
         }
         catch (EvioException & e) {/* should not happen */}
@@ -1115,9 +1115,9 @@ namespace evio {
         header->setDataLength(eventSize);
         header->setIndexLength(indexSize);
 
-        cout << " COMPRESSED = " << compressedSize << "  events size (data  len) = " << eventSize << "  type = " <<
-             compressionType << "  uncompressed = " << uncompressedDataSize <<
-             " record bytes = " << header->getLength() << endl << endl;
+//        std::cout << " COMPRESSED = " << compressedSize << "  events size (data  len) = " << eventSize << "  type = " <<
+//             compressionType << "  uncompressed = " << uncompressedDataSize <<
+//             " record bytes = " << header->getLength() << std::endl << std::endl;
 
         // Go back and write header into destination buffer
         try {
@@ -1164,8 +1164,8 @@ namespace evio {
             return;
         }
 
-//    cout << "  INDEX = 0 " << indexSize << "  " << (indexSize + userHeaderSize) <<
-//            "  DIFF " << userHeaderSize << endl;
+//    std::cout << "  INDEX = 0 " << indexSize << "  " << (indexSize + userHeaderSize) <<
+//            "  DIFF " << userHeaderSize << std::endl;
 
         uint32_t compressionType = header->getCompressionType();
         uint32_t uncompressedDataSize = indexSize;
@@ -1289,7 +1289,7 @@ namespace evio {
         }
         catch (EvioException & e) {/* should not happen */}
 
-        //cout << " COMPRESSED SIZE = " << compressedSize << endl;
+        //std::cout << " COMPRESSED SIZE = " << compressedSize << std::endl;
 
         // Set header values (user header length already set above)
         header->setEntries(eventCount);

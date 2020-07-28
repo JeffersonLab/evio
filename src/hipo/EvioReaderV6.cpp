@@ -28,7 +28,7 @@ namespace evio {
      *                       if file is too small to have valid evio format data
      *                       if first record number != 1 when checkRecNumSeq arg is true
      */
-    EvioReaderV6::EvioReaderV6(string const & path, bool checkSeq, bool synced) {
+    EvioReaderV6::EvioReaderV6(std::string const & path, bool checkSeq, bool synced) {
         if (path.empty()) {
             throw EvioException("path is empty");
         }
@@ -82,7 +82,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    string EvioReaderV6::getPath() {return reader->getFileName();}
+    std::string EvioReaderV6::getPath() {return reader->getFileName();}
 
 
     /** {@inheritDoc} */
@@ -98,7 +98,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    string EvioReaderV6::getDictionaryXML() {return reader->getDictionary();}
+    std::string EvioReaderV6::getDictionaryXML() {return reader->getDictionary();}
 
 
     /** {@inheritDoc} */
@@ -156,7 +156,7 @@ namespace evio {
         }
 
         uint32_t len;
-        shared_ptr<uint8_t> bytes = reader->getNextEvent(&len);
+        std::shared_ptr<uint8_t> bytes = reader->getNextEvent(&len);
         return EvioReader::getEvent(bytes.get(), len, reader->getByteOrder());
     }
 
@@ -189,7 +189,7 @@ namespace evio {
         }
 
         uint32_t len;
-        shared_ptr<uint8_t> evBytes = reader->getEvent(evNumber - 1, &len);
+        std::shared_ptr<uint8_t> evBytes = reader->getEvent(evNumber - 1, &len);
         if (evBytes == nullptr) {
             throw EvioException("eventNumber (" + std::to_string(evNumber) + ") is out of bounds");
         }
@@ -206,7 +206,7 @@ namespace evio {
     /** {@inheritDoc} */
     uint32_t EvioReaderV6::getEventBuffer(size_t evNumber, ByteBuffer & buf) {
         uint32_t len;
-        shared_ptr<uint8_t> evBytes = reader->getEvent(evNumber - 1, &len);
+        std::shared_ptr<uint8_t> evBytes = reader->getEvent(evNumber - 1, &len);
         if (evBytes == nullptr) {
             throw EvioException("eventNumber (" + std::to_string(evNumber) + ") is out of bounds");
         }

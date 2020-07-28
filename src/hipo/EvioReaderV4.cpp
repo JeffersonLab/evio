@@ -80,7 +80,7 @@ namespace evio {
      * @throws EvioException if file arg is null; if read failure;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
      */
-    EvioReaderV4::EvioReaderV4(string const & path, bool checkBlkNumSeq, bool synced) {
+    EvioReaderV4::EvioReaderV4(std::string const & path, bool checkBlkNumSeq, bool synced) {
 
         if (path.empty()) {
             throw EvioException("path is empty");
@@ -382,7 +382,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    string EvioReaderV4::getPath() {return path;}
+    std::string EvioReaderV4::getPath() {return path;}
 
 
     /** {@inheritDoc} */
@@ -394,7 +394,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    string EvioReaderV4::getDictionaryXML() {return dictionaryXML;}
+    std::string EvioReaderV4::getDictionaryXML() {return dictionaryXML;}
 
 
     /** {@inheritDoc} */
@@ -861,7 +861,7 @@ namespace evio {
         // Read in dictionary data
         uint8_t bytes[eventDataSizeBytes];
         buffer->getBytes(bytes, eventDataSizeBytes);
-        std::vector<string> strs;
+        std::vector<std::string> strs;
 
         // This is the very first event and must be a dictionary
         BaseStructure::unpackRawBytesToStrings(bytes, eventDataSizeBytes, strs);

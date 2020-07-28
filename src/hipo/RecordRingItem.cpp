@@ -166,7 +166,7 @@ namespace evio {
      * Get the Sequence object allowing ring consumer to get/release this item.
      * @return Sequence object allowing ring consumer to get/release this item.
      */
-    shared_ptr<Disruptor::ISequence> & RecordRingItem::getSequenceObj() {return sequenceObj;}
+    std::shared_ptr<Disruptor::ISequence> & RecordRingItem::getSequenceObj() {return sequenceObj;}
 
 
     /**
@@ -181,7 +181,7 @@ namespace evio {
      * @param seq sequence used to get item.
      * @param seqObj sequence object used to get/release item.
      */
-    void RecordRingItem::fromConsumer(int64_t seq, shared_ptr<Disruptor::ISequence> & seqObj) {
+    void RecordRingItem::fromConsumer(int64_t seq, std::shared_ptr<Disruptor::ISequence> & seqObj) {
         sequence = seq;
         sequenceObj = seqObj;
     }
