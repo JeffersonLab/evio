@@ -53,6 +53,7 @@ namespace evio {
 
         /**
          * Routine to swap the endianness of an evio bank.
+         * Null buf argument does nothing.
          *
          * @author: Elliott Wolin, 21-nov-2003
          * @author: Carl Timmer, jan-2012
@@ -61,9 +62,10 @@ namespace evio {
          * @param toLocal if false buf contains data of same endian as local host,
          *                else buf has data of opposite endian.
          * @param dest    buffer to place swapped data into.
-         *                If this is NULL, then dest = buf.
+         *                If this is null, then dest = buf.
          */
         static void swapBank(uint32_t *buf, bool toLocal, uint32_t *dest) {
+            if (buf == nullptr) return;
 
             uint32_t dataLength, dataType;
             uint32_t *p = buf;
@@ -88,6 +90,7 @@ namespace evio {
 
         /**
          * Routine to swap the endianness of an evio segment.
+         * Null buf argument does nothing.
          *
          * @author: Elliott Wolin, 21-nov-2003
          * @author: Carl Timmer, jan-2012
@@ -99,6 +102,7 @@ namespace evio {
          *                If this is NULL, then dest = buf.
          */
         static void swapSegment(uint32_t *buf, bool toLocal, uint32_t *dest) {
+            if (buf == nullptr) return;
 
             uint32_t dataLength, dataType;
             uint32_t *p = buf;
@@ -123,6 +127,7 @@ namespace evio {
 
         /**
          * Routine to swap the endianness of an evio tagsegment.
+         * Null buf argument does nothing.
          *
          * @author: Elliott Wolin, 21-nov-2003
          * @author: Carl Timmer, jan-2012
@@ -134,6 +139,7 @@ namespace evio {
          *                If this is NULL, then dest = buf.
          */
         static void swapTagsegment(uint32_t *buf, bool toLocal, uint32_t *dest) {
+            if (buf == nullptr) return;
 
             uint32_t dataLength, dataType;
             uint32_t *p = buf;
@@ -257,6 +263,7 @@ namespace evio {
          * This only swaps data associated with an evio structure; i.e. it completely ignores
          * the header associated with it. If this data consists of structures like banks & segments,
          * it will swap them completely.
+         * Null src argument does nothing.
          *
          * @author: Elliott Wolin, 21-nov-2003
          * @author: Carl Timmer, jan-2012
@@ -270,6 +277,8 @@ namespace evio {
          *                If this is null, then dst = src.
          */
         static void swapData(uint32_t *src, uint32_t type, uint32_t length, bool toLocal, uint32_t *dst) {
+            if (src == nullptr) return;
+
             uint32_t fraglen, l = 0;
 
             // Swap the data or call swap_fragment
