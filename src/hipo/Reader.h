@@ -173,9 +173,10 @@ namespace evio {
 
             uint32_t getCount() const { return count; }
 
-            string toString() const {
-                stringstream ss;
-                ss << " POSITION = " << setw(16) << position << ", LENGTH = " << setw(12) << length << ", COUNT = " << setw(8) << count << endl;
+            std::string toString() const {
+                std::stringstream ss;
+                ss << " POSITION = " << std::setw(16) << position << ", LENGTH = " << std::setw(12) <<
+                        length << ", COUNT = " << std::setw(8) << count << std::endl;
                 return ss.str();
             }
         };
@@ -190,9 +191,9 @@ namespace evio {
          * when the entire file is scanned to read out positions
          * of each record in the file (in constructor).
          */
-        vector<RecordPosition> recordPositions;
+        std::vector<RecordPosition> recordPositions;
         /** Object for reading file. */
-        ifstream inStreamRandom;
+        std::ifstream inStreamRandom;
         /** File name. */
         std::string fileName {""};
         /** File size in bytes. */
@@ -232,11 +233,11 @@ namespace evio {
         /** Files may have an xml format dictionary in the user header of the file header. */
         std::string dictionaryXML {""};
         /** Each file of a set of split CODA files may have a "first" event common to all. */
-        shared_ptr<uint8_t> firstEvent = nullptr;
+        std::shared_ptr<uint8_t> firstEvent = nullptr;
         /** First event size in bytes. */
         uint32_t firstEventSize = 0;
         /** Stores info of all the (top-level) events in a scanned buffer. */
-        vector<std::shared_ptr<EvioNode>> eventNodes;
+        std::vector<std::shared_ptr<EvioNode>> eventNodes;
 
 
         /** Is this object currently closed? */
@@ -303,15 +304,15 @@ namespace evio {
         std::string getDictionary();
         bool hasDictionary() const;
 
-        shared_ptr<uint8_t> & getFirstEvent();
+        std::shared_ptr<uint8_t> & getFirstEvent();
         uint32_t getFirstEventSize();
         bool hasFirstEvent() const;
 
         uint32_t getEventCount() const;
         uint32_t getRecordCount() const;
 
-        vector<RecordPosition> & getRecordPositions();
-        vector<std::shared_ptr<EvioNode>> & getEventNodes();
+        std::vector<RecordPosition> & getRecordPositions();
+        std::vector<std::shared_ptr<EvioNode>> & getEventNodes();
 
         bool getCheckRecordNumberSequence() const;
 

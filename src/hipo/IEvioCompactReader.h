@@ -212,7 +212,7 @@ namespace evio {
          *                       if dictionary is null and none provided in file/buffer being read;
          *                       if object closed
          */
-        virtual void searchEvent(size_t evNumber, string const & dictName,
+        virtual void searchEvent(size_t evNumber, std::string const & dictName,
                                  std::shared_ptr<EvioXMLDictionary> & dictionary,
                                  std::vector<std::shared_ptr<EvioNode>> & vec) = 0;
 

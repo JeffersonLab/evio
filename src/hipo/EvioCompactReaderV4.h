@@ -78,7 +78,7 @@ namespace evio {
         std::vector<std::shared_ptr<EvioNode>> eventNodes;
 
         /** Store info of all block headers. */
-        unordered_map<uint32_t, std::shared_ptr<RecordNode>> blockNodes;
+        std::unordered_map<uint32_t, std::shared_ptr<RecordNode>> blockNodes;
 
         /**
          * This is the number of events in the file. It is not computed unless asked for,
@@ -142,7 +142,7 @@ namespace evio {
         bool readingFile = false;
 
         /** Object to talk to file. */
-        ifstream file;
+        std::ifstream file;
 
         /** Absolute path of the underlying file. */
         std::string path = "";

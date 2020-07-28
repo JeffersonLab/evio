@@ -400,19 +400,19 @@ namespace evio {
          * Obtain a string representation of the block (physical record) header.
          * @return a string representation of the block (physical record) header.
          */
-        string toString() override {
-            stringstream ss;
+        std::string toString() override {
+            std::stringstream ss;
 
-            ss << "block size:    " << size << endl;
-            ss << "number:        " << number << endl;
-            ss << "headerLen:     " << headerLength << endl;
-            ss << "start:         " << start << endl;
-            ss << "end:           " << end << endl;
-            ss << "version:       " << version << endl;
-            ss << "reserved1:     " << reserved1 << endl;
-            ss << "magicNumber:   " << magicNumber << endl;
-            ss << "  *buffer start: " << getBufferStartingPosition() << endl;
-            ss << "  *next   start: " << nextBufferStartingPosition() << endl;
+            ss << "block size:    " << size << std::endl;
+            ss << "number:        " << number << std::endl;
+            ss << "headerLen:     " << headerLength << std::endl;
+            ss << "start:         " << start << std::endl;
+            ss << "end:           " << end << std::endl;
+            ss << "version:       " << version << std::endl;
+            ss << "reserved1:     " << reserved1 << std::endl;
+            ss << "magicNumber:   " << magicNumber << std::endl;
+            ss << "  *buffer start: " << getBufferStartingPosition() << std::endl;
+            ss << "  *next   start: " << nextBufferStartingPosition() << std::endl;
 
             return ss.str();
         }
@@ -497,7 +497,7 @@ namespace evio {
         size_t write(ByteBuffer & byteBuffer) override {
 
             if (byteBuffer.remaining() < 32) {
-                throw overflow_error("not enough room in buffer to write");
+                throw std::overflow_error("not enough room in buffer to write");
             }
             byteBuffer.putInt(size);
             byteBuffer.putInt(number);

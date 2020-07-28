@@ -170,14 +170,14 @@ namespace evio {
         std::shared_ptr<ByteBuffer> getUserHeader(std::shared_ptr<ByteBuffer> & buffer, size_t bufOffset = 0);
         ByteBuffer & getUserHeader(ByteBuffer & buffer, size_t bufOffset = 0);
 
-        shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
+        std::shared_ptr<uint8_t> getEvent(uint32_t index, uint32_t * len);
         uint32_t getEventLength(uint32_t index) const;
         uint32_t getEntries() const;
 
         std::shared_ptr<RecordInput> getUserHeaderAsRecord(ByteBuffer & buffer,
                                                            size_t bufOffset);
 
-        void readRecord(ifstream & file, size_t position);
+        void readRecord(std::ifstream & file, size_t position);
         void readRecord(ByteBuffer & buffer, size_t offset);
 
         static uint32_t uncompressRecord(std::shared_ptr<ByteBuffer> & srcBuf, size_t srcOff,

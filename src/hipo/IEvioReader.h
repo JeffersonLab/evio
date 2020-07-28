@@ -98,7 +98,7 @@ namespace evio {
          * Get the path to the file.
          * @return path to the file
          */
-        virtual string getPath() = 0;
+        virtual std::string getPath() = 0;
 
         /**
          * Get the file/buffer parser.
@@ -116,7 +116,7 @@ namespace evio {
          * Get the XML format dictionary if there is one.
          * @return XML format dictionary, else null.
          */
-        virtual string getDictionaryXML() = 0;
+        virtual std::string getDictionaryXML() = 0;
 
         /**
          * Does this evio file have an associated XML dictionary?

@@ -78,7 +78,7 @@ namespace evio {
     public:
 
         //   File constructor
-        explicit EvioReader(string const & path, bool checkRecNumSeq = false,
+        explicit EvioReader(std::string const & path, bool checkRecNumSeq = false,
                             bool sequential = false, bool synced = false);
 
         //   Buffer constructor
@@ -91,10 +91,10 @@ namespace evio {
         bool checkBlockNumberSequence() override;
         ByteOrder & getByteOrder() override;
         uint32_t getEvioVersion() override;
-        string getPath() override;
+        std::string getPath() override;
         std::shared_ptr<EventParser> & getParser() override;
         void setParser(std::shared_ptr<EventParser> & parser) override;
-        string getDictionaryXML() override;
+        std::string getDictionaryXML() override;
         bool hasDictionaryXML() override;
         size_t getNumEventsRemaining() override;
         std::shared_ptr<ByteBuffer> getByteBuffer() override;

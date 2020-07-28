@@ -144,7 +144,7 @@ namespace evio {
          * Version 4 files may have an xml format dictionary in the
          * first event of the first block.
          */
-        string dictionaryXML;
+        std::string dictionaryXML;
 
         /** The buffer being read. */
         std::shared_ptr<ByteBuffer> byteBuffer;
@@ -169,10 +169,10 @@ namespace evio {
 
 
         /** Absolute path of the underlying file. */
-        string path;
+        std::string path;
 
         /** File input stream. */
-        ifstream file;
+        std::ifstream file;
 
         /** File size in bytes. */
         size_t fileBytes = 0;
@@ -220,7 +220,7 @@ namespace evio {
 
     public:
 
-        explicit EvioReaderV4(string const & path, bool checkBlkNumSeq = false, bool synced = false);
+        explicit EvioReaderV4(std::string const & path, bool checkBlkNumSeq = false, bool synced = false);
         explicit EvioReaderV4(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkBlkNumSeq = false, bool synced = false);
 
 
@@ -229,12 +229,12 @@ namespace evio {
         bool checkBlockNumberSequence() override;
         ByteOrder & getByteOrder() override;
         uint32_t getEvioVersion() override;
-        string getPath() override;
+        std::string getPath() override;
 
         std::shared_ptr<EventParser> & getParser() override;
         void setParser(std::shared_ptr<EventParser> & evParser) override;
 
-        string getDictionaryXML() override;
+        std::string getDictionaryXML() override;
         bool hasDictionaryXML() override;
 
         size_t getNumEventsRemaining() override;

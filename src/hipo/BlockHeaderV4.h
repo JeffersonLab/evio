@@ -167,7 +167,7 @@ namespace evio {
         uint32_t reserved2 = 0;
 
         /** Bit information. Bit one: is the first event a dictionary? */
-        bitset<24> bitInfo;
+        std::bitset<24> bitInfo;
 
         /** This is the magic word, 0xc0da0100, used to check endianness. */
         uint32_t magicNumber = MAGIC_NUMBER;
@@ -437,7 +437,7 @@ namespace evio {
          * which will be in evio block header.
          * @param bSet bit set which will become part of the bit info word
          */
-        static void setFirstEvent(bitset<24> & bSet) {
+        static void setFirstEvent(std::bitset<24> & bSet) {
             // Encoding bit #15 (#6 since first is bit #9)
             bSet[6] = true;
         }
@@ -448,7 +448,7 @@ namespace evio {
          *
          * @param bSet bit set which will become part of the bit info word
          */
-        static void unsetFirstEvent(bitset<24> & bSet) {
+        static void unsetFirstEvent(std::bitset<24> & bSet) {
             // Encoding bit #15 (#6 since first is bit #9)
             bSet[6] = false;
         }
@@ -457,7 +457,7 @@ namespace evio {
          * Gets a copy of all stored bit information.
          * @return copy of bitset containing all stored bit information.
          */
-        bitset<24> getBitInfo() {return bitInfo;}
+        std::bitset<24> getBitInfo() {return bitInfo;}
 
         /**
          * Gets the value of a particular bit in the bitInfo field.
@@ -492,7 +492,7 @@ namespace evio {
          * @param bSet Bitset containing all bits to be set
          * @param type event type as int
          */
-        static void setEventType(bitset<24> & bSet, uint32_t type) {
+        static void setEventType(std::bitset<24> & bSet, uint32_t type) {
             if (type < 0) type = 0;
             else if (type > 15) type = 15;
 
@@ -526,7 +526,7 @@ namespace evio {
          * @param set Bitset containing all bits to be set
          * @return generated sixth word of this header.
          */
-        static uint32_t generateSixthWord(bitset<24> const & set) {
+        static uint32_t generateSixthWord(std::bitset<24> const & set) {
             uint32_t v = 4; // version
 
             for (uint32_t i=0; i < set.size(); i++) {
@@ -551,7 +551,7 @@ namespace evio {
          * @param isEnd is this the last block of a file or a buffer?
          * @return generated sixth word of this header.
          */
-        static uint32_t generateSixthWord(bitset<24> const & bSet, bool hasDictionary, bool isEnd) {
+        static uint32_t generateSixthWord(std::bitset<24> const & bSet, bool hasDictionary, bool isEnd) {
             uint32_t v = 4; // version
 
             for (uint32_t i=0; i < bSet.size(); i++) {
@@ -604,7 +604,7 @@ namespace evio {
           * @param eventType 4 bit type of events header is containing
           * @return generated sixth word of this header.
           */
-        static uint32_t generateSixthWord(bitset<24> bSet, uint32_t version,
+        static uint32_t generateSixthWord(std::bitset<24> bSet, uint32_t version,
                                           bool hasDictionary,
                                           bool isEnd, uint32_t eventType) {
             uint32_t v = version; // version
@@ -702,24 +702,24 @@ namespace evio {
          * Obtain a string representation of the block (physical record) header.
          * @return a string representation of the block (physical record) header.
          */
-        string toString() override {
-            stringstream ss;
+        std::string toString() override {
+            std::stringstream ss;
 
-            ss << "block size:    " << size << endl;
-            ss << "number:        " << number << endl;
-            ss << "headerLen:     " << headerLength << endl;
-            ss << "event count:   " << eventCount << endl;
-            ss << "reserved1:     " << reserved1 << endl;
-            ss << "bitInfo  bits: " << bitInfo.to_string() << endl;
+            ss << "block size:    " << size << std::endl;
+            ss << "number:        " << number << std::endl;
+            ss << "headerLen:     " << headerLength << std::endl;
+            ss << "event count:   " << eventCount << std::endl;
+            ss << "reserved1:     " << reserved1 << std::endl;
+            ss << "bitInfo  bits: " << bitInfo.to_string() << std::endl;
 
-            ss << "bitInfo/ver:   " << getSixthWord() << endl;
-            ss << "has dict:      " << hasDictionary() << endl;
-            ss << "is last blk:   " << isLastBlock() << endl;
+            ss << "bitInfo/ver:   " << getSixthWord() << std::endl;
+            ss << "has dict:      " << hasDictionary() << std::endl;
+            ss << "is last blk:   " << isLastBlock() << std::endl;
 
-            ss << "version:       " << version << endl;
-            ss << "magicNumber:   " << magicNumber << endl;
-            ss << "  *buffer start: " << getBufferStartingPosition() << endl;
-            ss << "  *next   start: " << nextBufferStartingPosition() << endl;
+            ss << "version:       " << version << std::endl;
+            ss << "magicNumber:   " << magicNumber << std::endl;
+            ss << "  *buffer start: " << getBufferStartingPosition() << std::endl;
+            ss << "  *next   start: " << nextBufferStartingPosition() << std::endl;
 
             return ss.str();
         }
@@ -799,7 +799,7 @@ namespace evio {
          */
         size_t write(ByteBuffer & byteBuffer) override {
             if (byteBuffer.remaining() < 32) {
-                throw overflow_error("not enough room in buffer to write");
+                throw std::overflow_error("not enough room in buffer to write");
             }
             byteBuffer.putInt(size);
             byteBuffer.putInt(number);

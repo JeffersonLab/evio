@@ -24,14 +24,14 @@ namespace evio {
      * @throws IOException   if read failure
      * @throws EvioException if path arg is empty
      */
-    EvioCompactReader::EvioCompactReader(string const & path, bool sync) : synced(sync) {
+    EvioCompactReader::EvioCompactReader(std::string const & path, bool sync) : synced(sync) {
 
         if (path.empty()) {
             throw EvioException("path is empty");
         }
 
         /** Object for reading file. */
-        ifstream inStreamRandom;
+        std::ifstream inStreamRandom;
         inStreamRandom.open(path, std::ios::binary);
 
         // Create buffer of size 32 bytes
@@ -203,7 +203,7 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioCompactReader::searchEvent(size_t eventNumber, string const & dictName,
+    void EvioCompactReader::searchEvent(size_t eventNumber, std::string const & dictName,
                                         std::shared_ptr<EvioXMLDictionary> & dictionary,
                                         std::vector<std::shared_ptr<EvioNode>> & vec) {
         if (synced) {
