@@ -354,7 +354,20 @@ namespace evio {
                 dest[off+1] = (uint8_t)(data >>  8);
             }
         }
-//
+
+
+        /**
+         * Get a string used to indicate that no name can be determined.
+         * @return string used to indicate that no name can be determined.
+         */
+        static const std::string& NO_NAME_STRING() {
+            // Initialize the static variable
+            static std::string s("???");
+            return s;
+        }
+
+
+        //
 //
 //        /**
 //         * This method reads and swaps an evio bank header.

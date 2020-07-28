@@ -59,9 +59,7 @@ namespace evio {
      * @return string used to indicate that no name can be determined.
      */
     const std::string& EvioXMLDictionary::NO_NAME_STRING() {
-        // Initialize the static variable
-        static std::string s("???");
-        return s;
+        return Util::NO_NAME_STRING();
     }
 
 
