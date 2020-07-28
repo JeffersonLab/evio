@@ -35,6 +35,7 @@
 #include "EvioException.h"
 #include "BaseStructureHeader.h"
 #include "CompositeData.h"
+#include "Util.h"
 
 #include "IEvioListener.h"
 #include "IEvioFilter.h"
@@ -44,6 +45,9 @@ using namespace std::chrono_literals;
 
 
 namespace evio {
+
+    // forward declaration to get to NO_NAME_STRING()
+    class EvioXMLDictionary;
 
 
     /////////////////////////////////// DEPTH FIRST ITERATOR
