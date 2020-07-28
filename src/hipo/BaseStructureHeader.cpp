@@ -96,14 +96,14 @@ namespace evio {
     void BaseStructureHeader::setPadding(uint8_t pad) {padding = pad;}
 
     /**
-     * Get the length of the structure in ints, not counting the length word.
-     * @return Get the length of the structure in ints (not counting the length word).
+     * Get the length of the structure in 32 bit ints, not counting the length word.
+     * @return Get the length of the structure in 32 bit ints (not counting the length word).
      */
     uint32_t BaseStructureHeader::getLength() const {return length;}
 
     /**
-     * Set the length of the structure in ints, not counting the length word.
-     * @param length the length of the structure in ints, not counting the length word.
+     * Set the length of the structure in 32 bit ints, not counting the length word.
+     * @param length the length of the structure in 32 bit ints, not counting the length word.
      */
     void BaseStructureHeader::setLength(uint32_t len) {length = len;}
 
