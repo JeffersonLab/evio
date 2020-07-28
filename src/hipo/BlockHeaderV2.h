@@ -1,25 +1,24 @@
-/**
- * Copyright (c) 2020, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * EPSCI Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 06/10/2020
- * @author timmer
- */
+//
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
 
 
 #ifndef EVIO_6_0_BLOCKHEADERV2_H
 #define EVIO_6_0_BLOCKHEADERV2_H
 
+
 #include <string>
 #include <stdexcept>
 
+
 #include "ByteOrder.h"
 #include "IBlockHeader.h"
+
 
 namespace evio {
 
@@ -69,9 +68,8 @@ namespace evio {
      * </pre>
      *
      *
-     * @author heddle (original java version
+     * @author heddle (original java version)
      * @author timmer
-     *
      */
     class BlockHeaderV2 : public IBlockHeader {
 
@@ -139,6 +137,7 @@ namespace evio {
         /** Constructor initializes all fields to default values. */
         BlockHeaderV2() = default;
 
+
         /**
          * Creates a BlockHeader for evio versions 1-3 format. Only the <code>block size</code>
          * and <code>block number</code> are provided. The other six words, which can be
@@ -160,6 +159,7 @@ namespace evio {
             end = size;
         }
 
+
         /**
         * This copy constructor creates an evio version 1-3 BlockHeader
         * from another object of this class.
@@ -168,6 +168,7 @@ namespace evio {
         explicit BlockHeaderV2(std::shared_ptr<BlockHeaderV2> & blkHeader) {
             copy(blkHeader);
         }
+
 
         /**
         * This method copies another header's contents.
@@ -186,26 +187,18 @@ namespace evio {
             bufferStartingPosition = blkHeader->bufferStartingPosition;
         }
 
-        /**
-         * Gets whether this block's first event is an evio dictionary.
-         * This is not implemented in evio versions 1-3. Just return false.
-         * @return always returns false for evio versions 1-3
-         */
+
+        /** {@inheritDoc} */
         bool hasDictionary() override {return false;}
 
-        /**
-         * Is this the last block in the file or being sent over the network?
-         * This is not implemented in evio versions 1-3. Just return false.
-         *
-         * @return always returns false for evio versions 1-3
-         */
+
+        /** {@inheritDoc} */
         bool isLastBlock() override {return false;}
 
-        /**
-         * Get the size of the block (physical record).
-         * @return the size of the block (physical record) in ints.
-         */
+
+        /** {@inheritDoc} */
         uint32_t getSize() override {return size;}
+
 
         /**
          * Set the size of the block (physical record). Some trivial checking is done.
@@ -219,6 +212,7 @@ namespace evio {
             size = sz;
         }
 
+
         /**
          * Get the starting position of the block (physical record.). This is the offset (in ints, relative to start of
          * block) to the start of the first event (logical record) that begins in this block. For the first event it will
@@ -230,6 +224,7 @@ namespace evio {
          * @return the starting position of the block (physical record.)
          */
         uint32_t getStart() const {return start;}
+
 
         /**
          * Set the starting position of the block (physical record.). This is the offset (in ints, relative to start of
@@ -250,6 +245,7 @@ namespace evio {
             start = strt;
         }
 
+
         /**
          * Get the ending position of the block (physical record.) This is the number of valid words (header + data) in the
          * block (physical record.) This is normally the same as the block size, except for the last block (physical record)
@@ -260,6 +256,7 @@ namespace evio {
          * @return the ending position of the block (physical record.)
          */
         uint32_t getEnd() const {return end;}
+
 
         /**
          * Set the ending position of the block (physical record.) This is the number of valid words (header + data) in the
@@ -278,11 +275,10 @@ namespace evio {
             end = endd;
         }
 
-        /**
-         * Get the block number for this block (physical record). In a file, this is usually sequential.
-         * @return the block number for this block (physical record).
-         */
+
+        /** {@inheritDoc} */
         uint32_t getNumber() override {return number;}
+
 
         /**
          * Set the block number for this block (physical record). In a file, this is usually sequential. This is not
@@ -291,20 +287,17 @@ namespace evio {
          */
         void setNumber(uint32_t num) {number = num;}
 
+
         /**
          * Get the block header length in ints. This should be 8.
          * @return block header length in ints.
          */
         uint32_t getHeaderLength() const {return headerLength;}
 
-        /**
-         * Get the block header length, in 32 bit words (ints). This should be 8.
-         * This is needed to implement IBlockHeader interface. The {@link #getHeaderLength()}
-         * method cannot be used since the new hipo code uses that method to return a
-         * length in bytes.
-         * @return block header length.
-         */
+
+        /** {@inheritDoc} */
         uint32_t getHeaderWords() override {return headerLength;}
+
 
         /**
          * Set the block header length, in ints. This should be 8. However, since this is usually read as part of reading
@@ -320,26 +313,18 @@ namespace evio {
             headerLength = len;
         }
 
-        /**
-         * Does this block/record contain the "first event"
-         * (first event to be written to each file split)?
-         * First event is not supported by this evio version. So always return false.
-         * @return <code>false</code>
-         */
+
+        /** {@inheritDoc} */
         bool hasFirstEvent() override {return false;}
 
-        /**
-         * Get the type of events in block (see values of {@link DataType}.
-         * This is not supported by this version header. So just return 0.
-         * @return 0.
-         */
+
+        /** {@inheritDoc} */
         uint32_t getEventType() override {return 0;}
 
-        /**
-         * Get the evio version of the block (physical record) header.
-         * @return the evio version of the block (physical record) header.
-         */
+
+        /** {@inheritDoc} */
         uint32_t getVersion() override {return version;}
+
 
         /**
          * Sets the evio version. Should be 1, 2 or 3 but no check is performed here.
@@ -347,8 +332,10 @@ namespace evio {
          */
         void setVersion(uint32_t ver) {version = ver;}
 
+
         /** {@inheritDoc} */
         uint32_t getSourceId() override {return reserved1;}
+
 
         /**
          * Get the first reserved word in the block (physical record) header. Used in evio versions 1-3 only.
@@ -356,18 +343,17 @@ namespace evio {
          */
         uint32_t getReserved1() const {return reserved1;}
 
+
         /**
          * Sets the value of reserved1.
          * @param r1 the value for reserved1.
          */
         void setReserved1(uint32_t r1) {reserved1 = r1;}
 
-        /**
-         * Get the magic number the block (physical record) header which should be 0xc0da0100.
-         * Formerly this location in the header was called "reserved2".
-         * @return the magic number in the block (physical record).
-         */
+
+        /** {@inheritDoc} */
         uint32_t getMagicNumber() override {return magicNumber;}
+
 
         /**
          * Sets the value of magicNumber. This should match the constant MAGIC_NUMBER.
@@ -387,8 +373,10 @@ namespace evio {
             magicNumber = MAGIC_NUMBER;
         }
 
+
         /** {@inheritDoc} */
         ByteOrder & getByteOrder() override {return byteOrder;}
+
 
         /**
         * Sets the byte order of data being read.
@@ -396,10 +384,8 @@ namespace evio {
         */
         void setByteOrder(ByteOrder & order) {byteOrder = order;}
 
-        /**
-         * Obtain a string representation of the block (physical record) header.
-         * @return a string representation of the block (physical record) header.
-         */
+
+        /** {@inheritDoc} */
         std::string toString() override {
             std::stringstream ss;
 
@@ -417,46 +403,24 @@ namespace evio {
             return ss.str();
         }
 
-        /**
-         * Get the position in the buffer (in bytes) of this block's last data word.<br>
-         * @return the position in the buffer (in bytes) of this block's last data word.
-         */
+
+        /** {@inheritDoc} */
         size_t getBufferEndingPosition() override {return bufferStartingPosition + 4*end;}
 
-        /**
-         * Get the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
-         * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
-         * (physical record). It is kept for convenience. It is up to the reader to set it.
-         *
-         * @return the starting position in the buffer (in bytes) from which this header was read--if that happened.
-         */
+
+        /** {@inheritDoc} */
         size_t getBufferStartingPosition() override {return bufferStartingPosition;}
 
-        /**
-         * Set the starting position in the buffer (in bytes) from which this header was read--if that happened.<br>
-         * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
-         * (physical record). It is kept for convenience. It is up to the reader to set it.
-         *
-         * @param pos the starting position in the buffer from which this header was read--if that happened.
-         */
+
+        /** {@inheritDoc} */
         void setBufferStartingPosition(size_t pos) override {bufferStartingPosition = pos;}
 
-        /**
-         * Determines where the start of the next block (physical record) header in some buffer is located (in bytes).
-         * This assumes the start position has been maintained by the object performing the buffer read.
-         *
-         * @return the start of the next block (physical record) header in some buffer is located (in bytes).
-         */
+
+        /** {@inheritDoc} */
         size_t nextBufferStartingPosition() override {return bufferStartingPosition + 4*size;}
 
-        /**
-         * Determines where the start of the first event (logical record) in this block (physical record) is located
-         * (in bytes). This assumes the start position has been maintained by the object performing the buffer read.
-         *
-         * @return where the start of the first event (logical record) in this block (physical record) is located
-         *         (in bytes). Returns 0 if start is 0, signaling that this entire physical record is part of a
-         *         logical record that spans at least three physical records.
-         */
+
+        /** {@inheritDoc} */
         size_t firstEventStartingPosition() override {
             if (start == 0) {
                 return 0UL;
@@ -464,16 +428,8 @@ namespace evio {
             return bufferStartingPosition + 4*start;
         }
 
-        /**
-         * Gives the bytes remaining in this block (physical record) given a buffer position. The position is an absolute
-         * position in a byte buffer. This assumes that the absolute position in <code>bufferStartingPosition</code> is
-         * being maintained properly by the reader. No block is longer than 2.1GB - 31 bits of length. This is for
-         * practical reasons - so a block can be read into a single byte array.
-         *
-         * @param position the absolute current position is a byte buffer.
-         * @return the number of bytes remaining in this block (physical record.)
-         * @throws EvioException if position &lt; buffer starting position or &gt; buffer end position
-         */
+
+        /** {@inheritDoc} */
         size_t bytesRemaining(size_t position) override {
             if (position < bufferStartingPosition) {
                 throw EvioException("Provided position is less than buffer starting position.");
@@ -487,13 +443,8 @@ namespace evio {
             return nextBufferStart - position;
         }
 
-        /**
-         * Write myself out a byte buffer. This write is relative--i.e., it uses the current position of the buffer.
-         *
-         * @param byteBuffer the byteBuffer to write to.
-         * @return the number of bytes written, which for a BlockHeader is 32.
-         * @throws overflow_error if insufficient room to write header into buffer.
-         */
+
+        /** {@inheritDoc} */
         size_t write(ByteBuffer & byteBuffer) override {
 
             if (byteBuffer.remaining() < 32) {

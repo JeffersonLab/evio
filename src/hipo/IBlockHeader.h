@@ -57,7 +57,7 @@ namespace evio {
 
         /**
          * Get the block number for this block (record).
-         * In a file, this is usually sequential.
+         * In a file, this is usually sequential, starting at 1.
          * @return the block number for this block (record).
          */
         virtual uint32_t getNumber() = 0;
@@ -77,13 +77,15 @@ namespace evio {
         /**
          * Does this block/record contain the "first event"
          * (first event to be written to each file split)?
-         * @return <code>true</code> if this record has the first event, else <code>false</code>
+         * @return <code>true</code> if this record has the first event, else <code>false</code>.
+         *         Evio versions 1-3 always return false.
          */
         virtual bool hasFirstEvent() = 0;
 
         /**
          * Get the type of events in block/record (see values of {@link DataType}.
-         * @return type of events in block/record.
+         * This is not supported by versions 1-3 which returns 0.
+         * @return type of events in block/record, or 0 if evio version 1-3.
          */
         virtual uint32_t getEventType() = 0;
 
@@ -125,10 +127,9 @@ namespace evio {
          * This is not part of the block header proper. It is a position in a memory buffer of the start of the block
          * (record). It is kept for convenience. It is up to the reader to set it.
          *
-         * @param bufferStartingPosition starting position in buffer from which this header was read--if that
-         *            happened.
+         * @param pos starting position in buffer from which this header was read--if that happened.
          */
-        virtual void setBufferStartingPosition(size_t bufferStartingPosition) = 0;
+        virtual void setBufferStartingPosition(size_t pos) = 0;
 
         /**
          * Determines where the start of the next block (record) header in some buffer is located (bytes).
@@ -163,13 +164,15 @@ namespace evio {
         /**
          * Does this block contain an evio dictionary?
          * @return <code>true</code> if this block contains an evio dictionary, else <code>false</code>.
+         *         Always returns false for versions 1-3 (not implemented).
          */
         virtual bool hasDictionary() = 0;
 
         /**
          * Is this the last block in the file or being sent over the network?
          * @return <code>true</code> if this is the last block in the file or being sent
-         *         over the network, else <code>false</code>.
+         *         over the network, else <code>false</code>. Always returns false for
+         *         versions 1-3 (not implemented).
          */
         virtual bool isLastBlock() = 0;
 

@@ -794,7 +794,7 @@ namespace evio {
         slice(buff);
         return destBuf;
     }
-    
+
 
     //----------------
     // Read Functions
