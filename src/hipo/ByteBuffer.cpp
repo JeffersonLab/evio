@@ -1,15 +1,12 @@
-/**
- * Copyright (c) 2018, Jefferson Science Associates
- *
- * Thomas Jefferson National Accelerator Facility
- * Data Acquisition Group
- *
- * 12000, Jefferson Ave, Newport News, VA 23606
- * Phone : (757)-269-7100
- *
- * @date 04/18/2018
- * @author timmer
- */
+//
+// Copyright 2020, Jefferson Science Associates, LLC.
+// Subject to the terms in the LICENSE file found in the top-level directory.
+//
+// EPSCI Group
+// Thomas Jefferson National Accelerator Facility
+// 12000, Jefferson Ave, Newport News, VA 23606
+// (757)-269-7100
+
 
 #include "ByteBuffer.h"
 
@@ -27,13 +24,14 @@ namespace evio {
      */
     ByteBuffer::ByteBuffer(size_t size) {
 
-        buf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+        buf = std::shared_ptr<uint8_t>(new uint8_t[size], std::default_delete<uint8_t[]>());
         totalSize = cap = size;
         clear();
 
         isLittleEndian = true;
         isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
     }
+
 
     /**
      * Copy constructor. Not available in Java, but useful in C++.
@@ -42,6 +40,7 @@ namespace evio {
     ByteBuffer::ByteBuffer(const ByteBuffer & srcBuf) {
         copy(srcBuf);
     }
+
 
     /**
      * Move constructor.
@@ -52,6 +51,7 @@ namespace evio {
             *this = std::move(srcBuf);
         }
     }
+
 
     /**
      * This constructor is equivalent to the ByteBuffer.wrap() method in Java.
@@ -67,6 +67,7 @@ namespace evio {
         isMappedMemory = isMappedMem;
     }
 
+
     /**
      * This constructor is equivalent to the ByteBuffer.wrap() method in Java.
      * There is some risk here if caller continues to use byteArray pointer
@@ -77,7 +78,7 @@ namespace evio {
      * @param isMappedMem is the byteArray arg a pointer obtained through ::mmap (file memory mapping)?.
      */
     ByteBuffer::ByteBuffer(uint8_t* byteArray, size_t len, bool isMappedMem) {
-        buf = shared_ptr<uint8_t>(byteArray, default_delete<uint8_t[]>());
+        buf = std::shared_ptr<uint8_t>(byteArray, std::default_delete<uint8_t[]>());
         totalSize = cap = len;
         clear();
 
@@ -87,6 +88,7 @@ namespace evio {
         isMappedMemory = isMappedMem;
     }
 
+
     /** Destructor. Be sure to unmap any memory mapped file. */
     ByteBuffer::~ByteBuffer() {
         if (isMappedMemory) {
@@ -94,6 +96,7 @@ namespace evio {
             ::munmap(buf.get(), cap);
         }
     }
+
 
     /**
      * Move assignment operator.
@@ -126,6 +129,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Assignment operator.
      * @param other right side object.
@@ -151,6 +155,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Equality operator.
      * Way of checking if the 2 buffers are pointing to the same data.
@@ -161,6 +166,7 @@ namespace evio {
     bool ByteBuffer::operator== (const ByteBuffer & rhs) noexcept {
         return (buf == rhs.buf);
     }
+
 
     /**
      * Inequality operator.
@@ -173,6 +179,7 @@ namespace evio {
         return (buf != rhs.buf);
     }
 
+
     /**
      * Subscript operator for absolute access to data bytes without limit check.
      * This has no Java counterpart.
@@ -182,6 +189,7 @@ namespace evio {
     uint8_t & ByteBuffer::operator[] (size_t index) {
         return (buf.get())[index + off];
     }
+
 
     /**
      * Subscript operator for absolute access to data bytes of const ByteBuffers without limit check.
@@ -193,6 +201,7 @@ namespace evio {
         return (buf.get())[index + off];
     }
 
+
     /**
      * Copy data and everything else from arg.
      * @param srcBuf ByteBuffer to copy.
@@ -202,7 +211,7 @@ namespace evio {
         // Avoid self copy ...
         if (this != &srcBuf) {
             // A copy should not use the same shared pointer, copy data over
-            buf = shared_ptr<uint8_t>(new uint8_t[srcBuf.totalSize], default_delete<uint8_t[]>());
+            buf = std::shared_ptr<uint8_t>(new uint8_t[srcBuf.totalSize], std::default_delete<uint8_t[]>());
 
             pos = srcBuf.pos;
             cap = srcBuf.cap;
@@ -217,6 +226,7 @@ namespace evio {
         }
     }
 
+
     /**
      * Copy data and everything else from arg.
      * @param srcBuf ByteBuffer to copy.
@@ -224,6 +234,7 @@ namespace evio {
     void ByteBuffer::copy(const std::shared_ptr<const ByteBuffer> & srcBuf) {
         return copy(*(srcBuf.get()));
     }
+
 
     /**
      * Copy the given buffer into a new buffer which is accessed thru shared pointer.
@@ -244,6 +255,7 @@ namespace evio {
         memcpy((void *)(newBuf->buf.get()), (const void *)(srcBuf->buf.get()), srcBuf->totalSize);
         return newBuf;
     }
+
 
     /**
      * This method writes zeroes into the buffer memory (from pos = 0 to capacity).
@@ -323,12 +335,12 @@ namespace evio {
 
         // If there's data copy it over
         if (lim > 0) {
-            auto tempBuf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+            auto tempBuf = std::shared_ptr<uint8_t>(new uint8_t[size], std::default_delete<uint8_t[]>());
             std::memcpy((void *)(tempBuf.get()), (const void *)(buf.get() + off), lim);
             buf = tempBuf;
         }
         else {
-            buf = shared_ptr<uint8_t>(new uint8_t[size], default_delete<uint8_t[]>());
+            buf = std::shared_ptr<uint8_t>(new uint8_t[size], std::default_delete<uint8_t[]>());
         }
         totalSize = cap = size;
         off = 0;
@@ -415,7 +427,7 @@ namespace evio {
      * Note, there may be a non-zero offset which can be found by calling {@link #arrayOffset}.
      * @return shared pointer to the data array.
      */
-    shared_ptr<uint8_t> ByteBuffer::getData() const {return buf;}
+    std::shared_ptr<uint8_t> ByteBuffer::getData() const {return buf;}
 
 
     /**
@@ -523,7 +535,7 @@ namespace evio {
      */
     ByteBuffer & ByteBuffer::position(size_t p) {
         if (p > lim) {
-            throw EvioException("buffer pos of " + to_string(p) + " will exceed limit of " + to_string(lim));
+            throw EvioException("buffer pos of " + std::to_string(p) + " will exceed limit of " + std::to_string(lim));
         }
         pos = p;
         if (mrk > pos) {
@@ -541,7 +553,7 @@ namespace evio {
      */
     ByteBuffer & ByteBuffer::limit(size_t l) {
         if (l > cap) {
-            throw EvioException("buffer lim of " + to_string(l) + " will exceed cap of " + to_string(cap));
+            throw EvioException("buffer lim of " + std::to_string(l) + " will exceed cap of " + std::to_string(cap));
         }
         lim = l;
 
@@ -782,8 +794,7 @@ namespace evio {
         slice(buff);
         return destBuf;
     }
-
-
+    
 
     //----------------
     // Read Functions
@@ -813,12 +824,13 @@ namespace evio {
     const ByteBuffer & ByteBuffer::getBytes(uint8_t *dst, size_t length) const {
         // check args
         if (length > remaining()) {
-            throw underflow_error("buffer underflow");
+            throw std::underflow_error("buffer underflow");
         }
         memcpy((void *)dst, (void *)(buf.get() + off + pos), length);
         pos += length;
         return *this;
     }
+
 
     /**
      * Relative bulk <i>get</i> method.
@@ -849,7 +861,6 @@ namespace evio {
         pos += length;
         return *this;
     }
-
 
 
     /**
@@ -1265,7 +1276,7 @@ namespace evio {
 
         size_t srcBytes = src.remaining();
         if (srcBytes > remaining()) {
-            throw overflow_error("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
 
         std::memcpy((void *)(buf.get() + off + pos),
@@ -1330,7 +1341,7 @@ namespace evio {
     ByteBuffer & ByteBuffer::put(const uint8_t* src, size_t length) {
         // check args
         if (length > remaining()) {
-            throw overflow_error("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
         std::memcpy((void *)(buf.get() + off + pos), (const void *)src, length);
         pos += length;
@@ -1364,7 +1375,7 @@ namespace evio {
     ByteBuffer & ByteBuffer::put(const std::vector<uint8_t> & src, size_t offset, size_t length) {
         // check args
         if (length > (src.size() - offset)) {
-            throw overflow_error("buffer overflow");
+            throw std::overflow_error("buffer overflow");
         }
         std::memcpy((void *)(buf.get() + off + pos), (const void *)(src.data() + offset), length);
         pos += length;
@@ -1386,6 +1397,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Absolute <i>put</i> method.
      * Writes the given byte into this buffer at the given index.
@@ -1399,6 +1411,7 @@ namespace evio {
         write(val, index);
         return *this;
     }
+
 
     /**
      * Relative <i>put</i> method for writing a wide char value.
@@ -1422,6 +1435,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Absolute <i>put</i> method for writing a wide char value.
      * Writes two bytes containing the given char value, in the
@@ -1444,6 +1458,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Relative <i>put</i> method for writing a short value.
      * Writes two bytes containing the given short value, in the
@@ -1464,6 +1479,7 @@ namespace evio {
         }
         return *this;
     }
+
 
     /**
      * Absolute <i>put</i> method for writing a short value.
@@ -1487,6 +1503,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Relative <i>put</i> method for writing an int value.
      * Writes four bytes containing the given int value, in the
@@ -1507,6 +1524,7 @@ namespace evio {
         }
         return *this;
     }
+
 
     /**
      * Absolute <i>put</i> method for writing an int value.
@@ -1530,6 +1548,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Relative <i>put</i> method for writing a long long value.
      * Writes eight bytes containing the given long long value, in the
@@ -1550,6 +1569,7 @@ namespace evio {
         }
         return *this;
     }
+
 
     /**
      * Absolute <i>put</i> method for writing a long long value.
@@ -1573,6 +1593,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Relative <i>put</i> method for writing a float value.
      * Writes four bytes containing the given float value, in the
@@ -1593,6 +1614,7 @@ namespace evio {
         }
         return *this;
     }
+
 
     /**
      * Absolute <i>put</i> method for writing a float value.
@@ -1616,6 +1638,7 @@ namespace evio {
         return *this;
     }
 
+
     /**
      * Relative <i>put</i> method for writing a double value.
      * Writes eight bytes containing the given double value, in the
@@ -1636,6 +1659,7 @@ namespace evio {
         }
         return *this;
     }
+
 
     /**
      * Absolute <i>put</i> method for writing a double value.
@@ -1673,23 +1697,23 @@ namespace evio {
      * @param bytes   number of bytes to print in hex
      * @param label   a label to print as header
      */
-    void ByteBuffer::printBytes(size_t offset, size_t bytes, string const & label) {
+    void ByteBuffer::printBytes(size_t offset, size_t bytes, std::string const & label) {
 
         size_t limit = (bytes + offset) > cap ? cap : (bytes + offset);
 
-        cout << label <<  ":" << endl;
+        std::cout << label <<  ":" << std::endl;
 
         for (size_t i = offset; i < limit; i++) {
             if (i%20 == 0) {
-                cout << "\n  array[" << (i + 1) << "-" << (i + 20) << "] =  ";
+                std::cout << "\n  array[" << (i + 1) << "-" << (i + 20) << "] =  ";
             }
             else if (i%4 == 0) {
-                cout << "  ";
+                std::cout << "  ";
             }
 
             printf("%02x ", buf.get()[i + off]);
         }
-        cout << endl << endl;
+        std::cout << std::endl << std::endl;
     }
 
 
