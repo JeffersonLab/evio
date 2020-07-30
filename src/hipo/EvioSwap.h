@@ -383,70 +383,65 @@ namespace evio {
 
         /**
          * Routine to swap the endianness of an evio structure's (bank, seg, tagseg) data in place,
-         * including descendants' data.
+         * including descendants' data.<p>
+         * The endianness of the given structure, obtained through
+         * {@link BaseStructure#getByteOrder()}, does <b>NOT</b> change.
+         * The caller must explicitly call {@link BaseStructure#setByteOrder()} to do that.<p>
+         * If this structure contains Composite data, and since it is stored as a vector of shared pointers
+         * to CompositeData objects, it is only serialized into bytes when written out. Thus the only way
+         * to switch it's endianness is for the user to call {@link BaseStructure#setByteOrder()} before
+         * writing it out as bytes. In other words, this method does <b>NOT</b> swap Composite data.
          *
          * @param strc evio structure in which to swap all data.
          * @author: Carl Timmer, 7/28/2020
          */
-        static void swapData(std::shared_ptr<BaseStructure> & strc) {
+        static void swapData(std::shared_ptr<BaseStructure> strc) {
              auto type       = strc->getHeader()->getDataType();
              uint32_t length = strc->getHeader()->getDataLength();
              bool srcIsLocal = strc->getByteOrder().isLocalEndian();
 
              if (type == DataType::UINT32) {
-                 auto vec = strc->getUIntData();
+                 auto & vec = strc->getUIntData();
                  ByteOrder::byteSwap32(vec.data(), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateUIntData();
              }
              else if (type == DataType::INT32) {
-                 auto vec = strc->getIntData();
+                 auto & vec = strc->getIntData();
                  ByteOrder::byteSwap32(reinterpret_cast<uint32_t*>(vec.data()), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateIntData();
              }
              else if (type == DataType::FLOAT32) {
-                 auto vec = strc->getFloatData();
+                 auto & vec = strc->getFloatData();
                  ByteOrder::byteSwap32(reinterpret_cast<uint32_t*>(vec.data()), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateFloatData();
              }
              else if (type == DataType::SHORT16) {
-                 auto vec = strc->getShortData();
+                 auto & vec = strc->getShortData();
                  ByteOrder::byteSwap16(reinterpret_cast<uint16_t*>(vec.data()), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateShortData();
              }
              else if (type == DataType::USHORT16) {
-                 auto vec = strc->getUShortData();
+                 auto & vec = strc->getUShortData();
                  ByteOrder::byteSwap16(vec.data(), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateUShortData();
              }
              else if (type == DataType::LONG64) {
-                 auto vec = strc->getLongData();
+                 auto & vec = strc->getLongData();
                  ByteOrder::byteSwap64(reinterpret_cast<uint64_t*>(vec.data()), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateLongData();
              }
              else if (type == DataType::ULONG64) {
-                 auto vec = strc->getULongData();
+                 auto & vec = strc->getULongData();
                  ByteOrder::byteSwap64(vec.data(), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateULongData();
              }
              else if (type == DataType::DOUBLE64) {
-                 auto vec = strc->getDoubleData();
+                 auto & vec = strc->getDoubleData();
                  ByteOrder::byteSwap64(reinterpret_cast<uint64_t*>(vec.data()), length, nullptr);
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
                  strc->updateDoubleData();
              }
-             else if (type == DataType::COMPOSITE) {
-                 // Composite data is stored as a vector of shared pointers to CompositeData objects.
-                 // These will be swapped to an internal vector of raw bytes by calling update.
-                 strc->setByteOrder(strc->getByteOrder().getOppositeEndian());
-                 strc->updateCompositeData();
-             }
+//             else if (type == DataType::COMPOSITE) {
+//             }
              // For containers, just iterate over their children recursively
              else if (type.isBank() || type.isSegment() || type.isTagSegment()) {
                  for (auto kid : strc->getChildren()) {
