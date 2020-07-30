@@ -232,45 +232,262 @@ namespace evio {
 
     }
 
-
-    static void myTest() {
-        uint16_t tag = 1;
-        uint8_t  num = 1;
-        DataType type = DataType::INT32;
-
+    static void mySwapTest() {
+        // check handling of nullptr
         EvioSwap::swapBank(nullptr, false, nullptr);
 
-        auto evBank = EvioBank::getInstance(tag, type, num);
+        // check tree structure stuff
+        auto topBank = EvioBank::getInstance(0, DataType::BANK, 0);
+        auto midBank = EvioBank::getInstance(1, DataType::BANK, 1);
+        auto midBank2 = EvioBank::getInstance(2, DataType::BANK, 2);
+        auto childBank = EvioBank::getInstance(4, DataType::FLOAT32, 4);
 
-        auto & intData = evBank->getIntData();
+        // Child's float data
+        auto &fData = childBank->getFloatData();
+        fData.push_back(0.);
+        fData.push_back(1.);
+        fData.push_back(2.);
+        std::cout << "EvioBank: local intData size = " << fData.size() << std::endl;
+        childBank->updateFloatData();
 
-        intData.push_back(0);
-        intData.push_back(1);
-        intData.push_back(3);
-        std::cout << "EvioBank: local intData size = " << intData.size() << std::endl;
-        evBank->updateIntData();
+        // Create tree
+        topBank->add(midBank);
+        topBank->add(midBank2);
+        midBank->add(childBank);
 
-        std::cout << "EvioBank = " << evBank->toString() << std::endl;
+        std::cout << "EvioBank = " << topBank->toString() << std::endl;
+
+        EvioSwap::swapData(topBank);
+
+        std::cout << "Swapped top bank = " << topBank->toString() << std::endl;
+        auto & swappedData = childBank->getFloatData();
+        std::cout << "Swapped float data = " << std::endl;
+        for (auto i : swappedData) {
+            std::cout << "data -> " << i << std::endl;
+        }
+
+        EvioSwap::swapData(topBank);
+
+        std::cout << "Swapped top bank AGAIN = " << topBank->toString() << std::endl;
+        auto & swappedData2 = childBank->getFloatData();
+        std::cout << "Swapped float data = " << std::endl;
+        for (auto i : swappedData2) {
+            std::cout << "data -> " << i << std::endl;
+        }
 
         uint16_t tag2 = 2;
-        uint8_t  num2 = 2;
         DataType type2 = DataType::BANK;
-
         const auto evSeg = EvioSegment::getInstance(tag2, type2);
-
         std::cout << "EvioSeg = " << evSeg->toString() << std::endl;
 
-        StructureTransformer::copy(evSeg, evBank);
+        StructureTransformer::copy(evSeg, topBank);
         std::cout << "EvioSeg after copy = " << evSeg->toString() << std::endl;
 
-        std::shared_ptr<EvioSegment> const & newSegment = StructureTransformer::transform(evBank);
-        std::cout << "NEWWWW EvioSeg = " << newSegment->toString() << std::endl;
-
-        IBlockHeader *p;
-
-        BlockHeaderV2 *pp;
+        std::shared_ptr<EvioSegment> const & newSegment = StructureTransformer::transform(topBank);
+        std::cout << "EvioSeg after transform = " << newSegment->toString() << std::endl;
 
     }
+
+
+        static void myTreeTest() {
+
+        // check handling of nullptr
+        EvioSwap::swapBank(nullptr, false, nullptr);
+
+        // check tree structure stuff
+        auto topBank = EvioBank::getInstance(0, DataType::BANK, 0);
+        auto midBank = EvioBank::getInstance(1, DataType::BANK, 1);
+        auto midBank2 = EvioBank::getInstance(2, DataType::BANK, 2);
+        auto childBank = EvioBank::getInstance(4, DataType::FLOAT32, 4);
+
+        // Child's float data
+        auto &fData = childBank->getFloatData();
+        fData.push_back(0.);
+        fData.push_back(1.);
+        fData.push_back(2.);
+        std::cout << "EvioBank: local intData size = " << fData.size() << std::endl;
+        childBank->updateFloatData();
+
+        // Create tree
+        topBank->add(midBank);
+        topBank->add(midBank2);
+        // add it again should make no difference
+        topBank->add(midBank2);
+        midBank->add(childBank);
+
+
+        std::cout << std::endl << "TopBank = " << topBank->toString() << std::endl;
+        std::cout << std::boolalpha;
+        std::cout << "Is child descendant of Top bank? " << topBank->isNodeDescendant(childBank) << std::endl;
+        std::cout << "Is Top bank ancestor of child? " << childBank->isNodeAncestor(topBank) << std::endl;
+        std::cout << "Depth at Top bank = " << topBank->getDepth() << std::endl << std::endl;
+        std::cout << "Depth at Mid bank = " << midBank->getDepth() << std::endl << std::endl;
+        std::cout << "Depth at Child bank = " << childBank->getDepth() << std::endl << std::endl;
+        std::cout << "Level at top bank = " << topBank->getLevel() << std::endl;
+        std::cout << "Level at child = " << childBank->getLevel() << std::endl;
+
+        std::cout << "Remove child from midBank:" << std::endl;
+        midBank->remove(childBank);
+        std::cout << "midBank = " << midBank->toString() << std::endl;
+        std::cout << "Is child descendant of top bank? " << topBank->isNodeDescendant(childBank) << std::endl;
+        std::cout << "Is top bank ancestor of child? " << childBank->isNodeAncestor(topBank) << std::endl;
+
+        // add child again
+        midBank->add(childBank);
+        std::cout << std::endl << "midBank = " << midBank->toString() << std::endl;
+        midBank->removeAllChildren();
+        std::cout << "Remove all children from bank:" << std::endl;
+        std::cout << "midBank = " << midBank->toString() << std::endl;
+
+        // add child again
+        midBank->add(childBank);
+        std::cout << std::endl << "midBank = " << midBank->toString() << std::endl;
+        childBank->removeFromParent();
+        std::cout << "Remove child from parent:" << std::endl;
+        std::cout << "midBank = " << midBank->toString() << std::endl;
+
+        // add child again
+        midBank->add(childBank);
+        std::cout << "Level at top bank = " << topBank->getLevel() << std::endl;
+        std::cout << "Level at child = " << childBank->getLevel() << std::endl;
+        std::cout << "Level at mid bank 1 = " << midBank->getLevel() << std::endl;
+
+        std::cout << std::endl << "CALL sharedAncestor for both mid banks" << std::endl;
+        auto strc = midBank2->getSharedAncestor(midBank);
+        if (strc != nullptr) {
+            std::cout << std::endl << "shared ancestor of midBank 1&2 = " << strc->toString() << std::endl << std::endl;
+        }
+        else {
+            std::cout << std::endl << "shared ancestor of midBank 1&2 = NONE" << std::endl << std::endl;
+        }
+
+        auto path = childBank->getPath();
+        std::cout << "Path of child bank:" << std::endl;
+        for (auto str : path) {
+            std::cout << "     -  " << str->toString() << std::endl;
+        }
+
+        uint32_t kidCount = topBank->getChildCount();
+        std::cout << std::endl << "topBank has " << kidCount << " children" << std::endl;
+        for (int i=0; i < kidCount; i++) {
+            std::cout << "   child at index " << i << " = " << topBank->getChildAt(i)->toString() << std::endl;
+            std::cout << "       child getIndex = " << topBank->getIndex(topBank->getChildAt(i)) << std::endl;
+        }
+
+        std::cout << std::endl << "insert another child into topBank at index = 2" << std::endl;
+        auto midBank3 = EvioBank::getInstance(3, DataType::BANK, 3);
+        topBank->insert(midBank3, 2);
+        std::cout << std::endl << "topBank = " << topBank->toString() << std::endl;
+
+        try {
+            std::cout << std::endl << "insert another child into topBank at index = 4" << std::endl;
+            auto midBank33 = EvioBank::getInstance(33, DataType::BANK, 33);
+            topBank->insert(midBank33, 4);
+            std::cout << std::endl << "topBank = " << topBank->toString() << std::endl;
+        }
+        catch (std::out_of_range & e) {
+            std::cout << "ERROR: " << e.what() << std::endl;
+        }
+
+        std::cout << std::endl << "iterate thru topBank children" << std::endl;
+        auto beginIter = topBank->childrenBegin();
+        auto endIter = topBank->childrenEnd();
+        for (; beginIter != endIter; beginIter++) {
+            auto kid = *beginIter;
+            std::cout << "  kid = " << kid->toString() << std::endl;
+        }
+
+            std::cout << std::endl << "Remove topBank's first child" << std::endl;
+            topBank->remove(0);
+            std::cout << "    topBank has " << kidCount << " children" << std::endl;
+            std::cout << "    topBank = " << topBank->toString() << std::endl;
+            // reinsert
+            topBank->insert( midBank, 0);
+
+            auto parent = topBank->getParent();
+            if (parent == nullptr) {
+                std::cout << std::endl << "Parent of topBank is = nullptr" << std::endl;
+            }
+            else {
+                std::cout << std::endl << "Parent of topBank is = " << topBank->getParent()->toString() << std::endl;
+            }
+
+            parent = childBank->getParent();
+            if (parent == nullptr) {
+                std::cout << std::endl << "Parent of childBank is = nullptr" << std::endl;
+            }
+            else {
+                std::cout << std::endl << "Parent of childBank is = " << parent->toString() << std::endl;
+            }
+
+            auto root = childBank->getRoot();
+            std::cout << std::endl << "Root of childBank is = " << root->toString() << std::endl;
+            root = topBank->getRoot();
+            std::cout << "Root of topBank is = " << root->toString() << std::endl;
+
+            std::cout << std::endl << "Is childBank root = " << childBank->isRoot() << std::endl;
+            std::cout << "Is topBank root = " << topBank->isRoot() << std::endl << std::endl;
+
+            std::shared_ptr<BaseStructure> node = topBank;
+            std::cout << std::endl << "Starting from root:" << std::endl;
+            do {
+                node = node->getNextNode();
+                if (node == nullptr) {
+                    std::cout << "  next node = nullptr" << std::endl;
+                }
+                else {
+                    std::cout << "  next node = " << node->toString() << std::endl;
+                }
+            } while (node != nullptr);
+
+
+            node = midBank2;
+            std::cout << std::endl << "Starting from midBank2:" << std::endl;
+            do {
+                node = node->getNextNode();
+                if (node == nullptr) {
+                    std::cout << "  next node = nullptr" << std::endl;
+                }
+                else {
+                    std::cout << "  next node = " << node->toString() << std::endl;
+                }
+            } while (node != nullptr);
+
+
+            node = midBank3;
+            std::cout << std::endl << "Starting from midBank3:" << std::endl;
+            do {
+                node = node->getPreviousNode();
+                if (node == nullptr) {
+                    std::cout << "  prev node = nullptr" << std::endl;
+                }
+                else {
+                    std::cout << "  prev node = " << node->toString() << std::endl;
+                }
+            } while (node != nullptr);
+
+            std::cout << std::endl << "is childBank child of topBank = " << topBank->isNodeChild(childBank) << std::endl;
+            std::cout << "is midBank3 child of topBank = " << topBank->isNodeChild(midBank3) << std::endl;
+
+            std::cout << std::endl << "first child of topBank = " << topBank->getFirstChild()->toString() << std::endl;
+            std::cout << "last child of topBank = " << topBank->getLastChild()->toString() << std::endl;
+            std::cout << "child after midBank2 = " << topBank->getChildAfter(midBank2)->toString() << std::endl;
+            std::cout << "child before midBank3 = " << topBank->getChildBefore(midBank3)->toString() << std::endl;
+
+            std::cout << std::endl << "is midBank sibling of midBank3 = " << midBank->isNodeSibling(midBank3) << std::endl;
+            std::cout << "sibling count of midBank3 = " << midBank3->getSiblingCount() << std::endl;
+            std::cout << "next sibling of midBank = " << midBank->getNextSibling()->toString() << std::endl;
+            std::cout << "prev sibling of midBank2 = " << midBank2->getPreviousSibling()->toString() << std::endl;
+            std::cout << "prev sibling of midBank = " << midBank->getPreviousSibling() << std::endl;
+
+            bool isLeaf() const;
+            std::shared_ptr<BaseStructure> getFirstLeaf();
+            std::shared_ptr<BaseStructure> getLastLeaf();
+            std::shared_ptr<BaseStructure> getNextLeaf();
+            std::shared_ptr<BaseStructure> getPreviousLeaf();
+            ssize_t getLeafCount();
+
+        }
 
     static std::string myStrings[3] = {"a", "b", "c"};
 
@@ -293,7 +510,7 @@ namespace evio {
 
 
 int main(int argc, char **argv) {
-    evio::myTest2();
+    evio::myTreeTest();
     return 0;
 }
 
