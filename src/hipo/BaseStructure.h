@@ -632,8 +632,6 @@ namespace evio {
 
         bool needSwap() const;
 
-        std::string getDescription() const;
-
         virtual std::string toString() const;
 
         std::shared_ptr<BaseStructureHeader> getHeader() const;
