@@ -109,7 +109,7 @@ namespace evio {
         ss << "segment length: " << length << std::endl;
         ss << "     data type: " << getDataTypeName() << std::endl;
         ss << "           tag: " << tag << std::endl;
-        ss << "       padding: " << padding << std::endl;
+        ss << "       padding: " << +padding << std::endl;
 
         return ss.str();
     }
