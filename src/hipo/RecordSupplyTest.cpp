@@ -525,7 +525,7 @@ namespace evio {
             std::cout << std::endl << "Add 1 child to topBank with same tag (4) as first leaf but num = 20" << std::endl;
             auto midBank4 = EvioBank::getInstance(4, DataType::BANK, 20);
             topBank->add(midBank4);
-            std::cout << "  Search for all banks of tag = 4, got the following:" << std::endl;
+            std::cout << "Search for all banks of tag = 4, got the following:" << std::endl;
 
             std::vector<std::shared_ptr<BaseStructure>> vec;
 
@@ -542,18 +542,17 @@ namespace evio {
             auto filter = std::make_shared<myFilter>(4);
             topBank->getMatchingStructures(filter, vec);
             for (auto n : vec) {
-                std::cout << "bank = " << n->toString() << std::endl;
+                std::cout << "  bank = " << n->toString() << std::endl;
             }
 
-            std::cout<< std::endl << "  Search again for all banks of tag = 4, and execute listener:" << std::endl;
+            std::cout<< std::endl << "Search again for all banks of tag = 4, and execute listener:" << std::endl;
 
             class myListener : public IEvioListener {
             public:
                 void gotStructure(std::shared_ptr<BaseStructure> topStructure,
                                   std::shared_ptr<BaseStructure> structure) {
-                    std::cout << "TOP struct = " << topStructure->toString() << std::endl;
-                    std::cout << "GOT struct = " << structure->toString() << std::endl;
-                    std::cout << "GOT struct header = " << structure->getHeader()->toString() << std::endl;
+                    std::cout << "  TOP struct = " << topStructure->toString() << std::endl;
+                    std::cout << "  GOT struct = " << structure->toString() << std::endl << std::endl;
                 }
 
                 // We're not parsing so these are not used ...
