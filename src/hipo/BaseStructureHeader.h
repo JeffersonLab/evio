@@ -36,7 +36,7 @@ namespace evio {
      * @author timmer
      * @date 4/2/2020
      */
-    class BaseStructureHeader /*: IEvioWriter */ {
+    class BaseStructureHeader {
 
         friend class BaseStructure;
         friend class CompositeData;
