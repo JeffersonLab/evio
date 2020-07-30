@@ -1385,7 +1385,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
       *
       * @param listener an listener to notify as each structure is visited.
       */
-    void BaseStructure::vistAllStructures(std::shared_ptr<IEvioListener> listener) {
+    void BaseStructure::visitAllStructures(std::shared_ptr<IEvioListener> listener) {
         visitAllDescendants(getThis(), listener, nullptr);
     }
 
@@ -1400,7 +1400,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *               structures are passed. In this way, specific types of
      *               structures can be captured.
      */
-    void BaseStructure::vistAllStructures(std::shared_ptr<IEvioListener> listener,
+    void BaseStructure::visitAllStructures(std::shared_ptr<IEvioListener> listener,
                                           std::shared_ptr<IEvioFilter> filter) {
         visitAllDescendants(getThis(), listener, filter);
     }
@@ -1464,7 +1464,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
         vec.clear();
         auto listener = std::make_shared<myListener>(vec);
 
-        vistAllStructures(listener, filter);
+        visitAllStructures(listener, filter);
     }
 
 

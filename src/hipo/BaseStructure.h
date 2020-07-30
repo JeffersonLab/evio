@@ -489,8 +489,8 @@ namespace evio {
         //  Tree Traversal and Searching
         //
 
-        void vistAllStructures(std::shared_ptr<IEvioListener> listener);
-        void vistAllStructures(std::shared_ptr<IEvioListener> listener,
+        void visitAllStructures(std::shared_ptr<IEvioListener> listener);
+        void visitAllStructures(std::shared_ptr<IEvioListener> listener,
                                std::shared_ptr<IEvioFilter> filter);
         void getMatchingStructures(std::shared_ptr<IEvioFilter> filter,
                                    std::vector<std::shared_ptr<BaseStructure>> & vec);
