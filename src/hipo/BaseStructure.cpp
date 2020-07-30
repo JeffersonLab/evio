@@ -2606,7 +2606,7 @@ namespace evio {
      * For writing events, this will be crucial for setting the values in the headers.
      *
      * @return the length that would go in the header field (for a leaf).
-     * @throws EvioException if the length is too large (&gt; {@link Integer#MAX_VALUE}).
+     * @throws EvioException if the length is too large.
      */
     uint32_t BaseStructure::setAllHeaderLengths() {
         // if length info is current, don't bother to recalculate it
@@ -2649,7 +2649,7 @@ namespace evio {
 
    /**
     * Write myself into a ByteBuffer as evio format data
-    * in the data's current byte order given by {@link #getByteOrder}.
+    * in the data's current byte order given by {@link #getByteOrder()}.
     * This method is much more efficient than using {@link #write(java.nio.ByteBuffer)}.<p>
     * <b>However, be warned that this method is only useful when this structure has
     * just been read from a file or buffer. Once the user adds data (and does not call
@@ -2668,7 +2668,7 @@ namespace evio {
 
     /**
      * Write myself out as evio format data
-     * in the data's current byte order given by {@link #getByteOrder} at the given pointer.
+     * in the data's current byte order given by {@link #getByteOrder()} at the given pointer.
      * This method is much more efficient than using {@link #write(java.nio.ByteBuffer)}.<p>
      * <b>However, be warned that this method is only useful when this structure has
      * just been read from a file or buffer. Once the user adds data (and does not call
@@ -2676,7 +2676,7 @@ namespace evio {
      * to this structure, this method does NOT produce correct results.</b>
      *
      * @param dest pointer at which to write evio format data of this bank in currently set byte order.
-     * @return byte array containing evio format data of this bank in currently set byte order
+     * @return byte array containing evio format data of this bank in currently set byte order.
      */
     size_t BaseStructure::writeQuick(uint8_t *dest) {
          // write the header
@@ -2836,7 +2836,7 @@ namespace evio {
 
 
     /**
-     * Write myself out a byte buffer with fastest algorithm I could find.
+     * Write myself out into a byte buffer with fastest algorithm I could find.
      *
      * @param byteBuffer the byteBuffer to write to.
      * @return the number of bytes written.
