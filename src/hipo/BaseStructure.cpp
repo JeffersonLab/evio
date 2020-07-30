@@ -378,13 +378,12 @@ namespace evio {
      * @param   newChild        the BaseStructure to insert under this node.
      * @param   childIndex      the index in this node's child array.
      *                          where this node is to be inserted.
-     * @exception  EvioException  if
-     *             <code>childIndex</code> is out of bounds,
-     *             <code>newChild</code> is null or is an ancestor of this node,
-     *            this node does not allow children.
+     * @exception  std::out_of_range  if <code>childIndex</code> is out of bounds.
+     * @exception  EvioException  if <code>newChild</code> is null, is an ancestor of this node,
+     *                            or this node does not allow children.
      * @see  #isNodeDescendant
      */
-    void BaseStructure::insert(const std::shared_ptr<BaseStructure> &newChild, size_t childIndex) {
+    void BaseStructure::insert(const std::shared_ptr<BaseStructure> newChild, size_t childIndex) {
         if (!allowsChildren) {
             throw EvioException("node does not allow children");
         }
@@ -393,6 +392,9 @@ namespace evio {
         }
         else if (isNodeAncestor(newChild)) {
             throw EvioException("new child is an ancestor");
+        }
+        else if (childIndex > children.size()) {
+            throw std::out_of_range("index out of bounds");
         }
 
         auto oldParent = newChild->getParent();
@@ -411,10 +413,8 @@ namespace evio {
      * and sets that node's parent to null. The child node to remove
      * must be a <code>BaseStructure</code>. Originally part of java's DefaultMutableTreeNode.
      *
-     * @param   childIndex      the index in this node's child array
-     *                          of the child to remove
-     * @exception       ArrayIndexOutOfBoundsException  if
-     *                          <code>childIndex</code> is out of bounds
+     * @param  childIndex  the index of the child to remove
+     * @throws  std::out_of_range  if <code>childIndex</code> is out of bounds
      */
     void BaseStructure::remove(size_t childIndex) {
         auto child = getChildAt(childIndex);
@@ -454,14 +454,11 @@ namespace evio {
      * Returns the child at the specified index in this node's child array.
      * Originally part of java's DefaultMutableTreeNode.
      * @param   index   an index into this node's child array
-     * @exception   EvioException  if <code>index</code> is out of bounds
-     * @return  the BaseStructure in this node's child array at  the specified index
+     * @throws  std::out_of_range  if <code>index</code> is out of bounds
+     * @return  the BaseStructure in this node's child array at the specified index
      */
     std::shared_ptr<BaseStructure> BaseStructure::getChildAt(size_t index) {
-        if (children.size() < index + 1) {
-            throw EvioException("index too large");
-        }
-        return children[index];
+        return children.at(index);
     }
 
 
@@ -486,7 +483,7 @@ namespace evio {
      *          array, or <code>-1</code> if the specified node is a not
      *          a child of this node
      */
-    ssize_t BaseStructure::getIndex(const std::shared_ptr<BaseStructure> &aChild) {
+    ssize_t BaseStructure::getIndex(const std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
             throw EvioException("argument is null");
         }
@@ -519,7 +516,7 @@ namespace evio {
      *
      * @return  a begin iterator of this node's children
      */
-    auto BaseStructure::childrenIterBegin() { return children.begin(); }
+    std::vector<std::shared_ptr<BaseStructure>>::iterator BaseStructure::childrenBegin() { return children.begin(); }
 
 
     /**
@@ -530,7 +527,7 @@ namespace evio {
      *
      * @return  an end iterator of this node's children
      */
-    auto BaseStructure::childrenIterEnd() { return children.end(); }
+    std::vector<std::shared_ptr<BaseStructure>>::iterator BaseStructure::childrenEnd() { return children.end(); }
 
 
     /**
@@ -585,7 +582,7 @@ namespace evio {
      * @param   aChild  a child of this node to remove
      * @exception  EvioException if <code>aChild</code> is not a child of this node
      */
-    void BaseStructure::remove(const std::shared_ptr<BaseStructure> &aChild) {
+    void BaseStructure::remove(const std::shared_ptr<BaseStructure> aChild) {
         if (!isNodeChild(aChild)) {
             throw EvioException("argument is not a child");
         }
@@ -615,7 +612,7 @@ namespace evio {
      * @exception  EvioException    if <code>newChild</code> is null,
      *                                  or this node does not allow children.
      */
-    void BaseStructure::add(std::shared_ptr<BaseStructure> &newChild) {
+    void BaseStructure::add(std::shared_ptr<BaseStructure> newChild) {
         if (newChild != nullptr && newChild->getParent() == getThis())
             insert(newChild, getChildCount() - 1);
         else
@@ -641,7 +638,7 @@ namespace evio {
      * @param   anotherNode     node to test as an ancestor of this node
      * @return  true if this node is a descendant of <code>anotherNode</code>
      */
-    bool BaseStructure::isNodeAncestor(const std::shared_ptr<BaseStructure> &anotherNode) {
+    bool BaseStructure::isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode) {
         if (anotherNode == nullptr) {
             return false;
         }
@@ -670,7 +667,7 @@ namespace evio {
      * @param   anotherNode     node to test as descendant of this node
      * @return  true if this node is an ancestor of <code>anotherNode</code>
      */
-    bool BaseStructure::isNodeDescendant(std::shared_ptr<BaseStructure> &anotherNode) {
+    bool BaseStructure::isNodeDescendant(std::shared_ptr<BaseStructure> anotherNode) {
         if (anotherNode == nullptr)
             return false;
 
@@ -692,7 +689,7 @@ namespace evio {
      * @return  nearest ancestor common to this node and <code>aNode</code>,
      *          or null if none
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getSharedAncestor(std::shared_ptr<BaseStructure> &aNode) {
+    std::shared_ptr<BaseStructure> BaseStructure::getSharedAncestor(std::shared_ptr<BaseStructure> aNode) {
         auto sharedThis = getThis();
 
         if (aNode == sharedThis) {
@@ -702,12 +699,12 @@ namespace evio {
             return nullptr;
         }
 
-        int level1, level2, diff;
+        uint32_t level1, level2, diff=0;
         std::shared_ptr<BaseStructure> node1, node2;
 
         level1 = getLevel();
         level2 = aNode->getLevel();
-
+std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std::endl;
         if (level2 > level1) {
             diff = level2 - level1;
             node1 = aNode;
@@ -758,7 +755,7 @@ namespace evio {
      * @return  true if <code>aNode</code> is in the same tree as this node;
      *          false if <code>aNode</code> is null
      */
-    bool BaseStructure::isNodeRelated(std::shared_ptr<BaseStructure> &aNode) {
+    bool BaseStructure::isNodeRelated(std::shared_ptr<BaseStructure> aNode) {
         return (aNode != nullptr) && (getRoot() == aNode->getRoot());
     }
 
@@ -889,9 +886,10 @@ namespace evio {
 
     /**
      * Returns the node that follows this node in a preorder traversal of this
-     * node's tree.  Returns null if this node is the last node of the
+     * node's tree (return left nodes all the way down before coming back and doing
+     * siblings from bottom up). Returns null if this node is the last node of the
      * traversal.  This is an inefficient way to traverse the entire tree; use
-     * an enumeration, instead. Originally part of java's DefaultMutableTreeNode.
+     * an iterator instead. Originally part of java's DefaultMutableTreeNode.
      *
      * @see     #preorderEnumeration
      * @return  the node that follows this node in a preorder traversal, or
@@ -930,25 +928,24 @@ namespace evio {
 
     /**
      * Returns the node that precedes this node in a preorder traversal of
-     * this node's tree.  Returns <code>null</code> if this node is the
+     * this node's tree (return left nodes all the way down before coming back and doing
+     * siblings from bottom up).  Returns <code>null</code> if this node is the
      * first node of the traversal -- the root of the tree.
      * This is an inefficient way to
-     * traverse the entire tree; use an enumeration, instead.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * traverse the entire tree; use an iterator instead.
+     * Originally part of java's DefaultMutableTreeNode.
      *
      * @see     #preorderEnumeration
      * @return  the node that precedes this node in a preorder traversal, or
      *          null if this node is the first
      */
     std::shared_ptr<BaseStructure> BaseStructure::getPreviousNode() {
-        std::shared_ptr<BaseStructure> previousSibling;
         auto myParent = getParent();
-
         if (myParent == nullptr) {
             return nullptr;
         }
 
-        previousSibling = getPreviousSibling();
+        auto previousSibling = getPreviousSibling();
 
         if (previousSibling != nullptr) {
             if (previousSibling->getChildCount() == 0)
@@ -975,7 +972,7 @@ namespace evio {
      * @return  true if <code>aNode</code> is a child of this node; false if
      *                  <code>aNode</code> is null
      */
-    bool BaseStructure::isNodeChild(const std::shared_ptr<BaseStructure> &aNode) const {
+    bool BaseStructure::isNodeChild(const std::shared_ptr<BaseStructure> aNode) const {
         bool retval;
 
         if (aNode == nullptr) {
@@ -1041,7 +1038,7 @@ namespace evio {
      * @return  the child of this node that immediately follows
      *          <code>aChild</code>
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getChildAfter(const std::shared_ptr<BaseStructure> &aChild) {
+    std::shared_ptr<BaseStructure> BaseStructure::getChildAfter(const std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
             throw EvioException("argument is null");
         }
@@ -1073,7 +1070,7 @@ namespace evio {
      *                                    is not a child of this node.
      * @return  the child of this node that immediately precedes <code>aChild</code>.
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getChildBefore(const std::shared_ptr<BaseStructure> &aChild) {
+    std::shared_ptr<BaseStructure> BaseStructure::getChildBefore(const std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
             throw EvioException("argument is null");
         }
@@ -1108,7 +1105,7 @@ namespace evio {
      * @throws BaseStructureExceptin if sibling has different parent.
      * @return  true if <code>anotherNode</code> is a sibling of this node
      */
-    bool BaseStructure::isNodeSibling(const std::shared_ptr<BaseStructure> &anotherNode) const {
+    bool BaseStructure::isNodeSibling(const std::shared_ptr<BaseStructure> anotherNode) const {
         bool retval;
 
         if (anotherNode == nullptr) {
@@ -2922,6 +2919,7 @@ namespace evio {
             rawBytes.resize(4 * numberDataItems);
 
             if (ByteOrder::needToSwap(byteOrder)) {
+                std::cout << "updateIntData(): swapping ..." << std::endl;
                 ByteOrder::byteSwap32(reinterpret_cast<uint32_t *>(intData.data()),
                                       numberDataItems,
                                       reinterpret_cast<uint32_t *>(rawBytes.data()));

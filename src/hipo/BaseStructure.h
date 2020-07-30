@@ -73,8 +73,10 @@ namespace evio {
         // Copy shared pointer arg
         explicit nodeIterator(R &node, bool isEnd) : currentNode(node), isEnd(isEnd) {
             // store current-element and end of vector in pair
-            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
-            stack.push(p);
+            if (!node->children.empty()) {
+                std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
+                stack.push(p);
+            }
         }
 
         R operator*() const { return currentNode; }
@@ -94,6 +96,8 @@ namespace evio {
             }
             return this != &other;
         }
+
+        bool isEndIter() {return isEnd;}
 
         // post increment gets ignored arg of 0 to distinguish from pre, A++
         const nodeIterator operator++(int) {
@@ -126,13 +130,10 @@ namespace evio {
             // Prepare to look at the next node in the vector (next call)
             ++curIter;
 
-            // Look at node's children
-            auto kidIterBegin = node->children.begin();
-            auto kidIterEnd = node->children.end();
-
             // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+            if (!node->children.empty()) {
+                // Look at node's children
+                std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
                 stack.push(p);
             }
 
@@ -170,13 +171,10 @@ namespace evio {
             // Prepare to look at the next node in the vector (next call)
             ++curIter;
 
-            // Look at node's children
-            auto kidIterBegin = node->children.begin();
-            auto kidIterEnd = node->children.end();
-
             // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+            if (!node->children.empty()) {
+                // Look at node's children
+                std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
                 stack.push(p);
             }
 
@@ -215,8 +213,10 @@ namespace evio {
         // Copy shared pointer arg
         nodeBreadthIterator(R & node, bool isEnd) : currentNode(node), isEnd(isEnd) {
             // store current-element and end of vector in pair
-            std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
-            que.push(p);
+            if (!node->children.empty()) {
+                std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
+                que.push(p);
+            }
         }
 
         R operator*() const { return currentNode; }
@@ -235,6 +235,7 @@ namespace evio {
             return this != &other;
         }
 
+        bool isEndIter() {return isEnd;}
 
         // TODO: How does one handle going too far???
 
@@ -271,13 +272,10 @@ namespace evio {
             // Prepare to look at the next node in the vector (next call)
             ++curIter;
 
-            // Look at node's children
-            auto kidIterBegin = node->children.begin();
-            auto kidIterEnd = node->children.end();
-
             // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+            if (!node->children.empty()) {
+                // Look at node's children
+                std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
                 que.push(p);
             }
 
@@ -317,13 +315,10 @@ namespace evio {
             // Prepare to look at the next node in the vector (next call)
             ++curIter;
 
-            // Look at node's children
-            auto kidIterBegin = node->children.begin();
-            auto kidIterEnd = node->children.end();
-
             // If it has children, put pair of iterators on stack
-            if ((kidIterEnd - 1) - kidIterBegin > 0) {
-                std::pair<KidIter, KidIter> p(kidIterBegin, kidIterEnd);
+            if (!node->children.empty()) {
+                // Look at node's children
+                std::pair<KidIter, KidIter> p(node->children.begin(), node->children.end());
                 que.push(p);
             }
 
@@ -413,7 +408,7 @@ namespace evio {
 
     public:
 
-        void insert(const std::shared_ptr<BaseStructure> &newChild, size_t childIndex);
+        void insert(const std::shared_ptr<BaseStructure> newChild, size_t childIndex);
         void remove(size_t childIndex);
 
         std::shared_ptr<BaseStructure> getParent() const;
@@ -421,9 +416,9 @@ namespace evio {
         std::shared_ptr<BaseStructure> getChildAt(size_t index);
 
         size_t getChildCount() const;
-        ssize_t getIndex(const std::shared_ptr<BaseStructure> &aChild);
-        auto childrenIterBegin();
-        auto childrenIterEnd();
+        ssize_t getIndex(const std::shared_ptr<BaseStructure> aChild);
+        std::vector<std::shared_ptr<BaseStructure>>::iterator childrenBegin();
+        std::vector<std::shared_ptr<BaseStructure>>::iterator childrenEnd();
 
         void setAllowsChildren(bool allows);
         bool getAllowsChildren() const;
@@ -433,18 +428,18 @@ namespace evio {
         //
 
         void removeFromParent();
-        void remove(const std::shared_ptr<BaseStructure> &aChild);
+        void remove(const std::shared_ptr<BaseStructure> aChild);
         void removeAllChildren();
-        void add(std::shared_ptr<BaseStructure> &newChild);
+        void add(std::shared_ptr<BaseStructure> newChild);
 
         //
         //  Tree Queries
         //
 
-        bool isNodeAncestor(const std::shared_ptr<BaseStructure> &anotherNode);
-        bool isNodeDescendant(std::shared_ptr<BaseStructure> &anotherNode);
-        std::shared_ptr<BaseStructure> getSharedAncestor(std::shared_ptr<BaseStructure> &aNode);
-        bool isNodeRelated(std::shared_ptr<BaseStructure> &aNode);
+        bool isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode);
+        bool isNodeDescendant(std::shared_ptr<BaseStructure> anotherNode);
+        std::shared_ptr<BaseStructure> getSharedAncestor(std::shared_ptr<BaseStructure> aNode);
+        bool isNodeRelated(std::shared_ptr<BaseStructure> aNode);
         uint32_t getDepth();
         uint32_t getLevel();
         std::vector<std::shared_ptr<BaseStructure>> getPath();
@@ -464,17 +459,17 @@ namespace evio {
         //  Child Queries
         //
 
-        bool isNodeChild(const std::shared_ptr<BaseStructure> &aNode) const;
+        bool isNodeChild(const std::shared_ptr<BaseStructure> aNode) const;
         std::shared_ptr<BaseStructure> getFirstChild();
         std::shared_ptr<BaseStructure> getLastChild();
-        std::shared_ptr<BaseStructure> getChildAfter(const std::shared_ptr<BaseStructure> &aChild);
-        std::shared_ptr<BaseStructure> getChildBefore(const std::shared_ptr<BaseStructure> &aChild);
+        std::shared_ptr<BaseStructure> getChildAfter(const std::shared_ptr<BaseStructure> aChild);
+        std::shared_ptr<BaseStructure> getChildBefore(const std::shared_ptr<BaseStructure> aChild);
 
         //
         //  Sibling Queries
         //
 
-        bool isNodeSibling(const std::shared_ptr<BaseStructure> &anotherNode) const;
+        bool isNodeSibling(const std::shared_ptr<BaseStructure> anotherNode) const;
         size_t getSiblingCount() const;
         std::shared_ptr<BaseStructure> getNextSibling();
         std::shared_ptr<BaseStructure> getPreviousSibling();
