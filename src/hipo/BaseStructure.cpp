@@ -359,8 +359,7 @@ namespace evio {
      * Sets this node's parent to <code>newParent</code> but does not
      * change the parent's child array.  This method is called from
      * {@link #insert} and {@link #remove} to
-     * reassign a child's parent, it should not be messaged from anywhere
-     * else.
+     * reassign a child's parent, it should not be messaged from anywhere else.
      * Originally part of java's DefaultMutableBaseStructure.
      *
      * @param newParent this node's new parent.
@@ -438,7 +437,7 @@ namespace evio {
     /**
      * Returns this node's parent or null if this node has no parent.
      * Originally part of java's DefaultMutableTreeNode.
-     * @return  this node's parent BaseStructure, or null if this node has no parent
+     * @return  this node's parent BaseStructure, or null if this node has no parent.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getParent() const { return parent; }
 
@@ -451,11 +450,11 @@ namespace evio {
 
 
     /**
-     * Returns the child at the specified index in this node's child array.
+     * Returns the child at the specified index in this node's child vector.
      * Originally part of java's DefaultMutableTreeNode.
-     * @param   index   an index into this node's child array
-     * @throws  std::out_of_range  if <code>index</code> is out of bounds
-     * @return  the BaseStructure in this node's child array at the specified index
+     * @param   index   an index into this node's child array.
+     * @throws  std::out_of_range  if <code>index</code> is out of bounds.
+     * @return  the BaseStructure in this node's child array at the specified index.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getChildAt(size_t index) {
         return children.at(index);
@@ -465,23 +464,23 @@ namespace evio {
     /**
      * Returns the number of children of this node.
      * Originally part of java's DefaultMutableTreeNode.
-     * @return  an int giving the number of children of this node
+     * @return the number of children of this node.
      */
     size_t BaseStructure::getChildCount() const { return children.size(); }
 
 
     /**
-     * Returns the index of the specified child in this node's child array.
+     * Returns the index of the specified child in this node's child vector.
      * If the specified node is not a child of this node, returns
      * <code>-1</code>.  This method performs a linear search and is O(n)
      * where n is the number of children.
      * Originally part of java's DefaultMutableTreeNode.
      *
      * @param   aChild  the BaseStructure to search for among this node's children.
-     * @exception       EvioException  if <code>aChild</code>  is null
+     * @throws  EvioException  if <code>aChild</code>  is null.
      * @return  an int giving the index of the node in this node's child
      *          array, or <code>-1</code> if the specified node is a not
-     *          a child of this node
+     *          a child of this node.
      */
     ssize_t BaseStructure::getIndex(const std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
@@ -514,7 +513,7 @@ namespace evio {
      * iterators created before the modification.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     * @return  a begin iterator of this node's children
+     * @return  a begin iterator of this node's children.
      */
     std::vector<std::shared_ptr<BaseStructure>>::iterator BaseStructure::childrenBegin() { return children.begin(); }
 
@@ -525,7 +524,7 @@ namespace evio {
      * iterators created before the modification.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     * @return  an end iterator of this node's children
+     * @return  an end iterator of this node's children.
      */
     std::vector<std::shared_ptr<BaseStructure>>::iterator BaseStructure::childrenEnd() { return children.end(); }
 
@@ -537,7 +536,7 @@ namespace evio {
      * <p>
      * Note: By default, a node allows children.
      *
-     * @param   allows  true if this node is allowed to have children
+     * @param allows  true if this node is allowed to have children.
      */
     void BaseStructure::setAllowsChildren(bool allows) {
         if (allows != allowsChildren) {
@@ -552,7 +551,7 @@ namespace evio {
     /**
      * Returns true if this node is allowed to have children.
      * Originally part of java's DefaultMutableTreeNode.
-     * @return  true if this node allows children, else false
+     * @return  true if this node allows children, else false.
      */
     bool BaseStructure::getAllowsChildren() const { return allowsChildren; }
 
@@ -576,11 +575,11 @@ namespace evio {
 
 
     /**
-     * Removes <code>aChild</code> from this node's child array, giving it a
+     * Removes <code>aChild</code> from this node's child vector, giving it a
      * null parent. Originally part of java's DefaultMutableTreeNode.
      *
      * @param   aChild  a child of this node to remove
-     * @exception  EvioException if <code>aChild</code> is not a child of this node
+     * @throws  EvioException if <code>aChild</code> is not a child of this node
      */
     void BaseStructure::remove(const std::shared_ptr<BaseStructure> aChild) {
         if (!isNodeChild(aChild)) {
@@ -593,7 +592,7 @@ namespace evio {
     /**
      * Removes all of this node's children, setting their parents to null.
      * If this node has no children, this method does nothing.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      */
     void BaseStructure::removeAllChildren() {
         for (int i = (int)getChildCount() - 1; i >= 0; i--) {
@@ -605,11 +604,11 @@ namespace evio {
     /**
      * Removes <code>newChild</code> from its parent and makes it a child of
      * this node by adding it to the end of this node's child array.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      *
      * @see     #insert
-     * @param   newChild        node to add as a child of this node
-     * @exception  EvioException    if <code>newChild</code> is null,
+     * @param   newChild        node to add as a child of this node.
+     * @throws  EvioException    if <code>newChild</code> is null,
      *                                  or this node does not allow children.
      */
     void BaseStructure::add(std::shared_ptr<BaseStructure> newChild) {
@@ -633,8 +632,8 @@ namespace evio {
      * operation is at worst O(h) where h is the distance from the root to
      * this node. Originally part of java's DefaultMutableTreeNode.
      *
-     * @see             #isNodeDescendant
-     * @see             #getSharedAncestor
+     * @see     #isNodeDescendant
+     * @see     #getSharedAncestor
      * @param   anotherNode     node to test as an ancestor of this node
      * @return  true if this node is a descendant of <code>anotherNode</code>
      */
@@ -653,6 +652,7 @@ namespace evio {
 
         return false;
     }
+
 
     /**
      * Returns true if <code>anotherNode</code> is a descendant of this node
@@ -677,17 +677,17 @@ namespace evio {
 
     /**
      * Returns the nearest common ancestor to this node and <code>aNode</code>.
-     * Returns null, if no such ancestor exists -- if this node and
+     * Returns null if no such ancestor exists -- if this node and
      * <code>aNode</code> are in different trees or if <code>aNode</code> is
      * null.  A node is considered an ancestor of itself.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      *
      * @see     #isNodeAncestor
      * @see     #isNodeDescendant
-     * @param   aNode   node to find common ancestor with
+     * @param   aNode   node to find common ancestor with.
      * @throws  EvioException if internal logic error.
      * @return  nearest ancestor common to this node and <code>aNode</code>,
-     *          or null if none
+     *          or null if none.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getSharedAncestor(std::shared_ptr<BaseStructure> aNode) {
         auto sharedThis = getThis();
@@ -704,7 +704,7 @@ namespace evio {
 
         level1 = getLevel();
         level2 = aNode->getLevel();
-std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std::endl;
+
         if (level2 > level1) {
             diff = level2 - level1;
             node1 = aNode;
@@ -749,7 +749,6 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * as this node.  Returns false if <code>aNode</code> is null.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     *
      * @see     #getSharedAncestor
      * @see     #getRoot
      * @return  true if <code>aNode</code> is in the same tree as this node;
@@ -769,7 +768,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *
      * @see     #getLevel
      * @throws  EvioException if internal logic error.
-     * @return  the depth of the tree whose root is this node
+     * @return  the depth of the tree whose root is this node.
      */
     uint32_t BaseStructure::getDepth() {
         auto iter1 = bbegin();
@@ -790,7 +789,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * Originally part of java's DefaultMutableTreeNode.
      *
      * @see     #getDepth
-     * @return  the number of levels above this node
+     * @return  the number of levels above this node.
      */
     uint32_t BaseStructure::getLevel() {
         uint32_t levels = 0;
@@ -809,7 +808,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
       * element in the path is this node.
       * Originally part of java's DefaultMutableTreeNode.
       *
-      * @return an array of BaseStructure objects giving the path, where the
+      * @return an vector of BaseStructure shared pointer giving the path, where the
       *         first element in the path is the root and the last
       *         element is this node.
       */
@@ -820,21 +819,21 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
     /**
      * Builds the parents of node up to and including the root node,
-     * where the original node is the last element in the returned array.
+     * where the original node is the last element in the returned vector.
      * The length of the returned array gives the node's depth in the
      * tree. Originally part of java's DefaultMutableTreeNode.
      *
-     * @param aNode  the BaseStructure to get the path for
+     * @param aNode  the BaseStructure to get the path for.
      * @param depth  an int giving the number of steps already taken towards
-     *        the root (on recursive calls), used to size the returned array
-     * @return an array of BaseStructures giving the path from the root to the
-     *         specified node
+     *        the root (on recursive calls), used to size the returned vector.
+     * @return a vector of BaseStructure shared pointer giving the path from the root to the
+     *         specified node.
      */
     std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot(
             const std::shared_ptr<BaseStructure> & aNode, int depth) {
 
-        /* Check for null, in case someone passed in a null node, or
-           they passed in an element that isn't rooted at root. */
+        // Check for null, in case someone passed in a null node, or
+        // they passed in an element that isn't rooted at root.
         if (aNode == nullptr) {
             if (depth == 0) {
                 std::vector<std::shared_ptr<BaseStructure>> retNodes;
@@ -855,11 +854,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * Returns the root of the tree that contains this node.  The root is
+     * Returns the root of the tree that contains this node. The root is
      * the ancestor with a null parent. Originally part of java's DefaultMutableTreeNode.
      *
      * @see     #isNodeAncestor
-     * @return  the root of the tree that contains this node
+     * @return  the root of the tree that contains this node.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getRoot() {
         auto ancestor = getThis();
@@ -879,7 +878,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * the only node in the tree with a null parent; every tree has exactly
      * one root. Originally part of java's DefaultMutableTreeNode.
      *
-     * @return  true if this node is the root of its tree
+     * @return  true if this node is the root of its tree.
      */
     bool BaseStructure::isRoot() const { return getParent() == nullptr; }
 
@@ -893,7 +892,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *
      * @see     #preorderEnumeration
      * @return  the node that follows this node in a preorder traversal, or
-     *          null if this node is last
+     *          null if this node is last.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getNextNode() {
         if (getChildCount() == 0) {
@@ -937,7 +936,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *
      * @see     #preorderEnumeration
      * @return  the node that precedes this node in a preorder traversal, or
-     *          null if this node is the first
+     *          null if this node is the first.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getPreviousNode() {
         auto myParent = getParent();
@@ -967,10 +966,10 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
     /**
      * Returns true if <code>aNode</code> is a child of this node.  If
      * <code>aNode</code> is null, this method returns false.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      *
      * @return  true if <code>aNode</code> is a child of this node; false if
-     *                  <code>aNode</code> is null
+     *                  <code>aNode</code> is null.
      */
     bool BaseStructure::isNodeChild(const std::shared_ptr<BaseStructure> aNode) const {
         bool retval;
@@ -993,11 +992,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
     /**
      * Returns this node's first child.  If this node has no children,
-     * throws NoSuchElementException.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * throws EvioException.
+     * Originally part of java's DefaultMutableTreeNode.
      *
      * @return  the first child of this node
-     * @exception       EvioException  if this node has no children
+     * @throws  EvioException  if this node has no children.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getFirstChild() {
         if (getChildCount() == 0) {
@@ -1009,11 +1008,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
     /**
      * Returns this node's last child.  If this node has no children,
-     * throws NoSuchElementException.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * throws EvioException.
+     * Originally part of java's DefaultMutableTreeNode.
      *
-     * @return  the last child of this node
-     * @exception       EvioException  if this node has no children
+     * @return  the last child of this node.
+     * @exception EvioException  if this node has no children.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getLastChild() {
         if (getChildCount() == 0) {
@@ -1024,19 +1023,19 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * Returns the child in this node's child array that immediately
+     * Returns the child in this node's child vector that immediately
      * follows <code>aChild</code>, which must be a child of this node.  If
      * <code>aChild</code> is the last child, returns null.  This method
      * performs a linear search of this node's children for
      * <code>aChild</code> and is O(n) where n is the number of children; to
-     * traverse the entire array of children, use an enumeration instead.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * traverse the entire vector of children, use an iterator instead.
+     * Originally part of java's DefaultMutableTreeNode.
      *
-     * @see             #children
-     * @throws      EvioException if <code>aChild</code> is null or
+     * @see      #children
+     * @throws   EvioException if <code>aChild</code> is null or
      *                                    is not a child of this node.
      * @return  the child of this node that immediately follows
-     *          <code>aChild</code>
+     *          <code>aChild</code>.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getChildAfter(const std::shared_ptr<BaseStructure> aChild) {
         if (aChild == nullptr) {
@@ -1059,7 +1058,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * Returns the child in this node's child array that immediately
+     * Returns the child in this node's child vector that immediately
      * precedes <code>aChild</code>, which must be a child of this node.  If
      * <code>aChild</code> is the first child, returns null.  This method
      * performs a linear search of this node's children for <code>aChild</code>
@@ -1067,7 +1066,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *  Originally part of java's DefaultMutableTreeNode.
      *
      * @throws  EvioException if <code>aChild</code> is null or
-     *                                    is not a child of this node.
+     *                        is not a child of this node.
      * @return  the child of this node that immediately precedes <code>aChild</code>.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getChildBefore(const std::shared_ptr<BaseStructure> aChild) {
@@ -1099,11 +1098,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * Returns true if <code>anotherNode</code> is a sibling of (has the
      * same parent as) this node.  A node is its own sibling.  If
      * <code>anotherNode</code> is null, returns false.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      *
-     * @param   anotherNode     node to test as sibling of this node.
-     * @throws BaseStructureExceptin if sibling has different parent.
-     * @return  true if <code>anotherNode</code> is a sibling of this node
+     * @param   anotherNode   node to test as sibling of this node.
+     * @throws  EvioException if sibling has different parent.
+     * @return  true if <code>anotherNode</code> is a sibling of this node.
      */
     bool BaseStructure::isNodeSibling(const std::shared_ptr<BaseStructure> anotherNode) const {
         bool retval;
@@ -1131,9 +1130,9 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * Returns the number of siblings of this node.  A node is its own sibling
      * (if it has no parent or no siblings, this method returns
      * <code>1</code>).
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      *
-     * @return  the number of siblings of this node
+     * @return  the number of siblings of this node.
      */
     size_t BaseStructure::getSiblingCount() const {
         auto myParent = getParent();
@@ -1148,17 +1147,16 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * Returns the next sibling of this node in the parent's children array.
+     * Returns the next sibling of this node in the parent's children vector.
      * Returns null if this node has no parent or is the parent's last child.
      * This method performs a linear search that is O(n) where n is the number
      * of children; to traverse the entire array, use the parent's child
-     * enumeration instead.
-     *  Originally part of java's DefaultMutableTreeNode.         *
-
+     * iterator instead.
+     *  Originally part of java's DefaultMutableTreeNode.
      *
-     * @see     #children
+     * @see     #children.
      * @throws  EvioException if child of parent is not a sibling.
-     * @return  the sibling of this node that immediately follows this node
+     * @return  the sibling of this node that immediately follows this node.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getNextSibling() {
         std::shared_ptr<BaseStructure> retval;
@@ -1182,13 +1180,13 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
     /**
      * Returns the previous sibling of this node in the parent's children
-     * array.  Returns null if this node has no parent or is the parent's
+     * vector.  Returns null if this node has no parent or is the parent's
      * first child.  This method performs a linear search that is O(n) where n
      * is the number of children.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      *
      * @throws  EvioException if child of parent is not a sibling.
-     * @return  the sibling of this node that immediately precedes this node
+     * @return  the sibling of this node that immediately precedes this node.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getPreviousSibling() {
         std::shared_ptr<BaseStructure> retval;
@@ -1220,10 +1218,10 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * nodes that have no children and nodes that <i>cannot</i> have
      * children (e.g. to distinguish files from empty directories), use this
      * method in conjunction with <code>getAllowsChildren</code>.
-     *  Originally part of java's DefaultMutableBaseStructure.         *
+     * Originally part of java's DefaultMutableBaseStructure.
      *
      * @see     #getAllowsChildren
-     * @return  true if this node has no children
+     * @return  true if this node has no children.
      */
     bool BaseStructure::isLeaf() const { return (getChildCount() == 0); }
 
@@ -1236,7 +1234,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *
      * @see     #isLeaf
      * @see     #isNodeDescendant
-     * @return  the first leaf in the subtree rooted at this node
+     * @return  the first leaf in the subtree rooted at this node.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getFirstLeaf() {
         auto node = getThis();
@@ -1257,7 +1255,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *
      * @see     #isLeaf
      * @see     #isNodeDescendant
-     * @return  the last leaf in the subtree rooted at this node
+     * @return  the last leaf in the subtree rooted at this node.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getLastLeaf() {
         auto node = getThis();
@@ -1274,21 +1272,20 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * Returns the leaf after this node or null if this node is the
      * last leaf in the tree.
      * <p>
-     * In this implementation of the <code>MutableNode</code> interface,
-     * this operation is very inefficient. In order to determine the
+     * This operation is very inefficient. In order to determine the
      * next node, this method first performs a linear search in the
      * parent's child-list in order to find the current node.
      * <p>
-     * That implementation makes the operation suitable for short
+     * This implementation makes the operation suitable for short
      * traversals from a known position. But to traverse all of the
-     * leaves in the tree, you should use <code>depthFirstEnumeration</code>
-     * to enumerate the nodes in the tree and use <code>isLeaf</code>
+     * leaves in the tree, you should use A depth-first iterator
+     * of the nodes in the tree and use <code>isLeaf</code>
      * on each node to determine which are leaves.
      * Originally part of java's DefaultMutableTreeNode.
      *
      * @see     #depthFirstEnumeration
      * @see     #isLeaf
-     * @return  returns the next leaf past this node
+     * @return  returns the next leaf past this node.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getNextLeaf() {
         std::shared_ptr<BaseStructure> nextSibling;
@@ -1310,21 +1307,20 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * Returns the leaf before this node or null if this node is the
      * first leaf in the tree.
      * <p>
-     * In this implementation of the <code>MutableNode</code> interface,
-     * this operation is very inefficient. In order to determine the
+     * This operation is very inefficient. In order to determine the
      * previous node, this method first performs a linear search in the
      * parent's child-list in order to find the current node.
      * <p>
-     * That implementation makes the operation suitable for short
+     * This implementation makes the operation suitable for short
      * traversals from a known position. But to traverse all of the
-     * leaves in the tree, you should use <code>depthFirstEnumeration</code>
-     * to enumerate the nodes in the tree and use <code>isLeaf</code>
+     * leaves in the tree, you should use A depth-first iterator
+     * of the nodes in the tree and use <code>isLeaf</code>
      * on each node to determine which are leaves.
      * Originally part of java's DefaultMutableTreeNode.
      *
      * @see             #depthFirstEnumeration
      * @see             #isLeaf
-     * @return  returns the leaf before this node
+     * @return  returns the leaf before this node.
      */
     std::shared_ptr<BaseStructure> BaseStructure::getPreviousLeaf() {
         std::shared_ptr<BaseStructure> previousSibling;
@@ -1350,7 +1346,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      *
      * @see     #isNodeAncestor
      * @throws  EvioException if tree has zero leaves.
-     * @return  the number of leaves beneath this node
+     * @return  the number of leaves beneath this node.
      */
     ssize_t BaseStructure::getLeafCount() {
         ssize_t count = 0;
@@ -1383,7 +1379,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
       * This is similar to listening to the event as it is being parsed,
       * but is done to a complete (already) parsed event.
       *
-      * @param listener an listener to notify as each structure is visited.
+      * @param listener a listener to notify as each structure is visited.
       */
     void BaseStructure::visitAllStructures(std::shared_ptr<IEvioListener> listener) {
         visitAllDescendants(getThis(), listener, nullptr);
@@ -1515,24 +1511,10 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * Is a byte swap required? This is java and therefore big endian. If data is
-     * little endian, then a swap is required.
-     *
-     * @return <code>true</code> if byte swapping is required (data is little endian).
+     * Is a byte swap required (i.e. is the data endian opposite of local endian)?
+     * @return <code>true</code> if byte swapping is required.
      */
     bool BaseStructure::needSwap() const {return byteOrder != ByteOrder::ENDIAN_LOCAL;}
-
-
-    /**
-     * Get the description from the name provider (dictionary), if there is one.
-     *
-     * @return the description from the name provider (dictionary), if there is one. If not, return
-     *         NameProvider.NO_NAME_STRING.
-     */
-    std::string BaseStructure::getDescription() const {
-        // TODO:  return NameProvider.getName(this);
-        return "";
-    }
 
 
     /**
@@ -1549,28 +1531,18 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
         StructureType stype = getStructureType();
         DataType dtype = header->getDataType();
 
-        std::string description = getDescription();
-        if (Util::NO_NAME_STRING() == description) {
-            description = "";
-        }
-
         std::string sb;
         sb.reserve(100);
 
-        if (!description.empty()) {
-            ss << "<html><b>" << description << "</b>";
-        }
-        else {
-            ss << stype.toString() << " of " << dtype.toString() << "s:  tag=" << header->getTag();
-            ss << std::hex << "(" << header->getTag() << ")" << std::dec;
+        ss << stype.toString() << " of " << dtype.toString() << "s:  tag=" << header->getTag();
+        ss << std::hex << "(" << header->getTag() << ")" << std::dec;
 
-            if (stype == StructureType::STRUCT_BANK) {
-                ss << "  num=" << ((int)(header->getNumber())) << std::hex << "(" << ((int)(header->getNumber())) << ")" << std::dec;
-            }
+        if (stype == StructureType::STRUCT_BANK) {
+            ss << "  num=" << ((int)(header->getNumber())) << std::hex << "(" << ((int)(header->getNumber())) << ")" << std::dec;
         }
 
         if (rawBytes.empty()) {
-//std::cout << "Raw Bytes is EMPTY!!!" << std::endl;
+            //std::cout << "Raw Bytes is EMPTY!!!" << std::endl;
             ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
         }
         else {
@@ -1588,17 +1560,12 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
             ss << "  children=" << numChildren;
         }
 
-        if (!description.empty()) {
-            ss << "</html>";
-        }
-
         return ss.str();
     }
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Return the header for this structure.
-     *
+     * Return the header for this structure.
      * @return the header for this structure.
      */
     std::shared_ptr<BaseStructureHeader> BaseStructure::getHeader() const {return header;}
@@ -1611,7 +1578,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * In the case of containers, returns number of 32-bit words not in header.
      *
      * @return number of stored data items (not size or length),
-     *         or number of bytes if container
+     *         or number of words if container.
      */
     uint32_t BaseStructure::getNumberDataItems() {
         if (isContainer()) {
@@ -1696,11 +1663,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an int16_t vector
+     * Gets the raw data as an int16_t vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateShortData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as an int16_t array.
+     * @return a reference to the data as an int16_t vector.
      * @throws EvioException if contained data type is not int16_t.
      */
     std::vector<int16_t> & BaseStructure::getShortData() {
@@ -1731,11 +1698,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an uint16_t vector
+     * Gets the raw data as an uint16_t vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateUShortData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as an uint16_t array.
+     * @return a reference to the data as an uint16_t vector.
      * @throws EvioException if contained data type is not uint16_t.
      */
     std::vector<uint16_t> & BaseStructure::getUShortData() {
@@ -1761,11 +1728,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an int32_t vector
+     * Gets the raw data as an int32_t vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateIntData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as an int32_t array.
+     * @return a reference to the data as an int32_t vector.
      * @throws EvioException if contained data type is not int32_t.
      */
     std::vector<int32_t> & BaseStructure::getIntData() {
@@ -1791,11 +1758,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an uint32_t vector
+     * Gets the raw data as an uint32_t vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateUIntData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as an uint32_t array.
+     * @return a reference to the data as an uint32_t vector.
      * @throws EvioException if contained data type is not uint32_t.
      */
     std::vector<uint32_t> & BaseStructure::getUIntData() {
@@ -1821,11 +1788,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an int64_t vector
+     * Gets the raw data as an int64_t vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateLongData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as an int64_t array.
+     * @return a reference to the data as an int64_t vector.
      * @throws EvioException if contained data type is not int64_t.
      */
     std::vector<int64_t> & BaseStructure::getLongData() {
@@ -1851,11 +1818,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an uint64_t vector
+     * Gets the raw data as an uint64_t vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateULongData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as an uint64_t array.
+     * @return a reference to the data as an uint64_t vector.
      * @throws EvioException if contained data type is not uint64_t.
      */
     std::vector<uint64_t> & BaseStructure::getULongData() {
@@ -1881,11 +1848,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as a float vector
+     * Gets the raw data as a float vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateFloatData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as a float array.
+     * @return a reference to the data as a float vector.
      * @throws EvioException if contained data type is not float.
      */
     std::vector<float> & BaseStructure::getFloatData() {
@@ -1911,11 +1878,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as a double vector
+     * Gets the raw data as a double vector
      * if the content type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateDoubleData} <b>MUST</b> be called!
      *
-     * @return a reference to the data as a double array.
+     * @return a reference to the data as a double vector.
      * @throws EvioException if contained data type is not double.
      */
     std::vector<double> & BaseStructure::getDoubleData() {
@@ -1941,13 +1908,13 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the composite data as
+     * Gets the composite data as
      * an vector of CompositeData objects, if the content type as indicated by the header
      * is appropriate.<p>
      *
-     * @return the data as an array of CompositeData objects, or <code>null</code>
+     * @return the data as a vector of CompositeData objects, or <code>null</code>
      *         if this makes no sense for the given content type.
-     * @throws EvioException if the data is internally inconsistent
+     * @throws EvioException if the data is internally inconsistent.
      */
     std::vector<std::shared_ptr<CompositeData>> & BaseStructure::getCompositeData() {
 
@@ -1963,11 +1930,12 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an signed char array,
+     * Gets the raw data as an signed char vector,
      * if the contents type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateCharData} <b>MUST</b> be called!
      *
-     * @return the data as an byte array, or <code>null</code> if this makes no sense for the given contents type.
+     * @return the data as an signed char vector, or <code>null</code>
+     *          if this makes no sense for the given contents type.
      */
     std::vector<signed char> & BaseStructure::getCharData() {
         if (header->getDataType() == DataType::CHAR8) {
@@ -1986,11 +1954,12 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data as an signed char array,
+     *  Gets the raw data as an unsigned char vector,
      * if the contents type as indicated by the header is appropriate.<p>
      * If the returned vector's data is modified, then {@link #updateCharData} <b>MUST</b> be called!
      *
-     * @return the data as an byte array, or <code>null</code> if this makes no sense for the given contents type.
+     * @return the data as an unsigned char vector, or <code>null</code>
+     *         if this makes no sense for the given contents type.
      */
     std::vector<unsigned char> & BaseStructure::getUCharData() {
         if (header->getDataType() == DataType::UCHAR8) {
@@ -2009,26 +1978,26 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This is a method from the IEvioStructure Interface. Gets the raw data (ascii) as an
-     * array of String objects, if the contents type as indicated by the header is appropriate.
-     * For any other behavior, the user should retrieve the data as a byte array and
+     * Gets the raw data (ascii) as an
+     * vector of string objects, if the contents type as indicated by the header is appropriate.
+     * For any other behavior, the user should retrieve the data as a bytes and
      * manipulate it in the exact manner desired. If there are non ascii or non-printing ascii
-     * chars or the bytes or not in evio format, a single String containing everything is returned.<p>
+     * chars or the bytes or not in evio format, a single string containing everything is returned.<p>
      *
-     * Originally, in evio versions 1, 2 and 3, only one string was stored. Recent changes allow
-     * an array of strings to be stored and retrieved. The changes are backwards compatible.
+     * Originally, in evio versions 1, 2 and 3, only one string was stored. Subsequent changes allowed
+     * a vector of strings to be stored and retrieved. The changes are backwards compatible.
      *
      * The following is true about the string raw data format:
      * <ul>
-     * <li>All strings are immediately followed by an ending null (0).
-     * <li>All string arrays are further padded/ended with at least one 0x4 valued ASCII
+     * <li>Each string IS immediately followed by an ending null (0).
+     * <li>All string data are further padded/ended with at least one 0x4 valued ASCII
      *     char (up to 4 possible).
      * <li>The presence of 1 to 4 ending 4's distinguishes the recent string array version from
      *     the original, single string version.
      * <li>The original version string may be padded with anything after its ending null.
      * </ul>
      *
-     * @return the data as an array of String objects if DataType is CHARSTAR8, or <code>null</code>
+     * @return the data as a vector of string objects if DataType is CHARSTAR8, or <code>null</code>
      *         if this makes no sense for the given type.
      *
      */
@@ -2052,10 +2021,10 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
     /**
      * This method returns the number of bytes in a raw
-     * evio format of the given string array, not including header.
+     * evio format of the given string vector, not including header.
      *
-     * @param strings vector of strings to size
-     * @return the number of bytes in a raw evio format of the given strings
+     * @param strings vector of strings to size.
+     * @return the number of bytes in a raw evio format of the given strings.
      * @return 0 if vector empty.
      */
     uint32_t BaseStructure::stringsToRawSize(std::vector<std::string> const & strings) {
@@ -2082,10 +2051,10 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
     /**
      * This method returns the number of bytes in a raw
-     * evio format of the given string array, not including header.
+     * evio format of the given string vector, not including header.
      *
-     * @param strings vector of strings to size
-     * @return the number of bytes in a raw evio format of the given strings
+     * @param strings vector of strings to size.
+     * @return the number of bytes in a raw evio format of the given strings.
      * @return 0 if vector empty.
      */
     uint32_t BaseStructure::stringToRawSize(const std::string & str) {
@@ -2108,7 +2077,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This method transforms an array/vector of strings into raw evio format data,
+     * This method transforms a vector of strings into raw evio format data,
      * not including header.
      *
      * @param strings vector of strings to transform.
@@ -2163,9 +2132,6 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
     /**
      * This method transforms the internal vector of strings into internal rawBytes vector
      * of evio format data not including header.
-     *
-     * @param strings vector of strings to transform.
-     * @param bytes   vector of bytes to contain evio formatted strings.
      */
     void BaseStructure::stringsToRawBytes() {
 
@@ -2218,7 +2184,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This method extracts an array of strings from byte array of raw evio string data.
+     * This method extracts a vector of strings from bytes of raw evio string data.
      *
      * @param bytes raw evio string data.
      * @param offset offset into raw data array.
@@ -2231,19 +2197,19 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This method extracts an array of strings from byte array of raw evio string data.
+     * This method extracts a vector of strings from bytes of raw evio string data.
      * Don't go beyond the specified max character limit and stop at the first
      * non-character value.
      *
-     * @param bytes       raw evio string data
-     * @param offset      offset into raw data vector
-     * @param maxLength   max length in bytes of valid data in bytes vector
+     * @param bytes       raw evio string data.
+     * @param offset      offset into raw data vector.
+     * @param maxLength   max length in bytes of valid data in bytes vector.
      * @param strData     vector in which to place extracted strings.
      */
     void BaseStructure::unpackRawBytesToStrings(std::vector<uint8_t> & bytes,
                                                 size_t offset, size_t maxLength,
                                                 std::vector<std::string> & strData) {
-        int length = (int)bytes.size() - offset;
+        size_t length = bytes.size() - offset;
         if (bytes.empty() || (length < 4)) return;
 
         // Don't read read more than maxLength ASCII characters
@@ -2255,13 +2221,12 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This method extracts an array of strings from byte array of raw evio string data.
+     * This method extracts a vector of strings from bytes of raw evio string data.
      * Don't go beyond the specified max character limit and stop at the first
      * non-character value.
      *
-     * @param bytes       raw evio string data
-     * @param offset      offset into raw data vector
-     * @param length      length in bytes of valid data at bytes pointer
+     * @param bytes       raw evio string data.
+     * @param length      length in bytes of valid data at bytes pointer.
      * @param strData     vector in which to place extracted strings.
      */
     void BaseStructure::unpackRawBytesToStrings(uint8_t *bytes, size_t length,
@@ -2274,11 +2239,11 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This method extracts an array of strings from buffer containing raw evio string data.
+     * This method extracts a vector of strings from buffer containing raw evio string data.
      *
-     * @param buffer  buffer containing evio string data
-     * @param pos     position of string data in buffer
-     * @param length  length of string data in buffer in bytes
+     * @param buffer  buffer containing evio string data.
+     * @param pos     position of string data in buffer.
+     * @param length  length of string data in buffer in bytes.
      * @param strData vector in which to place extracted strings.
      */
     void BaseStructure::unpackRawBytesToStrings(ByteBuffer & buffer,
@@ -2293,7 +2258,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
 
     /**
-     * This method extracts an array of strings from a string containing evio string data.
+     * This method extracts a vector of strings from a string containing evio string data.
      * If non-printable chars are found (besides those used to terminate strings),
      * then 1 string with all characters will be returned. However, if the "onlyGoodChars"
      * flag is true, 1 string is returned in truncated form without
@@ -2301,11 +2266,10 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
      * The name of this method is taken from the java and has little to do with C++.
      * That's done for ease of code maintenance.
      *
-     * @param strData        containing string data
+     * @param strData        containing string data.
      * @param onlyGoodChars  if true and non-printable chars found,
      *                       only 1 string with printable ASCII chars will be returned.
-     * @param strData        vector in which to place extracted strings.
-     * @return array of Strings or null if processing error
+     * @param strings        vector in which to place extracted strings.
      */
     void BaseStructure::stringBuilderToStrings(std::string const & strData, bool onlyGoodChars,
                                                std::vector<std::string> & strings) {
@@ -2419,7 +2383,7 @@ std::cout << "getSharedAnc:  lev1 = " << level1 << ", lev2 = " << level2 << std:
 
     /**
      * Extract string data from rawBytes array.
-     * @return number of strings extracted from bytes
+     * @return number of strings extracted from bytes.
      */
     uint32_t BaseStructure::unpackRawBytesToStrings() {
 
