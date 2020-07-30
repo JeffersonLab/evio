@@ -480,12 +480,91 @@ namespace evio {
             std::cout << "prev sibling of midBank2 = " << midBank2->getPreviousSibling()->toString() << std::endl;
             std::cout << "prev sibling of midBank = " << midBank->getPreviousSibling() << std::endl;
 
-            bool isLeaf() const;
-            std::shared_ptr<BaseStructure> getFirstLeaf();
-            std::shared_ptr<BaseStructure> getLastLeaf();
-            std::shared_ptr<BaseStructure> getNextLeaf();
-            std::shared_ptr<BaseStructure> getPreviousLeaf();
-            ssize_t getLeafCount();
+
+            std::cout << std::endl << "Add 2 children to midBank2 & and 1 child to 3" << std::endl;
+            auto childBank2 = EvioBank::getInstance(5, DataType::INT32, 5);
+            auto childBank3 = EvioBank::getInstance(6, DataType::INT32, 6);
+            auto childBank4 = EvioBank::getInstance(7, DataType::SHORT16, 7);
+
+            // Child's data
+            auto &iData = childBank2->getIntData();
+            iData.push_back(3);
+            iData.push_back(4);
+            iData.push_back(5);
+            childBank2->updateIntData();
+
+            auto &iData2 = childBank3->getIntData();
+            iData2.push_back(6);
+            iData2.push_back(7);
+            iData2.push_back(8);
+            childBank3->updateIntData();
+
+            auto &sData = childBank4->getShortData();
+            sData.push_back(10);
+            sData.push_back(11);
+            sData.push_back(12);
+            childBank4->updateShortData();
+
+            // add to tree
+            midBank2->add(childBank2);
+            midBank2->add(childBank3);
+            midBank3->add(childBank4);
+
+
+            std::cout << std::endl << "childBank isLeaf = " << childBank->isLeaf() << std::endl;
+            std::cout << "topBank isLeaf = " << topBank->isLeaf() << std::endl;
+            std::cout << "topBank leaf count = " << topBank->getLeafCount() << std::endl;
+            std::cout << "midBank2 leaf count = " << midBank2->getLeafCount() << std::endl;
+            std::cout << "topBank first Leaf = " << topBank->getFirstLeaf()->toString() << std::endl;
+            std::cout << "topBank last Leaf = " << topBank->getLastLeaf()->toString() << std::endl;
+            std::cout << "midBank2 next Leaf = " << midBank2->getNextLeaf()->toString() << std::endl;
+            std::cout << "childBank2 prev Leaf = " << childBank2->getPreviousLeaf()->toString() << std::endl;
+            std::cout << "childBank prev Leaf = " << childBank->getPreviousLeaf() << std::endl << std::endl;
+
+
+            std::cout << std::endl << "Add 1 child to topBank with same tag (4) as first leaf but num = 20" << std::endl;
+            auto midBank4 = EvioBank::getInstance(4, DataType::BANK, 20);
+            topBank->add(midBank4);
+            std::cout << "  Search for all banks of tag = 4, got the following:" << std::endl;
+
+            std::vector<std::shared_ptr<BaseStructure>> vec;
+
+            class myFilter : public IEvioFilter {
+                uint16_t tag; uint8_t num = 0;
+            public:
+                myFilter(uint16_t tag) : tag(tag) {}
+                bool accept(StructureType const & type, std::shared_ptr<BaseStructure> struc) override {
+                    return ((type == StructureType::STRUCT_BANK) &&
+                            (tag == struc->getHeader()->getTag()));
+                }
+            };
+
+            auto filter = std::make_shared<myFilter>(4);
+            topBank->getMatchingStructures(filter, vec);
+            for (auto n : vec) {
+                std::cout << "bank = " << n->toString() << std::endl;
+            }
+
+            std::cout<< std::endl << "  Search again for all banks of tag = 4, and execute listener:" << std::endl;
+
+            class myListener : public IEvioListener {
+            public:
+                void gotStructure(std::shared_ptr<BaseStructure> topStructure,
+                                  std::shared_ptr<BaseStructure> structure) {
+                    std::cout << "TOP struct = " << topStructure->toString() << std::endl;
+                    std::cout << "GOT struct = " << structure->toString() << std::endl;
+                    std::cout << "GOT struct header = " << structure->getHeader()->toString() << std::endl;
+                }
+
+                // We're not parsing so these are not used ...
+                void startEventParse(std::shared_ptr<BaseStructure> structure) {}
+                void endEventParse(std::shared_ptr<BaseStructure> structure) {}
+            };
+
+            auto listener = std::make_shared<myListener>();
+            topBank->visitAllStructures(listener, filter);
+
+
 
         }
 
