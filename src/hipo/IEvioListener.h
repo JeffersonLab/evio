@@ -31,7 +31,7 @@ namespace evio {
     public:
 
         /**
-         * Called when a structure is read while parsing an event.
+         * Called when a structure is read while parsing or searching an event.
          *
          * NOTE: the user should NOT modify the arguments.
          *
