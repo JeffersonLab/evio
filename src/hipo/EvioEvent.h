@@ -151,25 +151,14 @@ namespace evio {
             StructureType stype = getStructureType();
             DataType dtype = header->getDataType();
 
-            std::string description = getDescription();
-            // TODO::::
-//    if (INameProvider.NO_NAME_STRING.equals(description)) {
-//        description = "";
-//    }
-
             std::string sb;
             sb.reserve(100);
 
-            if (!description.empty()) {
-                ss << "<html><b>" << description << "</b>";
-            }
-            else {
-                ss << "<Event> has " << dtype.toString() << "s:  tag=" << header->getTag();
-                ss << std::hex << "(" << header->getTag() << ")" << std::dec;
+            ss << "<Event> has " << dtype.toString() << "s:  tag=" << header->getTag();
+            ss << std::hex << "(" << header->getTag() << ")" << std::dec;
 
-                if (stype == StructureType::STRUCT_BANK) {
-                    ss << "  num=" << header->getNumber() << std::hex << "(" << header->getNumber() << ")" << std::dec;
-                }
+            if (stype == StructureType::STRUCT_BANK) {
+                ss << "  num=" << header->getNumber() << std::hex << "(" << header->getNumber() << ")" << std::dec;
             }
 
             if (rawBytes.empty()) {
@@ -187,10 +176,6 @@ namespace evio {
 
             if (numChildren > 0) {
                 ss << "  children=" << numChildren;
-            }
-
-            if (!description.empty()) {
-                ss << "</html>";
             }
 
             return ss.str();
