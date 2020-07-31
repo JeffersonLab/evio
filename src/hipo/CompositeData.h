@@ -56,6 +56,7 @@ namespace evio {
     * function is plugged into this evio library's swapping routine.
     *
     * Here's what the data looks like.
+    * <pre>
     *
     * MSB(31)                          LSB(0)
     * <---  32 bits ------------------------>
@@ -72,6 +73,7 @@ namespace evio {
     * |               Data                  |
     * |                                     |
     * |_____________________________________|
+    *</pre>
     *
     * The beginning tagsegment is a normal evio tagsegment containing a string
     * (type = 0x3). Currently its type and tag are not used - at least not for
