@@ -95,8 +95,6 @@ namespace evio {
      *                buffer as well. That buffer then is parsed by an EvioReader or
      *                EvioCompactReader object. Thus all events will be of a single CODA type.
      *
-     *
-     *
      * </pre>
      *
      *
@@ -195,7 +193,7 @@ namespace evio {
          *<li><code>headerLength</code> is initialized to 8<br>
          *<li><code>version</code> is initialized to 4<br>
          *<li><code>bitInfo</code> is initialized to all bits off<br>
-         *<li><code>magicNumber</code> is initialized to <code>MAGIC_NUMBER</code><br>
+         *<li><code>magicNumber</code> is initialized to <code> {@link #MAGIC_NUMBER}.</code><br>
          *</ul>
          * @param size the size of the block in ints.
          * @param number the block number--usually sequential.
@@ -681,7 +679,7 @@ namespace evio {
 
 
         /**
-         * Sets the value of magicNumber. This should match the constant MAGIC_NUMBER.
+         * Sets the value of magicNumber. This should match the constant {@link #MAGIC_NUMBER}.
          * If it doesn't, some obvious possibilities: <br>
          * 1) The evio data (perhaps from a file) is screwed up.<br>
          * 2) The reading algorithm is screwed up. <br>

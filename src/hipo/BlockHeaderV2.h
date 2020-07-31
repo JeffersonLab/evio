@@ -148,7 +148,7 @@ namespace evio {
          *<li><code>end</code> is initialized to <code>size</code><br>
          *<li><code>version</code> is initialized to 2<br>
          *<li><code>reserved1</code> is initialized to 0<br>
-         *<li><code>magicNumber</code> is initialized to <code>MAGIC_NUMBER</code><br>
+         *<li><code>magicNumber</code> is initialized to <code>{@link #MAGIC_NUMBER}</code><br>
          *</ul>
          * @param sz the size of the block in ints.
          * @param num the block number--usually sequential.
@@ -203,7 +203,7 @@ namespace evio {
         /**
          * Set the size of the block (physical record). Some trivial checking is done.
          * @param sz the new value for the size, in ints.
-         * @throws EvioException if size &lt; 8 or &gt; MAX_BLOCK_SIZE
+         * @throws EvioException if size &lt; 8 or &gt; {@link #MAX_BLOCK_SIZE}.
          */
         void setSize(uint32_t sz) {
             if ((sz < 8) || (sz > MAX_BLOCK_SIZE)) {
@@ -236,7 +236,7 @@ namespace evio {
          * NOTE: a logical record (event) that spans three blocks (physical records) will have <code>start = 0</code>.
          *
          * @param strt the new value for the start.
-         * @throws EvioException if start &lt; 8 or &gt; MAX_BLOCK_SIZE
+         * @throws EvioException if start &lt; 8 or &gt; {@link #MAX_BLOCK_SIZE}.
          */
         void setStart(uint32_t strt) {
             if ((strt < 0) || (strt > MAX_BLOCK_SIZE)) {
@@ -266,7 +266,7 @@ namespace evio {
          * will be padded with zeroes so that the file size is an integer multiple of the block size.
          *
          * @param endd the new value for the end.
-         * @throws EvioException if end &lt; 8 or &gt; MAX_BLOCK_SIZE
+         * @throws EvioException if end &lt; 8 or &gt; {@link #MAX_BLOCK_SIZE}.
          */
         void setEnd(uint32_t endd) {
             if ((endd < 8) || (endd > MAX_BLOCK_SIZE)) {
@@ -356,7 +356,7 @@ namespace evio {
 
 
         /**
-         * Sets the value of magicNumber. This should match the constant MAGIC_NUMBER.
+         * Sets the value of magicNumber. This should match the constant {@link #MAGIC_NUMBER} ...
          * If it doesn't, some obvious possibilities: <br>
          * 1) The evio data (perhaps from a file) is screwed up.<br>
          * 2) The reading algorithm is screwed up. <br>
