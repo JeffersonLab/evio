@@ -1497,7 +1497,7 @@ namespace evio {
 
     /**
      * What is the byte order of this data?
-     * @return {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
+     * @return {@link ByteOrder#ENDIAN_BIG} or {@link ByteOrder#ENDIAN_LITTLE}.
      */
     ByteOrder BaseStructure::getByteOrder() {return byteOrder;}
 
@@ -1505,7 +1505,7 @@ namespace evio {
     /**
      * Set the byte order of this data. This method <b>cannot</b> be used to swap data.
      * It is only used to describe the endianness of the rawdata contained.
-     * @param byteOrder {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
+     * @param byteOrder {@link ByteOrder#ENDIAN_BIG} or {@link ByteOrder#ENDIAN_LITTLE}.
      */
     void BaseStructure::setByteOrder(ByteOrder const & order) {byteOrder = order;}
 
@@ -2650,7 +2650,7 @@ namespace evio {
    /**
     * Write myself into a ByteBuffer as evio format data
     * in the data's current byte order given by {@link #getByteOrder()}.
-    * This method is much more efficient than using {@link #write(java.nio.ByteBuffer)}.<p>
+    * This method is much more efficient than using {@link #write(ByteBuffer &)}.<p>
     * <b>However, be warned that this method is only useful when this structure has
     * just been read from a file or buffer. Once the user adds data (and does not call
     * the appropriate update method) or children
@@ -2669,7 +2669,7 @@ namespace evio {
     /**
      * Write myself out as evio format data
      * in the data's current byte order given by {@link #getByteOrder()} at the given pointer.
-     * This method is much more efficient than using {@link #write(java.nio.ByteBuffer)}.<p>
+     * This method is much more efficient than using {@link #write(uint8_t *, ByteOrder const &)}.<p>
      * <b>However, be warned that this method is only useful when this structure has
      * just been read from a file or buffer. Once the user adds data (and does not call
      * the appropriate update method) or children

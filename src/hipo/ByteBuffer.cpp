@@ -737,15 +737,15 @@ namespace evio {
 
 
     /**
-    * Returns a byte buffer whose content is a shared subsequence of
+    * The given (and returned) byte buffer is one whose content is a shared subsequence of
     * this buffer's content.
     *
-    * <p> The content of the returned buffer will start at this buffer's current
-    * position.  Changes to this buffer's content will be visible in the new
+    * <p> The content of the given buffer will start at this buffer's current
+    * position.  Changes to this buffer's content will be visible in the given
     * buffer, and vice versa; the two buffers' position, limit, and mark
     * values will be independent.
     *
-    * <p> The returned buffer's position will be zero, its capacity and its limit
+    * <p> The given buffer's position will be zero, its capacity and its limit
     * will be the number of bytes remaining in this buffer, and its mark
     * will be undefined.
     *
@@ -774,15 +774,15 @@ namespace evio {
 
 
     /**
-    * Returns a byte buffer whose content is a shared subsequence of
+    * The given (and returned) byte buffer is one whose content is a shared subsequence of
     * this buffer's content.
     *
-    * <p> The content of the returned buffer will start at this buffer's current
-    * position.  Changes to this buffer's content will be visible in the new
+    * <p> The content of the given buffer will start at this buffer's current
+    * position.  Changes to this buffer's content will be visible in the given
     * buffer, and vice versa; the two buffers' position, limit, and mark
     * values will be independent.
     *
-    * <p> The returned buffer's position will be zero, its capacity and its limit
+    * <p> The given buffer's position will be zero, its capacity and its limit
     * will be the number of bytes remaining in this buffer, and its mark
     * will be undefined.
     *

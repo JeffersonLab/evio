@@ -380,10 +380,26 @@ namespace evio {
         //friend class nodeIterator_const<std::shared_ptr<BaseStructure>>;
         //friend class nodeBreadthIterator_const<std::shared_ptr<const BaseStructure>>;
 
+        /**
+         * Get the beginning depth-first iterator.
+         * @return beginning depth-first iterator.
+         */
         iterator begin() { auto arg = getThis(); return iterator(arg, false); }
+        /**
+         * Get the end depth-first iterator.
+         * @return end depth-first iterator.
+         */
         iterator end()   { auto arg = getThis(); return iterator(arg, true); }
 
+        /**
+         * Get the beginning breadth-first iterator.
+         * @return beginning breadth-first iterator.
+         */
         breadth_iterator bbegin() { auto arg = getThis(); return breadth_iterator(arg, false); }
+        /**
+         * Get the end breadth-first iterator.
+         * @return end breadth-first iterator.
+         */
         breadth_iterator bend()   { auto arg = getThis(); return breadth_iterator(arg, true); }
 
     protected:
