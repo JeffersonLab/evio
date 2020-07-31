@@ -48,7 +48,7 @@ namespace evio {
          * @param dest    buffer to place swapped data into.
          *                If this is null, then dest = buf.
          */
-        static void evioSwapEvent(uint32_t *buf, int tolocal, uint32_t *dest) {
+        static void swapEvent(uint32_t *buf, int tolocal, uint32_t *dest) {
             swapBank(buf, tolocal, dest);
         }
 
