@@ -14,11 +14,6 @@
 namespace evio {
 
 
-    /**
-     * Templated method to swap data in place.
-     * @tparam T type of data.
-     * @param var reference to data to be swapped.
-     */
     template <typename T>
     void ByteOrder::byteSwapInPlace(T& var) {
         char* varArray = reinterpret_cast<char*>(&var);
@@ -48,12 +43,6 @@ namespace evio {
         return var;
     }
 
-    /**
-     * Templated method to swap array data in place.
-     * @tparam T data type.
-     * @param var reference to data to be swapped.
-     * @param elements number of data elements to be swapped.
-     */
     template <typename T>
     void ByteOrder::byteSwapInPlace(T& var, size_t elements) {
         char *c = reinterpret_cast<char *>(&var);
@@ -67,13 +56,6 @@ namespace evio {
         }
     }
 
-    /**
-     * Templated method to swap array data in place.
-     * If source pointer is null, nothing is done.
-     * @tparam T data type.
-     * @param var pointer to data to be swapped.
-     * @param elements number of data elements to be swapped.
-     */
     template <typename T>
     void ByteOrder::byteSwapInPlace(T* var, size_t elements) {
         if (var == nullptr) return;

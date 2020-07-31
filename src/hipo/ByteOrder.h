@@ -83,13 +83,28 @@ namespace evio {
          */
         std::string getName() const {return name;}
 
-
+        /**
+         * Is this big endian?
+         * @return true if big endian, else false.
+         */
         bool isBigEndian()    const {return (value == ENDIAN_BIG.value);}
 
+        /**
+         * Is this little endian?
+         * @return true if little endian, else false.
+         */
         bool isLittleEndian() const {return (value == ENDIAN_LITTLE.value);}
 
+        /**
+         * Is this endian same as the local host?
+         * @return true if endian is the same as the local host, else false.
+         */
         bool isLocalEndian()  const {return (value == ENDIAN_LOCAL.value);}
 
+        /**
+         * Get the oppposite endian (little if this is big and vice versa).
+         * @return he oppposite endian.
+         */
         ByteOrder getOppositeEndian() const {
             return isBigEndian() ? ENDIAN_LITTLE : ENDIAN_BIG;
         }
@@ -99,6 +114,11 @@ namespace evio {
 
         bool operator!=(const ByteOrder &rhs) const;
 
+
+        /**
+         * Get the byte order of the local host.
+         * @return byte order of the local host.
+         */
         static ByteOrder const & getLocalByteOrder() {
             if (isLocalHostBigEndian()) {
                 return ENDIAN_BIG;
@@ -106,26 +126,57 @@ namespace evio {
             return ENDIAN_LITTLE;
         }
 
+        /**
+         * Get the byte order of the local host.
+         * @return byte order of the local host.
+         */
         static ByteOrder const & nativeOrder() {
             return getLocalByteOrder();
         };
 
+        /**
+         * Is the local host big endian?
+         * @return true if the local host is big endian, else false.
+         */
         static bool isLocalHostBigEndian() {
             int i = 1;
             return !*((char *) &i);
         }
 
+        /**
+         * Is the argument the opposite of the local host's endian?
+         * @return true if the argument is the opposite of the local host's endian.
+         */
         static bool needToSwap(ByteOrder & order) {
             return !(order == getLocalByteOrder());
         }
 
         // Templates to swap stuff in place
+
+        /**
+         * Templated method to swap data in place.
+         * @tparam T type of data.
+         * @param var reference to data to be swapped.
+         */
         template <typename T>
         static void byteSwapInPlace(T& var);
 
+        /**
+         * Templated method to swap array data in place.
+         * @tparam T data type.
+         * @param var reference to data to be swapped.
+         * @param elements number of data elements to be swapped.
+         */
         template <typename T>
         static void byteSwapInPlace(T& var, size_t elements);
 
+        /**
+         * Templated method to swap array data in place.
+         * If source pointer is null, nothing is done.
+         * @tparam T data type.
+         * @param var pointer to data to be swapped.
+         * @param elements number of data elements to be swapped.
+         */
         template <typename T>
         static void byteSwapInPlace(T* var, size_t elements);
 
