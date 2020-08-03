@@ -43,17 +43,16 @@
 
 namespace evio {
 
-    /**
-    * ################################
-    * COMPOSITE DATA:
-    * ################################
+   /**
+    * COMPOSITE DATA:<p>
+    *
     * This is a new type of data (value = 0xf) which originated with Hall B.
     * It is a composite type and allows for possible expansion in the future
     * if there is a demand. Basically it allows the user to specify a custom
     * format by means of a string - stored in a tagsegment. The data in that
     * format follows in a bank. The routine to swap this data must be provided
     * by the definer of the composite type - in this case Hall B. The swapping
-    * function is plugged into this evio library's swapping routine.
+    * function is plugged into this evio library's swapping routine.<p>
     *
     * Here's what the data looks like.
     * <pre>
@@ -73,16 +72,14 @@ namespace evio {
     * |               Data                  |
     * |                                     |
     * |_____________________________________|
-    *</pre>
+    * </pre>
     *
     * The beginning tagsegment is a normal evio tagsegment containing a string
     * (type = 0x3). Currently its type and tag are not used - at least not for
     * data formatting.
     * The bank is a normal evio bank header with data following.
     * The format string is used to read/write this data so that takes care of any
-    * padding that may exist. As with the tagsegment, the tags and type are ignored.
-    *
-    * ################################
+    * padding that may exist. As with the tagsegment, the tags and type are ignored.<p>
     *
     * This is the class defining the composite data type.
     * It is a mixture of header and raw data.
@@ -93,9 +90,14 @@ namespace evio {
     */
     class CompositeData {
 
+    public:
+
+        /** This class holds a single, primitive type data item. */
         union SingleMember {
 
             friend class CompositeData;
+
+        public:
 
             // Data being stored
             float     flt;
@@ -112,13 +114,25 @@ namespace evio {
         };
 
 
+        /**
+         * This class defines an individual data item.
+         *  The class, {@link CompositeData#Data}, which defines all data in a composite data object,
+         *  contains a vector of these, individual data items.
+         *  There is a separation between members of primitive types which are stored as
+         *  {@link CompositeData#SingleMember} objects, from those of strings which are stored in a vector of strings.
+         *  This is done since it doesn't make sense to include a vector in the union with primitives.
+         */
         class DataItem {
+
             friend class CompositeData;
 
+        public:
+
+            /** For holding a primitive type. */
             SingleMember item = {0};
+            /** For holding strings, NOT a primitive type. */
             std::vector<std::string> strVec {};
 
-        public:
 
             DataItem() = default;
             ~DataItem() = default;
@@ -132,11 +146,16 @@ namespace evio {
 
 
         typedef struct {
-            int left;    /* index of ifmt[] element containing left parenthesis */
-            int nrepeat; /* how many times format in parenthesis must be repeated */
-            int irepeat; /* right parenthesis counter, or how many times format
-                    in parenthesis already repeated */
+            /** Index of ifmt[] element containing left parenthesis. */
+            int left;
+            /** How many times format in parenthesis must be repeated. */
+            int nrepeat;
+            /* Right parenthesis counter, or how many times format in parenthesis already repeated. */
+            int irepeat;
         } LV;
+
+
+    public:
 
 
         /**
@@ -659,102 +678,43 @@ namespace evio {
         CompositeData() = default;
 
 
-        /**
-         * Constructor.
-         * @param format data format string
-         * @param data object containing composite data description.
-         * @return shared pointer of CompositeData object.
-         */
-        CompositeData(std::string & format, const CompositeData::Data & data);
+        CompositeData(std::string const & format, const CompositeData::Data & data);
 
 
-        /**
-         * Constructor.
-         * @param format data format string
-         * @param data object containing composite data description.
-         * @param formatTag tag of evio segment containing format.
-         * @param dataTag   tag of evio bank containing data.
-         * @param dataNum   num of evio bank containing data.
-         * @param order desired byteOrder of generated raw data.
-         * @return shared pointer of CompositeData object.
-         */
-        CompositeData(std::string & format,
+        CompositeData(std::string const & format,
                       const CompositeData::Data & data,
                       uint16_t formatTag,
                       uint16_t dataTag, uint8_t dataNum,
-                      ByteOrder const & order = ByteOrder::ENDIAN_LITTLE);
+                      ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
 
-        /**
-         * Constructor.
-         * @param bytes pointer to raw data.
-         * @param byteOrder byte order of raw data.
-         * @return shared pointer of CompositeData object.
-         */
         CompositeData(uint8_t *bytes, ByteOrder const & byteOrder);
 
-        /** Method to return a shared pointer to a constructed object of this class. */
-        static std::shared_ptr<CompositeData> getInstance() {
-            std::shared_ptr<CompositeData> cd(new CompositeData());
-            return cd;
-        }
+        static std::shared_ptr<CompositeData> getInstance();
 
 
     public:
 
 
-        /**
-         * Method to return a shared pointer to a constructed object of this class.
-         * @param format data format string
-         * @param data object containing composite data description.
-         * @return shared pointer of CompositeData object.
-         */
-        static std::shared_ptr<CompositeData> getInstance(std::string & format, const CompositeData::Data & data) {
-            std::shared_ptr<CompositeData> cd(new CompositeData(format, data));
-            return cd;
-        }
+        static std::shared_ptr<CompositeData> getInstance(std::string & format, const CompositeData::Data & data);
 
-        /**
-         * Method to return a shared pointer to a constructed object of this class.
-         * @param format data format string
-         * @param data object containing composite data description.
-         * @param formatTag tag of evio segment containing format.
-         * @param dataTag   tag of evio bank containing data.
-         * @param dataNum   num of evio bank containing data.
-         * @param order desired byteOrder of generated raw data.
-         * @return shared pointer of CompositeData object.
-         */
         static std::shared_ptr<CompositeData> getInstance(std::string & format,
                                                           const CompositeData::Data & data,
                                                           uint16_t formatTag,
                                                           uint16_t dataTag, uint8_t dataNum,
-                                                          ByteOrder const & order = ByteOrder::ENDIAN_LITTLE) {
-            std::shared_ptr<CompositeData> cd(new CompositeData(format, data, formatTag,
-                                                                dataTag, dataNum, order));
-            return cd;
-        }
+                                                          ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
-        /**
-         * Method to return a shared pointer to a constructed object of this class.
-         * @param bytes pointer to raw data.
-         * @param byteOrder byte order of raw data.
-         * @return shared pointer of CompositeData object.
-         */
-        static std::shared_ptr<CompositeData> getInstance(uint8_t *bytes, ByteOrder const & byteOrder) {
-            std::shared_ptr<CompositeData> cd(new CompositeData(bytes, byteOrder));
-            return cd;
-        }
+        static std::shared_ptr<CompositeData> getInstance(uint8_t *bytes, ByteOrder const & byteOrder);
 
 
         static void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
                           std::vector<std::shared_ptr<CompositeData>> & list);
 
-
         static void generateRawBytes(std::vector<std::shared_ptr<CompositeData>> & data,
                                      std::vector<uint8_t> & rawBytes, ByteOrder & order);
 
         static std::string stringsToFormat(std::vector<std::string> strings);
-        // compositeFormatToInt was originally called "eviofmt"
+
         static int compositeFormatToInt(const std::string & formatStr, std::vector<uint16_t> & ifmt);
 
 
@@ -770,8 +730,8 @@ namespace evio {
         std::vector<int16_t>  & getnValues();
         std::vector<int8_t>   & getmValues();
 
-        int index() const;
-        void index(int index);
+        uint32_t index() const;
+        void index(uint32_t index);
 
         int32_t getNValue();
         int16_t getnValue();

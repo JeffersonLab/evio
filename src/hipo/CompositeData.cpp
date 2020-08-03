@@ -20,10 +20,9 @@ namespace evio {
      * @param format format string defining data
      * @param data data in given format
      *
-     * @throws EvioException data or format arg = null;
-     *                       if improper format string
+     * @throws EvioException if improper format string
      */
-    CompositeData::CompositeData(std::string & format, const CompositeData::Data & data) :
+    CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data) :
             CompositeData(format, data, data.formatTag, data.dataTag, data.dataNum) {}
 
 
@@ -31,16 +30,17 @@ namespace evio {
      * Constructor used for creating this object from scratch.
      *
      * @param format    format string defining data.
-     * @param formatTag tag used in tagsegment containing format.
      * @param data      data in given format.
+     * @param formatTag tag used in tagsegment containing format.
      * @param dataTag   tag used in bank containing data.
      * @param dataNum   num used in bank containing data.
      * @param order     byte order in which data is stored in internal buffer.
+     *                  Defaults to local endian.
      *
      * @throws EvioException data or format arg = null;
      *                       if improper format string
      */
-    CompositeData::CompositeData(std::string & format, const CompositeData::Data & data, uint16_t formatTag,
+    CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data, uint16_t formatTag,
                                  uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
 
         bool debug = false;
@@ -125,11 +125,10 @@ namespace evio {
 
 
     /**
-     * Constructor used when reading existing data.
-     * Data is copied in.
+     * Constructor used when reading existing data. Data is copied in.
      *
-     * @param bytes  raw data defining this composite type item
-     * @param byteOrder byte order of bytes
+     * @param bytes  raw data defining this composite type item.
+     * @param byteOrder byte order of bytes.
      */
     CompositeData::CompositeData(uint8_t *bytes, ByteOrder const & byteOrder) {
 
@@ -215,6 +214,61 @@ namespace evio {
 
 
     /**
+     * Method to return a shared pointer to a constructed object of this class.
+     * @return a shared pointer to a constructed object of this class.
+     */
+    std::shared_ptr<CompositeData> CompositeData::getInstance() {
+        std::shared_ptr<CompositeData> cd(new CompositeData());
+        return cd;
+    }
+
+
+    /**
+     * Method to return a shared pointer to a constructed object of this class.
+     * @param format data format string.
+     * @param data object containing composite data description.
+     * @return shared pointer of CompositeData object.
+     */
+    std::shared_ptr<CompositeData> CompositeData::getInstance(std::string & format, const CompositeData::Data & data) {
+        std::shared_ptr<CompositeData> cd(new CompositeData(format, data));
+        return cd;
+    }
+
+
+    /**
+     * Method to return a shared pointer to a constructed object of this class.
+     * @param format data format string.
+     * @param data object containing composite data description.
+     * @param formatTag tag of evio segment containing format.
+     * @param dataTag   tag of evio bank containing data.
+     * @param dataNum   num of evio bank containing data.
+     * @param order desired byteOrder of generated raw data. Defaults to local endian.
+     * @return shared pointer of CompositeData object.
+     */
+    std::shared_ptr<CompositeData> CompositeData::getInstance(std::string & format,
+                                                      const CompositeData::Data & data,
+                                                      uint16_t formatTag,
+                                                      uint16_t dataTag, uint8_t dataNum,
+                                                      ByteOrder const & order) {
+        std::shared_ptr<CompositeData> cd(new CompositeData(format, data, formatTag,
+                                                            dataTag, dataNum, order));
+        return cd;
+    }
+
+
+    /**
+     * Method to return a shared pointer to a constructed object of this class.
+     * @param bytes pointer to raw data.
+     * @param byteOrder byte order of raw data.
+     * @return shared pointer of CompositeData object.
+     */
+    std::shared_ptr<CompositeData> CompositeData::getInstance(uint8_t *bytes, ByteOrder const & byteOrder) {
+        std::shared_ptr<CompositeData> cd(new CompositeData(bytes, byteOrder));
+        return cd;
+    }
+
+
+    /**
      * This method parses an array of raw bytes into an vector of CompositeData objects.
      * Vector is initially cleared.
      *
@@ -222,7 +276,6 @@ namespace evio {
      * @param bytesSize size in bytes of bytes.
      * @param order     byte order of raw bytes.
      * @param list      vector that will hold all parsed CompositeData objects.
-     * @return array of CompositeData objects obtained from parsing bytes. If none, return null.
      * @throws EvioException if null args or bad format of raw data
      */
     void CompositeData::parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
@@ -400,8 +453,7 @@ namespace evio {
      * @param strings array of strings to eventually put into a
      *                CompositeData object.
      * @return string representing its format to be used in the
-     *                CompositeData object's format string
-     * @return null if arg is null or has 0 length
+     *                CompositeData object's format string; empty string if arg has 0 length.
      */
     std::string CompositeData::stringsToFormat(std::vector<std::string> strings) {
 
@@ -437,45 +489,45 @@ namespace evio {
 
 
     /**
-     * This method gets the raw byte representation of this object's data.
+     * This method gets a vector of the raw byte representation of this object's data.
      * <b>Do not change the vector contents.</b>
-     * @return reference to raw byte representation of this object's data.
+     * @return reference to vector of raw bytes representing of this object's data.
      */
     std::vector<uint8_t> & CompositeData::getRawBytes() {return rawBytes;}
 
 
     /**
-     * This method gets a list of all the data items inside the composite.
+     * This method gets a vector of all the data items inside the composite.
      * <b>Do not change the vector contents.</b>
-     * @return reference to list of all the data items inside the composite.
+     * @return reference to vector of all the data items inside the composite.
      */
     std::vector<CompositeData::DataItem> & CompositeData::getItems() {return items;}
 
 
     /**
-     * This method gets a list of all the types of the data items inside the composite.
-     * @return reference to list of all the types of the data items inside the composite.
+     * This method gets a vector of all the types of the data items inside the composite.
+     * @return reference to vector of all the types of the data items inside the composite.
      */
     std::vector<DataType> & CompositeData::getTypes() {return types;}
 
 
     /**
-     * This method gets a list of all the N values of the data items inside the composite.
-     * @return reference to list of all the N values of the data items inside the composite.
+     * This method gets a vector of all the N values of the data items inside the composite.
+     * @return reference to vector of all the N values of the data items inside the composite.
      */
     std::vector<int32_t> & CompositeData::getNValues() {return NList;}
 
 
     /**
-     * This method gets a list of all the n values of the data items inside the composite.
-     * @return reference to list of all the n values of the data items inside the composite.
+     * This method gets a vector of all the n values of the data items inside the composite.
+     * @return reference to vector of all the n values of the data items inside the composite.
      */
     std::vector<int16_t> & CompositeData::getnValues() {return nList;}
 
 
     /**
-     * This method gets a list of all the m values of the data items inside the composite.
-     * @return reference to list of all the m values of the data items inside the composite.
+     * This method gets a vector of all the m values of the data items inside the composite.
+     * @return reference to vector of all the m values of the data items inside the composite.
      */
     std::vector<int8_t> & CompositeData::getmValues() {return mList;}
 
@@ -486,7 +538,7 @@ namespace evio {
      * (e.g. {@link #getInt()}.
      * @return returns the index of the data item to be returned
      */
-    int CompositeData::index() const {return getIndex;}
+    uint32_t CompositeData::index() const {return getIndex;}
 
 
     /**
@@ -495,7 +547,7 @@ namespace evio {
      * (e.g. {@link #getInt()}.
      * @param index the index of the next data item to be returned
      */
-    void CompositeData::index(int index) {this->getIndex = index;}
+    void CompositeData::index(uint32_t index) {this->getIndex = index;}
 
 
     /**
@@ -696,9 +748,10 @@ namespace evio {
 
     /**
      * <pre>
-     *  This routine transforms a composite, format-containing
-     *  ASCII string to a vector of integer codes. It is to be used
-     *  in conjunction with {@link #eviofmtswap} to swap the endianness of
+     *  This method was originally called called "eviofmt".
+     *  It transforms a composite, format-containing
+     *  ASCII string to a vector of shorts codes. It is to be used
+     *  in conjunction with {@link #swapData} to swap the endianness of
      *  composite data.
      *
      *   format code bits <- format in ascii form
@@ -1663,8 +1716,8 @@ namespace evio {
      * Data processed inside while (ib &lt; nwrd) loop, where 'ib' is src[] index;
      * loop breaks when 'ib' reaches the number of elements in src[]
 
-     * @param srcBuf     data source data pointer.
-     * @param destBuf    destination pointer or can be null if swapping in place.
+     * @param src        data source data pointer.
+     * @param dest       destination pointer or can be null if swapping in place.
      * @param nwrd       number of data words (32-bit ints) to be swapped.
      * @param ifmt       format list as produced by {@link #compositeFormatToInt(String)}.
      * @param padding    number of bytes to ignore in last data word (starting from data end).
