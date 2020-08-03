@@ -26,9 +26,11 @@
 #include <regex>
 
 #include "EvioBank.h"
+#include "EvioEvent.h"
 #include "EvioSegment.h"
 #include "StructureTransformer.h"
 #include "EvioSwap.h"
+#include "EventWriter.h"
 
 #include "RecordSupply.h"
 #include "ByteOrder.h"
@@ -37,6 +39,10 @@
 
 #include "IBlockHeader.h"
 #include "BlockHeaderV2.h"
+#include "CompositeData.h"
+
+#include "Util.h"
+
 
 using namespace std;
 
@@ -289,7 +295,8 @@ namespace evio {
     }
 
 
-        static void myTreeTest() {
+    // Test the BaseStructure's tree methods
+    static void myTreeTest() {
 
         // check handling of nullptr
         EvioSwap::swapBank(nullptr, false, nullptr);
@@ -574,21 +581,458 @@ namespace evio {
             cout << "string #" << i << " = " << strs[i] << std::endl;
         }
     }
-     static void myTest2() {
-        // Can we handle an array of strings??
-        printStrings(myStrings, 3);
 
+
+
+     // Test the ByteBuffer's slice() method
+     static void myByteBufferTest() {
+
+        ByteBuffer b(24);
+         b.putInt(0, 1);
+         b.putInt(4, 2);
+         b.putInt(8, 3);
+         b.putInt(12, 4);
+         b.putInt(16, 5);
+         b.putInt(20, 6);
+
+         Util::printBytes(b, 0, 24, "original");
+         std::cout << "orig buf: pos = " << b.position() << ", lim = " <<  b.limit() << ", cap = " << b.capacity() <<
+            ", off = " << b.arrayOffset() << std::endl << std::endl;
+
+         // Make the slice start at 3rd int and limit is right after that
+         b.position(8);
+         b.limit(20);
+         auto sl = b.slice();
+
+         // change slice data
+         sl->putInt(0, 0x33);
+         sl->putInt(4, 0x44);
+         sl->putInt(8, 0x55);
+
+         // print slice
+         Util::printBytes(sl, sl->position(), sl->capacity(), "slice1");
+         std::cout << "slice: pos = " << sl->position() << ", lim = " << sl->limit() << ", cap = " << sl->capacity() <<
+                   ", off = " << sl->arrayOffset() << std::endl << std::endl;
+
+         // Make a slice of a slice
+         sl->position(4);
+         sl->limit(12);
+         auto sl2 = sl->slice();
+         sl2->putInt(0, 0x444);
+         sl2->putInt(4, 0x555);
+
+         // print slice2
+         Util::printBytes(sl2, sl2->position(), sl2->capacity(), "slice2");
+         std::cout << "slice2: pos = " << sl2->position() << ", lim = " << sl2->limit() << ", cap = " << sl2->capacity() <<
+                   ", off = " << sl2->arrayOffset() << std::endl << std::endl;
+
+
+         // print original buf again
+         b.clear();
+         Util::printBytes(b, 0, 24, "original again");
+         std::cout << "orig buf again: pos = " << b.position() << ", lim = " <<  b.limit() << ", cap = " << b.capacity() <<
+                      ", off = " << b.arrayOffset() << std::endl << std::endl;
 
     }
 
 
+
+
+
+
+    /**
+     * Created by IntelliJ IDEA.
+     * User: timmer
+     * Date: 4/12/11
+     * Time: 10:21 AM
+     * To change this template use File | Settings | File Templates.
+     */
+    class CompositeTester {
+
+    public:
+
+        /** For testing only */
+        int main(int argc, char **argv) {
+
+            int bank[24];
+
+            //**********************/
+            // bank of tagsegments */
+            //**********************/
+            bank[0] = 23;                       // bank length
+            bank[1] = 6 << 16 | 0xF << 8 | 3;   // tag = 6, bank contains composite type, num = 3
+
+
+            // N(I,D,F,2S,8a)
+            // first part of composite type (for format) = tagseg (tag & type ignored, len used)
+            bank[2]  = 5 << 20 | 0x3 << 16 | 4; // tag = 5, seg has char data, len = 4
+            // ASCII chars values in latest evio string (array) format, N(I,D,F,2S,8a) with N=2
+            bank[3]  = 0x4E << 24 | 0x28 << 16 | 0x49 << 8 | 0x2C;    // N ( I ,
+            bank[4]  = 0x44 << 24 | 0x2C << 16 | 0x46 << 8 | 0x2C;    // D , F ,
+            bank[5]  = 0x32 << 24 | 0x53 << 16 | 0x2C << 8 | 0x38 ;   // 2 S , 8
+            bank[6]  = 0x61 << 24 | 0x29 << 16 | 0x00 << 8 | 0x04 ;   // a ) \0 \4
+
+            // second part of composite type (for data) = bank (tag, num, type ignored, len used)
+            bank[7]  = 16;
+            bank[8]  = 6 << 16 | 0xF << 8 | 1;
+            bank[9]  = 0x2; // N
+            bank[10] = 0x00001111; // I
+            // Double
+            double d = 3.14159 * (-1.e-100);
+            uint64_t l = *(reinterpret_cast<uint64_t *>(&d));
+            bank[11] = ((l >> 32) & 0xffffffff);    // higher 32 bits
+            bank[12] = l;    // lower 32 bits
+            // Float
+            float f = (float)(3.14159*(-1.e-24));
+            bank[13] = *(reinterpret_cast<int32_t *>(&f));
+
+            bank[14] = 0x11223344; // 2S
+
+            bank[15]  = 0x48 << 24 | 0x49 << 16 | 0x00 << 8 | 0x48;    // H  I \0  H
+            bank[16]  = 0x4F << 24 | 0x00 << 16 | 0x04 << 8 | 0x04;    // 0 \ 0 \4 \4
+
+            // duplicate data
+            for (int i=0; i < 7; i++) {
+                bank[17+i] = bank[10+i];
+            }
+
+            // all composite including headers
+            int allData[22];
+            for (int i=0; i < 22; i++) {
+                allData[i] = bank[i+2];
+            }
+
+            // analyze format string
+            std::string format = "N(I,D,F,2S,8a)";
+
+            try {
+                // change int array into byte array
+                auto byteArray = reinterpret_cast<uint8_t *>(allData);
+
+                // wrap bytes in ByteBuffer for ease of printing later
+                ByteBuffer buf = ByteBuffer(byteArray, 4*22, false);
+                buf.order(ByteOrder::ENDIAN_BIG);
+
+                // swap
+                std::cout << "CALL CompositeData.swapAll()" << std::endl;
+                CompositeData::swapAll(byteArray, nullptr, 22, true);
+
+                // print swapped data
+                std::cout << "SWAPPED DATA:" << std::endl;
+                for (int i=0; i < 22; i++) {
+                    std::cout << hex << showbase << allData[i] << std::endl << dec;
+                }
+                std::cout << std::endl;
+
+                // swap again
+                std::cout << "Call CompositeData.swapAll()" << std::endl;
+                CompositeData::swapAll(byteArray, nullptr, 22, false);
+
+                // print double swapped data
+                std::cout << "DOUBLE SWAPPED DATA:" << std::endl;
+                for (int i=0; i < 22; i++) {
+                    std::cout << hex << showbase << allData[i] << std::endl << dec;
+                }
+                std::cout << std::endl;
+
+                // Check for differences
+                std::cout << "CHECK FOR DIFFERENCES:" << std::endl;
+                bool goodSwap = true;
+                for (int i=0; i < 22; i++) {
+                    if (buf.getInt(i) != bank[i+2]) {
+                        std::cout << "orig = " << bank[i+2] << ", double swapped = " << buf.getInt(i) << std::endl;
+                        goodSwap = false;
+                    }
+                }
+                std::cout << "good swap = " << goodSwap << std::endl;
+
+                // Create composite object
+                auto cData = CompositeData::getInstance(byteArray, ByteOrder::ENDIAN_BIG);
+                std::cout << "cData object = " << cData->toString() << std::endl << std::endl;
+
+                // print out general data
+                printCompositeDataObject(*(cData.get()));
+
+            }
+            catch (EvioException & e) {
+                std::cout << e.what() << std::endl;
+            }
+
+            return 0;
+        }
+
+
+        /**
+         * Simple example of providing a format string and some data
+         * in order to create a CompositeData object.
+         */
+        int main1(int argc, char **argv) {
+
+            // Create a CompositeData object ...
+
+            // Format to write an int and a string
+            // To get the right format code for the string, use a helper method
+            std::string myString = "string";
+            std::vector<std::string> strings;
+            strings.push_back(myString);
+            std::string stringFormat = CompositeData::stringsToFormat(strings);
+
+            // Put the 2 formats together
+            std::string format = "I," + stringFormat;
+            std::cout << "format = " << format << std::endl;
+
+            // Now create some data
+            CompositeData::Data myData;
+            myData.addInt(2);
+            myData.addString(myString);
+
+            // Create CompositeData object
+            auto cData = CompositeData::getInstance(format, myData, 1, 0 ,0);
+
+            // Print it out
+            printCompositeDataObject(cData);
+            return 0;
+        }
+
+
+        /**
+         * More complicated example of providing a format string and some data
+         * in order to create a CompositeData object.
+         */
+        int main2(int argc, char **argv) {
+
+            // Create a CompositeData object ...
+
+            // Format to write a N shorts, 1 float, 1 double a total of N times
+            std::string format = "N(NS,F,D)";
+
+            std::cout << "format = " << format << std::endl;
+
+            // Now create some data
+            CompositeData::Data myData;
+            myData.addN(2);
+            myData.addN(3);
+            std::vector<short> shorts;
+            shorts.push_back(1);
+            shorts.push_back(2);
+            shorts.push_back(3);
+            myData.addShort(shorts); // use vector for convenience
+            myData.addFloat(1.0F);
+            myData.addDouble(3.14159);
+            myData.addN(1);
+            myData.addShort((short)4);
+            myData.addFloat(2.0F);
+            myData.addDouble(2.*3.14159);
+
+            // Create CompositeData object
+            auto cData = CompositeData::getInstance(format, myData, 1, 0 ,0);
+
+            // Print it out
+            printCompositeDataObject(*(cData.get()));
+
+            try {
+                auto ev = EvioEvent::getInstance(0, DataType::COMPOSITE, 0);
+                auto comps = ev->getCompositeData();
+                comps.push_back(cData);
+                ev->updateCompositeData();
+
+                // Write it to this file
+                std::string fileName  = "./composite.dat";
+
+                EventWriter writer(fileName);
+                writer.writeEvent(ev);
+                writer.close();
+            }
+            catch (EvioException & e) {
+                std::cout << e.what() << std::endl;
+            }
+            return 0;
+        }
+
+
+        /**
+         * More complicated example of providing a format string and some data
+         * in order to create a CompositeData object.
+         */
+        int main3(int argc, char **argv) {
+
+            // Create a CompositeData object ...
+            std::cout << "NEWWWWWWWWWWWWWWWWW" << std::endl;
+
+            // Format to write 1 int and 1 float a total of N times
+            std::string format = "N(I,F)";
+
+            std::cout << "format = " << format << std::endl;
+
+            // Now create some data
+            CompositeData::Data myData1;
+            myData1.addN(1);
+            myData1.addInt(1); // use array for convenience
+            myData1.addFloat(1.0F);
+
+            // Now create some data
+            CompositeData::Data myData2;
+            myData2.addN(1);
+            myData2.addInt(2); // use array for convenience
+            myData2.addFloat(2.0F);
+
+            // Now create some data
+            CompositeData::Data myData3;
+            myData3.addN(1);
+            myData3.addInt(3); // use array for convenience
+            myData3.addFloat(3.0F);
+
+            std::cout << "Create composite data objects" << format << std::endl;
+
+            // Create CompositeData object
+            std::vector<std::shared_ptr<CompositeData>> cData;
+            auto cData0 = CompositeData::getInstance(format, myData1, 1, 1, 1);
+            auto cData1 = CompositeData::getInstance(format, myData2, 2, 2, 2);
+            auto cData2 = CompositeData::getInstance(format, myData3, 3, 3, 3);
+
+            // Print it out
+            std::cout << "Print composite data objects" << std::endl;
+            printCompositeDataObject(*(cData0.get()));
+            printCompositeDataObject(*(cData1.get()));
+            printCompositeDataObject(*(cData2.get()));
+
+            try {
+                auto ev = EvioEvent::getInstance(0, DataType::COMPOSITE, 0);
+                auto & compDataVec = ev->getCompositeData();
+
+                // Write it to this file
+                std::string fileName  = "./composite.dat";
+
+                std::cout << "WRITE FILE:" << std::endl;
+                EventWriter writer(fileName, false, ByteOrder::ENDIAN_LITTLE);
+                writer.writeEvent(ev);
+                writer.close();
+
+                // Read it from file
+                std::cout << "READ FILE & PRINT CONTENTS:" << std::endl;
+                EvioReader reader(fileName);
+                auto evR = reader.parseNextEvent();
+
+                if (evR != nullptr) {
+                    auto h = evR->getHeader();
+                    std::cout << "event: tag = " << h->getTag() <<
+                              ", type = " << h->getDataTypeName() << ", len = " << h->getLength() < std::endl;
+
+                    auto cDataR = evR.getCompositeData();
+                    for (auto & cd : cDataR) {
+                        printCompositeDataObject(cd);
+                    }
+                }
+
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return 0;
+        }
+
+
+
+
+        /** For testing only */
+        int main666(int argc, char **argv) {
+
+            //create an event writer to write out the test events.
+            std::string fileName = "/home/timmer/evioTestFiles/clas_004604.evio.00000";
+
+            try {
+                EvioReader evioReader(fileName);
+                std::shared_ptr<EvioEvent> ev;
+                int eventNum = 1;
+                while ( (ev = evioReader.parseNextEvent()) != nullptr) {
+                    std::cout << std::endl << "EVENT: number " << (eventNum++) << " (starting at 1)" << std::endl;
+                    std::cout << "-->:" << std::endl << ev.toXML();
+                    std::cout << std::endl << std::endl;
+                }
+            }
+            catch (EvioException & e) {
+                std::cout << e.what() << std::endl;
+            }
+
+            return 0;
+        }
+
+        /**
+         * Print the data from a CompositeData object in a user-friendly form.
+         * @param cData CompositeData object
+         */
+        static void printCompositeDataObject(std::shared_ptr<CompositeData> cData) {
+            printCompositeDataObject(*(cData.get()));
+        }
+
+
+        /**
+         * Print the data from a CompositeData object in a user-friendly form.
+         * @param cData CompositeData object
+         */
+        static void printCompositeDataObject(CompositeData & cData) {
+
+            std::cout << "printCompositeDataObject: IN" << std::endl;
+            // Get vectors of data items & their types from composite data object
+            auto items = cData.getItems();
+            auto types = cData.getTypes();
+
+            // Use these list to print out data of unknown format
+            DataType type;
+            size_t len = items.size();
+
+            for (size_t i=0; i < len; i++) {
+                type =  types.get(i);
+                System.out.print(String.format("type = %9s, val = ", type));
+
+                if ((type == DataType::NVALUE || type == DataType::UNKNOWN32 ||
+                     type == DataType::UINT32 || type == Datatype::INT32)) {
+                    uint32_t j = items.get(i).item.ui32;
+                    std::cout << hex << showbase << j << std::endl;
+                }
+                else if (type == DataType::LONG64 || type == Datatype::ULONG64) {
+                    uint64_t l = items.get(i).item.ul64;
+                    std::cout << hex << showbase << l << std::endl;
+                }
+                else if (type == DataType::SHORT16 || type == Datatype::USHORT16) {
+                    uint16_t s = items.get(i).item.us16;
+                    std::cout << hex << showbase << s << std::endl;
+                }
+                else if (type == DataType::CHAR8 || type == Datatype::UCHAR8) {
+                    uint8_t b = items.get(i).item.ub8;
+                    std::cout << hex << showbase << (char)b << std::endl;
+                }
+                else if (type == DataType::FLOAT32) {
+                    float ff = items.get(i).item.flt;
+                    std::cout << ff << std::endl;
+                }
+                else if (type == DataType::DOUBLE64) {
+                    double dd = items.get(i).item.dbl;
+                    std::cout << dd << std::endl;
+                }
+                else if (type == DataType::CHARSTAR8) {
+                    auto strs = (String[]) items.get(i).strVec;
+                    for (std::string const & ss : strs) {
+                        std::cout << ss << ", ";
+                    }
+                    std::cout << std::endl;
+                }
+            }
+
+        }
+
+
+
+    }
 
 }
 
 
 
 int main(int argc, char **argv) {
-    evio::myTreeTest();
+    //evio::myTreeTest();
+    evio::myByteBufferTest();
     return 0;
 }
 
