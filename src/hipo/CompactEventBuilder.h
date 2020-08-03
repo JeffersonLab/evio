@@ -31,7 +31,7 @@ namespace evio {
 
     /**
      * This class is used for creating events
-     * and their substructures while minimizing use of Java objects.
+     * and their substructures while minimizing use of objects.
      * Evio format data of a single event is written directly,
      * and sequentially, into a buffer. The buffer contains
      * only the single event, not the full, evio file format.<p>
@@ -112,12 +112,12 @@ namespace evio {
         };
 
 
-        /** The top (first element) of the stack is the first structure
+        /** The top (first element) of the vector is the first structure
          *  created or the event bank.
          *  Each level is the parent of the next one down (index + 1) */
         std::vector<std::shared_ptr<StructureContent>> stackArray;
 
-        /** Each element of the array is the total length of all evio
+        /** Each element of the vector is the total length of all evio
          *  data in a structure including the full length of that
          *  structure's header. There is one length for each level
          *  of evio structures with the 0th element being the top
