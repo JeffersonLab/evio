@@ -553,6 +553,20 @@ namespace evio {
          * @param bytes     number of bytes to print in hex
          * @param label     a label to print as header
          */
+        static void printBytes(const std::shared_ptr<ByteBuffer> buf, uint32_t position, uint32_t bytes,
+                               const std::string & label) {
+            printBytes(*(buf.get()), position, bytes, label);
+        }
+
+            /**
+             * This method takes a byte buffer and prints out the desired number of bytes
+             * from the given position, in hex. Prints all bytes.
+             *
+             * @param buf       buffer to print out
+             * @param position  position of data (bytes) in buffer to start printing
+             * @param bytes     number of bytes to print in hex
+             * @param label     a label to print as header
+             */
         static void printBytes(const ByteBuffer & buf, uint32_t position, uint32_t bytes, const std::string & label) {
 
             // Make sure we stay in bounds
