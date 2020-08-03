@@ -30,6 +30,10 @@ namespace evio {
     CompactEventBuilder::CompactEventBuilder(size_t bufferSize, ByteOrder const & order, bool generateNodes) :
             order(order), generateNodes(generateNodes) {
 
+        if (bufferSize < 8) {
+            throw EvioException("bufferSize arg too small");
+        }
+
         // Create buffer
         buffer = std::make_shared<ByteBuffer>(bufferSize);
         array = buffer->array();
@@ -114,7 +118,7 @@ namespace evio {
         order = buffer->order();
 
         if (buffer->limit() < 8) {
-            throw EvioException("compact buffer too small");
+            throw EvioException("buffer too small");
         }
 
         array = buffer->array();
