@@ -13,6 +13,10 @@
 
 namespace evio {
 
+    // Define a deleter that does not delete memory for a shared pointer that's
+    // used with shared memory.
+    void null_deleter(uint8_t *) {};
+
 
     /** Default constructor, size of 4096 bytes.  */
     ByteBuffer::ByteBuffer() : ByteBuffer(4096) {}
@@ -28,8 +32,8 @@ namespace evio {
         totalSize = cap = size;
         clear();
 
-        isLittleEndian = true;
-        isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
+        isLittleEndian = byteOrder.isLittleEndian();
+        isHostEndian = true;
     }
 
 
@@ -63,8 +67,7 @@ namespace evio {
      * @param isMappedMem is the byteArray arg a pointer obtained through ::mmap (file memory mapping)?.
      */
     ByteBuffer::ByteBuffer(char* byteArray, size_t len, bool isMappedMem) :
-                ByteBuffer(reinterpret_cast<uint8_t*>(byteArray), len) {
-        isMappedMemory = isMappedMem;
+                    ByteBuffer(reinterpret_cast<uint8_t*>(byteArray), len, isMappedMem) {
     }
 
 
@@ -78,13 +81,19 @@ namespace evio {
      * @param isMappedMem is the byteArray arg a pointer obtained through ::mmap (file memory mapping)?.
      */
     ByteBuffer::ByteBuffer(uint8_t* byteArray, size_t len, bool isMappedMem) {
-        buf = std::shared_ptr<uint8_t>(byteArray, std::default_delete<uint8_t[]>());
+
+        if (isMappedMem) {
+            // Must remove the deleter since we're using shared memory and it must be unmapped, not deleted
+            buf = std::shared_ptr<uint8_t>(byteArray,  &null_deleter);
+        }
+        else {
+            buf = std::shared_ptr<uint8_t>(byteArray, std::default_delete<uint8_t[]>());
+        }
         totalSize = cap = len;
         clear();
 
-        byteOrder = ByteOrder::ENDIAN_LITTLE;
-        isLittleEndian = true;
-        isHostEndian = (byteOrder == ByteOrder::ENDIAN_LOCAL);
+        isLittleEndian = byteOrder.isLittleEndian();
+        isHostEndian = true;
         isMappedMemory = isMappedMem;
     }
 
