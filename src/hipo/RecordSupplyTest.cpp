@@ -24,6 +24,13 @@
 #include <thread>
 #include <memory>
 #include <regex>
+#include <limits>
+#include <cstdio>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fstream>
+#include <sys/mman.h>
 
 #include "EvioBank.h"
 #include "EvioEvent.h"
@@ -31,6 +38,7 @@
 #include "StructureTransformer.h"
 #include "EvioSwap.h"
 #include "EventWriter.h"
+#include "EvioReader.h"
 
 #include "RecordSupply.h"
 #include "ByteOrder.h"
@@ -40,6 +48,7 @@
 #include "IBlockHeader.h"
 #include "BlockHeaderV2.h"
 #include "CompositeData.h"
+#include "DataType.h"
 
 #include "Util.h"
 
@@ -636,7 +645,72 @@ namespace evio {
     }
 
 
+    // Test the ByteBuffer's use with memory mapped file
+    static void myByteBufferTest2() {
 
+        ByteBuffer b(24);
+        b.putInt(0, 1);
+        b.putInt(4, 2);
+        b.putInt(8, 3);
+        b.putInt(12, 4);
+        b.putInt(16, 5);
+        b.putInt(20, 6);
+
+        // Write this into a file
+        size_t fileSz = 4*6;
+        std::string fileName = "./myByteBufferTest2.dat";
+        Util::writeBytes( fileName, b);
+
+        // Create a read-write memory mapped file
+        int fd;
+        void *pmem;
+
+        if ((fd = ::open(fileName.c_str(), O_RDWR)) < 0) {
+            throw EvioException("file does NOT exist");
+        }
+        else {
+            // set shared mem size
+            if (::ftruncate(fd, (off_t) fileSz) < 0) {
+                ::close(fd);
+                throw EvioException("fail to open file");
+            }
+        }
+
+        // map file to process space
+        if ((pmem = ::mmap((caddr_t) 0, fileSz, PROT_READ | PROT_WRITE,
+                           MAP_SHARED, fd, (off_t) 0)) == MAP_FAILED) {
+            ::close(fd);
+            throw EvioException("fail to map file");
+        }
+
+        // close fd for mapped mem since no longer needed
+        ::close(fd);
+
+        // Change the mapped memory into a ByteBuffer for ease of handling ...
+        ByteBuffer readBuf(static_cast<char *>(pmem), fileSz, true);
+
+        // print original buf again
+        Util::printBytes(readBuf, 0, 24, "read mapped file");
+        std::cout << "mmapped buf: pos = " << readBuf.position() << ", lim = " << readBuf.limit() <<
+                     ", cap = " << readBuf.capacity() << ", off = " << readBuf.arrayOffset() << std::endl << std::endl;
+
+        // Write to the ByteBuffer which is linked to the memory mapped file
+        readBuf.putInt(4, 0x22);
+        readBuf.putInt(8, 0x33);
+
+
+        // NOW, define another ByteBuffer which reads from that file and see if the data changed
+        // Change the mapped memory into a ByteBuffer for ease of handling ...
+        ByteBuffer readBuf2(static_cast<char *>(pmem), fileSz, true);
+
+        // print file again
+        Util::printBytes(readBuf2, 0, 24, "read mapped file again");
+        std::cout << "read mmapped file again: pos = " << readBuf2.position() << ", lim = " << readBuf2.limit() <<
+                     ", cap = " << readBuf2.capacity() << ", off = " << readBuf2.arrayOffset() << std::endl << std::endl;
+
+
+
+    }
 
 
 
@@ -652,7 +726,7 @@ namespace evio {
     public:
 
         /** For testing only */
-        int main(int argc, char **argv) {
+        static int test1() {
 
             int bank[24];
 
@@ -714,7 +788,7 @@ namespace evio {
                 buf.order(ByteOrder::ENDIAN_BIG);
 
                 // swap
-                std::cout << "CALL CompositeData.swapAll()" << std::endl;
+                std::cout << "CALL CompositeData::swapAll()" << std::endl;
                 CompositeData::swapAll(byteArray, nullptr, 22, true);
 
                 // print swapped data
@@ -725,7 +799,7 @@ namespace evio {
                 std::cout << std::endl;
 
                 // swap again
-                std::cout << "Call CompositeData.swapAll()" << std::endl;
+                std::cout << "Call CompositeData::swapAll()" << std::endl;
                 CompositeData::swapAll(byteArray, nullptr, 22, false);
 
                 // print double swapped data
@@ -766,7 +840,7 @@ namespace evio {
          * Simple example of providing a format string and some data
          * in order to create a CompositeData object.
          */
-        int main1(int argc, char **argv) {
+        static int test2() {
 
             // Create a CompositeData object ...
 
@@ -799,7 +873,7 @@ namespace evio {
          * More complicated example of providing a format string and some data
          * in order to create a CompositeData object.
          */
-        int main2(int argc, char **argv) {
+        static int test3() {
 
             // Create a CompositeData object ...
 
@@ -854,7 +928,7 @@ namespace evio {
          * More complicated example of providing a format string and some data
          * in order to create a CompositeData object.
          */
-        int main3(int argc, char **argv) {
+        static int test4() {
 
             // Create a CompositeData object ...
             std::cout << "NEWWWWWWWWWWWWWWWWW" << std::endl;
@@ -904,7 +978,7 @@ namespace evio {
                 std::string fileName  = "./composite.dat";
 
                 std::cout << "WRITE FILE:" << std::endl;
-                EventWriter writer(fileName, false, ByteOrder::ENDIAN_LITTLE);
+                EventWriter writer(fileName, ByteOrder::ENDIAN_LITTLE);
                 writer.writeEvent(ev);
                 writer.close();
 
@@ -916,27 +990,25 @@ namespace evio {
                 if (evR != nullptr) {
                     auto h = evR->getHeader();
                     std::cout << "event: tag = " << h->getTag() <<
-                              ", type = " << h->getDataTypeName() << ", len = " << h->getLength() < std::endl;
+                              ", type = " << h->getDataTypeName() << ", len = " << h->getLength() << std::endl;
 
-                    auto cDataR = evR.getCompositeData();
+                    auto cDataR = evR->getCompositeData();
                     for (auto & cd : cDataR) {
                         printCompositeDataObject(cd);
                     }
                 }
 
             }
-            catch (Exception e) {
-                e.printStackTrace();
+            catch (EvioException & e) {
+                std::cout << e.what() << std::endl;
             }
 
             return 0;
         }
 
 
-
-
         /** For testing only */
-        int main666(int argc, char **argv) {
+        static int test5() {
 
             //create an event writer to write out the test events.
             std::string fileName = "/home/timmer/evioTestFiles/clas_004604.evio.00000";
@@ -947,7 +1019,7 @@ namespace evio {
                 int eventNum = 1;
                 while ( (ev = evioReader.parseNextEvent()) != nullptr) {
                     std::cout << std::endl << "EVENT: number " << (eventNum++) << " (starting at 1)" << std::endl;
-                    std::cout << "-->:" << std::endl << ev.toXML();
+                    std::cout << "-->:" << std::endl << ev->toString();
                     std::cout << std::endl << std::endl;
                 }
             }
@@ -979,40 +1051,39 @@ namespace evio {
             auto types = cData.getTypes();
 
             // Use these list to print out data of unknown format
-            DataType type;
             size_t len = items.size();
 
             for (size_t i=0; i < len; i++) {
-                type =  types.get(i);
-                System.out.print(String.format("type = %9s, val = ", type));
+                auto type = types[i];
+                std::cout << "type = " << std::setw(9) << type.toString() << std::endl;
 
                 if ((type == DataType::NVALUE || type == DataType::UNKNOWN32 ||
-                     type == DataType::UINT32 || type == Datatype::INT32)) {
-                    uint32_t j = items.get(i).item.ui32;
+                     type == DataType::UINT32 || type == DataType::INT32)) {
+                    uint32_t j = items[i].item.ui32;
                     std::cout << hex << showbase << j << std::endl;
                 }
-                else if (type == DataType::LONG64 || type == Datatype::ULONG64) {
-                    uint64_t l = items.get(i).item.ul64;
+                else if (type == DataType::LONG64 || type == DataType::ULONG64) {
+                    uint64_t l = items[i].item.ul64;
                     std::cout << hex << showbase << l << std::endl;
                 }
-                else if (type == DataType::SHORT16 || type == Datatype::USHORT16) {
-                    uint16_t s = items.get(i).item.us16;
+                else if (type == DataType::SHORT16 || type == DataType::USHORT16) {
+                    uint16_t s = items[i].item.us16;
                     std::cout << hex << showbase << s << std::endl;
                 }
-                else if (type == DataType::CHAR8 || type == Datatype::UCHAR8) {
-                    uint8_t b = items.get(i).item.ub8;
+                else if (type == DataType::CHAR8 || type == DataType::UCHAR8) {
+                    uint8_t b = items[i].item.ub8;
                     std::cout << hex << showbase << (char)b << std::endl;
                 }
                 else if (type == DataType::FLOAT32) {
-                    float ff = items.get(i).item.flt;
+                    float ff = items[i].item.flt;
                     std::cout << ff << std::endl;
                 }
                 else if (type == DataType::DOUBLE64) {
-                    double dd = items.get(i).item.dbl;
+                    double dd = items[i].item.dbl;
                     std::cout << dd << std::endl;
                 }
                 else if (type == DataType::CHARSTAR8) {
-                    auto strs = (String[]) items.get(i).strVec;
+                    auto strs = items[i].strVec;
                     for (std::string const & ss : strs) {
                         std::cout << ss << ", ";
                     }
@@ -1024,7 +1095,7 @@ namespace evio {
 
 
 
-    }
+    };
 
 }
 
@@ -1032,7 +1103,9 @@ namespace evio {
 
 int main(int argc, char **argv) {
     //evio::myTreeTest();
-    evio::myByteBufferTest();
+    //evio::myByteBufferTest();
+    evio::myByteBufferTest2();
+    //evio::CompositeTester::test1();
     return 0;
 }
 
