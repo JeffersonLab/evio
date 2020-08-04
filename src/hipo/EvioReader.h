@@ -98,7 +98,6 @@ namespace evio {
         size_t fileSize() override;
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override;
 
-    public:
 
         std::shared_ptr<EvioEvent> getEvent(size_t index) override;
         std::shared_ptr<EvioEvent> parseEvent(size_t index) override;
