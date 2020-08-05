@@ -741,29 +741,54 @@ namespace evio {
             // first part of composite type (for format) = tagseg (tag & type ignored, len used)
             bank[2]  = 5 << 20 | 0x3 << 16 | 4; // tag = 5, seg has char data, len = 4
             // ASCII chars values in latest evio string (array) format, N(I,D,F,2S,8a) with N=2
-            bank[3]  = 0x4E << 24 | 0x28 << 16 | 0x49 << 8 | 0x2C;    // N ( I ,
-            bank[4]  = 0x44 << 24 | 0x2C << 16 | 0x46 << 8 | 0x2C;    // D , F ,
-            bank[5]  = 0x32 << 24 | 0x53 << 16 | 0x2C << 8 | 0x38 ;   // 2 S , 8
-            bank[6]  = 0x61 << 24 | 0x29 << 16 | 0x00 << 8 | 0x04 ;   // a ) \0 \4
+            if (ByteOrder::isLocalHostBigEndian()) {
+                bank[3] = 0x4E << 24 | 0x28 << 16 | 0x49 << 8 | 0x2C;    // N ( I ,
+                bank[4] = 0x44 << 24 | 0x2C << 16 | 0x46 << 8 | 0x2C;    // D , F ,
+                bank[5] = 0x32 << 24 | 0x53 << 16 | 0x2C << 8 | 0x38;   // 2 S , 8
+                bank[6] = 0x61 << 24 | 0x29 << 16 | 0x00 << 8 | 0x04;   // a ) \0 \4
+            }
+            else {
+                bank[3] = 0x4E | 0x28 << 8 | 0x49 << 16 | 0x2C << 24;    // N ( I ,
+                bank[4] = 0x44 | 0x2C << 8 | 0x46 << 16 | 0x2C << 24;    // D , F ,
+                bank[5] = 0x32 | 0x53 << 8 | 0x2C << 16 | 0x38 << 24;   // 2 S , 8
+                bank[6] = 0x61 | 0x29 << 8 | 0x00 << 16 | 0x04 << 24;   // a ) \0 \4
+            }
 
             // second part of composite type (for data) = bank (tag, num, type ignored, len used)
             bank[7]  = 16;
-            bank[8]  = 6 << 16 | 0xF << 8 | 1;
+            bank[8]  = 6 << 16 | 0xF << 8 | 1;   // tag = 6, num = 1
             bank[9]  = 0x2; // N
-            bank[10] = 0x00001111; // I
+            bank[10] = 0x1111; // I
             // Double
             double d = 3.14159 * (-1.e-100);
             uint64_t l = *(reinterpret_cast<uint64_t *>(&d));
-            bank[11] = ((l >> 32) & 0xffffffff);    // higher 32 bits
-            bank[12] = l;    // lower 32 bits
+            if (!ByteOrder::isLocalHostBigEndian()) {
+                bank[11] = ((l >> 32) & 0xffffffff);    // higher 32 bits
+                bank[12] = l;    // lower 32 bits
+            }
+            else {
+                bank[11] = l;    // lower 32 bits
+                bank[12] = ((l >> 32) & 0xffffffff);    // higher 32 bits
+            }
             // Float
             float f = (float)(3.14159*(-1.e-24));
             bank[13] = *(reinterpret_cast<int32_t *>(&f));
 
-            bank[14] = 0x11223344; // 2S
+            if (ByteOrder::isLocalHostBigEndian()) {
+                bank[14] = 0x22114433; // 2S
+            }
+            else {
+                bank[14] = 0x33441122; // 2S
+            }
 
-            bank[15]  = 0x48 << 24 | 0x49 << 16 | 0x00 << 8 | 0x48;    // H  I \0  H
-            bank[16]  = 0x4F << 24 | 0x00 << 16 | 0x04 << 8 | 0x04;    // 0 \ 0 \4 \4
+            if (ByteOrder::isLocalHostBigEndian()) {
+                bank[15] = 0x48 << 24 | 0x49 << 16 | 0x00 << 8 | 0x48;    // H  I \0  H
+                bank[16] = 0x4F << 24 | 0x00 << 16 | 0x04 << 8 | 0x04;    // 0 \ 0 \4 \4
+            }
+            else {
+                bank[15] = 0x48 | 0x49 << 8 | 0x00 << 16 | 0x48 << 24;    // H  I \0  H
+                bank[16] = 0x4F | 0x00 << 8 | 0x04 << 16 | 0x04 << 24;    // 0 \ 0 \4 \4
+            }
 
             // duplicate data
             for (int i=0; i < 7; i++) {
@@ -776,6 +801,14 @@ namespace evio {
                 allData[i] = bank[i+2];
             }
 
+            // print swapped data
+            std::cout << "ORIG DATA:" << std::endl;
+            for (int i=0; i < 8; i++) {
+                std::cout << hex << showbase << allData[i] << std::endl << dec;
+            }
+            std::cout << std::endl;
+
+
             // analyze format string
             std::string format = "N(I,D,F,2S,8a)";
 
@@ -784,8 +817,8 @@ namespace evio {
                 auto byteArray = reinterpret_cast<uint8_t *>(allData);
 
                 // wrap bytes in ByteBuffer for ease of printing later
-                ByteBuffer buf = ByteBuffer(byteArray, 4*22, false);
-                buf.order(ByteOrder::ENDIAN_BIG);
+                ByteBuffer buf(byteArray, 4*22, false);
+                //buf.order(ByteOrder::ENDIAN_LOCAL.getOppositeEndian());
 
                 // swap
                 std::cout << "CALL CompositeData::swapAll()" << std::endl;
@@ -793,7 +826,7 @@ namespace evio {
 
                 // print swapped data
                 std::cout << "SWAPPED DATA:" << std::endl;
-                for (int i=0; i < 22; i++) {
+                for (int i=0; i < 8; i++) {
                     std::cout << hex << showbase << allData[i] << std::endl << dec;
                 }
                 std::cout << std::endl;
@@ -804,7 +837,7 @@ namespace evio {
 
                 // print double swapped data
                 std::cout << "DOUBLE SWAPPED DATA:" << std::endl;
-                for (int i=0; i < 22; i++) {
+                for (int i=0; i < 8; i++) {
                     std::cout << hex << showbase << allData[i] << std::endl << dec;
                 }
                 std::cout << std::endl;
@@ -912,10 +945,13 @@ namespace evio {
 
                 // Write it to this file
                 std::string fileName  = "./composite.dat";
-
+std::cout << "Try writing to :" << fileName << std::endl;
                 EventWriter writer(fileName);
+                std::cout << "created writer" << std::endl;
                 writer.writeEvent(ev);
+                std::cout << "wrote event" << std::endl;
                 writer.close();
+                std::cout << "writer closed" << std::endl;
             }
             catch (EvioException & e) {
                 std::cout << e.what() << std::endl;
@@ -1104,8 +1140,8 @@ namespace evio {
 int main(int argc, char **argv) {
     //evio::myTreeTest();
     //evio::myByteBufferTest();
-    evio::myByteBufferTest2();
-    //evio::CompositeTester::test1();
+    //evio::myByteBufferTest2();
+    evio::CompositeTester::test3();
     return 0;
 }
 
