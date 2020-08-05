@@ -258,6 +258,8 @@ namespace evio {
             throw EvioException("File exists but user requested no over-writing of or appending to "
                                 + currentFileName);
         }
+#else
+        currentFileName = fileName;
 #endif
 
         // Create internal storage buffers.
@@ -1234,7 +1236,7 @@ namespace evio {
                 std::cout << e.what() << std::endl;
             }
         }
-            // If file ...
+        // If file ...
         else {
             // Write record to file
             if (singleThreadedCompression) {
