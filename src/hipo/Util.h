@@ -454,14 +454,18 @@ namespace evio {
 
             for (int i=0; i < bytes; i++) {
                 if (i%20 == 0) {
-                    std::cout << std::endl << std::dec << "  Buf(" << (i + 1) << "-" << (i + 20) << ") =  ";
+                    std::cout << std::endl << std::dec << std::right << std::setfill(' ') <<
+                    "  Buf(" << std::setw(3) << (i + 1) <<
+                    " - "<< std::setw(3) << (i + 20) << ") =  ";
                 }
                 else if (i%4 == 0) {
                     std::cout << "  ";
                 }
                 // Accessing buf in this way does not change position or limit of buffer
-                std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)(buf[i]) << " ";
+                std::cout << std::hex << std::noshowbase << std::internal << std::setfill('0') <<
+                std::setw(2) << (int)(buf[i]) << " ";
             }
+
             std::cout << std::dec << std::endl << std::endl << std::setfill(' ');
         }
 
