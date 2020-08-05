@@ -185,7 +185,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
     /**
      * Transform an event in the form of a byte array into an EvioEvent object.
      * However, only top level header is parsed. Most users will want to call
-     * {@link #parseEvent(byte[], int, ByteOrder)} instead since it returns a
+     * {@link #parseEvent(uint8_t *, size_t, ByteOrder const &)} instead since it returns a
      * fully parsed event.
      * Byte array must not be in file format (have record headers),
      * but must consist of only the bytes comprising the evio event.
@@ -202,7 +202,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
             throw EvioException("arg null or too little data");
         }
 
-        std::shared_ptr<BankHeader> header;
+        auto header = std::make_shared<BankHeader>();
         auto event = EvioEvent::getInstance(header);
 
         // Read the first header word - the length in 32bit words
