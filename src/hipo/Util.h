@@ -779,6 +779,7 @@ namespace evio {
             if (bytes == nullptr) return;
 
             std::string sData(reinterpret_cast<const char *>(bytes), length);
+           // std::cout << "unpackRawBytesToStrings: string = " << sData << std::endl;
             return stringBuilderToStrings(sData, true, strData);
         }
 
@@ -829,11 +830,12 @@ namespace evio {
             // method "split" as any empty trailing strings are unfortunately discarded.
 
             char c;
-            std::vector<int> nullIndexList(10);
-            int nullCount = 0, goodChars = 0;
+            std::vector<int> nullIndexList;
+            nullIndexList.reserve(10);
+            uint32_t nullCount = 0, goodChars = 0;
             bool badFormat = true;
 
-            int length = strData.length();
+            size_t length = strData.length();
             bool noEnding4 = false;
             if (strData[length - 1] != '\004') {
                 noEnding4 = true;
@@ -853,8 +855,8 @@ namespace evio {
                         break;
                     }
                 }
-                    // Look for any non-printing/control characters (not including null)
-                    // and end the string there. Allow tab & newline.
+                // Look for any non-printing/control characters (not including null)
+                // and end the string there. Allow tab & newline.
                 else if ((c < 32 || c > 126) && c != 9 && c != 10) {
                     if (nullCount < 1) {
                         badFormat = true;
