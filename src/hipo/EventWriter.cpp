@@ -2899,7 +2899,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
 
             // Make sure our array can hold everything
             if (headerArray.capacity() < bytesToWrite) {
-                headerArray.reserve(bytesToWrite);
+                headerArray.resize(bytesToWrite, 0);
             }
 
             // Place data into headerBuffer - both header and index

@@ -194,8 +194,7 @@ namespace evio {
             throw EvioException("eventNumber (" + std::to_string(evNumber) + ") is out of bounds");
         }
 
-        vec.clear();
-        vec.reserve(len);
+        vec.resize(len, 0);
 
         // copy data into provided vector ...
         std::memcpy(vec.data(), evBytes.get(), len);

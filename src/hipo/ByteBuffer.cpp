@@ -865,7 +865,7 @@ namespace evio {
         if (length > remaining()) {
             throw std::underflow_error("buffer underflow");
         }
-        dst.reserve(offset + length);
+        dst.resize(offset + length, 0);
         memcpy((void *)(dst.data() + offset), (const void *)(buf.get() + off + pos), length);
         pos += length;
         return *this;

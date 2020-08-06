@@ -65,7 +65,7 @@ namespace  evio {
                 // offset still points to beginning of new header. Have to get data for new child bank.
                 uint32_t newByteLen = 4 * (header->getLength() - 1); // -1 to account for extra header word
                 std::vector<uint8_t> newBytes;
-                newBytes.reserve(newByteLen);
+                newBytes.resize(newByteLen, 0);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 8, newByteLen);
 
                 // we can now create a new bank
@@ -87,7 +87,7 @@ namespace  evio {
 
                 uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
-                newBytes.reserve(newByteLen);
+                newBytes.resize(newByteLen, 0);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childSegment = EvioSegment::getInstance(header);
@@ -107,7 +107,7 @@ namespace  evio {
 
                 uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
-                newBytes.reserve(newByteLen);
+                newBytes.resize(newByteLen, 0);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childTagSegment = EvioTagSegment::getInstance(header);
@@ -243,7 +243,7 @@ namespace  evio {
                 // offset still points to beginning of new header. Have to get data for new child bank.
                 uint32_t newByteLen = 4 * (header->getLength() - 1); // -1 to account for extra header word
                 std::vector<uint8_t> newBytes;
-                newBytes.reserve(newByteLen);
+                newBytes.resize(newByteLen, 0);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 8, newByteLen);
 
                 // we can now create a new bank
@@ -265,7 +265,7 @@ namespace  evio {
 
                 uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
-                newBytes.reserve(newByteLen);
+                newBytes.resize(newByteLen, 0);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childSegment = EvioSegment::getInstance(header);
@@ -286,7 +286,7 @@ namespace  evio {
 
                 uint32_t newByteLen = 4 * header->getLength();
                 std::vector<uint8_t> newBytes;
-                newBytes.reserve(newByteLen);
+                newBytes.resize(newByteLen, 0);
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childTagSegment = EvioTagSegment::getInstance(header);

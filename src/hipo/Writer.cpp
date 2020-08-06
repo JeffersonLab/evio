@@ -897,7 +897,7 @@ namespace evio {
         // Make sure our array can hold everything
         if (headerArray.capacity() < dataBytes) {
             //cout << "Allocating byte array of " << dataBytes << " bytes in size" << endl;
-            headerArray.reserve(dataBytes);
+            headerArray.resize(dataBytes);
         }
 
         // Place data into headerArray - both header and index

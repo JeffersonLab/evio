@@ -1151,7 +1151,7 @@ namespace evio {
             wholeLen += indexLen;
         }
 
-        array.reserve(wholeLen + off);
+        array.resize(wholeLen + off, 0);
 
         uint32_t bitInfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
 
