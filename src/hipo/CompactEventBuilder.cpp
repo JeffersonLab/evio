@@ -653,7 +653,7 @@ namespace evio {
             if (swapData) {
                 EvioSwap::swapLeafData(node->getDataTypeObj(), nodeBuf,
                                        buffer, node->getDataPosition(), position,
-                                       node->getDataLength(), false);
+                                       node->getDataLength());
             }
             else {
                 std::memcpy(array + arrayOffset + position,
