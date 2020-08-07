@@ -728,7 +728,8 @@ namespace evio {
         /** For testing only */
         static int test1() {
 
-            int bank[24];
+
+            uint32_t bank[24];
 
             //**********************/
             // bank of tagsegments */
@@ -760,18 +761,18 @@ namespace evio {
             bank[9]  = 0x2; // N
             bank[10] = 0x1111; // I
             // Double
-            double d = 3.14159 * (-1.e-100);
+            double d = 3.14159;
             uint64_t l = *(reinterpret_cast<uint64_t *>(&d));
             if (!ByteOrder::isLocalHostBigEndian()) {
-                bank[11] = ((l >> 32) & 0xffffffff);    // higher 32 bits
-                bank[12] = l;    // lower 32 bits
-            }
-            else {
-                bank[11] = l;    // lower 32 bits
+                bank[11] = l & 0xffffffff;    // lower 32 bits
                 bank[12] = ((l >> 32) & 0xffffffff);    // higher 32 bits
             }
+            else {
+                bank[11] = ((l >> 32) & 0xffffffff);    // higher 32 bits
+                bank[12] = l & 0xffffffff;   // lower 32 bits
+            }
             // Float
-            float f = (float)(3.14159*(-1.e-24));
+            float f = (float)(3.14159);
             bank[13] = *(reinterpret_cast<int32_t *>(&f));
 
             if (ByteOrder::isLocalHostBigEndian()) {
@@ -796,70 +797,166 @@ namespace evio {
             }
 
             // all composite including headers
-            int allData[22];
+            uint32_t * allData = new uint32_t[22];
             for (int i=0; i < 22; i++) {
                 allData[i] = bank[i+2];
             }
-
-            // print swapped data
-            std::cout << "ORIG DATA:" << std::endl;
-            for (int i=0; i < 8; i++) {
-                std::cout << hex << showbase << allData[i] << std::endl << dec;
-            }
-            std::cout << std::endl;
-
 
             // analyze format string
             std::string format = "N(I,D,F,2S,8a)";
 
             try {
-                // change int array into byte array
-                auto byteArray = reinterpret_cast<uint8_t *>(allData);
 
-                // wrap bytes in ByteBuffer for ease of printing later
-                ByteBuffer buf(byteArray, 4*22, false);
-                //buf.order(ByteOrder::ENDIAN_LOCAL.getOppositeEndian());
+                int swapper = 3;
 
-                // swap
-                std::cout << "CALL CompositeData::swapAll()" << std::endl;
-                CompositeData::swapAll(byteArray, nullptr, 22, true);
+                if (swapper == 1) {
+                    // change int array into byte array
+                    auto byteArray = reinterpret_cast<uint8_t *>(allData);
 
-                // print swapped data
-                std::cout << "SWAPPED DATA:" << std::endl;
-                for (int i=0; i < 8; i++) {
-                    std::cout << hex << showbase << allData[i] << std::endl << dec;
-                }
-                std::cout << std::endl;
+                    std::cout << "Go from bytes to CDs:" << std::endl;
+                    std::vector<std::shared_ptr<CompositeData>> cdList;
+                    // This makes a copy of the raw bytes in byteArray
+                    CompositeData::parse(byteArray, 4 * 22, ByteOrder::ENDIAN_LOCAL, cdList);
 
-                // swap again
-                std::cout << "Call CompositeData::swapAll()" << std::endl;
-                CompositeData::swapAll(byteArray, nullptr, 22, false);
+                    // Wrap bytes in ByteBuffer for ease of printing later.
+                    // From now on, byteArray pointer cannot be used!!!
+                    ByteBuffer buf(byteArray, 4 * 22, false);
 
-                // print double swapped data
-                std::cout << "DOUBLE SWAPPED DATA:" << std::endl;
-                for (int i=0; i < 8; i++) {
-                    std::cout << hex << showbase << allData[i] << std::endl << dec;
-                }
-                std::cout << std::endl;
+                    Util::printBytes(buf, 0, 4 * 22, "Orig Data:");
 
-                // Check for differences
-                std::cout << "CHECK FOR DIFFERENCES:" << std::endl;
-                bool goodSwap = true;
-                for (int i=0; i < 22; i++) {
-                    if (buf.getInt(i) != bank[i+2]) {
-                        std::cout << "orig = " << bank[i+2] << ", double swapped = " << buf.getInt(i) << std::endl;
-                        goodSwap = false;
+                    std::cout << "Print CD orig:" << std::endl;
+                    printCompositeDataObject(cdList[0]);
+
+                    // Swap raw bytes in this object
+                    cdList[0]->swap();
+                    auto &swappedBytes = cdList[0]->getRawBytes();
+                    Util::printBytes(swappedBytes.data(), 4 * 22, "Swapped Data:");
+
+                    // Swap data again
+                    cdList[0]->swap();
+                    auto &swappedBytes2 = cdList[0]->getRawBytes();
+                    Util::printBytes(swappedBytes2.data(), 4 * 22, "Double swapped Data:");
+
+                    // Wrap bytes in ByteBuffer for ease of printing later
+                    // Cannot make the underlying vector memory part of a ByteBuffer!!!
+                    uint8_t *dsData = new uint8_t[4 * 22];
+                    std::memcpy(dsData, swappedBytes2.data(), 4 * 22);
+                    ByteBuffer doubleSwapBuf(dsData, 4 * 22, false);
+
+                    // Check for differences
+                    std::cout << "CHECK FOR DIFFERENCES:" << std::endl;
+                    bool goodSwap = true;
+                    for (int i = 0; i < 22; i++) {
+                        if (buf.getInt(i) != doubleSwapBuf.getInt(i)) {
+                            std::cout << std::hex << std::showbase << "orig = " << doubleSwapBuf.getInt(i) <<
+                                      ", double swapped = " << buf.getInt(i) << std::endl;
+                            goodSwap = false;
+                        }
                     }
+                    std::cout << "good swap = " << goodSwap << std::endl;
+
+                    // Recreate the composite object from a ByteBuffer of double swapped data
+                    auto cData = CompositeData::getInstance(doubleSwapBuf);
+                    std::cout << "cData object = " << cData->toString() << std::endl << std::endl;
+                    printCompositeDataObject(*(cData.get()));
                 }
-                std::cout << "good swap = " << goodSwap << std::endl;
+                else if (swapper == 2) {
+                    // change int array into byte array
+                    auto byteArray = reinterpret_cast<uint8_t *>(allData);
 
-                // Create composite object
-                auto cData = CompositeData::getInstance(byteArray, ByteOrder::ENDIAN_BIG);
-                std::cout << "cData object = " << cData->toString() << std::endl << std::endl;
+                    std::cout << "Go from bytes to CDs:" << std::endl;
+                    std::vector<std::shared_ptr<CompositeData>> cdList;
+                    // This makes a copy of the raw bytes in byteArray
+                    CompositeData::parse(byteArray, 4 * 22, ByteOrder::ENDIAN_LOCAL, cdList);
 
-                // print out general data
-                printCompositeDataObject(*(cData.get()));
+                    // Wrap bytes in ByteBuffer for ease of printing later.
+                    // From now on, byteArray pointer cannot be used!!!
+                    ByteBuffer buf(byteArray, 4 * 22, false);
 
+                    Util::printBytes(buf, 0, 4 * 22, "Orig Data:");
+
+                    // Swap raw bytes in this object
+                    std::cout << "CALL CompositeData::swapAll()" << std::endl;
+                    CompositeData::swapAll(byteArray, nullptr, 22, true);
+                    Util::printBytes(byteArray, 4 * 22, "Swapped Data:");
+
+
+                    // Swap data again
+                    std::cout << "CALL CompositeData::swapAll() again" << std::endl;
+                    CompositeData::swapAll(byteArray, nullptr, 22, false);
+                    Util::printBytes(byteArray, 4 * 22, "Double Swapped Data:");
+
+
+                    // Wrap bytes in ByteBuffer for ease of printing later
+                    // Cannot make the underlying vector memory part of a ByteBuffer!!!
+                    uint8_t *dsData = new uint8_t[4 * 22];
+                    std::memcpy(dsData, byteArray, 4 * 22);
+                    ByteBuffer doubleSwapBuf(dsData, 4 * 22, false);
+
+                    // Check for differences
+                    std::cout << "CHECK FOR DIFFERENCES:" << std::endl;
+                    bool goodSwap = true;
+                    for (int i = 0; i < 22; i++) {
+                        if (buf.getInt(i) != doubleSwapBuf.getInt(i)) {
+                            std::cout << std::hex << std::showbase << "orig = " << doubleSwapBuf.getInt(i) <<
+                                      ", double swapped = " << buf.getInt(i) << std::endl;
+                            goodSwap = false;
+                        }
+                    }
+                    std::cout << "good swap = " << goodSwap << std::endl;
+
+                    // Recreate the composite object from a ByteBuffer of double swapped data
+                    auto cData = CompositeData::getInstance(doubleSwapBuf);
+                    std::cout << "cData object = " << cData->toString() << std::endl << std::endl;
+                    printCompositeDataObject(*(cData.get()));
+                }
+                else if (swapper == 3) {
+                    // change int array into byte array
+                    auto byteArray = reinterpret_cast<uint8_t *>(allData);
+
+                    std::cout << "Go from bytes to CDs:" << std::endl;
+                    std::vector<std::shared_ptr<CompositeData>> cdList;
+                    // This makes a copy of the raw bytes in byteArray
+                    CompositeData::parse(byteArray, 4 * 22, ByteOrder::ENDIAN_LOCAL, cdList);
+
+                    // Wrap bytes in ByteBuffer for ease of printing later.
+                    // From now on, byteArray pointer cannot be used!!!
+                    ByteBuffer buf(byteArray, 4 * 22, false);
+                    // COpy data for later comparison to double swapped data
+                    ByteBuffer bufCopy(buf);
+
+                    Util::printBytes(buf, 0, 4 * 22, "Orig Data:");
+
+                    // Swap raw bytes in this object
+                    std::cout << "CALL CompositeData::swapAll()" << std::endl;
+                    CompositeData::swapAll(buf, 0, 22);
+                    Util::printBytes(buf, 0, 4 * 22, "Swapped Data:");
+
+                    ByteBuffer doubleSwapBuf( 4 * 22);
+                    doubleSwapBuf.order(ByteOrder::ENDIAN_LOCAL);
+
+                    // Swap data again
+                    std::cout << "CALL CompositeData::swapAll() again" << std::endl;
+                    CompositeData::swapAll(buf, doubleSwapBuf, 0, 0, 22);
+                    Util::printBytes(doubleSwapBuf, 0, 4 * 22, "Double Swapped Data");
+
+                    // Check for differences
+                    std::cout << "CHECK FOR DIFFERENCES:" << std::endl;
+                    bool goodSwap = true;
+                    for (int i = 0; i < 22; i++) {
+                        if (bufCopy.getInt(i) != doubleSwapBuf.getInt(i)) {
+                            std::cout << std::hex << std::showbase << "orig = " << doubleSwapBuf.getInt(i) <<
+                                      ", double swapped = " << bufCopy.getInt(i) << std::endl;
+                            goodSwap = false;
+                        }
+                    }
+                    std::cout << "good swap = " << goodSwap << std::endl;
+
+                    // Recreate the composite object from a ByteBuffer of double swapped data
+                    auto cData = CompositeData::getInstance(doubleSwapBuf);
+                    std::cout << "cData object = " << cData->toString() << std::endl << std::endl;
+                    printCompositeDataObject(*(cData.get()));
+                }
             }
             catch (EvioException & e) {
                 std::cout << e.what() << std::endl;
@@ -932,30 +1029,58 @@ namespace evio {
             myData.addDouble(2.*3.14159);
 
             // Create CompositeData object
-            auto cData = CompositeData::getInstance(format, myData, 1, 0 ,0);
-
+            auto cData = CompositeData::getInstance(format, myData, 12, 22 ,33);
+            std::cout << "created CD object with " << cData->getRawBytes().size() << " raw bytes\n";
+            std::cout << "created CD object with " << cData->getNValues().size() << " N values\n";
             // Print it out
             printCompositeDataObject(*(cData.get()));
 
             try {
                 auto ev = EvioEvent::getInstance(0, DataType::COMPOSITE, 0);
-                auto comps = ev->getCompositeData();
+                auto & comps = ev->getCompositeData();
                 comps.push_back(cData);
                 ev->updateCompositeData();
+                size_t rbSize = ev->getRawBytes().size();
+                std::cout << "Raw byte size = " << rbSize << std::endl;
+                uint32_t bytesOut = 200 > rbSize ? rbSize : 200;
+
+                Util::printBytes(ev->getRawBytes().data(), bytesOut, "RawBytes of event with comp data");
 
                 // Write it to this file
+                std::cout << "Write ./composite.data" << std::endl;
                 std::string fileName  = "./composite.dat";
-std::cout << "Try writing to :" << fileName << std::endl;
                 EventWriter writer(fileName);
-                std::cout << "created writer" << std::endl;
                 writer.writeEvent(ev);
-                std::cout << "wrote event" << std::endl;
                 writer.close();
-                std::cout << "writer closed" << std::endl;
+
+                Util::printBytes(fileName, 0, 188, "Composite Raw Data");
+
+
+                // Read it from file
+                std::cout << "Now read ./composite.data" << std::endl;
+                EvioReader reader(fileName);
+                auto evR = reader.parseNextEvent();
+
+                if (evR != nullptr) {
+                    auto h = evR->getHeader();
+                    std::cout << "event: tag = " << h->getTag() <<
+                              ", type = " << h->getDataTypeName() << ", len = " << h->getLength() << std::endl;
+
+                    auto & cDataR = evR->getCompositeData();
+                    std::cout << "event: comp data vec size = " << cDataR.size() << std::endl;
+                    for (auto & cd : cDataR) {
+                        printCompositeDataObject(cd);
+                    }
+                }
+
+
             }
             catch (EvioException & e) {
                 std::cout << e.what() << std::endl;
             }
+
+
+
             return 0;
         }
 
@@ -1081,7 +1206,7 @@ std::cout << "Try writing to :" << fileName << std::endl;
          */
         static void printCompositeDataObject(CompositeData & cData) {
 
-            std::cout << "printCompositeDataObject: IN" << std::endl;
+            std::cout << "\n************************\nFormat = " << cData.getFormat() << std::endl << std::endl;
             // Get vectors of data items & their types from composite data object
             auto items = cData.getItems();
             auto types = cData.getTypes();
@@ -1141,7 +1266,7 @@ int main(int argc, char **argv) {
     //evio::myTreeTest();
     //evio::myByteBufferTest();
     //evio::myByteBufferTest2();
-    evio::CompositeTester::test3();
+    evio::CompositeTester::test1();
     return 0;
 }
 
