@@ -176,7 +176,6 @@ namespace evio {
          * @param srcPos     position in srcBuffer to start reading data
          * @param destPos    position in destBuffer to start writing swapped data
          * @param len        length of data in 32 bit words
-         * @param inPlace    if true, data is swapped in srcBuffer
          *
          * @throws EvioException if srcBuffer not in evio format;
          *                       if destBuffer too small;
@@ -185,8 +184,8 @@ namespace evio {
         static void swapLeafData(DataType const & type,
                                  std::shared_ptr<ByteBuffer> & srcBuf,
                                  std::shared_ptr<ByteBuffer> & destBuf,
-                                 size_t srcPos, size_t destPos, size_t len, bool inPlace) {
-            swapLeafData(type, *(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len, inPlace);
+                                 size_t srcPos, size_t destPos, size_t len) {
+            swapLeafData(type, *(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len);
         }
 
 
@@ -201,7 +200,6 @@ namespace evio {
          * @param srcPos     position in srcBuffer to start reading data
          * @param destPos    position in destBuffer to start writing swapped data
          * @param len        length of data in 32 bit words
-         * @param inPlace    if true, data is swapped in srcBuffer
          *
          * @throws EvioException if srcBuffer not in evio format;
          *                       if destBuffer too small;
@@ -209,7 +207,7 @@ namespace evio {
          */
         static void swapLeafData(DataType const & type, ByteBuffer & srcBuf,
                                  ByteBuffer & destBuf, size_t srcPos, size_t destPos,
-                                 size_t len, bool inPlace) {
+                                 size_t len) {
 
             // We end here
             size_t endPos = srcPos + 4*len;
@@ -247,15 +245,13 @@ namespace evio {
                      type == DataType::UCHAR8    ||
                      type == DataType::CHARSTAR8) {
                 // 8 bit swap - no swap needed, but need to copy if destBuf != srcBuf
-                if (!inPlace) {
-                    for (; srcPos < endPos; srcPos++, destPos++) {
-                        destBuf.put(destPos, srcBuf.getByte(srcPos));
-                    }
+                for (; srcPos < endPos; srcPos++, destPos++) {
+                   destBuf.put(destPos, srcBuf.getByte(srcPos));
                 }
             }
             else if (type == DataType::COMPOSITE) {
                 // new composite type
-                CompositeData::swapAll(srcBuf, destBuf, srcPos, destPos, len, inPlace);
+                CompositeData::swapAll(srcBuf, destBuf, srcPos, destPos, len);
             }
         }
 
