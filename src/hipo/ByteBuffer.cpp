@@ -58,8 +58,11 @@ namespace evio {
 
 
     /**
-     * This constructor is equivalent to the ByteBuffer.wrap() method in Java.
-     * There is some risk here if caller continues to use byteArray pointer
+     * This constructor is equivalent to the ByteBuffer.wrap() method in Java.<p>
+     *
+     * The byteArray arg needs to be created as a result to calling "new" as it's
+     * made part of a shared pointer!
+     * There is also some risk here if caller continues to use byteArray pointer
      * independently of this object. <b>Don't do it!</b>
      *
      * @param byteArray pointer to array which this object will wrap.
@@ -72,8 +75,11 @@ namespace evio {
 
 
     /**
-     * This constructor is equivalent to the ByteBuffer.wrap() method in Java.
-     * There is some risk here if caller continues to use byteArray pointer
+     * This constructor is equivalent to the ByteBuffer.wrap() method in Java.<p>
+     *
+     * The byteArray arg needs to be created as a result to calling "new" as it's
+     * made part of a shared pointer!
+     * There is also some risk here if caller continues to use byteArray pointer
      * independently of this object. <b>Don't do it!</b>
      *
      * @param byteArray pointer to array which this object will wrap.
