@@ -674,12 +674,14 @@ namespace evio {
 
     private:
 
-        /** Default constructor. */
+        // Only constructors with raw data or a vector of CompositeData::Data as an arg
+        // are used. That way there is never an "empty" CompositeData object.
+        // Thus, each object will have a raw byte representation generated.
+
+        /** Default constructor Never used. */
         CompositeData() = default;
 
-
         CompositeData(std::string const & format, const CompositeData::Data & data);
-
 
         CompositeData(std::string const & format,
                       const CompositeData::Data & data,
@@ -687,8 +689,9 @@ namespace evio {
                       uint16_t dataTag, uint8_t dataNum,
                       ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
-
         CompositeData(uint8_t *bytes, ByteOrder const & byteOrder);
+
+        CompositeData(ByteBuffer & bytes);
 
         static std::shared_ptr<CompositeData> getInstance();
 
@@ -704,8 +707,10 @@ namespace evio {
                                                           uint16_t dataTag, uint8_t dataNum,
                                                           ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
-        static std::shared_ptr<CompositeData> getInstance(uint8_t *bytes, ByteOrder const & byteOrder);
+        static std::shared_ptr<CompositeData> getInstance(uint8_t *bytes,
+                                                          ByteOrder const & order = ByteOrder::ENDIAN_LOCAL);
 
+        static std::shared_ptr<CompositeData> getInstance(ByteBuffer & bytes);
 
         static void parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
                           std::vector<std::shared_ptr<CompositeData>> & list);
@@ -757,12 +762,19 @@ namespace evio {
 
         void swap();
 
+
         static void swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal);
+
+        // Swap in place
+        static void swapAll(ByteBuffer & buf, uint32_t srcPos, uint32_t len);
+        static void swapAll(std::shared_ptr<ByteBuffer> & buf, uint32_t srcPos, uint32_t len);
+
+        // Swap elsewhere
         static void swapAll(std::shared_ptr<ByteBuffer> & srcBuf,
                             std::shared_ptr<ByteBuffer> & destBuf,
-                            uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
+                            uint32_t srcPos, uint32_t destPos, uint32_t len);
         static void swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
-                            uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace);
+                            uint32_t srcPos, uint32_t destPos, uint32_t len);
 
 
         static void swapData(ByteBuffer & srcBuf, ByteBuffer & destBuf,
@@ -781,6 +793,7 @@ namespace evio {
         // This is an in-place swap
         static void swapData(int32_t *iarr, int nwrd, const std::vector<uint16_t> & ifmt,
                              uint32_t padding);
+
 
         static void dataToRawBytes(ByteBuffer & rawBuf, CompositeData::Data const & data,
                                    std::vector<uint16_t> & ifmt);
