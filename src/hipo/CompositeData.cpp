@@ -43,12 +43,8 @@ namespace evio {
     CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data, uint16_t formatTag,
                                  uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
 
-        bool debug = false;
-
         this->format = format;
         byteOrder = order;
-
-        if (debug) std::cout << "Analyzing composite data:" << std::endl;
 
         // Check args
         if (format.empty()) {
@@ -97,7 +93,7 @@ namespace evio {
         int totalByteLen = dataBytes + 4*dataOffset;
 
         // Create a big enough array to hold everything
-        rawBytes.reserve(totalByteLen);
+        rawBytes.resize(totalByteLen, 0);
 
         // Copy tag segment header (4 bytes) to rawBytes
         tsHeader->write(rawBytes.data(), byteOrder);
@@ -156,7 +152,7 @@ namespace evio {
 
         // Read the format string it contains
         std::vector<std::string> strs;
-        Util::unpackRawBytesToStrings(bytes, 4*(tsHeader->getLength()), strs);
+        Util::unpackRawBytesToStrings(bytes + 4*dataOffset, 4*(tsHeader->getLength()), strs);
 
         if (strs.empty()) {
             throw EvioException("bad format string data");
@@ -175,7 +171,7 @@ namespace evio {
         }
 
         // Hop over tagseg data
-        dataOffset += tsHeader->getLength() - (tsHeader->getHeaderLength() - 1);
+        dataOffset += tsHeader->getDataLength();
 
         // Read the data bank header
         bHeader = EventHeaderParser::createBankHeader(bytes + 4*dataOffset, byteOrder);
@@ -187,16 +183,16 @@ namespace evio {
         dataPadding = bHeader->getPadding();
 
         // How much data do we have?
-        dataBytes = 4*(bHeader->getLength() - (bHeader->getHeaderLength() - 1)) - dataPadding;
+        dataBytes = 4*(bHeader->getDataLength()) - dataPadding;
         if (dataBytes < 2) {
             throw EvioException("no composite data");
         }
 
-        int words = (tsHeader->getLength() + bHeader->getLength() + 2);
-
         if (debug) {
+            int words = (tsHeader->getLength() + bHeader->getLength() + 2);
+
             std::cout << "    bank: type = 0x" << std::hex << bHeader->getDataTypeValue() << std::dec <<
-                               ", tag = " << bHeader->getTag() << ", num = " << bHeader->getNumber() << std::endl;
+                               ", tag = " << bHeader->getTag() << ", num = " << (int)(bHeader->getNumber()) << std::endl;
             std::cout << "    bank: len (words) = " << bHeader->getLength() <<
                                ", padding = " << dataPadding <<
                                ", data len - padding = " << dataBytes <<
@@ -205,12 +201,23 @@ namespace evio {
 
         // Copy data over
         size_t totalBytes = 4*dataOffset + dataBytes + dataPadding;
-        rawBytes.reserve(totalBytes);
+        if (debug) {
+            std::cout << "    total bytes: " << totalBytes << std::endl;
+        }
+        rawBytes.resize(totalBytes, 0);
         std::memcpy(rawBytes.data(), bytes, totalBytes);
 
         // Turn raw bytes into list of items and their types
         process();
     }
+
+
+    /**
+     * Constructor used when reading existing data. Data is copied in.
+     * @param bytes ByteBuffer of raw data.
+     */
+    CompositeData::CompositeData(ByteBuffer & bytes) :
+            CompositeData(bytes.array() + bytes.arrayOffset() + bytes.position(), bytes.order()) {}
 
 
     /**
@@ -259,11 +266,22 @@ namespace evio {
     /**
      * Method to return a shared pointer to a constructed object of this class.
      * @param bytes pointer to raw data.
-     * @param byteOrder byte order of raw data.
+     * @param order byte order of raw data.
      * @return shared pointer of CompositeData object.
      */
-    std::shared_ptr<CompositeData> CompositeData::getInstance(uint8_t *bytes, ByteOrder const & byteOrder) {
-        std::shared_ptr<CompositeData> cd(new CompositeData(bytes, byteOrder));
+    std::shared_ptr<CompositeData> CompositeData::getInstance(uint8_t *bytes, ByteOrder const & order) {
+        std::shared_ptr<CompositeData> cd(new CompositeData(bytes, order));
+        return cd;
+    }
+
+
+    /**
+     * Method to return a shared pointer to a constructed object of this class.
+     * @param bytes ByteBuffer of raw data.
+     * @return shared pointer of CompositeData object.
+     */
+    std::shared_ptr<CompositeData> CompositeData::getInstance(ByteBuffer & bytes) {
+        std::shared_ptr<CompositeData> cd(new CompositeData(bytes));
         return cd;
     }
 
@@ -374,7 +392,7 @@ namespace evio {
             }
 
             // Make copy of only the rawbytes for this CompositeData object (including padding)
-            cd->rawBytes.reserve(byteCount);
+            cd->rawBytes.resize(byteCount, 0);
             std::memcpy(cd->rawBytes.data(), bytes + rawBytesOffset, byteCount);
 
             // Turn dataBuffer into list of items and their types
@@ -421,8 +439,7 @@ namespace evio {
         }
 
         // Prepare vector
-        rawBytes.clear();
-        rawBytes.reserve(totalLen);
+        rawBytes.resize(totalLen, 0);
 
         // Copy everything in
         int offset = 0;
@@ -996,8 +1013,7 @@ namespace evio {
      * @param length   length of data array in 32 bit words.
      * @param srcIsLocal true if the byte order of src data is the same as the node's.
      *
-     * @throws EvioException if offsets or length &lt; 0; if src = null;
-     *                       if src or dest is too small
+     * @throws EvioException if src = null; if len is too small
      */
     void CompositeData::swapAll(uint8_t *src, uint8_t *dest, size_t length, bool srcIsLocal) {
 
@@ -1031,16 +1047,11 @@ namespace evio {
         // How many bytes taken for this CompositeData object?
         size_t dataOff = 0;
 
-
         while (srcBytesLeft > 0) {
-            //System.out.println("start src offset = " + (srcOff + dataOff));
-
             // First read the tag segment header
             auto tsegHeader = EventHeaderParser::createTagSegmentHeader(src + srcOff, srcOrder);
             uint32_t headerLen  = tsegHeader->getHeaderLength();
-            uint32_t dataLength = tsegHeader->getLength() - (headerLen - 1);
-
-            //System.out.println("tag len = " + tsegHeader.getLength() + ", dataLen = " + dataLength);
+            uint32_t dataLength = tsegHeader->getDataLength();
 
             // Oops, no format data
             if (dataLength < 1) {
@@ -1048,7 +1059,7 @@ namespace evio {
             }
 
             // Got all we needed from the tagseg header, now swap as it's written out.
-            tsegHeader->write(dest + destOff + 4, destOrder);
+            tsegHeader->write(dest + destOff, destOrder);
 
             // Move to beginning of string data
             srcOff  += 4*headerLen;
@@ -1057,7 +1068,7 @@ namespace evio {
 
             // Read the format string it contains
             std::vector<std::string> strs;
-            Util::unpackRawBytesToStrings(src + srcOff, 4*(tsegHeader->getLength()), strs);
+            Util::unpackRawBytesToStrings(src + srcOff, 4*dataLength, strs);
 
             if (strs.empty()) {
                 throw EvioException("bad format string data");
@@ -1086,10 +1097,6 @@ namespace evio {
             headerLen  = bnkHeader->getHeaderLength();
             dataLength = bnkHeader->getLength() - (headerLen - 1);
 
-            //System.out.println("swapAll: bank len = " + bnkHeader.getLength() + ", dataLen = " + dataLength +
-            //", tag = " + bnkHeader.getTag() + ", num = " + bnkHeader.getNumber() + ", type = " + bnkHeader.getDataTypeName() +
-            //", pad = " + bnkHeader.getPadding());
-
             // Oops, no data
             if (dataLength < 1) {
                 throw EvioException("no data");
@@ -1098,7 +1105,7 @@ namespace evio {
             uint32_t padding = bnkHeader->getPadding();
 
             // Got all we needed from the bank header, now swap as it's written out.
-            bnkHeader->write(dest + destOff + 8, destOrder);
+            bnkHeader->write(dest + destOff, destOrder);
 
             // Move to beginning of data
             srcOff  += 4*headerLen;
@@ -1106,7 +1113,8 @@ namespace evio {
             dataOff += 4*headerLen;
 
             // Swap data
-            CompositeData::swapData(reinterpret_cast<int32_t *>(src), reinterpret_cast<int32_t *>(dest),
+            CompositeData::swapData(reinterpret_cast<int32_t *>(src + srcOff),
+                                    reinterpret_cast<int32_t *>(dest + destOff),
                                     dataLength, fmtInts, padding, srcIsLocal);
 
             // Adjust data length by switching units from
@@ -1119,9 +1127,6 @@ namespace evio {
             dataOff += dataLength;
 
             srcBytesLeft = totalBytes - dataOff;
-
-            //System.out.println("bytes left = " + srcBytesLeft + ",offset = " + dataOff + ", padding = " + padding);
-            //System.out.println("src pos = " + srcBuffer.position() + ", dest pos = " + destBuffer.position());
         }
 
         // Oops, things aren't coming out evenly
@@ -1131,30 +1136,49 @@ namespace evio {
     }
 
 
-
     /**
-     * This method converts (swaps) a buffer, containing EVIO composite type,
+     * This method swaps the data in a buffer, containing EVIO composite type,
      * between big & little endian. It swaps the entire type including the beginning
      * tagsegment header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src buffer may contain an array of
      * composite type items and all will be swapped.<p>
-     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
      *
-     * @param srcBuffer   source data buffer
-     * @param destBuffer  destination data buffer
-     * @param srcPos      position in srcBuffer to beginning swapping
-     * @param destPos     position in destBuffer to beginning writing swapped data
-     * @param len         length of data in srcBuffer to swap in 32 bit words
-     * @param inPlace     if true, swap in place.
+     * @param buf      source and destination data buffer.
+     * @param srcPos   position in srcBuffer to beginning swapping
+     * @param len      length of data in buf to swap in 32 bit words
      *
+     * @throws std::out_of_range if srcPos or len too large; if len too small.
      * @throws EvioException if srcBuffer not in evio format;
-     *                       if destBuffer too small;
-     *                       if bad values for srcPos/destPos/len args;
      */
-    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & srcBuf,
-                                std::shared_ptr<ByteBuffer> & destBuf,
-                                uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace) {
-        swapAll(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len, inPlace);
+    void CompositeData::swapAll(ByteBuffer & buf, uint32_t srcPos, uint32_t len) {
+
+        if (srcPos + 4*len > buf.limit()) {
+            throw std::out_of_range("srcPos or len too large");
+        }
+
+        uint8_t * src = buf.array() + buf.arrayOffset() + srcPos;
+        swapAll(src, nullptr, len, buf.order().isLocalEndian());
+        buf.order(buf.order().getOppositeEndian());
+    }
+
+
+    /**
+     * This method swaps the data in a buffer, containing EVIO composite type,
+     * between big & little endian. It swaps the entire type including the beginning
+     * tagsegment header, the following format string it contains, the data's bank header,
+     * and finally the data itself. The src buffer may contain an array of
+     * composite type items and all will be swapped.<p>
+     *
+     * @param buf      source and destination data buffer.
+     * @param srcPos   position in srcBuffer to beginning swapping
+     * @param len      length of data in buf to swap in 32 bit words
+     *
+     * @throws std::out_of_range if srcPos or len too large; if len too small.
+     * @throws EvioException if srcBuffer not in evio format;
+     */
+    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & buf,
+                                uint32_t srcPos, uint32_t len) {
+        swapAll(*(buf.get()), srcPos, len);
     }
 
 
@@ -1171,14 +1195,38 @@ namespace evio {
      * @param srcPos      position in srcBuffer to beginning swapping
      * @param destPos     position in destBuffer to beginning writing swapped data
      * @param len         length of data in srcBuffer to swap in 32 bit words
-     * @param inPlace     if true, swap in place.
+     *
+     * @throws EvioException if srcBuffer not in evio format;
+     *                       if destBuffer too small;
+     *                       if bad values for srcPos/destPos/len args;
+     */
+    void CompositeData::swapAll(std::shared_ptr<ByteBuffer> & srcBuf,
+                                std::shared_ptr<ByteBuffer> & destBuf,
+                                uint32_t srcPos, uint32_t destPos, uint32_t len) {
+        swapAll(*(srcBuf.get()), *(destBuf.get()), srcPos, destPos, len);
+    }
+
+
+    /**
+     * This method converts (swaps) a buffer, containing EVIO composite type,
+     * between big & little endian. It swaps the entire type including the beginning
+     * tagsegment header, the following format string it contains, the data's bank header,
+     * and finally the data itself. The src buffer may contain an array of
+     * composite type items and all will be swapped.<p>
+     * <b>This only swaps data if buffer arguments have opposite byte order!</b>
+     *
+     * @param srcBuffer   source data buffer
+     * @param destBuffer  destination data buffer
+     * @param srcPos      position in srcBuffer to beginning swapping
+     * @param destPos     position in destBuffer to beginning writing swapped data
+     * @param len         length of data in srcBuffer to swap in 32 bit words
      *
      * @throws EvioException if srcBuffer not in evio format;
      *                       if destBuffer too small;
      *                       if bad values for srcPos/destPos/len args;
      */
     void CompositeData::swapAll(ByteBuffer & srcBuffer, ByteBuffer & destBuffer,
-                                uint32_t srcPos, uint32_t destPos, uint32_t len, bool inPlace) {
+                                uint32_t srcPos, uint32_t destPos, uint32_t len) {
 
         // Minimum size of 4 words for composite data
         if (len < 4) {
@@ -1228,10 +1276,8 @@ namespace evio {
 
             // Char data does not get swapped but needs
             // to be copied if not swapping in place.
-            if (!inPlace) {
-                for (int i=0; i < byteLen; i++) {
-                    destBuffer.put(destPos+i, srcBuffer.getByte(srcPos+i));
-                }
+            for (int i=0; i < byteLen; i++) {
+               destBuffer.put(destPos+i, srcBuffer.getByte(srcPos+i));
             }
 
             // Move to beginning of bank header
@@ -2499,8 +2545,9 @@ namespace evio {
                             mcnf = 0;
 
                             // get "N" value from List
-                            if (data.dataTypes[itemIndex] != DataType::INT32) {
-                                throw EvioException("Data type mismatch");
+                            if (data.dataTypes[itemIndex] != DataType::UINT32) {
+                                throw EvioException("Data type mismatch, N val is not INT32, got " +
+                                                    data.dataTypes[itemIndex].toString());
                             }
                             ncnf = data.dataItems[itemIndex++].item.i32;
 #ifdef COMPOSITE_DEBUG
@@ -2516,7 +2563,9 @@ namespace evio {
                             mcnf = 0;
 
                             // get "n" value from List
-                            if (data.dataTypes[itemIndex] != DataType::SHORT16) {
+                            if (data.dataTypes[itemIndex] != DataType::USHORT16) {
+                                throw EvioException("Data type mismatch, n val is not SHORT16, got " +
+                                                    data.dataTypes[itemIndex].toString());
                                 throw EvioException("Data type mismatch");
                             }
                             // Get rid of sign extension to allow n to be unsigned
@@ -2534,8 +2583,9 @@ namespace evio {
                             mcnf = 0;
 
                             // get "m" value from List
-                            if (data.dataTypes[itemIndex] != DataType::CHAR8) {
-                                throw EvioException("Data type mismatch");
+                            if (data.dataTypes[itemIndex] != DataType::UCHAR8) {
+                                throw EvioException("Data type mismatch, m val is not CHAR8, got " +
+                                                    data.dataTypes[itemIndex].toString());
                             }
                             // Get rid of sign extension to allow m to be unsigned
                             ncnf = data.dataItems[itemIndex++].item.b8;
@@ -2584,8 +2634,9 @@ namespace evio {
 
                 if (mcnf == 1) {
                     // get "N" value from List
-                    if (data.dataTypes[itemIndex] != DataType::INT32) {
-                        throw EvioException("Data type mismatch");
+                    if (data.dataTypes[itemIndex] != DataType::UINT32) {
+                        throw EvioException("Data type mismatch, N val is not INT32, got " +
+                                            data.dataTypes[itemIndex].toString());
                     }
                     ncnf = data.dataItems[itemIndex++].item.i32;
 
@@ -2594,16 +2645,18 @@ namespace evio {
                 }
                 else if (mcnf == 2) {
                     // get "n" value from List
-                    if (data.dataTypes[itemIndex] != DataType::SHORT16) {
-                        throw EvioException("Data type mismatch");
+                    if (data.dataTypes[itemIndex] != DataType::USHORT16) {
+                        throw EvioException("Data type mismatch, n val is not SHORT16, got " +
+                                            data.dataTypes[itemIndex].toString());
                     }
                     ncnf = data.dataItems[itemIndex++].item.s16;
                     rawBuf.putShort((int16_t)ncnf);
                 }
                 else if (mcnf == 3) {
                     // get "m" value from List
-                    if (data.dataTypes[itemIndex] != DataType::CHAR8) {
-                        throw EvioException("Data type mismatch");
+                    if (data.dataTypes[itemIndex] != DataType::UCHAR8) {
+                        throw EvioException("Data type mismatch, m val is not CHAR8, got " +
+                                            data.dataTypes[itemIndex].toString());
                     }
                     ncnf = data.dataItems[itemIndex++].item.b8;
                     rawBuf.put((int8_t)ncnf);
