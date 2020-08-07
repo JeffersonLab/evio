@@ -52,18 +52,8 @@ namespace evio {
         // length first
         Util::toBytes(length, order, dest);
 
-        if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes(tag, order, dest+4);
-            // lowest 6 bits are dataType, upper 2 bits are padding
-            dest[6] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            dest[7] = number;
-        }
-        else {
-            dest[4] = number;
-            dest[5] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes(tag, order, dest+6);
-        }
-
+        auto word = (uint32_t) (tag << 16 | (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | number);
+        Util::toBytes(word, order, dest+4);
         return 8;
     }
 
@@ -90,17 +80,8 @@ namespace evio {
     size_t BankHeader::write(ByteBuffer & dest) {
         dest.putInt(length);
 
-        if (dest.order() == ByteOrder::ENDIAN_BIG) {
-            dest.putShort(tag);
-            dest.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            dest.put(number);
-        }
-        else {
-            dest.put(number);
-            dest.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            dest.putShort(tag);
-        }
-
+        auto word = (uint32_t) (tag << 16 | (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | number);
+        dest.putInt(word);
         return 8;
     }
 

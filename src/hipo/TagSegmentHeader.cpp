@@ -53,22 +53,14 @@ namespace evio {
      * Write myself out as evio format data
      * into the given byte array in the specified byte order.
      *
-	 * @param bArray array into which evio data is written (destination).
+	 * @param dest array into which evio data is written (destination).
 	 * @param order  byte order in which to write the data.
      * @return the number of bytes written, which for a TagSegmentHeader is 4.
      * @throws EvioException if destination array too small to hold data.
      */
     size_t TagSegmentHeader::write(uint8_t *dest, ByteOrder const & order) {
-        auto compositeWord = (uint16_t) ((tag << 4) | (dataType.getValue() & 0xf));
-
-        if (order == ByteOrder::ENDIAN_BIG) {
-            Util::toBytes(compositeWord, order, dest);
-            Util::toBytes((uint16_t)length, order, dest + 2);
-        }
-        else {
-            Util::toBytes((uint16_t)length, order, dest);
-            Util::toBytes(compositeWord, order, dest + 2);
-        }
+        auto compositeWord = (uint32_t) (tag << 20 | ((dataType.getValue() & 0xf)) << 16 | (length & 0xffff));
+        Util::toBytes(compositeWord, order, dest);
         return 4;
     }
 
@@ -93,17 +85,8 @@ namespace evio {
      * @return the number of bytes written, which for a TagSegmentHeader is 4.
      */
     size_t TagSegmentHeader::write(ByteBuffer & byteBuffer) {
-
-        auto compositeWord = (uint16_t) ((tag << 4) | (dataType.getValue() & 0xf));
-
-        if (byteBuffer.order() == ByteOrder::ENDIAN_BIG) {
-            byteBuffer.putShort(compositeWord);
-            byteBuffer.putShort((uint16_t)length);
-        }
-        else {
-            byteBuffer.putShort((uint16_t)length);
-            byteBuffer.putShort(compositeWord);
-        }
+        auto compositeWord = (uint32_t) (tag << 20 | ((dataType.getValue() & 0xf)) << 16 | (length & 0xffff));
+        byteBuffer.putInt(compositeWord);
         return 4;
     }
 

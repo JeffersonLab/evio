@@ -48,18 +48,10 @@ namespace evio {
      * @throws EvioException if destination array too small to hold data.
      */
     size_t SegmentHeader::write(uint8_t *dest, ByteOrder const & order) {
-        if (order == ByteOrder::ENDIAN_BIG) {
-            dest[0] = (uint8_t)tag;
-            dest[1] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            Util::toBytes((uint16_t)length, order, dest+2);
 
-        }
-        else {
-            Util::toBytes((uint16_t)length, order, dest);
-            dest[2] = (uint8_t)((dataType.getValue() & 0x3f) | (padding << 6));
-            dest[3] = (uint8_t)tag;
-        }
-
+        auto word = (uint32_t) (tag << 24 | (uint8_t)((dataType.getValue() & 0x3f) |
+                                (padding << 6)) << 16 | (length & 0xffff));
+        Util::toBytes(word, order, dest);
         return 4;
     }
 
@@ -85,16 +77,9 @@ namespace evio {
      */
     size_t SegmentHeader::write(ByteBuffer & byteBuffer) {
 
-        if (byteBuffer.order() == ByteOrder::ENDIAN_BIG) {
-            byteBuffer.put((int8_t)tag);
-            byteBuffer.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.putShort((uint16_t)length);
-        }
-        else {
-            byteBuffer.putShort((uint16_t)length);
-            byteBuffer.put((int8_t)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.put((int8_t)tag);
-        }
+        auto word = (uint32_t) (tag << 24 | (uint8_t)((dataType.getValue() & 0x3f) |
+                                (padding << 6)) << 16 | (length & 0xffff));
+        byteBuffer.putInt(word);
         return 4;
     }
 
