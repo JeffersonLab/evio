@@ -33,8 +33,8 @@ namespace evio {
 
     /**
      * This class is used for creating and manipulating events. One constructor is convenient for creating new events while
-     * another is useful for manipulating existing events. You can create a new EventBuilder for each event being handled,
-     * However, in many cases one can use the same EventBuilder for all events by calling the setEvent method.
+     * another is useful for manipulating existing events. You can create a new EventBuilder for each event being handled;
+     * however, in many cases one can use the same EventBuilder for all events by calling the setEvent method.
      * The only reason a singleton pattern was not used was to allow for the possibility that events will be built or
      * manipulated on multiple threads.
      * @author heddle (original java version)
