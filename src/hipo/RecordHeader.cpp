@@ -1212,6 +1212,7 @@ namespace evio {
         if (buf.hasArray()) {
             writeTrailer(buf.array() + buf.arrayOffset() + off, buf.remaining(),
                          recordNum, buf.order(), recordLengths);
+            buf.position(buf.limit());
         }
         else {
             uint32_t bitinfo = (HeaderType::EVIO_TRAILER.getValue() << 28) | RecordHeader::LAST_RECORD_BIT | 6;
