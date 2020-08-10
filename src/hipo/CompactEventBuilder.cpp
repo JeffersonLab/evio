@@ -311,16 +311,16 @@ namespace evio {
     /**
      * This method adds an evio bank to the buffer.
      *
-     * @param tag tag of bank header
-     * @param num num of bank header
-     * @param dataType data type to be contained in this bank
+     * @param tag tag of bank header.
+     * @param dataType data type to be contained in this bank.
+     * @param num num of bank header.
      * @return if told to generate nodes in constructor, then return
      *         the node created here; else return null
      * @throws EvioException if containing structure does not hold banks;
      *                       if no room in buffer for bank header;
      *                       if too many nested evio structures;
      */
-    std::shared_ptr<EvioNode> CompactEventBuilder::openBank(uint16_t tag, uint8_t num, DataType const & dataType) {
+    std::shared_ptr<EvioNode> CompactEventBuilder::openBank(uint16_t tag, DataType const & dataType, uint8_t num) {
 
         // Banks not allowed if parent holds different type
         if (currentStructure != nullptr &&
