@@ -55,7 +55,7 @@ namespace evio {
         uint8_t * array = nullptr;
 
         /** Offset into backing array. */
-        size_t arrayOffset;
+        size_t arrayOffset = 0;
 
         /** Current writing position in the buffer. */
         size_t position = 0;
@@ -151,7 +151,7 @@ namespace evio {
 
         std::shared_ptr<EvioNode> openSegment(uint16_t tag, DataType const & dataType);
         std::shared_ptr<EvioNode> openTagSegment(int tag, DataType dataType);
-        std::shared_ptr<EvioNode> openBank(uint16_t tag, uint8_t num, DataType const & dataType);
+        std::shared_ptr<EvioNode> openBank(uint16_t tag, DataType const & dataType, uint8_t num);
 
         bool closeStructure();
         void closeAll();
