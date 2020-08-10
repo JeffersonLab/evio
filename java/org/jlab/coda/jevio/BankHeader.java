@@ -42,18 +42,8 @@ public final class BankHeader extends BaseStructureHeader {
         try {
             // length first
             ByteDataTransformer.toBytes(length, order, bArray, offset);
-
-            if (order == ByteOrder.BIG_ENDIAN) {
-                ByteDataTransformer.toBytes((short)tag, order, bArray, offset+4);
-                // lowest 6 bits are dataType, upper 2 bits are padding
-                bArray[offset+6] = (byte)((dataType.getValue() & 0x3f) | (padding << 6));
-                bArray[offset+7] = (byte)number;
-            }
-            else {
-                bArray[offset+4] = (byte)number;
-                bArray[offset+5] = (byte)((dataType.getValue() & 0x3f) | (padding << 6));
-                ByteDataTransformer.toBytes((short)tag, order, bArray, offset+6);
-            }
+			int word = (tag << 16 | (byte)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | (number & 0xffff));
+			ByteDataTransformer.toBytes(word, order, bArray, offset+4);
         }
         catch (EvioException e) {e.printStackTrace();}
     }
@@ -77,17 +67,8 @@ public final class BankHeader extends BaseStructureHeader {
 	 */
 	public int write(ByteBuffer byteBuffer) {
 		byteBuffer.putInt(length);
-        
-        if (byteBuffer.order() == ByteOrder.BIG_ENDIAN) {
-            byteBuffer.putShort((short)tag);
-            byteBuffer.put((byte)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.put((byte)number);
-        }
-        else {
-            byteBuffer.put((byte)number);
-            byteBuffer.put((byte)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.putShort((short)tag);
-        }
+		int word = (tag << 16 | (byte)((dataType.getValue() & 0x3f) | (padding << 6)) << 8 | (number & 0xffff));
+		byteBuffer.putInt(word);
 
 		return 8;
 	}

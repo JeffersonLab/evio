@@ -38,16 +38,9 @@ public final class SegmentHeader extends BaseStructureHeader {
      */
     protected void toArray(byte[] bArray, int offset, ByteOrder order) {
         try {
-            if (order == ByteOrder.BIG_ENDIAN) {
-                bArray[offset]   = (byte)tag;
-                bArray[offset+1] = (byte)((dataType.getValue() & 0x3f) | (padding << 6));
-                ByteDataTransformer.toBytes((short)length, order, bArray, offset+2);
-            }
-            else {
-                ByteDataTransformer.toBytes((short)length, order, bArray, offset);
-                bArray[offset+2] = (byte)((dataType.getValue() & 0x3f) | (padding << 6));
-                bArray[offset+3] = (byte)tag;
-            }
+			int word = (tag << 24 | (byte)((dataType.getValue() & 0x3f) |
+				       (padding << 6)) << 16 | (length & 0xffff));
+			ByteDataTransformer.toBytes(word, order, bArray, offset);
         }
         catch (EvioException e) {e.printStackTrace();}
     }
@@ -69,16 +62,9 @@ public final class SegmentHeader extends BaseStructureHeader {
 	 * @return the number of bytes written, which for a SegmentHeader is 4.
 	 */
 	public int write(ByteBuffer byteBuffer) {
-        if (byteBuffer.order() == ByteOrder.BIG_ENDIAN) {
-            byteBuffer.put((byte)tag);
-            byteBuffer.put((byte)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.putShort((short)length);
-        }
-        else {
-            byteBuffer.putShort((short)length);
-            byteBuffer.put((byte)((dataType.getValue() & 0x3f) | (padding << 6)));
-            byteBuffer.put((byte)tag);
-        }
+		int word = (tag << 24 | (byte)((dataType.getValue() & 0x3f) |
+				   (padding << 6)) << 16 | (length & 0xffff));
+		byteBuffer.putInt(word);
 		return 4;
 	}
 
