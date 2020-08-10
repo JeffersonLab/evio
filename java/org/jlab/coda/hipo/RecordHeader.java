@@ -1134,7 +1134,6 @@ public class RecordHeader implements IBlockHeader {
         if (array == null || array.length < wholeLength + off) {
             throw new HipoException("null or too small array arg");
         }
-        System.out.println("writeTrailer []: writing with order = " + order);
 
         int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
 
@@ -1194,6 +1193,7 @@ System.out.println("writeTrailer buf: writing with order = " + buf.order());
 
         if (buf.hasArray()) {
             writeTrailer(buf.array(), buf.arrayOffset() + off, recordNumber, buf.order(), index);
+            buf.position(buf.limit());
         }
         else {
             int bitInfo = (HeaderType.EVIO_TRAILER.getValue() << 28) | RecordHeader.LAST_RECORD_BIT | 6;
