@@ -50,6 +50,9 @@
 #include "CompositeData.h"
 #include "DataType.h"
 
+#include "EventBuilder.h"
+#include "CompactEventBuilder.h"
+
 #include "Util.h"
 
 
@@ -1254,9 +1257,86 @@ namespace evio {
 
         }
 
-
-
     };
+
+
+    // Test the EventBuilder and CompactEventBuilder classes
+    static void EventBuilderTest() {
+        //---------------------------
+        // Test regular EventBuilder:
+        //---------------------------
+
+        uint16_t tag = 1;
+        DataType dataType = DataType::BANK;
+        uint8_t num = 1;
+
+        EventBuilder eb(tag, dataType, num);
+        //EventBuilder(std::shared_ptr<EvioEvent> & event);
+        auto ev = eb.getEvent();
+
+        EventBuilder eb2(tag+1, DataType::SHORT16, num+1);
+        auto ev2 = eb2.getEvent();
+        short sData[3] = {1, 2, 3};
+        eb2.appendShortData(ev2, sData, 3);
+        eb.addChild(ev, ev2);
+
+
+        std::cout << "EventBuilder's ev:\n" << ev->toString() << std::endl;
+        std::cout << "EventBuilder's ev2:\n" << ev2->toString() << std::endl;
+
+        EventBuilder eb3(tag+2, DataType::UINT32, num+2);
+        auto ev3 = eb3.getEvent();
+        eb.setEvent(ev3);
+        uint32_t iData[4] = {11, 22, 33, 44};
+        eb.appendUIntData(ev3, iData, 4);
+
+        std::cout << "EventBuilder's ev3:\n" << ev3->toString() << std::endl;
+
+        //---------------------------
+        // Test CompactEventBuilder:
+        //---------------------------
+
+        size_t bufSize = 1000;
+        CompactEventBuilder ceb(bufSize, ByteOrder::ENDIAN_LOCAL, true);
+        std::cout << "CompactEventBuilder after constructor\n";
+        //explicit CompactEventBuilder(std::shared_ptr<ByteBuffer> buffer, bool generateNodes = false);
+        ceb.openBank(4, DataType::SEGMENT, 4);
+        std::cout << "CompactEventBuilder after openBank\n";
+        ceb.openSegment(5, DataType::DOUBLE64);
+        std::cout << "CompactEventBuilder after openSegment\n";
+        double dd[3] = {1.11, 2.22, 3.33};
+        ceb.addDoubleData(dd, 3);
+        std::cout << "CompactEventBuilder after addDoubleData\n";
+        ceb.closeAll();
+        std::cout << "CompactEventBuilder after closeAll\n";
+        auto cebEvbuf = ceb.getBuffer();
+
+        //Util::printBytes(cebEvbuf, 0 , 200, "From CompactEventBuilder");
+
+        // Write into a buffer
+        auto newBuf = std::make_shared<ByteBuffer>(1000);
+        EventWriter writer(newBuf);
+        writer.writeEvent(cebEvbuf);
+        writer.close();
+        auto writerBuf = writer.getByteBuffer();
+
+        //Util::printBytes(newBuf, 0 , 200, "From EventWriter");
+
+        std::cout << "CompactEventBuilder's before reader, writerBuf pos = " << writerBuf->position() <<
+        ", limit = " << writerBuf->limit() << "\n";
+
+        EvioReader reader(writerBuf);
+        std::cout << "CompactEventBuilder's after reader\n";
+        auto cebEv = reader.getEvent(1);
+        std::cout << "CompactEventBuilder's after getEvent\n";
+
+        std::cout << "CompactEventBuilder's cebEv:\n" << cebEv->toString() << std::endl;
+
+
+
+
+    }
+
 
 }
 
@@ -1266,7 +1346,8 @@ int main(int argc, char **argv) {
     //evio::myTreeTest();
     //evio::myByteBufferTest();
     //evio::myByteBufferTest2();
-    evio::CompositeTester::test1();
+    //evio::CompositeTester::test1();
+    evio::EventBuilderTest();
     return 0;
 }
 
