@@ -39,17 +39,13 @@ namespace evio {
     protected:
 
         /** Constructor. */
-        EvioBank() : BaseStructure() {
-            std::cout << "EvioBank's private zero-arg constructor" << std::endl;
-        }
+        EvioBank() : BaseStructure() {}
 
         /**
          * Constructor.
          * @param head bank header.
          */
-        explicit EvioBank(std::shared_ptr<BankHeader> const & head) : BaseStructure(head) {
-            std::cout << "EvioBank's private constructor" << std::endl;
-        }
+        explicit EvioBank(std::shared_ptr<BankHeader> const & head) : BaseStructure(head) {}
 
     public:
 

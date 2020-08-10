@@ -41,17 +41,13 @@ namespace evio {
     private:
 
         /** Constructor. */
-        EvioEvent() : EvioBank() {
-            std::cout << "EvioEvents's private zero-arg constructor" << std::endl;
-        }
+        EvioEvent() : EvioBank() {}
 
        /**
         * Constructor.
         * @param head bank header.
         */
-        explicit EvioEvent(std::shared_ptr<BankHeader> const & head) : EvioBank(head) {
-                std::cout << "EvioEvent's private constructor" << std::endl;
-        }
+        explicit EvioEvent(std::shared_ptr<BankHeader> const & head) : EvioBank(head) {}
 
     public:
 
@@ -158,7 +154,7 @@ namespace evio {
             ss << std::hex << "(" << header->getTag() << ")" << std::dec;
 
             if (stype == StructureType::STRUCT_BANK) {
-                ss << "  num=" << header->getNumber() << std::hex << "(" << header->getNumber() << ")" << std::dec;
+                ss << "  num=" << (int)(header->getNumber()) << std::hex << "(" << (int)(header->getNumber()) << ")" << std::dec;
             }
 
             if (rawBytes.empty()) {
@@ -169,7 +165,7 @@ namespace evio {
             }
 
             if (header->getPadding() != 0) {
-                ss << "  pad=" << header->getPadding();
+                ss << "  pad=" << (int)(header->getPadding());
             }
 
             int numChildren = children.size();
