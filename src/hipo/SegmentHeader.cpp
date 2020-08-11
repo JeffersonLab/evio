@@ -42,7 +42,7 @@ namespace evio {
      * Write myself out as evio format data
      * into the given byte array in the specified byte order.
      *
-	 * @param bArray array into which evio data is written (destination).
+	 * @param dest array into which evio data is written.
 	 * @param order  byte order in which to write the data.
      * @return the number of bytes written, which for a SegmentHeader is 4.
      * @throws EvioException if destination array too small to hold data.

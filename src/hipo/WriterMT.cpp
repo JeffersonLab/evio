@@ -29,13 +29,15 @@ namespace evio {
      * Constructor with byte order. <b>No</b> file is opened.
      * File header type is evio file ({@link HeaderType#EVIO_FILE}).
      * Any dictionary will be placed in the user header which will create a conflict if
-     * user tries to call {@link #open(String, byte[])} with another user header array.
+     * user tries to call {@link #open(std::string &, uint8_t*, uint32_t)} with another user header array.
      *
      * @param order byte order of written file.
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
      *                      Value of < 8MB results in default of 8MB.
+     * @param compType      type of data compression to do (one, lz4 fast, lz4 best, gzip).
+     * @param compressionThreads number of threads doing compression simultaneously.
      */
     WriterMT::WriterMT(const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                        Compressor::CompressionType compType, uint32_t compressionThreads) :
@@ -153,10 +155,8 @@ namespace evio {
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
      *                      Value of < 8MB results in default of 8MB.
-     * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
+     * @param compType      type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
      * @param compressionThreads number of threads doing compression simultaneously
-     * @param ringSize      number of records in supply ring, must be multiple of 2
-     *                      and >= compressionThreads.
      */
     WriterMT::WriterMT(std::string & filename, const ByteOrder & order, uint32_t maxEventCount, uint32_t maxBufferSize,
                        Compressor::CompressionType compType, uint32_t compressionThreads) :
@@ -562,7 +562,7 @@ namespace evio {
      * the buffer exceeds the maximum size of the record, the record
      * will be written to the file (compressed if the flag is set).
      * And another record will be obtained from the supply to receive the buffer.
-     * Using this method in conjunction with {@link #writeRecord(RecordOutputStream)}
+     * Using this method in conjunction with {@link #writeRecord(RecordOutput &)}
      * is not thread-safe.
      *
      * @param buffer array to add to the file.
@@ -668,7 +668,7 @@ namespace evio {
 
 
     /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(String)}. */
+     * Follow calling this with call to {@link #open(std::string &)}. */
     void WriterMT::reset() {
         outputRecord->reset();
         fileHeader.reset();

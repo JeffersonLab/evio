@@ -1746,8 +1746,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
-     * {@link #writeEvent(std::shared_ptr<EvioBank>, std::shared_ptr<ByteBuffer>, bool)}
-     * (or the various writeEvent() methods which call it).
+     * {@link #writeEvent()} (all variants).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
      * </b>

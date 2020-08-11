@@ -16,7 +16,7 @@ namespace evio {
 
     /**
      * Default constructor. Does nothing.
-     * The {@link #open(std::string)} method has to be called to open the input stream.
+     * The {@link #open(std::string const &)} method has to be called to open the input stream.
      * Also {@link #forceScanFile()} needs to be called to find records.
      */
     Reader::Reader() {
@@ -66,7 +66,6 @@ namespace evio {
      * Constructor for reading buffer with evio data.
      * Buffer must be ready to read with position and limit set properly.
      * @param buffer buffer with evio data.
-     * @param pool pool of EvioNode objects for garbage-free operation.
      * @param checkRecordNumSeq if true, check to see if all record numbers are in order,
      *                          if not throw exception.
      * @throws EvioException if buffer too small, not in the proper format, or earlier than version 6;
@@ -197,7 +196,7 @@ namespace evio {
      * This method can be used to avoid creating additional Reader
      * objects by reusing this one with another buffer. If the given buffer has
      * uncompressed data, this method becomes equivalent
-     * to {@link #setBuffer(ByteBuffer, EvioNodeSource)} and its return value is just
+     * to {@link #setBuffer(std::shared_ptr<ByteBuffer> &)} and its return value is just
      * the buf argument.<p>
      *
      * The given buffer may have compressed data, and if so, the data is uncompressed
@@ -1686,9 +1685,9 @@ namespace evio {
      * the structure to be added - not in file format with record header and the like)
      * which is compatible with the type of data stored in the given event.<p>
      *
-     * To produce such evio data use {@link EvioBank#write(ByteBuffer)},
-     * {@link EvioSegment#write(ByteBuffer)} or
-     * {@link EvioTagSegment#write(ByteBuffer)} depending on whether
+     * To produce such evio data use {@link EvioBank#write(ByteBuffer &)},
+     * {@link EvioSegment#write(ByteBuffer &)} or
+     * {@link EvioTagSegment#write(ByteBuffer &)} depending on whether
      * a bank, seg, or tagseg is being added.<p>
      *
      * The given buffer argument must be ready to read with its position and limit

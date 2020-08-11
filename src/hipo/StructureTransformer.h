@@ -357,7 +357,7 @@ namespace evio {
          * serializes 4, only 4 bits are needed to contain the equivalent type data.<p>
          *
          * @param bank EvioBank object to transform.
-         * @param dummy only used to distinguish this method from {@link #transform(EvioBank)}.
+         * @param dummy only used to distinguish this method from {@link #transform(std::shared_ptr<EvioBank> const &)}.
          * @return the created EvioTagSegment.
          * @throws EvioException if the bank is too long to change into a tagsegment
          */

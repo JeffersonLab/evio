@@ -208,7 +208,6 @@ namespace evio {
      * @return next available record item in ring buffer
      *         in order to compress data already in it.
      * @throws Disruptor::AlertException  if {@link #errorAlert()} called.
-     * @throws InterruptedException.
      */
     std::shared_ptr<RecordRingItem> RecordSupply::getToCompress(uint32_t threadNumber) {
 
@@ -242,8 +241,7 @@ namespace evio {
      * in order to write data into it.
      * @return next available record item in ring buffer
      *         in order to write data into it.
-     * @throws AlertException  if {@link #errorAlert()} called.
-     * @throws InterruptedException.
+     * @throws Disruptor::AlertException  if {@link #errorAlert()} called.
      */
     std::shared_ptr<RecordRingItem> RecordSupply::getToWrite() {
 
@@ -387,14 +385,14 @@ namespace evio {
 
     /**
      * Has an error occurred in writing or compressing data?
-     * @return <@code>true</@code> if an error occurred in writing or compressing data.
+     * @return {@code true} if an error occurred in writing or compressing data, else {@code false}.
      */
     bool RecordSupply::haveError() {return haveErrorCondition.load();}
 
 
     /**
      * Set whether an error occurred in writing or compressing data.
-     * @return <@code>true</@code> if an error occurred in writing or compressing data.
+     * @param err if {@code true} an error occurred in writing or compressing data, else {@code false}.
      */
     void RecordSupply::haveError(bool err) {haveErrorCondition.store(err);}
 

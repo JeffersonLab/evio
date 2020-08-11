@@ -128,7 +128,7 @@ namespace evio {
         void setAlreadyReleased(bool released);
 
         uint64_t getId() const;
-        void setId(uint64_t id);
+        void setId(uint64_t idVal);
 
     };
 

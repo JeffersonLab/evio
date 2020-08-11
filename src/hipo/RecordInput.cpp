@@ -402,7 +402,7 @@ namespace evio {
 
     /**
      * Reads record from the file at given position. Call this method or
-     * {@link #readRecord(ByteBuffer, int)} before calling any other.
+     * {@link #readRecord(ByteBuffer &, size_t)} before calling any other.
      * Any compressed data is decompressed. Memory is allocated as needed.
      * First the header is read, then the length of
      * the record is read from header, then
@@ -507,7 +507,7 @@ namespace evio {
 
     /**
      * Reads a record from the buffer at the given offset. Call this method or
-     * {@link #readRecord(ifstream &, size_t)} before calling any other.
+     * {@link #readRecord(std::ifstream &, size_t)} before calling any other.
      * Any compressed data is decompressed. Memory is allocated as needed.
      *
      * @param buffer buffer containing record data.

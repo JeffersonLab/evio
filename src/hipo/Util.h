@@ -149,9 +149,10 @@ namespace evio {
         /**
          * Turn 4 bytes into an unsigned 32 bit int.
          *
-         * @param data pointer to bytes to convert
-         * @return int converted from byte array
-         * @throws EvioException if data is null
+         * @param data pointer to bytes to convert.
+         * @param byteOrder byte order of bytes.
+         * @return int converted from byte array.
+         * @throws EvioException if data is null.
          */
         static uint32_t toInt(uint8_t const * data, ByteOrder const & byteOrder) {
             if (data == nullptr) {
@@ -181,8 +182,9 @@ namespace evio {
          * Turn 4 bytes into an unsigned 32 bit int.
          *
          * @param data pointer to bytes to convert
-         * @return int converted from byte array
-         * @throws EvioException if data is null
+         * @param byteOrder byte order of bytes.
+         * @return int converted from byte array.
+         * @throws EvioException if data is null.
          */
         static uint64_t toLong(uint8_t const * data, ByteOrder const & byteOrder) {
             if (data == nullptr) {
@@ -222,7 +224,6 @@ namespace evio {
          * @param data        int to convert.
          * @param byteOrder   byte order of written bytes.
          * @param dest        array in which to write int.
-         * @param destMaxSize max size in bytes of dest array.
          * @throws EvioException if dest is null or too small.
          */
         static void toBytes(uint32_t data, const ByteOrder & byteOrder, uint8_t* dest) {
@@ -688,9 +689,8 @@ namespace evio {
          * This method returns the number of bytes in a raw
          * evio format of the given string array (with a single string), not including header.
          *
-         * @param strings single string to size
-         * @return the number of bytes in a raw evio format of the given strings
-         * @return 0 if vector empty.
+         * @param str single string to size
+         * @return the number of bytes in a raw evio format of the given strings or 0 if vector empty.
          */
         static uint32_t stringToRawSize(const std::string & str) {
 
@@ -808,7 +808,6 @@ namespace evio {
          * non-character value.
          *
          * @param bytes       raw evio string data
-         * @param offset      offset into raw data vector
          * @param length      length in bytes of valid data in bytes vector
          * @param strData     vector in which to place extracted strings.
          */
@@ -853,8 +852,7 @@ namespace evio {
          * @param strData        containing string data
          * @param onlyGoodChars  if true and non-printable chars found,
          *                       only 1 string with printable ASCII chars will be returned.
-         * @param strData        vector in which to place extracted strings.
-         * @return array of Strings or null if processing error
+         * @param strings        vector in which to place extracted strings.
          */
         static void stringBuilderToStrings(std::string const & strData, bool onlyGoodChars,
                                            std::vector<std::string> & strings) {
@@ -1035,7 +1033,7 @@ namespace evio {
          * will be thrown.
          * If no "0" precedes any integer between the "%" and the "d" or "x" of the format specifier,
          * it will be added automatically in order to avoid spaces in the returned string.
-         * In the {@link #generateFileName(String, int, int, long, int, int, int)} method,
+         * In the {@link #generateFileName(std::string, uint32_t, uint32_t, uint64_t, uint32_t, uint32_t, uint32_t)} method,
          * the first occurrence will be substituted with the given runNumber value.
          * If the file is being split, the second will be substituted with the split number.
          * If there are multiple streams, the third will be substituted with the stream id.<p>

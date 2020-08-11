@@ -274,7 +274,7 @@ namespace evio {
     public:
 
         RecordHeader();
-        RecordHeader(const RecordHeader & header);
+        RecordHeader(const RecordHeader & head);
         explicit RecordHeader(const HeaderType & type);
         RecordHeader(size_t pos, uint32_t len, uint32_t ent);
         ~RecordHeader() = default;
@@ -382,7 +382,7 @@ namespace evio {
 
         void writeHeader(ByteBuffer & buf, size_t off = 0);
         void writeHeader(std::shared_ptr<ByteBuffer> & buffer, size_t off = 0);
-        void writeHeader(uint8_t* array, const ByteOrder & order);
+        void writeHeader(uint8_t *array, const ByteOrder & order);
 
 
         static void writeTrailer(uint8_t* array, size_t arrayLen,
@@ -406,7 +406,7 @@ namespace evio {
 
         void readHeader(ByteBuffer & buffer, size_t offset = 0);
         void readHeader(std::shared_ptr<ByteBuffer> & buffer, size_t offset = 0);
-        void readHeader(uint8_t* src, ByteOrder order);
+        void readHeader(uint8_t *src, ByteOrder order);
 
         std::string eventTypeToString() const;
 

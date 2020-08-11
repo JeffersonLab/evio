@@ -59,7 +59,7 @@ namespace evio {
 
     /**
      * Copy constructor.
-     * @param header  header to copy.
+     * @param head  header to copy.
      */
     RecordHeader::RecordHeader(const RecordHeader & head) {
 
@@ -137,7 +137,7 @@ namespace evio {
 
     /**
      * Copy method.
-     * @param header  header to copy.
+     * @param head  header to copy.
      */
     void RecordHeader::copy(std::shared_ptr<RecordHeader> const & head) {
 
@@ -417,6 +417,7 @@ namespace evio {
      * Set the bit info word for a record header.
      * Current value of bitInfo is lost.
      * @param isLastRecord   true if record is last in stream or file.
+     * @param haveFirstEvent true if record has a first event in user header.
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
      */
@@ -760,8 +761,8 @@ namespace evio {
 
     /**
      * Set the bit info of a record header for a specified CODA event type.
-     * Must be called AFTER {@link #setBitInfo(boolean, boolean, boolean)} or
-     * {@link #setBitInfoWord(int)} in order to have change preserved.
+     * Must be called AFTER {@link #setBitInfo(bool, bool, bool)} or
+     * {@link #setBitInfoWord(uint32_t)} in order to have change preserved.
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
      *             3=Disentangled, 4=User, 5=Control, 15=Other,
      *             else = nothing set).
@@ -1027,7 +1028,7 @@ namespace evio {
     /**
      * Writes this header into the given byte buffer.
      * Position & limit of given buffer does NOT change.
-     * @param buf  byte buffer to write header into.
+     * @param buffer  byte buffer to write header into.
      * @param off  position in buffer to begin writing.
      * @throws EvioException if buffer contains too little room.
      */
@@ -1039,13 +1040,11 @@ namespace evio {
     /**
       * Writes this header at the given pointer.
       *
-      * @param array         byte array to write header into.
-      * @param arrayLen      number of available bytes in array to write into.
-      * @param order         byte order of data to be written.
-      * @param indexLen      number of valid bytes in index.
+      * @param array  byte array to write header into.
+      * @param order  byte order of data to be written.
       * @throws EvioException if array arg is null.
       */
-    void RecordHeader::writeHeader(uint8_t* array, const ByteOrder & order) {
+    void RecordHeader::writeHeader(uint8_t *array, const ByteOrder & order) {
 
         // Check args
         if (array == nullptr) {
@@ -1082,7 +1081,6 @@ namespace evio {
       * @param order         byte order of data to be written.
       * @param recordLengths vector containing record lengths interspersed with event counts
       *                      to be written to trailer. Null if no index array.
-      * @param indexLen      number of valid bytes in index.
       * @throws EvioException if array arg is null, array too small to hold trailer + index.
       */
     void RecordHeader::writeTrailer(uint8_t* array, size_t arrayLen,
@@ -1420,7 +1418,7 @@ namespace evio {
      * it by checking the magic word (8th word). This magic word
      * also determines the byte order.
      *
-     * @param buffer buffer to read from.
+     * @param src data to read from.
      * @param order  byte order when reading.
      * @throws EvioException if src arg is null,
      *                       is not in proper format, or version earlier than 6.
@@ -1683,7 +1681,7 @@ namespace evio {
      * position in a byte buffer. This assumes that the absolute position in <code>bufferStartingPosition</code> is
      * being maintained properly by the reader.
      *
-     * @param position the absolute current position in a byte buffer.
+     * @param pos the absolute current position in a byte buffer.
      * @return the number of bytes remaining in this record.
      * @throws EvioException if position out of bounds
      */
@@ -1697,7 +1695,8 @@ namespace evio {
 
     /**
      * Run this class as an executable which tests the writing and reading of a record.
-     * @param args
+     * @param argc argument count
+     * @param argv argument list
      */
     int RecordHeader::main(int argc, char **argv) {
 

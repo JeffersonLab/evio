@@ -114,7 +114,7 @@ namespace evio {
 
         /**
          * Size of some internal buffers in bytes. If the recordBinary buffer is passed
-         * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
+         * into the constructor or given through {@link #setBuffer(std::shared_ptr<ByteBuffer> &)}, then this
          * value is 91% of the its size (from position to capacity). This allows some
          * margin for compressed data to be larger than the uncompressed - which may
          * happen if data is random. It also allows other records to have been previously
@@ -125,7 +125,7 @@ namespace evio {
 
         /**
          * Size of buffer holding built record in bytes. If the recordBinary buffer is passed
-         * into the constructor or given through {@link #setBuffer(ByteBuffer)}, then this
+         * into the constructor or given through {@link #setBuffer(std::shared_ptr<ByteBuffer> &)}, then this
          * value is set to be 10% bigger than {@link #MAX_BUFFER_SIZE}. This allows some
          * margin for compressed data to be larger than the uncompressed - which may
          * happen if data is random.

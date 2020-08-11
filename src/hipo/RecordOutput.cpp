@@ -136,7 +136,7 @@ namespace evio {
 
     /**
      * Move constructor.
-     * @param srcBuf ByteBuffer to move.
+     * @param rec RecordOutput object to move.
      */
     RecordOutput::RecordOutput(RecordOutput && rec) noexcept {
         // Use code below in move assignment operator

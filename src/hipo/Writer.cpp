@@ -369,7 +369,6 @@ namespace evio {
      * When writing to the file, record data will be compressed
      * according to the given type.
      * @param compression compression type
-     * @return this object
      */
     void Writer::setCompressionType(Compressor::CompressionType compression) {
         if (toFile) {
@@ -702,9 +701,9 @@ namespace evio {
      * The buffer is cleared and set to desired byte order prior to writing.
      * If user header is not padded to 4-byte boundary, it's done here.
      *
+     * @param buf buffer to contain the file header followed by the user-defined header.
      * @param userHdr byte array containing a user-defined header, may be null.
      * @param userLen array length in bytes.
-     * @return buffer (same as buf arg).
      * @throws EvioException if writing to buffer, or buf too small
      *                       (needs to be userLen + FileHeader::HEADER_SIZE_BYTES bytes).
      */
@@ -808,8 +807,8 @@ namespace evio {
      * The buffer is cleared and set to desired byte order prior to writing.
      * If user header is not padded to 4-byte boundary, it's done here.
      *
+     * @param buf buffer to contain the file header followed by the user-defined header.
      * @param userHdr buffer containing a user-defined header which must be READY-TO-READ!
-     * @return buffer containing a file header followed by the user-defined header.
      * @throws EvioException if writing to buffer, or buf too small
      *                       (needs to be userHdr.remaining() + FileHeader::HEADER_SIZE_BYTES bytes).
      */
@@ -988,9 +987,9 @@ namespace evio {
      * <b>The byte order of event's byte array must
      * match the byte order given in constructor!</b>
      *
-     * @param buffer array to add to the file.
-     * @param offset offset into array from which to start writing data.
-     * @param length number of bytes to write from array.
+     * @param buf buffer to add to the file.
+     * @param offset offset into buffer from which to start writing data.
+     * @param length number of bytes to write from buffer.
      * @throws EvioException if cannot write to file.
      */
     void Writer::addEvent(uint8_t* buf, uint32_t offset, uint32_t length) {
@@ -1011,7 +1010,7 @@ namespace evio {
      * <b>The byte order of event's data must
      * match the byte order given in constructor!</b>
      *
-     * @param buffer array to add to the file.
+     * @param buf buffer to add to the file.
      * @throws EvioException if cannot write to file or buf arg's byte order is wrong.
      */
     void Writer::addEvent(std::shared_ptr<ByteBuffer> & buf) {
@@ -1028,7 +1027,7 @@ namespace evio {
      * <b>The byte order of event's data must
      * match the byte order given in constructor!</b>
      *
-     * @param buffer array to add to the file.
+     * @param buf buffer to add to the file.
      * @throws EvioException if cannot write to file or buf arg's byte order is wrong.
      */
     void Writer::addEvent(ByteBuffer & buf) {
@@ -1203,7 +1202,7 @@ namespace evio {
     //---------------------------------------------------------------------
 
     /** Get this object ready for re-use.
-     * Follow calling this with call to {@link #open(String)}. */
+     * Follow calling this with call to {@link #open(std::string &)}. */
     void Writer::reset() {
         outputRecord.reset();
         fileHeader.reset();

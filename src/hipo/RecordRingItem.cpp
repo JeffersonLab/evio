@@ -75,7 +75,7 @@ namespace evio {
      * Copy constructor (sort of). Used in EventWriter for when disk is full and a copy
      * of the item to be written is made for later writing. Original item is released
      * so ring can function. Note, not everything is copied (sequenceObj) since in usage,
-     * the original item has already been released. Also, {@link #alreadyReleased} is true. <p>
+     * the original item has already been released. Also, {@link #isAlreadyReleased()} is true. <p>
      * <b>NOT to be used except internally by evio.</b>
      *
      * @param item ring item to copy.
@@ -274,7 +274,7 @@ namespace evio {
 
     /**
      * Set this item's id number.
-     * @param id id number.
+     * @param idVal id number.
      */
     void RecordRingItem::setId(uint64_t idVal) {id = idVal;}
 

@@ -88,7 +88,7 @@ namespace evio {
 
         /**
          * Set the position of this record in the file/buffer.
-         * @param l position of this record in the file/buffer.
+         * @param p position of this record in the file/buffer.
          */
         void setPos(size_t p) {pos = p;}
 
@@ -101,7 +101,7 @@ namespace evio {
 
         /**
          * Set the place of this record in file/buffer. First record = 0, second = 1, etc.
-         * @param l place of this record in file/buffer.
+         * @param p place of this record in file/buffer.
          */
         void setPlace(uint32_t p) {place = p;}
 
