@@ -114,7 +114,7 @@ namespace evio {
     /**
      * Method to have sequence barriers throw a Disruptor's AlertException.
      * In this case, we can use it to warn write and compress threads which
-     * are waiting on barrier.waitFor() in {@link #getToCompress(int)} and
+     * are waiting on barrier.waitFor() in {@link #getToCompress(uint32_t)} and
      * {@link #getToWrite()}. Do this in case of a write, compress, or some other error.
      * This allows any threads waiting on these 2 methods to wake up, clean up,
      * and exit.
@@ -207,8 +207,8 @@ namespace evio {
      *                     This number cannot exceed (compressionThreadCount - 1).
      * @return next available record item in ring buffer
      *         in order to compress data already in it.
-     * @throws AlertException  if {@link #errorAlert()} called.
-     * @throws InterruptedException
+     * @throws Disruptor::AlertException  if {@link #errorAlert()} called.
+     * @throws InterruptedException.
      */
     std::shared_ptr<RecordRingItem> RecordSupply::getToCompress(uint32_t threadNumber) {
 
@@ -243,7 +243,7 @@ namespace evio {
      * @return next available record item in ring buffer
      *         in order to write data into it.
      * @throws AlertException  if {@link #errorAlert()} called.
-     * @throws InterruptedException
+     * @throws InterruptedException.
      */
     std::shared_ptr<RecordRingItem> RecordSupply::getToWrite() {
 
@@ -275,7 +275,7 @@ namespace evio {
      * next. This allows close() to be called at any time without things
      * hanging up.<p>
      *
-     * To be used in conjunction with {@link #getToCompress(int)}.
+     * To be used in conjunction with {@link #getToCompress(uint32_t)}.
      * @param item item in ring buffer to release for reuse.
      */
     void RecordSupply::releaseCompressor(std::shared_ptr<RecordRingItem> & item) {
@@ -292,7 +292,7 @@ namespace evio {
      * This method may only be called if the writing is done IN THE SAME THREAD
      * as the calling of this method so that items are released in sequence
      * as ensured by the caller.
-     * Otherwise use {@link #releaseWriter(RecordRingItem)}.
+     * Otherwise use {@link #releaseWriter(std::shared_ptr<RecordRingItem> &)}.
      *
      * @param item item in ring buffer to release for reuse.
      * @return false if item not released or item is null, else true.
@@ -325,7 +325,7 @@ namespace evio {
      *
      * If the same item is released more than once, bad things will happen.
      * Thus the caller must take steps to prevent it. To avoid problems,
-     * call {@link RecordRingItem#setAlreadyReleased(boolean)} and set to true if
+     * call {@link RecordRingItem#setAlreadyReleased(bool)} and set to true if
      * item is released but will still be used in some manner.
      *
      * @param item item in ring buffer to release for reuse.
@@ -376,8 +376,8 @@ namespace evio {
      * Release claim on ring items up to sequenceNum for the given compressor thread.
      * For internal use only - to free up records that the compressor thread will skip
      * over anyway.
-     * @param threadNum    compressor thread number
-     * @param sequenceNum  sequence to release
+     * @param threadNum    compressor thread number.
+     * @param sequenceNum  sequence to release.
      */
     void RecordSupply::release(uint32_t threadNum, int64_t sequenceNum) {
         if (sequenceNum < 0) return;

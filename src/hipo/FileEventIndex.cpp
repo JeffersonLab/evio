@@ -23,7 +23,7 @@ namespace evio {
 
     /**
      * Resets the current index to 0. The corresponding
-     * record number is recalculated by calling the setEvent() method.
+     * record number is recalculated by calling the {@link #setEvent(uint32_t)} method.
      */
     void FileEventIndex::resetIndex() {
         currentEvent = 0;
@@ -51,7 +51,7 @@ namespace evio {
 
     /**
      * Gets the current event number which is set by {@link #advance()},
-     * {@link #retreat()} or {@link #setEvent(int)} (which also sets
+     * {@link #retreat()} or {@link #setEvent(uint32_t)} (which also sets
      * the record number that the event belongs to).
      * @return current event number.
      */
@@ -59,7 +59,7 @@ namespace evio {
 
 
     /**
-     * Gets the current record number which is set by {@link #setEvent(int)},
+     * Gets the current record number which is set by {@link #setEvent(uint32_t)},
      * or by using {@link #advance()} or {@link #retreat()} (which set the event
      * number to the next available or previous available respectively).
      * @return current record number.

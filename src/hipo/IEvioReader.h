@@ -155,7 +155,7 @@ namespace evio {
         /**
          * Get the event in the file/buffer at a given index (starting at 1).
          * As useful as this sounds, most applications will probably call
-         * {@link #parseNextEvent()} or {@link #parseEvent(int)} instead,
+         * {@link #parseNextEvent()} or {@link #parseEvent(size_t)} instead,
          * since it combines combines getting an event with parsing it.<p>
          *
          * @param  index number of event desired, starting at 1, from beginning of file/buffer

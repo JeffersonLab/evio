@@ -98,7 +98,7 @@ namespace evio {
         std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) override;
         std::shared_ptr<IBlockHeader> getFirstBlockHeader() override;
 
-        void searchEvent(size_t evNumber, uint16_t tag, uint8_t num, std::vector<std::shared_ptr<EvioNode>> & vec) override ;
+        void searchEvent(size_t eventNumber, uint16_t tag, uint8_t num, std::vector<std::shared_ptr<EvioNode>> & vec) override ;
         void searchEvent(size_t eventNumber, std::string const & dictName,
                          std::shared_ptr<EvioXMLDictionary> & dictionary,
                          std::vector<std::shared_ptr<EvioNode>> & vec) override ;

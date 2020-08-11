@@ -177,7 +177,7 @@ namespace evio {
 
 
     /**
-     * Set the sequence of an item obtained through {@link RecordSupply#getToCompress(int)}.
+     * Set the sequence of an item obtained through {@link RecordSupply#getToCompress(uint32_t)}.
      * @param seq sequence used to get item.
      * @param seqObj sequence object used to get/release item.
      */

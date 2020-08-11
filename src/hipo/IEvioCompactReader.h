@@ -159,11 +159,11 @@ namespace evio {
 
         /**
          * Get the EvioNode object associated with a particular event number.
-         * @param evNumber number of event (place in file/buffer) starting at 1.
+         * @param eventNumber number of event (place in file/buffer) starting at 1.
          * @return  EvioNode object associated with a particular event number,
          *          or null if there is none.
          */
-        virtual std::shared_ptr<EvioNode> getEvent(size_t evNumber) = 0;
+        virtual std::shared_ptr<EvioNode> getEvent(size_t eventNumber) = 0;
 
         /**
          * Get the EvioNode object associated with a particular event number
@@ -187,14 +187,14 @@ namespace evio {
          * returns a vector of objects each of which contain information
          * about a single evio structure which matches the given tag and num.
          *
-         * @param evNumber place of event in buffer (starting with 1)
+         * @param eventNumber place of event in buffer (starting with 1)
          * @param tag tag to match.
          * @param num num to match.
          * @param vec vector to be filled with matching evio structures (empty if none found).
          * @throws EvioException if bad arg value(s);
          *                       if object closed
          */
-        virtual void searchEvent(size_t evNumber, uint16_t tag, uint8_t num,
+        virtual void searchEvent(size_t eventNumber, uint16_t tag, uint8_t num,
                                  std::vector<std::shared_ptr<EvioNode>> & vec) = 0;
 
         /**
@@ -225,7 +225,7 @@ namespace evio {
          * to using a new, internal buffer which is returned by this method or can be
          * retrieved by calling {@link #getByteBuffer()}. It will <b>not</b> change the
          * file originally used. A new file can be created by calling either the
-         * {@link #toFile(String)} or {@link #toFile(java.io.File)} methods.<p>
+         * {@link #toFile(std::string const &)} method.<p>
          *
          * @param evNumber number of event to remove from buffer
          * @return new ByteBuffer created and updated to reflect the event removal
@@ -246,7 +246,7 @@ namespace evio {
          * to using a new, internal buffer which is returned by this method or can be
          * retrieved by calling {@link #getByteBuffer()}. It will <b>not</b> change the
          * file originally used. A new file can be created by calling either the
-         * {@link #toFile(String)} or {@link #toFile(java.io.File)} methods.<p>
+         * {@link #toFile(std::string const &)} method.<p>
          *
          * @param removeNode  evio structure to remove from buffer
          * @return new ByteBuffer (perhaps created) and updated to reflect the node removal
@@ -263,17 +263,16 @@ namespace evio {
          * the structure to be added - not in file format with block header and the like)
          * which is compatible with the type of data stored in the given event.<p>
          *
-         * To produce such evio data use {@link EvioBank#write(ByteBuffer)},
-         * {@link EvioSegment#write(ByteBuffer)} or
-         * {@link EvioTagSegment#write(ByteBuffer)} depending on whether
+         * To produce such evio data use {@link EvioBank#write(ByteBuffer &)},
+         * {@link EvioSegment#write(ByteBuffer &)} or
+         * {@link EvioTagSegment#write(ByteBuffer &)} depending on whether
          * a bank, seg, or tagseg is being added.<p>
          *
          * A note about files here. If the constructor of this reader read in data
          * from a file, it will now switch to using a new, internal buffer which
          * is returned by this method or can be retrieved by calling
          * {@link #getByteBuffer()}. It will <b>not</b> expand the file originally used.
-         * A new file can be created by calling either the {@link #toFile(String)} or
-         * {@link #toFile(java.io.File)} methods.<p>
+         * A new file can be created by calling either the {@link #toFile(std::string const &)} method.<p>
          *
          * The given buffer argument must be ready to read with its position and limit
          * defining the limits of the data to copy.
