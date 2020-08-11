@@ -352,7 +352,7 @@ def generateDocs(env, doC=False, doCPP=False, doJava=False, javaDir=''):
         env.Append(BUILDERS = {'DocGenCC' : docBuildCC})
         
         env.Alias('doc', env.DocGenCC(target = ['#/doc/doxygen/CC/html/index.html'],
-              source = scanFiles("src/hipo", accept=["*.cpp", "*.h"]) ))
+                                      source = scanFiles("src/libsrc", accept=["*.cpp", "*.h"])))
     
     
     if doJava:
