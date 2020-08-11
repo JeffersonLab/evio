@@ -69,7 +69,7 @@ namespace evio {
          * This method can be used to avoid creating additional EvioCompactReader
          * objects by reusing this one with another buffer. If the given buffer has
          * uncompressed data or evio version is less than 6, this method becomes equivalent
-         * to {@link #setBuffer(ByteBuffer)} and its return value is just
+         * to {@link #setBuffer(std::shared_ptr<ByteBuffer> &)} and its return value is just
          * the buf argument.<p>
          *
          * The given buffer may have compressed data, and if so, the data is uncompressed
@@ -91,7 +91,7 @@ namespace evio {
 
         /**
          * Has {@link #close()} been called (without reopening by calling
-         * {@link #setBuffer(ByteBuffer)})?
+         * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)})?
          *
          * @return {@code true} if this object closed, else {@code false}.
          */
@@ -169,11 +169,11 @@ namespace evio {
          * Get the EvioNode object associated with a particular event number
          * which has been scanned so all substructures are contained in the
          * node.allNodes list.
-         * @param evNumber number of event (place in file/buffer) starting at 1.
+         * @param eventNumber number of event (place in file/buffer) starting at 1.
          * @return  EvioNode object associated with a particular event number,
          *          or null if there is none.
          */
-        virtual std::shared_ptr<EvioNode> getScannedEvent(size_t evNumber) = 0;
+        virtual std::shared_ptr<EvioNode> getScannedEvent(size_t eventNumber) = 0;
 
         /**
          * This returns the FIRST block (or record) header.
@@ -203,7 +203,7 @@ namespace evio {
          * about a single evio structure which matches the given dictionary
          * entry name.
          *
-         * @param  evNumber place of event in buffer (starting with 1)
+         * @param  eventNumber place of event in buffer (starting with 1)
          * @param  dictName name of dictionary entry to search for
          * @param  dictionary dictionary to use; if null, use dictionary with file/buffer
          * @param  vec vector to be filled with matching evio structures (empty if none found).
@@ -212,7 +212,7 @@ namespace evio {
          *                       if dictionary is null and none provided in file/buffer being read;
          *                       if object closed
          */
-        virtual void searchEvent(size_t evNumber, std::string const & dictName,
+        virtual void searchEvent(size_t eventNumber, std::string const & dictName,
                                  std::shared_ptr<EvioXMLDictionary> & dictionary,
                                  std::vector<std::shared_ptr<EvioNode>> & vec) = 0;
 
@@ -227,7 +227,7 @@ namespace evio {
          * file originally used. A new file can be created by calling either the
          * {@link #toFile(std::string const &)} method.<p>
          *
-         * @param evNumber number of event to remove from buffer
+         * @param eventNumber number of event to remove from buffer
          * @return new ByteBuffer created and updated to reflect the event removal
          * @throws EvioException if evNumber &lt; 1;
          *                       if event number does not correspond to existing event;
@@ -235,7 +235,7 @@ namespace evio {
          *                       if node was not found in any event;
          *                       if internal programming error
          */
-        virtual std::shared_ptr<ByteBuffer> removeEvent(size_t evNumber) = 0;
+        virtual std::shared_ptr<ByteBuffer> removeEvent(size_t eventNumber) = 0;
 
         /**
          * This method removes the data, represented by the given node, from the buffer.
@@ -278,7 +278,7 @@ namespace evio {
          * defining the limits of the data to copy.
          * This method is synchronized due to the bulk, relative puts.
          *
-         * @param evNumber number of event to which addBuffer is to be added
+         * @param eventNumber number of event to which addBuffer is to be added
          * @param addBuffer buffer containing evio data to add (<b>not</b> evio file format,
          *                  i.e. no block headers)
          * @return a new ByteBuffer object which is created and filled with all the data
@@ -292,7 +292,7 @@ namespace evio {
          *                       if there is an internal programming error;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> addStructure(size_t evNumber, ByteBuffer & addBuffer) = 0;
+        virtual std::shared_ptr<ByteBuffer> addStructure(size_t eventNumber, ByteBuffer & addBuffer) = 0;
 
         /**
          * Get the data associated with an evio structure in ByteBuffer form.
@@ -352,14 +352,14 @@ namespace evio {
          * Get an evio bank or event in ByteBuffer form.
          * The returned buffer is a view into the data of this reader's buffer.<p>
          *
-         * @param evNumber number of event of interest
+         * @param eventNumber number of event of interest
          * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
          *         set for reading.
          * @throws EvioException if evNumber &lt; 1;
          *                       if the event number does not correspond to an existing event;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> getEventBuffer(size_t evNumber) = 0;
+        virtual std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber) = 0;
 
         /**
          * Get an evio bank or event in ByteBuffer form.

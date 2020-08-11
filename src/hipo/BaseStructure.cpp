@@ -25,7 +25,7 @@ namespace evio {
 
     /**
      * Constructor using a provided header.
-     * @param header the header to use.
+     * @param head the header to use.
      * @see BaseStructureHeader
      */
     BaseStructure::BaseStructure(std::shared_ptr<BaseStructureHeader> head) : header(head) {
@@ -890,7 +890,6 @@ namespace evio {
      * traversal.  This is an inefficient way to traverse the entire tree; use
      * an iterator instead. Originally part of java's DefaultMutableTreeNode.
      *
-     * @see     #preorderEnumeration
      * @return  the node that follows this node in a preorder traversal, or
      *          null if this node is last.
      */
@@ -934,7 +933,6 @@ namespace evio {
      * traverse the entire tree; use an iterator instead.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     * @see     #preorderEnumeration
      * @return  the node that precedes this node in a preorder traversal, or
      *          null if this node is the first.
      */
@@ -1283,7 +1281,7 @@ namespace evio {
      * on each node to determine which are leaves.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     * @see     #depthFirstEnumeration
+     * @see     nodeIterator
      * @see     #isLeaf
      * @return  returns the next leaf past this node.
      */
@@ -1318,7 +1316,7 @@ namespace evio {
      * on each node to determine which are leaves.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     * @see             #depthFirstEnumeration
+     * @see             nodeIterator
      * @see             #isLeaf
      * @return  returns the leaf before this node.
      */
@@ -1505,7 +1503,7 @@ namespace evio {
     /**
      * Set the byte order of this data. This method <b>cannot</b> be used to swap data.
      * It is only used to describe the endianness of the rawdata contained.
-     * @param byteOrder {@link ByteOrder#ENDIAN_BIG} or {@link ByteOrder#ENDIAN_LITTLE}.
+     * @param order {@link ByteOrder#ENDIAN_BIG} or {@link ByteOrder#ENDIAN_LITTLE}.
      */
     void BaseStructure::setByteOrder(ByteOrder const & order) {byteOrder = order;}
 
@@ -2053,7 +2051,7 @@ namespace evio {
      * This method returns the number of bytes in a raw
      * evio format of the given string vector, not including header.
      *
-     * @param strings vector of strings to size.
+     * @param str vector of strings to size.
      * @return the number of bytes in a raw evio format of the given strings.
      * @return 0 if vector empty.
      */

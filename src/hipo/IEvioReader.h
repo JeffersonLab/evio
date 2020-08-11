@@ -69,7 +69,7 @@ namespace evio {
 
         /**
          * Has {@link #close()} been called (without reopening by calling
-         * {@link #setBuffer(ByteBuffer)})?
+         * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)})?
          *
          * @return {@code true} if this object closed, else {@code false}.
          */
@@ -297,7 +297,7 @@ namespace evio {
         /**
          * Go to a specific event in the file. The events are numbered 1..N.
          * This number is transient--it is not part of the event as stored in the evio file.
-         * In versions 4 and up this is just a wrapper on {@link #getEvent(int)}.
+         * In versions 4 and up this is just a wrapper on {@link #getEvent(size_t)}.
          *
          * @param evNumber the event number in a 1..N counting sense, from the start of the file.
          * @return the specified event in file or null if there's an error or nothing at that event #.

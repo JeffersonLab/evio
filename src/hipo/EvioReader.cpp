@@ -141,7 +141,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
     std::shared_ptr<EventParser> & EvioReader::getParser() {return reader->getParser();}
 
     /** {@inheritDoc} */
-    void EvioReader::setParser(std::shared_ptr<EventParser> & parser) {reader->setParser(parser);}
+    void EvioReader::setParser(std::shared_ptr<EventParser> & evParser) {reader->setParser(evParser);}
 
     /** {@inheritDoc} */
     std::string EvioReader::getDictionaryXML() {return reader->getDictionaryXML();}

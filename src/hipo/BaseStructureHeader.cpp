@@ -58,7 +58,7 @@ namespace evio {
 
     /**
      * Set the numeric data type for the structure.
-     * @param dataType the numeric data type for the structure.
+     * @param type the numeric data type for the structure.
      */
     void BaseStructureHeader::setDataType(uint32_t type) {dataType = DataType::getDataType(type);}
 
@@ -91,7 +91,7 @@ namespace evio {
     /**
      * Set the amount of padding bytes when storing short or byte data.
      * Allowed value is 0, 1, 2, or 3 for bytes and 0 or 2 for shorts.
-     * @param padding amount of padding bytes when storing short or byte data (0-3).
+     * @param pad amount of padding bytes when storing short or byte data (0-3).
      */
     void BaseStructureHeader::setPadding(uint8_t pad) {padding = pad;}
 
@@ -103,7 +103,7 @@ namespace evio {
 
     /**
      * Set the length of the structure in 32 bit ints, not counting the length word.
-     * @param length the length of the structure in 32 bit ints, not counting the length word.
+     * @param len the length of the structure in 32 bit ints, not counting the length word.
      */
     void BaseStructureHeader::setLength(uint32_t len) {length = len;}
 

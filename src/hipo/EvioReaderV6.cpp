@@ -90,9 +90,9 @@ namespace evio {
 
 
     /** {@inheritDoc} */
-    void EvioReaderV6::setParser(std::shared_ptr<EventParser> & p) {
-        if (p != nullptr) {
-            this->parser = p;
+    void EvioReaderV6::setParser(std::shared_ptr<EventParser> & evParser) {
+        if (evParser != nullptr) {
+            this->parser = evParser;
         }
     }
 
@@ -252,9 +252,9 @@ namespace evio {
 
 
     /**
-     * In this version, this method is a wrapper on {@link #parseEvent(int)}.
+     * In this version, this method is a wrapper on {@link #parseEvent(size_t)}.
      *
-     * @deprecated use {@link #parseEvent(int)}.
+     * @deprecated use {@link #parseEvent(size_t)}.
      * @param evNumber the event number from the start of the file starting at 1.
      * @return the specified event in file or null if there's an error or nothing at that event #.
      * @throws EvioException if object closed

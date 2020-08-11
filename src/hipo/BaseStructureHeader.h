@@ -74,7 +74,7 @@ namespace evio {
 
     protected:
 
-        void setPadding(uint8_t padding);
+        void setPadding(uint8_t pad);
         void copy(std::shared_ptr<BaseStructureHeader> const & head);
 
     public:
@@ -86,16 +86,16 @@ namespace evio {
         void setNumber(uint8_t number);
 
         uint32_t getDataTypeValue() const;
-        void setDataType(uint32_t dataType);
+        void setDataType(uint32_t type);
 
-        void setDataType(DataType const & dataType);
+        void setDataType(DataType const & type);
         DataType getDataType() const;
 
         std::string getDataTypeName() const;
         uint8_t getPadding() const;
 
         uint32_t getLength() const;
-        void setLength(uint32_t length);
+        void setLength(uint32_t len);
 
         uint16_t getTag() const;
         void setTag(uint16_t tag);
