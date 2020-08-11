@@ -776,7 +776,7 @@ namespace evio {
      * Set the underlying event. As far as this event builder is concerned, the
      * previous underlying event is lost, and all subsequent calls will affect
      * the newly supplied event.
-     * @param event the new underlying event.
+     * @param ev the new underlying event.
      */
     void EventBuilder::setEvent(std::shared_ptr<EvioEvent> & ev) {event = ev;}
 
@@ -786,7 +786,8 @@ namespace evio {
 
     /**
      * Main program for testing.
-     * @param args ignored command line arguments.
+     * @param argc ignored command line count.
+     * @param argv ignored command line arguments.
      */
     int EventBuilder::main(int argc, char **argv) {
         //create an event writer to write out the test events.

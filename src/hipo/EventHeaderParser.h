@@ -45,7 +45,7 @@ namespace evio {
          * Create a bank header from the first eight bytes of the data array.
          *
          * @param bytes the byte array, probably from a bank that encloses this new bank.
-         * @param byteOrder byte order of array, {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
+         * @param byteOrder byte order of array, {@link ByteOrder#ENDIAN_BIG} or {@link ByteOrder#ENDIAN_LITTLE}.
          *
          * @throws EvioException if data not in evio format.
          * @return the new bank header.
@@ -81,7 +81,7 @@ namespace evio {
          * Create a segment header from the first four bytes of the data array.
          *
          * @param bytes the byte array, probably from a bank that encloses this new segment.
-         * @param byteOrder byte order of array, {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
+         * @param byteOrder byte order of array, {@link ByteOrder#ENDIAN_BIG} or {@link ByteOrder#ENDIAN_LITTLE}.
          *
          * @throws EvioException if data not in evio format.
          * @return the new segment header.
@@ -112,7 +112,7 @@ namespace evio {
          * Create a tag segment header from the first four bytes of the data array.
          *
          * @param bytes the byte array, probably from a bank that encloses this new tag segment.
-         * @param byteOrder byte order of array, {@link ByteOrder#BIG_ENDIAN} or {@link ByteOrder#LITTLE_ENDIAN}
+         * @param byteOrder byte order of array, {@link ByteOrder#ENDIAN_BIG} or {@link ByteOrder#ENDIAN_LITTLE}.
          *
          * @throws EvioException if data not in evio format.
          * @return the new tagsegment header.

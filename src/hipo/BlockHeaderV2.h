@@ -283,7 +283,7 @@ namespace evio {
         /**
          * Set the block number for this block (physical record). In a file, this is usually sequential. This is not
          * checked.
-         * @param number the number of the block (physical record).
+         * @param num the number of the block (physical record).
          */
         void setNumber(uint32_t num) {number = num;}
 
@@ -303,7 +303,7 @@ namespace evio {
          * Set the block header length, in ints. This should be 8. However, since this is usually read as part of reading
          * the physical record header, it is a good check to have a setter rather than just fix its value at 8.
          *
-         * @param headerLength the new block header length. This should be 8.
+         * @param len the new block header length. This should be 8.
          * @throws EvioException if headerLength is not 8.
          */
         void setHeaderLength(uint32_t len) {
@@ -362,7 +362,7 @@ namespace evio {
          * 2) The reading algorithm is screwed up. <br>
          * 3) The endianness is not being handled properly.
          *
-         * @param magicNumber the new value for magic number.
+         * @param magicNum the new value for magic number.
          * @throws EvioException if magic number not the correct value.
          */
         void setMagicNumber(uint32_t magicNum) {

@@ -65,7 +65,7 @@ namespace evio {
 
     /**
      * Create an EvioXMLDictionary from an xml file.
-     * @param file file containing xml.
+     * @param path file containing xml.
      */
     EvioXMLDictionary::EvioXMLDictionary(std::string const & path) {
         pugi::xml_parse_result result = doc.load_file(path.c_str());
@@ -86,7 +86,7 @@ namespace evio {
 
     /**
      * Create an EvioXMLDictionary from an xml string.
-     * @param xmlString string containing xml.
+     * @param xml string containing xml.
      * @param dummy here only to differentiate from other constructor, value unused.
      */
     EvioXMLDictionary::EvioXMLDictionary(std::string const & xml, int dummy) {
@@ -791,8 +791,6 @@ namespace evio {
      * to assign a dictionary entry to a particular evio structure.
      *
      * @param structure the structure to find the name of.
-     * @param numValid  is num being used (ie is this an EvioBank / EvioEvent (true) or
-     * and EvioSegment / EvioTagSegment (false))?
      * @return a descriptive name or ??? if none found
      */
     std::string EvioXMLDictionary::getName(std::shared_ptr<BaseStructure> & structure) {
@@ -820,7 +818,6 @@ namespace evio {
      * If nothing found, ??? is returned.
      *
      * @param tag  tag of dictionary entry to find
-     * @param num  num of dictionary entry to find
      * @return descriptive name or ??? if none found
      */
     std::string EvioXMLDictionary::getName(uint16_t tag) {
@@ -1433,8 +1430,9 @@ namespace evio {
     /**
      * Returns the num corresponding to the name of a dictionary entry.
      *
-     * @param name dictionary name
-     * @return num or null if name unknown
+     * @param name dictionary name.
+     * @param num pointer which gets filled with entry's num value.
+     * @return true if entry found, else false.
      */
     bool EvioXMLDictionary::getNum(std::string const & name, uint8_t *num) {
         auto entry = entryLookupByName(name);

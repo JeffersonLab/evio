@@ -21,6 +21,7 @@ namespace evio {
      * @param checkSeq if <code>true</code> check the record number sequence
      *                       and throw an exception if it is not sequential starting
      *                       with 1
+     * @param synced if true, this class's methods are mutex protected for thread safety.
      *
      * @see EventWriter
      * @throws IOException   if read failure
@@ -45,6 +46,7 @@ namespace evio {
      * @param checkRecNumSeq if <code>true</code> check the record number sequence
      *                       and throw an exception if it is not sequential starting
      *                       with 1
+     * @param synced if true, this class's methods are mutex protected for thread safety.
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
      *                       if first record number != 1 when checkRecNumSeq arg is true

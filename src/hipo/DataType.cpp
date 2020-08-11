@@ -41,7 +41,7 @@ namespace evio {
     const DataType DataType::CHAR8 = DataType(0x6, "CHAR8", 1);
     /** Unsigned 8 bit int. */
     const DataType DataType::UCHAR8 = DataType(0x7, "UCHAR8", 1);
-    /** 64 bit double.. */
+    /** 64 bit double. */
     const DataType DataType::DOUBLE64 = DataType(0x8, "DOUBLE64", 8);
     /** 64 bit int. */
     const DataType DataType::LONG64 = DataType(0x9, "LONG64", 8);

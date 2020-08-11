@@ -67,7 +67,7 @@ namespace evio {
      *
      * @param byteArray pointer to array which this object will wrap.
      * @param len length of array in bytes.
-     * @param isMappedMem is the byteArray arg a pointer obtained through ::mmap (file memory mapping)?.
+     * @param isMappedMem is the byteArray arg a pointer obtained through mmap (file memory mapping)?.
      */
     ByteBuffer::ByteBuffer(char* byteArray, size_t len, bool isMappedMem) :
                     ByteBuffer(reinterpret_cast<uint8_t*>(byteArray), len, isMappedMem) {
@@ -84,7 +84,7 @@ namespace evio {
      *
      * @param byteArray pointer to array which this object will wrap.
      * @param len length of array in bytes.
-     * @param isMappedMem is the byteArray arg a pointer obtained through ::mmap (file memory mapping)?.
+     * @param isMappedMem is the byteArray arg a pointer obtained through mmap (file memory mapping)?.
      */
     ByteBuffer::ByteBuffer(uint8_t* byteArray, size_t len, bool isMappedMem) {
 
@@ -174,8 +174,7 @@ namespace evio {
     /**
      * Equality operator.
      * Way of checking if the 2 buffers are pointing to the same data.
-     * @param b1 left side object.
-     * @param b2 right side object.
+     * @param rhs right side object.
      * @return true if equal.
      */
     bool ByteBuffer::operator== (const ByteBuffer & rhs) noexcept {
@@ -186,8 +185,7 @@ namespace evio {
     /**
      * Inequality operator.
      * Way of checking if the 2 buffers are not pointing to the same data.
-     * @param b1 left side object.
-     * @param b2 right side object.
+     * @param rhs right side object.
      * @return false if equal.
      */
     bool ByteBuffer::operator!= (const ByteBuffer & rhs) noexcept {
@@ -584,7 +582,7 @@ namespace evio {
 
 
     /**
-     * Sets the byte order of the data. It does <b>NOT<\b> do any byte swapping.
+     * Sets the byte order of the data. It does <b>NOT</b> do any byte swapping.
      * @param order actual byte order of the data.
      * @return this buffer.
      */
@@ -1270,7 +1268,7 @@ namespace evio {
      * buffer into this buffer. If there are more bytes remaining in the
      * source buffer than in this buffer, that is, if
      * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
-     * then no bytes are transferred and a {@link #EvioException} is thrown.<p>
+     * then no bytes are transferred and a {@link EvioException} is thrown.<p>
      *
      * Otherwise, this method copies
      * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> bytes from the given
@@ -1309,7 +1307,7 @@ namespace evio {
      * buffer into this buffer. If there are more bytes remaining in the
      * source buffer than in this buffer, that is, if
      * <tt>src.remaining()</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>,
-     * then no bytes are transferred and a {@link #EvioException} is thrown.<p>
+     * then no bytes are transferred and a {@link EvioException} is thrown.<p>
      *
      * Otherwise, this method copies
      * <i>n</i>&nbsp;=&nbsp;<tt>src.remaining()</tt> bytes from the given
@@ -1338,7 +1336,7 @@ namespace evio {
      * source array.  If there are more bytes to be copied from the array
      * than remain in this buffer, that is, if
      * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
-     * bytes are transferred and a {@link #EvioException} is
+     * bytes are transferred and a {@link EvioException} is
      * thrown.<p>
      *
      * Otherwise, this method copies <tt>length</tt> bytes from the
@@ -1370,7 +1368,7 @@ namespace evio {
      * vector.  If there are more bytes to be copied from the vector
      * than remain in this buffer, that is, if
      * <tt>length</tt>&nbsp;<tt>&gt;</tt>&nbsp;<tt>remaining()</tt>, then no
-     * bytes are transferred and a {@link #EvioException} is
+     * bytes are transferred and a {@link EvioException} is
      * thrown.<p>
      *
      * Otherwise, this method copies <tt>length</tt> bytes from the
@@ -1434,7 +1432,7 @@ namespace evio {
      * current byte order, into this buffer at the current position, and then
      * increments the position by two.
      *
-     * @param  value char value to be written.
+     * @param  val char value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than two bytes remaining in this buffer,
      *                        i.e. not smaller than the buffer's limit, minus one.
@@ -1457,7 +1455,7 @@ namespace evio {
      * current byte order, into this buffer at the given index.
      *
      * @param  index index at which the bytes will be written.
-     * @param  value char value to be written.
+     * @param  val char value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than two bytes remaining in this buffer,
      *                        i.e. not smaller than the buffer's limit, minus one.
@@ -1480,7 +1478,7 @@ namespace evio {
      * current byte order, into this buffer at the current position, and then
      * increments the position by two.
      *
-     * @param  value short value to be written.
+     * @param  val short value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than two bytes remaining in this buffer.
      */
@@ -1502,7 +1500,7 @@ namespace evio {
      * current byte order, into this buffer at the given index.
      *
      * @param  index index at which the bytes will be written.
-     * @param  value short value to be written.
+     * @param  val short value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than two bytes remaining in this buffer,
      *          i.e. not smaller than the buffer's limit, minus one.
@@ -1525,7 +1523,7 @@ namespace evio {
      * current byte order, into this buffer at the current position, and then
      * increments the position by four.
      *
-     * @param  value int value to be written.
+     * @param  val int value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than four bytes remaining in this buffer.
      */
@@ -1547,7 +1545,7 @@ namespace evio {
      * current byte order, into this buffer at the given index.
      *
      * @param  index index at which the bytes will be written.
-     * @param  value int value to be written.
+     * @param  val int value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than four bytes remaining in this buffer,
      *          i.e. not smaller than the buffer's limit, minus three.
@@ -1570,7 +1568,7 @@ namespace evio {
      * current byte order, into this buffer at the current position, and then
      * increments the position by eight.
      *
-     * @param  value long long value to be written.
+     * @param  val long long value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than eight bytes remaining in this buffer.
      */
@@ -1592,7 +1590,7 @@ namespace evio {
      * current byte order, into this buffer at the given index.
      *
      * @param  index index at which the bytes will be written.
-     * @param  value long long value to be written.
+     * @param  val long long value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than eight bytes remaining in this buffer,
      *          i.e. not smaller than the buffer's limit, minus seven.
@@ -1615,7 +1613,7 @@ namespace evio {
      * current byte order, into this buffer at the current position, and then
      * increments the position by four.
      *
-     * @param  value float value to be written.
+     * @param  val float value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than four bytes remaining in this buffer.
      */
@@ -1637,7 +1635,7 @@ namespace evio {
      * current byte order, into this buffer at the given index.
      *
      * @param  index index at which the bytes will be written.
-     * @param  value float value to be written.
+     * @param  val float value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than four bytes remaining in this buffer,
      *          i.e. not smaller than the buffer's limit, minus three.
@@ -1660,7 +1658,7 @@ namespace evio {
      * current byte order, into this buffer at the current position, and then
      * increments the position by eight.
      *
-     * @param  value double value to be written.
+     * @param  val double value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than eight bytes remaining in this buffer.
      */
@@ -1682,7 +1680,7 @@ namespace evio {
      * current byte order, into this buffer at the given index.
      *
      * @param  index index at which the bytes will be written.
-     * @param  value double value to be written.
+     * @param  val double value to be written.
      * @return  this buffer.
      * @throws  overflow_error if there are fewer than eight bytes remaining in this buffer,
      *          i.e. not smaller than the buffer's limit, minus seven.

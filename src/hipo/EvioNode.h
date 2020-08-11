@@ -189,7 +189,7 @@ namespace evio {
         // TODO: set many of these methods to CONST
 
         bool isObsolete() const;
-        void setObsolete(bool obsolete);
+        void setObsolete(bool ob);
         std::vector<std::shared_ptr<EvioNode>> & getAllNodes();
         std::vector<std::shared_ptr<EvioNode>> & getChildNodes();
         void getAllDescendants(std::vector<std::shared_ptr<EvioNode>> & descendants);

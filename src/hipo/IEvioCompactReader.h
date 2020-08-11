@@ -366,7 +366,7 @@ namespace evio {
          * Depending on the copy argument, the returned buffer will either be
          * a copy of or a view into the data of this reader's buffer.<p>
          *
-         * @param evNumber number of event of interest
+         * @param eventNumber number of event of interest
          * @param copy if <code>true</code>, then return a copy as opposed to a
          *        view into this reader object's buffer.
          * @return ByteBuffer object containing bank's/event's bytes. Position and limit are
@@ -375,7 +375,7 @@ namespace evio {
          *                       if the event number does not correspond to an existing event;
          *                       if object closed
          */
-        virtual std::shared_ptr<ByteBuffer> getEventBuffer(size_t evNumber, bool copy) = 0;
+        virtual std::shared_ptr<ByteBuffer> getEventBuffer(size_t eventNumber, bool copy) = 0;
 
         /**
          * Get an evio structure (bank, seg, or tagseg) in ByteBuffer form.

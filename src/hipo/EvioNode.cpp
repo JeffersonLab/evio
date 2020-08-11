@@ -324,9 +324,9 @@ namespace evio {
      * with this method.
      *
      * @param position    position in buffer
-     * @param place       place of event in buffer (starting at 0)
-     * @param buffer      buffer to examine
-     * @param recordNode  object holding data about header of block containing event
+     * @param plc         place of event in buffer (starting at 0)
+     * @param buf         buffer to examine
+     * @param recNode     object holding data about header of block containing event
      */
     void EvioNode::setData(size_t position, uint32_t plc,
                            std::shared_ptr<ByteBuffer> & buf, RecordNode & recNode) {
@@ -345,9 +345,9 @@ namespace evio {
      * with this method.
      *
      * @param position   position in buffer
-     * @param place      place of event in buffer (starting at 0)
-     * @param recordPos  place of event in containing record (bytes)
-     * @param buffer     buffer to examine
+     * @param plc        place of event in buffer (starting at 0)
+     * @param recPos     place of event in containing record (bytes)
+     * @param buf        buffer to examine
      */
     void EvioNode::setData(size_t position, uint32_t plc, size_t recPos, std::shared_ptr<ByteBuffer> & buf) {
         buffer     = buf;
@@ -373,7 +373,7 @@ namespace evio {
      * or tag segment.
      *
      * @param buffer     buffer to examine
-     * @param recordNode object holding data about block header
+     * @param recNode object holding data about block header
      * @param position   position in buffer
      * @param place      place of event in buffer (starting at 0)
      *
@@ -745,7 +745,7 @@ namespace evio {
      * Set whether this node & descendants are now obsolete because the
      * data they represent in the buffer has been removed.
      * Only for internal use.
-     * @param obsolete true if node & descendants no longer represent valid
+     * @param ob true if node & descendants no longer represent valid
      *                 buffer data, else false.
      */
     void EvioNode::setObsolete(bool ob) {
@@ -872,7 +872,7 @@ namespace evio {
 
     /**
      * Get the evio type of this evio structure, not what it contains.
-     * Call {@link DataType#getDataType(int)} on the
+     * Call {@link DataType#getDataType(uint32_t)} on the
      * returned value to get the object representation.
      * @return evio type of this evio structure, not what it contains
      */
@@ -900,7 +900,7 @@ namespace evio {
 
     /**
      * Get the evio type of the data this evio structure contains.
-     * Call {@link DataType#getDataType(int)} on the
+     * Call {@link DataType#getDataType(uint32_t)} on the
      * returned value to get the object representation.
      * @return evio type of the data this evio structure contains
      */
@@ -1168,6 +1168,7 @@ namespace evio {
      * a copy of or a view into the data of this node's buffer.
      * Position and limit are set for reading.
      *
+     * @param dest ByteBuffer provided to hold the retrieved evio structure.
      * @param copy if <code>true</code>, then use a copy of as opposed to a
      *        view into this node's buffer.
      * @return dest arg ByteBuffer containing evio structure's bytes.
@@ -1192,6 +1193,7 @@ namespace evio {
      * a copy of or a view into the data of this node's buffer.
      * Position and limit are set for reading.
      *
+     * @param dest ByteBuffer provided to hold the retrieved evio structure.
      * @param copy if <code>true</code>, then use a copy of as opposed to a
      *        view into this node's buffer.
      * @return dest arg ByteBuffer containing evio structure's bytes.

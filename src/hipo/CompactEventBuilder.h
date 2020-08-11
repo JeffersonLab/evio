@@ -181,7 +181,7 @@ namespace evio {
         void addStringData(std::vector<std::string> & strings);
         void addCompositeData(std::vector<std::shared_ptr<CompositeData>> & data);
 
-        void toFile(std::string const & filename);
+        void toFile(std::string const & fileName);
 
     };
 

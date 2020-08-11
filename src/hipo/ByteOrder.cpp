@@ -145,9 +145,9 @@ namespace evio {
      * This routine swaps nothing, it just copies the given number of 32 bit ints.
      * If source pointer is null, nothing is done.
      *
-     * @param data   pointer to data to be copied
-     * @param length number of 32 bit ints to be copied
-     * @param dest   pointer to where data is to be copied to.
+     * @param src   pointer to data to be copied
+     * @param elements number of 32 bit ints to be copied
+     * @param dst   pointer to where data is to be copied to.
      *               If null, nothing is done.
      */
     void ByteOrder::byteNoSwap32(const uint32_t* src, size_t elements, uint32_t* dst) {

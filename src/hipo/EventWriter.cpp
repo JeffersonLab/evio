@@ -48,7 +48,7 @@ namespace evio {
      * If the file already exists, its contents will be overwritten unless
      * it is being appended to. If it doesn't exist, it will be created.
      *
-     * @param file       the file object to write to.<br>
+     * @param filename   the file object to write to.<br>
      * @param dictionary dictionary in xml format or null if none.
      * @param byteOrder  the byte order in which to write the file.
      * @param append     if <code>true</code> and the file already exists,
@@ -483,7 +483,7 @@ namespace evio {
         this->buffer          = buf;
         this->byteOrder       = buf->order();
         this->recordNumber    = recordNumber;
-        std::cout << "EventWriter constr: record # set to " << recordNumber << std::endl;
+//std::cout << "EventWriter constr: record # set to " << recordNumber << std::endl;
 
         this->xmlDictionary   = xmlDictionary;
         this->compressionType = compressionType;
@@ -530,8 +530,8 @@ namespace evio {
     /**
      * Initialization new buffer (not from constructor).
      * The buffer's position is set to 0 before writing.
-     * Only called by {@link #setBuffer(ByteBuffer)} and
-     * {@link #setBuffer(ByteBuffer, BitSet, int)}.
+     * Only called by {@link #setBuffer(std::shared_ptr<ByteBuffer> &)} and
+     * {@link #setBuffer(std::shared_ptr<ByteBuffer> &, std::bitset<24> *, uint32_t)}.
      *
      * @param buf            the buffer to write to.
      * @param bitInfo        set of bits to include in first record header.
@@ -729,7 +729,7 @@ namespace evio {
     /**
      * Set the bit info of a record header for a specified CODA event type.
      * Must be called AFTER {@link RecordHeader#setBitInfo(bool, bool, bool)} or
-     * {@link RecordHeader#setBitInfoWord(int)} in order to have change preserved.
+     * {@link RecordHeader#setBitInfoWord(uint32_t)} in order to have change preserved.
      * This should only be used internally by CODA in emu software.
      *
      * @param type event type (0=ROC raw, 1=Physics, 2=Partial Physics,
@@ -751,7 +751,7 @@ namespace evio {
 
     /**
      * Has {@link #close()} been called (without reopening by calling
-     * {@link #setBuffer(ByteBuffer)}) ?
+     * {@link #setBuffer()}) ?
      *
      * @return {@code true} if this object closed, else {@code false}.
      */
@@ -1746,7 +1746,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
-     * {@link #writeEvent(EvioBank, ByteBuffer, bool)}
+     * {@link #writeEvent(std::shared_ptr<EvioBank>, std::shared_ptr<ByteBuffer>, bool)}
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
@@ -2195,7 +2195,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
      * If splitting files, this method returns false if disk partition is too full
      * to write the complete, next split file. If force arg is true, write anyway.
      * DO NOT mix calling this method with calling
-     * {@link #writeEvent(EvioBank, ByteBuffer, bool)}
+     * {@link #writeEvent(std::shared_ptr<EvioBank>, std::shared_ptr<ByteBuffer>, bool)}
      * (or the various writeEvent() methods which call it).
      * Results are unpredictable as it messes up the
      * logic used to quit writing to full disk.
@@ -2624,8 +2624,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
         // Length of this record
         int bytesToWrite = header->getLength();
         int eventCount   = header->getEntries();
-        std::cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " <<
-             eventCount << std::endl;
+//        std::cout << "   ********** adding to recordLengths: " << bytesToWrite << ", " << eventCount << std::endl;
         recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths->push_back(eventCount);
@@ -2633,8 +2632,8 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
         // Data to write
         auto buf = record->getBinaryBuffer();
 
-        std::cout << "\nwriteToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
-             fileWritingPosition << std::endl;
+//std::cout << "\nwriteToFile: file pos = " << asyncFileChannel->tellg() << ", fileWritingPOsition = " <<
+  //           fileWritingPosition << std::endl;
 
         future1 = std::make_shared<std::future<void>>(std::future<void>(
                 std::async(std::launch::async,  // run in a separate thread
@@ -2987,8 +2986,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
         uint32_t bytesToWrite = header->getLength();
         // Store length & count for possible trailer index
 
-        std::cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " <<
-             eventCount << std::endl;
+//std::cout << "   ********** adding to recordLengths flush: " << bytesToWrite << ", " << eventCount << std::endl;
         recordLengths->push_back(bytesToWrite);
         // Trailer's index has count following length
         recordLengths->push_back(eventCount);

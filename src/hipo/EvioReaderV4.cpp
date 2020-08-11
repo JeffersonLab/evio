@@ -76,6 +76,7 @@ namespace evio {
      * @param checkBlkNumSeq if <code>true</code> check the block number sequence
      *                       and throw an exception if it is not sequential starting
      *                       with 1
+     * @param synced if true, this class's methods are mutex protected for thread safety.
      * @see EventWriter
      * @throws EvioException if file arg is null; if read failure;
      *                       if first block number != 1 when checkBlkNumSeq arg is true
@@ -153,6 +154,7 @@ namespace evio {
      * @param checkBlkNumSeq if <code>true</code> check the block number sequence
      *                       and throw an exception if it is not sequential starting
      *                       with 1
+     * @param synced if true, this class's methods are mutex protected for thread safety.
      * @see EventWriter
      * @throws EvioException if buffer arg is null;
      *                       if first block number != 1 when checkBlkNumSeq arg is true

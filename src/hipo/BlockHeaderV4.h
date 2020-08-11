@@ -78,7 +78,7 @@ namespace evio {
      *
      *
      *
-     * Bit info has the following bits defined (bit #s start with 1):
+     * Bit info has the following bits defined (bit numbers start with 1):
      *   Bit  9     = true if dictionary is included (relevant for first block only)
      *
      *   Bit  10    = true if this block is the last block in file or network transmission
@@ -195,8 +195,8 @@ namespace evio {
          *<li><code>bitInfo</code> is initialized to all bits off<br>
          *<li><code>magicNumber</code> is initialized to <code> {@link #MAGIC_NUMBER}.</code><br>
          *</ul>
-         * @param size the size of the block in ints.
-         * @param number the block number--usually sequential.
+         * @param sz the size of the block in ints.
+         * @param num the block number--usually sequential.
          */
         BlockHeaderV4(uint32_t sz, uint32_t num) {
             size = sz;
@@ -283,7 +283,7 @@ namespace evio {
          * Set the block number for this block (physical record).
          * In a file, this is usually sequential, starting at 1.
          * This is not checked.
-         * @param number the number of the block (physical record).
+         * @param num the number of the block (physical record).
          */
         void setNumber(uint32_t num) {number = num;}
 
@@ -304,7 +304,7 @@ namespace evio {
          * is variable, it should be 8. However, since this is usually read as part of reading
          * the physical record header, it is a good check to have a setter rather than just fix its value at 8.
          *
-         * @param headerLength the new block header length. This should be 8.
+         * @param len the new block header length. This should be 8.
          */
         void setHeaderLength(uint32_t len) {
             if (len != HEADER_SIZE) {
@@ -669,7 +669,7 @@ namespace evio {
 
         /**
          * Sets the value of reserved2.
-         * @param r1 the value for reserved2.
+         * @param r2 the value for reserved2.
          */
         void setReserved2(uint32_t r2) {reserved2 = r2;}
 
@@ -685,7 +685,7 @@ namespace evio {
          * 2) The reading algorithm is screwed up. <br>
          * 3) The endianness is not being handled properly.
          *
-         * @param magicNumber the new value for magic number.
+         * @param magicNum the new value for magic number.
          * @throws EvioException if magic number not the correct value.
          */
         void setMagicNumber(uint32_t magicNum) {

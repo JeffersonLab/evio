@@ -89,7 +89,7 @@ EvioReader::EvioReader(std::string const & path, bool checkRecNumSeq, bool seque
 /**
  * Constructor for reading a buffer with option of removing synchronization
  * for much greater speed.
- * @param byteBuffer     the buffer that contains events.
+ * @param bb             the buffer that contains events.
  * @param checkRecNumSeq if <code>true</code> check the record number sequence
  *                       and throw an exception if it is not sequential starting
  *                       with 1
@@ -237,8 +237,8 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
      * Byte array must not be in file format (have record headers),
      * but must consist of only the bytes comprising the evio event.
      *
-     * @param src   array to parse into EvioEvent object.
-     * @param maxLen  max length of valid data in src.
+     * @param src     array to parse into EvioEvent object.
+     * @param len     max length of valid data in src.
      * @param order   byte order to use.
      * @return the EvioEvent object parsed from the given bytes.
      * @throws EvioException if null arg, too little data, length too large, or data not in evio format.

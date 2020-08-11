@@ -88,7 +88,7 @@ namespace evio {
                                  std::shared_ptr<CompositeData> *data, size_t count);
 
         std::shared_ptr<EvioEvent> getEvent();
-        void setEvent(std::shared_ptr<EvioEvent> & event);
+        void setEvent(std::shared_ptr<EvioEvent> & ev);
 
         static int main(int argc, char **argv);
 

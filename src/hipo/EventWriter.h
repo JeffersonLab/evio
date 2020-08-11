@@ -86,17 +86,17 @@ namespace evio {
      *    +          Data Record 1           +
      *    +                                  +
      *    +----------------------------------+
-     *                    .
-     *                    .
-     *                    .
+     *                    -
+     *                    -
+     *                    -
      *    +----------------------------------+
      *    +                                  +
      *    +          Data Record N           +
      *    +                                  +
      *    +----------------------------------+
      *
-     * ---------------------------------------------
-     * ---------------------------------------------
+     * =============================================
+     * =============================================
      *
      *              FILE Compressed
      *
@@ -120,9 +120,9 @@ namespace evio {
      *    +          Data Record 1           +
      *    +                                  +
      *    +----------------------------------+
-     *                    .
-     *                    .
-     *                    .
+     *                    -
+     *                    -
+     *                    -
      *    +----------------------------------+
      *    +           Compressed             +
      *    +          Data Record N           +
@@ -919,7 +919,7 @@ namespace evio {
                              const ByteOrder & byteOrder = ByteOrder::nativeOrder(),
                              bool append = false);
 
-        EventWriter(std::string & file,
+        EventWriter(std::string & filename,
                     std::string & dictionary,
                     const ByteOrder & byteOrder = ByteOrder::nativeOrder(),
                     bool append = false);

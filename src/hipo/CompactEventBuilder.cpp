@@ -1184,7 +1184,7 @@ namespace evio {
      * Use this in conjunction with the event viewer in order to check
      * that format is correct. This only works with array backed buffers.
      *
-     * @param filename name of file
+     * @param fileName name of file
      */
     void CompactEventBuilder::toFile(std::string const & fileName) {
 

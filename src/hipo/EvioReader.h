@@ -34,7 +34,7 @@ namespace evio {
      * format file or buffer. Create an <code>EvioReader</code> object corresponding to an event
      * file or file-formatted buffer, and from this class you can test it
      * for consistency and, more importantly, you can call {@link #parseNextEvent} or
-     * {@link #parseEvent(int)} to get new events and to stream the embedded structures
+     * {@link #parseEvent(size_t)} to get new events and to stream the embedded structures
      * to an IEvioListener.<p>
      *
      * A word to the wise, constructors for reading a file in random access mode
@@ -79,7 +79,7 @@ namespace evio {
                             bool sequential = false, bool synced = false);
 
         //   Buffer constructor
-        explicit EvioReader(std::shared_ptr<ByteBuffer> & byteBuffer, bool checkRecNumSeq = false, bool synced = false);
+        explicit EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq = false, bool synced = false);
 
         //------------------------------------------
 
