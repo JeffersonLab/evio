@@ -25,7 +25,7 @@ set(CMAKE_CXX_STANDARD 14)
 project(evio_6_0)
 
 # Find include files here
-include_directories(src/libsrc src/libsrc++ src/hipo /usr/include/boost /usr/local/include $ENV{DISRUPTOR_CPP_HOME})
+include_directories(src/libsrc src/libsrc++ src/libsrc /usr/include/boost /usr/local/include $ENV{DISRUPTOR_CPP_HOME})
 
 # Place libs & binaries in somewhere besides build/cmake - like in allBinaries subdirectory
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/allBinaries)
@@ -73,114 +73,114 @@ set(CPP_LIB_FILES
 )
 
 set(CPP_HEADER_FILES_NEW
-        src/hipo/FileEventIndex.h
-        src/hipo/HipoException.h
-        src/hipo/EvioException.h
-        src/hipo/ByteOrder.h
-        src/hipo/ByteBuffer.h
-        src/hipo/ByteBufferVector.h
-        src/hipo/HeaderType.h
-        src/hipo/Stoppable.h
-        src/hipo/ConcurrentFixedQueue.h
-        src/hipo/Compressor.h
-        src/hipo/CompressionType.h
-        src/hipo/FileHeader.h
-        src/hipo/RecordHeader.h
-        src/hipo/RecordInput.h
-        src/hipo/RecordOutput.h
-        src/hipo/Writer.h
-        src/hipo/WriterMT.h
-        src/hipo/EvioNode.h
-        src/hipo/DataType.h
-        src/hipo/StructureType.h
-        src/hipo/RecordNode.h
-        src/hipo/EvioNodeSource.h
-        src/hipo/TestWriter.h
-        src/hipo/ReadWriteTest.h
-        src/hipo/Reader.h
-        src/hipo/RecordSupply.h
-        src/hipo/RecordRingItem.h
-        src/hipo/Util.h
-        src/hipo/EventWriter.h
-        src/hipo/RecordWriter.h
-        src/hipo/RecordCompressor.h
-        src/hipo/BaseStructure.h
-        src/hipo/BaseStructureHeader.h
-        src/hipo/CompositeData.h
-        src/hipo/BankHeader.h
-        src/hipo/SegmentHeader.h
-        src/hipo/TagSegmentHeader.h
-        src/hipo/EvioBank.h
-        src/hipo/EvioSegment.h
-        src/hipo/EvioTagSegment.h
-        src/hipo/EvioEvent.h
-        src/hipo/EventParser.h
-        src/hipo/IEvioFilter.h
-        src/hipo/IEvioListener.h
-        src/hipo/EventParser.h
-        src/hipo/EventHeaderParser.h
-        src/hipo/StructureTransformer.h
-        src/hipo/IBlockHeader.h
-        src/hipo/IEvioReader.h
-        src/hipo/EvioReader.h
-        src/hipo/EvioReaderV4.h
-        src/hipo/BlockHeaderV2.h
-        src/hipo/BlockHeaderV4.h
-        src/hipo/EvioReaderV6.h
-        src/hipo/EvioCompactReader.h
-        src/hipo/IEvioCompactReader.h
-        src/hipo/EvioXMLDictionary.h
-        src/hipo/EvioDictionaryEntry.h
-        src/hipo/pugixml.hpp
-        src/hipo/pugiconfig.hpp
-        src/hipo/INameProvider.h
-        src/hipo/EvioCompactReaderV4.h
-        src/hipo/BlockNode.h
-        src/hipo/EvioCompactReaderV6.h
-        src/hipo/EventBuilder.h
-        src/hipo/CompactEventBuilder.h
-        src/hipo/EvioSwap.h
-        src/hipo/StructureFinder.h
+        src/libsrc/FileEventIndex.h
+        src/libsrc/HipoException.h
+        src/libsrc/EvioException.h
+        src/libsrc/ByteOrder.h
+        src/libsrc/ByteBuffer.h
+        src/libsrc/ByteBufferVector.h
+        src/libsrc/HeaderType.h
+        src/libsrc/Stoppable.h
+        src/libsrc/ConcurrentFixedQueue.h
+        src/libsrc/Compressor.h
+        src/libsrc/CompressionType.h
+        src/libsrc/FileHeader.h
+        src/libsrc/RecordHeader.h
+        src/libsrc/RecordInput.h
+        src/libsrc/RecordOutput.h
+        src/libsrc/Writer.h
+        src/libsrc/WriterMT.h
+        src/libsrc/EvioNode.h
+        src/libsrc/DataType.h
+        src/libsrc/StructureType.h
+        src/libsrc/RecordNode.h
+        src/libsrc/EvioNodeSource.h
+        src/libsrc/TestWriter.h
+        src/libsrc/ReadWriteTest.h
+        src/libsrc/Reader.h
+        src/libsrc/RecordSupply.h
+        src/libsrc/RecordRingItem.h
+        src/libsrc/Util.h
+        src/libsrc/EventWriter.h
+        src/libsrc/RecordWriter.h
+        src/libsrc/RecordCompressor.h
+        src/libsrc/BaseStructure.h
+        src/libsrc/BaseStructureHeader.h
+        src/libsrc/CompositeData.h
+        src/libsrc/BankHeader.h
+        src/libsrc/SegmentHeader.h
+        src/libsrc/TagSegmentHeader.h
+        src/libsrc/EvioBank.h
+        src/libsrc/EvioSegment.h
+        src/libsrc/EvioTagSegment.h
+        src/libsrc/EvioEvent.h
+        src/libsrc/EventParser.h
+        src/libsrc/IEvioFilter.h
+        src/libsrc/IEvioListener.h
+        src/libsrc/EventParser.h
+        src/libsrc/EventHeaderParser.h
+        src/libsrc/StructureTransformer.h
+        src/libsrc/IBlockHeader.h
+        src/libsrc/IEvioReader.h
+        src/libsrc/EvioReader.h
+        src/libsrc/EvioReaderV4.h
+        src/libsrc/BlockHeaderV2.h
+        src/libsrc/BlockHeaderV4.h
+        src/libsrc/EvioReaderV6.h
+        src/libsrc/EvioCompactReader.h
+        src/libsrc/IEvioCompactReader.h
+        src/libsrc/EvioXMLDictionary.h
+        src/libsrc/EvioDictionaryEntry.h
+        src/libsrc/pugixml.hpp
+        src/libsrc/pugiconfig.hpp
+        src/libsrc/INameProvider.h
+        src/libsrc/EvioCompactReaderV4.h
+        src/libsrc/BlockNode.h
+        src/libsrc/EvioCompactReaderV6.h
+        src/libsrc/EventBuilder.h
+        src/libsrc/CompactEventBuilder.h
+        src/libsrc/EvioSwap.h
+        src/libsrc/StructureFinder.h
         )
 
 set(CPP_LIB_FILES_NEW
-        src/hipo/FileEventIndex.cpp
-        src/hipo/ByteOrder.cpp
-        src/hipo/ByteBuffer.cpp
-        src/hipo/HeaderType.cpp
-        src/hipo/Compressor.cpp
-        src/hipo/FileHeader.cpp
-        src/hipo/RecordHeader.cpp
-        src/hipo/RecordInput.cpp
-        src/hipo/RecordOutput.cpp
-        src/hipo/Writer.cpp
-        src/hipo/WriterMT.cpp
-        src/hipo/EvioNode.cpp
-        src/hipo/DataType.cpp
-        src/hipo/StructureType.cpp
-        src/hipo/Reader.cpp
-        src/hipo/RecordSupply.cpp
-        src/hipo/RecordRingItem.cpp
-        src/hipo/EventWriter.cpp
-        src/hipo/BaseStructure.cpp
-        src/hipo/BaseStructureHeader.cpp
-        src/hipo/CompositeData.cpp
-        src/hipo/BankHeader.cpp
-        src/hipo/SegmentHeader.cpp
-        src/hipo/TagSegmentHeader.cpp
-        src/hipo/EventParser.cpp
-        src/hipo/EvioReader.cpp
-        src/hipo/EvioReaderV4.cpp
-        src/hipo/EvioReaderV6.cpp
-        src/hipo/EvioCompactReader.cpp
-        src/hipo/EvioXMLDictionary.cpp
-        src/hipo/pugixml.cpp
-        src/hipo/EvioCompactReaderV4.cpp
-        src/hipo/EvioCompactReaderV6.cpp
-        src/hipo/INameProvider.cpp
-        src/hipo/EventBuilder.cpp
-        src/hipo/CompactEventBuilder.cpp
-        src/hipo/StructureFinder.cpp)
+        src/libsrc/FileEventIndex.cpp
+        src/libsrc/ByteOrder.cpp
+        src/libsrc/ByteBuffer.cpp
+        src/libsrc/HeaderType.cpp
+        src/libsrc/Compressor.cpp
+        src/libsrc/FileHeader.cpp
+        src/libsrc/RecordHeader.cpp
+        src/libsrc/RecordInput.cpp
+        src/libsrc/RecordOutput.cpp
+        src/libsrc/Writer.cpp
+        src/libsrc/WriterMT.cpp
+        src/libsrc/EvioNode.cpp
+        src/libsrc/DataType.cpp
+        src/libsrc/StructureType.cpp
+        src/libsrc/Reader.cpp
+        src/libsrc/RecordSupply.cpp
+        src/libsrc/RecordRingItem.cpp
+        src/libsrc/EventWriter.cpp
+        src/libsrc/BaseStructure.cpp
+        src/libsrc/BaseStructureHeader.cpp
+        src/libsrc/CompositeData.cpp
+        src/libsrc/BankHeader.cpp
+        src/libsrc/SegmentHeader.cpp
+        src/libsrc/TagSegmentHeader.cpp
+        src/libsrc/EventParser.cpp
+        src/libsrc/EvioReader.cpp
+        src/libsrc/EvioReaderV4.cpp
+        src/libsrc/EvioReaderV6.cpp
+        src/libsrc/EvioCompactReader.cpp
+        src/libsrc/EvioXMLDictionary.cpp
+        src/libsrc/pugixml.cpp
+        src/libsrc/EvioCompactReaderV4.cpp
+        src/libsrc/EvioCompactReaderV6.cpp
+        src/libsrc/INameProvider.cpp
+        src/libsrc/EventBuilder.cpp
+        src/libsrc/CompactEventBuilder.cpp
+        src/libsrc/StructureFinder.cpp)
 
 set(TEST_FILES_CC
         ReadWriteTest.cpp
@@ -229,7 +229,7 @@ target_include_directories(evio PUBLIC src/libsrc /usr/local/include)
 
 # Shared hipo C++ library
 add_library(hipo SHARED ${CPP_LIB_FILES_NEW})
-target_include_directories(hipo PUBLIC src/hipo /usr/local/include)
+target_include_directories(hipo PUBLIC src/libsrc /usr/local/include)
 
 
 # Main Executables
