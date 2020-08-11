@@ -136,6 +136,11 @@ set(CPP_HEADER_FILES_NEW
         src/hipo/INameProvider.h
         src/hipo/EvioCompactReaderV4.h
         src/hipo/BlockNode.h
+        src/hipo/EvioCompactReaderV6.h
+        src/hipo/EventBuilder.h
+        src/hipo/CompactEventBuilder.h
+        src/hipo/EvioSwap.h
+        src/hipo/StructureFinder.h
         )
 
 set(CPP_LIB_FILES_NEW
@@ -171,11 +176,15 @@ set(CPP_LIB_FILES_NEW
         src/hipo/EvioXMLDictionary.cpp
         src/hipo/pugixml.cpp
         src/hipo/EvioCompactReaderV4.cpp
-        )
+        src/hipo/EvioCompactReaderV6.cpp
+        src/hipo/INameProvider.cpp
+        src/hipo/EventBuilder.cpp
+        src/hipo/CompactEventBuilder.cpp
+        src/hipo/StructureFinder.cpp)
 
 set(TEST_FILES_CC
         ReadWriteTest.cpp
-        src/hipo/RingBufferTest.cpp
+        src/test/RingBufferTest.cpp
         )
 
 set(TEST
@@ -227,7 +236,7 @@ target_include_directories(hipo PUBLIC src/hipo /usr/local/include)
 add_executable(ReadWriteTest ReadWriteTest.cpp)
 target_link_libraries(ReadWriteTest pthread expat z hipo)
 
-add_executable(RingBufferTest src/hipo/RingBufferTest.cpp)
+add_executable(RingBufferTest src/test/RingBufferTest.cpp)
 target_link_libraries(RingBufferTest pthread expat z hipo)
 
 add_executable(evio2xml src/execsrc/evio2xml.c)
