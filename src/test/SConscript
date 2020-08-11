@@ -1,53 +1,24 @@
 # scons build file for evio
 Import('env', 'platform', 'archDir', 'incInstallDir', 'libInstallDir', 'binInstallDir', 'archIncInstallDir', 'execLibs', 'debugSuffix', 'disruptorHome')
 
-# Headers to install
-headerList = Glob('*.h', strings=True)
 
-# Files to compile
-#fileList = Glob('*.cpp',  strings=True, exclude=['ReadWriteTest.cpp', 'EventWriter.cpp', 'EventWriter.h'])
-fileList = Glob('*.cpp',  strings=True, exclude=['ReadWriteTest.cpp',
-                                                 'RingBufferTest.cpp',
-                                                 'RecordSupplyTest.cpp'])
+# lists of all C++ files
+ccfileList = Glob('*.cpp', strings=True)
 
-env.AppendUnique(CPPPATH = ['#src/hipo', '/usr/local/include', '/usr/include/boost', '/usr/local/include/boost'])
-
-#evioNewLib = env.StaticLibrary(target = 'hipo'+debugSuffix, source = fileList)
-evioNewLib = env.SharedLibrary(target = 'hipo'+debugSuffix, source = fileList)
-
-if 'install' in COMMAND_LINE_TARGETS:
-    env.Alias("install", env.Install(target = [incInstallDir, archIncInstallDir], source = headerList))
-    env.Alias("install", env.Install(target = libInstallDir, source = evioNewLib))
-
-# Compile C++ files and install
 
 boostThdLib = 'boost_thread'
 if platform == 'Darwin':
     boostThdLib = 'boost_thread-mt'
 
-#compiledFile1 = env.Program(source  = 'ReadWriteTest.cpp',
-#                           LIBS    = ['hipo'+debugSuffix, 'Disruptor',
-#                                      'boost_system', boostThdLib,  'boost_chrono',  execLibs],
-#                           LIBPATH = ['#src/hipo/'+archDir, '/usr/local/lib'],
-#                           CPPPATH = ['#src/hipo', disruptorHome, '/usr/local/include',
-#                                      '/usr/include/boost', '/usr/local/include/boost'])
 
-compiledFile2 = env.Program(source  = 'RingBufferTest.cpp',
-                           LIBS    = ['hipo'+debugSuffix, 'Disruptor',
-                                      'boost_system', boostThdLib,  'boost_chrono',  execLibs],
-                           LIBPATH = ['#src/hipo/'+archDir, '/usr/local/lib'],
-                           CPPPATH = ['#src/hipo', disruptorHome, '/usr/local/include',
+# Compile C++ files and install
+for fileName in ccfileList:
+    compiledFile = env.Program(source  = fileName,
+                            LIBS    = ['evio'+debugSuffix, 'Disruptor',
+                                       'boost_system', boostThdLib,  'boost_chrono',  execLibs],
+                            LIBPATH = ['#src/hipo/'+archDir, '/usr/local/lib'],
+                            CPPPATH = ['#src/hipo', disruptorHome, '/usr/local/include',
                                       '/usr/include/boost', '/usr/local/include/boost'])
 
-compiledFile3 = env.Program(source  = 'RecordSupplyTest.cpp',
-                           LIBS    = ['hipo'+debugSuffix, 'Disruptor',
-                                      'boost_system', boostThdLib,  'boost_chrono',  execLibs],
-                           LIBPATH = ['#src/hipo/'+archDir, '/usr/local/lib'],
-                           CPPPATH = ['#src/hipo', disruptorHome, '/usr/local/include',
-                                      '/usr/include/boost', '/usr/local/include/boost'])
-
-
-
-if 'install' in COMMAND_LINE_TARGETS:
-    env.Alias('install', env.Install(target = binInstallDir, source = [compiledFile2,
-                                                                       compiledFile3]))
+    if 'install' in COMMAND_LINE_TARGETS:
+        env.Alias('install', env.Install(target = binInstallDir, source = compiledFile))
