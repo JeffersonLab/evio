@@ -39,11 +39,7 @@
 #include "EvioSwap.h"
 #include "EventWriter.h"
 #include "EvioReader.h"
-
-#include "RecordSupply.h"
 #include "ByteOrder.h"
-#include "Disruptor/RingBuffer.h"
-#include <boost/thread.hpp>
 
 #include "IBlockHeader.h"
 #include "BlockHeaderV2.h"
@@ -62,253 +58,8 @@ using namespace std;
 namespace evio {
 
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-
-    /**
-      * Class used to compressed items, "write" them, and put them back.
-      * Last barrier on ring.
-      * It is an interruptible thread from the boost library, and only 1 exists.
-      */
-    class Writer2 {
-
-    private:
-
-        /** Supply of RecordRingItems. */
-        std::shared_ptr<RecordSupply> supply;
-        /** Thread which does the file writing. */
-        boost::thread thd;
-
-    public:
-
-        /**
-         * Constructor.
-         * @param recSupply
-         */
-        Writer2(std::shared_ptr<RecordSupply> recSupply) : supply(recSupply)  {}
-
-
-        /** Create and start a thread to execute the run() method of this class. */
-        void startThread() {
-            thd = boost::thread([this]() {this->run();});
-        }
-
-        /** Stop the thread. */
-        void stopThread() {
-            // Send signal to interrupt it
-            thd.interrupt();
-            // Wait for it to stop
-            thd.join();
-        }
-
-        /** Run this method in thread. */
-        void run() {
-            try {
-                while (true) {
-                    // Get the next record for this thread to write
-                    auto item = supply->getToWrite();
-                    cout << "   W : v" << item->getId() << endl;
-                    supply->releaseWriterSequential(item);
-                }
-            }
-            catch (boost::thread_interrupted & e) {
-                cout << "     Writer: INTERRUPTED, return" << endl;
-            }
-        }
-
-    };
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Class used to take items from ring buffer, "compress" them, and place them back.
-     */
-    class Compressor2 {
-
-    private:
-
-        /** Supply of RecordRingItems. */
-        std::shared_ptr<RecordSupply> supply;
-        /** Thread which does the file writing. */
-        boost::thread thd;
-        /** Keep track of this thread with id number. */
-        uint32_t threadNumber;
-
-    public:
-
-          /**
-           * Constructor.
-           * @param threadNum
-           * @param threadCount
-           * @param ringBuf
-           * @param barrier
-           * @param sequence
-           */
-        Compressor2(uint32_t threadNum, std::shared_ptr<RecordSupply> & recSupply) :
-                    threadNumber(threadNum), supply(recSupply)  {}
-
-
-        /** Create and start a thread to execute the run() method of this class. */
-        void startThread() {
-            thd = boost::thread([this]() {this->run();});
-        }
-
-        /** Stop the thread. */
-        void stopThread() {
-            // Send signal to interrupt it
-            thd.interrupt();
-            // Wait for it to stop
-            thd.join();
-        }
-
-        /** Method to run in the thread. */
-        void run() {
-
-            try {
-
-                // The first time through, we need to release all records coming before
-                // our first in case there are < threadNumber records before close() is called.
-                // This way close() is not waiting for thread #12 to get and subsequently
-                // release items 0 - 11 when there were only 5 records total.
-                // (threadNumber starts at 0).
-                if (threadNumber > 0) {
-                    supply->release(threadNumber, threadNumber - 1);
-                }
-
-                while (true) {
-                    // Get the next record for this thread to compress
-                    auto item = supply->getToCompress(threadNumber);
-                    cout << "   C" << threadNumber << ": v" << item->getId() << endl;
-
-                    // Release back to supply
-                    supply->releaseCompressor(item);
-
-                    std::this_thread::sleep_for(2s);
-                }
-            }
-            catch (std::exception & e) {
-                cout << "Com" << threadNumber << ": INTERRUPTED, return" << endl;
-            }
-        }
-    };
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-    static void recordSupplyTest() {
-
-        /** Threads used to compress data. */
-        std::vector<Compressor2> compressorThreads;
-        /** Thread used to write data to file/buffer.
-         *  Easier to use vector here so we don't have to construct it immediately. */
-        std::vector<Writer2> writerThreads;
-
-        /** Number of threads doing compression simultaneously. */
-        const uint32_t compressionThreadCount = 2;
-
-        /** Number of records held in this supply. */
-        const uint32_t ringSize = 32;
-
-        /** The byte order in which to write a file or buffer. */
-        ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
-
-        Compressor::CompressionType compressionType = Compressor::UNCOMPRESSED;
-
-        /** Fast supply of record items for filling, compressing and writing. */
-        std::shared_ptr<RecordSupply> supply =
-                std::make_shared<RecordSupply>(ringSize, byteOrder,
-                                               compressionThreadCount,
-                                                0, 0, compressionType);
-
-        // Create compression threads
-        compressorThreads.reserve(compressionThreadCount);
-        for (int i=0; i < compressionThreadCount; i++) {
-            compressorThreads.emplace_back(i, supply);
-        }
-
-        // Start compression threads
-        for (int i=0; i < compressionThreadCount; i++) {
-            compressorThreads[i].startThread();
-        }
-
-        // Create and start writing thread
-        writerThreads.emplace_back(supply);
-        writerThreads[0].startThread();
-
-        uint32_t counter = 0;
-
-        while (true) {
-            // Producer gets next available record
-            std::shared_ptr<RecordRingItem> item = supply->get();
-            item->setId(counter++);
-            cout << "P -> " << item->getId() << endl;
-            supply->publish(item);
-        }
-
-
-    }
-
-    static void mySwapTest() {
-        // check handling of nullptr
-        EvioSwap::swapBank(nullptr, false, nullptr);
-
-        // check tree structure stuff
-        auto topBank = EvioBank::getInstance(0, DataType::BANK, 0);
-        auto midBank = EvioBank::getInstance(1, DataType::BANK, 1);
-        auto midBank2 = EvioBank::getInstance(2, DataType::BANK, 2);
-        auto childBank = EvioBank::getInstance(4, DataType::FLOAT32, 4);
-
-        // Child's float data
-        auto &fData = childBank->getFloatData();
-        fData.push_back(0.);
-        fData.push_back(1.);
-        fData.push_back(2.);
-        std::cout << "EvioBank: local intData size = " << fData.size() << std::endl;
-        childBank->updateFloatData();
-
-        // Create tree
-        topBank->add(midBank);
-        topBank->add(midBank2);
-        midBank->add(childBank);
-
-        std::cout << "EvioBank = " << topBank->toString() << std::endl;
-
-        EvioSwap::swapData(topBank);
-
-        std::cout << "Swapped top bank = " << topBank->toString() << std::endl;
-        auto & swappedData = childBank->getFloatData();
-        std::cout << "Swapped float data = " << std::endl;
-        for (auto i : swappedData) {
-            std::cout << "data -> " << i << std::endl;
-        }
-
-        EvioSwap::swapData(topBank);
-
-        std::cout << "Swapped top bank AGAIN = " << topBank->toString() << std::endl;
-        auto & swappedData2 = childBank->getFloatData();
-        std::cout << "Swapped float data = " << std::endl;
-        for (auto i : swappedData2) {
-            std::cout << "data -> " << i << std::endl;
-        }
-
-        uint16_t tag2 = 2;
-        DataType type2 = DataType::BANK;
-        const auto evSeg = EvioSegment::getInstance(tag2, type2);
-        std::cout << "EvioSeg = " << evSeg->toString() << std::endl;
-
-        StructureTransformer::copy(evSeg, topBank);
-        std::cout << "EvioSeg after copy = " << evSeg->toString() << std::endl;
-
-        std::shared_ptr<EvioSegment> const & newSegment = StructureTransformer::transform(topBank);
-        std::cout << "EvioSeg after transform = " << newSegment->toString() << std::endl;
-
-    }
-
-
     // Test the BaseStructure's tree methods
-    static void myTreeTest() {
+    static void TreeTest() {
 
         // check handling of nullptr
         EvioSwap::swapBank(nullptr, false, nullptr);
@@ -586,18 +337,10 @@ namespace evio {
 
         }
 
-    static std::string myStrings[3] = {"a", "b", "c"};
-
-    static void printStrings(std::string * strs, int count) {
-        for (int i=0; i < count; i++) {
-            cout << "string #" << i << " = " << strs[i] << std::endl;
-        }
-    }
-
 
 
      // Test the ByteBuffer's slice() method
-     static void myByteBufferTest() {
+     static void ByteBufferTest1() {
 
         ByteBuffer b(24);
          b.putInt(0, 1);
@@ -648,8 +391,9 @@ namespace evio {
     }
 
 
+
     // Test the ByteBuffer's use with memory mapped file
-    static void myByteBufferTest2() {
+    static void ByteBufferTest2() {
 
         ByteBuffer b(24);
         b.putInt(0, 1);
@@ -710,27 +454,16 @@ namespace evio {
         Util::printBytes(readBuf2, 0, 24, "read mapped file again");
         std::cout << "read mmapped file again: pos = " << readBuf2.position() << ", lim = " << readBuf2.limit() <<
                      ", cap = " << readBuf2.capacity() << ", off = " << readBuf2.arrayOffset() << std::endl << std::endl;
-
-
-
     }
 
 
 
-    /**
-     * Created by IntelliJ IDEA.
-     * User: timmer
-     * Date: 4/12/11
-     * Time: 10:21 AM
-     * To change this template use File | Settings | File Templates.
-     */
+    /** Contains methods to test Composite Data.  */
     class CompositeTester {
 
     public:
 
-        /** For testing only */
         static int test1() {
-
 
             uint32_t bank[24];
 
@@ -1089,18 +822,14 @@ namespace evio {
 
 
         /**
-         * More complicated example of providing a format string and some data
-         * in order to create a CompositeData object.
+         * Test vectors of CompositeData objects.
          */
         static int test4() {
-
-            // Create a CompositeData object ...
-            std::cout << "NEWWWWWWWWWWWWWWWWW" << std::endl;
 
             // Format to write 1 int and 1 float a total of N times
             std::string format = "N(I,F)";
 
-            std::cout << "format = " << format << std::endl;
+            std::cout << "Format = " << format << std::endl;
 
             // Now create some data
             CompositeData::Data myData1;
@@ -1171,28 +900,6 @@ namespace evio {
         }
 
 
-        /** For testing only */
-        static int test5() {
-
-            //create an event writer to write out the test events.
-            std::string fileName = "/home/timmer/evioTestFiles/clas_004604.evio.00000";
-
-            try {
-                EvioReader evioReader(fileName);
-                std::shared_ptr<EvioEvent> ev;
-                int eventNum = 1;
-                while ( (ev = evioReader.parseNextEvent()) != nullptr) {
-                    std::cout << std::endl << "EVENT: number " << (eventNum++) << " (starting at 1)" << std::endl;
-                    std::cout << "-->:" << std::endl << ev->toString();
-                    std::cout << std::endl << std::endl;
-                }
-            }
-            catch (EvioException & e) {
-                std::cout << e.what() << std::endl;
-            }
-
-            return 0;
-        }
 
         /**
          * Print the data from a CompositeData object in a user-friendly form.
@@ -1298,17 +1005,12 @@ namespace evio {
 
         size_t bufSize = 1000;
         CompactEventBuilder ceb(bufSize, ByteOrder::ENDIAN_LOCAL, true);
-        std::cout << "CompactEventBuilder after constructor\n";
         //explicit CompactEventBuilder(std::shared_ptr<ByteBuffer> buffer, bool generateNodes = false);
         ceb.openBank(4, DataType::SEGMENT, 4);
-        std::cout << "CompactEventBuilder after openBank\n";
         ceb.openSegment(5, DataType::DOUBLE64);
-        std::cout << "CompactEventBuilder after openSegment\n";
         double dd[3] = {1.11, 2.22, 3.33};
         ceb.addDoubleData(dd, 3);
-        std::cout << "CompactEventBuilder after addDoubleData\n";
         ceb.closeAll();
-        std::cout << "CompactEventBuilder after closeAll\n";
         auto cebEvbuf = ceb.getBuffer();
 
         //Util::printBytes(cebEvbuf, 0 , 200, "From CompactEventBuilder");
@@ -1322,19 +1024,11 @@ namespace evio {
 
         //Util::printBytes(newBuf, 0 , 200, "From EventWriter");
 
-        std::cout << "CompactEventBuilder's before reader, writerBuf pos = " << writerBuf->position() <<
-        ", limit = " << writerBuf->limit() << "\n";
-
+        // Read event back out of buffer
         EvioReader reader(writerBuf);
-        std::cout << "CompactEventBuilder's after reader\n";
         auto cebEv = reader.getEvent(1);
-        std::cout << "CompactEventBuilder's after getEvent\n";
 
         std::cout << "CompactEventBuilder's cebEv:\n" << cebEv->toString() << std::endl;
-
-
-
-
     }
 
 
@@ -1343,11 +1037,14 @@ namespace evio {
 
 
 int main(int argc, char **argv) {
-    //evio::myTreeTest();
-    //evio::myByteBufferTest();
+    evio::TreeTest();
+    //evio::ByteBufferTest1();
     //evio::myByteBufferTest2();
     //evio::CompositeTester::test1();
-    evio::EventBuilderTest();
+    //evio::CompositeTester::test2();
+    //evio::CompositeTester::test3();
+    //evio::CompositeTester::test4();
+    //evio::EventBuilderTest();
     return 0;
 }
 
