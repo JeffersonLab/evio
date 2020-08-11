@@ -115,20 +115,20 @@ namespace evio {
         // LZ4
         //---------------
         static int compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize);
-        static int compressLZ4(uint8_t src[], int srcOff, int srcSize,
-                               uint8_t dst[], int dstOff, int maxSize);
+        static int compressLZ4(uint8_t *src, int srcOff, int srcSize,
+                               uint8_t *dst, int dstOff, int maxSize);
         static int compressLZ4(ByteBuffer & src, int srcOff, int srcSize,
                                ByteBuffer & dst, int dstOff, int maxSize);
         static int compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize);
-        static int compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
-                                   uint8_t dst[], int dstOff, int maxSize);
+        static int compressLZ4Best(uint8_t *src, int srcOff, int srcSize,
+                                   uint8_t *dst, int dstOff, int maxSize);
         static int compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
                                    ByteBuffer & dst, int dstOff, int maxSize);
 
         static int uncompressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst);
         static int uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst);
         static int uncompressLZ4(ByteBuffer & src, int srcOff, int srcSize, ByteBuffer & dst, int dstOff);
-        static int uncompressLZ4(uint8_t src[], int srcOff, int srcSize, uint8_t dst[],
+        static int uncompressLZ4(uint8_t *src, int srcOff, int srcSize, uint8_t *dst,
                                  int dstOff, int dstCapacity);
 
 

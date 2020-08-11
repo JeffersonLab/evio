@@ -519,8 +519,8 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @return length of compressed data in bytes.
      * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
      */
-    int Compressor::compressLZ4(uint8_t* src, int srcOff, int srcSize,
-                                uint8_t* dst, int dstOff, int maxSize) {
+    int Compressor::compressLZ4(uint8_t *src, int srcOff, int srcSize,
+                                uint8_t *dst, int dstOff, int maxSize) {
 
         if (LZ4_compressBound(srcSize) > maxSize) {
             throw EvioException("maxSize (" + std::to_string(maxSize) +
@@ -616,8 +616,8 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @return length of compressed data in bytes.
      * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
      */
-    int Compressor::compressLZ4Best(uint8_t src[], int srcOff, int srcSize,
-                                    uint8_t dst[], int dstOff, int maxSize) {
+    int Compressor::compressLZ4Best(uint8_t *src, int srcOff, int srcSize,
+                                    uint8_t *dst, int dstOff, int maxSize) {
         if (LZ4_compressBound(srcSize) > maxSize) {
             throw EvioException("maxSize (" + std::to_string(maxSize) +
                                 ") is < max # of compressed bytes (" +
@@ -755,7 +755,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @throws EvioException if uncompressed data bytes &gt; dstCapacity or
      *                       source data is malformed.
      */
-    int Compressor::uncompressLZ4(uint8_t src[], int srcOff, int srcSize, uint8_t dst[],
+    int Compressor::uncompressLZ4(uint8_t *src, int srcOff, int srcSize, uint8_t *dst,
                                   int dstOff, int dstCapacity) {
 
         int size = LZ4_decompress_safe((const char*)(src + srcOff),

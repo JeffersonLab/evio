@@ -139,7 +139,7 @@ namespace evio {
 
     /**
      * Has {@link #close()} been called (without reopening by calling
-     * {@link #setBuffer(ByteBuffer)})?
+     * {@link #setBuffer(std::shared_ptr<ByteBuffer> &)})?
      *
      * @return {@code true} if this object closed, else {@code false}.
      */
