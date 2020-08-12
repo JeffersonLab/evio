@@ -41,9 +41,7 @@ namespace evio {
          * Constructor.
          * @param head tagsegment header.
          */
-        explicit EvioTagSegment(std::shared_ptr<TagSegmentHeader> const & head) : BaseStructure(head) {
-            std::cout << "EvioTagSegment's private constructor" << std::endl;
-        }
+        explicit EvioTagSegment(std::shared_ptr<TagSegmentHeader> const & head) : BaseStructure(head) {}
 
     public:
 

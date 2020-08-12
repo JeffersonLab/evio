@@ -42,9 +42,7 @@ namespace evio {
          * Constructor.
          * @param head segment header.
          */
-        explicit EvioSegment(std::shared_ptr<SegmentHeader> const & head) : BaseStructure(head) {
-            std::cout << "EvioSegment's private constructor" << std::endl;
-        }
+        explicit EvioSegment(std::shared_ptr<SegmentHeader> const & head) : BaseStructure(head) {}
 
     public:
 
