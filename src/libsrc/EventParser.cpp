@@ -70,7 +70,7 @@ namespace  evio {
 
                 // we can now create a new bank
                 auto childBank = EvioBank::getInstance(header);
-                childBank->setParent(structure);
+                structure->add(childBank);
 
                 childBank->setRawBytes(newBytes);
                 childBank->setByteOrder(byteOrder);
@@ -91,7 +91,7 @@ namespace  evio {
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childSegment = EvioSegment::getInstance(header);
-                childSegment->setParent(structure);
+                structure->add(childSegment);
 
                 childSegment->setRawBytes(newBytes);
                 childSegment->setByteOrder(byteOrder);
@@ -111,7 +111,7 @@ namespace  evio {
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childTagSegment = EvioTagSegment::getInstance(header);
-                childTagSegment->setParent(structure);
+                structure->add(childTagSegment);
 
                 childTagSegment->setRawBytes(newBytes);
                 childTagSegment->setByteOrder(byteOrder);
@@ -248,7 +248,7 @@ namespace  evio {
 
                 // we can now create a new bank
                 auto childBank = EvioBank::getInstance(header);
-                childBank->setParent(structure);
+                structure->add(childBank);
 
                 childBank->setRawBytes(newBytes);
                 childBank->setByteOrder(byteOrder);
@@ -269,7 +269,7 @@ namespace  evio {
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childSegment = EvioSegment::getInstance(header);
-                childSegment->setParent(structure);
+                structure->add(childSegment);
 
                 childSegment->setRawBytes(newBytes);
                 childSegment->setByteOrder(byteOrder);
@@ -290,7 +290,7 @@ namespace  evio {
                 std::memcpy(newBytes.data(), bytes.data() + offset + 4, newByteLen);
 
                 auto childTagSegment = EvioTagSegment::getInstance(header);
-                childTagSegment->setParent(structure);
+                structure->add(childTagSegment);
 
                 childTagSegment->setRawBytes(newBytes);
                 childTagSegment->setByteOrder(byteOrder);
