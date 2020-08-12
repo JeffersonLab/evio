@@ -429,7 +429,7 @@ namespace evio {
 
         std::shared_ptr<BaseStructure> getParent() const;
         std::vector<std::shared_ptr<BaseStructure>> getChildren() const;
-        std::shared_ptr<BaseStructure> getChildAt(size_t index);
+        std::shared_ptr<BaseStructure> getChildAt(size_t index) const;
 
         size_t getChildCount() const;
         ssize_t getIndex(const std::shared_ptr<BaseStructure> aChild);
@@ -452,17 +452,17 @@ namespace evio {
         //  Tree Queries
         //
 
-        bool isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode);
+        bool isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode) const;
         bool isNodeDescendant(std::shared_ptr<BaseStructure> anotherNode);
         std::shared_ptr<BaseStructure> getSharedAncestor(std::shared_ptr<BaseStructure> aNode);
         bool isNodeRelated(std::shared_ptr<BaseStructure> aNode);
         uint32_t getDepth();
-        uint32_t getLevel();
+        uint32_t getLevel() const;
         std::vector<std::shared_ptr<BaseStructure>> getPath();
 
     protected:
 
-        std::vector<std::shared_ptr<BaseStructure>> getPathToRoot(const std::shared_ptr<BaseStructure> & aNode, int depth);
+        std::vector<std::shared_ptr<BaseStructure>> getPathToRoot(const std::shared_ptr<BaseStructure> & aNode, int depth) const;
 
     public:
 
@@ -476,8 +476,8 @@ namespace evio {
         //
 
         bool isNodeChild(const std::shared_ptr<BaseStructure> aNode) const;
-        std::shared_ptr<BaseStructure> getFirstChild();
-        std::shared_ptr<BaseStructure> getLastChild();
+        std::shared_ptr<BaseStructure> getFirstChild() const;
+        std::shared_ptr<BaseStructure> getLastChild() const;
         std::shared_ptr<BaseStructure> getChildAfter(const std::shared_ptr<BaseStructure> aChild);
         std::shared_ptr<BaseStructure> getChildBefore(const std::shared_ptr<BaseStructure> aChild);
 
@@ -649,6 +649,7 @@ namespace evio {
         bool needSwap() const;
 
         virtual std::string toString() const;
+        std::string treeToString(std::string const & indent) const;
 
         std::shared_ptr<BaseStructureHeader> getHeader() const;
 

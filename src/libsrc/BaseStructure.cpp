@@ -456,7 +456,7 @@ namespace evio {
      * @throws  std::out_of_range  if <code>index</code> is out of bounds.
      * @return  the BaseStructure in this node's child array at the specified index.
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getChildAt(size_t index) {
+    std::shared_ptr<BaseStructure> BaseStructure::getChildAt(size_t index) const {
         return children.at(index);
     }
 
@@ -637,12 +637,12 @@ namespace evio {
      * @param   anotherNode     node to test as an ancestor of this node
      * @return  true if this node is a descendant of <code>anotherNode</code>
      */
-    bool BaseStructure::isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode) {
+    bool BaseStructure::isNodeAncestor(const std::shared_ptr<BaseStructure> anotherNode) const {
         if (anotherNode == nullptr) {
             return false;
         }
 
-        auto ancestor = getThis();
+        auto ancestor = getThisConst();
 
         do {
             if (ancestor == anotherNode) {
@@ -791,10 +791,10 @@ namespace evio {
      * @see     #getDepth
      * @return  the number of levels above this node.
      */
-    uint32_t BaseStructure::getLevel() {
+    uint32_t BaseStructure::getLevel() const {
         uint32_t levels = 0;
 
-        auto ancestor = getThis();
+        auto ancestor = getThisConst();
         while ((ancestor = ancestor->getParent()) != nullptr) {
             levels++;
         }
@@ -829,8 +829,8 @@ namespace evio {
      * @return a vector of BaseStructure shared pointer giving the path from the root to the
      *         specified node.
      */
-    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot(
-            const std::shared_ptr<BaseStructure> & aNode, int depth) {
+    std::vector<std::shared_ptr<BaseStructure>> BaseStructure::getPathToRoot (
+            const std::shared_ptr<BaseStructure> & aNode, int depth) const {
 
         // Check for null, in case someone passed in a null node, or
         // they passed in an element that isn't rooted at root.
@@ -996,7 +996,7 @@ namespace evio {
      * @return  the first child of this node
      * @throws  EvioException  if this node has no children.
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getFirstChild() {
+    std::shared_ptr<BaseStructure> BaseStructure::getFirstChild() const {
         if (getChildCount() == 0) {
             throw EvioException("node has no children");
         }
@@ -1012,7 +1012,7 @@ namespace evio {
      * @return  the last child of this node.
      * @exception EvioException  if this node has no children.
      */
-    std::shared_ptr<BaseStructure> BaseStructure::getLastChild() {
+    std::shared_ptr<BaseStructure> BaseStructure::getLastChild() const {
         if (getChildCount() == 0) {
             throw EvioException("node has no children");
         }
@@ -1540,16 +1540,14 @@ namespace evio {
         }
 
         if (rawBytes.empty()) {
-            //std::cout << "Raw Bytes is EMPTY!!!" << std::endl;
-            ss << "  dataLen=" << ((header->getLength() - (header->getHeaderLength() - 1))/4);
+            ss << "  dataLen=" << header->getDataLength();
         }
         else {
-//std::cout << "Raw Bytes has size " << (rawBytes.size()/4) << std::endl;
             ss << "  dataLen=" << (rawBytes.size()/4);
         }
 
         if (header->getPadding() != 0) {
-            ss << "  pad=" << header->getPadding();
+            ss << "  pad=" << (int)header->getPadding();
         }
 
         size_t numChildren = children.size();
@@ -1558,6 +1556,31 @@ namespace evio {
             ss << "  children=" << numChildren;
         }
 
+        return ss.str();
+    }
+
+
+    /**
+     * Recursive method to obtain a string representation of the entire tree structure
+     * rooted at this structure.
+     * @param indent string containing indentation for this structure. Generally called with "".
+     * @return a string representation of the entire tree structure rooted at this structure.
+     */
+    std::string BaseStructure::treeToString(std::string const & indent) const {
+        std::stringstream ss;
+        ss << indent << toString();
+
+        if (!(isLeaf())) {
+            ss << std::endl;
+            std::string myIndent = indent + "  ";
+            uint32_t childCount = getChildCount();
+            for (int i=0; i < childCount; i++) {
+                ss << children[i]->treeToString(myIndent);
+                if (i < childCount - 1) {
+                    ss << std::endl;
+                }
+            }
+        }
         return ss.str();
     }
 
