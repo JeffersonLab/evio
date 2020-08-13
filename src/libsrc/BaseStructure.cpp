@@ -2304,7 +2304,7 @@ namespace evio {
         // method "split" as any empty trailing strings are unfortunately discarded.
 
         char c;
-        std::vector<int> nullIndexList(10);
+        std::vector<int> nullIndexList;
         int nullCount = 0, goodChars = 0;
         bool badFormat = true;
 
@@ -2424,7 +2424,7 @@ namespace evio {
 
         char c;
         int nullCount = 0;
-        std::vector<int> nullIndexList(10);
+        std::vector<int> nullIndexList;
 
         int rawLength = rawBytes.size();
         bool noEnding4 = false;
@@ -2450,10 +2450,10 @@ namespace evio {
             // Look for any non-printing/control characters (not including null)
             // and end the string there. Allow tab and newline whitespace.
             else if ((c < 32 || c > 126) && c != 9 && c != 10) {
-//cout << "unpackRawBytesToStrings: found non-printing c = 0x" << hex << ((int)c) << dec << " at i = " << i << endl;
+//std::cout << "unpackRawBytesToStrings: found non-printing c = 0x" << std::hex << ((int)c) << std::dec << " at i = " << i << std::endl;
                 if (nullCount < 1) {
                     // Getting garbage before first null.
-//cout << "BAD FORMAT 1: garbage char before null" << endl;
+//std::cout << "BAD FORMAT 1: garbage char before null" << std::endl;
                     break;
                 }
 
@@ -2486,7 +2486,7 @@ namespace evio {
                     }
                 }
                 else {
-// std::cout << "BAD FORMAT 4: got bad char, ascii val = " << c << std::endl;
+//std::cout << "BAD FORMAT 4: got bad char, ascii val = " << c << std::endl;
                     break;
                 }
             }
@@ -2499,7 +2499,7 @@ namespace evio {
 
         // If error, return everything in one String including possible garbage
         if (badStringFormat) {
-//cout << "unpackRawBytesToStrings: bad format, return all chars in 1 string" << endl;
+//std::cout << "unpackRawBytesToStrings: bad format, return all chars in 1 string" << std::endl;
             std::string everything(reinterpret_cast<char *>(rawBytes.data()), rawLength);
             stringList.push_back(everything);
             return 1;
@@ -2507,19 +2507,19 @@ namespace evio {
 
         // If here, raw bytes are in the proper format
 
-//cout << "  split into " << nullCount << " strings" << endl;
+//std::cout << "  split into " << nullCount << " strings" << std::endl;
         int firstIndex=0;
         for (int nullIndex : nullIndexList) {
             std::string subString(reinterpret_cast<char *>(rawBytes.data()) + firstIndex, (nullIndex-firstIndex));
             stringList.push_back(subString);
-//cout << "    add " << subString << endl;
+//std::cout << "    add " << subString << std::endl;
             firstIndex = nullIndex + 1;
         }
 
         // Set length of everything up to & including last null (not padding)
         stringEnd = firstIndex;
         //stringData.setLength(stringEnd);
-//cout << "    good string len = " << stringEnd << endl;
+//std::cout << "    good string len = " << stringEnd << std::endl;
         return stringList.size();
     }
 
