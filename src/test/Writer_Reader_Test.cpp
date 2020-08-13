@@ -102,7 +102,7 @@ namespace evio {
 
         auto cebEvbuf = ceb.getBuffer();
 
-        Util::printBytes(cebEvbuf, 0 , 200, "From CompactEventBuilder");
+        //Util::printBytes(cebEvbuf, 0 , 200, "From CompactEventBuilder");
 
         // Write into a buffer
         auto newBuf = std::make_shared<ByteBuffer>(1000);
@@ -111,14 +111,70 @@ namespace evio {
         writer.close();
         auto writerBuf = writer.getByteBuffer();
 
-        Util::printBytes(newBuf, 0 , 260, "From EventWriter");
+        //Util::printBytes(newBuf, 0 , 260, "From EventWriter");
 
         // Read event back out of buffer
         EvioReader reader(writerBuf);
-        auto cebEv2 = reader.getEvent(1);
         auto cebEv = reader.parseEvent(1);
 
-        std::cout << "Event:\n" << cebEv->treeToString("") << std::endl;
+        std::cout << "Event written to and read from buffer:\n" << cebEv->treeToString("") << std::endl;
+
+        // Write into a file
+        std::string filename = "./eventData.dat";
+        EventWriter writer2(filename);
+        writer2.writeEvent(cebEvbuf);
+        writer2.close();
+
+        //Util::printBytes(newBuf, 0 , 260, "From EventWriter");
+
+        // Read event back out of buffer
+        EvioReader reader2(filename);
+        auto cebEv2 = reader2.parseEvent(1);
+
+        std::cout << "\nEvent written to and read from file:\n" << cebEv2->treeToString("") << std::endl;
+
+        //---------------------------------------------
+        // Create another event
+        //---------------------------------------------
+
+        CompactEventBuilder ceb2(bufSize, ByteOrder::ENDIAN_LOCAL, false);
+
+        ceb2.openBank(10, DataType::BANK, 10);
+            ceb2.openBank(20, DataType::UCHAR8, 20);
+                uint8_t bb[3] = {10, 20, 30};
+                ceb2.addByteData(bb, 3);
+            ceb2.closeStructure();
+
+            ceb2.openBank(30, DataType::CHARSTAR8, 30);
+                std::vector<std::string> strs;
+                strs.push_back("40_string");
+                strs.push_back("50_string");
+                strs.push_back("60_string");
+                ceb2.addStringData(strs);
+
+        ceb2.closeAll();
+        auto cebEvbuf3 = ceb2.getBuffer();
+
+        // Append this to the file
+        EventWriter writer3(filename, ByteOrder::ENDIAN_LOCAL, true);
+        writer3.writeEvent(cebEvbuf3);
+        writer3.close();
+
+        // Read 2 events back out of buffer
+        EvioReader reader3(filename);
+        auto ev3 = reader3.parseEvent(1);
+        auto ev4 = reader3.parseEvent(2);
+
+        std::cout << "\nEvent & appended event written to and read from file:\n" << ev3->treeToString("") << std::endl;
+        std::cout << "\n" << ev4->treeToString("") << std::endl;
+
+        auto stringChild = ev4->getChildAt(1);
+        auto strData = stringChild->getStringData();
+        std::cout << "String data of last bank:\n";
+        for (std::string s : strData) {
+            std::cout << "  " << s << std::endl;
+        }
+
 
     }
 
