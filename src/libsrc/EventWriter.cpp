@@ -1424,7 +1424,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
         // reasonable # instead of incrementing from the last existing
         // record.
         recordNumber = 1;
-        std::cout << "toAppendPos:     record # = 1" << std::endl;
+//std::cout << "toAppendPos:     record # = 1" << std::endl;
 
         // To read in all of the normal record header set this to 40 bytes.
         // To read the bare minimum to do the append set this to 24 bytes,
@@ -1438,7 +1438,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             buffer->limit(headerBytesToRead);
 
             while (nBytes < headerBytesToRead) {
-                std::cout << "Read Header bytes" << std::endl;
+ //std::cout << "Read Header bytes" << std::endl;
 
                 // There is no internal asyncFileChannel position
                 asyncFileChannel->seekg(fileWritingPosition);
@@ -1491,16 +1491,16 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             //                compDataLen = compWord & 0xfffffff;
             //            }
 
-            std::cout << "bitInfo      = 0x" << std::hex << bitInfo << std::dec << std::endl;
-            std::cout << "recordLength = " << recordLen << std::endl;
-            std::cout << "eventCount   = " << eventCount << std::endl;
-            std::cout << "lastRecord   = " << lastRecord << std::endl;
-            std::cout << std::endl;
+//            std::cout << "bitInfo      = 0x" << std::hex << bitInfo << std::dec << std::endl;
+//            std::cout << "recordLength = " << recordLen << std::endl;
+//            std::cout << "eventCount   = " << eventCount << std::endl;
+//            std::cout << "lastRecord   = " << lastRecord << std::endl;
+//            std::cout << std::endl;
 
             // Update vector with record size & event count unless this is the trailer
             if (!isTrailer) {
-                std::cout << "                 adding to recordLengths append: " << (4 * recordLen) << ", " <<
-                     eventCount << "   ------" << std::endl;
+//std::cout << "                 adding to recordLengths append: " << (4 * recordLen) << ", " <<
+//             eventCount << "   ------" << std::endl;
                 recordLengths->push_back(4 * recordLen);
                 recordLengths->push_back(eventCount);
             }
@@ -1509,7 +1509,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             eventsWrittenTotal += eventCount;
 
             recordNumber++;
-            std::cout << "                 next record # = " << recordNumber << std::endl;
+//std::cout << "                 next record # = " << recordNumber << std::endl;
 
             // Stop at the last record. The file may not have a last record if
             // improperly terminated. Running into an End-Of-File will flag
@@ -1555,7 +1555,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             // It turns out we need to do nothing. The constructor that
             // calls this method will write out the next record header.
             recordNumber--;
-            std::cout << "                 read EOF, record # = " << recordNumber << std::endl;
+//std::cout << "                 read EOF, record # = " << recordNumber << std::endl;
         }
             // else if last record or has NO data in it ...
         else if (isTrailer || eventCount < 1) {
@@ -1565,9 +1565,9 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             // Since creating next record does ++recordNumber, we decrement it first
             recordNumber--;
 
-            std::cout << "                 last rec has no data, is Trailer = " << isTrailer << ", record # = " << recordNumber << std::endl;
+//std::cout << "                 last rec has no data, is Trailer = " << isTrailer << ", record # = " << recordNumber << std::endl;
             fileWritingPosition -= headerBytesToRead;
-            std::cout << "toAppendPos: position (bkup) = " << fileWritingPosition << std::endl;
+//std::cout << "toAppendPos: position (bkup) = " << fileWritingPosition << std::endl;
             asyncFileChannel->seekg(fileWritingPosition);
         }
         else {
@@ -1581,8 +1581,8 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             fileWritingPosition -= headerBytesToRead - RecordHeader::BIT_INFO_OFFSET;
             asyncFileChannel->seekg(fileWritingPosition);
 
-            std::cout << "toAppendPosition: writing over last block's 6th word, back up " <<
-                 (headerBytesToRead - RecordHeader::BIT_INFO_OFFSET)/4 << " words" << std::endl;
+//std::cout << "toAppendPosition: writing over last block's 6th word, back up " <<
+//             (headerBytesToRead - RecordHeader::BIT_INFO_OFFSET)/4 << " words" << std::endl;
 
             // Write over 6th block header word
             buffer->clear();
@@ -1594,8 +1594,8 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             }
 
             // Hop over the entire block
-            std::cout << "toAppendPosition: wrote over last block's 6th word, hop over whole record, " <<
-                 ((4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4))/4 << " words" << std::endl;
+//std::cout << "toAppendPosition: wrote over last block's 6th word, hop over whole record, " <<
+//             ((4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4))/4 << " words" << std::endl;
             fileWritingPosition += (4 * recordLen) - (RecordHeader::BIT_INFO_OFFSET + 4);
             asyncFileChannel->seekg(fileWritingPosition);
         }
@@ -1606,8 +1606,8 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
         //        // The when writing the NEXT record, code does an ++recordNumber,
         //        // so account for that
         //        recordNumber--;
-        std::cout << "toAppendPos: file pos = " << fileWritingPosition <<
-             ", recordNumber = " << recordNumber << std::endl;
+//std::cout << "toAppendPos: file pos = " << fileWritingPosition <<
+//             ", recordNumber = " << recordNumber << std::endl;
 
         // We should now be in a state identical to that if we had
         // just now written everything currently in the file/buffer.
