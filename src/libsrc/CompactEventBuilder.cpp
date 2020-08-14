@@ -72,7 +72,7 @@ namespace evio {
         }
 
         totalLengths.assign(MAX_LEVELS, 0);
-        stackArray.reserve(MAX_LEVELS);
+        stackArray.resize(MAX_LEVELS);
 
         for (int i=0; i < MAX_LEVELS; i++) {
             stackArray[i] = std::make_shared<StructureContent>();

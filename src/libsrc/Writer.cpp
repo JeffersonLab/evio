@@ -97,7 +97,7 @@ namespace evio {
 
         recordLengths = std::make_shared<std::vector<uint32_t>>();
         outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType, hType);
-        headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+        headerArray.resize(RecordHeader::HEADER_SIZE_BYTES);
 
         if (hType == HeaderType::HIPO_FILE) {
             fileHeader = FileHeader(false);
@@ -157,7 +157,7 @@ namespace evio {
         firstEventLength = firstEventLen;
 
         recordLengths = std::make_shared<std::vector<uint32_t>>();
-        headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+        headerArray.resize(RecordHeader::HEADER_SIZE_BYTES);
         outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
 
         haveDictionary = !dictionary.empty();

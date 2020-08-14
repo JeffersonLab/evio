@@ -88,7 +88,7 @@ namespace evio {
         compressionThreadCount = compressionThreads;
 
         recordLengths = std::make_shared<std::vector<uint32_t>>();
-        headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+        headerArray.resize(RecordHeader::HEADER_SIZE_BYTES);
 
         if (hType == HeaderType::HIPO_FILE) {
             fileHeader = FileHeader(false);

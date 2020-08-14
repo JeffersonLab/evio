@@ -287,7 +287,7 @@ namespace evio {
         internalBuffers[1]->order(byteOrder);
         buffer = internalBuffers[0];
 
-        headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+        headerArray.resize(RecordHeader::HEADER_SIZE_BYTES);
 
         // Evio file
         fileHeader = FileHeader(true);
@@ -508,7 +508,7 @@ namespace evio {
         // Get buffer ready for writing
         buffer->clear();
         bufferSize = buf->capacity();
-        headerArray.reserve(RecordHeader::HEADER_SIZE_BYTES);
+        headerArray.resize(RecordHeader::HEADER_SIZE_BYTES);
         recordLengths = std::make_shared<std::vector<uint32_t>>();
 
         // Write any record containing dictionary and first event, first

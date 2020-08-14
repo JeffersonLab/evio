@@ -1700,7 +1700,7 @@ namespace evio {
                 // Fill int vector with transformed raw data
                 auto pInt = reinterpret_cast<int16_t *>(rawBytes.data());
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(int16_t);
-                shortData.reserve(numInts);
+                shortData.resize(numInts);
 
                 for (int i=0; i < numInts; ++i) {
                     int16_t dat = *(pInt++);
@@ -1732,7 +1732,7 @@ namespace evio {
 
                 auto pInt = reinterpret_cast<uint16_t *>(rawBytes.data());
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(uint16_t);
-                ushortData.reserve(numInts);
+                ushortData.resize(numInts);
 
                 for (int i=0; i < numInts; ++i) {
                     int16_t dat = *(pInt++);
@@ -1762,7 +1762,7 @@ namespace evio {
 
                 auto pInt = reinterpret_cast<int32_t *>(rawBytes.data());
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(int32_t);
-                intData.reserve(numInts);
+                intData.resize(numInts);
 
                 for (int i=0; i < numInts; ++i) {
                     int32_t dat = *(pInt++);
@@ -1792,7 +1792,7 @@ namespace evio {
 
                 auto pInt = reinterpret_cast<uint32_t *>(rawBytes.data());
                 uint32_t numInts = (rawBytes.size() - header->getPadding()) / sizeof(uint32_t);
-                uintData.reserve(numInts);
+                uintData.resize(numInts);
 
                 for (int i=0; i < numInts; ++i) {
                     uint32_t dat = *(pInt++);
@@ -1822,7 +1822,7 @@ namespace evio {
 
                 auto pLong = reinterpret_cast<int64_t *>(rawBytes.data());
                 uint32_t numLongs = (rawBytes.size() - header->getPadding()) / sizeof(int64_t);
-                longData.reserve(numLongs);
+                longData.resize(numLongs);
 
                 for (int i=0; i < numLongs; ++i) {
                     int64_t dat = *(pLong++);
@@ -1852,7 +1852,7 @@ namespace evio {
 
                 auto pLong = reinterpret_cast<uint64_t *>(rawBytes.data());
                 uint32_t numLongs = (rawBytes.size() - header->getPadding()) / sizeof(uint64_t);
-                ulongData.reserve(numLongs);
+                ulongData.resize(numLongs);
 
                 for (int i=0; i < numLongs; ++i) {
                     uint64_t dat = *(pLong++);
@@ -1882,7 +1882,7 @@ namespace evio {
 
                 auto pFlt = reinterpret_cast<float *>(rawBytes.data());
                 uint32_t numReals = (rawBytes.size() - header->getPadding()) / sizeof(float);
-                floatData.reserve(numReals);
+                floatData.resize(numReals);
 
                 for (int i=0; i < numReals; ++i) {
                     float dat = *(pFlt++);
@@ -1912,7 +1912,7 @@ namespace evio {
 
                 auto pFlt = reinterpret_cast<float *>(rawBytes.data());
                 uint32_t numReals = (rawBytes.size() - header->getPadding()) / sizeof(double);
-                doubleData.reserve(numReals);
+                doubleData.resize(numReals);
 
                 for (int i=0; i < numReals; ++i) {
                     double dat = *(pFlt++);

@@ -1137,8 +1137,7 @@ namespace evio {
         }
 
         uint32_t numBytes = ev->getTotalBytes();
-        vec.clear();
-        vec.reserve(numBytes);
+        vec.resize(numBytes);
         ev->writeQuick(vec.data());
         return numBytes;
     }
