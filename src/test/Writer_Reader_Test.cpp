@@ -56,7 +56,7 @@ namespace evio {
         //---------------------------------------------
 
         size_t bufSize = 1000;
-        CompactEventBuilder ceb(bufSize, ByteOrder::ENDIAN_LOCAL, false);
+        CompactEventBuilder ceb(bufSize, ByteOrder::ENDIAN_LOCAL, true);
 
         ceb.openBank(1, DataType::BANK, 1);
           ceb.openBank(2, DataType::DOUBLE64, 2);
@@ -170,10 +170,22 @@ namespace evio {
 
         auto stringChild = ev4->getChildAt(1);
         auto strData = stringChild->getStringData();
-        std::cout << "String data of last bank:\n";
+        std::cout << "String data of last child bank:\n";
         for (std::string s : strData) {
             std::cout << "  " << s << std::endl;
         }
+
+        auto byteChild = ev4->getChildAt(0);
+        auto byteData = byteChild->getUCharData();
+        std::cout << "Unsigned char data of first child bank:\n";
+        for (unsigned char c : byteData) {
+            std::cout << "  " << (int)c << std::endl;
+        }
+
+        //---------------------------------------------
+        // Write event with EvioNode, not ByteBuffer
+        //---------------------------------------------
+       // ceb.
 
 
     }
