@@ -158,7 +158,7 @@ namespace evio {
                 floatVec.push_back(static_cast<float>(i+1));
                 doubleVec.push_back(static_cast<double>(i+1));
 
-                stringsVec[i] = std::to_string(i+1);
+                stringsVec.push_back("0x" + std::to_string(i+1));
             }
         }
 
@@ -440,49 +440,49 @@ namespace evio {
 
                         // bank of ints
                         auto bankInts = EvioBank::getInstance(tag+2, DataType::UINT32, num+2);
-                        auto iData = bankInts->getUIntData();
+                        auto & iData = bankInts->getUIntData();
                         iData.insert(iData.begin(), intVec.begin(), intVec.end());
                         bankInts->updateUIntData();
                         builder.addChild(bankBanks, bankInts);
 
                         // bank of bytes
                         auto bankBytes = EvioBank::getInstance(tag+3, DataType::UCHAR8, num+3);
-                        auto cData = bankBytes->getUCharData();
+                        auto & cData = bankBytes->getUCharData();
                         cData.insert(cData.begin(), byteVec.begin(), byteVec.end());
                         bankBytes->updateUCharData();
                         builder.addChild(bankBanks, bankBytes);
 
                         // bank of shorts
                         auto bankShorts = EvioBank::getInstance(tag+4, DataType::USHORT16, num+4);
-                        auto sData = bankShorts->getUShortData();
+                        auto & sData = bankShorts->getUShortData();
                         sData.insert(sData.begin(), shortVec.begin(), shortVec.end());
                         bankShorts->updateUShortData();
                         builder.addChild(bankBanks, bankShorts);
 
                         // bank of longs
                         auto bankLongs = EvioBank::getInstance(tag+40, DataType::ULONG64, num+40);
-                        auto lData = bankLongs->getULongData();
+                        auto & lData = bankLongs->getULongData();
                         lData.insert(lData.begin(), longVec.begin(), longVec.end());
                         bankLongs->updateULongData();
                         builder.addChild(bankBanks, bankLongs);
 
                         // bank of floats
                         auto bankFloats = EvioBank::getInstance(tag+5, DataType::FLOAT32, num+5);
-                        auto fData = bankFloats->getFloatData();
+                        auto & fData = bankFloats->getFloatData();
                         fData.insert(fData.begin(), floatVec.begin(), floatVec.end());
                         bankFloats->updateFloatData();
                         builder.addChild(bankBanks, bankFloats);
 
                         // bank of doubles
                         auto bankDoubles = EvioBank::getInstance(tag+6, DataType::DOUBLE64, num+6);
-                        auto dData = bankDoubles->getDoubleData();
+                        auto & dData = bankDoubles->getDoubleData();
                         dData.insert(dData.begin(), doubleVec.begin(), doubleVec.end());
                         bankDoubles->updateDoubleData();
                         builder.addChild(bankBanks, bankDoubles);
 
                         // bank of strings
                         auto bankStrings = EvioBank::getInstance(tag+7, DataType::CHARSTAR8, num+7);
-                        auto stData = bankStrings->getStringData();
+                        auto & stData = bankStrings->getStringData();
                         stData.insert(stData.begin(), stringsVec.begin(), stringsVec.end());
                         bankStrings->updateStringData();
                         builder.addChild(bankBanks, bankStrings);
@@ -494,50 +494,50 @@ namespace evio {
                         builder.addChild(event, bankSegs);
 
                         // seg of ints
-                        auto segInts = EvioSegment::getInstance(tag+8, DataType::UINT32);
-                        auto siData = segInts->getUIntData();
+                        auto segInts = EvioSegment::getInstance(tag+8, DataType::INT32);
+                        auto & siData = segInts->getIntData();
                         siData.insert(siData.begin(), intVec.begin(), intVec.end());
-                        segInts->updateUIntData();
+                        segInts->updateIntData();
                         builder.addChild(bankSegs, segInts);
 
                         // seg of bytes
-                        auto segBytes = EvioSegment::getInstance(tag+9, DataType::UCHAR8);
-                        auto scData = segBytes->getUCharData();
+                        auto segBytes = EvioSegment::getInstance(tag+9, DataType::CHAR8);
+                        auto & scData = segBytes->getCharData();
                         scData.insert(scData.begin(), byteVec.begin(), byteVec.end());
-                        segBytes->updateUCharData();
+                        segBytes->updateCharData();
                         builder.addChild(bankSegs, segBytes);
 
                         // seg of shorts
-                        auto segShorts = EvioSegment::getInstance(tag+10, DataType::USHORT16);
-                        auto ssData = segShorts->getUShortData();
+                        auto segShorts = EvioSegment::getInstance(tag+10, DataType::SHORT16);
+                        auto & ssData = segShorts->getShortData();
                         ssData.insert(ssData.begin(), shortVec.begin(), shortVec.end());
-                        segShorts->updateUShortData();
+                        segShorts->updateShortData();
                         builder.addChild(bankSegs, segShorts);
 
                         // seg of longs
-                        auto segLongs = EvioSegment::getInstance(tag+40, DataType::ULONG64);
-                        auto slData = segLongs->getULongData();
+                        auto segLongs = EvioSegment::getInstance(tag+40, DataType::LONG64);
+                        auto & slData = segLongs->getLongData();
                         slData.insert(slData.begin(), longVec.begin(), longVec.end());
-                        segLongs->updateULongData();
+                        segLongs->updateLongData();
                         builder.addChild(bankSegs, segLongs);
 
                         // seg of floats
                         auto segFloats = EvioSegment::getInstance(tag+11, DataType::FLOAT32);
-                        auto sfData = segFloats->getFloatData();
+                        auto & sfData = segFloats->getFloatData();
                         sfData.insert(sfData.begin(), floatVec.begin(), floatVec.end());
                         segFloats->updateFloatData();
                         builder.addChild(bankSegs, segFloats);
 
                         // seg of doubles
                         auto segDoubles = EvioSegment::getInstance(tag+12, DataType::DOUBLE64);
-                        auto sdData = segDoubles->getDoubleData();
+                        auto & sdData = segDoubles->getDoubleData();
                         sdData.insert(sdData.begin(), doubleVec.begin(), doubleVec.end());
                         segDoubles->updateDoubleData();
                         builder.addChild(bankSegs, segDoubles);
 
                         // seg of strings
                         auto segStrings = EvioSegment::getInstance(tag+13, DataType::CHARSTAR8);
-                        auto sstData = segStrings->getStringData();
+                        auto & sstData = segStrings->getStringData();
                         sstData.insert(sstData.begin(), stringsVec.begin(), stringsVec.end());
                         segStrings->updateStringData();
                         builder.addChild(bankSegs, segStrings);
@@ -550,50 +550,52 @@ namespace evio {
 
                         // tagsegments of ints
                         auto tsegInts = EvioTagSegment::getInstance(tag+16, DataType::UINT32);
-                        auto tiData = tsegInts->getUIntData();
+                        auto & tiData = tsegInts->getUIntData();
                         tiData.insert(tiData.begin(), intVec.begin(), intVec.end());
                         tsegInts->updateUIntData();
                         builder.addChild(bankTsegs, tsegInts);
 
                         // tagsegments of bytes
                         auto tsegBytes = EvioTagSegment::getInstance(tag+17, DataType::UCHAR8);
-                        auto tcData = tsegBytes->getUCharData();
+                        auto & tcData = tsegBytes->getUCharData();
                         tcData.insert(tcData.begin(), byteVec.begin(), byteVec.end());
                         tsegBytes->updateUCharData();
                         builder.addChild(bankTsegs, tsegBytes);
 
                         // tagsegments of shorts
                         auto tsegShorts = EvioTagSegment::getInstance(tag+18, DataType::USHORT16);
-                        auto tsData = tsegShorts->getUShortData();
+                        auto & tsData = tsegShorts->getUShortData();
                         tsData.insert(tsData.begin(), shortVec.begin(), shortVec.end());
                         tsegShorts->updateUShortData();
                         builder.addChild(bankTsegs, tsegShorts);
 
                         // tagsegments of longs
                         auto tsegLongs = EvioTagSegment::getInstance(tag+40, DataType::ULONG64);
-                        auto tlData = tsegLongs->getULongData();
+                        auto & tlData = tsegLongs->getULongData();
                         tlData.insert(tlData.begin(), longVec.begin(), longVec.end());
                         tsegLongs->updateULongData();
                         builder.addChild(bankTsegs, tsegLongs);
 
                         // tagsegments of floats
                         auto tsegFloats = EvioTagSegment::getInstance(tag+19, DataType::FLOAT32);
-                        auto tfData = tsegFloats->getFloatData();
+                        auto & tfData = tsegFloats->getFloatData();
                         tfData.insert(tfData.begin(), floatVec.begin(), floatVec.end());
                         tsegFloats->updateFloatData();
                         builder.addChild(bankTsegs, tsegFloats);
 
                         // tagsegments of doubles
                         auto tsegDoubles = EvioTagSegment::getInstance(tag+20, DataType::DOUBLE64);
-                        auto tdData = tsegDoubles->getDoubleData();
+                        auto & tdData = tsegDoubles->getDoubleData();
                         tdData.insert(tdData.begin(), doubleVec.begin(), doubleVec.end());
                         tsegDoubles->updateDoubleData();
                         builder.addChild(bankTsegs, tsegDoubles);
 
                         // tagsegments of strings
                         auto tsegStrings = EvioTagSegment::getInstance(tag+21, DataType::CHARSTAR8);
-                        auto tstData = tsegStrings->getStringData();
+                        auto & tstData = tsegStrings->getStringData();
+                        std::cout << "# strings in tagseg = " << tstData.size() << std::endl;
                         tstData.insert(tstData.begin(), stringsVec.begin(), stringsVec.end());
+                        std::cout << "# strings in tagseg after insert = " << tstData.size() << std::endl;
                         tsegStrings->updateStringData();
                         builder.addChild(bankTsegs, tsegStrings);
 
