@@ -36,7 +36,7 @@ namespace evio {
     /** 16 bit int. */
     const DataType DataType::SHORT16 = DataType(0x4, "SHORT16", 2);
     /** Unsigned 16 bit int. */
-    const DataType DataType::USHORT16 = DataType(0x5, "USHORT16, 2");
+    const DataType DataType::USHORT16 = DataType(0x5, "USHORT16", 2);
     /** 8 bit int. */
     const DataType DataType::CHAR8 = DataType(0x6, "CHAR8", 1);
     /** Unsigned 8 bit int. */
