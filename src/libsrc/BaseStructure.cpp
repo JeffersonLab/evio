@@ -18,7 +18,6 @@ namespace evio {
      * @see BaseStructureHeader
      */
     BaseStructure::BaseStructure() {
-        //std::cout << "In BaseStructure default constructor" << std::endl;
         header = std::make_shared<BaseStructureHeader>();
     }
 
@@ -28,9 +27,7 @@ namespace evio {
      * @param head the header to use.
      * @see BaseStructureHeader
      */
-    BaseStructure::BaseStructure(std::shared_ptr<BaseStructureHeader> head) : header(head) {
-        //std::cout << "In BaseStructure head constructor" << std::endl;
-    }
+    BaseStructure::BaseStructure(std::shared_ptr<BaseStructureHeader> head) : header(head) {}
 
 
     /**
@@ -38,7 +35,6 @@ namespace evio {
       * @param base BaseStructure to copy.
       */
     BaseStructure::BaseStructure(const BaseStructure & base) : enable_shared_from_this(base) {
-        //std::cout << "In BaseStructure copy constructor" << std::endl;
 
         // Avoid self copy ...
         if (this != &base) {
@@ -58,7 +54,6 @@ namespace evio {
      * @param base BaseStructure to move.
      */
     BaseStructure::BaseStructure(BaseStructure && base) noexcept {
-        //std::cout << "In BaseStructure move constructor" << std::endl;
 
         if (this != &base) {
             parent          = std::move(base.parent);
