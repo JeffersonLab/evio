@@ -87,7 +87,6 @@ namespace evio {
             uint16_t tag=1;
             uint8_t  num=1;
             buffer = std::make_shared<ByteBuffer>(bufSize);
-            auto array = buffer->array();
             buffer->order(order);
 
 
@@ -107,22 +106,15 @@ namespace evio {
             }
             else {
                 //            createLittleCompactEvent(tag, num, false);
-                createCompactEvents(tag, num, useBuf);
+                createCompactEvents(tag, num);
                 //            runLoops = bufferLoops = 1;
                 //            int[] arraySizes = new int[] {1,5,10,20,50,100,200,300,500,750,1000};
                 //            for ( int i=0; i < arraySizes.length; i++) {
                 //                setDataSize(arraySizes[i]);
                 //                writeFileName1 = "/daqfs/home/timmer/coda/compactEvioBuild." + arraySizes[i];
-                //                createCompactEvents(tag, num, useBuf);
+                //                createCompactEvents(tag, num);
                 //            }
             }
-        }
-
-
-        /** For WRITING a local file. */
-        static int main(int argc, char **argv) {
-            CompactBuilderTest();
-            return 0;
         }
 
 
@@ -243,7 +235,7 @@ namespace evio {
 
 
         /** Writing to a buffer using new interface. */
-        void createCompactEvents(uint16_t tag, uint8_t num, bool useBuf) {
+        void createCompactEvents(uint16_t tag, uint8_t num) {
             try {
 
                 for (int j=0; j<runLoops; j++) {
@@ -377,7 +369,10 @@ namespace evio {
                         builder.closeStructure();
 
                         builder.closeAll();
+
+                        std::cout << "1\n";
                         if (i == 0 && !writeFileName.empty()) builder.toFile(writeFileName);
+                        std::cout << "2\n";
                     }
 
                     auto t2 = chrono::high_resolution_clock::now();
@@ -385,11 +380,13 @@ namespace evio {
                     cout << duration.count() << endl;
                     std::cout << "Time = " << duration.count() << " milliseconds" << std::endl;
                 }
+                std::cout << "3\n";
 
             }
             catch (EvioException & e) {
                 std::cout << e.what() << std::endl;
             }
+            std::cout << "4\n";
         }
 
 
@@ -741,6 +738,8 @@ namespace evio {
 int main(int argc, char **argv) {
     evio::CompactBuilderTest tester;
     tester.createObjectEvents(1,1);
+    tester.createCompactEvents(1,1);
+    std::cout << "Past, now return\n";
     //evio::EventBuilderTest();
     return 0;
 }
