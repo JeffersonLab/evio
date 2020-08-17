@@ -204,8 +204,9 @@ namespace evio {
         ByteBuffer & putDouble(double val);
         ByteBuffer & putDouble(size_t index, double val);
 
-        // Utility Method
+        // Utility Methods
         void printBytes(size_t offset, size_t bytes, std::string const & label);
+        std::string toString();
 
     private:
 

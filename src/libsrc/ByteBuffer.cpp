@@ -1730,4 +1730,23 @@ namespace evio {
     }
 
 
+    /**
+     * Obtain a string representation of the buffer.
+     * @return a string representation of the buffer.
+     */
+    std::string ByteBuffer::toString() {
+        std::stringstream ss;
+
+        ss << "buffer capacity: " << cap << std::endl;
+        ss << "          limit: " << lim << std::endl;
+        ss << "       position: " << pos << std::endl;
+        ss << "           mark: " << mrk << std::endl;
+        ss << "            off: " << off << std::endl;
+        ss << "      remaining: " << (lim-pos) << std::endl;
+
+        return ss.str();
+    }
+
+
+
 } // namespace evio
