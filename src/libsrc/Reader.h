@@ -221,7 +221,7 @@ namespace evio {
         uint32_t currentRecordLoaded = 0;
         // TODO: Look at this
         /** First record's header. */
-        std::shared_ptr<RecordHeader> firstRecordHeader;
+        std::shared_ptr<RecordHeader> firstRecordHeader = nullptr;
         /** Record number expected when reading. Used to check sequence of records. */
         uint32_t recordNumberExpected = 1;
         /** If true, throw an exception if record numbers are out of sequence. */
@@ -245,7 +245,7 @@ namespace evio {
         /** Is this data in file/buffer compressed? */
         bool compressed = false;
         /** Byte order of file/buffer being read. */
-        ByteOrder byteOrder = ByteOrder::ENDIAN_BIG;
+        ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
         /** Keep track of next EvioNode when calling {@link #getNextEventNode()},
         * {@link #getEvent(int)}, or {@link #getPrevEvent()}. */
         int32_t sequentialIndex = -1;
@@ -260,7 +260,7 @@ namespace evio {
 
 
         /** Place to store data read in from record header. */
-        uint32_t headerInfo[headerInfoLen]{};
+        uint32_t headerInfo[headerInfoLen] {};
 
 
     private:
