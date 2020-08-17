@@ -2864,7 +2864,10 @@ namespace evio {
             throw std::overflow_error("byteBuffer (limit - pos) too small");
         }
 
-        return write(byteBuffer.array() + byteBuffer.arrayOffset(), byteBuffer.order());
+        size_t numBytes = write(byteBuffer.array() + byteBuffer.arrayOffset() + byteBuffer.position(),
+                                byteBuffer.order());
+        byteBuffer.position(byteBuffer.position() + numBytes);
+        return numBytes;
     }
 
 
