@@ -15,38 +15,34 @@
 namespace evio {
 
 
-//------------------------------------------
-//   FILE
-//------------------------------------------
+    //------------------------------------------
+    //   FILE
+    //------------------------------------------
 
 
-/**
- * Constructor for reading an event file.
- * Do <b>not</b> set sequential to false for remote files.
- *
- * @param path the full path to the file that contains events.
- *             For writing event files, use an <code>EventWriter</code> object.
- * @param checkRecNumSeq if <code>true</code> check the block number sequence
- *                       and throw an exception if it is not sequential starting
- *                       with 1
- * @param sequential     if <code>true</code> read the file sequentially,
- *                       else use memory mapped buffers. If file &gt; 2.1 GB,
- *                       reads are always sequential for the older evio format.
- * @param synced         if true, methods are synchronized for thread safety, else false.
- *
- * @see EventWriter
- * @throws underflow_error if too few bytes to read file header
- * @throws EvioException if file read failure; if path is empty; bad evio version #;
- *                       if first block number != 1 when checkBlkNumSeq arg is true
- */
-EvioReader::EvioReader(std::string const & path, bool checkRecNumSeq, bool sequential, bool synced) {
+    /**
+     * Constructor for reading an event file.
+     *
+     * @param path the full path to the file that contains events.
+     *             For writing event files, use an <code>EventWriter</code> object.
+     * @param checkRecNumSeq if <code>true</code> check the block number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1.
+     * @param synced         if true, methods are synchronized for thread safety, else false.
+     *
+     * @see EventWriter
+     * @throws underflow_error if too few bytes to read file header
+     * @throws EvioException if file read failure; if path is empty; bad evio version #;
+     *                       if first block number != 1 when checkBlkNumSeq arg is true
+     */
+    EvioReader::EvioReader(std::string const & path, bool checkRecNumSeq, bool synced) {
 
         if (path.empty()) {
             throw EvioException("path is empty");
         }
 
-        /** Object for reading file. */
-    std::ifstream inStreamRandom;
+        // Object for reading file
+        std::ifstream inStreamRandom;
         inStreamRandom.open(path, std::ios::binary);
 
         initialPosition = 0;
@@ -78,27 +74,27 @@ EvioReader::EvioReader(std::string const & path, bool checkRecNumSeq, bool seque
         else {
             throw EvioException("unsupported evio version (" + std::to_string(evioVersion) + ")");
         }
-}
+    }
 
 
-//------------------------------------------
-//   BUFFER
-//------------------------------------------
+    //------------------------------------------
+    //   BUFFER
+    //------------------------------------------
 
 
-/**
- * Constructor for reading a buffer with option of removing synchronization
- * for much greater speed.
- * @param bb             the buffer that contains events.
- * @param checkRecNumSeq if <code>true</code> check the record number sequence
- *                       and throw an exception if it is not sequential starting
- *                       with 1
- * @param synced         if true, methods are synchronized for thread safety, else false.
- * @see EventWriter
- * @throws underflow_error if too little data in bb to read.
- * @throws EvioException bad evio version #; failure to read first block header
- */
-EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bool synced) {
+    /**
+     * Constructor for reading a buffer with option of removing synchronization
+     * for much greater speed.
+     * @param bb             the buffer that contains events.
+     * @param checkRecNumSeq if <code>true</code> check the record number sequence
+     *                       and throw an exception if it is not sequential starting
+     *                       with 1
+     * @param synced         if true, methods are synchronized for thread safety, else false.
+     * @see EventWriter
+     * @throws underflow_error if too little data in bb to read.
+     * @throws EvioException bad evio version #; failure to read first block header
+     */
+    EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bool synced) {
 
         byteBuffer = bb->slice(); // remove necessity to track initial position
         initialPosition = byteBuffer->position();
@@ -180,7 +176,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
     /** {@inheritDoc} */
     void EvioReader::parseEvent(std::shared_ptr<EvioEvent> evioEvent) {reader->parseEvent(evioEvent);}
 
-// Static
+    // Static
 
     /**
      * Transform an event in the form of a byte array into an EvioEvent object.
@@ -230,7 +226,7 @@ EvioReader::EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq, bo
         return event;
     }
 
-// Static
+    // Static
 
     /**
      * Completely parse the given byte array into an EvioEvent.
