@@ -43,7 +43,7 @@ namespace evio {
 
     /**
      * This class is used to read an evio format version 6 formatted file or buffer.
-     * It's essentially a wrapper for the hipo.Reader class so the user can have
+     * It's essentially a wrapper for the Reader class so the user can have
      * access to the EvioCompactReader methods. It is NOT thread-safe.<p>
      *
      * @date 07/09/2020
