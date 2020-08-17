@@ -37,10 +37,6 @@ namespace evio {
      * {@link #parseEvent(size_t)} to get new events and to stream the embedded structures
      * to an IEvioListener.<p>
      *
-     * A word to the wise, constructors for reading a file in random access mode
-     * (by setting "sequential" arg to false), will memory map the file. This is
-     * <b>not</b> a good idea if the file is not on a local disk.<p>
-     *
      * The streaming effect of parsing an event is that the parser will read the event and hand off structures,
      * such as banks, to any IEvioListeners. For those familiar with XML, the event is processed SAX-like.
      * It is up to the listener to decide what to do with the structures.
@@ -75,8 +71,7 @@ namespace evio {
     public:
 
         //   File constructor
-        explicit EvioReader(std::string const & path, bool checkRecNumSeq = false,
-                            bool sequential = false, bool synced = false);
+        explicit EvioReader(std::string const & path, bool checkRecNumSeq = false, bool synced = false);
 
         //   Buffer constructor
         explicit EvioReader(std::shared_ptr<ByteBuffer> & bb, bool checkRecNumSeq = false, bool synced = false);
