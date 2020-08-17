@@ -178,7 +178,7 @@ namespace evio {
         // Make sure we can use all of the buffer in case external changes
         // were made to it (e.g. by doing buffer->flip() in order to read).
         // All this does is set pos = 0, limit = capacity, it does NOT
-        // clear the data. We're keep track of the position to write at
+        // clear the data. We're keeping track of the position to write at
         // in our own variable, "position".
         buffer->clear();
 
@@ -1199,12 +1199,13 @@ namespace evio {
         ////////////////////////////////////
         ByteBuffer fileHeader(FileHeader::HEADER_SIZE_BYTES);
         fileHeader.order(order);
+
         // evio id
         fileHeader.putInt(FileHeader::EVIO_FILE_UNIQUE_WORD);
         // split #
         fileHeader.putInt(1);
         // header len
-        fileHeader.putInt(FileHeader::HEADER_SIZE_BYTES);
+        fileHeader.putInt(FileHeader::HEADER_SIZE_WORDS);
         // record count
         fileHeader.putInt(1);
         // index array len
@@ -1227,25 +1228,25 @@ namespace evio {
 
         // Write it
         fileHeader.flip();
-        ostrm.write(reinterpret_cast<char*>(fileHeader.array() + fileHeader.arrayOffset()),
-                    fileHeader.remaining());
+        ostrm.write(reinterpret_cast<char*>(fileHeader.array()), FileHeader::HEADER_SIZE_BYTES);
 
 
         ///////////////////////////////////////
         // Second write the evio record header
         ///////////////////////////////////////
-        ByteBuffer recHeader(RecordHeader::HEADER_SIZE_BYTES);
+        ByteBuffer recHeader(RecordHeader::HEADER_SIZE_BYTES + 4);
         recHeader.order(order);
+
         // rec len
-        recHeader.putInt(position + RecordHeader::HEADER_SIZE_BYTES + FileHeader::HEADER_SIZE_BYTES);
+        recHeader.putInt(position/4 + RecordHeader::HEADER_SIZE_WORDS);
         // rec #
         recHeader.putInt(1);
         // header len
-        recHeader.putInt(RecordHeader::HEADER_SIZE_BYTES);
+        recHeader.putInt(RecordHeader::HEADER_SIZE_WORDS);
         // event count
         recHeader.putInt(1);
-        // index array len
-        recHeader.putInt(0);
+        // index array len (1 event and therefore 1 length (int))
+        recHeader.putInt(4);
         // bit info word
         bi = RecordHeader::generateSixthWord(6, false, true, 4);
         recHeader.putInt(bi);
@@ -1262,10 +1263,12 @@ namespace evio {
         // user register 2
         recHeader.putLong(0);
 
+        // Now add the single event's length as the entire index array
+        recHeader.putInt(position);
+
         // Write it
         recHeader.flip();
-        ostrm.write(reinterpret_cast<char*>(recHeader.array() + recHeader.arrayOffset()),
-                    recHeader.remaining());
+        ostrm.write(reinterpret_cast<char*>(recHeader.array()), RecordHeader::HEADER_SIZE_BYTES + 4);
 
 
         ///////////////////////////////////////
@@ -1276,8 +1279,7 @@ namespace evio {
         buffer->limit(position);
         buffer->position(0);
 
-        ostrm.write(reinterpret_cast<char*>(buffer->array() + buffer->arrayOffset() + buffer->position()),
-                    buffer->remaining());
+        ostrm.write(reinterpret_cast<char*>(buffer->array() + buffer->arrayOffset()), position);
         ostrm.close();
 
         // Reset position & limit
