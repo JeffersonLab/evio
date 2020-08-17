@@ -163,7 +163,9 @@ namespace evio {
 
         // Node corresponding to event
         auto node = reader.getEventNode(eventNumber - 1);
-        if (node == nullptr) return nullptr;
+        if (node == nullptr) {
+            return nullptr;
+        }
 
         if (node->getScanned()) {
             node->clearLists();
@@ -198,15 +200,15 @@ namespace evio {
         }
 
         auto list = node->allNodes;
-//        std::cout << "searchEvent: ev# = " << eventNumber << ", list size = " << list.size() <<
-//                     " for tag/num = " << tag << "/" << num << std::endl;
+//std::cout << "searchEvent: ev# = " << eventNumber << ", list size = " << list.size() <<
+//             " for tag/num = " << tag << "/" << num << std::endl;
 
         // Now look for matches in this event
         for (auto & enode: list) {
-//            std::cout << "searchEvent: desired tag = " << tag << " found " << enode->tag << std::endl;
-//            std::cout << "           : desired num = " << num << " found " << enode->num << std::endl;
+//std::cout << "searchEvent: desired tag = " << tag << " found " << enode->tag << std::endl;
+//std::cout << "           : desired num = " << num << " found " << enode->num << std::endl;
             if (enode->tag == tag && enode->num == num) {
-//                std::cout << "           : found node at pos = " << enode->pos + " len = " << enode->len << std::endl;
+//std::cout << "           : found node at pos = " << enode->pos << " len = " << enode->len << std::endl;
                 vec.push_back(enode);
             }
         }
