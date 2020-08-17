@@ -580,6 +580,38 @@ namespace evio {
         }
 
 
+        /**
+         * This method reads part of a file into a ByteBuffer.
+         * @param fileName file to read from.
+         * @param buf      buffer to write into.
+         * @throws EvioException bad file name or unable to do I/O.
+         */
+        static void readBytes(const std::string & fileName, ByteBuffer & buf) {
+
+            if (fileName.empty()) {
+                std::cout << "Util::writeBytes: fileName arg is invalid" << std::endl;
+                throw EvioException("fileName arg is invalid");
+            }
+
+            std::fstream file;
+            file.open(fileName, std::ios::binary | std::ios::in);
+            if (file.fail()) {
+                std::cout << "error opening file " << fileName << std::endl;
+                throw EvioException("error opening file " + fileName);
+            }
+
+            // Write this into a file
+            file.read(reinterpret_cast<char *>(buf.array() + buf.arrayOffset() + buf.position()),
+                       buf.remaining());
+
+            if (file.fail()) {
+                std::cout << "error reading from file " << fileName << std::endl;
+                throw EvioException("error reading from file " + fileName);
+            }
+            file.close();
+            buf.position(buf.limit());
+        }
+
 
         /**
          * Return the power of 2 closest to the given argument.
