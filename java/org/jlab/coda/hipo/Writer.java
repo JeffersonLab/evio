@@ -172,6 +172,7 @@ public class Writer implements AutoCloseable {
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
+     * @param compType      type of data compression to use.
      * @param addTrailerIndex if true, we add a record index to the trailer.
      */
     public Writer(HeaderType hType, ByteOrder order, int maxEventCount, int maxBufferSize,
@@ -233,7 +234,7 @@ public class Writer implements AutoCloseable {
     }
 
     /**
-     * Constructor with filename & byte order.
+     * Constructor with filename and byte order.
      * The output file will be created with no user header and therefore
      * {@link #open(String)} is called in this method and should not be called again.
      * LZ4 compression.
@@ -242,7 +243,7 @@ public class Writer implements AutoCloseable {
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @throws IOException  if file cannot be found or IO error writing to file
      */
     public Writer(String filename, ByteOrder order, int maxEventCount, int maxBufferSize)

@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *  <pre>
  * RECORD HEADER STRUCTURE ( 48 bytes, 12 integers (32 bit) )
+
  * 
  * +----------------------------------+
  * |       ID word (0x43455248)       |
@@ -39,6 +41,8 @@ import java.util.List;
  * +----------------------------------+
  * +        UID SECOND HIGH           |
  * +----------------------------------+
+ *
+ * </pre>
  * 
  * HIPO Record Class that creates records of
  * data buffers (agnostic to what the data represents).

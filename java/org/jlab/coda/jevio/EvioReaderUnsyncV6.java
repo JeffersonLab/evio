@@ -259,7 +259,6 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
      *
      * @param  index the event number in a 1,2,..N counting sense, from beginning of file/buffer.
      * @return the event in the file/buffer at the given index or null if none
-     * @throws IOException   if failed file access
      * @throws EvioException if failed read due to bad file/buffer format;
      *                       if out of memory;
      *                       if index out of bounds;

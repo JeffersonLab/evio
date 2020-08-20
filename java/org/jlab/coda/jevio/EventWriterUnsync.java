@@ -1004,7 +1004,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      * @param firstEvent    the first event written into each file (after any dictionary)
      *                      including all split files; may be null. Useful for adding
      *                      common, static info into each split file.
-     * @param streamId      streamId number (100 > id > -1) for file name
+     * @param streamId      streamId number (100 &gt; id &gt; -1) for file name
      * @param splitNumber   number at which to start the split numbers
      * @param splitIncrement amount to increment split number each time another file is created.
      * @param streamCount    total number of streams in DAQ.
@@ -1024,7 +1024,7 @@ final public class EventWriterUnsync implements AutoCloseable {
      *                       if file name arg is null;
      *                       if file could not be opened, positioned, or written to;
      *                       if file exists but user requested no over-writing or appending;
-     *                       if streamId < 0, splitNumber < 0, or splitIncrement < 1.
+     *                       if streamId &lt; 0, splitNumber &lt; 0, or splitIncrement &lt; 1.
      */
     public EventWriterUnsync(String baseName, String directory, String runType,
                              int runNumber, long split,

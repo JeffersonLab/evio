@@ -722,6 +722,7 @@ final public class Utilities {
     /**
      * This method takes an EvioNode object and converts it to an EvioEvent object.
      * @param node EvioNode object to EvioEvent
+     * @return EvioEvent object created from EvioNode arg.
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
     final static public EvioEvent nodeToEvent(EvioNode node) throws EvioException {
@@ -1920,6 +1921,7 @@ if (debug) System.out.println("      Format = " + formats[cDataCount]);
      * This method takes an EvioNode object and converts it to a readable, XML String.
      * @param node EvioNode object to print out
      * @param hex  if true, ints get displayed in hexadecimal
+     * @return XML string.
      * @throws EvioException if node is not a bank or cannot parse node's buffer
      */
     final static public String toXML(EvioNode node, boolean hex) throws EvioException {

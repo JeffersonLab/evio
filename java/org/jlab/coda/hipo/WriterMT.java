@@ -135,13 +135,13 @@ public class WriterMT implements AutoCloseable {
      *
      * @param order byte order of written file
      * @param maxEventCount max number of events a record can hold.
-     *                      Value <= O means use default (1M).
+     *                      Value &lt;= O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
      * @param compressionThreads number of threads doing compression simultaneously
      * @param ringSize      number of records in supply ring, must be multiple of 2
-     *                      and >= compressionThreads.
+     *                      and &gt;= compressionThreads.
      *
      * @throws IllegalArgumentException if invalid compression type.
      */
@@ -164,9 +164,9 @@ public class WriterMT implements AutoCloseable {
      *                      the header will be written with the first 4 bytes set to HIPO.
      * @param order         byte order of written file
      * @param maxEventCount max number of events a record can hold.
-     *                      Value <= O means use default (1M).
+     *                      Value &lt;= O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @param dictionary    string holding an evio format dictionary to be placed in userHeader.
      * @param firstEvent    byte array containing an evio event to be included in userHeader.
      *                      It must be in the same byte order as the order argument.
@@ -175,7 +175,7 @@ public class WriterMT implements AutoCloseable {
      * @param compressionThreads number of threads doing compression simultaneously
      * @param addTrailerIndex if true, we add a record index to the trailer.
      * @param ringSize      number of records in supply ring, must be multiple of 2
-     *                      and >= compressionThreads.
+     *                      and &gt;= compressionThreads.
      *
      * @throws IllegalArgumentException if invalid compression type.
      */
@@ -264,7 +264,7 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
     }
 
     /**
-     * Constructor with filename & byte order.
+     * Constructor with filename and byte order.
      * The output file will be created with no user header.
      * 
      * @param filename      output file name
@@ -272,11 +272,11 @@ System.out.println("WriterMT CON: created dict/firstEv buffer, order = " + byteO
      * @param maxEventCount max number of events a record can hold.
      *                      Value of O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes a record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip)
      * @param compressionThreads number of threads doing compression simultaneously
      * @param ringSize      number of records in supply ring, must be multiple of 2
-     *                      and >= compressionThreads.
+     *                      and &gt;= compressionThreads.
      *
      * @throws HipoException if filename arg is null or bad.
      */
@@ -873,7 +873,6 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      * match the byte order given in constructor!</b>
      *
      * @param buffer array to add to the file.
-     * @throws IOException if cannot write to file.
      * @throws HipoException if buffer arg's byte order is wrong.
      */
     public void addEvent(ByteBuffer buffer) throws HipoException {
@@ -911,7 +910,6 @@ System.out.println("writerMT::open: given a valid dict/first ev header to write"
      *
      * @param node node to add to the file.
      * @throws HipoException if node does not correspond to a bank.
-     * @throws IOException if cannot write to file.
      */
     public void addEvent(EvioNode node) throws HipoException {
 

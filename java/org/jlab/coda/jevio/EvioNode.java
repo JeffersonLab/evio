@@ -221,6 +221,7 @@ public class EvioNode implements Cloneable {
      * Useful, for example, when the contents of one buffer is copied into another.
      *
      * @param deltaPos number of bytes to add to existing positions.
+     * @return this object.
      */
     final public EvioNode shift(int deltaPos) {
         pos += deltaPos;
@@ -250,6 +251,11 @@ public class EvioNode implements Cloneable {
         }
     }
 
+
+    /**
+     * Return a String representation of this object.
+     * @return a String representation of this object.
+     */
     final public String toString() {
         StringBuilder builder = new StringBuilder(100);
         builder.append("tag = ");          builder.append(tag);
@@ -990,10 +996,10 @@ System.out.println("ERROR: remaining = " + buffer.remaining() +
     }
 
     /**
-     * Set whether this node & descendants are now obsolete because the
+     * Set whether this node and descendants are now obsolete because the
      * data they represent in the buffer has been removed.
      * Only for internal use.
-     * @param obsolete true if node & descendants no longer represent valid
+     * @param obsolete true if node and descendants no longer represent valid
      *                 buffer data, else false.
      */
     final public void setObsolete(boolean obsolete) {

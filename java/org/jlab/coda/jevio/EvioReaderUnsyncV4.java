@@ -1526,6 +1526,9 @@ System.err.println("ERROR endOfBuffer " + a);
      * Byte array must not be in file format (have block headers),
      * but must consist of only the bytes comprising the evio event.
      *
+     * @param array   data to parse.
+     * @param offset  offset into array to begin parsing.
+     * @param order   byte order of data.
      * @return the EvioEvent object parsed from the given bytes.
      * @throws EvioException if null arg, too little data, or data not in evio format.
      */

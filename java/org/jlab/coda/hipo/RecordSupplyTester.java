@@ -10,7 +10,7 @@ package org.jlab.coda.hipo;
 import java.nio.ByteOrder;
 
 /**
- * Class used to test behavior of the RecordSupply & RecordRingItem classes.
+ * Class used to test behavior of the RecordSupply and RecordRingItem classes.
  * @version 6.0
  * @since 6.0 9/21/17
  * @author timmer

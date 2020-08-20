@@ -276,7 +276,7 @@ public interface IEvioReader {
     EvioEvent gotoEventNumber(int evNumber) throws IOException, EvioException;
 
     /**
-     * Rewrite the file to XML (not including dictionary & "first" event).
+     * Rewrite the file to XML (not including dictionary and "first" event).
      *
      * @param path the path to the XML file.
      *
@@ -287,7 +287,7 @@ public interface IEvioReader {
     WriteStatus toXMLFile(String path) throws IOException, EvioException;
 
     /**
-     * Rewrite the file to XML (not including dictionary & "first" event).
+     * Rewrite the file to XML (not including dictionary and "first" event).
      *
      * @param path the path to the XML file.
      * @param hex if true, ints get displayed in hexadecimal
@@ -299,7 +299,7 @@ public interface IEvioReader {
     WriteStatus toXMLFile(String path, boolean hex) throws IOException, EvioException;
 
     /**
-     * Rewrite the file to XML (not including dictionary & "first" event).
+     * Rewrite the file to XML (not including dictionary and "first" event).
      *
      * @param path the path to the XML file.
      * @param progressListener and optional progress listener, can be <code>null</code>.
@@ -312,7 +312,7 @@ public interface IEvioReader {
             throws IOException, EvioException;
 
     /**
-     * Rewrite the file to XML (not including dictionary & "first" event).
+     * Rewrite the file to XML (not including dictionary and "first" event).
      *
      * @param path the path to the XML file.
      * @param progressListener and optional progress listener, can be <code>null</code>.

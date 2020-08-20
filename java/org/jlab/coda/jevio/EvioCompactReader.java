@@ -135,6 +135,7 @@ public class EvioCompactReader implements IEvioCompactReader {
      * Constructor for reading a buffer with option of removing synchronization
      * for much greater speed.
      * @param byteBuffer the buffer that contains events.
+     * @param pool       the object pool to get EvioNode objects from.
      * @param synced     if true, methods are synchronized for thread safety, else false.
      * @see EventWriter
      * @throws BufferUnderflowException if not enough buffer data;

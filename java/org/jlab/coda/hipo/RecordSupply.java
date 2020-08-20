@@ -49,7 +49,7 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  *
  *   (2) The consumer who calls getToCompress() will get that ring item and will
  *       compress its data. There may be any number of compression threads
- *       as long as <b># threads <= # of ring items!!!</b>.
+ *       as long as <b># threads &lt;= # of ring items!!!</b>.
  *       That same user does a releaseCompressor() when done with the record.
  *
  *   (3) The consumer who calls getToWrite() will get that ring item and will
@@ -169,14 +169,14 @@ public class RecordSupply {
      * @param ringSize        number of RecordRingItem objects in ring buffer.
      * @param order           byte order of RecordOutputStream in each RecordRingItem object.
      * @param threadCount     number of threads simultaneously doing compression.
-     *                        Must be <= ringSize.
+     *                        Must be &lt;= ringSize.
      * @param maxEventCount   max number of events each record can hold.
-     *                        Value <= O means use default (1M).
+     *                        Value &lt;= O means use default (1M).
      * @param maxBufferSize   max number of uncompressed data bytes each record can hold.
-     *                        Value of < 8MB results in default of 8MB.
+     *                        Value of &lt; 8MB results in default of 8MB.
      * @param compressionType type of data compression to do.
-     * @throws IllegalArgumentException if args < 1, ringSize not power of 2,
-     *                                  threadCount > ringSize.
+     * @throws IllegalArgumentException if args &lt; 1, ringSize not power of 2,
+     *                                  threadCount &gt; ringSize.
      */
     public RecordSupply(int ringSize, ByteOrder order,
                         int threadCount, int maxEventCount, int maxBufferSize,
@@ -335,7 +335,7 @@ public class RecordSupply {
      * @return next available record item in ring buffer
      *         in order to compress data already in it.
      * @throws AlertException  if {@link #errorAlert()} called.
-     * @throws InterruptedException
+     * @throws InterruptedException if thread interrupted.
      */
     public RecordRingItem getToCompress(int threadNumber)
                               throws AlertException, InterruptedException {
@@ -371,7 +371,7 @@ public class RecordSupply {
      * @return next available record item in ring buffer
      *         in order to write data into it.
      * @throws AlertException  if {@link #errorAlert()} called.
-     * @throws InterruptedException
+     * @throws InterruptedException if thread interrupted.
      */
     public RecordRingItem getToWrite() throws AlertException, InterruptedException {
 
@@ -513,13 +513,13 @@ public class RecordSupply {
 
     /**
      * Has an error occurred in writing or compressing data?
-     * @return <@code>true</@code> if an error occurred in writing or compressing data.
+     * @return {@code true} if an error occurred in writing or compressing data.
      */
     public boolean haveError() {return haveError;}
 
     /**
      * Set whether an error occurred in writing or compressing data.
-     * @return <@code>true</@code> if an error occurred in writing or compressing data.
+     * @param err {@code true} if an error occurred in writing or compressing data.
      */
     public void haveError(boolean err) {haveError = err;}
 

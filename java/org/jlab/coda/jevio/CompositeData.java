@@ -235,6 +235,7 @@ public final class CompositeData {
      *
      * @param rawBytes  raw data defining this composite type item
      * @param byteOrder byte order of rawBytes
+     * @throws EvioException if null arg(s) or bad data format
 	 */
 	public CompositeData(byte[] rawBytes, ByteOrder byteOrder)
             throws EvioException {
@@ -1488,7 +1489,7 @@ public final class CompositeData {
 
 
     /**
-      * This method swaps the data of this composite type between big &
+      * This method swaps the data of this composite type between big and
       * little endian. It swaps the entire type including the beginning tagsegment
       * header, the following format string it contains, the data's bank header,
       * and finally the data itself.
@@ -1504,7 +1505,7 @@ public final class CompositeData {
      
 
     /**
-     * This method converts (swaps) a buffer of EVIO composite type between big &
+     * This method converts (swaps) a buffer of EVIO composite type between big and
      * little endian. It swaps the entire type including the beginning tagsegment
      * header, the following format string it contains, the data's bank header,
      * and finally the data itself. The src array may contain an array of
@@ -1518,7 +1519,7 @@ public final class CompositeData {
      * @param length   length of data array in 32 bit words
      * @param srcOrder the byte order of data in src
      *
-     * @throws EvioException if offsets or length < 0; if src = null;
+     * @throws EvioException if offsets or length &lt; 0; if src = null;
      *                       if src or dest is too small
      */
     public static void swapAll (byte[] src, int srcOff, byte[] dest, int destOff,
@@ -2199,7 +2200,7 @@ public final class CompositeData {
      * @param data     data to convert to raw bytes
      * @param ifmt     format list as produced by {@link #compositeFormatToInt(String)}
      *
-     * @throws EvioException if ifmt size <= 0; if srcBuf or destBuf is too
+     * @throws EvioException if ifmt size &lt;= 0; if srcBuf or destBuf is too
      *                       small; not enough dataItems for the given format
      */
     public static void dataToRawBytes(ByteBuffer rawBuf, CompositeData.Data data,
@@ -2906,8 +2907,9 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
 
     /**
-     * This method writes an xml string representation of this CompositeData object.
+     * This method returns an xml string representation of this CompositeData object.
      * @param hex if <code>true</code> then print integers in hexadecimal.
+     * @return an xml string representation of this CompositeData object.
      */
     public String toXML(boolean hex) {
         StringWriter sWriter = null;
@@ -4203,7 +4205,7 @@ if (debug) System.out.println("Convert data of type = " + kcnf + ", itemIndex = 
 
     /**
      * This method returns a string representation of this CompositeData object
-     * suitable for displaying in {@docRoot org.jlab.coda.jevio.graphics.EventTreeFrame}
+     * suitable for displaying in a
      * gui. Each data item is separated from those before and after by a line.
      * Non-parenthesis repeats are printed together.
      *
