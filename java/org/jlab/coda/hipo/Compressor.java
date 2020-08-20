@@ -424,7 +424,7 @@ public class Compressor {
      * @param dst      destination buffer.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     * @throws HipoException if maxSize &lt; max # of compressed bytes
      */
     public static int compressLZ4(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize)
             throws HipoException {
@@ -456,7 +456,7 @@ public class Compressor {
      * @param dstOff   start offset in dst.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     * @throws HipoException if maxSize &lt; max # of compressed bytes
      */
     public static int compressLZ4(byte[] src, int srcOff, int srcSize,
                                   byte[] dst, int dstOff, int maxSize)
@@ -479,7 +479,7 @@ public class Compressor {
      * @param dstOff   start offset in dst.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     * @throws HipoException if maxSize &lt; max # of compressed bytes
      */
     public static int compressLZ4(ByteBuffer src, int srcOff, int srcSize,
                                   ByteBuffer dst, int dstOff, int maxSize)
@@ -509,7 +509,7 @@ public class Compressor {
      * @param dst      destination buffer.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     * @throws HipoException if maxSize &lt; max # of compressed bytes
      */
     public static int compressLZ4Best(ByteBuffer src, int srcSize, ByteBuffer dst, int maxSize)
             throws HipoException {
@@ -541,7 +541,7 @@ public class Compressor {
      * @param dstOff   start offset in dst.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     * @throws HipoException if maxSize &lt; max # of compressed bytes
      */
     public static int compressLZ4Best(byte[] src, int srcOff, int srcSize,
                                       byte[] dst, int dstOff, int maxSize)
@@ -564,7 +564,7 @@ public class Compressor {
      * @param dstOff   start offset in dst.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws org.jlab.coda.hipo.HipoException if maxSize < max # of compressed bytes
+     * @throws HipoException if maxSize &lt; max # of compressed bytes
      */
     public static int compressLZ4Best(ByteBuffer src, int srcOff, int srcSize,
                                       ByteBuffer dst, int dstOff, int maxSize)
@@ -637,8 +637,8 @@ public class Compressor {
      * @param dst      destination array.
      * @param dstOff   start offset in dst.
      * @return original (uncompressed) input size.
-     * @throws org.jlab.coda.hipo.HipoException if (dst.length - dstOff) is too small
-     *                                          to hold uncompressed data
+     * @throws HipoException if (dst.length - dstOff) is too small
+     *                       to hold uncompressed data
      */
     public static int uncompressLZ4(byte[] src, int srcOff, int srcSize, byte[] dst, int dstOff)
             throws HipoException {
@@ -659,7 +659,6 @@ public class Compressor {
      * @param srcSize  number of compressed bytes.
      * @param maxDestLen    max available bytes to hold uncompressed data.
      * @return original, uncompressed data. Length of array is length of valid data.
-     * @throws HipoException
      */
     public static byte[] uncompressLZ4(byte[] src, int srcOff, int srcSize, int maxDestLen) {
             return lz4_decompressor.decompress(src, srcOff, srcSize, maxDestLen);

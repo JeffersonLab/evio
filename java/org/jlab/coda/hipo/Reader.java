@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Reader class that reads files stored in the HIPO format.<p>
+ * Reader class that reads files stored in the HIPO format.
  *
  * <pre>
  * File has this structure:
@@ -548,7 +548,7 @@ public class Reader {
 
     /**
      * Returns the list of record positions in the file.
-     * @return 
+     * @return the list of record positions in the file.
      */
     public List<RecordPosition> getRecordPositions() {return recordPositions;}
 
@@ -754,7 +754,7 @@ public class Reader {
      * @return buf or null if buf is null or index out of bounds.
      * @throws HipoException if file/buffer not in hipo format, or
      *                       if buf has insufficient space to contain event
-     *                       (buf.capacity() < event size).
+     *                       (buf.capacity() &lt; event size).
      */
     public ByteBuffer getEvent(ByteBuffer buf, int index) throws HipoException {
 
@@ -1063,7 +1063,7 @@ System.out.println("findRecInfo: buf cap = " + buf.capacity() + ", offset = " + 
 
     /**
      * This method scans a buffer to find all records and store their position, length,
-     * and event count. It also finds all events and creates & stores their associated
+     * and event count. It also finds all events and then creates and stores their associated
      * EvioNode objects.<p>
      *
      * The difficulty with doing this is that the buffer may contain compressed data.
@@ -1307,7 +1307,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
 
     /**
       * Scan buffer to find all records and store their position, length, and event count.
-      * Also finds all events and creates & stores their associated EvioNode objects.
+      * Also finds all events and then creates and stores their associated EvioNode objects.
       * @throws HipoException if buffer too small, not in the proper format, or earlier than version 6;
       *                       if checkRecordNumberSequence is true and records are out of sequence.
       */

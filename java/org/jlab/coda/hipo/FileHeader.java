@@ -239,7 +239,7 @@ public class FileHeader {
         headerVersion           = head.headerVersion;
     }
 
-    /** Reset most internal variables (not file id & header type). */
+    /** Reset most internal variables (not file id and header type). */
     public void reset(){
         // Do NOT reset fileId which is only set in constructor.
         // Do NOT reset header type.
@@ -566,24 +566,28 @@ public class FileHeader {
     /**
      * Set the file number which is the split number starting at 1.
      * @param num  file number starting at 1.
+     * @return this object.
      */
     public FileHeader setFileNumber(int num) {fileNumber = num; return this;}
 
     /**
      * Set the first user register.
      * @param val  first user register.
+     * @return this object.
      */
     public FileHeader setUserRegister(long val) {userRegister = val; return this;}
 
     /**
      * Set the first user integer.
      * @param val  first user integer.
+     * @return this object.
      */
     public FileHeader setUserIntFirst(int val) {userIntFirst  = val; return this;}
 
     /**
      * Set the second user integer.
      * @param val  second user integer.
+     * @return this object.
      */
     public FileHeader setUserIntSecond(int val) {userIntSecond = val; return this;}
 
@@ -623,7 +627,7 @@ public class FileHeader {
     public FileHeader setEntries(int n) {entries = n; return this;}
 
     /**
-     * Set the user-defined header's length in bytes & words and the padding.
+     * Set the user-defined header's length in bytes and words and the padding.
      * Sets the total length too.
      * @param length  user-defined header's length in bytes.
      * @return this object.
@@ -650,7 +654,7 @@ public class FileHeader {
      }
 
     /**
-     * Set the this header's length in bytes & words.
+     * Set the this header's length in bytes and words.
      * If length is not a multiple of 4, you're on your own!
      * Sets the total length too.
      * @param length  this header's length in bytes.
@@ -667,8 +671,8 @@ public class FileHeader {
      * Set the total length in bytes, header + index + user header.
      * This includes padding and is on a 4-byte boundary.
      * Never compressed.
-     * @return this object.
      * @param length  total length in bytes, header + index + user header.
+     * @return this object.
      */
     public FileHeader setLength(int length) {totalLength = length; return this;}
 
@@ -837,7 +841,7 @@ public class FileHeader {
      * @param original  string to modify
      * @param pad       character to pad with
      * @param upTo      length to make original string plus padding
-     * @return
+     * @return pretty string.
      */
     private static String padLeft(String original, String pad, int upTo) {
         int npadding = upTo - original.length();
@@ -849,7 +853,7 @@ public class FileHeader {
 
     /**
      * Print out each word of the given buffer as binary, hex, and decimal.
-     * @param buffer
+     * @param buffer buffer to print out.
      */
     public static void byteBufferBinaryString(ByteBuffer buffer) {
         int nwords = buffer.array().length/4;
@@ -864,7 +868,7 @@ public class FileHeader {
 
     /**
      * Run this class as an executable which tests the writing and reading of a record.
-     * @param args
+     * @param args args
      */
     public static void main(String[] args){
         FileHeader header = new FileHeader();

@@ -103,7 +103,7 @@ public class Record {
      * Sets compression type for the record. It will be used when
      * the build() method is called.
      * @param compression compression type as enum.
-     * @return 
+     * @return this object.
      */
     public Record setCompressionType(CompressionType compression) {
         this.compressionType = compression;
@@ -114,7 +114,7 @@ public class Record {
      * Sets compression type for the record. It will be used when
      * the build() method is called.
      * @param compression compression type as int.
-     * @return
+     * @return this object.
      */
     public Record setCompressionType(int compression) {
         this.compressionType = CompressionType.getCompressionType(compression);
@@ -132,7 +132,7 @@ public class Record {
     /**
      * Sets the maximum capacity of the record. No data
      * will be added if the this limit is reached.
-     * @param max_capacity 
+     * @param max_capacity maximum capacity of the record.
      */
     public void setMaximumCapacity(int max_capacity){
         MAXIMUM_BYTES = max_capacity;
@@ -142,7 +142,7 @@ public class Record {
      * added to the record will exceed the maximum capacity
      * array will not be added and function returns false.
      * @param buffer array to add to the record
-     * @return ture is array is added, false otherwise
+     * @return true is array is added, false otherwise
      */
     public boolean addEvent(byte[] buffer){
         if(buffer.length + bytesWritten > MAXIMUM_BYTES){
@@ -238,6 +238,7 @@ public class Record {
         
         return byteBuffer;
     }
+
     /**
      * Resets the content of the record. sets bytes writing counter to zero.
      */
@@ -245,9 +246,10 @@ public class Record {
         this.recordEvents.clear();
         this.bytesWritten = 0;
     }
+
     /**
      * returns number of arrays in the record.
-     * @return 
+     * @return number of arrays in the record.
      */
     public int getEntries(){
         return this.recordEvents.size();

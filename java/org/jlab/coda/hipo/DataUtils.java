@@ -12,10 +12,14 @@ import java.nio.ByteBuffer;
  * @author gavalian
  */
 public class DataUtils {
-    public DataUtils(){
-        
-    }
-    
+
+    public DataUtils(){}
+
+    /**
+     * Get the String representation of a hex integer.
+     * @param value int value.
+     * @return string representation hex int.
+     */
     public static String getHexStringInt(int value){
         StringBuilder str = new StringBuilder();
         String sv= Integer.toHexString(value);
@@ -24,11 +28,14 @@ public class DataUtils {
         str.append(sv);
         return str.toString();
     }
+
+
     /**
-     * 
-     * @param buffer
-     * @param wrap
-     * @return 
+     * Get a String representation of an array of integer data in hex.
+     * @param buffer  contains int data.
+     * @param wrap    number of int before inserting newline.
+     * @param max     max number of int to display.
+     * @return string representation.
      */
     public static String getStringArray(ByteBuffer buffer, int wrap, int max){
         StringBuilder str = new StringBuilder();

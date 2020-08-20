@@ -127,7 +127,7 @@ public class RecordHeader implements IBlockHeader {
     public final static int   MAGIC_OFFSET = 28;
     /** Byte offset from beginning of header to the uncompressed data length. */
     public final static int   UNCOMPRESSED_LENGTH_OFFSET = 32;
-    /** Byte offset from beginning of header to the compression type & compressed data length word. */
+    /** Byte offset from beginning of header to the compression type and compressed data length word. */
     public final static int   COMPRESSION_TYPE_OFFSET = 36;
     /** Byte offset from beginning of header to the user register #1. */
     public final static int   REGISTER1_OFFSET = 40;
@@ -536,6 +536,7 @@ public class RecordHeader implements IBlockHeader {
      * Set the bit info word for a record header.
      * Current value of bitInfo is lost.
      * @param isLastRecord   true if record is last in stream or file.
+     * @param haveFirstEvent true if record has first event in user header.
      * @param haveDictionary true if record has dictionary in user header.
      * @return new bit info word.
      */
@@ -933,7 +934,7 @@ public class RecordHeader implements IBlockHeader {
     public RecordHeader  setRecordNumber(int num) {recordNumber = num; return this;}
 
     /**
-     * Set the record length in bytes & words.
+     * Set the record length in bytes and words.
      * If length is not a multiple of 4, you're on your own!
      * @param length  length of record in bytes.
      * @return this object.
@@ -947,7 +948,7 @@ public class RecordHeader implements IBlockHeader {
     }
 
     /**
-     * Set the uncompressed data length in bytes & words and the padding.
+     * Set the uncompressed data length in bytes and words and the padding.
      * @param length  length of uncompressed data in bytes.
      * @return this object.
      */
@@ -964,7 +965,7 @@ public class RecordHeader implements IBlockHeader {
     }
 
     /**
-     * Set the compressed data length in bytes & words and the padding.
+     * Set the compressed data length in bytes and words and the padding.
      * @param length  length of compressed data in bytes.
      * @return this object.
      */
@@ -1013,7 +1014,7 @@ public class RecordHeader implements IBlockHeader {
     public RecordHeader  setEntries(int n) {entries = n; return this;}
 
     /**
-     * Set the user-defined header's length in bytes & words and the padding.
+     * Set the user-defined header's length in bytes and words and the padding.
      * @param length  user-defined header's length in bytes.
      * @return this object.
      */
@@ -1030,7 +1031,7 @@ public class RecordHeader implements IBlockHeader {
     }
 
     /**
-     * Set the this header's length in bytes & words.
+     * Set the this header's length in bytes and words.
      * If length is not a multiple of 4, you're on your own!
      * @param length  this header's length in bytes.
      * @return this object.
@@ -1058,7 +1059,7 @@ public class RecordHeader implements IBlockHeader {
     //-------------------------------------------------
     /**
      * Writes this header into the given byte buffer.
-     * Position & limit of given buffer does NOT change.
+     * Position and limit of given buffer does NOT change.
      * @param buf byte buffer to write header into.
      * @param off position in buffer to begin writing.
      * @throws HipoException if buffer is null or contains too little room.
@@ -1089,7 +1090,7 @@ public class RecordHeader implements IBlockHeader {
 
     /**
      * Writes this header into the given byte buffer starting at the beginning.
-     * Position & limit of given buffer does NOT change.
+     * Position and limit of given buffer does NOT change.
      * @param buffer byte buffer to write header into.
      * @throws HipoException if buffer arg is null, contains too little room.
      */
@@ -1518,7 +1519,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
 
     /**
      * Print out each word of the given buffer as binary, hex, and decimal.
-     * @param buffer
+     * @param buffer byffer to print out.
      */
     public static void byteBufferBinaryString(ByteBuffer buffer) {
         int nwords = buffer.array().length/4;
@@ -1533,7 +1534,7 @@ Utilities.printBuffer(buffer, 0, 40, "BAD MAGIC WORD BUFFER:");
 
     /**
      * Run this class as an executable which tests the writing and reading of a record.
-     * @param args
+     * @param args args.
      */
     public static void main(String[] args){
         RecordHeader header = new RecordHeader();

@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 /**
  *
  *  Class which reads data to create an Evio or HIPO Record.
- *  This class is NOT thread safe!<p>
+ *  This class is NOT thread safe!
  *
  * <pre>
  * RECORD STRUCTURE:
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  *    |       General Record Header      |            |       General Record Header      |
  *    +----------------------------------+            +----------------------------------+
  *
- *    +----------------------------------+ ---------> +----------------------------------+
+ *    +----------------------------------+ ---------&gt; +----------------------------------+
  *    |           Index Array            |            |        Compressed Data           |
  *    +----------------------------------+            |             Record               |
  *                                                    |                                  |
@@ -274,7 +274,7 @@ public class RecordInputStream {
     /**
      * Get the event at the given index and write it into the given byte buffer.
      * The given byte buffer has to be large enough to receive all the event's data,
-     * but the buffer.limit() is ignored & reset.
+     * but the buffer.limit() is ignored and reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
      *
@@ -282,7 +282,7 @@ public class RecordInputStream {
      * @param index  index of event starting at 0. Negative value = 0.
      * @return buffer or newly allocated buffer if arg is null.
      * @throws HipoException if buffer has insufficient space to contain event
-     *                       (buffer.capacity() < event size).
+     *                       (buffer.capacity() &lt; event size).
      */
     public ByteBuffer getEvent(ByteBuffer buffer, int index) throws HipoException {
         return getEvent(buffer, 0, index);
@@ -291,7 +291,7 @@ public class RecordInputStream {
     /**
      * Get the event at the given index and write it into the given byte buffer.
      * The given byte buffer has to be large enough to receive all the event's data,
-     * but the buffer.limit() is ignored & reset.
+     * but the buffer.limit() is ignored and reset.
      * If no buffer is given (arg is null), create a buffer internally and return it.
      * Buffer's byte order is set to that of the internal buffers.
      *
@@ -300,7 +300,7 @@ public class RecordInputStream {
      * @param index     index of event starting at 0. Negative value = 0.
      * @return buffer or newly allocated buffer if arg is null.
      * @throws HipoException if buffer has insufficient space to contain event
-     *                       (buffer.capacity() - bufOffset < event size).
+     *                       (buffer.capacity() - bufOffset &lt; event size).
      */
     public ByteBuffer getEvent(ByteBuffer buffer, int bufOffset, int index) throws HipoException {
 
@@ -386,7 +386,7 @@ public class RecordInputStream {
      *         and successfully copied into buffer, or
      *         null if no user header exists.
      * @throws HipoException if buffer has insufficient space to contain user header
-     *                       (buffer.capacity() - bufOffset < user header size).
+     *                       (buffer.capacity() - bufOffset &lt; user header size).
      *                       If buffer is not null and offset negative.
      */
     public ByteBuffer getUserHeader(ByteBuffer buffer, int bufOffset) throws HipoException {
@@ -436,14 +436,14 @@ public class RecordInputStream {
     /**
      * Get any existing user header and write it into the given byte buffer.
      * The byte buffer must be large enough to contain it.
-     * Warning, buffer.limit() is ignored & reset.
+     * Warning, buffer.limit() is ignored and reset.
      * If no buffer is given (arg is null), create a buffer internally and use it.
      * Parse the user header into the returned recordInputStream object.
      * @param buffer    buffer to be filled with user header
      * @param bufOffset offset into buffer to place user header.
      * @return record parsed from user header or null if no user header exists.
      * @throws HipoException if non-null buffer has insufficient space to contain user header
-     *                       (buffer.capacity() - bufOffset < user header size).
+     *                       (buffer.capacity() - bufOffset &lt; user header size).
      *                       If offset negative.
      */
     public RecordInputStream getUserHeaderAsRecord(ByteBuffer buffer, int bufOffset)
@@ -792,8 +792,8 @@ public class RecordInputStream {
     }
 
     /**
-     * returns number of the events packed in the record.
-     * @return 
+     * Returns number of the events packed in the record.
+     * @return number of the events packed in the record.
      */
     public int getEntries(){return nEntries;}
 
@@ -809,7 +809,7 @@ public class RecordInputStream {
     
     /**
      * test main program
-     * @param args 
+     * @param args args.
      */
     public static void main(String[] args){
         

@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Class which handles the creation and use of Evio & HIPO Records.<p>
+ * Class which handles the creation and use of Evio and HIPO Records.
  *     
  * <pre>
  * RECORD STRUCTURE:
@@ -24,7 +24,7 @@ import java.nio.ByteOrder;
  *    |       General Record Header      |            |       General Record Header      |
  *    +----------------------------------+            +----------------------------------+
  *
- *    +----------------------------------+ ---------> +----------------------------------+
+ *    +----------------------------------+ ---------&gt; +----------------------------------+
  *    |           Index Array            |            |        Compressed Data           |
  *    +----------------------------------+            |             Record               |
  *                                                    |                                  |
@@ -169,9 +169,9 @@ public class RecordOutputStream {
      * Record header type defaults to HIPO record.
      * @param order byte order of built record byte arrays.
      * @param maxEventCount max number of events this record can hold.
-     *                      Value <= O means use default (1M).
+     *                      Value &lt;= O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes this record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      */
     public RecordOutputStream(ByteOrder order, int maxEventCount, int maxBufferSize,
@@ -183,9 +183,9 @@ public class RecordOutputStream {
      * Constructor with arguments.
      * @param order byte order of built record byte arrays.
      * @param maxEventCount max number of events this record can hold.
-     *                      Value <= O means use default (1M).
+     *                      Value &lt;= O means use default (1M).
      * @param maxBufferSize max number of uncompressed data bytes this record can hold.
-     *                      Value of < 8MB results in default of 8MB.
+     *                      Value of &lt; 8MB results in default of 8MB.
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      * @param hType           type of record header to use.
      */
@@ -222,10 +222,10 @@ public class RecordOutputStream {
 
     /**
      * Constructor with arguments.
-     * @param buffer buffer in which to put constructed (& compressed) binary record.
+     * @param buffer buffer in which to put constructed (and compressed) binary record.
      *               Must have position and limit set to accept new data.
      * @param maxEventCount max number of events this record can hold.
-     *                      Value <= O means use default (1M).
+     *                      Value &lt;= O means use default (1M).
      * @param compressionType type of data compression to do (0=none, 1=lz4 fast, 2=lz4 best, 3=gzip).
      * @param hType           type of record header to use.
      */
@@ -872,7 +872,7 @@ public class RecordOutputStream {
 
     /**
      * Builds the record. Compresses data, header is constructed,
-     * then header & data written into internal buffer.
+     * then header and data written into internal buffer.
      * This method may be called multiple times in succession without
      * any problem. The buffer obtained with {@link #getBinaryBuffer()}
      * has its position and limit set for reading.
@@ -1065,7 +1065,7 @@ public class RecordOutputStream {
 
     /**
      * Builds the record. Compresses data, header is constructed,
-     * then header & data written into internal buffer.
+     * then header and data written into internal buffer.
      * If user header is not padded to 4-byte boundary, it's done here.
      * This method may be called multiple times in succession without
      * any problem.
