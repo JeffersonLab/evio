@@ -17,10 +17,10 @@ namespace evio {
     /**
      * Constructor used for creating this object from scratch.
      *
-     * @param format format string defining data
-     * @param data data in given format
+     * @param format format string defining data.
+     * @param data data in given format.
      *
-     * @throws EvioException if improper format string
+     * @throws EvioException if improper format string.
      */
     CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data) :
             CompositeData(format, data, data.formatTag, data.dataTag, data.dataNum) {}
@@ -37,8 +37,8 @@ namespace evio {
      * @param order     byte order in which data is stored in internal buffer.
      *                  Defaults to local endian.
      *
-     * @throws EvioException data or format arg = null;
-     *                       if improper format string
+     * @throws EvioException data or format arg = null,
+     *                       if improper format string.
      */
     CompositeData::CompositeData(std::string const & format, const CompositeData::Data & data, uint16_t formatTag,
                                  uint16_t dataTag, uint8_t dataNum, ByteOrder const & order) {
@@ -294,7 +294,7 @@ namespace evio {
      * @param bytesSize size in bytes of bytes.
      * @param order     byte order of raw bytes.
      * @param list      vector that will hold all parsed CompositeData objects.
-     * @throws EvioException if null args or bad format of raw data
+     * @throws EvioException if null args or bad format of raw data.
      */
     void CompositeData::parse(uint8_t *bytes, size_t bytesSize, ByteOrder const & order,
                               std::vector<std::shared_ptr<CompositeData>> & list) {

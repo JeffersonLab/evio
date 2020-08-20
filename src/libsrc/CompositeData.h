@@ -149,6 +149,7 @@ namespace evio {
          */
         class DataItem {
 
+            /** Encapsulating class needs access. */
             friend class CompositeData;
 
         public:
@@ -158,10 +159,13 @@ namespace evio {
             /** Place for holding strings, NOT a primitive type. */
             std::vector<std::string> strVec {};
 
-
+            /** No arg constructor. */
             DataItem() = default;
-            ~DataItem() = default;
 
+            /**
+             * Copy constructor.
+             * @param other object to copy.
+             */
             DataItem(DataItem const &other) {
                 item   = other.item;
                 strVec = other.strVec;
@@ -690,11 +694,11 @@ namespace evio {
 
     private:
 
-        // Only constructors with raw data or a vector of CompositeData::Data as an arg
-        // are used. That way there is never an "empty" CompositeData object.
-        // Thus, each object will have a raw byte representation generated.
-
-        /** Default constructor Never used. */
+//        // Only constructors with raw data or a vector of CompositeData::Data as an arg
+//        // are used. That way there is never an "empty" CompositeData object.
+//        // Thus, each object will have a raw byte representation generated.
+//
+//        /** Default constructor Never used. */
         CompositeData() = default;
 
         CompositeData(std::string const & format, const CompositeData::Data & data);

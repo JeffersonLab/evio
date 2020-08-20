@@ -487,7 +487,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @param dst      destination buffer from position.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     * @throws EvioException if maxSize &lt; max # of compressed bytes or compression failed.
      */
     int Compressor::compressLZ4(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
 
@@ -518,7 +518,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @param dstOff   start offset in dst.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     * @throws EvioException if maxSize &lt; max # of compressed bytes or compression failed.
      */
     int Compressor::compressLZ4(uint8_t *src, int srcOff, int srcSize,
                                 uint8_t *dst, int dstOff, int maxSize) {
@@ -549,7 +549,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @param dstOff   start offset in dst regardless of position.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     * @throws EvioException if maxSize &lt; max # of compressed bytes or compression failed.
      */
     int Compressor::compressLZ4(ByteBuffer & src, int srcOff, int srcSize,
                                 ByteBuffer & dst, int dstOff, int maxSize) {
@@ -584,7 +584,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @param dst      destination buffer starting at position.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     * @throws EvioException if maxSize &lt; max # of compressed bytes or compression failed.
      */
     int Compressor::compressLZ4Best(ByteBuffer & src, int srcSize, ByteBuffer & dst, int maxSize) {
 
@@ -615,7 +615,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @param dstOff   start offset in dst.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     * @throws EvioException if maxSize &lt; max # of compressed bytes or compression failed.
      */
     int Compressor::compressLZ4Best(uint8_t *src, int srcOff, int srcSize,
                                     uint8_t *dst, int dstOff, int maxSize) {
@@ -645,7 +645,7 @@ uint8_t* Compressor::uncompressGZIP(ByteBuffer & gzipped, uint32_t * uncompLen) 
      * @param dstOff   start offset in dst.
      * @param maxSize  maximum number of bytes to write in dst.
      * @return length of compressed data in bytes.
-     * @throws EvioException if maxSize < max # of compressed bytes or compression failed.
+     * @throws EvioException if maxSize &lt; max # of compressed bytes or compression failed.
      */
     int Compressor::compressLZ4Best(ByteBuffer & src, int srcOff, int srcSize,
                                     ByteBuffer & dst, int dstOff, int maxSize) {
