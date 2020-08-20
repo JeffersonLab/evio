@@ -746,6 +746,7 @@ namespace evio {
      *
      * @see     #getSharedAncestor
      * @see     #getRoot
+     * @param   aNode  structure to test if it's in the same tree as this one.
      * @return  true if <code>aNode</code> is in the same tree as this node;
      *          false if <code>aNode</code> is null
      */
@@ -961,6 +962,7 @@ namespace evio {
      * <code>aNode</code> is null, this method returns false.
      * Originally part of java's DefaultMutableTreeNode.
      *
+     * @param   aNode  structure to test if it's a child of this one.
      * @return  true if <code>aNode</code> is a child of this node; false if
      *                  <code>aNode</code> is null.
      */
@@ -1024,8 +1026,9 @@ namespace evio {
      * traverse the entire vector of children, use an iterator instead.
      * Originally part of java's DefaultMutableTreeNode.
      *
-     * @see      #children
-     * @throws   EvioException if <code>aChild</code> is null or
+     * @see     #children
+     * @param   aChild  child of this node which immediately precedes the returned child structure.
+     * @throws  EvioException if <code>aChild</code> is null or
      *                                    is not a child of this node.
      * @return  the child of this node that immediately follows
      *          <code>aChild</code>.
@@ -1056,8 +1059,9 @@ namespace evio {
      * <code>aChild</code> is the first child, returns null.  This method
      * performs a linear search of this node's children for <code>aChild</code>
      * and is O(n) where n is the number of children.
-     *  Originally part of java's DefaultMutableTreeNode.
+     * Originally part of java's DefaultMutableTreeNode.
      *
+     * @param   aChild  child of this node which comes immediately after the returned child structure.
      * @throws  EvioException if <code>aChild</code> is null or
      *                        is not a child of this node.
      * @return  the child of this node that immediately precedes <code>aChild</code>.
@@ -2674,13 +2678,15 @@ namespace evio {
     *
     * @param dest destination ByteBuffer to contain evio format data
     *             of this bank in currently set byte order.
+    * @return the number of bytes written.
     */
     size_t BaseStructure::writeQuick(ByteBuffer & dest) {
         header->write(dest);
         dest.put(rawBytes.data(), rawBytes.size());
         dest.order(getByteOrder());
-        return 0;
+       return rawBytes.size() + 4*header->getHeaderLength();
     }
+
 
     /**
      * Write myself out as evio format data
@@ -2692,7 +2698,7 @@ namespace evio {
      * to this structure, this method does NOT produce correct results.</b>
      *
      * @param dest pointer at which to write evio format data of this bank in currently set byte order.
-     * @return byte array containing evio format data of this bank in currently set byte order.
+     * @return the number of bytes written.
      */
     size_t BaseStructure::writeQuick(uint8_t *dest) {
          // write the header
