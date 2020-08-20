@@ -478,6 +478,7 @@ namespace evio {
     /**
      * Set the file number which is the split number starting at 1.
      * @param num  file number starting at 1.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setFileNumber(uint32_t num) {fileNumber = num; return *this;}
 
@@ -485,6 +486,7 @@ namespace evio {
     /**
      * Set the first user register.
      * @param val  first user register.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setUserRegister(uint64_t val) {userRegister = val; return *this;}
 
@@ -492,6 +494,7 @@ namespace evio {
     /**
      * Set the first user integer.
      * @param val  first user integer.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setUserIntFirst(uint32_t val) {userIntFirst = val; return *this;}
 
@@ -499,6 +502,7 @@ namespace evio {
     /**
      * Set the second user integer.
      * @param val  second user integer.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setUserIntSecond(uint32_t val) {userIntSecond = val; return *this;}
 
@@ -506,7 +510,7 @@ namespace evio {
     /**
      * Set this header's type. Normally done in constructor. Limited access.
      * @param type type of header.
-     * @return this object.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setHeaderType(HeaderType & type) {headerType = type; return *this;}
 
@@ -514,7 +518,7 @@ namespace evio {
     /**
      * Set the position of this record in a file.
      * @param pos position of this record in a file.
-     * @return this object.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setPosition(size_t pos) {position = pos; return *this;}
 
@@ -524,7 +528,7 @@ namespace evio {
      * Length is forced to be a multiple of 4!
      * Sets the total length too.
      * @param length  length of index array in bytes.
-     * @return this object.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setIndexLength(uint32_t length) {
         indexLength = (length/4)*4;
@@ -537,7 +541,7 @@ namespace evio {
      * Set the number of record entries.
      * No compression for other values.
      * @param n number of record entries.
-     * @return this object.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setEntries(uint32_t n) {entries = n; return *this;}
 
@@ -546,7 +550,7 @@ namespace evio {
      * Set the user-defined header's length in bytes & words and the padding.
      * Sets the total length too.
      * @param length  user-defined header's length in bytes.
-     * @return this object.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setUserHeaderLength(uint32_t length) {
         userHeaderLength = length;
@@ -574,7 +578,7 @@ namespace evio {
      * If length is not a multiple of 4, you're on your own!
      * Sets the total length too.
      * @param length  this header's length in bytes.
-     * @return this object.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setHeaderLength(uint32_t length) {
         headerLength = length;
@@ -588,8 +592,8 @@ namespace evio {
      * Set the total length in bytes, header + index + user header.
      * This includes padding and is on a 4-byte boundary.
      * Never compressed.
-     * @return this object.
      * @param length  total length in bytes, header + index + user header.
+     * @return a reference to this object.
      */
     FileHeader & FileHeader::setLength(uint32_t length) {
         totalLength = length;

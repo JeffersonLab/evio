@@ -225,7 +225,10 @@ namespace evio {
     void EvioReaderV6::rewind() {}
 
 
-    /** This method is not relevant in evio 6, does nothing, and returns 0. */
+    /**
+     * This method is not relevant in evio 6, does nothing, and returns 0.
+     * @return 0
+     */
     ssize_t EvioReaderV6::position() {return 0UL;}
 
 

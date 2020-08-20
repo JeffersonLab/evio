@@ -116,10 +116,10 @@ namespace evio {
         //-------------------------------
 
         /** Node of event containing this node. Is null if this is an event node. */
-        std::shared_ptr<EvioNode> eventNode;
+        std::shared_ptr<EvioNode> eventNode = nullptr;
 
         /** Node containing this node. Is null if this is an event node. */
-        std::shared_ptr<EvioNode> parentNode;
+        std::shared_ptr<EvioNode> parentNode = nullptr;
 
         //-------------------------------
         // For testing

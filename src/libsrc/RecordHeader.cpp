@@ -1697,6 +1697,7 @@ namespace evio {
      * Run this class as an executable which tests the writing and reading of a record.
      * @param argc argument count
      * @param argv argument list
+     * @return 0.
      */
     int RecordHeader::main(int argc, char **argv) {
 

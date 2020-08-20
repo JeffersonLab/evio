@@ -213,6 +213,11 @@ namespace evio {
         return hasRecordChanged;
     }
 
+
+    /**
+     * Get a string representation of this object.
+     * @return a string representation of this object.
+     */
     std::string FileEventIndex::toString() {
 
         std::stringstream ss;

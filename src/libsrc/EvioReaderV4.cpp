@@ -430,6 +430,7 @@ namespace evio {
      * do <b>not</b> need to be examined in subsequent block headers. Called only by
      * synchronized methods or constructors.
      *
+     * @param headerBuf buffer containing data to parse.
      * @throws EvioException if buffer too small, contains invalid data,
      *                       or bad block # sequence
      */

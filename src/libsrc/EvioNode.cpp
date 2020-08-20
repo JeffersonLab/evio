@@ -25,14 +25,20 @@ namespace evio {
     }
 
 
-    /** Constructor used when swapping data. */
-    EvioNode::EvioNode(std::shared_ptr<EvioNode> & firstNode) : EvioNode() {
-        scanned = true;
-        eventNode = firstNode;
+    /**
+     * Constructor used when swapping data.
+     * @param containingEvent event containing this node.
+     */
+    EvioNode::EvioNode(std::shared_ptr<EvioNode> & containingEvent) : EvioNode() {
+        scanned   = true;
+        eventNode = containingEvent;
     }
 
 
-    /** Constructor when fancy features not needed but has id numbers for debugging. */
+    /**
+     * Constructor when fancy features not needed but has id numbers for debugging.
+     * @param id id number for debugging.
+     */
     EvioNode::EvioNode(int id) : EvioNode() {
         poolId = id;
     }
@@ -215,6 +221,7 @@ namespace evio {
      * Useful, for example, when the contents of one buffer is copied into another.
      *
      * @param deltaPos number of bytes to add to existing positions.
+     * @return reference to this object.
      */
     EvioNode & EvioNode::shift(int deltaPos) {
         pos       += deltaPos;
@@ -229,6 +236,10 @@ namespace evio {
     }
 
 
+    /**
+     * Get a string representation of this object.
+     * @return a string representation of this object.
+     */
     std::string EvioNode::toString() {
         std::stringstream ss;
 
