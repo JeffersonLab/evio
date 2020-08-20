@@ -64,6 +64,7 @@ namespace evio {
     protected:
 
         bool notificationActive = true;
+        /** Mutex for thread safety. */
         std::recursive_mutex mtx;
 
     public:

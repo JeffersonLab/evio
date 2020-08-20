@@ -43,6 +43,10 @@ namespace evio {
 
     public:
 
+        /**
+         * Get an instance of this singleton class.
+         * @return an instance of this singleton class.
+         */
         static Compressor& getInstance() {
             static Compressor theCompressor;   // Instantiated when this function is called
             return theCompressor;
@@ -57,6 +61,7 @@ namespace evio {
 
     public:
 
+        /** Enum of supported data compression types. */
         enum CompressionType {
             UNCOMPRESSED = 0,
             LZ4,
@@ -70,7 +75,7 @@ namespace evio {
 
 #ifdef USE_GZIP
         static z_stream strmDeflate;
-    static z_stream strmInflate;
+        static z_stream strmInflate;
 #endif
 
         /** Number of bytes to read in a single call while doing gzip decompression. */

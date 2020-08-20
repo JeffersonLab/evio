@@ -24,8 +24,6 @@ namespace evio {
 
     /**
      * Class to facilitate use of Evio XML dictionary entry data as a key or value in a hash table.
-     * Objects can only be instantiated by classes in this package.
-     *
      * (8/17/15).
      * @author timmer.
      */
@@ -34,7 +32,11 @@ namespace evio {
         friend class EvioXMLDictionary;
         
     public:
-        
+
+        /**
+         * Type of dictionary entry. Is it just a tag? a tag and tag range but no num? or
+         * a tag & num with a possible tag range?
+         */
         enum EvioDictionaryEntryType {
             /** Valid tag & num, with or without a tagEnd. */
             TAG_NUM = 0,
@@ -246,9 +248,8 @@ namespace evio {
         }
 
 
-        /** {@inheritDoc} */
         bool operator==(const EvioDictionaryEntry &other) const {
-\
+
             if (&other == this) return true;
 
             // Objects equal each other if tag & num & tagEnd are the same
@@ -286,7 +287,10 @@ namespace evio {
         }
 
 
-        /** {@inheritDoc} */
+        /**
+         * Get a string representation of this object.
+         * @return a string representation of this object.
+         */
         std::string toString() const {
             std::stringstream ss;
 

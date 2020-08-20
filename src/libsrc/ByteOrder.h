@@ -145,6 +145,7 @@ namespace evio {
 
         /**
          * Is the argument the opposite of the local host's endian?
+         * @param order byte order to compare to local host's.
          * @return true if the argument is the opposite of the local host's endian.
          */
         static bool needToSwap(ByteOrder & order) {

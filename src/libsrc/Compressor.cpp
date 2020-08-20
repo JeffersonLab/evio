@@ -23,6 +23,7 @@ namespace evio {
 #endif
 
 
+    /** Constructor. */
     Compressor::Compressor() {
         setUpCompressionHardware();
         setUpZlib();

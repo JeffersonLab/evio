@@ -252,6 +252,7 @@ namespace evio {
     /**
      * Copy the given buffer into a new buffer which is accessed thru shared pointer.
      * @param srcBuf ByteBuffer to copy.
+     * @return new ByteBuffer.
      */
     std::shared_ptr<ByteBuffer> ByteBuffer::copyBuffer(const std::shared_ptr<const ByteBuffer> & srcBuf) {
 
@@ -277,6 +278,8 @@ namespace evio {
      * and the capacity may be less than the array's total size.
      * Although this method does not exist in the original Java ByteBuffer class,
      * in Java, all objects have their memory zeroed so this may be useful.
+     *
+     * @return reference to this ByteBuffer.
      */
     ByteBuffer & ByteBuffer::zero() {
         std::memset(buf.get() + off, 0, cap);
@@ -295,6 +298,8 @@ namespace evio {
     * The buffer's position is set to the number of bytes copied, rather than to zero,
     * so that an invocation of this method can be followed immediately by an invocation
     * of another relative put method.
+    *
+    * @return reference to this ByteBuffer.
     */
     ByteBuffer & ByteBuffer::compact() {
         size_t bytesRemaining = remaining();

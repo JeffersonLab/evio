@@ -90,27 +90,52 @@ namespace evio {
     */
     class CompositeData {
 
+
+        /** Structure for internal use only. */
+        typedef struct {
+            /** Index of ifmt[] element containing left parenthesis. */
+            int left;
+            /** How many times format in parenthesis must be repeated. */
+            int nrepeat;
+            /* Right parenthesis counter, or how many times format in parenthesis already repeated. */
+            int irepeat;
+        } LV;
+
+
     public:
 
         /** This class holds a single, primitive type data item. */
         union SingleMember {
 
+            /** Encapsulating class needs access. */
             friend class CompositeData;
 
         public:
 
             // Data being stored
+
+            /** Float value. */
             float     flt;
+            /** Double value. */
             double    dbl;
+            /** Unsigned long value. */
             uint64_t ul64;
+            /** Long value. */
             int64_t   l64;
+            /** Unsigned int value. */
             uint32_t ui32;
-            int32_t   i32; // used for N, Hollerit
+            /** Signed int value. Used for N, Hollerit. */
+            int32_t   i32;
+            /** Unsigned short value. */
             uint16_t us16;
-            int16_t   s16; // used for n
+            /** Signed int value. Used for n. */
+            int16_t   s16;
+            /** Unsigned byte value. */
             uint8_t   ub8;
-            int8_t     b8; // used for m
-            bool      str; // storing strings?
+            /** Signed byte value. Used for m. */
+            int8_t     b8;
+            /** Are we storing strings? */
+            bool      str;
         };
 
 
@@ -128,9 +153,9 @@ namespace evio {
 
         public:
 
-            /** For holding a primitive type. */
+            /** Place for holding a primitive type. */
             SingleMember item = {0};
-            /** For holding strings, NOT a primitive type. */
+            /** Place for holding strings, NOT a primitive type. */
             std::vector<std::string> strVec {};
 
 
@@ -145,16 +170,6 @@ namespace evio {
         };
 
 
-        typedef struct {
-            /** Index of ifmt[] element containing left parenthesis. */
-            int left;
-            /** How many times format in parenthesis must be repeated. */
-            int nrepeat;
-            /* Right parenthesis counter, or how many times format in parenthesis already repeated. */
-            int irepeat;
-        } LV;
-
-
     public:
 
 
@@ -166,6 +181,7 @@ namespace evio {
 
         private:
 
+            /** Encapsulating class needs access. */
             friend class CompositeData;
 
             /** Keep a running total of how many bytes the data take without padding.
@@ -321,7 +337,7 @@ namespace evio {
                 addBytesToData(1);
             }
 
-            //////////////////////////////////////
+            //-----------------------------------------------------
 
             /**
              * Add a signed 32 bit integer to the data.
@@ -375,7 +391,7 @@ namespace evio {
                 addBytesToData(4 * i.size());
             }
 
-            /////////////////////////////////////
+            //-----------------------------------------------------
 
             /**
              * Add a 16 bit short to the data.
@@ -429,7 +445,7 @@ namespace evio {
                 addBytesToData(2 * s.size());
             }
 
-            /////////////////////////////////////
+            //-----------------------------------------------------
 
             /**
              * Add a 64 bit long to the data.
@@ -483,7 +499,7 @@ namespace evio {
                 addBytesToData(8 * l.size());
             }
 
-            ////////////////////////////////////
+            //-----------------------------------------------------
 
             /**
              * Add an 8 bit byte (char) to the data.
@@ -538,7 +554,7 @@ namespace evio {
                 addBytesToData(b.size());
             }
 
-            ////////////////////////////////////
+            //-----------------------------------------------------
 
             /**
              * Add a 32 bit float to the data.
@@ -592,7 +608,7 @@ namespace evio {
                 addBytesToData(8 * d.size());
             }
 
-            ///////////////////////////////////////////////
+            //-----------------------------------------------------
 
             /**
              * Add a single string to the data.
@@ -721,6 +737,9 @@ namespace evio {
         static std::string stringsToFormat(std::vector<std::string> strings);
 
         static int compositeFormatToInt(const std::string & formatStr, std::vector<uint16_t> & ifmt);
+
+
+    public:
 
 
         uint32_t getPadding() const;

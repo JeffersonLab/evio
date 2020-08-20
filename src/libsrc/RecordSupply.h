@@ -79,17 +79,17 @@ namespace evio {
      *       write its data to a file or another buffer. There may be only 1
      *       such thread. This same user does a releaseWriter() when done with the record.
      *
-     *                       ||
-     *                       ||  writeBarrier
-     *           >           ||
-     *         /            _____
-     *    Write thread     /  |  \
-     *              --->  /1 _|_ 2\  <---- Compression Threads 1-M
-     *  ================ |__/   \__|               |
-     *                   |6 |   | 3|               V
-     *             ^     |__|___|__| ==========================
-     *             |      \ 5 | 4 /       compressBarrier
-     *         Producer->  \__|__/
+     *                         ||
+     *                         ||  writeBarrier
+     *           >             ||
+     *         /             ________
+     *    Write thread     /    |    \
+     *              --->  / 1 _ | _ 2 \  <---- Compression Threads 1-M
+     *  ================ | __ /   \ __ |               |
+     *                   |  6 |    | 3 |               V
+     *             ^     | __ | __ | __| ==========================
+     *             |      \   5 |   4 /       compressBarrier
+     *         Producer->  \ __ | __ /
      *
      *
      * </code></pre>

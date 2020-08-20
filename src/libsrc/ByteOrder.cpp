@@ -24,6 +24,7 @@ namespace evio {
     /**
      * Convenience method to return swapped float.
      * @param var float to swap
+     * @return swapped float.
      */
     float ByteOrder::byteSwap(float var) {
         char* varArray = reinterpret_cast<char*>(&var);
@@ -35,6 +36,7 @@ namespace evio {
     /**
      * Convenience method to return swapped double.
      * @param var double to swap
+     * @return swapped double.
      */
     double ByteOrder::byteSwap(double var) {
         char* varArray = reinterpret_cast<char*>(&var);
