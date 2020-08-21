@@ -217,7 +217,7 @@ Help('install -c          uninstall libs, headers, and binaries\n')
 ###############################
 
 if 'doc' in COMMAND_LINE_TARGETS:
-    coda.generateDocs(env, True, True, True, "java/org/jlab/coda/jevio")
+    coda.generateDocs(env, True, True)
 
 if 'undoc' in COMMAND_LINE_TARGETS:
     coda.removeDocs(env)
