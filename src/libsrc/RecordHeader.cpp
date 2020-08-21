@@ -1271,7 +1271,7 @@ namespace evio {
      */
     bool RecordHeader::isCompressed(ByteBuffer & buffer, size_t offset) {
 
-        if ((buffer.capacity() - offset) < 40) {
+        if ((buffer.limit() - offset) < 40) {
             throw EvioException("data underflow");
         }
 
@@ -1296,9 +1296,10 @@ namespace evio {
             }
         }
 
-        uint32_t compressionWord = buffer.getInt(36 + offset);
-        return (((compressionWord >> 28) & 0xf) == 0);
+        uint32_t compressionWord = buffer.getInt(COMPRESSION_TYPE_OFFSET + offset);
+        return (((compressionWord >> 28) & 0xf) != 0);
     }
+
 
     /**
      * Quickly check to see if this buffer contains compressed data or not.
