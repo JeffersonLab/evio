@@ -1087,7 +1087,7 @@ namespace evio {
         if (eventNode->scanned) {
 
             // copy & empty childNodes
-            auto pNode = new EvioNode(eventNode);
+            auto pNode = new EvioNode(eventNode, 0);
             auto newNode = std::shared_ptr<EvioNode>(pNode);
             newNode->childNodes.clear();
             newNode->data.clear();
