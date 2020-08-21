@@ -28,8 +28,10 @@ namespace evio {
     /**
      * Constructor used when swapping data.
      * @param containingEvent event containing this node.
+     * @param dummy this arg is only here to differentiate it from the other constructor
+     *              taking a shared pointer of EvioNode. Use any value.
      */
-    EvioNode::EvioNode(std::shared_ptr<EvioNode> & containingEvent) : EvioNode() {
+    EvioNode::EvioNode(std::shared_ptr<EvioNode> & containingEvent, int dummy) : EvioNode() {
         scanned   = true;
         eventNode = containingEvent;
     }
@@ -71,6 +73,8 @@ namespace evio {
             dataType = src.dataType;
             recordPos = src.recordPos;
             place = src.place;
+
+            buffer = src.buffer;
 
             izEvent = src.izEvent;
             obsolete = src.obsolete;
@@ -171,6 +175,8 @@ namespace evio {
             recordPos = src.recordPos;
             place = src.place;
 
+            buffer = src.buffer;
+
             izEvent  = src.izEvent;
             obsolete = src.obsolete;
             scanned  = src.scanned;
@@ -244,7 +250,7 @@ namespace evio {
         std::stringstream ss;
 
         ss << "tag = "          << tag;
-        ss << ", num = "        << num;
+        ss << ", num = "        << +num;
         ss << ", type = "       << getTypeObj().toString();
         ss << ", dataType = "   << getDataTypeObj().toString();
         ss << ", pos = "        << pos;
@@ -514,7 +520,7 @@ namespace evio {
         // of evio structure being scanned in bytes.
         size_t endingPos = position + 4*node->dataLen;
         // Buffer we're using
-        ByteBuffer* buffer = node->buffer.get();
+        auto buffer = node->buffer;
 
         uint32_t dt, dataType, dataLen, len, word;
 
@@ -526,7 +532,7 @@ namespace evio {
             while (position <= endingPos) {
 
                 // Copy node for setting stuff that's the same as the parent
-                auto kidNode = std::shared_ptr<EvioNode>(new EvioNode(node));
+                auto kidNode = std::make_shared<EvioNode>(node);
                 // Clear children & data
                 kidNode->childNodes.clear();
                 kidNode->data.clear();
@@ -577,7 +583,7 @@ namespace evio {
             endingPos -= 4;
             while (position <= endingPos) {
                 // Copy node for setting stuff that's the same as the parent
-                auto kidNode = std::shared_ptr<EvioNode>(new EvioNode(node));
+                auto kidNode = std::make_shared<EvioNode>(node);
                 // Clear children & data
                 kidNode->childNodes.clear();
                 kidNode->data.clear();
@@ -611,7 +617,7 @@ namespace evio {
                 position += 4*len;
             }
         }
-            // Only one type of structure left - tagsegment
+        // Only one type of structure left - tagsegment
         else {
 
             // Extract all the tag segments from this bank of tag segments.
@@ -619,7 +625,7 @@ namespace evio {
             endingPos -= 4;
             while (position <= endingPos) {
                 // Copy node for setting stuff that's the same as the parent
-                auto kidNode = std::shared_ptr<EvioNode>(new EvioNode(node));
+                auto kidNode = std::make_shared<EvioNode>(node);
                 // Clear children & data
                 kidNode->childNodes.clear();
                 kidNode->data.clear();

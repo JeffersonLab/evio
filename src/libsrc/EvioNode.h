@@ -84,7 +84,7 @@ namespace evio {
         bool obsolete = false;
 
         /** ByteBuffer that this node is associated with. */
-        std::shared_ptr<ByteBuffer> buffer;
+        std::shared_ptr<ByteBuffer> buffer = nullptr;
 
         /** List of child nodes ordered according to placement in buffer. */
         std::vector<std::shared_ptr<EvioNode>> childNodes;
@@ -144,7 +144,7 @@ namespace evio {
 
     protected:
 
-        explicit EvioNode(std::shared_ptr<EvioNode> & firstNode);
+        explicit EvioNode(std::shared_ptr<EvioNode> & firstNode, int dummy);
 
     public:
 
