@@ -323,25 +323,14 @@ def configureJNI(env):
 # Documentation
 ###################
 
-def generateDocs(env, doC=False, doCPP=False, doJava=False, javaDir=''):
+def generateDocs(env, doCPP=False, doJava=False):
     """Generate and install generated documentation (doxygen & javadoc)."""
 
-    if doC:
-        # Function that does the documentation creation
-        def docGeneratorC(target, source, env):
-            cmd = 'doxygen doc/doxygen/DoxyfileC'
-            pipe = Popen(cmd, shell=True, env={"TOPLEVEL": "./"}, stdout=PIPE).stdout
-            return
-            
-        # Doc files builders
-        docBuildC = Builder(action = docGeneratorC)
-        env.Append(BUILDERS = {'DocGenC' : docBuildC})
-        
-        # Generate documentation
-        env.Alias('doc', env.DocGenC(target = ['#/doc/doxygen/C/html/index.html'],
-              source = scanFiles("src/libsrc", accept=["*.[ch]"]) ))
-    
-    
+    # remove target files so documentation always gets rebuilt
+    rmcmd = 'rm -fr doc/javadoc doc/doxygen/CC'
+    output = os.popen(rmcmd).read()
+
+
     if doCPP:
         def docGeneratorCC(target, source, env):
             cmd = 'doxygen doc/doxygen/DoxyfileCC'
@@ -365,7 +354,7 @@ def generateDocs(env, doC=False, doCPP=False, doJava=False, javaDir=''):
         env.Append(BUILDERS = {'DocGenJava' : docBuildJava})
         
         env.Alias('doc', env.DocGenJava(target = ['#/doc/javadoc/index.html'],
-            source = scanFiles(javaDir, accept=["*.java"]) ))
+            source = scanFiles("java/org/jlab/coda", accept=["*.java"]) ))
     
     return 1
 
@@ -376,7 +365,7 @@ def removeDocs(env):
     """Remove all generated documentation (doxygen & javadoc)."""
 
     def docRemover(target, source, env):
-        cmd = 'rm -fr doc/javadoc doc/doxygen/C doc/doxygen/CC'
+        cmd = 'rm -fr doc/javadoc doc/doxygen/CC'
         output = os.popen(cmd).read()
         return
     
