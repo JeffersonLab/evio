@@ -68,7 +68,7 @@ namespace evio {
         // files for input & output
         std::string writeFileName1 = "./compactEvioBuild.ev";
         std::string writeFileName0 = "./compactEvioBuildOld.ev";
-        std::string writeFileName2 = ".s/rawEvioStructure.ev";
+        std::string writeFileName2 = "./rawEvioStructure.ev";
 
         ByteOrder order{ByteOrder::ENDIAN_LOCAL};
 
@@ -145,12 +145,19 @@ namespace evio {
             std::shared_ptr<EvioNode> node = nullptr;
 
             try {
+                std::cout << "searchBuffer: write previously created event (in buffer)" << std::endl;
+                std::cout << "            : buffer = \n" << buffer->toString() << std::endl;
+                auto writeBuf = std::make_shared<ByteBuffer>(20000);
+                EventWriter writer(writeBuf);
+                writer.writeEvent(buffer);
+                writer.close();
+                writeBuf = writer.getByteBuffer();
 
-                std::cout << "readBuffer: create compact reader" << std::endl;
-                EvioCompactReader reader(buffer);
+                std::cout << "searchBuffer: create compact reader to read newly created writeBuf" << std::endl;
+                EvioCompactReader reader(writeBuf);
 
                 // search event #1 for struct with tag, num
-                std::cout << "readBuffer: search event #!" << std::endl;
+                std::cout << "searchBuffer: search event #1" << std::endl;
                 reader.searchEvent(1, tag, num, returnList);
                 if (returnList.size() < 1) {
                     std::cout << "GOT NOTHING IN SEARCH for ev 1, tag = " << tag << ", num = " << num << std::endl;
@@ -191,7 +198,10 @@ namespace evio {
 
                         builder.closeAll();
 
-                        if (i == 0 && !writeFileName1.empty()) builder.toFile(writeFileName1);
+                        if (i == 0 && !writeFileName1.empty()) {
+                            std::cout << "insertEvioNode: write new event to file= " << writeFileName1 << std::endl;
+                            builder.toFile(writeFileName1);
+                        }
                     }
 
                     auto t2 = chrono::high_resolution_clock::now();
@@ -356,20 +366,22 @@ namespace evio {
 
                         if (i == 0 && !writeFileName1.empty()) {
                             builder.toFile(writeFileName1);
+                            // buffer is left in a readable state after above method
 
                             // Read event back out of file
                             EvioReader reader(writeFileName1);
-                            std::cout << "Try getting first event from file: j = " << j << ", i = " << i << std::endl;
+                            std::cout << "createCompactEvents: try getting first ev from file: j = " << j << ", i = " << i << std::endl;
                             auto ev = reader.parseEvent(1);
-                            std::cout << "Event:\n" << ev->treeToString("") << std::endl;
+                            std::cout << "createCompactEvents: event ->\n" << ev->treeToString("") << std::endl;
+                            // This sets the proper pos and lim in buffer
+                            auto bb = builder.getBuffer();
+                            std::cout << "createCompactEvents: buffer = \n" << bb->toString() << std::endl;
                         }
-
-
                     }
 
                     auto t2 = chrono::high_resolution_clock::now();
                     auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1);
-                    std::cout << "Time = " << duration.count() << " milliseconds" << std::endl;
+                    std::cout << "createCompactEvents: time = " << duration.count() << " milliseconds" << std::endl;
                 }
 
             }
@@ -558,19 +570,11 @@ namespace evio {
                         tsegStrings->updateStringData();
                         builder.addChild(bankTsegs, tsegStrings);
 
-
                         std::cout << "Event:\n" << event->treeToString("") << std::endl;
 
-                        // Take objects & write them into buffer
+                        // Take event & write it into buffer
                         event->write(*(buffer.get()));
-                        try {
-                            buffer->flip();
-                            if (i == 0 && !writeFileName2.empty()) Util::writeBytes(writeFileName2, *(buffer.get()));
-                        }
-                        catch (std::exception &e) {
-                            std::cout << e.what() << std::endl;
-                        }
-
+                        buffer->flip();
                     }
 
                     std::cout << "createObjectEvents: buffer -> \n" << buffer->toString() << std::endl;
@@ -584,7 +588,6 @@ namespace evio {
             catch (EvioException &e) {
                 std::cout << e.what() << std::endl;
             }
-
         }
 
 
@@ -697,9 +700,9 @@ namespace evio {
 
 int main(int argc, char **argv) {
     evio::CompactBuilderTest tester;
-    //tester.createCompactEvents(1,1);
+    tester.createCompactEvents(1,1);
     // This call will also write a file which can then be used in the readFileIntoBuffer call following
-    tester.createObjectEvents(1,1);
+    //tester.createObjectEvents(1,1);
     auto node = tester.searchBuffer(15, 15);
 
         //evio::EventBuilderTest();
