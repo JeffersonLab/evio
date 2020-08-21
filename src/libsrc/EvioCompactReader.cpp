@@ -63,7 +63,11 @@ namespace evio {
 
     /**
      * Constructor for reading a buffer with option of removing synchronization
-     * for much greater speed.
+     * for much greater speed. The proper buffer format, in evio version 6,
+     * is NOT the file format which contains a file header, but only the regular records.
+     * The proper format in earlier versions is the same for files as it is for buffers -
+     * with regular blocks.
+     *
      * @param bb the buffer that contains events.
      * @param sync if true use mutex to make threadsafe.
      * @see EventWriter
