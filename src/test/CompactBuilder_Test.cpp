@@ -156,16 +156,47 @@ namespace evio {
                 std::cout << "searchBuffer: create compact reader to read newly created writeBuf" << std::endl;
                 EvioCompactReader reader(writeBuf);
 
+//                std::shared_ptr<EvioNode> evNode = reader.getEvent(1);
+//                std::cout << "\nEv node = " << evNode->toString() << std::endl;
+//                std::cout << "   allNodes size = " << evNode->getAllNodes().size() << std::endl << std::endl;
+
+                std::shared_ptr<EvioNode> evScannedNode = reader.getScannedEvent(1);
+                std::cout << "\nEv scanned node = " << evScannedNode->toString() << std::endl;
+                std::cout << "   allNodes size = " << evScannedNode->getAllNodes().size() << std::endl << std::endl;
+
                 // search event #1 for struct with tag, num
                 std::cout << "searchBuffer: search event #1" << std::endl;
                 reader.searchEvent(1, tag, num, returnList);
                 if (returnList.size() < 1) {
-                    std::cout << "GOT NOTHING IN SEARCH for ev 1, tag = " << tag << ", num = " << num << std::endl;
+                    std::cout << "GOT NOTHING IN SEARCH for ev 1, tag = " << tag << ", num = " << +num << std::endl;
                     return nullptr;
                 }
                 else {
                     std::cout << "Found " << returnList.size() << " structs" << std::endl;
+                    for (auto node : returnList) {
+                        std::cout << "NODE: " << node->toString() << std::endl << std::endl;
+                    }
                 }
+
+                // Match only tags, not num
+                std::cout << "searchBuffer: create Regular reader to read newly created writeBuf" << std::endl;
+                EvioReader reader2(writeBuf);
+                auto event = reader2.parseEvent(1);
+                std::vector<std::shared_ptr<BaseStructure>> vec;
+                tag = 41;
+                std::cout << "searchBuffer: get matching struct for tag = " << tag << std::endl;
+                StructureFinder::getMatchingStructures(event, tag, vec);
+                if (vec.size() < 1) {
+                    std::cout << "GOT NOTHING IN SEARCH for ev 1, tag = " << tag << std::endl;
+                    return nullptr;
+                }
+                else {
+                    std::cout << "Using StructureFinder , found " << vec.size() << " structs" << std::endl;
+                    for (auto ev : vec) {
+                        std::cout << "Struct: " << ev->toString() << std::endl << std::endl;
+                    }
+                }
+
 
             }
             catch (EvioException &e) {
@@ -703,7 +734,7 @@ int main(int argc, char **argv) {
     tester.createCompactEvents(1,1);
     // This call will also write a file which can then be used in the readFileIntoBuffer call following
     //tester.createObjectEvents(1,1);
-    auto node = tester.searchBuffer(15, 15);
+    auto node = tester.searchBuffer(3, 3);
 
         //evio::EventBuilderTest();
     return 0;
