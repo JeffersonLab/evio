@@ -1329,6 +1329,8 @@ namespace evio {
 //             ", pos = " << position << ", place = " << (eventCount + i) << std::endl;
                 node = EvioNode::extractEventNode(buffer, recPosition,
                                                   position, eventCount + i);
+//std::cout << "\n      scanUncompressedBuffer: extracted node : " << node->toString() << std::endl;
+
 //std::cout << "      scanUncompressedBuffer: event " << i << " in record: pos = " << node->getPosition() <<
 //             ", dataPos = " << node->getDataPosition() << ", ev # = " << (eventCount + i + 1) << std::endl;
                 eventNodes.push_back(node);
