@@ -732,11 +732,10 @@ namespace evio {
 int main(int argc, char **argv) {
     evio::CompactBuilderTest tester;
     tester.createCompactEvents(1,1);
-    // This call will also write a file which can then be used in the readFileIntoBuffer call following
-    //tester.createObjectEvents(1,1);
     auto node = tester.searchBuffer(3, 3);
+    //tester.createObjectEvents(1,1);
 
-        //evio::EventBuilderTest();
+    //evio::EventBuilderTest();
     return 0;
 }
 
