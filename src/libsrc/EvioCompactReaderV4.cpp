@@ -605,7 +605,7 @@ namespace evio {
         vec.reserve(100);
 
         // Scan the node
-        auto list = scanStructure(eventNumber)->allNodes;
+        auto list = scanStructure(eventNumber)->getAllNodes();
 //std::cout << "searchEvent: ev# = " << eventNumber << ", list size = " << list.size() <<
 //" for tag/num = " << tag << "/" << num << std::endl;
 
@@ -713,7 +713,7 @@ namespace evio {
                 break;
             }
 
-            for (auto const & n : ev->allNodes) {
+            for (auto const & n : ev->getAllNodes()) {
                 // The first node in allNodes is the event node,
                 // so do not increment removeNodePlace now.
 
@@ -755,7 +755,7 @@ namespace evio {
 
             // All nodes need to use this new buffer
             for (auto const & ev : eventNodes) {
-                for (auto const & n : ev->allNodes) {
+                for (auto const & n : ev->getAllNodes()) {
                     n->setBuffer(byteBuffer);
                 }
             }
@@ -808,7 +808,7 @@ namespace evio {
 
         for (int i=0; i < eventCount; i++) {
             int level = 0;
-            nodeList = eventNodes[i]->allNodes;
+            nodeList = eventNodes[i]->getAllNodes();
 
             for (std::shared_ptr<EvioNode> const & n : nodeList) {
                 // For events that come after, move all contained nodes
@@ -995,7 +995,7 @@ namespace evio {
         uint32_t place = eventNode->place;
 
         for (int i=0; i < eventCount; i++) {
-            for (auto const & n : eventNodes[i]->allNodes) {
+            for (auto const & n : eventNodes[i]->getAllNodes()) {
                 // Make sure nodes are using the new buffer
                 n->setBuffer(newBuffer);
 
