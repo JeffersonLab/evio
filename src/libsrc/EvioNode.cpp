@@ -14,14 +14,15 @@
 namespace evio {
 
 
+    // Initialize for debugging
+    uint32_t EvioNode::staticId = 0;
+
+
     /** Constructor when fancy features not needed. */
     EvioNode::EvioNode() {
-        data.clear();
-        eventNode  = nullptr;
-        parentNode = nullptr;
-
-        // Put this node in list of all nodes (evio banks, segs, or tagsegs) contained in this event
-        allNodes.push_back(std::make_shared<EvioNode>(*this));
+        // Used for debugging obly
+        // id = staticId++;
+        // std::cout << "creating node with id = " << id << "\n";
     }
 
 
@@ -37,24 +38,17 @@ namespace evio {
     }
 
 
-    /**
-     * Constructor when fancy features not needed but has id numbers for debugging.
-     * @param id id number for debugging.
-     */
-    EvioNode::EvioNode(int id) : EvioNode() {
-        poolId = id;
-    }
-
-
     /** Copy constructor. */
     EvioNode::EvioNode(const EvioNode & src) {
         copy(src);
+        //id = staticId++;
     }
 
 
     /** Copy constructor. */
     EvioNode::EvioNode(const std::shared_ptr<EvioNode> & src) {
         copy(*(src.get()));
+        //id = staticId++;
     }
 
 
@@ -291,7 +285,7 @@ namespace evio {
         allNodes.clear();
         // Remember to add event's node into list
         if (eventNode == nullptr) {
-            allNodes.push_back(std::make_shared<EvioNode>(*this));
+            allNodes.push_back(getThis());
         }
         else {
             allNodes.push_back(eventNode);
@@ -353,7 +347,7 @@ namespace evio {
         place      = plc;
         izEvent    = true;
         type       = DataType::BANK.getValue();
-        allNodes.push_back(std::make_shared<EvioNode>(*this));
+        allNodes.push_back(getThis());
     }
 
 
@@ -373,7 +367,7 @@ namespace evio {
         place      = plc;
         izEvent    = true;
         type       = DataType::BANK.getValue();
-        allNodes.push_back(std::make_shared<EvioNode>(*this));
+        allNodes.push_back(getThis());
     }
 
 
@@ -670,13 +664,9 @@ namespace evio {
      * @param node child node to add to the list of all nodes
      */
     void EvioNode::addToAllNodes(std::shared_ptr<EvioNode> & node) {
-
-        allNodes.push_back(node);
-        // NOTE: do not have to do this recursively for all descendants.
-        // That's because when events are scanned and EvioNode objects are created,
-        // they are done so by using clone(). This means that all descendants have
-        // references to the event level node's allNodes object and not their own
-        // complete copy.
+        auto & allNodeVector = getAllNodes();
+        allNodeVector.push_back(node);
+        //allNodes.push_back(node);
     }
 
 
@@ -717,8 +707,17 @@ namespace evio {
             return;
         }
 
+        // Make sure we have each member of the tree setting the proper top level event
+        if (eventNode == nullptr) {
+            // If this IS the top level event ...
+            node->eventNode = getThis();
+        }
+        else {
+            node->eventNode = eventNode;
+        }
+
         childNodes.push_back(node);
-        allNodes.push_back(node);
+        addToAllNodes(node);
     }
 
 
@@ -780,9 +779,16 @@ namespace evio {
      * always including itself. This is meaningful only if this
      * node has been scanned, otherwise it contains only itself.
      *
-     * @return list of all nodes that this node contains; null if not top-level node
+     * @return list of all nodes that this node contains.
      */
-    std::vector<std::shared_ptr<EvioNode>> & EvioNode::getAllNodes() {return allNodes;}
+    std::vector<std::shared_ptr<EvioNode>> & EvioNode::getAllNodes() {
+        if (eventNode == nullptr) {
+//std::cout << "\ngetAllNodes: WARNING: get node #" << id << " vector\n\n";
+            return allNodes;
+        }
+//std::cout << "getAllNodes: get EVENT node #" << eventNode->id << " vector\n";
+        return eventNode->allNodes;
+    }
 
 
     /**

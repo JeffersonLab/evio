@@ -38,7 +38,7 @@ namespace evio {
      * @author timmer
      * @date 07/22/2019
      */
-    class EvioNode {
+    class EvioNode : public std::enable_shared_from_this<EvioNode> {
 
         friend class Util;
         friend class EventHeaderParser;
@@ -89,6 +89,9 @@ namespace evio {
         /** List of child nodes ordered according to placement in buffer. */
         std::vector<std::shared_ptr<EvioNode>> childNodes;
 
+        /** Record containing this node. */
+        RecordNode recordNode;
+
         //-------------------------------
         // For event-level node
         //-------------------------------
@@ -105,10 +108,17 @@ namespace evio {
          */
         bool scanned = false;
 
-        /** List of all nodes in the event including the top-level object
-         *  ordered according to placement in buffer.
-         *  Only created at the top-level (with constructor).
-         *  All nodes have a reference to the top-level allNodes object. */
+        /**
+         * Vector of all nodes in the event including the top-level object
+         * ordered according to placement in buffer.
+         * <p><b>
+         * Only the top-level event's member is used.
+         * Only access this member thru {@link #getAllNodes} since that enforces
+         * using only the top-level's allNodes member.
+         * All nodes reference the top-level allNodes thru the {@link #eventNode} member
+         * which is a pointer to the top-level node.
+         * </b></p>
+         */
         std::vector<std::shared_ptr<EvioNode>> allNodes;
 
         //-------------------------------
@@ -121,16 +131,18 @@ namespace evio {
         /** Node containing this node. Is null if this is an event node. */
         std::shared_ptr<EvioNode> parentNode = nullptr;
 
-        //-------------------------------
-        // For testing
-        //-------------------------------
-        /** If in pool, the pool's id. */
-        int poolId = -1;
+    public:
 
-    private:
+        //-------------------------------
+        // For testing/debugging
+        //-------------------------------
 
-        /** Record containing this node. */
-        RecordNode recordNode;
+        /** Local id for testing. */
+        uint32_t id;
+
+        /** Static id for testing. */
+        static uint32_t staticId;
+
 
     private:
 
@@ -145,12 +157,12 @@ namespace evio {
     protected:
 
         explicit EvioNode(std::shared_ptr<EvioNode> & firstNode, int dummy);
+        std::shared_ptr<EvioNode> getThis() {return shared_from_this();}
 
     public:
 
         EvioNode();
         EvioNode(const EvioNode & firstNode);
-        explicit EvioNode(int id);
         explicit EvioNode(const std::shared_ptr<EvioNode> & src);
         EvioNode(EvioNode && src) noexcept;
         EvioNode(size_t pos, uint32_t place, std::shared_ptr<ByteBuffer> & buffer, RecordNode & blockNode);
