@@ -125,7 +125,8 @@ namespace evio {
     /** {@inheritDoc} */
     std::shared_ptr<EvioNode> EvioCompactReaderV6::getEvent(size_t eventNumber) {
         try {
-            return reader.getEventNode(eventNumber);
+            // the Reader class has event #s starting at 0, not 1.
+            return reader.getEventNode(eventNumber-1);
         }
         catch (std::out_of_range & e) { }
         return nullptr;
@@ -199,14 +200,14 @@ namespace evio {
             return;
         }
 
-        auto list = node->allNodes;
+        auto list = node->getAllNodes();
 //std::cout << "searchEvent: ev# = " << eventNumber << ", list size = " << list.size() <<
-//             " for tag/num = " << tag << "/" << num << std::endl;
+//             " for tag/num = " << tag << "/" << +num << std::endl;
 
         // Now look for matches in this event
         for (auto & enode: list) {
 //std::cout << "searchEvent: desired tag = " << tag << " found " << enode->tag << std::endl;
-//std::cout << "           : desired num = " << num << " found " << enode->num << std::endl;
+//std::cout << "           : desired num = " << +num << " found " << +(enode->num) << std::endl;
             if (enode->tag == tag && enode->num == num) {
 //std::cout << "           : found node at pos = " << enode->pos << " len = " << enode->len << std::endl;
                 vec.push_back(enode);
