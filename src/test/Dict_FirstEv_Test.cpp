@@ -309,16 +309,22 @@ namespace evio {
 
                 if (!writeFileName1.empty()) {
                     EventWriter writer(writeFileName1, dictionary, ByteOrder::ENDIAN_LOCAL, false);
-                    writer.writeEvent(buffer);
+                    writer.setFirstEvent(buffer);
+                        writer.writeEvent(buffer);
                     writer.close();
 
                     // Read event back out of file
                     EvioReader reader(writeFileName1);
+
                     std::cout << "createCompactEvents: have dictionary? " << reader.hasDictionaryXML() << std::endl;
                     std::string xmlDict = reader.getDictionaryXML();
-
                     std::cout << "createCompactEvents: read dictionary ->\n\n" << xmlDict << std::endl << std::endl;
-                    std::cout << "createCompactEvents: try getting first ev from file" << std::endl;
+
+                    std::cout << "createCompactEvents: have first event? " << reader.hasFirstEvent() << std::endl;
+                    auto fe = reader.getFirstEvent();
+                    std::cout << "createCompactEvents: read first event ->\n\n" << fe->toString() << std::endl << std::endl;
+
+                    std::cout << "createCompactEvents: try getting ev from file" << std::endl;
                     auto ev = reader.parseEvent(1);
                     std::cout << "createCompactEvents: event ->\n" << ev->treeToString("") << std::endl;
                     // This sets the proper pos and lim in buffer
