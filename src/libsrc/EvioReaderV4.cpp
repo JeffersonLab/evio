@@ -404,6 +404,24 @@ namespace evio {
 
 
     /** {@inheritDoc} */
+    std::shared_ptr<EvioEvent> EvioReaderV4::getFirstEvent() {
+        if (hasFirstEvent()) {
+            return getEvent(1);
+        }
+        return nullptr;
+    }
+
+
+    /** {@inheritDoc} */
+    bool EvioReaderV4::hasFirstEvent() {
+        if (evioVersion < 4) {
+            firstBlockHeader2->hasFirstEvent();
+        }
+        return firstBlockHeader4->hasFirstEvent();
+    }
+
+
+    /** {@inheritDoc} */
     size_t EvioReaderV4::getNumEventsRemaining() {return getEventCount() - eventNumber;}
 
 

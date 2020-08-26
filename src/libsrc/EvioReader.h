@@ -86,8 +86,12 @@ namespace evio {
         std::string getPath() override;
         std::shared_ptr<EventParser> & getParser() override;
         void setParser(std::shared_ptr<EventParser> & evParser) override;
+
         std::string getDictionaryXML() override;
         bool hasDictionaryXML() override;
+        std::shared_ptr<EvioEvent> getFirstEvent() override;
+        bool hasFirstEvent() override;
+
         size_t getNumEventsRemaining() override;
         std::shared_ptr<ByteBuffer> getByteBuffer() override;
         size_t fileSize() override;

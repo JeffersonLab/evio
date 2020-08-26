@@ -146,6 +146,12 @@ namespace evio {
     bool EvioReader::hasDictionaryXML() {return reader->hasDictionaryXML();}
 
     /** {@inheritDoc} */
+    std::shared_ptr<EvioEvent> EvioReader::getFirstEvent() {return reader->getFirstEvent();}
+
+    /** {@inheritDoc} */
+    bool EvioReader::hasFirstEvent() {return reader->hasFirstEvent();}
+
+    /** {@inheritDoc} */
     size_t EvioReader::getNumEventsRemaining() {return reader->getNumEventsRemaining();}
 
     /** {@inheritDoc} */

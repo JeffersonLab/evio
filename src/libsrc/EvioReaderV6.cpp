@@ -102,9 +102,31 @@ namespace evio {
     /** {@inheritDoc} */
     std::string EvioReaderV6::getDictionaryXML() {return reader->getDictionary();}
 
-
     /** {@inheritDoc} */
     bool EvioReaderV6::hasDictionaryXML() {return reader->hasDictionary();}
+
+    /** {@inheritDoc} */
+    std::shared_ptr<EvioEvent> EvioReaderV6::getFirstEvent() {
+        if (synchronized) {
+            const std::lock_guard<std::mutex> lock(mtx);
+        }
+
+        std::shared_ptr<uint8_t> & feBuf = reader->getFirstEvent();
+        uint32_t len = reader->getFirstEventSize();
+
+        // Turn this buffer into an EvioEvent object
+
+        std::vector<uint8_t> vec;
+        vec.reserve(len);
+
+        // copy data into provided vector ...
+        std::memcpy(vec.data(), feBuf.get(), len);
+
+        return EvioReader::parseEvent(vec.data(), len, reader->getByteOrder());
+    }
+
+    /** {@inheritDoc} */
+    bool EvioReaderV6::hasFirstEvent() {return reader->hasFirstEvent();}
 
 
     /** {@inheritDoc} */

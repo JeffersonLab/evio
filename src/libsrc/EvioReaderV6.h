@@ -88,6 +88,8 @@ namespace evio {
 
         std::string getDictionaryXML() override ;
         bool hasDictionaryXML() override ;
+        std::shared_ptr<EvioEvent> getFirstEvent() override;
+        bool hasFirstEvent() override;
 
         size_t getNumEventsRemaining() override ;
         std::shared_ptr<ByteBuffer> getByteBuffer() override ;
