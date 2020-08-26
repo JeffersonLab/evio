@@ -82,6 +82,23 @@ public interface IEvioReader {
     boolean hasDictionaryXML();
 
     /**
+     * Get the "first" event if there is one.
+     * It's also called the Beginning-Of-Run event.
+     * This event is defined once but included in each of the related split files written out.
+     * @return the first event if it existed, else null.
+     */
+    EvioEvent getFirstEvent();
+
+    /**
+     * Does this evio file have an associated first event?
+     * It's also called the Beginning-Of-Run event.
+     * This event is defined once but included in each of the related split files written out.
+     * @return <code>true</code> if this evio file has an associated first event,
+     *         else <code>false</code>
+     */
+     boolean hasFirstEvent();
+
+    /**
      * Get the number of events remaining in the file.
      * Useful only if doing a sequential read.
      *

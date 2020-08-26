@@ -228,6 +228,22 @@ public class EvioReaderUnsyncV6 implements IEvioReader {
     @Override
     public boolean hasDictionaryXML() {return reader.hasDictionary();}
 
+    /** {@inheritDoc} */
+    @Override
+    public EvioEvent getFirstEvent() {
+        try {
+            byte[] rawBytes = reader.getFirstEvent();
+            return EvioReader.getEvent(rawBytes, 0, reader.getByteOrder());
+        }
+        catch (EvioException e) {}
+
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean hasFirstEvent() {return reader.hasFirstEvent();}
+
     /**
      * Get the number of events remaining in the file.
      * Useful only if doing a sequential read.

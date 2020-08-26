@@ -661,6 +661,23 @@ public class EvioReaderV4 implements IEvioReader {
         return dictionaryXML != null;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public EvioEvent getFirstEvent() {
+        try {
+            if (hasFirstEvent()) {
+                return parseEvent(1);
+            }
+        }
+        catch (Exception e) {}
+
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean hasFirstEvent() {return firstBlockHeader.hasFirstEvent();}
+
     /**
      * Get the number of events remaining in the file.
      *

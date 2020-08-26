@@ -339,6 +339,12 @@ public class EvioReader implements IEvioReader {
     public boolean hasDictionaryXML() {return reader.hasDictionaryXML();}
 
     /** {@inheritDoc} */
+    public EvioEvent getFirstEvent() {return reader.getFirstEvent();}
+
+    /** {@inheritDoc} */
+    public boolean hasFirstEvent() {return reader.hasFirstEvent();}
+
+    /** {@inheritDoc} */
     public int getNumEventsRemaining() throws IOException, EvioException {
         return reader.getNumEventsRemaining();
     }
