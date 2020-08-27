@@ -2614,9 +2614,11 @@ namespace evio {
     void BaseStructure::setLengthsUpToDate(bool lenUpToDate) {
         lengthsUpToDate = lenUpToDate;
 
-        // propagate back up the tree if lengths have been changed
         if (!lenUpToDate) {
-            if (parent != nullptr) parent->setLengthsUpToDate(false);
+            // propagate back up the tree if lengths have been changed
+            if (parent != nullptr) {
+                parent->setLengthsUpToDate(false);
+            }
         }
     }
 
@@ -2631,7 +2633,7 @@ namespace evio {
     uint32_t BaseStructure::setAllHeaderLengths() {
         // if length info is current, don't bother to recalculate it
         if (lengthsUpToDate) {
-            return header->getLength();
+                return header->getLength();
         }
 
         uint32_t datalen, len;
@@ -2639,28 +2641,35 @@ namespace evio {
         if (isLeaf()) {
             // # of 32 bit ints for leaves, 0 for empty containers (also considered leaves)
             datalen = dataLength();
+//std::cout << "    setAllHeaderLengths: is leaf, len = " << datalen << "\n";
         }
         else {
             datalen = 0;
 
             for (auto const & child : children) {
                 len = child->setAllHeaderLengths();
+//std::cout << "  setAllHeaderLengths: child len = " << len << "\n";
                 // Add this check to make sure structure is not being overfilled
-                if (std::numeric_limits<uint32_t>::max() - datalen < len) {
+                if (std::numeric_limits<uint32_t>::max() - datalen < len + 1) {
                     throw EvioException("added data overflowed containing structure");
                 }
                 datalen += len + 1;  // + 1 for the header length word of each child
             }
+//std::cout << "  setAllHeaderLengths: total data len = " << datalen << "\n";
         }
 
         len = header->getHeaderLength() - 1;  // - 1 for length header word
-        if (std::numeric_limits<uint32_t>::max() - datalen < len) {
+        if (std::numeric_limits<uint32_t>::max() - datalen < len + 1) {
             throw EvioException("added data overflowed containing structure");
         }
 
         datalen += len;
 
         // set the datalen for the header
+
+//std::cout << "setAllHeaderLengths: set data type " << header->getDataTypeName() <<
+//        " to len = " << datalen << "\n";
+
         header->setLength(datalen);
         setLengthsUpToDate(true);
         return datalen;
@@ -3344,105 +3353,6 @@ namespace evio {
         setLengthsUpToDate(false);
         setAllHeaderLengths();
     }
-
-
-//    /**
-//     * Appends CompositeData objects to the structure. If the structure has no data, then this
-//     * is the same as setting the data.
-//     * @param data the CompositeData objects to append, or set if there is no existing data.
-//     * @throws EvioException if adding data to a structure of a different data type;
-//     *                       if data takes up too much memory to store in raw byte array (JVM limit)
-//     */
-//    void BaseStructure::updateCompositeDataNew(std::vector<std::shared_ptr<CompositeData>> & data) {
-//
-//            DataType dataType = header->getDataType();
-//            if (dataType != DataType::COMPOSITE) {
-//                throw EvioException("cannot update composite data when type = " + dataType.toString());
-//            }
-//
-//            if (data.empty()) {
-//                return;
-//            }
-//
-//            rawBytes.clear();
-//            compositeData   = data;
-//            numberDataItems = data.size();
-//
-//            // Copy existing rawBytes associated with each CompositeData object into our rawBytes vector.
-//            // If an individual CompasiteData object doesn't have one, generate it now and then add it in.
-//
-//            uint32_t offset = 0;
-//            size_t len;
-//            for (auto const & cd : data) {
-//                len = cd->getRawBytes().size();
-//                std::cout << "updateCompositeData: len = " << len << "\n";
-//
-//                // Smallest possible CD object is 5 words
-//                if (len < 20) {
-//                    // No valid raw byte representation of this object exists.
-//                    // Should never happen ...
-//                    throw EvioException("no raw byte representation of CD object exists");
-//                }
-//
-//                if (cd->getByteOrder() != byteOrder) {
-//                    cd->swap();
-//                }
-//                else {
-//                    std::memcpy(rawBytes.data() + offset, cd->rawBytes.data(), len);
-//                }
-//                offset += len;
-//            }
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//        // Decode the raw data we have
-//                    CompositeData[] cdArray = CompositeData::parse(rawBytes, byteOrder);
-//                    if (cdArray == null) {
-//                        compositeData   = data;
-//                        numberDataItems = data.length;
-//                    }
-//                    else {
-//                        // Allocate array to hold everything
-//                        int len1 = cdArray.length, len2 = data.length;
-//                        int totalLen = len1 + len2;
-//
-//                        if (Integer.MAX_VALUE - len1 < len2) {
-//                            throw EvioException("added data overflowed containing structure");
-//                        }
-//                        compositeData = new CompositeData[totalLen];
-//
-//                        // Fill with existing object first
-//                        System.arraycopy(cdArray, 0, compositeData, 0, len1);
-//                        //                    for (int i = 0; i < len1; i++) {
-//                        //                        compositeData[i] = cdArray[i];
-//                        //                    }
-//                        // Append new objects
-//                        System.arraycopy(data, 0, compositeData, len1, len2);
-//                        //                    for (int i = 0; i < len2; i++) {
-//                        //                        compositeData[i+len1] = data[i];
-//                        //                    }
-//                        numberDataItems = totalLen;
-//                    }
-//
-//
-//            rawBytes  = CompositeData::generateRawBytes(compositeData, byteOrder);
-//            //        int[] intA = ByteDataTransformer.getAsIntArray(rawBytes, ByteOrder.BIG_ENDIAN);
-//            //        for (int i : intA) {
-//            //            System.out.println("Ox" + Integer.toHexString(i));
-//            //        }
-//
-//            lengthsUpToDate(false);
-//            setAllHeaderLengths();
-//    }
-
-
 
 
 }
