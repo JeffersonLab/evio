@@ -120,6 +120,7 @@ namespace evio {
 
             parent->insert(child, parent->getChildCount());
             child->setParent(parent);
+            parent->setLengthsUpToDate(false);
             setAllHeaderLengths();
     }
 
@@ -130,20 +131,21 @@ namespace evio {
      * @throws EvioException if arg is null or its parent is null
      */
     void EventBuilder::remove(std::shared_ptr<BaseStructure> child) {
-            if (child == nullptr ) {
-                throw EvioException("Attempt to remove null child.");
-            }
+        if (child == nullptr ) {
+            throw EvioException("Attempt to remove null child.");
+        }
 
-            auto parent = child->getParent();
+        auto parent = child->getParent();
 
-            // the only orphan structure is the event itself, which cannot be removed.
-            if (parent == nullptr ) {
-                throw EvioException("Attempt to remove root node, i.e., the event. Don't remove an event. Just discard it.");
-            }
+        // the only orphan structure is the event itself, which cannot be removed.
+        if (parent == nullptr ) {
+            throw EvioException("Attempt to remove root node, i.e., the event. Don't remove an event. Just discard it.");
+        }
 
-            child->removeFromParent();
-            child->setParent(nullptr);
-            setAllHeaderLengths();
+        child->removeFromParent();
+        child->setParent(nullptr);
+        parent->setLengthsUpToDate(false);
+        setAllHeaderLengths();
     }
 
 
