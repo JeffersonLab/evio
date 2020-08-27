@@ -1019,7 +1019,7 @@ namespace evio {
      *                       if file exists but user requested no over-writing;
      *                       if no room when writing to user-given buffer;
      */
-    void EventWriter::setFirstEvent(std::shared_ptr<EvioBank> & bank) {
+    void EventWriter::setFirstEvent(std::shared_ptr<EvioBank> bank) {
 
         if (closed) {return;}
 
@@ -1059,7 +1059,7 @@ namespace evio {
 
         // Place dictionary & first event into a single record
         if (!xmlDict.empty()) {
-            //std::cout << "createCommonRecord: got dictionary, # chars = " << xmlDict.size() << std::endl;
+//std::cout << "createCommonRecord: got dictionary, # chars = " << xmlDict.size() << std::endl;
             // 56 is the minimum number of characters for a valid xml dictionary
             if (xmlDict.length() < 56) {
                 throw EvioException("Dictionary improper format, too few characters");
@@ -1070,8 +1070,8 @@ namespace evio {
 
             // Add to record which will be our file header's "user header"
             commonRecord->addEvent(dictionaryByteArray);
-            //std::cout << "createCommonRecord: turned dictionary into ascii & added to commonRecord, byte size = " <<
-            //                    dictionaryByteArray.size() << std::endl;
+//std::cout << "createCommonRecord: turned dictionary into ascii & added to commonRecord, byte size = " <<
+//             dictionaryByteArray.size() << std::endl;
         }
         else {
             dictionaryByteArray.clear();
@@ -1080,8 +1080,9 @@ namespace evio {
         // Convert first event into bytes
         haveFirstEvent = true;
         if (firstBank != nullptr) {
-            // TODO: FIX THIS !!!
-            // firstEventByteArray = Utilities.bankToBytes(firstBank, byteOrder);
+            firstEventByteArray.resize(firstBank->getTotalBytes());
+            firstBank->write(firstEventByteArray.data(), byteOrder);
+
             // Add to record which will be our file header's "user header"
             commonRecord->addEvent(firstEventByteArray);
         }
@@ -1099,7 +1100,7 @@ namespace evio {
 
         commonRecord->build();
         commonRecordBytesToBuffer = 4*commonRecord->getHeader()->getLengthWords();
-        //std::cout << "createCommonRecord: padded commonRecord size is " << commonRecordBytesToBuffer << " bytes" << std::endl;
+//std::cout << "createCommonRecord: padded commonRecord size is " << commonRecordBytesToBuffer << " bytes" << std::endl;
     }
 
 

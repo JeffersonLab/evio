@@ -982,7 +982,7 @@ namespace evio {
 
         void setFirstEvent(std::shared_ptr<EvioNode> & node);
         void setFirstEvent(std::shared_ptr<ByteBuffer> & buf);
-        void setFirstEvent(std::shared_ptr<EvioBank> & bank);
+        void setFirstEvent(std::shared_ptr<EvioBank> bank);
 
     private:
 
