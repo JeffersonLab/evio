@@ -399,6 +399,8 @@ namespace evio {
         newChild->setParent(getThis());
 
         children.insert(children.begin() + childIndex, newChild);
+
+        setLengthsUpToDate(false);
     }
 
 
@@ -426,6 +428,7 @@ namespace evio {
         }
 
         child->setParent(nullptr);
+        setLengthsUpToDate(false);
     }
 
 
@@ -3327,26 +3330,25 @@ namespace evio {
         }
 
         if (compositeData.empty()) {
-            std::cout << "updateCompositeData: ENPTY VECTOR!!!!!!!!!!!!!!!!\n";
             rawBytes.clear();
             numberDataItems = 0;
         }
         else {
-            std::cout << "updateCompositeData: do something\n";
+//std::cout << "updateCompositeData: do something\n";
             numberDataItems = compositeData.size();
             rawBytes.clear();
             // Get a rough idea of the size
             size_t sz = 0;
             for (auto const & cd : compositeData) {
                 size_t cdSz = cd->getRawBytes().size();
-                std::cout << "updateCompositeData: ADDing cd item of size = " << cdSz << "\n";
+//std::cout << "updateCompositeData: ADDing cd item of size = " << cdSz << "\n";
                 if (cdSz < 20) {
                     throw EvioException("adding CD object with NO raw bytes");
                 }
                 sz += cdSz;
             }
             rawBytes.reserve(sz);
-            std::cout << "   reserve raw bytes size of " << sz << ", now call generateRawBytes...\n";
+//std::cout << "   reserve raw bytes size of " << sz << ", now call generateRawBytes...\n";
             CompositeData::generateRawBytes(compositeData, rawBytes, byteOrder);
         }
 
