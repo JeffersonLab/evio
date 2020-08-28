@@ -120,7 +120,6 @@ namespace evio {
 
             parent->insert(child, parent->getChildCount());
             child->setParent(parent);
-            parent->setLengthsUpToDate(false);
             setAllHeaderLengths();
     }
 
@@ -144,7 +143,6 @@ namespace evio {
 
         child->removeFromParent();
         child->setParent(nullptr);
-        parent->setLengthsUpToDate(false);
         setAllHeaderLengths();
     }
 
