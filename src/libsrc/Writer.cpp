@@ -19,7 +19,7 @@ namespace evio {
      * <b>No</b> file is opened. Any file will have little endian byte order.
      */
     Writer::Writer() :
-            Writer(ByteOrder::ENDIAN_LITTLE, 0, 0) {
+            Writer(ByteOrder::ENDIAN_LOCAL, 0, 0) {
     }
 
 
@@ -113,6 +113,7 @@ namespace evio {
         }
         else {
             // Tell open() there is no dictionary/first event data
+            dictionaryFirstEventBuffer = std::make_shared<ByteBuffer>(1);
             dictionaryFirstEventBuffer->limit(0);
         }
     }
@@ -1031,8 +1032,8 @@ namespace evio {
      * @throws EvioException if cannot write to file or buf arg's byte order is wrong.
      */
     void Writer::addEvent(ByteBuffer & buf) {
-        if (buffer->order() != byteOrder) {
-            throw EvioException("buffer arg byte order is wrong");
+        if (buf.order() != byteOrder) {
+            throw EvioException("buf arg byte order is wrong");
         }
 
         bool status = outputRecord.addEvent(buf);

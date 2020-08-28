@@ -142,7 +142,7 @@ namespace evio {
                uint32_t maxBufferSize = 0);
 
         explicit Writer(const HeaderType & hType,
-                        const ByteOrder & order = ByteOrder::ENDIAN_LITTLE,
+                        const ByteOrder & order = ByteOrder::ENDIAN_LOCAL,
                         uint32_t maxEventCount = 0,
                         uint32_t maxBufferSize = 0,
                         const std::string & dictionary = std::string(""),
