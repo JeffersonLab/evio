@@ -380,6 +380,19 @@ namespace evio {
                 bankLongs->updateULongData();
                 builder.addChild(bankBanks, bankLongs);
 
+
+                // bank of banks
+                auto bankBanks2 = EvioBank::getInstance(tag + 100, DataType::BANK, num + 100);
+                builder.addChild(bankBanks, bankBanks2);
+
+                // bank of shorts
+                auto bankShorts2 = EvioBank::getInstance(tag + 104, DataType::USHORT16, num + 104);
+                auto &sData2 = bankShorts2->getUShortData();
+                sData2.insert(sData2.begin(), shortVec.begin(), shortVec.end());
+                bankShorts2->updateUShortData();
+                builder.addChild(bankBanks2, bankShorts2);
+
+
                 // bank of floats
                 auto bankFloats = EvioBank::getInstance(tag + 5, DataType::FLOAT32, num + 5);
                 auto &fData = bankFloats->getFloatData();
@@ -511,6 +524,11 @@ namespace evio {
                 tsegStrings->updateStringData();
                 builder.addChild(bankTsegs, tsegStrings);
 
+                // Remove middle bank
+                if (true) {
+                    std::cout << "    createObjectEvents:removing banks of segs" << std::endl;
+                    builder.remove(bankSegs);
+                }
 
                 std::cout << "Event:\n" << event->treeToString("") << std::endl;
                 std::cout << "Event Header:\n" << event->getHeader()->toString() << std::endl;
