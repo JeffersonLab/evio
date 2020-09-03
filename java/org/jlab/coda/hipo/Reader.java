@@ -228,8 +228,7 @@ public class Reader {
      * @throws HipoException if file is not in the proper format or earlier than version 6
      */
     public Reader(String filename) throws IOException, HipoException {
-        open(filename);
-        scanFile(false);
+        open(filename, true);
     }
 
     /**
@@ -241,12 +240,8 @@ public class Reader {
      * @throws HipoException if file is not in the proper format or earlier than version 6
      */
     public Reader(String filename, boolean forceScan) throws IOException, HipoException {
-        open(filename);
-        if (forceScan){
-            forceScanFile();
-        } else {
-            scanFile(forceScan);
-        }
+        open(filename, false);
+        scanFile(forceScan);
     }
 
     /**
@@ -300,6 +295,19 @@ public class Reader {
      * @throws HipoException if file is not in the proper format or earlier than version 6
      */
     public final void open(String filename) throws IOException, HipoException {
+        open(filename, true);
+    }
+
+    /**
+     * Opens an input stream in binary mode. Scans for
+     * records in the file and stores record information
+     * in internal array. Each record can be read from the file.
+     * @param filename input file name
+     * @param scan if true, call scanFile(false).
+     * @throws IOException if file not found or error opening file
+     * @throws HipoException if file is not in the proper format or earlier than version 6
+     */
+    public final void open(String filename, boolean scan) throws IOException, HipoException {
         if (inStreamRandom != null && inStreamRandom.getChannel().isOpen()) {
             try {
                 //System.out.println("[READER] ---> closing current file : " + inStreamRandom.getFilePointer());
@@ -319,7 +327,9 @@ public class Reader {
         //System.out.println("[READER] ----> opening file : " + filename);
         inStreamRandom = new RandomAccessFile(filename,"r");
         fileSize = inStreamRandom.length();
-        scanFile(false);
+        if (scan) {
+            scanFile(false);
+        }
 
         //System.out.println("[READER] ---> open successful, size : " + inStreamRandom.length());
     }
