@@ -462,26 +462,6 @@ namespace evio {
 
     /**
      * Adds an event's ByteBuffer into the record.
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     *
-     *
-     * @param event     event's byte array.
-     * @param eventLen  number of bytes from byte array to add.
-     * @return true if event was added; false if the event was not added because the
-     *         count limit would be exceeded or the buffer is full and cannot be
-     *         expanded since it's user-provided.
-     */
-    bool RecordOutput::addEvent(const uint8_t* event, uint32_t eventLen) {
-        return addEvent(event, eventLen, 0);
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
      * Can specify the length of additional data to follow the event
      * (such as an evio trailer record) to see if by adding this event
      * everything will fit in the available memory.<p>
@@ -581,24 +561,6 @@ namespace evio {
 
     /**
      * Adds an event's ByteBuffer into the record.
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     *
-     * @param event  event's ByteBuffer object.
-     * @return true if event was added; false if the buffer is full,
-     *         the event count limit is exceeded, or this single event cannot fit into
-     *         the user-provided buffer.
-     */
-    bool RecordOutput::addEvent(const ByteBuffer & event) {
-        return addEvent(event, 0);
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
      * Can specify the length of additional data to follow the event
      * (such as an evio trailer record) to see if by adding this event
      * everything will fit in the available memory.<p>
@@ -653,24 +615,6 @@ namespace evio {
 
     /**
      * Adds an event's ByteBuffer into the record.
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     *
-     * @param event  event's ByteBuffer object.
-     * @return true if event was added; false if the buffer is full,
-     *         the event count limit is exceeded, or this single event cannot fit into
-     *         the user-provided buffer.
-     */
-    bool RecordOutput::addEvent(const std::shared_ptr<ByteBuffer> & event) {
-        return addEvent(event, 0);
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
      * Can specify the length of additional data to follow the event
      * (such as an evio trailer record) to see if by adding this event
      * everything will fit in the available memory.<p>
@@ -688,27 +632,6 @@ namespace evio {
      */
     bool RecordOutput::addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen) {
         return addEvent(*(event.get()), extraDataLen);
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     * This method is not thread-safe with respect to the node as it's backing
-     * ByteBuffer's limit and position may be concurrently changed.
-     *
-     * @param node         event's EvioNode object
-     * @return true if event was added; false if the event was not added because the
-     *         count limit would be exceeded or the buffer is full and cannot be
-     *         expanded since it's user-provided.
-     * @throws EvioException if node does not correspond to a bank.
-     */
-    bool RecordOutput::addEvent(EvioNode & node) {
-        return addEvent(node, 0);
     }
 
 
@@ -777,27 +700,6 @@ namespace evio {
 
     /**
      * Adds an event's ByteBuffer into the record.
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     * This method is not thread-safe with respect to the node as it's backing
-     * ByteBuffer's limit and position may be concurrently changed.
-     *
-     * @param node         event's EvioNode object
-     * @return true if event was added; false if the event was not added because the
-     *         count limit would be exceeded or the buffer is full and cannot be
-     *         expanded since it's user-provided.
-     * @throws EvioException if node does not correspond to a bank.
-     */
-    bool RecordOutput::addEvent(std::shared_ptr<EvioNode> & node) {
-        return addEvent(node, 0);
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
      * Can specify the length of additional data to follow the event
      * (such as an evio trailer record) to see if by adding this event
      * everything will fit in the available memory.<p>
@@ -818,24 +720,6 @@ namespace evio {
      */
     bool RecordOutput::addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen) {
         return addEvent(*(node.get()), extraDataLen);
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     *
-     * @param event event's EvioBank object.
-     * @return true if event was added; false if the event was not added because the
-     *         count limit would be exceeded or the buffer is full and cannot be
-     *         expanded since it's user-provided.
-     */
-    bool RecordOutput::addEvent(EvioBank & event) {
-        return addEvent(event, 0);
     }
 
 
@@ -885,24 +769,6 @@ namespace evio {
         eventCount++;
 
         return true;
-    }
-
-
-    /**
-     * Adds an event's ByteBuffer into the record.
-     * If a single event is too large for the internal buffers,
-     * more memory is allocated.
-     * On the other hand, if the buffer was provided by the user,
-     * then obviously the buffer cannot be expanded and false is returned.<p>
-     * <b>The byte order of event must match the byte order given in constructor!</b>
-     *
-     * @param event event's EvioBank object.
-     * @return true if event was added; false if the event was not added because the
-     *         count limit would be exceeded or the buffer is full and cannot be
-     *         expanded since it's user-provided.
-     */
-    bool RecordOutput::addEvent(std::shared_ptr<EvioBank> & event) {
-        return addEvent(event, 0);
     }
 
 
@@ -985,8 +851,8 @@ namespace evio {
                 header->writeHeader(recordBinary, 0);
             }
             catch (EvioException & e) {/* never happen */}
-//            std::cout << "build: buf lim = " << recordBinary->limit() <<
-//                    ", cap = " << recordBinary->capacity() << std::endl;
+//std::cout << "build: buf lim = " << recordBinary->limit() <<
+//             ", cap = " << recordBinary->capacity() << std::endl;
             return;
         }
 
@@ -994,13 +860,12 @@ namespace evio {
 
         // Position in recordBinary buffer of just past the record header
         size_t recBinPastHdr = startingPosition + RecordHeader::HEADER_SIZE_BYTES;
+//std::cout << "build: pos past header = " << recBinPastHdr << std::endl;
 
         // Position in recordBinary buffer's backing array of just past the record header.
         // Usually the same as the corresponding buffer position. But need to
         // account for the user providing a buffer which is mapped on to a bigger backing array.
         // This may happen if the user provides a slice() of another buffer.
-        // Right now, slice() is not implemented in C++ so buf.arrayOffset() = 0 and
-        // recBinPastHdr = recBinPastHdrAbsolute.
         size_t recBinPastHdrAbsolute = recBinPastHdr + recordBinary->arrayOffset();
 
         // Write index & event arrays
@@ -1013,21 +878,22 @@ namespace evio {
             recordData->put( recordIndex->array(), indexSize);
             recordData->put(recordEvents->array(), eventSize);
         }
-            // If NOT compressing data ...
+        // If NOT compressing data ...
         else {
 //std::cout << "build: recordBinary len = " << userBufferSize <<
-//        ", start pos = " << startingPosition << ", data to write = " <<
+//             ", start pos = " << startingPosition << ", data to write = " <<
 //        (RecordHeader::HEADER_SIZE_BYTES + indexSize + eventSize) << std::endl;
 
             recordBinary->clear();
 
             // Write directly into final buffer, past where header will go
             recordBinary->position(recBinPastHdr);
+            // Write index
             recordBinary->put(recordIndex->array(), indexSize);
 
 //std::cout << "build: recordBinary pos = " << recordBinary->position() <<
-//        ", eventSize = " << eventSize << ", recordEvents->array().len = " <<
-//        recordEvents.capacity() << std::endl;
+//             ", eventSize = " << eventSize << ", recordEvents buffer capacity = " <<
+//             recordEvents->capacity() << std::endl;
 
             recordBinary->put(recordEvents->array(), eventSize);
         }
@@ -1038,7 +904,7 @@ namespace evio {
         uint32_t compressedSize = 0;
         uint8_t* gzippedData;
 //std::cout << "build: writing index of size " << indexSize << ", events of size " <<
-//         eventSize << ", total = " << uncompressedDataSize << std::endl;
+//             eventSize << ", total = " << uncompressedDataSize << std::endl;
 
         // Compress that temporary buffer into destination buffer
         // (skipping over where record header will be written).
@@ -1066,20 +932,20 @@ namespace evio {
                             (recordBinary->capacity() - recBinPastHdrAbsolute));
 
 //std::cout << "Compressing data array from offset = 0, size = " << uncompressedDataSize <<
-//         " to output.array offset = " << recBinPastHdrAbsolute << ", compressed size = " <<  compressedSize <<
-//         ", available size = " << (recordBinary->capacity() - recBinPastHdrAbsolute) << std::endl;
+//             " to output.array offset = " << recBinPastHdrAbsolute << ", compressed size = " <<  compressedSize <<
+//             ", available size = " << (recordBinary->capacity() - recBinPastHdrAbsolute) << std::endl;
 //
 //std::cout << "BEFORE setting header len: comp size = " << header->getCompressedDataLength() <<
-//        ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
-//        header->getCompressedDataLengthPadding() << std::endl;
+//             ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
+//             header->getCompressedDataLengthPadding() << std::endl;
 
                     header->setCompressedDataLength(compressedSize);
                     header->setLength(4*header->getCompressedDataLengthWords() +
                                       RecordHeader::HEADER_SIZE_BYTES);
 
 //std::cout << "AFTER setting, read back from header: comp size = " << header->getCompressedDataLength() <<
-//        ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
-//        header->getCompressedDataLengthPadding() << ", rec len = " << header->getLength() << std::endl;
+//             ", comp words = " << header->getCompressedDataLengthWords() << ", padding = " <<
+//             header->getCompressedDataLengthPadding() << ", rec len = " << header->getLength() << std::endl;
 
                     break;
 
@@ -1115,7 +981,7 @@ namespace evio {
         header->setDataLength(eventSize);
         header->setIndexLength(indexSize);
 
-//        std::cout << " COMPRESSED = " << compressedSize << "  events size (data  len) = " << eventSize << "  type = " <<
+//std::cout << " COMPRESSED = " << compressedSize << "  events size (data  len) = " << eventSize << "  type = " <<
 //             compressionType << "  uncompressed = " << uncompressedDataSize <<
 //             " record bytes = " << header->getLength() << std::endl << std::endl;
 

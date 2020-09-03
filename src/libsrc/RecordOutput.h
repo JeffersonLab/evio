@@ -227,30 +227,19 @@ namespace evio {
         bool roomForEvent(uint32_t length) const;
         bool oneTooMany() const;
 
-//    bool addEvent(uint8_t event[]);
-        bool addEvent(const uint8_t* event, uint32_t eventLen);
-        bool addEvent(const uint8_t* event, uint32_t eventLen, uint32_t extraDataLen);
+        bool addEvent(const uint8_t * event, uint32_t eventLen, uint32_t extraDataLen = 0);
 
         bool addEvent(const std::vector<uint8_t> & event);
-        bool addEvent(const std::vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen);
+        bool addEvent(const std::vector<uint8_t> & event, size_t offset, uint32_t eventLen, uint32_t extraDataLen = 0);
 
-        bool addEvent(const ByteBuffer & event);
-        bool addEvent(const ByteBuffer & event, uint32_t extraDataLen);
+        bool addEvent(const ByteBuffer & event, uint32_t extraDataLen = 0);
+        bool addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen = 0);
 
-        bool addEvent(const std::shared_ptr<ByteBuffer> & event);
-        bool addEvent(const std::shared_ptr<ByteBuffer> & event, uint32_t extraDataLen);
+        bool addEvent(EvioNode & node, uint32_t extraDataLen = 0);
+        bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen = 0);
 
-        bool addEvent(EvioNode & node);
-        bool addEvent(EvioNode & node, uint32_t extraDataLen);
-
-        bool addEvent(std::shared_ptr<EvioNode> & node);
-        bool addEvent(std::shared_ptr<EvioNode> & node, uint32_t extraDataLen);
-
-        bool addEvent(EvioBank & event);
         bool addEvent(EvioBank & event, uint32_t extraDataLen);
-
-        bool addEvent(std::shared_ptr<EvioBank> & event);
-        bool addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen);
+        bool addEvent(std::shared_ptr<EvioBank> & event, uint32_t extraDataLen = 0);
 
         void reset();
 
