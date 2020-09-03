@@ -96,7 +96,8 @@ namespace evio {
         //    userHeaderBuffer->limit(0);
 
         recordLengths = std::make_shared<std::vector<uint32_t>>();
-        outputRecord = RecordOutput(order, maxEventCount, maxBufferSize, compType, hType);
+        unusedRecord = std::make_shared<RecordOutput>();
+        outputRecord = std::make_shared<RecordOutput>(order, maxEventCount, maxBufferSize, compType, hType);
         headerArray.resize(RecordHeader::HEADER_SIZE_BYTES);
 
         if (hType == HeaderType::HIPO_FILE) {
@@ -159,7 +160,8 @@ namespace evio {
 
         recordLengths = std::make_shared<std::vector<uint32_t>>();
         headerArray.resize(RecordHeader::HEADER_SIZE_BYTES);
-        outputRecord = RecordOutput(byteOrder, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
+        unusedRecord = std::make_shared<RecordOutput>();
+        outputRecord = std::make_shared<RecordOutput>(byteOrder, maxEventCount, maxBufferSize, Compressor::UNCOMPRESSED);
 
         haveDictionary = !dictionary.empty();
         haveFirstEvent = (firstEvent != nullptr && firstEventLen > 0);
@@ -275,9 +277,9 @@ namespace evio {
 
             byteOrder = other.byteOrder;
 
-            outputRecord = other.outputRecord;
-            unusedRecord = other.unusedRecord;
-            beingWrittenRecord = other.beingWrittenRecord;
+            outputRecord = std::make_shared<RecordOutput>(*(other.outputRecord.get()));
+            unusedRecord = std::make_shared<RecordOutput>(*(other.unusedRecord.get()));
+            beingWrittenRecord = std::make_shared<RecordOutput>(*(other.beingWrittenRecord.get()));
 
             headerArray   = other.headerArray;
             // Copy over the vector
@@ -348,7 +350,7 @@ namespace evio {
     // * Get the internal record's header.
     // * @return internal record's header.
     // */
-    //RecordHeader & Writer::getRecordHeader() {return outputRecord.getHeader();}
+    //RecordHeader & Writer::getRecordHeader() {return outputRecord->getHeader();}
     //
     ///**
     // * Get the internal record used to add events to file.
@@ -374,7 +376,7 @@ namespace evio {
     void Writer::setCompressionType(Compressor::CompressionType compression) {
         if (toFile) {
             compressionType = compression;
-            outputRecord.getHeader()->setCompressionType(compression);
+            outputRecord->getHeader()->setCompressionType(compression);
         }
     }
 
@@ -470,7 +472,7 @@ namespace evio {
         // User header given as arg has precedent
         if (userHdr != nullptr) {
             haveUserHeader = true;
- //std::cout << "writer::open: given a valid user header to write" << std::endl;
+//std::cout << "writer::open: given a valid user header to write" << std::endl;
             fileHeaderBuffer = createHeader(userHdr, userLen);
         }
         else {
@@ -486,14 +488,22 @@ namespace evio {
                 fileHeaderBuffer = createHeader(*(dictionaryFirstEventBuffer.get()));
             }
         }
+//std::cout << "writer::open: fileHeaderBuffer -> \n" << fileHeaderBuffer->toString() << std::endl;
 
         // Write this to file
         fileName = filename;
         // TODO: what flags??? instead of "rw"
         outFile.open(filename, std::ios::binary);
-        outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer->array()), fileHeaderBuffer->remaining());
         if (outFile.fail()) {
             throw EvioException("error opening file " + filename);
+        }
+
+        outFile.write(reinterpret_cast<const char*>(fileHeaderBuffer->array() +
+                                                       fileHeaderBuffer->arrayOffset() +
+                                                       fileHeaderBuffer->position()),
+                         fileHeaderBuffer->remaining());
+        if (outFile.fail()) {
+            throw EvioException("error writing to file " + filename);
         }
 
         writerBytesWritten = (size_t) fileHeader.getLength();
@@ -621,7 +631,8 @@ namespace evio {
 
         // Add dictionary to record
         if (!dict.empty()) {
-            record.addEvent(reinterpret_cast<const uint8_t*>(&dict[0]), 0, dict.length());
+//std::cout << "createRecord: add dictionary to record, bytes " << dict.length() << std::endl;
+            record.addEvent(reinterpret_cast<const uint8_t*>(&dict[0]), dict.length(), 0);
             // Also need to set bits in headers
             if (fileHdr   != nullptr)   fileHdr->hasDictionary(true);
             if (recordHdr != nullptr) recordHdr->hasDictionary(true);
@@ -630,7 +641,7 @@ namespace evio {
         // Add first event to record
         if (firstEv != nullptr) {
 //std::cout << "createRecord: add first event to record" << std::endl;
-            record.addEvent(firstEv, 0, firstEvLen);
+            record.addEvent(firstEv, firstEvLen, 0);
             if (fileHdr   != nullptr)   fileHdr->hasFirstEvent(true);
             if (recordHdr != nullptr) recordHdr->hasFirstEvent(true);
         }
@@ -768,7 +779,7 @@ namespace evio {
         if (!toFile) {
             throw EvioException("call only if writing to file");
         }
-        //std::cout << "createHeader: IN, fe bit = " << fileHeader.hasFirstEvent() << std::endl;
+// std::cout << "create(file)Header: IN, fe bit = " << fileHeader.hasFirstEvent() << std::endl;
 
         int userHeaderBytes = userHdr.remaining();
         fileHeader.reset();
@@ -780,13 +791,13 @@ namespace evio {
         }
         fileHeader.setUserHeaderLength(userHeaderBytes);
 
-        //std::cout << "createHeader: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << std::endl;
+// std::cout << "create(file)Header: after set user header len, fe bit = " << fileHeader.hasFirstEvent() << std::endl;
         uint32_t totalLen = fileHeader.getLength();
         std::shared_ptr<ByteBuffer> buf = std::make_shared<ByteBuffer>(totalLen);
         buf->order(byteOrder);
 
         try {
-            //std::cout << "createHeader: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << std::endl;
+// std::cout << "create(file)Header: will write file header into buffer: hasFE = " << fileHeader.hasFirstEvent() << std::endl;
             fileHeader.writeHeader(buf, 0);
         }
         catch (EvioException & e) {/* never happen */}
@@ -872,6 +883,7 @@ namespace evio {
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
+//std::cout << "    writeTrailer: write record header inito vector without index" << std::endl;
             RecordHeader::writeTrailer(headerArray, 0, recordNum, byteOrder, nullptr);
 
             // TODO: not really necessary to keep track here?
@@ -879,6 +891,7 @@ namespace evio {
 
             if (toFile) {
                 outFile.write(reinterpret_cast<const char*>(&headerArray[0]), RecordHeader::HEADER_SIZE_BYTES);
+                //outFile.write(reinterpret_cast<const char*>(headerArray.data()), RecordHeader::HEADER_SIZE_BYTES);
                 if (outFile.fail()) {
                     throw EvioException("error writing file " + fileName);
                 }
@@ -896,7 +909,6 @@ namespace evio {
 
         // Make sure our array can hold everything
         if (headerArray.capacity() < dataBytes) {
-            //cout << "Allocating byte array of " << dataBytes << " bytes in size" << endl;
             headerArray.resize(dataBytes);
         }
 
@@ -906,7 +918,9 @@ namespace evio {
         // TODO: not really necessary to keep track here?
         writerBytesWritten += dataBytes;
         if (toFile) {
+//std::cout << "    writeTrailer: write into file, " << dataBytes << " bytes" << std::endl;
             outFile.write(reinterpret_cast<const char*>(&headerArray[0]), dataBytes);
+            //outFile.write(reinterpret_cast<const char*>(headerArray.data()), dataBytes);
             if (outFile.fail()) {
                 throw EvioException("error opening file " + fileName);
             }
@@ -932,7 +946,7 @@ namespace evio {
 
         // If we have already written stuff into our current internal record,
         // write that first.
-        if (outputRecord.getEventCount() > 0) {
+        if (outputRecord->getEventCount() > 0) {
             writeOutput();
         }
 
@@ -970,7 +984,7 @@ namespace evio {
 
             // Next record to work with
             outputRecord = unusedRecord;
-            outputRecord.reset();
+            outputRecord->reset();
         }
         else {
             buffer->put(rec.getBinaryBuffer()->array(), bytesToWrite);
@@ -993,11 +1007,11 @@ namespace evio {
      * @param length number of bytes to write from buffer.
      * @throws EvioException if cannot write to file.
      */
-    void Writer::addEvent(uint8_t* buf, uint32_t offset, uint32_t length) {
-        bool status = outputRecord.addEvent(buf, offset, length);
+    void Writer::addEvent(uint8_t* buf, uint32_t length) {
+        bool status = outputRecord->addEvent(buf, length, 0);
         if (!status){
             writeOutput();
-            outputRecord.addEvent(buf, offset, length);
+            outputRecord->addEvent(buf, length, 0);
         }
     }
 
@@ -1036,10 +1050,10 @@ namespace evio {
             throw EvioException("buf arg byte order is wrong");
         }
 
-        bool status = outputRecord.addEvent(buf);
+        bool status = outputRecord->addEvent(buf);
         if (!status) {
             writeOutput();
-            outputRecord.addEvent(buf);
+            outputRecord->addEvent(buf);
         }
     }
 
@@ -1055,10 +1069,10 @@ namespace evio {
      * @throws IOException if cannot write to file.
      */
     void Writer::addEvent(std::shared_ptr<EvioBank> & bank) {
-        bool status = outputRecord.addEvent(bank);
+        bool status = outputRecord->addEvent(bank);
         if (!status) {
             writeOutput();
-            outputRecord.addEvent(bank);
+            outputRecord->addEvent(bank);
         }
     }
 
@@ -1095,10 +1109,10 @@ namespace evio {
      * @throws IOException if cannot write to file.
      */
     void Writer::addEvent(EvioNode & node) {
-        bool status = outputRecord.addEvent(node);
+        bool status = outputRecord->addEvent(node);
         if (!status){
             writeOutput();
-            outputRecord.addEvent(node);
+            outputRecord->addEvent(node);
         }
     }
 
@@ -1114,13 +1128,11 @@ namespace evio {
             return;
         }
 
-        //std::cout << "writeOutput: IN" << std::endl;
-
         // Wait for previous (if any) write to finish
         if (future.valid()) {
-            //std::cout << "writeOutput: Before future.get()" << std::endl;
+//std::cout << "  ***  writeOutput: Before future.get()" << std::endl;
             future.get();
-            //std::cout << "writeOutput: DOne with future" << std::endl;
+//std::cout << "  ***  writeOutput: DONE with future" << std::endl;
             // Now that we're done writing record, make it available to be filled again
             unusedRecord = beingWrittenRecord;
 
@@ -1128,20 +1140,20 @@ namespace evio {
                 throw EvioException("problem writing to file");
             }
         }
-        //    else {
-        //        std::cout << "writeOutput: No future to wait for" << std::endl;
-        //    }
+//        else {
+//            std::cout << "  ***  writeOutput: No future to wait for" << std::endl;
+//        }
 
         // TODO: This header is reference !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        auto & header = outputRecord.getHeader();
+        auto & header = outputRecord->getHeader();
 
         header->setRecordNumber(recordNumber++);
         header->setCompressionType(compressionType);
-        outputRecord.build();
+        outputRecord->build();
 
         uint32_t bytesToWrite = header->getLength();
         uint32_t eventCount   = header->getEntries();
-        //std::cout << "writeOutput: header len = " << to_string(bytesToWrite) << std::endl;
+//std::cout << "  ***  writeOutput: header len = " << std::to_string(bytesToWrite) << std::endl;
 
         // Trailer's index has length followed by count
         recordLengths->push_back(bytesToWrite);
@@ -1152,26 +1164,26 @@ namespace evio {
         // and compressing one record while another is simultaneously being written.
         // Unfortunately, unlike java which can do concurrent, thread-safe writes to a single file,
         // C++ cannot do so. This limits us to one writing thread.
-        //std::cout << "writeOutput: Launch future to write bytes = " << to_string(bytesToWrite) << std::endl;
+//std::cout << "  ***  writeOutput: Launch future to write bytes = " << std::to_string(bytesToWrite) << std::endl;
         future = std::future<void>(
                 std::async(std::launch::async,  // run in a separate thread
                            staticWriteFunction, // function to run
                            this,                // arguments to function ...
-                           reinterpret_cast<const char *>(outputRecord.getBinaryBuffer()->array()),
+                           reinterpret_cast<const char *>(outputRecord->getBinaryBuffer()->array()),
                            bytesToWrite));
 
-        // Keep track of which record is being written
+        // Keep track of which record is being written.
         beingWrittenRecord = outputRecord;
 
         // Next record to work with
         outputRecord = unusedRecord;
-        outputRecord.reset();
+        outputRecord->reset();
     }
 
 
     /** Write internal record with incremented record # to buffer. */
     void Writer::writeOutputToBuffer() {
-        auto & header = outputRecord.getHeader();
+        auto & header = outputRecord->getHeader();
         header->setRecordNumber(recordNumber++);
         header->setCompressionType(compressionType);
 
@@ -1180,11 +1192,11 @@ namespace evio {
         // first record header instead.
         if (!firstRecordWritten) {
             // This will take care of any unpadded user header data
-            outputRecord.build(*(userHeaderBuffer.get()));
+            outputRecord->build(*(userHeaderBuffer.get()));
             firstRecordWritten = true;
         }
         else {
-            outputRecord.build();
+            outputRecord->build();
         }
 
         int bytesToWrite = header->getLength();
@@ -1195,9 +1207,9 @@ namespace evio {
         writerBytesWritten += bytesToWrite;
 
         std::memcpy((void *)(buffer->array() + buffer->arrayOffset() + buffer->position()),
-                    (const void *)(outputRecord.getBinaryBuffer()->array()), bytesToWrite);
+                    (const void *)(outputRecord->getBinaryBuffer()->array()), bytesToWrite);
 
-        outputRecord.reset();
+        outputRecord->reset();
     }
 
     //---------------------------------------------------------------------
@@ -1205,7 +1217,7 @@ namespace evio {
     /** Get this object ready for re-use.
      * Follow calling this with call to {@link #open(std::string &)}. */
     void Writer::reset() {
-        outputRecord.reset();
+        outputRecord->reset();
         fileHeader.reset();
         writerBytesWritten = 0L;
         recordNumber = 1;
@@ -1224,30 +1236,34 @@ namespace evio {
      * @throws IOException if error writing to file
      */
     void Writer::close() {
-        //cout << "close: IN" << endl;
         if (closed) return;
 
-        if (outputRecord.getEventCount() > 0) {
-            // This will wait for previous asynchronous write to finish
-            //std::cout << "close: call writeOutput(), output record's ev count = " << outputRecord.getEventCount() << std::endl;
+        if (outputRecord->getEventCount() > 0) {
+            // This will wait for previous asynchronous write to finish, but it also launches an async call
             writeOutput();
         }
-        else if (toFile) {
+
+        if (toFile) {
             // Wait for previous (if any) asynchronous write to finish
             if (future.valid()) {
+//std::cout << "close: Found one, who do a future.get() ...." << std::endl;
                 future.get();
+//std::cout << "close: BACK from the call to future.get() ...." << std::endl;
             }
         }
+//std::cout << "close: addingTrailer = " << addingTrailer << ", addTrailerINdex = " << addTrailerIndex << std::endl;
 
         uint32_t recordCount = recordNumber - 1;
 
         if (addingTrailer) {
+//std::cout << "close: call writeOutput(), adding trailer" << std::endl;
             recordCount++;
 
             // Keep track of where we are right now which is just before trailer
             uint64_t trailerPosition = writerBytesWritten;
 
             // Write the trailer
+//std::cout << "close: call writeOutput(), write trailer" << std::endl;
             writeTrailer(addTrailerIndex, recordCount);
 
             if (toFile) {
@@ -1255,7 +1271,10 @@ namespace evio {
                 if (byteOrder != ByteOrder::ENDIAN_LOCAL) {
                     trailerPosition = SWAP_64(trailerPosition);
                 }
+
+//std::cout << "close: call writeOutput(), seek file position = " << FileHeader::TRAILER_POSITION_OFFSET << std::endl;
                 outFile.seekp(FileHeader::TRAILER_POSITION_OFFSET);
+//std::cout << "close: call writeOutput(), write file (trailer pos), " <<  sizeof(uint64_t) << " bytes" << std::endl;
                 outFile.write(reinterpret_cast<const char *>(&trailerPosition), sizeof(uint64_t));
 
                 // Find & update file header's bit-info word
@@ -1265,6 +1284,7 @@ namespace evio {
                         bitInfo = SWAP_32(bitInfo);
                     }
                     outFile.seekp(RecordHeader::BIT_INFO_OFFSET);
+//std::cout << "close: call writeOutput(), write file (bitinfo), bytes = " <<  sizeof(uint32_t) << " bytes" << std::endl;
                     outFile.write(reinterpret_cast<const char *>(&bitInfo), sizeof(uint32_t));
                 }
             }
@@ -1285,7 +1305,7 @@ namespace evio {
 
         closed = true;
         opened = false;
-        //std::cout << "[writer] ---> bytes written " << writerBytesWritten << std::endl;
+//std::cout << "close: bytes written " << writerBytesWritten << std::endl;
     }
 
 }

@@ -62,7 +62,7 @@ namespace evio {
         /** Used to write file asynchronously. Allow 1 write with 1 simultaneous record filling. */
         std::future<void> future;
         /** Temp storage for next record to be written to. */
-        RecordOutput unusedRecord;
+        std::shared_ptr<RecordOutput> unusedRecord = nullptr;
 
         // If writing to buffer ...
 
@@ -91,9 +91,9 @@ namespace evio {
         /** Byte order of data to write to file/buffer. */
         ByteOrder byteOrder {ByteOrder::ENDIAN_LOCAL};
         /** Record currently being filled. */
-        RecordOutput outputRecord;
+        std::shared_ptr<RecordOutput> outputRecord = nullptr;
         /** Record currently being written to file. */
-        RecordOutput beingWrittenRecord;
+        std::shared_ptr<RecordOutput> beingWrittenRecord = nullptr;
         /** Byte array large enough to hold a header/trailer. This array may increase. */
         std::vector<uint8_t> headerArray;
 
@@ -208,7 +208,7 @@ namespace evio {
 
         // Use internal RecordOutput to write individual events
 
-        void addEvent(uint8_t* buffer, uint32_t offset, uint32_t length);
+        void addEvent(uint8_t* buffer, uint32_t length);
         void addEvent(std::shared_ptr<ByteBuffer> & buffer);
         void addEvent(ByteBuffer & buffer);
         void addEvent(std::shared_ptr<EvioBank> & bank);
