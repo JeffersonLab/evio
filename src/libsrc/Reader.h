@@ -205,9 +205,9 @@ namespace evio {
 
 
         /** Buffer being read. */
-        std::shared_ptr<ByteBuffer> buffer;
+        std::shared_ptr<ByteBuffer> buffer = nullptr;
         /** Buffer used to temporarily hold data while decompressing. */
-        std::shared_ptr<ByteBuffer> tempBuffer;
+        std::shared_ptr<ByteBuffer> tempBuffer = nullptr;
         //TODO: make this 64 bit ???
         /** Initial position of buffer. */
         uint32_t bufferOffset = 0;
@@ -259,10 +259,6 @@ namespace evio {
         uint32_t evioVersion = 6;
 
 
-        /** Place to store data read in from record header. */
-        uint32_t headerInfo[headerInfoLen] {};
-
-
     private:
 
         void setByteOrder(ByteOrder & order);
@@ -280,7 +276,7 @@ namespace evio {
 
         ~Reader() = default;
 
-        void open(std::string const & filename);
+        void open(std::string const & filename, bool scan = true);
         void close();
 
         bool isClosed() const;
