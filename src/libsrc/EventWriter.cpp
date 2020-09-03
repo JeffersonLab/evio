@@ -2606,7 +2606,7 @@ std::cout << "toAppendPos:  fileSize = " << fileSize << ", jump to pos = " << fi
             // Fill 2nd buffer next
             unusedBuffer = internalBuffers[1];
         }
-            // After first time, wait until the future is finished before proceeding
+        // After first time, wait until the future is finished before proceeding
         else {
             // If previous write in progress ...
             if (future1->valid()) {

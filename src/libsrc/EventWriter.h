@@ -17,7 +17,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <thread>
 #include <queue>
 #include <chrono>
 #include <memory>
@@ -25,6 +24,8 @@
 #include <exception>
 #include <atomic>
 #include <algorithm>
+#include <future>
+
 #ifndef __APPLE__
     #include <experimental/filesystem>
 #endif
@@ -37,8 +38,6 @@
 #include "RecordOutput.h"
 #include "RecordHeader.h"
 #include "Compressor.h"
-#include "Writer.h"
-#include "WriterMT.h"
 #include "RecordSupply.h"
 #include "RecordCompressor.h"
 #include "Util.h"
