@@ -91,7 +91,7 @@ namespace evio {
         firstEventLength = firstEventLen;
         compressionType = compType;
         this->addTrailerIndex = addTrailerIndex;
-        
+
         recordLengths = std::make_shared<std::vector<uint32_t>>();
         unusedRecord = std::make_shared<RecordOutput>();
         outputRecord = std::make_shared<RecordOutput>(order, maxEventCount, maxBufferSize, compType, hType);
