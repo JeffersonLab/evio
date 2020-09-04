@@ -331,6 +331,12 @@ namespace evio {
                 // Make this call to set proper pos & lim
                 buffer = builder.getBuffer();
 
+
+                Util::printBytes(buffer, 0, 100, "BUFFER BYTES");
+
+                std::cout << "\nBuffer -> \n" << buffer->toString() << "\n";
+
+
                 //
                 // Write file
                 //
@@ -353,6 +359,9 @@ namespace evio {
                 writer.open(writeFileName1);
                 writer.addEvent(buffer);
                 writer.close();
+
+
+                Util::printBytes(writeFileName1, 0, 100, "WRITTEN FILE BYTES");
 
                 std::cout << "\n\nAfter writer closed ... \n";
 
