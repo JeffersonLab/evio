@@ -415,7 +415,7 @@ namespace evio {
             cout << "Finished all loops, count = " << totalC << endl;
 
             //------------------------------
-            // Add entire record at once
+            // Add entire record at once, 2x
             //------------------------------
 
             RecordOutput recOut(order);
@@ -427,6 +427,16 @@ namespace evio {
             cout << "add entire record (containing " << dataBuffer2.remaining() << " bytes of data) " << endl;
             recOut.addEvent(dataBuffer2.array(), 40, 0);
             writer.writeRecord(recOut);
+
+            cout << "add the previous record again, but with one more event added  ... " << endl;
+            recOut.addEvent(dataBuffer2.array(), 40, 0);
+            writer.writeRecord(recOut);
+
+            //------------------------------
+            // Add last event
+            //------------------------------
+            cout << "once more, add event of len = " << dataBuffer.remaining() << endl;
+            writer.addEvent(dataBuffer);
 
             //------------------------------
 
