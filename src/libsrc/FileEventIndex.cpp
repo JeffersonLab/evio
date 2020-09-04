@@ -201,14 +201,14 @@ namespace evio {
         uint32_t index = std::distance(recordIndex.cbegin(), it);
         // The first element in recordIndex is fake, shift by 1 for index into recordPositions of Reader
         index--;
-        //std::cout << "  setEvent: event #" << event << " found at index " << index << std::endl;
+//std::cout << "  setEvent: event #" << event << " found at index " << index << std::endl;
 
         if (currentRecord == index) {
             hasRecordChanged = false;
         }
         currentRecord = index;
-        currentRecordEvent = 0;
         currentEvent = event;
+        currentRecordEvent = currentEvent - recordIndex[currentRecord];
 
         return hasRecordChanged;
     }
