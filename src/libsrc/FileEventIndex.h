@@ -25,7 +25,7 @@ namespace evio {
 
     /**
      * Class used to handle event indexes in the context
-     * of a file and having to change records.
+     * of a file (or buffer) and having to change records.
      * @date 09/25/2019
      * @author gavalian (original java)
      * @author timmer
