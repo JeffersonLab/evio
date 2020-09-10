@@ -24,6 +24,7 @@
 #include "ByteBuffer.h"
 #include "Compressor.h"
 #include "EvioException.h"
+#include "Util.h"
 
 
 namespace evio {
@@ -91,9 +92,6 @@ namespace evio {
 
 
     private:
-
-        /** Array to help find number of bytes to pad data. */
-        static uint32_t padValue[4];
 
     public:
 
@@ -212,9 +210,6 @@ namespace evio {
         void bitInfoInit();
         void decodeBitInfoWord(uint32_t word);
         void setUserHeaderLengthPadding(uint32_t padding);
-
-        static uint32_t getPadding(uint32_t length);
-        static uint32_t getWords(uint32_t length);
 
     public:
 

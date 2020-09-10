@@ -14,10 +14,6 @@
 namespace evio {
 
 
-    /** Set static array to help find number of bytes to pad data. */
-    uint32_t FileHeader::padValue[4] = {0,3,2,1};
-
-
     /** Default, no-arg constructor. */
     FileHeader::FileHeader() {bitInfoInit();}
 
@@ -101,26 +97,6 @@ namespace evio {
         userHeaderLengthPadding = 0;
         headerVersion = 6;
     }
-
-
-    /**
-     * Returns length padded to 4-byte boundary for given length in bytes.
-     * @param length length in bytes.
-     * @return length in bytes padded to 4-byte boundary.
-     */
-    uint32_t FileHeader::getWords(uint32_t length) {
-        uint32_t words = length/4;
-        if (getPadding(length) > 0) words++;
-        return words;
-    }
-
-
-    /**
-     * Returns number of bytes needed to pad to 4-byte boundary for the given length.
-     * @param length length in bytes.
-     * @return number of bytes needed to pad to 4-byte boundary.
-     */
-    uint32_t FileHeader::getPadding(uint32_t length) {return padValue[length%4];}
 
 
     //----------
@@ -554,9 +530,9 @@ namespace evio {
      */
     FileHeader & FileHeader::setUserHeaderLength(uint32_t length) {
         userHeaderLength = length;
-        userHeaderLengthWords = getWords(length);
+        userHeaderLengthWords = Util::getWords(length);
         // Set value and update associated value in bitInfo word
-        setUserHeaderLengthPadding(getPadding(length));
+        setUserHeaderLengthPadding(Util::getPadding(length));
         setLength(headerLength + indexLength + userHeaderLength + userHeaderLengthPadding);
         return *this;
     }

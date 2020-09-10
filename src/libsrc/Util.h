@@ -42,6 +42,34 @@ namespace evio {
 
     public:
 
+        // Some methods to help deal with padding data to 4-byte boundaries
+
+        /** Set static array to help find number of bytes to pad data. */
+        static constexpr uint32_t padValue[4] = {0,3,2,1};
+
+
+        /**
+         * Returns length padded to 4-byte boundary for given length in bytes.
+         * @param length length in bytes.
+         * @return length in bytes padded to 4-byte boundary.
+         */
+        static uint32_t getWords(uint32_t length) {
+            uint32_t words = length/4;
+            if (getPadding(length) > 0) words++;
+            return words;
+        }
+
+
+        /**
+         * Returns number of bytes needed to pad to 4-byte boundary for the given length.
+         * @param length length in bytes.
+         * @return number of bytes needed to pad to 4-byte boundary.
+         */
+        static uint32_t getPadding(uint32_t length) {return padValue[length%4];}
+
+
+        //-----------------------------------------------------------------------
+
 
         /**
          * Case insensitive compare for 2 strings.
