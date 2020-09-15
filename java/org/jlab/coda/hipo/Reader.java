@@ -1393,7 +1393,7 @@ System.out.println("    record size = " + recordHeader.getLength() + " >? bytesL
 
              // Hop over record header, user header, and index to events
              byteLen = recordHeader.getHeaderLength() +
-                       recordHeader.getUserHeaderLength() +
+                     4*recordHeader.getUserHeaderLengthWords() + // takes account of padding
                        recordHeader.getIndexLength();
              position  += byteLen;
              bytesLeft -= byteLen;
