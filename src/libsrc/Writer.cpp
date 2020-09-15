@@ -92,6 +92,7 @@ namespace evio {
         compressionType = compType;
         this->addTrailerIndex = addTrailerIndex;
 
+
         recordLengths = std::make_shared<std::vector<uint32_t>>();
         unusedRecord = std::make_shared<RecordOutput>();
         outputRecord = std::make_shared<RecordOutput>(order, maxEventCount, maxBufferSize, compType, hType);
@@ -131,6 +132,21 @@ namespace evio {
 
 
     /**
+     * Constructor with user header. No compression.
+     *
+     * @param buf        buffer in to which to write events and/or records.
+     * @param userHdr    byte array representing the optional user's header.
+     *                   <b>Warning: this will not be used until first record is written!
+     *                   So don't go changing it in the meantime!</b>
+     * @param len        length of valid data (bytes) in userHdr (starting at off).
+     */
+    Writer::Writer(std::shared_ptr<ByteBuffer> & buf, uint8_t * userHdr, uint32_t len) :
+            Writer(buf, 0, 0, "", nullptr, 0) {
+        open(buf, userHdr, len);
+    }
+
+
+    /**
      * Constructor with byte order.
      * This method places the dictionary and first event into the file header's user header.
      * No compression.
@@ -165,16 +181,13 @@ namespace evio {
 
         if (haveDictionary || haveFirstEvent)  {
             dictionaryFirstEventBuffer = createDictionaryRecord();
+//std::cout << "Writer const: created dict/fe event buffer of size " << dictionaryFirstEventBuffer->remaining() << std::endl;
+//Util::printBytes(dictionaryFirstEventBuffer, 0, dictionaryFirstEventBuffer->remaining(), "FIRST RECORD Bytes");
             // make this the user header by default since open() may not get called for buffers
             // TODO: SHOULD NOT AVOID the shared pointer!!!!! Look at userHeader uses!!!
             userHeader = dictionaryFirstEventBuffer->array();
             userHeaderLength = dictionaryFirstEventBuffer->remaining();
             userHeaderBuffer = dictionaryFirstEventBuffer;
-        }
-        else {
-            //        // Set these as having no data
-            //        userHeaderBuffer->limit(0);
-            dictionaryFirstEventBuffer->limit(0);
         }
 
         toFile = false;
@@ -324,6 +337,7 @@ namespace evio {
 
     /**
      * Get the buffer being written to.
+     * This should only be called after calling close() so data is complete.
      * @return buffer being written to.
      */
     std::shared_ptr<ByteBuffer> Writer::getBuffer() {return buffer;}
@@ -514,13 +528,12 @@ namespace evio {
      * User header is automatically padded when written.
      * @param buf        buffer to writer to.
      * @param userHdr    byte array representing the optional user's header.
-     *                   <b>Warning: this will not be used until first record is written!
-     *                   So don't go changing it in the meantime!</b>
+     *                   <b>Warning: this data will be copied!</b>
      *                   If this is null AND dictionary and/or first event are given,
      *                   the dictionary and/or first event will be placed in its
      *                   own record and written as the user header of the first record's
      *                   header.
-     * @param len        length of valid data (bytes) in userHdr (starting at off).
+     * @param len        length of valid data (bytes) in userHdr.
      * @throws EvioException if constructor specified writing to a file,
      *                       or if open() was already called without being followed by reset().
      */
@@ -541,15 +554,20 @@ namespace evio {
             }
             else {
                 userHeader = nullptr;
-                userHeaderBuffer->clear();
+                userHeaderBuffer = nullptr;
                 userHeaderLength = 0;
             }
         }
         else if (len > 0) {
-            userHeader = userHdr;
-            userHeaderBuffer = std::make_shared<ByteBuffer>(userHdr, len);
+            // We're going to be placing the userHdr into a ByteBuffer. But ...
+            // we should not turn userHdr into a shared pointer since we don't know if it
+            // was created with "new" and it may catch the caller unaware. So ...
+            // we'll allocate memory here and copy it in.
+            userHeaderBuffer = std::make_shared<ByteBuffer>(len);
+            userHeader = userHeaderBuffer->array();
             userHeaderBuffer->order(byteOrder);
             userHeaderLength = len;
+            std::memcpy(userHeader, userHdr, len);
         }
         else if (dictionaryFirstEventBuffer->remaining() > 0) {
             userHeader = dictionaryFirstEventBuffer->array();
@@ -558,7 +576,7 @@ namespace evio {
         }
         else {
             userHeader = nullptr;
-            userHeaderBuffer->clear();
+            userHeaderBuffer = nullptr;
             userHeaderLength = 0;
         }
 
@@ -862,9 +880,10 @@ namespace evio {
      * called, the trailer will be written.
      * @param writeIndex if true, write an index of all record lengths in trailer.
      * @param recordNum record number for trailing record.
+     * @param trailerPos position in buffer to write trailer.
      * @throws EvioException if error writing to file.
      */
-    void Writer::writeTrailer(bool writeIndex, uint32_t recordNum) {
+    void Writer::writeTrailer(bool writeIndex, uint32_t recordNum, uint64_t trailerPos) {
 
         // If we're NOT adding a record index, just write trailer
         if (!writeIndex) {
@@ -882,7 +901,11 @@ namespace evio {
                 }
             }
             else {
+//std::cout << "    writeTrailer: put trailer at buffer pos = " << buffer->position() <<
+//             "?, or at trailerPos = " << trailerPos << std::endl;
+                buffer->position(trailerPos);
                 buffer->put(&headerArray[0], RecordHeader::HEADER_SIZE_BYTES);
+                buffer->position(0);
             }
             return;
         }
@@ -936,6 +959,7 @@ namespace evio {
         // If we have already written stuff into our current internal record,
         // write that first.
         if (outputRecord->getEventCount() > 0) {
+//std::cout << "writeRecord: have already written stuff into internal record, write that first ..." << std::endl;
             writeOutput();
         }
 
@@ -1171,11 +1195,13 @@ namespace evio {
         // in file header since there is none. So write it into
         // first record header instead.
         if (!firstRecordWritten) {
-            // This will take care of any unpadded user header data
+            // This will take care of any unpadded user header dataƒ
+//std::cout << "writeOutputToBUffer: build outputRecord with userHeaderBuffer" << std::endl;
             outputRecord->build(*(userHeaderBuffer.get()));
             firstRecordWritten = true;
         }
         else {
+//std::cout << "writeOutputToBUffer: build outputRecord with NO userHeaderBuffer" << std::endl;
             outputRecord->build();
         }
 
@@ -1186,8 +1212,12 @@ namespace evio {
         recordLengths->push_back(header->getEntries());
         writerBytesWritten += bytesToWrite;
 
+//std::cout << "writeOutputToBUffer: write to buffer pos = " << (buffer->arrayOffset() + buffer->position()) <<
+//             ", " << bytesToWrite << " bytes" << std::endl;
         std::memcpy((void *)(buffer->array() + buffer->arrayOffset() + buffer->position()),
                     (const void *)(outputRecord->getBinaryBuffer()->array()), bytesToWrite);
+
+        buffer->position(buffer->position() + bytesToWrite);
 
         outputRecord->reset();
     }
@@ -1236,15 +1266,14 @@ namespace evio {
         uint32_t recordCount = recordNumber - 1;
 
         if (addingTrailer) {
-//std::cout << "close: call writeOutput(), adding trailer" << std::endl;
             recordCount++;
 
             // Keep track of where we are right now which is just before trailer
             uint64_t trailerPosition = writerBytesWritten;
 
             // Write the trailer
-//std::cout << "close: call writeOutput(), write trailer" << std::endl;
-            writeTrailer(addTrailerIndex, recordCount);
+//std::cout << "close: write trailer" << std::endl;
+            writeTrailer(addTrailerIndex, recordCount, trailerPosition);
 
             if (toFile) {
                 // Find & update file header's trailer position word
@@ -1281,6 +1310,10 @@ namespace evio {
 
             outFile.close();
             recordLengths->clear();
+        }
+        else {
+            // Get it ready for reading
+            buffer->limit(writerBytesWritten).position(0);
         }
 
         closed = true;
