@@ -598,6 +598,7 @@ namespace evio {
         // recordEvents backing array's offset = 0
         size_t pos = recordEvents->position();
 
+//std::cout << "\nRecordOutput::addEvent(buf): write (in recordEvents) to pos = " << pos << std::endl;
         std::memcpy((void *)(recordEvents->array() + pos),
                     reinterpret_cast<void *>(event.array() + event.arrayOffset() + event.position()),
                     eventLen);
@@ -683,6 +684,7 @@ namespace evio {
         node.getStructureBuffer(buf, false);
         size_t pos = recordEvents->position();
 
+//std::cout << "\nRecordOutput::addEvent(node): write (in recordEvents)to pos = " << pos << std::endl;
         std::memcpy((void *)(recordEvents->array() + pos),
                     (const void *)(buf.array() + buf.arrayOffset() + buf.position()),
                     eventLen);
@@ -1030,8 +1032,8 @@ namespace evio {
             return;
         }
 
-//    std::cout << "  INDEX = 0 " << indexSize << "  " << (indexSize + userHeaderSize) <<
-//            "  DIFF " << userHeaderSize << std::endl;
+//std::cout << "  buld: indexSize = " << indexSize << ", index + userHeader =  " << (indexSize + userHeaderSize) <<
+//             ",  userheader = " << userHeaderSize << std::endl;
 
         uint32_t compressionType = header->getCompressionType();
         uint32_t uncompressedDataSize = indexSize;
