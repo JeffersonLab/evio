@@ -44,7 +44,7 @@ namespace evio {
 
         // Some methods to help deal with padding data to 4-byte boundaries
 
-        /** Set static array to help find number of bytes to pad data. */
+        /** Array to help find number of bytes to pad data. */
         static constexpr uint32_t padValue[4] = {0,3,2,1};
 
 
