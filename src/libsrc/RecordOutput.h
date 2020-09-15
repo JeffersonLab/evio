@@ -45,7 +45,7 @@ namespace evio {
      *    +----------------------------------+            +----------------------------------+
      *
      *    +----------------------------------+ ---------> +----------------------------------+
-     *    |           Index Array            |            |        Compressed Data           |
+     *    |      Index Array (bytes)         |            |        Compressed Data           |
      *    +----------------------------------+            |             Record               |
      *                                                    |                                  |
      *    +----------------------------------+            |                                  |
@@ -151,7 +151,7 @@ namespace evio {
          * No data will be written before this position. */
         size_t startingPosition = 0;
 
-        /** This buffer stores event lengths ONLY. */
+        /** This buffer stores event lengths (in bytes) ONLY. */
         std::shared_ptr<ByteBuffer> recordIndex;
 
         /** This buffer stores event data ONLY. */
