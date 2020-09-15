@@ -70,9 +70,7 @@ namespace evio {
         /** Position of the record in buffer containing this node in bytes
          *  @since version 6. */
         size_t recordPos = 0;
-
-    private:
-
+        
         /** Store data in int array form if calculated. */
         std::vector<uint32_t> data;
 
