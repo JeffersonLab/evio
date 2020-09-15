@@ -194,23 +194,23 @@ namespace evio {
                 index = header->getEntries() - 1;
             }
             // Remember, the index array of events lengths (at beginning of dataBuffer)
-            // was overwritten in readRecord() to contain offsets to events.
+            // was overwritten in readRecord() to contain offsets to next event.
             firstPosition = dataBuffer->getInt( (index-1)*4 );
         }
 
         uint32_t lastPosition = dataBuffer->getUInt(index*4);
         uint32_t length = lastPosition - firstPosition;
+        uint32_t offset = eventsOffset + firstPosition;
 
         // TODO: Allocating memory here!!!
         auto event = std::shared_ptr<uint8_t>(new uint8_t[length], std::default_delete<uint8_t[]>());
-        uint32_t offset = eventsOffset + firstPosition;
 
         std::memcpy((void *)event.get(), (const void *)(dataBuffer->array() + offset), length);
         if (len != nullptr) {
             *len = length;
         }
 
-        //std::cout << "getEvent: reading from " << offset << "  length = " << length << std::endl;
+std::cout << "getEvent: reading from " << offset << ",  length = " << length << std::endl;
         return event;
     }
 
@@ -530,7 +530,10 @@ namespace evio {
         uint32_t headerLength      = header->getHeaderLength();
         uint32_t cLength           = header->getCompressedDataLength();
 
+// TODO: BUG BUG, This has a bad value! (for uncompressed data anyway). Offset is bad!!!
         size_t compDataOffset = offset + headerLength;
+        std::cout << "readRecord: copy uncompressed data from pos = " << compDataOffset << " = ?" << std::endl;
+        std::cout << "readRecord: offset to header = " << offset << " + headerLen of " << headerLength << std::endl;
 
         // How many bytes will the expanded record take?
         // Just data:
@@ -582,6 +585,7 @@ namespace evio {
         userHeaderOffset = nEntries*4;
         // Offset from just past header to data (past index + user header)
         eventsOffset = userHeaderOffset + header->getUserHeaderLengthWords()*4;
+std::cout << "readRecord: eventsOffset = " << eventsOffset << std::endl;
 
         // TODO: How do we handle trailers???
         // Overwrite event lengths with event offsets
