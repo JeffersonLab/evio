@@ -154,6 +154,7 @@ namespace evio {
         // Writing to buffer
 
         explicit Writer(std::shared_ptr<ByteBuffer> & buf);
+        Writer(std::shared_ptr<ByteBuffer> & buf, uint8_t * userHdr, uint32_t len);
         Writer(std::shared_ptr<ByteBuffer> & buf, uint32_t maxEventCount, uint32_t maxBufferSize,
                const std::string & dictionary, uint8_t* firstEvent, uint32_t firstEventLength);
 
@@ -220,7 +221,7 @@ namespace evio {
 
     private:
 
-        void writeTrailer(bool writeIndex, uint32_t recordNum);
+        void writeTrailer(bool writeIndex, uint32_t recordNum, uint64_t trailerPos);
 
     };
 
